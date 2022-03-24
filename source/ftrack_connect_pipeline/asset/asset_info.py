@@ -62,9 +62,12 @@ def generate_asset_info_dict_from_args(context_data, data, options, session):
         )
     ).one()
 
-    asset = asset_version_entity['asset']
-    asset_parent = asset['parent']
-    arguments_dict[constants.PARENT_NAME] = asset_parent['name']
+    asset_entity = asset_version_entity['asset']
+    ancestors = asset_entity['ancestors']
+    project_name = asset_entity['parent']['project']['name']
+    context_path = "{}_{}_{}".format(project_name, "_".join(x['name'] for x in ancestors), asset_entity['name'])
+    arguments_dict[constants.CONTEXT_PATH] = context_path
+
 
     arguments_dict[constants.IS_LATEST_VERSION] = asset_version_entity[
         constants.IS_LATEST_VERSION
@@ -320,8 +323,10 @@ class FtrackAssetInfo(dict):
             constants.IS_LATEST_VERSION
         ]
 
-        asset_parent = asset_entity['parent']
-        asset_info_data[constants.PARENT_NAME] = asset_parent['name']
+        ancestors = asset_entity['ancestors']
+        project_name = asset_entity['parent']['project']['name']
+        context_path ="{}_{}_{}".format(project_name, "_".join(x['name'] for x in ancestors), asset_entity['name'])
+        asset_info_data[constants.CONTEXT_PATH] = context_path
 
         location = version_entity.session.pick_location()
 
