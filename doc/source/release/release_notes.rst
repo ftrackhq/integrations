@@ -11,6 +11,11 @@ Release Notes
 .. release:: Upcoming
 
     .. change:: changed
+        :tags: API
+
+        User ftrack_connect.qt module for pyside imports.
+
+    .. change:: changed
         :tags: Event
 
         Emit new usage_events in batches.
