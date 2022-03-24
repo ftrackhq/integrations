@@ -173,7 +173,7 @@ def nodeInitializer():
     FtrackAssetNode.a_asset_info_id = t_attr.create(
         asset_const.ASSET_INFO_ID, 'aiid', OpenMaya.MFnData.kString
     )
-    t_attr.setHidden(True)
+    t_attr.setHidden(False)
     t_attr.setStorable(True)
 
     FtrackAssetNode.a_is_loaded = t_attr.create(
