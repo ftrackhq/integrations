@@ -14,7 +14,7 @@ Release Notes
     .. change:: changed
         :tags: API
 
-        User ftrack_connect.qt module for pyside imports.
+        Use ftrack_connect.qt module for pyside imports.
 
     .. change:: changed
         :tags: Event
