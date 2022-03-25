@@ -53,7 +53,6 @@ Line {
 
 NewAssetInput[status='focused'] {
     border: 1px dashed $color-purple;
-    /*background: rgb(77,77,77);*/
 }
 
 NewAssetInput[status='unfocused'] {
@@ -98,7 +97,7 @@ NavigationEntityButton:hover, EntityWidget:hover, AccordionBaseWidget:hover {
 }
 
 QFrame[docked='true'] NavigationEntityButton:hover, QFrame[docked='true'] EntityWidget:hover, QFrame[docked='true'] AccordionBaseWidget:hover {
-    background: rgb(66,66,66);
+    background: rgb(88,88,88);
 }
 
 EntityWidget {

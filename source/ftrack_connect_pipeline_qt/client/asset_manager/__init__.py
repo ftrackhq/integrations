@@ -40,6 +40,8 @@ class QtAssetManagerClient(AssetManagerClient, QtWidgets.QFrame):
     client_name = qt_constants.ASSET_MANAGER_WIDGET
     definition_filter = 'asset_manager'  # Use only definitions that matches the definition_filter
 
+    _shown = False
+
     def __init__(
         self,
         event_manager,
@@ -499,6 +501,12 @@ class QtAssetManagerClient(AssetManagerClient, QtWidgets.QFrame):
 
     def _open_publisher(self):
         self.host_connection.launch_widget(qt_constants.PUBLISHER_WIDGET)
+
+    def conditional_rebuild(self):
+        if self._shown:
+            # Refresh when re-opened
+            self.asset_manager_widget.rebuild.emit()
+        self._shown = True
 
     def mousePressEvent(self, event):
         if event.button() != QtCore.Qt.RightButton:

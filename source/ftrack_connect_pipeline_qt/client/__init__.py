@@ -44,6 +44,8 @@ class QtClient(Client, QtWidgets.QFrame):
 
     contextChanged = QtCore.Signal(object)  # Client context has changed
 
+    _shown = False
+
     def __init__(self, event_manager, parent_window, parent=None):
         '''Initialise with *event_manager* and
         *parent* widget'''
@@ -208,22 +210,6 @@ class QtClient(Client, QtWidgets.QFrame):
             self.host_and_definition_selector.populate_definitions()
             self._clear_widget()
 
-        # keep reference of the latest selected definition
-        # index = (
-        #     self.host_and_definition_selector.get_current_definition_index()
-        # )
-        #
-        # if len(self.host_and_definition_selector.host_connections) > 0:
-        #     if self.event_manager.mode == constants.LOCAL_EVENT_MODE:
-        #         self.host_and_definition_selector.change_host_index(1)
-        # else:
-        #     self.host_and_definition_selector.change_host_index(0)
-        #
-        # if index != -1:
-        #     self.host_and_definition_selector.set_current_definition_index(
-        #         index
-        #     )
-
     def change_context(self, context_id):
         '''
         Assign the given *context_id* as the current :obj:`context_id` and to the
@@ -314,6 +300,13 @@ class QtClient(Client, QtWidgets.QFrame):
                 False
             )
 
+    def conditional_rebuild(self):
+        if self._shown:
+            # Refresh when re-opened
+            self.host_and_definition_selector.refresh()
+        super(QtClient, self).show()
+        self._shown = True
+
     def showEvent(self, event):
         if self._postponed_change_definition:
             (
@@ -334,20 +327,36 @@ class QtChangeContextClient(Client):
         self.logger = logging.getLogger(
             __name__ + '.' + self.__class__.__name__
         )
+        self._host_connection = None
 
-    def show(self):
-        # Find my host
-        host_connections = self.discover_hosts()
-        if len(host_connections) > 1:
-            # Need to choose host connection
-            host_connections[0].launch_widget(qt_constants.OPEN_WIDGET)
-            return
-        self._host_connection = host_connections[0]
+        self.pre_build()
+        self.post_build()
+
+    def pre_build(self):
         self.entity_browser = EntityBrowser(
             None,
             self.session,
             title='CHOOSE TASK (WORKING CONTEXT)',
         )
+
+    def post_build(self):
+        self._host_connections = self.discover_hosts()
+        if len(self._host_connections) == 1:
+            self._host_connection = self._host_connections[0]
+
+    def show(self):
+        # Find my host
+        if self._host_connection is None:
+            if len(self._host_connections) == 0:
+                dialog.ModalDialog(
+                    None,
+                    title='Change context',
+                    message='No host detected, cannot change context!',
+                )
+                return
+            # Need to choose host connection
+            self._host_connections[0].launch_widget(qt_constants.OPEN_WIDGET)
+            return
         self.entity_browser.setMinimumWidth(600)
         if self.entity_browser.exec_():
             self.set_entity(self.entity_browser.entity)

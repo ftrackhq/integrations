@@ -85,6 +85,17 @@ class QtAssemblerClient(QtClient):
         self._left_widget.layout().setContentsMargins(0, 0, 0, 0)
         self._left_widget.layout().setSpacing(0)
 
+        self._left_widget.layout().addWidget(self.header)
+
+        self.progress_widget = (
+            factory.LoaderWidgetFactory.create_progress_widget(
+                self.client_name
+            )
+        )
+        self.header.content_container.layout().addWidget(
+            self.progress_widget.widget
+        )
+
         # Have definition selector but invisible unless there are multiple hosts
         self.host_and_definition_selector = (
             definition_selector.DefinitionSelectorWidgetComboBox(
@@ -161,17 +172,6 @@ class QtAssemblerClient(QtClient):
 
     def build(self):
         '''(Override) Build assembler widget.'''
-
-        self.layout().addWidget(self.header)
-
-        self.progress_widget = (
-            factory.LoaderWidgetFactory.create_progress_widget(
-                self.client_name
-            )
-        )
-        self.header.content_container.layout().addWidget(
-            self.progress_widget.widget
-        )
 
         # Create a splitter and add to client
         self.splitter = QtWidgets.QSplitter(QtCore.Qt.Horizontal)

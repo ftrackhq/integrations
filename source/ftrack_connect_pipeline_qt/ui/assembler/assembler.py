@@ -696,8 +696,6 @@ class BrowsedComponentWidget(ComponentBaseWidget):
 
         lower_widget.layout().addWidget(self._component_filename_widget)
 
-        # lower_widget.layout().addWidget(QtWidgets.QLabel(), 10)
-
         widget.layout().addWidget(lower_widget)
 
         return widget
@@ -822,9 +820,6 @@ class AssemblerEntityInfo(QtWidgets.QWidget):
 class AssemblerVersionComboBox(VersionComboBox):
     def __init__(self, session, parent=None):
         super(AssemblerVersionComboBox, self).__init__(session, parent=parent)
-        # self.setEditable(True)
-        # self.lineEdit().setAlignment(QtCore.Qt.AlignCenter)
-        # self.lineEdit().setReadOnly(True)
 
     def _add_version(self, version):
         self.addItem(str("v{}".format(version['version'])), version['id'])

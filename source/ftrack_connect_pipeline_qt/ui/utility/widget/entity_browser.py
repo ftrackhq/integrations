@@ -94,9 +94,6 @@ class EntityBrowser(ModalDialog):
             if get_current_context_id():
                 entity = self.find_context_entity(get_current_context_id())
 
-        # application = QtCore.QCoreApplication.instance()
-        # application.installEventFilter(self)
-
         self.set_entity(entity)
 
     def pre_build(self):
@@ -275,10 +272,6 @@ class EntityBrowser(ModalDialog):
                         intermediate_entity['id'],
                     )
                 ).all()
-            # Still on the same entity?
-            # if (self.intermediate_entity or {}).get('id') == (
-            #    intermediate_entity or {}
-            # ).get('id'):
             self.entitiesFetched.emit(entities)
             signal_emitted = True
         finally:

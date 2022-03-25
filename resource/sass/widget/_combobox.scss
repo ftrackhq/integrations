@@ -53,13 +53,11 @@ QFrame[docked='true'] QComboBox QAbstractItemView {
 }
 
 QFrame[docked='true'] QComboBox QAbstractItemView {
-    /*background: $gray-darker;*/
     background: $background-docked;
 }
 
 QComboBox QAbstractItemView::item {
     padding: $input-padding 0;
-    /*background-color: $gray-dark;*/
 }
 
 QComboBox QAbstractItemView::item:selected {
