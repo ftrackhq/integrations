@@ -177,7 +177,9 @@ def save_snapshot(context_id, session):
     '''Save snapshot scene locally, with the next version number based on latest version
     in ftrack.'''
 
-    snapshot_path, message = get_snapshot_save_path(context_id, session)
+    snapshot_path, message = get_snapshot_save_path(
+        context_id, session, extension='.mb'
+    )
 
     if snapshot_path is None:
         return (False, message)
@@ -189,7 +191,7 @@ def save_snapshot(context_id, session):
 
     # Add to recent files
     mm.eval("source addRecentFile;")
-    mm.eval('addRecentFile("{}","{}");'.format(snapshot_path, 'mayaBinary'))
+    mm.eval('addRecentFile("{}.mb","{}");'.format(snapshot_path, 'mayaBinary'))
 
     result = snapshot_path
 

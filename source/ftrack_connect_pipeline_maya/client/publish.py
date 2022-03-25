@@ -31,7 +31,6 @@ class MayaPublisherClient(MayaQWidgetDockableMixin, QtPublisherClient):
 
     def show(self):
         super(MayaPublisherClient, self).show(
-            self,
             dockable=True,
             floating=False,
             area='right',
