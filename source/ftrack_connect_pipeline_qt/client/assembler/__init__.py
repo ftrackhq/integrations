@@ -247,6 +247,7 @@ class QtAssemblerClient(QtClient):
     def reset(self):
         '''Assembler is shown again after being hidden.'''
         self.refresh(True)
+        self.asset_manager.asset_manager_widget.rebuild.emit()
         self.progress_widget.hide_widget()
         self.progress_widget.clear_components()
 
