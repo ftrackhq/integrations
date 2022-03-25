@@ -84,7 +84,7 @@ def nodeInitializer():
     t_attr.setHidden(False)
 
     FtrackAssetNode.a_context_path = t_attr.create(
-       asset_const.CONTEXT_PATH, 'cop', OpenMaya.MFnData.kString
+        asset_const.CONTEXT_PATH, 'cop', OpenMaya.MFnData.kString
     )
     t_attr.setHidden(False)
     t_attr.setStorable(True)

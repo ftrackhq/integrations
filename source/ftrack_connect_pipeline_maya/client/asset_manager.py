@@ -42,3 +42,4 @@ class MayaAssetManagerClient(MayaQWidgetDockableMixin, QtAssetManagerClient):
             x=300,
             y=600,
         )
+        QtAssetManagerClient.conditional_rebuild(self)

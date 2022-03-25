@@ -7,8 +7,7 @@ from ftrack_connect_pipeline import constants
 from ftrack_connect_pipeline_qt import constants as qt_constants
 from ftrack_connect_pipeline_qt import event
 from ftrack_connect_pipeline_maya import host as maya_host
-from ftrack_connect_pipeline_qt.utils import BaseThread
-import time
+from ftrack_connect_pipeline_maya.utils import custom_commands as maya_utils
 
 import maya.utils
 import maya.cmds as cmds
@@ -126,6 +125,14 @@ def initialise():
     )
     widgets.append(
         (
+            qt_constants.CHANGE_CONTEXT_WIDGET,
+            client.QtChangeContextClient,
+            'Change context',
+            'refresh',
+        )
+    )
+    widgets.append(
+        (
             qt_constants.ASSEMBLER_WIDGET,
             assembler.MayaAssemblerDialog,
             'Assembler',
@@ -144,7 +151,7 @@ def initialise():
         (
             qt_constants.SAVE_WIDGET,
             save.QtSaveClient,
-            'Save Snapshot',
+            'Save Scene',
             'fileSave',
         )
     )
@@ -198,6 +205,8 @@ def initialise():
             _open_widget, event_manager, asset_list_model, widgets
         ),
     )
+
+    maya_utils.init_maya(session)
 
     # host.launch_widget(qt_constants.OPEN_WIDGET)
 

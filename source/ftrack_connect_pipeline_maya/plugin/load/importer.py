@@ -30,10 +30,9 @@ class LoaderImporterMayaPlugin(plugin.LoaderImporterPlugin, BaseMayaPlugin):
 
     dependency_load_mode = load_const.REFERENCE_MODE
 
+    @maya_utils.run_in_main_thread
     def get_current_objects(self):
-        return maya.utils.executeInMainThreadWithResult(
-            maya_utils.get_current_scene_objects
-        )
+        return maya_utils.get_current_scene_objects()
 
 
 class LoaderImporterMayaWidget(
@@ -45,3 +44,7 @@ class LoaderImporterMayaWidget(
 
         _required_output a List
     '''
+
+    @maya_utils.run_in_main_thread
+    def _run(self, event):
+        return super(LoaderImporterMayaWidget, self)._run, event

@@ -39,3 +39,4 @@ class MayaPublisherClient(MayaQWidgetDockableMixin, QtPublisherClient):
             x=300,
             y=600,
         )
+        QtPublisherClient.conditional_rebuild(self)

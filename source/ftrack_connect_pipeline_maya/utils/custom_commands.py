@@ -1,14 +1,38 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2019 ftrack
+# :copyright: Copyright (c) 2022 ftrack
+import logging
 import os
+import threading
+from functools import wraps
 
 from Qt import QtWidgets, QtCompat
 
 import maya.OpenMayaUI as OpenMayaUI
 
+import maya.utils as maya_utils
 import maya.cmds as cmds
+import maya.mel as mm
 
+from ftrack_connect_pipeline.utils import (
+    get_snapshot_save_path,
+    get_current_context_id,
+)
 from ftrack_connect_pipeline_maya.constants import asset as asset_const
+
+logger = logging.getLogger(__name__)
+
+
+def run_in_main_thread(f):
+    '''Make sure a function runs in the main Maya thread.'''
+
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        if threading.currentThread().name != 'MainThread':
+            return maya_utils.executeInMainThreadWithResult(f, *args, **kwargs)
+        else:
+            return f(*args, **kwargs)
+
+    return decorated
 
 
 def get_current_scene_objects():
@@ -62,7 +86,6 @@ def getReferenceNode(assetLink):
 
 def get_maya_window():
     """Return the QMainWindow for the main Maya window."""
-
     winptr = OpenMayaUI.MQtUtil.mainWindow()
     if winptr is None:
         raise RuntimeError('No Maya window found.')
@@ -71,86 +94,105 @@ def get_maya_window():
     return window
 
 
-def save_snapshot(filename, context_id, session):
-    '''Save scene locally, with the next version number based on latest version
+def init_maya(session, from_context=False):
+    '''
+    Initialise timeline in Nuke based on shot/asset build settings.
+
+    :param session:
+    :param from_context: If True, the timeline data should be fetched from current context instead of environment variables.
+    :return:
+    '''
+    fps = None
+    if from_context:
+        context = session.query(
+            'Context where id={}'.format(get_current_context_id())
+        ).first()
+        if context is None:
+            logger.error(
+                'Cannot initialize Maya timeline - no such context: {}'.format(
+                    get_current_context_id()
+                )
+            )
+            return
+        shot = None
+        if context.entity_type == 'Shot':
+            shot = context
+        elif context.entity_type == 'Task':
+            parent = context['parent']
+            if parent.entity_type == 'Shot':
+                shot = parent
+        if not shot:
+            logger.warning(
+                'Cannot initialize Maya timeline - no shot related to context: {}'.format(
+                    get_current_context_id()
+                )
+            )
+            return
+        elif (
+            not 'fstart' in shot['custom_attributes']
+            or not 'fend' in shot['custom_attributes']
+        ):
+            logger.warning(
+                'Cannot initialize Maya timeline - no fstart or fend shot custom attributes available'.format()
+            )
+            return
+        start_frame = int(shot['custom_attributes']['fstart'])
+        end_frame = int(shot['custom_attributes']['fend'])
+        if 'fps' in shot['custom_attributes']:
+            fps = float(shot['custom_attributes']['fps'])
+    else:
+        # Set default values from environments.
+        start_frame = os.environ.get('FS', 0)
+        end_frame = os.environ.get('FE', 100)
+        if 'FPS' in os.environ:
+            fps = float(os.environ['FPS'])
+
+    logger.info('Setting start frame : {}'.format(start_frame))
+    cmds.setAttr('defaultRenderGlobals.startFrame', start_frame)
+
+    logger.info('Setting end frame : {}'.format(end_frame))
+    cmds.setAttr('defaultRenderGlobals.endFrame', end_frame)
+
+    cmds.playbackOptions(min=start_frame, max=end_frame)
+
+    if fps is not None:
+        fps_unit = "film"
+        if fps == 15:
+            fps_unit = "game"
+        elif fps == 25:
+            fps_unit = "pal"
+        elif fps == 30:
+            fps_unit = "ntsc"
+        elif fps == 48:
+            fps_unit = "show"
+        elif fps == 50:
+            fps_unit = "palf"
+        elif fps == 60:
+            fps_unit = "ntscf"
+        logger.info('Setting FPS : {}, unit: {}'.format(fps, fps_unit))
+        cmds.currentUnit(time=fps_unit)
+
+
+def save_snapshot(context_id, session):
+    '''Save snapshot scene locally, with the next version number based on latest version
     in ftrack.'''
-    snapshot_path_base = os.environ.get('FTRACK_SNAPSHOT_PATH')
 
-    context = session.query('Context where id={}'.format(context_id)).first()
+    snapshot_path, message = get_snapshot_save_path(
+        context_id, session, extension='.mb'
+    )
 
-    if context is None:
-        raise Exception(
-            'Could not save snapshot - unknown context by ID: {}!'.format(
-                context_id
-            )
-        )
+    if snapshot_path is None:
+        return (False, message)
 
-    if filename is None:
-        # TODO: use task type <> asset type mappings
-        filename = context['type']['name']  # Modeling, compositing...
+    # Save Maya scene to this path
+    cmds.file(rename=snapshot_path)
+    cmds.file(save=True)
+    message = 'Saved Maya scene @ "{}"'.format(snapshot_path)
 
-    result = False
-    message = None
+    # Add to recent files
+    mm.eval("source addRecentFile;")
+    mm.eval('addRecentFile("{}.mb","{}");'.format(snapshot_path, 'mayaBinary'))
 
-    structure_names = [context['project']['name']] + [
-        item['name'] for item in context['link'][1:]
-    ]
-
-    # Find latest version number
-    next_version_number = 1
-    latest_asset_version = session.query(
-        'AssetVersion where '
-        'task.id={} and is_latest_version=true'.format(context_id)
-    ).first()
-    if latest_asset_version:
-        next_version_number = latest_asset_version['version'] + 1
-
-    if snapshot_path_base:
-        # Build path down to context
-        snapshot_path = os.sep.join(
-            [snapshot_path_base] + structure_names + ['work']
-        )
-    else:
-        # Try to query location system (future)
-        try:
-            location = session.pick_location()
-            snapshot_path = location.get_filesystem_path(context)
-        except:
-            # Ok, use default location
-            snapshot_path_base = os.path.join(
-                os.path.expanduser('~'),
-                'Documents',
-                'ftrack_work_path',
-            )
-            # Build path down to context
-            snapshot_path = os.sep.join([snapshot_path_base] + structure_names)
-
-    if snapshot_path is not None:
-        if not os.path.exists(snapshot_path):
-            os.makedirs(snapshot_path)
-        if not os.path.exists(snapshot_path):
-            return (
-                None,
-                'Could not create work directory: {}!'.format(snapshot_path),
-            )
-        # Make sure we do not overwrite existing work done
-        snapshot_path = os.path.join(
-            snapshot_path, '%s_v%03d.mb' % (filename, next_version_number)
-        )
-
-        while os.path.exists(snapshot_path):
-            next_version_number += 1
-            snapshot_path = os.path.join(
-                os.path.dirname(snapshot_path),
-                '%s_v%03d.mb' % (filename, next_version_number),
-            )
-
-        # Save Maya scene to this path
-        cmds.file(rename=snapshot_path)
-        cmds.file(save=True)
-        message = 'Saved Maya scene @ "{}"'.format(snapshot_path)
-        result = snapshot_path
-    else:
-        message = 'Could not evaluate local snapshot path!'
+    result = snapshot_path
 
     return result, message

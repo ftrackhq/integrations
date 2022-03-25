@@ -5,11 +5,11 @@ from Qt import QtWidgets, QtCore
 
 from ftrack_connect_pipeline_qt.client.open import QtOpenClient
 import ftrack_connect_pipeline.constants as constants
-import ftrack_connect_pipeline_qt.constants as qt_constants
 import ftrack_connect_pipeline_maya.constants as maya_constants
 from ftrack_connect_pipeline_maya.utils.custom_commands import get_maya_window
 from ftrack_connect_pipeline_qt.ui.utility.widget.dialog import ModalDialog
 from ftrack_connect_pipeline_qt import constants as qt_constants
+from ftrack_connect_pipeline_qt.ui.utility.widget import dialog
 
 
 class MayaOpenClient(QtOpenClient):
@@ -26,7 +26,7 @@ class MayaOpenClient(QtOpenClient):
         super(MayaOpenClient, self).__init__(event_manager, parent_window)
 
 
-class MayaOpenDialog(QtWidgets.QDialog):
+class MayaOpenDialog(dialog.Dialog):
     '''Maya open dialog'''
 
     _shown = False

@@ -84,8 +84,13 @@ class FtrackAssetNode(FtrackAssetBase):
         for ftrack_object in ftrack_asset_nodes:
             param_dict = self.get_parameters_dictionary(ftrack_object)
             node_asset_info = FtrackAssetInfo(param_dict)
-            if node_asset_info[asset_const.ASSET_INFO_ID] == self.asset_info[asset_const.ASSET_INFO_ID]:
-                self.logger.debug('Found existing object: {}'.format(ftrack_object))
+            if (
+                node_asset_info[asset_const.ASSET_INFO_ID]
+                == self.asset_info[asset_const.ASSET_INFO_ID]
+            ):
+                self.logger.debug(
+                    'Found existing object: {}'.format(ftrack_object)
+                )
                 return ftrack_object
 
         self.logger.debug(
@@ -129,7 +134,9 @@ class FtrackAssetNode(FtrackAssetBase):
         )._get_unique_ftrack_object_name()
 
         if cmds.objExists(ftrack_object_name):
-            error_message = "{} already exists in the scene".format(ftrack_object_name)
+            error_message = "{} already exists in the scene".format(
+                ftrack_object_name
+            )
             self.logger.error(error_message)
             raise RuntimeError(error_message)
 
@@ -186,8 +193,8 @@ class FtrackAssetNode(FtrackAssetBase):
                     l=True,
                 )
             elif (
-                    k == asset_const.ASSET_VERSIONS_ENTITIES or
-                    k == asset_const.SESSION
+                k == asset_const.ASSET_VERSIONS_ENTITIES
+                or k == asset_const.SESSION
             ):
                 cmds.setAttr(
                     '{}.{}'.format(ftrack_object, k),

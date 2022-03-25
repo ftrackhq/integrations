@@ -10,6 +10,7 @@ import ftrack_connect_pipeline.constants as constants
 import ftrack_connect_pipeline_qt.constants as qt_constants
 import ftrack_connect_pipeline_maya.constants as maya_constants
 from ftrack_connect_pipeline_maya.utils.custom_commands import get_maya_window
+from ftrack_connect_pipeline_qt.ui.utility.widget import dialog
 
 
 class MayaAssemblerClient(QtAssemblerClient):
@@ -30,7 +31,7 @@ class MayaAssemblerClient(QtAssemblerClient):
         )
 
 
-class MayaAssemblerDialog(QtWidgets.QDialog):
+class MayaAssemblerDialog(dialog.Dialog):
     '''Maya assembler & importer dialog'''
 
     _shown = False
