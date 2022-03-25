@@ -462,17 +462,14 @@ class BasePlugin(object):
                 result_data['status'] = constants.EXCEPTION_STATUS
                 result_data['message'] = str(user_data_message)
                 return result_data
-
-        if self.method == 'run':
-            if result is False and len(user_data.get('message') or '') > 0:
-                status, message = (
-                    constants.ERROR_STATUS,
-                    'Failed to run {}: {}'.format(
-                        self.__class__.__name__, user_data['message']
-                    ),
+            elif result is False and len(user_data_message or '') > 0:
+                result_data['status'] = constants.EXCEPTION_STATUS
+                result_data['message'] = 'Failed to run {}: {}'.format(
+                    self.__class__.__name__, user_data_message
                 )
-            else:
-                status, message = self._validate_result(result)
+                return result_data
+        if self.method == 'run':
+            status, message = self._validate_result(result)
         else:
             status = constants.SUCCESS_STATUS
             message = 'Successfully run :{}'.format(self.__class__.__name__)

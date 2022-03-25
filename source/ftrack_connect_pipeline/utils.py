@@ -4,6 +4,8 @@
 import os
 import appdirs
 
+from ftrack_connect_pipeline import constants as core_constants
+
 
 def get_current_context_id():
     '''return an api object representing the current context.'''
@@ -55,7 +57,7 @@ def get_snapshot_save_path(context_id, session):
         )
         snapshot_path_base = os.path.join(
             appdirs.user_data_dir('ftrack-connect', 'ftrack'),
-            'snapshot',
+            core_constants.SNAPSHOT_COMPONENT_NAME,
             server_folder_name,
         )
 
@@ -66,13 +68,6 @@ def get_snapshot_save_path(context_id, session):
             snapshot_path_base, location.get_filesystem_path(context)
         )
     except:
-        # Ok, use default location
-        # snapshot_path_base = os.path.join(
-        #    os.path.expanduser('~'),
-        #    'Documents',
-        #    'ftrack_work_path',
-        # )
-
         structure_names = [context['project']['name']] + [
             item['name'] for item in context['link'][1:]
         ]
@@ -105,14 +100,14 @@ def get_snapshot_save_path(context_id, session):
 
         # Make sure we do not overwrite existing work done
         snapshot_path = os.path.join(
-            snapshot_path, '%s_v%03d.nk' % (filename, next_version_number)
+            snapshot_path, '%s_v%03d' % (filename, next_version_number)
         )
 
         while os.path.exists(snapshot_path):
             next_version_number += 1
             snapshot_path = os.path.join(
                 os.path.dirname(snapshot_path),
-                '%s_v%03d.nk' % (filename, next_version_number),
+                '%s_v%03d' % (filename, next_version_number),
             )
 
         result = snapshot_path

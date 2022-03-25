@@ -95,6 +95,11 @@ PIPELINE_WIDGET_LAUNCH = '{}.widget.launch'.format(_BASE_)
 # The main context has changed
 PIPELINE_CONTEXT_CHANGE = '{}.context.change'.format(_BASE_)
 
+
+# Misc
+SNAPSHOT_COMPONENT_NAME = 'snapshot'
+SNAPSHOT_FTRACKREVIEW_NAME = 'ftrackreview'
+
 # Avoid circular dependencies.
 from ftrack_connect_pipeline.constants.plugin.load import *
 from ftrack_connect_pipeline.constants.plugin.publish import *
