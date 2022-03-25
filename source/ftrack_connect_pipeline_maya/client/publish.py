@@ -30,7 +30,7 @@ class MayaPublisherClient(MayaQWidgetDockableMixin, QtPublisherClient):
         return 'maya'
 
     def show(self):
-        MayaQWidgetDockableMixin.show(
+        super(MayaPublisherClient, self).show(
             self,
             dockable=True,
             floating=False,

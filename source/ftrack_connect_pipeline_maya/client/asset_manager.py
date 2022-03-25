@@ -33,8 +33,7 @@ class MayaAssetManagerClient(MayaQWidgetDockableMixin, QtAssetManagerClient):
         return 'maya'
 
     def show(self):
-        MayaQWidgetDockableMixin.show(
-            self,
+        super(MayaAssetManagerClient, self).show(
             dockable=True,
             floating=False,
             area='right',
