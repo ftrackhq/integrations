@@ -52,6 +52,8 @@ class QtOpenClient(QtClient):
         self.widget_factory.componentsChecked.connect(
             self._on_components_checked
         )
+        self.run_button.setText('OPEN ASSEMBLER')
+        self.run_button.setVisible(True)
 
     def _set_context(self, context, global_context_change):
         if not self.host_connection:

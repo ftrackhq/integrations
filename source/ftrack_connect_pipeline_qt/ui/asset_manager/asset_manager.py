@@ -573,6 +573,7 @@ class AssetWidget(AccordionBaseWidget):
         header_layout.addWidget(widget)
 
         header_layout.addStretch()
+
         header_layout.addWidget(self.init_status_widget())
 
     def init_content(self, content_layout):
@@ -810,8 +811,9 @@ class AssetVersionSelector(QtWidgets.QComboBox):
 
 
 class AssetVersionStatusWidget(QtWidgets.QFrame):
-    def __init__(self):
+    def __init__(self, bordered=True):
         super(AssetVersionStatusWidget, self).__init__()
+        self._bordered = bordered
 
         self.pre_build()
         self.build()
@@ -825,6 +827,8 @@ class AssetVersionStatusWidget(QtWidgets.QFrame):
 
     def build(self):
         self._label_widget = QtWidgets.QLabel()
+        if self._bordered:
+            self._label_widget.setAlignment(QtCore.Qt.AlignCenter)
         self.layout().addWidget(self._label_widget)
 
     def set_status(self, status):
@@ -837,14 +841,15 @@ class AssetVersionStatusWidget(QtWidgets.QFrame):
                 status['color']
             )
         )
-        self.setStyleSheet(
-            '''
-            QFrame {
-                border: 1px solid %s;
-            }
-         '''
-            % (status['color'])
-        )
+        if self._bordered:
+            self.setStyleSheet(
+                '''
+                QFrame {
+                    border: 1px solid %s;
+                }
+             '''
+                % (status['color'])
+            )
 
 
 class ComponentAndVersionWidget(QtWidgets.QWidget):

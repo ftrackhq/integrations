@@ -97,7 +97,7 @@ NavigationEntityButton:hover, EntityWidget:hover, AccordionBaseWidget:hover {
     background: $alt-background;
 }
 
-QFrame[docked='true'] NavigationEntityButton:hover, EntityWidget:hover, AccordionBaseWidget:hover {
+QFrame[docked='true'] NavigationEntityButton:hover, QFrame[docked='true'] EntityWidget:hover, QFrame[docked='true'] AccordionBaseWidget:hover {
     background: rgb(66,66,66);
 }
 

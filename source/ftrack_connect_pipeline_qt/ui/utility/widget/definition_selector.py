@@ -515,7 +515,7 @@ class DefinitionSelectorWidgetComboBox(DefinitionSelectorWidgetBase):
 
         self.definitions_widget.layout().addWidget(header_widget)
 
-        self._definition_selector = DefinitionSelector()
+        self._definition_selector = QtWidgets.QComboBox()
 
         self.definitions_widget.layout().addWidget(self._definition_selector)
 
@@ -633,7 +633,7 @@ class DefinitionSelectorWidgetComboBox(DefinitionSelectorWidgetBase):
                     if component_names_filter is None:
                         # There were no openable components, try next definition
                         continue
-                if self._client_name == qt_constants.OPEN_WIDGET:
+
                     # Check if any versions at all, find out asset type name from package
                     asset_type_short = item['asset_type']
                     asset_version = None
@@ -658,12 +658,25 @@ class DefinitionSelectorWidgetComboBox(DefinitionSelectorWidgetBase):
                                 asset_type_name,
                             )
                         ).first()
-                        if asset_version and (
-                            latest_version is None
-                            or latest_version['date'] < asset_version['date']
-                        ):
-                            latest_version = asset_version
-                            index_latest_version = index
+                        if asset_version:
+                            has_openable_component = False
+                            for component in asset_version['components']:
+                                for component_name in component_names_filter:
+                                    if (
+                                        component['name'].lower()
+                                        == component_name.lower()
+                                    ):
+                                        has_openable_component = True
+                                        break
+                                if has_openable_component:
+                                    break
+                            if has_openable_component and (
+                                latest_version is None
+                                or latest_version['date']
+                                < asset_version['date']
+                            ):
+                                latest_version = asset_version
+                                index_latest_version = index
                     if (
                         asset_version is None
                         and self._client_name == qt_constants.OPEN_WIDGET
@@ -673,10 +686,10 @@ class DefinitionSelectorWidgetComboBox(DefinitionSelectorWidgetBase):
                     text = '{} - {}'.format(
                         schema.get('title'), item.get('name')
                     )
-
-                self._definition_selector.addItem(
-                    text.upper(), (item, component_names_filter)
-                )
+                if enable:
+                    self._definition_selector.addItem(
+                        text.upper(), (item, component_names_filter)
+                    )
 
                 index += 1
         if (
@@ -766,8 +779,3 @@ class DefinitionSelectorWidgetComboBox(DefinitionSelectorWidgetBase):
     def refresh(self):
         self._on_change_definition(self._definition_selector.currentIndex())
         self.refreshed.emit()
-
-
-class DefinitionSelector(QtWidgets.QComboBox):
-    def __init__(self):
-        super(DefinitionSelector, self).__init__()

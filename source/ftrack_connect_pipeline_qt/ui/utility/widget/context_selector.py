@@ -18,7 +18,7 @@ from ftrack_connect_pipeline_qt.ui.utility.widget.circular_button import (
 )
 
 
-class ContextSelector(QtWidgets.QWidget):
+class ContextSelector(QtWidgets.QFrame):
 
     entityChanged = QtCore.Signal(object, object)
 
@@ -67,9 +67,9 @@ class ContextSelector(QtWidgets.QWidget):
         # self.thumbnail_widget.setScaledContents(True)
 
         self.thumbnail_widget.setMinimumWidth(50)
-        self.thumbnail_widget.setMinimumHeight(50)
+        self.thumbnail_widget.setMinimumHeight(40)
         self.thumbnail_widget.setMaximumWidth(50)
-        self.thumbnail_widget.setMaximumHeight(50)
+        self.thumbnail_widget.setMaximumHeight(40)
 
         if self._client.client_name == qt_constants.OPEN_WIDGET:
             self.entity_browser = EntityBrowser(
@@ -82,8 +82,8 @@ class ContextSelector(QtWidgets.QWidget):
             self.entity_browser = None
 
         self.entity_info = EntityInfo()
-        self.entity_info.setMinimumHeight(60)
-        self.entity_info.setMaximumHeight(60)
+        self.entity_info.setMinimumHeight(40)
+        self.entity_info.setMaximumHeight(40)
 
         self.entity_browse_button = CircularButton(
             'edit', '#BF9AC9', variant='outlined'
@@ -101,7 +101,7 @@ class ContextSelector(QtWidgets.QWidget):
         self.entity_browse_button.clicked.connect(
             self._on_entity_browse_button_clicked
         )
-        self.setMaximumHeight(70)
+        self.setMaximumHeight(50)
 
     def host_changed(self, host_connection):
         '''Host has been set, listen to changes to context.'''
@@ -147,6 +147,7 @@ class ContextSelector(QtWidgets.QWidget):
         self.entityChanged.emit(entity, global_context_change)
         self.entity_info.set_entity(entity)
         self._context_id = entity['id']
+        self.set_thumbnail(self._entity)
 
     def find_context_entity(self, context_id):
         context_entity = self.session.query(

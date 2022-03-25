@@ -42,6 +42,8 @@ class EntityBrowser(ModalDialog):
     MODE_CONTEXT = 2  # Pick any context
     MODE_TASK = 3  # Only pick tasks
 
+    SHOW_CHILDREN = False
+
     entityChanged = QtCore.Signal(
         object
     )  # External; a new context has been set
@@ -268,8 +270,9 @@ class EntityBrowser(ModalDialog):
                 ).all()
             else:
                 entities = self.session.query(
-                    'select id, name, children from Context where parent.id is {}'.format(
-                        intermediate_entity['id']
+                    'select id, name{} from Context where parent.id is {}'.format(
+                        ', children' if self.SHOW_CHILDREN else '',
+                        intermediate_entity['id'],
                     )
                 ).all()
             # Still on the same entity?
@@ -329,16 +332,19 @@ class EntityBrowser(ModalDialog):
                 )
                 entities_widget.layout().addWidget(entity_widget)
                 self.entity_widgets.append(entity_widget)
-                for sub_entity in entity['children']:
-                    if sub_entity.entity_type == 'Task':
-                        sub_entity_widget = EntityWidget(
-                            sub_entity, True, self
-                        )
-                        sub_entity_widget.clicked.connect(
-                            partial(self._entity_selected, sub_entity)
-                        )
-                        entities_widget.layout().addWidget(sub_entity_widget)
-                        self.entity_widgets.append(sub_entity_widget)
+                if self.SHOW_CHILDREN:
+                    for sub_entity in entity['children']:
+                        if sub_entity.entity_type == 'Task':
+                            sub_entity_widget = EntityWidget(
+                                sub_entity, True, self
+                            )
+                            sub_entity_widget.clicked.connect(
+                                partial(self._entity_selected, sub_entity)
+                            )
+                            entities_widget.layout().addWidget(
+                                sub_entity_widget
+                            )
+                            self.entity_widgets.append(sub_entity_widget)
 
             entities_widget.layout().addWidget(QtWidgets.QLabel(), 100)
 

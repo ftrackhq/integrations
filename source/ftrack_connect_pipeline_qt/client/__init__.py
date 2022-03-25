@@ -286,6 +286,7 @@ class QtClient(Client, QtWidgets.QFrame):
 
     def run(self):
         '''Function called when click the run button'''
+        self.widget_factory.has_error = False
         serialized_data = self.widget_factory.to_json_object()
         if not self.is_valid_asset_name:
             msg = "Can't publish without a valid asset name"

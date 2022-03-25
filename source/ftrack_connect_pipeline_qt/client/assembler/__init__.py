@@ -67,9 +67,7 @@ class QtAssemblerClient(QtClient):
     def pre_build(self):
         super(QtAssemblerClient, self).pre_build()
         self.layout().setContentsMargins(16, 16, 16, 16)
-        self.header = header.Header(
-            self.session, title='CONNECT', show_user=False
-        )
+        self.header = header.Header(self.session, title='CONNECT')
         self.header.setMinimumHeight(37)
         # Create and add the asset manager client
         self.asset_manager = QtAssetManagerClient(
@@ -81,24 +79,11 @@ class QtAssemblerClient(QtClient):
 
     def build_left_widget(self):
         '''Left split pane content'''
-        # self.setStyleSheet('background-color: red;')
 
         self._left_widget = QtWidgets.QWidget()
         self._left_widget.setLayout(QtWidgets.QVBoxLayout())
         self._left_widget.layout().setContentsMargins(0, 0, 0, 0)
         self._left_widget.layout().setSpacing(0)
-
-        self._left_widget.layout().addWidget(self.header)
-        # self.header.setStyleSheet('background-color: black;')
-
-        self.progress_widget = (
-            factory.LoaderWidgetFactory.create_progress_widget(
-                self.client_name
-            )
-        )
-        self.header.content_container.layout().addWidget(
-            self.progress_widget.widget
-        )
 
         # Have definition selector but invisible unless there are multiple hosts
         self.host_and_definition_selector = (
@@ -122,8 +107,6 @@ class QtAssemblerClient(QtClient):
         self._dep_widget.setLayout(QtWidgets.QVBoxLayout())
         self._dep_widget.layout().setContentsMargins(0, 0, 0, 0)
         self._dep_widget.layout().setSpacing(0)
-
-        # self._dep_widget.setStyleSheet('background-color: green;')
 
         self._tab_widget.addTab(self._dep_widget, 'Suggestions')
 
@@ -178,6 +161,17 @@ class QtAssemblerClient(QtClient):
 
     def build(self):
         '''(Override) Build assembler widget.'''
+
+        self.layout().addWidget(self.header)
+
+        self.progress_widget = (
+            factory.LoaderWidgetFactory.create_progress_widget(
+                self.client_name
+            )
+        )
+        self.header.content_container.layout().addWidget(
+            self.progress_widget.widget
+        )
 
         # Create a splitter and add to client
         self.splitter = QtWidgets.QSplitter(QtCore.Qt.Horizontal)

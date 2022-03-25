@@ -45,9 +45,6 @@ from ftrack_connect_pipeline_qt.ui.utility.widget.search import Search
 from ftrack_connect_pipeline_qt.ui.utility.widget.options_button import (
     OptionsButton,
 )
-from ftrack_connect_pipeline_qt.ui.utility.widget.definition_selector import (
-    DefinitionSelector,
-)
 from ftrack_connect_pipeline_qt.ui.utility.widget import icon
 
 
@@ -118,9 +115,13 @@ class AssemblerBaseWidget(QtWidgets.QWidget):
         bottom_toolbar_widget.layout().setContentsMargins(4, 4, 4, 4)
         bottom_toolbar_widget.layout().setSpacing(6)
 
+        match_label = QtWidgets.QLabel('Match: ')
+        match_label.setObjectName('gray')
+        bottom_toolbar_widget.layout().addWidget(match_label)
+
         self._bg_match = QtWidgets.QButtonGroup(self)
         self._rb_match_component_name = QtWidgets.QRadioButton(
-            'Component name match'
+            'Component name'
         )
         self._rb_match_component_name.setToolTip(
             'Matching assets strictly on component names as defined in loader definitions.'
@@ -128,7 +129,7 @@ class AssemblerBaseWidget(QtWidgets.QWidget):
         self._bg_match.addButton(self._rb_match_component_name)
         bottom_toolbar_widget.layout().addWidget(self._rb_match_component_name)
 
-        self._rb_match_extension = QtWidgets.QRadioButton('File format match')
+        self._rb_match_extension = QtWidgets.QRadioButton('File format')
         self._rb_match_extension.setToolTip(
             'Matching assets on supported file formats as defined in loader definitions(relaxed).'
         )
@@ -460,7 +461,7 @@ class ComponentBaseWidget(AccordionBaseWidget):
         self._adjust_height()
 
     def init_status_widget(self):
-        self._status_widget = AssetVersionStatusWidget()
+        self._status_widget = AssetVersionStatusWidget(bordered=False)
         self._status_widget.setMinimumWidth(60)
         # self._status_widget.setObjectName('borderless')
         return self._status_widget
@@ -514,13 +515,13 @@ class ComponentBaseWidget(AccordionBaseWidget):
         self.thumbnail_widget.setMaximumHeight(self.get_thumbnail_height())
         upper_layout.addWidget(self.thumbnail_widget)
 
-        upper_layout.addWidget(self.get_ident_widget(), 100)
-
-        upper_layout.addWidget(self.get_version_widget())
+        upper_layout.addWidget(self.get_ident_widget())
 
         upper_layout.addWidget(self.init_status_widget())
 
-        upper_layout.addStretch()
+        upper_layout.addWidget(QtWidgets.QLabel(), 100)
+
+        upper_layout.addWidget(self.get_version_widget())
 
         # Add loader selector
         self._definition_selector = DefinitionSelector()
@@ -566,7 +567,7 @@ class ComponentBaseWidget(AccordionBaseWidget):
 
         warning_icon_label = QtWidgets.QLabel()
         warning_icon_label.setPixmap(
-            icon.MaterialIcon('warning', color='yellow').pixmap(
+            icon.MaterialIcon('warning', color='#ffba5c').pixmap(
                 QtCore.QSize(16, 16)
             )
         )
@@ -676,7 +677,7 @@ class ComponentBaseWidget(AccordionBaseWidget):
             component['name'], component['file_type']
         )
         self._component_filename_widget.setText(
-            '- {}'.format(component_path.replace('\\', '/').split('/')[-1])
+            '- {} -'.format(component_path.replace('\\', '/').split('/')[-1])
         )
         self.set_version(version_entity)
         self.set_latest_version(version_entity['is_latest_version'])
@@ -718,11 +719,24 @@ class ComponentBaseWidget(AccordionBaseWidget):
         self._adjust_height()
 
 
+class DefinitionSelector(QtWidgets.QComboBox):
+    def __init__(self):
+        super(DefinitionSelector, self).__init__()
+        self.setMinimumHeight(22)
+        self.setMaximumHeight(22)
+        # self.setEditable(True)
+        # self.lineEdit().setAlignment(QtCore.Qt.AlignCenter)
+        # self.lineEdit().setReadOnly(True)
+
+
 class ModeSelector(QtWidgets.QComboBox):
     def __init__(self):
         super(ModeSelector, self).__init__()
         self.setMinimumHeight(22)
         self.setMaximumHeight(22)
+        # self.setEditable(True)
+        # self.lineEdit().setAlignment(QtCore.Qt.AlignCenter)
+        # self.lineEdit().setReadOnly(True)
 
 
 class ImporterOptionsButton(OptionsButton):
