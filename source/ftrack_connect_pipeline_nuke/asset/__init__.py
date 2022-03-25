@@ -54,7 +54,7 @@ class FtrackAssetTab(FtrackAssetBase):
         '''
         Updates and return the ftrack ftrack_object for this class.
         '''
-        ftrack_object = self.get_ftrack_object_from_nuke()
+        ftrack_object = self.get_ftrack_object_from_script()
 
         if ftrack_object:
             if not self.is_sync(ftrack_object):
@@ -84,7 +84,7 @@ class FtrackAssetTab(FtrackAssetBase):
                     param_dict[knob.name()] = knob.getValue()
         return param_dict
 
-    def get_ftrack_object_from_nuke(self):
+    def get_ftrack_object_from_script(self):
         '''
         Return the ftrack_object from the current asset_version if it exists in
         the scene.
@@ -102,52 +102,15 @@ class FtrackAssetTab(FtrackAssetBase):
                     raise DeprecationWarning(
                         "Can not read v1 ftrack asset plugin"
                     )
-                # if (
-                #    node_asset_info[asset_const.REFERENCE_OBJECT]
-                #    == self.asset_info[asset_const.REFERENCE_OBJECT]
-                # ):
-                ftrack_object = scene_node.knob('name').value()
-                diff_values = []
-                for k in node_asset_info:
-                    if k in [
-                        asset_const.ASSET_VERSIONS_ENTITIES,
-                        asset_const.IS_LOADED,
-                        asset_const.SESSION,
-                        # asset_const.DEPENDENCIES,
-                    ]:
-                        continue
-                    if str(node_asset_info[k]) != str(self.asset_info[k]):
-                        # TODO: Check that only the key method is different, one will
-                        # be init_scene_modes and the other will be run. But all the
-                        # other options should be the same
-                        # Meanwhile ASSET_INFO_OPTIONS added on the list of not needed
-
-                        # if k == asset_const.ASSET_INFO_OPTIONS:
-                        #     if node_asset_info[k].get('method') == 'init_nodes':
-
-                        diff_values.append(k)
-                if len(diff_values) > 0 and not set(diff_values).issubset(
-                    {
-                        asset_const.REFERENCE_OBJECT,
-                        asset_const.ASSET_INFO_ID,
-                        asset_const.ASSET_INFO_OPTIONS,
-                    }
+                if (
+                    node_asset_info[asset_const.ASSET_INFO_ID]
+                    == self.asset_info[asset_const.ASSET_INFO_ID]
                 ):
                     self.logger.debug(
-                        '(Get ftrack object from scene) Not returning {}: - key diff: {}!={}'.format(
-                            ftrack_object,
-                            set(diff_values),
-                            {
-                                asset_const.REFERENCE_OBJECT,
-                                asset_const.ASSET_INFO_ID,
-                                asset_const.ASSET_INFO_OPTIONS,
-                            },
-                        )
+                        'Found existing node: {}'.format(scene_node)
                     )
-                    continue
-                result_object = ftrack_object
+                    result_object = scene_node.knob('name').value()
 
-        self.logger.debug('Found existing object: {}'.format(result_object))
         return result_object
 
     def _check_ftrack_object_sync(self, ftrack_object):
@@ -301,26 +264,15 @@ class FtrackAssetTab(FtrackAssetBase):
     def _get_unique_ftrack_object_name(self):
         '''Apply context name to backdrop'''
 
-        ftrack_object_name = super(
+        ftrack_object_name_base = super(
             FtrackAssetTab, self
         )._get_unique_ftrack_object_name()
 
-        version = self.event_manager.session.query(
-            'AssetVersion where id={}'.format(
-                self.asset_info[asset_const.VERSION_ID]
-            )
-        ).first()
-        hash = (
-            self.asset_info[asset_const.ASSET_INFO_ID][0:2]
-            + self.asset_info[asset_const.ASSET_INFO_ID][-2:]
-        )
-        name_base = '_'.join(
-            str_version(version, delimiter='_').split('_')[:-1] + [hash]
-        )  # Remove version number
         suffix = 0
         while True:
             ftrack_object_name = '{}{}'.format(
-                name_base, ('_{}'.format(suffix)) if suffix > 0 else ''
+                ftrack_object_name_base,
+                ('_{}'.format(suffix)) if suffix > 0 else '',
             )
             if nuke.toNode(ftrack_object_name) is None:
                 break

@@ -32,21 +32,13 @@ class LoaderImporterNukePlugin(plugin.LoaderImporterPlugin, BaseNukePlugin):
 
     dependency_load_mode = load_const.REFERENCE_MODE
 
+    @nuke_utils.run_in_main_thread
     def get_current_objects(self):
-        if threading.currentThread().name != 'MainThread':
-            return nuke.executeInMainThreadWithResult(
-                nuke_utils.get_current_scene_objects
-            )
-        else:
-            return nuke_utils.get_current_scene_objects()
+        return nuke_utils.get_current_scene_objects()
 
+    @nuke_utils.run_in_main_thread
     def _run(self, event):
-        if threading.currentThread().name != 'MainThread':
-            return nuke.executeInMainThreadWithResult(
-                super(LoaderImporterNukePlugin, self)._run, event
-            )
-        else:
-            return super(LoaderImporterNukePlugin, self)._run(event)
+        return super(LoaderImporterNukePlugin, self)._run, event
 
 
 class LoaderImporterNukeWidget(

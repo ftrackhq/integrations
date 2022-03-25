@@ -11,6 +11,8 @@ import nukescripts
 
 from Qt import QtWidgets
 
+import ftrack_api
+
 import ftrack_connect_pipeline_nuke
 from ftrack_connect_pipeline_nuke import host as nuke_host
 from ftrack_connect_pipeline_qt import event
@@ -31,7 +33,6 @@ from ftrack_connect_pipeline_nuke.utils import custom_commands as nuke_utils
 
 from ftrack_connect_pipeline_qt.ui.asset_manager.base import AssetListModel
 
-import ftrack_api
 
 from ftrack_connect_pipeline.configure_logging import configure_logging
 
@@ -159,17 +160,17 @@ def initialise():
     )
     widgets.append(
         (
-            qt_constants.ASSET_MANAGER_WIDGET,
-            asset_manager.NukeAssetManagerClient,
-            'Asset Manager',
+            qt_constants.SAVE_WIDGET,
+            save.QtSaveClient,
+            'Save Script',
             '',
         )
     )
     widgets.append(
         (
-            qt_constants.SAVE_WIDGET,
-            save.QtSaveClient,
-            'Save Script',
+            qt_constants.ASSET_MANAGER_WIDGET,
+            asset_manager.NukeAssetManagerClient,
+            'Asset Manager',
             '',
         )
     )

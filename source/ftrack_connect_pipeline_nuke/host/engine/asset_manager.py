@@ -24,6 +24,7 @@ class NukeAssetManagerEngine(AssetManagerEngine):
             event_manager, host_types, host_id, asset_type_name=asset_type_name
         )
 
+    @nuke_utils.run_in_main_thread
     def discover_assets(self, assets=None, options=None, plugin=None):
         '''
         Discover all the assets in the scene:
@@ -80,6 +81,7 @@ class NukeAssetManagerEngine(AssetManagerEngine):
 
         return status, result
 
+    @nuke_utils.run_in_main_thread
     def remove_asset(
         self, asset_info, options=None, plugin=None, keep_ftrack_node=False
     ):
@@ -208,6 +210,7 @@ class NukeAssetManagerEngine(AssetManagerEngine):
 
         return status, result
 
+    @nuke_utils.run_in_main_thread
     def select_asset(self, asset_info, options=None, plugin=None):
         '''
         Selects the given *asset_info* from the scene.
@@ -215,6 +218,9 @@ class NukeAssetManagerEngine(AssetManagerEngine):
         select the given *asset_info*.
         Returns status and result
         '''
+        nuke.tprint(
+            '@@@ select_assets({}, {}, {})'.format(asset_info, options, plugin)
+        )
         start_time = time.time()
         status = constants.UNKNOWN_STATUS
         result = []
@@ -312,3 +318,12 @@ class NukeAssetManagerEngine(AssetManagerEngine):
 
         self._notify_client(plugin, result_data)
         return status, result
+
+    @nuke_utils.run_in_main_thread
+    def select_assets(self, asset_infos, options=None, plugin=None):
+        result = None
+        for asset_info in asset_infos:
+            result = self.select_asset(
+                asset_info, options=options, plugin=options
+            )
+        return result

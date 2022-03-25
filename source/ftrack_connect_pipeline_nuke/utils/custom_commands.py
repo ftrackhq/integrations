@@ -1,13 +1,15 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2019 ftrack
+# :copyright: Copyright (c) 2022 ftrack
 
+import logging
 import sys
 import re
 import os
 import glob
 import traceback
+import threading
+from functools import wraps
 
-import logging
 
 import nuke
 import nukescripts
@@ -19,6 +21,21 @@ from ftrack_connect_pipeline.utils import (
 from ftrack_connect_pipeline_nuke.constants import asset as asset_const
 
 logger = logging.getLogger(__name__)
+
+
+def run_in_main_thread(f):
+    '''Make sure a function runs in the main Nuke thread.'''
+
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        if threading.currentThread().name != 'MainThread':
+            return nuke.executeInMainThreadWithResult(
+                f, args=args, kwargs=kwargs
+            )
+        else:
+            return f(*args, **kwargs)
+
+    return decorated
 
 
 def get_sequence_fist_last_frame(path):

@@ -1,9 +1,7 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2014-2020 ftrack
+# :copyright: Copyright (c) 2014-2022 ftrack
 
 from Qt import QtWidgets, QtCore
-
-import nukescripts
 
 from ftrack_connect_pipeline_qt.client.open import QtOpenClient
 import ftrack_connect_pipeline.constants as constants
