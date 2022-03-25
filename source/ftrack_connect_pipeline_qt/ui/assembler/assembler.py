@@ -14,9 +14,9 @@ from ftrack_connect_pipeline.client import constants
 from ftrack_connect_pipeline_qt.ui.utility.widget.thumbnail import (
     Context,
 )
+from ftrack_connect_pipeline.utils import str_version
 from ftrack_connect_pipeline_qt.utils import (
     BaseThread,
-    str_version,
     center_widget,
     set_property,
 )
@@ -33,7 +33,7 @@ from ftrack_connect_pipeline_qt.ui.utility.widget.version_selector import (
     VersionComboBox,
 )
 from ftrack_connect_pipeline_qt.ui.utility.widget.dialog import (
-    Dialog,
+    ModalDialog,
 )
 
 
@@ -61,6 +61,8 @@ class AssemblerDependenciesWidget(AssemblerBaseWidget):
     def rebuild(self):
         # self.session._local_cache.clear() # Make sure reset session cache
         super(AssemblerDependenciesWidget, self).rebuild()
+
+        self.scroll.setWidget(QtWidgets.QLabel(''))
 
         # Resolve version this context is depending on in separate thread
         thread = BaseThread(
@@ -136,7 +138,7 @@ class AssemblerDependenciesWidget(AssemblerBaseWidget):
                     self.dependencyResolveWarning.emit(
                         'No loadable dependencies found!'
                     )
-                    self._label_info.setText('No loadable assets found.')
+                    self._label_info.setText('No loadable dependencies found.')
                     return
 
                 self.dependenciesResolved.emit(components)
@@ -162,6 +164,13 @@ class AssemblerDependenciesWidget(AssemblerBaseWidget):
 
         # Will trigger list to be rebuilt.
         self.model.insertRows(0, components)
+
+        self._label_info.setText(
+            'Listing {} {}'.format(
+                self.model.rowCount(),
+                'dependencies' if self.model.rowCount() > 1 else 'dependency',
+            )
+        )
 
 
 class AssemblerBrowserWidget(AssemblerBaseWidget):
@@ -401,7 +410,7 @@ class AssemblerBrowserWidget(AssemblerBaseWidget):
                 ),
             )
         else:
-            Dialog(
+            ModalDialog(
                 self._assembler_client,
                 title='Change Import Version',
                 message=error_message,
@@ -621,7 +630,7 @@ class DependencyComponentWidget(ComponentBaseWidget):
 
         widget.layout().addWidget(self._component_filename_widget)
 
-        widget.layout().addWidget(QtWidgets.QLabel(), 100)
+        # widget.layout().addWidget(QtWidgets.QLabel(), 100)
 
         return widget
 
@@ -687,8 +696,6 @@ class BrowsedComponentWidget(ComponentBaseWidget):
 
         lower_widget.layout().addWidget(self._component_filename_widget)
 
-        lower_widget.layout().addWidget(QtWidgets.QLabel(), 10)
-
         widget.layout().addWidget(lower_widget)
 
         return widget
@@ -727,7 +734,9 @@ class BrowsedComponentWidget(ComponentBaseWidget):
             index += 1
             if index == len(context_path):
                 break
-        self._path_widget.setText(' / '.join(parent_path[index:]))
+        sub_path = parent_path[index:]
+        self._path_widget.setText(' / '.join(sub_path))
+        self._path_widget.setVisible(len(sub_path) > 0)
 
     def _on_version_changed(self, entity_version):
         '''Another version has been selected, emit event.'''

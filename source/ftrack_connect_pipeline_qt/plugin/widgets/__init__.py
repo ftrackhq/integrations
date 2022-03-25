@@ -132,7 +132,7 @@ class BaseOptionsWidget(QtWidgets.QWidget):
 
         *session* :  instance of :class:`ftrack_api.session.Session`
 
-        *data* : Data diccionary for the current widget
+        *data* : Data dictionary for the current widget
 
         *name* : Name of the current widget
 
@@ -231,7 +231,7 @@ class BaseOptionsWidget(QtWidgets.QWidget):
 
     def report_input(self):
         '''To be overridden.'''
-        self.inputChanged.emit({'status': None, 'message': ''})
+        self.inputChanged.emit({'status': True, 'message': ''})
 
     def to_json_object(self):
         '''Return a formatted json with the data from the current widget'''

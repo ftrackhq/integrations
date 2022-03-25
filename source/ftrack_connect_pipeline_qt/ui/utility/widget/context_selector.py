@@ -18,9 +18,9 @@ from ftrack_connect_pipeline_qt.ui.utility.widget.circular_button import (
 )
 
 
-class ContextSelector(QtWidgets.QWidget):
+class ContextSelector(QtWidgets.QFrame):
 
-    entityChanged = QtCore.Signal(object)
+    entityChanged = QtCore.Signal(object, object)
 
     @property
     def entity(self):
@@ -67,23 +67,23 @@ class ContextSelector(QtWidgets.QWidget):
         # self.thumbnail_widget.setScaledContents(True)
 
         self.thumbnail_widget.setMinimumWidth(50)
-        self.thumbnail_widget.setMinimumHeight(50)
+        self.thumbnail_widget.setMinimumHeight(40)
         self.thumbnail_widget.setMaximumWidth(50)
-        self.thumbnail_widget.setMaximumHeight(50)
+        self.thumbnail_widget.setMaximumHeight(40)
 
         if self._client.client_name == qt_constants.OPEN_WIDGET:
-            self.entityBrowser = EntityBrowser(
+            self.entity_browser = EntityBrowser(
                 self._client.get_parent_window(),
                 self.session,
-                title='CHOOSE TASK',
+                title='CHOOSE TASK (WORKING CONTEXT)',
             )
-            self.entityBrowser.setMinimumWidth(600)
+            self.entity_browser.setMinimumWidth(600)
         else:
-            self.entityBrowser = None
+            self.entity_browser = None
 
         self.entity_info = EntityInfo()
-        self.entity_info.setMinimumHeight(60)
-        self.entity_info.setMaximumHeight(60)
+        self.entity_info.setMinimumHeight(40)
+        self.entity_info.setMaximumHeight(40)
 
         self.entity_browse_button = CircularButton(
             'edit', '#BF9AC9', variant='outlined'
@@ -99,18 +99,16 @@ class ContextSelector(QtWidgets.QWidget):
 
     def post_build(self):
         self.entity_browse_button.clicked.connect(
-            self._onEntityBrowseButtonClicked
+            self._on_entity_browse_button_clicked
         )
-        self.entityChanged.connect(self.entity_info.set_entity)
-        self.entityChanged.connect(self.set_thumbnail)
-        self.setMaximumHeight(70)
+        self.setMaximumHeight(50)
 
     def host_changed(self, host_connection):
         '''Host has been set, listen to changes to context.'''
         if self._subscribe_id is not None:
             self.session.unsubscribe(self._subscribe_id)
             self._subscribe_id = None
-        if self.entityBrowser is None:  # Not do this for opener
+        if self.entity_browser is None:  # Not do this for opener
             self._subscribe_id = self.session.event_hub.subscribe(
                 'topic={} and data.pipeline.host_id={}'.format(
                     constants.PIPELINE_CONTEXT_CHANGE, host_connection.id
@@ -128,7 +126,7 @@ class ContextSelector(QtWidgets.QWidget):
                     context['name'], context['id']
                 )
             )
-            self.set_entity(context)
+            self.set_entity(context, True)
 
     def set_default_context_id(self):
         '''Reset the context ID back to default.'''
@@ -141,14 +139,15 @@ class ContextSelector(QtWidgets.QWidget):
         current_entity = entity or self._entity
         self.set_entity(current_entity)
 
-    def set_entity(self, entity):
+    def set_entity(self, entity, global_context_change=False):
         '''Set the *entity* for the view.'''
         if not entity:
             return
         self._entity = entity
-        self.entityChanged.emit(entity)
+        self.entityChanged.emit(entity, global_context_change)
         self.entity_info.set_entity(entity)
         self._context_id = entity['id']
+        self.set_thumbnail(self._entity)
 
     def find_context_entity(self, context_id):
         context_entity = self.session.query(
@@ -167,21 +166,20 @@ class ContextSelector(QtWidgets.QWidget):
             )
             thread.start()
 
-    def _onEntityBrowseButtonClicked(self):
+    def _on_entity_browse_button_clicked(self):
         '''Handle entity browse button clicked'''
         # Ensure browser points to parent of currently selected entity.
-        if self.entityBrowser:
-            self.entityBrowser.set_entity(
+        if self.entity_browser:
+            self.entity_browser.set_entity(
                 self._entity['parent'] if self._entity else None
             )
             # Launch browser.
-            if self.entityBrowser.exec_():
-                self.set_entity(self.entityBrowser.entity)
+            if self.entity_browser.exec_():
+                self.set_entity(self.entity_browser.entity)
         else:
-            # Can only be done from opener
             if not self._client.is_docked():
                 self._client.get_parent_window().hide()
                 self._client.get_parent_window().destroy()
             self._client.host_connection.launch_widget(
-                qt_constants.OPEN_WIDGET
+                qt_constants.CHANGE_CONTEXT_WIDGET
             )

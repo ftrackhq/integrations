@@ -26,9 +26,10 @@ from ftrack_connect_pipeline_qt.ui.utility.widget import (
 from ftrack_connect_pipeline_qt.ui import resource
 from ftrack_connect_pipeline_qt.ui import theme
 from ftrack_connect_pipeline_qt.ui.utility.widget import icon
+from ftrack_connect_pipeline_qt.ui.utility.widget import dialog
 
 
-class QtLogViewerDialog(QtWidgets.QDialog):
+class QtLogViewerDialog(dialog.Dialog):
     def __init__(self, event_manager, parent=None):
         super(QtLogViewerDialog, self).__init__(parent=parent)
 

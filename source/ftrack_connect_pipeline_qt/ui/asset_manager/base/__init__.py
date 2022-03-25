@@ -11,7 +11,7 @@ from ftrack_connect_pipeline_qt.ui.utility.widget.search import Search
 from ftrack_connect_pipeline_qt.ui.utility.widget.base.accordion_base import (
     AccordionBaseWidget,
 )
-from ftrack_connect_pipeline_qt.ui.utility.widget.dialog import Dialog
+from ftrack_connect_pipeline_qt.ui.utility.widget.dialog import ModalDialog
 
 
 class AssetManagerBaseWidget(QtWidgets.QWidget):

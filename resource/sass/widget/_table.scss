@@ -25,7 +25,7 @@ QTableView::item
 
 QTableView::item:selected
 {
-    background: $gray-lighter;
+    background: $background-selected;
 }
 
 QHeaderView {

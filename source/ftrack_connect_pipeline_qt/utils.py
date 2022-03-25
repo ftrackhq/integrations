@@ -4,8 +4,9 @@
 import threading
 import sys
 import logging
+import contextlib
 
-from Qt import QtCore, QtWidgets
+from Qt import QtCore, QtWidgets, QtGui
 
 from ftrack_connect_pipeline_qt import constants as qt_constants
 
@@ -143,18 +144,8 @@ def set_property(widget, name, value):
     widget.update()
 
 
-def str_version(v, with_id=False, force_version_nr=None):
-    return '{}/{}/{}/v{}{}'.format(
-        '/'.join(['{}'.format(link['name']) for link in v['task']['link']]),
-        v['asset']['name'],
-        v['asset']['type']['name'],
-        force_version_nr or v['version'],
-        ('({})'.format(v['id']) if with_id else ''),
-    )
-
-
 def clear_layout(layout):
-    while layout and layout.count():
+    while layout is not None and layout.count():
         item = layout.takeAt(0)
         widget = item.widget()
         if widget is not None:
@@ -180,3 +171,48 @@ def center_widget(w, width=None, height=None):
 
     v_container.layout().addWidget(QtWidgets.QLabel(), 100)
     return v_container
+
+
+class FilterClass(QtCore.QObject):
+    def __init__(self, blocker, parent=None):
+        super(FilterClass, self).__init__(parent=parent)
+        self._blocker = blocker
+
+    def eventFilter(self, obj, event):
+        '''Suppress all events.'''
+        retval = False
+        if self._blocker() and (isinstance(event, QtGui.QInputEvent)):
+            retval = True
+        return retval
+
+
+@contextlib.contextmanager
+def block_input_events(widget=None, blocker=None):
+    '''Suppress any QT events during execution of this context (with clause).'''
+
+    def always_block():
+        return True
+
+    filterObj = FilterClass(blocker or always_block)
+
+    if widget is None:
+        widget = QtCore.QCoreApplication.instance()
+    widget.installEventFilter(filterObj)
+    yield
+    widget.removeEventFilter(filterObj)
+
+
+class InputEventBlockingWidget(QtWidgets.QWidget):
+    '''Conditional input event blocking widget.'''
+
+    def __init__(self, blocker, parent=None):
+        super(InputEventBlockingWidget, self).__init__(parent=parent)
+        self._blocker = blocker
+        application = QtCore.QCoreApplication.instance()
+        application.installEventFilter(self)
+
+    def eventFilter(self, obj, event):
+        retval = False
+        if self._blocker() and (isinstance(event, QtGui.QInputEvent)):
+            retval = True
+        return retval

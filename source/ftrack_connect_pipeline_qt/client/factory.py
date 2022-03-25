@@ -193,15 +193,6 @@ class WidgetFactoryBase(QtWidgets.QWidget):
                 stage_name = stage.get('name')
                 if stage_name_filters and stage_name not in stage_name_filters:
                     continue
-                # @@@ DEBUG - skip creating dynamic widgets
-                # if not isinstance(
-                #    step_obj, override_widgets.PublisherAccordionStepWidget
-                # ):
-                #    if (
-                #        stage_type == core_constants.VALIDATOR
-                #        or stage_type == core_constants.OUTPUT
-                #    ):
-                #        continue
                 if (
                     self.progress_widget
                     and step_type == 'finalizer'

@@ -7,7 +7,7 @@ QFrame[background='ftrack'], QDialog[background='ftrack'] {
 }
 
 QFrame[background='default'], QDialog[background='default'] {
-    background: rgb(55,55,55);
+    background: $background-docked;
 }
 
 QFrame[background='maya'], QDialog[background='maya'] {
@@ -35,11 +35,11 @@ QFrame[indicator='off'] {
 }
 
 QFrame[background='selected'] {
-    background: $gray-lighter;
+    background: $background-selected;
 }
 
 QFrame[background='selected_docked'] {
-    background: rgb(77,77,77);
+    background: $background-selected-docked;
 }
 
 QFrame[background='transparent'] {
@@ -53,7 +53,6 @@ Line {
 
 NewAssetInput[status='focused'] {
     border: 1px dashed $color-purple;
-    background: rgb(77,77,77);
 }
 
 NewAssetInput[status='unfocused'] {
@@ -93,8 +92,12 @@ NavigationEntityButton[first='true'] {
     border: 1px dashed $border-color;
 }
 
-NavigationEntityButton:hover {
-    background: $gray-lighter;
+NavigationEntityButton:hover, EntityWidget:hover, AccordionBaseWidget:hover {
+    background: $alt-background;
+}
+
+QFrame[docked='true'] NavigationEntityButton:hover, QFrame[docked='true'] EntityWidget:hover, QFrame[docked='true'] AccordionBaseWidget:hover {
+    background: rgb(88,88,88);
 }
 
 EntityWidget {
@@ -104,11 +107,7 @@ EntityWidget {
 }
 
 EntityWidget[background='selected'] {
-    background: $gray-lighter;
-}
-
-EntityWidget:hover {
-    background: $gray-lighter;
+    background: $background-selected;
 }
 
 TypeWidget {

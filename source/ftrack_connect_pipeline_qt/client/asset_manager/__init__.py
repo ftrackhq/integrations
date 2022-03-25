@@ -22,7 +22,7 @@ from ftrack_connect_pipeline_qt.ui.utility.widget.context_selector import (
     ContextSelector,
 )
 from ftrack_connect_pipeline_qt.ui import theme
-from ftrack_connect_pipeline_qt.ui.utility.widget.dialog import Dialog
+from ftrack_connect_pipeline_qt.ui.utility.widget.dialog import ModalDialog
 from ftrack_connect_pipeline_qt.utils import BaseThread, set_property
 
 
@@ -39,6 +39,8 @@ class QtAssetManagerClient(AssetManagerClient, QtWidgets.QFrame):
 
     client_name = qt_constants.ASSET_MANAGER_WIDGET
     definition_filter = 'asset_manager'  # Use only definitions that matches the definition_filter
+
+    _shown = False
 
     def __init__(
         self,
@@ -135,6 +137,7 @@ class QtAssetManagerClient(AssetManagerClient, QtWidgets.QFrame):
             button_widget = QtWidgets.QWidget()
             button_widget.setLayout(QtWidgets.QHBoxLayout())
             button_widget.layout().addStretch()
+            button_widget.layout().setContentsMargins(0, 0, 0, 0)
             self._remove_button = RemoveButton('REMOVE FROM SCENE')
             self._remove_button.setMinimumHeight(32)
             self._remove_button.setEnabled(False)
@@ -209,7 +212,7 @@ class QtAssetManagerClient(AssetManagerClient, QtWidgets.QFrame):
             return
 
         if not AssetManagerClient.change_host(self, host_connection):
-            Dialog(
+            ModalDialog(
                 self.get_parent_window(),
                 title='Asset Manager',
                 message='No asset manager definitions are available, please check your configuration!',
@@ -454,7 +457,7 @@ class QtAssetManagerClient(AssetManagerClient, QtWidgets.QFrame):
     def _remove_assets_clicked(self):
         selection = self.asset_manager_widget.asset_list.selection()
         if self.asset_manager_widget.check_selection(selection):
-            if Dialog(
+            if ModalDialog(
                 self.get_parent_window(),
                 title='ftrack Asset manager',
                 question='Really remove {} asset{}?'.format(
@@ -498,6 +501,12 @@ class QtAssetManagerClient(AssetManagerClient, QtWidgets.QFrame):
 
     def _open_publisher(self):
         self.host_connection.launch_widget(qt_constants.PUBLISHER_WIDGET)
+
+    def conditional_rebuild(self):
+        if self._shown:
+            # Refresh when re-opened
+            self.asset_manager_widget.rebuild.emit()
+        self._shown = True
 
     def mousePressEvent(self, event):
         if event.button() != QtCore.Qt.RightButton:

@@ -17,13 +17,13 @@ QListWidget::item QLabel
 
 QListWidget::item:selected
 {
-   background: $gray-lighter;
+   background: $background-selected;
    color: $text-color;
    border: 1px dashed $color-purple;
 }
 
 QFrame[docked='true'] QListWidget::item:selected {
-    color: rgb(77, 77, 77);
+    color: $background-selected-docked;
 }
 
 AssetList {

@@ -9,7 +9,7 @@ from Qt import QtCore, QtWidgets
 
 from ftrack_connect_pipeline.client import constants
 from ftrack_connect_pipeline_qt import constants as qt_constants
-from ftrack_connect_pipeline_qt.ui.utility.widget.dialog import Dialog
+from ftrack_connect_pipeline_qt.ui.utility.widget.dialog import ModalDialog
 from ftrack_connect_pipeline_qt.client import QtClient
 
 from ftrack_connect_pipeline_qt.client import factory
@@ -23,7 +23,8 @@ from ftrack_connect_pipeline_qt.ui.utility.widget import (
 from ftrack_connect_pipeline_qt.ui.utility.widget.context_selector import (
     ContextSelector,
 )
-from ftrack_connect_pipeline_qt.utils import str_version, clear_layout
+from ftrack_connect_pipeline.utils import str_version
+from ftrack_connect_pipeline_qt.utils import clear_layout
 
 from ftrack_connect_pipeline_qt.client.asset_manager import (
     QtAssetManagerClient,
@@ -65,9 +66,8 @@ class QtAssemblerClient(QtClient):
 
     def pre_build(self):
         super(QtAssemblerClient, self).pre_build()
-        self.header = header.Header(
-            self.session, title='CONNECT', show_user=False
-        )
+        self.layout().setContentsMargins(16, 16, 16, 16)
+        self.header = header.Header(self.session, title='CONNECT')
         self.header.setMinimumHeight(37)
         # Create and add the asset manager client
         self.asset_manager = QtAssetManagerClient(
@@ -79,7 +79,6 @@ class QtAssemblerClient(QtClient):
 
     def build_left_widget(self):
         '''Left split pane content'''
-        # self.setStyleSheet('background-color: red;')
 
         self._left_widget = QtWidgets.QWidget()
         self._left_widget.setLayout(QtWidgets.QVBoxLayout())
@@ -87,7 +86,6 @@ class QtAssemblerClient(QtClient):
         self._left_widget.layout().setSpacing(0)
 
         self._left_widget.layout().addWidget(self.header)
-        # self.header.setStyleSheet('background-color: black;')
 
         self.progress_widget = (
             factory.LoaderWidgetFactory.create_progress_widget(
@@ -121,8 +119,6 @@ class QtAssemblerClient(QtClient):
         self._dep_widget.layout().setContentsMargins(0, 0, 0, 0)
         self._dep_widget.layout().setSpacing(0)
 
-        # self._dep_widget.setStyleSheet('background-color: green;')
-
         self._tab_widget.addTab(self._dep_widget, 'Suggestions')
 
         self._browse_widget = QtWidgets.QWidget()
@@ -142,6 +138,7 @@ class QtAssemblerClient(QtClient):
 
         button_widget = QtWidgets.QWidget()
         button_widget.setLayout(QtWidgets.QHBoxLayout())
+        button_widget.layout().setContentsMargins(2, 4, 8, 0)
         button_widget.layout().addStretch()
         self.run_button_no_load = AddRunButton('ADD TO SCENE')
         self.run_button_no_load.setMinimumHeight(32)
@@ -187,7 +184,7 @@ class QtAssemblerClient(QtClient):
 
     def post_build(self):
         super(QtAssemblerClient, self).post_build()
-        self.host_and_definition_selector.hosts_discovered.connect(
+        self.host_and_definition_selector.hostsDiscovered.connect(
             self._on_hosts_discovered
         )
         self._tab_widget.currentChanged.connect(self._on_tab_changed)
@@ -250,6 +247,7 @@ class QtAssemblerClient(QtClient):
     def reset(self):
         '''Assembler is shown again after being hidden.'''
         self.refresh(True)
+        self.asset_manager.asset_manager_widget.rebuild.emit()
         self.progress_widget.hide_widget()
         self.progress_widget.clear_components()
 
@@ -266,7 +264,7 @@ class QtAssemblerClient(QtClient):
             as_widgets=True
         )
         if len(component_widgets) == 0:
-            dlg = Dialog(
+            dlg = ModalDialog(
                 self.get_parent_window(),
                 title='ftrack Assembler',
                 question='Load all?',

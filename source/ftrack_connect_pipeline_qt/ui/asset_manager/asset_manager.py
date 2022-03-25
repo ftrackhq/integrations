@@ -19,14 +19,15 @@ from ftrack_connect_pipeline_qt.ui.utility.widget.circular_button import (
 from ftrack_connect_pipeline_qt.ui.utility.widget.base.accordion_base import (
     AccordionBaseWidget,
 )
-from ftrack_connect_pipeline_qt.utils import set_property, str_version
+from ftrack_connect_pipeline.utils import str_version
+from ftrack_connect_pipeline_qt.utils import set_property
 from ftrack_connect_pipeline_qt.ui.utility.widget.thumbnail import (
     AssetVersion as AssetVersionThumbnail,
 )
 from ftrack_connect_pipeline_qt.ui.utility.widget.entity_info import EntityInfo
 from ftrack_connect_pipeline_qt.ui.utility.widget import line
 from ftrack_connect_pipeline_qt.utils import clear_layout
-from ftrack_connect_pipeline_qt.ui.utility.widget.dialog import Dialog
+from ftrack_connect_pipeline_qt.ui.utility.widget.dialog import ModalDialog
 from ftrack_connect_pipeline_qt.ui.utility.widget.busy_indicator import (
     BusyIndicator,
 )
@@ -268,7 +269,7 @@ class AssetManagerWidget(AssetManagerBaseWidget):
 
     def check_selection(self, selected_assets):
         if len(selected_assets) == 0:
-            Dialog(
+            ModalDialog(
                 self._asset_manager_client,
                 title='Error!',
                 message="Please select at least one asset!",
@@ -308,7 +309,7 @@ class AssetManagerWidget(AssetManagerBaseWidget):
         '''
         selection = self._asset_list.selection()
         if self.check_selection(selection):
-            if Dialog(
+            if ModalDialog(
                 self._asset_manager_client.get_parent_window(),
                 title='ftrack Asset manager',
                 question='Really update {} asset{} to latest version?'.format(
@@ -325,7 +326,7 @@ class AssetManagerWidget(AssetManagerBaseWidget):
         '''
         selection = self._asset_list.selection()
         if self.check_selection(selection):
-            if Dialog(
+            if ModalDialog(
                 self._asset_manager_client.get_parent_window(),
                 title='ftrack Asset manager',
                 question='Really unload {} asset{}?'.format(
@@ -342,7 +343,7 @@ class AssetManagerWidget(AssetManagerBaseWidget):
         '''
         selection = self._asset_list.selection()
         if self.check_selection(selection):
-            if Dialog(
+            if ModalDialog(
                 self._asset_manager_client.get_parent_window(),
                 title='ftrack Asset manager',
                 question='Really remove {} asset{}?'.format(
@@ -416,7 +417,7 @@ class AssetManagerWidget(AssetManagerBaseWidget):
                 asset_info[asset_constants.VERSION_ID]
             )
         ).first()
-        if Dialog(
+        if ModalDialog(
             self._asset_manager_client.get_parent_window(),
             title='ftrack Asset manager',
             question='Change version of {} to v{}?'.format(
@@ -572,6 +573,7 @@ class AssetWidget(AccordionBaseWidget):
         header_layout.addWidget(widget)
 
         header_layout.addStretch()
+
         header_layout.addWidget(self.init_status_widget())
 
     def init_content(self, content_layout):
@@ -751,7 +753,7 @@ class AssetWidget(AccordionBaseWidget):
                     if dep_version:
                         dep_version_widget = QtWidgets.QWidget()
                         dep_version_widget.setLayout(QtWidgets.QHBoxLayout())
-                        dep_version_widget.setContentsMargins(15, 1, 1, 1)
+                        dep_version_widget.setContentsMargins(25, 1, 1, 1)
                         dep_version_widget.setMaximumHeight(64)
 
                         dep_thumbnail_widget = AssetVersionThumbnail(
@@ -769,7 +771,7 @@ class AssetWidget(AccordionBaseWidget):
                         dep_entity_info = EntityInfo()
                         dep_entity_info.set_entity(version['asset']['parent'])
                         dep_entity_info.setMinimumHeight(100)
-                        context_widget.layout().addWidget(dep_entity_info, 100)
+                        dep_version_widget.layout().addWidget(dep_entity_info)
 
                         self.add_widget(dep_version_widget)
                     else:
@@ -809,8 +811,9 @@ class AssetVersionSelector(QtWidgets.QComboBox):
 
 
 class AssetVersionStatusWidget(QtWidgets.QFrame):
-    def __init__(self):
+    def __init__(self, bordered=True):
         super(AssetVersionStatusWidget, self).__init__()
+        self._bordered = bordered
 
         self.pre_build()
         self.build()
@@ -824,6 +827,8 @@ class AssetVersionStatusWidget(QtWidgets.QFrame):
 
     def build(self):
         self._label_widget = QtWidgets.QLabel()
+        if self._bordered:
+            self._label_widget.setAlignment(QtCore.Qt.AlignCenter)
         self.layout().addWidget(self._label_widget)
 
     def set_status(self, status):
@@ -836,14 +841,15 @@ class AssetVersionStatusWidget(QtWidgets.QFrame):
                 status['color']
             )
         )
-        self.setStyleSheet(
-            '''
-            QFrame {
-                border: 1px solid %s;
-            }
-         '''
-            % (status['color'])
-        )
+        if self._bordered:
+            self.setStyleSheet(
+                '''
+                QFrame {
+                    border: 1px solid %s;
+                }
+             '''
+                % (status['color'])
+            )
 
 
 class ComponentAndVersionWidget(QtWidgets.QWidget):

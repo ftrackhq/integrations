@@ -13,7 +13,7 @@ from ftrack_connect_pipeline_qt.ui.utility.widget.search import Search
 from ftrack_connect_pipeline_qt.ui.utility.widget.circular_button import (
     CircularButton,
 )
-from ftrack_connect_pipeline_qt.ui.utility.widget.dialog import Dialog
+from ftrack_connect_pipeline_qt.ui.utility.widget.dialog import ModalDialog
 
 
 class PluginLogViewerWidget(QtWidgets.QWidget):
@@ -129,7 +129,7 @@ class PluginLogViewerWidget(QtWidgets.QWidget):
             user_message=data.user_message,
         )
 
-        Dialog(
+        ModalDialog(
             self._parent_window,
             title='View ftrack plugin log message',
             message=formated_text,

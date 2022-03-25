@@ -7,20 +7,26 @@ import subprocess
 
 from Qt import QtCore, QtWidgets
 
+from ftrack_connect_pipeline.utils import str_context
 from ftrack_connect_pipeline.client import Client, constants
 from ftrack_connect_pipeline_qt.ui.utility.widget import (
     header,
     definition_selector,
     line,
-    footer,
+    dialog,
 )
 from ftrack_connect_pipeline_qt.client import factory
 from ftrack_connect_pipeline_qt import constants as qt_constants
 from ftrack_connect_pipeline_qt.ui.utility.widget.context_selector import (
     ContextSelector,
 )
-from ftrack_connect_pipeline_qt.ui import resource
+from ftrack_connect_pipeline_qt.ui import (
+    resource,
+)  # Important to keep this in order to bootstrap resources
 from ftrack_connect_pipeline_qt.ui import theme
+from ftrack_connect_pipeline_qt.ui.utility.widget.entity_browser import (
+    EntityBrowser,
+)
 
 
 class QtClient(Client, QtWidgets.QFrame):
@@ -29,10 +35,16 @@ class QtClient(Client, QtWidgets.QFrame):
     '''
 
     ui_types = [constants.UI_TYPE, qt_constants.UI_TYPE]
+
     # Text of the button to run the whole definition
     client_name = None
 
+    # Have assembler match on file extension (relaxed)
+    assembler_match_extension = False
+
     contextChanged = QtCore.Signal(object)  # Client context has changed
+
+    _shown = False
 
     def __init__(self, event_manager, parent_window, parent=None):
         '''Initialise with *event_manager* and
@@ -120,7 +132,10 @@ class QtClient(Client, QtWidgets.QFrame):
         '''Prepare general layout.'''
         self.setLayout(QtWidgets.QVBoxLayout())
         self.layout().setAlignment(QtCore.Qt.AlignTop)
-        self.layout().setContentsMargins(0, 0, 0, 5)
+        if self.is_docked():
+            self.layout().setContentsMargins(0, 0, 0, 5)
+        else:
+            self.layout().setContentsMargins(16, 16, 16, 16)
         self.layout().setSpacing(0)
 
     def build(self):
@@ -180,27 +195,20 @@ class QtClient(Client, QtWidgets.QFrame):
 
         self.run_button.clicked.connect(self.run)
 
-    def _on_context_selector_context_changed(self, context_entity):
+    def _on_context_selector_context_changed(
+        self, context_entity, global_context_change
+    ):
         '''Updates the option dictionary with provided *context* when
         entityChanged of context_selector event is triggered'''
+
         self.context_id = context_entity['id']
         self.change_context(self.context_id)
 
-        # keep reference of the latest selected definition
-        index = (
-            self.host_and_definition_selector.get_current_definition_index()
-        )
-
-        if len(self.host_and_definition_selector.host_connections) > 0:
-            if self.event_manager.mode == constants.LOCAL_EVENT_MODE:
-                self.host_and_definition_selector.change_host_index(1)
-        else:
-            self.host_and_definition_selector.change_host_index(0)
-
-        if index != -1:
-            self.host_and_definition_selector.set_current_definition_index(
-                index
-            )
+        if global_context_change:
+            # Reset definitions
+            self.host_and_definition_selector.clear_definitions()
+            self.host_and_definition_selector.populate_definitions()
+            self._clear_widget()
 
     def change_context(self, context_id):
         '''
@@ -211,13 +219,13 @@ class QtClient(Client, QtWidgets.QFrame):
         super(QtClient, self).change_context(context_id)
         self.contextChanged.emit(context_id)
 
-    def _clear_host_widget(self):
+    def _clear_widget(self):
         if self.scroll and self.scroll.widget():
             self.scroll.widget().deleteLater()
 
     def change_host(self, host_connection):
         '''Triggered when host_changed is called from the host_selector.'''
-        self._clear_host_widget()
+        self._clear_widget()
         super(QtClient, self).change_host(host_connection)
         self.context_selector.host_changed(host_connection)
 
@@ -228,7 +236,7 @@ class QtClient(Client, QtWidgets.QFrame):
         '''
 
         self._component_names_filter = component_names_filter
-        self._clear_host_widget()
+        self._clear_widget()
 
         if not schema and not definition:
             self.definition_changed(None, 0)
@@ -264,6 +272,7 @@ class QtClient(Client, QtWidgets.QFrame):
 
     def run(self):
         '''Function called when click the run button'''
+        self.widget_factory.has_error = False
         serialized_data = self.widget_factory.to_json_object()
         if not self.is_valid_asset_name:
             msg = "Can't publish without a valid asset name"
@@ -291,6 +300,13 @@ class QtClient(Client, QtWidgets.QFrame):
                 False
             )
 
+    def conditional_rebuild(self):
+        if self._shown:
+            # Refresh when re-opened
+            self.host_and_definition_selector.refresh()
+        super(QtClient, self).show()
+        self._shown = True
+
     def showEvent(self, event):
         if self._postponed_change_definition:
             (
@@ -301,6 +317,59 @@ class QtClient(Client, QtWidgets.QFrame):
             self.change_definition(schema, definition, component_names_filter)
         self._shown = True
         event.accept()
+
+
+class QtChangeContextClient(Client):
+    '''Client for changing the current working context.'''
+
+    def __init__(self, event_manager, unused_asset_list_model):
+        Client.__init__(self, event_manager)
+        self.logger = logging.getLogger(
+            __name__ + '.' + self.__class__.__name__
+        )
+        self._host_connection = None
+
+        self.pre_build()
+        self.post_build()
+
+    def pre_build(self):
+        self.entity_browser = EntityBrowser(
+            None,
+            self.session,
+            title='CHOOSE TASK (WORKING CONTEXT)',
+        )
+
+    def post_build(self):
+        self._host_connections = self.discover_hosts()
+        if len(self._host_connections) == 1:
+            self._host_connection = self._host_connections[0]
+
+    def show(self):
+        # Find my host
+        if self._host_connection is None:
+            if len(self._host_connections) == 0:
+                dialog.ModalDialog(
+                    None,
+                    title='Change context',
+                    message='No host detected, cannot change context!',
+                )
+                return
+            # Need to choose host connection
+            self._host_connections[0].launch_widget(qt_constants.OPEN_WIDGET)
+            return
+        self.entity_browser.setMinimumWidth(600)
+        if self.entity_browser.exec_():
+            self.set_entity(self.entity_browser.entity)
+            dialog.ModalDialog(
+                None,
+                title='Change context',
+                message="Working context is now: {}".format(
+                    str_context(self.entity_browser.entity)
+                ),
+            )
+
+    def set_entity(self, context):
+        self._host_connection.set_context(context)
 
 
 class QtDocumentationClient:
