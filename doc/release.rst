@@ -7,15 +7,14 @@ Releases
 
 .. release:: Upcoming
 
-    .. change:: changed
-
-        Update icon set based on new style.
-
-.. release:: Upcoming
-
    .. change:: changed
 
         Installation path does not include Connect version.
+
+
+    .. change:: changed
+
+        Update icon set based on new style.
 
 
 .. release:: 2.0.0-rc-4
