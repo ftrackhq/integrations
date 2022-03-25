@@ -58,7 +58,7 @@ class LoaderImporterPlugin(base.BaseImporterPlugin):
         return method, plugin_settings
 
     def get_current_objects(self):
-        # TODO: implement this function un the dcc plugin importer.py
+        # TODO: implement this function on the dcc plugin importer.py
         raise NotImplementedError
 
     def init_nodes(self, context_data=None, data=None, options=None):
@@ -127,4 +127,3 @@ class LoaderImporterPlugin(base.BaseImporterPlugin):
             self.ftrack_asset.connect_objects(diff)
 
         return super_result
-

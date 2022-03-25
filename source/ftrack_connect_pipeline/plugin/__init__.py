@@ -394,9 +394,9 @@ class BasePlugin(object):
         Runs the method passed in the given
         *event* ['data']['pipeline']['method'].
 
-        Returns a diccionary with the result information of the called method.
+        Returns a dictionary with the result information of the called method.
 
-        *event* : Diccionary returned when the event topic
+        *event* : Dictionary returned when the event topic
         :const:`~ftrack_connect_pipeline.constants.PIPELINE_RUN_PLUGIN_TOPIC` is
         called.
 
@@ -462,7 +462,12 @@ class BasePlugin(object):
                 result_data['status'] = constants.EXCEPTION_STATUS
                 result_data['message'] = str(user_data_message)
                 return result_data
-
+            elif result is False and len(user_data_message or '') > 0:
+                result_data['status'] = constants.EXCEPTION_STATUS
+                result_data['message'] = 'Failed to run {}: {}'.format(
+                    self.__class__.__name__, user_data_message
+                )
+                return result_data
         if self.method == 'run':
             status, message = self._validate_result(result)
         else:

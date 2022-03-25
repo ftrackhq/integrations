@@ -75,7 +75,9 @@ class FtrackAssetBase(object):
             try:
                 value = FtrackAssetInfo(value)
             except Exception:
-                raise ValueError()
+                raise ValueError(
+                    'Could not initialise asset info from {}!'.format(value)
+                )
 
         self._asset_info = value
 
@@ -145,10 +147,11 @@ class FtrackAssetBase(object):
         '''Returns a unique scene name for the current asset_name'''
         short_id = "{}{}".format(
             self.asset_info[asset_const.ASSET_INFO_ID][:2],
-            self.asset_info[asset_const.ASSET_INFO_ID][-2:]
+            self.asset_info[asset_const.ASSET_INFO_ID][-2:],
         )
         ftrack_object_name = asset_const.FTRACK_OBJECT_NAME.format(
-            self.asset_info[asset_const.CONTEXT_PATH].replace(":","_"), short_id
+            self.asset_info[asset_const.CONTEXT_PATH].replace(":", "_"),
+            short_id,
         )
         return ftrack_object_name
 
