@@ -223,7 +223,9 @@ def save_snapshot(context_id, session):
     '''Save snapshot script locally, with the next version number based on latest version
     in ftrack.'''
 
-    snapshot_path, message = get_snapshot_save_path(context_id, session)
+    snapshot_path, message = get_snapshot_save_path(
+        context_id, session, extension='.nk'
+    )
 
     if snapshot_path is None:
         return (False, message)
