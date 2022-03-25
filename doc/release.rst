@@ -9,8 +9,11 @@ Releases
 
    .. change:: changed
 
-        Installation path does not include Connect version.
+        Bump ftrack-connect-plugin-manager to 0.1.3.
 
+   .. change:: changed
+
+        Installation path does not include Connect version.
 
     .. change:: changed
 
