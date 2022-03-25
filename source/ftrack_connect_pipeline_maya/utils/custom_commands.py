@@ -11,6 +11,7 @@ import maya.OpenMayaUI as OpenMayaUI
 
 import maya.utils as maya_utils
 import maya.cmds as cmds
+import maya.mel as mm
 
 from ftrack_connect_pipeline.utils import (
     get_snapshot_save_path,
@@ -85,7 +86,6 @@ def getReferenceNode(assetLink):
 
 def get_maya_window():
     """Return the QMainWindow for the main Maya window."""
-
     winptr = OpenMayaUI.MQtUtil.mainWindow()
     if winptr is None:
         raise RuntimeError('No Maya window found.')
@@ -95,6 +95,13 @@ def get_maya_window():
 
 
 def init_maya(session, from_context=False):
+    '''
+    Initialise timeline in Nuke based on shot/asset build settings.
+
+    :param session:
+    :param from_context: If True, the timeline data should be fetched from current context instead of environment variables.
+    :return:
+    '''
     fps = None
     if from_context:
         context = session.query(
@@ -167,7 +174,7 @@ def init_maya(session, from_context=False):
 
 
 def save_snapshot(context_id, session):
-    '''Save snapshot script locally, with the next version number based on latest version
+    '''Save snapshot scene locally, with the next version number based on latest version
     in ftrack.'''
 
     snapshot_path, message = get_snapshot_save_path(context_id, session)
@@ -179,6 +186,11 @@ def save_snapshot(context_id, session):
     cmds.file(rename=snapshot_path)
     cmds.file(save=True)
     message = 'Saved Maya scene @ "{}"'.format(snapshot_path)
+
+    # Add to recent files
+    mm.eval("source addRecentFile;")
+    mm.eval('addRecentFile("{}","{}");'.format(snapshot_path, 'mayaBinary'))
+
     result = snapshot_path
 
     return result, message
