@@ -5,6 +5,10 @@
 FROM inveniosoftware/centos8-python:3.7
 LABEL ftrack AB
 
+# patch repos url
+RUN sed -i -e "s|mirrorlist=|#mirrorlist=|g" /etc/yum.repos.d/CentOS-*
+RUN sed -i -e "s|#baseurl=http://mirror.centos.org|baseurl=http://vault.centos.org|g" /etc/yum.repos.d/CentOS-*
+
 RUN dnf -y update
 RUN dnf -y groupinstall "Development Tools"
 
@@ -33,4 +37,3 @@ RUN python3.7 setup.py build
 
 WORKDIR /usr/src/app/ftrack-connect-package/build
 RUN tar -czvf ftrack\ Connect-2.0-C8.tar.gz exe.linux-x86_64-3.7
-RUN ls build
