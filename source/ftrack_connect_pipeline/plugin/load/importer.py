@@ -127,4 +127,3 @@ class LoaderImporterPlugin(base.BaseImporterPlugin):
             self.ftrack_asset.connect_objects(diff)
 
         return super_result
-
