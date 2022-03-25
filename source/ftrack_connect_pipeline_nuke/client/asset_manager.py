@@ -1,6 +1,8 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2020 ftrack
 
+from Qt import QtWidgets, QtCore
+
 from ftrack_connect_pipeline_qt.client.asset_manager import (
     QtAssetManagerClient,
 )
@@ -16,13 +18,15 @@ class NukeAssetManagerClient(QtAssetManagerClient):
         nuke_constants.UI_TYPE,
     ]
 
-    '''Dockable maya load widget'''
+    '''Dockable nuke asset manager widget'''
 
-    def __init__(self, event_manager, parent=None):
+    def __init__(self, event_manager, asset_list_model):
         super(NukeAssetManagerClient, self).__init__(
-            event_manager=event_manager, parent=parent
+            event_manager=event_manager,
+            asset_list_model=asset_list_model,
+            parent_window=QtWidgets.QApplication.activeWindow(),
         )
-        self.setWindowTitle('Nuke Pipeline Asset Manager')
+        self.setWindowTitle('ftrack Connect')
 
-    def get_background_color(self):
+    def getThemeBackgroundStyle(self):
         return 'nuke'
