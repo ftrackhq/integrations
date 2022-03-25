@@ -35,7 +35,7 @@ def str_version(v, with_id=False, force_version_nr=None, delimiter='/'):
     ).replace('/', delimiter)
 
 
-def get_snapshot_save_path(context_id, session):
+def get_snapshot_save_path(context_id, session, extension=None):
     '''Calculate the path to local snapshot save (work path), DCC independent.'''
 
     result = False
@@ -103,7 +103,10 @@ def get_snapshot_save_path(context_id, session):
             snapshot_path, '%s_v%03d' % (filename, next_version_number)
         )
 
-        while os.path.exists(snapshot_path):
+        while os.path.exists(snapshot_path) or (
+            extension
+            and os.path.exists('{}{}'.format(snapshot_path, extension))
+        ):
             next_version_number += 1
             snapshot_path = os.path.join(
                 os.path.dirname(snapshot_path),
