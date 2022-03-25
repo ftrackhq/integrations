@@ -128,7 +128,7 @@ def initialise():
             qt_constants.CHANGE_CONTEXT_WIDGET,
             client.QtChangeContextClient,
             'Change context',
-            '',
+            'refresh',
         )
     )
     widgets.append(
