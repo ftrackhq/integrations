@@ -26,6 +26,7 @@ class MayaAssetManagerEngine(AssetManagerEngine):
             event_manager, host_types, host_id, asset_type_name=asset_type_name
         )
 
+    @maya_utils.run_in_main_thread
     def discover_assets(self, assets=None, options=None, plugin=None):
         '''
         Discover all the assets in the scene:
@@ -78,6 +79,93 @@ class MayaAssetManagerEngine(AssetManagerEngine):
 
         return status, result
 
+    @maya_utils.run_in_main_thread
+    def select_asset(self, asset_info, options=None, plugin=None):
+        '''
+        Selects the given *asset_info* from the scene.
+        *options* can contain clear_selection to clear the selection before
+        select the given *asset_info*.
+        Returns status and result
+        '''
+        start_time = time.time()
+        status = constants.UNKNOWN_STATUS
+        result = []
+        message = None
+
+        plugin_type = constants.PLUGIN_AM_ACTION_TYPE
+        plugin_name = None
+        if plugin:
+            plugin_type = '{}.{}'.format('asset_manager', plugin['type'])
+            plugin_name = plugin.get('name')
+
+        result_data = {
+            'plugin_name': plugin_name,
+            'plugin_type': plugin_type,
+            'method': 'select_asset',
+            'status': status,
+            'result': result,
+            'execution_time': 0,
+            'message': message,
+        }
+
+        ftrack_asset_object = self.get_ftrack_asset_object(asset_info)
+
+        if options.get('clear_selection'):
+            cmds.select(cl=True)
+
+        nodes = cmds.listConnections(
+            '{}.{}'.format(
+                ftrack_asset_object.ftrack_object, asset_const.ASSET_LINK
+            )
+        )
+        for node in nodes:
+            try:
+                cmds.select(node, add=True)
+                result.append(str(node))
+                status = constants.SUCCESS_STATUS
+            except Exception as error:
+                message = str(
+                    'Could not select the node {}, error: {}'.format(
+                        str(node), error
+                    )
+                )
+                self.logger.error(message)
+                status = constants.ERROR_STATUS
+
+            bool_status = constants.status_bool_mapping[status]
+            if not bool_status:
+                end_time = time.time()
+                total_time = end_time - start_time
+
+                result_data['status'] = status
+                result_data['result'] = result
+                result_data['execution_time'] = total_time
+                result_data['message'] = message
+
+                self._notify_client(plugin, result_data)
+                return status, result
+
+        end_time = time.time()
+        total_time = end_time - start_time
+
+        result_data['status'] = status
+        result_data['result'] = result
+        result_data['execution_time'] = total_time
+
+        self._notify_client(plugin, result_data)
+
+        return status, result
+
+    @maya_utils.run_in_main_thread
+    def select_assets(self, asset_infos, options=None, plugin=None):
+        result = None
+        for asset_info in asset_infos:
+            result = self.select_asset(
+                asset_info, options=options, plugin=options
+            )
+        return result
+
+    @maya_utils.run_in_main_thread
     def remove_asset(
         self, asset_info, options=None, plugin=None, keep_ftrack_node=False
     ):
@@ -223,85 +311,3 @@ class MayaAssetManagerEngine(AssetManagerEngine):
         self._notify_client(plugin, result_data)
 
         return status, result
-
-    def select_assets_sync(self, asset_info, options=None, plugin=None):
-        '''
-        Selects the given *asset_info* from the scene.
-        *options* can contain clear_selection to clear the selection before
-        select the given *asset_info*.
-        Returns status and result
-        '''
-        start_time = time.time()
-        status = constants.UNKNOWN_STATUS
-        result = []
-        message = None
-
-        plugin_type = constants.PLUGIN_AM_ACTION_TYPE
-        plugin_name = None
-        if plugin:
-            plugin_type = '{}.{}'.format('asset_manager', plugin['type'])
-            plugin_name = plugin.get('name')
-
-        result_data = {
-            'plugin_name': plugin_name,
-            'plugin_type': plugin_type,
-            'method': 'select_asset',
-            'status': status,
-            'result': result,
-            'execution_time': 0,
-            'message': message,
-        }
-
-        ftrack_asset_object = self.get_ftrack_asset_object(asset_info)
-
-        if options.get('clear_selection'):
-            cmds.select(cl=True)
-
-        nodes = cmds.listConnections(
-            '{}.{}'.format(
-                ftrack_asset_object.ftrack_object, asset_const.ASSET_LINK
-            )
-        )
-        for node in nodes:
-            try:
-                cmds.select(node, add=True)
-                result.append(str(node))
-                status = constants.SUCCESS_STATUS
-            except Exception as error:
-                message = str(
-                    'Could not select the node {}, error: {}'.format(
-                        str(node), error
-                    )
-                )
-                self.logger.error(message)
-                status = constants.ERROR_STATUS
-
-            bool_status = constants.status_bool_mapping[status]
-            if not bool_status:
-                end_time = time.time()
-                total_time = end_time - start_time
-
-                result_data['status'] = status
-                result_data['result'] = result
-                result_data['execution_time'] = total_time
-                result_data['message'] = message
-
-                self._notify_client(plugin, result_data)
-                return status, result
-
-        end_time = time.time()
-        total_time = end_time - start_time
-
-        result_data['status'] = status
-        result_data['result'] = result
-        result_data['execution_time'] = total_time
-
-        self._notify_client(plugin, result_data)
-
-        return status, result
-
-    def select_asset(self, asset_info, options=None, plugin=None):
-
-        return maya.utils.executeInMainThreadWithResult(
-            self.select_assets_sync, asset_info, options, plugin
-        )
