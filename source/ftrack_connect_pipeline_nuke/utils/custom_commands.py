@@ -156,6 +156,13 @@ def cleanSelection():
 
 
 def init_nuke(session, from_context=False):
+    '''
+    Initialise timeline in Nuke based on shot/asset build settings.
+
+    :param session:
+    :param from_context: If True, the timeline data should be fetched from current context instead of environment variables.
+    :return:
+    '''
     fps = None
     if from_context:
         context = session.query(

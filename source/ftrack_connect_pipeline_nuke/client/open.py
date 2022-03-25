@@ -57,7 +57,7 @@ class NukeOpenDialog(dialog.Dialog):
 
     def show(self):
         if self._shown:
-            # Widget has been shown before, reset client
+            # Widget has been shown before, recreate client
             self._client.setParent(None)
             self._client = None
         super(NukeOpenDialog, self).show()
