@@ -304,7 +304,6 @@ class QtClient(Client, QtWidgets.QFrame):
         if self._shown:
             # Refresh when re-opened
             self.host_and_definition_selector.refresh()
-        super(QtClient, self).show()
         self._shown = True
 
     def showEvent(self, event):
