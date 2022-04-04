@@ -172,6 +172,21 @@ class AssemblerBaseWidget(QtWidgets.QWidget):
         self.layout().addWidget(self.scroll, 1000)
 
     def rebuild(self):
+        '''Prepare rebuild of the widget'''
+
+        # Check if there is any loader definitions
+        if (
+            len(
+                self._assembler_client.host_and_definition_selector.definitions
+                or []
+            )
+            == 0
+        ):
+            self._assembler_client.progress_widget.set_status(
+                constants.WARNING_STATUS,
+                'No loader definitions are available, please check pipeline configuration!',
+            )
+            return False
 
         self._rb_match_component_name.setEnabled(
             not self._cb_show_non_compatible.isChecked()
@@ -192,6 +207,8 @@ class AssemblerBaseWidget(QtWidgets.QWidget):
         self.get_context()
 
         self._loadable_count = 0
+
+        return True
 
     def post_build(self):
         self._cb_show_non_compatible.clicked.connect(self.rebuild)
@@ -390,6 +407,11 @@ class AssemblerBaseWidget(QtWidgets.QWidget):
                             component,
                             matching_definitions,
                             availability,
+                        )
+                    )
+                    self.logger.info(
+                        'Assembled version {0} component {1}({2}) for import'.format(
+                            version['id'], component['name'], component['id']
                         )
                     )
 
