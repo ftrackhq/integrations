@@ -3,6 +3,8 @@
 
 import os
 import re
+import shutil
+import sys
 
 from setuptools import setup, find_packages
 from setuptools.command.test import test as TestCommand
@@ -18,21 +20,13 @@ STAGING_PATH = os.path.join(BUILD_PATH, '{{ cookiecutter.package_name }}-{}')
 RESOURCE_PATH = os.path.join(ROOT_PATH, 'resource')
 HOOK_PATH = os.path.join(RESOURCE_PATH, 'hook')
 
+
 version_template = '''
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2021 ftrack
 
 __version__ = {version!r}
 '''
-
-
-# Read version from source.
-with open(os.path.join(
-    SOURCE_PATH, '{{ cookiecutter.package_name }}', '_version.py')
-) as _version_file:
-    VERSION = re.match(
-        r'.*__version__ = \'(.*?)\'', _version_file.read(), re.DOTALL
-    ).group(1)
 
 
 # Custom commands.
@@ -118,7 +112,7 @@ setup(
         '': 'source'
     },
     use_scm_version={
-        'write_to': os.path.join('source','{{ cookiecutter.package_name }}','/_version.py'),
+        'write_to': os.path.join('source','{{ cookiecutter.package_name }}','_version.py'),
         'write_to_template': version_template,
         'version_scheme': 'post-release'
     },
