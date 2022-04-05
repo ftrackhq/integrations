@@ -72,9 +72,7 @@ class QtOpenClient(QtClient):
         )
 
     def _on_components_checked(self, available_components_count):
-        super(QtOpenClient, self).definition_changed(
-            self.definition, available_components_count
-        )
+        self.definition_changed(self.definition, available_components_count)
         self._can_open = available_components_count > 0
         self.run_button.setText('OPEN' if self._can_open else 'OPEN ASSEMBLER')
         self.run_button.setVisible(True)
@@ -86,6 +84,7 @@ class QtOpenClient(QtClient):
             self.ask_open_assembler = True
         elif definition is not None and available_components_count >= 1:
             self.ask_open_latest = True
+            self.ask_open_assembler = False
 
     def run(self):
         if not self._can_open:

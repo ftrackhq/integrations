@@ -5,6 +5,7 @@ from functools import partial
 
 from Qt import QtWidgets, QtCore
 
+from ftrack_connect_pipeline.utils import str_version
 from ftrack_connect_pipeline import constants as core_constants
 from ftrack_connect_pipeline_qt import constants as qt_constants
 
@@ -65,13 +66,7 @@ class DefinitionSelectorWidgetBase(QtWidgets.QWidget):
         self.setLayout(main_layout)
 
     def build(self):
-        self.host_combobox = QtWidgets.QComboBox()
-        self.definition_combobox = QtWidgets.QComboBox()
-
-        self.layout().addWidget(self.host_combobox)
-        self.layout().addWidget(self.definition_combobox)
-
-        self.host_combobox.addItem('- Select host -')
+        raise NotImplementedError()
 
     def post_build(self):
         '''Connect the widget signals'''
@@ -109,25 +104,7 @@ class DefinitionSelectorWidgetBase(QtWidgets.QWidget):
         self.populate_definitions()
 
     def populate_definitions(self):
-        self.definition_combobox.addItem('- Select Definition -')
-        self.definitions = []
-        for schema in self.schemas:
-            schema_title = schema.get('title').lower()
-            if self._definition_title_filter:
-                if schema_title != self._definition_title_filter:
-                    continue
-            items = self.host_connection.definitions.get(schema_title)
-            self.definitions = items
-
-            for item in items:
-                text = '{}'.format(item.get('name'))
-                if not self._definition_title_filter:
-                    text = '{} - {}'.format(
-                        schema.get('title'), item.get('name')
-                    )
-                self.definition_combobox.addItem(text, item)
-
-        self.definition_combobox.show()
+        raise NotImplementedError()
 
     def _on_select_definition(self, index):
         self.definition = self.definition_combobox.itemData(index)
@@ -571,7 +548,7 @@ class DefinitionSelectorWidgetComboBox(DefinitionSelectorWidgetBase):
             self.definitions = items
 
             self._definition_selector.addItem("", None)
-            index = 1
+            index = 0
 
             for item in items:
                 # Remove ' Publisher/Loader'
@@ -632,6 +609,11 @@ class DefinitionSelectorWidgetComboBox(DefinitionSelectorWidgetBase):
                             component_step['enabled'] = False
                     if component_names_filter is None:
                         # There were no openable components, try next definition
+                        self.logger.info(
+                            'No openable components exists for definition "{}"!'.format(
+                                item.get('name')
+                            )
+                        )
                         continue
 
                     # Check if any versions at all, find out asset type name from package
@@ -659,24 +641,29 @@ class DefinitionSelectorWidgetComboBox(DefinitionSelectorWidgetBase):
                             )
                         ).first()
                         if asset_version:
-                            has_openable_component = False
+                            version_has_openable_component = False
                             for component in asset_version['components']:
                                 for component_name in component_names_filter:
                                     if (
                                         component['name'].lower()
                                         == component_name.lower()
                                     ):
-                                        has_openable_component = True
+                                        version_has_openable_component = True
                                         break
-                                if has_openable_component:
+                                if version_has_openable_component:
                                     break
-                            if has_openable_component and (
+                            if version_has_openable_component and (
                                 latest_version is None
                                 or latest_version['date']
                                 < asset_version['date']
                             ):
                                 latest_version = asset_version
                                 index_latest_version = index
+                                self.logger.info(
+                                    'Version {} can be opened'.format(
+                                        str_version(asset_version)
+                                    )
+                                )
                     if (
                         asset_version is None
                         and self._client_name == qt_constants.OPEN_WIDGET
@@ -692,12 +679,6 @@ class DefinitionSelectorWidgetComboBox(DefinitionSelectorWidgetBase):
                     )
 
                 index += 1
-        if (
-            index_latest_version == -1
-            and self._client_name == qt_constants.PUBLISHER_WIDGET
-            and self._definition_selector.count() == 2
-        ):
-            index_latest_version = 1  # Select the one and only
         self._definition_selector.currentIndexChanged.connect(
             self._on_change_definition
         )
@@ -721,19 +702,24 @@ class DefinitionSelectorWidgetComboBox(DefinitionSelectorWidgetBase):
             #    None, None, None
             # )  # Tell client there are no definitions
             self._definition_selector.setCurrentIndex(0)
-        elif index_latest_version == -1:
-            if self._client_name == qt_constants.OPEN_WIDGET:
-                # No versions
-                self.no_definitions_label.setText(
-                    '<html><i>No version available to open!</i></html>'
-                )
-                self._definition_selector.setCurrentIndex(0)
-                # self.definition_changed.emit(
-                #    None, None, None
-                # )  # Tell client there are no versions
         else:
-            self._definition_selector.setCurrentIndex(index_latest_version)
-            self.no_definitions_label.setVisible(False)
+            if index_latest_version == -1:
+                if self._definition_selector.count() == 2:
+                    index_latest_version = 1  # Select the one and only
+                else:
+                    if self._client_name == qt_constants.OPEN_WIDGET:
+                        # No versions
+                        self.no_definitions_label.setText(
+                            '<html><i>No version available to open!</i></html>'
+                        )
+                        self._definition_selector.setCurrentIndex(0)
+                        self.definition_changed.emit(
+                            None, None, None
+                        )  # Tell client there are no versions
+            if index_latest_version > -1:
+                self._definition_selector.setCurrentIndex(index_latest_version)
+                self.no_definitions_label.setVisible(False)
+
         if self._client_name != qt_constants.ASSEMBLER_WIDGET:
             self.definitions_widget.show()
 
