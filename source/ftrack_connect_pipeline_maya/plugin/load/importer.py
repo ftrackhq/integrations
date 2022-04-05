@@ -34,6 +34,10 @@ class LoaderImporterMayaPlugin(plugin.LoaderImporterPlugin, BaseMayaPlugin):
     def get_current_objects(self):
         return maya_utils.get_current_scene_objects()
 
+    @maya_utils.run_in_main_thread
+    def _run(self, event):
+        return super(LoaderImporterMayaPlugin, self)._run(event)
+
 
 class LoaderImporterMayaWidget(
     pluginWidget.LoaderImporterWidget, BaseMayaPluginWidget
@@ -47,4 +51,4 @@ class LoaderImporterMayaWidget(
 
     @maya_utils.run_in_main_thread
     def _run(self, event):
-        return super(LoaderImporterMayaWidget, self)._run, event
+        return super(LoaderImporterMayaWidget, self)._run(event)
