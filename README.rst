@@ -1,8 +1,8 @@
 ##################################
-ftrack cookiecutter python package
+ftrack cookiecutter connect plugin
 ##################################
 
-Cookiecutter template for a Python package.
+Cookiecutter template for a ftrack Connect plugin.
 
 *****
 Usage
@@ -14,7 +14,7 @@ First make sure you have cookiecutter installed::
 
 Then generate your project from this template (in your current directory)::
 
-    cookiecutter git@bitbucket.org:ftrack/ftrack-cookiecutter-python-package.git
+    cookiecutter https://bitbucket.org/ftrack-integrations/ftrack-cookiecutter-connect-plugin.git
 
 Check the output - you may need to fix documentation underlining, add
 dependencies etc.

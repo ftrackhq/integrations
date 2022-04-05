@@ -16,7 +16,7 @@ ROOT_PATH = os.path.dirname(os.path.realpath(__file__))
 SOURCE_PATH = os.path.join(ROOT_PATH, 'source')
 README_PATH = os.path.join(ROOT_PATH, 'README.rst')
 BUILD_PATH = os.path.join(ROOT_PATH, 'build')
-STAGING_PATH = os.path.join(BUILD_PATH, '{{ cookiecutter.package_name }}-{}')
+STAGING_PATH = os.path.join(BUILD_PATH, '{{ cookiecutter.repo_name }}-{}')
 RESOURCE_PATH = os.path.join(ROOT_PATH, 'resource')
 HOOK_PATH = os.path.join(RESOURCE_PATH, 'hook')
 
@@ -90,7 +90,7 @@ class BuildPlugin(Command):
         shutil.make_archive(
             os.path.join(
                 BUILD_PATH,
-                PLUGIN_NAME.format(VERSION)
+                '{{ cookiecutter.repo_name }}-{}'.format(VERSION)
             ),
             'zip',
             STAGING_PATH
