@@ -6,6 +6,7 @@
 import os
 import sys
 import re
+from pkg_resources import get_distribution, DistributionNotFound
 
 # -- General ------------------------------------------------------------------
 
@@ -37,19 +38,17 @@ master_doc = 'index'
 project = u'{{ cookiecutter.project_name }}'
 copyright = u'{{ cookiecutter.year }}, ftrack'
 
-# Version
-with open(
-    os.path.join(
-        os.path.dirname(__file__), '..', 'source',
-        '{{ cookiecutter.package_name }}', '_version.py'
-    )
-) as _version_file:
-    _version = re.match(
-        r'.*__version__ = \'(.*?)\'', _version_file.read(), re.DOTALL
-    ).group(1)
+try:
+    release = get_distribution('{{ cookiecutter.package_name }}').version
+    # take major/minor/patch
+    VERSION = '.'.join(release.split('.')[:3])
+except DistributionNotFound:
+    # package is not installed
+    VERSION = 'Unknown version'
 
-version = _version
-release = _version
+version = VERSION
+release = VERSION
+
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
