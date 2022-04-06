@@ -17,9 +17,11 @@ import qtawesome as qta
 import ftrack_connect.ui.application
 import ftrack_connect.ui.widget.actions
 
+from ftrack_connect_action_launcher_widget.actions import Actions
+
 
 class ActionLauncherWidget(ftrack_connect.ui.application.ConnectWidget):
-    name = 'Action Launcher'
+    name = 'Launcher'
 
     def __init__(self, session, parent=None):
         '''Instantiate the actions widget.'''
@@ -27,7 +29,7 @@ class ActionLauncherWidget(ftrack_connect.ui.application.ConnectWidget):
         layout = QtWidgets.QVBoxLayout()
         self.setLayout(layout)
 
-        self.actionsView = ftrack_connect.ui.widget.actions.Actions(
+        self.actionsView = Actions(
             self.session
         )
         layout.addWidget(self.actionsView)
