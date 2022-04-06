@@ -6,3 +6,8 @@
 *****
 Using
 *****
+
+.. toctree::
+    :maxdepth: 1
+
+    publishing
