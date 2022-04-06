@@ -26,11 +26,8 @@ cloning the public repository::
 Then you can build and install the package into your current Python
 site-packages folder::
 
-    python setup.py install
+    python setup.py build_plugin
 
-Alternatively, just build locally and manage yourself::
-
-    python setup.py build
 
 Building documentation from source
 ----------------------------------
