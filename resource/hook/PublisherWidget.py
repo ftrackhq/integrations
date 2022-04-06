@@ -21,6 +21,8 @@ import ftrack_connect.ui.widget.overlay
 import ftrack_connect.ui.widget.publisher
 import ftrack_connect.usage
 
+from ftrack_connect_publisher_widget.publisher import Publisher
+
 
 class PublisherBlockingOverlay(
     ftrack_connect.ui.widget.overlay.BlockingOverlay
@@ -43,14 +45,13 @@ class PublisherWidget(ftrack_connect.ui.application.ConnectWidget):
 
     entityChanged = QtCore.Signal(object)
 
-
     def __init__(self, session, parent=None):
             '''Instantiate the publisher widget.'''
             super(PublisherWidget, self).__init__(session, parent=parent)
             layout = QtWidgets.QVBoxLayout()
             self.setLayout(layout)
 
-            self.publishView = ftrack_connect.ui.widget.publisher.Publisher(
+            self.publishView = Publisher(
                 self.session
             )
             layout.addWidget(self.publishView)
