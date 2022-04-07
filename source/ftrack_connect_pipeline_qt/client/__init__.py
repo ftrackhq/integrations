@@ -283,7 +283,7 @@ class QtClient(Client, QtWidgets.QFrame):
             return False
         engine_type = serialized_data['_config']['engine_type']
         self.widget_factory.progress_widget.show_widget()
-        self.run_definition(serialized_data, engine_type, False)
+        self.run_definition(serialized_data, engine_type)
         return not self.widget_factory.has_error
 
     def _on_components_checked(self, available_components_count):
