@@ -44,6 +44,26 @@ class FtrackAssetNode(FtrackAssetBase):
 
         return self.ftrack_object
 
+    #TODO: Change this name for a better name.
+    def init_ftrack_object_from_asset_info(self):
+        '''
+        Return the ftrack ftrack_object for this class. It checks if there is
+        already a matching ftrack_object in the scene, in this case it
+        updates the ftrack_object if it's not. In case there is no ftrack_object
+        in the scene this function creates a new one.
+        '''
+        ftrack_object = self.get_ftrack_object_from_scene()
+
+        if not ftrack_object:
+            return None
+
+        if not self.is_sync(ftrack_object):
+            ftrack_object = self._update_ftrack_object(ftrack_object)
+
+        self.ftrack_object = ftrack_object
+
+        return self.ftrack_object
+
     def get_ftrack_object(self):
         '''
         Updates and return the ftrack ftrack_object for this class.
