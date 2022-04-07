@@ -47,10 +47,9 @@ class BaseImporterPlugin(BasePlugin):
     def run(self, context_data=None, data=None, options=None):
         raise NotImplementedError('Missing run method.')
 
-    def get_asset_class(self, context_data, data, options):
+    def generate_asset_info_class_from_arguments(self, context_data, data, options):
         '''
-        Returns the :data:`ftrack_asset_class` initialized with
-        :class:`~ftrack_connect_pipeline.asset.asset_info.FtrackAssetInfo`
+        Returns :class:`~ftrack_connect_pipeline.asset.asset_info.FtrackAssetInfo`
         created by the
         :meth:`~ftrack_connect_pipeline.asset.asset_info.generate_asset_info_dict_from_args`
         method using the given *context_data*, *data*, and *options*.
@@ -61,17 +60,33 @@ class BaseImporterPlugin(BasePlugin):
 
         asset_info_class = asset_info.FtrackAssetInfo(arguments_dict)
 
-        return self.create_ftrack_asset_class(asset_info_class)
+        return asset_info_class
 
-    def create_ftrack_asset_class(self, asset_info_class):
-        '''
-        Returns the :data:`ftrack_asset_class` initialized with
-        :class:`~ftrack_connect_pipeline.asset.asset_info.FtrackAssetInfo`
-        created by the
-        :meth:`~ftrack_connect_pipeline.asset.asset_info.generate_asset_info_dict_from_args`
-        method using the given *context_data*, *data*, and *options*.
-        '''
-
-        ftrack_asset = self.ftrack_asset_class(self.event_manager)
-        ftrack_asset.asset_info = asset_info_class
-        return ftrack_asset
+    # def get_asset_class(self, context_data, data, options):
+    #     '''
+    #     Returns the :data:`ftrack_asset_class` initialized with
+    #     :class:`~ftrack_connect_pipeline.asset.asset_info.FtrackAssetInfo`
+    #     created by the
+    #     :meth:`~ftrack_connect_pipeline.asset.asset_info.generate_asset_info_dict_from_args`
+    #     method using the given *context_data*, *data*, and *options*.
+    #     '''
+    #     arguments_dict = asset_info.generate_asset_info_dict_from_args(
+    #         context_data, data, options, self.session
+    #     )
+    #
+    #     asset_info_class = asset_info.FtrackAssetInfo(arguments_dict)
+    #
+    #     return self.create_ftrack_asset_class(asset_info_class)
+    #
+    # def create_ftrack_asset_class(self, asset_info_class):
+    #     '''
+    #     Returns the :data:`ftrack_asset_class` initialized with
+    #     :class:`~ftrack_connect_pipeline.asset.asset_info.FtrackAssetInfo`
+    #     created by the
+    #     :meth:`~ftrack_connect_pipeline.asset.asset_info.generate_asset_info_dict_from_args`
+    #     method using the given *context_data*, *data*, and *options*.
+    #     '''
+    #
+    #     ftrack_asset = self.ftrack_asset_class(self.event_manager)
+    #     ftrack_asset.set_asset_info(asset_info_class)
+    #     return ftrack_asset

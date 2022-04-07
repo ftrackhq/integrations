@@ -95,8 +95,8 @@ class BaseLoaderPublisherEngine(BaseEngine):
             type = plugin['type']
             default_method = plugin['default_method']
             # if asset_const.LOAD_AS_NODE_ONLY and type == constants.IMPORTER:
-            if type == constants.IMPORTER and self._delayed_load:
-                default_method = 'init_nodes'
+            # if type == constants.IMPORTER and self._delayed_load:
+            #     default_method = 'init_nodes'
 
             plugin_result = self._run_plugin(
                 plugin,
@@ -303,7 +303,7 @@ class BaseLoaderPublisherEngine(BaseEngine):
             event,
         )
 
-    def run_definition(self, data, delayed_load=False):
+    def run_definition(self, data):
         '''
         Runs the whole definition from the provided *data*.
         Call the method :meth:`run_step` for each context, component and
@@ -312,12 +312,9 @@ class BaseLoaderPublisherEngine(BaseEngine):
         *data* : pipeline['data'] provided from the client host connection at
         :meth:`~ftrack_connect_pipeline.client.HostConnection.run` Should be a
         valid definition.
-        *delayed_load* : If true, only ftrack nodes will be created leaving the
-        import for later.
         '''
 
         self._definition = data
-        self._delayed_load = delayed_load
 
         context_data = None
         components_output = []

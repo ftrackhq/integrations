@@ -464,11 +464,12 @@ class AssetManagerEngine(BaseEngine):
         load_plugin = asset_info[asset_const.ASSET_INFO_OPTIONS]
         plugin_data = load_plugin['settings']['data']
         plugin_options = load_plugin['settings']['options']
+        plugin_options['asset_info'] = asset_info
         plugin_context_data = load_plugin['settings']['context_data']
 
         plugin_name = load_plugin['pipeline']['plugin_name']
         plugin_type = load_plugin['pipeline']['plugin_type']
-        plugin_method = 'run'
+        plugin_method = 'load_asset'
         plugin_category = load_plugin['pipeline']['category']
         plugin_host_type = load_plugin['pipeline']['host_type']
 
