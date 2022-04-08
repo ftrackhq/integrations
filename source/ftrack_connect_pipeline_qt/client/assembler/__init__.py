@@ -335,10 +335,12 @@ class QtAssemblerClient(QtClient):
                 if method:
                     for component in definition['components']:
                         for stage in component['stages']:
-                            if stage['type'] == 'importer':
-                                for plugin in stage['plugins']:
-                                    if plugin['type'] == 'importer':
-                                        plugin['default_method'] = method
+                            if stage['type'] != 'importer':
+                                continue
+                            for plugin in stage['plugins']:
+                                if plugin['type'] != 'importer':
+                                    continue
+                                plugin['default_method'] = method
 
                 self.logger.info(
                     'Running definition: {}'.format(
