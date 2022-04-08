@@ -94,9 +94,6 @@ class BaseLoaderPublisherEngine(BaseEngine):
             category = plugin['category']
             type = plugin['type']
             default_method = plugin['default_method']
-            # if asset_const.LOAD_AS_NODE_ONLY and type == constants.IMPORTER:
-            # if type == constants.IMPORTER and self._delayed_load:
-            #     default_method = 'init_nodes'
 
             plugin_result = self._run_plugin(
                 plugin,

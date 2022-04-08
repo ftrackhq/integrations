@@ -67,7 +67,7 @@ class LoaderImporterPlugin(base.BaseImporterPlugin):
         raise NotImplementedError
 
     def init_nodes(self, context_data=None, data=None, options=None):
-        '''Alternative plugin metod to init all the nodes in the scene but not
+        '''Alternative plugin method to init all the nodes in the scene but not
         need to load the assets'''
         if six.PY2:
             options[asset_const.ASSET_INFO_OPTIONS] = base64.b64encode(
@@ -85,23 +85,24 @@ class LoaderImporterPlugin(base.BaseImporterPlugin):
         self.ftrack_asset = self.ftrack_asset_class(self.event_manager)
         self.ftrack_asset.set_asset_info(asset_info_class)
 
-        ftrack_object = self.ftrack_asset.init_ftrack_object(False)
+        ftrack_object = self.ftrack_asset.init_ftrack_object(
+            create_object=True,
+            is_loaded=False
+        )
 
         results = [ftrack_object]
         return results
 
     def load_asset(self, context_data=None, data=None, options=None):
-        '''Alternative plugin metod to init all the nodes in the scene but not
-        need to load the assets'''
-        # check if we already have the ftrack_asset_class initialized, it means
-        # that we came from init_and_load
-        #if not self.ftrack_asset:
+        '''Alternative plugin method to only load the asset in the scene'''
+
         self.ftrack_asset = self.ftrack_asset_class(self.event_manager)
         asset_info = options.get('asset_info')
         self.ftrack_asset.set_asset_info(asset_info)
-        self.ftrack_asset.init_ftrack_object_from_asset_info()
-
-
+        self.ftrack_asset.init_ftrack_object(
+            create_object=False,
+            is_loaded=True
+        )
 
         # Execute the run method to load the objects
         self.run(context_data, data, options)
@@ -112,22 +113,13 @@ class LoaderImporterPlugin(base.BaseImporterPlugin):
         )
         diff = self.new_data.difference(self.old_data)
 
-        # TODO find the way to get the ftrack node from the assembler or from the
-        #  init nodes
-        # Find assets in data that should contain the asset info if comming from the asset manager so we should use the same
-
-
-
-        # if asset_load_mode != 'Open' and self.method == 'run':
-        #     ftrack_object = self.ftrack_asset.init_ftrack_object(
-        #         is_loaded=True
-        #     )
-
+        #Connect scene objects to ftrack node
         self.ftrack_asset.connect_objects(diff)
 
     def init_and_load(self, context_data=None, data=None, options=None):
-        '''Alternative plugin metod to init all the nodes in the scene but not
-        need to load the assets'''
+        '''Alternative plugin method to init and load the node and the assets
+        into the scene'''
+
         self.init_nodes(context_data=context_data, data=data, options=options)
         options['asset_info'] = self.ftrack_asset.asset_info
         self.load_asset(context_data=context_data, data=data, options=options)
@@ -148,6 +140,8 @@ class LoaderImporterPlugin(base.BaseImporterPlugin):
         options = self.plugin_settings.get('options')
         self.logger.debug('Current options : {}'.format(options))
 
+        # set non serializable keys like "session" to not serializable, used in
+        # case data contains the asset info from the scene
         self.json_data = json.dumps(event['data'], default=lambda o: '<not serializable>')
 
         # If method == init_and_load will init the nodes and load the objects,
