@@ -37,6 +37,10 @@ class QtPublisherClient(QtClient):
         '''
         super(QtPublisherClient, self).pre_build()
 
+    def build(self):
+        super(QtPublisherClient, self).build()
+        self.run_button.setText('PUBLISH')
+
     def post_build(self):
         super(QtPublisherClient, self).post_build()
         self.widget_factory.widgetAssetUpdated.connect(
@@ -50,7 +54,6 @@ class QtPublisherClient(QtClient):
         self.setMinimumWidth(300)
 
     def change_definition(self, schema, definition, component_names_filter):
-        self.run_button.setVisible(False)
         if not self._shown:
             self._postponed_change_definition = (
                 schema,
@@ -61,14 +64,6 @@ class QtPublisherClient(QtClient):
         super(QtPublisherClient, self).change_definition(
             schema, definition, component_names_filter
         )
-
-    def _on_components_checked(self, available_components_count):
-        super(QtPublisherClient, self).definition_changed(
-            self.definition, available_components_count
-        )
-        self.run_button.setVisible(True)
-        self.run_button.setEnabled(available_components_count > 0)
-        self.run_button.setText('PUBLISH')
 
     def run(self):
         if super(QtPublisherClient, self).run():

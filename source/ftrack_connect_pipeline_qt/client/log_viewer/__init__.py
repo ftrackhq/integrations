@@ -195,7 +195,7 @@ class QtLogViewerClient(LogViewerClient, QtWidgets.QWidget):
 
     def post_build(self):
         '''Post Build ui method for events connections.'''
-        self.host_selector.host_changed.connect(self.change_host)
+        self.host_selector.hostChanged.connect(self.change_host)
         self._plugin_log_viewer_widget.refresh_button.clicked.connect(
             self._refresh_ui
         )

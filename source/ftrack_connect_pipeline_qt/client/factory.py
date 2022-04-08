@@ -299,13 +299,13 @@ class WidgetFactoryBase(QtWidgets.QWidget):
 
         self.components_section = QtWidgets.QWidget()
         self.components_section.setLayout(QtWidgets.QVBoxLayout())
-        self.components_section.layout().addWidget(
-            QtWidgets.QLabel(
-                'Components'
-                if definition['type'] == core_constants.PUBLISHER
-                else 'Choose which component to open'
-            )
+        l_header = QtWidgets.QLabel(
+            'Components'
+            if definition['type'] == core_constants.PUBLISHER
+            else 'Choose which asset and version to open'
         )
+        # l_header.setObjectName('gray')
+        self.components_section.layout().addWidget(l_header)
         self.components_section.layout().addWidget(self.components_obj.widget)
         if definition['type'] == core_constants.LOADER:
             self.components_section.hide()

@@ -38,26 +38,24 @@ QFrame[background='selected'] {
     background: $background-selected;
 }
 
-QFrame[background='selected_docked'] {
-    background: $background-selected-docked;
-}
-
 QFrame[background='transparent'] {
     background: transparent;
 }
-
 
 Line {
     border: 1px dashed $border-color;
 }
 
-NewAssetInput[status='focused'] {
-    border: 1px dashed $color-purple;
+Line[style='solid']  {
+    border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
-NewAssetInput[status='unfocused'] {
-    border: 1px solid transparent;
-    background: transparent;
+NewAssetInput[status='focused'] {
+    background: $background-selected !important;
+}
+
+NewAssetInput[status='unfocused'] QFrame {
+    /*background: transparent;*/
 }
 
 #bordered {
@@ -89,15 +87,11 @@ NavigationEntityButton {
 NavigationEntityButton[first='true'] {
     background: transparent;
     border-radius: 12px;
-    border: 1px dashed $border-color;
+    border: 1px solid $border-color;
 }
 
 NavigationEntityButton:hover, EntityWidget:hover, AccordionBaseWidget:hover {
-    background: $alt-background;
-}
-
-QFrame[docked='true'] NavigationEntityButton:hover, QFrame[docked='true'] EntityWidget:hover, QFrame[docked='true'] AccordionBaseWidget:hover {
-    background: rgb(88,88,88);
+    background: $background-selected;
 }
 
 EntityWidget {

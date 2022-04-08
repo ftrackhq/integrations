@@ -1,27 +1,24 @@
 /** Combo Box. */
 
 QComboBox {
-    border: 1px solid $color-purple;
-    border-radius: 4px;
+    border: 1px solid $border-color;
+    border-radius: 2px;
     padding: $input-padding;
     padding-left: 10px;
     background: transparent;
     selection-background-color: $background-selected;
-    color: $color-purple;
+    color: $text-color;
     text-align: center;
 
     &:hover {
-        border-color: darken($color-purple, 5%);
+        border-color: darken($border-color, 5%);
     }
 
     &:focus {
-        border: 1px solid $input-border-color-focus;
+        border: 1px solid lighten($border-color, 5%);
     }
 }
 
-QFrame[docked='true'] QComboBox {
-    selection-background-color: $background-selected-docked;
-}
 
 QComboBox::drop-down {
     subcontrol-origin: padding;
@@ -49,7 +46,6 @@ QComboBox QAbstractItemView {
 
 QFrame[docked='true'] QComboBox QAbstractItemView {
     background: $background-docked;
-    selection-background-color: $background-selected-docked;
 }
 
 QFrame[docked='true'] QComboBox QAbstractItemView {
@@ -74,72 +70,35 @@ QComboBox[chip='true'] {
 }
 
 AssetVersionSelector, VersionComboBox {
-    border: 1px solid $color-purple;
-    /*border: 1px solid $gray;*/
     border-radius: 11px;
-    color: $color-purple;
-    text-align:center;
-
-    &:hover {
-        border-color: darken($color-purple, 5%);
-    }
-
-    &:focus {
-        border: 1px solid $input-border-color-focus;
-    }
+    color: $text-color;
 }
 
 AssemblerVersionComboBox {
-    border: 1px solid $gray-dark;
+    border: 1px solid $border-color;
     border-radius: 11px;
     background: transparent;
-    selection-background-color: $gray-dark;
+    selection-background-color: $border-color;
     color: $text-color !important;
     text-align: center;
 
     &:hover {
-        border-color: lighten($gray-dark, 5%);
+        border-color: lighten($border-color, 5%);
     }
 
     &:focus {
-        border: 1px solid lighten($gray-dark, 5%);
+        border: 1px solid lighten($border-color, 5%);
     }
 
     &:disabled {
-        border: 1px solid darken($gray-dark, 5%);
+        border: 1px solid darken($border-color, 5%);
         color: $gray;
     }
 }
 
-DefinitionSelector, ModeSelector, FileSelector {
-    border: 1px solid $gray-dark;
-    border-radius: 3px;
-    background: transparent;
-    selection-background-color: $gray-dark;
-    color: $text-color;
-    text-align: center;
-
-    &:hover {
-        border-color: lighten($gray-dark, 5%);
-    }
-
-    &:focus {
-        border: 1px solid lighten($gray-dark, 5%);
-    }
-
-    &:disabled {
-        border: 1px solid darken($gray-dark, 5%);
-        color: $gray;
-    }
+DefinitionSelectorComboBox {
+    padding-top: 7px;
+    padding-bottom: 5px;
+    padding-right: 7px;
 }
 
-AssemblerVersionComboBox::down-arrow, DefinitionSelector::down-arrow, ModeSelector::down-arrow, FileSelector::down-arrow {
-    image: theme-image('combobox_down_arrow_disabled');
-    width: 8px;
-    height: 8px;
-}
-
-AssetVersionStatusWidget {
-    border-radius: 11px;
-    text-align: center;
-}

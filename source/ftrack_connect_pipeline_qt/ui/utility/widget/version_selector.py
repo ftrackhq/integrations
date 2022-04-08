@@ -65,9 +65,7 @@ class VersionComboBox(QtWidgets.QComboBox):
         return versions
 
     def _add_version(self, version):
-        self.addItem(
-            str('Version {}'.format(version['version'])), version['id']
-        )
+        self.addItem(str('v{}'.format(version['version'])), version['id'])
 
     def add_versions(self, versions):
         selected_index = 0

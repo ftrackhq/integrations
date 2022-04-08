@@ -24,13 +24,13 @@ class AssetListItem(QtWidgets.QFrame):
     def pre_build(self):
         self.setLayout(QtWidgets.QHBoxLayout())
         self.layout().setContentsMargins(0, 0, 0, 0)
-        self.layout().setSpacing(3)
+        self.layout().setSpacing(5)
 
     def build(self):
         self.thumbnail_widget = AssetVersion(self.session)
         self.thumbnail_widget.setScaledContents(True)
-        self.thumbnail_widget.setMinimumSize(57, 32)
-        self.thumbnail_widget.setMaximumSize(57, 32)
+        self.thumbnail_widget.setMinimumSize(57, 31)
+        self.thumbnail_widget.setMaximumSize(57, 31)
         self.layout().addWidget(self.thumbnail_widget)
         self.thumbnail_widget.load(self.asset['latest_version']['id'])
 
@@ -153,15 +153,15 @@ class NewAssetInput(QtWidgets.QFrame):
 
     def pre_build(self):
         self.setLayout(QtWidgets.QHBoxLayout())
-        self.layout().setContentsMargins(1, 1, 1, 1)
+        self.layout().setContentsMargins(4, 1, 1, 1)
         self.layout().setSpacing(1)
         self.setMaximumHeight(32)
 
     def build(self):
-        self.button = QtWidgets.QPushButton('NEW')
-        self.button.setStyleSheet('background: transparent;')
-        self.button.setFixedSize(58, 31)
-        self.button.setMaximumSize(58, 31)
+        self.button = NewAssetButton()
+        self.button.setStyleSheet('background: #BF9AC9;')
+        self.button.setFixedSize(56, 30)
+        self.button.setMaximumSize(56, 30)
 
         self.layout().addWidget(self.button)
 
@@ -213,6 +213,8 @@ class AssetListAndInput(QtWidgets.QWidget):
 
 
 class AssetSelector(QtWidgets.QWidget):
+    '''(Publish) Widget for choosing an asset to publish on, or input asset name for creating a new asset'''
+
     VALID_ASSET_NAME = QtCore.QRegExp('[A-Za-z0-9_]+')
 
     assetChanged = QtCore.Signal(object, object, object)
@@ -324,16 +326,14 @@ class AssetSelector(QtWidgets.QWidget):
         if selected_asset is not None:
             # Bring focus to list, remove focus from new asset input
             set_property(self.new_asset_input, 'status', 'unfocused')
-            self.new_asset_input.button.setEnabled(False)
             self.new_asset_input.name.setEnabled(False)
             self.new_asset_input.name.deselect()
         else:
             # Deselect all assets in list, bring focus to new asset input
             self.asset_list.setCurrentRow(-1)
             set_property(self.new_asset_input, 'status', 'focused')
-            self.new_asset_input.button.setEnabled(True)
             self.new_asset_input.name.setEnabled(True)
-        self.new_asset_input.button.setEnabled(selected_asset is not None)
+        self.new_asset_input.button.setEnabled(True)
 
     def set_context(self, context_id, asset_type_name):
         self.logger.debug('setting context to :{}'.format(context_id))
@@ -387,3 +387,8 @@ class AssetSelector(QtWidgets.QWidget):
         else:
             set_property(self.new_asset_input.name, 'input', 'invalid')
         return is_valid_bool
+
+
+class NewAssetButton(QtWidgets.QPushButton):
+    def __init__(self, parent=None):
+        super(NewAssetButton, self).__init__('NEW', parent=parent)

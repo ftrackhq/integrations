@@ -113,10 +113,10 @@ class QtAssetManagerClient(AssetManagerClient, QtWidgets.QFrame):
     def build(self):
         '''Build widgets and parent them.'''
         if not self.is_assembler:
-            self.header = header.Header(
-                self.session, title='CONNECT', show_publisher=True
-            )
+            self.header = header.Header(self.session, show_publisher=True)
             self.layout().addWidget(self.header)
+
+            self.layout().addWidget(line.Line(style='solid'))
 
             self.context_selector = ContextSelector(self, self.session)
             self.layout().addWidget(self.context_selector, QtCore.Qt.AlignTop)
@@ -153,7 +153,7 @@ class QtAssetManagerClient(AssetManagerClient, QtWidgets.QFrame):
         self.asset_manager_widget.rebuild.connect(self.rebuild)
 
         if not self.is_assembler:
-            self.host_selector.host_changed.connect(self.change_host)
+            self.host_selector.hostChanged.connect(self.change_host)
 
         self.asset_manager_widget.widgetStatusUpdated.connect(
             self._on_widget_status_updated

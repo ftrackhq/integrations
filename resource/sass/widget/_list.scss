@@ -1,6 +1,6 @@
 /** List */
 QListWidget {
-    border: 1px solid $gray-dark;
+    border: 1px solid $border-color;
     outline: 0;
     background: transparent;
 }
@@ -19,20 +19,10 @@ QListWidget::item:selected
 {
    background: $background-selected;
    color: $text-color;
-   border: 1px dashed $color-purple;
-}
-
-QFrame[docked='true'] QListWidget::item:selected {
-    color: $background-selected-docked;
 }
 
 AssetList {
     border: none;
     outline: 0;
-    background: transparent;
-}
-
-AssetList::item:selected
-{
     background: transparent;
 }

@@ -107,7 +107,7 @@ class AssetManagerWidget(AssetManagerBaseWidget):
 
         row2.layout().addWidget(self.init_search())
 
-        self._rebuild_button = CircularButton('sync', '#87E1EB')
+        self._rebuild_button = CircularButton('sync')
         row2.layout().addWidget(self._rebuild_button)
 
         self._busy_widget = BusyIndicator(start=False)
@@ -123,15 +123,11 @@ class AssetManagerWidget(AssetManagerBaseWidget):
         row1.setLayout(QtWidgets.QHBoxLayout())
         row1.layout().setContentsMargins(5, 5, 5, 5)
         row1.layout().setSpacing(6)
+        row1.setMinimumHeight(52)
 
         title = QtWidgets.QLabel('Tracked assets')
         title.setObjectName('h2')
         row1.layout().addWidget(title)
-
-        row1.layout().addWidget(self.init_search())
-
-        self._rebuild_button = CircularButton('sync', '#87E1EB')
-        row1.layout().addWidget(self._rebuild_button)
 
         layout.addWidget(row1)
 
@@ -145,6 +141,11 @@ class AssetManagerWidget(AssetManagerBaseWidget):
         self._label_info = QtWidgets.QLabel('Listing 0 assets')
         self._label_info.setObjectName('gray')
         row2.layout().addWidget(self._label_info)
+
+        row2.layout().addWidget(self.init_search())
+
+        self._rebuild_button = CircularButton('sync')
+        row2.layout().addWidget(self._rebuild_button)
 
         self._busy_widget = BusyIndicator(start=False)
         self._busy_widget.setMinimumSize(QtCore.QSize(16, 16))
@@ -196,10 +197,12 @@ class AssetManagerWidget(AssetManagerBaseWidget):
     def set_busy(self, busy):
         if busy:
             self._busy_widget.start()
+            self._rebuild_button.setVisible(False)
             self._busy_widget.setVisible(True)
         else:
             self._busy_widget.stop()
             self._busy_widget.setVisible(False)
+            self._rebuild_button.setVisible(True)
 
     def _on_stop_busy_indicator(self):
         self.set_busy(False)
@@ -841,15 +844,6 @@ class AssetVersionStatusWidget(QtWidgets.QFrame):
                 status['color']
             )
         )
-        if self._bordered:
-            self.setStyleSheet(
-                '''
-                QFrame {
-                    border: 1px solid %s;
-                }
-             '''
-                % (status['color'])
-            )
 
 
 class ComponentAndVersionWidget(QtWidgets.QWidget):
@@ -889,7 +883,7 @@ class ComponentAndVersionWidget(QtWidgets.QWidget):
         pass
 
     def set_latest_version(self, is_latest_version):
-        color = '#935BA2' if is_latest_version else '#FFBA5C'
+        color = '#A5A8AA' if is_latest_version else '#FFBA5C'
         if self._collapsed:
             self._version_nr_widget.setStyleSheet('color: {}'.format(color))
         else:
