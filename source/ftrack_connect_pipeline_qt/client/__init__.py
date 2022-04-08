@@ -360,13 +360,6 @@ class QtChangeContextClient(Client):
         self.entity_browser.setMinimumWidth(600)
         if self.entity_browser.exec_():
             self.set_entity(self.entity_browser.entity)
-            # dialog.ModalDialog(
-            #    None,
-            #    title='Change context',
-            #    message="Working context is now: {}".format(
-            #        str_context(self.entity_browser.entity)
-            #    ),
-            # )
 
     def set_entity(self, context):
         self._host_connection.set_context(context)
