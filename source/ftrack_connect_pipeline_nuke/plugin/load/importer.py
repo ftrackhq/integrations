@@ -36,10 +36,6 @@ class LoaderImporterNukePlugin(plugin.LoaderImporterPlugin, BaseNukePlugin):
     def get_current_objects(self):
         return nuke_utils.get_current_scene_objects()
 
-    @nuke_utils.run_in_main_thread
-    def _run(self, event):
-        return super(LoaderImporterNukePlugin, self)._run, event
-
 
 class LoaderImporterNukeWidget(
     pluginWidget.LoaderImporterWidget, BaseNukePluginWidget

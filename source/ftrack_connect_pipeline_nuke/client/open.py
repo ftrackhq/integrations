@@ -63,26 +63,3 @@ class NukeOpenDialog(dialog.Dialog):
         super(NukeOpenDialog, self).show()
         self._shown = True
         self.rebuild()
-        if self._client.ask_open_assembler:
-            # TODO: Search among work files and see if there is and crash scene from previous session
-            dlg = dialog.ModalDialog(
-                self,
-                title='ftrack',
-                question='Nothing to open, assemble a new script?',
-                prompt=True,
-            )
-            if dlg.exec_():
-                # Close and open assembler
-                self.destroy()
-                self._client.host_connection.launch_widget(
-                    qt_constants.ASSEMBLER_WIDGET
-                )
-        elif self._client.ask_open_latest:
-            dlg = dialog.ModalDialog(
-                self,
-                title='ftrack',
-                question='Open latest?',
-            )
-            if dlg.exec_():
-                # Trig open
-                self.run_button.click()
