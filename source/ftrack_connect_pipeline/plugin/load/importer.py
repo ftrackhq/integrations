@@ -4,7 +4,6 @@
 import json
 import six
 import base64
-import copy
 
 from ftrack_connect_pipeline import constants
 from ftrack_connect_pipeline.plugin import base
