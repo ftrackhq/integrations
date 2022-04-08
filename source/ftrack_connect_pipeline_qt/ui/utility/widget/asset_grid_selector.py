@@ -16,7 +16,7 @@ from ftrack_connect_pipeline_qt.ui.utility.widget.version_selector import (
 
 
 class AssetItem(QtWidgets.QPushButton):
-    version_changed = QtCore.Signal(object, object)
+    versionChanged = QtCore.Signal(object, object)
 
     def __init__(self, session, asset, context_id, parent=None):
         super(AssetItem, self).__init__(parent=parent)
@@ -76,7 +76,7 @@ class AssetItem(QtWidgets.QPushButton):
         current_idx = self.version_combobox.currentIndex()
         self.current_version_id = self.version_combobox.itemData(current_idx)
         self.thumbnail_widget.load(self.current_version_id)
-        self.version_changed.emit(
+        self.versionChanged.emit(
             self.current_version_number, self.current_version_id
         )
 
@@ -166,7 +166,7 @@ class AssetGridSelector(QtWidgets.QWidget):
                 asset_item.clicked.connect(
                     partial(self._on_asset_changed, asset_item)
                 )
-                asset_item.version_changed.connect(
+                asset_item.versionChanged.connect(
                     partial(self._on_version_changed, asset_item)
                 )
                 if row == 0 and column == 0:

@@ -90,7 +90,7 @@ class VersionComboBox(QtWidgets.QComboBox):
 
 class VersionSelector(QtWidgets.QWidget):
 
-    version_changed = QtCore.Signal(object, object)
+    versionChanged = QtCore.Signal(object, object)
 
     def __init__(self, session, parent=None):
         super(VersionSelector, self).__init__(parent=parent)
@@ -130,7 +130,7 @@ class VersionSelector(QtWidgets.QWidget):
         version_num = self.version_combobox.currentText().split("Version ")[1]
         current_idx = self.version_combobox.currentIndex()
         version_id = self.version_combobox.itemData(current_idx)
-        self.version_changed.emit(version_num, version_id)
+        self.versionChanged.emit(version_num, version_id)
 
     def set_context_id(self, context_id):
         self.logger.debug('setting context to :{}'.format(context_id))

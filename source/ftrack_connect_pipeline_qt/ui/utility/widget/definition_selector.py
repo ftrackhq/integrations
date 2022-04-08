@@ -29,6 +29,7 @@ class DefinitionSelector(QtWidgets.QWidget):
     def __init__(self, client_name, parent=None):
         '''Initialize DefinitionSelector widget'''
         super(DefinitionSelector, self).__init__(parent=parent)
+
         self.logger = logging.getLogger(
             __name__ + '.' + self.__class__.__name__
         )
@@ -50,7 +51,6 @@ class DefinitionSelector(QtWidgets.QWidget):
         self.setLayout(main_layout)
 
     def build(self):
-
         # Host section
         self.host_widget = QtWidgets.QWidget()
         self.host_widget.setLayout(QtWidgets.QHBoxLayout())
@@ -123,6 +123,7 @@ class DefinitionSelector(QtWidgets.QWidget):
             self._refresh_button.clicked.connect(self.refresh)
 
     def add_hosts(self, host_connections):
+        '''Ass host connections to combobox for user selection'''
         for host_connection in host_connections:
             self._host_combobox.addItem(host_connection.name, host_connection)
             self.host_connections.append(host_connection)
@@ -147,6 +148,8 @@ class DefinitionSelector(QtWidgets.QWidget):
         self.populate_definitions()
 
     def clear_definitions(self):
+        '''Remove all definitions and prepare for re-populate. Disconnects
+        signals so we do not get any unwanted events during build'''
         self._definition_selector.currentIndexChanged.disconnect()
         self._definition_selector.clear()
 
@@ -157,6 +160,7 @@ class DefinitionSelector(QtWidgets.QWidget):
 
         latest_version = None  # The current latest version
         index_latest_version = -1
+        compatible_definition_count = 0
 
         for schema in self.schemas:
             schema_title = schema.get('title').lower()
@@ -219,6 +223,7 @@ class DefinitionSelector(QtWidgets.QWidget):
                                         plugin['options'] = {}
                                     plugin['options']['load_mode'] = 'Open'
                         if can_open_component:
+                            compatible_definition_count += 1
                             if component_names_filter is None:
                                 component_names_filter = set()
                             component_names_filter.add(component_step['name'])
@@ -299,17 +304,19 @@ class DefinitionSelector(QtWidgets.QWidget):
         )
         if self._definition_selector.count() == 1:
             if self._client_name == qt_constants.OPEN_WIDGET:
-                self.no_definitions_label.setText(
-                    '<html><i>No pipeline loader definitions available to open files of type {}!'
-                    '</i></html>'.format(self._definition_extensions_filter)
-                )
+                if compatible_definition_count > 0:
+                    self.no_definitions_label.setText(
+                        '<html><i>No versions found to open'
+                        '</i></html>'.format(self._definition_extensions_filter)
+                    )
+                else:
+                    self.no_definitions_label.setText(
+                        '<html><i>No pipeline loader definitions available to open files of type {}!'
+                        '</i></html>'.format(self._definition_extensions_filter)
+                    )
             elif self._client_name == qt_constants.PUBLISHER_WIDGET:
                 self.no_definitions_label.setText(
                     '<html><i>No pipeline publisher definitions are available!</i></html>'
-                )
-            else:
-                self.no_definitions_label.setText(
-                    '<html><i>No pipeline loader definitions are available!</i></html>'
                 )
 
             self.no_definitions_label.setVisible(True)
@@ -333,25 +340,8 @@ class DefinitionSelector(QtWidgets.QWidget):
         if self._client_name != qt_constants.ASSEMBLER_WIDGET:
             self._definition_widget.show()
 
-    def _on_select_definition(self, index):
-        self.definition = self.definition_combobox.itemData(index)
-
-        if not self.definition:
-            self.logger.debug('No data for selected definition')
-            self.definitionChanged.emit(None, None)
-            return
-
-        for schema in self.schemas:
-            if (
-                self.definition.get('type').lower()
-                == schema.get('title').lower()
-            ):
-                self.schema = schema
-                break
-
-        self.definitionChanged.emit(self.schema, self.definition)
-
     def _on_change_definition(self, index):
+        '''A definition has been selected, fire signal for client to pick up'''
         if index > 0:
             (
                 self.definition,
@@ -382,9 +372,11 @@ class DefinitionSelector(QtWidgets.QWidget):
         )
 
     def set_definition_title_filter(self, title_filter):
+        '''Set the *title_filter* name filter to use when populating definitions'''
         self._definition_title_filter = title_filter
 
     def set_definition_extensions_filter(self, extensions_filter):
+        '''Set the *extensions_filter* (file_type:s) filter to use when populating definitions'''
         self._definition_extensions_filter = extensions_filter
 
     def get_current_definition_index(self):

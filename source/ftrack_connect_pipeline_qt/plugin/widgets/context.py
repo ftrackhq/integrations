@@ -21,7 +21,7 @@ from ftrack_connect_pipeline_qt.utils import BaseThread
 class PublishContextWidget(BaseOptionsWidget):
     '''Main class to represent a context widget on a publish process.'''
 
-    statuses_fetched = QtCore.Signal(object)
+    statusesFetched = QtCore.Signal(object)
 
     def __init__(
         self,
@@ -55,7 +55,7 @@ class PublishContextWidget(BaseOptionsWidget):
         if self.context_id:
             self.set_option_result(self.context_id, key='context_id')
         self.layout().addLayout(self._build_asset_selector())
-        self.statuses_fetched.connect(self.set_statuses)
+        self.statusesFetched.connect(self.set_statuses)
         self.layout().addWidget(line.Line())
         version_and_comment = QtWidgets.QWidget()
         version_and_comment.setLayout(QtWidgets.QVBoxLayout())
@@ -158,7 +158,7 @@ class PublishContextWidget(BaseOptionsWidget):
         '''Emit signal to set statuses on the combobox'''
         # Emit signal to add the sttuses to the combobox
         # because here we could have problems with the threads
-        self.statuses_fetched.emit(statuses)
+        self.statusesFetched.emit(statuses)
 
     def set_statuses(self, statuses):
         '''Set statuses on the combo box'''

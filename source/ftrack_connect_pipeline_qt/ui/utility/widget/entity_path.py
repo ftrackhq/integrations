@@ -7,7 +7,7 @@ from Qt import QtWidgets, QtCore
 class EntityPath(QtWidgets.QLineEdit):
     '''Entity path widget.'''
 
-    path_ready = QtCore.Signal(object)
+    pathReady = QtCore.Signal(object)
 
     def __init__(self, *args, **kwargs):
         '''Instantiate the entity path widget.'''
@@ -17,7 +17,7 @@ class EntityPath(QtWidgets.QLineEdit):
         self.post_build()
 
     def post_build(self):
-        self.path_ready.connect(self.on_path_ready)
+        self.pathReady.connect(self.on_path_ready)
 
     def setEntity(self, entity):
         '''Set the *entity* for this widget.'''
@@ -34,7 +34,7 @@ class EntityPath(QtWidgets.QLineEdit):
         parents.reverse()
 
         full_path = ' / '.join(parents)
-        self.path_ready.emit(full_path)
+        self.pathReady.emit(full_path)
 
     def on_path_ready(self, full_path):
         '''Set current path to *names*.'''

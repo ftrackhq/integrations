@@ -288,7 +288,7 @@ class QtClient(Client, QtWidgets.QFrame):
         self.host_connection.launch_widget(qt_constants.ASSEMBLER_WIDGET)
         if not self.is_docked():
             self.get_parent_window().hide()
-            self.get_parent_window().destroy()
+            self.get_parent_window().deleteLater()
 
     def run(self):
         '''Function called when click the run button'''

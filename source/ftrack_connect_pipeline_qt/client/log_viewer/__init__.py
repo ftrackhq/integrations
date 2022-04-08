@@ -91,7 +91,7 @@ class QtLogViewerClient(LogViewerClient, QtWidgets.QWidget):
     definition_filter = 'log_viewer'
     '''Use only definitions that matches the definition_filter'''
 
-    log_item_added = QtCore.Signal(object)
+    logItemAdded = QtCore.Signal(object)
 
     def __init__(self, event_manager, parent_window, parent=None):
         '''Initialise QtAssetManagerClient with *event_manager*
@@ -199,7 +199,7 @@ class QtLogViewerClient(LogViewerClient, QtWidgets.QWidget):
         self._plugin_log_viewer_widget.refresh_button.clicked.connect(
             self._refresh_ui
         )
-        self.log_item_added.connect(self.update_log_items)
+        self.logItemAdded.connect(self.update_log_items)
         self._tab_widget.currentChanged.connect(self._on_tab_changed)
 
     def _on_tab_changed(self, index):

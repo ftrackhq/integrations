@@ -456,7 +456,6 @@ class ComponentBaseWidget(AccordionBaseWidget):
     def session(self):
         return self._assembler_widget.session
 
-    loader_selected = QtCore.Signal(object)
 
     def __init__(
         self, index, assembler_widget, event_manager, title=None, parent=None

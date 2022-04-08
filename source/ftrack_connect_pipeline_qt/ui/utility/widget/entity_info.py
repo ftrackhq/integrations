@@ -8,7 +8,7 @@ from Qt import QtWidgets, QtCore
 class EntityInfo(QtWidgets.QWidget):
     '''Entity path widget.'''
 
-    path_ready = QtCore.Signal(object)
+    pathReady = QtCore.Signal(object)
 
     def __init__(self, additional_widget=None, parent=None):
         '''Instantiate the entity path widget.'''
@@ -47,7 +47,7 @@ class EntityInfo(QtWidgets.QWidget):
         self.layout().addStretch()
 
     def post_build(self):
-        self.path_ready.connect(self.on_path_ready)
+        self.pathReady.connect(self.on_path_ready)
 
     def set_entity(self, entity):
         '''Set the *entity* for this widget.'''
@@ -59,7 +59,7 @@ class EntityInfo(QtWidgets.QWidget):
             parents.append(parent)
             parent = parent['parent']
         parents.reverse()
-        self.path_ready.emit(parents)
+        self.pathReady.emit(parents)
 
     def on_path_ready(self, parents):
         '''Set current path to *names*.'''
