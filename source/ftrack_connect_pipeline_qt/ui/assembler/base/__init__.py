@@ -153,7 +153,7 @@ class AssemblerBaseWidget(QtWidgets.QWidget):
         bottom_toolbar_widget.layout().addWidget(QtWidgets.QLabel(), 10)
 
         self._label_info = QtWidgets.QLabel('')
-        self._label_info.setObjectName('gray-darker')
+        self._label_info.setObjectName('gray')
         bottom_toolbar_widget.layout().addWidget(self._label_info)
 
         self._search = Search()
