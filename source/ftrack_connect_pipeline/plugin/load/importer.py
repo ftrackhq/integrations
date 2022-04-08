@@ -102,7 +102,8 @@ class LoaderImporterPlugin(base.BaseImporterPlugin):
             create_object=False,
             is_loaded=True
         )
-
+        # Remove asset_info from the options as it is not needed anymore
+        options.pop('asset_info')
         # Execute the run method to load the objects
         self.run(context_data, data, options)
         #  Query all the objects from the scene
