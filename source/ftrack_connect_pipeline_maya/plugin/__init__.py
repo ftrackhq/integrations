@@ -7,6 +7,7 @@ from ftrack_connect_pipeline_qt import plugin as pluginWidget
 from ftrack_connect_pipeline_maya import constants as maya_constants
 from ftrack_connect_pipeline_maya.utils import custom_commands as maya_utils
 
+
 class BaseMayaPlugin(plugin.BasePlugin):
     host_type = maya_constants.HOST_TYPE
 
