@@ -137,9 +137,9 @@ class AssetListModel(QtCore.QAbstractTableModel):
 
     def insertRows(self, row, data, index=None):
         count = len(data)
-        if index is None:
-            index = self.createIndex(row, 0)
-        self.beginInsertRows(index, row, row + count - 1)
+        self.beginInsertRows(
+            index or self.createIndex(row, 0), row, row + count - 1
+        )
         for n in range(count):
             if row + n < len(self.__asset_entities_list):
                 self.__asset_entities_list.insert(row + n, data[n])

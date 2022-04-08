@@ -59,7 +59,6 @@ class AssemblerDependenciesWidget(AssemblerBaseWidget):
         return QtWidgets.QLabel()
 
     def rebuild(self):
-        # self.session._local_cache.clear() # Make sure reset session cache
         if super(AssemblerDependenciesWidget, self).rebuild():
 
             self.scroll.setWidget(QtWidgets.QLabel(''))
@@ -120,7 +119,7 @@ class AssemblerDependenciesWidget(AssemblerBaseWidget):
                 ]
 
                 # Process versions, filter against
-                self._assembler_client.logger.info(
+                self.logger.info(
                     'Resolved versions: {}'.format(
                         ','.join(
                             [str_version(v, with_id=True) for v in versions]
@@ -248,7 +247,7 @@ class AssemblerBrowserWidget(AssemblerBaseWidget):
             self.scroll.setWidget(self._component_list)
 
             # Find version beneath browsed entity, in chunks
-            self._limit = 5  # Amount of assets to fetch at a time
+            self._limit = self._assembler_client.asset_fetch_chunk_size
 
             thread = BaseThread(
                 name='fetch_browsed_assets_thread',
@@ -283,7 +282,7 @@ class AssemblerBrowserWidget(AssemblerBaseWidget):
             self._tail = 0  # The current fetch position
             fetched_version_ids = []
             while True:
-                self._assembler_client.logger.info(
+                self.logger.info(
                     'Fetching versions beneath context: {0} [{1}-{2}]'.format(
                         context, self._tail, self._tail + self._limit - 1
                     )
@@ -305,7 +304,8 @@ class AssemblerBrowserWidget(AssemblerBaseWidget):
                     )
                 versions = []
                 for version in self.session.query(
-                    'select id,task,version from AssetVersion where is_latest_version=true and ({0}) offset {1} limit {2}'.format(
+                    'select id,task,version from AssetVersion where '
+                    ' is_latest_version=true and ({0}) offset {1} limit {2}'.format(
                         task_sub_query,
                         self._tail,
                         self._limit,
