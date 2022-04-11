@@ -44,7 +44,7 @@ class Header(QtWidgets.QFrame):
 
     def pre_build(self):
         self.setLayout(QtWidgets.QVBoxLayout())
-        self.layout().setContentsMargins(8, 2, 7, 2)
+        self.layout().setContentsMargins(8, 2, 7, 8)
         self.layout().setAlignment(QtCore.Qt.AlignTop)
 
     def build(self):
@@ -114,7 +114,7 @@ class Logo(QtWidgets.QLabel):
         if not logoPixmap is None:
             self.setPixmap(
                 logoPixmap.scaled(
-                    QtCore.QSize(30, 30),
+                    QtCore.QSize(106, 32),
                     QtCore.Qt.KeepAspectRatio,
                     QtCore.Qt.SmoothTransformation,
                 )

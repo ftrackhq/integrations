@@ -26,7 +26,6 @@ from ftrack_connect_pipeline_qt.ui.utility.widget.base.accordion_base import (
 )
 from ftrack_connect_pipeline_qt.ui.asset_manager.asset_manager import (
     AssetVersionStatusWidget,
-    ComponentAndVersionWidget,
 )
 from ftrack_connect_pipeline.utils import str_version
 from ftrack_connect_pipeline_qt.utils import (
@@ -34,7 +33,7 @@ from ftrack_connect_pipeline_qt.utils import (
     clear_layout,
     get_main_framework_window_from_widget,
 )
-from ftrack_connect_pipeline_qt.ui.utility.widget import overlay
+
 from ftrack_connect_pipeline_qt.ui.utility.widget.busy_indicator import (
     BusyIndicator,
 )
@@ -45,18 +44,27 @@ from ftrack_connect_pipeline_qt.ui.utility.widget.search import Search
 from ftrack_connect_pipeline_qt.ui.utility.widget.options_button import (
     OptionsButton,
 )
-from ftrack_connect_pipeline_qt.ui.utility.widget import icon
+from ftrack_connect_pipeline_qt.ui.utility.widget import (
+    icon,
+    overlay,
+    scroll_area,
+)
 
 
 class AssemblerBaseWidget(QtWidgets.QWidget):
     '''Base assembler dependency or browse widget'''
 
     stopBusyIndicator = QtCore.Signal()
+    listWidgetCreated = QtCore.Signal(object)
 
     @property
     def component_list(self):
         '''Return the collected object by the widget'''
         return self._component_list
+
+    @property
+    def loadable_count(self):
+        return self._loadable_count
 
     @property
     def session(self):
@@ -95,24 +103,24 @@ class AssemblerBaseWidget(QtWidgets.QWidget):
         header_widget = QtWidgets.QWidget()
         header_widget.setLayout(QtWidgets.QVBoxLayout())
         header_widget.layout().setContentsMargins(4, 4, 4, 4)
-        header_widget.layout().setSpacing(2)
+        header_widget.layout().setSpacing(0)
 
         top_toolbar_widget = QtWidgets.QWidget()
         top_toolbar_widget.setLayout(QtWidgets.QHBoxLayout())
-        top_toolbar_widget.layout().setContentsMargins(4, 4, 4, 4)
+        top_toolbar_widget.layout().setContentsMargins(4, 2, 4, 0)
         top_toolbar_widget.layout().setSpacing(4)
 
-        top_toolbar_widget.layout().addWidget(self._get_header_widget(), 10)
+        top_widget = self._get_header_widget()
+        top_toolbar_widget.layout().addWidget(top_widget, 10)
+        top_widget.setMinimumHeight(32)
 
         header_widget.layout().addWidget(top_toolbar_widget)
-
-        self.layout().addWidget(header_widget)
 
         # Add toolbar
 
         bottom_toolbar_widget = QtWidgets.QWidget()
         bottom_toolbar_widget.setLayout(QtWidgets.QHBoxLayout())
-        bottom_toolbar_widget.layout().setContentsMargins(4, 1, 4, 1)
+        bottom_toolbar_widget.layout().setContentsMargins(4, 0, 4, 1)
         bottom_toolbar_widget.layout().setSpacing(6)
 
         match_label = QtWidgets.QLabel('Match: ')
@@ -148,13 +156,13 @@ class AssemblerBaseWidget(QtWidgets.QWidget):
         bottom_toolbar_widget.layout().addWidget(QtWidgets.QLabel(), 10)
 
         self._label_info = QtWidgets.QLabel('')
-        self._label_info.setObjectName('gray-darker')
+        self._label_info.setObjectName('gray')
         bottom_toolbar_widget.layout().addWidget(self._label_info)
 
         self._search = Search()
         bottom_toolbar_widget.layout().addWidget(self._search)
 
-        self._rebuild_button = CircularButton('sync', '#87E1EB')
+        self._rebuild_button = CircularButton('sync')
         bottom_toolbar_widget.layout().addWidget(self._rebuild_button)
 
         self._busy_widget = BusyIndicator(start=False)
@@ -164,14 +172,32 @@ class AssemblerBaseWidget(QtWidgets.QWidget):
 
         header_widget.layout().addWidget(bottom_toolbar_widget)
 
+        self.layout().addWidget(header_widget)
+
     def build(self):
-        self.scroll = QtWidgets.QScrollArea()
+        self.scroll = scroll_area.ScrollArea()
         self.scroll.setWidgetResizable(True)
         self.scroll.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
+        self.scroll.setStyle(QtWidgets.QStyleFactory.create("plastique"))
 
         self.layout().addWidget(self.scroll, 1000)
 
     def rebuild(self):
+        '''Prepare rebuild of the widget'''
+
+        # Check if there is any loader definitions
+        if (
+            len(
+                self._assembler_client.host_and_definition_selector.definitions
+                or []
+            )
+            == 0
+        ):
+            self._assembler_client.progress_widget.set_status(
+                constants.WARNING_STATUS,
+                'No loader definitions are available, please check pipeline configuration!',
+            )
+            return False
 
         self._rb_match_component_name.setEnabled(
             not self._cb_show_non_compatible.isChecked()
@@ -193,6 +219,8 @@ class AssemblerBaseWidget(QtWidgets.QWidget):
 
         self._loadable_count = 0
 
+        return True
+
     def post_build(self):
         self._cb_show_non_compatible.clicked.connect(self.rebuild)
         if self._assembler_client.assembler_match_extension:
@@ -202,6 +230,9 @@ class AssemblerBaseWidget(QtWidgets.QWidget):
         self._rb_match_component_name.clicked.connect(self.rebuild)
         self._rb_match_extension.clicked.connect(self.rebuild)
         self.stopBusyIndicator.connect(self._stop_busy_indicator)
+
+    def _get_header_widget(self):
+        raise NotImplementedError()
 
     def _stop_busy_indicator(self):
         self._busy_widget.stop()
@@ -392,6 +423,11 @@ class AssemblerBaseWidget(QtWidgets.QWidget):
                             availability,
                         )
                     )
+                    self.logger.info(
+                        'Assembled version {0} component {1}({2}) for import'.format(
+                            version['id'], component['name'], component['id']
+                        )
+                    )
 
         return components
 
@@ -446,7 +482,6 @@ class ComponentBaseWidget(AccordionBaseWidget):
     def session(self):
         return self._assembler_widget.session
 
-    loader_selected = QtCore.Signal(object)
 
     def __init__(
         self, index, assembler_widget, event_manager, title=None, parent=None
@@ -760,7 +795,7 @@ class ImporterOptionsButton(OptionsButton):
         self.main_widget.layout().setAlignment(QtCore.Qt.AlignTop)
         self.main_widget.layout().setContentsMargins(5, 1, 5, 10)
 
-        self.scroll = QtWidgets.QScrollArea()
+        self.scroll = scroll_area.ScrollArea()
         self.scroll.setWidgetResizable(True)
         self.scroll.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
         self.scroll.setWidget(self.main_widget)

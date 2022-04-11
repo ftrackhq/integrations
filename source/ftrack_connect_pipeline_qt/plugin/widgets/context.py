@@ -21,7 +21,7 @@ from ftrack_connect_pipeline_qt.utils import BaseThread
 class PublishContextWidget(BaseOptionsWidget):
     '''Main class to represent a context widget on a publish process.'''
 
-    statuses_fetched = QtCore.Signal(object)
+    statusesFetched = QtCore.Signal(object)
 
     def __init__(
         self,
@@ -55,7 +55,7 @@ class PublishContextWidget(BaseOptionsWidget):
         if self.context_id:
             self.set_option_result(self.context_id, key='context_id')
         self.layout().addLayout(self._build_asset_selector())
-        self.statuses_fetched.connect(self.set_statuses)
+        self.statusesFetched.connect(self.set_statuses)
         self.layout().addWidget(line.Line())
         version_and_comment = QtWidgets.QWidget()
         version_and_comment.setLayout(QtWidgets.QVBoxLayout())
@@ -116,6 +116,7 @@ class PublishContextWidget(BaseOptionsWidget):
         self.status_layout.setAlignment(QtCore.Qt.AlignTop)
 
         self.asset_status_label = QtWidgets.QLabel("Status")
+        self.asset_status_label.setObjectName('gray')
 
         self.status_selector = StatusSelector()
 
@@ -141,6 +142,7 @@ class PublishContextWidget(BaseOptionsWidget):
         self.coments_layout.setAlignment(QtCore.Qt.AlignTop)
 
         comment_label = QtWidgets.QLabel('Description')
+        comment_label.setObjectName('gray')
         self.comments_input = QtWidgets.QTextEdit()
         self.comments_input.setMaximumHeight(40)
         self.comments_input.setPlaceholderText("Type a description...")
@@ -156,7 +158,7 @@ class PublishContextWidget(BaseOptionsWidget):
         '''Emit signal to set statuses on the combobox'''
         # Emit signal to add the sttuses to the combobox
         # because here we could have problems with the threads
-        self.statuses_fetched.emit(statuses)
+        self.statusesFetched.emit(statuses)
 
     def set_statuses(self, statuses):
         '''Set statuses on the combo box'''
@@ -230,7 +232,6 @@ class LoadContextWidget(BaseOptionsWidget):
     def post_build(self):
         '''hook events'''
         super(LoadContextWidget, self).post_build()
-        # self.asset_selector.assets_query_done.connect(self._pre_select_asset)
         self.asset_selector.assetChanged.connect(self._on_asset_changed)
 
     def _on_asset_changed(
@@ -254,7 +255,7 @@ class LoadContextWidget(BaseOptionsWidget):
 
 
 class OpenContextWidget(BaseOptionsWidget):
-    '''Main class to represent a context widget on a open process'''
+    '''Main class to represent a context widget on an open process'''
 
     def __init__(
         self,
@@ -358,13 +359,9 @@ class StatusSelector(QtWidgets.QComboBox):
         self.setStyleSheet(
             '''
             QComboBox {
-                border: 1px solid %s;
                 border-radius: 3px;
                 color: %s;
             }
         '''
-            % (
-                self._status_colors.get(status_id) or '#303030',
-                self._status_colors.get(status_id) or '#303030',
-            )
+            % (self._status_colors.get(status_id) or '#303030',)
         )

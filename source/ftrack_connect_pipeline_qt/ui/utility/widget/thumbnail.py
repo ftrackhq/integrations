@@ -20,6 +20,7 @@ class Base(QtWidgets.QLabel):
     '''Widget to load thumbnails from ftrack server.'''
 
     thumbnailFetched = QtCore.Signal(object)
+    thumbnailNotFound = QtCore.Signal()
 
     def __init__(self, session, scale=True, parent=None):
         super(Base, self).__init__(parent)
@@ -47,12 +48,16 @@ class Base(QtWidgets.QLabel):
 
     def post_build(self):
         self.thumbnailFetched.connect(self._downloaded)
+        self.thumbnailNotFound.connect(self._use_placeholder)
 
     def load(self, reference):
         '''Load thumbnail from *reference* and display it.'''
 
         if reference in IMAGE_CACHE:
-            self._updatePixmapData(IMAGE_CACHE[reference])
+            if IMAGE_CACHE[reference] is not None:
+                self._updatePixmapData(IMAGE_CACHE[reference])
+            else:
+                self._updateWithPlaceholderPixmap()
             return
 
         # if self._worker and self._worker.isRunning():
@@ -62,18 +67,20 @@ class Base(QtWidgets.QLabel):
 
         thread = BaseThread(
             name='get_thumbnail_thread',
-            target=self._download,
+            target=self._download_async,
             callback=self._downloaded_async,
             target_args=[reference],
         )
         thread.start()
 
-        # self._worker = Worker(self._download, args=[reference], parent=self)
-
         self.__loadingReference = reference
-        # self._worker.start()
 
-        # self._worker.finished.connect(self._downloaded)
+    def _download_async(self, reference):
+        try:
+            return self._download(reference)
+        except urllib.error.URLError:
+            # Not found
+            self.thumbnailNotFound.emit()
 
     def _downloaded_async(self, html):
         if not shiboken2.isValid(self):
@@ -91,12 +98,20 @@ class Base(QtWidgets.QLabel):
 
         self.__loadingReference = None
 
+    def _use_placeholder(self):
+        IMAGE_CACHE[self.__loadingReference] = None
+        self._updateWithPlaceholderPixmap()
+
     def _updatePixmapData(self, data):
         '''Update thumbnail with *data*.'''
         if data:
             pixmap = QtGui.QPixmap()
             pixmap.loadFromData(data)
             self._scaleAndSetPixmap(pixmap)
+
+    def _updateWithPlaceholderPixmap(self):
+        resource_path = ':ftrack/image/default/placeholderThumbnail'
+        self._scaleAndSetPixmap(QtGui.QPixmap(resource_path))
 
     def _scaleAndSetPixmap(self, pixmap):
         '''Scale and set *pixmap*.'''
@@ -118,13 +133,7 @@ class Base(QtWidgets.QLabel):
 
         '''
 
-        placeholder = self.placholderThumbnail
-        try:
-            response = opener_callback(url, timeout=timeout)
-        except urllib.error.URLError:
-            response = opener_callback(placeholder)
-
-        return response
+        return opener_callback(url, timeout=timeout)
 
     def _download(self, url):
         '''Return thumbnail file from *url*.'''
@@ -181,8 +190,10 @@ class Context(Base):
                 )
             ).one()
         url = self.get_thumbnail_url(thumbnail)
-        url = url or self.placholderThumbnail
-        return super(Context, self)._download(url)
+        if url is not None:
+            return super(Context, self)._download(url)
+        else:
+            raise urllib.error.URLError("No context URL")
 
     def get_thumbnail_url(self, component):
         if not component:

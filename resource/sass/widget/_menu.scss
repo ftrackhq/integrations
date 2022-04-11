@@ -3,11 +3,11 @@ QMenuBar {
 }
 
 QMenu {
-    background: $gray-dark;
+    background: $alt-background;
 }
 
 QMenu::item {
-    background: $gray-dark;
+    background: $alt-background;
     border: 0px;
     padding: 7px;
     padding-right: 15px;

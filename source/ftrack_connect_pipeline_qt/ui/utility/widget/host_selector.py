@@ -4,9 +4,9 @@ from Qt import QtWidgets, QtCore
 
 
 class HostSelector(QtWidgets.QWidget):
-    '''DefinitionSelector Base Class'''
+    '''Host selector Class'''
 
-    host_changed = QtCore.Signal(object)
+    hostChanged = QtCore.Signal(object)
     host_connection = None
 
     @property
@@ -46,7 +46,7 @@ class HostSelector(QtWidgets.QWidget):
         if not self.host_connection:
             self.logger.warning('No data for selected host')
 
-        self.host_changed.emit(self.host_connection)
+        self.hostChanged.emit(self.host_connection)
 
     def add_hosts(self, host_connections):
         for host_connection in host_connections:

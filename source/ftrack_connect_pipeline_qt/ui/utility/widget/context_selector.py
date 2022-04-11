@@ -85,9 +85,7 @@ class ContextSelector(QtWidgets.QFrame):
         self.entity_info.setMinimumHeight(40)
         self.entity_info.setMaximumHeight(40)
 
-        self.entity_browse_button = CircularButton(
-            'edit', '#BF9AC9', variant='outlined'
-        )
+        self.entity_browse_button = CircularButton('edit', variant='outlined')
 
         self.layout().addWidget(self.thumbnail_widget)
         self.layout().addWidget(self.entity_info)

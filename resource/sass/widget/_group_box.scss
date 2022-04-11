@@ -1,5 +1,6 @@
 QGroupBox {
     color: $text-color;
+    background: transparent !important;
 }
 
 QGroupBox::indicator {

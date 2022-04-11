@@ -17,6 +17,7 @@ from ftrack_connect_pipeline_qt.ui.utility.widget.accordion import (
 from ftrack_connect_pipeline_qt.ui.utility.widget.base.accordion_base import (
     AccordionBaseWidget,
 )
+from ftrack_connect_pipeline_qt.ui.utility.widget import group_box
 
 
 class GroupBoxStepContainerWidget(BaseUIWidget):
@@ -31,7 +32,7 @@ class GroupBoxStepContainerWidget(BaseUIWidget):
         )
 
     def build(self):
-        self._widget = QtWidgets.QGroupBox(self.name)
+        self._widget = group_box.GroupBox(self.name)
         main_layout = QtWidgets.QVBoxLayout()
         self.widget.setLayout(main_layout)
 

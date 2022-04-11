@@ -14,6 +14,7 @@ from ftrack_connect_pipeline_qt.ui.utility.widget import (
     definition_selector,
     line,
     dialog,
+    scroll_area,
 )
 from ftrack_connect_pipeline_qt.client import factory
 from ftrack_connect_pipeline_qt import constants as qt_constants
@@ -56,6 +57,7 @@ class QtClient(Client, QtWidgets.QFrame):
         self.is_valid_asset_name = False
         self._shown = False
         self._postponed_change_definition = None
+        self.open_assembler_button = None
 
         if self.getTheme():
             self.setTheme(self.getTheme())
@@ -140,17 +142,14 @@ class QtClient(Client, QtWidgets.QFrame):
 
     def build(self):
         '''Build widgets and parent them.'''
-        self.header = header.Header(
-            self.session,
-            title='CONNECT',
-        )
+        self.header = header.Header(self.session)
         self.layout().addWidget(self.header)
-
         self.progress_widget = self.widget_factory.progress_widget
-
         self.header.content_container.layout().addWidget(
             self.progress_widget.widget
         )
+
+        self.layout().addWidget(line.Line(style='solid'))
 
         self.context_selector = ContextSelector(self, self.session)
         self.layout().addWidget(self.context_selector, QtCore.Qt.AlignTop)
@@ -158,13 +157,11 @@ class QtClient(Client, QtWidgets.QFrame):
         self.layout().addWidget(line.Line())
 
         self.host_and_definition_selector = (
-            definition_selector.DefinitionSelectorWidgetComboBox(
-                self.client_name
-            )
+            definition_selector.DefinitionSelector(self.client_name)
         )
         self.host_and_definition_selector.refreshed.connect(self.refresh)
 
-        self.scroll = QtWidgets.QScrollArea()
+        self.scroll = scroll_area.ScrollArea()
         self.scroll.setWidgetResizable(True)
         self.scroll.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
         # self.scroll.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOn)
@@ -172,28 +169,45 @@ class QtClient(Client, QtWidgets.QFrame):
         self.layout().addWidget(self.host_and_definition_selector)
         self.layout().addWidget(self.scroll, 100)
 
+        button_widget = QtWidgets.QWidget()
+        button_widget.setLayout(QtWidgets.QHBoxLayout())
+        button_widget.layout().setContentsMargins(10, 10, 10, 5)
+        button_widget.layout().setSpacing(10)
+
+        self.open_assembler_button = OpenAssemblerButton()
+        button_widget.layout().addWidget(self.open_assembler_button)
+        self.open_assembler_button.setVisible(
+            self.client_name == qt_constants.OPEN_WIDGET
+        )
+
+        l_filler = QtWidgets.QLabel()
+        button_widget.layout().addWidget(l_filler, 10)
+        l_filler.setVisible(self.client_name == qt_constants.OPEN_WIDGET)
+
         self.run_button = RunButton(
             self.client_name.upper() if self.client_name else 'Run'
         )
-        self.layout().addWidget(self.run_button)
-        self.run_button.setVisible(False)
+        button_widget.layout().addWidget(self.run_button)
+        self.run_button.setEnabled(False)
+
+        self.layout().addWidget(button_widget)
 
     def post_build(self):
         '''Post Build ui method for events connections.'''
         self.context_selector.entityChanged.connect(
             self._on_context_selector_context_changed
         )
-        self.host_and_definition_selector.host_changed.connect(
-            self.change_host
-        )
-        self.host_and_definition_selector.definition_changed.connect(
+        self.host_and_definition_selector.hostChanged.connect(self.change_host)
+        self.host_and_definition_selector.definitionChanged.connect(
             self.change_definition
         )
 
         if self.event_manager.mode == constants.LOCAL_EVENT_MODE:
-            self.host_and_definition_selector.host_combobox.hide()
+            self.host_and_definition_selector.host_widget.hide()
 
         self.run_button.clicked.connect(self.run)
+        if self.open_assembler_button:
+            self.open_assembler_button.clicked.connect(self._open_assembler)
 
     def _on_context_selector_context_changed(
         self, context_entity, global_context_change
@@ -270,6 +284,13 @@ class QtClient(Client, QtWidgets.QFrame):
         plugin information and the *method* to be run has to be passed'''
         self.run_plugin(plugin_data, method, self.engine_type)
 
+    def _open_assembler(self):
+        '''Open the assembler and close client if dialog'''
+        self.host_connection.launch_widget(qt_constants.ASSEMBLER_WIDGET)
+        if not self.is_docked():
+            self.get_parent_window().hide()
+            self.get_parent_window().deleteLater()
+
     def run(self):
         '''Function called when click the run button'''
         self.widget_factory.has_error = False
@@ -288,6 +309,7 @@ class QtClient(Client, QtWidgets.QFrame):
 
     def _on_components_checked(self, available_components_count):
         self.definition_changed(self.definition, available_components_count)
+        self.run_button.setEnabled(available_components_count >= 1)
 
     def _on_log_item_added(self, log_item):
         if self.widget_factory:
@@ -359,13 +381,6 @@ class QtChangeContextClient(Client):
         self.entity_browser.setMinimumWidth(600)
         if self.entity_browser.exec_():
             self.set_entity(self.entity_browser.entity)
-            dialog.ModalDialog(
-                None,
-                title='Change context',
-                message="Working context is now: {}".format(
-                    str_context(self.entity_browser.entity)
-                ),
-            )
 
     def set_entity(self, context):
         self._host_connection.set_context(context)
@@ -400,3 +415,10 @@ class QtDocumentationClient:
 class RunButton(QtWidgets.QPushButton):
     def __init__(self, label, parent=None):
         super(RunButton, self).__init__(label, parent=parent)
+
+
+class OpenAssemblerButton(QtWidgets.QPushButton):
+    def __init__(self, parent=None):
+        super(OpenAssemblerButton, self).__init__(
+            'OPEN ASSEMBLER', parent=parent
+        )

@@ -11,7 +11,7 @@ from ftrack_connect_pipeline_qt.ui.utility.widget.search import Search
 from ftrack_connect_pipeline_qt.ui.utility.widget.base.accordion_base import (
     AccordionBaseWidget,
 )
-from ftrack_connect_pipeline_qt.ui.utility.widget.dialog import ModalDialog
+from ftrack_connect_pipeline_qt.ui.utility.widget import scroll_area
 
 
 class AssetManagerBaseWidget(QtWidgets.QWidget):
@@ -76,7 +76,7 @@ class AssetManagerBaseWidget(QtWidgets.QWidget):
         self.build_header(self._header.layout())
         self.layout().addWidget(self._header)
 
-        self.scroll = QtWidgets.QScrollArea()
+        self.scroll = scroll_area.ScrollArea()
         self.scroll.setWidgetResizable(True)
         self.scroll.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
         self.layout().addWidget(self.scroll, 100)
@@ -128,19 +128,23 @@ class AssetListModel(QtCore.QAbstractTableModel):
 
     def data(self, index, role=QtCore.Qt.DisplayRole):
         if role == QtCore.Qt.DisplayRole:
-            return self.__asset_entities_list[index.row()]
+            if index.row() < len(self.__asset_entities_list):
+                return self.__asset_entities_list[index.row()]
+        return None
 
     def items(self):
         return self.__asset_entities_list
 
     def insertRows(self, row, data, index=None):
-        rows = len(data)
-        self.beginInsertRows(self.createIndex(row, 0), row, row + rows - 1)
-        for row in range(rows):
-            if row + row < len(self.__asset_entities_list):
-                self.__asset_entities_list.insert(row + row, data[row])
+        count = len(data)
+        self.beginInsertRows(
+            index or self.createIndex(row, 0), row, row + count - 1
+        )
+        for n in range(count):
+            if row + n < len(self.__asset_entities_list):
+                self.__asset_entities_list.insert(row + n, data[n])
             else:
-                self.__asset_entities_list.append(data[row])
+                self.__asset_entities_list.append(data[n])
         self.endInsertRows()
 
     def getIndex(self, asset_info_id):
@@ -234,7 +238,11 @@ class AssetListWidget(QtWidgets.QWidget):
                 if as_widgets:
                     result.append(widget)
                 else:
-                    result.append(self.model.data(widget.index))
+                    data = self.model.data(widget.index)
+                    if data is None:
+                        # Data has changed
+                        return None
+                    result.append(data)
         return result
 
     def clear_selection(self):
@@ -245,11 +253,13 @@ class AssetListWidget(QtWidgets.QWidget):
             if asset_widget.set_selected(False):
                 selection_asset_data_changed = True
         if selection_asset_data_changed:
-            self.selectionUpdated.emit(self.selection())
+            selection = self.selection()
+            if selection is not None:
+                self.selectionUpdated.emit(selection)
 
     def asset_clicked(self, asset_widget, event):
         '''An asset (accordion) were clicked in list, evaluate selection.'''
-        selecti_on_asset_data_changed = False
+        selection_asset_data_changed = False
         modifiers = QtWidgets.QApplication.keyboardModifiers()
         if event.button() == QtCore.Qt.RightButton:
             return
@@ -273,14 +283,16 @@ class AssetListWidget(QtWidgets.QWidget):
                 for widget in self.assets:
                     if start_row < widget.index.row() < end_row:
                         if widget.set_selected(True):
-                            selecti_on_asset_data_changed = True
+                            selection_asset_data_changed = True
         else:
             self.clear_selection()
         if asset_widget.set_selected(True):
-            selecti_on_asset_data_changed = True
+            selection_asset_data_changed = True
         self._last_clicked = asset_widget
-        if selecti_on_asset_data_changed:
-            self.selectionUpdated.emit(self.selection())
+        if selection_asset_data_changed:
+            selection = self.selection()
+            if selection is not None:
+                self.selectionUpdated.emit(selection)
 
     def get_widget(self, index):
         for widget in self.assets:

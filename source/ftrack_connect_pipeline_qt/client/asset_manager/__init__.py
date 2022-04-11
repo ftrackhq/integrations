@@ -14,6 +14,7 @@ from ftrack_connect_pipeline_qt.ui.utility.widget import (
     host_selector,
     line,
     icon,
+    scroll_area,
 )
 from ftrack_connect_pipeline_qt.ui.asset_manager.asset_manager import (
     AssetManagerWidget,
@@ -113,10 +114,10 @@ class QtAssetManagerClient(AssetManagerClient, QtWidgets.QFrame):
     def build(self):
         '''Build widgets and parent them.'''
         if not self.is_assembler:
-            self.header = header.Header(
-                self.session, title='CONNECT', show_publisher=True
-            )
+            self.header = header.Header(self.session, show_publisher=True)
             self.layout().addWidget(self.header)
+
+            self.layout().addWidget(line.Line(style='solid'))
 
             self.context_selector = ContextSelector(self, self.session)
             self.layout().addWidget(self.context_selector, QtCore.Qt.AlignTop)
@@ -129,7 +130,7 @@ class QtAssetManagerClient(AssetManagerClient, QtWidgets.QFrame):
         else:
             self.context_selector = None
 
-        self.scroll = QtWidgets.QScrollArea()
+        self.scroll = scroll_area.ScrollArea()
         self.scroll.setWidgetResizable(True)
         self.layout().addWidget(self.scroll, 100)
 
@@ -153,7 +154,7 @@ class QtAssetManagerClient(AssetManagerClient, QtWidgets.QFrame):
         self.asset_manager_widget.rebuild.connect(self.rebuild)
 
         if not self.is_assembler:
-            self.host_selector.host_changed.connect(self.change_host)
+            self.host_selector.hostChanged.connect(self.change_host)
 
         self.asset_manager_widget.widgetStatusUpdated.connect(
             self._on_widget_status_updated
