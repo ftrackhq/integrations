@@ -188,14 +188,32 @@ class QtAssemblerClient(QtClient):
         self.layout().addWidget(self.splitter, 100)
 
     def post_build(self):
-        super(QtAssemblerClient, self).post_build()
+        #super(QtAssemblerClient, self).post_build()
+        # TODO: Find a better way to override the post_build function, the
+        #  problem is that run_button.clicked signal doesn't get overrided,
+        #  it simply adds a new signal.
+        self.context_selector.entityChanged.connect(
+            self._on_context_selector_context_changed
+        )
+        self.host_and_definition_selector.host_changed.connect(
+            self.change_host
+        )
+        self.host_and_definition_selector.definition_changed.connect(
+            self.change_definition
+        )
+
+        if self.event_manager.mode == constants.LOCAL_EVENT_MODE:
+            self.host_and_definition_selector.host_combobox.hide()
+        #########
+
         self.host_and_definition_selector.hostsDiscovered.connect(
             self._on_hosts_discovered
         )
         self._tab_widget.currentChanged.connect(self._on_tab_changed)
         self.asset_manager.assetsDiscovered.connect(self._assets_discovered)
         self.run_button.setFocus()
-        self.run_button_no_load.clicked.connect(partial(self.run, True))
+        self.run_button_no_load.clicked.connect(partial(self.run, "init_nodes"))
+        self.run_button.clicked.connect(partial(self.run, "init_and_load"))
         self.run_button.setVisible(True)
 
     def _on_hosts_discovered(self, host_connects):
@@ -285,7 +303,7 @@ class QtAssemblerClient(QtClient):
         widget_factory.host_connection = self._host_connection
         widget_factory.set_definition_type(definition['type'])
 
-    def run(self, delayed_load=False):
+    def run(self, method=None):
         '''(Override) Function called when click the run button.'''
         # Load batch of components, any selected
         component_widgets = self._assembler_widget.component_list.selection(
@@ -341,13 +359,24 @@ class QtAssemblerClient(QtClient):
 
                 engine_type = definition['_config']['engine_type']
 
+                # Set method to importer plugins
+                if method:
+                    for component in definition['components']:
+                        for stage in component['stages']:
+                            if stage['type'] != 'importer':
+                                continue
+                            for plugin in stage['plugins']:
+                                if plugin['type'] != 'importer':
+                                    continue
+                                plugin['default_method'] = method
+
                 self.logger.info(
                     'Running definition: {}'.format(
                         json.dumps(definition, indent=4)
                     )
                 )
 
-                self.run_definition(definition, engine_type, delayed_load)
+                self.run_definition(definition, engine_type)
                 # Did it go well?
                 if factory.has_error:
                     failed += 1
@@ -359,7 +388,7 @@ class QtAssemblerClient(QtClient):
                     self.progress_widget.set_status(
                         constants.SUCCESS_STATUS,
                         'Successfully {} {}/{} asset{}!'.format(
-                            'loaded' if not delayed_load else 'tracked',
+                            'loaded' if method == 'run' else 'tracked',
                             succeeded,
                             len(component_widgets),
                             's' if len(component_widgets) > 1 else '',
@@ -369,7 +398,7 @@ class QtAssemblerClient(QtClient):
                     self.progress_widget.set_status(
                         constants.WARNING_STATUS,
                         'Successfully {} {}/{} asset{}, {} failed - check logs for more information!'.format(
-                            'loaded' if not delayed_load else 'tracked',
+                            'loaded' if method == 'run' else 'tracked',
                             succeeded,
                             len(component_widgets),
                             's' if len(component_widgets) > 1 else '',
@@ -381,7 +410,7 @@ class QtAssemblerClient(QtClient):
                 self.progress_widget.set_status(
                     constants.ERROR_STATUS,
                     'Could not {} asset{} - check logs for more information!'.format(
-                        'loaded' if not delayed_load else 'tracked',
+                        'loaded' if method == 'run' else 'tracked',
                         's' if len(component_widgets) > 1 else '',
                     ),
                 )
