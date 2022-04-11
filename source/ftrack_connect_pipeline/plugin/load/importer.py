@@ -30,8 +30,12 @@ class LoaderImporterPlugin(base.BaseImporterPlugin):
     dependency_load_mode = ''
     '''Default defendency load Mode'''
 
+    json_data = {}
+    '''Extra json data with the current load options'''
+
     def __init__(self, session):
         super(LoaderImporterPlugin, self).__init__(session)
+        self.ftrack_asset = None
 
     def _parse_run_event(self, event):
         '''
@@ -62,12 +66,63 @@ class LoaderImporterPlugin(base.BaseImporterPlugin):
         raise NotImplementedError
 
     def init_nodes(self, context_data=None, data=None, options=None):
-        '''Alternative plugin metod to init all the nodes in the scene but not
+        '''Alternative plugin method to init all the nodes in the scene but not
         need to load the assets'''
-        ftrack_object = self.ftrack_asset.init_ftrack_object(False)
+        if six.PY2:
+            options[asset_const.ASSET_INFO_OPTIONS] = base64.b64encode(
+                self.json_data
+            )
+        else:
+            input_bytes = self.json_data.encode('utf8')
+            options[asset_const.ASSET_INFO_OPTIONS] = base64.b64encode(
+                input_bytes
+            ).decode('ascii')
+
+        asset_info_class = self.generate_asset_info_class_from_arguments(
+            context_data, data, options
+        )
+        self.ftrack_asset = self.ftrack_asset_class(self.event_manager)
+        self.ftrack_asset.set_asset_info(asset_info_class)
+
+        ftrack_object = self.ftrack_asset.init_ftrack_object(
+            create_object=True,
+            is_loaded=False
+        )
 
         results = [ftrack_object]
         return results
+
+    def load_asset(self, context_data=None, data=None, options=None):
+        '''Alternative plugin method to only load the asset in the scene'''
+
+        self.ftrack_asset = self.ftrack_asset_class(self.event_manager)
+        asset_info = options.get('asset_info')
+        self.ftrack_asset.set_asset_info(asset_info)
+        self.ftrack_asset.init_ftrack_object(
+            create_object=False,
+            is_loaded=True
+        )
+        # Remove asset_info from the options as it is not needed anymore
+        options.pop('asset_info')
+        # Execute the run method to load the objects
+        self.run(context_data, data, options)
+        #  Query all the objects from the scene
+        self.new_data = self.get_current_objects()
+        self.logger.debug(
+            'Scene objects after load : {}'.format(len(self.new_data))
+        )
+        diff = self.new_data.difference(self.old_data)
+
+        #Connect scene objects to ftrack node
+        self.ftrack_asset.connect_objects(diff)
+
+    def init_and_load(self, context_data=None, data=None, options=None):
+        '''Alternative plugin method to init and load the node and the assets
+        into the scene'''
+
+        self.init_nodes(context_data=context_data, data=data, options=options)
+        options['asset_info'] = self.ftrack_asset.asset_info
+        self.load_asset(context_data=context_data, data=data, options=options)
 
     def _run(self, event):
         self.old_data = self.get_current_objects()
@@ -85,45 +140,15 @@ class LoaderImporterPlugin(base.BaseImporterPlugin):
         options = self.plugin_settings.get('options')
         self.logger.debug('Current options : {}'.format(options))
 
-        asset_load_mode = options.get(asset_const.LOAD_MODE)
+        # set non serializable keys like "session" to not serializable, used in
+        # case data contains the asset info from the scene
+        self.json_data = json.dumps(event['data'], default=lambda o: '<not serializable>')
 
-        # In case of open mode = open or
-        # asset_const.LOAD_AS_NODE_ONLY make sure the method is not init_nodes
-        if asset_load_mode == 'Open':
-            if self.method == 'init_nodes':
-                event['data']['pipeline']['method'] = 'run'
-                self._method = event['data']['pipeline']['method']
-
-        json_data = json.dumps(event['data'])
-        if six.PY2:
-            options[asset_const.ASSET_INFO_OPTIONS] = base64.b64encode(
-                json_data
-            )
-        else:
-            input_bytes = json_data.encode('utf8')
-            options[asset_const.ASSET_INFO_OPTIONS] = base64.b64encode(
-                input_bytes
-            ).decode('ascii')
-
-        if asset_load_mode != 'Open':
-            self.ftrack_asset = self.get_asset_class(
-                context_data, data, options
-            )
-
+        # If method == init_and_load will init the nodes and load the objects,
+        # if method == init_nodes will only load the nodes,
+        # if method == load_objects will only load the objects using the current
+        # asset info, if method == run will execute the default behaiviour of
+        # the plugin, which is usually for the open scene.
         super_result = super(LoaderImporterPlugin, self)._run(event)
-
-        #  Query all the objects from the scene
-        self.new_data = self.get_current_objects()
-        self.logger.debug(
-            'Scene objects after load : {}'.format(len(self.new_data))
-        )
-        diff = self.new_data.difference(self.old_data)
-
-        if asset_load_mode != 'Open' and self.method == 'run':
-            ftrack_object = self.ftrack_asset.init_ftrack_object(
-                is_loaded=True
-            )
-
-            self.ftrack_asset.connect_objects(diff)
 
         return super_result

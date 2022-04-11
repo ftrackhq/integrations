@@ -124,9 +124,7 @@ class Host(object):
                 self.logger.error(
                     "Can't validate the data {} error: {}".format(data, error)
                 )
-            runner_result = engine_runner.run_definition(
-                data, event['data']['pipeline']['delayed_load']
-            )
+            runner_result = engine_runner.run_definition(data)
         else:
             runner_result = engine_runner.run(data)
 

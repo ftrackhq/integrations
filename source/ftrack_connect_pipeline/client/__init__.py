@@ -152,7 +152,7 @@ class HostConnection(object):
 
         self.context_id = self._raw_host_data['context_id']
 
-    def run(self, data, engine, delayed_load=None, callback=None):
+    def run(self, data, engine, callback=None):
         '''
         Publish an event with the topic
         :py:const:`~ftrack_connect_pipeline.constants.PIPELINE_HOST_RUN`
@@ -165,8 +165,7 @@ class HostConnection(object):
                 'pipeline': {
                     'host_id': self.id,
                     'data': data,
-                    'engine_type': engine,
-                    'delayed_load': delayed_load,
+                    'engine_type': engine
                 }
             },
         )
@@ -389,7 +388,7 @@ class Client(object):
             discover_event, callback=self._host_discovered
         )
 
-    def run_definition(self, definition, engine_type, delayed_load):
+    def run_definition(self, definition, engine_type):
         '''
         Calls the :meth:`~ftrack_connect_pipeline.client.HostConnection.run`
         to run the entire given *definition* with the given *engine_type*.
@@ -399,7 +398,6 @@ class Client(object):
         self.host_connection.run(
             definition,
             engine_type,
-            delayed_load=delayed_load,
             callback=self._run_callback,
         )
 

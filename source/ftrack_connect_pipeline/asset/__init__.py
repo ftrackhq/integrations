@@ -122,7 +122,10 @@ class FtrackAssetBase(object):
 
         self._ftrack_object = None
 
-    def init_ftrack_object(self, is_loaded=True):
+    def set_asset_info(self, asset_info_class):
+        self.asset_info = asset_info_class
+
+    def init_ftrack_object(self, create_object=True, is_loaded=True):
         '''
         Sets and Returns the current :py:obj:`ftrack_object` for this class.
         '''
