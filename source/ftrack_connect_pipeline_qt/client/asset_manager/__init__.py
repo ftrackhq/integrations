@@ -14,6 +14,7 @@ from ftrack_connect_pipeline_qt.ui.utility.widget import (
     host_selector,
     line,
     icon,
+    scroll_area,
 )
 from ftrack_connect_pipeline_qt.ui.asset_manager.asset_manager import (
     AssetManagerWidget,
@@ -129,7 +130,7 @@ class QtAssetManagerClient(AssetManagerClient, QtWidgets.QFrame):
         else:
             self.context_selector = None
 
-        self.scroll = QtWidgets.QScrollArea()
+        self.scroll = scroll_area.ScrollArea()
         self.scroll.setWidgetResizable(True)
         self.layout().addWidget(self.scroll, 100)
 

@@ -4,6 +4,7 @@
 from Qt import QtWidgets
 
 from ftrack_connect_pipeline_qt.ui.client import BaseUIWidget
+from ftrack_connect_pipeline_qt.ui.utility.widget import group_box
 
 
 class GroupBoxStageWidget(BaseUIWidget):
@@ -17,6 +18,6 @@ class GroupBoxStageWidget(BaseUIWidget):
         )
 
     def build(self):
-        self._widget = QtWidgets.QGroupBox(self.name)
+        self._widget = group_box.GroupBox(self.name)
         main_layout = QtWidgets.QVBoxLayout()
         self.widget.setLayout(main_layout)

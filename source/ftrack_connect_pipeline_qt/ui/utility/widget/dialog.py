@@ -75,7 +75,6 @@ class ModalDialog(QtWidgets.QDialog):
         self.setParent(parent)
 
         self.setTheme(self.getTheme())
-        # self.setProperty('background', 'ftrack')
 
         self._message = message or question
         self._title = title or 'ftrack'
@@ -84,6 +83,9 @@ class ModalDialog(QtWidgets.QDialog):
         self.pre_build()
         self.build()
         self.post_build()
+
+        if modal is not None:
+            self.setModal(modal)
 
         if prompt is False:
             self.exec_()

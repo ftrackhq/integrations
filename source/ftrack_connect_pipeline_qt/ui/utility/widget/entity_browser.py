@@ -23,15 +23,14 @@ from ftrack_connect_pipeline_qt.ui.utility.widget.circular_button import (
 from ftrack_connect_pipeline_qt.ui.utility.widget.busy_indicator import (
     BusyIndicator,
 )
-from ftrack_connect_pipeline_qt.ui.utility.widget.dialog import (
-    ModalDialog,
-    ApproveButton,
-    DenyButton,
+from ftrack_connect_pipeline_qt.ui.utility.widget import (
+    dialog,
+    icon,
+    scroll_area,
 )
-from ftrack_connect_pipeline_qt.ui.utility.widget import icon
 
 
-class EntityBrowser(ModalDialog):
+class EntityBrowser(dialog.ModalDialog):
     '''
     Dialog enabling entity/context browsing
 
@@ -124,7 +123,7 @@ class EntityBrowser(ModalDialog):
         self._search.inputUpdated.connect(self._on_search)
         widget.layout().addWidget(self._search)
 
-        self._scroll = QtWidgets.QScrollArea()
+        self._scroll = scroll_area.ScrollArea()
         self._scroll.setWidgetResizable(True)
         self._scroll.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
 
@@ -133,10 +132,10 @@ class EntityBrowser(ModalDialog):
         return widget
 
     def get_approve_button(self):
-        return ApproveButton("APPLY CONTEXT", width=80)
+        return dialog.ApproveButton("APPLY CONTEXT", width=80)
 
     def get_deny_button(self):
-        return DenyButton("CANCEL", width=80)
+        return dialog.DenyButton("CANCEL", width=80)
 
     def post_build(self):
         super(EntityBrowser, self).post_build()

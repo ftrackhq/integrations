@@ -11,7 +11,7 @@ from ftrack_connect_pipeline_qt.ui.utility.widget.search import Search
 from ftrack_connect_pipeline_qt.ui.utility.widget.base.accordion_base import (
     AccordionBaseWidget,
 )
-from ftrack_connect_pipeline_qt.ui.utility.widget.dialog import ModalDialog
+from ftrack_connect_pipeline_qt.ui.utility.widget import scroll_area
 
 
 class AssetManagerBaseWidget(QtWidgets.QWidget):
@@ -76,7 +76,7 @@ class AssetManagerBaseWidget(QtWidgets.QWidget):
         self.build_header(self._header.layout())
         self.layout().addWidget(self._header)
 
-        self.scroll = QtWidgets.QScrollArea()
+        self.scroll = scroll_area.ScrollArea()
         self.scroll.setWidgetResizable(True)
         self.scroll.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
         self.layout().addWidget(self.scroll, 100)

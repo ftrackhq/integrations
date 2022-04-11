@@ -14,6 +14,7 @@ from ftrack_connect_pipeline_qt.ui.utility.widget import (
     definition_selector,
     line,
     dialog,
+    scroll_area,
 )
 from ftrack_connect_pipeline_qt.client import factory
 from ftrack_connect_pipeline_qt import constants as qt_constants
@@ -164,7 +165,7 @@ class QtClient(Client, QtWidgets.QFrame):
         )
         self.host_and_definition_selector.refreshed.connect(self.refresh)
 
-        self.scroll = QtWidgets.QScrollArea()
+        self.scroll = scroll_area.ScrollArea()
         self.scroll.setWidgetResizable(True)
         self.scroll.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
         # self.scroll.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOn)
