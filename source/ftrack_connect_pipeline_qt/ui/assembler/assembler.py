@@ -59,18 +59,19 @@ class AssemblerDependenciesWidget(AssemblerBaseWidget):
         return QtWidgets.QLabel()
 
     def rebuild(self):
-        # self.session._local_cache.clear() # Make sure reset session cache
-        super(AssemblerDependenciesWidget, self).rebuild()
+        if super(AssemblerDependenciesWidget, self).rebuild():
 
-        self.scroll.setWidget(QtWidgets.QLabel(''))
+            self.scroll.setWidget(QtWidgets.QLabel(''))
 
-        # Resolve version this context is depending on in separate thread
-        thread = BaseThread(
-            name='resolve_dependencies_thread',
-            target=self._resolve_dependencies,
-            target_args=[self._assembler_client.context_selector.context_id],
-        )
-        thread.start()
+            # Resolve version this context is depending on in separate thread
+            thread = BaseThread(
+                name='resolve_dependencies_thread',
+                target=self._resolve_dependencies,
+                target_args=[
+                    self._assembler_client.context_selector.context_id
+                ],
+            )
+            thread.start()
 
     def _resolve_dependencies(self, context_id):
         return self._assembler_client.asset_manager.resolve_dependencies(
@@ -118,7 +119,7 @@ class AssemblerDependenciesWidget(AssemblerBaseWidget):
                 ]
 
                 # Process versions, filter against
-                self._assembler_client.logger.info(
+                self.logger.info(
                     'Resolved versions: {}'.format(
                         ','.join(
                             [str_version(v, with_id=True) for v in versions]
@@ -231,71 +232,106 @@ class AssemblerBrowserWidget(AssemblerBaseWidget):
 
     def rebuild(self):
         # self.session._local_cache.clear() # Make sure session cache is cleared out
-        super(AssemblerBrowserWidget, self).rebuild()
+        if super(AssemblerBrowserWidget, self).rebuild():
 
-        if self._entity_browser.entity is None:
-            # First time set
-            self._entity_browser.set_entity(self.get_context())
+            if self._entity_browser.entity is None:
+                # First time set
+                self._entity_browser.set_entity(self.get_context())
 
-        # Create component list
-        self._component_list = BrowserListWidget(self)
-        self._component_list.versionChanged.connect(self._on_version_changed)
+            # Create component list
+            self._component_list = BrowserListWidget(self)
+            self._component_list.versionChanged.connect(
+                self._on_version_changed
+            )
 
-        self.scroll.setWidget(self._component_list)
+            self.scroll.setWidget(self._component_list)
 
-        # Find version beneath browsed entity, in chunks
-        self._limit = 5  # Amount of assets to fetch at a time
+            # Find version beneath browsed entity, in chunks
+            self._limit = self._assembler_client.asset_fetch_chunk_size
 
-        thread = BaseThread(
-            name='fetch_browsed_assets_thread',
-            target=self._fetch_versions,
-            target_args=[self._entity_browser.entity],
-        )
-        thread.start()
+            thread = BaseThread(
+                name='fetch_browsed_assets_thread',
+                target=self._fetch_versions,
+                target_args=[self._entity_browser.entity],
+            )
+            thread.start()
 
     def _recursive_get_descendant_ids(self, context):
-        result = [context['id']]
-        for child in context['children']:
-            if child.entity_type != "Task":
-                result.extend(self._recursive_get_descendant_ids(child))
+        result = []
+        if context.entity_type != 'Task':
+            result.append(context['id'])
+        if 'children' in context:
+            self.session.populate(
+                context, 'children'
+            )  # Make sure we fetch fresh data
+            for child in context['children']:
+                if child.entity_type != "Task":
+                    for context_id in self._recursive_get_descendant_ids(
+                        child
+                    ):
+                        if not context_id in result:
+                            result.append(context_id)
         return result
 
     def _fetch_versions(self, context):
         '''Search ftrack for versions beneath the given *context_id*'''
         try:
             self._recent_context_browsed = context
-            self._assembler_client.logger.info(
-                'Fetching versions beneath context: {}'.format(context)
-            )
-            # Build list of parent ID's
+            # Build list of children ID's (non tasks)
             parent_ids = self._recursive_get_descendant_ids(context)
             self._tail = 0  # The current fetch position
+            fetched_version_ids = []
             while True:
-                versions = self.session.query(
-                    'select id,task,version from AssetVersion where is_latest_version=true and task.parent.id in '
-                    '({0}) or task.id in ({0}) offset {1} limit {2}'.format(
+                self.logger.info(
+                    'Fetching versions beneath context: {0} [{1}-{2}]'.format(
+                        context, self._tail, self._tail + self._limit - 1
+                    )
+                )
+                task_sub_query = ''
+                if context.entity_type == 'Task':
+                    task_sub_query = 'task.id is "{0}"'.format(context['id'])
+                if len(parent_ids) > 0:
+                    if len(task_sub_query) > 0:
+                        task_sub_query = '{} or '.format(task_sub_query)
+                    task_sub_query = '{0}task.parent.id in ({1})'.format(
+                        task_sub_query,
                         ','.join(
                             [
                                 '"{}"'.format(context_id)
                                 for context_id in parent_ids
                             ]
                         ),
+                    )
+                versions = []
+                for version in self.session.query(
+                    'select id,task,version from AssetVersion where '
+                    ' is_latest_version=true and ({0}) offset {1} limit {2}'.format(
+                        task_sub_query,
                         self._tail,
                         self._limit,
                     )
-                ).all()
+                ):
+                    if not version['id'] in fetched_version_ids:
+                        self.logger.debug(
+                            'Got version: {}_v{}({})'.format(
+                                version['asset']['name'],
+                                version['version'],
+                                version['id'],
+                            )
+                        )
+                        versions.append(version)
+                        fetched_version_ids.append(version['id'])
 
                 if (
                     self._recent_context_browsed != context
                     or self._assembler_client.import_mode
                     != self._assembler_client.IMPORT_MODE_BROWSE
                 ):
-                    # User is fast, have already traveled to a new context
+                    # User is fast, have already traveled to a new context or switched mode
                     return
 
                 if len(versions) == 0:
                     # We are done
-                    self.allVersionsFetched.emit()
                     break
 
                 components = self.extract_components(versions)
@@ -311,6 +347,8 @@ class AssemblerBrowserWidget(AssemblerBaseWidget):
                 self.componentsFetched.emit(components)
 
                 self._tail += len(versions)
+
+            self.allVersionsFetched.emit()
         except RuntimeError as re:
             if str(re).find('Internal C++ object') == -1:
                 raise
@@ -437,7 +475,9 @@ class DependenciesListWidget(AssemblerListBaseWidget):
 
     def _on_dependencies_added(self, *args):
         self.rebuild()
-        self.selectionUpdated.emit(self.selection())
+        selection = self.selection()
+        if selection:
+            self.selectionUpdated.emit(selection)
 
     def rebuild(self):
         '''Add all assets(components) again from model.'''
@@ -541,7 +581,9 @@ class BrowserListWidget(AssemblerListBaseWidget):
         self.layout().replaceWidget(current_widget, updated_widget)
 
         self.refresh()
-        self.selectionUpdated.emit(self.selection())
+        selection = self.selection()
+        if selection is not None:
+            self.selectionUpdated.emit(selection)
 
     def _on_components_added(self, index, first, last):
         '''Add components recently added from model to list.'''
@@ -551,7 +593,9 @@ class BrowserListWidget(AssemblerListBaseWidget):
                 self.layout().count() - 1, self._build_widget(index)
             )
         self.refresh()
-        self.selectionUpdated.emit(self.selection())
+        selection = self.selection()
+        if selection is not None:
+            self.selectionUpdated.emit(selection)
 
     def _build_widget(self, index):
         '''Build component accordion widget'''
