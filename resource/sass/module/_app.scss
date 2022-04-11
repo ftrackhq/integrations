@@ -1,16 +1,4 @@
-/** Application window
-QMainWindow#ftrack-connect-window {
-    background: $white;
-}
-
-QLabel#login-label {
-    font-size: 22px;
-}
-
-QLabel#regular-label {
-    font-size: 15px;
-    font-weight: light;
-}*/
+/** Application window **/
 
 * {
     font-family: $font-family-base;
@@ -65,11 +53,6 @@ QMessageBox {
     color: $color-white;
     font-weight: bold;
 }
-
-/*#h4 {
-    color: #444444;
-    font-size: 9px;
-}*/
 
 #gray {
     color: $gray;

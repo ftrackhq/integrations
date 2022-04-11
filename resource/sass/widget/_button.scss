@@ -5,7 +5,6 @@ QPushButton, QMessageBox QPushButton {
     background-color: transparent;
     color: $color-purple;
     padding: 4px;
-    /*min-width: 80px;*/
 }
 
 QPushButton:hover {
@@ -16,14 +15,13 @@ QPushButton:hover {
 
 QPushButton:pressed {
     border-color: darken($color-purple, 5%);
-    background-color: darken( $gray-lighter, 5%);
+    background-color: darken( $color-purple-dark, 5%);
     color: $text-color-default-pressed;
 }
 
 QPushButton:disabled {
-    border: none;
-    background-color: $gray-lighter;
     color: darken($text-color, 50%);
+    border-color: darken($color-purple, 50%);
 }
 
 QPushButton:checked {
@@ -135,14 +133,9 @@ QPushButton#status-widget-expanded-button[status='error_status'] QLabel, QPushBu
     color: #FF7A73;
 }
 
-
 OptionsButton {
     padding: 0px;
     margin: 0px;
-}
-
-OptionsButton:disabled {
-   background: none;
 }
 
 OptionsButton:disabled {
@@ -157,7 +150,14 @@ PhaseButton, PhaseButton QLabel {
 RunButton {
     color: $color-purple;
     font-size: 12px;
-    padding: 6px;
+    padding: 12px;
+}
+
+OpenAssemblerButton {
+    color: $text-color;
+    font-size: 12px;
+    padding: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.38);
 }
 
 AddRunButton {
@@ -173,6 +173,11 @@ AddRunButton:hover {
     border: 1px solid lighten($color-cyan, 5%);
 }
 
+AddRunButton:disabled {
+    color: darken($color-cyan, 33%);
+    border: 1px solid darken($color-cyan, 33%);
+}
+
 LoadRunButton {
     color: $color-green;
     border: 1px solid $color-green;
@@ -184,6 +189,11 @@ LoadRunButton {
 LoadRunButton:hover {
     color: lighten($color-green, 5%);
     border: 1px solid lighten($color-green, 5%);
+}
+
+LoadRunButton:disabled {
+    color: darken($color-green, 33%);
+    border: 1px solid darken($color-green, 33%);
 }
 
 RemoveButton {
@@ -204,7 +214,6 @@ RemoveButton:disabled {
     background-color: $gray-lighter;
     color: darken($text-color, 50%);
 }
-
 
 ApproveButton {
     color: $color-purple;
@@ -232,10 +241,9 @@ DenyButton:hover {
     background: transparent;
 }
 
-NewAssetInput[status='focused'] QPushButton {
-    background: transparent;
-}
-
-NewAssetInput QPushButton:disabled {
-    color: white;
+NewAssetButton {
+    border: none;
+    font-weight: bold;
+    color: $background-docked;
+    background-color: $color-purple !important;
 }

@@ -25,8 +25,6 @@ class QtOpenClient(QtClient):
     ):
         if not definition_extensions_filter is None:
             self.definition_extensions_filter = definition_extensions_filter
-        self.ask_open_assembler = False
-        self.ask_open_latest = False
         self._can_open = False
         self.widget_factory = factory.OpenerWidgetFactory(
             event_manager, self.ui_types, self.client_name
@@ -52,8 +50,6 @@ class QtOpenClient(QtClient):
         self.widget_factory.componentsChecked.connect(
             self._on_components_checked
         )
-        self.run_button.setText('OPEN ASSEMBLER')
-        self.run_button.setVisible(True)
 
     def _set_context(self, context, global_context_change):
         if not self.host_connection:
@@ -65,34 +61,18 @@ class QtOpenClient(QtClient):
             self._clear_widget()
 
     def change_definition(self, schema, definition, component_names_filter):
-        self.run_button.setText('OPEN ASSEMBLER')
         self._can_open = False
         super(QtOpenClient, self).change_definition(
             schema, definition, component_names_filter
         )
 
-    def _on_components_checked(self, available_components_count):
-        self.definition_changed(self.definition, available_components_count)
-        self._can_open = available_components_count > 0
-        self.run_button.setText('OPEN' if self._can_open else 'OPEN ASSEMBLER')
-        self.run_button.setVisible(True)
-
     def definition_changed(self, definition, available_components_count):
         '''React upon change of definition, or no versions/components(definitions) available.'''
-        if available_components_count == 0:
-            # We have no definitions or nothing previously published
-            self.ask_open_assembler = True
-        elif definition is not None and available_components_count >= 1:
-            self.ask_open_latest = True
-            self.ask_open_assembler = False
+        self.run_button.setEnabled(
+            definition is not None and available_components_count >= 1
+        )
 
     def run(self):
-        if not self._can_open:
-            self.host_connection.launch_widget(qt_constants.ASSEMBLER_WIDGET)
-            if not self.is_docked():
-                self.get_parent_window().hide()
-                self.get_parent_window().destroy()
-            return
         if super(QtOpenClient, self).run():
             self.widget_factory.progress_widget.set_status(
                 constants.SUCCESS_STATUS,

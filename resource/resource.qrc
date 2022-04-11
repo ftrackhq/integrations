@@ -10,6 +10,7 @@
         <file alias='cloud-done'>image/cloud_done.svg</file>
         <file alias='connectLogoLight'>image/connect_logo_light.svg</file>
         <file alias='connectLogoDark'>image/connect_logo_dark.svg</file>
+        <file alias='placeholderThumbnail'>image/placeholder_thumbnail.png</file>
     </qresource>
 
     <qresource prefix='ftrack/image/integration'>
@@ -59,6 +60,7 @@
         <file alias='ftrackLogoLabelDark'>image/ftrack_logo_dark.svg</file>
         <file alias='connectLogoLight'>image/connect_logo_light.svg</file>
         <file alias='connectLogoDark'>image/connect_logo_dark.svg</file>
+        <file alias='placeholderThumbnail'>image/placeholder_thumbnail.png</file>
         <file alias='radiobutton_unchecked'>image/light/radiobutton/radiobutton_unchecked.png</file>
         <file alias='radiobutton_unchecked_hover'>image/light/radiobutton/radiobutton_unchecked_hover.png</file>
         <file alias='radiobutton_unchecked_pressed'>image/light/radiobutton/radiobutton_unchecked_pressed.png</file>
@@ -70,7 +72,6 @@
         <file alias='checkbox_unchecked_disabled'>image/dark/checkbox/checkbox_unchecked_disabled.png</file>
         <file alias='checkbox_checked_disabled'>image/dark/checkbox/checkbox_checked_disabled.png</file>
         <file alias='combobox_down_arrow'>image/dark/combobox/combobox_down_arrow.png</file>
-        <file alias='combobox_down_arrow_disabled'>image/dark/combobox/combobox_down_arrow_disabled.png</file>
     </qresource>
 
     <qresource prefix='ftrack/image/light/object_type'>
@@ -316,6 +317,7 @@
         <file alias='ftrackLogoLabelDark'>image/ftrack_logo_light.svg</file>
         <file alias='connectLogoLight'>image/connect_logo_light.svg</file>
         <file alias='connectLogoDark'>image/connect_logo_dark.svg</file>
+        <file alias='placeholderThumbnail'>image/placeholder_thumbnail.png</file>
         <file alias='radiobutton_unchecked'>image/dark/radiobutton/radiobutton_unchecked.png</file>
         <file alias='radiobutton_unchecked_hover'>image/dark/radiobutton/radiobutton_unchecked_hover.png</file>
         <file alias='radiobutton_unchecked_pressed'>image/dark/radiobutton/radiobutton_unchecked_pressed.png</file>
@@ -327,7 +329,6 @@
         <file alias='checkbox_unchecked_disabled'>image/dark/checkbox/checkbox_unchecked_disabled.png</file>
         <file alias='checkbox_checked_disabled'>image/dark/checkbox/checkbox_checked_disabled.png</file>
         <file alias='combobox_down_arrow'>image/dark/combobox/combobox_down_arrow.png</file>
-        <file alias='combobox_down_arrow_disabled'>image/dark/combobox/combobox_down_arrow_disabled.png</file>
     </qresource>
 
     <qresource prefix='ftrack/image/dark/object_type'>

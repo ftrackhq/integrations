@@ -61,17 +61,15 @@ class Search(QtWidgets.QFrame):
             self.layout().addStretch()
             self._input = None
             self.setStyleSheet('''border:none;''')
-            self._search_button = CircularButton('search', '#999999')
+            self._search_button = CircularButton('search')
             self._search_button.setStyleSheet(
                 '''
-                border: 1px solid #555555;
+                border: 1px solid #2A2A2A;
                 border-radius: 16px;
             '''
             )
         else:
-            self._search_button = CircularButton(
-                'search', '#999999', diameter=30
-            )
+            self._search_button = CircularButton('search', diameter=30)
 
         if self._collapsable:
             self.layout().addWidget(self._search_button)

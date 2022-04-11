@@ -39,7 +39,7 @@ from ftrack_connect_pipeline_qt.ui.utility.widget.dialog import (
 
 class AssemblerDependenciesWidget(AssemblerBaseWidget):
 
-    dependencyResolveWarning = QtCore.Signal(object)
+    dependencyResolveWarning = QtCore.Signal(object, object, object)
     dependenciesResolved = QtCore.Signal(object)
 
     def __init__(self, assembler_client, parent=None):
@@ -50,9 +50,9 @@ class AssemblerDependenciesWidget(AssemblerBaseWidget):
     def post_build(self):
         super(AssemblerDependenciesWidget, self).post_build()
         self._rebuild_button.clicked.connect(self.rebuild)
-        self.dependenciesResolved.connect(self.on_dependencies_resolved)
+        self.dependenciesResolved.connect(self._on_dependencies_resolved)
         self.dependencyResolveWarning.connect(
-            self.on_dependency_resolve_warning
+            self._on_dependency_resolve_warning
         )
 
     def _get_header_widget(self):
@@ -74,11 +74,15 @@ class AssemblerDependenciesWidget(AssemblerBaseWidget):
             thread.start()
 
     def _resolve_dependencies(self, context_id):
-        return self._assembler_client.asset_manager.resolve_dependencies(
-            context_id, self.on_dependencies_resolved_async
-        )
+        try:
+            return self._assembler_client.asset_manager.resolve_dependencies(
+                context_id, self._on_dependencies_resolved_async
+            )
+        except Exception as e:
+            self.dependencyResolveWarning.emit(True, str(e), 'Error')
+            raise
 
-    def on_dependencies_resolved_async(self, result):
+    def _on_dependencies_resolved_async(self, result):
         try:
             try:
 
@@ -103,14 +107,15 @@ class AssemblerDependenciesWidget(AssemblerBaseWidget):
                             if 'message' in user_data:
                                 user_message = user_data['message']
                 if user_message:
-                    self.dependencyResolveWarning.emit(user_message)
+                    self.dependencyResolveWarning.emit(
+                        True, user_message, 'Error'
+                    )
 
                 if len(resolved_versions or []) == 0:
                     if user_message is None:
                         self.dependencyResolveWarning.emit(
-                            'No dependencies found!'
+                            False, 'No dependencies found!', 'No assets found'
                         )
-                    self._label_info.setText('No assets found.')
                     return
 
                 versions = [
@@ -137,9 +142,10 @@ class AssemblerDependenciesWidget(AssemblerBaseWidget):
 
                 if len(components) == 0:
                     self.dependencyResolveWarning.emit(
-                        'No loadable dependencies found!'
+                        False,
+                        'No loadable dependencies found!',
+                        'No loadable dependencies found.',
                     )
-                    self._label_info.setText('No loadable dependencies found.')
                     return
 
                 self.dependenciesResolved.emit(components)
@@ -150,15 +156,26 @@ class AssemblerDependenciesWidget(AssemblerBaseWidget):
                 raise
             # Ignore exception caused by a resolve that is not valid anymore
 
-    def on_dependency_resolve_warning(self, message):
-        self._assembler_client.progress_widget.set_status(
-            constants.WARNING_STATUS, message
-        )
+    def _on_dependency_resolve_warning(self, is_error, message, info_message):
+        if is_error:
+            self._assembler_client.progress_widget.set_status(
+                constants.WARNING_STATUS, message
+            )
+        else:
+            widget = QtWidgets.QWidget()
+            widget.setLayout(QtWidgets.QVBoxLayout())
+            label = QtWidgets.QLabel(message)
+            label.setObjectName('gray-darker')
+            widget.layout().addWidget(label)
+            widget.layout().addWidget(QtWidgets.QLabel(), 100)
+            self.scroll.setWidget(widget)
+        self._label_info.setText(info_message)
 
-    def on_dependencies_resolved(self, components):
+    def _on_dependencies_resolved(self, components):
 
         # Create component list
         self._component_list = DependenciesListWidget(self)
+        self.listWidgetCreated.emit(self._component_list)
         # self._asset_list.setStyleSheet('background-color: blue;')
 
         self.scroll.setWidget(self._component_list)
@@ -240,9 +257,8 @@ class AssemblerBrowserWidget(AssemblerBaseWidget):
 
             # Create component list
             self._component_list = BrowserListWidget(self)
-            self._component_list.versionChanged.connect(
-                self._on_version_changed
-            )
+            self._component_list.versionChanged.connect(self._on_version_changed)
+            self.listWidgetCreated.emit(self._component_list)
 
             self.scroll.setWidget(self._component_list)
 
@@ -688,7 +704,7 @@ class DependencyComponentWidget(ComponentBaseWidget):
         )
 
     def set_latest_version(self, is_latest_version):
-        color = '#935BA2' if is_latest_version else '#FFBA5C'
+        color = '#A5A8AA' if is_latest_version else '#FFBA5C'
         self._version_nr_widget.setStyleSheet(
             'color: {}; font-weight: bold;'.format(color)
         )
@@ -759,7 +775,7 @@ class BrowsedComponentWidget(ComponentBaseWidget):
         self._version_nr_widget.set_version_entity(version_entity)
 
     def set_latest_version(self, is_latest_version):
-        color = '#935BA2' if is_latest_version else '#FFBA5C'
+        color = '#A5A8AA' if is_latest_version else '#FFBA5C'
         self._version_nr_widget.setStyleSheet(
             'color: {}; font-weight: bold;'.format(color)
         )

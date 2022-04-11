@@ -70,8 +70,8 @@ class QtAssemblerClient(QtClient):
     def pre_build(self):
         super(QtAssemblerClient, self).pre_build()
         self.layout().setContentsMargins(16, 16, 16, 16)
-        self.header = header.Header(self.session, title='CONNECT')
-        self.header.setMinimumHeight(37)
+        self.header = header.Header(self.session)
+        self.header.setMinimumHeight(50)
         # Create and add the asset manager client
         self.asset_manager = QtAssetManagerClient(
             self.event_manager,
@@ -90,6 +90,8 @@ class QtAssemblerClient(QtClient):
 
         self._left_widget.layout().addWidget(self.header)
 
+        self._left_widget.layout().addWidget(line.Line(style='solid'))
+
         self.progress_widget = (
             factory.LoaderWidgetFactory.create_progress_widget(
                 self.client_name
@@ -101,9 +103,7 @@ class QtAssemblerClient(QtClient):
 
         # Have definition selector but invisible unless there are multiple hosts
         self.host_and_definition_selector = (
-            definition_selector.DefinitionSelectorWidgetComboBox(
-                self.client_name
-            )
+            definition_selector.DefinitionSelector(self.client_name)
         )
         self.host_and_definition_selector.refreshed.connect(
             partial(self.refresh, True)
@@ -152,7 +152,7 @@ class QtAssemblerClient(QtClient):
         button_widget.layout().addWidget(self.run_button)
         self._left_widget.layout().addWidget(button_widget)
 
-        # self._left_widget.setStyleSheet('background-color: yellow;')
+        self._asset_selection_updated()
 
         return self._left_widget
 
@@ -168,6 +168,8 @@ class QtAssemblerClient(QtClient):
         self._right_widget.layout().addWidget(
             self.context_selector, QtCore.Qt.AlignTop
         )
+
+        self._right_widget.layout().addWidget(line.Line(style='solid'))
 
         self._right_widget.layout().addWidget(self.asset_manager, 100)
 
@@ -232,12 +234,19 @@ class QtAssemblerClient(QtClient):
             )
             # Clear the other tab
             clear_layout(inactive_tab_widget.layout())
+            # Create tab widget
             self._assembler_widget = (
                 AssemblerDependenciesWidget(self)
                 if self.import_mode == self.IMPORT_MODE_DEPENDENCIES
                 else AssemblerBrowserWidget(self)
             )
             active_tab_widget.layout().addWidget(self._assembler_widget)
+            self._assembler_widget.listWidgetCreated.connect(
+                self._on_component_list_created
+            )
+
+    def _on_component_list_created(self, component_list):
+        component_list.selectionUpdated.connect(self._asset_selection_updated)
 
     def refresh(self, force_hard_refresh=False):
         super(QtAssemblerClient, self).refresh()
@@ -246,6 +255,22 @@ class QtAssemblerClient(QtClient):
         if self.hard_refresh:
             self._assembler_widget.rebuild()
             self.hard_refresh = False
+
+    def _asset_selection_updated(self, asset_selection=None):
+        loadable_count = self._assembler_widget.loadable_count
+        s = ''
+        if loadable_count > 0:
+            if len(asset_selection or []) > 0:
+                s = ' {} ASSET{}'.format(
+                    len(asset_selection),
+                    'S' if len(asset_selection) > 1 else '',
+                )
+            else:
+                s = ' ALL ASSETS'
+        self.run_button_no_load.setText('ADD{} TO SCENE'.format(s))
+        self.run_button_no_load.setEnabled(loadable_count > 0)
+        self.run_button.setText('LOAD{} INTO SCENE'.format(s))
+        self.run_button.setEnabled(loadable_count > 0)
 
     def reset(self):
         '''Assembler is shown again after being hidden.'''

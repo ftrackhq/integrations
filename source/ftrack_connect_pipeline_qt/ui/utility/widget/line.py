@@ -3,9 +3,11 @@
 
 from Qt import QtWidgets, QtCore, QtGui
 
+from ftrack_connect_pipeline_qt.utils import set_property
+
 
 class Line(QtWidgets.QFrame):
-    def __init__(self, horizontal=True, parent=None):
+    def __init__(self, horizontal=True, style=None, parent=None):
         super(Line, self).__init__(parent=parent)
         if horizontal:
             self.setMaximumHeight(1)
@@ -19,3 +21,5 @@ class Line(QtWidgets.QFrame):
             self.setSizePolicy(
                 QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Preferred
             )
+        if style is not None:
+            set_property(self, 'style', style)

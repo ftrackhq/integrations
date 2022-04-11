@@ -7,14 +7,13 @@ from Qt import QtWidgets, QtCore, QtGui
 
 from ftrack_connect_pipeline_qt.utils import BaseThread
 from ftrack_connect_pipeline_qt.ui.utility.widget.thumbnail import AssetVersion
-from ftrack_connect_pipeline_qt.utils import set_property
 from ftrack_connect_pipeline_qt.ui.utility.widget.version_selector import (
     VersionComboBox,
 )
 
 
 class AssetVersionListItem(QtWidgets.QFrame):
-    '''Widget representing an asset within the'''
+    '''Widget representing an asset within the asset list, for selecting'''
 
     versionChanged = QtCore.Signal()
 
@@ -56,7 +55,7 @@ class AssetVersionListItem(QtWidgets.QFrame):
         self.layout().addStretch()
 
         self.version_info_label = QtWidgets.QLabel()
-        self.version_info_label.setObjectName('gray-darker')
+        self.version_info_label.setObjectName('gray')
         self.layout().addWidget(self.version_info_label)
 
         self._update_publisher_info(self.asset['latest_version'])
@@ -69,9 +68,7 @@ class AssetVersionListItem(QtWidgets.QFrame):
     def _current_version_changed(self, current_index):
         if current_index == -1:
             return
-        self.current_version_number = (
-            self.version_combobox.currentText().split("Version ")[1]
-        )
+        self.current_version_number = self.version_combobox.currentText()[1:]
         current_idx = self.version_combobox.currentIndex()
         self.current_version_id = self.version_combobox.itemData(current_idx)
         self.thumbnail_widget.load(self.current_version_id)
@@ -171,30 +168,19 @@ class AssetList(QtWidgets.QListWidget):
     def _on_version_changed(self, asset_item):
         self.versionChanged.emit(asset_item)
 
-
-class AssetListAndInput(QtWidgets.QWidget):
-    def __init__(self, parent=None):
-        super(AssetListAndInput, self).__init__(parent=parent)
-        self.setLayout(QtWidgets.QVBoxLayout())
-        self.layout().setContentsMargins(0, 0, 0, 0)
-        self.layout().setSpacing(0)
-
-    def add_asset_list(self, asset_list):
-        self.asset_list = asset_list
-        self.layout().addWidget(asset_list)
-
     def resizeEvent(self, event):
         self._size_changed()
 
     def _size_changed(self):
-        self.asset_list.setFixedSize(
+        self.setFixedSize(
             self.size().width() - 1,
-            self.asset_list.sizeHintForRow(0) * self.asset_list.count()
-            + 2 * self.asset_list.frameWidth(),
+            self.sizeHintForRow(0) * self.count() + 2 * self.frameWidth(),
         )
 
 
 class AssetListSelector(QtWidgets.QFrame):
+    '''(Open) Widget for selecting an asset version to load.'''
+
     valid_asset_name = QtCore.QRegExp('[A-Za-z0-9_]+')
 
     assetChanged = QtCore.Signal(object, object, object, object)
@@ -218,13 +204,8 @@ class AssetListSelector(QtWidgets.QFrame):
         self.layout().setSpacing(0)
 
     def build(self):
-
-        self.list_and_input = AssetListAndInput()
-
         self.asset_list = AssetList(self.session)
-        self.list_and_input.add_asset_list(self.asset_list)
-
-        self.layout().addWidget(self.list_and_input)
+        self.layout().addWidget(self.asset_list)
 
     def post_build(self):
         self.asset_list.itemSelectionChanged.connect(self._list_item_changed)
@@ -233,7 +214,7 @@ class AssetListSelector(QtWidgets.QFrame):
         self.asset_list.assetsAdded.connect(self._pre_select_asset)
 
     def _refresh(self):
-        '''Add assets queried in separate thread to list.'''
+        '''Add assets queried in separate thread to list'''
         self.asset_list.refresh()
 
     def _pre_select_asset(self):
@@ -250,7 +231,7 @@ class AssetListSelector(QtWidgets.QFrame):
                 selected_index = idx
         if selected_index > -1:
             self.asset_list.setCurrentRow(selected_index)
-        self.list_and_input._size_changed()
+        self.asset_list._size_changed()
 
     def _list_item_changed(self):
         selected_index = self.asset_list.currentRow()

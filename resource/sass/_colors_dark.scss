@@ -1,7 +1,7 @@
 // TODO: Test and tweak the dark theme.
 
 // Primary brand colors
-$color-purple: #BF9AC9;
+$color-purple: #BF9AC9; // #FFDD86
 $color-purple-contrast: white; //
 $color-purple-dark: #2D2C38;
 $color-purple-light-1: rgba(191, 154, 201, 0.15); //
@@ -17,15 +17,14 @@ $color-dark-3: #131920; //
 
 // Grays
 $gray-dark:             #303030;
-$gray-darker:           #6D7075; // #222
-$gray:                  #999999;
+$gray-darker:           rgba(255, 255, 255, 0.1); // #6D7075 #222
+$gray:                  rgba(255, 255, 255, 0.6);
 $gray-light:            #D3d4D6;
 $gray-lighter:          #1F242B; // #1F252B;
 $alt-background:        #191d22;
 $background:            #131920; // ftrack background color
 $background-docked:     rgb(55,55,55); // DCC dependent
-$background-selected:   #1c2229;
-$background-selected-docked: rgb(77,77,77);
+$background-selected:   rgba(255, 255, 255, 0.05);
 $white:                 $color-dark-2;
 
 
@@ -51,7 +50,7 @@ $text-color-default-pressed:    darken($text-color-default, 5%);
 $text-color-light:              white;
 $text-color-primary:            #548cd7;
 $text-color-drop-zone:          lighten($gray-light, 15%);
-$border-color:                  #555555;
+$border-color:                  rgba(255, 255, 255, 0.1);
 
 $overlay-bg:            $gray-darker;
 

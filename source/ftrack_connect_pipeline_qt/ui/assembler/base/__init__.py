@@ -55,11 +55,16 @@ class AssemblerBaseWidget(QtWidgets.QWidget):
     '''Base assembler dependency or browse widget'''
 
     stopBusyIndicator = QtCore.Signal()
+    listWidgetCreated = QtCore.Signal(object)
 
     @property
     def component_list(self):
         '''Return the collected object by the widget'''
         return self._component_list
+
+    @property
+    def loadable_count(self):
+        return self._loadable_count
 
     @property
     def session(self):
@@ -98,24 +103,24 @@ class AssemblerBaseWidget(QtWidgets.QWidget):
         header_widget = QtWidgets.QWidget()
         header_widget.setLayout(QtWidgets.QVBoxLayout())
         header_widget.layout().setContentsMargins(4, 4, 4, 4)
-        header_widget.layout().setSpacing(2)
+        header_widget.layout().setSpacing(0)
 
         top_toolbar_widget = QtWidgets.QWidget()
         top_toolbar_widget.setLayout(QtWidgets.QHBoxLayout())
-        top_toolbar_widget.layout().setContentsMargins(4, 4, 4, 4)
+        top_toolbar_widget.layout().setContentsMargins(4, 2, 4, 0)
         top_toolbar_widget.layout().setSpacing(4)
 
-        top_toolbar_widget.layout().addWidget(self._get_header_widget(), 10)
+        top_widget = self._get_header_widget()
+        top_toolbar_widget.layout().addWidget(top_widget, 10)
+        top_widget.setMinimumHeight(32)
 
         header_widget.layout().addWidget(top_toolbar_widget)
-
-        self.layout().addWidget(header_widget)
 
         # Add toolbar
 
         bottom_toolbar_widget = QtWidgets.QWidget()
         bottom_toolbar_widget.setLayout(QtWidgets.QHBoxLayout())
-        bottom_toolbar_widget.layout().setContentsMargins(4, 1, 4, 1)
+        bottom_toolbar_widget.layout().setContentsMargins(4, 0, 4, 1)
         bottom_toolbar_widget.layout().setSpacing(6)
 
         match_label = QtWidgets.QLabel('Match: ')
@@ -151,13 +156,13 @@ class AssemblerBaseWidget(QtWidgets.QWidget):
         bottom_toolbar_widget.layout().addWidget(QtWidgets.QLabel(), 10)
 
         self._label_info = QtWidgets.QLabel('')
-        self._label_info.setObjectName('gray-darker')
+        self._label_info.setObjectName('gray')
         bottom_toolbar_widget.layout().addWidget(self._label_info)
 
         self._search = Search()
         bottom_toolbar_widget.layout().addWidget(self._search)
 
-        self._rebuild_button = CircularButton('sync', '#87E1EB')
+        self._rebuild_button = CircularButton('sync')
         bottom_toolbar_widget.layout().addWidget(self._rebuild_button)
 
         self._busy_widget = BusyIndicator(start=False)
@@ -166,6 +171,8 @@ class AssemblerBaseWidget(QtWidgets.QWidget):
         bottom_toolbar_widget.layout().addWidget(self._busy_widget)
 
         header_widget.layout().addWidget(bottom_toolbar_widget)
+
+        self.layout().addWidget(header_widget)
 
     def build(self):
         self.scroll = scroll_area.ScrollArea()
@@ -223,6 +230,9 @@ class AssemblerBaseWidget(QtWidgets.QWidget):
         self._rb_match_component_name.clicked.connect(self.rebuild)
         self._rb_match_extension.clicked.connect(self.rebuild)
         self.stopBusyIndicator.connect(self._stop_busy_indicator)
+
+    def _get_header_widget(self):
+        raise NotImplementedError()
 
     def _stop_busy_indicator(self):
         self._busy_widget.stop()
@@ -472,7 +482,6 @@ class ComponentBaseWidget(AccordionBaseWidget):
     def session(self):
         return self._assembler_widget.session
 
-    loader_selected = QtCore.Signal(object)
 
     def __init__(
         self, index, assembler_widget, event_manager, title=None, parent=None

@@ -307,9 +307,7 @@ class AccordionBaseWidget(QtWidgets.QFrame):
             set_property(
                 self,
                 'background',
-                ('selected{}'.format('_docked' if self._docked else ''))
-                if self._selected
-                else 'transparent',
+                'selected' if self._selected else 'transparent',
             )
 
 
