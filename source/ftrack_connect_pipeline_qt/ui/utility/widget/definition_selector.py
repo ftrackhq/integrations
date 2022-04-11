@@ -5,6 +5,7 @@ from functools import partial
 
 from Qt import QtWidgets, QtCore
 
+from ftrack_connect_pipeline.utils import str_version
 from ftrack_connect_pipeline import constants as core_constants
 from ftrack_connect_pipeline_qt import constants as qt_constants
 
@@ -171,7 +172,7 @@ class DefinitionSelector(QtWidgets.QWidget):
             self.definitions = items
 
             self._definition_selector.addItem("", None)
-            index = 1
+            index = 0
 
             for item in items:
                 # Remove ' Publisher/Loader'
@@ -233,6 +234,11 @@ class DefinitionSelector(QtWidgets.QWidget):
                             component_step['enabled'] = False
                     if component_names_filter is None:
                         # There were no openable components, try next definition
+                        self.logger.info(
+                            'No openable components exists for definition "{}"!'.format(
+                                item.get('name')
+                            )
+                        )
                         continue
 
                     # Check if any versions at all, find out asset type name from package
@@ -260,24 +266,29 @@ class DefinitionSelector(QtWidgets.QWidget):
                             )
                         ).first()
                         if asset_version:
-                            has_openable_component = False
+                            version_has_openable_component = False
                             for component in asset_version['components']:
                                 for component_name in component_names_filter:
                                     if (
                                         component['name'].lower()
                                         == component_name.lower()
                                     ):
-                                        has_openable_component = True
+                                        version_has_openable_component = True
                                         break
-                                if has_openable_component:
+                                if version_has_openable_component:
                                     break
-                            if has_openable_component and (
+                            if version_has_openable_component and (
                                 latest_version is None
                                 or latest_version['date']
                                 < asset_version['date']
                             ):
                                 latest_version = asset_version
                                 index_latest_version = index
+                                self.logger.info(
+                                    'Version {} can be opened'.format(
+                                        str_version(asset_version)
+                                    )
+                                )
                     if (
                         asset_version is None
                         and self._client_name == qt_constants.OPEN_WIDGET
@@ -293,12 +304,6 @@ class DefinitionSelector(QtWidgets.QWidget):
                     )
 
                 index += 1
-        if (
-            index_latest_version == -1
-            and self._client_name == qt_constants.PUBLISHER_WIDGET
-            and self._definition_selector.count() == 2
-        ):
-            index_latest_version = 1  # Select the one and only
         self._definition_selector.currentIndexChanged.connect(
             self._on_change_definition
         )
@@ -324,19 +329,24 @@ class DefinitionSelector(QtWidgets.QWidget):
             #    None, None, None
             # )  # Tell client there are no definitions
             self._definition_selector.setCurrentIndex(0)
-        elif index_latest_version == -1:
-            if self._client_name == qt_constants.OPEN_WIDGET:
-                # No versions
-                self.no_definitions_label.setText(
-                    '<html><i>No version available to open!</i></html>'
-                )
-                self._definition_selector.setCurrentIndex(0)
-                # self.definition_changed.emit(
-                #    None, None, None
-                # )  # Tell client there are no versions
         else:
-            self._definition_selector.setCurrentIndex(index_latest_version)
-            self.no_definitions_label.setVisible(False)
+            if index_latest_version == -1:
+                if self._definition_selector.count() == 2:
+                    index_latest_version = 1  # Select the one and only
+                else:
+                    if self._client_name == qt_constants.OPEN_WIDGET:
+                        # No versions
+                        self.no_definitions_label.setText(
+                            '<html><i>No version available to open!</i></html>'
+                        )
+                        self._definition_selector.setCurrentIndex(0)
+                        self.definition_changed.emit(
+                            None, None, None
+                        )  # Tell client there are no versions
+            if index_latest_version > -1:
+                self._definition_selector.setCurrentIndex(index_latest_version)
+                self.no_definitions_label.setVisible(False)
+
         if self._client_name != qt_constants.ASSEMBLER_WIDGET:
             self._definition_widget.show()
 

@@ -26,7 +26,6 @@ from ftrack_connect_pipeline_qt.ui.utility.widget.base.accordion_base import (
 )
 from ftrack_connect_pipeline_qt.ui.asset_manager.asset_manager import (
     AssetVersionStatusWidget,
-    ComponentAndVersionWidget,
 )
 from ftrack_connect_pipeline.utils import str_version
 from ftrack_connect_pipeline_qt.utils import (
@@ -34,7 +33,7 @@ from ftrack_connect_pipeline_qt.utils import (
     clear_layout,
     get_main_framework_window_from_widget,
 )
-from ftrack_connect_pipeline_qt.ui.utility.widget import overlay
+
 from ftrack_connect_pipeline_qt.ui.utility.widget.busy_indicator import (
     BusyIndicator,
 )
@@ -45,7 +44,11 @@ from ftrack_connect_pipeline_qt.ui.utility.widget.search import Search
 from ftrack_connect_pipeline_qt.ui.utility.widget.options_button import (
     OptionsButton,
 )
-from ftrack_connect_pipeline_qt.ui.utility.widget import icon
+from ftrack_connect_pipeline_qt.ui.utility.widget import (
+    icon,
+    overlay,
+    scroll_area,
+)
 
 
 class AssemblerBaseWidget(QtWidgets.QWidget):
@@ -172,13 +175,29 @@ class AssemblerBaseWidget(QtWidgets.QWidget):
         self.layout().addWidget(header_widget)
 
     def build(self):
-        self.scroll = QtWidgets.QScrollArea()
+        self.scroll = scroll_area.ScrollArea()
         self.scroll.setWidgetResizable(True)
         self.scroll.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
+        self.scroll.setStyle(QtWidgets.QStyleFactory.create("plastique"))
 
         self.layout().addWidget(self.scroll, 1000)
 
     def rebuild(self):
+        '''Prepare rebuild of the widget'''
+
+        # Check if there is any loader definitions
+        if (
+            len(
+                self._assembler_client.host_and_definition_selector.definitions
+                or []
+            )
+            == 0
+        ):
+            self._assembler_client.progress_widget.set_status(
+                constants.WARNING_STATUS,
+                'No loader definitions are available, please check pipeline configuration!',
+            )
+            return False
 
         self._rb_match_component_name.setEnabled(
             not self._cb_show_non_compatible.isChecked()
@@ -199,6 +218,8 @@ class AssemblerBaseWidget(QtWidgets.QWidget):
         self.get_context()
 
         self._loadable_count = 0
+
+        return True
 
     def post_build(self):
         self._cb_show_non_compatible.clicked.connect(self.rebuild)
@@ -400,6 +421,11 @@ class AssemblerBaseWidget(QtWidgets.QWidget):
                             component,
                             matching_definitions,
                             availability,
+                        )
+                    )
+                    self.logger.info(
+                        'Assembled version {0} component {1}({2}) for import'.format(
+                            version['id'], component['name'], component['id']
                         )
                     )
 
@@ -769,7 +795,7 @@ class ImporterOptionsButton(OptionsButton):
         self.main_widget.layout().setAlignment(QtCore.Qt.AlignTop)
         self.main_widget.layout().setContentsMargins(5, 1, 5, 10)
 
-        self.scroll = QtWidgets.QScrollArea()
+        self.scroll = scroll_area.ScrollArea()
         self.scroll.setWidgetResizable(True)
         self.scroll.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
         self.scroll.setWidget(self.main_widget)

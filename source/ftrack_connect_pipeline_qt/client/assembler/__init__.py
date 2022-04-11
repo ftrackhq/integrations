@@ -47,6 +47,9 @@ class QtAssemblerClient(QtClient):
 
     client_name = qt_constants.ASSEMBLER_WIDGET
     definition_filter = 'loader'
+    asset_fetch_chunk_size = (
+        10  # Amount of assets to fetch at a time within the browser
+    )
 
     import_mode = -1
     hard_refresh = True  # Flag telling assembler that next refresh should include dependency resolve

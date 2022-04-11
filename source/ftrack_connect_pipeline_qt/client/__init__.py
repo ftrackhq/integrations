@@ -14,6 +14,7 @@ from ftrack_connect_pipeline_qt.ui.utility.widget import (
     definition_selector,
     line,
     dialog,
+    scroll_area,
 )
 from ftrack_connect_pipeline_qt.client import factory
 from ftrack_connect_pipeline_qt import constants as qt_constants
@@ -160,7 +161,7 @@ class QtClient(Client, QtWidgets.QFrame):
         )
         self.host_and_definition_selector.refreshed.connect(self.refresh)
 
-        self.scroll = QtWidgets.QScrollArea()
+        self.scroll = scroll_area.ScrollArea()
         self.scroll.setWidgetResizable(True)
         self.scroll.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
         # self.scroll.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOn)
@@ -380,13 +381,6 @@ class QtChangeContextClient(Client):
         self.entity_browser.setMinimumWidth(600)
         if self.entity_browser.exec_():
             self.set_entity(self.entity_browser.entity)
-            dialog.ModalDialog(
-                None,
-                title='Change context',
-                message="Working context is now: {}".format(
-                    str_context(self.entity_browser.entity)
-                ),
-            )
 
     def set_entity(self, context):
         self._host_connection.set_context(context)

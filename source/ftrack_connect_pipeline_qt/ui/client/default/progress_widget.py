@@ -6,12 +6,15 @@ from Qt import QtWidgets, QtCore, QtGui
 
 from ftrack_connect_pipeline_qt.ui.client import BaseUIWidget
 from ftrack_connect_pipeline_qt import constants
-from ftrack_connect_pipeline_qt.ui.utility.widget import overlay
+from ftrack_connect_pipeline_qt.ui.utility.widget import (
+    overlay,
+    scroll_area,
+    dialog,
+)
 from ftrack_connect_pipeline_qt import utils
 from ftrack_connect_pipeline_qt.ui.utility.widget.icon import (
     MaterialIconWidget,
 )
-from ftrack_connect_pipeline_qt.ui.utility.widget import dialog
 from ftrack_connect_pipeline_qt.utils import set_property
 from ftrack_connect_pipeline.utils import str_version
 
@@ -189,7 +192,7 @@ class ProgressWidget(BaseUIWidget):
         self._widget = StatusButtonWidget(self._status_view_mode)
         self.set_status_widget_visibility(False)
 
-        self.scroll = QtWidgets.QScrollArea()
+        self.scroll = scroll_area.ScrollArea()
         self.scroll.setWidgetResizable(True)
 
         self.content_widget = QtWidgets.QFrame()
