@@ -8,7 +8,7 @@ from ftrack_connect_pipeline_qt.ui.log_viewer.model.log_table import (
     LogTableModel,
     FilterProxyModel,
 )
-
+from ftrack_connect_pipeline_qt.ui.utility.widget import scroll_area
 from ftrack_connect_pipeline_qt.ui.utility.widget.search import Search
 from ftrack_connect_pipeline_qt.ui.utility.widget.circular_button import (
     CircularButton,
@@ -87,7 +87,7 @@ class PluginLogViewerWidget(QtWidgets.QWidget):
             self.event_manager, parent=self
         )
 
-        self._scroll = QtWidgets.QScrollArea()
+        self._scroll = scroll_area.ScrollArea()
         self._scroll.setWidgetResizable(True)
         self._scroll.setWidget(self.log_table_view)
 

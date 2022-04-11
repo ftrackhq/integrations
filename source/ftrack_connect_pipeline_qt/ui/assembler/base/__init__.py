@@ -26,7 +26,6 @@ from ftrack_connect_pipeline_qt.ui.utility.widget.base.accordion_base import (
 )
 from ftrack_connect_pipeline_qt.ui.asset_manager.asset_manager import (
     AssetVersionStatusWidget,
-    ComponentAndVersionWidget,
 )
 from ftrack_connect_pipeline.utils import str_version
 from ftrack_connect_pipeline_qt.utils import (
@@ -34,7 +33,7 @@ from ftrack_connect_pipeline_qt.utils import (
     clear_layout,
     get_main_framework_window_from_widget,
 )
-from ftrack_connect_pipeline_qt.ui.utility.widget import overlay
+
 from ftrack_connect_pipeline_qt.ui.utility.widget.busy_indicator import (
     BusyIndicator,
 )
@@ -45,7 +44,11 @@ from ftrack_connect_pipeline_qt.ui.utility.widget.search import Search
 from ftrack_connect_pipeline_qt.ui.utility.widget.options_button import (
     OptionsButton,
 )
-from ftrack_connect_pipeline_qt.ui.utility.widget import icon
+from ftrack_connect_pipeline_qt.ui.utility.widget import (
+    icon,
+    overlay,
+    scroll_area,
+)
 
 
 class AssemblerBaseWidget(QtWidgets.QWidget):
@@ -165,9 +168,10 @@ class AssemblerBaseWidget(QtWidgets.QWidget):
         header_widget.layout().addWidget(bottom_toolbar_widget)
 
     def build(self):
-        self.scroll = QtWidgets.QScrollArea()
+        self.scroll = scroll_area.ScrollArea()
         self.scroll.setWidgetResizable(True)
         self.scroll.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
+        self.scroll.setStyle(QtWidgets.QStyleFactory.create("plastique"))
 
         self.layout().addWidget(self.scroll, 1000)
 
@@ -782,7 +786,7 @@ class ImporterOptionsButton(OptionsButton):
         self.main_widget.layout().setAlignment(QtCore.Qt.AlignTop)
         self.main_widget.layout().setContentsMargins(5, 1, 5, 10)
 
-        self.scroll = QtWidgets.QScrollArea()
+        self.scroll = scroll_area.ScrollArea()
         self.scroll.setWidgetResizable(True)
         self.scroll.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
         self.scroll.setWidget(self.main_widget)
