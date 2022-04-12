@@ -280,7 +280,7 @@ class PluginDiscoverValidation(object):
                     data=status_event,
                 )
 
-                self.session.event_hub.publish(event)
+                self.session.event_hub.publish(event, synchronous=True)
 
                 break
             self.logger.debug(
