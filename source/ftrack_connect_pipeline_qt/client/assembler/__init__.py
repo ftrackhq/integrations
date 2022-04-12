@@ -188,32 +188,16 @@ class QtAssemblerClient(QtClient):
         self.layout().addWidget(self.splitter, 100)
 
     def post_build(self):
-        #super(QtAssemblerClient, self).post_build()
-        # TODO: Find a better way to override the post_build function, the
-        #  problem is that run_button.clicked signal doesn't get overrided,
-        #  it simply adds a new signal.
-        self.context_selector.entityChanged.connect(
-            self._on_context_selector_context_changed
-        )
-        self.host_and_definition_selector.host_changed.connect(
-            self.change_host
-        )
-        self.host_and_definition_selector.definition_changed.connect(
-            self.change_definition
-        )
-
-        if self.event_manager.mode == constants.LOCAL_EVENT_MODE:
-            self.host_and_definition_selector.host_combobox.hide()
-        #########
-
+        super(QtAssemblerClient, self).post_build(run_method="init_and_load")
         self.host_and_definition_selector.hostsDiscovered.connect(
             self._on_hosts_discovered
         )
         self._tab_widget.currentChanged.connect(self._on_tab_changed)
         self.asset_manager.assetsDiscovered.connect(self._assets_discovered)
         self.run_button.setFocus()
-        self.run_button_no_load.clicked.connect(partial(self.run, "init_nodes"))
-        self.run_button.clicked.connect(partial(self.run, "init_and_load"))
+        self.run_button_no_load.clicked.connect(
+            partial(self.run, "init_nodes")
+        )
         self.run_button.setVisible(True)
 
     def _on_hosts_discovered(self, host_connects):

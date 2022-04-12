@@ -257,7 +257,9 @@ class AssemblerBrowserWidget(AssemblerBaseWidget):
 
             # Create component list
             self._component_list = BrowserListWidget(self)
-            self._component_list.versionChanged.connect(self._on_version_changed)
+            self._component_list.versionChanged.connect(
+                self._on_version_changed
+            )
             self.listWidgetCreated.emit(self._component_list)
 
             self.scroll.setWidget(self._component_list)

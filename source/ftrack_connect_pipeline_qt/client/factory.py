@@ -302,7 +302,9 @@ class WidgetFactoryBase(QtWidgets.QWidget):
         if definition['type'] == core_constants.PUBLISHER:
             l_header = QtWidgets.QLabel('Components')
         else:
-            l_header = QtWidgets.QLabel('Choose which asset and version to open')
+            l_header = QtWidgets.QLabel(
+                'Choose which asset and version to open'
+            )
             l_header.setObjectName('gray')
         self.components_section.layout().addWidget(l_header)
         self.components_section.layout().addWidget(self.components_obj.widget)

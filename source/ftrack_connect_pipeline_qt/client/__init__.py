@@ -4,6 +4,7 @@ import os
 import platform
 import logging
 import subprocess
+from functools import partial
 
 from Qt import QtCore, QtWidgets
 
@@ -192,7 +193,7 @@ class QtClient(Client, QtWidgets.QFrame):
 
         self.layout().addWidget(button_widget)
 
-    def post_build(self):
+    def post_build(self, run_method=None):
         '''Post Build ui method for events connections.'''
         self.context_selector.entityChanged.connect(
             self._on_context_selector_context_changed
@@ -205,7 +206,7 @@ class QtClient(Client, QtWidgets.QFrame):
         if self.event_manager.mode == constants.LOCAL_EVENT_MODE:
             self.host_and_definition_selector.host_widget.hide()
 
-        self.run_button.clicked.connect(self.run)
+        self.run_button.clicked.connect(partial(self.run, run_method))
         if self.open_assembler_button:
             self.open_assembler_button.clicked.connect(self._open_assembler)
 
