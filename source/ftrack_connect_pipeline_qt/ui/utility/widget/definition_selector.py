@@ -312,12 +312,16 @@ class DefinitionSelector(QtWidgets.QWidget):
                 if compatible_definition_count > 0:
                     self.no_definitions_label.setText(
                         '<html><i>No versions found to open'
-                        '</i></html>'.format(self._definition_extensions_filter)
+                        '</i></html>'.format(
+                            self._definition_extensions_filter
+                        )
                     )
                 else:
                     self.no_definitions_label.setText(
                         '<html><i>No pipeline loader definitions available to open files of type {}!'
-                        '</i></html>'.format(self._definition_extensions_filter)
+                        '</i></html>'.format(
+                            self._definition_extensions_filter
+                        )
                     )
             elif self._client_name == qt_constants.PUBLISHER_WIDGET:
                 self.no_definitions_label.setText(

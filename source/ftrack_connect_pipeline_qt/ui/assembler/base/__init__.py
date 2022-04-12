@@ -212,7 +212,7 @@ class AssemblerBaseWidget(QtWidgets.QWidget):
         self._rebuild_button.setVisible(False)
         self._busy_widget.setVisible(True)
 
-        self._label_info.setText('Fetching...')
+        self._label_info.setText('Fetching, please stand by...')
 
         # Wait for context to be loaded
         self.get_context()
@@ -481,7 +481,6 @@ class ComponentBaseWidget(AccordionBaseWidget):
     @property
     def session(self):
         return self._assembler_widget.session
-
 
     def __init__(
         self, index, assembler_widget, event_manager, title=None, parent=None
