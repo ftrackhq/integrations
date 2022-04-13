@@ -57,7 +57,6 @@ class QtClient(Client, QtWidgets.QFrame):
         self.widget_factory = self.get_factory()
         self.is_valid_asset_name = False
         self._shown = False
-        self._postponed_change_definition = None
         self.open_assembler_button = None
 
         if self.getTheme():
@@ -187,13 +186,9 @@ class QtClient(Client, QtWidgets.QFrame):
 
         self.open_assembler_button = OpenAssemblerButton()
         button_widget.layout().addWidget(self.open_assembler_button)
-        self.open_assembler_button.setVisible(
-            self.client_name == qt_constants.OPEN_WIDGET
-        )
 
-        l_filler = QtWidgets.QLabel()
-        button_widget.layout().addWidget(l_filler, 10)
-        l_filler.setVisible(self.client_name == qt_constants.OPEN_WIDGET)
+        self.l_filler = QtWidgets.QLabel()
+        button_widget.layout().addWidget(self.l_filler, 10)
 
         self.run_button = RunButton(
             self.client_name.upper() if self.client_name else 'Run'
@@ -219,6 +214,10 @@ class QtClient(Client, QtWidgets.QFrame):
         self.run_button.clicked.connect(partial(self.run, run_method))
         if self.open_assembler_button:
             self.open_assembler_button.clicked.connect(self._open_assembler)
+        self.open_assembler_button.setVisible(
+            self.client_name == qt_constants.OPEN_WIDGET
+        )
+        self.l_filler.setVisible(self.client_name == qt_constants.OPEN_WIDGET)
 
     def _on_context_selector_context_changed(
         self, context_entity, global_context_change
@@ -338,17 +337,6 @@ class QtClient(Client, QtWidgets.QFrame):
             # Refresh when re-opened
             self.host_and_definition_selector.refresh()
         self._shown = True
-
-    def showEvent(self, event):
-        if self._postponed_change_definition:
-            (
-                schema,
-                definition,
-                component_names_filter,
-            ) = self._postponed_change_definition
-            self.change_definition(schema, definition, component_names_filter)
-        self._shown = True
-        event.accept()
 
 
 class QtChangeContextClient(Client):

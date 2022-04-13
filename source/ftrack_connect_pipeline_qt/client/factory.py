@@ -762,6 +762,13 @@ class LoaderWidgetFactory(WidgetFactoryBase):
             self.componentsChecked.emit(available_components)
 
 
+def PRINT_AND_WAIT(text):
+    import time
+
+    print('@@@: {}'.format(text))
+    time.sleep(2)
+
+
 class OpenerWidgetFactory(LoaderWidgetFactory):
     def __init__(self, event_manager, ui_types, client_name, parent=None):
         super(OpenerWidgetFactory, self).__init__(

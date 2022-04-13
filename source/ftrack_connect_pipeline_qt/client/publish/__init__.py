@@ -58,18 +58,6 @@ class QtPublisherClient(QtClient):
         )
         self.setMinimumWidth(300)
 
-    def change_definition(self, schema, definition, component_names_filter):
-        if not self._shown:
-            self._postponed_change_definition = (
-                schema,
-                definition,
-                component_names_filter,
-            )
-            return
-        super(QtPublisherClient, self).change_definition(
-            schema, definition, component_names_filter
-        )
-
     def run(self, unused_method=None):
         if super(QtPublisherClient, self).run():
             self.widget_factory.progress_widget.set_status(

@@ -50,7 +50,7 @@ class FileLogViewerWidget(QtWidgets.QWidget):
         self._files_combobox = FileSelector()
         toolbar_layout.addWidget(self._files_combobox, 10)
 
-        self.refresh_button = CircularButton('sync', '#87E1EB')
+        self.refresh_button = CircularButton('sync')
         toolbar_layout.addWidget(self.refresh_button)
 
         self.layout().addLayout(toolbar_layout)

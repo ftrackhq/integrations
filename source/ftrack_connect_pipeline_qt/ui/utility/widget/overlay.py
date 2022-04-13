@@ -22,19 +22,16 @@ class Overlay(QtWidgets.QFrame):
         '''Initialise overlay for target *parent*.'''
         super(Overlay, self).__init__(parent=parent)
 
-        print('@@@ Overlay parent: {}'.format(parent))
-
         self._width_percentage = width_percentage
         self._height_percentage = height_percentage
 
-        self.widget = QtWidgets.QFrame(parent=self.parent())
+        self.widget = QtWidgets.QFrame(parent=self)
         self.widget.setProperty('background', 'ftrack')
         self.widget.setLayout(QtWidgets.QVBoxLayout())
         self.widget.layout().setContentsMargins(1, 20, 1, 1)
         self.widget.layout().addWidget(widget)
         widget.setAutoFillBackground(False)
         widget.setStyleSheet('background: transparent;')
-        self.widget.setParent(self)
 
         self.close_btn = QtWidgets.QPushButton('', self)
         self.close_btn.setIcon(icon.MaterialIcon('close', color='#D3d4D6'))

@@ -223,9 +223,9 @@ class AssetListSelector(QtWidgets.QFrame):
         recent_version = None
         selected_index = -1
         for idx, asset in enumerate(self.asset_list.assets):
-            if (
-                recent_version is None
-                or recent_version['date'] < asset['latest_version.date']
+            if recent_version is None or (
+                'latest_version.date' in asset
+                and recent_version['date'] < asset['latest_version.date']
             ):
                 recent_version = asset['latest_version']
                 selected_index = idx

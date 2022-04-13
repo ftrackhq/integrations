@@ -208,7 +208,6 @@ class QtAssemblerClient(QtClient):
         self.run_button_no_load.clicked.connect(
             partial(self.run, "init_nodes")
         )
-        self.run_button.setVisible(True)
 
     def _on_hosts_discovered(self, host_connects):
         self.host_and_definition_selector.setVisible(len(host_connects) > 1)

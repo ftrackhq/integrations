@@ -76,8 +76,6 @@ class BaseUIWidget(object):
         self.fragment_data = fragment_data
         self._parent = parent
 
-        print('@@@ {} parent: {}'.format(self, parent))
-
         self.name = name
         self._widget = None
         self._widget_id = uuid.uuid4().hex
@@ -124,7 +122,8 @@ class BaseUIWidget(object):
             ):
                 self._widget.setVisible(False)
             elif isinstance(widget, AccordionBaseWidget):
-                widget.setVisible(True)
+                if not widget.isVisible():
+                    widget.setVisible(True)
         else:
             self.logger.error("Please create a widget before parent")
 

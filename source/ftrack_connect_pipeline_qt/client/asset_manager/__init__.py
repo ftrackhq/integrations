@@ -133,8 +133,8 @@ class QtAssetManagerClient(AssetManagerClient, QtWidgets.QFrame):
             self.layout().addWidget(line.Line(parent=self.get_parent_window()))
 
             self.host_selector = host_selector.HostSelector()
-            self.host_selector.setVisible(False)
             self.layout().addWidget(self.host_selector)
+            self.host_selector.setVisible(False)
         else:
             self.context_selector = None
 

@@ -25,7 +25,6 @@ class PublishContextWidget(BaseOptionsWidget):
 
     def __init__(
         self,
-        parent=None,
         session=None,
         data=None,
         name=None,
@@ -33,13 +32,13 @@ class PublishContextWidget(BaseOptionsWidget):
         options=None,
         context_id=None,
         asset_type_name=None,
+        parent=None,
     ):
         '''initialise PublishContextWidget with *parent*, *session*, *data*,
         *name*, *description*, *options* and *context*
         '''
 
         super(PublishContextWidget, self).__init__(
-            parent=parent,
             session=session,
             data=data,
             name=name,
@@ -47,6 +46,7 @@ class PublishContextWidget(BaseOptionsWidget):
             options=options,
             context_id=context_id,
             asset_type_name=asset_type_name,
+            parent=parent,
         )
         self.asset_selector.set_context(context_id, asset_type_name)
 

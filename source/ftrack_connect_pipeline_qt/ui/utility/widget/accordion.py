@@ -185,8 +185,6 @@ class AccordionTitleWidget(QtWidgets.QFrame):
     ):
         super(AccordionTitleWidget, self).__init__(parent=parent)
 
-        print('@@@ AccordionTitleWidget parent: {}'.format(parent))
-
         self._arrow = None
         self._title_label = None
         self._status = None
@@ -359,8 +357,6 @@ class AccordionStatus(QtWidgets.QLabel):
 class Arrow(QtWidgets.QFrame):
     def __init__(self, parent=None, collapsed=False):
         super(Arrow, self).__init__(parent=parent)
-
-        print('@@@ Arrow parent: {}'.format(parent))
 
         self.setMinimumSize(24, 24)
         self.setMaximumSize(24, 24)

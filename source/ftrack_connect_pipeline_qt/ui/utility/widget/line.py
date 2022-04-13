@@ -10,12 +10,6 @@ class Line(QtWidgets.QFrame):
     def __init__(self, horizontal=True, style=None, parent=None):
         super(Line, self).__init__(parent=parent)
 
-        print('@@@ Line parent: {}'.format(parent))
-        if parent is None:
-            import traceback
-
-            traceback.print_stack()
-
         if horizontal:
             self.setMaximumHeight(1)
             self.setMinimumHeight(1)

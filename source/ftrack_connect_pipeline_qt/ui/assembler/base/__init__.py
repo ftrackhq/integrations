@@ -167,8 +167,8 @@ class AssemblerBaseWidget(QtWidgets.QWidget):
 
         self._busy_widget = BusyIndicator(start=False)
         self._busy_widget.setMinimumSize(QtCore.QSize(16, 16))
-        self._busy_widget.setVisible(False)
         bottom_toolbar_widget.layout().addWidget(self._busy_widget)
+        self._busy_widget.setVisible(False)
 
         header_widget.layout().addWidget(bottom_toolbar_widget)
 

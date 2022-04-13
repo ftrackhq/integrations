@@ -235,7 +235,10 @@ class AccordionStepWidget(BaseUIWidget):
                 else step_widget
             )
             self.widget.add_widget(widget)
-            if isinstance(widget, AccordionBaseWidget):
+            if (
+                isinstance(widget, AccordionBaseWidget)
+                and not widget.isVisible()
+            ):
                 widget.setVisible(True)
         else:
             self.logger.error("Please create a widget before parent")
@@ -301,7 +304,10 @@ class PublisherAccordionStepWidget(BaseUIWidget):
                 else step_widget
             )
             self.widget.add_widget(widget)
-            if isinstance(widget, AccordionBaseWidget):
+            if (
+                isinstance(widget, AccordionBaseWidget)
+                and not widget.isVisible()
+            ):
                 widget.setVisible(True)
         else:
             self.logger.error("Please create a widget before parent")
@@ -389,7 +395,10 @@ class OptionsStepWidget(DefaultStepWidget):
                 widget.widget if isinstance(widget, BaseUIWidget) else widget
             )
             self.widget.layout().insertWidget((options_idx), insert_widget)
-            if isinstance(insert_widget, AccordionBaseWidget):
+            if (
+                isinstance(insert_widget, AccordionBaseWidget)
+                and not insert_widget.isVisible()
+            ):
                 insert_widget.setVisible(True)
         else:
             self.logger.error("Please create a widget before parent")

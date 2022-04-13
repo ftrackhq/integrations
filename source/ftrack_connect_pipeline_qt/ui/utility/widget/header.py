@@ -31,8 +31,6 @@ class Header(QtWidgets.QFrame):
 
         super(Header, self).__init__(parent=parent)
 
-        print('@@@ Header parent: {}'.format(parent))
-
         self.session = session
         self._show_logo = show_logo
         self._title = title
@@ -59,7 +57,6 @@ class Header(QtWidgets.QFrame):
         self.id_container.setLayout(self.id_container_layout)
 
         self.logo = Logo(self)
-        self.logo.setVisible(self._show_logo)
         if len(self._title or ''):
             self._title_label = QtWidgets.QLabel(self._title)
             self._title_label.setObjectName('h2')
@@ -77,15 +74,16 @@ class Header(QtWidgets.QFrame):
             self.id_container_layout.addWidget(self._title_label)
         self.id_container_layout.addWidget(self.content_container, 1000)
         self.id_container_layout.addWidget(self._open_publisher_button)
-        self._open_publisher_button.setVisible(self._show_publisher)
         self.id_container_layout.addWidget(self.user)
-        self.user.setVisible(self._show_user)
 
         # Add (Logo & User ID) & Message
         self.layout().addWidget(self.id_container)
 
     def post_build(self):
         self._open_publisher_button.clicked.connect(self._on_publisher_clicked)
+        self.logo.setVisible(self._show_logo)
+        self._open_publisher_button.setVisible(self._show_publisher)
+        self.user.setVisible(self._show_user)
 
     def _on_publisher_clicked(self):
         self.publishClicked.emit()

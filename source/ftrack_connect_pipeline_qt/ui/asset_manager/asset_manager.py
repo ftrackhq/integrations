@@ -149,8 +149,8 @@ class AssetManagerWidget(AssetManagerBaseWidget):
 
         self._busy_widget = BusyIndicator(start=False)
         self._busy_widget.setMinimumSize(QtCore.QSize(16, 16))
-        self._busy_widget.setVisible(False)
         row2.layout().addWidget(self._busy_widget)
+        self._busy_widget.setVisible(False)
 
         layout.addWidget(row2)
 
