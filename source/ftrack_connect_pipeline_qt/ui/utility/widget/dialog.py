@@ -10,7 +10,7 @@ from ftrack_connect_pipeline_qt.ui import theme
 
 class Dialog(QtWidgets.QDialog):
     '''
-    A basic dialog window, intended to live on top of DCC app main window.F
+    A basic dialog window, intended to live on top of DCC app main window.
     Supports to be shaded when a modal dialog is put in front.
     '''
 

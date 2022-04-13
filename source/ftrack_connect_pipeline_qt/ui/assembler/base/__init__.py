@@ -159,7 +159,7 @@ class AssemblerBaseWidget(QtWidgets.QWidget):
         self._label_info.setObjectName('gray')
         bottom_toolbar_widget.layout().addWidget(self._label_info)
 
-        self._search = Search()
+        self._search = Search(parent=self.parent())
         bottom_toolbar_widget.layout().addWidget(self._search)
 
         self._rebuild_button = CircularButton('sync')
@@ -507,7 +507,9 @@ class ComponentBaseWidget(AccordionBaseWidget):
 
     def init_options_button(self):
         self._options_button = ImporterOptionsButton(
-            'O', icon.MaterialIcon('settings', color='gray')
+            'O',
+            icon.MaterialIcon('settings', color='gray'),
+            parent=self.parent(),
         )
         self._options_button.setObjectName('borderless')
         self._options_button.clicked.connect(self._build_options)
@@ -594,6 +596,7 @@ class ComponentBaseWidget(AccordionBaseWidget):
         self._widget_factory = factory.ImporterWidgetFactory(
             self.event_manager,
             self._assembler_widget._assembler_client.ui_types,
+            parent=self,
         )
 
         header_layout.addWidget(upper_widget, 10)
@@ -800,7 +803,10 @@ class ImporterOptionsButton(OptionsButton):
         self.scroll.setWidget(self.main_widget)
 
         self.overlay_container = overlay.Overlay(
-            self.scroll, width_percentage=0.6, height_percentage=0.9
+            self.scroll,
+            width_percentage=0.6,
+            height_percentage=0.9,
+            parent=self.parent(),
         )
         self.overlay_container.setVisible(False)
 

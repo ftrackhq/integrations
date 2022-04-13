@@ -112,6 +112,8 @@ class AccordionBaseWidget(QtWidgets.QFrame):
     ):
         super(AccordionBaseWidget, self).__init__(parent=parent)
 
+        print('@@@ AccordionBaseWidget parent: {}'.format(parent))
+
         if visible is False:
             self.setVisible(False)
         self._event_manager = event_manager
@@ -148,7 +150,7 @@ class AccordionBaseWidget(QtWidgets.QFrame):
 
     def build(self):
 
-        self._indicator_widget = QtWidgets.QFrame()
+        self._indicator_widget = QtWidgets.QFrame(parent=self.parent())
         self._indicator_widget.setMaximumWidth(4)
         self._indicator_widget.setMinimumWidth(4)
         self._indicator_widget.setVisible(False)
@@ -185,7 +187,7 @@ class AccordionBaseWidget(QtWidgets.QFrame):
         return self._header
 
     def _init_content(self, collapsed):
-        self._content = QtWidgets.QFrame()
+        self._content = QtWidgets.QFrame(parent=self.parent())
         # self._content.setObjectName('bordered')
         self._content.setLayout(QtWidgets.QVBoxLayout())
         self._content.setVisible(not collapsed)

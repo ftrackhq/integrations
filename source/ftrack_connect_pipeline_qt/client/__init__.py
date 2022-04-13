@@ -8,7 +8,6 @@ from functools import partial
 
 from Qt import QtCore, QtWidgets
 
-from ftrack_connect_pipeline.utils import str_context
 from ftrack_connect_pipeline.client import Client, constants
 from ftrack_connect_pipeline_qt.ui.utility.widget import (
     header,
@@ -24,7 +23,7 @@ from ftrack_connect_pipeline_qt.ui.utility.widget.context_selector import (
 )
 from ftrack_connect_pipeline_qt.ui import (
     resource,
-)  # Important to keep this in order to bootstrap resources
+)  # Important to keep this in order to bootstrap resources - DO NOT REMOVE UNUSED IMPORT
 from ftrack_connect_pipeline_qt.ui import theme
 from ftrack_connect_pipeline_qt.ui.utility.widget.entity_browser import (
     EntityBrowser,
@@ -55,6 +54,7 @@ class QtClient(Client, QtWidgets.QFrame):
         Client.__init__(self, event_manager)
 
         self._parent_window = parent_window
+        self.widget_factory = self.get_factory()
         self.is_valid_asset_name = False
         self._shown = False
         self._postponed_change_definition = None
@@ -80,6 +80,10 @@ class QtClient(Client, QtWidgets.QFrame):
         if self.context_id:
             self.context_selector.set_context_id(self.context_id)
         self.add_hosts(self.discover_hosts())
+
+    def get_factory(self):
+        '''Instantiate the widget factory to use'''
+        raise NotImplementedError()
 
     def getTheme(self):
         '''Return the client theme, return None to disable themes. Can be overridden by child.'''
@@ -143,19 +147,25 @@ class QtClient(Client, QtWidgets.QFrame):
 
     def build(self):
         '''Build widgets and parent them.'''
-        self.header = header.Header(self.session)
+        self.header = header.Header(
+            self.session, parent=self.get_parent_window()
+        )
         self.layout().addWidget(self.header)
         self.progress_widget = self.widget_factory.progress_widget
         self.header.content_container.layout().addWidget(
             self.progress_widget.widget
         )
 
-        self.layout().addWidget(line.Line(style='solid'))
+        self.layout().addWidget(
+            line.Line(style='solid', parent=self.get_parent_window())
+        )
 
-        self.context_selector = ContextSelector(self, self.session)
+        self.context_selector = ContextSelector(
+            self, self.session, parent=self.get_parent_window()
+        )
         self.layout().addWidget(self.context_selector, QtCore.Qt.AlignTop)
 
-        self.layout().addWidget(line.Line())
+        self.layout().addWidget(line.Line(parent=self.get_parent_window()))
 
         self.host_and_definition_selector = (
             definition_selector.DefinitionSelector(self.client_name)
@@ -292,7 +302,7 @@ class QtClient(Client, QtWidgets.QFrame):
             self.get_parent_window().hide()
             self.get_parent_window().deleteLater()
 
-    def run(self):
+    def run(self, unused_method=None):
         '''Function called when click the run button'''
         self.widget_factory.has_error = False
         serialized_data = self.widget_factory.to_json_object()

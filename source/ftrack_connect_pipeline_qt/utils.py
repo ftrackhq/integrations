@@ -154,12 +154,12 @@ def clear_layout(layout):
             clear_layout(item.layout())
 
 
-def center_widget(w, width=None, height=None):
-    v_container = QtWidgets.QWidget()
+def center_widget(w, width=None, height=None, parent=None):
+    v_container = QtWidgets.QWidget(parent=parent)
     v_container.setLayout(QtWidgets.QVBoxLayout())
     v_container.layout().addWidget(QtWidgets.QLabel(""), 100)
 
-    h_container = QtWidgets.QWidget()
+    h_container = QtWidgets.QWidget(parent=parent)
     h_container.setLayout(QtWidgets.QHBoxLayout())
     h_container.layout().addWidget(QtWidgets.QLabel(), 100)
     h_container.layout().addWidget(w)

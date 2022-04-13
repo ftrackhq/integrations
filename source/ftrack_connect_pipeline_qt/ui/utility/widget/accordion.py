@@ -57,12 +57,15 @@ class AccordionWidget(QtWidgets.QWidget):
 
     def init_title_frame(self, title, collapsed):
         self._title_frame = AccordionTitleWidget(
-            title=title, collapsed=collapsed, checkable=self.checkable
+            title=title,
+            collapsed=collapsed,
+            checkable=self.checkable,
+            parent=self.parent(),
         )
         return self._title_frame
 
     def init_content(self, collapsed):
-        self._content = QtWidgets.QWidget()
+        self._content = QtWidgets.QWidget(parent=self.parent())
         self.content_layout = QtWidgets.QVBoxLayout()
 
         self._content.setLayout(self.content_layout)
@@ -178,9 +181,11 @@ class AccordionTitleWidget(QtWidgets.QFrame):
         return self._extra_buttons
 
     def __init__(
-        self, parent=None, title="", collapsed=False, checkable=False
+        self, title="", collapsed=False, checkable=False, parent=None
     ):
         super(AccordionTitleWidget, self).__init__(parent=parent)
+
+        print('@@@ AccordionTitleWidget parent: {}'.format(parent))
 
         self._arrow = None
         self._title_label = None
@@ -206,9 +211,13 @@ class AccordionTitleWidget(QtWidgets.QFrame):
         self._hlayout.addWidget(self.init_checkbox(True, self.checkable))
         self._hlayout.addWidget(self.init_title(self.title))
         self._hlayout.addStretch()
-        self._hlayout.addWidget(line.Line(horizontal=True))
+        self._hlayout.addWidget(
+            line.Line(horizontal=True, parent=self.parent())
+        )
         self._hlayout.addWidget(self.init_status())
-        self._hlayout.addWidget(line.Line(horizontal=True))
+        self._hlayout.addWidget(
+            line.Line(horizontal=True, parent=self.parent())
+        )
         self._hlayout.addWidget(self.init_arrow(self.initial_collapse))
 
     def post_build(self):
@@ -230,7 +239,7 @@ class AccordionTitleWidget(QtWidgets.QFrame):
         return self._status
 
     def init_arrow(self, collapsed):
-        self._arrow = Arrow(collapsed=collapsed)
+        self._arrow = Arrow(collapsed=collapsed, parent=self.parent())
         self._arrow.setObjectName('borderless')
 
         return self._arrow
@@ -285,7 +294,9 @@ class OptionsButton(QtWidgets.QPushButton):
         layout = QtWidgets.QVBoxLayout()
         self.main_widget.setLayout(layout)
         self.main_widget.layout().setAlignment(QtCore.Qt.AlignTop)
-        self.overlay_container = overlay.Overlay(self.main_widget)
+        self.overlay_container = overlay.Overlay(
+            self.main_widget, parent=self.parent()
+        )
         self.overlay_container.setVisible(False)
 
     def post_build(self):
@@ -348,6 +359,8 @@ class AccordionStatus(QtWidgets.QLabel):
 class Arrow(QtWidgets.QFrame):
     def __init__(self, parent=None, collapsed=False):
         super(Arrow, self).__init__(parent=parent)
+
+        print('@@@ Arrow parent: {}'.format(parent))
 
         self.setMinimumSize(24, 24)
         self.setMaximumSize(24, 24)

@@ -174,8 +174,8 @@ AddRunButton:hover {
 }
 
 AddRunButton:disabled {
-    color: darken($color-cyan, 33%);
-    border: 1px solid darken($color-cyan, 33%);
+    color: darken($color-cyan, 50%);
+    border: 1px solid darken($color-cyan, 50%);
 }
 
 LoadRunButton {

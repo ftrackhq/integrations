@@ -708,8 +708,6 @@ class AssetWidget(AccordionBaseWidget):
 
             self.add_widget(context_widget)
 
-            # self.add_widget(line.Line())
-
             load_info_label = QtWidgets.QLabel(
                 '<html>Added as a <font color="white">{}</font> with <font color="white">'
                 '{}</font></html>'.format(
@@ -742,7 +740,7 @@ class AssetWidget(AccordionBaseWidget):
             )
 
             if 0 < len(self._version_dependency_ids or []):
-                self.add_widget(line.Line())
+                self.add_widget(line.Line(parent=self.parent()))
 
                 dependencies_label = QtWidgets.QLabel('DEPENDENCIES:')
                 dependencies_label.setObjectName('h4')
@@ -785,7 +783,7 @@ class AssetWidget(AccordionBaseWidget):
                             )
                         )
 
-                self.add_widget(line.Line())
+                self.add_widget(line.Line(parent=self.parent()))
 
             self.content.layout().addStretch()
 

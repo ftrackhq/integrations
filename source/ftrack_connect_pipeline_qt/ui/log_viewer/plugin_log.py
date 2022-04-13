@@ -75,7 +75,9 @@ class PluginLogViewerWidget(QtWidgets.QWidget):
         toolbar_layout.setContentsMargins(5, 5, 5, 5)
         toolbar_layout.setSpacing(5)
 
-        self._search = Search(collapsed=False, collapsable=False)
+        self._search = Search(
+            collapsed=False, collapsable=False, parent=self.parent()
+        )
         toolbar_layout.addWidget(self._search, 10)
 
         self.refresh_button = CircularButton('sync', '#87E1EB')

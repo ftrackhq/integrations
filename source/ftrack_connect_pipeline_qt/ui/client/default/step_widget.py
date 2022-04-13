@@ -20,12 +20,11 @@ class DefaultStepWidget(BaseUIWidget):
         super(DefaultStepWidget, self).__init__(
             name, fragment_data, parent=parent
         )
-
         self._component = None
 
     def pre_build(self):
         self._is_optional = self.fragment_data.get('optional')
-        self._widget = QtWidgets.QWidget()
+        self._widget = QtWidgets.QWidget(parent=self.parent)
         self.widget.setLayout(QtWidgets.QVBoxLayout())
 
     def build(self):

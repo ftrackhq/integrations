@@ -57,9 +57,11 @@ class QtAssemblerClient(QtClient):
     def __init__(self, event_manager, modes, asset_list_model, parent_window):
         self.modes = modes
         self._asset_list_model = asset_list_model
-        self.widget_factory = None
         super(QtAssemblerClient, self).__init__(event_manager, parent_window)
         self.logger.debug('start qt assembler')
+
+    def get_factory(self):
+        return None
 
     def getThemeBackgroundStyle(self):
         return 'ftrack'
@@ -70,7 +72,9 @@ class QtAssemblerClient(QtClient):
     def pre_build(self):
         super(QtAssemblerClient, self).pre_build()
         self.layout().setContentsMargins(16, 16, 16, 16)
-        self.header = header.Header(self.session)
+        self.header = header.Header(
+            self.session, parent=self.get_parent_window()
+        )
         self.header.setMinimumHeight(50)
         # Create and add the asset manager client
         self.asset_manager = QtAssetManagerClient(
@@ -90,11 +94,13 @@ class QtAssemblerClient(QtClient):
 
         self._left_widget.layout().addWidget(self.header)
 
-        self._left_widget.layout().addWidget(line.Line(style='solid'))
+        self._left_widget.layout().addWidget(
+            line.Line(style='solid', parent=self.get_parent_window())
+        )
 
         self.progress_widget = (
             factory.LoaderWidgetFactory.create_progress_widget(
-                self.client_name
+                self.client_name, parent=self
             )
         )
         self.header.content_container.layout().addWidget(
@@ -164,12 +170,16 @@ class QtAssemblerClient(QtClient):
         self._right_widget.layout().setContentsMargins(0, 0, 0, 0)
         self._right_widget.layout().setSpacing(0)
 
-        self.context_selector = ContextSelector(self, self.session)
+        self.context_selector = ContextSelector(
+            self, self.session, parent=self.get_parent_window()
+        )
         self._right_widget.layout().addWidget(
             self.context_selector, QtCore.Qt.AlignTop
         )
 
-        self._right_widget.layout().addWidget(line.Line(style='solid'))
+        self._right_widget.layout().addWidget(
+            line.Line(style='solid', parent=self.get_parent_window())
+        )
 
         self._right_widget.layout().addWidget(self.asset_manager, 100)
 

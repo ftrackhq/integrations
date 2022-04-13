@@ -4,9 +4,10 @@ $gray-dark:             lighten(#000, 20%);   // #333
 $gray:                  lighten(#000, 33.5%); // #555
 $gray-light:            lighten(#000, 60%);   // #999
 $gray-lighter:          lighten(#000, 93.5%); // #eee
-$alt-background:        #f8f8f8;
 $background:            #fafafa;
 $background-docked:     rgb(55,55,55);
+$alt-background:        #f8f8f8;
+$alt-background-docked: rgb(44,44,44);
 $background-selected:    $gray-lighter;
 $white:                 white;
 

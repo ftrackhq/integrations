@@ -42,6 +42,10 @@ class BaseUIWidget(object):
     def is_optional(self):
         return self._is_optional
 
+    @property
+    def parent(self):
+        return self._parent
+
     def __init__(self, name, fragment_data, parent=None):
         '''Initialise BaseJsonWidget with *name*, *schema_fragment*,
         *fragment_data*, *previous_object_data*, *widget_factory*, *parent*
@@ -71,6 +75,8 @@ class BaseUIWidget(object):
 
         self.fragment_data = fragment_data
         self._parent = parent
+
+        print('@@@ {} parent: {}'.format(self, parent))
 
         self.name = name
         self._widget = None
@@ -111,7 +117,7 @@ class BaseUIWidget(object):
             )
             self.widget.layout().addWidget(widget)
             if add_line:
-                self.widget.layout().addWidget(line.Line())
+                self.widget.layout().addWidget(line.Line(parent=self.parent))
             if (
                 self.fragment_data
                 and self.fragment_data.get('visible', True) is False

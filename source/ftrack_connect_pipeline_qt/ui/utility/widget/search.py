@@ -31,6 +31,8 @@ class Search(QtWidgets.QFrame):
     def __init__(self, parent=None, collapsed=True, collapsable=True):
         super(Search, self).__init__(parent=parent)
 
+        print('@@@ Search parent: {}'.format(parent))
+
         self._collapsed = collapsed
         self._collapsable = collapsable
         self.pre_build()

@@ -21,10 +21,13 @@ class Overlay(QtWidgets.QFrame):
     ):
         '''Initialise overlay for target *parent*.'''
         super(Overlay, self).__init__(parent=parent)
+
+        print('@@@ Overlay parent: {}'.format(parent))
+
         self._width_percentage = width_percentage
         self._height_percentage = height_percentage
 
-        self.widget = QtWidgets.QFrame()
+        self.widget = QtWidgets.QFrame(parent=self.parent())
         self.widget.setProperty('background', 'ftrack')
         self.widget.setLayout(QtWidgets.QVBoxLayout())
         self.widget.layout().setContentsMargins(1, 20, 1, 1)

@@ -25,12 +25,16 @@ class QtOpenClient(QtClient):
     ):
         if not definition_extensions_filter is None:
             self.definition_extensions_filter = definition_extensions_filter
-        self._can_open = False
-        self.widget_factory = factory.OpenerWidgetFactory(
-            event_manager, self.ui_types, self.client_name
-        )
         super(QtOpenClient, self).__init__(event_manager, parent_window)
         self.logger.debug('start qt opener')
+
+    def get_factory(self):
+        return factory.OpenerWidgetFactory(
+            self.event_manager,
+            self.ui_types,
+            self.client_name,
+            parent=self.get_parent_window(),
+        )
 
     def getThemeBackgroundStyle(self):
         return 'ftrack'
@@ -61,7 +65,6 @@ class QtOpenClient(QtClient):
             self._clear_widget()
 
     def change_definition(self, schema, definition, component_names_filter):
-        self._can_open = False
         super(QtOpenClient, self).change_definition(
             schema, definition, component_names_filter
         )
@@ -72,7 +75,7 @@ class QtOpenClient(QtClient):
             definition is not None and available_components_count >= 1
         )
 
-    def run(self):
+    def run(self, unused_method=None):
         if super(QtOpenClient, self).run():
             self.widget_factory.progress_widget.set_status(
                 constants.SUCCESS_STATUS,

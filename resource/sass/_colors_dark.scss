@@ -21,9 +21,10 @@ $gray-darker:           rgba(255, 255, 255, 0.1); // #6D7075 #222
 $gray:                  rgba(255, 255, 255, 0.6);
 $gray-light:            #D3d4D6;
 $gray-lighter:          #1F242B; // #1F252B;
-$alt-background:        #191d22;
 $background:            #131920; // ftrack background color
 $background-docked:     rgb(55,55,55); // DCC dependent
+$alt-background:        #191d22;
+$alt-background-docked: rgb(44,44,44);
 $background-selected:   rgba(255, 255, 255, 0.05);
 $white:                 $color-dark-2;
 

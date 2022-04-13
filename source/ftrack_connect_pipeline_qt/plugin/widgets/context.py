@@ -56,7 +56,7 @@ class PublishContextWidget(BaseOptionsWidget):
             self.set_option_result(self.context_id, key='context_id')
         self.layout().addLayout(self._build_asset_selector())
         self.statusesFetched.connect(self.set_statuses)
-        self.layout().addWidget(line.Line())
+        self.layout().addWidget(line.Line(parent=self.parent()))
         version_and_comment = QtWidgets.QWidget()
         version_and_comment.setLayout(QtWidgets.QVBoxLayout())
         version_and_comment.layout().addWidget(

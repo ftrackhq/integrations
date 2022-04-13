@@ -114,12 +114,14 @@ class EntityBrowser(dialog.ModalDialog):
 
         toolbar.layout().addWidget(self._navigator)
         toolbar.layout().addWidget(QtWidgets.QLabel(), 100)
-        self._rebuild_button = CircularButton('sync', '#87E1EB')
+        self._rebuild_button = CircularButton('sync')
         toolbar.layout().addWidget(self._rebuild_button)
 
         widget.layout().addWidget(toolbar)
 
-        self._search = Search(collapsed=False, collapsable=False)
+        self._search = Search(
+            collapsed=False, collapsable=False, parent=self.parent()
+        )
         self._search.inputUpdated.connect(self._on_search)
         widget.layout().addWidget(self._search)
 
@@ -241,8 +243,10 @@ class EntityBrowser(dialog.ModalDialog):
         self.working = True
         self.entity_widgets = []
 
-        self._busy_indicator = BusyIndicator()
-        self._scroll.setWidget(center_widget(self._busy_indicator, 30, 30))
+        self._busy_indicator = BusyIndicator(parent=self)
+        self._scroll.setWidget(
+            center_widget(self._busy_indicator, 30, 30, parent=self)
+        )
 
         self.update()
 
@@ -286,7 +290,8 @@ class EntityBrowser(dialog.ModalDialog):
             entities_widget.layout().setContentsMargins(0, 0, 0, 0)
             entities_widget.layout().setSpacing(0)
 
-            # clear_layout(entities_widget.layout())
+            self._busy_indicator.stop()
+            self._scroll.setWidget(entities_widget)
 
             self.entity_widgets = []
             if (
@@ -298,6 +303,7 @@ class EntityBrowser(dialog.ModalDialog):
                     False,
                     self,
                     is_parent=True,
+                    parent=self.parent(),
                 )
                 parent_entity_widget.clicked.connect(
                     partial(
@@ -315,7 +321,7 @@ class EntityBrowser(dialog.ModalDialog):
                 entities_widget.layout().addWidget(parent_entity_widget)
                 self.entity_widgets.append(parent_entity_widget)
             for entity in entities:
-                entity_widget = EntityWidget(entity, False, self)
+                entity_widget = EntityWidget(entity, False, self.parent())
                 entity_widget.clicked.connect(
                     partial(self._entity_selected, entity)
                 )
@@ -328,7 +334,7 @@ class EntityBrowser(dialog.ModalDialog):
                     for sub_entity in entity['children']:
                         if sub_entity.entity_type == 'Task':
                             sub_entity_widget = EntityWidget(
-                                sub_entity, True, self
+                                sub_entity, True, self.parent()
                             )
                             sub_entity_widget.clicked.connect(
                                 partial(self._entity_selected, sub_entity)
@@ -339,9 +345,6 @@ class EntityBrowser(dialog.ModalDialog):
                             self.entity_widgets.append(sub_entity_widget)
 
             entities_widget.layout().addWidget(QtWidgets.QLabel(), 100)
-
-            self._busy_indicator.stop()
-            self._scroll.setWidget(entities_widget)
 
         finally:
             self.working = False
@@ -522,7 +525,7 @@ class EntityBrowserNavigator(InputEventBlockingWidget):
 
             if self.entity:
                 for index, link in enumerate(self.entity['link']):
-                    button = NavigationEntityButton(link)
+                    button = NavigationEntityButton(link, parent=self.parent())
                     button.clicked.connect(
                         partial(self._on_entity_changed, button.link_entity)
                     )
@@ -701,7 +704,7 @@ class EntityWidget(QtWidgets.QFrame):
             lower_widget.layout().addWidget(sub_path)
 
         if not self.is_parent:
-            type_widget = TypeWidget(self.entity)
+            type_widget = TypeWidget(self.entity, parent=self.parent())
             lower_widget.layout().addWidget(type_widget)
 
         lower_widget.layout().addWidget(QtWidgets.QLabel(), 100)
@@ -745,6 +748,11 @@ class EntityWidget(QtWidgets.QFrame):
         return retval
 
     def mouseDoubleClickEvent(self, event):
+        if not shiboken2.isValid(self) or not shiboken2.isValid(
+            super(EntityWidget, self)
+        ):
+            # Widget has been destroyed
+            return
         self.doubleClicked.emit()
         return super(EntityWidget, self).mouseDoubleClickEvent(event)
 

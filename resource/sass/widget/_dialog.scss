@@ -3,6 +3,6 @@ QDialog {
     background-color: $background;
 }
 
-Dialog {
+Dialog, ModalDialog {
     background-color: $alt-background;
 }

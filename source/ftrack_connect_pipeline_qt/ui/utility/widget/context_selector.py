@@ -42,6 +42,9 @@ class ContextSelector(QtWidgets.QFrame):
         *parent* widget.
         '''
         super(ContextSelector, self).__init__(parent=parent)
+
+        print('@@@ ContextSelector parent: {}'.format(parent))
+
         self._entity = current_entity
         self._context_id = None
         self._current_context_id = current_context_id

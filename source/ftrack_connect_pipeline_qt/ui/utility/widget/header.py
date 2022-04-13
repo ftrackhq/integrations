@@ -31,6 +31,8 @@ class Header(QtWidgets.QFrame):
 
         super(Header, self).__init__(parent=parent)
 
+        print('@@@ Header parent: {}'.format(parent))
+
         self.session = session
         self._show_logo = show_logo
         self._title = title
@@ -68,7 +70,7 @@ class Header(QtWidgets.QFrame):
         self._open_publisher_button = circular_button.CircularButton(
             'publish', '#79DFB6'
         )
-        self.user = User(self.session, self)
+        self.user = User(self.session, parent=self.parent())
 
         self.id_container_layout.addWidget(self.logo)
         if len(self._title or ''):
