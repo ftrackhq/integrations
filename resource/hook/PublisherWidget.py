@@ -41,7 +41,8 @@ class PublisherBlockingOverlay(
 
 
 class PublisherWidget(ftrack_connect.ui.application.ConnectWidget):
-    name = 'PublisherWidget'
+
+    name = 'Publish'
 
     entityChanged = QtCore.Signal(object)
 
