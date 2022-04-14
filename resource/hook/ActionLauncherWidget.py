@@ -21,7 +21,7 @@ from ftrack_connect_action_launcher_widget.actions import Actions
 
 
 class ActionLauncherWidget(ftrack_connect.ui.application.ConnectWidget):
-    name = 'Launcher'
+    name = 'Launch'
 
     def __init__(self, session, parent=None):
         '''Instantiate the actions widget.'''
