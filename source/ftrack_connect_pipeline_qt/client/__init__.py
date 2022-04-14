@@ -214,9 +214,9 @@ class QtClient(Client, QtWidgets.QFrame):
         self.run_button.clicked.connect(partial(self.run, run_method))
         if self.open_assembler_button:
             self.open_assembler_button.clicked.connect(self._open_assembler)
-        self.open_assembler_button.setVisible(
-            self.client_name == qt_constants.OPEN_WIDGET
-        )
+            self.open_assembler_button.setVisible(
+                self.client_name == qt_constants.OPEN_WIDGET
+            )
         self.l_filler.setVisible(self.client_name == qt_constants.OPEN_WIDGET)
 
     def _on_context_selector_context_changed(
