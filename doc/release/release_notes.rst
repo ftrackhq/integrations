@@ -7,4 +7,9 @@
 Release Notes
 *************
 
-.. release:: Upcoming
+.. release:: 0.1.0
+    :date: 2022-04-14
+
+    .. change:: changed
+
+        Localise publisher code in separate connect plugin widget.
