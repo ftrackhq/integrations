@@ -22,8 +22,8 @@ class MayaOpenClient(QtOpenClient):
     ]
     definition_extensions_filter = ['.mb', '.ma']
 
-    def __init__(self, event_manager, parent_window):
-        super(MayaOpenClient, self).__init__(event_manager, parent_window)
+    def __init__(self, event_manager, parent=None):
+        super(MayaOpenClient, self).__init__(event_manager, parent=parent)
 
 
 class MayaOpenDialog(dialog.Dialog):
@@ -49,7 +49,7 @@ class MayaOpenDialog(dialog.Dialog):
         self.build()
 
     def pre_build(self):
-        self._client = MayaOpenClient(self._event_manager, self)
+        self._client = MayaOpenClient(self._event_manager, parent=self)
         self.setLayout(QtWidgets.QHBoxLayout())
         self.layout().setContentsMargins(0, 0, 0, 0)
 

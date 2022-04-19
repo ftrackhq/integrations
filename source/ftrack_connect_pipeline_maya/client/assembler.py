@@ -22,12 +22,12 @@ class MayaAssemblerClient(QtAssemblerClient):
         maya_constants.UI_TYPE,
     ]
 
-    def __init__(self, event_manager, asset_list_model, parent_window):
+    def __init__(self, event_manager, asset_list_model, parent=None):
         super(MayaAssemblerClient, self).__init__(
             event_manager,
             load_const.LOAD_MODES,
             asset_list_model,
-            parent_window,
+            parent=parent,
         )
 
 
@@ -60,7 +60,7 @@ class MayaAssemblerDialog(dialog.Dialog):
 
     def pre_build(self):
         self._client = MayaAssemblerClient(
-            self._event_manager, self._asset_list_model, self
+            self._event_manager, self._asset_list_model, parent=self
         )
         self.setLayout(QtWidgets.QHBoxLayout())
         self.layout().setContentsMargins(0, 0, 0, 0)

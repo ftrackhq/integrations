@@ -22,7 +22,7 @@ class MayaPublisherClient(MayaQWidgetDockableMixin, QtPublisherClient):
 
     def __init__(self, event_manager, unused_asset_list_model):
         super(MayaPublisherClient, self).__init__(
-            event_manager=event_manager, parent_window=get_maya_window()
+            event_manager=event_manager, parent=get_maya_window()
         )
         self.setWindowTitle('ftrack Publisher')
 
