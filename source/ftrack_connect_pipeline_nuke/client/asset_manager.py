@@ -9,6 +9,7 @@ from ftrack_connect_pipeline_qt.client.asset_manager import (
 import ftrack_connect_pipeline.constants as constants
 import ftrack_connect_pipeline_qt.constants as qt_constants
 import ftrack_connect_pipeline_nuke.constants as nuke_constants
+from ftrack_connect_pipeline_nuke.utils.custom_commands import get_nuke_window
 
 
 class NukeAssetManagerClient(QtAssetManagerClient):
@@ -22,9 +23,7 @@ class NukeAssetManagerClient(QtAssetManagerClient):
 
     def __init__(self, event_manager, asset_list_model):
         super(NukeAssetManagerClient, self).__init__(
-            event_manager=event_manager,
-            asset_list_model=asset_list_model,
-            parent_window=QtWidgets.QApplication.activeWindow(),
+            event_manager, asset_list_model, parent=get_nuke_window()
         )
         self.setWindowTitle('ftrack Connect')
 

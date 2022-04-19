@@ -10,6 +10,7 @@ import traceback
 import threading
 from functools import wraps
 
+from Qt import QtWidgets
 
 import nuke
 import nukescripts
@@ -21,6 +22,10 @@ from ftrack_connect_pipeline.utils import (
 from ftrack_connect_pipeline_nuke.constants import asset as asset_const
 
 logger = logging.getLogger(__name__)
+
+
+def get_nuke_window():
+    return QtWidgets.QApplication.activeWindow()
 
 
 def run_in_main_thread(f):

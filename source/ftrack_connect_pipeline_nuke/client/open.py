@@ -8,6 +8,7 @@ import ftrack_connect_pipeline.constants as constants
 import ftrack_connect_pipeline_qt.constants as qt_constants
 import ftrack_connect_pipeline_nuke.constants as nuke_constants
 from ftrack_connect_pipeline_qt.ui.utility.widget import dialog
+from ftrack_connect_pipeline_nuke.utils.custom_commands import get_nuke_window
 
 
 class NukeOpenClient(QtOpenClient):
@@ -20,8 +21,8 @@ class NukeOpenClient(QtOpenClient):
     ]
     definition_extensions_filter = ['.nk']
 
-    def __init__(self, event_manager, parent_window):
-        super(NukeOpenClient, self).__init__(event_manager, parent_window)
+    def __init__(self, event_manager, parent=None):
+        super(NukeOpenClient, self).__init__(event_manager, parent=parent)
 
 
 class NukeOpenDialog(dialog.Dialog):
@@ -30,25 +31,24 @@ class NukeOpenDialog(dialog.Dialog):
     _shown = False
 
     def __init__(self, event_manager, unused_asset_list_model, parent=None):
-        super(NukeOpenDialog, self).__init__(
-            parent=parent or QtWidgets.QApplication.activeWindow()
-        )
+        super(NukeOpenDialog, self).__init__(parent or get_nuke_window())
         self._event_manager = event_manager
 
         # Make sure we stays on top of Maya
         self.setWindowFlags(QtCore.Qt.Tool)
-        self._client = None
+        self.setAttribute(QtCore.Qt.WA_DeleteOnClose, False)
+
+        self.pre_build()
+        self.build()
 
         self.setWindowTitle('Open')
         self.move(400, 300)
         self.resize(450, 530)
 
-    def rebuild(self):
-        self.pre_build()
-        self.build()
-
     def pre_build(self):
-        self._client = NukeOpenClient(self._event_manager, self)
+        self._client = NukeOpenClient(
+            self._event_manager, parent=self.parent()
+        )
         self.setLayout(QtWidgets.QHBoxLayout())
         self.layout().setContentsMargins(0, 0, 0, 0)
 
@@ -58,8 +58,11 @@ class NukeOpenDialog(dialog.Dialog):
     def show(self):
         if self._shown:
             # Widget has been shown before, recreate client
-            self._client.setParent(None)
-            self._client = None
+            self._client.reset()
         super(NukeOpenDialog, self).show()
         self._shown = True
-        self.rebuild()
+
+    def closeEvent(self, event):
+        '''Nuke deletes the dialog, instead hide it so it can be reused'''
+        self.setVisible(False)
+        event.ignore()
