@@ -205,8 +205,6 @@ class FtrackAssetNode(FtrackAssetBase):
                 continue
             if str(p) == asset_const.REFERENCE_OBJECT:
                 rt.setProperty(obj, p, str(ftrack_object))
-            elif str(p) == asset_const.ASSET_VERSIONS_ENTITIES:
-                continue
             elif str(p) == asset_const.IS_LATEST_VERSION:
                 rt.setProperty(obj, p, bool(self.asset_info[str(p)]))
             elif str(p) == asset_const.SESSION:
