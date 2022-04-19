@@ -25,7 +25,7 @@ class MayaAssetManagerClient(MayaQWidgetDockableMixin, QtAssetManagerClient):
         super(MayaAssetManagerClient, self).__init__(
             event_manager=event_manager,
             asset_list_model=asset_list_model,
-            parent=get_maya_window(),
+            parent_window=get_maya_window(),
         )
         self.setWindowTitle('ftrack Connect')
 
