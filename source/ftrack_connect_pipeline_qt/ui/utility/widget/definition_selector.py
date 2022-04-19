@@ -322,9 +322,6 @@ class DefinitionSelector(QtWidgets.QWidget):
                 )
 
             self.no_definitions_label.setVisible(True)
-            # self.definition_changed.emit(
-            #    None, None, None
-            # )  # Tell client there are no definitions
             self._definition_selector.setCurrentIndex(0)
         elif index_latest_version == -1:
             # No version were detected
@@ -334,7 +331,7 @@ class DefinitionSelector(QtWidgets.QWidget):
                 )
                 self.no_definitions_label.setVisible(True)
                 self._definition_selector.setCurrentIndex(0)
-                self.definition_changed.emit(
+                self.definitionChanged.emit(
                     None, None, None
                 )  # Tell client there are no versions
         else:

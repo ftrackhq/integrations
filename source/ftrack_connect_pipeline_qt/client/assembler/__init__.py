@@ -78,8 +78,8 @@ class QtAssemblerClient(QtClient):
         self.asset_manager = QtAssetManagerClient(
             self.event_manager,
             self._asset_list_model,
+            self.parent(),
             is_assembler=True,
-            parent=self.parent(),
         )
 
     def build_left_widget(self):
