@@ -768,7 +768,7 @@ class OpenerWidgetFactory(LoaderWidgetFactory):
             event_manager, ui_types, client_name, parent=parent
         )
         self.progress_widget = self.create_progress_widget(
-            self.client_name, parent=parent
+            self.client_name, parent=self.parent()
         )
 
 
@@ -876,7 +876,7 @@ class PublisherWidgetFactory(WidgetFactoryBase):
             event_manager, ui_types, client_name, parent=parent
         )
         self.progress_widget = self.create_progress_widget(
-            self.client_name, parent=parent
+            self.client_name, parent=self.parent()
         )
 
     def check_components(self, unused_asset_version_entity):
