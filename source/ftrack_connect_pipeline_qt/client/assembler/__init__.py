@@ -79,7 +79,7 @@ class QtAssemblerClient(QtClient):
             self.event_manager,
             self._asset_list_model,
             is_assembler=True,
-            parent=self.parent()
+            parent=self.parent(),
         )
 
     def build_left_widget(self):
