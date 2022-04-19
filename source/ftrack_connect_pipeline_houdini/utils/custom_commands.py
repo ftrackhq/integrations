@@ -27,7 +27,7 @@ def import_scene(path, context_data=None, options=None):
     node = hou.node('/obj').createNode(
         'subnet', context_data['asset_name'])
     node.loadChildrenFromFile(path.replace('\\', '/'))
-    node.setSelected(1)
+    node.set_selected(1)
     node.moveToGoodPosition()
 
     return node

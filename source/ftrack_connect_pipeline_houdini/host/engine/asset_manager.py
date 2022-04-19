@@ -172,7 +172,7 @@ class HoudiniAssetManagerEngine(AssetManagerEngine):
                 try:
                     obj_path = ftrack_asset_object.ftrack_object
                     obj = hou.node(obj_path)
-                    hou.Node.setSelected(obj, True, clear_all_selected=(options.get('clear_selection') is True))
+                    hou.Node.set_selected(obj, True, clear_all_selected=(options.get('clear_selection') is True))
                     result.append(obj_path)
                     status = constants.SUCCESS_STATUS
                 except Exception as error:
