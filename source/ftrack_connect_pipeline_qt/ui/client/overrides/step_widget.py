@@ -82,9 +82,6 @@ class PublisherOptionsButton(OptionsButton):
         self.overlay_container.setVisible(True)
 
     def add_validator_widget(self, widget):
-        import traceback
-
-        traceback.print_stack()
         self.main_widget.layout().addWidget(
             QtWidgets.QLabel('<html><strong>Validators:<strong><html>')
         )

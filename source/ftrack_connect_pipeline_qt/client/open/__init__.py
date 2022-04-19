@@ -72,7 +72,7 @@ class QtOpenClient(QtClient):
             definition is not None and available_components_count >= 1
         )
 
-    def run(self, unused_method=None):
+    def run(self, default_method=None):
         if super(QtOpenClient, self).run():
             self.widget_factory.progress_widget.set_status(
                 constants.SUCCESS_STATUS,

@@ -295,7 +295,7 @@ class QtClient(Client, QtWidgets.QFrame):
             self.parent().hide()
             self.parent().deleteLater()
 
-    def run(self, unused_method=None):
+    def run(self, default_method=None):
         '''Function called when click the run button'''
         self.widget_factory.has_error = False
         serialized_data = self.widget_factory.to_json_object()

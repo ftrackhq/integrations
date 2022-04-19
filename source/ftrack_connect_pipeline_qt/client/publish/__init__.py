@@ -60,7 +60,7 @@ class QtPublisherClient(QtClient):
         )
         self.setMinimumWidth(300)
 
-    def run(self, unused_method=None):
+    def run(self, default_method=None):
         if super(QtPublisherClient, self).run():
             self.widget_factory.progress_widget.set_status(
                 constants.SUCCESS_STATUS,
