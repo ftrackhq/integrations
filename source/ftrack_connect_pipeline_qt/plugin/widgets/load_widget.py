@@ -100,4 +100,3 @@ class ModeButton(QtWidgets.QPushButton):
         super(ModeButton, self).__init__(label, parent=parent)
         self.setAutoExclusive(True)
         self.setCheckable(True)
-        self.setObjectName('ModeButton')

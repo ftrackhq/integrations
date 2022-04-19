@@ -63,7 +63,7 @@ class BaseCollectorWidget(BaseOptionsWidget):
         add_widget.setLayout(QtWidgets.QHBoxLayout())
         add_widget.layout().addStretch()
         self.add_button = QtWidgets.QPushButton(
-            icon.MaterialIcon('add', color='#BF9AC9'), "ADD SELECTED"
+            icon.MaterialIcon('add', color='#FFDD86'), "ADD SELECTED"
         )
         self.add_button.setObjectName('borderless')
         add_widget.layout().addWidget(self.add_button)

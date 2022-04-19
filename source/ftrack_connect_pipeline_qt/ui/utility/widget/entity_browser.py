@@ -810,7 +810,7 @@ class TypeWidget(QtWidgets.QFrame):
             elif self._entity.entity_type == "AssetBuild":
                 icon_name = "table_chart"
             l_icon.setPixmap(
-                icon.MaterialIcon(icon_name, color='#BF9AC9').pixmap(
+                icon.MaterialIcon(icon_name, color='#FFDD86').pixmap(
                     QtCore.QSize(16, 16)
                 )
             )

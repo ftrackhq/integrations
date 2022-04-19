@@ -79,7 +79,7 @@ class PluginLogViewerWidget(QtWidgets.QWidget):
         )
         toolbar_layout.addWidget(self._search, 10)
 
-        self.refresh_button = CircularButton('sync', '#87E1EB')
+        self.refresh_button = CircularButton('sync')
         toolbar_layout.addWidget(self.refresh_button)
 
         self.layout().addLayout(toolbar_layout)

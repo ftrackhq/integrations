@@ -64,11 +64,11 @@ class PublisherOptionsButton(OptionsButton):
         self.setFlat(True)
 
     def build(self):
-        self.main_widget = QtWidgets.QWidget(parent=self.parent())
+        self.main_widget = QtWidgets.QWidget()
         self.main_widget.setLayout(QtWidgets.QVBoxLayout())
         self.main_widget.layout().setAlignment(QtCore.Qt.AlignTop)
         self.overlay_container = overlay.Overlay(
-            self.main_widget, height_percentage=0.0, parent=self.parent()
+            self.main_widget, height_percentage=1.0, parent=self.parent()
         )
         self.overlay_container.setVisible(False)
 
@@ -82,6 +82,9 @@ class PublisherOptionsButton(OptionsButton):
         self.overlay_container.setVisible(True)
 
     def add_validator_widget(self, widget):
+        import traceback
+
+        traceback.print_stack()
         self.main_widget.layout().addWidget(
             QtWidgets.QLabel('<html><strong>Validators:<strong><html>')
         )
@@ -114,7 +117,7 @@ class PublisherAccordion(AccordionBaseWidget):
 
     def init_status_label(self):
         self._status_label = QtWidgets.QLabel()
-        self._status_label.setObjectName('purple')
+        self._status_label.setObjectName('theme-color')
         return self._status_label
 
     def init_options_button(self):

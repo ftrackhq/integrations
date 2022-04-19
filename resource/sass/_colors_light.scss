@@ -11,13 +11,16 @@ $alt-background-docked: rgb(44,44,44);
 $background-selected:    $gray-lighter;
 $white:                 white;
 
+// Primary brand colors
+$color-yellow: #FFDD86;
+$color-yellow-dark: #3D3520;
 
 // Primary brand colors
-$color-purple: #935BA2;
-$color-purple-contrast: white;
-$color-purple-dark: #33313F;
-$color-purple-light-1: #B38CBE;
-$color-purple-light-2: #F2EBF4;
+//$color-purple: #935BA2;
+//$color-purple-contrast: white;
+//$color-purple-dark: #33313F;
+//$color-purple-light-1: #B38CBE;
+//$color-purple-light-2: #F2EBF4;
 
 $color-green: #1CBC90;
 $color-blue: #3498DB;
@@ -27,13 +30,13 @@ $color-red: #E74C3C;
 $color-white: white;
 $color-cyan: #86E0EA;
 
-$brand-primary:         $color-purple;
+$brand-primary:         $color-yellow;
 $brand-success:         $color-green;
 $brand-info:            $color-blue;
 $brand-warning:         $color-yellow;
 $brand-danger:          $color-red;
 
-$body-bg:                       $color-purple-light-1;
+$body-bg:                       $color-yellow;
 $text-color:                    $gray-dark;
 $text-color-default:            black;
 $text-color-default-hover:      $text-color-default;

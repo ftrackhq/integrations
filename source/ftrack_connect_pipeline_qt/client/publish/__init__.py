@@ -16,8 +16,12 @@ class QtPublisherClient(QtClient):
     definition_filter = qt_constants.PUBLISHER_WIDGET
     client_name = qt_constants.PUBLISHER_WIDGET
 
-    def __init__(self, event_manager, parent):
-        super(QtPublisherClient, self).__init__(event_manager, parent=parent)
+    def __init__(self, event_manager, parent_window, parent=None):
+        '''Due to the Maya panel behaviour, we have to use *parent_window*
+        instead of *parent*.'''
+        super(QtPublisherClient, self).__init__(
+            event_manager, parent=parent_window
+        )
         self.setWindowTitle('Standalone Pipeline Publisher')
         self.logger.debug('start qt publisher')
 
