@@ -32,9 +32,7 @@ class MayaOpenDialog(dialog.Dialog):
     _shown = False
 
     def __init__(self, event_manager, unused_asset_list_model, parent=None):
-        super(MayaOpenDialog, self).__init__(
-            parent=parent or get_maya_window()
-        )
+        super(MayaOpenDialog, self).__init__(parent or get_maya_window())
         self._event_manager = event_manager
 
         # Make sure we stays on top of Maya
@@ -59,8 +57,10 @@ class MayaOpenDialog(dialog.Dialog):
     def show(self):
         if self._shown:
             # Widget has been shown before, reset client
-            self._client.setParent(None)
-            self._client = None
+            try:
+                self._client.deleteLater()
+            except:
+                pass
         super(MayaOpenDialog, self).show()
         self._shown = True
         self.rebuild()
