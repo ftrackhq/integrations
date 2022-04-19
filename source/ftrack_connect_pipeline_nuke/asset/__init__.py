@@ -32,14 +32,18 @@ class FtrackAssetTab(FtrackAssetBase):
         super(FtrackAssetTab, self).__init__(event_manager)
         self.connected_objects = []
 
-    def init_ftrack_object(self, is_loaded=True):
+    def init_ftrack_object(self, create_object=True, is_loaded=True):
         '''
         Return the ftrack ftrack_object for this class. It checks if there is
         already a matching ftrack ftrack_object in the scene, in this case it
         updates the ftrack_object if it's not. In case there is no ftrack_object
         in the scene this function creates a new one.
         '''
-        ftrack_object = self.create_new_ftrack_object()
+        ftrack_object = (
+            self.create_new_ftrack_object()
+            if create_object
+            else self.get_ftrack_object_from_script()
+        )
 
         self.asset_info[asset_const.IS_LOADED] = is_loaded
 
