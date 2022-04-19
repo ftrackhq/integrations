@@ -5,9 +5,6 @@ import logging
 from Qt import QtWidgets
 
 from ftrack_connect_pipeline_qt.ui.client import BaseUIWidget
-from ftrack_connect_pipeline_qt.ui.utility.widget.accordion import (
-    AccordionWidget,
-)
 from ftrack_connect_pipeline_qt.ui.utility.widget.base.accordion_base import (
     AccordionBaseWidget,
 )
@@ -35,12 +32,7 @@ class PluginAccordion(AccordionBaseWidget):
         header_widget.setLayout(header_layout)
         header_layout.setContentsMargins(0, 0, 0, 0)
         header_layout.setSpacing(0)
-        # layout.addWidget(self.init_status_label())
         header_layout.addStretch()
-        # layout.addWidget(line.Line(horizontal=True))
-        # layout.addWidget(self.init_options_button())
-        # layout.addWidget(line.Line(horizontal=True))
-        # layout.addWidget(self.init_status_icon())
 
     def on_collapse(self, collapsed):
         '''Callback on accordion collapse/expand.'''
@@ -62,7 +54,9 @@ class AccordionPluginContainerWidget(BaseUIWidget):
         )
 
     def build(self):
-        self._widget = PluginAccordion(title=self.name, checkable=True)
+        self._widget = PluginAccordion(
+            title=self.name, checkable=True, parent=self.parent()
+        )
 
     def parent_widget(self, widget):
         if self.widget:

@@ -68,7 +68,7 @@ class PublisherOptionsButton(OptionsButton):
         self.main_widget.setLayout(QtWidgets.QVBoxLayout())
         self.main_widget.layout().setAlignment(QtCore.Qt.AlignTop)
         self.overlay_container = overlay.Overlay(
-            self.main_widget, height_percentage=0.8
+            self.main_widget, height_percentage=1.0, parent=self.parent()
         )
         self.overlay_container.setVisible(False)
 
@@ -114,12 +114,14 @@ class PublisherAccordion(AccordionBaseWidget):
 
     def init_status_label(self):
         self._status_label = QtWidgets.QLabel()
-        self._status_label.setObjectName('purple')
+        self._status_label.setObjectName('color-primary')
         return self._status_label
 
     def init_options_button(self):
         self._options_button = PublisherOptionsButton(
-            'O', icon.MaterialIcon('settings', color='gray')
+            'O',
+            icon.MaterialIcon('settings', color='gray'),
+            parent=self.parent(),
         )
         self._options_button.setObjectName('borderless')
         return self._options_button
@@ -137,9 +139,13 @@ class PublisherAccordion(AccordionBaseWidget):
         header_layout.setSpacing(0)
         header_layout.addWidget(self.init_status_label())
         header_layout.addStretch()
-        header_layout.addWidget(line.Line(horizontal=True))
+        header_layout.addWidget(
+            line.Line(horizontal=True, parent=self.parent())
+        )
         header_layout.addWidget(self.init_options_button())
-        header_layout.addWidget(line.Line(horizontal=True))
+        header_layout.addWidget(
+            line.Line(horizontal=True, parent=self.parent())
+        )
         header_layout.addWidget(self.init_status_icon())
 
     def add_widget(self, widget):
@@ -214,7 +220,10 @@ class AccordionStepWidget(BaseUIWidget):
 
     def build(self):
         self._widget = AccordionWidget(
-            title="{}".format(self._name), checkable=False, collapsed=False
+            title="{}".format(self._name),
+            checkable=False,
+            collapsed=False,
+            parent=self.parent(),
         )
         self._widget.content_layout.setContentsMargins(0, 10, 0, 0)
 
@@ -226,7 +235,10 @@ class AccordionStepWidget(BaseUIWidget):
                 else step_widget
             )
             self.widget.add_widget(widget)
-            if isinstance(widget, AccordionBaseWidget):
+            if (
+                isinstance(widget, AccordionBaseWidget)
+                and not widget.isVisible()
+            ):
                 widget.setVisible(True)
         else:
             self.logger.error("Please create a widget before parent")
@@ -262,6 +274,7 @@ class PublisherAccordionStepWidget(BaseUIWidget):
             title=self.name,
             checkable=self.is_optional,
             checked=self._is_selected,
+            parent=self.parent(),
         )
 
     def parent_validator(self, step_widget):
@@ -291,7 +304,10 @@ class PublisherAccordionStepWidget(BaseUIWidget):
                 else step_widget
             )
             self.widget.add_widget(widget)
-            if isinstance(widget, AccordionBaseWidget):
+            if (
+                isinstance(widget, AccordionBaseWidget)
+                and not widget.isVisible()
+            ):
                 widget.setVisible(True)
         else:
             self.logger.error("Please create a widget before parent")
@@ -330,7 +346,7 @@ class OptionsStepWidget(DefaultStepWidget):
         super(OptionsStepWidget, self).build()
         self.show_options_button = QtWidgets.QPushButton("Show options")
 
-        self._options_widget = QtWidgets.QWidget()
+        self._options_widget = QtWidgets.QWidget(parent=self.parent())
         layout = QtWidgets.QVBoxLayout()
         self.options_widget.setLayout(layout)
 
@@ -379,7 +395,10 @@ class OptionsStepWidget(DefaultStepWidget):
                 widget.widget if isinstance(widget, BaseUIWidget) else widget
             )
             self.widget.layout().insertWidget((options_idx), insert_widget)
-            if isinstance(insert_widget, AccordionBaseWidget):
+            if (
+                isinstance(insert_widget, AccordionBaseWidget)
+                and not insert_widget.isVisible()
+            ):
                 insert_widget.setVisible(True)
         else:
             self.logger.error("Please create a widget before parent")
@@ -459,7 +478,7 @@ class RadioButtonItemStepWidget(BaseUIWidget):
 
     def build(self):
         self._button = QtWidgets.QRadioButton(self.name)
-        self._widget = QtWidgets.QWidget()
+        self._widget = QtWidgets.QWidget(parent=self.parent())
         self._widget.setLayout(QtWidgets.QHBoxLayout())
         self._widget.layout().addWidget(self.button)
 
@@ -513,8 +532,8 @@ class RadioButtonItemStepWidget(BaseUIWidget):
                         location.get_filesystem_path(self._component)
                     )
                 else:
-                    self.set_available(
-                        'Missing in this location ({})!'.format(
+                    self.set_unavailable(
+                        'Missing in this location ({})'.format(
                             location['name']
                         )
                     )

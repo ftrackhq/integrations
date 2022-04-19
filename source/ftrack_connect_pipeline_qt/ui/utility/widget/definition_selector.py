@@ -74,7 +74,7 @@ class DefinitionSelector(QtWidgets.QWidget):
         self._definition_widget.layout().setContentsMargins(0, 0, 0, 0)
 
         # Definition section
-        label_widget = QtWidgets.QLabel(
+        self.label_widget = QtWidgets.QLabel(
             "Choose what to {}".format(
                 self._client_name.lower().replace(
                     qt_constants.PUBLISHER_WIDGET, 'publish'
@@ -82,10 +82,7 @@ class DefinitionSelector(QtWidgets.QWidget):
             )
         )
         if self._client_name == qt_constants.PUBLISHER_WIDGET:
-            self._definition_widget.layout().addWidget(label_widget)
-        label_widget.setVisible(
-            self._client_name != qt_constants.ASSEMBLER_WIDGET
-        )
+            self._definition_widget.layout().addWidget(self.label_widget)
 
         definition_select_widget = QtWidgets.QWidget()
         definition_select_widget.setLayout(QtWidgets.QHBoxLayout())
@@ -93,7 +90,7 @@ class DefinitionSelector(QtWidgets.QWidget):
         definition_select_widget.layout().setSpacing(10)
 
         if self._client_name == qt_constants.OPEN_WIDGET:
-            definition_select_widget.layout().addWidget(label_widget)
+            definition_select_widget.layout().addWidget(self.label_widget)
         self._definition_selector = DefinitionSelectorComboBox()
 
         definition_select_widget.layout().addWidget(
@@ -106,13 +103,9 @@ class DefinitionSelector(QtWidgets.QWidget):
         self._definition_widget.layout().addWidget(definition_select_widget)
 
         self.layout().addWidget(self._definition_widget)
-        self._definition_widget.setVisible(
-            self._client_name != qt_constants.ASSEMBLER_WIDGET
-        )
 
         self.no_definitions_label = QtWidgets.QLabel()
         self.layout().addWidget(self.no_definitions_label)
-        self.no_definitions_label.setVisible(False)
 
     def post_build(self):
         '''Connect the widget signals'''
@@ -122,6 +115,13 @@ class DefinitionSelector(QtWidgets.QWidget):
         )
         if self._client_name != 'assembler':
             self._refresh_button.clicked.connect(self.refresh)
+        self.label_widget.setVisible(
+            self._client_name != qt_constants.ASSEMBLER_WIDGET
+        )
+        self._definition_widget.setVisible(
+            self._client_name != qt_constants.ASSEMBLER_WIDGET
+        )
+        self.no_definitions_label.setVisible(False)
 
     def add_hosts(self, host_connections):
         '''Ass host connections to combobox for user selection'''
@@ -159,7 +159,7 @@ class DefinitionSelector(QtWidgets.QWidget):
         compatible definitions.'''
         self.definitions = []
 
-        latest_version = None  # The current latest version
+        latest_version = None  # The current latest openable version
         index_latest_version = -1
         compatible_definition_count = 0
 
@@ -172,7 +172,7 @@ class DefinitionSelector(QtWidgets.QWidget):
             self.definitions = items
 
             self._definition_selector.addItem("", None)
-            index = 0
+            index = 1
 
             for item in items:
                 # Remove ' Publisher/Loader'
@@ -210,6 +210,7 @@ class DefinitionSelector(QtWidgets.QWidget):
                     # Open mode; Only provide the schemas, and components that
                     # can load the file extensions. Peek into versions and pre-select
                     # the one loader having the latest version
+                    is_compatible = False
                     for component_step in item['components']:
                         can_open_component = False
                         file_formats = component_step['file_formats']
@@ -224,7 +225,7 @@ class DefinitionSelector(QtWidgets.QWidget):
                                         plugin['options'] = {}
                                     plugin['options']['load_mode'] = 'Open'
                         if can_open_component:
-                            compatible_definition_count += 1
+                            is_compatible = True
                             if component_names_filter is None:
                                 component_names_filter = set()
                             component_names_filter.add(component_step['name'])
@@ -232,6 +233,8 @@ class DefinitionSelector(QtWidgets.QWidget):
                             # Make sure it's not visible or executed
                             component_step['visible'] = False
                             component_step['enabled'] = False
+                    if is_compatible:
+                        compatible_definition_count += 1
                     if component_names_filter is None:
                         # There were no openable components, try next definition
                         self.logger.info(
@@ -302,54 +305,38 @@ class DefinitionSelector(QtWidgets.QWidget):
                     self._definition_selector.addItem(
                         text.upper(), (item, component_names_filter)
                     )
-
-                index += 1
+                    index += 1
         self._definition_selector.currentIndexChanged.connect(
             self._on_change_definition
         )
-        if self._definition_selector.count() == 1:
+        if compatible_definition_count == 0:
+            # No compatible loaders/publishers
             if self._client_name == qt_constants.OPEN_WIDGET:
-                if compatible_definition_count > 0:
-                    self.no_definitions_label.setText(
-                        '<html><i>No versions found to open'
-                        '</i></html>'.format(
-                            self._definition_extensions_filter
-                        )
-                    )
-                else:
-                    self.no_definitions_label.setText(
-                        '<html><i>No pipeline loader definitions available to open files of type {}!'
-                        '</i></html>'.format(
-                            self._definition_extensions_filter
-                        )
-                    )
+                self.no_definitions_label.setText(
+                    '<html><i>No pipeline loader definitions available to open files of type {}!'
+                    '</i></html>'.format(self._definition_extensions_filter)
+                )
             elif self._client_name == qt_constants.PUBLISHER_WIDGET:
                 self.no_definitions_label.setText(
                     '<html><i>No pipeline publisher definitions are available!</i></html>'
                 )
 
             self.no_definitions_label.setVisible(True)
-            # self.definition_changed.emit(
-            #    None, None, None
-            # )  # Tell client there are no definitions
             self._definition_selector.setCurrentIndex(0)
+        elif index_latest_version == -1:
+            # No version were detected
+            if self._client_name == qt_constants.OPEN_WIDGET:
+                self.no_definitions_label.setText(
+                    '<html><i>No version(s) available to open!</i></html>'
+                )
+                self.no_definitions_label.setVisible(True)
+                self._definition_selector.setCurrentIndex(0)
+                self.definitionChanged.emit(
+                    None, None, None
+                )  # Tell client there are no versions
         else:
-            if index_latest_version == -1:
-                if self._definition_selector.count() == 2:
-                    index_latest_version = 1  # Select the one and only
-                else:
-                    if self._client_name == qt_constants.OPEN_WIDGET:
-                        # No versions
-                        self.no_definitions_label.setText(
-                            '<html><i>No version available to open!</i></html>'
-                        )
-                        self._definition_selector.setCurrentIndex(0)
-                        self.definition_changed.emit(
-                            None, None, None
-                        )  # Tell client there are no versions
-            if index_latest_version > -1:
-                self._definition_selector.setCurrentIndex(index_latest_version)
-                self.no_definitions_label.setVisible(False)
+            self._definition_selector.setCurrentIndex(index_latest_version)
+            self.no_definitions_label.setVisible(False)
 
         if self._client_name != qt_constants.ASSEMBLER_WIDGET:
             self._definition_widget.show()

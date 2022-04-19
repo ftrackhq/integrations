@@ -149,8 +149,8 @@ class AssetManagerWidget(AssetManagerBaseWidget):
 
         self._busy_widget = BusyIndicator(start=False)
         self._busy_widget.setMinimumSize(QtCore.QSize(16, 16))
-        self._busy_widget.setVisible(False)
         row2.layout().addWidget(self._busy_widget)
+        self._busy_widget.setVisible(False)
 
         layout.addWidget(row2)
 
@@ -313,7 +313,7 @@ class AssetManagerWidget(AssetManagerBaseWidget):
         selection = self._asset_list.selection()
         if self.check_selection(selection):
             if ModalDialog(
-                self._asset_manager_client.get_parent_window(),
+                self._asset_manager_client.parent(),
                 title='ftrack Asset manager',
                 question='Really update {} asset{} to latest version?'.format(
                     len(selection), 's' if len(selection) > 1 else ''
@@ -330,7 +330,7 @@ class AssetManagerWidget(AssetManagerBaseWidget):
         selection = self._asset_list.selection()
         if self.check_selection(selection):
             if ModalDialog(
-                self._asset_manager_client.get_parent_window(),
+                self._asset_manager_client.parent(),
                 title='ftrack Asset manager',
                 question='Really unload {} asset{}?'.format(
                     len(selection), 's' if len(selection) > 1 else ''
@@ -347,7 +347,7 @@ class AssetManagerWidget(AssetManagerBaseWidget):
         selection = self._asset_list.selection()
         if self.check_selection(selection):
             if ModalDialog(
-                self._asset_manager_client.get_parent_window(),
+                self._asset_manager_client.parent(),
                 title='ftrack Asset manager',
                 question='Really remove {} asset{}?'.format(
                     len(selection), 's' if len(selection) > 1 else ''
@@ -421,7 +421,7 @@ class AssetManagerWidget(AssetManagerBaseWidget):
             )
         ).first()
         if ModalDialog(
-            self._asset_manager_client.get_parent_window(),
+            self._asset_manager_client.parent(),
             title='ftrack Asset manager',
             question='Change version of {} to v{}?'.format(
                 str_version(current_version), version_entity['version']
@@ -708,8 +708,6 @@ class AssetWidget(AccordionBaseWidget):
 
             self.add_widget(context_widget)
 
-            # self.add_widget(line.Line())
-
             load_info_label = QtWidgets.QLabel(
                 '<html>Added as a <font color="white">{}</font> with <font color="white">'
                 '{}</font></html>'.format(
@@ -742,7 +740,7 @@ class AssetWidget(AccordionBaseWidget):
             )
 
             if 0 < len(self._version_dependency_ids or []):
-                self.add_widget(line.Line())
+                self.add_widget(line.Line(parent=self.parent()))
 
                 dependencies_label = QtWidgets.QLabel('DEPENDENCIES:')
                 dependencies_label.setObjectName('h4')
@@ -785,7 +783,7 @@ class AssetWidget(AccordionBaseWidget):
                             )
                         )
 
-                self.add_widget(line.Line())
+                self.add_widget(line.Line(parent=self.parent()))
 
             self.content.layout().addStretch()
 

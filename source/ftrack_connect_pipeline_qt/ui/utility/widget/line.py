@@ -9,6 +9,7 @@ from ftrack_connect_pipeline_qt.utils import set_property
 class Line(QtWidgets.QFrame):
     def __init__(self, horizontal=True, style=None, parent=None):
         super(Line, self).__init__(parent=parent)
+
         if horizontal:
             self.setMaximumHeight(1)
             self.setMinimumHeight(1)

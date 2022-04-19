@@ -6,12 +6,20 @@ QMenu {
     background: $alt-background;
 }
 
+QFrame[docked='true'] QMenu {
+    background: $alt-background-docked;
+}
+
 QMenu::item {
     background: $alt-background;
     border: 0px;
     padding: 7px;
     padding-right: 15px;
     color: $text-color;
+}
+
+QFrame[docked='true'] QMenu::item {
+    background: $alt-background-docked;
 }
 
 QMenu::item:selected:enabled {

@@ -18,19 +18,20 @@ class QtOpenClient(QtClient):
     client_name = qt_constants.OPEN_WIDGET
 
     def __init__(
-        self,
-        event_manager,
-        parent_window,
-        definition_extensions_filter=None,
+        self, event_manager, definition_extensions_filter=None, parent=None
     ):
         if not definition_extensions_filter is None:
             self.definition_extensions_filter = definition_extensions_filter
-        self._can_open = False
-        self.widget_factory = factory.OpenerWidgetFactory(
-            event_manager, self.ui_types, self.client_name
-        )
-        super(QtOpenClient, self).__init__(event_manager, parent_window)
+        super(QtOpenClient, self).__init__(event_manager, parent=parent)
         self.logger.debug('start qt opener')
+
+    def get_factory(self):
+        return factory.OpenerWidgetFactory(
+            self.event_manager,
+            self.ui_types,
+            self.client_name,
+            parent=self.parent(),
+        )
 
     def getThemeBackgroundStyle(self):
         return 'ftrack'
@@ -61,7 +62,6 @@ class QtOpenClient(QtClient):
             self._clear_widget()
 
     def change_definition(self, schema, definition, component_names_filter):
-        self._can_open = False
         super(QtOpenClient, self).change_definition(
             schema, definition, component_names_filter
         )
@@ -72,9 +72,12 @@ class QtOpenClient(QtClient):
             definition is not None and available_components_count >= 1
         )
 
-    def run(self):
+    def run(self, default_method=None):
         if super(QtOpenClient, self).run():
             self.widget_factory.progress_widget.set_status(
-                constants.SUCCESS_STATUS,
-                'Successfully opened version!',
+                constants.SUCCESS_STATUS, 'Successfully opened version!'
             )
+
+    def reset(self):
+        '''Open dialog is shown again after being hidden.'''
+        self.host_and_definition_selector.refresh()

@@ -57,7 +57,6 @@ class Header(QtWidgets.QFrame):
         self.id_container.setLayout(self.id_container_layout)
 
         self.logo = Logo(self)
-        self.logo.setVisible(self._show_logo)
         if len(self._title or ''):
             self._title_label = QtWidgets.QLabel(self._title)
             self._title_label.setObjectName('h2')
@@ -68,22 +67,23 @@ class Header(QtWidgets.QFrame):
         self._open_publisher_button = circular_button.CircularButton(
             'publish', '#79DFB6'
         )
-        self.user = User(self.session, self)
+        self.user = User(self.session, parent=self.parent())
 
         self.id_container_layout.addWidget(self.logo)
         if len(self._title or ''):
             self.id_container_layout.addWidget(self._title_label)
         self.id_container_layout.addWidget(self.content_container, 1000)
         self.id_container_layout.addWidget(self._open_publisher_button)
-        self._open_publisher_button.setVisible(self._show_publisher)
         self.id_container_layout.addWidget(self.user)
-        self.user.setVisible(self._show_user)
 
         # Add (Logo & User ID) & Message
         self.layout().addWidget(self.id_container)
 
     def post_build(self):
         self._open_publisher_button.clicked.connect(self._on_publisher_clicked)
+        self.logo.setVisible(self._show_logo)
+        self._open_publisher_button.setVisible(self._show_publisher)
+        self.user.setVisible(self._show_user)
 
     def _on_publisher_clicked(self):
         self.publishClicked.emit()
@@ -145,7 +145,7 @@ class User(QtWidgets.QFrame):
     def build(self):
         username = self.session.api_user
         # self.label = QtWidgets.QLabel(self)
-        self.image = thumbnail.User(self.session, parent=self)
+        self.image = thumbnail.User(self.session, parent=self.parent())
         self.image.setFixedSize(35, 35)
 
         self.layout().addWidget(self.image)
@@ -207,10 +207,10 @@ class MessageBox(QtWidgets.QWidget):
         self.layout().setAlignment(QtCore.Qt.AlignTop)
 
     def build(self):
-        self.label = QtWidgets.QLabel(parent=self)
+        self.label = QtWidgets.QLabel(parent=self.parent())
         self.label.resize(QtCore.QSize(900, 80))
 
-        self.icon = QtWidgets.QLabel(parent=self)
+        self.icon = QtWidgets.QLabel(parent=self.parent())
         self.icon.resize(QtCore.QSize(45, 45))
 
         self.label.setSizePolicy(

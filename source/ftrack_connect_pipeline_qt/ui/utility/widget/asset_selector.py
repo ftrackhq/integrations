@@ -44,7 +44,7 @@ class AssetListItem(QtWidgets.QFrame):
         self.version_label = QtWidgets.QLabel(
             'Version {}'.format(self.asset['latest_version']['version'] + 1)
         )
-        self.version_label.setObjectName("purple")
+        self.version_label.setObjectName("color-primary")
         self.layout().addWidget(self.version_label)
 
         self.layout().addStretch()
@@ -159,7 +159,6 @@ class NewAssetInput(QtWidgets.QFrame):
 
     def build(self):
         self.button = NewAssetButton()
-        self.button.setStyleSheet('background: #BF9AC9;')
         self.button.setFixedSize(56, 30)
         self.button.setMaximumSize(56, 30)
 
@@ -175,7 +174,7 @@ class NewAssetInput(QtWidgets.QFrame):
         self.layout().addWidget(self.name, 1000)
 
         self.version_label = QtWidgets.QLabel('- Version 1')
-        self.version_label.setObjectName("purple")
+        self.version_label.setObjectName("color-primary")
         self.layout().addWidget(self.version_label)
 
     def post_build(self):
@@ -392,3 +391,4 @@ class AssetSelector(QtWidgets.QWidget):
 class NewAssetButton(QtWidgets.QPushButton):
     def __init__(self, parent=None):
         super(NewAssetButton, self).__init__('NEW', parent=parent)
+        self.setStyleSheet('background: #FFDD86;')

@@ -16,15 +16,18 @@ class QtPublisherClient(QtClient):
     definition_filter = qt_constants.PUBLISHER_WIDGET
     client_name = qt_constants.PUBLISHER_WIDGET
 
-    def __init__(self, event_manager, parent_window, parent=None):
-        self.widget_factory = factory.PublisherWidgetFactory(
-            event_manager, self.ui_types, self.client_name
-        )
-        super(QtPublisherClient, self).__init__(
-            event_manager, parent_window, parent=parent
-        )
+    def __init__(self, event_manager, parent=None):
+        super(QtPublisherClient, self).__init__(event_manager, parent=parent)
         self.setWindowTitle('Standalone Pipeline Publisher')
         self.logger.debug('start qt publisher')
+
+    def get_factory(self):
+        return factory.PublisherWidgetFactory(
+            self.event_manager,
+            self.ui_types,
+            self.client_name,
+            parent=self.parent(),
+        )
 
     def is_docked(self):
         return True
@@ -53,19 +56,7 @@ class QtPublisherClient(QtClient):
         )
         self.setMinimumWidth(300)
 
-    def change_definition(self, schema, definition, component_names_filter):
-        if not self._shown:
-            self._postponed_change_definition = (
-                schema,
-                definition,
-                component_names_filter,
-            )
-            return
-        super(QtPublisherClient, self).change_definition(
-            schema, definition, component_names_filter
-        )
-
-    def run(self):
+    def run(self, default_method=None):
         if super(QtPublisherClient, self).run():
             self.widget_factory.progress_widget.set_status(
                 constants.SUCCESS_STATUS,

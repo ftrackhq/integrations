@@ -93,7 +93,7 @@ class BaseUIWidget(object):
         pass
 
     def build(self):
-        '''build function , mostly used to create the widgets.'''
+        '''build function, mostly used to create the widgets.'''
         pass
 
     def post_build(self):
@@ -103,6 +103,9 @@ class BaseUIWidget(object):
             self.widget.layout().setSpacing(5)
             self.widget.setToolTip(self.description)
 
+    def parent(self):
+        return self._parent
+
     def parent_widget(self, widget, add_line=False):
         '''Add the *widget*, setting me as the parent.'''
         if self.widget:
@@ -111,14 +114,15 @@ class BaseUIWidget(object):
             )
             self.widget.layout().addWidget(widget)
             if add_line:
-                self.widget.layout().addWidget(line.Line())
+                self.widget.layout().addWidget(line.Line(parent=self.parent()))
             if (
                 self.fragment_data
                 and self.fragment_data.get('visible', True) is False
             ):
                 self._widget.setVisible(False)
             elif isinstance(widget, AccordionBaseWidget):
-                widget.setVisible(True)
+                if not widget.isVisible():
+                    widget.setVisible(True)
         else:
             self.logger.error("Please create a widget before parent")
 

@@ -46,7 +46,7 @@ class PluginLogViewerWidget(QtWidgets.QWidget):
         '''Returns results'''
         return self._results
 
-    def __init__(self, parent_window, event_manager, parent=None):
+    def __init__(self, event_manager, parent=None):
         '''Initialise LogViewerWidget with *event_manager*
 
         *event_manager* should be the
@@ -55,7 +55,6 @@ class PluginLogViewerWidget(QtWidgets.QWidget):
         '''
         super(PluginLogViewerWidget, self).__init__(parent=parent)
 
-        self._parent_window = parent_window
         self._event_manager = event_manager
         self._results = []
 
@@ -75,16 +74,18 @@ class PluginLogViewerWidget(QtWidgets.QWidget):
         toolbar_layout.setContentsMargins(5, 5, 5, 5)
         toolbar_layout.setSpacing(5)
 
-        self._search = Search(collapsed=False, collapsable=False)
+        self._search = Search(
+            collapsed=False, collapsable=False, parent=self.parent()
+        )
         toolbar_layout.addWidget(self._search, 10)
 
-        self.refresh_button = CircularButton('sync', '#87E1EB')
+        self.refresh_button = CircularButton('sync')
         toolbar_layout.addWidget(self.refresh_button)
 
         self.layout().addLayout(toolbar_layout)
 
         self.log_table_view = LogDialogTableView(
-            self.event_manager, parent=self
+            self.event_manager, parent=self.parent()
         )
 
         self._scroll = scroll_area.ScrollArea()
@@ -130,7 +131,7 @@ class PluginLogViewerWidget(QtWidgets.QWidget):
         )
 
         ModalDialog(
-            self._parent_window,
+            self.parent(),
             title='View ftrack plugin log message',
             message=formated_text,
         )
@@ -175,9 +176,9 @@ class LogDialogTableView(QtWidgets.QTableView):
 
     def build(self):
         '''Build widgets and parent them.'''
-        self.log_model = LogTableModel(parent=self)
+        self.log_model = LogTableModel(parent=self.parent())
 
-        self.proxy_model = FilterProxyModel(parent=self)
+        self.proxy_model = FilterProxyModel(parent=self.parent())
         self.proxy_model.setSourceModel(self.log_model)
 
         self.setModel(self.proxy_model)

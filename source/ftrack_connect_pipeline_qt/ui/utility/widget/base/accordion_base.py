@@ -148,7 +148,7 @@ class AccordionBaseWidget(QtWidgets.QFrame):
 
     def build(self):
 
-        self._indicator_widget = QtWidgets.QFrame()
+        self._indicator_widget = QtWidgets.QFrame(parent=self.parent())
         self._indicator_widget.setMaximumWidth(4)
         self._indicator_widget.setMinimumWidth(4)
         self._indicator_widget.setVisible(False)
@@ -163,8 +163,8 @@ class AccordionBaseWidget(QtWidgets.QFrame):
 
         main_widget.layout().addWidget(self.init_header(self._title))
 
-        content_widget = self._init_content(self._collapsed)
-        main_widget.layout().addWidget(content_widget)
+        self._init_content()
+        main_widget.layout().addWidget(self._content)
 
         self.layout().addWidget(main_widget)
 
@@ -177,6 +177,7 @@ class AccordionBaseWidget(QtWidgets.QFrame):
             )
         self.header.clicked.connect(self.on_header_clicked)
         self.header.arrow.clicked.connect(self.on_header_arrow_clicked)
+        self._content.setVisible(not self._collapsed)
 
     def init_header(self, title):
         self._header = AccordionHeaderWidget(
@@ -184,11 +185,9 @@ class AccordionBaseWidget(QtWidgets.QFrame):
         )
         return self._header
 
-    def _init_content(self, collapsed):
-        self._content = QtWidgets.QFrame()
-        # self._content.setObjectName('bordered')
+    def _init_content(self):
+        self._content = QtWidgets.QFrame(parent=self.parent())
         self._content.setLayout(QtWidgets.QVBoxLayout())
-        self._content.setVisible(not collapsed)
 
         self._content.layout().setContentsMargins(2, 2, 2, 2)
         self._content.layout().setSpacing(0)
@@ -369,9 +368,13 @@ class AccordionHeaderWidget(QtWidgets.QFrame):
                 self.accordion.check_mode, self.accordion.checked
             )
         )
+        self._checkbox.setVisible(
+            self.accordion.check_mode != self.accordion.CHECK_MODE_NONE
+        )
         self.layout().addWidget(self.init_title(self.title))
         self.layout().addWidget(self._init_content(), 10)
         self.layout().addWidget(self.init_arrow(self.accordion.collapsed))
+        self._arrow.setVisible(self._collapsable)
 
     def post_build(self):
         pass
@@ -381,7 +384,6 @@ class AccordionHeaderWidget(QtWidgets.QFrame):
         self._checkbox.setEnabled(
             check_mode == self.accordion.CHECK_MODE_CHECKBOX
         )
-        self._checkbox.setVisible(check_mode != self.accordion.CHECK_MODE_NONE)
         self._checkbox.setChecked(checked)
         return self._checkbox
 
@@ -409,7 +411,6 @@ class AccordionHeaderWidget(QtWidgets.QFrame):
     def init_arrow(self, collapsed):
         self._arrow = ArrowMaterialIconWidget(None)
         self.update_arrow_icon(collapsed)
-        self._arrow.setVisible(self._collapsable)
         return self._arrow
 
     def mousePressEvent(self, event):
