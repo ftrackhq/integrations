@@ -11,7 +11,16 @@ from maya.app.general.mayaMixin import MayaQWidgetDockableMixin
 from ftrack_connect_pipeline_maya.utils.custom_commands import get_maya_window
 
 
-class MayaPublisherClient(MayaQWidgetDockableMixin, QtPublisherClient):
+class QtMayaPublisherClient(QtPublisherClient):
+    def __init__(self, event_manager, parent=None):
+        '''Due to the Maya panel behaviour, we have to use *parent_window*
+        instead of *parent*.'''
+        super(QtMayaPublisherClient, self).__init__(
+            event_manager, parent=get_maya_window()
+        )
+
+
+class MayaPublisherClient(MayaQWidgetDockableMixin, QtMayaPublisherClient):
     ui_types = [
         constants.UI_TYPE,
         qt_constants.UI_TYPE,
@@ -21,9 +30,7 @@ class MayaPublisherClient(MayaQWidgetDockableMixin, QtPublisherClient):
     '''Dockable maya publish widget'''
 
     def __init__(self, event_manager, unused_asset_list_model):
-        super(MayaPublisherClient, self).__init__(
-            event_manager=event_manager, parent_window=get_maya_window()
-        )
+        super(MayaPublisherClient, self).__init__(event_manager=event_manager)
         self.setWindowTitle('ftrack Publisher')
 
     def getThemeBackgroundStyle(self):

@@ -12,7 +12,18 @@ from maya.app.general.mayaMixin import MayaQWidgetDockableMixin
 from ftrack_connect_pipeline_maya.utils.custom_commands import get_maya_window
 
 
-class MayaAssetManagerClient(MayaQWidgetDockableMixin, QtAssetManagerClient):
+class QtMayaAssetManagerClient(QtAssetManagerClient):
+    def __init__(self, event_manager, asset_list_model, parent=None):
+        '''Due to the Maya panel behaviour, we have to use *parent_window*
+        instead of *parent*.'''
+        super(QtMayaAssetManagerClient, self).__init__(
+            event_manager, asset_list_model, parent=get_maya_window()
+        )
+
+
+class MayaAssetManagerClient(
+    MayaQWidgetDockableMixin, QtMayaAssetManagerClient
+):
     ui_types = [
         constants.UI_TYPE,
         qt_constants.UI_TYPE,
@@ -23,9 +34,7 @@ class MayaAssetManagerClient(MayaQWidgetDockableMixin, QtAssetManagerClient):
 
     def __init__(self, event_manager, asset_list_model):
         super(MayaAssetManagerClient, self).__init__(
-            event_manager=event_manager,
-            asset_list_model=asset_list_model,
-            parent_window=get_maya_window(),
+            event_manager=event_manager, asset_list_model=asset_list_model
         )
         self.setWindowTitle('ftrack Connect')
 
