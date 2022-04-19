@@ -22,8 +22,8 @@ class MayaOpenClient(QtOpenClient):
     ]
     definition_extensions_filter = ['.mb', '.ma']
 
-    def __init__(self, event_manager, parent_window):
-        super(MayaOpenClient, self).__init__(event_manager, parent_window)
+    def __init__(self, event_manager, parent=None):
+        super(MayaOpenClient, self).__init__(event_manager, parent=parent)
 
 
 class MayaOpenDialog(dialog.Dialog):
@@ -32,24 +32,21 @@ class MayaOpenDialog(dialog.Dialog):
     _shown = False
 
     def __init__(self, event_manager, unused_asset_list_model, parent=None):
-        super(MayaOpenDialog, self).__init__(
-            parent=parent or get_maya_window()
-        )
+        super(MayaOpenDialog, self).__init__(parent or get_maya_window())
         self._event_manager = event_manager
 
         # Make sure we stays on top of Maya
         self.setWindowFlags(QtCore.Qt.Tool)
         self._client = None
 
-        self.setWindowTitle('ftrack Open')
-        self.resize(450, 530)
-
-    def rebuild(self):
         self.pre_build()
         self.build()
 
+        self.setWindowTitle('ftrack Open')
+        self.resize(450, 530)
+
     def pre_build(self):
-        self._client = MayaOpenClient(self._event_manager, self)
+        self._client = MayaOpenClient(self._event_manager, parent=self)
         self.setLayout(QtWidgets.QHBoxLayout())
         self.layout().setContentsMargins(0, 0, 0, 0)
 
@@ -59,8 +56,6 @@ class MayaOpenDialog(dialog.Dialog):
     def show(self):
         if self._shown:
             # Widget has been shown before, reset client
-            self._client.setParent(None)
-            self._client = None
+            self._client.reset()
         super(MayaOpenDialog, self).show()
         self._shown = True
-        self.rebuild()

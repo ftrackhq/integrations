@@ -37,8 +37,9 @@ class FtrackAssetNode(FtrackAssetBase):
         *is_loaded* If true tags asset_info as loaded.
         '''
         ftrack_object = (
-            self.create_new_ftrack_object() if
-            create_object else self.get_ftrack_object_from_scene()
+            self.create_new_ftrack_object()
+            if create_object
+            else self.get_ftrack_object_from_scene()
         )
 
         if not ftrack_object:
