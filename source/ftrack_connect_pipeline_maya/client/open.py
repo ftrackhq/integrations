@@ -39,12 +39,11 @@ class MayaOpenDialog(dialog.Dialog):
         self.setWindowFlags(QtCore.Qt.Tool)
         self._client = None
 
-        self.setWindowTitle('ftrack Open')
-        self.resize(450, 530)
-
-    def rebuild(self):
         self.pre_build()
         self.build()
+
+        self.setWindowTitle('ftrack Open')
+        self.resize(450, 530)
 
     def pre_build(self):
         self._client = MayaOpenClient(self._event_manager, parent=self)
@@ -57,10 +56,6 @@ class MayaOpenDialog(dialog.Dialog):
     def show(self):
         if self._shown:
             # Widget has been shown before, reset client
-            try:
-                self._client.deleteLater()
-            except:
-                pass
+            self._client.reset()
         super(MayaOpenDialog, self).show()
         self._shown = True
-        self.rebuild()
