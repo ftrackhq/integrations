@@ -12,8 +12,8 @@ $background-selected:    $gray-lighter;
 $white:                 white;
 
 // Primary brand colors
-$color-yellow: #FFDD86;
-$color-yellow-dark: #3D3520;
+$color-primary: #FFDD86;
+$color-primary-dark: #3D3520;
 
 // Primary brand colors
 //$color-purple: #935BA2;
@@ -25,18 +25,18 @@ $color-yellow-dark: #3D3520;
 $color-green: #1CBC90;
 $color-blue: #3498DB;
 $color-orange: #E67E22;
-$color-yellow: #F1C500;
+$color-primary: #F1C500;
 $color-red: #E74C3C;
 $color-white: white;
 $color-cyan: #86E0EA;
 
-$brand-primary:         $color-yellow;
+$brand-primary:         $color-primary;
 $brand-success:         $color-green;
 $brand-info:            $color-blue;
-$brand-warning:         $color-yellow;
+$brand-warning:         $color-primary;
 $brand-danger:          $color-red;
 
-$body-bg:                       $color-yellow;
+$body-bg:                       $color-primary;
 $text-color:                    $gray-dark;
 $text-color-default:            black;
 $text-color-default-hover:      $text-color-default;

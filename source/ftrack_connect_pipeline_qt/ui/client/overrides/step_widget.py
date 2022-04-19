@@ -114,7 +114,7 @@ class PublisherAccordion(AccordionBaseWidget):
 
     def init_status_label(self):
         self._status_label = QtWidgets.QLabel()
-        self._status_label.setObjectName('theme-color')
+        self._status_label.setObjectName('color-primary')
         return self._status_label
 
     def init_options_button(self):

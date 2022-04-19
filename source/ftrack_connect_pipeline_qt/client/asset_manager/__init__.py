@@ -47,7 +47,6 @@ class QtAssetManagerClient(AssetManagerClient, QtWidgets.QFrame):
         self,
         event_manager,
         asset_list_model,
-        parent_window,
         is_assembler=False,
         parent=None,
     ):
@@ -59,7 +58,7 @@ class QtAssetManagerClient(AssetManagerClient, QtWidgets.QFrame):
         '''
         self._asset_list_model = asset_list_model
 
-        QtWidgets.QFrame.__init__(self, parent=parent_window)
+        QtWidgets.QFrame.__init__(self, parent=parent)
         AssetManagerClient.__init__(self, event_manager)
 
         self.is_assembler = is_assembler

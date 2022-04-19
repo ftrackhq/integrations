@@ -75,6 +75,9 @@ class QtOpenClient(QtClient):
     def run(self, default_method=None):
         if super(QtOpenClient, self).run():
             self.widget_factory.progress_widget.set_status(
-                constants.SUCCESS_STATUS,
-                'Successfully opened version!',
+                constants.SUCCESS_STATUS, 'Successfully opened version!'
             )
+
+    def reset(self):
+        '''Open dialog is shown again after being hidden.'''
+        self.host_and_definition_selector.refresh()

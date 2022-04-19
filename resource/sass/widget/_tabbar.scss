@@ -33,7 +33,7 @@ QTabBar::tab {
 
 QTabBar::tab:selected {
     color: $text-color;
-    border-bottom: 2px solid $color-yellow;
+    border-bottom: 2px solid $color-primary;
 }
 
 QTabBar::tab:hover {

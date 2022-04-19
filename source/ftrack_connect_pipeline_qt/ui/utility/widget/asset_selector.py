@@ -44,7 +44,7 @@ class AssetListItem(QtWidgets.QFrame):
         self.version_label = QtWidgets.QLabel(
             'Version {}'.format(self.asset['latest_version']['version'] + 1)
         )
-        self.version_label.setObjectName("theme-color")
+        self.version_label.setObjectName("color-primary")
         self.layout().addWidget(self.version_label)
 
         self.layout().addStretch()
@@ -174,7 +174,7 @@ class NewAssetInput(QtWidgets.QFrame):
         self.layout().addWidget(self.name, 1000)
 
         self.version_label = QtWidgets.QLabel('- Version 1')
-        self.version_label.setObjectName("theme-color")
+        self.version_label.setObjectName("color-primary")
         self.layout().addWidget(self.version_label)
 
     def post_build(self):
