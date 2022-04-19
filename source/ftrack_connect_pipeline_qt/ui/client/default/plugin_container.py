@@ -17,6 +17,6 @@ class DefaultPluginContainerWidget(BaseUIWidget):
         )
 
     def build(self):
-        self._widget = QtWidgets.QWidget(parent=self.parent)
+        self._widget = QtWidgets.QWidget(parent=self.parent())
         main_layout = QtWidgets.QVBoxLayout()
         self.widget.setLayout(main_layout)

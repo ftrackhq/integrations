@@ -74,7 +74,7 @@ class ContextSelector(QtWidgets.QFrame):
 
         if self._client.client_name == qt_constants.OPEN_WIDGET:
             self.entity_browser = EntityBrowser(
-                self._client.get_parent_window(),
+                self._client.parent(),
                 self.session,
                 title='CHOOSE TASK (WORKING CONTEXT)',
             )
@@ -177,8 +177,8 @@ class ContextSelector(QtWidgets.QFrame):
                 self.set_entity(self.entity_browser.entity)
         else:
             if not self._client.is_docked():
-                self._client.get_parent_window().hide()
-                self._client.get_parent_window().destroy()
+                self._client.parent().hide()
+                self._client.parent().destroy()
             self._client.host_connection.launch_widget(
                 qt_constants.CHANGE_CONTEXT_WIDGET
             )

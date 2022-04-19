@@ -145,7 +145,7 @@ class User(QtWidgets.QFrame):
     def build(self):
         username = self.session.api_user
         # self.label = QtWidgets.QLabel(self)
-        self.image = thumbnail.User(self.session, parent=self)
+        self.image = thumbnail.User(self.session, parent=self.parent())
         self.image.setFixedSize(35, 35)
 
         self.layout().addWidget(self.image)
@@ -207,10 +207,10 @@ class MessageBox(QtWidgets.QWidget):
         self.layout().setAlignment(QtCore.Qt.AlignTop)
 
     def build(self):
-        self.label = QtWidgets.QLabel(parent=self)
+        self.label = QtWidgets.QLabel(parent=self.parent())
         self.label.resize(QtCore.QSize(900, 80))
 
-        self.icon = QtWidgets.QLabel(parent=self)
+        self.icon = QtWidgets.QLabel(parent=self.parent())
         self.icon.resize(QtCore.QSize(45, 45))
 
         self.label.setSizePolicy(

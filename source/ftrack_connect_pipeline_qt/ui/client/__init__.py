@@ -42,10 +42,6 @@ class BaseUIWidget(object):
     def is_optional(self):
         return self._is_optional
 
-    @property
-    def parent(self):
-        return self._parent
-
     def __init__(self, name, fragment_data, parent=None):
         '''Initialise BaseJsonWidget with *name*, *schema_fragment*,
         *fragment_data*, *previous_object_data*, *widget_factory*, *parent*
@@ -97,7 +93,7 @@ class BaseUIWidget(object):
         pass
 
     def build(self):
-        '''build function , mostly used to create the widgets.'''
+        '''build function, mostly used to create the widgets.'''
         pass
 
     def post_build(self):
@@ -107,6 +103,9 @@ class BaseUIWidget(object):
             self.widget.layout().setSpacing(5)
             self.widget.setToolTip(self.description)
 
+    def parent(self):
+        return self._parent
+
     def parent_widget(self, widget, add_line=False):
         '''Add the *widget*, setting me as the parent.'''
         if self.widget:
@@ -115,7 +114,7 @@ class BaseUIWidget(object):
             )
             self.widget.layout().addWidget(widget)
             if add_line:
-                self.widget.layout().addWidget(line.Line(parent=self.parent))
+                self.widget.layout().addWidget(line.Line(parent=self.parent()))
             if (
                 self.fragment_data
                 and self.fragment_data.get('visible', True) is False

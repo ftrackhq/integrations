@@ -18,7 +18,7 @@ from ftrack_connect_pipeline_qt.ui.utility.widget.circular_button import (
 class FileLogViewerWidget(QtWidgets.QWidget):
     '''Main widget of the Log viewer'''
 
-    def __init__(self, parent_window, parent=None):
+    def __init__(self, parent=None):
         '''Initialise LogViewerWidget with *event_manager*
 
         *event_manager* should be the
@@ -26,8 +26,6 @@ class FileLogViewerWidget(QtWidgets.QWidget):
         communicate to the event server.
         '''
         super(FileLogViewerWidget, self).__init__(parent=parent)
-
-        self._parent_window = parent_window
 
         self.logger = logging.getLogger(__name__)
 

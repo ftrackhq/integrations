@@ -159,7 +159,7 @@ class DefinitionSelector(QtWidgets.QWidget):
         compatible definitions.'''
         self.definitions = []
 
-        latest_version = None  # The current latest version
+        latest_version = None  # The current latest openable version
         index_latest_version = -1
         compatible_definition_count = 0
 
@@ -308,11 +308,6 @@ class DefinitionSelector(QtWidgets.QWidget):
                     index += 1
         self._definition_selector.currentIndexChanged.connect(
             self._on_change_definition
-        )
-        print(
-            '@@@ compatible_definition_count: {}, index_latest_version: {}'.format(
-                compatible_definition_count, index_latest_version
-            )
         )
         if compatible_definition_count == 0:
             # No compatible loaders/publishers

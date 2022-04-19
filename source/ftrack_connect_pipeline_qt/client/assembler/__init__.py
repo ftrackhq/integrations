@@ -54,10 +54,10 @@ class QtAssemblerClient(QtClient):
     import_mode = -1
     hard_refresh = True  # Flag telling assembler that next refresh should include dependency resolve
 
-    def __init__(self, event_manager, modes, asset_list_model, parent_window):
+    def __init__(self, event_manager, modes, asset_list_model, parent=None):
         self.modes = modes
         self._asset_list_model = asset_list_model
-        super(QtAssemblerClient, self).__init__(event_manager, parent_window)
+        super(QtAssemblerClient, self).__init__(event_manager, parent=parent)
         self.logger.debug('start qt assembler')
 
     def get_factory(self):
@@ -72,16 +72,14 @@ class QtAssemblerClient(QtClient):
     def pre_build(self):
         super(QtAssemblerClient, self).pre_build()
         self.layout().setContentsMargins(16, 16, 16, 16)
-        self.header = header.Header(
-            self.session, parent=self.get_parent_window()
-        )
+        self.header = header.Header(self.session, parent=self.parent())
         self.header.setMinimumHeight(50)
         # Create and add the asset manager client
         self.asset_manager = QtAssetManagerClient(
             self.event_manager,
             self._asset_list_model,
-            self.get_parent_window(),
             is_assembler=True,
+            parent=self.parent(),
         )
 
     def build_left_widget(self):
@@ -95,12 +93,12 @@ class QtAssemblerClient(QtClient):
         self._left_widget.layout().addWidget(self.header)
 
         self._left_widget.layout().addWidget(
-            line.Line(style='solid', parent=self.get_parent_window())
+            line.Line(style='solid', parent=self.parent())
         )
 
         self.progress_widget = (
             factory.LoaderWidgetFactory.create_progress_widget(
-                self.client_name, parent=self
+                self.client_name, parent=self.parent()
             )
         )
         self.header.content_container.layout().addWidget(
@@ -171,14 +169,14 @@ class QtAssemblerClient(QtClient):
         self._right_widget.layout().setSpacing(0)
 
         self.context_selector = ContextSelector(
-            self, self.session, parent=self.get_parent_window()
+            self, self.session, parent=self.parent()
         )
         self._right_widget.layout().addWidget(
             self.context_selector, QtCore.Qt.AlignTop
         )
 
         self._right_widget.layout().addWidget(
-            line.Line(style='solid', parent=self.get_parent_window())
+            line.Line(style='solid', parent=self.parent())
         )
 
         self._right_widget.layout().addWidget(self.asset_manager, 100)
@@ -304,7 +302,7 @@ class QtAssemblerClient(QtClient):
         )
         if len(component_widgets) == 0:
             dlg = ModalDialog(
-                self.get_parent_window(),
+                self.parent(),
                 title='ftrack Assembler',
                 question='Load all?',
                 prompt=True,

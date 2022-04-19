@@ -18,6 +18,6 @@ class GroupBoxStageWidget(BaseUIWidget):
         )
 
     def build(self):
-        self._widget = group_box.GroupBox(self.name, parent=self.parent)
+        self._widget = group_box.GroupBox(self.name, parent=self.parent())
         main_layout = QtWidgets.QVBoxLayout()
         self.widget.setLayout(main_layout)

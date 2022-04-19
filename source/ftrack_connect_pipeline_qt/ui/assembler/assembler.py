@@ -227,7 +227,7 @@ class AssemblerBrowserWidget(AssemblerBaseWidget):
         entity = self.get_context(False)
 
         self._entity_browser = EntityBrowser(
-            self._assembler_client.get_parent_window(),
+            self._assembler_client.parent(),
             session=self._assembler_client.session,
             mode=EntityBrowser.MODE_CONTEXT,
             entity=entity,

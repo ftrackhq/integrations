@@ -21,9 +21,12 @@ from ftrack_connect_pipeline_qt import constants as qt_constants
 from ftrack_connect_pipeline_qt.ui.utility.widget.context_selector import (
     ContextSelector,
 )
+
+# DO NOT REMOVE UNUSED IMPORT - important to keep this in order to have resources
+# initialised properly for applying style and providing images & fonts.
 from ftrack_connect_pipeline_qt.ui import (
     resource,
-)  # Important to keep this in order to bootstrap resources - DO NOT REMOVE UNUSED IMPORT
+)
 from ftrack_connect_pipeline_qt.ui import theme
 from ftrack_connect_pipeline_qt.ui.utility.widget.entity_browser import (
     EntityBrowser,
@@ -47,13 +50,12 @@ class QtClient(Client, QtWidgets.QFrame):
 
     _shown = False
 
-    def __init__(self, event_manager, parent_window, parent=None):
+    def __init__(self, event_manager, parent=None):
         '''Initialise with *event_manager* and
         *parent* widget'''
         QtWidgets.QFrame.__init__(self, parent=parent)
         Client.__init__(self, event_manager)
 
-        self._parent_window = parent_window
         self.widget_factory = self.get_factory()
         self.is_valid_asset_name = False
         self._shown = False
@@ -95,10 +97,6 @@ class QtClient(Client, QtWidgets.QFrame):
     def getThemeBackgroundStyle(self):
         '''Return the theme background color style. Can be overridden by child.'''
         return 'default'
-
-    def get_parent_window(self):
-        '''Return the dialog or DCC app window this client is within.'''
-        return self._parent_window
 
     def is_docked(self):
         raise NotImplementedError()
@@ -146,25 +144,21 @@ class QtClient(Client, QtWidgets.QFrame):
 
     def build(self):
         '''Build widgets and parent them.'''
-        self.header = header.Header(
-            self.session, parent=self.get_parent_window()
-        )
+        self.header = header.Header(self.session, parent=self.parent())
         self.layout().addWidget(self.header)
         self.progress_widget = self.widget_factory.progress_widget
         self.header.content_container.layout().addWidget(
             self.progress_widget.widget
         )
 
-        self.layout().addWidget(
-            line.Line(style='solid', parent=self.get_parent_window())
-        )
+        self.layout().addWidget(line.Line(style='solid', parent=self.parent()))
 
         self.context_selector = ContextSelector(
-            self, self.session, parent=self.get_parent_window()
+            self, self.session, parent=self.parent()
         )
         self.layout().addWidget(self.context_selector, QtCore.Qt.AlignTop)
 
-        self.layout().addWidget(line.Line(parent=self.get_parent_window()))
+        self.layout().addWidget(line.Line(parent=self.parent()))
 
         self.host_and_definition_selector = (
             definition_selector.DefinitionSelector(self.client_name)
@@ -189,6 +183,7 @@ class QtClient(Client, QtWidgets.QFrame):
 
         self.l_filler = QtWidgets.QLabel()
         button_widget.layout().addWidget(self.l_filler, 10)
+        self.l_filler.setVisible(self.client_name == qt_constants.OPEN_WIDGET)
 
         self.run_button = RunButton(
             self.client_name.upper() if self.client_name else 'Run'
@@ -217,7 +212,6 @@ class QtClient(Client, QtWidgets.QFrame):
             self.open_assembler_button.setVisible(
                 self.client_name == qt_constants.OPEN_WIDGET
             )
-        self.l_filler.setVisible(self.client_name == qt_constants.OPEN_WIDGET)
 
     def _on_context_selector_context_changed(
         self, context_entity, global_context_change
@@ -298,8 +292,8 @@ class QtClient(Client, QtWidgets.QFrame):
         '''Open the assembler and close client if dialog'''
         self.host_connection.launch_widget(qt_constants.ASSEMBLER_WIDGET)
         if not self.is_docked():
-            self.get_parent_window().hide()
-            self.get_parent_window().deleteLater()
+            self.parent().hide()
+            self.parent().deleteLater()
 
     def run(self, unused_method=None):
         '''Function called when click the run button'''

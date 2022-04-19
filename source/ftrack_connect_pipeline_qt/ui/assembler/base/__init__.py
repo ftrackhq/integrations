@@ -596,7 +596,7 @@ class ComponentBaseWidget(AccordionBaseWidget):
         self._widget_factory = factory.ImporterWidgetFactory(
             self.event_manager,
             self._assembler_widget._assembler_client.ui_types,
-            parent=self,
+            parent=self.parent(),
         )
 
         header_layout.addWidget(upper_widget, 10)

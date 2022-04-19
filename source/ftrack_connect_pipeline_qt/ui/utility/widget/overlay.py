@@ -33,7 +33,7 @@ class Overlay(QtWidgets.QFrame):
         widget.setAutoFillBackground(False)
         widget.setStyleSheet('background: transparent;')
 
-        self.close_btn = QtWidgets.QPushButton('', self)
+        self.close_btn = QtWidgets.QPushButton('', parent=self)
         self.close_btn.setIcon(icon.MaterialIcon('close', color='#D3d4D6'))
         self.close_btn.setObjectName('borderless')
         self.close_btn.setFixedSize(24, 24)

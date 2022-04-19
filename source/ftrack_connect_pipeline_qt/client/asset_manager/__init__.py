@@ -47,7 +47,6 @@ class QtAssetManagerClient(AssetManagerClient, QtWidgets.QFrame):
         self,
         event_manager,
         asset_list_model,
-        parent_window,
         is_assembler=False,
         parent=None,
     ):
@@ -55,7 +54,6 @@ class QtAssetManagerClient(AssetManagerClient, QtWidgets.QFrame):
         :class:`~ftrack_connect_pipeline.event.EventManager`
         '''
         self._asset_list_model = asset_list_model
-        self._parent_window = parent_window
 
         QtWidgets.QFrame.__init__(self, parent=parent)
         AssetManagerClient.__init__(self, event_manager)
@@ -91,10 +89,6 @@ class QtAssetManagerClient(AssetManagerClient, QtWidgets.QFrame):
         '''Return the theme background color style. Can be overridden by child.'''
         return 'default'
 
-    def get_parent_window(self):
-        '''Return the dialog or DCC app window this client is within.'''
-        return self._parent_window
-
     def is_docked(self):
         return not self.is_assembler
 
@@ -117,20 +111,20 @@ class QtAssetManagerClient(AssetManagerClient, QtWidgets.QFrame):
             self.header = header.Header(
                 self.session,
                 show_publisher=True,
-                parent=self.get_parent_window(),
+                parent=self.parent(),
             )
             self.layout().addWidget(self.header)
 
             self.layout().addWidget(
-                line.Line(style='solid', parent=self.get_parent_window())
+                line.Line(style='solid', parent=self.parent())
             )
 
             self.context_selector = ContextSelector(
-                self, self.session, parent=self.get_parent_window()
+                self, self.session, parent=self.parent()
             )
             self.layout().addWidget(self.context_selector, QtCore.Qt.AlignTop)
 
-            self.layout().addWidget(line.Line(parent=self.get_parent_window()))
+            self.layout().addWidget(line.Line(parent=self.parent()))
 
             self.host_selector = host_selector.HostSelector()
             self.layout().addWidget(self.host_selector)
@@ -222,7 +216,7 @@ class QtAssetManagerClient(AssetManagerClient, QtWidgets.QFrame):
 
         if not AssetManagerClient.change_host(self, host_connection):
             ModalDialog(
-                self.get_parent_window(),
+                self.parent(),
                 title='Asset Manager',
                 message='No asset manager definitions are available, please check your configuration!',
             )
@@ -467,7 +461,7 @@ class QtAssetManagerClient(AssetManagerClient, QtWidgets.QFrame):
         selection = self.asset_manager_widget.asset_list.selection()
         if self.asset_manager_widget.check_selection(selection):
             if ModalDialog(
-                self.get_parent_window(),
+                self.parent(),
                 title='ftrack Asset manager',
                 question='Really remove {} asset{}?'.format(
                     len(selection), 's' if len(selection) > 1 else ''

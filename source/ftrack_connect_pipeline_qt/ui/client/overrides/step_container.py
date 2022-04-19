@@ -32,7 +32,7 @@ class GroupBoxStepContainerWidget(BaseUIWidget):
         )
 
     def build(self):
-        self._widget = group_box.GroupBox(self.name, parent=self.parent)
+        self._widget = group_box.GroupBox(self.name, parent=self.parent())
         main_layout = QtWidgets.QVBoxLayout()
         self.widget.setLayout(main_layout)
 
@@ -53,7 +53,7 @@ class AccordionStepContainerWidget(BaseUIWidget):
             title="{}: 0 components selected".format(self._name),
             checkable=False,
             collapsed=False,
-            parent=self.parent,
+            parent=self.parent(),
         )
 
     def update_selected_components(self, enabled, total):
@@ -96,7 +96,7 @@ class TabStepContainerWidget(DefaultStepContainerWidget):
 
     def build(self):
         super(TabStepContainerWidget, self).build()
-        self.tab_widget = QtWidgets.QTabWidget(parent=self.parent)
+        self.tab_widget = QtWidgets.QTabWidget(parent=self.parent())
         self.checkBoxList = []
         self.widget.layout().addWidget(self.tab_widget)
 

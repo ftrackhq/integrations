@@ -192,14 +192,14 @@ class ProgressWidget(BaseUIWidget):
 
     def build(self):
         self._widget = StatusButtonWidget(
-            self._status_view_mode, parent=self.parent
+            self._status_view_mode, parent=self.parent()
         )
         self.set_status_widget_visibility(False)
 
         self.scroll = scroll_area.ScrollArea()
         self.scroll.setWidgetResizable(True)
 
-        self.content_widget = QtWidgets.QFrame(parent=self.parent)
+        self.content_widget = QtWidgets.QFrame(parent=self.parent())
         self.content_widget.setObjectName('overlay')
         self.content_widget.setLayout(QtWidgets.QVBoxLayout())
         self.content_widget.layout().setContentsMargins(15, 15, 15, 15)
@@ -207,7 +207,7 @@ class ProgressWidget(BaseUIWidget):
         self.scroll.setWidget(self.content_widget)
 
         self.overlay_container = overlay.Overlay(
-            self.scroll, height_percentage=0.8, parent=self.parent
+            self.scroll, height_percentage=0.8, parent=self.parent()
         )
         self.overlay_container.setVisible(False)
 
@@ -228,7 +228,7 @@ class ProgressWidget(BaseUIWidget):
     def prepare_add_components(self):
         self.clear_components()
         self.status_banner = StatusButtonWidget(
-            StatusButtonWidget.VIEW_EXPANDED_BANNER, parent=self.parent
+            StatusButtonWidget.VIEW_EXPANDED_BANNER, parent=self.parent()
         )
         self.content_widget.layout().addWidget(self.status_banner)
 
@@ -236,7 +236,7 @@ class ProgressWidget(BaseUIWidget):
         id_name = "{}.{}.{}".format(version_id or '-', step_type, step_name)
         component_name = step_name
         component_button = PhaseButton(
-            component_name, "Not started", parent=self.parent
+            component_name, "Not started", parent=self.parent()
         )
         self.component_widgets[id_name] = component_button
         if step_type not in self.step_types:
@@ -282,13 +282,13 @@ class ProgressWidget(BaseUIWidget):
 
 class BatchProgressWidget(ProgressWidget):
     def __init__(
-        self, name, fragment_data, parent=None, status_view_mode=None
+        self, name, fragment_data, status_view_mode=None, parent=None
     ):
         super(BatchProgressWidget, self).__init__(
             name,
             fragment_data,
-            parent=parent,
             status_view_mode=status_view_mode,
+            parent=parent,
         )
 
     def add_version(self, component):

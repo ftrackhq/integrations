@@ -93,15 +93,13 @@ class QtLogViewerClient(LogViewerClient, QtWidgets.QWidget):
 
     logItemAdded = QtCore.Signal(object)
 
-    def __init__(self, event_manager, parent_window, parent=None):
+    def __init__(self, event_manager, parent=None):
         '''Initialise QtAssetManagerClient with *event_manager*
 
         *event_manager* should be the
         :class:`ftrack_connect_pipeline.event.EventManager`instance to
         communicate to the event server.
         '''
-        self._parent_window = parent_window
-        # self._log_mode = QtLogViewerClient.LOG_MODE_PLUGIN
 
         QtWidgets.QWidget.__init__(self, parent=parent)
         LogViewerClient.__init__(self, event_manager)
@@ -112,10 +110,6 @@ class QtLogViewerClient(LogViewerClient, QtWidgets.QWidget):
         self.build()
         self.post_build()
         self.add_hosts(self.discover_hosts())
-
-    def get_parent_window(self):
-        '''Return the dialog or DCC app window this client is within.'''
-        return self._parent_window
 
     def is_docked(self):
         False
@@ -164,18 +158,16 @@ class QtLogViewerClient(LogViewerClient, QtWidgets.QWidget):
         self.layout().setSpacing(1)
 
         self._plugin_log_viewer_widget = PluginLogViewerWidget(
-            self.get_parent_window(), self.event_manager
+            self.event_manager, parent=self.parent()
         )
 
         self._file_log_viewer_widget = FileLogViewerWidget(
-            self.get_parent_window()
+            parent=self.parent()
         )
 
     def build(self):
         '''Build widgets and parent them.'''
-        self.header = header.Header(
-            self.session, parent=self.get_parent_window()
-        )
+        self.header = header.Header(self.session, parent=self.parent())
         self.layout().addWidget(self.header)
 
         self.host_selector = host_selector.HostSelector()

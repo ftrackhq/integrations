@@ -223,7 +223,7 @@ class AccordionStepWidget(BaseUIWidget):
             title="{}".format(self._name),
             checkable=False,
             collapsed=False,
-            parent=self.parent,
+            parent=self.parent(),
         )
         self._widget.content_layout.setContentsMargins(0, 10, 0, 0)
 
@@ -274,7 +274,7 @@ class PublisherAccordionStepWidget(BaseUIWidget):
             title=self.name,
             checkable=self.is_optional,
             checked=self._is_selected,
-            parent=self.parent,
+            parent=self.parent(),
         )
 
     def parent_validator(self, step_widget):
@@ -346,7 +346,7 @@ class OptionsStepWidget(DefaultStepWidget):
         super(OptionsStepWidget, self).build()
         self.show_options_button = QtWidgets.QPushButton("Show options")
 
-        self._options_widget = QtWidgets.QWidget(parent=self.parent)
+        self._options_widget = QtWidgets.QWidget(parent=self.parent())
         layout = QtWidgets.QVBoxLayout()
         self.options_widget.setLayout(layout)
 
@@ -478,7 +478,7 @@ class RadioButtonItemStepWidget(BaseUIWidget):
 
     def build(self):
         self._button = QtWidgets.QRadioButton(self.name)
-        self._widget = QtWidgets.QWidget(parent=self.parent)
+        self._widget = QtWidgets.QWidget(parent=self.parent())
         self._widget.setLayout(QtWidgets.QHBoxLayout())
         self._widget.layout().addWidget(self.button)
 
@@ -532,8 +532,8 @@ class RadioButtonItemStepWidget(BaseUIWidget):
                         location.get_filesystem_path(self._component)
                     )
                 else:
-                    self.set_available(
-                        'Missing in this location ({})!'.format(
+                    self.set_unavailable(
+                        'Missing in this location ({})'.format(
                             location['name']
                         )
                     )

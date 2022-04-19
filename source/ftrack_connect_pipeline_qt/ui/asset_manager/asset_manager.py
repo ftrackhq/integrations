@@ -313,7 +313,7 @@ class AssetManagerWidget(AssetManagerBaseWidget):
         selection = self._asset_list.selection()
         if self.check_selection(selection):
             if ModalDialog(
-                self._asset_manager_client.get_parent_window(),
+                self._asset_manager_client.parent(),
                 title='ftrack Asset manager',
                 question='Really update {} asset{} to latest version?'.format(
                     len(selection), 's' if len(selection) > 1 else ''
@@ -330,7 +330,7 @@ class AssetManagerWidget(AssetManagerBaseWidget):
         selection = self._asset_list.selection()
         if self.check_selection(selection):
             if ModalDialog(
-                self._asset_manager_client.get_parent_window(),
+                self._asset_manager_client.parent(),
                 title='ftrack Asset manager',
                 question='Really unload {} asset{}?'.format(
                     len(selection), 's' if len(selection) > 1 else ''
@@ -347,7 +347,7 @@ class AssetManagerWidget(AssetManagerBaseWidget):
         selection = self._asset_list.selection()
         if self.check_selection(selection):
             if ModalDialog(
-                self._asset_manager_client.get_parent_window(),
+                self._asset_manager_client.parent(),
                 title='ftrack Asset manager',
                 question='Really remove {} asset{}?'.format(
                     len(selection), 's' if len(selection) > 1 else ''
@@ -421,7 +421,7 @@ class AssetManagerWidget(AssetManagerBaseWidget):
             )
         ).first()
         if ModalDialog(
-            self._asset_manager_client.get_parent_window(),
+            self._asset_manager_client.parent(),
             title='ftrack Asset manager',
             question='Change version of {} to v{}?'.format(
                 str_version(current_version), version_entity['version']

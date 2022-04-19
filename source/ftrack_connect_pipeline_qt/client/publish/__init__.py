@@ -16,10 +16,8 @@ class QtPublisherClient(QtClient):
     definition_filter = qt_constants.PUBLISHER_WIDGET
     client_name = qt_constants.PUBLISHER_WIDGET
 
-    def __init__(self, event_manager, parent_window, parent=None):
-        super(QtPublisherClient, self).__init__(
-            event_manager, parent_window, parent=parent
-        )
+    def __init__(self, event_manager, parent):
+        super(QtPublisherClient, self).__init__(event_manager, parent=parent)
         self.setWindowTitle('Standalone Pipeline Publisher')
         self.logger.debug('start qt publisher')
 
@@ -28,7 +26,7 @@ class QtPublisherClient(QtClient):
             self.event_manager,
             self.ui_types,
             self.client_name,
-            parent=self.get_parent_window(),
+            parent=self.parent(),
         )
 
     def is_docked(self):

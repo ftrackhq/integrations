@@ -55,7 +55,7 @@ class AccordionPluginContainerWidget(BaseUIWidget):
 
     def build(self):
         self._widget = PluginAccordion(
-            title=self.name, checkable=True, parent=self.parent
+            title=self.name, checkable=True, parent=self.parent()
         )
 
     def parent_widget(self, widget):
