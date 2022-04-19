@@ -178,7 +178,6 @@ class ContextSelector(QtWidgets.QFrame):
         else:
             if not self._client.is_docked():
                 self._client.parent().hide()
-                self._client.parent().destroy()
             self._client.host_connection.launch_widget(
                 qt_constants.CHANGE_CONTEXT_WIDGET
             )

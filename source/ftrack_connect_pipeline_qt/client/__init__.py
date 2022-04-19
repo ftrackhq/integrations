@@ -292,7 +292,6 @@ class QtClient(Client, QtWidgets.QFrame):
         '''Open the assembler and close client if dialog'''
         if not self.is_docked():
             self.parent().hide()
-            self.parent().deleteLater()
         self.host_connection.launch_widget(qt_constants.ASSEMBLER_WIDGET)
 
     def run(self, default_method=None):
