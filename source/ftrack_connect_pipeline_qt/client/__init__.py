@@ -290,10 +290,10 @@ class QtClient(Client, QtWidgets.QFrame):
 
     def _open_assembler(self):
         '''Open the assembler and close client if dialog'''
-        self.host_connection.launch_widget(qt_constants.ASSEMBLER_WIDGET)
         if not self.is_docked():
             self.parent().hide()
             self.parent().deleteLater()
+        self.host_connection.launch_widget(qt_constants.ASSEMBLER_WIDGET)
 
     def run(self, default_method=None):
         '''Function called when click the run button'''
