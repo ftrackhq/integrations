@@ -162,8 +162,8 @@ class PluginInstaller(ftrack_connect.ui.application.ConnectWidget):
         '''Show final message to the user.'''
         self.blockingOverlay.setMessage(
             'Installation finished!\n \n'
-            'Click to install more plugins or  \n'
-            'Quit and Restart connect to pick up the changes.'
+            'Click to OK install more plugins or \n'
+            'Restart to re launch Connect and pick up the changes.'
         )
         self.blockingOverlay.confirmButton.show()
         self.blockingOverlay.show()
