@@ -85,6 +85,7 @@ class PluginInstaller(ftrack_connect.ui.application.ConnectWidget):
         self.blockingOverlay = InstallerBlockingOverlay(self)
         self.blockingOverlay.hide()
         self.blockingOverlay.confirmButton.clicked.connect(self.refresh)
+        self.blockingOverlay.restartButton.clicked.connect(self.requestConnectRestart.emit)
 
         self.busyOverlay = BusyOverlay(self, 'Updating....')
         self.busyOverlay.hide()
