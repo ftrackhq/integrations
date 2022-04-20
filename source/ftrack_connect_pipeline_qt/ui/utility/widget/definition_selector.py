@@ -178,7 +178,6 @@ class DefinitionSelector(QtWidgets.QWidget):
                 # Remove ' Publisher/Loader'
                 text = '{}'.format(' '.join(item.get('name').split(' ')[:-1]))
                 component_names_filter = None  # Outlined openable components
-                enable = True
                 if self._client_name.lower() in [
                     qt_constants.OPEN_WIDGET,
                     qt_constants.ASSEMBLER_WIDGET,
@@ -292,20 +291,14 @@ class DefinitionSelector(QtWidgets.QWidget):
                                         str_version(asset_version)
                                     )
                                 )
-                    if (
-                        asset_version is None
-                        and self._client_name == qt_constants.OPEN_WIDGET
-                    ):
-                        enable = False
                 if not self._definition_title_filter:
                     text = '{} - {}'.format(
                         schema.get('title'), item.get('name')
                     )
-                if enable:
-                    self._definition_selector.addItem(
-                        text.upper(), (item, component_names_filter)
-                    )
-                    index += 1
+                self._definition_selector.addItem(
+                    text.upper(), (item, component_names_filter)
+                )
+                index += 1
         self._definition_selector.currentIndexChanged.connect(
             self._on_change_definition
         )

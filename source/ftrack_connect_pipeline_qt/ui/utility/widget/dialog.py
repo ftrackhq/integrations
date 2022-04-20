@@ -68,11 +68,13 @@ class ModalDialog(QtWidgets.QDialog):
         question=None,
         title=None,
         prompt=False,
-        modal=True,
+        modal=False,
     ):
         super(ModalDialog, self).__init__(parent=parent)
 
         self.setParent(parent)
+
+        self.setWindowFlags(QtCore.Qt.Tool)
 
         self.setTheme(self.getTheme())
 

@@ -48,6 +48,7 @@ from ftrack_connect_pipeline_qt.ui.utility.widget import (
     icon,
     overlay,
     scroll_area,
+    line,
 )
 
 
@@ -826,7 +827,7 @@ class ImporterOptionsButton(OptionsButton):
         self.main_widget.layout().addWidget(widget)
 
     def add_output_widget(self, widget):
-        self.main_widget.layout().addWidget(QtWidgets.QLabel(''))
+        self.main_widget.layout().addWidget(line.Line(parent=self.parent()))
         self.main_widget.layout().addWidget(
             QtWidgets.QLabel('<html><strong>Output:<strong><html>')
         )
