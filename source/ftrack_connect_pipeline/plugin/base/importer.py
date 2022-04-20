@@ -3,7 +3,8 @@
 
 from ftrack_connect_pipeline.plugin import BasePlugin, BasePluginValidation
 from ftrack_connect_pipeline.constants import plugin
-from ftrack_connect_pipeline.asset import asset_info, FtrackAssetBase
+from ftrack_connect_pipeline.asset import asset_info as ainfo
+from ftrack_connect_pipeline.asset import FtrackAssetBase
 
 
 class ImporterPluginValidation(BasePluginValidation):
@@ -47,17 +48,17 @@ class BaseImporterPlugin(BasePlugin):
     def run(self, context_data=None, data=None, options=None):
         raise NotImplementedError('Missing run method.')
 
-    def generate_asset_info_class_from_arguments(self, context_data, data, options):
+    def generate_asset_info_from_plugin_arguments(self, context_data, data, options):
         '''
         Returns :class:`~ftrack_connect_pipeline.asset.asset_info.FtrackAssetInfo`
         created by the
         :meth:`~ftrack_connect_pipeline.asset.asset_info.generate_asset_info_dict_from_args`
         method using the given *context_data*, *data*, and *options*.
         '''
-        arguments_dict = asset_info.generate_asset_info_dict_from_args(
+        arguments_dict = ainfo.generate_asset_info_dict_from_args(
             context_data, data, options, self.session
         )
 
-        asset_info_class = asset_info.FtrackAssetInfo(arguments_dict)
+        asset_info = ainfo.FtrackAssetInfo(arguments_dict)
 
-        return asset_info_class
+        return asset_info

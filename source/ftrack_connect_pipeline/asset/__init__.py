@@ -25,22 +25,6 @@ class FtrackAssetBase(object):
         )
 
     @property
-    def asset_versions_entities(self):
-        '''
-        Returns generator of all
-        :class:`ftrack_api.entity.asset_version.AssetVersion`
-        objects of the current asset_id
-        '''
-        query = (
-            'select is_latest_version, id, asset, components, components.name, '
-            'components.id, version, asset , asset.name, asset.type.name from '
-            'AssetVersion where asset.id is "{}" and components.name is "{}"'
-            'order by version ascending'
-        ).format(self.asset_info[asset_const.ASSET_ID], self.component_name)
-        versions_entities = self.session.query(query).all()
-        return versions_entities
-
-    @property
     def asset_version_entity(self):  # ftrack_version(self):
         '''Returns the :class:`ftrack_api.entity.asset_version.AssetVersion`
         object of the current version_id'''
@@ -122,8 +106,8 @@ class FtrackAssetBase(object):
 
         self._ftrack_object = None
 
-    def set_asset_info(self, asset_info_class):
-        self.asset_info = asset_info_class
+    def set_asset_info(self, asset_info):
+        self.asset_info = asset_info
 
     def init_ftrack_object(self, create_object=True, is_loaded=True):
         '''
