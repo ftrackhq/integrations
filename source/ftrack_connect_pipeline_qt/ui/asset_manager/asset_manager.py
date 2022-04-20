@@ -596,9 +596,19 @@ class AssetWidget(AccordionBaseWidget):
         self._asset_name_widget.setText(
             '{} '.format(asset_info[asset_constants.ASSET_NAME])
         )
-        self._versions_collection = asset_info[
-            asset_constants.ASSET_VERSIONS_ENTITIES
-        ]
+
+        query = (
+            'select is_latest_version, id, asset, components, components.name, '
+            'components.id, version, asset , asset.name, asset.type.name from '
+            'AssetVersion where asset.id is "{}" and components.name is "{}"'
+            'order by version ascending'
+        ).format(
+            asset_info[asset_constants.ASSET_ID],
+            asset_info[asset_constants.COMPONENT_NAME]
+        )
+        versions = self.session.query(query).all()
+
+        self._versions_collection = versions
         self._version_nr = version['version']
         self._status_widget.set_status(version['status'])
         self._load_mode = asset_info[asset_constants.LOAD_MODE]
