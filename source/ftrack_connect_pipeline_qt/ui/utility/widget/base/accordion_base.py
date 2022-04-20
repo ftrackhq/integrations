@@ -194,10 +194,6 @@ class AccordionBaseWidget(QtWidgets.QFrame):
 
         return self._content
 
-    # def add_option_button(self, title, icon, idx):
-    #    option_button = self._header.add_option_button(title, icon, idx)
-    #    return option_button
-
     def add_widget(self, widget):
         '''Add widget to content'''
         self._content.layout().addWidget(widget)

@@ -361,12 +361,6 @@ class QtAssemblerClient(QtClient):
                                     continue
                                 plugin['default_method'] = method
 
-                self.logger.info(
-                    'Running definition: {}'.format(
-                        json.dumps(definition, indent=4)
-                    )
-                )
-
                 self.run_definition(definition, engine_type)
                 # Did it go well?
                 if factory.has_error:
