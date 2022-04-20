@@ -68,6 +68,7 @@ class ModalDialog(QtWidgets.QDialog):
         question=None,
         title=None,
         prompt=False,
+        on_top=False,
         modal=False,
     ):
         super(ModalDialog, self).__init__(parent=parent)
@@ -86,8 +87,10 @@ class ModalDialog(QtWidgets.QDialog):
         self.build()
         self.post_build()
 
-        if modal is not None:
-            self.setModal(modal)
+        self.setModal(modal)
+        self.setWindowFlags(
+            QtCore.Qt.SplashScreen | (QtCore.Qt.WindowStaysOnTopHint if on_top else 0)
+        )
 
         if prompt is False:
             self.exec_()
@@ -168,10 +171,6 @@ class ModalDialog(QtWidgets.QDialog):
         self.resize(250, 100)
         if not self._prompt is None:
             self.setMaximumHeight(100)
-        self.setWindowFlags(
-            QtCore.Qt.SplashScreen | QtCore.Qt.WindowStaysOnTopHint
-        )
-        self.setModal(True)
 
     def get_title(self):
         return self._title
