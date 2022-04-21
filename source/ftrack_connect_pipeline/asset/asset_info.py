@@ -103,34 +103,6 @@ class FtrackAssetInfo(dict):
     Base FtrackAssetInfo class.
     '''
 
-    @property
-    def session(self):
-        '''
-        Returns instance of :class:`ftrack_api.session.Session`
-        '''
-        return self._session
-
-    @property
-    def is_deprecated(self):
-        '''
-        Returns whether the current class is made up from a legacy mapping type
-        of the asset_information.
-        '''
-        return self._is_deprecated_version
-
-    @property
-    def asset_version_entity(self):
-        if not self.session:
-            raise AttributeError(
-                'asset_info.session has to be set before query ' 'version'
-            )
-        asset_version_entity = self.session.query(
-            'select version from AssetVersion where id is "{}"'.format(
-                self[constants.VERSION_ID]
-            )
-        ).one()
-        return asset_version_entity
-
     def _conform_data(self, mapping):
         '''
         Creates the FtrackAssetInfo object from the given dictionary on the
@@ -144,8 +116,6 @@ class FtrackAssetInfo(dict):
             if v == u'None':
                 v = None
             new_mapping.setdefault(k, v)
-            if k == constants.SESSION and isinstance(v, ftrack_api.Session):
-                self._session = v
 
         return new_mapping
 
@@ -158,8 +128,6 @@ class FtrackAssetInfo(dict):
         self.logger = logging.getLogger(
             '{0}.{1}'.format(__name__, self.__class__.__name__)
         )
-        self._session = None
-        self._is_deprecated_version = False
         mapping = mapping or {}
         mapping = self._conform_data(mapping)
         super(FtrackAssetInfo, self).__init__(mapping, **kwargs)
@@ -198,20 +166,13 @@ class FtrackAssetInfo(dict):
         Get the value from the given *k*
 
         Note:: In case of the given *k* is the asset_info_options it will
-        automatically return the decoded json. Also if the given *k* is asset_versions_entities
-        it will automatically download the current asset_versions entities from
-        ftrack
+        automatically return the decoded json.
         '''
 
         value = super(FtrackAssetInfo, self).__getitem__(k)
         if k == constants.ASSET_INFO_OPTIONS:
             if value:
                 value = self.decode_options(value)
-        if k == constants.ASSET_VERSIONS_ENTITIES:
-            value = self._get_asset_versions_entities()
-        if k == constants.SESSION:
-            if self.session:
-                value = self.session
         return value
 
     def __setitem__(self, k, v):
@@ -224,10 +185,6 @@ class FtrackAssetInfo(dict):
 
         if k == constants.ASSET_INFO_OPTIONS:
             v = self.encode_options(v)
-        if k == constants.SESSION:
-            if not isinstance(v, ftrack_api.Session):
-                raise ValueError()
-            self._session = v
         super(FtrackAssetInfo, self).__setitem__(k, v)
 
     def get(self, k, default=None):
@@ -240,11 +197,6 @@ class FtrackAssetInfo(dict):
         *default* : Default value of the given Key.
         '''
         value = super(FtrackAssetInfo, self).get(k, default)
-        if k == constants.ASSET_VERSIONS_ENTITIES:
-            new_value = self._get_asset_versions_entities()
-            # Make sure that in case is returning None, set the default value
-            if new_value:
-                value = new_value
         return value
 
     def setdefault(self, k, default=None):
@@ -255,30 +207,7 @@ class FtrackAssetInfo(dict):
 
         *default* : Default value of the given Key.
         '''
-        if k == constants.SESSION:
-            if not isinstance(default, ftrack_api.Session):
-                raise ValueError()
-            self._session = default
         super(FtrackAssetInfo, self).setdefault(k, default)
-
-    def _get_asset_versions_entities(self):
-        '''
-        Return all the versions of the current asset_id
-        Raises AttributeError if session is not set.
-        '''
-        if not self.session:
-            raise AttributeError(
-                'asset_info.session has to be set before versions '
-                'can be queried,'
-            )
-        query = (
-            'select is_latest_version, id, asset, components, components.name, '
-            'components.id, version, asset , asset.name, asset.type.name from '
-            'AssetVersion where asset.id is "{}" and components.name is "{}"'
-            'order by version ascending'
-        ).format(self[constants.ASSET_ID], self[constants.COMPONENT_NAME])
-        versions = self.session.query(query).all()
-        return versions
 
     def _check_asset_info_dependencies(self, value):
         '''
