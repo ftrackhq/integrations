@@ -7,6 +7,7 @@ import base64
 
 from ftrack_connect_pipeline import constants
 from ftrack_connect_pipeline.plugin import base
+from ftrack_connect_pipeline.asset import asset_info as ainfo
 from ftrack_connect_pipeline.constants import asset as asset_const
 
 
@@ -77,9 +78,12 @@ class LoaderImporterPlugin(base.BaseImporterPlugin):
                 input_bytes
             ).decode('ascii')
 
-        asset_info = self.generate_asset_info_from_plugin_arguments(
-            context_data, data, options
+        arguments_dict = ainfo.generate_asset_info_dict_from_args(
+            context_data, data, options, self.session
         )
+
+        asset_info = ainfo.FtrackAssetInfo(arguments_dict)
+
         self.ftrack_asset = self.ftrack_asset_class(self.event_manager)
         self.ftrack_asset.set_asset_info(asset_info)
 
