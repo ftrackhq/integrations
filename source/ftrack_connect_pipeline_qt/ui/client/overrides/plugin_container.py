@@ -21,7 +21,6 @@ class PluginAccordion(AccordionBaseWidget):
             AccordionBaseWidget.CHECK_MODE_CHECKBOX
             if checkable
             else AccordionBaseWidget.CHECK_MODE_CHECKBOX_DISABLED,
-            visible=False,
             title=title,
             parent=parent,
         )

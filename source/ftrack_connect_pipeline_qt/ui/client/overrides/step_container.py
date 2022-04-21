@@ -14,9 +14,6 @@ from ftrack_connect_pipeline_qt.ui.client.default import (
 from ftrack_connect_pipeline_qt.ui.utility.widget.accordion import (
     AccordionWidget,
 )
-from ftrack_connect_pipeline_qt.ui.utility.widget.base.accordion_base import (
-    AccordionBaseWidget,
-)
 from ftrack_connect_pipeline_qt.ui.utility.widget import group_box
 
 
@@ -57,7 +54,7 @@ class AccordionStepContainerWidget(BaseUIWidget):
         )
 
     def update_selected_components(self, enabled, total):
-        self._widget._title_frame._title_label.setText(
+        self._widget._header.title_label.setText(
             "{}: {} of {} components selected".format(
                 self._name, enabled, total
             )
@@ -71,11 +68,6 @@ class AccordionStepContainerWidget(BaseUIWidget):
                 else step_widget
             )
             self.widget.add_widget(widget)
-            if (
-                isinstance(widget, AccordionBaseWidget)
-                and not widget.isVisible()
-            ):
-                widget.setVisible(True)
         else:
             self.logger.error("Please create a widget before parent")
 
@@ -134,11 +126,6 @@ class TabStepContainerWidget(DefaultStepContainerWidget):
                     checkbox.stateChanged.connect(
                         partial(self._toggle_tab_state, tab_idx, step_widget)
                     )
-            if (
-                isinstance(widget, AccordionBaseWidget)
-                and not widget.isVisible()
-            ):
-                widget.setVisible(True)
         else:
             self.logger.error("Please create a widget before parent")
 
