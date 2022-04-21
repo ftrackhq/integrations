@@ -119,6 +119,9 @@ class Logo(QtWidgets.QLabel):
                     QtCore.Qt.SmoothTransformation,
                 )
             )
+            self.setPixmap(
+                logoPixmap
+            )
         else:
             self.setText("ftrack")
 
