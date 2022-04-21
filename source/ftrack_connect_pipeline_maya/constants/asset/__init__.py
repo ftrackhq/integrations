@@ -3,6 +3,7 @@
 
 FTRACK_ASSET_CLASS_ID = 0x190319
 FTRACK_PLUGIN_TYPE = 'ftrackAssetNode'
+LOCKED = 'locked'
+ASSET_LINK = 'asset_link'
 
 from ftrack_connect_pipeline.constants.asset import *
-from ftrack_connect_pipeline_maya.constants.asset.v2 import *

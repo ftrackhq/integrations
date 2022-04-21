@@ -202,16 +202,6 @@ class FtrackAssetNode(FtrackAssetBase):
                     type="string",
                     l=True,
                 )
-            elif (
-                k == asset_const.ASSET_VERSIONS_ENTITIES
-                or k == asset_const.SESSION
-            ):
-                cmds.setAttr(
-                    '{}.{}'.format(ftrack_object, k),
-                    str(v),
-                    type="string",
-                    l=True,
-                )
             elif k == asset_const.IS_LATEST_VERSION:
                 cmds.setAttr('{}.{}'.format(ftrack_object, k), bool(v), l=True)
 
