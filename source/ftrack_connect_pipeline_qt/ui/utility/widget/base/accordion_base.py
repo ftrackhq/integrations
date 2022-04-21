@@ -106,14 +106,12 @@ class AccordionBaseWidget(QtWidgets.QFrame):
         selected=False,
         checked=True,
         collapsable=True,
+        collapsed=True,
         docked=False,
-        visible=True,
         parent=None,
     ):
         super(AccordionBaseWidget, self).__init__(parent=parent)
 
-        if visible is False:
-            self.setVisible(False)
         self._event_manager = event_manager
         self._reference_widget = None
         self._header = None
@@ -125,7 +123,7 @@ class AccordionBaseWidget(QtWidgets.QFrame):
         self._check_mode = check_mode
         self._selected = selected
         self._checked = checked
-        self._collapsed = True
+        self._collapsed = collapsed
         self._checked = checked
         self._collapsable = collapsable
         self._docked = docked
@@ -196,10 +194,6 @@ class AccordionBaseWidget(QtWidgets.QFrame):
 
         return self._content
 
-    def add_option_button(self, title, icon, idx):
-        option_button = self._header.add_option_button(title, icon, idx)
-        return option_button
-
     def add_widget(self, widget):
         '''Add widget to content'''
         self._content.layout().addWidget(widget)
@@ -223,12 +217,6 @@ class AccordionBaseWidget(QtWidgets.QFrame):
         self._checked = checked
         if self.check_mode == self.CHECK_MODE_CHECKBOX:
             return self.header.checkbox.setChecked(checked)
-
-    def header_clicked(self):
-        self._collapsed = not self._collapsed
-        self.header.update_arrow_icon(int(self._collapsed))
-        self.on_collapse(self.collapsed)
-        self._content.setVisible(not self.collapsed)
 
     def enable_content(self):
         self._content.setEnabled(self.checked)
@@ -257,7 +245,8 @@ class AccordionBaseWidget(QtWidgets.QFrame):
             'indicator',
             ('on' if indication else 'off'),
         )
-        self._indicator_widget.setVisible(True)
+        if not self._indicator_widget.isVisible():
+            self._indicator_widget.setVisible(True)
 
     def on_header_checkbox_checked(self):
         self._checked = self.header.checkbox.isChecked()
@@ -279,7 +268,7 @@ class AccordionBaseWidget(QtWidgets.QFrame):
         self._collapsed = not self._collapsed
         self.header.update_arrow_icon(int(self.collapsed))
         self.on_collapse(self.collapsed)
-        self.content.setVisible(not self.collapsed)
+        self._content.setVisible(not self._collapsed)
 
     def mousePressEvent(self, event):
         self.clicked.emit(event)
@@ -374,7 +363,9 @@ class AccordionHeaderWidget(QtWidgets.QFrame):
         self.layout().addWidget(self.init_title(self.title))
         self.layout().addWidget(self._init_content(), 10)
         self.layout().addWidget(self.init_arrow(self.accordion.collapsed))
-        self._arrow.setVisible(self._collapsable)
+        visibility = self._collapsable
+        if self._arrow.isVisible() != visibility:
+            self._arrow.setVisible(visibility)
 
     def post_build(self):
         pass

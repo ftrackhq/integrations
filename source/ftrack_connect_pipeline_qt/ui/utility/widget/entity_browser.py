@@ -743,7 +743,7 @@ class EntityWidget(QtWidgets.QFrame):
             # Widget has been destroyed
             return
         retval = super(EntityWidget, self).mousePressEvent(event)
-        if not self._entity_browser.working:
+        if self._entity_browser is None or not self._entity_browser.working:
             self.clicked.emit()
         return retval
 

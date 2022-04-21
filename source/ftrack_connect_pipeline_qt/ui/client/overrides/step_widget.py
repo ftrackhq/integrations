@@ -67,8 +67,15 @@ class PublisherOptionsButton(OptionsButton):
         self.main_widget = QtWidgets.QWidget()
         self.main_widget.setLayout(QtWidgets.QVBoxLayout())
         self.main_widget.layout().setAlignment(QtCore.Qt.AlignTop)
+        self._component_widget = AccordionWidget(
+            title=self.name,
+            checkable=False,
+            collapsed=False,
+            parent=self.parent(),
+        )
+        self.main_widget.layout().addWidget(self._component_widget)
         self.overlay_container = overlay.Overlay(
-            self.main_widget, height_percentage=1.0, parent=self.parent()
+            self.main_widget, height_percentage=0.8, parent=self.parent()
         )
         self.overlay_container.setVisible(False)
 
@@ -82,33 +89,37 @@ class PublisherOptionsButton(OptionsButton):
         self.overlay_container.setVisible(True)
 
     def add_validator_widget(self, widget):
-        self.main_widget.layout().addWidget(
+        self._component_widget.add_widget(QtWidgets.QLabel(''))
+        self._component_widget.add_widget(line.Line(parent=self.parent()))
+        self._component_widget.add_widget(QtWidgets.QLabel(''))
+        self._component_widget.add_widget(
             QtWidgets.QLabel('<html><strong>Validators:<strong><html>')
         )
-        self.main_widget.layout().addWidget(widget)
+        self._component_widget.add_widget(widget)
 
     def add_output_widget(self, widget):
-        self.main_widget.layout().addWidget(QtWidgets.QLabel(''))
-        self.main_widget.layout().addWidget(
+        self._component_widget.add_widget(QtWidgets.QLabel(''))
+        self._component_widget.add_widget(line.Line(parent=self.parent()))
+        self._component_widget.add_widget(QtWidgets.QLabel(''))
+        self._component_widget.add_widget(
             QtWidgets.QLabel('<html><strong>Output:<strong><html>')
         )
-        self.main_widget.layout().addWidget(widget)
+        self._component_widget.add_widget(widget)
 
 
-class PublisherAccordion(AccordionBaseWidget):
+class PublisherAccordionWidget(AccordionBaseWidget):
     @property
     def options_widget(self):
         return self._options_button
 
     def __init__(self, parent=None, title=None, checkable=False, checked=True):
-        super(PublisherAccordion, self).__init__(
+        super(PublisherAccordionWidget, self).__init__(
             AccordionBaseWidget.SELECT_MODE_NONE,
             AccordionBaseWidget.CHECK_MODE_CHECKBOX
             if checkable
             else AccordionBaseWidget.CHECK_MODE_CHECKBOX_DISABLED,
             checked=checked,
             title=title,
-            visible=False,
             parent=parent,
         )
 
@@ -119,7 +130,7 @@ class PublisherAccordion(AccordionBaseWidget):
 
     def init_options_button(self):
         self._options_button = PublisherOptionsButton(
-            'O',
+            self.title,
             icon.MaterialIcon('settings', color='gray'),
             parent=self.parent(),
         )
@@ -149,7 +160,7 @@ class PublisherAccordion(AccordionBaseWidget):
         header_layout.addWidget(self.init_status_icon())
 
     def add_widget(self, widget):
-        super(PublisherAccordion, self).add_widget(widget)
+        super(PublisherAccordionWidget, self).add_widget(widget)
         self._connect_inner_widgets(widget)
 
     def update_inner_status(self, inner_widget, data):
@@ -194,10 +205,12 @@ class PublisherAccordion(AccordionBaseWidget):
         self._input_message = message
         self._input_status = status
         if self.collapsed:
-            self._status_label.setText('- {}'.format(self._input_message))
+            self._status_label.setText(' - {}'.format(self._input_message))
         else:
             self._status_label.setText('')
-        self._status_icon.setVisible(not status is None)
+        visibility = not status is None
+        if self._status_icon.isVisible() != visibility:
+            self._status_icon.setVisible(visibility)
         if not status is None:
             self._status_icon.set_icon(
                 'check' if status else 'error_outline',
@@ -222,10 +235,9 @@ class AccordionStepWidget(BaseUIWidget):
         self._widget = AccordionWidget(
             title="{}".format(self._name),
             checkable=False,
-            collapsed=False,
             parent=self.parent(),
         )
-        self._widget.content_layout.setContentsMargins(0, 10, 0, 0)
+        self._widget.content.layout().setContentsMargins(0, 10, 0, 0)
 
     def parent_widget(self, step_widget):
         if self.widget:
@@ -235,11 +247,6 @@ class AccordionStepWidget(BaseUIWidget):
                 else step_widget
             )
             self.widget.add_widget(widget)
-            if (
-                isinstance(widget, AccordionBaseWidget)
-                and not widget.isVisible()
-            ):
-                widget.setVisible(True)
         else:
             self.logger.error("Please create a widget before parent")
 
@@ -270,7 +277,7 @@ class PublisherAccordionStepWidget(BaseUIWidget):
         self._is_optional = self.fragment_data.get('optional')
 
     def build(self):
-        self._widget = PublisherAccordion(
+        self._widget = PublisherAccordionWidget(
             title=self.name,
             checkable=self.is_optional,
             checked=self._is_selected,
@@ -304,11 +311,6 @@ class PublisherAccordionStepWidget(BaseUIWidget):
                 else step_widget
             )
             self.widget.add_widget(widget)
-            if (
-                isinstance(widget, AccordionBaseWidget)
-                and not widget.isVisible()
-            ):
-                widget.setVisible(True)
         else:
             self.logger.error("Please create a widget before parent")
 
@@ -395,11 +397,6 @@ class OptionsStepWidget(DefaultStepWidget):
                 widget.widget if isinstance(widget, BaseUIWidget) else widget
             )
             self.widget.layout().insertWidget((options_idx), insert_widget)
-            if (
-                isinstance(insert_widget, AccordionBaseWidget)
-                and not insert_widget.isVisible()
-            ):
-                insert_widget.setVisible(True)
         else:
             self.logger.error("Please create a widget before parent")
 
