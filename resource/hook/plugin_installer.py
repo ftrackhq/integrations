@@ -43,6 +43,7 @@ class PluginInstaller(ftrack_connect.ui.application.ConnectWidget):
         super(PluginInstaller, self).__init__(session, parent=parent)
         self.reset_plugin_list()
 
+        self.counter = len(self._plugins_to_install)
         self.plugin_processor = PluginProcessor()
 
         layout = QtWidgets.QVBoxLayout()
@@ -170,8 +171,14 @@ class PluginInstaller(ftrack_connect.ui.application.ConnectWidget):
 
     def _update_overlay(self, item):
         '''Update the overlay with the current item *information*.'''
+        self.counter += 1
+
         self.busyOverlay.setMessage(
-            'Installing:\n\n{}\nVersion {} '.format(
+            '<h4>Installing: {} of {}.</h4></br>'
+            '<h5>{}, Version {}</h5>'
+            .format(
+                self.counter,
+                len(self._plugins_to_install),
                 item.data(ROLES.PLUGIN_NAME),
                 str(item.data(ROLES.PLUGIN_VERSION))
             )
