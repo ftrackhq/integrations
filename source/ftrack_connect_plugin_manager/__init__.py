@@ -26,13 +26,18 @@ class InstallerBlockingOverlay(
     def __init__(self, parent, message=''):
         super(InstallerBlockingOverlay, self).__init__(parent, message=message)
         self.confirmButton = QtWidgets.QPushButton('Ok')
+        self.restartButton = QtWidgets.QPushButton('Restart')
+        self.restartButton.setObjectName('primary')
+        self.content.setMinimumWidth(350)
+
         self.contentLayout.insertWidget(
             3, self.confirmButton, alignment=QtCore.Qt.AlignCenter, stretch=0
         )
+        self.contentLayout.insertWidget(
+            4, self.restartButton, alignment=QtCore.Qt.AlignCenter, stretch=0
+        )
         self.confirmButton.hide()
         self.confirmButton.clicked.connect(self.hide)
-        self.content.setMinimumWidth(350)
-
 
 class STATUSES(object):
     '''Store plugin statuses'''

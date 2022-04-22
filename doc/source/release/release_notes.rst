@@ -8,6 +8,13 @@
 Release Notes
 *************
 
+.. release:: Upcoming
+
+    .. change:: added
+        :tags: Event
+    
+        Allow plugin to restart connect.
+
 .. release:: 0.1.3
     :date: 2022-03-25
 
