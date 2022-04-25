@@ -53,7 +53,7 @@ class AssetManagerEngine(BaseEngine):
         '''
         ftrack_asset_class = self.ftrack_asset_class(self.event_manager)
         ftrack_asset_class.asset_info = asset_info
-        ftrack_object = ftrack_asset_class.get_ftrack_object()
+        ftrack_object = ftrack_asset_class.init_ftrack_object(False)
         if ftrack_object is None:
             raise Exception(
                 'The corresponding ftrack object with ID {} could not be found!'.format(

@@ -87,10 +87,7 @@ class LoaderImporterPlugin(base.BaseImporterPlugin):
         self.ftrack_asset = self.ftrack_asset_class(self.event_manager)
         self.ftrack_asset.set_asset_info(asset_info)
 
-        ftrack_object = self.ftrack_asset.init_ftrack_object(
-            create_object=True,
-            is_loaded=False
-        )
+        ftrack_object = self.ftrack_asset.init_ftrack_object(create_object=True)
 
         results = [ftrack_object]
         return results
@@ -101,10 +98,7 @@ class LoaderImporterPlugin(base.BaseImporterPlugin):
         self.ftrack_asset = self.ftrack_asset_class(self.event_manager)
         asset_info = options.get('asset_info')
         self.ftrack_asset.set_asset_info(asset_info)
-        self.ftrack_asset.init_ftrack_object(
-            create_object=False,
-            is_loaded=True
-        )
+        self.ftrack_asset.init_ftrack_object(create_object=False)
         # Remove asset_info from the options as it is not needed anymore
         options.pop('asset_info')
         # Execute the run method to load the objects
@@ -116,7 +110,10 @@ class LoaderImporterPlugin(base.BaseImporterPlugin):
         )
         diff = self.new_data.difference(self.old_data)
 
-        #Connect scene objects to ftrack node
+        # Set asset_info as loaded.
+        self.ftrack_asset.set_loaded(True)
+
+        # Connect scene objects to ftrack node
         self.ftrack_asset.connect_objects(diff)
 
     def init_and_load(self, context_data=None, data=None, options=None):

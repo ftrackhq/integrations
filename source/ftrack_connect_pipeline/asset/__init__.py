@@ -11,35 +11,8 @@ from ftrack_connect_pipeline import constants
 class FtrackAssetBase(object):
     '''Base FtrackAssetBase class.'''
 
-    identity = None
-    '''Identifier of the base Node or object in the DCC applications '''
-
-    default_component_name = 'main'
-    '''Name of the default component common in most of the published assets'''
-
-    @property
-    def component_name(self):
-        '''Return component name from the current asset info'''
-        return self.asset_info.get(
-            asset_const.COMPONENT_NAME, self.default_component_name
-        )
-
-    @property
-    def asset_version_entity(self):  # ftrack_version(self):
-        '''Returns the :class:`ftrack_api.entity.asset_version.AssetVersion`
-        object of the current version_id'''
-        asset_version_entity = self.session.query(
-            'select version from AssetVersion where id is "{}"'.format(
-                self.asset_info[asset_const.VERSION_ID]
-            )
-        ).one()
-
-        return asset_version_entity
-
-    @property
-    def is_latest(self):
-        '''Returns True if the current version is the latest version'''
-        return self.asset_version_entity[asset_const.IS_LATEST_VERSION]
+    ftrack_plugin_id = None
+    '''Plugin id used on some DCC applications '''
 
     @property
     def asset_info(self):
@@ -102,36 +75,46 @@ class FtrackAssetBase(object):
         )
 
         self._asset_info = None
+        self._ftrack_object = None
         self._event_manager = event_manager
 
-        self._ftrack_object = None
+    def set_loaded(self, loaded):
+        '''
+        Set the self :obj:`asset_info` as loaded.
+
+        *loaded* True if the objects are loaded in the scene.
+        '''
+        self.asset_info[asset_const.IS_LOADED] = loaded
 
     def set_asset_info(self, asset_info):
+        '''
+        Assign the given *asset_info* as the self :obj:`asset_info`.
+
+        *asset_info* instance of
+        :class:`~ftrack_connect_pipeline.asset.FtrackAssetInfo`
+        '''
         self.asset_info = asset_info
 
-    def init_ftrack_object(self, create_object=True, is_loaded=True):
+    def init_ftrack_object(self, create_object=True):
         '''
-        Sets and Returns the current :py:obj:`ftrack_object` for this class.
-        '''
-        self.ftrack_object = None
-        return self.ftrack_object
-
-    def get_ftrack_object(self):
-        '''
-        Sets and Returns the current :py:obj:`ftrack_object` for this class.
+        Sets and Returns the current self :py:obj:`ftrack_object`.
         '''
         self.ftrack_object = None
         return self.ftrack_object
 
     def connect_objects(self, objects):
         '''
-        Parent the given *objects* under current ftrack_object asset link
-        attribute
+        Link the given *objects* under current self :obj:`ftrack_object`
+        asset_link attribute.
         '''
         raise NotImplementedError
 
-    def _get_unique_ftrack_object_name(self):
-        '''Returns a unique scene name for the current asset_name'''
+    def _generate_ftrack_object_name(self):
+        '''
+        Returns a name for the current self :obj:`ftrack_object` based on
+        the first 2 and last 2 characters of the
+        :constant:`asset_const.ASSET_INFO_ID`
+        '''
         short_id = "{}{}".format(
             self.asset_info[asset_const.ASSET_INFO_ID][:2],
             self.asset_info[asset_const.ASSET_INFO_ID][-2:],
@@ -157,7 +140,8 @@ class FtrackAssetBase(object):
         ).one()
 
         new_asset_info = FtrackAssetInfo.from_version_entity(
-            asset_version_entity, self.component_name
+            asset_version_entity,
+            self.asset_info.get(asset_const.COMPONENT_NAME)
         )
         if self.asset_info.session:
             new_asset_info['session'] = self.asset_info.session
