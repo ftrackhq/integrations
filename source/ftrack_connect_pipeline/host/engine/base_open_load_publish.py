@@ -9,12 +9,12 @@ from ftrack_connect_pipeline.constants import asset as asset_const
 from ftrack_connect_pipeline.host.engine import BaseEngine
 
 
-class BaseLoaderPublisherEngine(BaseEngine):
+class BaseLoaderOpenerPublisherEngine(BaseEngine):
     '''
     Base Loader and Publisher Engine class.
     '''
 
-    engine_type = 'loader_publisher'
+    engine_type = 'loader_opener_publisher'
     '''Engine type for this engine class'''
 
     def __init__(self, event_manager, host_types, host_id, asset_type_name):
@@ -29,7 +29,7 @@ class BaseLoaderPublisherEngine(BaseEngine):
 
         *asset_type_name* : Asset type should be specified.
         '''
-        super(BaseLoaderPublisherEngine, self).__init__(
+        super(BaseLoaderOpenerPublisherEngine, self).__init__(
             event_manager, host_types, host_id, asset_type_name
         )
 

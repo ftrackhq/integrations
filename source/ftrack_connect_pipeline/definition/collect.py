@@ -34,7 +34,7 @@ def filter_definitions_by_host(data, host_type):
     '''
     copy_data = copy.deepcopy(data)
     logger.debug('filtering definition for host_type: {}'.format(host_type))
-    for entry in ['loader', 'publisher', 'asset_manager']:
+    for entry in ['loader', 'opener', 'publisher', 'asset_manager']:
         for definition in data[entry]:
             if str(definition.get('host_type')) != str(host_type):
                 logger.debug(
@@ -58,6 +58,8 @@ def collect_definitions(lookup_dir):
 
     loaders = _collect_json(os.path.join(lookup_dir, 'loader'))
 
+    openers = _collect_json(os.path.join(lookup_dir, 'opener'))
+
     publishers = _collect_json(os.path.join(lookup_dir, 'publisher'))
 
     asset_managers = _collect_json(os.path.join(lookup_dir, 'asset_manager'))
@@ -66,6 +68,7 @@ def collect_definitions(lookup_dir):
         'schema': schemas or [],
         'publisher': publishers or [],
         'loader': loaders or [],
+        'opener': openers or [],
         'asset_manager': asset_managers or [],
     }
 

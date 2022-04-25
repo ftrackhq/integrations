@@ -127,7 +127,7 @@ class PluginDiscoverValidation(object):
 
         return idxs_to_pop or None
 
-    def validate_loaders_plugins(self, loaders):
+    def validate_loaders_plugins(self, loaders, schema_type):
         '''
         Validates all the definitions in th given *loaders* definitions
         calling the :meth:`validate_context_plugins`,
@@ -139,7 +139,6 @@ class PluginDiscoverValidation(object):
         *loaders* : List of loader definitions.
 
         '''
-        schema_type = 'loader'
         idxs_to_pop = []
         for definition in loaders:
             valid_definition = True

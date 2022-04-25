@@ -264,4 +264,5 @@ class BaseEngine(object):
 
 from ftrack_connect_pipeline.host.engine.publish import *
 from ftrack_connect_pipeline.host.engine.load import *
+from ftrack_connect_pipeline.host.engine.open import *
 from ftrack_connect_pipeline.host.engine.asset_manager import *

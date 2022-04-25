@@ -43,9 +43,11 @@ class Host(object):
 
     host_types = [constants.HOST_TYPE]
     '''Compatible Host types for this HOST.'''
+
     engines = {
         'asset_manager': host_engine.AssetManagerEngine,
         'loader': host_engine.LoaderEngine,
+        'opener': host_engine.OpenerEngine,
         'publisher': host_engine.PublisherEngine,
     }
     '''Available engines for this host.'''
@@ -112,6 +114,8 @@ class Host(object):
         asset_type_name = data.get('asset_type')
 
         Engine = self.engines.get(engine_type)
+        if Engine is None:
+            raise Exception('No engine of type "{}" found'.format(engine_type))
         engine_runner = Engine(
             self._event_manager, self.host_types, self.host_id, asset_type_name
         )
@@ -198,11 +202,18 @@ class Host(object):
                 data['publisher'].pop(idx)
 
         invalid_loaders_idxs = plugin_validator.validate_loaders_plugins(
-            data['loader']
+            data['loader'], 'loader'
         )
         if invalid_loaders_idxs:
             for idx in sorted(invalid_loaders_idxs, reverse=True):
                 data['loader'].pop(idx)
+
+        invalid_openers_idxs = plugin_validator.validate_loaders_plugins(
+            data['opener'], 'opener'
+        )
+        if invalid_openers_idxs:
+            for idx in sorted(invalid_openers_idxs, reverse=True):
+                data['opener'].pop(idx)
 
         return data
 
