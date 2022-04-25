@@ -28,9 +28,11 @@ class OpenerImporterNukePlugin(plugin.OpenerImporterPlugin, BaseNukePlugin):
 
     ftrack_asset_class = FtrackAssetTab
 
-    load_modes = load_const.LOAD_MODES
+    load_modes = {
+        load_const.OPEN_MODE: load_const.LOAD_MODES[load_const.OPEN_MODE]
+    }
 
-    dependency_load_mode = load_const.REFERENCE_MODE
+    dependency_load_mode = load_const.OPEN_MODE
 
     @nuke_utils.run_in_main_thread
     def get_current_objects(self):

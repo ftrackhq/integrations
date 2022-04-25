@@ -30,7 +30,7 @@ class LoaderImporterNukePlugin(plugin.LoaderImporterPlugin, BaseNukePlugin):
 
     load_modes = load_const.LOAD_MODES
 
-    dependency_load_mode = load_const.REFERENCE_MODE
+    dependency_load_mode = load_const.IMPORT_MODE
 
     @nuke_utils.run_in_main_thread
     def get_current_objects(self):
