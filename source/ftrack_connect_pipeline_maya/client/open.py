@@ -13,7 +13,7 @@ from ftrack_connect_pipeline_qt.ui.utility.widget import dialog
 
 
 class MayaOpenClient(QtOpenClient):
-    '''Open client within dialog'''
+    '''Open dialog and client'''
 
     ui_types = [
         constants.UI_TYPE,
@@ -22,40 +22,5 @@ class MayaOpenClient(QtOpenClient):
     ]
     definition_extensions_filter = ['.mb', '.ma']
 
-    def __init__(self, event_manager, parent=None):
-        super(MayaOpenClient, self).__init__(event_manager, parent=parent)
-
-
-class MayaOpenDialog(dialog.Dialog):
-    '''Maya open dialog'''
-
-    _shown = False
-
     def __init__(self, event_manager, unused_asset_list_model, parent=None):
-        super(MayaOpenDialog, self).__init__(parent or get_maya_window())
-        self._event_manager = event_manager
-
-        # Make sure we stays on top of Maya
-        self.setWindowFlags(QtCore.Qt.Tool)
-        self._client = None
-
-        self.pre_build()
-        self.build()
-
-        self.setWindowTitle('ftrack Open')
-        self.resize(450, 530)
-
-    def pre_build(self):
-        self._client = MayaOpenClient(self._event_manager, parent=self)
-        self.setLayout(QtWidgets.QHBoxLayout())
-        self.layout().setContentsMargins(0, 0, 0, 0)
-
-    def build(self):
-        self.layout().addWidget(self._client)
-
-    def show(self):
-        if self._shown:
-            # Widget has been shown before, reset client
-            self._client.reset()
-        super(MayaOpenDialog, self).show()
-        self._shown = True
+        super(MayaOpenClient, self).__init__(event_manager, parent=parent)
