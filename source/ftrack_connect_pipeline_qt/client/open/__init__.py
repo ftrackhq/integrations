@@ -3,13 +3,16 @@
 # :copyright: Copyright (c) 2014-2020 ftrack
 import os
 
+from Qt import QtWidgets, QtCore
+
 from ftrack_connect_pipeline_qt import constants
 from ftrack_connect_pipeline_qt.client import QtClient
 from ftrack_connect_pipeline_qt import constants as qt_constants
 from ftrack_connect_pipeline_qt.client import factory
+from ftrack_connect_pipeline_qt.ui.utility.widget import dialog
 
 
-class QtOpenClient(QtClient):
+class QtOpenClient(QtClient, dialog.Dialog):
     '''
     Base open widget class.
     '''
@@ -22,8 +25,16 @@ class QtOpenClient(QtClient):
     ):
         if not definition_extensions_filter is None:
             self.definition_extensions_filter = definition_extensions_filter
-        super(QtOpenClient, self).__init__(event_manager, parent=parent)
+        QtClient.__init__(self, event_manager)
+        dialog.Dialog.__init__(self, parent=parent)
+
+        # super(QtOpenClient, self).__init__(event_manager, parent=parent)
         self.logger.debug('start qt opener')
+
+        self.setWindowFlags(QtCore.Qt.Tool)
+
+        self.setWindowTitle('ftrack Open')
+        self.resize(450, 530)
 
     def get_factory(self):
         return factory.OpenerWidgetFactory(
@@ -81,3 +92,10 @@ class QtOpenClient(QtClient):
     def reset(self):
         '''Open dialog is shown again after being hidden.'''
         self.host_and_definition_selector.refresh()
+
+    def show(self):
+        if self._shown:
+            # Widget has been shown before, reset client
+            self._client.reset()
+        super(QtOpenClient, self).show()
+        self._shown = True
