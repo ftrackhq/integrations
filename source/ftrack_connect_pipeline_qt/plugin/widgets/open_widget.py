@@ -8,4 +8,5 @@ from ftrack_connect_pipeline_qt.plugin.widgets import BaseOptionsWidget
 
 class OpenBaseWidget(BaseOptionsWidget):
     '''Base Class to represent a Open Widget'''
+
     pass
