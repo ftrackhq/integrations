@@ -21,7 +21,7 @@ from ftrack_connect_pipeline import constants
 from ftrack_connect_pipeline_qt import constants as qt_constants
 
 from ftrack_connect_pipeline_nuke.client import open
-from ftrack_connect_pipeline_nuke.client import assembler
+from ftrack_connect_pipeline_nuke.client import load
 from ftrack_connect_pipeline_nuke.client import save
 from ftrack_connect_pipeline_nuke.client import asset_manager
 from ftrack_connect_pipeline_nuke.client import publish
@@ -140,7 +140,7 @@ def initialise():
 
     widgets = list()
     widgets.append(
-        (qt_constants.OPEN_WIDGET, open.NukeOpenDialog, 'Open', 'fileOpen')
+        (qt_constants.OPEN_WIDGET, open.NukeOpenClient, 'Open', 'fileOpen')
     )
     widgets.append(
         (
@@ -153,7 +153,7 @@ def initialise():
     widgets.append(
         (
             qt_constants.ASSEMBLER_WIDGET,
-            assembler.NukeAssemblerDialog,
+            load.NukeAssemblerDialog,
             'Assembler',
             '',
         )
@@ -185,7 +185,7 @@ def initialise():
     widgets.append(
         (
             qt_constants.LOG_VIEWER_WIDGET,
-            log_viewer.NukeLogViewerDialog,
+            log_viewer.NukeLogViewerClient,
             'Log Viewer',
             '',
         )
