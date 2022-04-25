@@ -7,11 +7,10 @@ from ftrack_connect_pipeline_qt.client import open
 import ftrack_connect_pipeline.constants as constants
 import ftrack_connect_pipeline_qt.constants as qt_constants
 import ftrack_connect_pipeline_nuke.constants as nuke_constants
-from ftrack_connect_pipeline_qt.ui.utility.widget import dialog
 from ftrack_connect_pipeline_nuke.utils.custom_commands import get_nuke_window
 
 
-class NukeOpenClient(open.QtOpenClient):
+class NukeOpenClient(open.QtOpenerClient):
     '''Nuke open dialog'''
 
     ui_types = [
@@ -21,9 +20,13 @@ class NukeOpenClient(open.QtOpenClient):
     ]
     definition_extensions_filter = ['.nk']
 
-    def __init__(self, event_manager, parent=None):
-        super(NukeOpenClient, self).__init__(event_manager, parent=parent)
+    def __init__(self, event_manager, unused_asset_list_model, parent=None):
+        super(NukeOpenClient, self).__init__(
+            event_manager, parent=(parent or get_nuke_window())
+        )
         self.setAttribute(QtCore.Qt.WA_DeleteOnClose, False)
+        # Make toolbar smaller
+        self.setWindowFlags(QtCore.Qt.Tool)
 
     def closeEvent(self, event):
         '''Nuke deletes the dialog, instead hide it so it can be reused'''

@@ -153,7 +153,7 @@ def initialise():
     widgets.append(
         (
             qt_constants.ASSEMBLER_WIDGET,
-            load.NukeAssemblerDialog,
+            load.NukeAssemblerClient,
             'Assembler',
             '',
         )
