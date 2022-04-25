@@ -33,7 +33,7 @@ from ftrack_connect_pipeline_qt.ui.utility.widget.entity_browser import (
 )
 
 
-class QtClient(Client, QtWidgets.QFrame):
+class QtClient(Client):
     '''
     Base QT client widget class.
     '''
@@ -50,11 +50,10 @@ class QtClient(Client, QtWidgets.QFrame):
 
     _shown = False
 
-    def __init__(self, event_manager, parent=None):
+    def __init__(self, event_manager):
         '''Initialise with *event_manager* and
         *parent* widget'''
-        QtWidgets.QFrame.__init__(self, parent=parent)
-        Client.__init__(self, event_manager)
+        super(QtClient, self).__init__(event_manager)
 
         self.widget_factory = self.get_factory()
         self.is_valid_asset_name = False
@@ -330,6 +329,14 @@ class QtClient(Client, QtWidgets.QFrame):
             # Refresh when re-opened
             self.host_and_definition_selector.refresh()
         self._shown = True
+
+
+class QtDockedClient(QtClient, QtWidgets.QFrame):
+    '''Docked QT client'''
+
+    def __init__(self, event_manager, parent=None):
+        QtWidgets.QFrame.__init__(self, parent=parent)
+        QtClient.__init__(self, event_manager)
 
 
 class QtChangeContextClient(Client):

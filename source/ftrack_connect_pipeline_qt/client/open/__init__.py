@@ -12,7 +12,7 @@ from ftrack_connect_pipeline_qt.client import factory
 from ftrack_connect_pipeline_qt.ui.utility.widget import dialog
 
 
-class QtOpenClient(QtClient, dialog.Dialog):
+class QtOpenerClient(QtClient, dialog.Dialog):
     '''
     Base open widget class.
     '''
@@ -25,13 +25,11 @@ class QtOpenClient(QtClient, dialog.Dialog):
     ):
         if not definition_extensions_filter is None:
             self.definition_extensions_filter = definition_extensions_filter
-        QtClient.__init__(self, event_manager)
+
         dialog.Dialog.__init__(self, parent=parent)
+        QtClient.__init__(self, event_manager)
 
-        # super(QtOpenClient, self).__init__(event_manager, parent=parent)
         self.logger.debug('start qt opener')
-
-        self.setWindowFlags(QtCore.Qt.Tool)
 
         self.setWindowTitle('ftrack Open')
         self.resize(450, 530)
@@ -51,7 +49,7 @@ class QtOpenClient(QtClient, dialog.Dialog):
         return False
 
     def post_build(self):
-        super(QtOpenClient, self).post_build()
+        super(QtOpenerClient, self).post_build()
         self.context_selector.entityChanged.connect(self._set_context)
 
         self.widget_factory.widgetAssetUpdated.connect(
@@ -73,7 +71,7 @@ class QtOpenClient(QtClient, dialog.Dialog):
             self._clear_widget()
 
     def change_definition(self, schema, definition, component_names_filter):
-        super(QtOpenClient, self).change_definition(
+        super(QtOpenerClient, self).change_definition(
             schema, definition, component_names_filter
         )
 
@@ -84,7 +82,7 @@ class QtOpenClient(QtClient, dialog.Dialog):
         )
 
     def run(self, default_method=None):
-        if super(QtOpenClient, self).run():
+        if super(QtOpenerClient, self).run():
             self.widget_factory.progress_widget.set_status(
                 constants.SUCCESS_STATUS, 'Successfully opened version!'
             )
@@ -97,5 +95,5 @@ class QtOpenClient(QtClient, dialog.Dialog):
         if self._shown:
             # Widget has been shown before, reset client
             self._client.reset()
-        super(QtOpenClient, self).show()
+        super(QtOpenerClient, self).show()
         self._shown = True

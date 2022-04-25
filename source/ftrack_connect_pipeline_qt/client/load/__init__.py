@@ -54,10 +54,10 @@ class QtLoaderClient(QtClient):
     import_mode = -1
     hard_refresh = True  # Flag telling assembler that next refresh should include dependency resolve
 
-    def __init__(self, event_manager, modes, asset_list_model, parent=None):
+    def __init__(self, event_manager, modes, asset_list_model):
         self.modes = modes
         self._asset_list_model = asset_list_model
-        super(QtLoaderClient, self).__init__(event_manager, parent=parent)
+        super(QtLoaderClient, self).__init__(event_manager)
         self.logger.debug('start qt loader')
 
 
@@ -66,13 +66,10 @@ class QtAssemblerClient(QtLoaderClient, dialog.Dialog):
 
     def __init__(self, event_manager, modes, asset_list_model, parent=None):
 
-        QtLoaderClient.__init__(self, event_manager, modes, asset_list_model)
         dialog.Dialog.__init__(self, parent=parent)
+        QtLoaderClient.__init__(self, event_manager, modes, asset_list_model)
 
         self.logger.debug('start qt assembler')
-
-        # Make sure we stays on top of Maya
-        self.setWindowFlags(QtCore.Qt.Tool)
 
         # self.setModal(True)
         self.setWindowTitle('ftrack Connect Assembler')

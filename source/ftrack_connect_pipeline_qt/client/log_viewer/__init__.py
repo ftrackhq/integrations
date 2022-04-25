@@ -66,8 +66,6 @@ class QtLogViewerClient(LogViewerClient, dialog.Dialog):
 
         self._host_connection = None
 
-        self.setWindowFlags(QtCore.Qt.Tool)
-
         self.pre_build()
         self.build()
         self.post_build()
