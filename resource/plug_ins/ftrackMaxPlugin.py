@@ -36,7 +36,7 @@ def register_ftrack_asset_helper():
         )
         """.format(
             plugin_name=asset_const.FTRACK_PLUGIN_TYPE,
-            class_id=asset_const.FTRACK_ASSET_CLASS_ID,
+            class_id=asset_const.FTRACK_PLUGIN_ID,
             version=asset_const.VERSION,
             asset_name=asset_const.ASSET_NAME,
             asset_id=asset_const.ASSET_ID,

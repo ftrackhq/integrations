@@ -15,14 +15,14 @@ class FtrackAssetNode(FtrackAssetBase):
     Base FtrackAssetNode class.
     '''
 
-    identity = asset_const.FTRACK_ASSET_CLASS_ID#MaxPlus.Class_ID(*asset_const.FTRACK_ASSET_CLASS_ID)
+    ftrack_plugin_id = asset_const.FTRACK_PLUGIN_ID#MaxPlus.Class_ID(*asset_const.FTRACK_PLUGIN_ID)
 
     def is_ftrack_object(self, object):
         '''
         Checks if the given object *other* has the same ClassID as the
-        current identity
+        current ftrack_plugin_id
         '''
-        if object.ClassID == self.identity:
+        if object.ClassID == self.ftrack_plugin_id:
             return True
 
         return False
