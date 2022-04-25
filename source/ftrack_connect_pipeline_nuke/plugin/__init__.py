@@ -29,5 +29,6 @@ class BaseNukePluginWidget(BaseNukePlugin, pluginWidget.BasePluginWidget):
 
 
 from ftrack_connect_pipeline_nuke.plugin.load import *
+from ftrack_connect_pipeline_nuke.plugin.open import *
 from ftrack_connect_pipeline_nuke.plugin.publish import *
 from ftrack_connect_pipeline_nuke.plugin.asset_manager import *

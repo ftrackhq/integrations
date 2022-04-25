@@ -18,6 +18,7 @@ class NukeHost(Host):
     engines = {
         'asset_manager': host_engine.NukeAssetManagerEngine,
         'loader': host_engine.NukeLoaderEngine,
+        'opener': host_engine.NukeOpenerEngine,
         'publisher': host_engine.NukePublisherEngine,
     }
 
