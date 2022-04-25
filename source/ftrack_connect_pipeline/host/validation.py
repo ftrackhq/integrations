@@ -127,7 +127,7 @@ class PluginDiscoverValidation(object):
 
         return idxs_to_pop or None
 
-    def validate_loaders_plugins(self, loaders, schema_type):
+    def validate_loaders_plugins(self, loaders):
         '''
         Validates all the definitions in th given *loaders* definitions
         calling the :meth:`validate_context_plugins`,
@@ -139,6 +139,72 @@ class PluginDiscoverValidation(object):
         *loaders* : List of loader definitions.
 
         '''
+        schema_type = 'loader'
+        idxs_to_pop = []
+        for definition in loaders:
+            valid_definition = True
+            # context plugins
+            try:
+                if not self.vaildate_definition_plugins(
+                    definition[constants.CONTEXTS],
+                    definition['name'],
+                    schema_type,
+                ):
+                    valid_definition = False
+            except Exception as e:
+                self.logger.error(
+                    'Could not validate Loader contexts steps: {}'.format(e)
+                )
+                valid_definition = False
+            try:
+                if not self.vaildate_definition_plugins(
+                    definition[constants.COMPONENTS],
+                    definition['name'],
+                    schema_type,
+                ):
+                    valid_definition = False
+            except Exception as e:
+                self.logger.error(
+                    'Could not validate Loader components steps: {}'.format(e)
+                )
+                valid_definition = False
+            try:
+                if not self.vaildate_definition_plugins(
+                    definition[constants.FINALIZERS],
+                    definition['name'],
+                    schema_type,
+                ):
+                    valid_definition = False
+            except Exception as e:
+                self.logger.error(
+                    'Could not validate Loader finalizers steps: {}'.format(e)
+                )
+                valid_definition = False
+            if not valid_definition:
+                idx = loaders.index(definition)
+                idxs_to_pop.append(idx)
+                self.logger.debug(
+                    'The definition {} from type {} contains invalid plugins '
+                    'and will not be used'.format(
+                        definition['name'], 'publisher'
+                    )
+                )
+
+        return idxs_to_pop or None
+
+    def validate_openers_plugins(self, loaders):
+        '''
+        Validates all the definitions in th given *loaders* definitions
+        calling the :meth:`validate_context_plugins`,
+        :meth:`validate_components_plugins`,
+        :meth:`vaildate_finalizers_plugins`.
+
+        Returns the invalid loader indices.
+
+        *loaders* : List of loader definitions.
+
+        '''
+        schema_type = 'opener'
         idxs_to_pop = []
         for definition in loaders:
             valid_definition = True
