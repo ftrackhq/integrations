@@ -52,7 +52,7 @@ class MayaAssetManagerEngine(AssetManagerEngine):
 
         if ftrack_asset_nodes:
             for ftrack_object in ftrack_asset_nodes:
-                param_dict = FtrackAssetNode.get_parameters_dictionary(
+                param_dict = FtrackAssetNode.get_dictionary_from_ftrack_object(
                     ftrack_object
                 )
                 node_asset_info = FtrackAssetInfo(param_dict)

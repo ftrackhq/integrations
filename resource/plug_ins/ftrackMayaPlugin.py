@@ -9,7 +9,7 @@ from ftrack_connect_pipeline_maya.constants import asset as asset_const
 
 version = asset_const.VERSION
 kPluginNodeTypeName = asset_const.FTRACK_PLUGIN_TYPE
-kPluginNodeId = OpenMaya.MTypeId(asset_const.FTRACK_ASSET_CLASS_ID)
+kPluginNodeId = OpenMaya.MTypeId(asset_const.FTRACK_PLUGIN_ID)
 
 glRenderer = OpenMayaRender.MHardwareRenderer.theRenderer()
 glFT = glRenderer.glFunctionTable()
