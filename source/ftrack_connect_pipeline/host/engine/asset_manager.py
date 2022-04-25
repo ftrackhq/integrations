@@ -41,7 +41,7 @@ class AssetManagerEngine(BaseEngine):
             event_manager, host_types, host_id, asset_type_name=asset_type_name
         )
 
-    def get_ftrack_asset_object(self, asset_info):
+    def get_ftrack_asset_class(self, asset_info):
         '''
         Initializes the :data:`ftrack_asset_class` with the given
         *asset_info*
@@ -594,7 +594,7 @@ class AssetManagerEngine(BaseEngine):
 
         new_version_id = options['new_version_id']
 
-        ftrack_asset_object = self.get_ftrack_asset_object(asset_info)
+        ftrack_asset_class = self.get_ftrack_asset_class(asset_info)
 
         remove_result = None
         remove_status = None
@@ -629,7 +629,88 @@ class AssetManagerEngine(BaseEngine):
             return remove_status, remove_result
 
         try:
-            new_asset_info = ftrack_asset_object.change_version(new_version_id)
+            # Get asset version entity of the ne_ version_id
+            asset_version_entity = self.session.query(
+                'select version from AssetVersion where id is "{}"'.format(
+                    new_version_id
+                )
+            ).one()
+
+            # Create the new asset info of the asset_version_entity
+            new_asset_info = FtrackAssetInfo.from_version_entity(
+                asset_version_entity,
+                ftrack_asset_class.asset_info.get(asset_const.COMPONENT_NAME)
+            )
+            if not new_asset_info:
+                raise Exception ("Asset version couldn't change")
+            if not isinstance(new_asset_info, FtrackAssetInfo):
+                raise TypeError(
+                    "Return type of change version has to be type "
+                    "of FtrackAssetInfo"
+                )
+
+            # Get the asset info options from the old asset info
+            asset_info_options = ftrack_asset_class.asset_info[
+                asset_const.ASSET_INFO_OPTIONS
+            ]
+
+            if not asset_info_options:
+                ftrack_asset_class.asset_info.update(new_asset_info)
+                raise UserWarning("No options to update")
+
+            # Use the asset_info options to reload the new version
+            # Collect asset_context_data and asset data
+            asset_context_data = asset_info_options['settings']['context_data']
+            asset_data = new_asset_info[asset_const.COMPONENT_PATH]
+            # Assign data Asset_id, version_number, asset_name,
+            # asset_type_name, version_id
+            asset_context_data_keys = [
+                asset_const.ASSET_ID,
+                asset_const.VERSION_NUMBER,
+                asset_const.ASSET_NAME,
+                asset_const.ASSET_TYPE_NAME,
+                asset_const.VERSION_ID
+            ]
+            for k in asset_context_data_keys:
+                asset_context_data[k] = new_asset_info[k]
+
+            # Update asset_info_options
+            asset_info_options['settings']['data'][0]['result'] = [asset_data]
+            asset_info_options['settings']['context_data'].update(
+                asset_context_data
+            )
+
+            # Run the plugin
+            run_event = ftrack_api.event.base.Event(
+                topic=constants.PIPELINE_RUN_PLUGIN_TOPIC,
+                data=asset_info_options,
+            )
+
+            plugin_result_data = self.session.event_hub.publish(
+                run_event, synchronous=True
+            )
+
+            # Get the result
+            result_data = plugin_result_data[0]
+            if not result_data:
+                self.logger.error("Error re-loading asset")
+
+            # Sync new asset info
+            new_asset_info[asset_const.ASSET_INFO_OPTIONS] = asset_info_options
+
+            new_asset_info[asset_const.LOAD_MODE] = ftrack_asset_class.asset_info[
+                asset_const.LOAD_MODE
+            ]
+            new_asset_info[asset_const.REFERENCE_OBJECT] = ftrack_asset_class.asset_info[
+                asset_const.REFERENCE_OBJECT
+            ]
+
+            ftrack_asset_class.asset_info.update(new_asset_info)
+
+        except UserWarning as e:
+            self.logger.debug(e)
+            pass
+
         except Exception as e:
             status = constants.ERROR_STATUS
             message = str(
