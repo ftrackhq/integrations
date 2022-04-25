@@ -373,7 +373,7 @@ class BasePlugin(object):
         Also this functions saves the original passed data to the property
         :obj:`raw_data`.
 
-        Note:: Publisher validator, output and Loader importer and post_import
+        Note:: Publisher validator, output and Loader/Opener importer and post_import
         plugin types override this function to modify the data that arrives to
         the plugin.
         '''
@@ -525,5 +525,6 @@ class BasePlugin(object):
 
 
 from ftrack_connect_pipeline.plugin.load import *
+from ftrack_connect_pipeline.plugin.open import *
 from ftrack_connect_pipeline.plugin.publish import *
 from ftrack_connect_pipeline.plugin.asset_manager import *

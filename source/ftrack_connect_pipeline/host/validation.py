@@ -58,21 +58,20 @@ class PluginDiscoverValidation(object):
         self.session = session
         self.host_types = host_types
 
-    def validate_publishers_plugins(self, publishers):
+    def validate_plugins(self, definitions, schema_type):
         '''
-        Validates all the definitions in th given *publishers* definitions
+        Validates all the definitions in the given *definitions* definitions
         calling the :meth:`validate_context_plugins`,
         :meth:`validate_components_plugins`,
         :meth:`vaildate_finalizers_plugins`.
 
-        Returns the invalid publisher indices.
+        Returns the invalid definition indices.
 
-        *publishers* : List of publisher definitions.
+        *definitions* : List of definitions (opener, loader, publisher and so on).
 
         '''
-        schema_type = 'publisher'
         idxs_to_pop = []
-        for definition in publishers:
+        for definition in definitions:
             valid_definition = True
             # context plugins
             try:
@@ -84,9 +83,12 @@ class PluginDiscoverValidation(object):
                     valid_definition = False
             except Exception as e:
                 self.logger.error(
-                    'Could not validate publisher contexts steps: {}'.format(e)
+                    'Could not validate {} contexts steps: {}'.format(
+                        schema_type, e
+                    )
                 )
                 valid_definition = False
+            # component plugins
             try:
                 if not self.vaildate_definition_plugins(
                     definition[constants.COMPONENTS],
@@ -96,11 +98,12 @@ class PluginDiscoverValidation(object):
                     valid_definition = False
             except Exception as e:
                 self.logger.error(
-                    'Could not validate publisher components steps: {}'.format(
-                        e
+                    'Could not validate {} components steps: {}'.format(
+                        schema_type, e
                     )
                 )
                 valid_definition = False
+            # finalizer plugins
             try:
                 if not self.vaildate_definition_plugins(
                     definition[constants.FINALIZERS],
@@ -110,83 +113,18 @@ class PluginDiscoverValidation(object):
                     valid_definition = False
             except Exception as e:
                 self.logger.error(
-                    'Could not validate publisher finalizers steps: {}'.format(
-                        e
+                    'Could not validate {} finalizers steps: {}'.format(
+                        schema_type, e
                     )
                 )
                 valid_definition = False
             if not valid_definition:
-                idx = publishers.index(definition)
+                idx = definitions.index(definition)
                 idxs_to_pop.append(idx)
                 self.logger.debug(
                     'The definition {} from type {} contains invalid plugins '
                     'and will not be used'.format(
-                        definition['name'], 'publisher'
-                    )
-                )
-
-        return idxs_to_pop or None
-
-    def validate_loaders_plugins(self, loaders):
-        '''
-        Validates all the definitions in th given *loaders* definitions
-        calling the :meth:`validate_context_plugins`,
-        :meth:`validate_components_plugins`,
-        :meth:`vaildate_finalizers_plugins`.
-
-        Returns the invalid loader indices.
-
-        *loaders* : List of loader definitions.
-
-        '''
-        schema_type = 'loader'
-        idxs_to_pop = []
-        for definition in loaders:
-            valid_definition = True
-            # context plugins
-            try:
-                if not self.vaildate_definition_plugins(
-                    definition[constants.CONTEXTS],
-                    definition['name'],
-                    schema_type,
-                ):
-                    valid_definition = False
-            except Exception as e:
-                self.logger.error(
-                    'Could not validate Loader contexts steps: {}'.format(e)
-                )
-                valid_definition = False
-            try:
-                if not self.vaildate_definition_plugins(
-                    definition[constants.COMPONENTS],
-                    definition['name'],
-                    schema_type,
-                ):
-                    valid_definition = False
-            except Exception as e:
-                self.logger.error(
-                    'Could not validate Loader components steps: {}'.format(e)
-                )
-                valid_definition = False
-            try:
-                if not self.vaildate_definition_plugins(
-                    definition[constants.FINALIZERS],
-                    definition['name'],
-                    schema_type,
-                ):
-                    valid_definition = False
-            except Exception as e:
-                self.logger.error(
-                    'Could not validate Loader finalizers steps: {}'.format(e)
-                )
-                valid_definition = False
-            if not valid_definition:
-                idx = loaders.index(definition)
-                idxs_to_pop.append(idx)
-                self.logger.debug(
-                    'The definition {} from type {} contains invalid plugins '
-                    'and will not be used'.format(
-                        definition['name'], 'publisher'
+                        definition['name'], schema_type
                     )
                 )
 

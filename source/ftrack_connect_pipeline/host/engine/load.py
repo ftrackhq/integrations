@@ -1,15 +1,10 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2020 ftrack
 
-import logging
-import ftrack_api
-from ftrack_connect_pipeline import constants
-from ftrack_connect_pipeline.host.engine.base_load_publish import (
-    BaseLoaderPublisherEngine,
-)
+from ftrack_connect_pipeline.host.engine import BaseEngine
 
 
-class LoaderEngine(BaseLoaderPublisherEngine):
+class LoaderEngine(BaseEngine):
     engine_type = 'loader'
 
     def __init__(self, event_manager, host_types, host_id, asset_type_name):

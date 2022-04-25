@@ -156,8 +156,7 @@ class HostConnection(object):
         '''
         Publish an event with the topic
         :py:const:`~ftrack_connect_pipeline.constants.PIPELINE_HOST_RUN`
-        with the given *data* and *engine*. If *delayed_load* is true, only
-        the ftrack nodes will be created on imported instead of fully loaded.
+        with the given *data* and *engine*.
         '''
         event = ftrack_api.event.base.Event(
             topic=constants.PIPELINE_HOST_RUN,
@@ -165,7 +164,7 @@ class HostConnection(object):
                 'pipeline': {
                     'host_id': self.id,
                     'data': data,
-                    'engine_type': engine
+                    'engine_type': engine,
                 }
             },
         )

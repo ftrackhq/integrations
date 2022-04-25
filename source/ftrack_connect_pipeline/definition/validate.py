@@ -37,7 +37,7 @@ def validate_schema(data, session):
 
     # validate schema
     for schema in data['schema']:
-        for entry in ['loader', 'publisher', 'asset_manager']:
+        for entry in ['loader', 'opener', 'publisher', 'asset_manager']:
             if schema['title'].lower() == entry:
                 for definition in data[entry]:
                     copy_data[entry].remove(definition)
