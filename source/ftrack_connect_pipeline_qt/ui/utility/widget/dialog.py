@@ -89,7 +89,8 @@ class ModalDialog(QtWidgets.QDialog):
 
         self.setModal(modal)
         self.setWindowFlags(
-            QtCore.Qt.SplashScreen | (QtCore.Qt.WindowStaysOnTopHint if on_top else 0)
+            QtCore.Qt.SplashScreen
+            | (QtCore.Qt.WindowStaysOnTopHint if on_top else 0)
         )
 
         if prompt is False:

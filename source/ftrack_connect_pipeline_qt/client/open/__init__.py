@@ -14,7 +14,7 @@ class QtOpenClient(QtClient):
     Base open widget class.
     '''
 
-    definition_filter = 'loader'
+    definition_filter = 'opener'
     client_name = qt_constants.OPEN_WIDGET
 
     def __init__(
