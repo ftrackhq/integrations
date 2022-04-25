@@ -194,22 +194,22 @@ class Host(object):
             self.session, self.host_types
         )
 
-        invalid_publishers_idxs = plugin_validator.validate_publishers_plugins(
-            data['publisher']
+        invalid_publishers_idxs = plugin_validator.validate_plugins(
+            data['publisher'], constants.PUBLISHER
         )
         if invalid_publishers_idxs:
             for idx in sorted(invalid_publishers_idxs, reverse=True):
                 data['publisher'].pop(idx)
 
-        invalid_loaders_idxs = plugin_validator.validate_loaders_plugins(
-            data['loader']
+        invalid_loaders_idxs = plugin_validator.validate_plugins(
+            data['loader'], constants.LOADER
         )
         if invalid_loaders_idxs:
             for idx in sorted(invalid_loaders_idxs, reverse=True):
                 data['loader'].pop(idx)
 
-        invalid_openers_idxs = plugin_validator.validate_openers_plugins(
-            data['opener']
+        invalid_openers_idxs = plugin_validator.validate_plugins(
+            data['opener'], constants.OPENER
         )
         if invalid_openers_idxs:
             for idx in sorted(invalid_openers_idxs, reverse=True):
