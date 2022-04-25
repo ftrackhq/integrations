@@ -8,13 +8,12 @@ from ftrack_connect_pipeline_qt.client import QtClient
 from ftrack_connect_pipeline_qt import constants as qt_constants
 from ftrack_connect_pipeline_qt.client import factory
 
-
 class QtOpenClient(QtClient):
     '''
     Base open widget class.
     '''
 
-    definition_filter = 'loader'
+    definition_filter = 'opener'
     client_name = qt_constants.OPEN_WIDGET
 
     def __init__(

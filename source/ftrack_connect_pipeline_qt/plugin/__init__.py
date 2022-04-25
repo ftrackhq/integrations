@@ -76,4 +76,5 @@ class BasePluginWidget(plugin.BasePlugin):
 
 
 from ftrack_connect_pipeline_qt.plugin.load import *
+from ftrack_connect_pipeline_qt.plugin.open import *
 from ftrack_connect_pipeline_qt.plugin.publish import *
