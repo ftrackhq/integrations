@@ -108,14 +108,14 @@ class MayaAssetManagerEngine(AssetManagerEngine):
             'message': message,
         }
 
-        ftrack_asset_object = self.get_ftrack_asset_object(asset_info)
+        ftrack_asset_class = self.get_ftrack_asset_class(asset_info)
 
         if options.get('clear_selection'):
             cmds.select(cl=True)
 
         nodes = cmds.listConnections(
             '{}.{}'.format(
-                ftrack_asset_object.ftrack_object, asset_const.ASSET_LINK
+                ftrack_asset_class.ftrack_object, asset_const.ASSET_LINK
             )
         )
         for node in nodes:
@@ -196,13 +196,13 @@ class MayaAssetManagerEngine(AssetManagerEngine):
             'message': message,
         }
 
-        ftrack_asset_object = self.get_ftrack_asset_object(asset_info)
+        ftrack_asset_class = self.get_ftrack_asset_class(asset_info)
 
         reference_node = False
         nodes = (
             cmds.listConnections(
                 '{}.{}'.format(
-                    ftrack_asset_object.ftrack_object, asset_const.ASSET_LINK
+                    ftrack_asset_class.ftrack_object, asset_const.ASSET_LINK
                 )
             )
             or []
@@ -271,12 +271,12 @@ class MayaAssetManagerEngine(AssetManagerEngine):
                     return status, result
 
         if (
-            cmds.objExists(ftrack_asset_object.ftrack_object)
+            cmds.objExists(ftrack_asset_class.ftrack_object)
             and keep_ftrack_node is False
         ):
             try:
-                cmds.delete(ftrack_asset_object.ftrack_object)
-                result.append(str(ftrack_asset_object.ftrack_object))
+                cmds.delete(ftrack_asset_class.ftrack_object)
+                result.append(str(ftrack_asset_class.ftrack_object))
                 status = constants.SUCCESS_STATUS
             except Exception as error:
                 message = str(
