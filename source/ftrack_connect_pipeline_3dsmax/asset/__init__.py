@@ -118,13 +118,13 @@ class FtrackAssetNode(FtrackAssetBase):
 
         return synced
 
-    def _get_unique_ftrack_object_name(self):
+    def _generate_ftrack_object_name(self):
         '''
         Return a unique scene name for the current ftrack_object
         '''
         ftrack_object_name = super(
             FtrackAssetNode, self
-        )._get_unique_ftrack_object_name()
+        )._generate_ftrack_object_name()
 
         return max_utils.get_unique_node_name(ftrack_object_name)
 
@@ -171,7 +171,7 @@ class FtrackAssetNode(FtrackAssetBase):
         Creates a ftrack_object with a unique name. The ftrack_object is
         type of FtrackAssetHelper.
         '''
-        name = self._get_unique_ftrack_object_name()
+        name = self._generate_ftrack_object_name()
         ftrack_object = rt.FtrackAssetHelper()
         ftrack_object.Name = name
 
