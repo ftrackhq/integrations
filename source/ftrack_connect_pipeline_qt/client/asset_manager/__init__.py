@@ -276,7 +276,6 @@ class QtAssetManagerClient(AssetManagerClient, QtWidgets.QFrame):
             asset_entities_list = []
             for ftrack_asset in event['data']:
                 if ftrack_asset not in self._asset_list_model.items():
-                    ftrack_asset['session'] = self.session
                     asset_entities_list.append(ftrack_asset)
 
             self.asset_manager_widget.set_asset_list(asset_entities_list)
