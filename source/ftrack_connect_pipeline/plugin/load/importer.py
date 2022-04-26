@@ -87,7 +87,9 @@ class LoaderImporterPlugin(base.BaseImporterPlugin):
         self.ftrack_asset = self.ftrack_asset_class(self.event_manager)
         self.ftrack_asset.set_asset_info(asset_info)
 
-        ftrack_object = self.ftrack_asset.init_ftrack_object(create_object=True)
+        ftrack_object = self.ftrack_asset.init_ftrack_object(
+            create_object=True
+        )
 
         results = [ftrack_object]
         return results

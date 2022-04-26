@@ -636,10 +636,10 @@ class AssetManagerEngine(BaseEngine):
             # Create the new asset info of the asset_version_entity
             new_asset_info = FtrackAssetInfo.from_version_entity(
                 asset_version_entity,
-                ftrack_asset_class.asset_info.get(asset_const.COMPONENT_NAME)
+                ftrack_asset_class.asset_info.get(asset_const.COMPONENT_NAME),
             )
             if not new_asset_info:
-                raise Exception ("Asset version couldn't change")
+                raise Exception("Asset version couldn't change")
             if not isinstance(new_asset_info, FtrackAssetInfo):
                 raise TypeError(
                     "Return type of change version has to be type "
@@ -666,7 +666,7 @@ class AssetManagerEngine(BaseEngine):
                 asset_const.VERSION_NUMBER,
                 asset_const.ASSET_NAME,
                 asset_const.ASSET_TYPE_NAME,
-                asset_const.VERSION_ID
+                asset_const.VERSION_ID,
             ]
             for k in asset_context_data_keys:
                 asset_context_data[k] = new_asset_info[k]
@@ -695,12 +695,12 @@ class AssetManagerEngine(BaseEngine):
             # Sync new asset info
             new_asset_info[asset_const.ASSET_INFO_OPTIONS] = asset_info_options
 
-            new_asset_info[asset_const.LOAD_MODE] = ftrack_asset_class.asset_info[
+            new_asset_info[
                 asset_const.LOAD_MODE
-            ]
-            new_asset_info[asset_const.REFERENCE_OBJECT] = ftrack_asset_class.asset_info[
+            ] = ftrack_asset_class.asset_info[asset_const.LOAD_MODE]
+            new_asset_info[
                 asset_const.REFERENCE_OBJECT
-            ]
+            ] = ftrack_asset_class.asset_info[asset_const.REFERENCE_OBJECT]
 
             ftrack_asset_class.asset_info.update(new_asset_info)
 
