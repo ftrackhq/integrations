@@ -1,14 +1,9 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2020 ftrack
 
-import json
-import ftrack_api
 from ftrack_connect_pipeline.asset import FtrackAssetInfo, FtrackAssetBase
-from ftrack_connect_pipeline.utils import str_version
 from ftrack_connect_pipeline_nuke.constants import asset as asset_const
-from ftrack_connect_pipeline import constants as core_const
 from ftrack_connect_pipeline_nuke.utils import custom_commands as nuke_utils
-from ftrack_connect_pipeline_nuke.constants.asset import modes as load_const
 
 import nuke
 
