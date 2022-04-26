@@ -102,10 +102,6 @@ class FtrackAssetTab(FtrackAssetBase):
                 if not param_dict:
                     continue
                 node_asset_info = FtrackAssetInfo(param_dict)
-                if node_asset_info.is_deprecated:
-                    raise DeprecationWarning(
-                        "Can not read v1 ftrack asset plugin"
-                    )
                 if (
                     node_asset_info[asset_const.ASSET_INFO_ID]
                     == self.asset_info[asset_const.ASSET_INFO_ID]
