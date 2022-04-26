@@ -10,7 +10,7 @@ import ftrack_connect_pipeline_nuke.constants as nuke_constants
 from ftrack_connect_pipeline_nuke.utils.custom_commands import get_nuke_window
 
 
-class NukeOpenClient(open.QtOpenerClient):
+class NukeOpenerClient(open.QtOpenerClient):
     '''Nuke open dialog'''
 
     ui_types = [
@@ -21,7 +21,7 @@ class NukeOpenClient(open.QtOpenerClient):
     definition_extensions_filter = ['.nk']
 
     def __init__(self, event_manager, unused_asset_list_model, parent=None):
-        super(NukeOpenClient, self).__init__(
+        super(NukeOpenerClient, self).__init__(
             event_manager, parent=(parent or get_nuke_window())
         )
         self.setAttribute(QtCore.Qt.WA_DeleteOnClose, False)
