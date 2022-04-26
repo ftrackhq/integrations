@@ -121,7 +121,7 @@ def initialise():
 
     widgets = list()
     widgets.append(
-        (qt_constants.OPEN_WIDGET, open.MayaOpenClient, 'Open', 'fileOpen')
+        (qt_constants.OPEN_WIDGET, open.MayaOpenerClient, 'Open', 'fileOpen')
     )
     widgets.append(
         (
