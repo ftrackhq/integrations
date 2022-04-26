@@ -155,6 +155,26 @@ class FtrackAssetNode(FtrackAssetBase):
 
         return synced
 
+    def connect_objects(self, objects):
+        '''
+        Link the given *objects* ftrack attribute to the self
+        :obj:`ftrack_object` asset_link attribute in maya.
+
+        *objects* List of Maya DAG objects
+        '''
+        for obj in objects:
+            if cmds.lockNode(obj, q=True)[0]:
+                cmds.lockNode(obj, l=False)
+
+            if not cmds.attributeQuery('ftrack', n=obj, exists=True):
+                cmds.addAttr(obj, ln='ftrack', at='message')
+
+            if not cmds.listConnections('{}.ftrack'.format(obj)):
+                cmds.connectAttr(
+                    '{}.{}'.format(self.ftrack_object, asset_const.ASSET_LINK),
+                    '{}.ftrack'.format(obj),
+                )
+
     def _generate_ftrack_object_name(self):
         '''
         Return a scene name for the current self :obj:`ftrack_object`.
@@ -171,26 +191,6 @@ class FtrackAssetNode(FtrackAssetBase):
             raise RuntimeError(error_message)
 
         return ftrack_object_name
-
-    def connect_objects(self, objects):
-        '''
-        Link the given *objects* ftrack attribute to the self
-        :obj:`ftrack_object` asset_link attribute in maya.
-
-        *objects* Lidt of Maya DAG objects
-        '''
-        for obj in objects:
-            if cmds.lockNode(obj, q=True)[0]:
-                cmds.lockNode(obj, l=False)
-
-            if not cmds.attributeQuery('ftrack', n=obj, exists=True):
-                cmds.addAttr(obj, ln='ftrack', at='message')
-
-            if not cmds.listConnections('{}.ftrack'.format(obj)):
-                cmds.connectAttr(
-                    '{}.{}'.format(self.ftrack_object, asset_const.ASSET_LINK),
-                    '{}.ftrack'.format(obj),
-                )
 
     def create_new_ftrack_object(self):
         '''
