@@ -211,7 +211,7 @@ class QtAssemblerClient(QtLoaderClient, dialog.Dialog):
         self.layout().addWidget(self.splitter, 100)
 
     def post_build(self):
-        super(QtLoaderClient, self).post_build(run_method="init_and_load")
+        super(QtLoaderClient, self).post_build()
         self.host_and_definition_selector.hostsDiscovered.connect(
             self._on_hosts_discovered
         )
@@ -221,6 +221,9 @@ class QtAssemblerClient(QtLoaderClient, dialog.Dialog):
         self.run_button_no_load.clicked.connect(
             partial(self.run, "init_nodes")
         )
+
+    def _connect_run_button(self):
+        self.run_button.clicked.connect(partial(self.run, "init_and_load"))
 
     def _on_hosts_discovered(self, host_connects):
         self.host_and_definition_selector.setVisible(len(host_connects) > 1)

@@ -192,7 +192,7 @@ class QtClient(Client):
 
         self.layout().addWidget(button_widget)
 
-    def post_build(self, run_method=None):
+    def post_build(self):
         '''Post Build ui method for events connections.'''
         self.context_selector.entityChanged.connect(
             self._on_context_selector_context_changed
@@ -205,12 +205,15 @@ class QtClient(Client):
         if self.event_manager.mode == constants.LOCAL_EVENT_MODE:
             self.host_and_definition_selector.host_widget.hide()
 
-        self.run_button.clicked.connect(partial(self.run, run_method))
+        self._connect_run_button()
         if self.open_assembler_button:
             self.open_assembler_button.clicked.connect(self._open_assembler)
             self.open_assembler_button.setVisible(
                 self.client_name == qt_constants.OPEN_WIDGET
             )
+
+    def _connect_run_button(self):
+        self.run_button.clicked.connect(self.run)
 
     def _on_context_selector_context_changed(
         self, context_entity, global_context_change
