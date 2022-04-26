@@ -3,12 +3,12 @@
 # :copyright: Copyright (c) 2014-2020 ftrack
 
 from ftrack_connect_pipeline_qt import constants
-from ftrack_connect_pipeline_qt.client import QtClient
+from ftrack_connect_pipeline_qt import client
 from ftrack_connect_pipeline_qt import constants as qt_constants
 from ftrack_connect_pipeline_qt.client import factory
 
 
-class QtPublisherClient(QtClient):
+class QtPublisherClient(client.QtDockedClient):
     '''
     Base publish widget class.
     '''

@@ -23,63 +23,17 @@ from ftrack_connect_pipeline_qt.ui.utility.widget import (
     header,
     tab,
 )
-from ftrack_connect_pipeline_qt.ui import resource
+
+# DO NOT REMOVE UNUSED IMPORT - important to keep this in order to have resources
+# initialised properly for applying style and providing images & fonts.
+from ftrack_connect_pipeline_qt.ui import (
+    resource,
+)
 from ftrack_connect_pipeline_qt.ui import theme
-from ftrack_connect_pipeline_qt.ui.utility.widget import icon
 from ftrack_connect_pipeline_qt.ui.utility.widget import dialog
 
 
-class QtLogViewerDialog(dialog.Dialog):
-    def __init__(self, event_manager, parent=None):
-        super(QtLogViewerDialog, self).__init__(parent=parent)
-
-        if self.getTheme():
-            self.setTheme(self.getTheme())
-            if self.getThemeBackgroundStyle():
-                self.setProperty('background', self.getThemeBackgroundStyle())
-        self.setProperty('docked', 'false')
-
-        self.client = QtLogViewerClient(event_manager, None)
-
-        self.shown = False
-
-        self.pre_build()
-        self.build()
-        self.post_build()
-
-    def getTheme(self):
-        '''Return the client theme, return None to disable themes. Can be overridden by child.'''
-        return 'dark'
-
-    def setTheme(self, selected_theme):
-        theme.applyFont()
-        theme.applyTheme(self, selected_theme, 'plastique')
-
-    def getThemeBackgroundStyle(self):
-        return 'ftrack'
-
-    def pre_build(self):
-        self.setLayout(QtWidgets.QHBoxLayout())
-        self.layout().setContentsMargins(0, 0, 0, 5)
-        self.layout().setSpacing(1)
-
-    def build(self):
-        self.layout().addWidget(self.client)
-
-    def post_build(self):
-        self.setWindowTitle('ftrack Log viewer')
-        self.resize(750, 630)
-        self.setModal(True)
-
-    def show(self):
-        if self.shown:
-            # Widget has been shown before, reset client
-            pass
-        super(QtLogViewerDialog, self).show()
-        self.shown = True
-
-
-class QtLogViewerClient(LogViewerClient, QtWidgets.QWidget):
+class QtLogViewerClient(LogViewerClient, dialog.Dialog):
     '''
     QtLogViewerClient class.
     '''
@@ -101,15 +55,33 @@ class QtLogViewerClient(LogViewerClient, QtWidgets.QWidget):
         communicate to the event server.
         '''
 
-        QtWidgets.QWidget.__init__(self, parent=parent)
+        dialog.Dialog.__init__(self, parent=parent)
         LogViewerClient.__init__(self, event_manager)
+
+        if self.getTheme():
+            self.setTheme(self.getTheme())
+            if self.getThemeBackgroundStyle():
+                self.setProperty('background', self.getThemeBackgroundStyle())
+        self.setProperty('docked', 'false')
 
         self._host_connection = None
 
         self.pre_build()
         self.build()
         self.post_build()
+
         self.add_hosts(self.discover_hosts())
+
+    def getTheme(self):
+        '''Return the client theme, return None to disable themes. Can be overridden by child.'''
+        return 'dark'
+
+    def setTheme(self, selected_theme):
+        theme.applyFont()
+        theme.applyTheme(self, selected_theme, 'plastique')
+
+    def getThemeBackgroundStyle(self):
+        return 'ftrack'
 
     def is_docked(self):
         False
@@ -154,8 +126,8 @@ class QtLogViewerClient(LogViewerClient, QtWidgets.QWidget):
     def pre_build(self):
         '''Prepare general layout.'''
         self.setLayout(QtWidgets.QVBoxLayout())
-        self.layout().setContentsMargins(1, 1, 1, 1)
-        self.layout().setSpacing(1)
+        self.layout().setContentsMargins(16, 16, 16, 16)
+        self.layout().setSpacing(0)
 
         self._plugin_log_viewer_widget = PluginLogViewerWidget(
             self.event_manager, parent=self.parent()
@@ -195,6 +167,10 @@ class QtLogViewerClient(LogViewerClient, QtWidgets.QWidget):
         )
         self.logItemAdded.connect(self.update_log_items)
         self._tab_widget.currentChanged.connect(self._on_tab_changed)
+
+        self.setWindowTitle('ftrack Log viewer')
+        self.resize(750, 630)
+        self.setModal(True)
 
     def _on_tab_changed(self, index):
         if index == 1:

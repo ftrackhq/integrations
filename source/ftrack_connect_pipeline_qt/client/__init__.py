@@ -33,7 +33,7 @@ from ftrack_connect_pipeline_qt.ui.utility.widget.entity_browser import (
 )
 
 
-class QtClient(Client, QtWidgets.QFrame):
+class QtClient(Client):
     '''
     Base QT client widget class.
     '''
@@ -50,11 +50,10 @@ class QtClient(Client, QtWidgets.QFrame):
 
     _shown = False
 
-    def __init__(self, event_manager, parent=None):
+    def __init__(self, event_manager):
         '''Initialise with *event_manager* and
         *parent* widget'''
-        QtWidgets.QFrame.__init__(self, parent=parent)
-        Client.__init__(self, event_manager)
+        super(QtClient, self).__init__(event_manager)
 
         self.widget_factory = self.get_factory()
         self.is_valid_asset_name = False
@@ -193,7 +192,7 @@ class QtClient(Client, QtWidgets.QFrame):
 
         self.layout().addWidget(button_widget)
 
-    def post_build(self, run_method=None):
+    def post_build(self):
         '''Post Build ui method for events connections.'''
         self.context_selector.entityChanged.connect(
             self._on_context_selector_context_changed
@@ -206,12 +205,15 @@ class QtClient(Client, QtWidgets.QFrame):
         if self.event_manager.mode == constants.LOCAL_EVENT_MODE:
             self.host_and_definition_selector.host_widget.hide()
 
-        self.run_button.clicked.connect(partial(self.run, run_method))
+        self._connect_run_button()
         if self.open_assembler_button:
             self.open_assembler_button.clicked.connect(self._open_assembler)
             self.open_assembler_button.setVisible(
                 self.client_name == qt_constants.OPEN_WIDGET
             )
+
+    def _connect_run_button(self):
+        self.run_button.clicked.connect(self.run)
 
     def _on_context_selector_context_changed(
         self, context_entity, global_context_change
@@ -330,6 +332,14 @@ class QtClient(Client, QtWidgets.QFrame):
             # Refresh when re-opened
             self.host_and_definition_selector.refresh()
         self._shown = True
+
+
+class QtDockedClient(QtClient, QtWidgets.QFrame):
+    '''Docked QT client'''
+
+    def __init__(self, event_manager, parent=None):
+        QtWidgets.QFrame.__init__(self, parent=parent)
+        QtClient.__init__(self, event_manager)
 
 
 class QtChangeContextClient(Client):
