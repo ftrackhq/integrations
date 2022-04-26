@@ -7,7 +7,7 @@ from Qt import QtWidgets, QtCore, QtGui
 
 import shiboken2
 
-from ftrack_connect_pipeline.utils import get_current_context_id
+from ftrack_connect_pipeline.utils import get_global_context_id
 from ftrack_connect_pipeline_qt.ui.utility.widget.thumbnail import Context
 from ftrack_connect_pipeline_qt.ui.utility.widget.search import Search
 from ftrack_connect_pipeline_qt.utils import (
@@ -90,8 +90,8 @@ class EntityBrowser(dialog.ModalDialog):
         )
 
         if entity is None:
-            if get_current_context_id():
-                entity = self.find_context_entity(get_current_context_id())
+            if get_global_context_id():
+                entity = self.find_context_entity(get_global_context_id())
 
         self.set_entity(entity)
 

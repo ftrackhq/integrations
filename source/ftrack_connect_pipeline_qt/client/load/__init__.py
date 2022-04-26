@@ -38,21 +38,13 @@ from ftrack_connect_pipeline_qt.ui.assembler.assembler import (
 
 class QtLoaderClient(QtClient):
     '''
-    Base loader widget class, based on loader but without the definition
-    selector and factorized widget builder.
+    Base loader widget class, as assembler is based on
     '''
 
     IMPORT_MODE_DEPENDENCIES = 0
     IMPORT_MODE_BROWSE = 1
 
-    client_name = qt_constants.ASSEMBLER_WIDGET
     definition_filter = 'loader'
-    asset_fetch_chunk_size = (
-        10  # Amount of assets to fetch at a time within the browser
-    )
-
-    import_mode = -1
-    hard_refresh = True  # Flag telling assembler that next refresh should include dependency resolve
 
     def __init__(self, event_manager, modes, asset_list_model):
         self.modes = modes
@@ -63,6 +55,15 @@ class QtLoaderClient(QtClient):
 
 class QtAssemblerClient(QtLoaderClient, dialog.Dialog):
     '''Compound client dialog containing the assembler based on loader with the asset manager docked'''
+
+    asset_fetch_chunk_size = (
+        10  # Amount of assets to fetch at a time within the browser
+    )
+
+    assemble_mode = (
+        -1
+    )  # The mode assembler is in - resolve dependencies or manual browse
+    hard_refresh = True  # Flag telling assembler that next refresh should include dependency resolve
 
     def __init__(self, event_manager, modes, asset_list_model, parent=None):
 
@@ -112,8 +113,8 @@ class QtAssemblerClient(QtLoaderClient, dialog.Dialog):
         )
 
         self.progress_widget = (
-            factory.LoaderWidgetFactory.create_progress_widget(
-                self.client_name, parent=self.parent()
+            factory.AssemblerWidgetFactory.create_progress_widget(
+                parent=self.parent()
             )
         )
         self.header.content_container.layout().addWidget(
@@ -121,9 +122,7 @@ class QtAssemblerClient(QtLoaderClient, dialog.Dialog):
         )
 
         # Have definition selector but invisible unless there are multiple hosts
-        self.host_and_definition_selector = (
-            definition_selector.DefinitionSelector(self.client_name)
-        )
+        self.host_and_definition_selector = self._get_definition_selector()
         self.host_and_definition_selector.refreshed.connect(
             partial(self.refresh, True)
         )
@@ -184,7 +183,7 @@ class QtAssemblerClient(QtLoaderClient, dialog.Dialog):
         self._right_widget.layout().setSpacing(0)
 
         self.context_selector = ContextSelector(
-            self, self.session, parent=self.parent()
+            self.session, parent=self.parent()
         )
         self._right_widget.layout().addWidget(
             self.context_selector, QtCore.Qt.AlignTop
@@ -210,8 +209,14 @@ class QtAssemblerClient(QtLoaderClient, dialog.Dialog):
 
         self.layout().addWidget(self.splitter, 100)
 
+    def _get_definition_selector(selfe):
+        return definition_selector.AssemblerDefinitionSelector(
+            parent=self.parent()
+        )
+
     def post_build(self):
         super(QtLoaderClient, self).post_build()
+        self.context_selector.changeEntityClicked.connect(self._change_context)
         self.host_and_definition_selector.hostsDiscovered.connect(
             self._on_hosts_discovered
         )
@@ -247,16 +252,16 @@ class QtAssemblerClient(QtLoaderClient, dialog.Dialog):
         self.refresh(True)
 
     def set_import_mode(self, import_mode):
-        if import_mode != self.import_mode:
-            self.import_mode = import_mode
+        if import_mode != self.assemble_mode:
+            self.assemble_mode = import_mode
             active_tab_widget = (
                 self._dep_widget
-                if self.import_mode == self.IMPORT_MODE_DEPENDENCIES
+                if self.assemble_mode == self.IMPORT_MODE_DEPENDENCIES
                 else self._browse_widget
             )
             inactive_tab_widget = (
                 self._dep_widget
-                if self.import_mode != self.IMPORT_MODE_DEPENDENCIES
+                if self.assemble_mode != self.IMPORT_MODE_DEPENDENCIES
                 else self._browse_widget
             )
             # Clear the other tab
@@ -264,7 +269,7 @@ class QtAssemblerClient(QtLoaderClient, dialog.Dialog):
             # Create tab widget
             self._assembler_widget = (
                 AssemblerDependenciesWidget(self)
-                if self.import_mode == self.IMPORT_MODE_DEPENDENCIES
+                if self.assemble_mode == self.IMPORT_MODE_DEPENDENCIES
                 else AssemblerBrowserWidget(self)
             )
             active_tab_widget.layout().addWidget(self._assembler_widget)

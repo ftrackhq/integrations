@@ -15,7 +15,8 @@ _BASE_ = 'ftrack.pipeline'
 
 MAIN_FRAMEWORK_WIDGET = 'main_framework_widget'
 
-OPEN_WIDGET = 'open'
+OPENER_WIDGET = 'opener'
+LOADER_WIDGET = 'loader'
 ASSEMBLER_WIDGET = 'assembler'
 SAVE_WIDGET = 'save'
 ASSET_MANAGER_WIDGET = 'asset_manager'

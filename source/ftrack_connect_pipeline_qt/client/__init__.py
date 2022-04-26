@@ -40,9 +40,6 @@ class QtClient(Client):
 
     ui_types = [constants.UI_TYPE, qt_constants.UI_TYPE]
 
-    # Text of the button to run the whole definition
-    client_name = None
-
     # Have assembler match on file extension (relaxed)
     assembler_match_extension = False
 
@@ -152,16 +149,12 @@ class QtClient(Client):
 
         self.layout().addWidget(line.Line(style='solid', parent=self.parent()))
 
-        self.context_selector = ContextSelector(
-            self, self.session, parent=self.parent()
-        )
+        self.context_selector = self._get_context_selector()
         self.layout().addWidget(self.context_selector, QtCore.Qt.AlignTop)
 
         self.layout().addWidget(line.Line(parent=self.parent()))
 
-        self.host_and_definition_selector = (
-            definition_selector.DefinitionSelector(self.client_name)
-        )
+        self.host_and_definition_selector = self._get_definition_selector()
         self.host_and_definition_selector.refreshed.connect(self.refresh)
 
         self.scroll = scroll_area.ScrollArea()
@@ -172,25 +165,17 @@ class QtClient(Client):
         self.layout().addWidget(self.host_and_definition_selector)
         self.layout().addWidget(self.scroll, 100)
 
-        button_widget = QtWidgets.QWidget()
-        button_widget.setLayout(QtWidgets.QHBoxLayout())
-        button_widget.layout().setContentsMargins(10, 10, 10, 5)
-        button_widget.layout().setSpacing(10)
+        self.layout().addWidget(self._get_button_widget())
 
-        self.open_assembler_button = OpenAssemblerButton()
-        button_widget.layout().addWidget(self.open_assembler_button)
+    def _get_context_selector(self):
+        '''Instantiate standard slave context selector'''
+        return ContextSelector(self.session, parent=self.parent())
 
-        self.l_filler = QtWidgets.QLabel()
-        button_widget.layout().addWidget(self.l_filler, 10)
-        self.l_filler.setVisible(self.client_name == qt_constants.OPEN_WIDGET)
+    def _get_definition_selector(self):
+        raise NotImplementedError()
 
-        self.run_button = RunButton(
-            self.client_name.upper() if self.client_name else 'Run'
-        )
-        button_widget.layout().addWidget(self.run_button)
-        self.run_button.setEnabled(False)
-
-        self.layout().addWidget(button_widget)
+    def _get_button_widget(self):
+        raise NotImplementedError()
 
     def post_build(self):
         '''Post Build ui method for events connections.'''
@@ -206,29 +191,21 @@ class QtClient(Client):
             self.host_and_definition_selector.host_widget.hide()
 
         self._connect_run_button()
-        if self.open_assembler_button:
-            self.open_assembler_button.clicked.connect(self._open_assembler)
-            self.open_assembler_button.setVisible(
-                self.client_name == qt_constants.OPEN_WIDGET
-            )
 
     def _connect_run_button(self):
         self.run_button.clicked.connect(self.run)
 
-    def _on_context_selector_context_changed(
-        self, context_entity, global_context_change
-    ):
+    def _on_context_selector_context_changed(self, context_entity):
         '''Updates the option dictionary with provided *context* when
         entityChanged of context_selector event is triggered'''
 
         self.context_id = context_entity['id']
         self.change_context(self.context_id)
 
-        if global_context_change:
-            # Reset definitions
-            self.host_and_definition_selector.clear_definitions()
-            self.host_and_definition_selector.populate_definitions()
-            self._clear_widget()
+        # Reset definition selector and clear client
+        self.host_and_definition_selector.clear_definitions()
+        self.host_and_definition_selector.populate_definitions()
+        self._clear_widget()
 
     def change_context(self, context_id):
         '''
@@ -254,7 +231,6 @@ class QtClient(Client):
         Triggered when definition_changed is called from the host_selector.
         Generates the widgets interface from the given *schema* and *definition*
         '''
-
         self._component_names_filter = component_names_filter
         self._clear_widget()
 
@@ -296,7 +272,7 @@ class QtClient(Client):
             self.parent().hide()
         self.host_connection.launch_widget(qt_constants.ASSEMBLER_WIDGET)
 
-    def run(self, default_method=None):
+    def run(self):
         '''Function called when click the run button'''
         self.widget_factory.has_error = False
         serialized_data = self.widget_factory.to_json_object()
@@ -315,6 +291,8 @@ class QtClient(Client):
     def _on_components_checked(self, available_components_count):
         self.definition_changed(self.definition, available_components_count)
         self.run_button.setEnabled(available_components_count >= 1)
+        if available_components_count == 0:
+            self._clear_widget()
 
     def _on_log_item_added(self, log_item):
         if self.widget_factory:
@@ -332,6 +310,12 @@ class QtClient(Client):
             # Refresh when re-opened
             self.host_and_definition_selector.refresh()
         self._shown = True
+
+    def _change_context(self):
+        '''Close client (if not docked) and open entity browser.'''
+        if not self.is_docked():
+            self.parent().hide()
+        self.host_connection.launch_widget(qt_constants.CHANGE_CONTEXT_WIDGET)
 
 
 class QtDockedClient(QtClient, QtWidgets.QFrame):
@@ -378,13 +362,13 @@ class QtChangeContextClient(Client):
                 )
                 return
             # Need to choose host connection
-            self._host_connections[0].launch_widget(qt_constants.OPEN_WIDGET)
+            self._host_connections[0].launch_widget(qt_constants.OPENER_WIDGET)
             return
         self.entity_browser.setMinimumWidth(600)
         if self.entity_browser.exec_():
-            self.set_entity(self.entity_browser.entity)
+            self.set_context(self.entity_browser.entity)
 
-    def set_entity(self, context):
+    def set_context(self, context):
         self._host_connection.set_context(context)
 
 
@@ -417,10 +401,3 @@ class QtDocumentationClient:
 class RunButton(QtWidgets.QPushButton):
     def __init__(self, label, parent=None):
         super(RunButton, self).__init__(label, parent=parent)
-
-
-class OpenAssemblerButton(QtWidgets.QPushButton):
-    def __init__(self, parent=None):
-        super(OpenAssemblerButton, self).__init__(
-            'OPEN ASSEMBLER', parent=parent
-        )

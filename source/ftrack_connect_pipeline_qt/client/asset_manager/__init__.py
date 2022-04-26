@@ -38,7 +38,6 @@ class QtAssetManagerClient(AssetManagerClient, QtWidgets.QFrame):
 
     selectionUpdated = QtCore.Signal(object)
 
-    client_name = qt_constants.ASSET_MANAGER_WIDGET
     definition_filter = 'asset_manager'  # Use only definitions that matches the definition_filter
 
     _shown = False
@@ -78,6 +77,8 @@ class QtAssetManagerClient(AssetManagerClient, QtWidgets.QFrame):
         self.post_build()
 
         if not self.is_assembler:
+            if self.context_id:
+                self.context_selector.set_context_id(self.context_id)
             self.add_hosts(self.discover_hosts())
 
     def setTheme(self, selected_theme):
@@ -123,7 +124,7 @@ class QtAssetManagerClient(AssetManagerClient, QtWidgets.QFrame):
             )
 
             self.context_selector = ContextSelector(
-                self, self.session, parent=self.parent()
+                self.session, parent=self.parent()
             )
             self.layout().addWidget(self.context_selector, QtCore.Qt.AlignTop)
 
