@@ -112,7 +112,7 @@ def initialise():
     asset_list_model = AssetListModel(event_manager)
 
     from ftrack_connect_pipeline_maya.client import open
-    from ftrack_connect_pipeline_maya.client import assembler
+    from ftrack_connect_pipeline_maya.client import load
     from ftrack_connect_pipeline_maya.client import save
     from ftrack_connect_pipeline_maya.client import asset_manager
     from ftrack_connect_pipeline_maya.client import publish
@@ -121,7 +121,7 @@ def initialise():
 
     widgets = list()
     widgets.append(
-        (qt_constants.OPEN_WIDGET, open.MayaOpenDialog, 'Open', 'fileOpen')
+        (qt_constants.OPEN_WIDGET, open.MayaOpenerClient, 'Open', 'fileOpen')
     )
     widgets.append(
         (
@@ -134,7 +134,7 @@ def initialise():
     widgets.append(
         (
             qt_constants.ASSEMBLER_WIDGET,
-            assembler.MayaAssemblerDialog,
+            load.MayaAssemblerClient,
             'Assembler',
             'greasePencilImport',
         )

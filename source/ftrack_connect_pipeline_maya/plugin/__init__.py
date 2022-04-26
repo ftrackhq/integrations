@@ -26,5 +26,6 @@ class BaseMayaPluginWidget(BaseMayaPlugin, pluginWidget.BasePluginWidget):
 
 
 from ftrack_connect_pipeline_maya.plugin.load import *
+from ftrack_connect_pipeline_maya.plugin.open import *
 from ftrack_connect_pipeline_maya.plugin.publish import *
 from ftrack_connect_pipeline_maya.plugin.asset_manager import *

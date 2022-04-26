@@ -20,6 +20,7 @@ class MayaHost(Host):
     engines = {
         'asset_manager': host_engine.MayaAssetManagerEngine,
         'loader': host_engine.MayaLoaderEngine,
+        'opener': host_engine.MayaOpenerEngine,
         'publisher': host_engine.MayaPublisherEngine,
     }
 
