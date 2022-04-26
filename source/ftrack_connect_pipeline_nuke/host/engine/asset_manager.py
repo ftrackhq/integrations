@@ -50,7 +50,7 @@ class NukeAssetManagerEngine(AssetManagerEngine):
 
         if ftrack_asset_nodes:
             for ftrack_object in ftrack_asset_nodes:
-                param_dict = FtrackAssetTab.get_parameters_dictionary(
+                param_dict = FtrackAssetTab.get_dictionary_from_ftrack_object(
                     ftrack_object
                 )
                 # avoid read and write nodes containing the old ftrack tab
@@ -112,9 +112,9 @@ class NukeAssetManagerEngine(AssetManagerEngine):
             'message': message,
         }
 
-        ftrack_asset_object = self.get_ftrack_asset_object(asset_info)
+        ftrack_asset_class = self.get_ftrack_asset_class(asset_info)
 
-        ftrack_object = nuke.toNode(ftrack_asset_object.ftrack_object)
+        ftrack_object = nuke.toNode(ftrack_asset_class.ftrack_object)
         if not ftrack_object:
             message = "There is no ftrack object"
             self.logger.debug(message)
@@ -172,7 +172,7 @@ class NukeAssetManagerEngine(AssetManagerEngine):
 
         if not keep_ftrack_node:
             try:
-                str_node = str(ftrack_asset_object.ftrack_object)
+                str_node = str(ftrack_asset_class.ftrack_object)
                 self.logger.debug("removing : {}".format(str_node))
                 nuke.delete(ftrack_object)
                 result.append(str_node)
@@ -242,12 +242,12 @@ class NukeAssetManagerEngine(AssetManagerEngine):
             'message': message,
         }
 
-        ftrack_asset_object = self.get_ftrack_asset_object(asset_info)
+        ftrack_asset_class = self.get_ftrack_asset_class(asset_info)
 
         if options.get('clear_selection'):
             nuke_utils.cleanSelection()
 
-        ftrack_object = nuke.toNode(ftrack_asset_object.ftrack_object)
+        ftrack_object = nuke.toNode(ftrack_asset_class.ftrack_object)
 
         parented_nodes = ftrack_object.getNodes()
         parented_nodes_names = [x.knob('name').value() for x in parented_nodes]
