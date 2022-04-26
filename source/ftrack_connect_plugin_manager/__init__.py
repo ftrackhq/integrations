@@ -24,20 +24,25 @@ class InstallerBlockingOverlay(
     '''Custom blocking overlay for publisher.'''
 
     def __init__(self, parent, message=''):
-        super(InstallerBlockingOverlay, self).__init__(parent, message=message)
+        super(InstallerBlockingOverlay, self).__init__(
+            parent, message=message, icon=qta.icon('mdi6.check', color='#FFDD86'))
+
+        self.button_layout = QtWidgets.QHBoxLayout()
+        self.contentLayout.addLayout(self.button_layout)
         self.confirmButton = QtWidgets.QPushButton('Ok')
         self.restartButton = QtWidgets.QPushButton('Restart')
         self.restartButton.setObjectName('primary')
         self.content.setMinimumWidth(350)
 
-        self.contentLayout.insertWidget(
-            3, self.confirmButton, alignment=QtCore.Qt.AlignCenter, stretch=0
+        self.button_layout.addWidget(
+            self.confirmButton, alignment=QtCore.Qt.AlignCenter, stretch=0
         )
-        self.contentLayout.insertWidget(
-            4, self.restartButton, alignment=QtCore.Qt.AlignCenter, stretch=0
+        self.button_layout.addWidget(
+            self.restartButton, alignment=QtCore.Qt.AlignCenter, stretch=0
         )
         self.confirmButton.hide()
         self.confirmButton.clicked.connect(self.hide)
+
 
 class STATUSES(object):
     '''Store plugin statuses'''
