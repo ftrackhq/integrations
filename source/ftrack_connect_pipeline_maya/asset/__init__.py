@@ -74,12 +74,13 @@ class FtrackAssetNode(FtrackAssetBase):
             # self.asset_info
             cmds.setAttr(
                 '{}.{}'.format(self.ftrack_object, asset_const.IS_LOADED),
-                l=False
+                l=False,
             )
             cmds.setAttr(
-                '{}.{}'.format(
-                    self.ftrack_object, asset_const.IS_LOADED
-                ), self.asset_info[asset_const.IS_LOADED], type="string", l=True
+                '{}.{}'.format(self.ftrack_object, asset_const.IS_LOADED),
+                self.asset_info[asset_const.IS_LOADED],
+                type="string",
+                l=True,
             )
 
     @staticmethod
@@ -91,14 +92,10 @@ class FtrackAssetNode(FtrackAssetBase):
 
         *maya_ftrack_obj* FtrackAssetNode object type from maya scene.
         '''
-        logger = logging.getLogger(
-            __name__ + '.' + __class__.__name__
-        )
+        logger = logging.getLogger(__name__ + '.' + __class__.__name__)
         param_dict = {}
         if not cmds.objExists(maya_ftrack_obj):
-            error_message = "{} Object doesn't exists".format(
-                maya_ftrack_obj
-            )
+            error_message = "{} Object doesn't exists".format(maya_ftrack_obj)
             logger.error(error_message)
             return param_dict
         all_attr = cmds.listAttr(maya_ftrack_obj, c=True, se=True)
