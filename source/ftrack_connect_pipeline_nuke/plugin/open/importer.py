@@ -18,7 +18,7 @@ from ftrack_connect_pipeline_nuke.constants.asset import modes as load_const
 from ftrack_connect_pipeline_nuke.utils import custom_commands as nuke_utils
 
 
-class LoaderImporterNukePlugin(plugin.LoaderImporterPlugin, BaseNukePlugin):
+class OpenerImporterNukePlugin(plugin.OpenerImporterPlugin, BaseNukePlugin):
     '''Class representing a Collector Plugin
 
     .. note::
@@ -28,17 +28,19 @@ class LoaderImporterNukePlugin(plugin.LoaderImporterPlugin, BaseNukePlugin):
 
     ftrack_asset_class = FtrackAssetTab
 
-    load_modes = load_const.LOAD_MODES
+    load_modes = {
+        load_const.OPEN_MODE: load_const.LOAD_MODES[load_const.OPEN_MODE]
+    }
 
-    dependency_load_mode = load_const.IMPORT_MODE
+    dependency_load_mode = load_const.OPEN_MODE
 
     @nuke_utils.run_in_main_thread
     def get_current_objects(self):
         return nuke_utils.get_current_scene_objects()
 
 
-class LoaderImporterNukeWidget(
-    pluginWidget.LoaderImporterWidget, BaseNukePluginWidget
+class OpenerImporterNukeWidget(
+    pluginWidget.OpenerImporterWidget, BaseNukePluginWidget
 ):
     '''Class representing a Collector Widget
 
