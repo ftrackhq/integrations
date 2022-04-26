@@ -42,6 +42,8 @@ POST_IMPORT = 'post_import'
 # Common definition types.
 #: Loader definition.
 LOADER = 'loader'
+#: Opener definition.
+OPENER = 'opener'
 #: Publisher definition.
 PUBLISHER = 'publisher'
 
@@ -102,6 +104,7 @@ SNAPSHOT_FTRACKREVIEW_NAME = 'ftrackreview'
 
 # Avoid circular dependencies.
 from ftrack_connect_pipeline.constants.plugin.load import *
+from ftrack_connect_pipeline.constants.plugin.open import *
 from ftrack_connect_pipeline.constants.plugin.publish import *
 from ftrack_connect_pipeline.constants.plugin.asset_manager import *
 from ftrack_connect_pipeline.constants.event import *
