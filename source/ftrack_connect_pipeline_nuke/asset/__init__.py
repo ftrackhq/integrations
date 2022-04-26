@@ -23,7 +23,10 @@ class FtrackAssetTab(FtrackAssetBase):
         super(FtrackAssetTab, self).__init__(event_manager)
         self.connected_objects = []
 
-    def init_ftrack_object(self, create_object=True,):
+    def init_ftrack_object(
+        self,
+        create_object=True,
+    ):
         '''
         Returns the self :obj:`ftrack_object`.
         if the given *create_object* argument is set to True, creates a new
