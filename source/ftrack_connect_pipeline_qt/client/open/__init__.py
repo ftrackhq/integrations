@@ -3,18 +3,21 @@
 # :copyright: Copyright (c) 2014-2020 ftrack
 import os
 
+from Qt import QtWidgets, QtCore
+
 from ftrack_connect_pipeline_qt import constants
 from ftrack_connect_pipeline_qt.client import QtClient
 from ftrack_connect_pipeline_qt import constants as qt_constants
 from ftrack_connect_pipeline_qt.client import factory
+from ftrack_connect_pipeline_qt.ui.utility.widget import dialog
 
 
-class QtOpenClient(QtClient):
+class QtOpenerClient(QtClient, dialog.Dialog):
     '''
     Base open widget class.
     '''
 
-    definition_filter = 'loader'
+    definition_filter = 'opener'
     client_name = qt_constants.OPEN_WIDGET
 
     def __init__(
@@ -22,8 +25,14 @@ class QtOpenClient(QtClient):
     ):
         if not definition_extensions_filter is None:
             self.definition_extensions_filter = definition_extensions_filter
-        super(QtOpenClient, self).__init__(event_manager, parent=parent)
+
+        dialog.Dialog.__init__(self, parent=parent)
+        QtClient.__init__(self, event_manager)
+
         self.logger.debug('start qt opener')
+
+        self.setWindowTitle('ftrack Open')
+        self.resize(450, 530)
 
     def get_factory(self):
         return factory.OpenerWidgetFactory(
@@ -40,7 +49,7 @@ class QtOpenClient(QtClient):
         return False
 
     def post_build(self):
-        super(QtOpenClient, self).post_build()
+        super(QtOpenerClient, self).post_build()
         self.context_selector.entityChanged.connect(self._set_context)
 
         self.widget_factory.widgetAssetUpdated.connect(
@@ -62,7 +71,7 @@ class QtOpenClient(QtClient):
             self._clear_widget()
 
     def change_definition(self, schema, definition, component_names_filter):
-        super(QtOpenClient, self).change_definition(
+        super(QtOpenerClient, self).change_definition(
             schema, definition, component_names_filter
         )
 
@@ -73,7 +82,7 @@ class QtOpenClient(QtClient):
         )
 
     def run(self, default_method=None):
-        if super(QtOpenClient, self).run():
+        if super(QtOpenerClient, self).run():
             self.widget_factory.progress_widget.set_status(
                 constants.SUCCESS_STATUS, 'Successfully opened version!'
             )
@@ -81,3 +90,10 @@ class QtOpenClient(QtClient):
     def reset(self):
         '''Open dialog is shown again after being hidden.'''
         self.host_and_definition_selector.refresh()
+
+    def show(self):
+        if self._shown:
+            # Widget has been shown before, reset client
+            self._client.reset()
+        super(QtOpenerClient, self).show()
+        self._shown = True

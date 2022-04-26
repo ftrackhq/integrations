@@ -14,11 +14,11 @@ from ftrack_connect_pipeline_qt.client import QtClient
 
 from ftrack_connect_pipeline_qt.client import factory
 from ftrack_connect_pipeline_qt.ui.utility.widget import (
+    dialog,
     header,
     definition_selector,
     line,
     tab,
-    footer,
 )
 from ftrack_connect_pipeline_qt.ui.utility.widget.context_selector import (
     ContextSelector,
@@ -36,9 +36,9 @@ from ftrack_connect_pipeline_qt.ui.assembler.assembler import (
 )
 
 
-class QtAssemblerClient(QtClient):
+class QtLoaderClient(QtClient):
     '''
-    Base assembler widget class, based on loader but without the definition
+    Base loader widget class, based on loader but without the definition
     selector and factorized widget builder.
     '''
 
@@ -54,11 +54,26 @@ class QtAssemblerClient(QtClient):
     import_mode = -1
     hard_refresh = True  # Flag telling assembler that next refresh should include dependency resolve
 
-    def __init__(self, event_manager, modes, asset_list_model, parent=None):
+    def __init__(self, event_manager, modes, asset_list_model):
         self.modes = modes
         self._asset_list_model = asset_list_model
-        super(QtAssemblerClient, self).__init__(event_manager, parent=parent)
+        super(QtLoaderClient, self).__init__(event_manager)
+        self.logger.debug('start qt loader')
+
+
+class QtAssemblerClient(QtLoaderClient, dialog.Dialog):
+    '''Compound client dialog containing the assembler based on loader with the asset manager docked'''
+
+    def __init__(self, event_manager, modes, asset_list_model, parent=None):
+
+        dialog.Dialog.__init__(self, parent=parent)
+        QtLoaderClient.__init__(self, event_manager, modes, asset_list_model)
+
         self.logger.debug('start qt assembler')
+
+        # self.setModal(True)
+        self.setWindowTitle('ftrack Connect Assembler')
+        self.resize(1000, 500)
 
     def get_factory(self):
         return None
@@ -196,7 +211,7 @@ class QtAssemblerClient(QtClient):
         self.layout().addWidget(self.splitter, 100)
 
     def post_build(self):
-        super(QtAssemblerClient, self).post_build(run_method="init_and_load")
+        super(QtLoaderClient, self).post_build()
         self.host_and_definition_selector.hostsDiscovered.connect(
             self._on_hosts_discovered
         )
@@ -207,11 +222,14 @@ class QtAssemblerClient(QtClient):
             partial(self.run, "init_nodes")
         )
 
+    def _connect_run_button(self):
+        self.run_button.clicked.connect(partial(self.run, "init_and_load"))
+
     def _on_hosts_discovered(self, host_connects):
         self.host_and_definition_selector.setVisible(len(host_connects) > 1)
 
     def change_host(self, host_connection):
-        super(QtAssemblerClient, self).change_host(host_connection)
+        super(QtLoaderClient, self).change_host(host_connection)
         # Feed the host to the asset manager
         self.asset_manager.change_host(host_connection)
 
@@ -258,7 +276,7 @@ class QtAssemblerClient(QtClient):
         component_list.selectionUpdated.connect(self._asset_selection_updated)
 
     def refresh(self, force_hard_refresh=False):
-        super(QtAssemblerClient, self).refresh()
+        super(QtLoaderClient, self).refresh()
         if force_hard_refresh:
             self.hard_refresh = True
         if self.hard_refresh:
@@ -399,6 +417,14 @@ class QtAssemblerClient(QtClient):
                         's' if len(component_widgets) > 1 else '',
                     ),
                 )
+
+    def show(self):
+        if self._shown:
+            # Widget has been shown before, reload dependencies
+            self._client.reset()
+
+        super(QtAssemblerClient, self).show()
+        self._shown = True
 
 
 class AssemblerTabWidget(tab.TabWidget):

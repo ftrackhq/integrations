@@ -178,33 +178,6 @@ class DefinitionSelector(QtWidgets.QWidget):
                 # Remove ' Publisher/Loader'
                 text = '{}'.format(' '.join(item.get('name').split(' ')[:-1]))
                 component_names_filter = None  # Outlined openable components
-                if self._client_name.lower() in [
-                    qt_constants.OPEN_WIDGET,
-                    qt_constants.ASSEMBLER_WIDGET,
-                ]:
-                    mode_filter = (
-                        self._client_name.lower()
-                        if self._client_name.lower()
-                        != qt_constants.ASSEMBLER_WIDGET
-                        else 'import'
-                    )
-                    # Remove plugins not matching client
-                    # definition = copy.deepcopy(definition)
-                    types = [
-                        core_constants.CONTEXTS,
-                        core_constants.COMPONENTS,
-                        core_constants.FINALIZERS,
-                    ]
-                    for type_name in types:
-                        for step in item[type_name]:
-                            for stage in step['stages']:
-                                plugins_remove = []
-                                for plugin in stage['plugins']:
-                                    mode = (plugin.get('mode') or '').lower()
-                                    if mode != 'null' and mode != mode_filter:
-                                        plugins_remove.append(plugin)
-                                for plugin in plugins_remove:
-                                    stage['plugins'].remove(plugin)
                 if self._client_name == qt_constants.OPEN_WIDGET:
                     # Open mode; Only provide the schemas, and components that
                     # can load the file extensions. Peek into versions and pre-select
@@ -217,12 +190,6 @@ class DefinitionSelector(QtWidgets.QWidget):
                             set(self._definition_extensions_filter)
                         ):
                             can_open_component = True
-                        for stage in component_step['stages']:
-                            for plugin in stage['plugins']:
-                                if plugin.get('type') == 'importer':
-                                    if not 'options' in plugin:
-                                        plugin['options'] = {}
-                                    plugin['options']['load_mode'] = 'Open'
                         if can_open_component:
                             is_compatible = True
                             if component_names_filter is None:
@@ -234,7 +201,7 @@ class DefinitionSelector(QtWidgets.QWidget):
                             component_step['enabled'] = False
                     if is_compatible:
                         compatible_definition_count += 1
-                    if component_names_filter is None:
+                    else:
                         # There were no openable components, try next definition
                         self.logger.info(
                             'No openable components exists for definition "{}"!'.format(
@@ -302,11 +269,12 @@ class DefinitionSelector(QtWidgets.QWidget):
         self._definition_selector.currentIndexChanged.connect(
             self._on_change_definition
         )
+        self.no_definitions_label.setVisible(False)
         if compatible_definition_count == 0:
-            # No compatible loaders/publishers
+            # No compatible definitions
             if self._client_name == qt_constants.OPEN_WIDGET:
                 self.no_definitions_label.setText(
-                    '<html><i>No pipeline loader definitions available to open files of type {}!'
+                    '<html><i>No pipeline opener definitions available to open files of type {}!'
                     '</i></html>'.format(self._definition_extensions_filter)
                 )
             elif self._client_name == qt_constants.PUBLISHER_WIDGET:
@@ -329,7 +297,6 @@ class DefinitionSelector(QtWidgets.QWidget):
                 )  # Tell client there are no versions
         else:
             self._definition_selector.setCurrentIndex(index_latest_version)
-            self.no_definitions_label.setVisible(False)
 
         if self._client_name != qt_constants.ASSEMBLER_WIDGET:
             self._definition_widget.show()

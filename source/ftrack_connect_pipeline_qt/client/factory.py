@@ -731,6 +731,7 @@ class LoaderWidgetFactory(WidgetFactoryBase):
         )
 
     def check_components(self, asset_version_entity):
+
         available_components = 0
         try:
             if not self.components or asset_version_entity is None:

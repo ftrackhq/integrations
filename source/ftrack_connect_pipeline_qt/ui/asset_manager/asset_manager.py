@@ -604,7 +604,7 @@ class AssetWidget(AccordionBaseWidget):
             'order by version ascending'
         ).format(
             asset_info[asset_constants.ASSET_ID],
-            asset_info[asset_constants.COMPONENT_NAME]
+            asset_info[asset_constants.COMPONENT_NAME],
         )
         versions = self.session.query(query).all()
 
