@@ -140,7 +140,7 @@ def initialise():
 
     widgets = list()
     widgets.append(
-        (qt_constants.OPEN_WIDGET, open.NukeOpenClient, 'Open', 'fileOpen')
+        (qt_constants.OPEN_WIDGET, open.NukeOpenerClient, 'Open', 'fileOpen')
     )
     widgets.append(
         (
