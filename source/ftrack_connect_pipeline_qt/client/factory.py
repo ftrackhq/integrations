@@ -157,7 +157,8 @@ class WidgetFactoryBase(QtWidgets.QWidget):
             None, None, parent=self.parent()
         )
 
-    def _get_client_type(self):
+    @staticmethod
+    def client_type():
         raise NotImplementedError()
 
     def create_typed_widget(
@@ -171,7 +172,7 @@ class WidgetFactoryBase(QtWidgets.QWidget):
             'step_container',
             type_name,
             definition,
-            self._get_client_type(),
+            self.client_type(),
         )
         for step in definition[type_name]:
             # Create widget for the step (a component, a finaliser...)
@@ -189,7 +190,7 @@ class WidgetFactoryBase(QtWidgets.QWidget):
                 '{}_widget'.format(step_category),
                 step_name,
                 step,
-                self._get_client_type(),
+                self.client_type(),
             )
             if step_obj:
                 self.register_object(step, step_obj, step_category)
@@ -211,7 +212,7 @@ class WidgetFactoryBase(QtWidgets.QWidget):
                     '{}_widget'.format(stage_category),
                     stage_name,
                     stage,
-                    self._get_client_type(),
+                    self.client_type(),
                 )
                 if stage_obj:
                     self.register_object(stage, stage_obj, stage_category)
@@ -226,7 +227,7 @@ class WidgetFactoryBase(QtWidgets.QWidget):
                         '{}_container'.format(plugin_category),
                         plugin_name,
                         plugin,
-                        self._get_client_type(),
+                        self.client_type(),
                     )
                     # Here is where we inject the user custom widgets.
                     plugin_widget = self.fetch_plugin_widget(
@@ -775,13 +776,13 @@ class OpenerWidgetFactory(LoaderWidgetFactory):
         )
 
     @staticmethod
-    def _get_client_type():
+    def client_type():
         return qt_constants.OPENER_WIDGET
 
     @staticmethod
     def create_progress_widget(parent=None):
         return WidgetFactoryBase.create_progress_widget(
-            OpenerWidgetFactory._get_client_type(), parent=parent
+            OpenerWidgetFactory.client_type(), parent=parent
         )
 
 
@@ -796,13 +797,13 @@ class AssemblerWidgetFactory(LoaderWidgetFactory):
         )
 
     @staticmethod
-    def _get_client_type():
+    def client_type():
         return qt_constants.ASSEMBLER_WIDGET
 
     @staticmethod
     def create_progress_widget(parent=None):
         return WidgetFactoryBase.create_progress_widget(
-            AssemblerWidgetFactory._get_client_type(), parent=parent
+            AssemblerWidgetFactory.client_type(), parent=parent
         )
 
     def set_definition(self, definition):
@@ -897,7 +898,7 @@ class PublisherWidgetFactory(WidgetFactoryBase):
         )
 
     @staticmethod
-    def _get_client_type():
+    def client_type():
         return qt_constants.PUBLISHER_WIDGET
 
     def check_components(self, unused_asset_version_entity):
