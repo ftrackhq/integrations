@@ -797,10 +797,6 @@ class AssetWidget(AccordionBaseWidget):
 
             self.content.layout().addStretch()
 
-    def update_input(self, message, status):
-        '''Update the accordion input summary, should be overridden by child.'''
-        pass
-
     def _on_version_selected(self, index):
         '''Change version of asset.'''
         version = self.session.query(

@@ -737,10 +737,6 @@ class ComponentBaseWidget(AccordionBaseWidget):
         '''Not collapsable'''
         pass
 
-    def update_input(self, message, status):
-        '''Update the accordion input summary, should be overridden by child.'''
-        pass
-
     def get_height(self):
         raise NotImplementedError()
 
