@@ -16,6 +16,36 @@ class FtrackAssetNode(FtrackAssetBase):
 
     ftrack_plugin_id = asset_const.FTRACK_PLUGIN_ID
 
+    @property
+    def loaded(self):
+        '''
+        Returns If the asset is loaded
+        '''
+        return self.asset_info[asset_const.IS_LOADED]
+
+    @loaded.setter
+    def loaded(self, value):
+        '''
+        Set the self :obj:`asset_info` as loaded and update the attributes in
+        the current self :obj:`ftrack_object` if exists.
+
+        *loaded* True if the objects are loaded in the scene.
+        '''
+        self.asset_info[asset_const.IS_LOADED] = value
+        if self.ftrack_object:
+            # Update and sync the ftrack_object asset_info with the
+            # self.asset_info
+            cmds.setAttr(
+                '{}.{}'.format(self.ftrack_object, asset_const.IS_LOADED),
+                l=False,
+            )
+            cmds.setAttr(
+                '{}.{}'.format(self.ftrack_object, asset_const.IS_LOADED),
+                self.asset_info[asset_const.IS_LOADED],
+                type="string",
+                l=True,
+            )
+
     def __init__(self, event_manager):
         '''
         Initialize FtrackAssetNode with *event_manager*.
@@ -60,28 +90,6 @@ class FtrackAssetNode(FtrackAssetBase):
         *ftrack_object* is sync with the self :obj:`asset_info`
         '''
         return self._check_ftrack_object_sync(ftrack_object)
-
-    def set_loaded(self, loaded):
-        '''
-        Set the self :obj:`asset_info` as loaded and update the attributes in
-        the current self :obj:`ftrack_object` if exists.
-
-        *loaded* True if the objects are loaded in the scene.
-        '''
-        self.asset_info[asset_const.IS_LOADED] = loaded
-        if self.ftrack_object:
-            # Update and sync the ftrack_object asset_info with the
-            # self.asset_info
-            cmds.setAttr(
-                '{}.{}'.format(self.ftrack_object, asset_const.IS_LOADED),
-                l=False,
-            )
-            cmds.setAttr(
-                '{}.{}'.format(self.ftrack_object, asset_const.IS_LOADED),
-                self.asset_info[asset_const.IS_LOADED],
-                type="string",
-                l=True,
-            )
 
     @staticmethod
     def get_dictionary_from_ftrack_object(maya_ftrack_obj):
