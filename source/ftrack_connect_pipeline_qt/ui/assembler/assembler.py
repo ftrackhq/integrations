@@ -68,7 +68,7 @@ class AssemblerDependenciesWidget(AssemblerBaseWidget):
                 name='resolve_dependencies_thread',
                 target=self._resolve_dependencies,
                 target_args=[
-                    self._assembler_client.context_selector.context_id
+                    self._assembler_client.context_selector.entity_id
                 ],
             )
             thread.start()

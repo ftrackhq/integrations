@@ -366,10 +366,11 @@ class QtChangeContextClient(Client):
             return
         self.entity_browser.setMinimumWidth(600)
         if self.entity_browser.exec_():
-            self.set_context(self.entity_browser.entity)
+            self.change_global_context(self.entity_browser.entity)
+            self.context_selector.set_context_id(self.entity_browser.entity_id)
 
-    def set_context(self, context):
-        self._host_connection.set_context(context)
+    def change_global_context(self, context):
+        self._host_connection.change_global_context(context)
 
 
 class QtDocumentationClient:

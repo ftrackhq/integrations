@@ -668,22 +668,18 @@ class WidgetFactoryBase(QtWidgets.QWidget):
         return asset_version_entity
 
     def _query_asset_version_callback(self, asset_version_entity):
-        try:
-            if asset_version_entity:
-                components = asset_version_entity['components']
-                self.components = components
-                self.onQueryAssetVersionDone.emit(asset_version_entity)
-                self.components_section.show()
-                # If there is a Finalizer widget show the widget otherwise not.
-                if (
-                    UI_OVERRIDES.get(core_constants.FINALIZERS).get(
-                        'show', True
-                    )
-                    is True
-                ):
-                    self.finalizers_section.show()
-        finally:
+        if asset_version_entity:
+            components = asset_version_entity['components']
+            self.components = components
             self.onQueryAssetVersionDone.emit(asset_version_entity)
+            self.components_section.show()
+            # If there is a Finalizer widget show the widget otherwise not.
+            if (
+                UI_OVERRIDES.get(core_constants.FINALIZERS).get('show', True)
+                is True
+            ):
+                self.finalizers_section.show()
+        self.onQueryAssetVersionDone.emit(asset_version_entity)
 
     def _asset_version_changed(self, version_id):
         '''Callback function triggered when a asset version has changed'''

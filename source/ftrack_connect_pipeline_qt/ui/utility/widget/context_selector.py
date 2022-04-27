@@ -5,7 +5,7 @@ import logging
 from Qt import QtWidgets, QtCore
 
 from ftrack_connect_pipeline import constants as constants
-from ftrack_connect_pipeline.utils import get_global_context_id
+from ftrack_connect_pipeline.utils import global_context
 from ftrack_connect_pipeline_qt import constants as qt_constants
 from ftrack_connect_pipeline_qt.ui.utility.widget.entity_info import EntityInfo
 
@@ -98,20 +98,19 @@ class ContextSelector(QtWidgets.QFrame):
 
     def host_changed(self, host_connection):
         '''Host has been set, listen to context change (not opener)'''
-        if not self._master:
-            if self._subscribe_id is not None:
-                self.session.unsubscribe(self._subscribe_id)
-                self._subscribe_id = None
-            self._subscribe_id = self.session.event_hub.subscribe(
-                'topic={} and data.pipeline.host_id={}'.format(
-                    constants.PIPELINE_CONTEXT_CHANGE, host_connection.id
-                ),
-                self._global_context_changed,
-            )
+        if self._subscribe_id is not None:
+            self.session.unsubscribe(self._subscribe_id)
+            self._subscribe_id = None
+        self._subscribe_id = self.session.event_hub.subscribe(
+            'topic={} and data.pipeline.host_id={}'.format(
+                constants.PIPELINE_CONTEXT_CHANGE, host_connection.id
+            ),
+            self._global_context_changed,
+        )
 
     def set_default_context_id(self):
         '''Reset the context ID back to default current global'''
-        self.set_context_id(get_global_context_id())
+        self.set_context_id(global_context())
 
     def _global_context_changed(self, event):
         '''The main context has been set in another client (opener), align ourselves.'''

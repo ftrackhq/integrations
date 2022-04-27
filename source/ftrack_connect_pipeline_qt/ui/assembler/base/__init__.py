@@ -248,7 +248,7 @@ class AssemblerBaseWidget(QtWidgets.QWidget):
     def get_context(self, wait=True):
         '''Wait for current working context to be properly set, then return it.'''
         while (
-            self._assembler_client.context_selector.context_id is None and wait
+            self._assembler_client.context_selector.entity_id is None and wait
         ):
             time.sleep(0.5)
         return self._assembler_client.context_selector.entity

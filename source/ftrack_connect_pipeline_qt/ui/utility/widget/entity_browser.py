@@ -7,7 +7,7 @@ from Qt import QtWidgets, QtCore, QtGui
 
 import shiboken2
 
-from ftrack_connect_pipeline.utils import get_global_context_id
+from ftrack_connect_pipeline.utils import global_context
 from ftrack_connect_pipeline_qt.ui.utility.widget.thumbnail import Context
 from ftrack_connect_pipeline_qt.ui.utility.widget.search import Search
 from ftrack_connect_pipeline_qt.utils import (
@@ -56,7 +56,7 @@ class EntityBrowser(dialog.ModalDialog):
         return self._entity
 
     @property
-    def context_id(self):
+    def entity_id(self):
         return self._entity['id'] if self._entity else None
 
     @property
@@ -82,6 +82,7 @@ class EntityBrowser(dialog.ModalDialog):
         self._session = session
         self._external_navigator = None
         self._prev_search_text = ""
+        self.working = False
 
         self.set_mode(mode)
 
@@ -90,8 +91,8 @@ class EntityBrowser(dialog.ModalDialog):
         )
 
         if entity is None:
-            if get_global_context_id():
-                entity = self.find_context_entity(get_global_context_id())
+            if global_context():
+                entity = self.find_context_entity(global_context())
 
         self.set_entity(entity)
 
@@ -321,7 +322,9 @@ class EntityBrowser(dialog.ModalDialog):
                 entities_widget.layout().addWidget(parent_entity_widget)
                 self.entity_widgets.append(parent_entity_widget)
             for entity in entities:
-                entity_widget = EntityWidget(entity, False, self.parent())
+                entity_widget = EntityWidget(
+                    entity, False, self, parent=self.parent()
+                )
                 entity_widget.clicked.connect(
                     partial(self._entity_selected, entity)
                 )
@@ -334,7 +337,7 @@ class EntityBrowser(dialog.ModalDialog):
                     for sub_entity in entity['children']:
                         if sub_entity.entity_type == 'Task':
                             sub_entity_widget = EntityWidget(
-                                sub_entity, True, self.parent()
+                                sub_entity, True, self, parent=self.parent()
                             )
                             sub_entity_widget.clicked.connect(
                                 partial(self._entity_selected, sub_entity)
@@ -743,7 +746,10 @@ class EntityWidget(QtWidgets.QFrame):
             # Widget has been destroyed
             return
         retval = super(EntityWidget, self).mousePressEvent(event)
-        if self._entity_browser is None or not self._entity_browser.working:
+        if (
+            self._entity_browser is None
+            or self._entity_browser.working is False
+        ):
             self.clicked.emit()
         return retval
 

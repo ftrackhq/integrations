@@ -155,7 +155,7 @@ class QtAssemblerClient(QtLoaderClient, dialog.Dialog):
         # has resolved dependencies
         # self.set_import_mode(self.IMPORT_MODE_BROWSE)
         self._tab_widget.setCurrentIndex(self.IMPORT_MODE_DEPENDENCIES)
-        self.set_import_mode(self.IMPORT_MODE_DEPENDENCIES)
+        self.set_assemble_mode(self.IMPORT_MODE_DEPENDENCIES)
 
         button_widget = QtWidgets.QWidget()
         button_widget.setLayout(QtWidgets.QHBoxLayout())
@@ -248,12 +248,12 @@ class QtAssemblerClient(QtLoaderClient, dialog.Dialog):
             self.refresh()
 
     def _on_tab_changed(self, index):
-        self.set_import_mode(index)
+        self.set_assemble_mode(index)
         self.refresh(True)
 
-    def set_import_mode(self, import_mode):
-        if import_mode != self.assemble_mode:
-            self.assemble_mode = import_mode
+    def set_assemble_mode(self, assemble_mode):
+        if assemble_mode != self.assemble_mode:
+            self.assemble_mode = assemble_mode
             active_tab_widget = (
                 self._dep_widget
                 if self.assemble_mode == self.IMPORT_MODE_DEPENDENCIES
