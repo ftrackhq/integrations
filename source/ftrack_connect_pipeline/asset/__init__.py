@@ -63,6 +63,22 @@ class FtrackAssetBase(object):
         '''Sets the current ftrack_object'''
         self._ftrack_object = value
 
+    @property
+    def loaded(self):
+        '''
+        Returns If the asset is loaded
+        '''
+        return self.asset_info[asset_const.IS_LOADED]
+
+    @loaded.setter
+    def loaded(self, value):
+        '''
+        Set the self :obj:`asset_info` as loaded.
+
+        *loaded* True if the objects are loaded in the scene.
+        '''
+        self.asset_info[asset_const.IS_LOADED] = value
+
     def __init__(self, event_manager):
         '''
         Initialize FtrackAssetBase with instance of
@@ -77,23 +93,6 @@ class FtrackAssetBase(object):
         self._asset_info = None
         self._ftrack_object = None
         self._event_manager = event_manager
-
-    def set_loaded(self, loaded):
-        '''
-        Set the self :obj:`asset_info` as loaded.
-
-        *loaded* True if the objects are loaded in the scene.
-        '''
-        self.asset_info[asset_const.IS_LOADED] = loaded
-
-    def set_asset_info(self, asset_info):
-        '''
-        Assign the given *asset_info* as the self :obj:`asset_info`.
-
-        *asset_info* instance of
-        :class:`~ftrack_connect_pipeline.asset.FtrackAssetInfo`
-        '''
-        self.asset_info = asset_info
 
     def init_ftrack_object(self, create_object=True):
         '''

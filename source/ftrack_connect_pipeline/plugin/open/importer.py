@@ -85,7 +85,7 @@ class OpenerImporterPlugin(base.BaseImporterPlugin):
         asset_info = ainfo.FtrackAssetInfo(arguments_dict)
 
         self.ftrack_asset = self.ftrack_asset_class(self.event_manager)
-        self.ftrack_asset.set_asset_info(asset_info)
+        self.ftrack_asset.asset_info = asset_info
 
         ftrack_object = self.ftrack_asset.init_ftrack_object(
             create_object=True, is_opened=False
@@ -99,7 +99,7 @@ class OpenerImporterPlugin(base.BaseImporterPlugin):
 
         self.ftrack_asset = self.ftrack_asset_class(self.event_manager)
         asset_info = options.get('asset_info')
-        self.ftrack_asset.set_asset_info(asset_info)
+        self.ftrack_asset.asset_info = asset_info
         self.ftrack_asset.init_ftrack_object(
             create_object=False, is_opened=True
         )
