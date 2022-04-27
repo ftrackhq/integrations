@@ -186,9 +186,8 @@ class HostConnection(object):
             event,
         )
 
-    def set_global_context(self, context, source=None):
+    def change_global_context(self, context, source=None):
         '''The context has been changed by user, send an event to picked up by clients.'''
-
         if os.environ.get('FTRACK_CONTEXTID') != context['id']:
             os.environ['FTRACK_CONTEXTID'] = context['id']
             self.logger.warning('Global context is now: {}'.format(context))
@@ -311,7 +310,7 @@ class Client(object):
         '''
         self._current = {}
 
-        self._context_id = utils.get_global_context_id()
+        self._context_id = utils.global_context()
         self._host_connections = []
         self._connected = False
         self._host_connection = None
