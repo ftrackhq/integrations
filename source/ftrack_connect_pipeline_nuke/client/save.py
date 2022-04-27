@@ -19,7 +19,7 @@ class QtSaveClient:
 
         self.logger.info('Attempting to save local Nuke snapshot..')
         work_path, message = nuke_utils.save_snapshot(
-            utils.get_global_context_id(), self._event_manager.session
+            utils.global_context(), self._event_manager.session
         )
         if not message is None:
             self.logger.info(message)
