@@ -52,16 +52,16 @@ class QtOpenerClient(client.QtClient, dialog.Dialog):
     def is_docked(self):
         return False
 
-    def _get_context_selector(self):
+    def _build_context_selector(self):
         '''Instantiate a master context selector'''
         return ContextSelector(self.session, master=True, parent=self.parent())
 
-    def _get_definition_selector(self):
+    def _build_definition_selector(self):
         return definition_selector.OpenerDefinitionSelector(
             parent=self.parent()
         )
 
-    def _get_button_widget(self):
+    def _build_button_widget(self):
         button_widget = QtWidgets.QWidget()
         button_widget.setLayout(QtWidgets.QHBoxLayout())
         button_widget.layout().setContentsMargins(10, 10, 10, 5)

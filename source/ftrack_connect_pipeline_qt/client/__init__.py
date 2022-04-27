@@ -149,12 +149,12 @@ class QtClient(Client):
 
         self.layout().addWidget(line.Line(style='solid', parent=self.parent()))
 
-        self.context_selector = self._get_context_selector()
+        self.context_selector = self._build_context_selector()
         self.layout().addWidget(self.context_selector, QtCore.Qt.AlignTop)
 
         self.layout().addWidget(line.Line(parent=self.parent()))
 
-        self.host_and_definition_selector = self._get_definition_selector()
+        self.host_and_definition_selector = self._build_definition_selector()
         self.host_and_definition_selector.refreshed.connect(self.refresh)
 
         self.scroll = scroll_area.ScrollArea()
@@ -165,16 +165,16 @@ class QtClient(Client):
         self.layout().addWidget(self.host_and_definition_selector)
         self.layout().addWidget(self.scroll, 100)
 
-        self.layout().addWidget(self._get_button_widget())
+        self.layout().addWidget(self._build_button_widget())
 
-    def _get_context_selector(self):
+    def _build_context_selector(self):
         '''Instantiate standard slave context selector'''
         return ContextSelector(self.session, parent=self.parent())
 
-    def _get_definition_selector(self):
+    def _build_definition_selector(self):
         raise NotImplementedError()
 
-    def _get_button_widget(self):
+    def _build_button_widget(self):
         raise NotImplementedError()
 
     def post_build(self):

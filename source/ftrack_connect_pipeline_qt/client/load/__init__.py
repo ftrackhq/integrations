@@ -122,7 +122,7 @@ class QtAssemblerClient(QtLoaderClient, dialog.Dialog):
         )
 
         # Have definition selector but invisible unless there are multiple hosts
-        self.host_and_definition_selector = self._get_definition_selector()
+        self.host_and_definition_selector = self._build_definition_selector()
         self.host_and_definition_selector.refreshed.connect(
             partial(self.refresh, True)
         )
@@ -209,7 +209,7 @@ class QtAssemblerClient(QtLoaderClient, dialog.Dialog):
 
         self.layout().addWidget(self.splitter, 100)
 
-    def _get_definition_selector(selfe):
+    def _build_definition_selector(selfe):
         return definition_selector.AssemblerDefinitionSelector(
             parent=self.parent()
         )

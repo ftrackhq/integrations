@@ -45,12 +45,12 @@ class QtPublisherClient(client.QtDockedClient):
         super(QtPublisherClient, self).build()
         self.run_button.setText('PUBLISH')
 
-    def _get_definition_selector(self):
+    def _build_definition_selector(self):
         return definition_selector.PublisherDefinitionSelector(
             parent=self.parent()
         )
 
-    def _get_button_widget(self):
+    def _build_button_widget(self):
         button_widget = QtWidgets.QWidget()
         button_widget.setLayout(QtWidgets.QHBoxLayout())
         button_widget.layout().setContentsMargins(10, 10, 10, 5)
