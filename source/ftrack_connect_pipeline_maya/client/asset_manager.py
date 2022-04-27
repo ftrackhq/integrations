@@ -9,7 +9,7 @@ import ftrack_connect_pipeline_qt.constants as qt_constants
 import ftrack_connect_pipeline_maya.constants as maya_constants
 
 from maya.app.general.mayaMixin import MayaQWidgetDockableMixin
-from ftrack_connect_pipeline_maya.utils.custom_commands import get_maya_window
+from ftrack_connect_pipeline_maya.utils.custom_commands import get_main_window
 
 
 class QtMayaAssetManagerClient(QtAssetManagerClient):
@@ -17,7 +17,7 @@ class QtMayaAssetManagerClient(QtAssetManagerClient):
         '''Due to the Maya panel behaviour, we have to use *parent_window*
         instead of *parent*.'''
         super(QtMayaAssetManagerClient, self).__init__(
-            event_manager, asset_list_model, parent=get_maya_window()
+            event_manager, asset_list_model, parent=get_main_window()
         )
 
 

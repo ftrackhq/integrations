@@ -8,7 +8,7 @@ import ftrack_connect_pipeline_maya.constants as maya_constants
 
 from maya.app.general.mayaMixin import MayaQWidgetDockableMixin
 
-from ftrack_connect_pipeline_maya.utils.custom_commands import get_maya_window
+from ftrack_connect_pipeline_maya.utils.custom_commands import get_main_window
 
 
 class QtMayaPublisherClient(QtPublisherClient):
@@ -16,7 +16,7 @@ class QtMayaPublisherClient(QtPublisherClient):
         '''Due to the Maya panel behaviour, we have to use *parent_window*
         instead of *parent*.'''
         super(QtMayaPublisherClient, self).__init__(
-            event_manager, parent=get_maya_window()
+            event_manager, parent=get_main_window()
         )
 
 

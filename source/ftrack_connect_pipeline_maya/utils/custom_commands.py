@@ -84,7 +84,7 @@ def getReferenceNode(assetLink):
         return res
 
 
-def get_maya_window():
+def get_main_window():
     """Return the QMainWindow for the main Maya window."""
     winptr = OpenMayaUI.MQtUtil.mainWindow()
     if winptr is None:
