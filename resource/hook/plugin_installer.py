@@ -54,7 +54,8 @@ class PluginInstaller(ftrack_connect.ui.application.ConnectWidget):
 
         self.layout().addWidget(self.search_bar)
         label = QtWidgets.QLabel(
-            'Check the plugins you want to install or add your local plugins by dropping them on the list below'
+            'Check the plugins you want to install or add your'
+            ' local plugins by dropping them on the list below'
         )
         label.setWordWrap(True)
         label.setMargin(5)
@@ -162,9 +163,9 @@ class PluginInstaller(ftrack_connect.ui.application.ConnectWidget):
     def _show_user_message(self):
         '''Show final message to the user.'''
         self.blockingOverlay.setMessage(
-            'Installation finished!\n \n'
-            'Click to OK install more plugins or \n'
-            'Restart to re launch Connect and pick up the changes.'
+            '<h2>Installation finished!</h2></br>'
+            'Restart connect to start using the plugin'
+            ' you just installed or install more.'
         )
         self.blockingOverlay.confirmButton.show()
         self.blockingOverlay.show()
@@ -174,8 +175,8 @@ class PluginInstaller(ftrack_connect.ui.application.ConnectWidget):
         self.counter += 1
 
         self.busyOverlay.setMessage(
-            '<h4>Installing: {} of {}.</h4></br>'
-            '<h5>{}, Version {}</h5>'
+            '<h2>Installing: {} of {}.</h2></br>'
+            '<h4>{}, Version {}</h4>'
             .format(
                 self.counter,
                 len(self._plugins_to_install),

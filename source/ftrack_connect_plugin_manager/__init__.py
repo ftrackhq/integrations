@@ -25,20 +25,22 @@ class InstallerBlockingOverlay(
 
     def __init__(self, parent, message=''):
         super(InstallerBlockingOverlay, self).__init__(
-            parent, message=message, icon=qta.icon('mdi6.check', color='#FFDD86'))
+            parent, message=message, icon=qta.icon('mdi6.check', color='#FFDD86')
+        )
 
         self.button_layout = QtWidgets.QHBoxLayout()
+        self.button_layout.setContentsMargins(0, 0, 0, 0)
+
         self.contentLayout.addLayout(self.button_layout)
-        self.confirmButton = QtWidgets.QPushButton('Ok')
+        self.confirmButton = QtWidgets.QPushButton('Install more plugins')
         self.restartButton = QtWidgets.QPushButton('Restart')
         self.restartButton.setObjectName('primary')
-        self.content.setMinimumWidth(350)
 
         self.button_layout.addWidget(
-            self.confirmButton, alignment=QtCore.Qt.AlignCenter, stretch=0
+            self.confirmButton
         )
         self.button_layout.addWidget(
-            self.restartButton, alignment=QtCore.Qt.AlignCenter, stretch=0
+            self.restartButton
         )
         self.confirmButton.hide()
         self.confirmButton.clicked.connect(self.hide)
