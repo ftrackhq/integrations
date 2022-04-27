@@ -13,6 +13,30 @@ class FtrackAssetTab(FtrackAssetBase):
     Base FtrackAssetTab class.
     '''
 
+    @property
+    def loaded(self):
+        '''
+        Returns If the asset is loaded
+        '''
+        return self.asset_info[asset_const.IS_LOADED]
+
+    @loaded.setter
+    def loaded(self, value):
+        '''
+        Set the self :obj:`asset_info` as loaded and update the attributes in
+        the current self :obj:`ftrack_object` if exists.
+
+        *loaded* True if the objects are loaded in the scene.
+        '''
+        self.asset_info[asset_const.IS_LOADED] = value
+        if self.ftrack_object:
+            # Update and sync the ftrack_object asset_info with the
+            # self.asset_info
+            ftrack_node = nuke.toNode(self.ftrack_object)
+            ftrack_node.knob(asset_const.IS_LOADED).setValue(
+                str(self.asset_info[asset_const.IS_LOADED])
+            )
+
     def __init__(self, event_manager):
         '''
         Initialize FtrackAssetTab with *event_manager*.
@@ -61,22 +85,6 @@ class FtrackAssetTab(FtrackAssetBase):
         *ftrack_object* is sync with the self :obj:`asset_info`
         '''
         return self._check_ftrack_object_sync(ftrack_object)
-
-    def set_loaded(self, loaded):
-        '''
-        Set the self :obj:`asset_info` as loaded and update the attributes in
-        the current self :obj:`ftrack_object` if exists.
-
-        *loaded* True if the objects are loaded in the scene.
-        '''
-        self.asset_info[asset_const.IS_LOADED] = loaded
-        if self.ftrack_object:
-            # Update and sync the ftrack_object asset_info with the
-            # self.asset_info
-            ftrack_node = nuke.toNode(self.ftrack_object)
-            ftrack_node.knob(asset_const.IS_LOADED).setValue(
-                str(self.asset_info[asset_const.IS_LOADED])
-            )
 
     @staticmethod
     def get_dictionary_from_ftrack_object(nuke_ftrack_obj_node):
