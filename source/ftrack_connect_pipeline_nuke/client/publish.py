@@ -7,7 +7,7 @@ from ftrack_connect_pipeline_qt.client.publish import QtPublisherClient
 import ftrack_connect_pipeline.constants as constants
 import ftrack_connect_pipeline_qt.constants as qt_constants
 import ftrack_connect_pipeline_nuke.constants as nuke_constants
-from ftrack_connect_pipeline_nuke.utils.custom_commands import get_nuke_window
+from ftrack_connect_pipeline_nuke.utils.custom_commands import get_main_window
 
 
 class NukePublisherClient(QtPublisherClient):
@@ -21,7 +21,7 @@ class NukePublisherClient(QtPublisherClient):
 
     def __init__(self, event_manager, unused_asset_list_model):
         super(NukePublisherClient, self).__init__(
-            event_manager, parent=get_nuke_window()
+            event_manager, parent=get_main_window()
         )
         self.setWindowTitle('ftrack Publisher')
 

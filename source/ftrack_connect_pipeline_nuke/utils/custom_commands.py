@@ -24,7 +24,7 @@ from ftrack_connect_pipeline_nuke.constants import asset as asset_const
 logger = logging.getLogger(__name__)
 
 
-def get_nuke_window():
+def get_main_window():
     return QtWidgets.QApplication.activeWindow()
 
 
