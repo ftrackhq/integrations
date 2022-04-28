@@ -175,8 +175,8 @@ class PluginInstaller(ftrack_connect.ui.application.ConnectWidget):
         self.counter += 1
 
         self.busyOverlay.setMessage(
-            '<h2>Installing: {} of {}.</h2></br>'
-            '<h4>{}, Version {}</h4>'
+            '<h2>Installing {} of {} plugins...</h2></br>'
+            '{}, Version {}'
             .format(
                 self.counter,
                 len(self._plugins_to_install),

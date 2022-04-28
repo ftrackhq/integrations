@@ -25,7 +25,7 @@ class InstallerBlockingOverlay(
 
     def __init__(self, parent, message=''):
         super(InstallerBlockingOverlay, self).__init__(
-            parent, message=message, icon=qta.icon('mdi6.check', color='#FFDD86')
+            parent, message=message, icon=qta.icon('mdi6.check', color='#FFDD86', scale_factor=1.2)
         )
 
         self.button_layout = QtWidgets.QHBoxLayout()
@@ -161,8 +161,6 @@ class DndPluginList(QtWidgets.QFrame):
         )
 
         self.setAcceptDrops(True)
-        # self.setProperty('ftrackDropZone', True)
-        # self.setObjectName('ftrack-connect-publisher-browse-button')
 
         self.main_layout = QtWidgets.QVBoxLayout()
         self.main_layout.setContentsMargins(0, 0, 0, 0)
