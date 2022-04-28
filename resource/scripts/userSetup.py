@@ -111,17 +111,36 @@ def initialise():
     # Shared asset manager model
     asset_list_model = AssetListModel(event_manager)
 
-    from ftrack_connect_pipeline_maya.client import open
-    from ftrack_connect_pipeline_maya.client import load
-    from ftrack_connect_pipeline_maya.client import save
-    from ftrack_connect_pipeline_maya.client import asset_manager
-    from ftrack_connect_pipeline_maya.client import publish
-    from ftrack_connect_pipeline_maya.client import log_viewer
+    from ftrack_connect_pipeline_maya.client import (
+        open,
+        load,
+        save,
+        asset_manager,
+        publish,
+        log_viewer,
+    )
     from ftrack_connect_pipeline_qt import client
+    from ftrack_connect_pipeline_qt.client import webview
 
     widgets = list()
     widgets.append(
         (qt_constants.OPEN_WIDGET, open.MayaOpenerClient, 'Open', 'fileOpen')
+    )
+    widgets.append(
+        (
+            qt_constants.INFO_WIDGET,
+            webview.QtInfoWebViewClient,
+            'Info',
+            'info',
+        )
+    )
+    widgets.append(
+        (
+            qt_constants.TASKS_WIDGET,
+            webview.QtTasksWebViewClient,
+            'My Tasks',
+            'SP_FileDialogListView',
+        )
     )
     widgets.append(
         (
