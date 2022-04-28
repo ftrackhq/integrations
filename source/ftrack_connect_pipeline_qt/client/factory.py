@@ -798,7 +798,7 @@ class AssemblerWidgetFactory(LoaderWidgetFactory):
 
     @staticmethod
     def client_type():
-        return qt_constants.ASSEMBLER_WIDGET
+        return qt_constants.LOADER_WIDGET
 
     @staticmethod
     def create_progress_widget(parent=None):

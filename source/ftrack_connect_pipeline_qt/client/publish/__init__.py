@@ -63,6 +63,9 @@ class QtPublisherClient(client.QtDockedClient):
 
     def post_build(self):
         super(QtPublisherClient, self).post_build()
+        self.context_selector.changeContextClicked.connect(
+            self._launch_context_selector
+        )
         self.widget_factory.widgetAssetUpdated.connect(
             self._on_widget_asset_updated
         )

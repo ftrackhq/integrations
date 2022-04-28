@@ -9,7 +9,7 @@ from ftrack_connect_pipeline import constants as core_constants
 based on a definition, for a given client type.'''
 UI_OVERRIDES = {
     'progress_widget': default_widgets.ProgressWidget,
-    'progress_widget.assembler': default_widgets.BatchProgressWidget,
+    'progress_widget.loader': default_widgets.BatchProgressWidget,
     'main_widget': default_widgets.DefaultMainWidget,
     core_constants.CONTEXTS: {
         'step_container': default_widgets.DefaultStepContainerWidget,
@@ -21,7 +21,7 @@ UI_OVERRIDES = {
         'step_container': default_widgets.DefaultStepContainerWidget,
         'step_container.opener': override_widgets.RadioButtonStepContainerWidget,
         'step_widget.opener': override_widgets.RadioButtonItemStepWidget,
-        'step_widget.assembler': override_widgets.AccordionStepWidget,
+        'step_widget.loader': override_widgets.AccordionStepWidget,
         'step_widget.publisher': override_widgets.PublisherAccordionStepWidget,
         'stage_widget': default_widgets.DefaultStageWidget,
         # Example to override specific stage widget

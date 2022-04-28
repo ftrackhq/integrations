@@ -209,14 +209,16 @@ class QtAssemblerClient(QtLoaderClient, dialog.Dialog):
 
         self.layout().addWidget(self.splitter, 100)
 
-    def _build_definition_selector(selfe):
+    def _build_definition_selector(self):
         return definition_selector.AssemblerDefinitionSelector(
             parent=self.parent()
         )
 
     def post_build(self):
         super(QtLoaderClient, self).post_build()
-        self.context_selector.changeEntityClicked.connect(self._change_context)
+        self.context_selector.changeContextClicked.connect(
+            self._launch_context_selector
+        )
         self.host_and_definition_selector.hostsDiscovered.connect(
             self._on_hosts_discovered
         )

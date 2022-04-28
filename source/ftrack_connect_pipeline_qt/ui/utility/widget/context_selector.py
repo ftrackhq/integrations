@@ -21,6 +21,7 @@ from ftrack_connect_pipeline_qt.ui.utility.widget.entity_browser import (
 
 class ContextSelector(QtWidgets.QFrame):
 
+    changeContextClicked = QtCore.Signal()
     entityChanged = QtCore.Signal(object)
 
     @property
@@ -167,3 +168,6 @@ class ContextSelector(QtWidgets.QFrame):
             # Launch browser.
             if self._entity_browser.exec_():
                 self.set_entity(self._entity_browser.entity)
+        else:
+            # Let client decide what to do when user wants to change context
+            self.changeContextClicked.emit()

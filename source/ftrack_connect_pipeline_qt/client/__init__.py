@@ -119,11 +119,11 @@ class QtClient(Client):
         '''
         super(QtClient, self)._host_discovered(event)
         if self.definition_filter:
-            self.host_and_definition_selector.set_definition_title_filter(
+            self.host_and_definition_selector.definition_title_filter = (
                 self.definition_filter
             )
         if self.definition_extensions_filter:
-            self.host_and_definition_selector.set_definition_extensions_filter(
+            self.host_and_definition_selector.definition_extensions_filter = (
                 self.definition_extensions_filter
             )
         self.host_and_definition_selector.add_hosts(self.host_connections)
@@ -311,7 +311,7 @@ class QtClient(Client):
             self.host_and_definition_selector.refresh()
         self._shown = True
 
-    def _change_context(self):
+    def _launch_context_selector(self):
         '''Close client (if not docked) and open entity browser.'''
         if not self.is_docked():
             self.parent().hide()

@@ -27,6 +27,33 @@ class DefinitionSelectorBase(QtWidgets.QWidget):
     def selected_host_connection(self):
         return self._host_combobox.itemData(self._host_combobox.currentIndex())
 
+    @property
+    def definition_title_filter(self):
+        return self._definition_title_filter
+
+    @definition_title_filter.setter
+    def definition_title_filter(self, value):
+        self._definition_title_filter = value
+
+    @property
+    def definition_extensions_filter(self):
+        return self._definition_extensions_filter
+
+    @definition_extensions_filter.setter
+    def definition_extensions_filter(self, value):
+        self._definition_extensions_filter = value
+
+    @property
+    def current_definition_index(self):
+        return self._definition_selector.currentIndex()
+
+    @current_definition_index.setter
+    def current_definition_index(self, value):
+        if self._definition_selector.currentIndex() != value:
+            self._definition_selector.setCurrentIndex(value)
+        else:
+            self._on_change_definition(value)
+
     def __init__(self, parent=None):
         '''Initialize DefinitionSelector widget'''
         super(DefinitionSelectorBase, self).__init__(parent=parent)
@@ -150,23 +177,6 @@ class DefinitionSelectorBase(QtWidgets.QWidget):
         self.definitionChanged.emit(
             self.schema, self.definition, self.component_names_filter
         )
-
-    def set_definition_title_filter(self, title_filter):
-        '''Set the *title_filter* name filter to use when populating definitions'''
-        self._definition_title_filter = title_filter
-
-    def set_definition_extensions_filter(self, extensions_filter):
-        '''Set the *extensions_filter* (file_type:s) filter to use when populating definitions'''
-        self._definition_extensions_filter = extensions_filter
-
-    def get_current_definition_index(self):
-        return self._definition_selector.currentIndex()
-
-    def set_current_definition_index(self, index):
-        if self._definition_selector.currentIndex() != index:
-            self._definition_selector.setCurrentIndex(index)
-        else:
-            self._on_change_definition(index)
 
     def refresh(self):
         self._on_change_definition(self._definition_selector.currentIndex())
@@ -358,18 +368,25 @@ class AssemblerDefinitionSelector(DefinitionSelectorBase):
         super(AssemblerDefinitionSelector, self).__init__(parent=parent)
 
     def build_definition_widget(self):
-        '''Not present in assembler'''
+        '''Not used in assembler, build dummy.'''
         self._definition_widget = QtWidgets.QWidget()
+        self._definition_widget.setLayout(QtWidgets.QHBoxLayout())
+        self._definition_selector = DefinitionSelectorComboBox()
+        self._definition_widget.layout().addWidget(self._definition_selector)
         return self._definition_widget
 
     def post_build(self):
         super(AssemblerDefinitionSelector, self).post_build()
+        self._definition_selector.currentIndexChanged.connect(
+            self._on_change_definition
+        )
         self.label_widget.setVisible(False)
         self._definition_widget.setVisible(False)
 
     def populate_definitions(self):
-        '''Not present in assembler'''
-        pass
+        self._definition_selector.currentIndexChanged.connect(
+            self._on_change_definition
+        )
 
 
 class PublisherDefinitionSelector(DefinitionSelectorBase):

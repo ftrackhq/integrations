@@ -157,6 +157,10 @@ class QtAssetManagerClient(AssetManagerClient, QtWidgets.QFrame):
         '''Post Build ui method for events connections.'''
         if not self.is_assembler:
             self.header.publishClicked.connect(self._open_publisher)
+            self.context_selector.changeContextClicked.connect(
+                self._launch_context_selector
+            )
+
         self.asset_manager_widget.rebuild.connect(self.rebuild)
 
         if not self.is_assembler:
@@ -243,6 +247,10 @@ class QtAssetManagerClient(AssetManagerClient, QtWidgets.QFrame):
         '''
         status, message = data
         self.header.setMessage(message, status)
+
+    def _launch_context_selector(self):
+        '''Open entity browser.'''
+        self.host_connection.launch_widget(qt_constants.CHANGE_CONTEXT_WIDGET)
 
     # Implementation of assetmanager client callbacks
 
