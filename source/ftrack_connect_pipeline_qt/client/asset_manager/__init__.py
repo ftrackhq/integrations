@@ -6,6 +6,7 @@ from functools import partial
 from Qt import QtWidgets, QtCore, QtCompat, QtGui
 
 from ftrack_connect_pipeline.constants import asset as asset_const
+from ftrack_connect_pipeline.utils import global_context
 from ftrack_connect_pipeline_qt import constants as qt_constants
 from ftrack_connect_pipeline.client.asset_manager import AssetManagerClient
 
@@ -77,9 +78,9 @@ class QtAssetManagerClient(AssetManagerClient, QtWidgets.QFrame):
         self.post_build()
 
         if not self.is_assembler:
+            self.set_context_id(self.context_id or global_context())
             if self.context_id:
-                self.context_selector.set_context_id(self.context_id)
-            self.add_hosts(self.discover_hosts())
+                self.add_hosts(self.discover_hosts())
 
     def setTheme(self, selected_theme):
         theme.applyFont()
@@ -133,8 +134,6 @@ class QtAssetManagerClient(AssetManagerClient, QtWidgets.QFrame):
             self.host_selector = host_selector.HostSelector()
             self.layout().addWidget(self.host_selector)
             self.host_selector.setVisible(False)
-        else:
-            self.context_selector = None
 
         self.scroll = scroll_area.ScrollArea()
         self.scroll.setWidgetResizable(True)
@@ -188,6 +187,15 @@ class QtAssetManagerClient(AssetManagerClient, QtWidgets.QFrame):
         self.selectionUpdated.connect(self._on_asset_selection_updated)
         self.setMinimumWidth(300)
 
+    def set_context_id(self, context_id):
+        '''Set the context id for this client'''
+        if context_id and context_id != self.context_id:
+            discover_hosts = self.context_id is None
+            self.context_id = context_id
+            self.context_selector.set_context_id(context_id)
+            if discover_hosts:
+                self.add_hosts(self.discover_hosts())
+
     def add_hosts(self, host_connections):
         '''
         Adds the given *host_connections*
@@ -216,7 +224,6 @@ class QtAssetManagerClient(AssetManagerClient, QtWidgets.QFrame):
         '''
         Triggered host is selected in the host_selector.
         '''
-
         self._reset_asset_list()
         # self.asset_manager_widget.set_asset_list(self.asset_entities_list)
         if not host_connection:
@@ -230,7 +237,7 @@ class QtAssetManagerClient(AssetManagerClient, QtWidgets.QFrame):
             )
             return
 
-        if self.context_selector:
+        if not self.is_assembler:
             self.context_selector.host_changed(host_connection)
         self.asset_manager_widget.host_connection = self.host_connection
 
@@ -264,7 +271,6 @@ class QtAssetManagerClient(AssetManagerClient, QtWidgets.QFrame):
         '''
         if not self.host_connection:
             return
-        # self.session._local_cache.clear()  # Make sure session cache is cleared out
         self.asset_manager_widget.set_busy(True)
         BaseThread(
             name='discover_assets_thread',
@@ -277,7 +283,7 @@ class QtAssetManagerClient(AssetManagerClient, QtWidgets.QFrame):
         Callback function of the discover_assets. Sets the updated
         asset_entities_list. Is run async.
         '''
-        self.logger.info('Discovered assets: {}'.format(event))
+        self.logger.debug('Discovered assets: {}'.format(event))
         try:
             if not event['data']:
                 self.assetsDiscovered.emit()

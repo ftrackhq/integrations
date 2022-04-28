@@ -143,9 +143,22 @@ class DefinitionSelectorBase(QtWidgets.QWidget):
         self._definition_selector.clear()
 
     def populate_definitions(self):
-        '''Host has been selected, fill up definition selector combobox with
+        '''Host has been selected, fill up basic definition selector combobox with
         compatible definitions.'''
-        raise NotImplementedError()
+        for schema in self.schemas:
+            schema_title = schema.get('title').lower()
+            if self._definition_title_filter:
+                if schema_title != self._definition_title_filter:
+                    continue
+            items = self.host_connection.definitions.get(schema_title)
+            self.definitions = items
+            for item in items:
+                # Remove ' Publisher/Loader'
+                text = '{}'.format(' '.join(item.get('name').split(' ')[:-1]))
+                self._definition_selector.addItem(text.upper(), (item, None))
+        self._definition_selector.currentIndexChanged.connect(
+            self._on_change_definition
+        )
 
     def _on_change_definition(self, index):
         '''A definition has been selected, fire signal for client to pick up'''
@@ -382,11 +395,6 @@ class AssemblerDefinitionSelector(DefinitionSelectorBase):
         )
         self.label_widget.setVisible(False)
         self._definition_widget.setVisible(False)
-
-    def populate_definitions(self):
-        self._definition_selector.currentIndexChanged.connect(
-            self._on_change_definition
-        )
 
 
 class PublisherDefinitionSelector(DefinitionSelectorBase):

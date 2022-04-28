@@ -60,10 +60,11 @@ class QtAssemblerClient(QtLoaderClient, dialog.Dialog):
         10  # Amount of assets to fetch at a time within the browser
     )
 
-    assemble_mode = (
-        -1
-    )  # The mode assembler is in - resolve dependencies or manual browse
-    hard_refresh = True  # Flag telling assembler that next refresh should include dependency resolve
+    assemble_mode = -1
+    ''' The mode assembler is in - resolve dependencies or manual browse '''
+
+    hard_refresh = True
+    ''' Flag telling assembler that next refresh should include dependency resolve '''
 
     def __init__(self, event_manager, modes, asset_list_model, parent=None):
 
@@ -152,8 +153,7 @@ class QtAssemblerClient(QtLoaderClient, dialog.Dialog):
         self._left_widget.layout().addWidget(self._tab_widget)
 
         # Set initial import mode, do not rebuild it as AM will trig it when it
-        # has resolved dependencies
-        # self.set_import_mode(self.IMPORT_MODE_BROWSE)
+        # has fetched assets
         self._tab_widget.setCurrentIndex(self.IMPORT_MODE_DEPENDENCIES)
         self.set_assemble_mode(self.IMPORT_MODE_DEPENDENCIES)
 
@@ -232,8 +232,8 @@ class QtAssemblerClient(QtLoaderClient, dialog.Dialog):
     def _connect_run_button(self):
         self.run_button.clicked.connect(partial(self.run, "init_and_load"))
 
-    def _on_hosts_discovered(self, host_connects):
-        self.host_and_definition_selector.setVisible(len(host_connects) > 1)
+    def _on_hosts_discovered(self, host_connections):
+        self.host_and_definition_selector.setVisible(len(host_connections) > 1)
 
     def change_host(self, host_connection):
         super(QtLoaderClient, self).change_host(host_connection)
@@ -246,8 +246,7 @@ class QtAssemblerClient(QtLoaderClient, dialog.Dialog):
 
     def _assets_discovered(self):
         '''The assets in AM has been discovered, refresh at our end.'''
-        if self.hard_refresh:
-            self.refresh()
+        self.refresh()
 
     def _on_tab_changed(self, index):
         self.set_assemble_mode(index)
@@ -308,6 +307,7 @@ class QtAssemblerClient(QtLoaderClient, dialog.Dialog):
 
     def reset(self):
         '''Assembler is shown again after being hidden.'''
+        super(QtAssemblerClient, self).reset()
         self.refresh(True)
         self.asset_manager.asset_manager_widget.rebuild.emit()
         self.progress_widget.hide_widget()

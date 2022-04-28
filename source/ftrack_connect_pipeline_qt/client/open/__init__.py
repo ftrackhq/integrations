@@ -54,7 +54,10 @@ class QtOpenerClient(client.QtClient, dialog.Dialog):
 
     def _build_context_selector(self):
         '''Instantiate a master context selector'''
-        return ContextSelector(self.session, master=True, parent=self.parent())
+        self.context_selector = ContextSelector(
+            self.session, master=True, parent=self.parent()
+        )
+        return self.context_selector
 
     def _build_definition_selector(self):
         return definition_selector.OpenerDefinitionSelector(
@@ -118,10 +121,6 @@ class QtOpenerClient(client.QtClient, dialog.Dialog):
             self.widget_factory.progress_widget.set_status(
                 constants.SUCCESS_STATUS, 'Successfully opened version!'
             )
-
-    def reset(self):
-        '''Open dialog is shown again after being hidden.'''
-        self.host_and_definition_selector.refresh()
 
     def show(self):
         if self._shown:

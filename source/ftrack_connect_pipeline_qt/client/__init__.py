@@ -9,6 +9,7 @@ from functools import partial
 from Qt import QtCore, QtWidgets
 
 from ftrack_connect_pipeline.client import Client, constants
+from ftrack_connect_pipeline.utils import global_context
 from ftrack_connect_pipeline_qt.ui.utility.widget import (
     header,
     definition_selector,
@@ -74,9 +75,9 @@ class QtClient(Client):
         self.build()
         self.post_build()
 
+        self.set_context_id(self.context_id or global_context())
         if self.context_id:
-            self.context_selector.set_context_id(self.context_id)
-        self.add_hosts(self.discover_hosts())
+            self.add_hosts(self.discover_hosts())
 
     def get_factory(self):
         '''Instantiate the widget factory to use'''
@@ -96,37 +97,6 @@ class QtClient(Client):
 
     def is_docked(self):
         raise NotImplementedError()
-
-    def add_hosts(self, host_connections):
-        '''
-        Adds the given *host_connections*
-
-        *host_connections* : list of
-        :class:`~ftrack_connect_pipeline.client.HostConnection`
-        '''
-        for host_connection in host_connections:
-            if host_connection in self.host_connections:
-                continue
-            self._host_connections.append(host_connection)
-
-    def _host_discovered(self, event):
-        '''
-        Callback, add the :class:`~ftrack_connect_pipeline.client.HostConnection`
-        of the new discovered :class:`~ftrack_connect_pipeline.host.HOST` from
-        the given *event*.
-
-        *event*: :class:`ftrack_api.event.base.Event`
-        '''
-        super(QtClient, self)._host_discovered(event)
-        if self.definition_filter:
-            self.host_and_definition_selector.definition_title_filter = (
-                self.definition_filter
-            )
-        if self.definition_extensions_filter:
-            self.host_and_definition_selector.definition_extensions_filter = (
-                self.definition_extensions_filter
-            )
-        self.host_and_definition_selector.add_hosts(self.host_connections)
 
     def pre_build(self):
         '''Prepare general layout.'''
@@ -149,8 +119,9 @@ class QtClient(Client):
 
         self.layout().addWidget(line.Line(style='solid', parent=self.parent()))
 
-        self.context_selector = self._build_context_selector()
-        self.layout().addWidget(self.context_selector, QtCore.Qt.AlignTop)
+        self.layout().addWidget(
+            self._build_context_selector(), QtCore.Qt.AlignTop
+        )
 
         self.layout().addWidget(line.Line(parent=self.parent()))
 
@@ -169,7 +140,10 @@ class QtClient(Client):
 
     def _build_context_selector(self):
         '''Instantiate standard slave context selector'''
-        return ContextSelector(self.session, parent=self.parent())
+        self.context_selector = ContextSelector(
+            self.session, parent=self.parent()
+        )
+        return self.context_selector
 
     def _build_definition_selector(self):
         raise NotImplementedError()
@@ -199,13 +173,20 @@ class QtClient(Client):
         '''Updates the option dictionary with provided *context* when
         entityChanged of context_selector event is triggered'''
 
-        self.context_id = context_entity['id']
-        self.change_context(self.context_id)
+        self.set_context_id(context_entity['id'])
 
         # Reset definition selector and clear client
         self.host_and_definition_selector.clear_definitions()
         self.host_and_definition_selector.populate_definitions()
         self._clear_widget()
+
+    def set_context_id(self, context_id):
+        '''Set the context id for this client'''
+        if context_id and context_id != self.context_id:
+            discover_hosts = self.context_id is None
+            self.change_context(context_id)
+            if discover_hosts:
+                self.add_hosts(self.discover_hosts())
 
     def change_context(self, context_id):
         '''
@@ -214,7 +195,41 @@ class QtClient(Client):
         on_context_change signal.
         '''
         super(QtClient, self).change_context(context_id)
+        self.context_selector.set_context_id(self.context_id)
         self.contextChanged.emit(context_id)
+
+    def add_hosts(self, host_connections):
+        '''
+        Adds the given *host_connections*
+
+        *host_connections* : list of
+        :class:`~ftrack_connect_pipeline.client.HostConnection`
+        '''
+        for host_connection in host_connections:
+            if host_connection in self.host_connections:
+                continue
+            if self.context_id:
+                host_connection.context_id = self.context_id
+            self._host_connections.append(host_connection)
+
+    def _host_discovered(self, event):
+        '''
+        Callback, add the :class:`~ftrack_connect_pipeline.client.HostConnection`
+        of the new discovered :class:`~ftrack_connect_pipeline.host.HOST` from
+        the given *event*.
+
+        *event*: :class:`ftrack_api.event.base.Event`
+        '''
+        super(QtClient, self)._host_discovered(event)
+        if self.definition_filter:
+            self.host_and_definition_selector.definition_title_filter = (
+                self.definition_filter
+            )
+        if self.definition_extensions_filter:
+            self.host_and_definition_selector.definition_extensions_filter = (
+                self.definition_extensions_filter
+            )
+        self.host_and_definition_selector.add_hosts(self.host_connections)
 
     def _clear_widget(self):
         if self.scroll and self.scroll.widget():
@@ -305,6 +320,11 @@ class QtClient(Client):
                 False
             )
 
+    def reset(self):
+        '''Reset a client that has become visible after being hidden.'''
+        self.set_context_id(global_context())
+        self.host_and_definition_selector.refresh()
+
     def conditional_rebuild(self):
         if self._shown:
             # Refresh when re-opened
@@ -367,7 +387,6 @@ class QtChangeContextClient(Client):
         self.entity_browser.setMinimumWidth(600)
         if self.entity_browser.exec_():
             self.change_global_context(self.entity_browser.entity)
-            self.context_selector.set_context_id(self.entity_browser.entity_id)
 
     def change_global_context(self, context):
         self._host_connection.change_global_context(context)

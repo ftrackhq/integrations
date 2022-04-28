@@ -5,7 +5,6 @@ import logging
 from Qt import QtWidgets, QtCore
 
 from ftrack_connect_pipeline import constants as constants
-from ftrack_connect_pipeline.utils import global_context
 from ftrack_connect_pipeline_qt import constants as qt_constants
 from ftrack_connect_pipeline_qt.ui.utility.widget.entity_info import EntityInfo
 
@@ -108,10 +107,6 @@ class ContextSelector(QtWidgets.QFrame):
             ),
             self._global_context_changed,
         )
-
-    def set_default_context_id(self):
-        '''Reset the context ID back to default current global'''
-        self.set_context_id(global_context())
 
     def _global_context_changed(self, event):
         '''The main context has been set in another client (opener), align ourselves.'''
