@@ -55,7 +55,7 @@ class QtOpenerClient(client.QtClient, dialog.Dialog):
     def _build_context_selector(self):
         '''Instantiate a master context selector'''
         self.context_selector = ContextSelector(
-            self.session, master=True, parent=self.parent()
+            self.session, enble_entity_browser=True, parent=self.parent()
         )
         return self.context_selector
 

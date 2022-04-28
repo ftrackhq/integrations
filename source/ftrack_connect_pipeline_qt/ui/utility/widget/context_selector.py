@@ -34,18 +34,18 @@ class ContextSelector(QtWidgets.QFrame):
     def __init__(
         self,
         session,
-        master=False,
+        enble_entity_browser=False,
         parent=None,
     ):
         '''Initialise ContextSelector widget with the *current_entity* and
-        *parent* widget. If *master* is True, this contest selection is allowed to
+        *parent* widget. If *enble_entity_browser* is True, this contest selection is allowed to
         spawn the entity browser and change global context.
         '''
         super(ContextSelector, self).__init__(parent=parent)
 
         self.logger = logging.getLogger(__name__)
 
-        self._master = master
+        self._enble_entity_browser = enble_entity_browser
         self._entity = None
         self._context_id = None
         self.session = session
@@ -60,7 +60,7 @@ class ContextSelector(QtWidgets.QFrame):
         layout.setContentsMargins(10, 1, 10, 1)
         layout.setSpacing(8)
         self.setLayout(layout)
-        if self._master:
+        if self._enble_entity_browser:
             self._entity_browser = EntityBrowser(
                 self.parent(),
                 self.session,
@@ -156,7 +156,7 @@ class ContextSelector(QtWidgets.QFrame):
 
     def _on_entity_browse_button_clicked(self):
         '''Handle entity browse button clicked'''
-        if self._master:
+        if self._enble_entity_browser:
             self._entity_browser.set_entity(
                 self._entity['parent'] if self._entity else None
             )
