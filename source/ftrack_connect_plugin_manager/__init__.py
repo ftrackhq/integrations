@@ -30,7 +30,7 @@ class InstallerBlockingOverlay(
 
         self.button_layout = QtWidgets.QHBoxLayout()
         self.button_layout.setContentsMargins(0, 0, 0, 0)
-
+        self.contentLayout.addSpacing(30)
         self.contentLayout.addLayout(self.button_layout)
         self.confirmButton = QtWidgets.QPushButton('Install more plugins')
         self.restartButton = QtWidgets.QPushButton('Restart')
