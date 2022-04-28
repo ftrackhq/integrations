@@ -7,15 +7,24 @@ import maya.cmds as cmds
 
 from ftrack_connect_pipeline import constants
 from ftrack_connect_pipeline.host.engine import AssetManagerEngine
-from ftrack_connect_pipeline_maya.asset import FtrackAssetNode
 from ftrack_connect_pipeline.asset.asset_info import FtrackAssetInfo
 from ftrack_connect_pipeline_maya.utils import custom_commands as maya_utils
 from ftrack_connect_pipeline_maya.constants import asset as asset_const
+from ftrack_connect_pipeline_maya.asset import MayaFtrackObjectManager
+from ftrack_connect_pipeline_maya.asset.dcc_object import MayaDccObject as DccObject
 
 
 class MayaAssetManagerEngine(AssetManagerEngine):
-    ftrack_asset_class = FtrackAssetNode
     engine_type = 'asset_manager'
+
+    @property
+    def ftrack_object_manager(self):
+        '''
+        Returns If the asset is loaded
+        '''
+        if not isinstance(self._ftrack_object_manager, MayaFtrackObjectManager):
+            self._ftrack_object_manager = MayaFtrackObjectManager(self.event_manager)
+        return self._ftrack_object_manager
 
     def __init__(
         self, event_manager, host_types, host_id, asset_type_name=None
@@ -51,10 +60,9 @@ class MayaAssetManagerEngine(AssetManagerEngine):
         ftrack_asset_info_list = []
 
         if ftrack_asset_nodes:
-            for ftrack_object in ftrack_asset_nodes:
-                param_dict = FtrackAssetNode.get_dictionary_from_ftrack_object(
-                    ftrack_object
-                )
+            for node_name in ftrack_asset_nodes:
+                dcc_object = DccObject(node_name)
+                param_dict = dcc_object.parameters_dictionary()
                 node_asset_info = FtrackAssetInfo(param_dict)
                 ftrack_asset_info_list.append(node_asset_info)
 
@@ -108,14 +116,17 @@ class MayaAssetManagerEngine(AssetManagerEngine):
             'message': message,
         }
 
-        ftrack_asset_class = self.get_ftrack_asset_class(asset_info)
+        self.ftrack_object_manager.asset_info = asset_info
+        dcc_object = DccObject()
+        dcc_object.from_asset_info_id(asset_info[asset_const.ASSET_INFO_ID])
+        self.ftrack_object_manager.dcc_object = dcc_object
 
         if options.get('clear_selection'):
             cmds.select(cl=True)
 
         nodes = cmds.listConnections(
             '{}.{}'.format(
-                ftrack_asset_class.ftrack_object, asset_const.ASSET_LINK
+                self.ftrack_object_manager.dcc_object, asset_const.ASSET_LINK
             )
         )
         for node in nodes:
@@ -196,13 +207,16 @@ class MayaAssetManagerEngine(AssetManagerEngine):
             'message': message,
         }
 
-        ftrack_asset_class = self.get_ftrack_asset_class(asset_info)
+        self.ftrack_object_manager.asset_info = asset_info
+        dcc_object = DccObject()
+        dcc_object.from_asset_info_id(asset_info[asset_const.ASSET_INFO_ID])
+        self.ftrack_object_manager.dcc_object = dcc_object
 
         reference_node = False
         nodes = (
             cmds.listConnections(
                 '{}.{}'.format(
-                    ftrack_asset_class.ftrack_object, asset_const.ASSET_LINK
+                    self.ftrack_object_manager.dcc_object, asset_const.ASSET_LINK
                 )
             )
             or []
@@ -271,16 +285,16 @@ class MayaAssetManagerEngine(AssetManagerEngine):
                     return status, result
 
         if (
-            cmds.objExists(ftrack_asset_class.ftrack_object)
+            cmds.objExists(self.ftrack_object_manager.dcc_object)
             and keep_ftrack_node is False
         ):
             try:
-                cmds.delete(ftrack_asset_class.ftrack_object)
-                result.append(str(ftrack_asset_class.ftrack_object))
+                cmds.delete(self.ftrack_object_manager.dcc_object)
+                result.append(str(self.ftrack_object_manager.dcc_object))
                 status = constants.SUCCESS_STATUS
             except Exception as error:
                 message = str(
-                    'Could not delete the ftrack_object, error: {}'.format(
+                    'Could not delete the dcc_object, error: {}'.format(
                         error
                     )
                 )
