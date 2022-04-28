@@ -485,8 +485,11 @@ class Client(object):
             self.logger.debug("No context id provided")
             return
         self.context_id = context_id
-        if self.host_connection:
-            self._host_connection.context_id = context_id
+        if self._host_connections:
+            for host_connection in self._host_connections:
+                host_connection.context_id = self.context_id
+            if self.host_connection:
+                self._host_connection.context_id = context_id
 
     def _on_log_item_added(self, log_item):
         '''Called when a client notify event arrives.'''
