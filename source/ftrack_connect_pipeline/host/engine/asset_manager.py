@@ -6,18 +6,27 @@ from ftrack_connect_pipeline.host.engine import BaseEngine
 from ftrack_connect_pipeline import constants
 from ftrack_connect_pipeline.constants import asset as asset_const
 from ftrack_connect_pipeline.asset.asset_info import FtrackAssetInfo
-from ftrack_connect_pipeline.asset import FtrackAssetBase
+from ftrack_connect_pipeline.asset import FtrackObjectManager
+from ftrack_connect_pipeline.asset.dcc_object import DccObject
 
+import ftrack_api
 
 class AssetManagerEngine(BaseEngine):
     '''
     Base Asset Manager Engine class.
     '''
 
-    ftrack_asset_class = FtrackAssetBase
-    '''Define the class to use for the ftrack node to track the loaded assets'''
     engine_type = 'asset_manager'
     '''Engine type for this engine class'''
+
+    @property
+    def ftrack_object_manager(self):
+        '''
+        Returns If the asset is loaded
+        '''
+        if not isinstance(self._ftrack_object_manager, FtrackObjectManager):
+            self._ftrack_object_manager = FtrackObjectManager(self.event_manager)
+        return self._ftrack_object_manager
 
     def __init__(
         self, event_manager, host_types, host_id, asset_type_name=None
@@ -37,6 +46,7 @@ class AssetManagerEngine(BaseEngine):
         super(AssetManagerEngine, self).__init__(
             event_manager, host_types, host_id, asset_type_name=asset_type_name
         )
+        self._ftrack_object_manager = None
 
     def get_ftrack_asset_class(self, asset_info):
         '''
@@ -48,16 +58,14 @@ class AssetManagerEngine(BaseEngine):
         *asset_info* : Should be instance of
         :class:`~ftrack_connect_pipeline.asset.FtrackAssetInfo`
         '''
-        ftrack_asset_class = self.ftrack_asset_class(self.event_manager)
-        ftrack_asset_class.asset_info = asset_info
-        ftrack_object = ftrack_asset_class.init_ftrack_object(False)
-        if ftrack_object is None:
-            raise Exception(
-                'The corresponding ftrack object with ID {} could not be found!'.format(
-                    asset_info[asset_const.ASSET_INFO_ID]
-                )
-            )
-        return ftrack_asset_class
+        #TODO: Make sure we rename this ftrack_asset_class to manager and fix the DCCobject import
+        ftrack_object_manager = self.ftrack_asset_class(self.event_manager)
+        ftrack_object_manager.asset_info = asset_info
+        dcc_object = DccObject()
+        dcc_object.from_asset_info_id(asset_info[asset_const.ASSET_INFO_ID])
+        ftrack_object_manager.dcc_object = dcc_object
+
+        return ftrack_object_manager
 
     def discover_assets(self, assets=None, options=None, plugin=None):
         '''
@@ -591,7 +599,10 @@ class AssetManagerEngine(BaseEngine):
 
         new_version_id = options['new_version_id']
 
-        ftrack_asset_class = self.get_ftrack_asset_class(asset_info)
+        self.ftrack_object_manager.asset_info = asset_info
+        dcc_object = DccObject()
+        dcc_object.from_asset_info_id(asset_info[asset_const.ASSET_INFO_ID])
+        self.ftrack_object_manager.dcc_object = dcc_object
 
         remove_result = None
         remove_status = None
@@ -636,7 +647,7 @@ class AssetManagerEngine(BaseEngine):
             # Create the new asset info of the asset_version_entity
             new_asset_info = FtrackAssetInfo.from_version_entity(
                 asset_version_entity,
-                ftrack_asset_class.asset_info.get(asset_const.COMPONENT_NAME),
+                self.ftrack_object_manager.asset_info.get(asset_const.COMPONENT_NAME),
             )
             if not new_asset_info:
                 raise Exception("Asset version couldn't change")
@@ -647,12 +658,12 @@ class AssetManagerEngine(BaseEngine):
                 )
 
             # Get the asset info options from the old asset info
-            asset_info_options = ftrack_asset_class.asset_info[
+            asset_info_options = self.ftrack_object_manager.asset_info[
                 asset_const.ASSET_INFO_OPTIONS
             ]
 
             if not asset_info_options:
-                ftrack_asset_class.asset_info.update(new_asset_info)
+                self.ftrack_object_manager.asset_info.update(new_asset_info)
                 raise UserWarning("No options to update")
 
             # Use the asset_info options to reload the new version
@@ -697,12 +708,12 @@ class AssetManagerEngine(BaseEngine):
 
             new_asset_info[
                 asset_const.LOAD_MODE
-            ] = ftrack_asset_class.asset_info[asset_const.LOAD_MODE]
+            ] = self.ftrack_object_manager.asset_info[asset_const.LOAD_MODE]
             new_asset_info[
                 asset_const.REFERENCE_OBJECT
-            ] = ftrack_asset_class.asset_info[asset_const.REFERENCE_OBJECT]
+            ] = self.ftrack_object_manager.asset_info[asset_const.REFERENCE_OBJECT]
 
-            ftrack_asset_class.asset_info.update(new_asset_info)
+            self.ftrack_object_manager.asset_info.update(new_asset_info)
 
         except UserWarning as e:
             self.logger.debug(e)

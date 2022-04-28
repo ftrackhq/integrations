@@ -93,7 +93,7 @@ def generate_asset_info_dict_from_args(context_data, data, options, session):
                 arguments_dict[constants.COMPONENT_ID] = component['id']
                 arguments_dict[constants.COMPONENT_PATH] = component_path
 
-    arguments_dict[constants.IS_LOADED] = False
+    arguments_dict[constants.OBJECTS_LOADED] = False
 
     return arguments_dict
 
@@ -292,6 +292,6 @@ class FtrackAssetInfo(dict):
                             constants.COMPONENT_PATH
                         ] = component_path
 
-        asset_info_data[constants.IS_LOADED] = False
+        asset_info_data[constants.OBJECTS_LOADED] = False
 
         return cls(asset_info_data)

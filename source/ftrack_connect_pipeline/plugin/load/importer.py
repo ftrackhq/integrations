@@ -35,7 +35,7 @@ class LoaderImporterPlugin(base.BaseImporterPlugin):
 
     def __init__(self, session):
         super(LoaderImporterPlugin, self).__init__(session)
-        self.ftrack_asset = None
+        self.ftrack_object_manager = None
 
     def _parse_run_event(self, event):
         '''
@@ -84,23 +84,22 @@ class LoaderImporterPlugin(base.BaseImporterPlugin):
 
         asset_info = ainfo.FtrackAssetInfo(arguments_dict)
 
-        self.ftrack_asset = self.ftrack_asset_class(self.event_manager)
-        self.ftrack_asset.asset_info = asset_info
+        self.ftrack_object_manager = self.ftrack_asset_class(self.event_manager)
+        self.ftrack_object_manager.asset_info = asset_info
+        self.ftrack_object_manager.create_new_dcc_object()
 
-        ftrack_object = self.ftrack_asset.init_ftrack_object(
-            create_object=True
-        )
-
-        results = [ftrack_object]
+        results = [self.ftrack_object_manager.dcc_object]
         return results
 
     def load_asset(self, context_data=None, data=None, options=None):
         '''Alternative plugin method to only load the asset in the scene'''
 
-        self.ftrack_asset = self.ftrack_asset_class(self.event_manager)
+        self.ftrack_object_manager = self.ftrack_asset_class(self.event_manager)
         asset_info = options.get('asset_info')
-        self.ftrack_asset.asset_info = asset_info
-        self.ftrack_asset.init_ftrack_object(create_object=False)
+        self.ftrack_object_manager.asset_info = asset_info
+        dcc_object = DccObject()
+        dcc_object.from_asset_info_id(asset_info[asset_const.ASSET_INFO_ID])
+        self.ftrack_object_manager.dcc_object = dcc_object
         # Remove asset_info from the options as it is not needed anymore
         options.pop('asset_info')
         # Execute the run method to load the objects
@@ -113,17 +112,17 @@ class LoaderImporterPlugin(base.BaseImporterPlugin):
         diff = self.new_data.difference(self.old_data)
 
         # Set asset_info as loaded.
-        self.ftrack_asset.loaded = True
+        self.ftrack_object_manager.loaded = True
 
         # Connect scene objects to ftrack node
-        self.ftrack_asset.connect_objects(diff)
+        self.ftrack_object_manager.connect_objects(diff)
 
     def init_and_load(self, context_data=None, data=None, options=None):
         '''Alternative plugin method to init and load the node and the assets
         into the scene'''
 
         self.init_nodes(context_data=context_data, data=data, options=options)
-        options['asset_info'] = self.ftrack_asset.asset_info
+        options['asset_info'] = self.ftrack_object_manager.asset_info
         self.load_asset(context_data=context_data, data=data, options=options)
 
     def _run(self, event):
