@@ -29,7 +29,7 @@ def provide_host_information(host_id, definitions, host_name, event):
     *host_name* : Host name
     '''
     logger.debug('providing host_id: {}'.format(host_id))
-    context_id = utils.global_context()
+    context_id = utils.ftrack_context_id()
     host_dict = {
         'host_id': host_id,
         'host_name': host_name,
