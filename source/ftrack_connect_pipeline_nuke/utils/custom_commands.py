@@ -17,7 +17,7 @@ import nukescripts
 
 from ftrack_connect_pipeline.utils import (
     get_snapshot_save_path,
-    global_context,
+    ftrack_context_id,
 )
 from ftrack_connect_pipeline_nuke.constants import asset as asset_const
 
@@ -171,12 +171,12 @@ def init_nuke(session, from_context=False):
     fps = None
     if from_context:
         context = session.query(
-            'Context where id={}'.format(global_context())
+            'Context where id={}'.format(ftrack_context_id())
         ).first()
         if context is None:
             logger.error(
                 'Cannot initialize Nuke timeline - no such context: {}'.format(
-                    global_context()
+                    ftrack_context_id()
                 )
             )
             return
@@ -190,7 +190,7 @@ def init_nuke(session, from_context=False):
         if not shot:
             logger.warning(
                 'Cannot initialize Nuke timeline - no shot related to context: {}'.format(
-                    global_context()
+                    ftrack_context_id()
                 )
             )
             return
