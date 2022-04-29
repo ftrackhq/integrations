@@ -11,6 +11,7 @@ import uuid
 from ftrack_connect_pipeline import constants
 from ftrack_connect_pipeline import exception
 from ftrack_connect_pipeline import event
+from ftrack_connect_pipeline.asset import FtrackObjectManager
 
 
 class BasePluginValidation(object):
@@ -153,6 +154,25 @@ class BasePlugin(object):
         return '<{}:{}>'.format(self.plugin_type, self.plugin_name)
 
     @property
+    def ftrack_object_manager(self):
+        '''
+        Initializes and returns the FtrackObjectManager class
+        '''
+        if not isinstance(self._ftrack_object_manager, FtrackObjectManager):
+            self._ftrack_object_manager = FtrackObjectManager(self.event_manager)
+        return self._ftrack_object_manager
+
+    @property
+    def DccObject(self):
+        '''
+        Returns the not initialized DccObject class
+        '''
+        # We can not pre-initialize this because should be a new
+        # one each time we want to use it.
+        self._DccObject = DccObject
+        return self._DccObject
+
+    @property
     def output(self):
         '''Returns a copy of :attr:`required_output`'''
         return copy.deepcopy(self._required_output)
@@ -197,6 +217,8 @@ class BasePlugin(object):
         '''Returns the current method'''
         return self._method
 
+
+
     def __init__(self, session):
         '''
         Initialise BasePlugin with instance of
@@ -209,6 +231,7 @@ class BasePlugin(object):
 
         self.plugin_id = uuid.uuid4().hex
 
+        self._ftrack_object_manager = None
         self._raw_data = []
         self._method = []
         self._event_manager = event.EventManager(

@@ -9,6 +9,7 @@ from ftrack_connect_pipeline import constants
 from ftrack_connect_pipeline.plugin import base
 from ftrack_connect_pipeline.asset import asset_info as ainfo
 from ftrack_connect_pipeline.constants import asset as asset_const
+from ftrack_connect_pipeline.asset.dcc_object import DccObject
 
 
 class LoaderImporterPlugin(base.BaseImporterPlugin):
@@ -35,7 +36,6 @@ class LoaderImporterPlugin(base.BaseImporterPlugin):
 
     def __init__(self, session):
         super(LoaderImporterPlugin, self).__init__(session)
-        self.ftrack_object_manager = None
 
     def _parse_run_event(self, event):
         '''
@@ -84,7 +84,6 @@ class LoaderImporterPlugin(base.BaseImporterPlugin):
 
         asset_info = ainfo.FtrackAssetInfo(arguments_dict)
 
-        self.ftrack_object_manager = self.ftrack_asset_class(self.event_manager)
         self.ftrack_object_manager.asset_info = asset_info
         self.ftrack_object_manager.create_new_dcc_object()
 
@@ -94,10 +93,9 @@ class LoaderImporterPlugin(base.BaseImporterPlugin):
     def load_asset(self, context_data=None, data=None, options=None):
         '''Alternative plugin method to only load the asset in the scene'''
 
-        self.ftrack_object_manager = self.ftrack_asset_class(self.event_manager)
         asset_info = options.get('asset_info')
         self.ftrack_object_manager.asset_info = asset_info
-        dcc_object = DccObject()
+        dcc_object = self.DccObject()
         dcc_object.from_asset_info_id(asset_info[asset_const.ASSET_INFO_ID])
         self.ftrack_object_manager.dcc_object = dcc_object
         # Remove asset_info from the options as it is not needed anymore

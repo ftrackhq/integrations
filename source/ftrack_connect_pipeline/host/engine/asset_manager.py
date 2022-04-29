@@ -22,11 +22,21 @@ class AssetManagerEngine(BaseEngine):
     @property
     def ftrack_object_manager(self):
         '''
-        Returns If the asset is loaded
+        Initializes and returns the FtrackObjectManager class
         '''
         if not isinstance(self._ftrack_object_manager, FtrackObjectManager):
             self._ftrack_object_manager = FtrackObjectManager(self.event_manager)
         return self._ftrack_object_manager
+
+    @property
+    def DccObject(self):
+        '''
+        Returns the not initialized DccObject class
+        '''
+        # We can not pre-initialize this because should be a new
+        # one each time we want to use it.
+        self._DccObject = DccObject
+        return self._DccObject
 
     def __init__(
         self, event_manager, host_types, host_id, asset_type_name=None
@@ -47,25 +57,6 @@ class AssetManagerEngine(BaseEngine):
             event_manager, host_types, host_id, asset_type_name=asset_type_name
         )
         self._ftrack_object_manager = None
-
-    def get_ftrack_asset_class(self, asset_info):
-        '''
-        Initializes the :data:`ftrack_asset_class` with the given
-        *asset_info*
-
-        Returns the initialized :data:`ftrack_asset_class` Class.
-
-        *asset_info* : Should be instance of
-        :class:`~ftrack_connect_pipeline.asset.FtrackAssetInfo`
-        '''
-        #TODO: Make sure we rename this ftrack_asset_class to manager and fix the DCCobject import
-        ftrack_object_manager = self.ftrack_asset_class(self.event_manager)
-        ftrack_object_manager.asset_info = asset_info
-        dcc_object = DccObject()
-        dcc_object.from_asset_info_id(asset_info[asset_const.ASSET_INFO_ID])
-        ftrack_object_manager.dcc_object = dcc_object
-
-        return ftrack_object_manager
 
     def discover_assets(self, assets=None, options=None, plugin=None):
         '''
@@ -600,7 +591,7 @@ class AssetManagerEngine(BaseEngine):
         new_version_id = options['new_version_id']
 
         self.ftrack_object_manager.asset_info = asset_info
-        dcc_object = DccObject()
+        dcc_object = self.DccObject()
         dcc_object.from_asset_info_id(asset_info[asset_const.ASSET_INFO_ID])
         self.ftrack_object_manager.dcc_object = dcc_object
 
