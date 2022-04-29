@@ -20,13 +20,16 @@ from ftrack_connect_pipeline import constants
 
 from ftrack_connect_pipeline_qt import constants as qt_constants
 
-from ftrack_connect_pipeline_nuke.client import open
-from ftrack_connect_pipeline_nuke.client import load
-from ftrack_connect_pipeline_nuke.client import save
-from ftrack_connect_pipeline_nuke.client import asset_manager
-from ftrack_connect_pipeline_nuke.client import publish
-from ftrack_connect_pipeline_nuke.client import log_viewer
+from ftrack_connect_pipeline_nuke.client import (
+    open,
+    load,
+    save,
+    asset_manager,
+    publish,
+    log_viewer,
+)
 from ftrack_connect_pipeline_qt import client
+from ftrack_connect_pipeline_qt.client import webview
 
 from ftrack_connect_pipeline_nuke.menu import build_menu_widgets
 from ftrack_connect_pipeline_nuke.utils import custom_commands as nuke_utils
@@ -141,6 +144,22 @@ def initialise():
     widgets = list()
     widgets.append(
         (qt_constants.OPEN_WIDGET, open.NukeOpenerClient, 'Open', 'fileOpen')
+    )
+    widgets.append(
+        (
+            qt_constants.INFO_WIDGET,
+            webview.QtInfoWebViewClient,
+            'Info',
+            '',
+        )
+    )
+    widgets.append(
+        (
+            qt_constants.TASKS_WIDGET,
+            webview.QtTasksWebViewClient,
+            'My Tasks',
+            '',
+        )
     )
     widgets.append(
         (
