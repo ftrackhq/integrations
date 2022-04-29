@@ -11,7 +11,6 @@ from ftrack_connect_pipeline_maya.plugin import (
 )
 
 from ftrack_connect_pipeline_maya.utils import custom_commands as maya_utils
-from ftrack_connect_pipeline_maya.asset import FtrackAssetNode
 from ftrack_connect_pipeline_maya.constants.asset import modes as load_const
 from ftrack_connect_pipeline_maya.constants import asset as asset_const
 
@@ -23,8 +22,6 @@ class OpenerImporterMayaPlugin(plugin.OpenerImporterPlugin, BaseMayaPlugin):
 
         _required_output a List
     '''
-
-    ftrack_asset_class = FtrackAssetNode
 
     load_modes = {
         load_const.OPEN_MODE: load_const.LOAD_MODES[load_const.OPEN_MODE]

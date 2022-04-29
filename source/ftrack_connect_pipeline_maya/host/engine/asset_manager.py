@@ -20,11 +20,21 @@ class MayaAssetManagerEngine(AssetManagerEngine):
     @property
     def ftrack_object_manager(self):
         '''
-        Returns If the asset is loaded
+        Initializes and returns the FtrackObjectManager class
         '''
         if not isinstance(self._ftrack_object_manager, MayaFtrackObjectManager):
             self._ftrack_object_manager = MayaFtrackObjectManager(self.event_manager)
         return self._ftrack_object_manager
+
+    @property
+    def DccObject(self):
+        '''
+        Returns the not initialized DccObject class
+        '''
+        #We can not pre-initialize this because should be a new
+        # one each time we want to use it.
+        self._DccObject = DccObject
+        return self._DccObject
 
     def __init__(
         self, event_manager, host_types, host_id, asset_type_name=None
@@ -117,7 +127,7 @@ class MayaAssetManagerEngine(AssetManagerEngine):
         }
 
         self.ftrack_object_manager.asset_info = asset_info
-        dcc_object = DccObject()
+        dcc_object = self.DccObject()
         dcc_object.from_asset_info_id(asset_info[asset_const.ASSET_INFO_ID])
         self.ftrack_object_manager.dcc_object = dcc_object
 
@@ -208,7 +218,7 @@ class MayaAssetManagerEngine(AssetManagerEngine):
         }
 
         self.ftrack_object_manager.asset_info = asset_info
-        dcc_object = DccObject()
+        dcc_object = self.DccObject()
         dcc_object.from_asset_info_id(asset_info[asset_const.ASSET_INFO_ID])
         self.ftrack_object_manager.dcc_object = dcc_object
 

@@ -139,7 +139,7 @@ class MayaDccObject(DccObject):
         )
         return None
 
-    def parameters_dictionary(self, object_name):
+    def parameters_dictionary(self, object_name=None):
         '''
         Static method to be used without initializing the current class.
         Returns a dictionary with the keys and values of the given
