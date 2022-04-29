@@ -614,7 +614,7 @@ class AssetWidget(AccordionBaseWidget):
         self._load_mode = asset_info[asset_constants.LOAD_MODE]
 
         self.set_indicator(
-            asset_info.get(asset_constants.IS_LOADED) in [True, 'True']
+            asset_info.get(asset_constants.OBJECTS_LOADED) in [True, 'True']
         )
         self._component_path = (
             asset_info[asset_constants.COMPONENT_NAME] or '?.?'
