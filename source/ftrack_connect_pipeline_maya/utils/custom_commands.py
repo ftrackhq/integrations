@@ -15,7 +15,7 @@ import maya.mel as mm
 
 from ftrack_connect_pipeline.utils import (
     get_snapshot_save_path,
-    global_context,
+    ftrack_context_id,
 )
 from ftrack_connect_pipeline_maya.constants import asset as asset_const
 
@@ -105,12 +105,12 @@ def init_maya(session, from_context=False):
     fps = None
     if from_context:
         context = session.query(
-            'Context where id={}'.format(global_context())
+            'Context where id={}'.format(ftrack_context_id())
         ).first()
         if context is None:
             logger.error(
                 'Cannot initialize Maya timeline - no such context: {}'.format(
-                    global_context()
+                    ftrack_context_id()
                 )
             )
             return
@@ -124,7 +124,7 @@ def init_maya(session, from_context=False):
         if not shot:
             logger.warning(
                 'Cannot initialize Maya timeline - no shot related to context: {}'.format(
-                    global_context()
+                    ftrack_context_id()
                 )
             )
             return
