@@ -105,10 +105,10 @@ class ContextSelector(QtWidgets.QFrame):
             'topic={} and data.pipeline.host_id={}'.format(
                 constants.PIPELINE_CONTEXT_CHANGE, host_connection.id
             ),
-            self._global_context_changed,
+            self._ftrack_context_id_changed,
         )
 
-    def _global_context_changed(self, event):
+    def _ftrack_context_id_changed(self, event):
         '''The main context has been set in another client (opener), align ourselves.'''
         context_id = event['data']['pipeline']['context_id']
         if self._context_id is None or context_id != self._context_id:

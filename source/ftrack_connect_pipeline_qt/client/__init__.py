@@ -9,7 +9,7 @@ from functools import partial
 from Qt import QtCore, QtWidgets
 
 from ftrack_connect_pipeline.client import Client, constants
-from ftrack_connect_pipeline.utils import global_context
+from ftrack_connect_pipeline.utils import ftrack_context_id
 from ftrack_connect_pipeline_qt.ui.utility.widget import (
     header,
     definition_selector,
@@ -75,7 +75,7 @@ class QtClient(Client):
         self.build()
         self.post_build()
 
-        self.set_context_id(self.context_id or global_context())
+        self.set_context_id(self.context_id or ftrack_context_id())
         if self.context_id:
             self.add_hosts(self.discover_hosts())
 
@@ -322,7 +322,7 @@ class QtClient(Client):
 
     def reset(self):
         '''Reset a client that has become visible after being hidden.'''
-        self.set_context_id(global_context())
+        self.set_context_id(ftrack_context_id())
         self.host_and_definition_selector.refresh()
 
     def conditional_rebuild(self):
@@ -386,10 +386,10 @@ class QtChangeContextClient(Client):
             return
         self.entity_browser.setMinimumWidth(600)
         if self.entity_browser.exec_():
-            self.change_global_context(self.entity_browser.entity)
+            self.change_ftrack_context_id(self.entity_browser.entity)
 
-    def change_global_context(self, context):
-        self._host_connection.change_global_context(context)
+    def change_ftrack_context_id(self, context):
+        self._host_connection.change_ftrack_context_id(context)
 
 
 class QtDocumentationClient:

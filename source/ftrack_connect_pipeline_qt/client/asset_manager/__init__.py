@@ -6,7 +6,7 @@ from functools import partial
 from Qt import QtWidgets, QtCore, QtCompat, QtGui
 
 from ftrack_connect_pipeline.constants import asset as asset_const
-from ftrack_connect_pipeline.utils import global_context
+from ftrack_connect_pipeline.utils import ftrack_context_id
 from ftrack_connect_pipeline_qt import constants as qt_constants
 from ftrack_connect_pipeline.client.asset_manager import AssetManagerClient
 
@@ -78,7 +78,7 @@ class QtAssetManagerClient(AssetManagerClient, QtWidgets.QFrame):
         self.post_build()
 
         if not self.is_assembler:
-            self.set_context_id(self.context_id or global_context())
+            self.set_context_id(self.context_id or ftrack_context_id())
             if self.context_id:
                 self.add_hosts(self.discover_hosts())
 

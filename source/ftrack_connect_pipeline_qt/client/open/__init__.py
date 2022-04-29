@@ -98,7 +98,7 @@ class QtOpenerClient(client.QtClient, dialog.Dialog):
         '''(Override) Context has been set in context selector'''
         if self.host_connection:
             # Send event to other listening clients
-            self.host_connection.change_global_context(context)
+            self.host_connection.change_ftrack_context_id(context)
         super(QtOpenerClient, self)._on_context_selector_context_changed(
             context
         )
