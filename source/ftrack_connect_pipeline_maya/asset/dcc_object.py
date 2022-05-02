@@ -8,12 +8,12 @@ from ftrack_connect_pipeline_maya.utils import custom_commands as maya_utils
 
 import maya.cmds as cmds
 
+
 class MayaDccObject(DccObject):
     '''MayaDccObject class.'''
 
     ftrack_plugin_id = asset_const.FTRACK_PLUGIN_ID
     '''Plugin id used on some DCC applications '''
-
 
     @property
     def objects_loaded(self):
@@ -42,18 +42,49 @@ class MayaDccObject(DccObject):
             l=True,
         )
 
-    def __init__(self, name=None):
+    def __init__(self, name=None, from_id=None, **kwargs):
         '''
         Initialize FtrackAssetBase with instance of
         :class:`~ftrack_connect_pipeline.event.EventManager`
         '''
-        super(MayaDccObject, self).__init__()
-
         self.logger = logging.getLogger(
-            __name__ + '.' + self.__class__.__name__
+            '{0}.{1}'.format(__name__, self.__class__.__name__)
         )
-        if name and self._name_exists(name):
-            self.name = name
+        super(MayaDccObject, self).__init__(name, from_id, **kwargs)
+
+    def __setitem__(self, k, v):
+        '''
+        Sets the given *v* into the given *k*
+
+        Note:: In case of the given *k* is the asset_info_options it will
+        automatically encode the given json value to base64
+        '''
+        cmds.setAttr('{}.{}'.format(self.name, k), l=False)
+        if k == asset_const.VERSION_NUMBER:
+            cmds.setAttr('{}.{}'.format(self.name, k), v, l=True)
+        elif k == asset_const.REFERENCE_OBJECT:
+            cmds.setAttr(
+                '{}.{}'.format(self.name, k),
+                str(self.name),
+                type="string",
+                l=True,
+            )
+        elif k == asset_const.IS_LATEST_VERSION:
+            cmds.setAttr('{}.{}'.format(self.name, k), bool(v), l=True)
+
+        elif k == asset_const.DEPENDENCY_IDS:
+            cmds.setAttr(
+                '{}.{}'.format(self.name, k),
+                *([len(v)] + v),
+                type="stringArray",
+                l=True
+            )
+
+        else:
+            cmds.setAttr(
+                '{}.{}'.format(self.name, k), v, type="string", l=True
+            )
+        super(MayaDccObject, self).__setitem__(k, v)
 
     def create(self, name):
         '''
@@ -81,38 +112,6 @@ class MayaDccObject(DccObject):
 
         return False
 
-    def update(self, asset_info):
-        '''
-        Updates the parameters of the given *dcc_object* based on the
-        self :obj:`asset_info`.
-        '''
-        for k, v in list(asset_info.items()):
-            cmds.setAttr('{}.{}'.format(self.name, k), l=False)
-            if k == asset_const.VERSION_NUMBER:
-                cmds.setAttr('{}.{}'.format(self.name, k), v, l=True)
-            elif k == asset_const.REFERENCE_OBJECT:
-                cmds.setAttr(
-                    '{}.{}'.format(self.name, k),
-                    str(self.name),
-                    type="string",
-                    l=True,
-                )
-            elif k == asset_const.IS_LATEST_VERSION:
-                cmds.setAttr('{}.{}'.format(self.name, k), bool(v), l=True)
-
-            elif k == asset_const.DEPENDENCY_IDS:
-                cmds.setAttr(
-                    '{}.{}'.format(self.name, k),
-                    *([len(v)] + v),
-                    type="stringArray",
-                    l=True
-                )
-
-            else:
-                cmds.setAttr(
-                    '{}.{}'.format(self.name, k), v, type="string", l=True
-                )
-
     def from_asset_info_id(self, asset_info_id):
         '''
         Checks maya scene to get all the FtrackAssetNode objects. Compares them
@@ -121,9 +120,11 @@ class MayaDccObject(DccObject):
         '''
         ftrack_asset_nodes = maya_utils.get_ftrack_nodes()
         for dcc_object_name in ftrack_asset_nodes:
-            param_dict = self.parameters_dictionary(dcc_object_name)
+            id_value = cmds.getAttr(
+                '{}.{}'.format(dcc_object_name, asset_const.ASSET_INFO_ID)
+            )
             if (
-                    param_dict[asset_const.ASSET_INFO_ID]
+                    id_value
                     == asset_info_id
             ):
                 self.logger.debug(
@@ -139,7 +140,8 @@ class MayaDccObject(DccObject):
         )
         return None
 
-    def parameters_dictionary(self, object_name=None):
+    @staticmethod
+    def dictionary_from_object(object_name):
         '''
         Static method to be used without initializing the current class.
         Returns a dictionary with the keys and values of the given
@@ -147,12 +149,13 @@ class MayaDccObject(DccObject):
 
         *maya_ftrack_obj* FtrackAssetNode object type from maya scene.
         '''
-        if not object_name:
-            object_name = self.name
+        logger = logging.getLogger(
+            '{0}.{1}'.format(__name__, __class__.__name__)
+        )
         param_dict = {}
         if not cmds.objExists(object_name):
             error_message = "{} Object doesn't exists".format(object_name)
-            self.logger.error(error_message)
+            logger.error(error_message)
             return param_dict
         all_attr = cmds.listAttr(object_name, c=True, se=True)
         for attr in all_attr:

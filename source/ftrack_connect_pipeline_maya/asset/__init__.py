@@ -39,32 +39,32 @@ class MayaFtrackObjectManager(FtrackObjectManager):
         '''
         super(MayaFtrackObjectManager, self).__init__(event_manager)
 
-    def _check_sync(self):
+    def _check_sync(self, dcc_object):
         '''
         Check if the parameters of the given *dcc_object* match the
         values of the current self :obj:`asset_info`.
         '''
-        if not self.dcc_object:
+        # Using == None because it can be an empty dictionary.
+        if dcc_object == None:
             error_message = "dcc_object is not set"
             raise AttributeError(error_message)
 
         synced = False
 
-        param_dict = self.dcc_object.parameters_dictionary()
-        node_asset_info = FtrackAssetInfo(param_dict)
+        node_asset_info = FtrackAssetInfo(dcc_object)
 
         if node_asset_info == self.asset_info:
-            self.logger.debug("{} is synced".format(self.dcc_object.name))
+            self.logger.debug("{} is synced".format(dcc_object.name))
             synced = True
 
         return synced
 
-    def sync(self):
+    def _sync(self, dcc_object):
         '''
         Updates the parameters of the given *dcc_object* based on the
         self :obj:`asset_info`.
         '''
-        self.dcc_object.update(self.asset_info)
+        dcc_object.update(self.asset_info)
 
     def connect_objects(self, objects):
         '''
@@ -80,8 +80,7 @@ class MayaFtrackObjectManager(FtrackObjectManager):
         Creates a new dcc_object with a unique name.
         '''
         name = self._generate_dcc_object_name()
-        dcc_object = MayaDccObject()
-        dcc_object.create(name)
+        dcc_object = MayaDccObject(name)
 
         self.dcc_object = dcc_object
 
