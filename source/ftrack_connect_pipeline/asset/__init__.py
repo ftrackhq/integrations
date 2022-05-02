@@ -50,7 +50,7 @@ class FtrackObjectManager(object):
 
     @property
     def is_sync(self):
-        return self._check_sync()
+        return self._check_sync(self.dcc_object)
 
     @property
     def dcc_object(self):
@@ -62,9 +62,9 @@ class FtrackObjectManager(object):
     @dcc_object.setter
     def dcc_object(self, value):
         '''Sets the current dcc_object'''
+        if not self._check_sync(value):
+            self._sync(value)
         self._dcc_object = value
-        if not self.is_sync:
-            self.sync()
 
     @property
     def objects_loaded(self):
@@ -113,14 +113,14 @@ class FtrackObjectManager(object):
         )
         return dcc_object_name
 
-    def _check_sync(self):
+    def _check_sync(self, dcc_object):
         '''
         Check if the parameters of the given *dcc_object* match the
         values of the current self :obj:`asset_info`.
         '''
         raise NotImplementedError
 
-    def sync(self):
+    def _sync(self, dcc_object):
         '''
         Updates the parameters of the given *dcc_object* based on the
         self :obj:`asset_info`.

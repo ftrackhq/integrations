@@ -95,8 +95,9 @@ class OpenerImporterPlugin(base.BaseImporterPlugin):
 
         asset_info = options.get('asset_info')
         self.ftrack_object_manager.asset_info = asset_info
-        dcc_object = self.DccObject()
-        dcc_object.from_asset_info_id(asset_info[asset_const.ASSET_INFO_ID])
+        dcc_object = self.DccObject(
+            from_id=asset_info[asset_const.ASSET_INFO_ID]
+        )
         self.ftrack_object_manager.dcc_object = dcc_object
         # Remove asset_info from the options as it is not needed anymore
         options.pop('asset_info')
@@ -110,7 +111,7 @@ class OpenerImporterPlugin(base.BaseImporterPlugin):
         diff = self.new_data.difference(self.old_data)
 
         # Set asset_info as loaded.
-        self.ftrack_object_manager.loaded = True
+        self.ftrack_object_manager.objects_loaded = True
 
         # Connect scene objects to ftrack node
         self.ftrack_object_manager.connect_objects(diff)
