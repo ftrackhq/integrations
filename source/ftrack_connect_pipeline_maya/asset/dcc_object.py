@@ -18,19 +18,17 @@ class MayaDccObject(DccObject):
     @property
     def objects_loaded(self):
         '''
-        Returns If the asset is loaded
+        Returns the attribute objects_loaded of the current
+        self :obj:`name`
         '''
         return cmds.getAttr('{}.{}'.format(self.name, asset_const.OBJECTS_LOADED))
 
     @objects_loaded.setter
     def objects_loaded(self, value):
         '''
-        Set dcc object loaded parameter to *value*.
-
-        *loaded* True if the objects are loaded in the scene.
+        Set the objects_loaded attribute of the self :obj:`name` to the
+        given *value*.
         '''
-        # Update and sync the dcc_object asset_info with the
-        # self.asset_info
         cmds.setAttr(
             '{}.{}'.format(self.name, asset_const.OBJECTS_LOADED),
             l=False,
@@ -44,8 +42,9 @@ class MayaDccObject(DccObject):
 
     def __init__(self, name=None, from_id=None, **kwargs):
         '''
-        Initialize FtrackAssetBase with instance of
-        :class:`~ftrack_connect_pipeline.event.EventManager`
+        If the *from_id* is provided find an object in the dcc with the given
+        *from_id* as assset_info_id.
+        If a *name* is provided create a new object in the dcc.
         '''
         self.logger = logging.getLogger(
             '{0}.{1}'.format(__name__, self.__class__.__name__)
@@ -54,10 +53,8 @@ class MayaDccObject(DccObject):
 
     def __setitem__(self, k, v):
         '''
-        Sets the given *v* into the given *k*
-
-        Note:: In case of the given *k* is the asset_info_options it will
-        automatically encode the given json value to base64
+        Sets the given *v* into the given *k* and automatically set the
+        attributes of the current self :obj:`name` on the DCC
         '''
         cmds.setAttr('{}.{}'.format(self.name, k), l=False)
         if k == asset_const.VERSION_NUMBER:
@@ -88,15 +85,14 @@ class MayaDccObject(DccObject):
 
     def create(self, name):
         '''
-        Creates a new dcc_object with a unique name.
+        Creates a new dcc_object with the given *name* if doesn't exists.
         '''
         if self._name_exists(name):
             error_message = "{} already exists in the scene".format(name)
             self.logger.error(error_message)
             raise RuntimeError(error_message)
 
-        # TODO: replace ftrackAssetNode for a constant name
-        dcc_object = cmds.createNode('ftrackAssetNode', name=name)
+        dcc_object = cmds.createNode(asset_const.FTRACK_PLUGIN_TYPE, name=name)
         self.logger.debug(
             'Creating new dcc object {}'.format(dcc_object)
         )
@@ -105,7 +101,7 @@ class MayaDccObject(DccObject):
 
     def _name_exists(self, name):
         '''
-        Return a scene name for the current self :obj:`dcc_object`.
+        Return true if the given *name* exists in the scene.
         '''
         if cmds.objExists(name):
             return True
@@ -114,9 +110,8 @@ class MayaDccObject(DccObject):
 
     def from_asset_info_id(self, asset_info_id):
         '''
-        Checks maya scene to get all the FtrackAssetNode objects. Compares them
-        with the current self :obj:`asset_info` and returns it if the asset_info_id
-        matches.
+        Checks maya scene to get all the ftrackAssetNode objects. Compares them
+        with the given *asset_info_id* and returns them if matches.
         '''
         ftrack_asset_nodes = maya_utils.get_ftrack_nodes()
         for dcc_object_name in ftrack_asset_nodes:
@@ -134,7 +129,7 @@ class MayaDccObject(DccObject):
                 return self.name
 
         self.logger.debug(
-            "Couldn't found anexisting object for the asset info id: {}".format(
+            "Couldn't found an existing object for the asset info id: {}".format(
                 asset_info_id
             )
         )
@@ -145,9 +140,9 @@ class MayaDccObject(DccObject):
         '''
         Static method to be used without initializing the current class.
         Returns a dictionary with the keys and values of the given
-        *maya_ftrack_obj* if exists.
+        *object_name* if exists.
 
-        *maya_ftrack_obj* FtrackAssetNode object type from maya scene.
+        *object_name* ftrackAssetNode object type from maya scene.
         '''
         logger = logging.getLogger(
             '{0}.{1}'.format(__name__, __class__.__name__)
@@ -168,7 +163,7 @@ class MayaDccObject(DccObject):
     def connect_objects(self, objects):
         '''
         Link the given *objects* ftrack attribute to the self
-        :obj:`dcc_object` asset_link attribute in maya.
+        :obj:`name` object asset_link attribute in maya.
 
         *objects* List of Maya DAG objects
         '''
