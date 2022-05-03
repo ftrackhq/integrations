@@ -71,8 +71,7 @@ class MayaAssetManagerEngine(AssetManagerEngine):
 
         if ftrack_asset_nodes:
             for node_name in ftrack_asset_nodes:
-                dcc_object = DccObject(node_name)
-                param_dict = dcc_object.parameters_dictionary()
+                param_dict = DccObject.dictionary_from_object(node_name)
                 node_asset_info = FtrackAssetInfo(param_dict)
                 ftrack_asset_info_list.append(node_asset_info)
 
@@ -127,8 +126,9 @@ class MayaAssetManagerEngine(AssetManagerEngine):
         }
 
         self.ftrack_object_manager.asset_info = asset_info
-        dcc_object = self.DccObject()
-        dcc_object.from_asset_info_id(asset_info[asset_const.ASSET_INFO_ID])
+        dcc_object = self.DccObject(
+            from_id=asset_info[asset_const.ASSET_INFO_ID]
+        )
         self.ftrack_object_manager.dcc_object = dcc_object
 
         if options.get('clear_selection'):
@@ -218,8 +218,9 @@ class MayaAssetManagerEngine(AssetManagerEngine):
         }
 
         self.ftrack_object_manager.asset_info = asset_info
-        dcc_object = self.DccObject()
-        dcc_object.from_asset_info_id(asset_info[asset_const.ASSET_INFO_ID])
+        dcc_object = self.DccObject(
+            from_id=asset_info[asset_const.ASSET_INFO_ID]
+        )
         self.ftrack_object_manager.dcc_object = dcc_object
 
         reference_node = False
