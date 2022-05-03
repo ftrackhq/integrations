@@ -591,8 +591,9 @@ class AssetManagerEngine(BaseEngine):
         new_version_id = options['new_version_id']
 
         self.ftrack_object_manager.asset_info = asset_info
-        dcc_object = self.DccObject()
-        dcc_object.from_asset_info_id(asset_info[asset_const.ASSET_INFO_ID])
+        dcc_object = self.DccObject(
+            from_id=asset_info[asset_const.ASSET_INFO_ID]
+        )
         self.ftrack_object_manager.dcc_object = dcc_object
 
         remove_result = None

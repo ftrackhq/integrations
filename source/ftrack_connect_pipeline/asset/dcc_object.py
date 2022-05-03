@@ -2,14 +2,9 @@
 # :copyright: Copyright (c) 2014-2022 ftrack
 
 import logging
-import ftrack_api
-from ftrack_connect_pipeline.asset.asset_info import FtrackAssetInfo
-from ftrack_connect_pipeline.constants import asset as asset_const
-from ftrack_connect_pipeline import constants
 
-# TODO: think about inherit from dictionary and our conform data method is the
-#  parameters dictionary.
-class DccObject(object):
+
+class DccObject(dict):
     '''Base DccObject class.'''
 
     ftrack_plugin_id = None
@@ -29,62 +24,126 @@ class DccObject(object):
         '''
         self._name = value
 
-    def __init__(self, name=None):
-        '''
-        Initialize FtrackAssetBase with instance of
-        :class:`~ftrack_connect_pipeline.event.EventManager`
-        '''
-        super(DccObject, self).__init__()
+    # def _conform_data(self, mapping):
+    #     '''
+    #     Creates the FtrackAssetInfo object from the given dictionary on the
+    #     *mapping* argument
+    #     '''
+    #     new_mapping = {}
+    #     for k in mapping.keys():
+    #         v = mapping.get(k)
+    #         # Sometimes the value None is interpreted as unicode (in maya
+    #         # mostly) we are converting to a type None
+    #         if v == u'None':
+    #             v = None
+    #         new_mapping.setdefault(k, v)
+    #
+    #     return new_mapping
 
+    #TODO: we may want to create an object with the given asset info, but then
+    # we have to make sure that we automatically setAttr in the application too
+    def __init__(self, name=None, from_id=None, **kwargs):
+        '''
+        If the *from_id* is provided find an object in the dcc with the given
+        *from_id* as assset_info_id.
+        If a *name* is provided create a new object in the dcc.
+        '''
         self.logger = logging.getLogger(
-            __name__ + '.' + self.__class__.__name__
+            '{0}.{1}'.format(__name__, self.__class__.__name__)
         )
+        # asset_info = asset_info or {}
+        if from_id:
+            self.from_asset_info_id(from_id)
+        elif name:
+            self.create(name)
+        # mapping = self._conform_data(asset_info)
+        super(DccObject, self).__init__({}, **kwargs)
 
-        if name and self._name_exists(name):
-            self.name = name
+    def __getitem__(self, k):
+        '''
+        Get the value from the given *k*
+        '''
+
+        value = super(DccObject, self).__getitem__(k)
+        return value
+
+    def __setitem__(self, k, v):
+        '''
+        Sets the given *v* into the given *k*
+        '''
+        super(DccObject, self).__setitem__(k, v)
+
+    def get(self, k, default=None):
+        '''
+        If exists, returns the value of the given *k* otherwise returns
+        *default*.
+
+        *k* : Key of the current dictionary.
+
+        *default* : Default value of the given Key.
+        '''
+        value = super(DccObject, self).get(k, default)
+        return value
+
+    def update(self, *args, **kwargs):
+        '''
+        Updates the current keys and values with the given ones.
+        '''
+        # We override this method to make sure that we the values are updated
+        # using the __setitem__ method
+        if args:
+            if len(args) > 1:
+                raise TypeError("update expected at most 1 arguments, "
+                                "got %d" % len(args))
+            other = dict(args[0])
+            for key in other:
+                self[key] = other[key]
+        for key in kwargs:
+            self[key] = kwargs[key]
+
+    def setdefault(self, key, value=None):
+        '''
+        Sets a default value for the given key.
+        '''
+        if key not in self:
+            self[key] = value
+        return self[key]
 
     def create(self, name):
         '''
-        Creates a new dcc_object with a unique name.
+        Creates a new dcc_object with the given name.
         '''
         raise NotImplementedError
 
     def _name_exists(self, name):
         '''
-        Return a scene name for the current self :obj:`dcc_object`.
-        '''
-        raise NotImplementedError
-
-    def update(self, asset_info):
-        '''
-        Updates the parameters of the given *dcc_object* based on the
-        self :obj:`asset_info`.
+        Return true if the given *name* exists in the scene.
         '''
         raise NotImplementedError
 
     def from_asset_info_id(self, asset_info_id):
         '''
-        Checks maya scene to get all the FtrackAssetNode objects. Compares them
-        with the current self :obj:`asset_info` and returns it if the asset_info_id
-        matches.
+        Checks the dcc to get all the ftrack objects. Compares them
+        with the given *asset_info_id* and returns them if matches.
         '''
         raise NotImplementedError
 
-    def parameters_dictionary(self, object_name):
+    @staticmethod
+    def dictionary_from_object(object_name):
         '''
         Static method to be used without initializing the current class.
         Returns a dictionary with the keys and values of the given
-        *maya_ftrack_obj* if exists.
+        *object_name* if exists.
 
-        *maya_ftrack_obj* FtrackAssetNode object type from maya scene.
+        *object_name* ftrack object type from the DCC.
         '''
         raise NotImplementedError
 
     def connect_objects(self, objects):
         '''
         Link the given *objects* ftrack attribute to the self
-        :obj:`dcc_object` asset_link attribute in maya.
+        :obj:`name` object asset_link attribute in the DCC.
 
-        *objects* List of Maya DAG objects
+        *objects* List of DCC objects
         '''
         raise NotImplementedError
