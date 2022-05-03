@@ -12,7 +12,6 @@ from ftrack_connect_pipeline_nuke.plugin import (
     BaseNukePluginWidget,
 )
 
-from ftrack_connect_pipeline_nuke.asset import FtrackAssetTab
 from ftrack_connect_pipeline_nuke.constants import asset as asset_const
 from ftrack_connect_pipeline_nuke.constants.asset import modes as load_const
 from ftrack_connect_pipeline_nuke.utils import custom_commands as nuke_utils
@@ -25,8 +24,6 @@ class LoaderImporterNukePlugin(plugin.LoaderImporterPlugin, BaseNukePlugin):
 
         _required_output a List
     '''
-
-    ftrack_asset_class = FtrackAssetTab
 
     load_modes = load_const.LOAD_MODES
 

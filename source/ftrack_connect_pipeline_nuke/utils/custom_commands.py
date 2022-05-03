@@ -110,7 +110,7 @@ def get_unique_scene_name(current_name):
 
 def get_nodes_with_ftrack_tab():
     '''
-    Returns all the nuke ftrack_objects that contain an ftrack tab.
+    Returns all the nuke dcc_objects that contain an ftrack tab.
     '''
     dependencies = []
     for node in nuke.allNodes():

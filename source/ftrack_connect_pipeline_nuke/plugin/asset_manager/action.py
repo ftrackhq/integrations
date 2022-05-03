@@ -3,7 +3,6 @@
 
 from ftrack_connect_pipeline import plugin
 from ftrack_connect_pipeline_nuke.plugin import BaseNukePlugin
-from ftrack_connect_pipeline_nuke.asset import FtrackAssetTab
 
 
 class AssetManagerActionNukePlugin(
@@ -13,4 +12,3 @@ class AssetManagerActionNukePlugin(
     Class representing a Asset Manager Action Nuke Plugin
     '''
 
-    ftrack_asset_class = FtrackAssetTab
