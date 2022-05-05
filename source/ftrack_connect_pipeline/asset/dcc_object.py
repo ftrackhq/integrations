@@ -24,24 +24,6 @@ class DccObject(dict):
         '''
         self._name = value
 
-    # def _conform_data(self, mapping):
-    #     '''
-    #     Creates the FtrackAssetInfo object from the given dictionary on the
-    #     *mapping* argument
-    #     '''
-    #     new_mapping = {}
-    #     for k in mapping.keys():
-    #         v = mapping.get(k)
-    #         # Sometimes the value None is interpreted as unicode (in maya
-    #         # mostly) we are converting to a type None
-    #         if v == u'None':
-    #             v = None
-    #         new_mapping.setdefault(k, v)
-    #
-    #     return new_mapping
-
-    #TODO: we may want to create an object with the given asset info, but then
-    # we have to make sure that we automatically setAttr in the application too
     def __init__(self, name=None, from_id=None, **kwargs):
         '''
         If the *from_id* is provided find an object in the dcc with the given
@@ -51,12 +33,10 @@ class DccObject(dict):
         self.logger = logging.getLogger(
             '{0}.{1}'.format(__name__, self.__class__.__name__)
         )
-        # asset_info = asset_info or {}
         if from_id:
             self.from_asset_info_id(from_id)
         elif name:
             self.create(name)
-        # mapping = self._conform_data(asset_info)
         super(DccObject, self).__init__({}, **kwargs)
 
     def __getitem__(self, k):
