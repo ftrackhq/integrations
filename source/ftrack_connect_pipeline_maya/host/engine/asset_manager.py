@@ -20,7 +20,8 @@ class MayaAssetManagerEngine(AssetManagerEngine):
     @property
     def ftrack_object_manager(self):
         '''
-        Initializes and returns the FtrackObjectManager class
+        Initializes and returns an instance of
+        :class:`~ftrack_connect_pipeline.asset.FtrackObjectManager`
         '''
         if not isinstance(self._ftrack_object_manager, MayaFtrackObjectManager):
             self._ftrack_object_manager = MayaFtrackObjectManager(self.event_manager)
@@ -29,7 +30,8 @@ class MayaAssetManagerEngine(AssetManagerEngine):
     @property
     def DccObject(self):
         '''
-        Returns the not initialized DccObject class
+        Returns a not initialized
+        :class:`~ftrack_connect_pipeline.asset.DccObject`
         '''
         #We can not pre-initialize this because should be a new
         # one each time we want to use it.
@@ -136,7 +138,7 @@ class MayaAssetManagerEngine(AssetManagerEngine):
 
         nodes = cmds.listConnections(
             '{}.{}'.format(
-                self.ftrack_object_manager.dcc_object, asset_const.ASSET_LINK
+                self.ftrack_object_manager.dcc_object.name, asset_const.ASSET_LINK
             )
         )
         for node in nodes:
@@ -178,18 +180,21 @@ class MayaAssetManagerEngine(AssetManagerEngine):
         return status, result
 
     @maya_utils.run_in_main_thread
-    def select_assets(self, asset_infos, options=None, plugin=None):
-        result = None
-        for asset_info in asset_infos:
-            result = self.select_asset(
-                asset_info, options=options, plugin=options
-            )
-        return result
+    def select_assets(self, assets, options=None, plugin=None):
+        '''
+        Returns status dictionary and results dictionary keyed by the id for
+        executing the :meth:`select_asset` for all the
+        :class:`~ftrack_connect_pipeline.asset.FtrackAssetInfo` in the given
+        *assets* list.
+
+        *assets*: List of :class:`~ftrack_connect_pipeline.asset.FtrackAssetInfo`
+        '''
+        return super(MayaAssetManagerEngine, self).select_assets(
+            assets=assets, options=options, plugin=plugin
+        )
 
     @maya_utils.run_in_main_thread
-    def remove_asset(
-        self, asset_info, options=None, plugin=None, keep_ftrack_node=False
-    ):
+    def unload_asset(self, asset_info, options=None, plugin=None):
         '''
         Removes the given *asset_info* from the scene.
         Returns status and result
@@ -208,9 +213,129 @@ class MayaAssetManagerEngine(AssetManagerEngine):
         result_data = {
             'plugin_name': plugin_name,
             'plugin_type': plugin_type,
-            'method': 'remove_asset'
-            if not keep_ftrack_node
-            else 'unload_asset',
+            'method': 'unload_asset',
+            'status': status,
+            'result': result,
+            'execution_time': 0,
+            'message': message,
+        }
+
+        self.ftrack_object_manager.asset_info = asset_info
+        dcc_object = self.DccObject(
+            from_id=asset_info[asset_const.ASSET_INFO_ID]
+        )
+        self.ftrack_object_manager.dcc_object = dcc_object
+
+        reference_node = False
+        nodes = (
+                cmds.listConnections(
+                    '{}.{}'.format(
+                        self.ftrack_object_manager.dcc_object.name,
+                        asset_const.ASSET_LINK
+                    )
+                )
+                or []
+        )
+        if self.ftrack_object_manager.dcc_object.name in nodes:
+            nodes.remove(self.ftrack_object_manager.dcc_object.name)
+
+        for node in nodes:
+            if cmds.nodeType(node) == 'reference':
+                reference_node = maya_utils.getReferenceNode(node)
+                if reference_node:
+                    break
+
+        if reference_node:
+            self.logger.debug("Removing reference: {}".format(reference_node))
+            try:
+                maya_utils.remove_reference_node(reference_node)
+                result.append(str(reference_node))
+                status = constants.SUCCESS_STATUS
+            except Exception as error:
+                message = str(
+                    'Could not remove the reference node {}, error: {}'.format(
+                        str(reference_node), error
+                    )
+                )
+                self.logger.error(message)
+                status = constants.ERROR_STATUS
+
+            bool_status = constants.status_bool_mapping[status]
+            if not bool_status:
+                end_time = time.time()
+                total_time = end_time - start_time
+
+                result_data['status'] = status
+                result_data['result'] = result
+                result_data['execution_time'] = total_time
+                result_data['message'] = message
+
+                self._notify_client(plugin, result_data)
+                return status, result
+        else:
+            for node in nodes:
+                self.logger.debug("Removing object: {}".format(node))
+                try:
+                    if cmds.objExists(node):
+                        cmds.delete(node)
+                        result.append(str(node))
+                        status = constants.SUCCESS_STATUS
+                except Exception as error:
+                    message = str(
+                        'Node: {0} could not be deleted, error: {1}'.format(
+                            node, error
+                        )
+                    )
+                    self.logger.error(message)
+                    status = constants.ERROR_STATUS
+
+                bool_status = constants.status_bool_mapping[status]
+                if not bool_status:
+                    end_time = time.time()
+                    total_time = end_time - start_time
+
+                    result_data['status'] = status
+                    result_data['result'] = result
+                    result_data['execution_time'] = total_time
+                    result_data['message'] = message
+
+                    self._notify_client(plugin, result_data)
+                    return status, result
+
+        self.ftrack_object_manager.dcc_object.objects_loaded = False
+
+        end_time = time.time()
+        total_time = end_time - start_time
+
+        result_data['status'] = status
+        result_data['result'] = result
+        result_data['execution_time'] = total_time
+
+        self._notify_client(plugin, result_data)
+
+        return status, result
+
+    @maya_utils.run_in_main_thread
+    def remove_asset(self, asset_info, options=None, plugin=None):
+        '''
+        Removes the given *asset_info* from the scene.
+        Returns status and result
+        '''
+        start_time = time.time()
+        status = constants.UNKNOWN_STATUS
+        result = []
+        message = None
+
+        plugin_type = constants.PLUGIN_AM_ACTION_TYPE
+        plugin_name = None
+        if plugin:
+            plugin_type = '{}.{}'.format('asset_manager', plugin['type'])
+            plugin_name = plugin.get('name')
+
+        result_data = {
+            'plugin_name': plugin_name,
+            'plugin_type': plugin_type,
+            'method': 'remove_asset',
             'status': status,
             'result': result,
             'execution_time': 0,
@@ -227,7 +352,7 @@ class MayaAssetManagerEngine(AssetManagerEngine):
         nodes = (
             cmds.listConnections(
                 '{}.{}'.format(
-                    self.ftrack_object_manager.dcc_object, asset_const.ASSET_LINK
+                    self.ftrack_object_manager.dcc_object.name, asset_const.ASSET_LINK
                 )
             )
             or []
@@ -295,13 +420,10 @@ class MayaAssetManagerEngine(AssetManagerEngine):
                     self._notify_client(plugin, result_data)
                     return status, result
 
-        if (
-            cmds.objExists(self.ftrack_object_manager.dcc_object)
-            and keep_ftrack_node is False
-        ):
+        if (cmds.objExists(self.ftrack_object_manager.dcc_object.name)):
             try:
-                cmds.delete(self.ftrack_object_manager.dcc_object)
-                result.append(str(self.ftrack_object_manager.dcc_object))
+                cmds.delete(self.ftrack_object_manager.dcc_object.name)
+                result.append(str(self.ftrack_object_manager.dcc_object.name))
                 status = constants.SUCCESS_STATUS
             except Exception as error:
                 message = str(
