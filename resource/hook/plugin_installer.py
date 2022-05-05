@@ -43,7 +43,6 @@ class PluginInstaller(ftrack_connect.ui.application.ConnectWidget):
         super(PluginInstaller, self).__init__(session, parent=parent)
         self.reset_plugin_list()
 
-        self.counter = len(self._plugins_to_install)
         self.plugin_processor = PluginProcessor()
 
         layout = QtWidgets.QVBoxLayout()
@@ -54,7 +53,8 @@ class PluginInstaller(ftrack_connect.ui.application.ConnectWidget):
 
         self.layout().addWidget(self.search_bar)
         label = QtWidgets.QLabel(
-            'Check the plugins you want to install or add your local plugins by dropping them on the list below'
+            'Check the plugins you want to install or add your'
+            ' local plugins by dropping them on the list below'
         )
         label.setWordWrap(True)
         label.setMargin(5)
@@ -99,6 +99,8 @@ class PluginInstaller(ftrack_connect.ui.application.ConnectWidget):
         self.installation_started.connect(self.busyOverlay.show)
         self.installation_done.connect(self.busyOverlay.hide)
         self.installation_done.connect(self._show_user_message)
+
+        self.installation_done.connect(self._reset_overlay)
         self.installation_in_progress.connect(self._update_overlay)
 
         self.refresh_started.connect(self.busyOverlay.show)
@@ -110,6 +112,7 @@ class PluginInstaller(ftrack_connect.ui.application.ConnectWidget):
         self.refresh()
 
     def reset_plugin_list(self):
+        self.counter = 0
         self._plugins_to_install = []
 
     def emit_downloaded_plugins(self, plugins):
@@ -162,20 +165,22 @@ class PluginInstaller(ftrack_connect.ui.application.ConnectWidget):
     def _show_user_message(self):
         '''Show final message to the user.'''
         self.blockingOverlay.setMessage(
-            'Installation finished!\n \n'
-            'Click to OK install more plugins or \n'
-            'Restart to re launch Connect and pick up the changes.'
+            '<h2>Installation finished!</h2>'
         )
         self.blockingOverlay.confirmButton.show()
         self.blockingOverlay.show()
+
+    def _reset_overlay(self):
+        self.reset_plugin_list()
+        self.busyOverlay.setMessage('<h2>Updating....</h2>')
 
     def _update_overlay(self, item):
         '''Update the overlay with the current item *information*.'''
         self.counter += 1
 
         self.busyOverlay.setMessage(
-            '<h4>Installing: {} of {}.</h4></br>'
-            '<h5>{}, Version {}</h5>'
+            '<h2>Installing {} of {} plugins...</h2></br>'
+            '{}, Version {}'
             .format(
                 self.counter,
                 len(self._plugins_to_install),

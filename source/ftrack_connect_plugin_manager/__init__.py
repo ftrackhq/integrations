@@ -24,20 +24,27 @@ class InstallerBlockingOverlay(
     '''Custom blocking overlay for publisher.'''
 
     def __init__(self, parent, message=''):
-        super(InstallerBlockingOverlay, self).__init__(parent, message=message)
-        self.confirmButton = QtWidgets.QPushButton('Ok')
+        super(InstallerBlockingOverlay, self).__init__(
+            parent, message=message, icon=qta.icon('mdi6.check', color='#FFDD86', scale_factor=1.2)
+        )
+
+        self.button_layout = QtWidgets.QHBoxLayout()
+        self.button_layout.setContentsMargins(0, 0, 0, 0)
+        self.contentLayout.addSpacing(30)
+        self.contentLayout.addLayout(self.button_layout)
+        self.confirmButton = QtWidgets.QPushButton('Install more plugins')
         self.restartButton = QtWidgets.QPushButton('Restart')
         self.restartButton.setObjectName('primary')
-        self.content.setMinimumWidth(350)
 
-        self.contentLayout.insertWidget(
-            3, self.confirmButton, alignment=QtCore.Qt.AlignCenter, stretch=0
+        self.button_layout.addWidget(
+            self.confirmButton
         )
-        self.contentLayout.insertWidget(
-            4, self.restartButton, alignment=QtCore.Qt.AlignCenter, stretch=0
+        self.button_layout.addWidget(
+            self.restartButton
         )
         self.confirmButton.hide()
         self.confirmButton.clicked.connect(self.hide)
+
 
 class STATUSES(object):
     '''Store plugin statuses'''
@@ -154,8 +161,6 @@ class DndPluginList(QtWidgets.QFrame):
         )
 
         self.setAcceptDrops(True)
-        # self.setProperty('ftrackDropZone', True)
-        # self.setObjectName('ftrack-connect-publisher-browse-button')
 
         self.main_layout = QtWidgets.QVBoxLayout()
         self.main_layout.setContentsMargins(0, 0, 0, 0)
