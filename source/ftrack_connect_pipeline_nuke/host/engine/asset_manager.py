@@ -18,7 +18,8 @@ class NukeAssetManagerEngine(AssetManagerEngine):
     @property
     def ftrack_object_manager(self):
         '''
-        Initializes and returns the FtrackObjectManager class
+        Initializes and returns an instance of
+        :class:`~ftrack_connect_pipeline.asset.FtrackObjectManager`
         '''
         if not isinstance(self._ftrack_object_manager, FtrackObjectManager):
             self._ftrack_object_manager = FtrackObjectManager(self.event_manager)
@@ -27,7 +28,8 @@ class NukeAssetManagerEngine(AssetManagerEngine):
     @property
     def DccObject(self):
         '''
-        Returns the not initialized DccObject class
+        Returns a not initialized
+        :class:`~ftrack_connect_pipeline.asset.DccObject`
         '''
         # We can not pre-initialize this because should be a new
         # one each time we want to use it.
@@ -99,9 +101,7 @@ class NukeAssetManagerEngine(AssetManagerEngine):
         return status, result
 
     @nuke_utils.run_in_main_thread
-    def remove_asset(
-        self, asset_info, options=None, plugin=None, keep_ftrack_node=False
-    ):
+    def unload_asset(self, asset_info, options=None, plugin=None):
         '''
         Removes the given *asset_info* from the scene.
         Returns status and result
@@ -120,9 +120,7 @@ class NukeAssetManagerEngine(AssetManagerEngine):
         result_data = {
             'plugin_name': plugin_name,
             'plugin_type': plugin_type,
-            'method': 'remove_asset'
-            if not keep_ftrack_node
-            else 'unload_asset',
+            'method': 'unload_asset',
             'status': status,
             'result': result,
             'execution_time': 0,
@@ -135,7 +133,7 @@ class NukeAssetManagerEngine(AssetManagerEngine):
         )
         self.ftrack_object_manager.dcc_object = dcc_object
 
-        dcc_object = nuke.toNode(self.ftrack_object_manager.dcc_object)
+        dcc_object = nuke.toNode(self.ftrack_object_manager.dcc_object.name)
         if not dcc_object:
             message = "There is no ftrack object"
             self.logger.debug(message)
@@ -191,21 +189,135 @@ class NukeAssetManagerEngine(AssetManagerEngine):
                 self._notify_client(plugin, result_data)
                 return status, result
 
-        if not keep_ftrack_node:
-            try:
-                str_node = str(self.ftrack_object_manager.dcc_object)
-                self.logger.debug("removing : {}".format(str_node))
-                nuke.delete(dcc_object)
-                result.append(str_node)
-                status = constants.SUCCESS_STATUS
-            except Exception as error:
-                message = str(
-                    'Could not delete the dcc_object, error: {}'.format(
-                        error
+        bool_status = constants.status_bool_mapping[status]
+        if not bool_status:
+            end_time = time.time()
+            total_time = end_time - start_time
+
+            result_data['status'] = status
+            result_data['result'] = result
+            result_data['execution_time'] = total_time
+            result_data['message'] = message
+
+            self._notify_client(plugin, result_data)
+            return status, result
+
+        self.ftrack_object_manager.dcc_object.objects_loaded = False
+
+        end_time = time.time()
+        total_time = end_time - start_time
+
+        result_data['status'] = status
+        result_data['result'] = result
+        result_data['execution_time'] = total_time
+
+        self._notify_client(plugin, result_data)
+
+        return status, result
+
+    @nuke_utils.run_in_main_thread
+    def remove_asset(self, asset_info, options=None, plugin=None):
+        '''
+        Removes the given *asset_info* from the scene.
+        Returns status and result
+        '''
+        start_time = time.time()
+        status = constants.UNKNOWN_STATUS
+        result = []
+        message = None
+
+        plugin_type = constants.PLUGIN_AM_ACTION_TYPE
+        plugin_name = None
+        if plugin:
+            plugin_type = '{}.{}'.format('asset_manager', plugin['type'])
+            plugin_name = plugin.get('name')
+
+        result_data = {
+            'plugin_name': plugin_name,
+            'plugin_type': plugin_type,
+            'method': 'remove_asset',
+            'status': status,
+            'result': result,
+            'execution_time': 0,
+            'message': message,
+        }
+
+        self.ftrack_object_manager.asset_info = asset_info
+        dcc_object = self.DccObject(
+            from_id=asset_info[asset_const.ASSET_INFO_ID]
+        )
+        self.ftrack_object_manager.dcc_object = dcc_object
+
+        dcc_object = nuke.toNode(self.ftrack_object_manager.dcc_object.name)
+        if not dcc_object:
+            message = "There is no ftrack object"
+            self.logger.debug(message)
+            status = constants.UNKNOWN_STATUS
+
+            end_time = time.time()
+            total_time = end_time - start_time
+
+            result_data['status'] = status
+            result_data['result'] = result
+            result_data['execution_time'] = total_time
+            result_data['message'] = message
+
+            self._notify_client(plugin, result_data)
+            return status, result
+
+        if dcc_object.Class() == 'BackdropNode':
+            parented_nodes = dcc_object.getNodes()
+            parented_nodes_names = [
+                x.knob('name').value() for x in parented_nodes
+            ]
+            nodes_to_delete_str = dcc_object.knob(
+                asset_const.ASSET_LINK
+            ).value()
+            nodes_to_delete = nodes_to_delete_str.split(";")
+            nodes_to_delete = set(nodes_to_delete + parented_nodes_names)
+            for node_s in nodes_to_delete:
+                node = nuke.toNode(node_s)
+                self.logger.debug("removing : {}".format(node.Class()))
+                try:
+                    nuke.delete(node)
+                    result.append(str(node_s))
+                    status = constants.SUCCESS_STATUS
+                except Exception as error:
+                    message = str(
+                        'Could not delete the node {}, error: {}'.format(
+                            str(node_s), error
+                        )
                     )
+                    self.logger.error(message)
+                    status = constants.ERROR_STATUS
+
+            bool_status = constants.status_bool_mapping[status]
+            if not bool_status:
+                end_time = time.time()
+                total_time = end_time - start_time
+
+                result_data['status'] = status
+                result_data['result'] = result
+                result_data['execution_time'] = total_time
+                result_data['message'] = message
+
+                self._notify_client(plugin, result_data)
+                return status, result
+
+        try:
+            str_node = str(self.ftrack_object_manager.dcc_object.name)
+            self.logger.debug("removing : {}".format(str_node))
+            nuke.delete(dcc_object)
+            result.append(str_node)
+            status = constants.SUCCESS_STATUS
+        except Exception as error:
+            message = str(
+                'Could not delete the dcc_object, error: {}'.format(
+                    error
                 )
-                self.logger.error(message)
-                status = constants.ERROR_STATUS
+            )
+            self.logger.error(message)
+            status = constants.ERROR_STATUS
 
         bool_status = constants.status_bool_mapping[status]
         if not bool_status:
@@ -272,7 +384,7 @@ class NukeAssetManagerEngine(AssetManagerEngine):
         if options.get('clear_selection'):
             nuke_utils.cleanSelection()
 
-        dcc_object = nuke.toNode(self.ftrack_object_manager.dcc_object)
+        dcc_object = nuke.toNode(self.ftrack_object_manager.dcc_object.name)
 
         parented_nodes = dcc_object.getNodes()
         parented_nodes_names = [x.knob('name').value() for x in parented_nodes]
@@ -345,10 +457,15 @@ class NukeAssetManagerEngine(AssetManagerEngine):
         return status, result
 
     @nuke_utils.run_in_main_thread
-    def select_assets(self, asset_infos, options=None, plugin=None):
-        result = None
-        for asset_info in asset_infos:
-            result = self.select_asset(
-                asset_info, options=options, plugin=options
-            )
-        return result
+    def select_assets(self, assets, options=None, plugin=None):
+        '''
+        Returns status dictionary and results dictionary keyed by the id for
+        executing the :meth:`select_asset` for all the
+        :class:`~ftrack_connect_pipeline.asset.FtrackAssetInfo` in the given
+        *assets* list.
+
+        *assets*: List of :class:`~ftrack_connect_pipeline.asset.FtrackAssetInfo`
+        '''
+        return super(NukeAssetManagerEngine, self).select_assets(
+            assets=assets, options=options, plugin=plugin
+        )
