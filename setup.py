@@ -149,6 +149,9 @@ class BuildPlugin(setuptools.Command):
 
         # Copy plugin files
         shutil.copytree(HOOK_PATH, os.path.join(STAGING_PATH, 'hook'))
+        dependencies_path = os.path.join(STAGING_PATH, 'dependencies')
+        
+        os.makedirs(dependencies_path)
 
         subprocess.check_call(
             [
@@ -158,7 +161,7 @@ class BuildPlugin(setuptools.Command):
                 'install',
                 '.',
                 '--target',
-                os.path.join(STAGING_PATH, 'dependencies'),
+                dependencies_path,
             ]
         )
 
@@ -213,9 +216,9 @@ setup(
         'write_to_template': version_template,
         'version_scheme': 'post-release',
     },
-    python_requires='<3.8',
+    python_requires='<3.10',
     setup_requires=[
-        'PySide2 >=5.0.0, < 5.13',
+        'PySide2 >=5.15, < 5.20',
         'Qt.py >=1.0.0, < 2',
         'pyScss >= 1.2.0, < 2',
         'sphinx >= 1.8.5, < 4',
