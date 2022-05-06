@@ -1,6 +1,7 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2020 ftrack
 import functools
+import logging
 import platform
 
 from Qt import QtWidgets, QtCore, QtCompat, QtGui
@@ -114,6 +115,9 @@ class AssetListModel(QtCore.QAbstractTableModel):
         return self._event_manager.session
 
     def __init__(self, event_manager):
+        self.logger = logging.getLogger(
+            __name__ + '.' + self.__class__.__name__
+        )
         super(AssetListModel, self).__init__()
         self._event_manager = event_manager
 
