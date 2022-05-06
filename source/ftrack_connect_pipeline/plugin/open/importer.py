@@ -87,8 +87,9 @@ class OpenerImporterPlugin(base.BaseImporterPlugin):
         self.ftrack_object_manager.asset_info = asset_info
         self.ftrack_object_manager.create_new_dcc_object()
 
-        results = [self.ftrack_object_manager.dcc_object]
-        return results
+        result = {'asset_info': self.ftrack_object_manager.asset_info,
+                  'dcc_object': self.ftrack_object_manager.dcc_object}
+        return result
 
     def open_asset(self, context_data=None, data=None, options=None):
         '''Alternative plugin method to only open the asset in the scene'''
@@ -101,12 +102,12 @@ class OpenerImporterPlugin(base.BaseImporterPlugin):
         self.ftrack_object_manager.dcc_object = dcc_object
         # Remove asset_info from the options as it is not needed anymore
         options.pop('asset_info')
-        # Execute the run method to open the objects
-        self.run(context_data, data, options)
+        # Execute the run method to load the objects
+        run_result = self.run(context_data, data, options)
         #  Query all the objects from the scene
         self.new_data = self.get_current_objects()
         self.logger.debug(
-            'Scene objects after open : {}'.format(len(self.new_data))
+            'Scene objects after load : {}'.format(len(self.new_data))
         )
         diff = self.new_data.difference(self.old_data)
 
@@ -116,13 +117,24 @@ class OpenerImporterPlugin(base.BaseImporterPlugin):
         # Connect scene objects to ftrack node
         self.ftrack_object_manager.connect_objects(diff)
 
+        result = {'asset_info': self.ftrack_object_manager.asset_info,
+                  'dcc_object': self.ftrack_object_manager.dcc_object,
+                  'run_method': run_result}
+
+        return result
+
     def init_and_open(self, context_data=None, data=None, options=None):
         '''Alternative plugin method to init and open the node and the assets
         into the scene'''
 
-        self.init_nodes(context_data=context_data, data=data, options=options)
-        options['asset_info'] = self.ftrack_object_manager.asset_info
-        self.open_asset(context_data=context_data, data=data, options=options)
+        init_nodes_result = self.init_nodes(
+            context_data=context_data, data=data, options=options
+        )
+        options['asset_info'] = init_nodes_result.get('asset_info')
+        load_asset_result = self.open_asset(
+            context_data=context_data, data=data, options=options
+        )
+        return load_asset_result
 
     def _run(self, event):
         self.old_data = self.get_current_objects()

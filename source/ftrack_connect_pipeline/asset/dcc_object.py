@@ -33,6 +33,7 @@ class DccObject(dict):
         self.logger = logging.getLogger(
             '{0}.{1}'.format(__name__, self.__class__.__name__)
         )
+        self._name = None
         if from_id:
             self.from_asset_info_id(from_id)
         elif name:

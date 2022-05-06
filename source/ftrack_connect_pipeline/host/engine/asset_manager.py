@@ -1,5 +1,6 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2020 ftrack
+import copy
 import time
 
 from ftrack_connect_pipeline.host.engine import BaseEngine
@@ -588,6 +589,15 @@ class AssetManagerEngine(BaseEngine):
         )
         self.ftrack_object_manager.dcc_object = dcc_object
 
+        # Get Component name from the original asset info
+        component_name = self.ftrack_object_manager.asset_info.get(
+            asset_const.COMPONENT_NAME
+        )
+        # Get the asset info options from the original asset info
+        asset_info_options = self.ftrack_object_manager.asset_info[
+            asset_const.ASSET_INFO_OPTIONS
+        ]
+
         remove_result = None
         remove_status = None
         # first run remove
@@ -628,51 +638,40 @@ class AssetManagerEngine(BaseEngine):
                 )
             ).one()
 
-            # Create the new asset info of the asset_version_entity
-            new_asset_info = FtrackAssetInfo.from_version_entity(
-                asset_version_entity,
-                self.ftrack_object_manager.asset_info.get(asset_const.COMPONENT_NAME),
-            )
-            if not new_asset_info:
-                raise Exception("Asset version couldn't change")
-            if not isinstance(new_asset_info, FtrackAssetInfo):
-                raise TypeError(
-                    "Return type of change version has to be type "
-                    "of FtrackAssetInfo"
-                )
+            # Collect data of the new version
+            asset_entity = asset_version_entity['asset']
+            asset_id = asset_entity['id']
+            version_number = int(asset_version_entity['version'])
+            asset_name = asset_entity['name']
+            asset_type_name = asset_entity['type']['name']
+            version_id = asset_version_entity['id']
+            location = asset_version_entity.session.pick_location()
+            component_path = None
+            for component in asset_version_entity['components']:
+                if component['name'] == component_name:
+                    if location.get_component_availability(component) == 100.0:
+                        component_path = location.get_filesystem_path(component)
 
-            # Get the asset info options from the old asset info
-            asset_info_options = self.ftrack_object_manager.asset_info[
-                asset_const.ASSET_INFO_OPTIONS
-            ]
-
-            if not asset_info_options:
-                self.ftrack_object_manager.asset_info.update(new_asset_info)
-                raise UserWarning("No options to update")
-
-            # Use the asset_info options to reload the new version
+            # Use the original asset_info options to reload the new version
             # Collect asset_context_data and asset data
             asset_context_data = asset_info_options['settings']['context_data']
-            asset_data = new_asset_info[asset_const.COMPONENT_PATH]
-            # Assign data Asset_id, version_number, asset_name,
-            # asset_type_name, version_id
-            asset_context_data_keys = [
-                asset_const.ASSET_ID,
-                asset_const.VERSION_NUMBER,
-                asset_const.ASSET_NAME,
-                asset_const.ASSET_TYPE_NAME,
-                asset_const.VERSION_ID,
-            ]
-            for k in asset_context_data_keys:
-                asset_context_data[k] = new_asset_info[k]
+            asset_context_data[asset_const.ASSET_ID] = asset_id
+            asset_context_data[asset_const.VERSION_NUMBER] = version_number
+            asset_context_data[asset_const.ASSET_NAME] = asset_name
+            asset_context_data[asset_const.ASSET_TYPE_NAME] = asset_type_name
+            asset_context_data[asset_const.VERSION_ID] = version_id
 
             # Update asset_info_options
-            asset_info_options['settings']['data'][0]['result'] = [asset_data]
+            asset_info_options['settings']['data'][0]['result'] = [component_path]
             asset_info_options['settings']['context_data'].update(
                 asset_context_data
             )
 
-            # Run the plugin
+            # make a copy to new asset_info_options to avoid having encoded
+            # options after running the plugin.
+            new_asset_info_options = copy.deepcopy(asset_info_options)
+
+            # Run the plugin with the asset info options
             run_event = ftrack_api.event.base.Event(
                 topic=constants.PIPELINE_RUN_PLUGIN_TOPIC,
                 data=asset_info_options,
@@ -684,20 +683,21 @@ class AssetManagerEngine(BaseEngine):
 
             # Get the result
             result_data = plugin_result_data[0]
+
             if not result_data:
                 self.logger.error("Error re-loading asset")
 
-            # Sync new asset info
-            new_asset_info[asset_const.ASSET_INFO_OPTIONS] = asset_info_options
+            # Get the new asset_info and dcc from the result
+            new_asset_info = result_data['result'][
+                new_asset_info_options['pipeline']['method']
+            ]['asset_info']
+            new_dcc_object = result_data['result'][
+                new_asset_info_options['pipeline']['method']
+            ]['dcc_object']
+            new_asset_info[asset_const.REFERENCE_OBJECT] = new_dcc_object.name
 
-            new_asset_info[
-                asset_const.LOAD_MODE
-            ] = self.ftrack_object_manager.asset_info[asset_const.LOAD_MODE]
-            new_asset_info[
-                asset_const.REFERENCE_OBJECT
-            ] = self.ftrack_object_manager.asset_info[asset_const.REFERENCE_OBJECT]
-
-            self.ftrack_object_manager.asset_info.update(new_asset_info)
+            self.ftrack_object_manager.asset_info = new_asset_info
+            self.ftrack_object_manager.dcc_object = new_dcc_object
 
         except UserWarning as e:
             self.logger.debug(e)
