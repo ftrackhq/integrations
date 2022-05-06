@@ -58,6 +58,10 @@ class BuildPlugin(setuptools.Command):
         # Copy plugin files
         shutil.copytree(HOOK_PATH, os.path.join(STAGING_PATH, 'hook'))
 
+        dependencies_path = os.path.join(STAGING_PATH, 'dependencies')
+
+        os.makedirs(dependencies_path)
+
         subprocess.check_call(
             [
                 sys.executable,
@@ -66,7 +70,7 @@ class BuildPlugin(setuptools.Command):
                 'install',
                 '.',
                 '--target',
-                os.path.join(STAGING_PATH, 'dependencies'),
+                dependencies_path,
             ]
         )
 
