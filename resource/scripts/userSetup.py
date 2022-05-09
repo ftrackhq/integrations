@@ -124,7 +124,7 @@ def initialise():
 
     widgets = list()
     widgets.append(
-        (qt_constants.OPEN_WIDGET, open.MayaOpenerClient, 'Open', 'fileOpen')
+        (qt_constants.OPENER_WIDGET, open.MayaOpenerClient, 'Open', 'fileOpen')
     )
     widgets.append(
         (
@@ -227,7 +227,7 @@ def initialise():
 
     maya_utils.init_maya(session)
 
-    # host.launch_widget(qt_constants.OPEN_WIDGET)
+    # host.launch_widget(qt_constants.OPENER_WIDGET)
 
 
 cmds.evalDeferred('initialise()', lp=True)
