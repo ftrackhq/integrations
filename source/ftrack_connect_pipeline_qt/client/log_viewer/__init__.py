@@ -41,7 +41,6 @@ class QtLogViewerClient(LogViewerClient, dialog.Dialog):
     # LOG_MODE_PLUGIN = 0
     # LOG_MODE_FILE = 1
 
-    client_name = qt_constants.LOG_VIEWER_WIDGET
     definition_filter = 'log_viewer'
     '''Use only definitions that matches the definition_filter'''
 

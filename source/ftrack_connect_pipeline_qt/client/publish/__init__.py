@@ -2,10 +2,13 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2020 ftrack
 
+from Qt import QtWidgets, QtCore
+
 from ftrack_connect_pipeline_qt import constants
 from ftrack_connect_pipeline_qt import client
 from ftrack_connect_pipeline_qt import constants as qt_constants
 from ftrack_connect_pipeline_qt.client import factory
+from ftrack_connect_pipeline_qt.ui.utility.widget import definition_selector
 
 
 class QtPublisherClient(client.QtDockedClient):
@@ -14,7 +17,6 @@ class QtPublisherClient(client.QtDockedClient):
     '''
 
     definition_filter = qt_constants.PUBLISHER_WIDGET
-    client_name = qt_constants.PUBLISHER_WIDGET
 
     def __init__(self, event_manager, parent=None):
         super(QtPublisherClient, self).__init__(event_manager, parent=parent)
@@ -25,7 +27,6 @@ class QtPublisherClient(client.QtDockedClient):
         return factory.PublisherWidgetFactory(
             self.event_manager,
             self.ui_types,
-            self.client_name,
             parent=self.parent(),
         )
 
@@ -44,8 +45,27 @@ class QtPublisherClient(client.QtDockedClient):
         super(QtPublisherClient, self).build()
         self.run_button.setText('PUBLISH')
 
+    def _build_definition_selector(self):
+        return definition_selector.PublisherDefinitionSelector(
+            parent=self.parent()
+        )
+
+    def _build_button_widget(self):
+        button_widget = QtWidgets.QWidget()
+        button_widget.setLayout(QtWidgets.QHBoxLayout())
+        button_widget.layout().setContentsMargins(10, 10, 10, 5)
+        button_widget.layout().setSpacing(10)
+
+        self.run_button = client.RunButton('PUBLISH')
+        button_widget.layout().addWidget(self.run_button)
+        self.run_button.setEnabled(False)
+        return button_widget
+
     def post_build(self):
         super(QtPublisherClient, self).post_build()
+        self.context_selector.changeContextClicked.connect(
+            self._launch_context_selector
+        )
         self.widget_factory.widgetAssetUpdated.connect(
             self._on_widget_asset_updated
         )
@@ -56,7 +76,7 @@ class QtPublisherClient(client.QtDockedClient):
         )
         self.setMinimumWidth(300)
 
-    def run(self, default_method=None):
+    def run(self):
         if super(QtPublisherClient, self).run():
             self.widget_factory.progress_widget.set_status(
                 constants.SUCCESS_STATUS,

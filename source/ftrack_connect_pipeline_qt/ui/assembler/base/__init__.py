@@ -594,7 +594,7 @@ class ComponentBaseWidget(AccordionBaseWidget):
         # Options widget,initialize its factory
         upper_layout.addWidget(self.init_options_button())
 
-        self._widget_factory = factory.ImporterWidgetFactory(
+        self._widget_factory = factory.AssemblerWidgetFactory(
             self.event_manager,
             self._assembler_widget._assembler_client.ui_types,
             parent=self.parent(),

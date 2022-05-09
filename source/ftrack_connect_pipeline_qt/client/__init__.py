@@ -9,6 +9,7 @@ from functools import partial
 from Qt import QtCore, QtWidgets
 
 from ftrack_connect_pipeline.client import Client, constants
+from ftrack_connect_pipeline.utils import ftrack_context_id
 from ftrack_connect_pipeline_qt.ui.utility.widget import (
     header,
     definition_selector,
@@ -39,9 +40,6 @@ class QtClient(Client):
     '''
 
     ui_types = [constants.UI_TYPE, qt_constants.UI_TYPE]
-
-    # Text of the button to run the whole definition
-    client_name = None
 
     # Have assembler match on file extension (relaxed)
     assembler_match_extension = False
@@ -77,9 +75,9 @@ class QtClient(Client):
         self.build()
         self.post_build()
 
+        self.set_context_id(self.context_id or ftrack_context_id())
         if self.context_id:
-            self.context_selector.set_context_id(self.context_id)
-        self.add_hosts(self.discover_hosts())
+            self.add_hosts(self.discover_hosts())
 
     def get_factory(self):
         '''Instantiate the widget factory to use'''
@@ -99,37 +97,6 @@ class QtClient(Client):
 
     def is_docked(self):
         raise NotImplementedError()
-
-    def add_hosts(self, host_connections):
-        '''
-        Adds the given *host_connections*
-
-        *host_connections* : list of
-        :class:`~ftrack_connect_pipeline.client.HostConnection`
-        '''
-        for host_connection in host_connections:
-            if host_connection in self.host_connections:
-                continue
-            self._host_connections.append(host_connection)
-
-    def _host_discovered(self, event):
-        '''
-        Callback, add the :class:`~ftrack_connect_pipeline.client.HostConnection`
-        of the new discovered :class:`~ftrack_connect_pipeline.host.HOST` from
-        the given *event*.
-
-        *event*: :class:`ftrack_api.event.base.Event`
-        '''
-        super(QtClient, self)._host_discovered(event)
-        if self.definition_filter:
-            self.host_and_definition_selector.set_definition_title_filter(
-                self.definition_filter
-            )
-        if self.definition_extensions_filter:
-            self.host_and_definition_selector.set_definition_extensions_filter(
-                self.definition_extensions_filter
-            )
-        self.host_and_definition_selector.add_hosts(self.host_connections)
 
     def pre_build(self):
         '''Prepare general layout.'''
@@ -152,16 +119,13 @@ class QtClient(Client):
 
         self.layout().addWidget(line.Line(style='solid', parent=self.parent()))
 
-        self.context_selector = ContextSelector(
-            self, self.session, parent=self.parent()
+        self.layout().addWidget(
+            self._build_context_selector(), QtCore.Qt.AlignTop
         )
-        self.layout().addWidget(self.context_selector, QtCore.Qt.AlignTop)
 
         self.layout().addWidget(line.Line(parent=self.parent()))
 
-        self.host_and_definition_selector = (
-            definition_selector.DefinitionSelector(self.client_name)
-        )
+        self.host_and_definition_selector = self._build_definition_selector()
         self.host_and_definition_selector.refreshed.connect(self.refresh)
 
         self.scroll = scroll_area.ScrollArea()
@@ -172,25 +136,20 @@ class QtClient(Client):
         self.layout().addWidget(self.host_and_definition_selector)
         self.layout().addWidget(self.scroll, 100)
 
-        button_widget = QtWidgets.QWidget()
-        button_widget.setLayout(QtWidgets.QHBoxLayout())
-        button_widget.layout().setContentsMargins(10, 10, 10, 5)
-        button_widget.layout().setSpacing(10)
+        self.layout().addWidget(self._build_button_widget())
 
-        self.open_assembler_button = OpenAssemblerButton()
-        button_widget.layout().addWidget(self.open_assembler_button)
-
-        self.l_filler = QtWidgets.QLabel()
-        button_widget.layout().addWidget(self.l_filler, 10)
-        self.l_filler.setVisible(self.client_name == qt_constants.OPEN_WIDGET)
-
-        self.run_button = RunButton(
-            self.client_name.upper() if self.client_name else 'Run'
+    def _build_context_selector(self):
+        '''Instantiate standard slave context selector'''
+        self.context_selector = ContextSelector(
+            self.session, parent=self.parent()
         )
-        button_widget.layout().addWidget(self.run_button)
-        self.run_button.setEnabled(False)
+        return self.context_selector
 
-        self.layout().addWidget(button_widget)
+    def _build_definition_selector(self):
+        raise NotImplementedError()
+
+    def _build_button_widget(self):
+        raise NotImplementedError()
 
     def post_build(self):
         '''Post Build ui method for events connections.'''
@@ -206,29 +165,28 @@ class QtClient(Client):
             self.host_and_definition_selector.host_widget.hide()
 
         self._connect_run_button()
-        if self.open_assembler_button:
-            self.open_assembler_button.clicked.connect(self._open_assembler)
-            self.open_assembler_button.setVisible(
-                self.client_name == qt_constants.OPEN_WIDGET
-            )
 
     def _connect_run_button(self):
         self.run_button.clicked.connect(self.run)
 
-    def _on_context_selector_context_changed(
-        self, context_entity, global_context_change
-    ):
+    def _on_context_selector_context_changed(self, context_entity):
         '''Updates the option dictionary with provided *context* when
         entityChanged of context_selector event is triggered'''
 
-        self.context_id = context_entity['id']
-        self.change_context(self.context_id)
+        self.set_context_id(context_entity['id'])
 
-        if global_context_change:
-            # Reset definitions
-            self.host_and_definition_selector.clear_definitions()
-            self.host_and_definition_selector.populate_definitions()
-            self._clear_widget()
+        # Reset definition selector and clear client
+        self.host_and_definition_selector.clear_definitions()
+        self.host_and_definition_selector.populate_definitions()
+        self._clear_widget()
+
+    def set_context_id(self, context_id):
+        '''Set the context id for this client'''
+        if context_id and context_id != self.context_id:
+            discover_hosts = self.context_id is None
+            self.change_context(context_id)
+            if discover_hosts:
+                self.add_hosts(self.discover_hosts())
 
     def change_context(self, context_id):
         '''
@@ -237,7 +195,41 @@ class QtClient(Client):
         on_context_change signal.
         '''
         super(QtClient, self).change_context(context_id)
+        self.context_selector.set_context_id(self.context_id)
         self.contextChanged.emit(context_id)
+
+    def add_hosts(self, host_connections):
+        '''
+        Adds the given *host_connections*
+
+        *host_connections* : list of
+        :class:`~ftrack_connect_pipeline.client.HostConnection`
+        '''
+        for host_connection in host_connections:
+            if host_connection in self.host_connections:
+                continue
+            if self.context_id:
+                host_connection.context_id = self.context_id
+            self._host_connections.append(host_connection)
+
+    def _host_discovered(self, event):
+        '''
+        Callback, add the :class:`~ftrack_connect_pipeline.client.HostConnection`
+        of the new discovered :class:`~ftrack_connect_pipeline.host.HOST` from
+        the given *event*.
+
+        *event*: :class:`ftrack_api.event.base.Event`
+        '''
+        super(QtClient, self)._host_discovered(event)
+        if self.definition_filter:
+            self.host_and_definition_selector.definition_title_filter = (
+                self.definition_filter
+            )
+        if self.definition_extensions_filter:
+            self.host_and_definition_selector.definition_extensions_filter = (
+                self.definition_extensions_filter
+            )
+        self.host_and_definition_selector.add_hosts(self.host_connections)
 
     def _clear_widget(self):
         if self.scroll and self.scroll.widget():
@@ -254,7 +246,6 @@ class QtClient(Client):
         Triggered when definition_changed is called from the host_selector.
         Generates the widgets interface from the given *schema* and *definition*
         '''
-
         self._component_names_filter = component_names_filter
         self._clear_widget()
 
@@ -296,7 +287,7 @@ class QtClient(Client):
             self.parent().hide()
         self.host_connection.launch_widget(qt_constants.ASSEMBLER_WIDGET)
 
-    def run(self, default_method=None):
+    def run(self):
         '''Function called when click the run button'''
         self.widget_factory.has_error = False
         serialized_data = self.widget_factory.to_json_object()
@@ -315,6 +306,8 @@ class QtClient(Client):
     def _on_components_checked(self, available_components_count):
         self.definition_changed(self.definition, available_components_count)
         self.run_button.setEnabled(available_components_count >= 1)
+        if available_components_count == 0:
+            self._clear_widget()
 
     def _on_log_item_added(self, log_item):
         if self.widget_factory:
@@ -327,11 +320,22 @@ class QtClient(Client):
                 False
             )
 
+    def reset(self):
+        '''Reset a client that has become visible after being hidden.'''
+        self.set_context_id(ftrack_context_id())
+        self.host_and_definition_selector.refresh()
+
     def conditional_rebuild(self):
         if self._shown:
             # Refresh when re-opened
             self.host_and_definition_selector.refresh()
         self._shown = True
+
+    def _launch_context_selector(self):
+        '''Close client (if not docked) and open entity browser.'''
+        if not self.is_docked():
+            self.parent().hide()
+        self.host_connection.launch_widget(qt_constants.CHANGE_CONTEXT_WIDGET)
 
 
 class QtDockedClient(QtClient, QtWidgets.QFrame):
@@ -378,14 +382,14 @@ class QtChangeContextClient(Client):
                 )
                 return
             # Need to choose host connection
-            self._host_connections[0].launch_widget(qt_constants.OPEN_WIDGET)
+            self._host_connections[0].launch_widget(qt_constants.OPENER_WIDGET)
             return
         self.entity_browser.setMinimumWidth(600)
         if self.entity_browser.exec_():
-            self.set_entity(self.entity_browser.entity)
+            self.change_ftrack_context_id(self.entity_browser.entity)
 
-    def set_entity(self, context):
-        self._host_connection.set_context(context)
+    def change_ftrack_context_id(self, context):
+        self._host_connection.change_ftrack_context_id(context)
 
 
 class QtDocumentationClient:
@@ -417,10 +421,3 @@ class QtDocumentationClient:
 class RunButton(QtWidgets.QPushButton):
     def __init__(self, label, parent=None):
         super(RunButton, self).__init__(label, parent=parent)
-
-
-class OpenAssemblerButton(QtWidgets.QPushButton):
-    def __init__(self, parent=None):
-        super(OpenAssemblerButton, self).__init__(
-            'OPEN ASSEMBLER', parent=parent
-        )

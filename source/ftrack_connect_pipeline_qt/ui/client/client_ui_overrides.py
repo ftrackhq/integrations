@@ -1,10 +1,15 @@
+# :coding: utf-8
+# :copyright: Copyright (c) 2014-2020 ftrack
+
 from ftrack_connect_pipeline_qt.ui.client import default as default_widgets
 from ftrack_connect_pipeline_qt.ui.client import overrides as override_widgets
 from ftrack_connect_pipeline import constants as core_constants
 
+''' Configures which widgets that factory should use when building the UI
+based on a definition, for a given client type.'''
 UI_OVERRIDES = {
     'progress_widget': default_widgets.ProgressWidget,
-    'progress_widget.assembler': default_widgets.BatchProgressWidget,
+    'progress_widget.loader': default_widgets.BatchProgressWidget,
     'main_widget': default_widgets.DefaultMainWidget,
     core_constants.CONTEXTS: {
         'step_container': default_widgets.DefaultStepContainerWidget,
@@ -14,9 +19,9 @@ UI_OVERRIDES = {
     },
     core_constants.COMPONENTS: {
         'step_container': default_widgets.DefaultStepContainerWidget,
-        'step_container.open': override_widgets.RadioButtonStepContainerWidget,
-        'step_widget.open': override_widgets.RadioButtonItemStepWidget,
-        'step_widget.assembler': override_widgets.AccordionStepWidget,
+        'step_container.opener': override_widgets.RadioButtonStepContainerWidget,
+        'step_widget.opener': override_widgets.RadioButtonItemStepWidget,
+        'step_widget.loader': override_widgets.AccordionStepWidget,
         'step_widget.publisher': override_widgets.PublisherAccordionStepWidget,
         'stage_widget': default_widgets.DefaultStageWidget,
         # Example to override specific stage widget

@@ -15,12 +15,15 @@ _BASE_ = 'ftrack.pipeline'
 
 MAIN_FRAMEWORK_WIDGET = 'main_framework_widget'
 
-OPEN_WIDGET = 'open'
+OPENER_WIDGET = 'opener'
+INFO_WIDGET = 'info'
+TASKS_WIDGET = 'tasks'
+CHANGE_CONTEXT_WIDGET = 'change_context'
+LOADER_WIDGET = 'loader'
 ASSEMBLER_WIDGET = 'assembler'
 SAVE_WIDGET = 'save'
 ASSET_MANAGER_WIDGET = 'asset_manager'
 PUBLISHER_WIDGET = 'publisher'
-CHANGE_CONTEXT_WIDGET = 'change_context'
 LOG_VIEWER_WIDGET = 'log_viewer'
 DOC_WIDGET = 'doc'
 
