@@ -7,14 +7,16 @@ import appdirs
 from ftrack_connect_pipeline import constants as core_constants
 
 
-def get_current_context_id():
-    '''return an api object representing the current context.'''
+def ftrack_context_id(as_entity=False, session=None):
+    '''Return the current global context (Task) id'''
     context_id = os.getenv(
         'FTRACK_CONTEXTID',
         os.getenv('FTRACK_TASKID', os.getenv('FTRACK_SHOTID')),
     )
-
-    return context_id
+    if as_entity is True:
+        return session.query('Task where id is "{}"'.format(context_id)).one()
+    else:
+        return context_id
 
 
 def str_context(context, with_id=False, force_version_nr=None, delimiter='/'):
@@ -41,13 +43,18 @@ def get_snapshot_save_path(context_id, session, extension=None):
     result = False
     message = None
 
-    context = session.query(
-        'Context where id={}'.format(context_id or get_current_context_id())
-    ).first()
+    if context_id is None:
+        raise Exception(
+            'Could not save snapshot - no context id provided'.format(
+                context_id
+            )
+        )
+
+    context = session.query('Context where id={}'.format(context_id)).first()
 
     if context is None:
         raise Exception(
-            'Could not save snapshot - unknown context: {}!'.format(context_id)
+            'Could not save snapshot - unknown context: {}'.format(context_id)
         )
 
     snapshot_path_base = os.environ.get('FTRACK_SNAPSHOT_PATH')

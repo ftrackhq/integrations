@@ -150,7 +150,7 @@ class HostConnection(object):
         self._event_manager = event_manager
         self._raw_host_data = copy_data
 
-        self.context_id = self._raw_host_data['context_id']
+        self.context_id = utils.ftrack_context_id() or self._raw_host_data.get('context_id')
 
     def run(self, data, engine, callback=None):
         '''
@@ -186,12 +186,11 @@ class HostConnection(object):
             event,
         )
 
-    def set_context(self, context, source=None):
-        '''The context has change, send an event to picked up by clients.'''
-
+    def change_ftrack_context_id(self, context, source=None):
+        '''The context has been changed by user, send an event to picked up by clients.'''
         if os.environ.get('FTRACK_CONTEXTID') != context['id']:
             os.environ['FTRACK_CONTEXTID'] = context['id']
-            self.logger.warning('Global context is now: {}'.format(context))
+            self.logger.warning('ftrack context is now: {}'.format(context))
         event = ftrack_api.event.base.Event(
             topic=constants.PIPELINE_CONTEXT_CHANGE,
             data={
@@ -311,7 +310,7 @@ class Client(object):
         '''
         self._current = {}
 
-        self._context_id = utils.get_current_context_id()
+        self._context_id = utils.ftrack_context_id()
         self._host_connections = []
         self._connected = False
         self._host_connection = None
@@ -486,8 +485,11 @@ class Client(object):
             self.logger.debug("No context id provided")
             return
         self.context_id = context_id
-        if self.host_connection:
-            self._host_connection.context_id = context_id
+        if self._host_connections:
+            for host_connection in self._host_connections:
+                host_connection.context_id = self.context_id
+            if self.host_connection:
+                self._host_connection.context_id = context_id
 
     def _on_log_item_added(self, log_item):
         '''Called when a client notify event arrives.'''
