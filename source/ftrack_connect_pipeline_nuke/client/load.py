@@ -9,7 +9,7 @@ from ftrack_connect_pipeline_qt.client import load
 import ftrack_connect_pipeline.constants as constants
 import ftrack_connect_pipeline_qt.constants as qt_constants
 import ftrack_connect_pipeline_nuke.constants as nuke_constants
-from ftrack_connect_pipeline_nuke.utils.custom_commands import get_nuke_window
+from ftrack_connect_pipeline_nuke.utils.custom_commands import get_main_window
 
 
 class NukeAssemblerClient(load.QtAssemblerClient):
@@ -30,7 +30,7 @@ class NukeAssemblerClient(load.QtAssemblerClient):
             event_manager,
             load_const.LOAD_MODES,
             asset_list_model,
-            parent=(parent or get_nuke_window()),
+            parent=(parent or get_main_window()),
         )
         # Make toolbar smaller
         self.setWindowFlags(QtCore.Qt.Tool)

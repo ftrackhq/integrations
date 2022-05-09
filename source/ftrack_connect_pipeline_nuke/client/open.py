@@ -7,7 +7,7 @@ from ftrack_connect_pipeline_qt.client import open
 import ftrack_connect_pipeline.constants as constants
 import ftrack_connect_pipeline_qt.constants as qt_constants
 import ftrack_connect_pipeline_nuke.constants as nuke_constants
-from ftrack_connect_pipeline_nuke.utils.custom_commands import get_nuke_window
+from ftrack_connect_pipeline_nuke.utils.custom_commands import get_main_window
 
 
 class NukeOpenerClient(open.QtOpenerClient):
@@ -22,7 +22,7 @@ class NukeOpenerClient(open.QtOpenerClient):
 
     def __init__(self, event_manager, unused_asset_list_model, parent=None):
         super(NukeOpenerClient, self).__init__(
-            event_manager, parent=(parent or get_nuke_window())
+            event_manager, parent=(parent or get_main_window())
         )
         self.setAttribute(QtCore.Qt.WA_DeleteOnClose, False)
         # Make toolbar smaller
