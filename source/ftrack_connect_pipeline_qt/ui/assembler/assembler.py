@@ -87,7 +87,7 @@ class AssemblerDependenciesWidget(AssemblerBaseWidget):
             try:
 
                 if (
-                    self._assembler_client.import_mode
+                    self._assembler_client.assemble_mode
                     != self._assembler_client.IMPORT_MODE_DEPENDENCIES
                 ):
                     return
@@ -135,7 +135,7 @@ class AssemblerDependenciesWidget(AssemblerBaseWidget):
                 components = self.extract_components(versions)
 
                 if (
-                    self._assembler_client.import_mode
+                    self._assembler_client.assemble_mode
                     != self._assembler_client.IMPORT_MODE_DEPENDENCIES
                 ):
                     return
@@ -342,7 +342,7 @@ class AssemblerBrowserWidget(AssemblerBaseWidget):
 
                 if (
                     self._recent_context_browsed != context
-                    or self._assembler_client.import_mode
+                    or self._assembler_client.assemble_mode
                     != self._assembler_client.IMPORT_MODE_BROWSE
                 ):
                     # User is fast, have already traveled to a new context or switched mode
@@ -356,7 +356,7 @@ class AssemblerBrowserWidget(AssemblerBaseWidget):
 
                 if (
                     self._recent_context_browsed != context
-                    or self._assembler_client.import_mode
+                    or self._assembler_client.assemble_mode
                     != self._assembler_client.IMPORT_MODE_BROWSE
                 ):
                     # User is fast, have already traveled to a new context
