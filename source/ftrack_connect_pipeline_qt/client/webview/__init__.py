@@ -7,7 +7,7 @@ from PySide2 import (
     QtWebEngineWidgets,
 )  # Qt.py does not provide QtWebEngineWidgets
 
-from ftrack_connect_pipeline.utils import get_current_context_id
+from ftrack_connect_pipeline.utils import ftrack_context_id
 from ftrack_connect_pipeline.client import Client
 from ftrack_connect_pipeline_qt.ui.utility.widget import dialog, header
 from ftrack_connect_pipeline_qt.ui import theme
@@ -69,7 +69,7 @@ class QtWebViewClient(Client, dialog.Dialog):
     def show(self):
         '''Show the dialog, sets the context to default and loads content if not done previously'''
         if self._context is None:
-            self.set_context_id(get_current_context_id())
+            self.set_context_id(ftrack_context_id())
         super(QtWebViewClient, self).show()
 
     def get_url(self):
