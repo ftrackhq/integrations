@@ -6,6 +6,7 @@ from functools import partial
 from Qt import QtWidgets, QtCore, QtCompat, QtGui
 
 from ftrack_connect_pipeline.constants import asset as asset_const
+from ftrack_connect_pipeline.utils import ftrack_context_id
 from ftrack_connect_pipeline_qt import constants as qt_constants
 from ftrack_connect_pipeline.client.asset_manager import AssetManagerClient
 
@@ -38,7 +39,6 @@ class QtAssetManagerClient(AssetManagerClient, QtWidgets.QFrame):
 
     selectionUpdated = QtCore.Signal(object)
 
-    client_name = qt_constants.ASSET_MANAGER_WIDGET
     definition_filter = 'asset_manager'  # Use only definitions that matches the definition_filter
 
     _shown = False
@@ -78,7 +78,9 @@ class QtAssetManagerClient(AssetManagerClient, QtWidgets.QFrame):
         self.post_build()
 
         if not self.is_assembler:
-            self.add_hosts(self.discover_hosts())
+            self.set_context_id(self.context_id or ftrack_context_id())
+            if self.context_id:
+                self.add_hosts(self.discover_hosts())
 
     def setTheme(self, selected_theme):
         theme.applyFont()
@@ -123,7 +125,7 @@ class QtAssetManagerClient(AssetManagerClient, QtWidgets.QFrame):
             )
 
             self.context_selector = ContextSelector(
-                self, self.session, parent=self.parent()
+                self.session, parent=self.parent()
             )
             self.layout().addWidget(self.context_selector, QtCore.Qt.AlignTop)
 
@@ -132,8 +134,6 @@ class QtAssetManagerClient(AssetManagerClient, QtWidgets.QFrame):
             self.host_selector = host_selector.HostSelector()
             self.layout().addWidget(self.host_selector)
             self.host_selector.setVisible(False)
-        else:
-            self.context_selector = None
 
         self.scroll = scroll_area.ScrollArea()
         self.scroll.setWidgetResizable(True)
@@ -156,6 +156,10 @@ class QtAssetManagerClient(AssetManagerClient, QtWidgets.QFrame):
         '''Post Build ui method for events connections.'''
         if not self.is_assembler:
             self.header.publishClicked.connect(self._open_publisher)
+            self.context_selector.changeContextClicked.connect(
+                self._launch_context_selector
+            )
+
         self.asset_manager_widget.rebuild.connect(self.rebuild)
 
         if not self.is_assembler:
@@ -182,6 +186,15 @@ class QtAssetManagerClient(AssetManagerClient, QtWidgets.QFrame):
 
         self.selectionUpdated.connect(self._on_asset_selection_updated)
         self.setMinimumWidth(300)
+
+    def set_context_id(self, context_id):
+        '''Set the context id for this client'''
+        if context_id and context_id != self.context_id:
+            discover_hosts = self.context_id is None
+            self.context_id = context_id
+            self.context_selector.set_context_id(context_id)
+            if discover_hosts:
+                self.add_hosts(self.discover_hosts())
 
     def add_hosts(self, host_connections):
         '''
@@ -211,7 +224,6 @@ class QtAssetManagerClient(AssetManagerClient, QtWidgets.QFrame):
         '''
         Triggered host is selected in the host_selector.
         '''
-
         self._reset_asset_list()
         # self.asset_manager_widget.set_asset_list(self.asset_entities_list)
         if not host_connection:
@@ -225,7 +237,7 @@ class QtAssetManagerClient(AssetManagerClient, QtWidgets.QFrame):
             )
             return
 
-        if self.context_selector:
+        if not self.is_assembler:
             self.context_selector.host_changed(host_connection)
         self.asset_manager_widget.host_connection = self.host_connection
 
@@ -243,6 +255,10 @@ class QtAssetManagerClient(AssetManagerClient, QtWidgets.QFrame):
         status, message = data
         self.header.setMessage(message, status)
 
+    def _launch_context_selector(self):
+        '''Open entity browser.'''
+        self.host_connection.launch_widget(qt_constants.CHANGE_CONTEXT_WIDGET)
+
     # Implementation of assetmanager client callbacks
 
     def _reset_asset_list(self):
@@ -255,7 +271,6 @@ class QtAssetManagerClient(AssetManagerClient, QtWidgets.QFrame):
         '''
         if not self.host_connection:
             return
-        # self.session._local_cache.clear()  # Make sure session cache is cleared out
         self.asset_manager_widget.set_busy(True)
         BaseThread(
             name='discover_assets_thread',
@@ -268,7 +283,7 @@ class QtAssetManagerClient(AssetManagerClient, QtWidgets.QFrame):
         Callback function of the discover_assets. Sets the updated
         asset_entities_list. Is run async.
         '''
-        self.logger.info('Discovered assets: {}'.format(event))
+        self.logger.debug('Discovered assets: {}'.format(event))
         try:
             if not event['data']:
                 self.assetsDiscovered.emit()

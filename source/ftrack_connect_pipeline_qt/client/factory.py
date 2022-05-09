@@ -67,7 +67,7 @@ class WidgetFactoryBase(QtWidgets.QWidget):
         '''(Batch) Set the current ID of the running version'''
         self._version_id = value
 
-    def __init__(self, event_manager, ui_types, client_name, parent=None):
+    def __init__(self, event_manager, ui_types, parent=None):
         '''Initialise WidgetFactory with *event_manager*, *ui*
 
         *event_manager* should be the
@@ -85,7 +85,6 @@ class WidgetFactoryBase(QtWidgets.QWidget):
         self.session = event_manager.session
         self._event_manager = event_manager
         self.ui_types = ui_types
-        self.client_name = client_name
         self._widgets_ref = {}
         self._step_objs_ref = {}
         self._stage_objs_ref = {}
@@ -116,7 +115,7 @@ class WidgetFactoryBase(QtWidgets.QWidget):
         '''Set :obj:`definition_type` with the given *definition_type*'''
         self.definition_type = definition_type
 
-    def get_override(self, type_name, widget_type, name, data, client_name):
+    def get_override(self, type_name, widget_type, name, data, client_type):
         '''
         From the given *type_name* and *widget_type* find the widget override
         in the client_ui_overrides.py file
@@ -130,7 +129,7 @@ class WidgetFactoryBase(QtWidgets.QWidget):
             )
         if obj_override == constants.NOT_SET:
             obj_override = UI_OVERRIDES.get(type_name).get(
-                '{}.{}'.format(widget_type, client_name), constants.NOT_SET
+                '{}.{}'.format(widget_type, client_type), constants.NOT_SET
             )
         if obj_override == constants.NOT_SET:
             obj_override = UI_OVERRIDES.get(type_name).get(widget_type)
@@ -139,10 +138,10 @@ class WidgetFactoryBase(QtWidgets.QWidget):
         return obj_override
 
     @staticmethod
-    def create_progress_widget(client_name, parent=None):
+    def create_progress_widget(client_type, parent=None):
         # Check for overrides of the main widget, otherwise call the default one
-        client_key = 'progress_widget.{}'.format(client_name)
-        if client_name and client_key in UI_OVERRIDES:
+        client_key = 'progress_widget.{}'.format(client_type)
+        if client_type and client_key in UI_OVERRIDES:
             return UI_OVERRIDES.get(client_key)(None, None, parent=parent)
         else:
             return UI_OVERRIDES.get('progress_widget')(
@@ -158,6 +157,10 @@ class WidgetFactoryBase(QtWidgets.QWidget):
             None, None, parent=self.parent()
         )
 
+    @staticmethod
+    def client_type():
+        raise NotImplementedError()
+
     def create_typed_widget(
         self, definition, type_name, stage_name_filters=None
     ):
@@ -169,7 +172,7 @@ class WidgetFactoryBase(QtWidgets.QWidget):
             'step_container',
             type_name,
             definition,
-            self.client_name,
+            self.client_type(),
         )
         for step in definition[type_name]:
             # Create widget for the step (a component, a finaliser...)
@@ -187,7 +190,7 @@ class WidgetFactoryBase(QtWidgets.QWidget):
                 '{}_widget'.format(step_category),
                 step_name,
                 step,
-                self.client_name,
+                self.client_type(),
             )
             if step_obj:
                 self.register_object(step, step_obj, step_category)
@@ -209,7 +212,7 @@ class WidgetFactoryBase(QtWidgets.QWidget):
                     '{}_widget'.format(stage_category),
                     stage_name,
                     stage,
-                    self.client_name,
+                    self.client_type(),
                 )
                 if stage_obj:
                     self.register_object(stage, stage_obj, stage_category)
@@ -224,7 +227,7 @@ class WidgetFactoryBase(QtWidgets.QWidget):
                         '{}_container'.format(plugin_category),
                         plugin_name,
                         plugin,
-                        self.client_name,
+                        self.client_type(),
                     )
                     # Here is where we inject the user custom widgets.
                     plugin_widget = self.fetch_plugin_widget(
@@ -666,24 +669,25 @@ class WidgetFactoryBase(QtWidgets.QWidget):
         return asset_version_entity
 
     def _query_asset_version_callback(self, asset_version_entity):
-        if not asset_version_entity:
-            self.onQueryAssetVersionDone.emit(None)
-            return
-        components = asset_version_entity['components']
-        self.components = components
+        if asset_version_entity:
+            components = asset_version_entity['components']
+            self.components = components
+            self.onQueryAssetVersionDone.emit(asset_version_entity)
+            self.components_section.show()
+            # If there is a Finalizer widget show the widget otherwise not.
+            if (
+                UI_OVERRIDES.get(core_constants.FINALIZERS).get('show', True)
+                is True
+            ):
+                self.finalizers_section.show()
         self.onQueryAssetVersionDone.emit(asset_version_entity)
-        self.components_section.show()
-        # If there is a Finalizer widget show the widget otherwise not.
-        if (
-            UI_OVERRIDES.get(core_constants.FINALIZERS).get('show', True)
-            is True
-        ):
-            self.finalizers_section.show()
 
     def _asset_version_changed(self, version_id):
         '''Callback function triggered when a asset version has changed'''
-        # self.version_id = version_id
-
+        if version_id is None:
+            # No asset available to load
+            self._query_asset_version_callback(None)
+            return
         thread = BaseThread(
             name='get_asset_version_entity_thread',
             target=self.query_asset_version_from_version_id,
@@ -725,13 +729,12 @@ class WidgetFactoryBase(QtWidgets.QWidget):
 
 
 class LoaderWidgetFactory(WidgetFactoryBase):
-    def __init__(self, event_manager, ui_types, client_name, parent=None):
+    def __init__(self, event_manager, ui_types, parent=None):
         super(LoaderWidgetFactory, self).__init__(
-            event_manager, ui_types, client_name, parent=parent
+            event_manager, ui_types, parent=parent
         )
 
     def check_components(self, asset_version_entity):
-
         available_components = 0
         try:
             if not self.components or asset_version_entity is None:
@@ -764,24 +767,43 @@ class LoaderWidgetFactory(WidgetFactoryBase):
 
 
 class OpenerWidgetFactory(LoaderWidgetFactory):
-    def __init__(self, event_manager, ui_types, client_name, parent=None):
+    def __init__(self, event_manager, ui_types, parent=None):
         super(OpenerWidgetFactory, self).__init__(
-            event_manager, ui_types, client_name, parent=parent
+            event_manager, ui_types, parent=parent
         )
-        self.progress_widget = self.create_progress_widget(
-            self.client_name, parent=self.parent()
+        self.progress_widget = OpenerWidgetFactory.create_progress_widget(
+            parent=self.parent()
+        )
+
+    @staticmethod
+    def client_type():
+        return qt_constants.OPENER_WIDGET
+
+    @staticmethod
+    def create_progress_widget(parent=None):
+        return WidgetFactoryBase.create_progress_widget(
+            OpenerWidgetFactory.client_type(), parent=parent
         )
 
 
-class ImporterWidgetFactory(LoaderWidgetFactory):
-    '''Augmented widget factory for importer/assembler'''
+class AssemblerWidgetFactory(LoaderWidgetFactory):
+    '''Augmented widget factory for loader/assembler'''
 
     def __init__(self, event_manager, ui_types, parent=None):
-        super(ImporterWidgetFactory, self).__init__(
+        super(AssemblerWidgetFactory, self).__init__(
             event_manager,
             ui_types,
-            qt_constants.ASSEMBLER_WIDGET,
             parent=parent,
+        )
+
+    @staticmethod
+    def client_type():
+        return qt_constants.LOADER_WIDGET
+
+    @staticmethod
+    def create_progress_widget(parent=None):
+        return WidgetFactoryBase.create_progress_widget(
+            AssemblerWidgetFactory.client_type(), parent=parent
         )
 
     def set_definition(self, definition):
@@ -790,11 +812,6 @@ class ImporterWidgetFactory(LoaderWidgetFactory):
     def build_definition_ui(self, main_widget):
         '''Based on the given definition, build options widget. Assume that
         definition has been set in advance.'''
-        self.logger.debug(
-            'build_definition_ui() working_definition: {}'.format(
-                json.dumps(self.working_definition, indent=4)
-            )
-        )
 
         # Backup the original definition, as it will be extended by the user UI
         self.original_definition = copy.deepcopy(self.working_definition)
@@ -872,13 +889,17 @@ class ImporterWidgetFactory(LoaderWidgetFactory):
 
 
 class PublisherWidgetFactory(WidgetFactoryBase):
-    def __init__(self, event_manager, ui_types, client_name, parent=None):
+    def __init__(self, event_manager, ui_types, parent=None):
         super(PublisherWidgetFactory, self).__init__(
-            event_manager, ui_types, client_name, parent=parent
+            event_manager, ui_types, parent=parent
         )
         self.progress_widget = self.create_progress_widget(
-            self.client_name, parent=self.parent()
+            qt_constants.PUBLISHER_WIDGET, parent=self.parent()
         )
+
+    @staticmethod
+    def client_type():
+        return qt_constants.PUBLISHER_WIDGET
 
     def check_components(self, unused_asset_version_entity):
         available_components = 0

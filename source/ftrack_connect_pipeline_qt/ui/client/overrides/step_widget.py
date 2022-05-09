@@ -113,6 +113,8 @@ class PublisherAccordionWidget(AccordionBaseWidget):
         return self._options_button
 
     def __init__(self, parent=None, title=None, checkable=False, checked=True):
+        self._input_message = 'Initializing...'
+        self._input_status = False
         super(PublisherAccordionWidget, self).__init__(
             AccordionBaseWidget.SELECT_MODE_NONE,
             AccordionBaseWidget.CHECK_MODE_CHECKBOX
@@ -163,6 +165,10 @@ class PublisherAccordionWidget(AccordionBaseWidget):
         super(PublisherAccordionWidget, self).add_widget(widget)
         self._connect_inner_widgets(widget)
 
+    def post_build(self):
+        self.update_input(self._input_message, self._input_status)
+        super(PublisherAccordionWidget, self).post_build()
+
     def update_inner_status(self, inner_widget, data):
         status, message = data
 
@@ -201,7 +207,7 @@ class PublisherAccordionWidget(AccordionBaseWidget):
         self.update_input(self._input_message, self._input_status)
 
     def update_input(self, message, status):
-        '''(Override)'''
+        '''Update the status label and icon'''
         self._input_message = message
         self._input_status = status
         if self.collapsed:

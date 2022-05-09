@@ -41,10 +41,6 @@ class AccordionBaseWidget(QtWidgets.QFrame):
         '''(Optional) To be overridden by child'''
         pass
 
-    def update_input(self, message, status):
-        '''Update the accordion input summary, should be overridden by child.'''
-        raise NotImplementedError()
-
     @property
     def title(self):
         return self._title
@@ -128,9 +124,6 @@ class AccordionBaseWidget(QtWidgets.QFrame):
         self._collapsable = collapsable
         self._docked = docked
 
-        self._input_message = 'Initializing...'
-        self._input_status = False
-
         self.pre_build()
         self.build()
         self.post_build()
@@ -167,7 +160,6 @@ class AccordionBaseWidget(QtWidgets.QFrame):
         self.layout().addWidget(main_widget)
 
     def post_build(self):
-        self.update_input(self._input_message, self._input_status)
         # self.clicked.connect(self.on_click)
         if self.check_mode != self.CHECK_MODE_NONE:
             self.header.checkbox.stateChanged.connect(

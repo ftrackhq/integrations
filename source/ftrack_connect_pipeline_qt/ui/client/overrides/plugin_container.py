@@ -37,10 +37,6 @@ class PluginAccordion(AccordionBaseWidget):
         '''Callback on accordion collapse/expand.'''
         pass
 
-    def update_input(self, message, status):
-        '''(Override)'''
-        pass
-
 
 class AccordionPluginContainerWidget(BaseUIWidget):
     '''Widget representation of a boolean'''

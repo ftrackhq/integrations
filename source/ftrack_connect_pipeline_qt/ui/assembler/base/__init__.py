@@ -594,7 +594,7 @@ class ComponentBaseWidget(AccordionBaseWidget):
         # Options widget,initialize its factory
         upper_layout.addWidget(self.init_options_button())
 
-        self._widget_factory = factory.ImporterWidgetFactory(
+        self._widget_factory = factory.AssemblerWidgetFactory(
             self.event_manager,
             self._assembler_widget._assembler_client.ui_types,
             parent=self.parent(),
@@ -735,10 +735,6 @@ class ComponentBaseWidget(AccordionBaseWidget):
 
     def on_collapse(self, collapsed):
         '''Not collapsable'''
-        pass
-
-    def update_input(self, message, status):
-        '''Update the accordion input summary, should be overridden by child.'''
         pass
 
     def get_height(self):

@@ -76,7 +76,6 @@ class ModalDialog(QtWidgets.QDialog):
         self.setParent(parent)
 
         self.setWindowFlags(QtCore.Qt.Tool)
-
         self.setTheme(self.getTheme())
 
         self._message = message or question

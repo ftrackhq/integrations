@@ -34,6 +34,3 @@ class AccordionWidget(AccordionBaseWidget):
             collapsed=collapsed,
             parent=parent,
         )
-
-    def update_input(self, message, status):
-        return
