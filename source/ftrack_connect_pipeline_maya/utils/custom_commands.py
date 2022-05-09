@@ -15,7 +15,7 @@ import maya.mel as mm
 
 from ftrack_connect_pipeline.utils import (
     get_snapshot_save_path,
-    get_current_context_id,
+    ftrack_context_id,
 )
 from ftrack_connect_pipeline_maya.constants import asset as asset_const
 
@@ -84,7 +84,7 @@ def getReferenceNode(assetLink):
         return res
 
 
-def get_maya_window():
+def get_main_window():
     """Return the QMainWindow for the main Maya window."""
     winptr = OpenMayaUI.MQtUtil.mainWindow()
     if winptr is None:
@@ -105,12 +105,12 @@ def init_maya(session, from_context=False):
     fps = None
     if from_context:
         context = session.query(
-            'Context where id={}'.format(get_current_context_id())
+            'Context where id={}'.format(ftrack_context_id())
         ).first()
         if context is None:
             logger.error(
                 'Cannot initialize Maya timeline - no such context: {}'.format(
-                    get_current_context_id()
+                    ftrack_context_id()
                 )
             )
             return
@@ -124,7 +124,7 @@ def init_maya(session, from_context=False):
         if not shot:
             logger.warning(
                 'Cannot initialize Maya timeline - no shot related to context: {}'.format(
-                    get_current_context_id()
+                    ftrack_context_id()
                 )
             )
             return
