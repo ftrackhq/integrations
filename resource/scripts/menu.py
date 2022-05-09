@@ -143,7 +143,7 @@ def initialise():
 
     widgets = list()
     widgets.append(
-        (qt_constants.OPEN_WIDGET, open.NukeOpenerClient, 'Open', 'fileOpen')
+        (qt_constants.OPENER_WIDGET, open.NukeOpenerClient, 'Open', 'fileOpen')
     )
     widgets.append(
         (
@@ -244,7 +244,7 @@ def initialise():
 
     nuke_utils.init_nuke(session)
 
-    host.launch_widget(qt_constants.OPEN_WIDGET)
+    host.launch_widget(qt_constants.OPENER_WIDGET)
 
 
 initialise()
