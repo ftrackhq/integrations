@@ -15,31 +15,6 @@ class MayaDccObject(DccObject):
     ftrack_plugin_id = asset_const.FTRACK_PLUGIN_ID
     '''Plugin id used on some DCC applications '''
 
-    @property
-    def objects_loaded(self):
-        '''
-        Returns the attribute objects_loaded of the current
-        self :obj:`name`
-        '''
-        return cmds.getAttr('{}.{}'.format(self.name, asset_const.OBJECTS_LOADED))
-
-    @objects_loaded.setter
-    def objects_loaded(self, value):
-        '''
-        Set the objects_loaded attribute of the self :obj:`name` to the
-        given *value*.
-        '''
-        cmds.setAttr(
-            '{}.{}'.format(self.name, asset_const.OBJECTS_LOADED),
-            l=False,
-        )
-        cmds.setAttr(
-            '{}.{}'.format(self.name, asset_const.OBJECTS_LOADED),
-            value,
-            type="string",
-            l=True,
-        )
-
     def __init__(self, name=None, from_id=None, **kwargs):
         '''
         If the *from_id* is provided find an object in the dcc with the given
