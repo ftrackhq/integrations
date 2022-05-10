@@ -14,26 +14,6 @@ class NukeDccObject(DccObject):
     ftrack_plugin_id = asset_const.FTRACK_PLUGIN_ID
     '''Plugin id used on some DCC applications '''
 
-    @property
-    def objects_loaded(self):
-        '''
-        Returns the attribute objects_loaded of the current
-        self :obj:`name`
-        '''
-        ftrack_node = nuke.toNode(self.name)
-        return ftrack_node.knob(asset_const.OBJECTS_LOADED).getValue()
-
-    @objects_loaded.setter
-    def objects_loaded(self, value):
-        '''
-        Set the objects_loaded attribute of the self :obj:`name` to the
-        given *value*.
-        '''
-        ftrack_node = nuke.toNode(self.name)
-        ftrack_node.knob(asset_const.OBJECTS_LOADED).setValue(
-            str(value)
-        )
-
     def __init__(self, name=None, from_id=None, **kwargs):
         '''
         If the *from_id* is provided find an object in the dcc with the given
