@@ -41,9 +41,6 @@ class QtLoaderClient(QtClient):
     Base loader widget class, as assembler is based on
     '''
 
-    IMPORT_MODE_DEPENDENCIES = 0
-    IMPORT_MODE_BROWSE = 1
-
     definition_filter = 'loader'
 
     def __init__(self, event_manager, modes, asset_list_model):
@@ -60,6 +57,8 @@ class QtAssemblerClient(QtLoaderClient, dialog.Dialog):
         10  # Amount of assets to fetch at a time within the browser
     )
 
+    ASSEMBLE_MODE_DEPENDENCIES = 0
+    ASSEMBLE_MODE_BROWSE = 1
     assemble_mode = -1
     ''' The mode assembler is in - resolve dependencies or manual browse '''
 
@@ -154,8 +153,8 @@ class QtAssemblerClient(QtLoaderClient, dialog.Dialog):
 
         # Set initial import mode, do not rebuild it as AM will trig it when it
         # has fetched assets
-        self._tab_widget.setCurrentIndex(self.IMPORT_MODE_DEPENDENCIES)
-        self.set_assemble_mode(self.IMPORT_MODE_DEPENDENCIES)
+        self._tab_widget.setCurrentIndex(self.ASSEMBLE_MODE_DEPENDENCIES)
+        self.set_assemble_mode(self.ASSEMBLE_MODE_DEPENDENCIES)
 
         button_widget = QtWidgets.QWidget()
         button_widget.setLayout(QtWidgets.QHBoxLayout())
@@ -257,12 +256,12 @@ class QtAssemblerClient(QtLoaderClient, dialog.Dialog):
             self.assemble_mode = assemble_mode
             active_tab_widget = (
                 self._dep_widget
-                if self.assemble_mode == self.IMPORT_MODE_DEPENDENCIES
+                if self.assemble_mode == self.ASSEMBLE_MODE_DEPENDENCIES
                 else self._browse_widget
             )
             inactive_tab_widget = (
                 self._dep_widget
-                if self.assemble_mode != self.IMPORT_MODE_DEPENDENCIES
+                if self.assemble_mode != self.ASSEMBLE_MODE_DEPENDENCIES
                 else self._browse_widget
             )
             # Clear the other tab
@@ -270,7 +269,7 @@ class QtAssemblerClient(QtLoaderClient, dialog.Dialog):
             # Create tab widget
             self._assembler_widget = (
                 AssemblerDependenciesWidget(self)
-                if self.assemble_mode == self.IMPORT_MODE_DEPENDENCIES
+                if self.assemble_mode == self.ASSEMBLE_MODE_DEPENDENCIES
                 else AssemblerBrowserWidget(self)
             )
             active_tab_widget.layout().addWidget(self._assembler_widget)
@@ -428,8 +427,7 @@ class QtAssemblerClient(QtLoaderClient, dialog.Dialog):
     def show(self):
         if self._shown:
             # Widget has been shown before, reload dependencies
-            self._client.reset()
-
+            self.reset()
         super(QtAssemblerClient, self).show()
         self._shown = True
 

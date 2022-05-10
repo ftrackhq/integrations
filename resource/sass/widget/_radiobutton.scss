@@ -34,3 +34,28 @@ QRadioButton::indicator:checked:hover {
 QRadioButton::indicator:checked:pressed {
     image: theme-image('radiobutton_checked_pressed');
 }
+
+
+QRadioButton:disabled::indicator::unchecked {
+    image: theme-image('radiobutton_unchecked_disabled');
+}
+
+QRadioButton:disabled::indicator:unchecked:hover {
+    image: theme-image('radiobutton_unchecked_hover_disabled');
+}
+
+QRadioButton:disabled::indicator:unchecked:pressed {
+    image: theme-image('radiobutton_unchecked_pressed_disabled');
+}
+
+QRadioButton:disabled::indicator::checked {
+    image: theme-image('radiobutton_checked_disabled');
+}
+
+QRadioButton:disabled::indicator:checked:hover {
+    image: theme-image('radiobutton_checked_hover_disabled');
+}
+
+QRadioButton:disabled::indicator:checked:pressed {
+    image: theme-image('radiobutton_checked_pressed_disabled');
+}

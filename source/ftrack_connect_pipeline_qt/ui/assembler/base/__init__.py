@@ -124,6 +124,8 @@ class AssemblerBaseWidget(QtWidgets.QWidget):
         bottom_toolbar_widget.layout().setContentsMargins(4, 0, 4, 1)
         bottom_toolbar_widget.layout().setSpacing(6)
 
+        #bottom_toolbar_widget.layout().addWidget(line.Line(horizontal=False, parent=self.parent()))
+
         match_label = QtWidgets.QLabel('Match: ')
         match_label.setObjectName('gray')
         bottom_toolbar_widget.layout().addWidget(match_label)

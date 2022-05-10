@@ -19,6 +19,8 @@ class Line(QtWidgets.QFrame):
         else:
             self.setMaximumWidth(1)
             self.setMinimumWidth(1)
+            self.setMaximumHeight(16)
+            self.setMinimumHeight(16)
             self.setSizePolicy(
                 QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Preferred
             )

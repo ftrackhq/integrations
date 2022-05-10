@@ -42,6 +42,10 @@ class AssemblerDependenciesWidget(AssemblerBaseWidget):
     dependencyResolveWarning = QtCore.Signal(object, object, object)
     dependenciesResolved = QtCore.Signal(object)
 
+    @property
+    def linked_only(self):
+        return self._cb_linked_only.isChecked()
+
     def __init__(self, assembler_client, parent=None):
         super(AssemblerDependenciesWidget, self).__init__(
             assembler_client, parent=parent
@@ -54,9 +58,16 @@ class AssemblerDependenciesWidget(AssemblerBaseWidget):
         self.dependencyResolveWarning.connect(
             self._on_dependency_resolve_warning
         )
+        self._cb_linked_only.clicked.connect(self.rebuild)
 
     def _get_header_widget(self):
-        return QtWidgets.QLabel()
+        self._cb_linked_only = QtWidgets.QCheckBox('Linked dependencies only')
+        self._cb_linked_only.setToolTip(
+            'Only show linked assets, deselect and loadable assets on parent context(s) will be resolved'
+        )
+        self._cb_linked_only.setObjectName("gray")
+        self._cb_linked_only.setChecked(True)
+        return self._cb_linked_only
 
     def rebuild(self):
         if super(AssemblerDependenciesWidget, self).rebuild():
@@ -68,15 +79,16 @@ class AssemblerDependenciesWidget(AssemblerBaseWidget):
                 name='resolve_dependencies_thread',
                 target=self._resolve_dependencies,
                 target_args=[
-                    self._assembler_client.context_selector.context_id
+                    self._assembler_client.context_selector.context_id,
+                    {'linked_only':False} if self.linked_only is False else None
                 ],
             )
             thread.start()
 
-    def _resolve_dependencies(self, context_id):
+    def _resolve_dependencies(self, context_id, options):
         try:
             return self._assembler_client.asset_manager.resolve_dependencies(
-                context_id, self._on_dependencies_resolved_async
+                context_id, self._on_dependencies_resolved_async, options=options
             )
         except Exception as e:
             self.dependencyResolveWarning.emit(True, str(e), 'Error')
@@ -88,7 +100,7 @@ class AssemblerDependenciesWidget(AssemblerBaseWidget):
 
                 if (
                     self._assembler_client.assemble_mode
-                    != self._assembler_client.IMPORT_MODE_DEPENDENCIES
+                    != self._assembler_client.ASSEMBLE_MODE_DEPENDENCIES
                 ):
                     return
 
@@ -136,7 +148,7 @@ class AssemblerDependenciesWidget(AssemblerBaseWidget):
 
                 if (
                     self._assembler_client.assemble_mode
-                    != self._assembler_client.IMPORT_MODE_DEPENDENCIES
+                    != self._assembler_client.ASSEMBLE_MODE_DEPENDENCIES
                 ):
                     return
 
@@ -343,7 +355,7 @@ class AssemblerBrowserWidget(AssemblerBaseWidget):
                 if (
                     self._recent_context_browsed != context
                     or self._assembler_client.assemble_mode
-                    != self._assembler_client.IMPORT_MODE_BROWSE
+                    != self._assembler_client.ASSEMBLE_MODE_BROWSE
                 ):
                     # User is fast, have already traveled to a new context or switched mode
                     return
@@ -357,7 +369,7 @@ class AssemblerBrowserWidget(AssemblerBaseWidget):
                 if (
                     self._recent_context_browsed != context
                     or self._assembler_client.assemble_mode
-                    != self._assembler_client.IMPORT_MODE_BROWSE
+                    != self._assembler_client.ASSEMBLE_MODE_BROWSE
                 ):
                     # User is fast, have already traveled to a new context
                     return
