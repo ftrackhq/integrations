@@ -4,6 +4,7 @@
 from ftrack_connect_pipeline.asset import FtrackObjectManager
 from ftrack_connect_pipeline_nuke.asset.dcc_object import NukeDccObject
 
+
 class NukeFtrackObjectManager(FtrackObjectManager):
     '''
     NukeFtrackObjectManager class.

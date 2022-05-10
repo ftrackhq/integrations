@@ -6,7 +6,9 @@ from ftrack_connect_pipeline import plugin
 from ftrack_connect_pipeline_qt import plugin as pluginWidget
 from ftrack_connect_pipeline_nuke import constants as nuke_constants
 from ftrack_connect_pipeline_nuke.utils import custom_commands as nuke_utils
-from ftrack_connect_pipeline_nuke.asset import NukeFtrackObjectManager as FtrackObjectManager
+from ftrack_connect_pipeline_nuke.asset import (
+    NukeFtrackObjectManager as FtrackObjectManager,
+)
 from ftrack_connect_pipeline_nuke.asset import NukeDccObject as DccObject
 
 
@@ -19,7 +21,9 @@ class BaseNukePlugin(plugin.BasePlugin):
         Initializes and returns the FtrackObjectManager class
         '''
         if not isinstance(self._ftrack_object_manager, FtrackObjectManager):
-            self._ftrack_object_manager = FtrackObjectManager(self.event_manager)
+            self._ftrack_object_manager = FtrackObjectManager(
+                self.event_manager
+            )
         return self._ftrack_object_manager
 
     @property

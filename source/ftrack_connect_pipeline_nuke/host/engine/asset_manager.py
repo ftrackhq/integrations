@@ -8,8 +8,12 @@ from ftrack_connect_pipeline.host.engine import AssetManagerEngine
 from ftrack_connect_pipeline.asset.asset_info import FtrackAssetInfo
 from ftrack_connect_pipeline_nuke.utils import custom_commands as nuke_utils
 from ftrack_connect_pipeline_nuke.constants import asset as asset_const
-from ftrack_connect_pipeline_nuke.asset import NukeFtrackObjectManager as FtrackObjectManager
-from ftrack_connect_pipeline_nuke.asset.dcc_object import NukeDccObject as DccObject
+from ftrack_connect_pipeline_nuke.asset import (
+    NukeFtrackObjectManager as FtrackObjectManager,
+)
+from ftrack_connect_pipeline_nuke.asset.dcc_object import (
+    NukeDccObject as DccObject,
+)
 
 
 class NukeAssetManagerEngine(AssetManagerEngine):
@@ -22,7 +26,9 @@ class NukeAssetManagerEngine(AssetManagerEngine):
         :class:`~ftrack_connect_pipeline.asset.FtrackObjectManager`
         '''
         if not isinstance(self._ftrack_object_manager, FtrackObjectManager):
-            self._ftrack_object_manager = FtrackObjectManager(self.event_manager)
+            self._ftrack_object_manager = FtrackObjectManager(
+                self.event_manager
+            )
         return self._ftrack_object_manager
 
     @property
@@ -66,11 +72,13 @@ class NukeAssetManagerEngine(AssetManagerEngine):
             'message': message,
         }
 
-        ftrack_asset_nodes = nuke_utils.get_nodes_with_ftrack_tab()
+        ftrack_asset_node_names = [
+            node.name() for node in nuke_utils.get_nodes_with_ftrack_tab()
+        ]
         ftrack_asset_info_list = []
 
-        if ftrack_asset_nodes:
-            for node_name in ftrack_asset_nodes:
+        if ftrack_asset_node_names:
+            for node_name in ftrack_asset_node_names:
                 param_dict = DccObject.dictionary_from_object(node_name)
                 # avoid read and write nodes containing the old ftrack tab
                 # without information
@@ -133,8 +141,8 @@ class NukeAssetManagerEngine(AssetManagerEngine):
         )
         self.ftrack_object_manager.dcc_object = dcc_object
 
-        dcc_object = nuke.toNode(self.ftrack_object_manager.dcc_object.name)
-        if not dcc_object:
+        ftrack_node = nuke.toNode(self.ftrack_object_manager.dcc_object.name)
+        if not ftrack_node:
             message = "There is no ftrack object"
             self.logger.debug(message)
             status = constants.UNKNOWN_STATUS
@@ -150,21 +158,23 @@ class NukeAssetManagerEngine(AssetManagerEngine):
             self._notify_client(plugin, result_data)
             return status, result
 
-        if dcc_object.Class() == 'BackdropNode':
-            parented_nodes = dcc_object.getNodes()
+        if ftrack_node.Class() == 'BackdropNode':
+            parented_nodes = ftrack_node.getNodes()
             parented_nodes_names = [
                 x.knob('name').value() for x in parented_nodes
             ]
-            nodes_to_delete_str = dcc_object.knob(
+            nodes_to_delete_str = ftrack_node.knob(
                 asset_const.ASSET_LINK
             ).value()
             nodes_to_delete = nodes_to_delete_str.split(";")
             nodes_to_delete = set(nodes_to_delete + parented_nodes_names)
             for node_s in nodes_to_delete:
-                node = nuke.toNode(node_s)
-                self.logger.debug("removing : {}".format(node.Class()))
+                node_to_delete = nuke.toNode(node_s)
+                self.logger.debug(
+                    "removing : {}".format(node_to_delete.Class())
+                )
                 try:
-                    nuke.delete(node)
+                    nuke.delete(node_to_delete)
                     result.append(str(node_s))
                     status = constants.SUCCESS_STATUS
                 except Exception as error:
@@ -248,8 +258,8 @@ class NukeAssetManagerEngine(AssetManagerEngine):
         )
         self.ftrack_object_manager.dcc_object = dcc_object
 
-        dcc_object = nuke.toNode(self.ftrack_object_manager.dcc_object.name)
-        if not dcc_object:
+        ftrack_node = nuke.toNode(self.ftrack_object_manager.dcc_object.name)
+        if not ftrack_node:
             message = "There is no ftrack object"
             self.logger.debug(message)
             status = constants.UNKNOWN_STATUS
@@ -265,21 +275,23 @@ class NukeAssetManagerEngine(AssetManagerEngine):
             self._notify_client(plugin, result_data)
             return status, result
 
-        if dcc_object.Class() == 'BackdropNode':
-            parented_nodes = dcc_object.getNodes()
+        if ftrack_node.Class() == 'BackdropNode':
+            parented_nodes = ftrack_node.getNodes()
             parented_nodes_names = [
                 x.knob('name').value() for x in parented_nodes
             ]
-            nodes_to_delete_str = dcc_object.knob(
+            nodes_to_delete_str = ftrack_node.knob(
                 asset_const.ASSET_LINK
             ).value()
             nodes_to_delete = nodes_to_delete_str.split(";")
             nodes_to_delete = set(nodes_to_delete + parented_nodes_names)
             for node_s in nodes_to_delete:
-                node = nuke.toNode(node_s)
-                self.logger.debug("removing : {}".format(node.Class()))
+                node_to_delete = nuke.toNode(node_s)
+                self.logger.debug(
+                    "removing : {}".format(node_to_delete.Class())
+                )
                 try:
-                    nuke.delete(node)
+                    nuke.delete(node_to_delete)
                     result.append(str(node_s))
                     status = constants.SUCCESS_STATUS
                 except Exception as error:
@@ -305,16 +317,14 @@ class NukeAssetManagerEngine(AssetManagerEngine):
                 return status, result
 
         try:
-            str_node = str(self.ftrack_object_manager.dcc_object.name)
+            str_node = str(self.ftrack_object_manager.node.name)
             self.logger.debug("removing : {}".format(str_node))
-            nuke.delete(dcc_object)
+            nuke.delete(ftrack_node)
             result.append(str_node)
             status = constants.SUCCESS_STATUS
         except Exception as error:
             message = str(
-                'Could not delete the dcc_object, error: {}'.format(
-                    error
-                )
+                'Could not delete the nuke dcc object, error: {}'.format(error)
             )
             self.logger.error(message)
             status = constants.ERROR_STATUS
@@ -351,9 +361,6 @@ class NukeAssetManagerEngine(AssetManagerEngine):
         select the given *asset_info*.
         Returns status and result
         '''
-        nuke.tprint(
-            '@@@ select_assets({}, {}, {})'.format(asset_info, options, plugin)
-        )
         start_time = time.time()
         status = constants.UNKNOWN_STATUS
         result = []
@@ -384,20 +391,22 @@ class NukeAssetManagerEngine(AssetManagerEngine):
         if options.get('clear_selection'):
             nuke_utils.cleanSelection()
 
-        dcc_object = nuke.toNode(self.ftrack_object_manager.dcc_object.name)
+        ftrack_node = nuke.toNode(self.ftrack_object_manager.dcc_object.name)
 
-        parented_nodes = dcc_object.getNodes()
+        parented_nodes = ftrack_node.getNodes()
         parented_nodes_names = [x.knob('name').value() for x in parented_nodes]
-        nodes_to_select_str = dcc_object.knob(
-            asset_const.ASSET_LINK
-        ).value()
-        nodes_to_select = nodes_to_select_str.split(";")
+        nodes_to_select_str = ftrack_node.knob(asset_const.ASSET_LINK).value()
+        nodes_to_select = (
+            nodes_to_select_str.split(";")
+            if len(nodes_to_select_str) > 0
+            else []
+        )
         nodes_to_select = set(nodes_to_select + parented_nodes_names)
 
         for node_s in nodes_to_select:
             try:
-                node = nuke.toNode(node_s)
-                node['selected'].setValue(True)
+                node_to_select = nuke.toNode(node_s)
+                node_to_select['selected'].setValue(True)
                 result.append(str(node_s))
                 status = constants.SUCCESS_STATUS
             except Exception as error:
@@ -423,8 +432,8 @@ class NukeAssetManagerEngine(AssetManagerEngine):
                 return status, result
 
         try:
-            dcc_object['selected'].setValue(True)
-            result.append(str(dcc_object))
+            ftrack_node['selected'].setValue(True)
+            result.append(str(ftrack_node))
             status = constants.SUCCESS_STATUS
         except Exception as error:
             message = str(

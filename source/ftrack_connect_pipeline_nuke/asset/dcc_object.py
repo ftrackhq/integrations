@@ -8,6 +8,7 @@ from ftrack_connect_pipeline_nuke.utils import custom_commands as nuke_utils
 
 import nuke
 
+
 class NukeDccObject(DccObject):
     '''NukeDccObject class.'''
 
@@ -33,7 +34,7 @@ class NukeDccObject(DccObject):
         ftrack_node = nuke.toNode(self.name)
         if not ftrack_node:
             raise Exception(
-                'ftrack node "{}" doesnt exists'.format(self.name)
+                'ftrack node "{}" does not exists'.format(self.name)
             )
         if k == asset_const.REFERENCE_OBJECT:
             ftrack_node.knob(k).setValue(str(ftrack_node.Class()))
@@ -52,16 +53,12 @@ class NukeDccObject(DccObject):
         Creates a new dcc_object with the given *name* if doesn't exists.
         '''
         if self._name_exists(name):
-            error_message = "{} already exists in the scene".format(
-                name
-            )
+            error_message = "{} already exists in the scene".format(name)
             self.logger.error(error_message)
             raise RuntimeError(error_message)
 
         z_order = 0
-        ftrack_node = nuke.nodes.BackdropNode(
-            z_order=z_order, name=name
-        )
+        ftrack_node = nuke.nodes.BackdropNode(z_order=z_order, name=name)
 
         ftrack_node.knob('tile_color').setValue(self.ftrack_plugin_id)
         self.name = ftrack_node.knob('name').value()
@@ -101,14 +98,15 @@ class NukeDccObject(DccObject):
         '''
         for scene_node in nuke.root().nodes():
             if scene_node.knob(asset_const.FTRACK_PLUGIN_TYPE):
-                id_value = scene_node.knob(asset_const.ASSET_INFO_ID).getValue()
+                id_value = scene_node.knob(
+                    asset_const.ASSET_INFO_ID
+                ).getValue()
 
-                if (
-                        id_value
-                        == asset_info_id
-                ):
+                if id_value == asset_info_id:
                     self.logger.debug(
-                        'Found existing object: {}'.format(scene_node.knob('name').value())
+                        'Found existing object: {}'.format(
+                            scene_node.knob('name').value()
+                        )
                     )
                     self.name = scene_node.knob('name').value()
                     return self.name
@@ -168,6 +166,8 @@ class NukeDccObject(DccObject):
             return
         nuke_utils.cleanSelection()
         for node in objects:
+            if node == ftrack_node:
+                continue
             node['selected'].setValue(True)
             self.logger.debug("connecting node: {}".format(node.Class()))
             connected_objects.append(node.knob('name').value())
@@ -201,13 +201,13 @@ class NukeDccObject(DccObject):
         # the farthest one
         if len(selected_backdrop_nodes):
             z_order = (
-                    min(
-                        [
-                            node.knob("z_order").value()
-                            for node in selected_backdrop_nodes
-                        ]
-                    )
-                    - 1
+                min(
+                    [
+                        node.knob("z_order").value()
+                        for node in selected_backdrop_nodes
+                    ]
+                )
+                - 1
             )
         else:
             # otherwise (no backdrop in selection) find the nearest backdrop if
@@ -241,7 +241,6 @@ class NukeDccObject(DccObject):
                 "in backdrop node: {}".format(ftrack_node.getNodes())
             )
             self.logger.warning("in selected nodes: {}".format(selected_nodes))
-
 
     def _set_scene_node_color(self, latest=True):
         '''
