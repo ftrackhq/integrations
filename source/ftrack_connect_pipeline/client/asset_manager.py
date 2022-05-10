@@ -49,7 +49,7 @@ class AssetManagerClient(Client):
         else:
             return False
 
-    def resolve_dependencies(self, context_id, resolve_dependencies_callback):
+    def resolve_dependencies(self, context_id, resolve_dependencies_callback, options=None):
         '''
         Calls the :meth:`~ftrack_connect_pipeline.client.HostConnection.run`
         to run the method
@@ -72,6 +72,7 @@ class AssetManagerClient(Client):
             'plugin': resolver_plugin,
             'context_id': context_id,
             'plugin_type': plugin_type,
+            'options': options
         }
 
         def _resolve_dependencies_callback(event):
