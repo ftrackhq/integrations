@@ -2,7 +2,7 @@
 # :copyright: Copyright (c) 2014-2022 ftrack
 
 import logging
-
+from ftrack_connect_pipeline.constants import asset as asset_const
 
 class DccObject(dict):
     '''Base DccObject class.'''
@@ -23,6 +23,22 @@ class DccObject(dict):
         Sets name of the object
         '''
         self._name = value
+
+    @property
+    def objects_loaded(self):
+        '''
+        Returns the attribute objects_loaded of the current
+        self :obj:`name`
+        '''
+        return self[asset_const.OBJECTS_LOADED]
+
+    @objects_loaded.setter
+    def objects_loaded(self, value):
+        '''
+        Set the objects_loaded attribute of the self :obj:`name` to the
+        given *value*.
+        '''
+        self[asset_const.OBJECTS_LOADED] = value
 
     def __init__(self, name=None, from_id=None, **kwargs):
         '''
