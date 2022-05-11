@@ -8,33 +8,17 @@ from ftrack_connect_pipeline.host.engine import AssetManagerEngine
 from ftrack_connect_pipeline.asset.asset_info import FtrackAssetInfo
 from ftrack_connect_pipeline_nuke.utils import custom_commands as nuke_utils
 from ftrack_connect_pipeline_nuke.constants import asset as asset_const
-from ftrack_connect_pipeline_nuke.asset import NukeFtrackObjectManager as FtrackObjectManager
-from ftrack_connect_pipeline_nuke.asset.dcc_object import NukeDccObject as DccObject
+from ftrack_connect_pipeline_nuke.asset import NukeFtrackObjectManager
+from ftrack_connect_pipeline_nuke.asset.dcc_object import NukeDccObject
 
 
 class NukeAssetManagerEngine(AssetManagerEngine):
     engine_type = 'asset_manager'
 
-    @property
-    def ftrack_object_manager(self):
-        '''
-        Initializes and returns an instance of
-        :class:`~ftrack_connect_pipeline.asset.FtrackObjectManager`
-        '''
-        if not isinstance(self._ftrack_object_manager, FtrackObjectManager):
-            self._ftrack_object_manager = FtrackObjectManager(self.event_manager)
-        return self._ftrack_object_manager
-
-    @property
-    def DccObject(self):
-        '''
-        Returns a not initialized
-        :class:`~ftrack_connect_pipeline.asset.DccObject`
-        '''
-        # We can not pre-initialize this because should be a new
-        # one each time we want to use it.
-        self._DccObject = DccObject
-        return self._DccObject
+    FtrackObjectManager = NukeFtrackObjectManager
+    '''FtrackObjectManager class to use'''
+    DccObject = NukeDccObject
+    '''DccObject class to use'''
 
     def __init__(
         self, event_manager, host_types, host_id, asset_type_name=None
@@ -71,7 +55,7 @@ class NukeAssetManagerEngine(AssetManagerEngine):
 
         if ftrack_asset_nodes:
             for node_name in ftrack_asset_nodes:
-                param_dict = DccObject.dictionary_from_object(node_name)
+                param_dict = self.DccObject.dictionary_from_object(node_name)
                 # avoid read and write nodes containing the old ftrack tab
                 # without information
                 if not param_dict:
@@ -127,13 +111,13 @@ class NukeAssetManagerEngine(AssetManagerEngine):
             'message': message,
         }
 
-        self.ftrack_object_manager.asset_info = asset_info
+        self.asset_info = asset_info
         dcc_object = self.DccObject(
             from_id=asset_info[asset_const.ASSET_INFO_ID]
         )
-        self.ftrack_object_manager.dcc_object = dcc_object
+        self.dcc_object = dcc_object
 
-        dcc_object = nuke.toNode(self.ftrack_object_manager.dcc_object.name)
+        dcc_object = nuke.toNode(self.dcc_object.name)
         if not dcc_object:
             message = "There is no ftrack object"
             self.logger.debug(message)
@@ -202,7 +186,7 @@ class NukeAssetManagerEngine(AssetManagerEngine):
             self._notify_client(plugin, result_data)
             return status, result
 
-        self.ftrack_object_manager.dcc_object.objects_loaded = False
+        self.ftrack_object_manager.objects_loaded = False
 
         end_time = time.time()
         total_time = end_time - start_time
@@ -242,13 +226,13 @@ class NukeAssetManagerEngine(AssetManagerEngine):
             'message': message,
         }
 
-        self.ftrack_object_manager.asset_info = asset_info
+        self.asset_info = asset_info
         dcc_object = self.DccObject(
             from_id=asset_info[asset_const.ASSET_INFO_ID]
         )
-        self.ftrack_object_manager.dcc_object = dcc_object
+        self.dcc_object = dcc_object
 
-        dcc_object = nuke.toNode(self.ftrack_object_manager.dcc_object.name)
+        dcc_object = nuke.toNode(self.dcc_object.name)
         if not dcc_object:
             message = "There is no ftrack object"
             self.logger.debug(message)
@@ -305,7 +289,7 @@ class NukeAssetManagerEngine(AssetManagerEngine):
                 return status, result
 
         try:
-            str_node = str(self.ftrack_object_manager.dcc_object.name)
+            str_node = str(self.dcc_object.name)
             self.logger.debug("removing : {}".format(str_node))
             nuke.delete(dcc_object)
             result.append(str_node)
@@ -375,16 +359,16 @@ class NukeAssetManagerEngine(AssetManagerEngine):
             'message': message,
         }
 
-        self.ftrack_object_manager.asset_info = asset_info
+        self.asset_info = asset_info
         dcc_object = self.DccObject(
             from_id=asset_info[asset_const.ASSET_INFO_ID]
         )
-        self.ftrack_object_manager.dcc_object = dcc_object
+        self.dcc_object = dcc_object
 
         if options.get('clear_selection'):
             nuke_utils.cleanSelection()
 
-        dcc_object = nuke.toNode(self.ftrack_object_manager.dcc_object.name)
+        dcc_object = nuke.toNode(self.dcc_object.name)
 
         parented_nodes = dcc_object.getNodes()
         parented_nodes_names = [x.knob('name').value() for x in parented_nodes]
