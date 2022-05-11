@@ -11,4 +11,3 @@ class AssetManagerActionNukePlugin(
     '''
     Class representing a Asset Manager Action Nuke Plugin
     '''
-
