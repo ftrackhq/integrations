@@ -353,7 +353,7 @@ class QtAssetManagerClient(AssetManagerClient, QtWidgets.QFrame):
                     'Updating id {} with loaded status'.format(key)
                 )
                 # Set to loaded
-                asset_info[asset_const.IS_LOADED] = True
+                asset_info[asset_const.OBJECTS_LOADED] = True
                 do_refresh = True
             if do_refresh:
                 self.asset_manager_widget.refresh.emit()
@@ -465,7 +465,7 @@ class QtAssetManagerClient(AssetManagerClient, QtWidgets.QFrame):
                     'Updating id {} with loaded status'.format(key)
                 )
                 # Set to loaded
-                asset_info[asset_const.IS_LOADED] = False
+                asset_info[asset_const.OBJECTS_LOADED] = False
                 do_refresh = True
             if do_refresh:
                 self.asset_manager_widget.refresh.emit()

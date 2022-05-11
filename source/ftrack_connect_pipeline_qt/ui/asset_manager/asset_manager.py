@@ -291,18 +291,26 @@ class AssetManagerWidget(AssetManagerBaseWidget):
             self.selectAssets.emit(selection, plugin)
 
     def ctx_load(self, plugin):
-        # TODO: I think is better to not pass a Plugin, and use directly the
-        # function in the engine. But if we want, we can pass the plugin here,
-        # to for example define a standard load plugin or a check plugin to
-        # execute after the load plugin that is
-        # saved in the asset info is executed.
         '''
         Triggered when load action menu been clicked.
         Emits load_assets signal to load the selected assets in the scene.
         '''
         selection = self._asset_list.selection()
         if self.check_selection(selection):
-            self.loadAssets.emit(selection, plugin)
+            for a_info in selection:
+                loaded = a_info[asset_constants.OBJECTS_LOADED]
+                #This is not always a boolean so that is why ensuring the
+                # correct behaviour using str.
+                if str(loaded) == "True":
+                    selection.remove(a_info)
+            if len(selection) == 0:
+                ModalDialog(
+                self._asset_manager_client,
+                title='ftrack Asset manager',
+                message='Selected Assets are already loaded.',
+            )
+            else:
+                self.loadAssets.emit(selection, plugin)
 
     def ctx_update(self, plugin):
         '''
@@ -329,15 +337,28 @@ class AssetManagerWidget(AssetManagerBaseWidget):
         '''
         selection = self._asset_list.selection()
         if self.check_selection(selection):
-            if ModalDialog(
-                self._asset_manager_client.parent(),
+            for a_info in selection:
+                loaded = a_info[asset_constants.OBJECTS_LOADED]
+                # This is not always a boolean so that is why ensuring the
+                # correct behaviour using str.
+                if str(loaded) == "False":
+                    selection.remove(a_info)
+            if len(selection) == 0:
+                ModalDialog(
+                self._asset_manager_client,
                 title='ftrack Asset manager',
-                question='Really unload {} asset{}?'.format(
-                    len(selection), 's' if len(selection) > 1 else ''
-                ),
-                prompt=True,
-            ).exec_():
-                self.unloadAssets.emit(selection, plugin)
+                message='Selected Assets are already unloaded.',
+            )
+            else:
+                if ModalDialog(
+                    self._asset_manager_client.parent(),
+                    title='ftrack Asset manager',
+                    question='Really unload {} asset{}?'.format(
+                        len(selection), 's' if len(selection) > 1 else ''
+                    ),
+                    prompt=True,
+                ).exec_():
+                    self.unloadAssets.emit(selection, plugin)
 
     def ctx_remove(self, plugin):
         '''
@@ -614,7 +635,7 @@ class AssetWidget(AccordionBaseWidget):
         self._load_mode = asset_info[asset_constants.LOAD_MODE]
 
         self.set_indicator(
-            asset_info.get(asset_constants.IS_LOADED) in [True, 'True']
+            asset_info.get(asset_constants.OBJECTS_LOADED) in [True, 'True']
         )
         self._component_path = (
             asset_info[asset_constants.COMPONENT_NAME] or '?.?'
