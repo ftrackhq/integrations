@@ -9,7 +9,7 @@ from ftrack_connect_pipeline_maya.constants import asset as asset_const
 
 version = asset_const.VERSION
 kPluginNodeTypeName = asset_const.FTRACK_PLUGIN_TYPE
-kPluginNodeId = OpenMaya.MTypeId(asset_const.FTRACK_ASSET_CLASS_ID)
+kPluginNodeId = OpenMaya.MTypeId(asset_const.FTRACK_PLUGIN_ID)
 
 glRenderer = OpenMayaRender.MHardwareRenderer.theRenderer()
 glFT = glRenderer.glFunctionTable()
@@ -163,12 +163,12 @@ def nodeInitializer():
     t_attr.setStorable(True)
 
     FtrackAssetNode.a_is_loaded = t_attr.create(
-        asset_const.IS_LOADED, 'il', OpenMaya.MFnData.kString
+        asset_const.OBJECTS_LOADED, 'il', OpenMaya.MFnData.kString
     )
     t_attr.setHidden(False)
     t_attr.setStorable(True)
 
-    # Add the attributes to the ftrack_object
+    # Add the attributes to the dcc_object
     FtrackAssetNode.addAttribute(FtrackAssetNode.a_locked)
     FtrackAssetNode.addAttribute(FtrackAssetNode.a_asset_link)
     FtrackAssetNode.addAttribute(FtrackAssetNode.a_asset_id)
@@ -198,7 +198,7 @@ def initializePlugin(m_object):
         )
     except:
         sys.stderr.write(
-            'Failed to register ftrack_object: {0}'.format(kPluginNodeTypeName)
+            'Failed to register dcc_object: {0}'.format(kPluginNodeTypeName)
         )
         raise
 
@@ -209,7 +209,7 @@ def uninitializePlugin(m_object):
         m_plugin.deregisterNode(kPluginNodeId)
     except:
         sys.stderr.write(
-            'Failed to deregister ftrack_object: {0}'.format(
+            'Failed to deregister dcc_object: {0}'.format(
                 kPluginNodeTypeName
             )
         )
