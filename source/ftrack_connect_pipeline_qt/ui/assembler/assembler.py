@@ -260,7 +260,7 @@ class AssemblerBrowserWidget(AssemblerBaseWidget):
         self._search.inputUpdated.connect(self._on_search)
 
     def rebuild(self):
-        # self.session._local_cache.clear() # Make sure session cache is cleared out
+        ''' Fetch assets beneath the current context, start on new query'''
         if super(AssemblerBrowserWidget, self).rebuild():
 
             if self._entity_browser.entity is None:
@@ -278,6 +278,7 @@ class AssemblerBrowserWidget(AssemblerBaseWidget):
 
             # Find version beneath browsed entity, in chunks
             self._limit = self._assembler_client.asset_fetch_chunk_size
+            self._tail = 0  # The current fetch position
 
             thread = BaseThread(
                 name='fetch_browsed_assets_thread',
@@ -285,6 +286,10 @@ class AssemblerBrowserWidget(AssemblerBaseWidget):
                 target_args=[self._entity_browser.entity],
             )
             thread.start()
+
+    def fetch_more(self):
+        '''Continue previous query'''
+        pass
 
     def _recursive_get_descendant_ids(self, context):
         result = []
@@ -309,7 +314,7 @@ class AssemblerBrowserWidget(AssemblerBaseWidget):
             self._recent_context_browsed = context
             # Build list of children ID's (non tasks)
             parent_ids = self._recursive_get_descendant_ids(context)
-            self._tail = 0  # The current fetch position
+
             fetched_version_ids = []
             while True:
                 self.logger.info(

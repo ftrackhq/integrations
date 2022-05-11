@@ -192,9 +192,9 @@ class QtAssetManagerClient(AssetManagerClient, QtWidgets.QFrame):
         if context_id and context_id != self.context_id:
             discover_hosts = self.context_id is None
             self.context_id = context_id
-            self.context_selector.set_context_id(context_id)
             if discover_hosts:
                 self.add_hosts(self.discover_hosts())
+        self.context_selector.set_context_id(context_id)
 
     def add_hosts(self, host_connections):
         '''

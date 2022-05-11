@@ -36,26 +36,26 @@ QRadioButton::indicator:checked:pressed {
 }
 
 
-QRadioButton:disabled::indicator::unchecked {
+QRadioButton::indicator:disabled::unchecked {
     image: theme-image('radiobutton_unchecked_disabled');
 }
 
-QRadioButton:disabled::indicator:unchecked:hover {
+QRadioButton::indicator:disabled:unchecked:hover {
     image: theme-image('radiobutton_unchecked_hover_disabled');
 }
 
-QRadioButton:disabled::indicator:unchecked:pressed {
+QRadioButton::indicator:disabled:unchecked:pressed {
     image: theme-image('radiobutton_unchecked_pressed_disabled');
 }
 
-QRadioButton:disabled::indicator::checked {
+QRadioButton::indicator:disabled::checked {
     image: theme-image('radiobutton_checked_disabled');
 }
 
-QRadioButton:disabled::indicator:checked:hover {
+QRadioButton::indicator:disabled:checked:hover {
     image: theme-image('radiobutton_checked_hover_disabled');
 }
 
-QRadioButton:disabled::indicator:checked:pressed {
+QRadioButton::indicator:disabled:checked:pressed {
     image: theme-image('radiobutton_checked_pressed_disabled');
 }

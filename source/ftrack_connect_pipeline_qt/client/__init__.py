@@ -110,20 +110,20 @@ class QtClient(Client):
 
     def build(self):
         '''Build widgets and parent them.'''
-        self.header = header.Header(self.session, parent=self.parent())
+        self.header = header.Header(self.session, parent=self)
         self.layout().addWidget(self.header)
         self.progress_widget = self.widget_factory.progress_widget
         self.header.content_container.layout().addWidget(
             self.progress_widget.widget
         )
 
-        self.layout().addWidget(line.Line(style='solid', parent=self.parent()))
+        self.layout().addWidget(line.Line(style='solid', parent=self))
 
         self.layout().addWidget(
             self._build_context_selector(), QtCore.Qt.AlignTop
         )
 
-        self.layout().addWidget(line.Line(parent=self.parent()))
+        self.layout().addWidget(line.Line(parent=self))
 
         self.host_and_definition_selector = self._build_definition_selector()
         self.host_and_definition_selector.refreshed.connect(self.refresh)
@@ -141,7 +141,7 @@ class QtClient(Client):
     def _build_context_selector(self):
         '''Instantiate standard slave context selector'''
         self.context_selector = ContextSelector(
-            self.session, parent=self.parent()
+            self.session, parent=self
         )
         return self.context_selector
 
@@ -284,7 +284,7 @@ class QtClient(Client):
     def _open_assembler(self):
         '''Open the assembler and close client if dialog'''
         if not self.is_docked():
-            self.parent().hide()
+            self.hide()
         self.host_connection.launch_widget(qt_constants.ASSEMBLER_WIDGET)
 
     def run(self):
@@ -334,7 +334,7 @@ class QtClient(Client):
     def _launch_context_selector(self):
         '''Close client (if not docked) and open entity browser.'''
         if not self.is_docked():
-            self.parent().hide()
+            self.hide()
         self.host_connection.launch_widget(qt_constants.CHANGE_CONTEXT_WIDGET)
 
 
