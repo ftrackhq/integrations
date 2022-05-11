@@ -144,38 +144,39 @@ class NukeAssetManagerEngine(AssetManagerEngine):
             nodes_to_delete_str = ftrack_node.knob(
                 asset_const.ASSET_LINK
             ).value()
-            nodes_to_delete = nodes_to_delete_str.split(";")
-            nodes_to_delete = set(nodes_to_delete + parented_nodes_names)
-            for node_s in nodes_to_delete:
-                node_to_delete = nuke.toNode(node_s)
+            nodes_to_delete = parented_nodes_names
+            if len(nodes_to_delete_str) > 0:
+                nodes_to_delete = set(nodes_to_delete + nodes_to_delete_str.split(";"))
+            for node_name in nodes_to_delete:
+                node_to_delete = nuke.toNode(node_name)
                 self.logger.debug(
                     "removing : {}".format(node_to_delete.Class())
                 )
                 try:
                     nuke.delete(node_to_delete)
-                    result.append(str(node_s))
+                    result.append(str(node_name))
                     status = constants.SUCCESS_STATUS
                 except Exception as error:
                     message = str(
                         'Could not delete the node {}, error: {}'.format(
-                            str(node_s), error
+                            str(node_name), error
                         )
                     )
                     self.logger.error(message)
                     status = constants.ERROR_STATUS
 
-            bool_status = constants.status_bool_mapping[status]
-            if not bool_status:
-                end_time = time.time()
-                total_time = end_time - start_time
+                bool_status = constants.status_bool_mapping[status]
+                if not bool_status:
+                    end_time = time.time()
+                    total_time = end_time - start_time
 
-                result_data['status'] = status
-                result_data['result'] = result
-                result_data['execution_time'] = total_time
-                result_data['message'] = message
+                    result_data['status'] = status
+                    result_data['result'] = result
+                    result_data['execution_time'] = total_time
+                    result_data['message'] = message
 
-                self._notify_client(plugin, result_data)
-                return status, result
+                    self._notify_client(plugin, result_data)
+                    return status, result
 
         bool_status = constants.status_bool_mapping[status]
         if not bool_status:
@@ -254,6 +255,8 @@ class NukeAssetManagerEngine(AssetManagerEngine):
             return status, result
 
         if ftrack_node.Class() == 'BackdropNode':
+            # Collect and remove all nodes within the backdrop plus the linked
+            # nodes
             parented_nodes = ftrack_node.getNodes()
             parented_nodes_names = [
                 x.knob('name').value() for x in parented_nodes
@@ -261,38 +264,38 @@ class NukeAssetManagerEngine(AssetManagerEngine):
             nodes_to_delete_str = ftrack_node.knob(
                 asset_const.ASSET_LINK
             ).value()
-            nodes_to_delete = nodes_to_delete_str.split(";")
-            nodes_to_delete = set(nodes_to_delete + parented_nodes_names)
-            for node_s in nodes_to_delete:
-                node_to_delete = nuke.toNode(node_s)
+            node_names_to_delete = parented_nodes_names
+            if len(nodes_to_delete_str or '') > 0:
+                node_names_to_delete = set(node_names_to_delete + nodes_to_delete_str.split(";"))
+            for node_name in node_names_to_delete:
+                node_to_delete = nuke.toNode(node_name)
                 self.logger.debug(
                     "removing : {}".format(node_to_delete.Class())
                 )
                 try:
                     nuke.delete(node_to_delete)
-                    result.append(str(node_s))
-                    status = constants.SUCCESS_STATUS
+                    result.append(str(node_name))
                 except Exception as error:
                     message = str(
                         'Could not delete the node {}, error: {}'.format(
-                            str(node_s), error
+                            str(node_name), error
                         )
                     )
                     self.logger.error(message)
                     status = constants.ERROR_STATUS
 
-            bool_status = constants.status_bool_mapping[status]
-            if not bool_status:
-                end_time = time.time()
-                total_time = end_time - start_time
+                bool_status = constants.status_bool_mapping[status]
+                if not bool_status:
+                    end_time = time.time()
+                    total_time = end_time - start_time
 
-                result_data['status'] = status
-                result_data['result'] = result
-                result_data['execution_time'] = total_time
-                result_data['message'] = message
+                    result_data['status'] = status
+                    result_data['result'] = result
+                    result_data['execution_time'] = total_time
+                    result_data['message'] = message
 
-                self._notify_client(plugin, result_data)
-                return status, result
+                    self._notify_client(plugin, result_data)
+                    return status, result
 
         try:
             str_node = str(self.dcc_object.name)
@@ -330,6 +333,7 @@ class NukeAssetManagerEngine(AssetManagerEngine):
         self._notify_client(plugin, result_data)
 
         return status, result
+
 
     @nuke_utils.run_in_main_thread
     def select_asset(self, asset_info, options=None, plugin=None):
@@ -374,23 +378,20 @@ class NukeAssetManagerEngine(AssetManagerEngine):
         parented_nodes = ftrack_node.getNodes()
         parented_nodes_names = [x.knob('name').value() for x in parented_nodes]
         nodes_to_select_str = ftrack_node.knob(asset_const.ASSET_LINK).value()
-        nodes_to_select = (
-            nodes_to_select_str.split(";")
-            if len(nodes_to_select_str) > 0
-            else []
-        )
-        nodes_to_select = set(nodes_to_select + parented_nodes_names)
+        nodes_to_select = parented_nodes_names
+        if len(nodes_to_select_str) > 0:
+            nodes_to_select = set(nodes_to_select + nodes_to_select_str.split(";"))
 
-        for node_s in nodes_to_select:
+        for node_name in nodes_to_select:
             try:
-                node_to_select = nuke.toNode(node_s)
+                node_to_select = nuke.toNode(node_name)
                 node_to_select['selected'].setValue(True)
-                result.append(str(node_s))
+                result.append(str(node_name))
                 status = constants.SUCCESS_STATUS
             except Exception as error:
                 message = str(
                     'Could not select the node {}, error: {}'.format(
-                        str(node_s), error
+                        str(node_name), error
                     )
                 )
                 self.logger.error(message)
