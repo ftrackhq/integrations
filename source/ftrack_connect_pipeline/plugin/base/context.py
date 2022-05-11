@@ -30,7 +30,7 @@ class BaseContextPlugin(BasePlugin):
     plugin_type = plugin._PLUGIN_CONTEXT_TYPE
     '''Type of the plugin'''
     _required_output = {}
-    '''Required return output'''
+    '''Required return exporters'''
 
     def __init__(self, session):
         super(BaseContextPlugin, self).__init__(session)

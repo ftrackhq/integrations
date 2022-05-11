@@ -55,10 +55,10 @@ ftrack\_connect\_pipeline.plugin.base.importer
     :undoc-members:
     :show-inheritance:
 
-ftrack\_connect\_pipeline.plugin.base.output
+ftrack\_connect\_pipeline.plugin.base.exporter
 ---------------------------------------------------
 
-.. automodule:: ftrack_connect_pipeline.plugin.base.output
+.. automodule:: ftrack_connect_pipeline.plugin.base.exporter
     :members:
     :undoc-members:
     :show-inheritance:

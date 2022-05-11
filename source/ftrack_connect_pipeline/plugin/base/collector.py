@@ -23,7 +23,7 @@ class CollectorPluginValidation(BasePluginValidation):
         Ensures that *result* contains all the expected :obj:`required_output`
         values defined for the current plugin.
 
-        *result* : output value of the plugin execution.
+        *result* : exporters value of the plugin execution.
 
         Return tuple (bool,str)
         '''
@@ -50,7 +50,7 @@ class BaseCollectorPlugin(BasePlugin):
     plugin_type = plugin._PLUGIN_COLLECTOR_TYPE
     '''Type of the plugin'''
     _required_output = []
-    '''Required return output'''
+    '''Required return exporters'''
 
     def __init__(self, session):
         super(BaseCollectorPlugin, self).__init__(session)

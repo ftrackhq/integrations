@@ -88,7 +88,7 @@ exclude_patterns = [u'_build', 'Thumbs.db', '.DS_Store', '_template']
 pygments_style = None
 
 
-# -- Options for HTML output -------------------------------------------------
+# -- Options for HTML exporters -------------------------------------------------
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
@@ -127,17 +127,17 @@ if not on_rtd:  # only import and set the theme if we're building docs locally
 html_static_path = ['_static']
 html_style = 'ftrack.css'
 
-# If True, copy source rst files to output for reference.
+# If True, copy source rst files to exporters for reference.
 html_copy_source = True
 
 
-# -- Options for HTMLHelp output ---------------------------------------------
+# -- Options for HTMLHelp exporters ---------------------------------------------
 
 # Output file base name for HTML help builder.
 htmlhelp_basename = 'ftrack-connect-pipelinedoc'
 autodoc_mock_imports = ['jsonschema', 'jsonref', 'python_jsonschema_objects']
 
-# -- Options for LaTeX output ------------------------------------------------
+# -- Options for LaTeX exporters ------------------------------------------------
 
 latex_elements = {
     # The paper size ('letterpaper' or 'a4paper').
@@ -168,7 +168,7 @@ latex_documents = [
 ]
 
 
-# -- Options for manual page output ------------------------------------------
+# -- Options for manual page exporters ------------------------------------------
 
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
@@ -183,7 +183,7 @@ man_pages = [
 ]
 
 
-# -- Options for Texinfo output ----------------------------------------------
+# -- Options for Texinfo exporters ----------------------------------------------
 
 # Grouping the document tree into Texinfo files. List of tuples
 # (source start file, target name, title, author,
@@ -201,7 +201,7 @@ texinfo_documents = [
 ]
 
 
-# -- Options for Epub output -------------------------------------------------
+# -- Options for Epub exporters -------------------------------------------------
 
 # Bibliographic Dublin Core info.
 epub_title = project
@@ -248,7 +248,7 @@ intersphinx_mapping = {
 # -- Todos ---------------------------------------------------------------------
 
 
-# If true, `todo` and `todoList` produce output, else they produce nothing.
+# If true, `todo` and `todoList` produce exporters, else they produce nothing.
 todo_include_todos = True
 
 # -- Setup --------------------------------------------------------------------

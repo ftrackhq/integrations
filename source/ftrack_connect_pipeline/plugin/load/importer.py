@@ -22,7 +22,7 @@ class LoaderImporterPlugin(base.BaseImporterPlugin):
     plugin_type = constants.PLUGIN_LOADER_IMPORTER_TYPE
     '''Type of the plugin'''
     _required_output = {}
-    '''Required return output'''
+    '''Required return exporters'''
 
     load_modes = {}
     '''Available load modes for an asset'''

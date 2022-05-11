@@ -691,7 +691,7 @@ class BaseEngine(object):
                         )
                         if not component_stage.get("type") in [
                             constants.IMPORTER,
-                            constants.OUTPUT,
+                            constants.EXPORTER,
                             constants.POST_IMPORT,
                         ]:
                             self.logger.debug(

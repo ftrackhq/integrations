@@ -128,5 +128,5 @@ def configure_logging(
     # Redirect warnings to log so can be debugged.
     logging.captureWarnings(True)
 
-    # Log out the file output.
+    # Log out the file exporters.
     logging.warning('Saving log file to: {0}'.format(logfile))

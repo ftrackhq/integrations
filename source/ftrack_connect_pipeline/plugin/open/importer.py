@@ -22,7 +22,7 @@ class OpenerImporterPlugin(base.BaseImporterPlugin):
     plugin_type = constants.PLUGIN_OPENER_IMPORTER_TYPE
     '''Type of the plugin'''
     _required_output = {}
-    '''Required return output'''
+    '''Required return exporters'''
 
     open_modes = {}
     '''Available open modes for an asset'''

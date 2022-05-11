@@ -33,7 +33,7 @@ COLLECTOR = 'collector'
 #: Validator component stage name.
 VALIDATOR = 'validator'
 #: Output component stage name.
-OUTPUT = 'output'
+EXPORTER = 'exporter'
 #: Importer component stage name.
 IMPORTER = 'importer'
 #: Post_import component stage name.

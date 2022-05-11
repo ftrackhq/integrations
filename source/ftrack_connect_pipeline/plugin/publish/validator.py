@@ -16,7 +16,7 @@ class PublisherValidatorPlugin(base.BaseValidatorPlugin):
     plugin_type = constants.PLUGIN_PUBLISHER_VALIDATOR_TYPE
     '''Type of the plugin'''
     _required_output = False
-    '''Required return output'''
+    '''Required return exporters'''
 
     def __init__(self, session):
         super(PublisherValidatorPlugin, self).__init__(session)

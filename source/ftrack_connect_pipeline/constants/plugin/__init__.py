@@ -14,8 +14,8 @@ _PLUGIN_CONTEXT_TYPE = 'context'
 _PLUGIN_COLLECTOR_TYPE = 'collector'
 #: Generic plugin type for validator plugins
 _PLUGIN_VALIDATOR_TYPE = 'validator'
-#: Generic plugin type for output plugins
-_PLUGIN_OUTPUT_TYPE = 'output'
+#: Generic plugin type for exporters plugins
+_PLUGIN_EXPORTER_TYPE = 'exporter'
 #: Generic plugin type for importer plugins
 _PLUGIN_IMPORTER_TYPE = 'importer'
 #: Generic plugin type for post import plugins

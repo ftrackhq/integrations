@@ -16,7 +16,7 @@ class LoaderPostImportPlugin(base.BasePostImportPlugin):
     plugin_type = constants.PLUGIN_LOADER_POST_IMPORT_TYPE
     '''Type of the plugin'''
     _required_output = {}
-    '''Required return output'''
+    '''Required return exporters'''
 
     def __init__(self, session):
         super(LoaderPostImportPlugin, self).__init__(session)

@@ -5,7 +5,7 @@ from ftrack_connect_pipeline.plugin import BasePlugin, BasePluginValidation
 from ftrack_connect_pipeline.constants import plugin
 
 
-class OutputPluginValidation(BasePluginValidation):
+class BaseExporterPluginValidation(BasePluginValidation):
     '''
     Output Plugin Validation class inherits from
     :class:`~ftrack_connect_pipeline.plugin.BasePluginValidation`
@@ -14,7 +14,7 @@ class OutputPluginValidation(BasePluginValidation):
     def __init__(
         self, plugin_name, required_output, return_type, return_value
     ):
-        super(OutputPluginValidation, self).__init__(
+        super(BaseExporterPluginValidation, self).__init__(
             plugin_name, required_output, return_type, return_value
         )
 
@@ -23,7 +23,7 @@ class OutputPluginValidation(BasePluginValidation):
         Ensures that *result* contains all the expected :obj:`required_output`
         keys defined for the current plugin.
 
-        *result* : output value of the plugin execution.
+        *result* : exporters value of the plugin execution.
 
         Return tuple (bool,str)
         '''
@@ -38,7 +38,7 @@ class OutputPluginValidation(BasePluginValidation):
         return validator_result
 
 
-class BaseOutputPlugin(BasePlugin):
+class BaseExporterPlugin(BasePlugin):
     '''
     Base Output Plugin Class inherits from
     :class:`~ftrack_connect_pipeline.plugin.BasePlugin`
@@ -46,14 +46,14 @@ class BaseOutputPlugin(BasePlugin):
 
     return_type = list
     '''Required return type'''
-    plugin_type = plugin._PLUGIN_OUTPUT_TYPE
+    plugin_type = plugin._PLUGIN_EXPORTER_TYPE
     '''Type of the plugin'''
     _required_output = []
-    '''Required return output'''
+    '''Required return exporters'''
 
     def __init__(self, session):
-        super(BaseOutputPlugin, self).__init__(session)
-        self.validator = OutputPluginValidation(
+        super(BaseExporterPlugin, self).__init__(session)
+        self.validator = BaseExporterPluginValidation(
             self.plugin_name,
             self._required_output,
             self.return_type,

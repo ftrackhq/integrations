@@ -16,7 +16,7 @@ class PublisherCollectorPlugin(base.BaseCollectorPlugin):
     plugin_type = constants.PLUGIN_PUBLISHER_COLLECTOR_TYPE
     '''Type of the plugin'''
     _required_output = []
-    '''Required return output'''
+    '''Required return exporters'''
 
     def __init__(self, session):
         super(PublisherCollectorPlugin, self).__init__(session)

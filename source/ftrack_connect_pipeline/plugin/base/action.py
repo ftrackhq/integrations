@@ -23,7 +23,7 @@ class ActionPluginValidation(BasePluginValidation):
         Ensures that *result* contains all the expected :obj:`required_output`
         values defined for the current plugin.
 
-        *result* : output value of the plugin execution.
+        *result* : exporters value of the plugin execution.
 
         Return tuple (bool,str)
         '''
@@ -50,7 +50,7 @@ class BaseActionPlugin(BasePlugin):
     plugin_type = plugin._PLUGIN_ACTION_TYPE
     '''Type of the plugin'''
     _required_output = []
-    '''Required return output'''
+    '''Required return exporters'''
 
     def __init__(self, session):
         super(BaseActionPlugin, self).__init__(session)

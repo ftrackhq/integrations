@@ -30,7 +30,7 @@ class BasePreFinalizerPlugin(BasePlugin):
     plugin_type = plugin._PLUGIN_PRE_FINALIZER_TYPE
     '''Type of the plugin'''
     _required_output = {}
-    '''Required return output'''
+    '''Required return exporters'''
 
     def __init__(self, session):
         super(BasePreFinalizerPlugin, self).__init__(session)

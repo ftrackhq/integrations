@@ -75,7 +75,7 @@ class LogDB(object):
             self.connection.commit()
             self.logger.debug('Initialised plugin log persistent storage.')
 
-        # Log out the file output.
+        # Log out the file exporters.
         self.logger.info(
             'Storing persistent log: {0}'.format(self._database_path)
         )
