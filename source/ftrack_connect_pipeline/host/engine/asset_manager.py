@@ -1,12 +1,14 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2020 ftrack
+import copy
 import time
 
 from ftrack_connect_pipeline.host.engine import BaseEngine
 from ftrack_connect_pipeline import constants
 from ftrack_connect_pipeline.constants import asset as asset_const
 from ftrack_connect_pipeline.asset.asset_info import FtrackAssetInfo
-from ftrack_connect_pipeline.asset import FtrackAssetBase
+
+import ftrack_api
 
 
 class AssetManagerEngine(BaseEngine):
@@ -14,8 +16,6 @@ class AssetManagerEngine(BaseEngine):
     Base Asset Manager Engine class.
     '''
 
-    ftrack_asset_class = FtrackAssetBase
-    '''Define the class to use for the ftrack node to track the loaded assets'''
     engine_type = 'asset_manager'
     '''Engine type for this engine class'''
 
@@ -23,7 +23,7 @@ class AssetManagerEngine(BaseEngine):
         self, event_manager, host_types, host_id, asset_type_name=None
     ):
         '''
-        Initialise HostConnection with instance of
+        Initialise AssetManagerEngine with instance of
         :class:`~ftrack_connect_pipeline.event.EventManager` , and *host*,
         *host_id* and *asset_type_name*
 
@@ -31,33 +31,12 @@ class AssetManagerEngine(BaseEngine):
 
         *host_id* : Host id.
 
-        *asset_type_name* : Default None. If engine is initialized to publish or load, the asset
-        type should be specified.
+        *asset_type_name* : Default None. If engine is initialized to publish
+        or load, the asset type should be specified.
         '''
         super(AssetManagerEngine, self).__init__(
             event_manager, host_types, host_id, asset_type_name=asset_type_name
         )
-
-    def get_ftrack_asset_object(self, asset_info):
-        '''
-        Initializes the :data:`ftrack_asset_class` with the given
-        *asset_info*
-
-        Returns the initialized :data:`ftrack_asset_class` Class.
-
-        *asset_info* : Should be instance of
-        :class:`~ftrack_connect_pipeline.asset.FtrackAssetInfo`
-        '''
-        ftrack_asset_class = self.ftrack_asset_class(self.event_manager)
-        ftrack_asset_class.asset_info = asset_info
-        ftrack_object = ftrack_asset_class.get_ftrack_object()
-        if ftrack_object is None:
-            raise Exception(
-                'The corresponding ftrack object with ID {} could not be found!'.format(
-                    asset_info[asset_const.ASSET_INFO_ID]
-                )
-            )
-        return ftrack_asset_class
 
     def discover_assets(self, assets=None, options=None, plugin=None):
         '''
@@ -146,7 +125,7 @@ class AssetManagerEngine(BaseEngine):
 
     def resolve_dependencies(self, context_id, options=None, plugin=None):
         '''
-        Returns a list the of asset versions that task identified by *context_id*
+        Returns a list of the asset versions that task identified by *context_id*
         is depending upon, with additional options using the given *plugin*.
 
         *context_id* : id of the task.
@@ -244,6 +223,8 @@ class AssetManagerEngine(BaseEngine):
         executing the :meth:`select_asset` for all the
         :class:`~ftrack_connect_pipeline.asset.FtrackAssetInfo` in the given
         *assets* list.
+
+        *assets*: List of :class:`~ftrack_connect_pipeline.asset.FtrackAssetInfo`
         '''
         status = None
         result = None
@@ -314,6 +295,8 @@ class AssetManagerEngine(BaseEngine):
         *plugin* for all the
         :class:`~ftrack_connect_pipeline.asset.FtrackAssetInfo` in the given
         *assets* list.
+
+        *assets*: List of :class:`~ftrack_connect_pipeline.asset.FtrackAssetInfo`
         '''
         status = None
         result = None
@@ -427,6 +410,8 @@ class AssetManagerEngine(BaseEngine):
         executing the :meth:`remove_asset` for all the
         :class:`~ftrack_connect_pipeline.asset.FtrackAssetInfo` in the given
         *assets* list.
+
+        *assets*: List of :class:`~ftrack_connect_pipeline.asset.FtrackAssetInfo`
         '''
         status = None
         result = None
@@ -461,8 +446,7 @@ class AssetManagerEngine(BaseEngine):
         *asset_info* : :class:`~ftrack_connect_pipeline.asset.FtrackAssetInfo`
         '''
 
-        # TODO: this contains the import plugin needed info asset_info[asset_const.ASSET_INFO_OPTIONS]
-
+        # Get the load plugin from the asset_info_options
         load_plugin = asset_info[asset_const.ASSET_INFO_OPTIONS]
         plugin_data = load_plugin['settings']['data']
         plugin_options = load_plugin['settings']['options']
@@ -478,7 +462,6 @@ class AssetManagerEngine(BaseEngine):
         plugin = {
             'category': plugin_category,
             'type': plugin_type.split(".")[-1],
-            #'name': 'context selector', #We dont have this information
             'name': None,
             'plugin': plugin_name,
             'widget': None,
@@ -490,14 +473,6 @@ class AssetManagerEngine(BaseEngine):
         status = constants.UNKNOWN_STATUS
         result = []
         message = None
-
-        # TODO: Maybe we don't want to execute a asset manager plugin,
-        #  we want an importer plugin maybe. So, Think about removing this part...
-        # plugin_type = constants.PLUGIN_AM_ACTION_TYPE
-        # plugin_name = None
-        # if plugin:
-        #     plugin_type = '{}.{}'.format('asset_manager', plugin['type'])
-        #     plugin_name = plugin.get('name')
 
         result_data = {
             'plugin_name': plugin_name,
@@ -512,8 +487,6 @@ class AssetManagerEngine(BaseEngine):
         if not options:
             options = {}
         if plugin:
-
-            # plugin['plugin_data'] = asset_info
 
             plugin_result = self._run_plugin(
                 plugin,
@@ -542,11 +515,6 @@ class AssetManagerEngine(BaseEngine):
                 self._notify_client(plugin, result_data)
 
                 return status, result
-
-            # if result:
-            #     options['new_version_id'] = result[0]
-            #
-            #     status, result = self.change_version(asset_info, options)
 
         end_time = time.time()
         total_time = end_time - start_time
@@ -596,7 +564,20 @@ class AssetManagerEngine(BaseEngine):
 
         new_version_id = options['new_version_id']
 
-        ftrack_asset_object = self.get_ftrack_asset_object(asset_info)
+        self.asset_info = asset_info
+        dcc_object = self.DccObject(
+            from_id=asset_info[asset_const.ASSET_INFO_ID]
+        )
+        self.dcc_object = dcc_object
+
+        # Get Component name from the original asset info
+        component_name = self.asset_info.get(
+            asset_const.COMPONENT_NAME
+        )
+        # Get the asset info options from the original asset info
+        asset_info_options = self.asset_info[
+            asset_const.ASSET_INFO_OPTIONS
+        ]
 
         remove_result = None
         remove_status = None
@@ -631,7 +612,78 @@ class AssetManagerEngine(BaseEngine):
             return remove_status, remove_result
 
         try:
-            new_asset_info = ftrack_asset_object.change_version(new_version_id)
+            # Get asset version entity of the ne_ version_id
+            asset_version_entity = self.session.query(
+                'select version from AssetVersion where id is "{}"'.format(
+                    new_version_id
+                )
+            ).one()
+
+            # Collect data of the new version
+            asset_entity = asset_version_entity['asset']
+            asset_id = asset_entity['id']
+            version_number = int(asset_version_entity['version'])
+            asset_name = asset_entity['name']
+            asset_type_name = asset_entity['type']['name']
+            version_id = asset_version_entity['id']
+            location = asset_version_entity.session.pick_location()
+            component_path = None
+            for component in asset_version_entity['components']:
+                if component['name'] == component_name:
+                    if location.get_component_availability(component) == 100.0:
+                        component_path = location.get_filesystem_path(component)
+
+            # Use the original asset_info options to reload the new version
+            # Collect asset_context_data and asset data
+            asset_context_data = asset_info_options['settings']['context_data']
+            asset_context_data[asset_const.ASSET_ID] = asset_id
+            asset_context_data[asset_const.VERSION_NUMBER] = version_number
+            asset_context_data[asset_const.ASSET_NAME] = asset_name
+            asset_context_data[asset_const.ASSET_TYPE_NAME] = asset_type_name
+            asset_context_data[asset_const.VERSION_ID] = version_id
+
+            # Update asset_info_options
+            asset_info_options['settings']['data'][0]['result'] = [component_path]
+            asset_info_options['settings']['context_data'].update(
+                asset_context_data
+            )
+
+            # make a copy to new asset_info_options to avoid having encoded
+            # options after running the plugin.
+            new_asset_info_options = copy.deepcopy(asset_info_options)
+
+            # Run the plugin with the asset info options
+            run_event = ftrack_api.event.base.Event(
+                topic=constants.PIPELINE_RUN_PLUGIN_TOPIC,
+                data=asset_info_options,
+            )
+
+            plugin_result_data = self.session.event_hub.publish(
+                run_event, synchronous=True
+            )
+
+            # Get the result
+            result_data = plugin_result_data[0]
+
+            if not result_data:
+                self.logger.error("Error re-loading asset")
+
+            # Get the new asset_info and dcc from the result
+            new_asset_info = result_data['result'][
+                new_asset_info_options['pipeline']['method']
+            ]['asset_info']
+            new_dcc_object = result_data['result'][
+                new_asset_info_options['pipeline']['method']
+            ]['dcc_object']
+            new_asset_info[asset_const.REFERENCE_OBJECT] = new_dcc_object.name
+
+            self.asset_info = new_asset_info
+            self.dcc_object = new_dcc_object
+
+        except UserWarning as e:
+            self.logger.debug(e)
+            pass
+
         except Exception as e:
             status = constants.ERROR_STATUS
             message = str(
@@ -677,6 +729,8 @@ class AssetManagerEngine(BaseEngine):
         executing the :meth:`remove_asset` for all the
         :class:`~ftrack_connect_pipeline.asset.FtrackAssetInfo` in the given
         *assets* list.
+
+        *assets*: List of :class:`~ftrack_connect_pipeline.asset.FtrackAssetInfo`
         '''
         status = None
         result = None
@@ -704,12 +758,35 @@ class AssetManagerEngine(BaseEngine):
 
     def unload_asset(self, asset_info, options=None, plugin=None):
         '''
-        Unloads the given *asset_info* from the scene.
-        Returns status and result
+        (Not implemented for python standalone mode)
+        Returns the :const:`~ftrack_connnect_pipeline.constants.status` and the
+        result of unloading the given *asset_info*.
+
+        *asset_info* : :class:`~ftrack_connect_pipeline.asset.FtrackAssetInfo`
         '''
-        return self.remove_asset(
-            asset_info, options=options, plugin=plugin, keep_ftrack_node=True
-        )
+
+        result = True
+        status = constants.SUCCESS_STATUS
+
+        plugin_type = constants.PLUGIN_AM_ACTION_TYPE
+        plugin_name = None
+        if plugin:
+            plugin_type = '{}.{}'.format('asset_manager', plugin['type'])
+            plugin_name = plugin.get('name')
+
+        result_data = {
+            'plugin_name': plugin_name,
+            'plugin_type': plugin_type,
+            'method': 'unload_asset',
+            'status': status,
+            'result': result,
+            'execution_time': 0,
+            'message': None,
+        }
+
+        self._notify_client(plugin, result_data)
+
+        return status, result
 
     def remove_assets(self, assets, options=None, plugin=None):
         '''
@@ -717,6 +794,8 @@ class AssetManagerEngine(BaseEngine):
         executing the :meth:`remove_asset` for all the
         :class:`~ftrack_connect_pipeline.asset.FtrackAssetInfo` in the given
         *assets* list.
+
+        *assets*: List of :class:`~ftrack_connect_pipeline.asset.FtrackAssetInfo`
         '''
         status = None
         result = None
@@ -742,14 +821,11 @@ class AssetManagerEngine(BaseEngine):
 
         return statuses, results
 
-    def remove_asset(
-        self, asset_info, options=None, plugin=None, keep_ftrack_node=False
-    ):
+    def remove_asset(self, asset_info, options=None, plugin=None):
         '''
         (Not implemented for python standalone mode)
         Returns the :const:`~ftrack_connnect_pipeline.constants.status` and the
-        result of removing the given *asset_info*. If *keep_ftrack_node* is true, the
-        ftrack nodes should be kept in scene (unload).
+        result of removing the given *asset_info*.
 
         *asset_info* : :class:`~ftrack_connect_pipeline.asset.FtrackAssetInfo`
         '''

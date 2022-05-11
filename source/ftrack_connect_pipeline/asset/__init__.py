@@ -2,44 +2,21 @@
 # :copyright: Copyright (c) 2014-2022 ftrack
 
 import logging
-import ftrack_api
+import unicodedata
+import re
 from ftrack_connect_pipeline.asset.asset_info import FtrackAssetInfo
+from ftrack_connect_pipeline.asset.dcc_object import DccObject
 from ftrack_connect_pipeline.constants import asset as asset_const
-from ftrack_connect_pipeline import constants
 
 
-class FtrackAssetBase(object):
-    '''Base FtrackAssetBase class.'''
+class FtrackObjectManager(object):
+    '''
+    FtrackObjectManager class.
+    Mantain the syncronization between asset_info and the ftrack information of
+    the objects in the scene.
+    '''
 
-    identity = None
-    '''Identifier of the base Node or object in the DCC applications '''
-
-    default_component_name = 'main'
-    '''Name of the default component common in most of the published assets'''
-
-    @property
-    def component_name(self):
-        '''Return component name from the current asset info'''
-        return self.asset_info.get(
-            asset_const.COMPONENT_NAME, self.default_component_name
-        )
-
-    @property
-    def asset_version_entity(self):  # ftrack_version(self):
-        '''Returns the :class:`ftrack_api.entity.asset_version.AssetVersion`
-        object of the current version_id'''
-        asset_version_entity = self.session.query(
-            'select version from AssetVersion where id is "{}"'.format(
-                self.asset_info[asset_const.VERSION_ID]
-            )
-        ).one()
-
-        return asset_version_entity
-
-    @property
-    def is_latest(self):
-        '''Returns True if the current version is the latest version'''
-        return self.asset_version_entity[asset_const.IS_LATEST_VERSION]
+    DccObject = DccObject
 
     @property
     def asset_info(self):
@@ -52,7 +29,7 @@ class FtrackAssetBase(object):
     @asset_info.setter
     def asset_info(self, value):
         '''
-        Sets the self.asset_info,
+        Sets the self :obj:`asset_info`,
         *value* :class:`~ftrack_connect_pipeline.asset.FtrackAssetInfo`
         '''
         if not isinstance(value, FtrackAssetInfo):
@@ -64,6 +41,29 @@ class FtrackAssetBase(object):
                 )
 
         self._asset_info = value
+
+    @property
+    def dcc_object(self):
+        '''
+        Returns instance of
+        :class:`~ftrack_connect_pipeline.asset.DccObject`
+        '''
+        return self._dcc_object
+
+    @dcc_object.setter
+    def dcc_object(self, value):
+        '''
+        Sets the self :obj:`dcc_object`,
+        *value* :class:`~ftrack_connect_pipeline.asset.DccObject`
+        '''
+        if not isinstance(value, self.DccObject):
+            raise ValueError(
+                'DccObject {} should be instance of '
+                ':class:`~ftrack_connect_pipeline.asset.DccObject`'
+            )
+        if not self._check_sync(value):
+            self._sync(value)
+        self._dcc_object = value
 
     @property
     def session(self):
@@ -79,146 +79,110 @@ class FtrackAssetBase(object):
         return self._event_manager
 
     @property
-    def ftrack_object(self):
-        '''
-        Returns the current ftrack_object
-        '''
-        return self._ftrack_object
+    def is_sync(self):
+        ''' Returns if the self :obj:`dcc_object` is sync with the
+        self :obj:`asset_info`'''
+        return self._check_sync(self.dcc_object)
 
-    @ftrack_object.setter
-    def ftrack_object(self, value):
-        '''Sets the current ftrack_object'''
-        self._ftrack_object = value
+    @property
+    def objects_loaded(self):
+        '''
+        Returns whether the objects are loaded in the scene or not.
+        '''
+        return self.asset_info[asset_const.OBJECTS_LOADED]
+
+    @objects_loaded.setter
+    def objects_loaded(self, value):
+        '''
+        Set the self :obj:`asset_info` as objects_loaded.
+        '''
+        self.asset_info[asset_const.OBJECTS_LOADED] = value
+        if self.dcc_object:
+            self.dcc_object.objects_loaded = value
 
     def __init__(self, event_manager):
         '''
-        Initialize FtrackAssetBase with instance of
+        Initialize FtrackObjectManager with instance of
         :class:`~ftrack_connect_pipeline.event.EventManager`
         '''
-        super(FtrackAssetBase, self).__init__()
+        super(FtrackObjectManager, self).__init__()
 
         self.logger = logging.getLogger(
             __name__ + '.' + self.__class__.__name__
         )
 
         self._asset_info = None
+        self._dcc_object = None
         self._event_manager = event_manager
 
-        self._ftrack_object = None
-
-    def set_asset_info(self, asset_info):
-        self.asset_info = asset_info
-
-    def init_ftrack_object(self, create_object=True, is_loaded=True):
+    def _generate_dcc_object_name(self):
         '''
-        Sets and Returns the current :py:obj:`ftrack_object` for this class.
+        Returns a name for the current self :obj:`dcc_object` based on
+        the first 2 and last 2 characters of the
+        :constant:`asset_const.ASSET_INFO_ID`
         '''
-        self.ftrack_object = None
-        return self.ftrack_object
-
-    def get_ftrack_object(self):
-        '''
-        Sets and Returns the current :py:obj:`ftrack_object` for this class.
-        '''
-        self.ftrack_object = None
-        return self.ftrack_object
-
-    def connect_objects(self, objects):
-        '''
-        Parent the given *objects* under current ftrack_object asset link
-        attribute
-        '''
-        raise NotImplementedError
-
-    def _get_unique_ftrack_object_name(self):
-        '''Returns a unique scene name for the current asset_name'''
         short_id = "{}{}".format(
             self.asset_info[asset_const.ASSET_INFO_ID][:2],
             self.asset_info[asset_const.ASSET_INFO_ID][-2:],
         )
-        ftrack_object_name = asset_const.FTRACK_OBJECT_NAME.format(
-            self.asset_info[asset_const.CONTEXT_PATH].replace(":", "_"),
+        # Make sure the name contains valid characters
+        name_value = self.asset_info[asset_const.CONTEXT_PATH]
+        name_value = unicodedata.normalize(
+            'NFKD', str(name_value)
+        ).encode('ascii', 'ignore')
+        name_value = re.sub('[^\w\.-]', "_", name_value.decode('utf-8'))
+
+        dcc_object_name = asset_const.DCC_OBJECT_NAME.format(
+            name_value,
             short_id,
         )
-        return ftrack_object_name
 
-    def change_version(self, new_version_id):
+        return str(dcc_object_name.strip().lower())
+
+    def _check_sync(self, dcc_object):
         '''
-        Updates the current asset_info with the asset_info returned from the
-        given *new_version_id*.
-
-        *new_version_id* : Should be an AssetVersion id.
+        Check if the parameters of the given *dcc_object* match the
+        values of the current self :obj:`asset_info`.
         '''
-
-        asset_version_entity = self.session.query(
-            'select version from AssetVersion where id is "{}"'.format(
-                new_version_id
-            )
-        ).one()
-
-        new_asset_info = FtrackAssetInfo.from_version_entity(
-            asset_version_entity, self.component_name
-        )
-        if self.asset_info.session:
-            new_asset_info['session'] = self.asset_info.session
-
-        asset_info_options = self.asset_info[asset_const.ASSET_INFO_OPTIONS]
-
-        if asset_info_options:
-
-            asset_context_data = asset_info_options['settings']['context_data']
-            asset_data = new_asset_info[asset_const.COMPONENT_PATH]
-            asset_context_data[asset_const.ASSET_ID] = new_asset_info[
-                asset_const.ASSET_ID
-            ]
-            asset_context_data[asset_const.VERSION_NUMBER] = new_asset_info[
-                asset_const.VERSION_NUMBER
-            ]
-            asset_context_data[asset_const.ASSET_NAME] = new_asset_info[
-                asset_const.ASSET_NAME
-            ]
-            asset_context_data[asset_const.ASSET_TYPE_NAME] = new_asset_info[
-                asset_const.ASSET_TYPE_NAME
-            ]
-            asset_context_data[asset_const.VERSION_ID] = new_asset_info[
-                asset_const.VERSION_ID
-            ]
-
-            asset_info_options['settings']['data'][0]['result'] = [asset_data]
-            asset_info_options['settings']['context_data'].update(
-                asset_context_data
+        if not isinstance(dcc_object, self.DccObject):
+            raise ValueError(
+                'DccObject {} should be instance of '
+                ':class:`~ftrack_connect_pipeline.asset.DccObject`'
             )
 
-            run_event = ftrack_api.event.base.Event(
-                topic=constants.PIPELINE_RUN_PLUGIN_TOPIC,
-                data=asset_info_options,
-            )
+        synced = False
 
-            plugin_result_data = self.session.event_hub.publish(
-                run_event, synchronous=True
-            )
+        node_asset_info = FtrackAssetInfo(dcc_object)
 
-            result_data = plugin_result_data[0]
-            if not result_data:
-                self.logger.error("Error re-loading asset")
+        if node_asset_info == self.asset_info:
+            self.logger.debug("{} is synced".format(dcc_object.name))
+            synced = True
 
-            new_asset_info[asset_const.ASSET_INFO_OPTIONS] = asset_info_options
+        return synced
 
-            new_asset_info[asset_const.LOAD_MODE] = self.asset_info[
-                asset_const.LOAD_MODE
-            ]
-            new_asset_info[asset_const.REFERENCE_OBJECT] = self.asset_info[
-                asset_const.REFERENCE_OBJECT
-            ]
+    def _sync(self, dcc_object):
+        '''
+        Updates the parameters of the given *dcc_object* based on the
+        self :obj:`asset_info`.
+        '''
+        dcc_object.update(self.asset_info)
 
-            if not new_asset_info:
-                self.logger.warning("Asset version couldn't change")
-                return
-            if not isinstance(new_asset_info, FtrackAssetInfo):
-                raise TypeError(
-                    "return type of change version has to be type of FtrackAssetInfo"
-                )
+    def connect_objects(self, objects):
+        '''
+        Link the given *objects* ftrack attribute to the self
+        :obj:`dcc_object`.
 
-        self.asset_info.update(new_asset_info)
+        *objects* List of objects
+        '''
+        self.dcc_object.connect_objects(objects)
 
-        return new_asset_info
+    def create_new_dcc_object(self):
+        '''
+        Creates a new dcc_object with a unique name.
+        '''
+        name = self._generate_dcc_object_name()
+        dcc_object = self.DccObject(name)
+
+        self.dcc_object = dcc_object
+
+        return self.dcc_object
