@@ -11,32 +11,16 @@ from ftrack_connect_pipeline.asset.asset_info import FtrackAssetInfo
 from ftrack_connect_pipeline_maya.utils import custom_commands as maya_utils
 from ftrack_connect_pipeline_maya.constants import asset as asset_const
 from ftrack_connect_pipeline_maya.asset import MayaFtrackObjectManager
-from ftrack_connect_pipeline_maya.asset.dcc_object import MayaDccObject as DccObject
+from ftrack_connect_pipeline_maya.asset.dcc_object import MayaDccObject
 
 
 class MayaAssetManagerEngine(AssetManagerEngine):
     engine_type = 'asset_manager'
 
-    @property
-    def ftrack_object_manager(self):
-        '''
-        Initializes and returns an instance of
-        :class:`~ftrack_connect_pipeline.asset.FtrackObjectManager`
-        '''
-        if not isinstance(self._ftrack_object_manager, MayaFtrackObjectManager):
-            self._ftrack_object_manager = MayaFtrackObjectManager(self.event_manager)
-        return self._ftrack_object_manager
-
-    @property
-    def DccObject(self):
-        '''
-        Returns a not initialized
-        :class:`~ftrack_connect_pipeline.asset.DccObject`
-        '''
-        #We can not pre-initialize this because should be a new
-        # one each time we want to use it.
-        self._DccObject = DccObject
-        return self._DccObject
+    FtrackObjectManager = MayaFtrackObjectManager
+    '''FtrackObjectManager class to use'''
+    DccObject = MayaDccObject
+    '''DccObject class to use'''
 
     def __init__(
         self, event_manager, host_types, host_id, asset_type_name=None
@@ -73,7 +57,7 @@ class MayaAssetManagerEngine(AssetManagerEngine):
 
         if ftrack_asset_nodes:
             for node_name in ftrack_asset_nodes:
-                param_dict = DccObject.dictionary_from_object(node_name)
+                param_dict = self.DccObject.dictionary_from_object(node_name)
                 node_asset_info = FtrackAssetInfo(param_dict)
                 ftrack_asset_info_list.append(node_asset_info)
 
@@ -127,18 +111,18 @@ class MayaAssetManagerEngine(AssetManagerEngine):
             'message': message,
         }
 
-        self.ftrack_object_manager.asset_info = asset_info
+        self.asset_info = asset_info
         dcc_object = self.DccObject(
             from_id=asset_info[asset_const.ASSET_INFO_ID]
         )
-        self.ftrack_object_manager.dcc_object = dcc_object
+        self.dcc_object = dcc_object
 
         if options.get('clear_selection'):
             cmds.select(cl=True)
 
         nodes = cmds.listConnections(
             '{}.{}'.format(
-                self.ftrack_object_manager.dcc_object.name, asset_const.ASSET_LINK
+                self.dcc_object.name, asset_const.ASSET_LINK
             )
         )
         for node in nodes:
@@ -220,24 +204,24 @@ class MayaAssetManagerEngine(AssetManagerEngine):
             'message': message,
         }
 
-        self.ftrack_object_manager.asset_info = asset_info
+        self.asset_info = asset_info
         dcc_object = self.DccObject(
             from_id=asset_info[asset_const.ASSET_INFO_ID]
         )
-        self.ftrack_object_manager.dcc_object = dcc_object
+        self.dcc_object = dcc_object
 
         reference_node = False
         nodes = (
                 cmds.listConnections(
                     '{}.{}'.format(
-                        self.ftrack_object_manager.dcc_object.name,
+                        self.dcc_object.name,
                         asset_const.ASSET_LINK
                     )
                 )
                 or []
         )
-        if self.ftrack_object_manager.dcc_object.name in nodes:
-            nodes.remove(self.ftrack_object_manager.dcc_object.name)
+        if self.dcc_object.name in nodes:
+            nodes.remove(self.dcc_object.name)
 
         for node in nodes:
             if cmds.nodeType(node) == 'reference':
@@ -302,7 +286,7 @@ class MayaAssetManagerEngine(AssetManagerEngine):
                     self._notify_client(plugin, result_data)
                     return status, result
 
-        self.ftrack_object_manager.dcc_object.objects_loaded = False
+        self.ftrack_object_manager.objects_loaded = False
 
         end_time = time.time()
         total_time = end_time - start_time
@@ -342,17 +326,17 @@ class MayaAssetManagerEngine(AssetManagerEngine):
             'message': message,
         }
 
-        self.ftrack_object_manager.asset_info = asset_info
+        self.asset_info = asset_info
         dcc_object = self.DccObject(
             from_id=asset_info[asset_const.ASSET_INFO_ID]
         )
-        self.ftrack_object_manager.dcc_object = dcc_object
+        self.dcc_object = dcc_object
 
         reference_node = False
         nodes = (
             cmds.listConnections(
                 '{}.{}'.format(
-                    self.ftrack_object_manager.dcc_object.name, asset_const.ASSET_LINK
+                    self.dcc_object.name, asset_const.ASSET_LINK
                 )
             )
             or []
@@ -420,10 +404,10 @@ class MayaAssetManagerEngine(AssetManagerEngine):
                     self._notify_client(plugin, result_data)
                     return status, result
 
-        if (cmds.objExists(self.ftrack_object_manager.dcc_object.name)):
+        if (cmds.objExists(self.dcc_object.name)):
             try:
-                cmds.delete(self.ftrack_object_manager.dcc_object.name)
-                result.append(str(self.ftrack_object_manager.dcc_object.name))
+                cmds.delete(self.dcc_object.name)
+                result.append(str(self.dcc_object.name))
                 status = constants.SUCCESS_STATUS
             except Exception as error:
                 message = str(
