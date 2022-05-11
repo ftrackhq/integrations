@@ -6,10 +6,17 @@ from ftrack_connect_pipeline import plugin
 from ftrack_connect_pipeline_qt import plugin as pluginWidget
 from ftrack_connect_pipeline_nuke import constants as nuke_constants
 from ftrack_connect_pipeline_nuke.utils import custom_commands as nuke_utils
+from ftrack_connect_pipeline_nuke.asset import NukeFtrackObjectManager
+from ftrack_connect_pipeline_nuke.asset import NukeDccObject
 
 
 class BaseNukePlugin(plugin.BasePlugin):
     host_type = nuke_constants.HOST_TYPE
+
+    FtrackObjectManager = NukeFtrackObjectManager
+    '''FtrackObjectManager class to use'''
+    DccObject = NukeDccObject
+    '''DccObject class to use'''
 
     @nuke_utils.run_in_main_thread
     def _run(self, event):
