@@ -275,6 +275,7 @@ class NukeAssetManagerEngine(AssetManagerEngine):
                 try:
                     nuke.delete(node_to_delete)
                     result.append(str(node_name))
+                    status = constants.SUCCESS_STATUS
                 except Exception as error:
                     message = str(
                         'Could not delete the node {}, error: {}'.format(
