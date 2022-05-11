@@ -173,18 +173,34 @@ class BasePlugin(object):
 
     @property
     def dcc_object(self):
+        '''
+        Returns the :obj:`dcc_object` from the
+        :class:`~ftrack_connect_pipeline.asset.FtrackObjectManager`
+        '''
         return self.ftrack_object_manager.dcc_object
 
     @dcc_object.setter
     def dcc_object(self, value):
+        '''
+        Sets the :obj:`dcc_object` to the
+        :class:`~ftrack_connect_pipeline.asset.FtrackObjectManager`
+        '''
         self.ftrack_object_manager.dcc_object = value
 
     @property
     def asset_info(self):
+        '''
+        Returns the :obj:`asset_info` from the
+        :class:`~ftrack_connect_pipeline.asset.FtrackObjectManager`
+        '''
         return self.ftrack_object_manager.asset_info
 
     @asset_info.setter
     def asset_info(self, value):
+        '''
+        Sets the :obj:`asset_info` to the
+        :class:`~ftrack_connect_pipeline.asset.FtrackObjectManager`
+        '''
         self.ftrack_object_manager.asset_info = value
 
     @property

@@ -2,6 +2,8 @@
 # :copyright: Copyright (c) 2014-2022 ftrack
 
 import logging
+import unicodedata
+import re
 from ftrack_connect_pipeline.asset.asset_info import FtrackAssetInfo
 from ftrack_connect_pipeline.asset.dcc_object import DccObject
 from ftrack_connect_pipeline.constants import asset as asset_const
@@ -123,11 +125,19 @@ class FtrackObjectManager(object):
             self.asset_info[asset_const.ASSET_INFO_ID][:2],
             self.asset_info[asset_const.ASSET_INFO_ID][-2:],
         )
+        # Make sure the name contains valid characters
+        name_value = self.asset_info[asset_const.CONTEXT_PATH]
+        name_value = unicodedata.normalize(
+            'NFKD', str(name_value)
+        ).encode('ascii', 'ignore')
+        name_value = re.sub('[^\w\.-]', "_", name_value.decode('utf-8'))
+
         dcc_object_name = asset_const.DCC_OBJECT_NAME.format(
-            self.asset_info[asset_const.CONTEXT_PATH].replace(":", "_"),
+            name_value,
             short_id,
         )
-        return dcc_object_name
+
+        return str(dcc_object_name.strip().lower())
 
     def _check_sync(self, dcc_object):
         '''
