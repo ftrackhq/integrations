@@ -3,7 +3,6 @@
 
 from ftrack_connect_pipeline.plugin import BasePlugin, BasePluginValidation
 from ftrack_connect_pipeline.constants import plugin
-from ftrack_connect_pipeline.asset import FtrackAssetBase
 
 
 class ImporterPluginValidation(BasePluginValidation):
@@ -30,8 +29,6 @@ class BaseImporterPlugin(BasePlugin):
     '''Required return type'''
     plugin_type = plugin._PLUGIN_IMPORTER_TYPE
     '''Type of the plugin'''
-    ftrack_asset_class = FtrackAssetBase
-    '''Define the class to use for the ftrack node to track the loaded assets'''
     _required_output = {}
     '''Required return output'''
 

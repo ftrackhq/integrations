@@ -2,7 +2,7 @@
 # :copyright: Copyright (c) 2014-2020 ftrack
 
 #: Name of the ftrack object to identify the loaded assets
-FTRACK_OBJECT_NAME = '{}_ftrackdata_{}'
+DCC_OBJECT_NAME = '{}_ftrackdata_{}'
 
 #: Asset id constant identifier key for ftrack assets connected or used with
 #: :class:`~ftrack_connect_pipeline.asset.asset_info.FtrackAssetInfo`
@@ -67,7 +67,7 @@ DEPENDENCY_IDS = 'dependency_ids'
 #: Is loaded constant identifier key for ftrack assets connected or used with
 #: :class:`~ftrack_connect_pipeline.asset.asset_info.FtrackAssetInfo`
 #: and the DCC ftrack plugin.
-IS_LOADED = 'is_loaded'
+OBJECTS_LOADED = 'objects_loaded'
 
 #: Identifier version of the asset constants and plugin.
 VERSION = '1.0'
@@ -90,5 +90,5 @@ KEYS = [
     IS_LATEST_VERSION,
     ASSET_INFO_ID,
     DEPENDENCY_IDS,
-    IS_LOADED,
+    OBJECTS_LOADED,
 ]
