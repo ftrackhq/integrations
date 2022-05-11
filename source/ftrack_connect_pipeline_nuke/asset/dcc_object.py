@@ -42,7 +42,7 @@ class NukeDccObject(DccObject):
             ftrack_node.knob(k).setValue(','.join(v or []))
         else:
             ftrack_node.knob(k).setValue(str(v))
-        # TODO: Henrik take a look at this please, not sure if it's necesary.
+
         if 'published' in ftrack_node.knobs():
             ftrack_node.reload()
 
@@ -156,10 +156,6 @@ class NukeDccObject(DccObject):
 
         *objects* List of Nuke objects
         '''
-        # TODO: find the way to get the screenWidth() now it's 0 don't know why,
-        #  in nuke script editor returns the correct value. Also Find a way to
-        #  ensure that there are no elements in the backdrop that shouldn't be
-        #  there.
         connected_objects = []
         ftrack_node = nuke.toNode(self.name)
         if ftrack_node.Class() != 'BackdropNode':
@@ -176,18 +172,6 @@ class NukeDccObject(DccObject):
             ';'.join(connected_objects)
         )
         selected_nodes = nuke.selectedNodes()
-
-        # TODO: move unwanted nodes out from the backdrop node
-        # all_nodes = nuke.allNodes()
-        # scene_nodes = list(set(all_nodes) - set(selected_nodes))
-        # scene_nodes.remove(dcc_object)
-        #
-        # for node in scene_nodes:
-        #     if self._node_is_inside(node, dcc_object):
-        #         new_pos = dcc_object.xpos() + (
-        #                 node.xpos() - dcc_object.xpos()
-        #         ) * 2
-        #         node['xpos'].setValue(new_pos)
 
         # Calculate bounds for the backdrop node.
         bd_X = min([node.xpos() for node in selected_nodes])
