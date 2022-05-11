@@ -41,10 +41,10 @@ ftrack\_connect\_pipeline\_qt.plugin.base.importer module
    :undoc-members:
    :show-inheritance:
 
-ftrack\_connect\_pipeline\_qt.plugin.base.output module
+ftrack\_connect\_pipeline\_qt.plugin.base.exporter module
 -------------------------------------------------------
 
-.. automodule:: ftrack_connect_pipeline_qt.plugin.base.output
+.. automodule:: ftrack_connect_pipeline_qt.plugin.base.exporter
    :members:
    :undoc-members:
    :show-inheritance:

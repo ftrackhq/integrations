@@ -97,12 +97,12 @@ class PublisherOptionsButton(OptionsButton):
         )
         self._component_widget.add_widget(widget)
 
-    def add_output_widget(self, widget):
+    def add_exporter_widget(self, widget):
         self._component_widget.add_widget(QtWidgets.QLabel(''))
         self._component_widget.add_widget(line.Line(parent=self.parent()))
         self._component_widget.add_widget(QtWidgets.QLabel(''))
         self._component_widget.add_widget(
-            QtWidgets.QLabel('<html><strong>Output:<strong><html>')
+            QtWidgets.QLabel('<html><strong>Exporter:<strong><html>')
         )
         self._component_widget.add_widget(widget)
 
@@ -299,12 +299,12 @@ class PublisherAccordionStepWidget(BaseUIWidget):
         else:
             self.logger.error("Please create a options_widget before parent")
 
-    def parent_output(self, step_widget):
+    def parent_exporter(self, step_widget):
         if self.options_widget:
             if isinstance(step_widget, BaseUIWidget):
-                self.options_widget.add_output_widget(step_widget.widget)
+                self.options_widget.add_exporter_widget(step_widget.widget)
             else:
-                self.options_widget.add_output_widget(step_widget)
+                self.options_widget.add_exporter_widget(step_widget)
         else:
             self.logger.error("Please create a options_widget before parent")
 

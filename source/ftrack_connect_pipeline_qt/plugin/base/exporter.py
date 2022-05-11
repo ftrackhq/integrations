@@ -5,10 +5,10 @@ from ftrack_connect_pipeline.constants import plugin
 from ftrack_connect_pipeline_qt.plugin import BasePluginWidget
 
 
-class BaseOutputWidget(BasePluginWidget):
+class BaseExporterPluginWidget(BasePluginWidget):
     '''
-    Base Output Widget Class inherits from
+    Base Exporter Widget Class inherits from
     :class:`~ftrack_connect_pipeline_qt.plugin.BasePluginWidget`
     '''
 
-    plugin_type = plugin._PLUGIN_OUTPUT_TYPE
+    plugin_type = plugin._PLUGIN_EXPORTER_TYPE

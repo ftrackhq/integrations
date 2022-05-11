@@ -122,7 +122,7 @@ class BaseUIWidget(object):
     def parent_validator(self, step_widget):
         raise NotImplementedError
 
-    def parent_output(self, step_widget):
+    def parent_exporter(self, step_widget):
         raise NotImplementedError
 
     def set_enabled(self, enabled):

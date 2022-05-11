@@ -822,10 +822,10 @@ class ImporterOptionsButton(OptionsButton):
         )
         self.main_widget.layout().addWidget(widget)
 
-    def add_output_widget(self, widget):
+    def add_exporter_widget(self, widget):
         self.main_widget.layout().addWidget(line.Line(parent=self.parent()))
         self.main_widget.layout().addWidget(
-            QtWidgets.QLabel('<html><strong>Output:<strong><html>')
+            QtWidgets.QLabel('<html><strong>Exporter:<strong><html>')
         )
         self.main_widget.layout().addWidget(widget)
 

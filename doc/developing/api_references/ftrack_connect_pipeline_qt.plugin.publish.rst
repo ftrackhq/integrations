@@ -33,10 +33,10 @@ ftrack\_connect\_pipeline\_qt.plugin.publish.finalizer module
    :undoc-members:
    :show-inheritance:
 
-ftrack\_connect\_pipeline\_qt.plugin.publish.output module
+ftrack\_connect\_pipeline\_qt.plugin.publish.exporter module
 ----------------------------------------------------------
 
-.. automodule:: ftrack_connect_pipeline_qt.plugin.publish.output
+.. automodule:: ftrack_connect_pipeline_qt.plugin.publish.exporter
    :members:
    :undoc-members:
    :show-inheritance:
