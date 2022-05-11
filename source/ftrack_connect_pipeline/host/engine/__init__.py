@@ -7,6 +7,8 @@ import copy
 
 from ftrack_connect_pipeline import constants
 from ftrack_connect_pipeline.log.log_item import LogItem
+from ftrack_connect_pipeline.asset import FtrackObjectManager
+from ftrack_connect_pipeline.asset.dcc_object import DccObject
 
 
 def getEngine(baseClass, engineType):
@@ -29,6 +31,38 @@ class BaseEngine(object):
 
     engine_type = 'base'
     '''Engine type for this engine class'''
+
+    FtrackObjectManager = FtrackObjectManager
+    '''FtrackObjectManager class to use'''
+    DccObject = DccObject
+    '''DccObject class to use'''
+
+    @property
+    def ftrack_object_manager(self):
+        '''
+        Initializes and returns an instance of
+        :class:`~ftrack_connect_pipeline.asset.FtrackObjectManager`
+        '''
+        if not isinstance(self._ftrack_object_manager, self.FtrackObjectManager):
+            self._ftrack_object_manager = self.FtrackObjectManager(
+                self.event_manager
+            )
+        return self._ftrack_object_manager
+    @property
+    def dcc_object(self):
+        return self.ftrack_object_manager.dcc_object
+
+    @dcc_object.setter
+    def dcc_object(self, value):
+        self.ftrack_object_manager.dcc_object = value
+
+    @property
+    def asset_info(self):
+        return self.ftrack_object_manager.asset_info
+
+    @asset_info.setter
+    def asset_info(self, value):
+        self.ftrack_object_manager.asset_info = value
 
     @property
     def host_id(self):
@@ -58,6 +92,7 @@ class BaseEngine(object):
         self._host_types = host_types
         self._host_id = host_id
         self._definition = None
+        self._ftrack_object_manager = None
 
         self.logger = logging.getLogger(
             __name__ + '.' + self.__class__.__name__

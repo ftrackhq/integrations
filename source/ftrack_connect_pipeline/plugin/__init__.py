@@ -12,6 +12,7 @@ from ftrack_connect_pipeline import constants
 from ftrack_connect_pipeline import exception
 from ftrack_connect_pipeline import event
 from ftrack_connect_pipeline.asset import FtrackObjectManager
+from ftrack_connect_pipeline.asset.dcc_object import DccObject
 
 
 class BasePluginValidation(object):
@@ -150,27 +151,41 @@ class BasePlugin(object):
     plugin_id = None
     '''Id of the plugin'''
 
+    FtrackObjectManager = FtrackObjectManager
+    '''FtrackObjectManager class to use'''
+    DccObject = DccObject
+    '''DccObject class to use'''
+
     def __repr__(self):
         return '<{}:{}>'.format(self.plugin_type, self.plugin_name)
 
     @property
     def ftrack_object_manager(self):
         '''
-        Initializes and returns the FtrackObjectManager class
+        Initializes and returns an instance of
+        :class:`~ftrack_connect_pipeline.asset.FtrackObjectManager`
         '''
-        if not isinstance(self._ftrack_object_manager, FtrackObjectManager):
-            self._ftrack_object_manager = FtrackObjectManager(self.event_manager)
+        if not isinstance(self._ftrack_object_manager, self.FtrackObjectManager):
+            self._ftrack_object_manager = self.FtrackObjectManager(
+                self.event_manager
+            )
         return self._ftrack_object_manager
 
     @property
-    def DccObject(self):
-        '''
-        Returns the not initialized DccObject class
-        '''
-        # We can not pre-initialize this because should be a new
-        # one each time we want to use it.
-        self._DccObject = DccObject
-        return self._DccObject
+    def dcc_object(self):
+        return self.ftrack_object_manager.dcc_object
+
+    @dcc_object.setter
+    def dcc_object(self, value):
+        self.ftrack_object_manager.dcc_object = value
+
+    @property
+    def asset_info(self):
+        return self.ftrack_object_manager.asset_info
+
+    @asset_info.setter
+    def asset_info(self, value):
+        self.ftrack_object_manager.asset_info = value
 
     @property
     def output(self):

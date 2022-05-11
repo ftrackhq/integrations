@@ -9,7 +9,6 @@ from ftrack_connect_pipeline import constants
 from ftrack_connect_pipeline.plugin import base
 from ftrack_connect_pipeline.asset import asset_info as ainfo
 from ftrack_connect_pipeline.constants import asset as asset_const
-from ftrack_connect_pipeline.asset.dcc_object import DccObject
 
 
 class LoaderImporterPlugin(base.BaseImporterPlugin):
@@ -84,22 +83,22 @@ class LoaderImporterPlugin(base.BaseImporterPlugin):
 
         asset_info = ainfo.FtrackAssetInfo(arguments_dict)
 
-        self.ftrack_object_manager.asset_info = asset_info
+        self.asset_info = asset_info
         self.ftrack_object_manager.create_new_dcc_object()
 
-        result = {'asset_info': self.ftrack_object_manager.asset_info,
-                  'dcc_object': self.ftrack_object_manager.dcc_object}
+        result = {'asset_info': self.asset_info,
+                  'dcc_object': self.dcc_object}
         return result
 
     def load_asset(self, context_data=None, data=None, options=None):
         '''Alternative plugin method to only load the asset in the scene'''
 
         asset_info = options.get('asset_info')
-        self.ftrack_object_manager.asset_info = asset_info
+        self.asset_info = asset_info
         dcc_object = self.DccObject(
             from_id=asset_info[asset_const.ASSET_INFO_ID]
         )
-        self.ftrack_object_manager.dcc_object = dcc_object
+        self.dcc_object = dcc_object
         # Remove asset_info from the options as it is not needed anymore
         options.pop('asset_info')
         # Execute the run method to load the objects
@@ -117,8 +116,8 @@ class LoaderImporterPlugin(base.BaseImporterPlugin):
         # Connect scene objects to ftrack node
         self.ftrack_object_manager.connect_objects(diff)
 
-        result = {'asset_info': self.ftrack_object_manager.asset_info,
-                  'dcc_object': self.ftrack_object_manager.dcc_object,
+        result = {'asset_info': self.asset_info,
+                  'dcc_object': self.dcc_object,
                   'run_method': run_result}
 
         return result

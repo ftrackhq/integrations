@@ -7,8 +7,6 @@ from ftrack_connect_pipeline.host.engine import BaseEngine
 from ftrack_connect_pipeline import constants
 from ftrack_connect_pipeline.constants import asset as asset_const
 from ftrack_connect_pipeline.asset.asset_info import FtrackAssetInfo
-from ftrack_connect_pipeline.asset import FtrackObjectManager
-from ftrack_connect_pipeline.asset.dcc_object import DccObject
 
 import ftrack_api
 
@@ -20,27 +18,6 @@ class AssetManagerEngine(BaseEngine):
 
     engine_type = 'asset_manager'
     '''Engine type for this engine class'''
-
-    @property
-    def ftrack_object_manager(self):
-        '''
-        Initializes and returns an instance of
-        :class:`~ftrack_connect_pipeline.asset.FtrackObjectManager`
-        '''
-        if not isinstance(self._ftrack_object_manager, FtrackObjectManager):
-            self._ftrack_object_manager = FtrackObjectManager(self.event_manager)
-        return self._ftrack_object_manager
-
-    @property
-    def DccObject(self):
-        '''
-        Returns a not initialized
-        :class:`~ftrack_connect_pipeline.asset.DccObject`
-        '''
-        # We can not pre-initialize this because should be a new
-        # one each time we want to use it.
-        self._DccObject = DccObject
-        return self._DccObject
 
     def __init__(
         self, event_manager, host_types, host_id, asset_type_name=None
@@ -60,7 +37,6 @@ class AssetManagerEngine(BaseEngine):
         super(AssetManagerEngine, self).__init__(
             event_manager, host_types, host_id, asset_type_name=asset_type_name
         )
-        self._ftrack_object_manager = None
 
     def discover_assets(self, assets=None, options=None, plugin=None):
         '''
@@ -583,18 +559,18 @@ class AssetManagerEngine(BaseEngine):
 
         new_version_id = options['new_version_id']
 
-        self.ftrack_object_manager.asset_info = asset_info
+        self.asset_info = asset_info
         dcc_object = self.DccObject(
             from_id=asset_info[asset_const.ASSET_INFO_ID]
         )
-        self.ftrack_object_manager.dcc_object = dcc_object
+        self.dcc_object = dcc_object
 
         # Get Component name from the original asset info
-        component_name = self.ftrack_object_manager.asset_info.get(
+        component_name = self.asset_info.get(
             asset_const.COMPONENT_NAME
         )
         # Get the asset info options from the original asset info
-        asset_info_options = self.ftrack_object_manager.asset_info[
+        asset_info_options = self.asset_info[
             asset_const.ASSET_INFO_OPTIONS
         ]
 
@@ -696,8 +672,8 @@ class AssetManagerEngine(BaseEngine):
             ]['dcc_object']
             new_asset_info[asset_const.REFERENCE_OBJECT] = new_dcc_object.name
 
-            self.ftrack_object_manager.asset_info = new_asset_info
-            self.ftrack_object_manager.dcc_object = new_dcc_object
+            self.asset_info = new_asset_info
+            self.dcc_object = new_dcc_object
 
         except UserWarning as e:
             self.logger.debug(e)
