@@ -140,9 +140,7 @@ class QtClient(Client):
 
     def _build_context_selector(self):
         '''Instantiate standard slave context selector'''
-        self.context_selector = ContextSelector(
-            self.session, parent=self
-        )
+        self.context_selector = ContextSelector(self.session, parent=self)
         return self.context_selector
 
     def _build_definition_selector(self):
@@ -421,3 +419,4 @@ class QtDocumentationClient:
 class RunButton(QtWidgets.QPushButton):
     def __init__(self, label, parent=None):
         super(RunButton, self).__init__(label, parent=parent)
+        self.setMaximumHeight(32)

@@ -113,7 +113,7 @@ class AssemblerBaseWidget(QtWidgets.QWidget):
 
         top_widget = self._get_header_widget()
         top_toolbar_widget.layout().addWidget(top_widget, 10)
-        top_widget.setMinimumHeight(32)
+        top_widget.setMinimumHeight(27)
 
         header_widget.layout().addWidget(top_toolbar_widget)
 
@@ -124,10 +124,10 @@ class AssemblerBaseWidget(QtWidgets.QWidget):
         bottom_toolbar_widget.layout().setContentsMargins(4, 0, 4, 1)
         bottom_toolbar_widget.layout().setSpacing(6)
 
-        #bottom_toolbar_widget.layout().addWidget(line.Line(horizontal=False, parent=self.parent()))
+        # bottom_toolbar_widget.layout().addWidget(line.Line(horizontal=False, parent=self.parent()))
 
         match_label = QtWidgets.QLabel('Match: ')
-        match_label.setObjectName('gray')
+        match_label.setObjectName('gray-dark')
         bottom_toolbar_widget.layout().addWidget(match_label)
 
         self._bg_match = QtWidgets.QButtonGroup(self)
@@ -153,7 +153,6 @@ class AssemblerBaseWidget(QtWidgets.QWidget):
         self._cb_show_non_compatible.setToolTip(
             'Show all assets, regardless if they can be loaded or not.'
         )
-        self._cb_show_non_compatible.setObjectName("gray")
         bottom_toolbar_widget.layout().addWidget(self._cb_show_non_compatible)
 
         bottom_toolbar_widget.layout().addWidget(QtWidgets.QLabel(), 10)
@@ -185,44 +184,42 @@ class AssemblerBaseWidget(QtWidgets.QWidget):
 
         self.layout().addWidget(self.scroll, 1000)
 
-    def rebuild(self):
-        '''Prepare rebuild of the widget'''
+    def rebuild(self, reset=True):
+        '''Prepare rebuild of the widget. If *reset* is False, assume chunked fetch to continue were left off'''
+        if reset:
+            # Check if there is any loader definitions
+            if (
+                len(
+                    self._assembler_client.host_and_definition_selector.definitions
+                    or []
+                )
+                == 0
+            ):
+                self._assembler_client.progress_widget.set_status(
+                    constants.WARNING_STATUS,
+                    'No loader definitions are available, please check pipeline configuration!',
+                )
+                return False
 
-        # Check if there is any loader definitions
-        if (
-            len(
-                self._assembler_client.host_and_definition_selector.definitions
-                or []
-            )
-            == 0
-        ):
-            self._assembler_client.progress_widget.set_status(
-                constants.WARNING_STATUS,
-                'No loader definitions are available, please check pipeline configuration!',
-            )
-            return False
+            self.model.reset()
+            self._loadable_count = 0
 
-        self._rb_match_component_name.setEnabled(
-            not self._cb_show_non_compatible.isChecked()
-        )
-        self._rb_match_extension.setEnabled(
-            not self._cb_show_non_compatible.isChecked()
-        )
-        self.model.reset()
+        self.update()
+        self._label_info.setText('Fetching, please stand by...')
         self._assembler_client.progress_widget.hide_widget()
 
         self._busy_widget.start()
         self._rebuild_button.setVisible(False)
         self._busy_widget.setVisible(True)
 
-        self._label_info.setText('Fetching, please stand by...')
-
         # Wait for context to be loaded
         self.get_context()
 
-        self._loadable_count = 0
-
         return True
+
+    def reset(self):
+        '''Called when widget is being redisplayed, to be overidden by child.'''
+        pass
 
     def post_build(self):
         self._cb_show_non_compatible.clicked.connect(self.rebuild)
@@ -233,6 +230,14 @@ class AssemblerBaseWidget(QtWidgets.QWidget):
         self._rb_match_component_name.clicked.connect(self.rebuild)
         self._rb_match_extension.clicked.connect(self.rebuild)
         self.stopBusyIndicator.connect(self._stop_busy_indicator)
+
+    def update(self):
+        self._rb_match_component_name.setEnabled(
+            not self._cb_show_non_compatible.isChecked()
+        )
+        self._rb_match_extension.setEnabled(
+            not self._cb_show_non_compatible.isChecked()
+        )
 
     def _get_header_widget(self):
         raise NotImplementedError()

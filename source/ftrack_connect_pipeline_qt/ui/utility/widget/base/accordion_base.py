@@ -12,6 +12,7 @@ from ftrack_connect_pipeline_qt.utils import set_property
 
 
 class AccordionBaseWidget(QtWidgets.QFrame):
+    '''An accordion widget providing a header which can be expanded to show content'''
 
     clicked = QtCore.Signal(object)
     doubleClicked = QtCore.Signal(object)
@@ -129,7 +130,6 @@ class AccordionBaseWidget(QtWidgets.QFrame):
         self.post_build()
 
     def set_status(self, status, message):
-        # TODO: Instead of run status, implement collector status
         self._header.set_status(status, message)
 
     def pre_build(self):
@@ -355,9 +355,7 @@ class AccordionHeaderWidget(QtWidgets.QFrame):
         self.layout().addWidget(self.init_title(self.title))
         self.layout().addWidget(self._init_content(), 10)
         self.layout().addWidget(self.init_arrow(self.accordion.collapsed))
-        visibility = self._collapsable
-        if self._arrow.isVisible() != visibility:
-            self._arrow.setVisible(visibility)
+        self._arrow.setVisible(self._collapsable)
 
     def post_build(self):
         pass

@@ -135,3 +135,4 @@ class OpenAssemblerButton(QtWidgets.QPushButton):
         super(OpenAssemblerButton, self).__init__(
             'OPEN ASSEMBLER', parent=parent
         )
+        self.setMaximumHeight(32)

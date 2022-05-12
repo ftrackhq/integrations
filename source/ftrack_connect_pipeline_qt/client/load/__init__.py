@@ -204,7 +204,7 @@ class QtAssemblerClient(QtLoaderClient, dialog.Dialog):
         self.splitter.addWidget(self.build_left_widget())
         self.splitter.addWidget(self.build_right_widget())
         self.splitter.setHandleWidth(1)
-        self.splitter.setSizes([500, 300])
+        self.splitter.setSizes([600, 200])
 
         self.layout().addWidget(self.splitter, 100)
 
@@ -307,8 +307,8 @@ class QtAssemblerClient(QtLoaderClient, dialog.Dialog):
     def reset(self):
         '''Assembler is shown again after being hidden.'''
         super(QtAssemblerClient, self).reset()
-        self.refresh(True)
         self.asset_manager.asset_manager_widget.rebuild.emit()
+        self._assembler_widget.reset()
         self.progress_widget.hide_widget()
         self.progress_widget.clear_components()
 
@@ -440,8 +440,10 @@ class AssemblerTabWidget(tab.TabWidget):
 class AddRunButton(QtWidgets.QPushButton):
     def __init__(self, label, parent=None):
         super(AddRunButton, self).__init__(label, parent=parent)
+        self.setMaximumHeight(32)
 
 
 class LoadRunButton(QtWidgets.QPushButton):
     def __init__(self, label, parent=None):
         super(LoadRunButton, self).__init__(label, parent=parent)
+        self.setMaximumHeight(32)

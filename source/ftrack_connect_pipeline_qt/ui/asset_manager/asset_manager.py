@@ -299,16 +299,16 @@ class AssetManagerWidget(AssetManagerBaseWidget):
         if self.check_selection(selection):
             for a_info in selection:
                 loaded = a_info[asset_constants.OBJECTS_LOADED]
-                #This is not always a boolean so that is why ensuring the
+                # This is not always a boolean so that is why ensuring the
                 # correct behaviour using str.
                 if str(loaded) == "True":
                     selection.remove(a_info)
             if len(selection) == 0:
                 ModalDialog(
-                self._asset_manager_client,
-                title='ftrack Asset manager',
-                message='Selected Assets are already loaded.',
-            )
+                    self._asset_manager_client,
+                    title='ftrack Asset manager',
+                    message='Selected Assets are already loaded.',
+                )
             else:
                 self.loadAssets.emit(selection, plugin)
 
@@ -345,10 +345,10 @@ class AssetManagerWidget(AssetManagerBaseWidget):
                     selection.remove(a_info)
             if len(selection) == 0:
                 ModalDialog(
-                self._asset_manager_client,
-                title='ftrack Asset manager',
-                message='Selected Assets are already unloaded.',
-            )
+                    self._asset_manager_client,
+                    title='ftrack Asset manager',
+                    message='Selected Assets are already unloaded.',
+                )
             else:
                 if ModalDialog(
                     self._asset_manager_client.parent(),
@@ -571,7 +571,7 @@ class AssetWidget(AccordionBaseWidget):
         # Add context path, relative to browser context
         self._path_widget = QtWidgets.QLabel()
         self._path_widget.setStyleSheet('font-size: 9px;')
-        self._path_widget.setObjectName("gray-darker")
+        self._path_widget.setObjectName("gray-dark")
 
         widget.layout().addWidget(self._path_widget)
 
@@ -590,15 +590,17 @@ class AssetWidget(AccordionBaseWidget):
             self._component_and_version_header_widget
         )
 
+        delimiter_label = QtWidgets.QLabel(' - ')
+        delimiter_label.setObjectName('gray')
+        lower_widget.layout().addWidget(delimiter_label)
+
+        lower_widget.layout().addWidget(self.init_status_widget())
+
         lower_widget.layout().addWidget(QtWidgets.QLabel(), 10)
 
         widget.layout().addWidget(lower_widget)
 
         header_layout.addWidget(widget)
-
-        header_layout.addStretch()
-
-        header_layout.addWidget(self.init_status_widget())
 
     def init_content(self, content_layout):
         # self.content.setMinimumHeight(200)
@@ -773,11 +775,15 @@ class AssetWidget(AccordionBaseWidget):
             if 0 < len(self._version_dependency_ids or []):
                 self.add_widget(line.Line(parent=self.parent()))
 
-                dependencies_label = QtWidgets.QLabel('DEPENDENCIES:')
+                dependencies_label = QtWidgets.QLabel(
+                    'DEPENDENCIES({}):'.format(
+                        len(self._version_dependency_ids)
+                    )
+                )
                 dependencies_label.setObjectName('h4')
                 self.add_widget(dependencies_label)
 
-                for dep_version_id in self._version_dependency_ids or []:
+                for dep_version_id in self._version_dependency_ids:
                     dep_version = self.session.query(
                         'AssetVersion where id={}'.format(dep_version_id)
                     ).first()
@@ -785,7 +791,7 @@ class AssetWidget(AccordionBaseWidget):
                     if dep_version:
                         dep_version_widget = QtWidgets.QWidget()
                         dep_version_widget.setLayout(QtWidgets.QHBoxLayout())
-                        dep_version_widget.setContentsMargins(25, 1, 1, 1)
+                        dep_version_widget.setContentsMargins(20, 1, 1, 1)
                         dep_version_widget.setMaximumHeight(64)
 
                         dep_thumbnail_widget = AssetVersionThumbnail(
@@ -800,8 +806,12 @@ class AssetWidget(AccordionBaseWidget):
                         )
 
                         # Add context info
-                        dep_entity_info = EntityInfo()
-                        dep_entity_info.set_entity(version['asset']['parent'])
+                        dep_entity_info = EntityInfo(
+                            additional_widget=QtWidgets.QLabel(
+                                ' - v{}'.format(dep_version['version'])
+                            )
+                        )
+                        dep_entity_info.set_entity(version['task'])
                         dep_entity_info.setMinimumHeight(100)
                         dep_version_widget.layout().addWidget(dep_entity_info)
 
@@ -895,10 +905,13 @@ class ComponentAndVersionWidget(QtWidgets.QWidget):
         self._component_filename_widget = QtWidgets.QLabel()
         self._component_filename_widget.setObjectName('gray')
         self.layout().addWidget(self._component_filename_widget)
-        self.layout().addWidget(QtWidgets.QLabel(' - '))
+        delimiter_label = QtWidgets.QLabel(' - ')
+        delimiter_label.setObjectName('gray')
+        self.layout().addWidget(delimiter_label)
 
         if self._collapsed:
             self._version_nr_widget = QtWidgets.QLabel()
+            self._version_nr_widget.setObjectName('color-primary')
             self.layout().addWidget(self._version_nr_widget)
         else:
             self._version_selector = AssetVersionSelector()

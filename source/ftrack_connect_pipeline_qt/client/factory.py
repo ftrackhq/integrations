@@ -243,16 +243,19 @@ class WidgetFactoryBase(QtWidgets.QWidget):
                         )
                     else:
                         stage_obj.parent_widget(plugin_widget)
-                    if stage_type == core_constants.COLLECTOR and isinstance(
+                    if isinstance(
                         step_obj, override_widgets.PublisherAccordionStepWidget
                     ):
-                        # Connect input change to accordion
-                        # TODO: support multiple collectors
-                        plugin_widget.inputChanged.connect(
-                            step_obj.collector_input_changed
-                        )
-                        # Eventual initial summary is lost prior to the signal connect, have widget do it again
-                        plugin_widget.report_input()
+                        if stage_type == core_constants.COLLECTOR:
+                            # Connect input change to accordion
+                            # TODO: support multiple collectors
+                            plugin_widget.inputChanged.connect(
+                                step_obj.collector_input_changed
+                            )
+                            # Eventual initial summary is lost prior to the signal connect, have widget do it again
+                            plugin_widget.report_input()
+                        elif stage_type == core_constants.OUTPUT:
+                            step_obj.set_output_plugin_name(plugin_name)
 
                 if isinstance(
                     step_obj, override_widgets.PublisherAccordionStepWidget

@@ -125,6 +125,11 @@ class PublisherAccordionWidget(AccordionBaseWidget):
             parent=parent,
         )
 
+    def init_output_plugin_name_label(self):
+        self.output_plugin_name_label = QtWidgets.QLabel()
+        self.output_plugin_name_label.setObjectName('gray-dark')
+        return self.output_plugin_name_label
+
     def init_status_label(self):
         self._status_label = QtWidgets.QLabel()
         self._status_label.setObjectName('color-primary')
@@ -150,6 +155,7 @@ class PublisherAccordionWidget(AccordionBaseWidget):
         header_widget.setLayout(header_layout)
         header_layout.setContentsMargins(0, 0, 0, 0)
         header_layout.setSpacing(0)
+        header_layout.addWidget(self.init_output_plugin_name_label())
         header_layout.addWidget(self.init_status_label())
         header_layout.addStretch()
         header_layout.addWidget(
@@ -307,6 +313,11 @@ class PublisherAccordionStepWidget(BaseUIWidget):
                 self.options_widget.add_output_widget(step_widget)
         else:
             self.logger.error("Please create a options_widget before parent")
+
+    def set_output_plugin_name(self, plugin_name):
+        self._widget.output_plugin_name_label.setText(
+            '({})'.format(plugin_name)
+        )
 
     def parent_widget(self, step_widget):
         '''Override'''

@@ -275,8 +275,13 @@ class AssetListWidget(QtWidgets.QWidget):
             modifiers == QtCore.Qt.ControlModifier
             and platform.system() == 'Darwin'
         ):
-            # Add to selection
-            pass
+            # Toggle selection
+            if not asset_widget.selected:
+                if asset_widget.set_selected(True):
+                    selection_asset_data_changed = True
+            else:
+                if asset_widget.set_selected(False):
+                    selection_asset_data_changed = True
         elif modifiers == QtCore.Qt.ShiftModifier:
             # Select inbetweens
             if self._last_clicked:
@@ -287,13 +292,13 @@ class AssetListWidget(QtWidgets.QWidget):
                     self._last_clicked.index.row(), asset_widget.index.row()
                 )
                 for widget in self.assets:
-                    if start_row < widget.index.row() < end_row:
+                    if start_row <= widget.index.row() <= end_row:
                         if widget.set_selected(True):
                             selection_asset_data_changed = True
         else:
             self.clear_selection()
-        if asset_widget.set_selected(True):
-            selection_asset_data_changed = True
+            if asset_widget.set_selected(True):
+                selection_asset_data_changed = True
         self._last_clicked = asset_widget
         if selection_asset_data_changed:
             selection = self.selection()

@@ -10,7 +10,7 @@ from functools import partial
 from Qt import QtCore, QtWidgets
 
 from ftrack_connect_pipeline.client import constants
-
+from ftrack_connect_pipeline.utils import ftrack_context_id
 from ftrack_connect_pipeline_qt.ui.utility.widget.thumbnail import (
     Context,
 )
@@ -32,9 +32,7 @@ from ftrack_connect_pipeline_qt.ui.assembler.base import (
 from ftrack_connect_pipeline_qt.ui.utility.widget.version_selector import (
     VersionComboBox,
 )
-from ftrack_connect_pipeline_qt.ui.utility.widget.dialog import (
-    ModalDialog,
-)
+from ftrack_connect_pipeline_qt.ui.utility.widget import dialog
 
 
 class AssemblerDependenciesWidget(AssemblerBaseWidget):
@@ -80,7 +78,9 @@ class AssemblerDependenciesWidget(AssemblerBaseWidget):
                 target=self._resolve_dependencies,
                 target_args=[
                     self._assembler_client.context_selector.context_id,
-                    {'linked_only':False} if self.linked_only is False else None
+                    {'linked_only': False}
+                    if self.linked_only is False
+                    else None,
                 ],
             )
             thread.start()
@@ -88,7 +88,9 @@ class AssemblerDependenciesWidget(AssemblerBaseWidget):
     def _resolve_dependencies(self, context_id, options):
         try:
             return self._assembler_client.asset_manager.resolve_dependencies(
-                context_id, self._on_dependencies_resolved_async, options=options
+                context_id,
+                self._on_dependencies_resolved_async,
+                options=options,
             )
         except Exception as e:
             self.dependencyResolveWarning.emit(True, str(e), 'Error')
@@ -206,8 +208,11 @@ class AssemblerDependenciesWidget(AssemblerBaseWidget):
 class AssemblerBrowserWidget(AssemblerBaseWidget):
 
     componentsFetched = QtCore.Signal(
-        object
+        object, object
     )  # Emitted when a new chunk of versions has been loaded
+    fetchMoreComponents = (
+        QtCore.Signal()
+    )  # Emitted when user requests to fetch more components
     allVersionsFetched = (
         QtCore.Signal()
     )  # Emitted when all versions has been fetched
@@ -260,36 +265,71 @@ class AssemblerBrowserWidget(AssemblerBaseWidget):
         self._search.inputUpdated.connect(self._on_search)
 
     def rebuild(self):
-        ''' Fetch assets beneath the current context, start on new query'''
+        '''Fetch assets beneath the current context, start on new query'''
         if super(AssemblerBrowserWidget, self).rebuild():
 
             if self._entity_browser.entity is None:
                 # First time set
                 self._entity_browser.set_entity(self.get_context())
 
-            # Create component list
+            # Create viewport widget, component list with load more button
+            widget = QtWidgets.QWidget()
+            widget.setLayout(QtWidgets.QVBoxLayout())
+            widget.layout().setContentsMargins(0, 0, 0, 0)
+            widget.layout().setSpacing(1)
+
             self._component_list = BrowserListWidget(self)
             self._component_list.versionChanged.connect(
                 self._on_version_changed
             )
             self.listWidgetCreated.emit(self._component_list)
 
-            self.scroll.setWidget(self._component_list)
+            widget.layout().addWidget(self._component_list)
+
+            self._fetch_more_button = QtWidgets.QPushButton('FETCH MORE...')
+            self._fetch_more_button.setVisible(False)
+            self._fetch_more_button.clicked.connect(self._fetch_more)
+            widget.layout().addWidget(self._fetch_more_button)
+
+            widget.layout().addWidget(QtWidgets.QLabel(), 100)
+
+            self.scroll.setWidget(widget)
+
+            context = self._entity_browser.entity
 
             # Find version beneath browsed entity, in chunks
             self._limit = self._assembler_client.asset_fetch_chunk_size
             self._tail = 0  # The current fetch position
+            self.parent_ids = None
+            self.fetched_version_ids = []
+            self._recent_context_browsed = context
 
             thread = BaseThread(
                 name='fetch_browsed_assets_thread',
                 target=self._fetch_versions,
-                target_args=[self._entity_browser.entity],
+                target_args=[context],
             )
             thread.start()
 
-    def fetch_more(self):
+    def reset(self):
+        self._entity_browser.set_entity(
+            ftrack_context_id(
+                as_entity=True, session=self._assembler_client.session
+            )
+        )
+
+    def _fetch_more(self):
         '''Continue previous query'''
-        pass
+        self._fetch_more_button.setVisible(False)
+        if super(AssemblerBrowserWidget, self).rebuild(reset=False):
+            self._tail += self._limit
+            context = self._entity_browser.entity
+            thread = BaseThread(
+                name='fetch_more_browsed_assets_thread',
+                target=self._fetch_versions,
+                target_args=[context],
+            )
+            thread.start()
 
     def _recursive_get_descendant_ids(self, context):
         result = []
@@ -311,63 +351,59 @@ class AssemblerBrowserWidget(AssemblerBaseWidget):
     def _fetch_versions(self, context):
         '''Search ftrack for versions beneath the given *context_id*'''
         try:
-            self._recent_context_browsed = context
-            # Build list of children ID's (non tasks)
-            parent_ids = self._recursive_get_descendant_ids(context)
+            if self.parent_ids is None:
+                # First run, build list of children ID's (non tasks)
+                self.parent_ids = self._recursive_get_descendant_ids(context)
 
-            fetched_version_ids = []
-            while True:
-                self.logger.info(
-                    'Fetching versions beneath context: {0} [{1}-{2}]'.format(
-                        context, self._tail, self._tail + self._limit - 1
-                    )
+            self.logger.info(
+                'Fetching versions beneath context: {0} [{1}-{2}]'.format(
+                    context, self._tail, self._tail + self._limit - 1
                 )
-                task_sub_query = ''
-                if context.entity_type == 'Task':
-                    task_sub_query = 'task.id is "{0}"'.format(context['id'])
-                if len(parent_ids) > 0:
-                    if len(task_sub_query) > 0:
-                        task_sub_query = '{} or '.format(task_sub_query)
-                    task_sub_query = '{0}task.parent.id in ({1})'.format(
-                        task_sub_query,
-                        ','.join(
-                            [
-                                '"{}"'.format(context_id)
-                                for context_id in parent_ids
-                            ]
-                        ),
-                    )
-                versions = []
-                for version in self.session.query(
-                    'select id,task,version from AssetVersion where '
-                    ' is_latest_version=true and ({0}) offset {1} limit {2}'.format(
-                        task_sub_query,
-                        self._tail,
-                        self._limit,
-                    )
-                ):
-                    if not version['id'] in fetched_version_ids:
-                        self.logger.debug(
-                            'Got version: {}_v{}({})'.format(
-                                version['asset']['name'],
-                                version['version'],
-                                version['id'],
-                            )
+            )
+            task_sub_query = ''
+            if context.entity_type == 'Task':
+                task_sub_query = 'task.id is "{0}"'.format(context['id'])
+            if len(self.parent_ids) > 0:
+                if len(task_sub_query) > 0:
+                    task_sub_query = '{} or '.format(task_sub_query)
+                task_sub_query = '{0}task.parent.id in ({1})'.format(
+                    task_sub_query,
+                    ','.join(
+                        [
+                            '"{}"'.format(context_id)
+                            for context_id in self.parent_ids
+                        ]
+                    ),
+                )
+            versions = []
+            for version in self.session.query(
+                'select id,task,version from AssetVersion where '
+                ' is_latest_version=true and ({0}) offset {1} limit {2}'.format(
+                    task_sub_query,
+                    self._tail,
+                    self._limit,
+                )
+            ):
+                if not version['id'] in self.fetched_version_ids:
+                    self.logger.debug(
+                        'Got version: {}_v{}({})'.format(
+                            version['asset']['name'],
+                            version['version'],
+                            version['id'],
                         )
-                        versions.append(version)
-                        fetched_version_ids.append(version['id'])
+                    )
+                    versions.append(version)
+                    self.fetched_version_ids.append(version['id'])
 
-                if (
-                    self._recent_context_browsed != context
-                    or self._assembler_client.assemble_mode
-                    != self._assembler_client.ASSEMBLE_MODE_BROWSE
-                ):
-                    # User is fast, have already traveled to a new context or switched mode
-                    return
+            if (
+                self._recent_context_browsed != context
+                or self._assembler_client.assemble_mode
+                != self._assembler_client.ASSEMBLE_MODE_BROWSE
+            ):
+                # User is fast, have already traveled to a new context or switched mode
+                return
 
-                if len(versions) == 0:
-                    # We are done
-                    break
+            if len(versions) > 0:
 
                 components = self.extract_components(versions)
 
@@ -379,26 +415,27 @@ class AssemblerBrowserWidget(AssemblerBaseWidget):
                     # User is fast, have already traveled to a new context
                     return
 
-                self.componentsFetched.emit(components)
+                self.componentsFetched.emit(components, len(versions))
+            else:
+                # We are done
+                self.allVersionsFetched.emit()
 
-                self._tail += len(versions)
-
-            self.allVersionsFetched.emit()
         except RuntimeError as re:
             if str(re).find('Internal C++ object') == -1:
                 raise
             # Ignore exception caused by a browse operation that is not valid anymore
 
-    def _on_components_fetched(self, components):
+    def _on_components_fetched(self, components, version_count):
         '''A chunk of versions has been obtained, filter > give setup and add to list'''
         # Will trigger list to be rebuilt.
+        self.stopBusyIndicator.emit()
         self.model.insertRows(self.model.rowCount(), components)
-
+        self._fetch_more_button.setVisible(version_count == self._limit)
         self.update()
 
     def _on_all_versions_fetched(self):
         self.stopBusyIndicator.emit()
-
+        self.update()
         if self.model.rowCount() == 0:
             l = QtWidgets.QLabel(
                 '<html><i>No assets found, please refine your search!</i></html>'
@@ -409,6 +446,7 @@ class AssemblerBrowserWidget(AssemblerBaseWidget):
 
     def update(self):
         '''Update UI on new fetched components'''
+        super(AssemblerBrowserWidget, self).update()
         if self.model.rowCount() > 0:
             self._label_info.setText(
                 'Listing {} asset{}'.format(
@@ -417,7 +455,7 @@ class AssemblerBrowserWidget(AssemblerBaseWidget):
                 )
             )
         else:
-            self._label_info.setText('No assets found.')
+            self._label_info.setText('No assets found')
 
         self._assembler_client.run_button_no_load.setEnabled(
             self._loadable_count > 0
@@ -483,7 +521,7 @@ class AssemblerBrowserWidget(AssemblerBaseWidget):
                 ),
             )
         else:
-            ModalDialog(
+            dialog.ModalDialog(
                 self._assembler_client,
                 title='Change Import Version',
                 message=error_message,
@@ -756,7 +794,7 @@ class BrowsedComponentWidget(ComponentBaseWidget):
 
         # Add context path, relative to browser context
         self._path_widget = QtWidgets.QLabel()
-        self._path_widget.setObjectName("gray-darker")
+        self._path_widget.setObjectName("gray-dark")
 
         widget.layout().addWidget(self._path_widget)
 
@@ -841,37 +879,26 @@ class AssemblerEntityInfo(QtWidgets.QWidget):
 
     pathReady = QtCore.Signal(object)
 
-    def __init__(self, additional_widget=None, parent=None):
+    def __init__(self, parent=None):
         '''Instantiate the entity path widget.'''
         super(AssemblerEntityInfo, self).__init__(parent=parent)
-
-        self._additional_widget = additional_widget
 
         self.pre_build()
         self.build()
         self.post_build()
 
     def pre_build(self):
-        self.setLayout(QtWidgets.QVBoxLayout())
+        self.setLayout(QtWidgets.QHBoxLayout())
         self.layout().setContentsMargins(5, 2, 2, 2)
         self.layout().setSpacing(2)
 
     def build(self):
-        name_widget = QtWidgets.QWidget()
-        name_widget.setLayout(QtWidgets.QHBoxLayout())
-        name_widget.layout().setContentsMargins(1, 1, 1, 1)
-        name_widget.layout().setSpacing(2)
-
-        self._from_field = QtWidgets.QLabel('From:')
-        self._from_field.setObjectName('gray-darker')
-        name_widget.layout().addWidget(self._from_field)
-        if self._additional_widget:
-            name_widget.layout().addWidget(self._additional_widget)
-        name_widget.layout().addStretch()
-        self.layout().addWidget(name_widget)
+        self._from_field = QtWidgets.QLabel('Dependency from')
+        self._from_field.setObjectName('gray-dark')
+        self.layout().addWidget(self._from_field)
 
         self._path_field = QtWidgets.QLabel()
-        self._path_field.setObjectName('gray')
+        # self._path_field.setObjectName('gray')
         self.layout().addWidget(self._path_field)
 
         self.layout().addStretch()

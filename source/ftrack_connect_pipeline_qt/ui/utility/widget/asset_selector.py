@@ -165,7 +165,6 @@ class NewAssetInput(QtWidgets.QFrame):
         self.layout().addWidget(self.button)
 
         self.name = NewAssetNameInput()
-        # self.name.setStyleSheet('border: 1px solid $gray-dark;')
         self.name.setPlaceholderText(self._placeholder_name)
         self.name.setValidator(self._validator)
         self.name.setSizePolicy(
