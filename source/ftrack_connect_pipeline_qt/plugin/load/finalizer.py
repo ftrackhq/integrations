@@ -5,5 +5,5 @@ from ftrack_connect_pipeline import constants
 from ftrack_connect_pipeline_qt.plugin import base
 
 
-class LoaderFinalizerWidget(base.BaseFinalizerWidget):
+class LoaderFinalizerPluginWidget(base.BaseFinalizerPluginWidget):
     plugin_type = constants.PLUGIN_LOADER_FINALIZER_TYPE

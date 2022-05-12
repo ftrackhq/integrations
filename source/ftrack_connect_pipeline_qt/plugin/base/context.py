@@ -5,7 +5,7 @@ from ftrack_connect_pipeline.constants import plugin
 from ftrack_connect_pipeline_qt.plugin import BasePluginWidget
 
 
-class BaseContextWidget(BasePluginWidget):
+class BaseContextPluginWidget(BasePluginWidget):
     '''
     Base Context Widget Class inherits from
     :class:`~ftrack_connect_pipeline_qt.plugin.BasePluginWidget`

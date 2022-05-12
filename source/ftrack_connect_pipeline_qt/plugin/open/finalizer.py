@@ -5,5 +5,5 @@ from ftrack_connect_pipeline import constants
 from ftrack_connect_pipeline_qt.plugin import base
 
 
-class OpenerFinalizerWidget(base.BaseFinalizerWidget):
+class OpenerFinalizerPluginWidget(base.BaseFinalizerPluginWidget):
     plugin_type = constants.PLUGIN_OPENER_FINALIZER_TYPE
