@@ -10,7 +10,7 @@ from ftrack_connect_pipeline_nuke.asset import NukeFtrackObjectManager
 from ftrack_connect_pipeline_nuke.asset import NukeDccObject
 
 
-class BaseNukePlugin(plugin.BasePlugin):
+class NukeBasePlugin(plugin.BasePlugin):
     host_type = nuke_constants.HOST_TYPE
 
     FtrackObjectManager = NukeFtrackObjectManager
@@ -20,17 +20,17 @@ class BaseNukePlugin(plugin.BasePlugin):
 
     @nuke_utils.run_in_main_thread
     def _run(self, event):
-        super_fn = super(BaseNukePlugin, self)._run
+        super_fn = super(NukeBasePlugin, self)._run
         result = super_fn(event)
         return result
 
 
-class BaseNukePluginWidget(BaseNukePlugin, pluginWidget.BasePluginWidget):
+class NukeBasePluginWidget(NukeBasePlugin, pluginWidget.BasePluginWidget):
     ui_type = nuke_constants.UI_TYPE
 
     @nuke_utils.run_in_main_thread
     def _run(self, event):
-        super_fn = super(BaseNukePluginWidget, self)._run
+        super_fn = super(NukeBasePluginWidget, self)._run
         result = super_fn(event)
         return result
 

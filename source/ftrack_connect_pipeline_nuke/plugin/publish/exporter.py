@@ -4,12 +4,12 @@
 from ftrack_connect_pipeline import plugin
 from ftrack_connect_pipeline_qt import plugin as pluginWidget
 from ftrack_connect_pipeline_nuke.plugin import (
-    BaseNukePlugin,
-    BaseNukePluginWidget,
+    NukeBasePlugin,
+    NukeBasePluginWidget,
 )
 
 
-class NukePublisherExporterPlugin(plugin.PublisherExporterPlugin, BaseNukePlugin):
+class NukePublisherExporterPlugin(plugin.PublisherExporterPlugin, NukeBasePlugin):
     '''Class representing an exporter Plugin
     .. note::
 
@@ -18,7 +18,7 @@ class NukePublisherExporterPlugin(plugin.PublisherExporterPlugin, BaseNukePlugin
 
 
 class NukePublisherExporterPluginWidget(
-    pluginWidget.PublisherExporterPluginWidget, BaseNukePluginWidget
+    pluginWidget.PublisherExporterPluginWidget, NukeBasePluginWidget
 ):
     '''Class representing an exporter Widget
     .. note::

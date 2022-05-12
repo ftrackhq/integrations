@@ -4,12 +4,12 @@
 from ftrack_connect_pipeline import plugin
 from ftrack_connect_pipeline_qt import plugin as pluginWidget
 from ftrack_connect_pipeline_nuke.plugin import (
-    BaseNukePlugin,
-    BaseNukePluginWidget,
+    NukeBasePlugin,
+    NukeBasePluginWidget,
 )
 
 
-class LoaderFinalizerNukePlugin(plugin.LoaderFinalizerPlugin, BaseNukePlugin):
+class NukeLoaderFinalizerPlugin(plugin.LoaderFinalizerPlugin, NukeBasePlugin):
     '''Class representing a Finalizer Plugin
 
     .. note::
@@ -20,8 +20,8 @@ class LoaderFinalizerNukePlugin(plugin.LoaderFinalizerPlugin, BaseNukePlugin):
     '''
 
 
-class LoaderFinalizerNukeWidget(
-    pluginWidget.LoaderFinalizerWidget, BaseNukePluginWidget
+class NukeLoaderFinalizerPluginWidget(
+    pluginWidget.LoaderFinalizerPluginWidget, NukeBasePluginWidget
 ):
     '''Class representing a Finalizer Widget
 

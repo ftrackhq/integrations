@@ -4,13 +4,13 @@
 from ftrack_connect_pipeline import plugin
 from ftrack_connect_pipeline_qt import plugin as pluginWidget
 from ftrack_connect_pipeline_nuke.plugin import (
-    BaseNukePlugin,
-    BaseNukePluginWidget,
+    NukeBasePlugin,
+    NukeBasePluginWidget,
 )
 
 
-class PublisherContextNukePlugin(
-    plugin.PublisherContextPlugin, BaseNukePlugin
+class NukePublisherContextPlugin(
+    plugin.PublisherContextPlugin, NukeBasePlugin
 ):
     '''Class representing a Context Plugin
     .. note::
@@ -20,8 +20,8 @@ class PublisherContextNukePlugin(
     '''
 
 
-class PublisherContextNukeWidget(
-    pluginWidget.PublisherContextWidget, BaseNukePluginWidget
+class NukePublisherContextPluginWidget(
+    pluginWidget.PublisherContextPluginWidget, NukeBasePluginWidget
 ):
     '''Class representing a Context Widget
     .. note::

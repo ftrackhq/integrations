@@ -4,13 +4,13 @@
 from ftrack_connect_pipeline import plugin
 from ftrack_connect_pipeline_qt import plugin as pluginWidget
 from ftrack_connect_pipeline_nuke.plugin import (
-    BaseNukePlugin,
-    BaseNukePluginWidget,
+    NukeBasePlugin,
+    NukeBasePluginWidget,
 )
 
 
-class OpenerPreFinalizerNukePlugin(
-    plugin.OpenerPreFinalizerPlugin, BaseNukePlugin
+class NukeOpenerPreFinalizerPlugin(
+    plugin.OpenerPreFinalizerPlugin, NukeBasePlugin
 ):
     '''Class representing a Pre Finalizer Plugin
 
@@ -22,8 +22,8 @@ class OpenerPreFinalizerNukePlugin(
     '''
 
 
-class OpenerPreFinalizerNukeWidget(
-    pluginWidget.OpenerPreFinalizerWidget, BaseNukePluginWidget
+class NukeOpenerPreFinalizerPluginWidget(
+    pluginWidget.OpenerPreFinalizerPluginWidget, NukeBasePluginWidget
 ):
     '''Class representing a Pre Finalizer Widget
 

@@ -4,12 +4,12 @@
 from ftrack_connect_pipeline import plugin
 from ftrack_connect_pipeline_qt import plugin as pluginWidget
 from ftrack_connect_pipeline_nuke.plugin import (
-    BaseNukePlugin,
-    BaseNukePluginWidget,
+    NukeBasePlugin,
+    NukeBasePluginWidget,
 )
 
 
-class LoaderContextNukePlugin(plugin.LoaderContextPlugin, BaseNukePlugin):
+class NukeLoaderContextPlugin(plugin.LoaderContextPlugin, NukeBasePlugin):
     '''Class representing a Context Plugin
     .. note::
 
@@ -18,8 +18,8 @@ class LoaderContextNukePlugin(plugin.LoaderContextPlugin, BaseNukePlugin):
     '''
 
 
-class LoaderContextNukeWidget(
-    pluginWidget.LoaderContextWidget, BaseNukePluginWidget
+class NukeLoaderContextPluginWidget(
+    pluginWidget.LoaderContextPluginWidget, NukeBasePluginWidget
 ):
     '''Class representing a Context Widget
     .. note::

@@ -4,13 +4,13 @@
 from ftrack_connect_pipeline import plugin
 from ftrack_connect_pipeline_qt import plugin as pluginWidget
 from ftrack_connect_pipeline_nuke.plugin import (
-    BaseNukePlugin,
-    BaseNukePluginWidget,
+    NukeBasePlugin,
+    NukeBasePluginWidget,
 )
 
 
-class PublisherValidatorNukePlugin(
-    plugin.PublisherValidatorPlugin, BaseNukePlugin
+class NukePublisherValidatorPlugin(
+    plugin.PublisherValidatorPlugin, NukeBasePlugin
 ):
     '''Class representing a Validator Plugin
 
@@ -20,8 +20,8 @@ class PublisherValidatorNukePlugin(
     '''
 
 
-class PublisherValidatorNukeWidget(
-    pluginWidget.PublisherValidatorWidget, BaseNukePluginWidget
+class NukePublisherValidatorPluginWidget(
+    pluginWidget.PublisherValidatorPluginWidget, NukeBasePluginWidget
 ):
     '''Class representing a Validator widget
 
