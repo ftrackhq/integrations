@@ -5,7 +5,7 @@ from ftrack_connect_pipeline.plugin import BasePlugin, BasePluginValidation
 from ftrack_connect_pipeline.constants import plugin
 
 
-class DiscoverPluginValidation(BasePluginValidation):
+class BaseDiscoverPluginValidation(BasePluginValidation):
     '''
     Discover Plugin Validation class inherits from
     :class:`~ftrack_connect_pipeline.plugin.BasePluginValidation`
@@ -14,7 +14,7 @@ class DiscoverPluginValidation(BasePluginValidation):
     def __init__(
         self, plugin_name, required_output, return_type, return_value
     ):
-        super(DiscoverPluginValidation, self).__init__(
+        super(BaseDiscoverPluginValidation, self).__init__(
             plugin_name, required_output, return_type, return_value
         )
 
@@ -54,7 +54,7 @@ class BaseDiscoverPlugin(BasePlugin):
 
     def __init__(self, session):
         super(BaseDiscoverPlugin, self).__init__(session)
-        self.validator = DiscoverPluginValidation(
+        self.validator = BaseDiscoverPluginValidation(
             self.plugin_name,
             self._required_output,
             self.return_type,
