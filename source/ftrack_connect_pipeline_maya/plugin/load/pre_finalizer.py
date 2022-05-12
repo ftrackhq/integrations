@@ -4,13 +4,13 @@
 from ftrack_connect_pipeline import plugin
 from ftrack_connect_pipeline_qt import plugin as pluginWidget
 from ftrack_connect_pipeline_maya.plugin import (
-    BaseMayaPlugin,
-    BaseMayaPluginWidget,
+    MayaBasePlugin,
+    MayaBasePluginWidget,
 )
 
 
-class LoaderPreFinalizerMayaPlugin(
-    plugin.LoaderPreFinalizerPlugin, BaseMayaPlugin
+class MayaLoaderPreFinalizerPlugin(
+    plugin.LoaderPreFinalizerPlugin, MayaBasePlugin
 ):
     '''Class representing a Pre Finalizer Plugin
 
@@ -22,8 +22,8 @@ class LoaderPreFinalizerMayaPlugin(
     '''
 
 
-class LoaderPreFinalizerMayaWidget(
-    pluginWidget.LoaderPreFinalizerWidget, BaseMayaPluginWidget
+class MayaLoaderPreFinalizerPluginWidget(
+    pluginWidget.LoaderPreFinalizerPluginWidget, MayaBasePluginWidget
 ):
     '''Class representing a Pre Finalizer Widget
 

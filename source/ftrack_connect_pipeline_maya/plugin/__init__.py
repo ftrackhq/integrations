@@ -10,7 +10,7 @@ from ftrack_connect_pipeline_maya.asset import MayaFtrackObjectManager
 from ftrack_connect_pipeline_maya.asset.dcc_object import MayaDccObject
 
 
-class BaseMayaPlugin(plugin.BasePlugin):
+class MayaBasePlugin(plugin.BasePlugin):
     host_type = maya_constants.HOST_TYPE
 
     FtrackObjectManager = MayaFtrackObjectManager
@@ -20,16 +20,16 @@ class BaseMayaPlugin(plugin.BasePlugin):
 
     @maya_utils.run_in_main_thread
     def _run(self, event):
-        return super(BaseMayaPlugin, self)._run(event)
+        return super(MayaBasePlugin, self)._run(event)
 
 
-class BaseMayaPluginWidget(BaseMayaPlugin, pluginWidget.BasePluginWidget):
+class MayaBasePluginWidget(MayaBasePlugin, pluginWidget.BasePluginWidget):
     category = 'plugin.widget'
     ui_type = maya_constants.UI_TYPE
 
     @maya_utils.run_in_main_thread
     def _run(self, event):
-        return super(BaseMayaPluginWidget, self)._run(event)
+        return super(MayaBasePluginWidget, self)._run(event)
 
 
 from ftrack_connect_pipeline_maya.plugin.load import *

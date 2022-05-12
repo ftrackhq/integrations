@@ -6,8 +6,8 @@ import maya
 from ftrack_connect_pipeline import plugin
 from ftrack_connect_pipeline_qt import plugin as pluginWidget
 from ftrack_connect_pipeline_maya.plugin import (
-    BaseMayaPlugin,
-    BaseMayaPluginWidget,
+    MayaBasePlugin,
+    MayaBasePluginWidget,
 )
 
 from ftrack_connect_pipeline_maya.utils import custom_commands as maya_utils
@@ -15,7 +15,7 @@ from ftrack_connect_pipeline_maya.constants.asset import modes as load_const
 from ftrack_connect_pipeline_maya.constants import asset as asset_const
 
 
-class OpenerImporterMayaPlugin(plugin.OpenerImporterPlugin, BaseMayaPlugin):
+class MayaOpenerImporterPlugin(plugin.OpenerImporterPlugin, MayaBasePlugin):
     '''Class representing a Collector Plugin
 
     .. note::
@@ -34,8 +34,8 @@ class OpenerImporterMayaPlugin(plugin.OpenerImporterPlugin, BaseMayaPlugin):
         return maya_utils.get_current_scene_objects()
 
 
-class OpenerImporterMayaWidget(
-    pluginWidget.OpenerImporterWidget, BaseMayaPluginWidget
+class MayaOpenerImporterPluginWidget(
+    pluginWidget.OpenerImporterPluginWidget, MayaBasePluginWidget
 ):
     '''Class representing a Collector Widget
 

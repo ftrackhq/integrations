@@ -4,8 +4,8 @@
 from ftrack_connect_pipeline import plugin
 from ftrack_connect_pipeline_qt import plugin as pluginWidget
 from ftrack_connect_pipeline_maya.plugin import (
-    BaseMayaPlugin,
-    BaseMayaPluginWidget,
+    MayaBasePlugin,
+    MayaBasePluginWidget,
 )
 
 import maya.cmds as cmds
@@ -13,8 +13,8 @@ from ftrack_connect_pipeline_maya.utils import custom_commands as maya_utils
 from ftrack_connect_pipeline_maya.constants import asset as asset_const
 
 
-class PublisherFinalizerMayaPlugin(
-    plugin.PublisherFinalizerPlugin, BaseMayaPlugin
+class MayaPublisherFinalizerPlugin(
+    plugin.PublisherFinalizerPlugin, MayaBasePlugin
 ):
     '''Class representing a Finalizer Plugin
 
@@ -56,13 +56,13 @@ class PublisherFinalizerMayaPlugin(
                 if dependency_version not in self.version_dependencies:
                     self.version_dependencies.append(dependency_version)
 
-        super_result = super(PublisherFinalizerMayaPlugin, self)._run(event)
+        super_result = super(MayaPublisherFinalizerPlugin, self)._run(event)
 
         return super_result
 
 
-class PublisherFinalizerMayaWidget(
-    pluginWidget.PublisherFinalizerWidget, BaseMayaPluginWidget
+class MayaPublisherFinalizerPluginWidget(
+    pluginWidget.PublisherFinalizerPluginWidget, MayaBasePluginWidget
 ):
     '''Class representing a Finalizer Widget
 
