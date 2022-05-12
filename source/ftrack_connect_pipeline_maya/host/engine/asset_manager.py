@@ -121,9 +121,7 @@ class MayaAssetManagerEngine(AssetManagerEngine):
             cmds.select(cl=True)
 
         nodes = cmds.listConnections(
-            '{}.{}'.format(
-                self.dcc_object.name, asset_const.ASSET_LINK
-            )
+            '{}.{}'.format(self.dcc_object.name, asset_const.ASSET_LINK)
         )
         for node in nodes:
             try:
@@ -212,13 +210,10 @@ class MayaAssetManagerEngine(AssetManagerEngine):
 
         reference_node = False
         nodes = (
-                cmds.listConnections(
-                    '{}.{}'.format(
-                        self.dcc_object.name,
-                        asset_const.ASSET_LINK
-                    )
-                )
-                or []
+            cmds.listConnections(
+                '{}.{}'.format(self.dcc_object.name, asset_const.ASSET_LINK)
+            )
+            or []
         )
         if self.dcc_object.name in nodes:
             nodes.remove(self.dcc_object.name)
@@ -335,9 +330,7 @@ class MayaAssetManagerEngine(AssetManagerEngine):
         reference_node = False
         nodes = (
             cmds.listConnections(
-                '{}.{}'.format(
-                    self.dcc_object.name, asset_const.ASSET_LINK
-                )
+                '{}.{}'.format(self.dcc_object.name, asset_const.ASSET_LINK)
             )
             or []
         )
@@ -404,16 +397,14 @@ class MayaAssetManagerEngine(AssetManagerEngine):
                     self._notify_client(plugin, result_data)
                     return status, result
 
-        if (cmds.objExists(self.dcc_object.name)):
+        if cmds.objExists(self.dcc_object.name):
             try:
                 cmds.delete(self.dcc_object.name)
                 result.append(str(self.dcc_object.name))
                 status = constants.SUCCESS_STATUS
             except Exception as error:
                 message = str(
-                    'Could not delete the dcc_object, error: {}'.format(
-                        error
-                    )
+                    'Could not delete the dcc_object, error: {}'.format(error)
                 )
                 self.logger.error(message)
                 status = constants.ERROR_STATUS
