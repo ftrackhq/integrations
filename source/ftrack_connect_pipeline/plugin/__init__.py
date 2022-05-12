@@ -165,7 +165,9 @@ class BasePlugin(object):
         Initializes and returns an instance of
         :class:`~ftrack_connect_pipeline.asset.FtrackObjectManager`
         '''
-        if not isinstance(self._ftrack_object_manager, self.FtrackObjectManager):
+        if not isinstance(
+            self._ftrack_object_manager, self.FtrackObjectManager
+        ):
             self._ftrack_object_manager = self.FtrackObjectManager(
                 self.event_manager
             )
@@ -247,8 +249,6 @@ class BasePlugin(object):
     def method(self):
         '''Returns the current method'''
         return self._method
-
-
 
     def __init__(self, session):
         '''

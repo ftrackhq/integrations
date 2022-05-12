@@ -571,13 +571,9 @@ class AssetManagerEngine(BaseEngine):
         self.dcc_object = dcc_object
 
         # Get Component name from the original asset info
-        component_name = self.asset_info.get(
-            asset_const.COMPONENT_NAME
-        )
+        component_name = self.asset_info.get(asset_const.COMPONENT_NAME)
         # Get the asset info options from the original asset info
-        asset_info_options = self.asset_info[
-            asset_const.ASSET_INFO_OPTIONS
-        ]
+        asset_info_options = self.asset_info[asset_const.ASSET_INFO_OPTIONS]
 
         remove_result = None
         remove_status = None
@@ -631,7 +627,9 @@ class AssetManagerEngine(BaseEngine):
             for component in asset_version_entity['components']:
                 if component['name'] == component_name:
                     if location.get_component_availability(component) == 100.0:
-                        component_path = location.get_filesystem_path(component)
+                        component_path = location.get_filesystem_path(
+                            component
+                        )
 
             # Use the original asset_info options to reload the new version
             # Collect asset_context_data and asset data
@@ -643,7 +641,9 @@ class AssetManagerEngine(BaseEngine):
             asset_context_data[asset_const.VERSION_ID] = version_id
 
             # Update asset_info_options
-            asset_info_options['settings']['data'][0]['result'] = [component_path]
+            asset_info_options['settings']['data'][0]['result'] = [
+                component_path
+            ]
             asset_info_options['settings']['context_data'].update(
                 asset_context_data
             )

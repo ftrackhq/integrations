@@ -150,7 +150,9 @@ class HostConnection(object):
         self._event_manager = event_manager
         self._raw_host_data = copy_data
 
-        self.context_id = utils.ftrack_context_id() or self._raw_host_data.get('context_id')
+        self.context_id = utils.ftrack_context_id() or self._raw_host_data.get(
+            'context_id'
+        )
 
     def run(self, data, engine, callback=None):
         '''
