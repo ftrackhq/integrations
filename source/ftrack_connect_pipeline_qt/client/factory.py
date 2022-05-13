@@ -400,9 +400,9 @@ class WidgetFactoryBase(QtWidgets.QWidget):
             if plugin_type == 'publisher.validator':
                 # We have a particular default validator for the publisher to be
                 # able to enable test of each validator on publish time.
-                widget_name = 'default.validator.widget'
+                widget_name = 'common_default_shared_validator'
             else:
-                widget_name = 'default.widget'
+                widget_name = 'common_default_shared'
             self.logger.debug(
                 'Widget not found, falling back on: {}'.format(widget_name)
             )
