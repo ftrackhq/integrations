@@ -68,9 +68,7 @@ class MayaDccObject(DccObject):
             raise RuntimeError(error_message)
 
         dcc_object = cmds.createNode(asset_const.FTRACK_PLUGIN_TYPE, name=name)
-        self.logger.debug(
-            'Creating new dcc object {}'.format(dcc_object)
-        )
+        self.logger.debug('Creating new dcc object {}'.format(dcc_object))
         self.name = dcc_object
         return self.name
 
@@ -93,10 +91,7 @@ class MayaDccObject(DccObject):
             id_value = cmds.getAttr(
                 '{}.{}'.format(dcc_object_name, asset_const.ASSET_INFO_ID)
             )
-            if (
-                    id_value
-                    == asset_info_id
-            ):
+            if id_value == asset_info_id:
                 self.logger.debug(
                     'Found existing object: {}'.format(dcc_object_name)
                 )

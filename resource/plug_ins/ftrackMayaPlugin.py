@@ -209,8 +209,6 @@ def uninitializePlugin(m_object):
         m_plugin.deregisterNode(kPluginNodeId)
     except:
         sys.stderr.write(
-            'Failed to deregister dcc_object: {0}'.format(
-                kPluginNodeTypeName
-            )
+            'Failed to deregister dcc_object: {0}'.format(kPluginNodeTypeName)
         )
         raise
