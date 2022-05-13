@@ -4,6 +4,7 @@
 import logging
 from ftrack_connect_pipeline.constants import asset as asset_const
 
+
 class DccObject(dict):
     '''Base DccObject class.'''
 
@@ -90,8 +91,10 @@ class DccObject(dict):
         # using the __setitem__ method
         if args:
             if len(args) > 1:
-                raise TypeError("update expected at most 1 arguments, "
-                                "got %d" % len(args))
+                raise TypeError(
+                    "update expected at most 1 arguments, "
+                    "got %d" % len(args)
+                )
             other = dict(args[0])
             for key in other:
                 self[key] = other[key]
