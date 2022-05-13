@@ -146,7 +146,9 @@ class NukeAssetManagerEngine(AssetManagerEngine):
             ).value()
             nodes_to_delete = parented_nodes_names
             if len(nodes_to_delete_str) > 0:
-                nodes_to_delete = set(nodes_to_delete + nodes_to_delete_str.split(";"))
+                nodes_to_delete = set(
+                    nodes_to_delete + nodes_to_delete_str.split(";")
+                )
             for node_name in nodes_to_delete:
                 node_to_delete = nuke.toNode(node_name)
                 self.logger.debug(
@@ -266,7 +268,9 @@ class NukeAssetManagerEngine(AssetManagerEngine):
             ).value()
             node_names_to_delete = parented_nodes_names
             if len(nodes_to_delete_str or '') > 0:
-                node_names_to_delete = set(node_names_to_delete + nodes_to_delete_str.split(";"))
+                node_names_to_delete = set(
+                    node_names_to_delete + nodes_to_delete_str.split(";")
+                )
             for node_name in node_names_to_delete:
                 node_to_delete = nuke.toNode(node_name)
                 self.logger.debug(
@@ -335,7 +339,6 @@ class NukeAssetManagerEngine(AssetManagerEngine):
 
         return status, result
 
-
     @nuke_utils.run_in_main_thread
     def select_asset(self, asset_info, options=None, plugin=None):
         '''
@@ -381,7 +384,9 @@ class NukeAssetManagerEngine(AssetManagerEngine):
         nodes_to_select_str = ftrack_node.knob(asset_const.ASSET_LINK).value()
         nodes_to_select = parented_nodes_names
         if len(nodes_to_select_str) > 0:
-            nodes_to_select = set(nodes_to_select + nodes_to_select_str.split(";"))
+            nodes_to_select = set(
+                nodes_to_select + nodes_to_select_str.split(";")
+            )
 
         for node_name in nodes_to_select:
             try:
