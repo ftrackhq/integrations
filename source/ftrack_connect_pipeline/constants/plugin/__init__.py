@@ -19,7 +19,7 @@ _PLUGIN_EXPORTER_TYPE = 'exporter'
 #: Generic plugin type for importer plugins
 _PLUGIN_IMPORTER_TYPE = 'importer'
 #: Generic plugin type for post import plugins
-_PLUGIN_POST_IMPORT_TYPE = 'post_import'
+_PLUGIN_POST_IMPORTER_TYPE = 'post_importer'
 #: Generic plugin type for action plugins
 _PLUGIN_ACTION_TYPE = 'action'
 #: Generic plugin type for discover plugins

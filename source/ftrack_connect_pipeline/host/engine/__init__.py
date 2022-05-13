@@ -692,7 +692,7 @@ class BaseEngine(object):
                         if not component_stage.get("type") in [
                             constants.IMPORTER,
                             constants.EXPORTER,
-                            constants.POST_IMPORT,
+                            constants.POST_IMPORTER,
                         ]:
                             self.logger.debug(
                                 "Removing stage name {} of type {}".format(

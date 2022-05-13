@@ -427,7 +427,7 @@ class BasePlugin(object):
         Also this functions saves the original passed data to the property
         :obj:`raw_data`.
 
-        Note:: Publisher validator, exporters and Loader/Opener importer and post_import
+        Note:: Publisher validator, exporters and Loader/Opener importer and post_importer
         plugin types override this function to modify the data that arrives to
         the plugin.
         '''

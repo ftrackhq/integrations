@@ -37,7 +37,7 @@ EXPORTER = 'exporter'
 #: Importer component stage name.
 IMPORTER = 'importer'
 #: Post_import component stage name.
-POST_IMPORT = 'post_import'
+POST_IMPORTER = 'post_importer'
 
 # Common definition types.
 #: Loader definition.

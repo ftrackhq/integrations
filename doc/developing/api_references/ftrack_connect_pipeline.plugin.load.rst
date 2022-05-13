@@ -42,7 +42,7 @@ ftrack\_connect\_pipeline.plugin.load.importer
 ftrack\_connect\_pipeline.plugin.load.post\_import
 ---------------------------------------------------------
 
-.. automodule:: ftrack_connect_pipeline.plugin.load.post_import
+.. automodule:: ftrack_connect_pipeline.plugin.load.post_importer
     :members:
     :undoc-members:
     :show-inheritance:

@@ -66,7 +66,7 @@ ftrack\_connect\_pipeline.plugin.base.exporter
 ftrack\_connect\_pipeline.plugin.base.post\_import
 ---------------------------------------------------------
 
-.. automodule:: ftrack_connect_pipeline.plugin.base.post_import
+.. automodule:: ftrack_connect_pipeline.plugin.base.post_importer
     :members:
     :undoc-members:
     :show-inheritance:
