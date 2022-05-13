@@ -9,8 +9,8 @@ from ftrack_connect_pipeline_nuke.plugin import (
 )
 
 
-class NukeOpenerPostImportPlugin(
-    plugin.OpenerPostImportPlugin, NukeBasePlugin
+class NukeOpenerPostImporterPlugin(
+    plugin.OpenerPostImporterPlugin, NukeBasePlugin
 ):
     '''Class representing a Collector Plugin
 
@@ -20,8 +20,8 @@ class NukeOpenerPostImportPlugin(
     '''
 
 
-class NukeOpenerPostImportPluginWidget(
-    pluginWidget.OpenerPostImportPluginWidget, NukeBasePluginWidget
+class NukeOpenerPostImporterPluginWidget(
+    pluginWidget.OpenerPostImporterPluginWidget, NukeBasePluginWidget
 ):
     '''Class representing a Collector Widget
 
