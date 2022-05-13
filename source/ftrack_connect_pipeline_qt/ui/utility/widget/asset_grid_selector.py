@@ -55,7 +55,7 @@ class AssetItem(QtWidgets.QPushButton):
         self.version_combobox.set_context_id(self.context_id)
         self.version_combobox.set_asset_entity(self.asset)
         self.current_version_number = (
-            self.version_combobox.currentText().split("Version ")[1]
+            self.version_combobox.currentText().split("v")[1]
         )
 
         self.layout().addWidget(self.thumbnail_widget, stretch=2)
@@ -71,7 +71,7 @@ class AssetItem(QtWidgets.QPushButton):
         if current_index == -1:
             return
         self.current_version_number = (
-            self.version_combobox.currentText().split("Version ")[1]
+            self.version_combobox.currentText().split("v")[1]
         )
         current_idx = self.version_combobox.currentIndex()
         self.current_version_id = self.version_combobox.itemData(current_idx)
