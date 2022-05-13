@@ -299,16 +299,16 @@ class AssetManagerWidget(AssetManagerBaseWidget):
         if self.check_selection(selection):
             for a_info in selection:
                 loaded = a_info[asset_constants.OBJECTS_LOADED]
-                #This is not always a boolean so that is why ensuring the
+                # This is not always a boolean so that is why ensuring the
                 # correct behaviour using str.
                 if str(loaded) == "True":
                     selection.remove(a_info)
             if len(selection) == 0:
                 ModalDialog(
-                self._asset_manager_client,
-                title='ftrack Asset manager',
-                message='Selected Assets are already loaded.',
-            )
+                    self._asset_manager_client,
+                    title='ftrack Asset manager',
+                    message='Selected Assets are already loaded.',
+                )
             else:
                 self.loadAssets.emit(selection, plugin)
 
@@ -345,10 +345,10 @@ class AssetManagerWidget(AssetManagerBaseWidget):
                     selection.remove(a_info)
             if len(selection) == 0:
                 ModalDialog(
-                self._asset_manager_client,
-                title='ftrack Asset manager',
-                message='Selected Assets are already unloaded.',
-            )
+                    self._asset_manager_client,
+                    title='ftrack Asset manager',
+                    message='Selected Assets are already unloaded.',
+                )
             else:
                 if ModalDialog(
                     self._asset_manager_client.parent(),
