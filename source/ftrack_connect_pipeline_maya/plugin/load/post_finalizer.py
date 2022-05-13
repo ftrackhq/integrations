@@ -9,7 +9,9 @@ from ftrack_connect_pipeline_maya.plugin import (
 )
 
 
-class MayaLoaderPostFinalizerPlugin(plugin.LoaderPostFinalizerPlugin, MayaBasePlugin):
+class MayaLoaderPostFinalizerPlugin(
+    plugin.LoaderPostFinalizerPlugin, MayaBasePlugin
+):
     '''Class representing a Post Finalizer Plugin
 
     .. note::

@@ -9,7 +9,9 @@ from ftrack_connect_pipeline_maya.plugin import (
 )
 
 
-class MayaPublisherExporterPlugin(plugin.PublisherExporterPlugin, MayaBasePlugin):
+class MayaPublisherExporterPlugin(
+    plugin.PublisherExporterPlugin, MayaBasePlugin
+):
     '''Class representing an Exporter Plugin
     .. note::
 

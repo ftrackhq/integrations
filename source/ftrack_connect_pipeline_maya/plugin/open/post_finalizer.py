@@ -9,7 +9,9 @@ from ftrack_connect_pipeline_maya.plugin import (
 )
 
 
-class MayaOpenerPostFinalizerPlugin(plugin.OpenerPostFinalizerPlugin, MayaBasePlugin):
+class MayaOpenerPostFinalizerPlugin(
+    plugin.OpenerPostFinalizerPlugin, MayaBasePlugin
+):
     '''Class representing a Post Finalizer Plugin
 
     .. note::

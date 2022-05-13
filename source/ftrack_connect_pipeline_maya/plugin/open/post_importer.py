@@ -9,8 +9,8 @@ from ftrack_connect_pipeline_maya.plugin import (
 )
 
 
-class MayaOpenerPostImportPlugin(
-    plugin.OpenerPostImportPlugin, MayaBasePlugin
+class MayaOpenerPostImporterPlugin(
+    plugin.OpenerPostImporterPlugin, MayaBasePlugin
 ):
     '''Class representing a Collector Plugin
 
@@ -20,8 +20,8 @@ class MayaOpenerPostImportPlugin(
     '''
 
 
-class MayaOpenerPostImportPluginWidget(
-    pluginWidget.OpenerPostImportPluginWidget, MayaBasePluginWidget
+class MayaOpenerPostImporterPluginWidget(
+    pluginWidget.OpenerPostImporterPluginWidget, MayaBasePluginWidget
 ):
     '''Class representing a Collector Widget
 

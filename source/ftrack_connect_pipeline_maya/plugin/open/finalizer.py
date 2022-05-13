@@ -19,6 +19,7 @@ class MayaOpenerFinalizerPlugin(plugin.OpenerFinalizerPlugin, MayaBasePlugin):
         current asset
     '''
 
+
 class MayaOpenerFinalizerPluginWidget(
     pluginWidget.OpenerFinalizerPluginWidget, MayaBasePluginWidget
 ):

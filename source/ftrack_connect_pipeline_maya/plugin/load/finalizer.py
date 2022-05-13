@@ -19,6 +19,7 @@ class MayaLoaderFinalizerPlugin(plugin.LoaderFinalizerPlugin, MayaBasePlugin):
         current asset
     '''
 
+
 class MayaLoaderFinalizerPluginWidget(
     pluginWidget.LoaderFinalizerPluginWidget, MayaBasePluginWidget
 ):
