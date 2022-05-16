@@ -14,11 +14,12 @@ from Qt import QtWidgets
 import ftrack_api
 
 import ftrack_connect_pipeline_nuke
-from ftrack_connect_pipeline_nuke import host as nuke_host
-from ftrack_connect_pipeline_qt import event
-from ftrack_connect_pipeline import constants
+from ftrack_connect_pipeline import constants as core_constants
+from ftrack_connect_pipeline.configure_logging import configure_logging
 
+from ftrack_connect_pipeline_qt import event
 from ftrack_connect_pipeline_qt import constants as qt_constants
+from ftrack_connect_pipeline_qt.ui.asset_manager.base import AssetListModel
 
 from ftrack_connect_pipeline_nuke.client import (
     open,
@@ -28,16 +29,15 @@ from ftrack_connect_pipeline_nuke.client import (
     publish,
     log_viewer,
 )
-from ftrack_connect_pipeline_qt import client
-from ftrack_connect_pipeline_qt.client import webview
+from ftrack_connect_pipeline_qt.client import (
+    change_context,
+    documentation,
+    webview,
+)
 
 from ftrack_connect_pipeline_nuke.menu import build_menu_widgets
 from ftrack_connect_pipeline_nuke.utils import custom_commands as nuke_utils
-
-from ftrack_connect_pipeline_qt.ui.asset_manager.base import AssetListModel
-
-
-from ftrack_connect_pipeline.configure_logging import configure_logging
+from ftrack_connect_pipeline_nuke import host as nuke_host
 
 configure_logging(
     'ftrack_connect_pipeline_nuke',
@@ -105,8 +105,8 @@ def _open_widget(event_manager, asset_list_model, widgets, event):
             break
     if widget_name:
         if widget_name in [
-            qt_constants.ASSET_MANAGER_WIDGET,
-            qt_constants.PUBLISHER_WIDGET,
+            core_constants.ASSET_MANAGER,
+            core_constants.PUBLISHER,
         ]:
             # Restore panel
             pane = nuke.getPaneFor("Properties.1")
@@ -133,7 +133,7 @@ def initialise():
     session = ftrack_api.Session(auto_connect_event_hub=False)
 
     event_manager = event.QEventManager(
-        session=session, mode=constants.LOCAL_EVENT_MODE
+        session=session, mode=core_constants.LOCAL_EVENT_MODE
     )
     host = nuke_host.NukeHost(event_manager)
 
@@ -143,11 +143,11 @@ def initialise():
 
     widgets = list()
     widgets.append(
-        (qt_constants.OPENER_WIDGET, open.NukeOpenerClient, 'Open', 'fileOpen')
+        (core_constants.OPENER, open.NukeOpenerClient, 'Open', 'fileOpen')
     )
     widgets.append(
         (
-            qt_constants.INFO_WIDGET,
+            core_constants.INFO,
             webview.QtInfoWebViewClient,
             'Info',
             '',
@@ -155,7 +155,7 @@ def initialise():
     )
     widgets.append(
         (
-            qt_constants.TASKS_WIDGET,
+            core_constants.TASKS,
             webview.QtTasksWebViewClient,
             'My Tasks',
             '',
@@ -163,15 +163,15 @@ def initialise():
     )
     widgets.append(
         (
-            qt_constants.CHANGE_CONTEXT_WIDGET,
-            client.QtChangeContextClient,
+            core_constants.CHANGE_CONTEXT,
+            change_context.QtChangeContextClient,
             'Change context',
             '',
         )
     )
     widgets.append(
         (
-            qt_constants.ASSEMBLER_WIDGET,
+            core_constants.ASSEMBLER,
             load.NukeAssemblerClient,
             'Assembler',
             '',
@@ -179,7 +179,7 @@ def initialise():
     )
     widgets.append(
         (
-            qt_constants.SAVE_WIDGET,
+            core_constants.SAVE,
             save.QtSaveClient,
             'Save Script',
             '',
@@ -187,7 +187,7 @@ def initialise():
     )
     widgets.append(
         (
-            qt_constants.ASSET_MANAGER_WIDGET,
+            core_constants.ASSET_MANAGER,
             asset_manager.NukeAssetManagerClient,
             'Asset Manager',
             '',
@@ -195,7 +195,7 @@ def initialise():
     )
     widgets.append(
         (
-            qt_constants.PUBLISHER_WIDGET,
+            core_constants.PUBLISHER,
             publish.NukePublisherClient,
             'Publisher',
             '',
@@ -203,7 +203,7 @@ def initialise():
     )
     widgets.append(
         (
-            qt_constants.LOG_VIEWER_WIDGET,
+            core_constants.LOG_VIEWER,
             log_viewer.NukeLogViewerClient,
             'Log Viewer',
             '',
@@ -211,8 +211,8 @@ def initialise():
     )
     widgets.append(
         (
-            qt_constants.DOC_WIDGET,
-            client.QtDocumentationClient,
+            core_constants.DOCUMENTATION,
+            documentation.QtDocumentationClient,
             'Documentation',
             '',
         )
@@ -228,7 +228,7 @@ def initialise():
     # Listen to client launch events
     session.event_hub.subscribe(
         'topic={} and data.pipeline.host_id={}'.format(
-            constants.PIPELINE_WIDGET_LAUNCH, host.host_id
+            core_constants.PIPELINE_WIDGET_LAUNCH, host.host_id
         ),
         functools.partial(
             _open_widget, event_manager, asset_list_model, widgets
@@ -244,7 +244,7 @@ def initialise():
 
     nuke_utils.init_nuke(session)
 
-    host.launch_widget(qt_constants.OPENER_WIDGET)
+    host.launch_widget(core_constants.OPENER)
 
 
 initialise()
