@@ -46,7 +46,8 @@ class TagDropHandler(object):
         if not all([
             hasattr(track_item, 'tags'),
             hasattr(track_item, 'sourceIn'),
-            hasattr(track_item, 'sourceOut')
+            hasattr(track_item, 'sourceOut'),
+            isinstance(track_item, hiero.core.Sequence),
         ]):
             return
 
