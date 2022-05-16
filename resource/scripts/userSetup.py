@@ -3,11 +3,6 @@
 
 import logging
 import functools
-from ftrack_connect_pipeline import constants
-from ftrack_connect_pipeline_qt import constants as qt_constants
-from ftrack_connect_pipeline_qt import event
-from ftrack_connect_pipeline_maya import host as maya_host
-from ftrack_connect_pipeline_maya.utils import custom_commands as maya_utils
 
 import maya.utils
 import maya.cmds as cmds
@@ -15,7 +10,29 @@ import maya.mel as mm
 
 import ftrack_api
 
+from ftrack_connect_pipeline import constants as core_constants
 from ftrack_connect_pipeline.configure_logging import configure_logging
+
+from ftrack_connect_pipeline_qt import event
+from ftrack_connect_pipeline_qt.ui.asset_manager.base import AssetListModel
+
+from ftrack_connect_pipeline_maya import host as maya_host
+from ftrack_connect_pipeline_maya.client import (
+    open,
+    load,
+    save,
+    asset_manager,
+    publish,
+    log_viewer,
+)
+from ftrack_connect_pipeline_qt.client import (
+    change_context,
+    documentation,
+    webview,
+)
+
+from ftrack_connect_pipeline_maya.utils import custom_commands as maya_utils
+
 
 extra_handlers = {
     'maya': {
@@ -98,37 +115,23 @@ def initialise():
     session = ftrack_api.Session(auto_connect_event_hub=False)
 
     event_manager = event.QEventManager(
-        session=session, mode=constants.LOCAL_EVENT_MODE
+        session=session, mode=core_constants.LOCAL_EVENT_MODE
     )
 
     host = maya_host.MayaHost(event_manager)
 
     cmds.loadPlugin('ftrackMayaPlugin.py', quiet=True)
 
-    from ftrack_connect_pipeline_qt.ui.asset_manager.base import AssetListModel
-    from ftrack_connect_pipeline_qt import constants as qt_constants
-
     # Shared asset manager model
     asset_list_model = AssetListModel(event_manager)
 
-    from ftrack_connect_pipeline_maya.client import (
-        open,
-        load,
-        save,
-        asset_manager,
-        publish,
-        log_viewer,
-    )
-    from ftrack_connect_pipeline_qt import client
-    from ftrack_connect_pipeline_qt.client import webview
-
     widgets = list()
     widgets.append(
-        (qt_constants.OPENER_WIDGET, open.MayaOpenerClient, 'Open', 'fileOpen')
+        (core_constants.OPENER, open.MayaOpenerClient, 'Open', 'fileOpen')
     )
     widgets.append(
         (
-            qt_constants.INFO_WIDGET,
+            core_constants.INFO,
             webview.QtInfoWebViewClient,
             'Info',
             'info',
@@ -136,7 +139,7 @@ def initialise():
     )
     widgets.append(
         (
-            qt_constants.TASKS_WIDGET,
+            core_constants.TASKS,
             webview.QtTasksWebViewClient,
             'My Tasks',
             'SP_FileDialogListView',
@@ -144,15 +147,15 @@ def initialise():
     )
     widgets.append(
         (
-            qt_constants.CHANGE_CONTEXT_WIDGET,
-            client.QtChangeContextClient,
+            core_constants.CHANGE_CONTEXT,
+            change_context.QtChangeContextClient,
             'Change context',
             'refresh',
         )
     )
     widgets.append(
         (
-            qt_constants.ASSEMBLER_WIDGET,
+            core_constants.ASSEMBLER,
             load.MayaAssemblerClient,
             'Assembler',
             'greasePencilImport',
@@ -160,7 +163,7 @@ def initialise():
     )
     widgets.append(
         (
-            qt_constants.ASSET_MANAGER_WIDGET,
+            core_constants.ASSET_MANAGER,
             asset_manager.MayaAssetManagerClient,
             'Asset Manager',
             'volumeCube',
@@ -168,7 +171,7 @@ def initialise():
     )
     widgets.append(
         (
-            qt_constants.SAVE_WIDGET,
+            core_constants.SAVE,
             save.QtSaveClient,
             'Save Scene',
             'fileSave',
@@ -176,7 +179,7 @@ def initialise():
     )
     widgets.append(
         (
-            qt_constants.PUBLISHER_WIDGET,
+            core_constants.PUBLISHER,
             publish.MayaPublisherClient,
             'Publisher',
             'greasePencilExport',
@@ -184,7 +187,7 @@ def initialise():
     )
     widgets.append(
         (
-            qt_constants.LOG_VIEWER_WIDGET,
+            core_constants.LOG_VIEWER,
             log_viewer.MayaLogViewerDialog,
             'Log Viewer',
             'zoom',
@@ -192,8 +195,8 @@ def initialise():
     )
     widgets.append(
         (
-            qt_constants.DOC_WIDGET,
-            client.QtDocumentationClient,
+            core_constants.DOCUMENTATION,
+            documentation.QtDocumentationClient,
             'Documentation',
             'SP_FileIcon',
         )
@@ -218,7 +221,7 @@ def initialise():
     # Listen to client launch events
     session.event_hub.subscribe(
         'topic={} and data.pipeline.host_id={}'.format(
-            constants.PIPELINE_WIDGET_LAUNCH, host.host_id
+            core_constants.PIPELINE_WIDGET_LAUNCH, host.host_id
         ),
         functools.partial(
             _open_widget, event_manager, asset_list_model, widgets
