@@ -88,7 +88,6 @@ class QtClient(Client):
         return 'dark'
 
     def setTheme(self, selected_theme):
-        theme.applyFont()
         theme.applyTheme(self, selected_theme, 'plastique')
 
     def getThemeBackgroundStyle(self):
@@ -420,3 +419,4 @@ class RunButton(QtWidgets.QPushButton):
     def __init__(self, label, parent=None):
         super(RunButton, self).__init__(label, parent=parent)
         self.setMaximumHeight(32)
+        self.setMinimumHeight(32)

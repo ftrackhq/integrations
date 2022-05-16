@@ -161,10 +161,8 @@ class QtAssemblerClient(QtLoaderClient, dialog.Dialog):
         button_widget.layout().setContentsMargins(2, 4, 8, 0)
         button_widget.layout().addStretch()
         self.run_button_no_load = AddRunButton('ADD TO SCENE')
-        self.run_button_no_load.setMinimumHeight(32)
         button_widget.layout().addWidget(self.run_button_no_load)
         self.run_button = LoadRunButton('LOAD INTO SCENE')
-        self.run_button.setMinimumHeight(32)
         self.run_button.setFocus()
         button_widget.layout().addWidget(self.run_button)
         self._left_widget.layout().addWidget(button_widget)
@@ -441,9 +439,11 @@ class AddRunButton(QtWidgets.QPushButton):
     def __init__(self, label, parent=None):
         super(AddRunButton, self).__init__(label, parent=parent)
         self.setMaximumHeight(32)
+        self.setMinimumHeight(32)
 
 
 class LoadRunButton(QtWidgets.QPushButton):
     def __init__(self, label, parent=None):
         super(LoadRunButton, self).__init__(label, parent=parent)
         self.setMaximumHeight(32)
+        self.setMinimumHeight(32)

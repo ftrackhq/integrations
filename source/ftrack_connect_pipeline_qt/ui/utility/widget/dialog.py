@@ -77,6 +77,8 @@ class ModalDialog(QtWidgets.QDialog):
 
         self.setWindowFlags(QtCore.Qt.Tool)
         self.setTheme(self.getTheme())
+        if self.getThemeBackgroundStyle():
+            self.setProperty('background', self.getThemeBackgroundStyle())
 
         self._message = message or question
         self._title = title or 'ftrack'
@@ -100,8 +102,10 @@ class ModalDialog(QtWidgets.QDialog):
         return 'dark'
 
     def setTheme(self, selected_theme):
-        theme.applyFont()
         theme.applyTheme(self, selected_theme, 'plastique')
+
+    def getThemeBackgroundStyle(self):
+        return 'ftrack'
 
     def pre_build(self):
         self.setLayout(QtWidgets.QVBoxLayout())

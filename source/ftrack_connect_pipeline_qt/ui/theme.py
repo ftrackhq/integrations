@@ -1,5 +1,5 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2014 ftrack
+# :copyright: Copyright (c) 2014-2022 ftrack
 import sys
 
 from Qt import QtCore, QtWidgets, QtGui
@@ -11,15 +11,8 @@ def applyFont(font=':/ftrack/font/main'):
 
 
 def applyTheme(widget, theme='dark', baseTheme=None):
-    '''Apply *theme* to *widget*.'''
-    # Set base style.
-    # if baseTheme and QtWidgets.QApplication.style().objectName() != baseTheme:
-    #    QtWidgets.QApplication.setStyle(baseTheme)
-
-    # if not QtCore.QFile(':/ftrack/font/main').exists():
-    #    raise Exception('TEST ! Font does not exist!')
-
-    # Load stylesheet from resource file and apply.
+    '''Apply *theme* to *widget* - load stylesheet from resource file and apply'''
+    applyFont()
     theme_path = ':/ftrack/style/{0}'.format(theme)
     fileObject = QtCore.QFile(theme_path)
     if fileObject.exists():

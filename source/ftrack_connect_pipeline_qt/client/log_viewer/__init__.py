@@ -76,7 +76,6 @@ class QtLogViewerClient(LogViewerClient, dialog.Dialog):
         return 'dark'
 
     def setTheme(self, selected_theme):
-        theme.applyFont()
         theme.applyTheme(self, selected_theme, 'plastique')
 
     def getThemeBackgroundStyle(self):

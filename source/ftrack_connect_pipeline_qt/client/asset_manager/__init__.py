@@ -83,7 +83,6 @@ class QtAssetManagerClient(AssetManagerClient, QtWidgets.QFrame):
                 self.add_hosts(self.discover_hosts())
 
     def setTheme(self, selected_theme):
-        theme.applyFont()
         theme.applyTheme(self, selected_theme, 'plastique')
 
     def getTheme(self):
