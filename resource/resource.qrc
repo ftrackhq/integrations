@@ -2299,7 +2299,7 @@
         <file alias='border_bottom'>image/material-design-icons/filled/border_bottom.svg</file>
         <file alias='settings_power'>image/material-design-icons/filled/settings_power.svg</file>
         <file alias='smart_button'>image/material-design-icons/filled/smart_button.svg</file>
-        <file alias='exporter'>image/material-design-icons/filled/exporter.svg</file>
+        <file alias='output'>image/material-design-icons/filled/output.svg</file>
         <file alias='stop_screen_share'>image/material-design-icons/filled/stop_screen_share.svg</file>
         <file alias='credit_card_off'>image/material-design-icons/filled/credit_card_off.svg</file>
         <file alias='face_retouching_natural'>image/material-design-icons/filled/face_retouching_natural.svg</file>
@@ -4377,7 +4377,7 @@
         <file alias='border_bottom'>image/material-design-icons/outlined/border_bottom.svg</file>
         <file alias='settings_power'>image/material-design-icons/outlined/settings_power.svg</file>
         <file alias='smart_button'>image/material-design-icons/outlined/smart_button.svg</file>
-        <file alias='exporter'>image/material-design-icons/outlined/exporter.svg</file>
+        <file alias='output'>image/material-design-icons/outlined/output.svg</file>
         <file alias='stop_screen_share'>image/material-design-icons/outlined/stop_screen_share.svg</file>
         <file alias='credit_card_off'>image/material-design-icons/outlined/credit_card_off.svg</file>
         <file alias='face_retouching_natural'>image/material-design-icons/outlined/face_retouching_natural.svg</file>
