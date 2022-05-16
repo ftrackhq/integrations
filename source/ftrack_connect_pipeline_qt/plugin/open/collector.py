@@ -5,5 +5,5 @@ from ftrack_connect_pipeline import constants
 from ftrack_connect_pipeline_qt.plugin import base
 
 
-class OpenerCollectorWidget(base.BaseCollectorWidget):
+class OpenerCollectorPluginWidget(base.BaseCollectorPluginWidget):
     plugin_type = constants.PLUGIN_OPENER_COLLECTOR_TYPE

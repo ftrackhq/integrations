@@ -5,10 +5,10 @@ from ftrack_connect_pipeline.constants import plugin
 from ftrack_connect_pipeline_qt.plugin import BasePluginWidget
 
 
-class BasePostImportWidget(BasePluginWidget):
+class BasePostImporterPluginWidget(BasePluginWidget):
     '''
     Base Post Import Widget Class inherits from
     :class:`~ftrack_connect_pipeline_qt.plugin.BasePluginWidget`
     '''
 
-    plugin_type = plugin._PLUGIN_POST_IMPORT_TYPE
+    plugin_type = plugin._PLUGIN_POST_IMPORTER_TYPE

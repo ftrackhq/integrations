@@ -195,7 +195,7 @@ class WidgetFactoryBase(QtWidgets.QWidget):
             if step_obj:
                 self.register_object(step, step_obj, step_category)
             for stage in step['stages']:
-                # create widget for the stages (collector, validator, output/importer)
+                # create widget for the stages (collector, validator, exporter/importer)
                 stage_category = stage['category']
                 stage_type = stage['type']
                 stage_name = stage.get('name')
@@ -261,8 +261,8 @@ class WidgetFactoryBase(QtWidgets.QWidget):
                     if stage_type == core_constants.VALIDATOR:
                         step_obj.parent_validator(stage_obj)
                         continue
-                    elif stage_type == core_constants.OUTPUT:
-                        step_obj.parent_output(stage_obj)
+                    elif stage_type == core_constants.EXPORTER:
+                        step_obj.parent_exporter(stage_obj)
                         continue
                 if step_obj:
                     step_obj.parent_widget(stage_obj)
@@ -400,9 +400,9 @@ class WidgetFactoryBase(QtWidgets.QWidget):
             if plugin_type == 'publisher.validator':
                 # We have a particular default validator for the publisher to be
                 # able to enable test of each validator on publish time.
-                widget_name = 'default.validator.widget'
+                widget_name = 'common_default_shared_validator'
             else:
-                widget_name = 'default.widget'
+                widget_name = 'common_default_shared'
             self.logger.debug(
                 'Widget not found, falling back on: {}'.format(widget_name)
             )

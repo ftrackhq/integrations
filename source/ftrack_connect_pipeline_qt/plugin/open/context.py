@@ -5,5 +5,5 @@ from ftrack_connect_pipeline import constants
 from ftrack_connect_pipeline_qt.plugin import base
 
 
-class OpenerContextWidget(base.BaseContextWidget):
+class OpenerContextPluginWidget(base.BaseContextPluginWidget):
     plugin_type = constants.PLUGIN_OPENER_CONTEXT_TYPE

@@ -5,7 +5,7 @@ from ftrack_connect_pipeline.constants import plugin
 from ftrack_connect_pipeline_qt.plugin import BasePluginWidget
 
 
-class BaseFinalizerWidget(BasePluginWidget):
+class BaseFinalizerPluginWidget(BasePluginWidget):
     '''
     Base Finalizer Widget Class inherits from
     :class:`~ftrack_connect_pipeline_qt.plugin.BasePluginWidget`
