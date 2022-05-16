@@ -4,12 +4,14 @@
 from ftrack_connect_pipeline import plugin
 from ftrack_connect_pipeline_qt import plugin as pluginWidget
 from ftrack_connect_pipeline_maya.plugin import (
-    BaseMayaPlugin,
-    BaseMayaPluginWidget,
+    MayaBasePlugin,
+    MayaBasePluginWidget,
 )
 
 
-class OpenerFinalizerMayaPlugin(plugin.OpenerFinalizerPlugin, BaseMayaPlugin):
+class MayaOpenerPostFinalizerPlugin(
+    plugin.OpenerPostFinalizerPlugin, MayaBasePlugin
+):
     '''Class representing a Post Finalizer Plugin
 
     .. note::
@@ -20,8 +22,8 @@ class OpenerFinalizerMayaPlugin(plugin.OpenerFinalizerPlugin, BaseMayaPlugin):
     '''
 
 
-class OpenerPostFinalizerMayaWidget(
-    pluginWidget.OpenerPostFinalizerWidget, BaseMayaPluginWidget
+class MayaOpenerPostFinalizerPluginWidget(
+    pluginWidget.OpenerPostFinalizerPluginWidget, MayaBasePluginWidget
 ):
     '''Class representing a Post Finalizer Widget
 

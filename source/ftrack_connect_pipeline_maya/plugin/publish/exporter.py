@@ -4,23 +4,25 @@
 from ftrack_connect_pipeline import plugin
 from ftrack_connect_pipeline_qt import plugin as pluginWidget
 from ftrack_connect_pipeline_maya.plugin import (
-    BaseMayaPlugin,
-    BaseMayaPluginWidget,
+    MayaBasePlugin,
+    MayaBasePluginWidget,
 )
 
 
-class PublisherOutputMayaPlugin(plugin.PublisherOutputPlugin, BaseMayaPlugin):
-    '''Class representing an Output Plugin
+class MayaPublisherExporterPlugin(
+    plugin.PublisherExporterPlugin, MayaBasePlugin
+):
+    '''Class representing an Exporter Plugin
     .. note::
 
         _required_output a Dictionary
     '''
 
 
-class PublisherOutputMayaWidget(
-    pluginWidget.PublisherOutputWidget, BaseMayaPluginWidget
+class MayaPublisherExporterPluginWidget(
+    pluginWidget.PublisherExporterPluginWidget, MayaBasePluginWidget
 ):
-    '''Class representing an Output Widget
+    '''Class representing an Eporter Widget
     .. note::
 
         _required_output a Dictionary

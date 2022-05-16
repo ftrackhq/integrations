@@ -6,5 +6,5 @@ from ftrack_connect_pipeline_maya.plugin.publish.context import *
 from ftrack_connect_pipeline_maya.plugin.publish.finalizer import *
 from ftrack_connect_pipeline_maya.plugin.publish.pre_finalizer import *
 from ftrack_connect_pipeline_maya.plugin.publish.post_finalizer import *
-from ftrack_connect_pipeline_maya.plugin.publish.output import *
+from ftrack_connect_pipeline_maya.plugin.publish.exporter import *
 from ftrack_connect_pipeline_maya.plugin.publish.validator import *

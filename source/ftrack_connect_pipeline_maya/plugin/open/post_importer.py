@@ -4,13 +4,13 @@
 from ftrack_connect_pipeline import plugin
 from ftrack_connect_pipeline_qt import plugin as pluginWidget
 from ftrack_connect_pipeline_maya.plugin import (
-    BaseMayaPlugin,
-    BaseMayaPluginWidget,
+    MayaBasePlugin,
+    MayaBasePluginWidget,
 )
 
 
-class LoaderPostImportMayaPlugin(
-    plugin.LoaderPostImportPlugin, BaseMayaPlugin
+class MayaOpenerPostImporterPlugin(
+    plugin.OpenerPostImporterPlugin, MayaBasePlugin
 ):
     '''Class representing a Collector Plugin
 
@@ -20,8 +20,8 @@ class LoaderPostImportMayaPlugin(
     '''
 
 
-class LoaderPostImportMayaWidget(
-    pluginWidget.LoaderPostImportWidget, BaseMayaPluginWidget
+class MayaOpenerPostImporterPluginWidget(
+    pluginWidget.OpenerPostImporterPluginWidget, MayaBasePluginWidget
 ):
     '''Class representing a Collector Widget
 

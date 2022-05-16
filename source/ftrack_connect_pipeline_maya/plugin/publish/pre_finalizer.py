@@ -4,13 +4,13 @@
 from ftrack_connect_pipeline import plugin
 from ftrack_connect_pipeline_qt import plugin as pluginWidget
 from ftrack_connect_pipeline_maya.plugin import (
-    BaseMayaPlugin,
-    BaseMayaPluginWidget,
+    MayaBasePlugin,
+    MayaBasePluginWidget,
 )
 
 
-class PublisherPreFinalizerMayaPlugin(
-    plugin.PublisherPreFinalizerPlugin, BaseMayaPlugin
+class MayaPublisherPreFinalizerPlugin(
+    plugin.PublisherPreFinalizerPlugin, MayaBasePlugin
 ):
     '''Class representing a Finalizer Plugin
 
@@ -22,8 +22,8 @@ class PublisherPreFinalizerMayaPlugin(
     '''
 
 
-class PublisherPreFinalizerMayaWidget(
-    pluginWidget.PublisherPreFinalizerWidget, BaseMayaPluginWidget
+class MayaPublisherPreFinalizerPluginWidget(
+    pluginWidget.PublisherPreFinalizerPluginWidget, MayaBasePluginWidget
 ):
     '''Class representing a Pre Finalizer Widget
 
