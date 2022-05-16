@@ -43,7 +43,11 @@ class TagDropHandler(object):
         except AttributeError:
             return
 
-        if not hasattr(track_item,'tags'):
+        if not all([
+            hasattr(track_item, 'tags'),
+            hasattr(track_item, 'sourceIn'),
+            hasattr(track_item, 'sourceOut')
+        ]):
             return
 
         dropped_tags = event.items
