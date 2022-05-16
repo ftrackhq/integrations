@@ -39,13 +39,29 @@ IMPORTER = 'importer'
 #: Post_import component stage name.
 POST_IMPORT = 'post_import'
 
-# Common definition types.
-#: Loader definition.
-LOADER = 'loader'
-#: Opener definition.
+# Common definition/client types.
+#: Opener client and its definition.
 OPENER = 'opener'
-#: Publisher definition.
+#: Loader client and its definition used with assembler
+LOADER = 'loader'
+# Assembler client
+ASSEMBLER = 'assembler'
+#: Publisher client and its definition.
 PUBLISHER = 'publisher'
+# Asset manager
+ASSET_MANAGER = 'asset_manager'
+# Log viewer dialog
+LOG_VIEWER = 'log_viewer'
+# Change context client
+CHANGE_CONTEXT = 'change_context'
+# Savet client
+SAVE = 'save'
+# Info client
+INFO = 'info'
+# Tasks client
+TASKS = 'tasks'
+# Documentation client
+DOCUMENTATION = 'documentation'
 
 
 # External events.
