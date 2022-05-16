@@ -6,11 +6,11 @@ from Qt import QtCore, QtWidgets
 
 from ftrack_connect_pipeline_qt import constants
 from ftrack_connect_pipeline import constants as pipeline_constants
-from ftrack_connect_pipeline_qt.ui.client import BaseUIWidget
+from ftrack_connect_pipeline_qt.ui.factory import BaseUIWidget
 from ftrack_connect_pipeline_qt.ui.utility.widget.base.accordion_base import (
     AccordionBaseWidget,
 )
-from ftrack_connect_pipeline_qt.ui.client.default.step_widget import (
+from ftrack_connect_pipeline_qt.ui.factory.default.step_widget import (
     DefaultStepWidget,
 )
 from ftrack_connect_pipeline_qt.plugin.widgets.load_widget import (
@@ -267,7 +267,7 @@ class PublisherAccordionStepWidget(BaseUIWidget):
     '''Widget representation of a boolean'''
 
     @property
-    def is_enabled(self):
+    def enabled(self):
         if self._widget:
             return self._widget.checked
         else:
@@ -291,7 +291,7 @@ class PublisherAccordionStepWidget(BaseUIWidget):
     def build(self):
         self._widget = PublisherAccordionWidget(
             title=self.name,
-            checkable=self.is_optional,
+            checkable=self.optional,
             checked=self._is_selected,
             parent=self.parent(),
         )
@@ -340,7 +340,7 @@ class PublisherAccordionStepWidget(BaseUIWidget):
     def to_json_object(self):
         '''Return a formatted json with the data from the current widget'''
         out = {}
-        out['enabled'] = self.is_enabled
+        out['enabled'] = self.enabled
         return out
 
 
@@ -446,7 +446,7 @@ class ComboBoxItemStepWidget(DefaultStepWidget):
     def get_label(self):
         '''Return the label for parent combobox'''
         result = '{}: '.format(self.name)
-        if self.is_enabled:
+        if self.enabled:
             if self._component:
                 # Fetch path
                 try:
@@ -459,7 +459,7 @@ class ComboBoxItemStepWidget(DefaultStepWidget):
         return result
 
     def set_enabled(self, enabled):
-        super(ComboBoxItemStepWidget, self).set_enabled(enabled)
+        super(ComboBoxItemStepWidget, self).enabled = enabled
         if self._parent:
             '''Update parent combobox'''
             combobox = self._parent.widget
@@ -470,7 +470,7 @@ class RadioButtonItemStepWidget(BaseUIWidget):
     '''Widget representation of a boolean'''
 
     @property
-    def is_enabled(self):
+    def enabled(self):
         return self._button.isChecked()
 
     @property
@@ -558,12 +558,12 @@ class RadioButtonItemStepWidget(BaseUIWidget):
         return result
 
     def set_enabled(self, enabled):
-        super(RadioButtonItemStepWidget, self).set_enabled(enabled)
+        super(RadioButtonItemStepWidget, self).enabled = enabled
         self.button.setEnabled(enabled)
         self.button.setText(self.get_label())
 
     def to_json_object(self):
         '''Return a formatted json with the data from the current widget'''
         out = {}
-        out['enabled'] = self.is_available and self.is_enabled
+        out['enabled'] = self.is_available and self.enabled
         return out

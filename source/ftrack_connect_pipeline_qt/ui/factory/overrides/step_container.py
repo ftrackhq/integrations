@@ -7,8 +7,8 @@ from functools import partial
 from ftrack_connect_pipeline import constants as pipeline_constants
 from ftrack_connect_pipeline_qt import constants
 from ftrack_connect_pipeline_qt.plugin.widgets import BaseOptionsWidget
-from ftrack_connect_pipeline_qt.ui.client import BaseUIWidget
-from ftrack_connect_pipeline_qt.ui.client.default import (
+from ftrack_connect_pipeline_qt.ui.factory import BaseUIWidget
+from ftrack_connect_pipeline_qt.ui.factory.default import (
     DefaultStepContainerWidget,
 )
 from ftrack_connect_pipeline_qt.ui.utility.widget.accordion import (
@@ -116,7 +116,7 @@ class TabStepContainerWidget(DefaultStepContainerWidget):
 
             # Add checkbox for the optional components
             if isinstance(step_widget, BaseUIWidget):
-                if step_widget.is_optional:
+                if step_widget.optional:
                     checkbox = QtWidgets.QCheckBox()
                     checkbox.setChecked(True)
                     self.checkBoxList.append(checkbox)

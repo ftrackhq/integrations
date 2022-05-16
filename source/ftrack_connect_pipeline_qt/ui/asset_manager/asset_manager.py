@@ -426,10 +426,10 @@ class AssetManagerWidget(AssetManagerBaseWidget):
         self.rebuild.emit()  # To be picked up by AM
 
     def _on_config(self):
-        self.host_connection.launch_widget(qt_constants.ASSEMBLER_WIDGET)
+        self.host_connection.launch_widget(core_constants.ASSEMBLER)
 
     def _on_add(self):
-        self.host_connection.launch_widget(qt_constants.ASSEMBLER_WIDGET)
+        self.host_connection.launch_widget(core_constants.ASSEMBLER)
 
     def _on_change_asset_version(self, asset_info, version_entity):
         '''

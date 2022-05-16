@@ -5,11 +5,13 @@ from functools import partial
 
 from Qt import QtWidgets, QtCore, QtCompat, QtGui
 
+from ftrack_connect_pipeline import constants as core_constants
+
 from ftrack_connect_pipeline.constants import asset as asset_const
 from ftrack_connect_pipeline.utils import ftrack_context_id
-from ftrack_connect_pipeline_qt import constants as qt_constants
 from ftrack_connect_pipeline.client.asset_manager import AssetManagerClient
 
+from ftrack_connect_pipeline_qt import constants as qt_constants
 from ftrack_connect_pipeline_qt.ui.utility.widget import (
     header,
     host_selector,
@@ -256,7 +258,7 @@ class QtAssetManagerClient(AssetManagerClient, QtWidgets.QFrame):
 
     def _launch_context_selector(self):
         '''Open entity browser.'''
-        self.host_connection.launch_widget(qt_constants.CHANGE_CONTEXT_WIDGET)
+        self.host_connection.launch_widget(core_constants.CHANGE_CONTEXT)
 
     # Implementation of assetmanager client callbacks
 
@@ -519,7 +521,7 @@ class QtAssetManagerClient(AssetManagerClient, QtWidgets.QFrame):
             self.asset_manager_widget.stopBusyIndicator.emit()
 
     def _open_publisher(self):
-        self.host_connection.launch_widget(qt_constants.PUBLISHER_WIDGET)
+        self.host_connection.launch_widget(core_constants.PUBLISHER)
 
     def conditional_rebuild(self):
         if self._shown:

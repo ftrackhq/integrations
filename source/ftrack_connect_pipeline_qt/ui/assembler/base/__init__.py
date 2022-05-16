@@ -20,7 +20,9 @@ from ftrack_connect_pipeline_qt.ui.asset_manager.base import (
 from ftrack_connect_pipeline_qt.ui.utility.widget.thumbnail import (
     AssetVersion,
 )
-from ftrack_connect_pipeline_qt.client import factory
+from ftrack_connect_pipeline_qt.ui.factory.assembler import (
+    AssemblerWidgetFactory,
+)
 from ftrack_connect_pipeline_qt.ui.utility.widget.base.accordion_base import (
     AccordionBaseWidget,
 )
@@ -601,7 +603,7 @@ class ComponentBaseWidget(AccordionBaseWidget):
         # Options widget,initialize its factory
         upper_layout.addWidget(self.init_options_button())
 
-        self._widget_factory = factory.AssemblerWidgetFactory(
+        self._widget_factory = AssemblerWidgetFactory(
             self.event_manager,
             self._assembler_widget._assembler_client.ui_types,
             parent=self.parent(),

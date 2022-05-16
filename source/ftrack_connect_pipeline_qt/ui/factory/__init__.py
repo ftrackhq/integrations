@@ -31,11 +31,15 @@ class BaseUIWidget(object):
         return self._widget
 
     @property
-    def is_enabled(self):
+    def enabled(self):
         return self._is_enabled
 
+    @name.setter
+    def enabled(self, value):
+        self._is_enabled = value
+
     @property
-    def is_optional(self):
+    def optional(self):
         return self._is_optional
 
     def __init__(self, name, fragment_data, parent=None):
@@ -124,9 +128,6 @@ class BaseUIWidget(object):
 
     def parent_output(self, step_widget):
         raise NotImplementedError
-
-    def set_enabled(self, enabled):
-        self._is_enabled = enabled
 
     def to_json_object(self):
         '''Return a formatted json with the data from the current widget'''

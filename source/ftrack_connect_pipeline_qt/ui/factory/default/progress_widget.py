@@ -4,7 +4,7 @@ import logging
 
 from Qt import QtWidgets, QtCore, QtGui
 
-from ftrack_connect_pipeline_qt.ui.client import BaseUIWidget
+from ftrack_connect_pipeline_qt.ui.factory import BaseUIWidget
 from ftrack_connect_pipeline_qt import constants
 from ftrack_connect_pipeline_qt.ui.utility.widget import (
     overlay,

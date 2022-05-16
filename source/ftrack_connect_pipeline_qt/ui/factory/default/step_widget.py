@@ -3,14 +3,14 @@
 
 from Qt import QtWidgets
 
-from ftrack_connect_pipeline_qt.ui.client import BaseUIWidget
+from ftrack_connect_pipeline_qt.ui.factory import BaseUIWidget
 
 
 class DefaultStepWidget(BaseUIWidget):
     '''Widget representation of a boolean'''
 
     @property
-    def is_enabled(self):
+    def enabled(self):
         return self.check_box.isChecked()
 
     def __init__(self, name, fragment_data, parent=None):
@@ -30,7 +30,7 @@ class DefaultStepWidget(BaseUIWidget):
     def build(self):
         self.check_box = QtWidgets.QCheckBox(self.name)
         self.widget.layout().addWidget(self.check_box)
-        if not self.is_optional:
+        if not self.optional:
             self.check_box.setChecked(True)
             self.check_box.setEnabled(False)
         self.check_box.hide()
@@ -53,13 +53,13 @@ class DefaultStepWidget(BaseUIWidget):
     def set_unavailable(self):
         self.check_box.setChecked(False)
         self.widget.setEnabled(False)
-        self.set_enabled(False)
+        self.enabled = False
 
     def set_available(self):
         self.widget.setEnabled(True)
-        self.set_enabled(True)
+        self.enabled = True
         self.check_box.setChecked(True)
-        if not self.is_optional:
+        if not self.optional:
             self.check_box.setEnabled(False)
         else:
             self.check_box.setEnabled(True)
@@ -67,5 +67,5 @@ class DefaultStepWidget(BaseUIWidget):
     def to_json_object(self):
         '''Return a formatted json with the data from the current widget'''
         out = {}
-        out['enabled'] = self.is_enabled
+        out['enabled'] = self.enabled
         return out

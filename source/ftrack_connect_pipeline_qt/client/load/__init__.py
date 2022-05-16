@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 # :coding: utf-8
-# :copyright: Copyright (c) 2014-2020 ftrack
+# :copyright: Copyright (c) 2014-2022 ftrack
 import copy
 import json
 from functools import partial
@@ -8,11 +8,14 @@ from functools import partial
 from Qt import QtCore, QtWidgets
 
 from ftrack_connect_pipeline.client import constants
-from ftrack_connect_pipeline_qt import constants as qt_constants
-from ftrack_connect_pipeline_qt.ui.utility.widget.dialog import ModalDialog
-from ftrack_connect_pipeline_qt.client import QtClient
+from ftrack_connect_pipeline.utils import ftrack_context_id, str_version
 
-from ftrack_connect_pipeline_qt.client import factory
+from ftrack_connect_pipeline import constants as core_constants
+from ftrack_connect_pipeline.client.loader import LoaderClient
+
+from ftrack_connect_pipeline_qt import constants as qt_constants
+from ftrack_connect_pipeline_qt.ui import theme
+from ftrack_connect_pipeline_qt.ui.utility.widget.dialog import ModalDialog
 from ftrack_connect_pipeline_qt.ui.utility.widget import (
     dialog,
     header,
@@ -23,35 +26,39 @@ from ftrack_connect_pipeline_qt.ui.utility.widget import (
 from ftrack_connect_pipeline_qt.ui.utility.widget.context_selector import (
     ContextSelector,
 )
-from ftrack_connect_pipeline.utils import str_version
 from ftrack_connect_pipeline_qt.utils import clear_layout
 
 from ftrack_connect_pipeline_qt.client.asset_manager import (
     QtAssetManagerClient,
 )
-
 from ftrack_connect_pipeline_qt.ui.assembler.assembler import (
     AssemblerDependenciesWidget,
     AssemblerBrowserWidget,
 )
 
 
-class QtLoaderClient(QtClient):
+class QtLoaderClient(LoaderClient):
     '''
-    Base loader widget class, as assembler is based on
+    Loader client class, as assembler is based on
     '''
 
-    definition_filter = 'loader'
-
-    def __init__(self, event_manager, modes, asset_list_model):
-        self.modes = modes
-        self._asset_list_model = asset_list_model
+    def __init__(self, event_manager):
         super(QtLoaderClient, self).__init__(event_manager)
         self.logger.debug('start qt loader')
 
 
 class QtAssemblerClient(QtLoaderClient, dialog.Dialog):
     '''Compound client dialog containing the assembler based on loader with the asset manager docked'''
+
+    ui_types = [constants.UI_TYPE, qt_constants.UI_TYPE]
+
+    contextChanged = QtCore.Signal(object)  # Client context has changed
+
+    _shown = False
+
+    assembler_match_extension = (
+        False  # Have assembler match on file extension (relaxed)
+    )
 
     asset_fetch_chunk_size = (
         10  # Amount of assets to fetch at a time within the browser
@@ -68,16 +75,44 @@ class QtAssemblerClient(QtLoaderClient, dialog.Dialog):
     def __init__(self, event_manager, modes, asset_list_model, parent=None):
 
         dialog.Dialog.__init__(self, parent=parent)
-        QtLoaderClient.__init__(self, event_manager, modes, asset_list_model)
+        QtLoaderClient.__init__(self, event_manager)
 
         self.logger.debug('start qt assembler')
 
-        # self.setModal(True)
+        self.modes = modes
+        self._asset_list_model = asset_list_model
+        self._shown = False
+
+        if self.getTheme():
+            self.setTheme(self.getTheme())
+            if self.getThemeBackgroundStyle():
+                self.setProperty('background', self.getThemeBackgroundStyle())
+        self.setProperty('docked', 'true' if self.is_docked() else 'false')
+        self.setObjectName(
+            '{}_{}'.format(
+                qt_constants.MAIN_FRAMEWORK_WIDGET, self.__class__.__name__
+            )
+        )
+
+        self.scroll = None
+
+        self.pre_build()
+        self.build()
+        self.post_build()
+
+        self.set_context_id(self.context_id or ftrack_context_id())
+        if self.context_id:
+            self.add_hosts(self.discover_hosts())
+
         self.setWindowTitle('ftrack Connect Assembler')
         self.resize(1000, 500)
 
-    def get_factory(self):
-        return None
+    def getTheme(self):
+        '''Return the client theme, return None to disable themes. Can be overridden by child.'''
+        return 'dark'
+
+    def setTheme(self, selected_theme):
+        theme.applyTheme(self, selected_theme, 'plastique')
 
     def getThemeBackgroundStyle(self):
         return 'ftrack'
@@ -86,7 +121,10 @@ class QtAssemblerClient(QtLoaderClient, dialog.Dialog):
         return False
 
     def pre_build(self):
-        super(QtAssemblerClient, self).pre_build()
+        self.setLayout(QtWidgets.QVBoxLayout())
+        self.layout().setAlignment(QtCore.Qt.AlignTop)
+        self.layout().setContentsMargins(16, 16, 16, 16)
+        self.layout().setSpacing(0)
         self.layout().setContentsMargins(16, 16, 16, 16)
         self.header = header.Header(self.session, parent=self.parent())
         self.header.setMinimumHeight(50)
@@ -122,7 +160,11 @@ class QtAssemblerClient(QtLoaderClient, dialog.Dialog):
         )
 
         # Have definition selector but invisible unless there are multiple hosts
-        self.host_and_definition_selector = self._build_definition_selector()
+        self.host_and_definition_selector = (
+            definition_selector.AssemblerDefinitionSelector(
+                parent=self.parent()
+            )
+        )
         self.host_and_definition_selector.refreshed.connect(
             partial(self.refresh, True)
         )
@@ -195,7 +237,7 @@ class QtAssemblerClient(QtLoaderClient, dialog.Dialog):
         return self._right_widget
 
     def build(self):
-        '''(Override) Build assembler widget.'''
+        '''Build assembler widget.'''
 
         # Create a splitter and add to client
         self.splitter = QtWidgets.QSplitter(QtCore.Qt.Horizontal)
@@ -206,13 +248,18 @@ class QtAssemblerClient(QtLoaderClient, dialog.Dialog):
 
         self.layout().addWidget(self.splitter, 100)
 
-    def _build_definition_selector(self):
-        return definition_selector.AssemblerDefinitionSelector(
-            parent=self.parent()
+    def post_build(self):
+        self.context_selector.entityChanged.connect(
+            self._on_context_selector_context_changed
+        )
+        self.host_and_definition_selector.hostChanged.connect(self.change_host)
+        self.host_and_definition_selector.definitionChanged.connect(
+            self.change_definition
         )
 
-    def post_build(self):
-        super(QtLoaderClient, self).post_build()
+        if self.event_manager.mode == constants.LOCAL_EVENT_MODE:
+            self.host_and_definition_selector.host_widget.hide()
+
         self.context_selector.changeContextClicked.connect(
             self._launch_context_selector
         )
@@ -225,21 +272,83 @@ class QtAssemblerClient(QtLoaderClient, dialog.Dialog):
         self.run_button_no_load.clicked.connect(
             partial(self.run, "init_nodes")
         )
-
-    def _connect_run_button(self):
         self.run_button.clicked.connect(partial(self.run, "init_and_load"))
+
+    def _on_context_selector_context_changed(self, context_entity):
+        '''Updates the option dictionary with provided *context* when
+        entityChanged of context_selector event is triggered'''
+
+        self.set_context_id(context_entity['id'])
+
+        # Reset definition selector and clear client
+        self.host_and_definition_selector.clear_definitions()
+        self.host_and_definition_selector.populate_definitions()
+        self._clear_widget()
+
+    def set_context_id(self, context_id):
+        '''Set the context id for this client'''
+        if context_id and context_id != self.context_id:
+            discover_hosts = self.context_id is None
+            self.change_context(context_id)
+            if discover_hosts:
+                self.add_hosts(self.discover_hosts())
 
     def _on_hosts_discovered(self, host_connections):
         self.host_and_definition_selector.setVisible(len(host_connections) > 1)
 
+    def change_context(self, context_id):
+        """
+        Assign the given *context_id* as the current :obj:`context_id` and to the
+        :attr:`~ftrack_connect_pipeline.client.HostConnection.context_id` emit
+        on_context_change signal.
+        """
+        super(QtAssemblerClient, self).change_context(context_id)
+        self.context_selector.set_context_id(self.context_id)
+        self.contextChanged.emit(context_id)
+
+    def add_hosts(self, host_connections):
+        '''
+        Adds the given *host_connections*
+
+        *host_connections* : list of
+        :class:`~ftrack_connect_pipeline.client.HostConnection`
+        '''
+        for host_connection in host_connections:
+            if host_connection in self.host_connections:
+                continue
+            if self.context_id:
+                host_connection.context_id = self.context_id
+            self._host_connections.append(host_connection)
+
+    def _host_discovered(self, event):
+        '''
+        Callback, add the :class:`~ftrack_connect_pipeline.client.HostConnection`
+        of the new discovered :class:`~ftrack_connect_pipeline.host.HOST` from
+        the given *event*.
+
+        *event*: :class:`ftrack_api.event.base.Event`
+        '''
+        super(QtAssemblerClient, self)._host_discovered(event)
+        if self.definition_filter:
+            self.host_and_definition_selector.definition_title_filter = (
+                self.definition_filter
+            )
+        if self.definition_extensions_filter:
+            self.host_and_definition_selector.definition_extensions_filter = (
+                self.definition_extensions_filter
+            )
+        self.host_and_definition_selector.add_hosts(self.host_connections)
+
+    def _clear_widget(self):
+        if self.scroll and self.scroll.widget():
+            self.scroll.widget().deleteLater()
+
     def change_host(self, host_connection):
-        super(QtLoaderClient, self).change_host(host_connection)
+        self._clear_widget()
+        super(QtAssemblerClient, self).change_host(host_connection)
+        self.context_selector.host_changed(host_connection)
         # Feed the host to the asset manager
         self.asset_manager.change_host(host_connection)
-
-    def change_definition(self, schema, definition, component_names_filter):
-        '''Not valid for assembler'''
-        pass
 
     def _assets_discovered(self):
         '''The assets in AM has been discovered, refresh at our end.'''
@@ -315,6 +424,17 @@ class QtAssemblerClient(QtLoaderClient, dialog.Dialog):
         widget_factory.set_context(context_id, definition['asset_type'])
         widget_factory.host_connection = self._host_connection
         widget_factory.set_definition_type(definition['type'])
+
+    def _on_run_plugin(self, plugin_data, method):
+        '''Function called to run one single plugin *plugin_data* with the
+        plugin information and the *method* to be run has to be passed'''
+        self.run_plugin(plugin_data, method, self.engine_type)
+
+    def _open_assembler(self):
+        '''Open the assembler and close client if dialog'''
+        if not self.is_docked():
+            self.hide()
+        self.host_connection.launch_widget(core_constants.ASSEMBLER)
 
     def run(self, method=None):
         '''(Override) Function called when click the run button.'''
@@ -421,6 +541,23 @@ class QtAssemblerClient(QtLoaderClient, dialog.Dialog):
                         's' if len(component_widgets) > 1 else '',
                     ),
                 )
+
+    def reset(self):
+        '''Reset a client that has become visible after being hidden.'''
+        self.set_context_id(ftrack_context_id())
+        self.host_and_definition_selector.refresh()
+
+    def conditional_rebuild(self):
+        if self._shown:
+            # Refresh when re-opened
+            self.host_and_definition_selector.refresh()
+        self._shown = True
+
+    def _launch_context_selector(self):
+        '''Close client (if not docked) and open entity browser.'''
+        if not self.is_docked():
+            self.hide()
+        self.host_connection.launch_widget(core_constants.CHANGE_CONTEXT)
 
     def show(self):
         if self._shown:

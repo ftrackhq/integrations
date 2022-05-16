@@ -1,29 +1,28 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2014-2020 ftrack
+# :copyright: Copyright (c) 2014-2022 ftrack
 import copy
 import logging
 from functools import partial
 import uuid
-import json
 
 from Qt import QtCore, QtWidgets
 
 import ftrack_api
 
+from ftrack_connect_pipeline import constants as core_constants
+
 from ftrack_connect_pipeline_qt import constants
 from ftrack_connect_pipeline_qt.utils import BaseThread
-from ftrack_connect_pipeline import constants as core_constants
 from ftrack_connect_pipeline_qt.plugin.widgets import BaseOptionsWidget
-from ftrack_connect_pipeline_qt.ui.client import BaseUIWidget
-from ftrack_connect_pipeline_qt.ui.client import (
+from ftrack_connect_pipeline_qt.ui.factory import BaseUIWidget
+from ftrack_connect_pipeline_qt.ui.factory import (
     overrides as override_widgets,
     default as default_widgets,
 )
-from ftrack_connect_pipeline_qt.ui.client.client_ui_overrides import (
+from ftrack_connect_pipeline_qt.ui.factory.ui_overrides import (
     UI_OVERRIDES,
 )
 from ftrack_connect_pipeline_qt.ui.utility.widget import line
-from ftrack_connect_pipeline_qt import constants as qt_constants
 
 
 class WidgetFactoryBase(QtWidgets.QWidget):
@@ -360,7 +359,7 @@ class WidgetFactoryBase(QtWidgets.QWidget):
         for step in self.working_definition[core_constants.COMPONENTS]:
             step_obj = self.get_registered_object(step, step['category'])
             if isinstance(step_obj, BaseUIWidget):
-                enabled = step_obj.is_enabled
+                enabled = step_obj.enabled
                 if enabled:
                     enabled_components += 1
             else:
@@ -731,9 +730,9 @@ class WidgetFactoryBase(QtWidgets.QWidget):
         return out
 
 
-class LoaderWidgetFactory(WidgetFactoryBase):
+class OpenerAssemblerWidgetFactoryBase(WidgetFactoryBase):
     def __init__(self, event_manager, ui_types, parent=None):
-        super(LoaderWidgetFactory, self).__init__(
+        super(OpenerAssemblerWidgetFactoryBase, self).__init__(
             event_manager, ui_types, parent=parent
         )
 
@@ -765,151 +764,5 @@ class LoaderWidgetFactory(WidgetFactoryBase):
                 override_widgets.RadioButtonStepContainerWidget,
             ):
                 self.components_obj.pre_select()
-        finally:
-            self.componentsChecked.emit(available_components)
-
-
-class OpenerWidgetFactory(LoaderWidgetFactory):
-    def __init__(self, event_manager, ui_types, parent=None):
-        super(OpenerWidgetFactory, self).__init__(
-            event_manager, ui_types, parent=parent
-        )
-        self.progress_widget = OpenerWidgetFactory.create_progress_widget(
-            parent=self.parent()
-        )
-
-    @staticmethod
-    def client_type():
-        return qt_constants.OPENER_WIDGET
-
-    @staticmethod
-    def create_progress_widget(parent=None):
-        return WidgetFactoryBase.create_progress_widget(
-            OpenerWidgetFactory.client_type(), parent=parent
-        )
-
-
-class AssemblerWidgetFactory(LoaderWidgetFactory):
-    '''Augmented widget factory for loader/assembler'''
-
-    def __init__(self, event_manager, ui_types, parent=None):
-        super(AssemblerWidgetFactory, self).__init__(
-            event_manager,
-            ui_types,
-            parent=parent,
-        )
-
-    @staticmethod
-    def client_type():
-        return qt_constants.LOADER_WIDGET
-
-    @staticmethod
-    def create_progress_widget(parent=None):
-        return WidgetFactoryBase.create_progress_widget(
-            AssemblerWidgetFactory.client_type(), parent=parent
-        )
-
-    def set_definition(self, definition):
-        self.working_definition = definition
-
-    def build_definition_ui(self, main_widget):
-        '''Based on the given definition, build options widget. Assume that
-        definition has been set in advance.'''
-
-        # Backup the original definition, as it will be extended by the user UI
-        self.original_definition = copy.deepcopy(self.working_definition)
-
-        # Create the components widget based on the definition
-        self.components_obj = self.create_typed_widget(
-            self.working_definition, type_name=core_constants.COMPONENTS
-        )
-
-        # Create the finalizers widget based on the definition
-        self.finalizers_obj = self.create_typed_widget(
-            self.working_definition, type_name=core_constants.FINALIZERS
-        )
-
-        main_widget.layout().addWidget(self.components_obj.widget)
-
-        finalizers_label = QtWidgets.QLabel('Finalizers')
-        main_widget.layout().addWidget(finalizers_label)
-        finalizers_label.setObjectName('h4')
-
-        main_widget.layout().addWidget(self.finalizers_obj.widget)
-
-        if not UI_OVERRIDES.get(core_constants.FINALIZERS).get('show', True):
-            self.finalizers_obj.hide()
-
-        main_widget.layout().addStretch()
-
-        # Check all components status of the current UI
-        self.post_build_definition()
-
-        return main_widget
-
-    def build_progress_ui(self, component):
-        '''Build only progress widget components, prepare to run.'''
-
-        types = [
-            core_constants.CONTEXTS,
-            core_constants.COMPONENTS,
-            core_constants.FINALIZERS,
-        ]
-
-        for type_name in types:
-            for step in self.working_definition[type_name]:
-                step_type = step['type']
-                step_name = step.get('name')
-                if (
-                    self.progress_widget
-                    and step_type != 'finalizer'
-                    and step.get('visible', True) is True
-                ):
-                    self.progress_widget.add_component(
-                        step_type,
-                        step_name,
-                        version_id=component['version']['id'],
-                    )
-                step_obj = self.get_registered_object(step, step['category'])
-                for stage in step['stages']:
-                    stage_name = stage.get('name')
-                    if (
-                        self.progress_widget
-                        and step_type == 'finalizer'
-                        and stage.get('visible', True) is True
-                    ):
-                        self.progress_widget.add_component(
-                            step_type,
-                            stage_name,
-                            version_id=component['version']['id'],
-                        )
-
-    def check_components(self, asset_version_entity):
-        if not self.components:
-            # Wait for version to be selected and loaded
-            return
-        super(OpenerWidgetFactory, self).check_components(asset_version_entity)
-
-
-class PublisherWidgetFactory(WidgetFactoryBase):
-    def __init__(self, event_manager, ui_types, parent=None):
-        super(PublisherWidgetFactory, self).__init__(
-            event_manager, ui_types, parent=parent
-        )
-        self.progress_widget = self.create_progress_widget(
-            qt_constants.PUBLISHER_WIDGET, parent=self.parent()
-        )
-
-    @staticmethod
-    def client_type():
-        return qt_constants.PUBLISHER_WIDGET
-
-    def check_components(self, unused_asset_version_entity):
-        available_components = 0
-        try:
-            if self.working_definition:
-                available_components = len(
-                    self.working_definition[core_constants.COMPONENTS]
-                )
         finally:
             self.componentsChecked.emit(available_components)
