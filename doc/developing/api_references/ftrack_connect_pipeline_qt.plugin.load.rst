@@ -52,7 +52,7 @@ ftrack\_connect\_pipeline\_qt.plugin.load.post\_finalizer module
 ftrack\_connect\_pipeline\_qt.plugin.load.post\_import module
 -------------------------------------------------------------
 
-.. automodule:: ftrack_connect_pipeline_qt.plugin.load.post_import
+.. automodule:: ftrack_connect_pipeline_qt.plugin.load.post_importer
    :members:
    :undoc-members:
    :show-inheritance:

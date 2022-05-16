@@ -29,7 +29,7 @@ UI_OVERRIDES = {
         'plugin_container': default_widgets.DefaultPluginContainerWidget,
         # We are saying that all the plugins of type validator will not have a plugin container
         'plugin_container.validator': None,
-        'plugin_container.output': None,
+        'plugin_container.exporter': None,
         # Example to override specific plugin container
         # 'plugin_container.collect from given path': default_widgets.DefaultPluginContainerWidget,
     },
