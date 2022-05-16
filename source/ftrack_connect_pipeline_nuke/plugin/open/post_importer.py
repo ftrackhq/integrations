@@ -4,13 +4,13 @@
 from ftrack_connect_pipeline import plugin
 from ftrack_connect_pipeline_qt import plugin as pluginWidget
 from ftrack_connect_pipeline_nuke.plugin import (
-    BaseNukePlugin,
-    BaseNukePluginWidget,
+    NukeBasePlugin,
+    NukeBasePluginWidget,
 )
 
 
-class OpenerPostImportNukePlugin(
-    plugin.OpenerPostImportPlugin, BaseNukePlugin
+class NukeOpenerPostImporterPlugin(
+    plugin.OpenerPostImporterPlugin, NukeBasePlugin
 ):
     '''Class representing a Collector Plugin
 
@@ -20,8 +20,8 @@ class OpenerPostImportNukePlugin(
     '''
 
 
-class OpenerPostImportNukeWidget(
-    pluginWidget.OpenerPostImportWidget, BaseNukePluginWidget
+class NukeOpenerPostImporterPluginWidget(
+    pluginWidget.OpenerPostImporterPluginWidget, NukeBasePluginWidget
 ):
     '''Class representing a Collector Widget
 

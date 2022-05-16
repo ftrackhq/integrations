@@ -8,15 +8,15 @@ from ftrack_connect_pipeline import constants
 from ftrack_connect_pipeline import plugin
 from ftrack_connect_pipeline_qt import plugin as pluginWidget
 from ftrack_connect_pipeline_nuke.plugin import (
-    BaseNukePlugin,
-    BaseNukePluginWidget,
+    NukeBasePlugin,
+    NukeBasePluginWidget,
 )
 from ftrack_connect_pipeline_nuke.constants import asset as asset_const
 from ftrack_connect_pipeline_nuke.utils import custom_commands as nuke_utils
 
 
-class PublisherFinalizerNukePlugin(
-    plugin.PublisherFinalizerPlugin, BaseNukePlugin
+class NukePublisherFinalizerPlugin(
+    plugin.PublisherFinalizerPlugin, NukeBasePlugin
 ):
     '''Class representing a Finalizer Plugin
 
@@ -54,7 +54,7 @@ class PublisherFinalizerNukePlugin(
                 if dependency_version not in self.version_dependencies:
                     self.version_dependencies.append(dependency_version)
 
-        super_result = super(PublisherFinalizerNukePlugin, self)._run(event)
+        super_result = super(NukePublisherFinalizerPlugin, self)._run(event)
 
         data = event['data']['settings']['data']
 
@@ -82,8 +82,8 @@ class PublisherFinalizerNukePlugin(
         return super_result
 
 
-class PublisherFinalizerNukeWidget(
-    pluginWidget.PublisherFinalizerWidget, BaseNukePluginWidget
+class NukePublisherFinalizerPluginWidget(
+    pluginWidget.PublisherFinalizerPluginWidget, NukeBasePluginWidget
 ):
     '''Class representing a Finalizer Widget
 

@@ -4,13 +4,13 @@
 from ftrack_connect_pipeline import plugin
 from ftrack_connect_pipeline_qt import plugin as pluginWidget
 from ftrack_connect_pipeline_nuke.plugin import (
-    BaseNukePlugin,
-    BaseNukePluginWidget,
+    NukeBasePlugin,
+    NukeBasePluginWidget,
 )
 
 
-class PublisherPostFinalizerNukePlugin(
-    plugin.PublisherPostFinalizerPlugin, BaseNukePlugin
+class NukePublisherPostFinalizerPlugin(
+    plugin.PublisherPostFinalizerPlugin, NukeBasePlugin
 ):
     '''Class representing a Post Finalizer Plugin
 
@@ -22,8 +22,8 @@ class PublisherPostFinalizerNukePlugin(
     '''
 
 
-class PublisherPostFinalizerNukeWidget(
-    pluginWidget.PublisherPostFinalizerWidget, BaseNukePluginWidget
+class NukePublisherPostFinalizerPluginWidget(
+    pluginWidget.PublisherPostFinalizerPluginWidget, NukeBasePluginWidget
 ):
     '''Class representing a Finalizer Widget
 

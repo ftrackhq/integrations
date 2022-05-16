@@ -7,4 +7,4 @@ from ftrack_connect_pipeline_nuke.plugin.open.finalizer import *
 from ftrack_connect_pipeline_nuke.plugin.open.pre_finalizer import *
 from ftrack_connect_pipeline_nuke.plugin.open.post_finalizer import *
 from ftrack_connect_pipeline_nuke.plugin.open.importer import *
-from ftrack_connect_pipeline_nuke.plugin.open.post_import import *
+from ftrack_connect_pipeline_nuke.plugin.open.post_importer import *
