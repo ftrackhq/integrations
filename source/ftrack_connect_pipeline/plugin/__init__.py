@@ -27,7 +27,7 @@ class BasePluginValidation(object):
 
         *plugin_name* : current plugin name.
 
-        *required_output* : required output of the current plugin.
+        *required_output* : required exporters of the current plugin.
 
         *return_type* : required return type of the current plugin.
 
@@ -44,7 +44,7 @@ class BasePluginValidation(object):
         Ensures that *result* contains all the expected :obj:`required_output`
         keys defined for the current plugin.
 
-        *result* : output value of the plugin execution.
+        *result* : exporters value of the plugin execution.
 
         Return tuple (bool,str)
         '''
@@ -64,7 +64,7 @@ class BasePluginValidation(object):
         Ensures that *result* is instance of the defined :obj:`return_type` of
         the current plugin.
 
-        *result* : output value of the plugin execution.
+        *result* : exporters value of the plugin execution.
 
         Return tuple (bool,str)
         '''
@@ -87,7 +87,7 @@ class BasePluginValidation(object):
         '''Ensures that *result* is equal as the defined :obj:`return_value` of
         the current plugin.
 
-        *result* : output value of the plugin execution.
+        *result* : exporters value of the plugin execution.
 
         Return tuple (bool,str)
         '''
@@ -146,7 +146,7 @@ class BasePlugin(object):
     return_value = None
     '''Required return Value'''
     _required_output = {}
-    '''Required return output'''
+    '''Required return exporters'''
 
     plugin_id = None
     '''Id of the plugin'''
@@ -165,7 +165,9 @@ class BasePlugin(object):
         Initializes and returns an instance of
         :class:`~ftrack_connect_pipeline.asset.FtrackObjectManager`
         '''
-        if not isinstance(self._ftrack_object_manager, self.FtrackObjectManager):
+        if not isinstance(
+            self._ftrack_object_manager, self.FtrackObjectManager
+        ):
             self._ftrack_object_manager = self.FtrackObjectManager(
                 self.event_manager
             )
@@ -247,8 +249,6 @@ class BasePlugin(object):
     def method(self):
         '''Returns the current method'''
         return self._method
-
-
 
     def __init__(self, session):
         '''
@@ -372,7 +372,7 @@ class BasePlugin(object):
             message = str(result_type_valid_message)
             return status, message
 
-        # validate result with output options
+        # validate result with exporters options
         (
             output_valid,
             output_valid_message,
@@ -427,7 +427,7 @@ class BasePlugin(object):
         Also this functions saves the original passed data to the property
         :obj:`raw_data`.
 
-        Note:: Publisher validator, output and Loader/Opener importer and post_import
+        Note:: Publisher validator, exporters and Loader/Opener importer and post_importer
         plugin types override this function to modify the data that arrives to
         the plugin.
         '''
@@ -550,8 +550,8 @@ class BasePlugin(object):
 
         .. note::
 
-            Use always self.output as a base to return the values,
-            don't override self.output as it contains the _required_output
+            Use always self.exporters as a base to return the values,
+            don't override self.exporters as it contains the _required_output
 
         '''
         raise NotImplementedError('Missing run method.')

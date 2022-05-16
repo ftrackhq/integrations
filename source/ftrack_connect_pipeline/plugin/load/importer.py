@@ -22,7 +22,7 @@ class LoaderImporterPlugin(base.BaseImporterPlugin):
     plugin_type = constants.PLUGIN_LOADER_IMPORTER_TYPE
     '''Type of the plugin'''
     _required_output = {}
-    '''Required return output'''
+    '''Required return exporters'''
 
     load_modes = {}
     '''Available load modes for an asset'''
@@ -86,8 +86,7 @@ class LoaderImporterPlugin(base.BaseImporterPlugin):
         self.asset_info = asset_info
         self.ftrack_object_manager.create_new_dcc_object()
 
-        result = {'asset_info': self.asset_info,
-                  'dcc_object': self.dcc_object}
+        result = {'asset_info': self.asset_info, 'dcc_object': self.dcc_object}
         return result
 
     def load_asset(self, context_data=None, data=None, options=None):
@@ -116,9 +115,11 @@ class LoaderImporterPlugin(base.BaseImporterPlugin):
         # Connect scene objects to ftrack node
         self.ftrack_object_manager.connect_objects(diff)
 
-        result = {'asset_info': self.asset_info,
-                  'dcc_object': self.dcc_object,
-                  'run_method': run_result}
+        result = {
+            'asset_info': self.asset_info,
+            'dcc_object': self.dcc_object,
+            'run_method': run_result,
+        }
 
         return result
 

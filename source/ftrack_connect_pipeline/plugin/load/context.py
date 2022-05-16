@@ -21,7 +21,7 @@ class LoaderContextPlugin(base.BaseContextPlugin):
         'comment': None,
         'status_id': None,
     }
-    '''Required return output'''
+    '''Required return exporters'''
 
     def __init__(self, session):
         super(LoaderContextPlugin, self).__init__(session)

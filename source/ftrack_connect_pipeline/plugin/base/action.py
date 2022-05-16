@@ -5,7 +5,7 @@ from ftrack_connect_pipeline.plugin import BasePlugin, BasePluginValidation
 from ftrack_connect_pipeline.constants import plugin
 
 
-class ActionPluginValidation(BasePluginValidation):
+class BaseActionPluginValidation(BasePluginValidation):
     '''
     Action Plugin Validation class inherits from
     :class:`~ftrack_connect_pipeline.plugin.BasePluginValidation`
@@ -14,7 +14,7 @@ class ActionPluginValidation(BasePluginValidation):
     def __init__(
         self, plugin_name, required_output, return_type, return_value
     ):
-        super(ActionPluginValidation, self).__init__(
+        super(BaseActionPluginValidation, self).__init__(
             plugin_name, required_output, return_type, return_value
         )
 
@@ -23,7 +23,7 @@ class ActionPluginValidation(BasePluginValidation):
         Ensures that *result* contains all the expected :obj:`required_output`
         values defined for the current plugin.
 
-        *result* : output value of the plugin execution.
+        *result* : exporters value of the plugin execution.
 
         Return tuple (bool,str)
         '''
@@ -50,11 +50,11 @@ class BaseActionPlugin(BasePlugin):
     plugin_type = plugin._PLUGIN_ACTION_TYPE
     '''Type of the plugin'''
     _required_output = []
-    '''Required return output'''
+    '''Required return exporters'''
 
     def __init__(self, session):
         super(BaseActionPlugin, self).__init__(session)
-        self.validator = ActionPluginValidation(
+        self.validator = BaseActionPluginValidation(
             self.plugin_name,
             self._required_output,
             self.return_type,

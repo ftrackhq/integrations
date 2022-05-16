@@ -24,6 +24,6 @@ PLUGIN_LOADER_COLLECTOR_TYPE = 'loader.{}'.format(
 #: Loader plugin type for importer plugins
 PLUGIN_LOADER_IMPORTER_TYPE = 'loader.{}'.format(plugin._PLUGIN_IMPORTER_TYPE)
 #: Loader plugin type for post import plugins
-PLUGIN_LOADER_POST_IMPORT_TYPE = 'loader.{}'.format(
-    plugin._PLUGIN_POST_IMPORT_TYPE
+PLUGIN_LOADER_POST_IMPORTER_TYPE = 'loader.{}'.format(
+    plugin._PLUGIN_POST_IMPORTER_TYPE
 )

@@ -35,10 +35,10 @@
           ]
         },
         {
-          "name":"output",
+          "name":"exporter",
           "plugins": [
             {
-              "name": "test output",
+              "name": "test exporter",
               "plugin": "test"
             }
           ]

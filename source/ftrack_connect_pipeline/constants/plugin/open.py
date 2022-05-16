@@ -24,6 +24,6 @@ PLUGIN_OPENER_COLLECTOR_TYPE = 'opener.{}'.format(
 #: Opener plugin type for importer plugins
 PLUGIN_OPENER_IMPORTER_TYPE = 'opener.{}'.format(plugin._PLUGIN_IMPORTER_TYPE)
 #: Opener plugin type for post import plugins
-PLUGIN_OPENER_POST_IMPORT_TYPE = 'opener.{}'.format(
-    plugin._PLUGIN_POST_IMPORT_TYPE
+PLUGIN_OPENER_POST_IMPORTER_TYPE = 'opener.{}'.format(
+    plugin._PLUGIN_POST_IMPORTER_TYPE
 )

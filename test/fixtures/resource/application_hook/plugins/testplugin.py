@@ -25,7 +25,7 @@ class TestValidator(plugin.ValidatorPlugin):
         return True
 
 
-class TestOutput(plugin.OutputPlugin):
+class TestExporter(plugin.ExporterPlugin):
     plugin_name = 'test'
 
     def run(self, context_data=None, data=None, options=None):
@@ -47,7 +47,7 @@ def register(api_object, **kw):
         TestContext,
         TestCollector,
         TestValidator,
-        TestOutput,
+        TestExporter,
         TestFinalizer,
     ]
 

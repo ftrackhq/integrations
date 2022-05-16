@@ -43,11 +43,14 @@ class BaseEngine(object):
         Initializes and returns an instance of
         :class:`~ftrack_connect_pipeline.asset.FtrackObjectManager`
         '''
-        if not isinstance(self._ftrack_object_manager, self.FtrackObjectManager):
+        if not isinstance(
+            self._ftrack_object_manager, self.FtrackObjectManager
+        ):
             self._ftrack_object_manager = self.FtrackObjectManager(
                 self.event_manager
             )
         return self._ftrack_object_manager
+
     @property
     def dcc_object(self):
         '''
@@ -691,8 +694,8 @@ class BaseEngine(object):
                         )
                         if not component_stage.get("type") in [
                             constants.IMPORTER,
-                            constants.OUTPUT,
-                            constants.POST_IMPORT,
+                            constants.EXPORTER,
+                            constants.POST_IMPORTER,
                         ]:
                             self.logger.debug(
                                 "Removing stage name {} of type {}".format(

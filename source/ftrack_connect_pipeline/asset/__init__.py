@@ -80,7 +80,7 @@ class FtrackObjectManager(object):
 
     @property
     def is_sync(self):
-        ''' Returns if the self :obj:`dcc_object` is sync with the
+        '''Returns if the self :obj:`dcc_object` is sync with the
         self :obj:`asset_info`'''
         return self._check_sync(self.dcc_object)
 
@@ -127,9 +127,9 @@ class FtrackObjectManager(object):
         )
         # Make sure the name contains valid characters
         name_value = self.asset_info[asset_const.CONTEXT_PATH]
-        name_value = unicodedata.normalize(
-            'NFKD', str(name_value)
-        ).encode('ascii', 'ignore')
+        name_value = unicodedata.normalize('NFKD', str(name_value)).encode(
+            'ascii', 'ignore'
+        )
         name_value = re.sub('[^\w\.-]', "_", name_value.decode('utf-8'))
 
         dcc_object_name = asset_const.DCC_OBJECT_NAME.format(
