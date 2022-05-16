@@ -5,21 +5,21 @@ from ftrack_connect_pipeline import constants
 from ftrack_connect_pipeline.plugin import base
 
 
-class PublisherOutputPlugin(base.BaseOutputPlugin):
+class PublisherExporterPlugin(base.BaseExporterPlugin):
     '''
     Base Publisher Output Plugin Class inherits from
-    :class:`~ftrack_connect_pipeline.plugin.base.BaseOutputPlugin`
+    :class:`~ftrack_connect_pipeline.plugin.base.BaseExporterPlugin`
     '''
 
     return_type = list
     '''Required return type'''
-    plugin_type = constants.PLUGIN_PUBLISHER_OUTPUT_TYPE
+    plugin_type = constants.PLUGIN_PUBLISHER_EXPORTER_TYPE
     '''Type of the plugin'''
     _required_output = []
-    '''Required return output'''
+    '''Required return exporters'''
 
     def __init__(self, session):
-        super(PublisherOutputPlugin, self).__init__(session)
+        super(PublisherExporterPlugin, self).__init__(session)
 
     def _parse_run_event(self, event):
         '''
@@ -29,7 +29,7 @@ class PublisherOutputPlugin(base.BaseOutputPlugin):
         only the results of the collector stage of the current step.
         '''
         method, plugin_settings = super(
-            PublisherOutputPlugin, self
+            PublisherExporterPlugin, self
         )._parse_run_event(event)
         if method == 'run':
             data = plugin_settings.get('data')

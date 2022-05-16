@@ -5,7 +5,7 @@ from ftrack_connect_pipeline.plugin import BasePlugin, BasePluginValidation
 from ftrack_connect_pipeline.constants import plugin
 
 
-class ValidatorPluginValidation(BasePluginValidation):
+class BaseValidatorPluginValidation(BasePluginValidation):
     '''
     Validator Plugin Validation class inherits from
     :class:`~ftrack_connect_pipeline.plugin.BasePluginValidation`
@@ -14,7 +14,7 @@ class ValidatorPluginValidation(BasePluginValidation):
     def __init__(
         self, plugin_name, required_output, return_type, return_value
     ):
-        super(ValidatorPluginValidation, self).__init__(
+        super(BaseValidatorPluginValidation, self).__init__(
             plugin_name, required_output, return_type, return_value
         )
 
@@ -23,7 +23,7 @@ class ValidatorPluginValidation(BasePluginValidation):
         Ensures that *result* contains all the expected :obj:`required_output`
         values defined for the current plugin.
 
-        *result* : output value of the plugin execution.
+        *result* : exporters value of the plugin execution.
 
         Return tuple (bool,str)
         '''
@@ -39,7 +39,7 @@ class ValidatorPluginValidation(BasePluginValidation):
     def validate_result_value(self, result):
         '''Ensures that *result* is True.
 
-        *result* : output value of the plugin execution.
+        *result* : exporters value of the plugin execution.
 
         Return tuple (bool,str)
         '''
@@ -65,13 +65,13 @@ class BaseValidatorPlugin(BasePlugin):
     plugin_type = plugin._PLUGIN_VALIDATOR_TYPE
     '''Type of the plugin'''
     _required_output = False
-    '''Required return output'''
+    '''Required return exporters'''
     return_value = True
     '''Required return Value'''
 
     def __init__(self, session):
         super(BaseValidatorPlugin, self).__init__(session)
-        self.validator = ValidatorPluginValidation(
+        self.validator = BaseValidatorPluginValidation(
             self.plugin_name,
             self._required_output,
             self.return_type,

@@ -5,7 +5,7 @@ from ftrack_connect_pipeline.plugin import BasePlugin, BasePluginValidation
 from ftrack_connect_pipeline.constants import plugin
 
 
-class FinalizerPluginValidation(BasePluginValidation):
+class BaseFinalizerPluginValidation(BasePluginValidation):
     '''
     Finalizer Plugin Validation class inherits from
     :class:`~ftrack_connect_pipeline.plugin.BasePluginValidation`
@@ -14,7 +14,7 @@ class FinalizerPluginValidation(BasePluginValidation):
     def __init__(
         self, plugin_name, required_output, return_type, return_value
     ):
-        super(FinalizerPluginValidation, self).__init__(
+        super(BaseFinalizerPluginValidation, self).__init__(
             plugin_name, required_output, return_type, return_value
         )
 
@@ -30,11 +30,11 @@ class BaseFinalizerPlugin(BasePlugin):
     plugin_type = plugin._PLUGIN_FINALIZER_TYPE
     '''Type of the plugin'''
     _required_output = {}
-    '''Required return output'''
+    '''Required return exporters'''
 
     def __init__(self, session):
         super(BaseFinalizerPlugin, self).__init__(session)
-        self.validator = FinalizerPluginValidation(
+        self.validator = BaseFinalizerPluginValidation(
             self.plugin_name,
             self._required_output,
             self.return_type,

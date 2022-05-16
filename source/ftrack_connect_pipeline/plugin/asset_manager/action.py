@@ -16,7 +16,7 @@ class AssetManagerActionPlugin(base.BaseActionPlugin):
     plugin_type = constants.PLUGIN_AM_ACTION_TYPE
     '''Plugin type of the current plugin'''
     _required_output = []
-    '''Expected output that should be returned'''
+    '''Expected exporters that should be returned'''
 
     def __init__(self, session):
         '''

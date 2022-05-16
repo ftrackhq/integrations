@@ -15,7 +15,7 @@ class OpenerPostFinalizerPlugin(base.BasePostFinalizerPlugin):
     plugin_type = constants.PLUGIN_OPENER_POST_FINALIZER_TYPE
     '''Type of the plugin'''
     _required_output = {}
-    '''Required return output'''
+    '''Required return exporters'''
 
     def __init__(self, session):
         super(OpenerPostFinalizerPlugin, self).__init__(session)

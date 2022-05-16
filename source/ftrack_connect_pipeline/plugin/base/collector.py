@@ -5,7 +5,7 @@ from ftrack_connect_pipeline.plugin import BasePlugin, BasePluginValidation
 from ftrack_connect_pipeline.constants import plugin
 
 
-class CollectorPluginValidation(BasePluginValidation):
+class BaseCollectorPluginValidation(BasePluginValidation):
     '''
     Collector Plugin Validation class inherits from
     :class:`~ftrack_connect_pipeline.plugin.BasePluginValidation`
@@ -14,7 +14,7 @@ class CollectorPluginValidation(BasePluginValidation):
     def __init__(
         self, plugin_name, required_output, return_type, return_value
     ):
-        super(CollectorPluginValidation, self).__init__(
+        super(BaseCollectorPluginValidation, self).__init__(
             plugin_name, required_output, return_type, return_value
         )
 
@@ -23,7 +23,7 @@ class CollectorPluginValidation(BasePluginValidation):
         Ensures that *result* contains all the expected :obj:`required_output`
         values defined for the current plugin.
 
-        *result* : output value of the plugin execution.
+        *result* : exporters value of the plugin execution.
 
         Return tuple (bool,str)
         '''
@@ -50,11 +50,11 @@ class BaseCollectorPlugin(BasePlugin):
     plugin_type = plugin._PLUGIN_COLLECTOR_TYPE
     '''Type of the plugin'''
     _required_output = []
-    '''Required return output'''
+    '''Required return exporters'''
 
     def __init__(self, session):
         super(BaseCollectorPlugin, self).__init__(session)
-        self.validator = CollectorPluginValidation(
+        self.validator = BaseCollectorPluginValidation(
             self.plugin_name,
             self._required_output,
             self.return_type,

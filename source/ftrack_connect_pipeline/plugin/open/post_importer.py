@@ -5,21 +5,21 @@ from ftrack_connect_pipeline import constants
 from ftrack_connect_pipeline.plugin import base
 
 
-class OpenerPostImportPlugin(base.BasePostImportPlugin):
+class OpenerPostImporterPlugin(base.BasePostImporterPlugin):
     '''
     Base Opener Post Import Plugin Class inherits from
-    :class:`~ftrack_connect_pipeline.plugin.base.BasePostImportPlugin`
+    :class:`~ftrack_connect_pipeline.plugin.base.BasePostImporterPlugin`
     '''
 
     return_type = dict
     '''Required return type'''
-    plugin_type = constants.PLUGIN_OPENER_POST_IMPORT_TYPE
+    plugin_type = constants.PLUGIN_OPENER_POST_IMPORTER_TYPE
     '''Type of the plugin'''
     _required_output = {}
-    '''Required return output'''
+    '''Required return exporters'''
 
     def __init__(self, session):
-        super(OpenerPostImportPlugin, self).__init__(session)
+        super(OpenerPostImporterPlugin, self).__init__(session)
 
     def _parse_run_event(self, event):
         '''
@@ -29,7 +29,7 @@ class OpenerPostImportPlugin(base.BasePostImportPlugin):
         only the results of the collector stage of the current step.
         '''
         method, plugin_settings = super(
-            OpenerPostImportPlugin, self
+            OpenerPostImporterPlugin, self
         )._parse_run_event(event)
         data = plugin_settings.get('data')
         # We only want the data of the collector in this stage

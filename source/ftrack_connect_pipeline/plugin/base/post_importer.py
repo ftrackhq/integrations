@@ -5,7 +5,7 @@ from ftrack_connect_pipeline.plugin import BasePlugin, BasePluginValidation
 from ftrack_connect_pipeline.constants import plugin
 
 
-class PostImportPluginValidation(BasePluginValidation):
+class BasePostImporterPluginValidation(BasePluginValidation):
     '''
     Post Import Plugin Validation class inherits from
     :class:`~ftrack_connect_pipeline.plugin.BasePluginValidation`
@@ -14,12 +14,12 @@ class PostImportPluginValidation(BasePluginValidation):
     def __init__(
         self, plugin_name, required_output, return_type, return_value
     ):
-        super(PostImportPluginValidation, self).__init__(
+        super(BasePostImporterPluginValidation, self).__init__(
             plugin_name, required_output, return_type, return_value
         )
 
 
-class BasePostImportPlugin(BasePlugin):
+class BasePostImporterPlugin(BasePlugin):
     '''
     Base Post Import Plugin Class inherits from
     :class:`~ftrack_connect_pipeline.plugin.BasePlugin`
@@ -27,14 +27,14 @@ class BasePostImportPlugin(BasePlugin):
 
     return_type = dict
     '''Required return type'''
-    plugin_type = plugin._PLUGIN_POST_IMPORT_TYPE
+    plugin_type = plugin._PLUGIN_POST_IMPORTER_TYPE
     '''Type of the plugin'''
     _required_output = {}
-    '''Required return output'''
+    '''Required return exporters'''
 
     def __init__(self, session):
-        super(BasePostImportPlugin, self).__init__(session)
-        self.validator = PostImportPluginValidation(
+        super(BasePostImporterPlugin, self).__init__(session)
+        self.validator = BasePostImporterPluginValidation(
             self.plugin_name,
             self._required_output,
             self.return_type,

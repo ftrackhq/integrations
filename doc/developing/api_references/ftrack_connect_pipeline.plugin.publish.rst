@@ -31,10 +31,10 @@ ftrack\_connect\_pipeline.plugin.publish.finalizer
     :undoc-members:
     :show-inheritance:
 
-ftrack\_connect\_pipeline.plugin.publish.output
+ftrack\_connect\_pipeline.plugin.publish.exporter
 ------------------------------------------------------
 
-.. automodule:: ftrack_connect_pipeline.plugin.publish.output
+.. automodule:: ftrack_connect_pipeline.plugin.publish.exporter
     :members:
     :undoc-members:
     :show-inheritance:

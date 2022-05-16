@@ -18,7 +18,7 @@ class PublisherPreFinalizerPlugin(base.BasePreFinalizerPlugin):
     plugin_type = constants.PLUGIN_PUBLISHER_PRE_FINALIZER_TYPE
     '''Type of the plugin'''
     _required_output = {}
-    '''Required return output'''
+    '''Required return exporters'''
     version_dependencies = []
     '''Ftrack dependencies of the current asset version'''
 

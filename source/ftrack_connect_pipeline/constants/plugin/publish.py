@@ -27,7 +27,7 @@ PLUGIN_PUBLISHER_COLLECTOR_TYPE = 'publisher.{}'.format(
 PLUGIN_PUBLISHER_VALIDATOR_TYPE = 'publisher.{}'.format(
     plugin._PLUGIN_VALIDATOR_TYPE
 )
-#: Publisher plugin type for output plugins
-PLUGIN_PUBLISHER_OUTPUT_TYPE = 'publisher.{}'.format(
-    plugin._PLUGIN_OUTPUT_TYPE
+#: Publisher plugin type for exporters plugins
+PLUGIN_PUBLISHER_EXPORTER_TYPE = 'publisher.{}'.format(
+    plugin._PLUGIN_EXPORTER_TYPE
 )
