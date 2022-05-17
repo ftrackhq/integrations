@@ -32,3 +32,7 @@ class NukeOpenerClient(open.QtOpenerClient):
         '''Nuke deletes the dialog, instead hide it so it can be reused'''
         self.setVisible(False)
         event.ignore()
+
+    def show(self):
+        super(NukeOpenerClient, self).conditional_rebuild()
+        super(NukeOpenerClient, self).show()

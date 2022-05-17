@@ -29,3 +29,7 @@ class NukeAssetManagerClient(QtAssetManagerClient):
 
     def getThemeBackgroundStyle(self):
         return 'nuke'
+
+    def show(self):
+        super(NukeAssetManagerClient, self).conditional_rebuild()
+        super(NukeAssetManagerClient, self).show()

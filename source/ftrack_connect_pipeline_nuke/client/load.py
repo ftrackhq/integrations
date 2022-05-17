@@ -40,3 +40,7 @@ class NukeAssemblerClient(load.QtAssemblerClient):
         '''Nuke deletes the dialog, instead hide so it can be reused'''
         self.setVisible(False)
         event.ignore()
+
+    def show(self):
+        super(NukeAssemblerClient, self).conditional_rebuild()
+        super(NukeAssemblerClient, self).show()

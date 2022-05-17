@@ -27,3 +27,7 @@ class NukePublisherClient(QtPublisherClient):
 
     def getThemeBackgroundStyle(self):
         return 'nuke'
+
+    def show(self):
+        super(NukePublisherClient, self).conditional_rebuild()
+        super(NukePublisherClient, self).show()
