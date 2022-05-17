@@ -18,7 +18,6 @@ import ftrack_connect.ui.application
 
 import ftrack_connect.ui.application
 import ftrack_connect.ui.widget.overlay
-import ftrack_connect.ui.widget.publisher
 import ftrack_connect.usage
 
 from ftrack_connect_publisher_widget.publisher import Publisher
