@@ -7,7 +7,8 @@
 Release Notes
 *************
 
-.. release:: Upcoming
+.. release:: 2.5.1
+    :date: 2022-02-24
 
     .. change:: changed
         :tags: Setup
