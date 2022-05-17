@@ -216,15 +216,15 @@ class AccordionBaseWidget(QtWidgets.QFrame):
     def paint_title(self, color):
         self._header._title_label.setStyleSheet("color: {}".format(color))
 
-    def set_unavailable(self):
-        self.setToolTip('This component is not available in ftrack')
-        if not self.checkable:
-            self.paint_title("red")
-            self.setToolTip(
-                'This component is mandatory and is not available in ftrack'
-            )
-        self.set_checked(False)
-        self.setEnabled(False)
+    # def set_unavailable(self):
+    #    self.setToolTip('This component is not available in ftrack')
+    #    if not self.checkable:
+    #        self.paint_title("red")
+    #        self.setToolTip(
+    #            'This component is mandatory and is not available in ftrack'
+    #        )
+    #    self.set_checked(False)
+    #    self.setEnabled(False)
 
     def set_default_state(self):
         self.setToolTip("")

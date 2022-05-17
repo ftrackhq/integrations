@@ -13,6 +13,25 @@ class DefaultStepWidgetObject(BaseUIWidgetObject):
     def enabled(self):
         return self.check_box.isChecked()
 
+    @property
+    def available(self):
+        return self.widget.isEnabled()
+
+    @available.setter
+    def available(self, value):
+        if value:
+            self.widget.setEnabled(True)
+            self.enabled = True
+            self.check_box.setChecked(True)
+            if not self.optional:
+                self.check_box.setEnabled(False)
+            else:
+                self.check_box.setEnabled(True)
+        else:
+            self.check_box.setChecked(False)
+            self.widget.setEnabled(False)
+            self.enabled = False
+
     def __init__(self, name, fragment_data, parent=None):
         '''Initialise JsonBoolean with *name*, *schema_fragment*,
         *fragment_data*, *previous_object_data*, *widget_factory*, *parent*'''
@@ -46,23 +65,9 @@ class DefaultStepWidgetObject(BaseUIWidgetObject):
                 self._component = component
                 break
         if not self._component:
-            self.set_unavailable()
+            self.available = False
         else:
-            self.set_available()
-
-    def set_unavailable(self):
-        self.check_box.setChecked(False)
-        self.widget.setEnabled(False)
-        self.enabled = False
-
-    def set_available(self):
-        self.widget.setEnabled(True)
-        self.enabled = True
-        self.check_box.setChecked(True)
-        if not self.optional:
-            self.check_box.setEnabled(False)
-        else:
-            self.check_box.setEnabled(True)
+            self.available = True
 
     def to_json_object(self):
         '''Return a formatted json with the data from the current widget'''

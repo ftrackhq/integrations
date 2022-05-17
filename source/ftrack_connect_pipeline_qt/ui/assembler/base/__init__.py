@@ -11,9 +11,7 @@ from Qt import QtCore, QtWidgets
 
 from ftrack_connect_pipeline import constants as core_constants
 from ftrack_connect_pipeline.client import constants
-from ftrack_connect_pipeline_qt.ui.asset_manager.base import (
-    AssetListModel,
-)
+from ftrack_connect_pipeline_qt.ui.asset_manager.model import AssetListModel
 from ftrack_connect_pipeline_qt.ui.asset_manager.base import (
     AssetListWidget,
 )

@@ -483,6 +483,21 @@ class RadioButtonItemStepWidgetObject(BaseUIWidgetObject):
     def button(self):
         return self._button
 
+    @property
+    def available(self):
+        return self.enabled
+
+    @available.setter
+    def available(self, value):
+        if value:
+            self.button.setEnabled(True)
+            self.set_enabled(True)
+        else:
+            self.button.setEnabled(False)
+            self.set_enabled(False)
+            if self.button.isChecked():
+                self.button.setChecked(False)
+
     def __init__(self, name, fragment_data, parent=None):
         '''Initialise JsonBoolean with *name*, *schema_fragment*,
         *fragment_data*, *previous_object_data*, *widget_factory*, *parent*'''
@@ -509,28 +524,19 @@ class RadioButtonItemStepWidgetObject(BaseUIWidgetObject):
                 self._component = component
                 break
         if not self._component:
-            self.set_unavailable('')
+            self.available = False
+            self._unavailable_reason = ''
             return False
         else:
             if (
                 file_formats is None
                 or self._component['file_type'] in file_formats
             ):
-                self.set_available()
+                self.available = True
             else:
-                self.set_unavailable('Cannot open this format.')
+                self.available = False
+                self._unavailable_reason = 'Cannot open this format.'
             return True
-
-    def set_unavailable(self, reason):
-        self.button.setEnabled(False)
-        self.set_enabled(False)
-        if self.button.isChecked():
-            self.button.setChecked(False)
-        self._unavailable_reason = reason
-
-    def set_available(self):
-        self.button.setEnabled(True)
-        self.set_enabled(True)
 
     def get_label(self):
         '''Return the label for parent combobox'''
@@ -548,7 +554,8 @@ class RadioButtonItemStepWidgetObject(BaseUIWidgetObject):
                         location.get_filesystem_path(self._component)
                     )
                 else:
-                    self.set_unavailable(
+                    self.available = False
+                    self._unavailable_reason = (
                         'Missing in this location ({})'.format(
                             location['name']
                         )
