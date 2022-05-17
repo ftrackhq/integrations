@@ -18,3 +18,7 @@ class MayaLogViewerDialog(log_viewer.QtLogViewerClient):
 
         # Make sure we stays on top of Maya
         self.setWindowFlags(QtCore.Qt.Tool)
+
+    def show(self):
+        super(MayaLogViewerDialog, self).conditional_rebuild()
+        super(MayaLogViewerDialog, self).show()

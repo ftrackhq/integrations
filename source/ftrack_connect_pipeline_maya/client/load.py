@@ -30,3 +30,7 @@ class MayaAssemblerClient(load.QtAssemblerClient):
 
         # Make sure we stays on top of Maya
         self.setWindowFlags(QtCore.Qt.Tool)
+
+    def show(self):
+        super(MayaAssemblerClient, self).conditional_rebuild()
+        super(MayaAssemblerClient, self).show()

@@ -42,6 +42,7 @@ class MayaAssetManagerClient(
         return 'maya'
 
     def show(self):
+        super(MayaAssetManagerClient, self).conditional_rebuild()
         super(MayaAssetManagerClient, self).show(
             dockable=True,
             floating=False,
@@ -51,4 +52,3 @@ class MayaAssetManagerClient(
             x=300,
             y=600,
         )
-        QtAssetManagerClient.conditional_rebuild(self)

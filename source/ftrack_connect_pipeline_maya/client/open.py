@@ -27,3 +27,7 @@ class MayaOpenerClient(open.QtOpenerClient):
 
         # Make sure we stays on top of Maya
         self.setWindowFlags(QtCore.Qt.Tool)
+
+    def show(self):
+        super(MayaOpenerClient, self).conditional_rebuild()
+        super(MayaOpenerClient, self).show()

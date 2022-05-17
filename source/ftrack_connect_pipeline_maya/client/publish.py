@@ -37,6 +37,7 @@ class MayaPublisherClient(MayaQWidgetDockableMixin, QtMayaPublisherClient):
         return 'maya'
 
     def show(self):
+        super(MayaPublisherClient, self).conditional_rebuild()
         super(MayaPublisherClient, self).show(
             dockable=True,
             floating=False,
@@ -46,4 +47,3 @@ class MayaPublisherClient(MayaQWidgetDockableMixin, QtMayaPublisherClient):
             x=300,
             y=600,
         )
-        QtPublisherClient.conditional_rebuild(self)
