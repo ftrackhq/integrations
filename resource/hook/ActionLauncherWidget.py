@@ -15,7 +15,6 @@ import ftrack_api
 from ftrack_connect.qt import QtWidgets, QtCore, QtGui
 import qtawesome as qta
 import ftrack_connect.ui.application
-import ftrack_connect.ui.widget.actions
 
 from ftrack_connect_action_launcher_widget.actions import Actions
 
