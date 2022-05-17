@@ -7,6 +7,13 @@
 Release Notes
 *************
 
+.. release:: Upcoming
+
+    .. change:: fixed
+        :tags: Tags
+
+        Tags on sequences break exporters. 
+
 .. release:: 2.5.1
     :date: 2022-02-24
 
@@ -59,7 +66,7 @@ Release Notes
 
         Startup error related to location setup are now visually reported.
 
-    .. change:: fix
+    .. change:: fixed
         :tags: Action
 
         Discovery does break on non context entities.
@@ -97,12 +104,12 @@ Release Notes
 
         Replace fixed version with automatic versioning from git repository.
     
-    .. change:: fix
+    .. change:: fixed
         :tags: Exporter
 
         Reviewable export audio breaks on earlier Nuke Studio versions (version < 12.1).
 
-    .. change:: fix
+    .. change:: fixed
         :tags: Exporter
 
         Reviewable Task break when including audio.
@@ -111,7 +118,7 @@ Release Notes
 .. release:: 2.3.0
     :date: 2020-04-23
 
-    .. change:: fix
+    .. change:: fixed
         :tags: Internal
 
         Custom start frame are not consistently output in frame sequence.
@@ -121,17 +128,17 @@ Release Notes
 
         Lock OTIO dependency version to last python only.
 
-    .. change:: fix
+    .. change:: fixed
         :tags: Internal
 
         Sequences rendered with Nuke Studio cannot be imported in nuke.
 
-    .. change:: fix
+    .. change:: fixed
         :tags: Internal
 
         ImageSequences are rendered as FileComponent.
 
-    .. change:: fix
+    .. change:: fixed
         :tags: Internal
 
         Thumbnail generation breaks when exporting just nuke scripts.
