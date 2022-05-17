@@ -2,10 +2,12 @@
 # :copyright: Copyright (c) 2014-2020 ftrack
 import logging
 
+import ftrack_connect_pipeline_qt.ui.utility.widget.button
 from Qt import QtWidgets, QtCore, QtGui
 
+from ftrack_connect_pipeline import constants as core_constants
+
 from ftrack_connect_pipeline_qt.ui.factory.base import BaseUIWidgetObject
-from ftrack_connect_pipeline_qt import constants
 from ftrack_connect_pipeline_qt.ui.utility.widget import (
     overlay,
     scroll_area,
@@ -21,8 +23,6 @@ from ftrack_connect_pipeline.utils import str_version
 
 class PhaseButton(QtWidgets.QPushButton):
     '''Showing progress of a phase(component)'''
-
-    status_icons = constants.icons.status_icons
 
     def __init__(self, phase_name, status, parent=None):
         super(PhaseButton, self).__init__(parent=parent)
@@ -48,7 +48,7 @@ class PhaseButton(QtWidgets.QPushButton):
 
         self.icon_widget = MaterialIconWidget(None)
         self.layout().addWidget(self.icon_widget)
-        self.set_status(constants.DEFAULT_STATUS)
+        self.set_status(core_constants.DEFAULT_STATUS)
 
         v_layout = QtWidgets.QVBoxLayout()
 
@@ -69,7 +69,11 @@ class PhaseButton(QtWidgets.QPushButton):
 
         self.log_text_edit = QtWidgets.QTextEdit()
         self.log_widget.layout().addWidget(self.log_text_edit, 10)
-        self._close_button = dialog.ApproveButton('HIDE LOG')
+        self._close_button = (
+            ftrack_connect_pipeline_qt.ui.utility.widget.button.ApproveButton(
+                'HIDE LOG'
+            )
+        )
         self.log_widget.layout().addWidget(self._close_button)
         self.overlay_container = overlay.Overlay(
             self.log_widget, parent=self.parent()
@@ -83,7 +87,7 @@ class PhaseButton(QtWidgets.QPushButton):
     def update_status(self, status, status_message, results):
         self.status_message_widget.setText(status_message)
         self.set_status(status)
-        if status == constants.ERROR_STATUS:
+        if status == core_constants.ERROR_STATUS:
             self.update_error_message(results)
 
     def set_status(self, status):
@@ -121,7 +125,6 @@ class PhaseButton(QtWidgets.QPushButton):
 
 
 class StatusButtonWidget(QtWidgets.QPushButton):
-    status_icons = constants.icons.status_icons
 
     VIEW_COLLAPSED_BUTTON = 'collapsed-button'  # AM (Opens progress overlay)
     VIEW_EXPANDED_BUTTON = 'expanded-button'  # Opener/Assembler/Publisher (Opens progress overlay)
@@ -157,13 +160,13 @@ class StatusButtonWidget(QtWidgets.QPushButton):
         self.status_icon = MaterialIconWidget(None)
         self.layout().addWidget(self.status_icon)
 
-        self.set_status(constants.SUCCESS_STATUS)
+        self.set_status(core_constants.SUCCESS_STATUS)
 
     def get_status(self):
         return self.status
 
     def set_status(self, status, message=''):
-        self.status = status or constants.DEFAULT_STATUS
+        self.status = status or core_constants.DEFAULT_STATUS
         self.message = message
         self.message_label.setText(self.message)
         set_property(self, 'status', self.status.lower())

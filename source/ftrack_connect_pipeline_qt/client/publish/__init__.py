@@ -1,15 +1,15 @@
 #! /usr/bin/env python
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2020 ftrack
-
+import ftrack_connect_pipeline_qt.ui.utility.widget.button
 from Qt import QtWidgets, QtCore
 
 from ftrack_connect_pipeline import constants as core_constants
+from ftrack_connect_pipeline.client import constants as client_constants
 from ftrack_connect_pipeline.client.publisher import PublisherClient
 from ftrack_connect_pipeline.utils import ftrack_context_id
 
-from ftrack_connect_pipeline_qt import constants
-from ftrack_connect_pipeline_qt import client
+from ftrack_connect_pipeline_qt.utils import get_theme, set_theme
 from ftrack_connect_pipeline_qt import constants as qt_constants
 from ftrack_connect_pipeline_qt.ui.factory.publisher import (
     PublisherWidgetFactory,
@@ -25,12 +25,17 @@ from ftrack_connect_pipeline_qt.ui.utility.widget.context_selector import (
 )
 
 
-class QtPublisherClient(
-    PublisherClient, client.QtClientMixin, QtWidgets.QFrame
-):
+class QtPublisherClient(PublisherClient, QtWidgets.QFrame):
     '''
     Publish widget class.
     '''
+
+    ui_types = [client_constants.UI_TYPE, qt_constants.UI_TYPE]
+    contextChanged = QtCore.Signal(object)  # Client context has changed
+    _shown = (
+        False  # Flag telling if widget has been shown before and needs refresh
+    )
+    scroll = None  # Main content scroll pane
 
     def __init__(self, event_manager, parent=None):
         QtWidgets.QFrame.__init__(self, parent=parent)
@@ -47,7 +52,23 @@ class QtPublisherClient(
         self.open_assembler_button = None
         self.scroll = None
 
-        client.QtClientMixin.__init__(self)  # Build widget
+        set_theme(self, get_theme())
+        if self.get_theme_background_style():
+            self.setProperty('background', self.get_theme_background_style())
+        self.setProperty('docked', 'true' if self.is_docked() else 'false')
+        self.setObjectName(
+            '{}_{}'.format(
+                qt_constants.MAIN_FRAMEWORK_WIDGET, self.__class__.__name__
+            )
+        )
+
+        self.pre_build()
+        self.build()
+        self.post_build()
+
+        self.set_context_id(self.context_id or ftrack_context_id())
+        if self.context_id:
+            self.add_hosts(self.discover_hosts())
 
         self.setWindowTitle('Standalone Pipeline Publisher')
 
@@ -100,7 +121,11 @@ class QtPublisherClient(
         button_widget.layout().setContentsMargins(10, 10, 10, 5)
         button_widget.layout().setSpacing(10)
 
-        self.run_button = client.RunButton('PUBLISH')
+        self.run_button = (
+            ftrack_connect_pipeline_qt.ui.utility.widget.button.RunButton(
+                'PUBLISH'
+            )
+        )
         button_widget.layout().addWidget(self.run_button)
         self.run_button.setEnabled(False)
         return button_widget
@@ -131,6 +156,37 @@ class QtPublisherClient(
             self._on_components_checked
         )
         self.setMinimumWidth(300)
+
+    def _on_context_selector_context_changed(self, context):
+        '''Context has been set in context selector'''
+        self.set_context_id(context['id'])
+
+        # Reset definition selector and clear client
+        self.host_and_definition_selector.clear_definitions()
+        self.host_and_definition_selector.populate_definitions()
+        self._clear_widget()
+
+    def set_context_id(self, context_id):
+        '''Set the context id for this client'''
+        if context_id and context_id != self.context_id:
+            discover_hosts = self.context_id is None
+            self.change_context(context_id)
+            if discover_hosts:
+                self.add_hosts(self.discover_hosts())
+
+    def add_hosts(self, host_connections):
+        '''
+        Adds the given *host_connections*
+
+        *host_connections* : list of
+        :class:`~ftrack_connect_pipeline.client.HostConnection`
+        '''
+        for host_connection in host_connections:
+            if host_connection in self.host_connections:
+                continue
+            if self.context_id:
+                host_connection.context_id = self.context_id
+            self._host_connections.append(host_connection)
 
     def set_context_id(self, context_id):
         '''Set the context id for this client'''
@@ -218,6 +274,18 @@ class QtPublisherClient(
         '''Can be overridden by child'''
         pass
 
+    def conditional_rebuild(self):
+        '''Reset a client that has become visible after being hidden.'''
+        if self._shown:
+            # Refresh when re-opened
+            self.set_context_id(ftrack_context_id())
+            self.host_and_definition_selector.refresh()
+        self._shown = True
+
+    def _clear_widget(self):
+        if self.scroll and self.scroll.widget():
+            self.scroll.widget().deleteLater()
+
     def _on_widget_asset_updated(self, asset_name, asset_id, is_valid):
         if asset_id is None:
             self.is_valid_asset_name = is_valid
@@ -236,7 +304,7 @@ class QtPublisherClient(
         if not self.is_valid_asset_name:
             msg = "Can't publish without a valid asset name"
             self.widget_factory.progress_widget.set_status(
-                constants.ERROR_STATUS, msg
+                core_constants.ERROR_STATUS, msg
             )
             self.logger.error(msg)
             return False
@@ -245,7 +313,7 @@ class QtPublisherClient(
         self.run_definition(serialized_data, engine_type)
         if not self.widget_factory.has_error:
             self.widget_factory.progress_widget.set_status(
-                constants.SUCCESS_STATUS,
+                core_constants.SUCCESS_STATUS,
                 'Successfully published {}!'.format(
                     self.definition['name'][
                         : self.definition['name'].rfind(' ')

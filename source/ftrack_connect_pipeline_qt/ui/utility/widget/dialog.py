@@ -1,9 +1,16 @@
+# :coding: utf-8
+# :copyright: Copyright (c) 2014-2022 ftrack
+
 import platform
 
 from functools import partial
 
 from Qt import QtWidgets, QtCore, QtGui
-
+from ftrack_connect_pipeline_qt.ui.utility.widget.button import (
+    DenyButton,
+    ApproveButton,
+)
+from ftrack_connect_pipeline_qt.utils import get_theme, set_theme
 from ftrack_connect_pipeline_qt.utils import center_widget
 from ftrack_connect_pipeline_qt.ui import theme
 
@@ -76,9 +83,9 @@ class ModalDialog(QtWidgets.QDialog):
         self.setParent(parent)
 
         self.setWindowFlags(QtCore.Qt.Tool)
-        self.setTheme(self.getTheme())
-        if self.getThemeBackgroundStyle():
-            self.setProperty('background', self.getThemeBackgroundStyle())
+        set_theme(self, get_theme())
+        if self.get_theme_background_style():
+            self.setProperty('background', self.get_theme_background_style())
 
         self._message = message or question
         self._title = title or 'ftrack'
@@ -97,14 +104,7 @@ class ModalDialog(QtWidgets.QDialog):
         if prompt is False:
             self.exec_()
 
-    def getTheme(self):
-        '''Return the client theme, return None to disable themes. Can be overridden by child.'''
-        return 'dark'
-
-    def setTheme(self, selected_theme):
-        theme.applyTheme(self, selected_theme, 'plastique')
-
-    def getThemeBackgroundStyle(self):
+    def get_theme_background_style(self):
         return 'ftrack'
 
     def pre_build(self):
@@ -187,18 +187,6 @@ class ModalDialog(QtWidgets.QDialog):
         if isinstance(self.parentWidget(), Dialog):
             self.parentWidget().darken = visible
         super(ModalDialog, self).setVisible(visible)
-
-
-class DenyButton(QtWidgets.QPushButton):
-    def __init__(self, label, width=40, height=35, parent=None):
-        super(DenyButton, self).__init__(label, parent=parent)
-        self.setMinimumSize(QtCore.QSize(width, height))
-
-
-class ApproveButton(QtWidgets.QPushButton):
-    def __init__(self, label, width=40, height=35, parent=None):
-        super(ApproveButton, self).__init__(label, parent=parent)
-        self.setMinimumSize(QtCore.QSize(width, height))
 
 
 class TitleLabel(QtWidgets.QLabel):

@@ -3,7 +3,7 @@
 
 from Qt import QtCore, QtWidgets, QtGui, QtSvg
 
-from ftrack_connect_pipeline_qt import constants
+from ftrack_connect_pipeline import constants as core_constants
 
 
 class MaterialIcon(QtGui.QIcon):
@@ -90,19 +90,25 @@ class MaterialIconWidget(QtWidgets.QWidget):
         icon_name = ''
         color = '303030'
         variant = 'filled'
-        if status in [constants.UNKNOWN_STATUS, constants.DEFAULT_STATUS]:
+        if status in [
+            core_constants.UNKNOWN_STATUS,
+            core_constants.DEFAULT_STATUS,
+        ]:
             icon_name = 'help'
             color = '303030'
-        elif status in [constants.RUNNING_STATUS]:
+        elif status in [core_constants.RUNNING_STATUS]:
             icon_name = 'hourglass_bottom'
             color = '87E1EB'
-        elif status in [constants.SUCCESS_STATUS]:
+        elif status in [core_constants.SUCCESS_STATUS]:
             icon_name = 'check-circle-outline'
             color = '79DFB6'
-        elif status in [constants.WARNING_STATUS]:
+        elif status in [core_constants.WARNING_STATUS]:
             icon_name = 'error_outline'
             color = 'FFBD5D'
-        elif status in [constants.ERROR_STATUS, constants.EXCEPTION_STATUS]:
+        elif status in [
+            core_constants.ERROR_STATUS,
+            core_constants.EXCEPTION_STATUS,
+        ]:
             icon_name = 'error'
             color = 'FF7A73'
         self.set_icon(

@@ -35,10 +35,8 @@ UI_OVERRIDES = {
     },
     core_constants.FINALIZERS: {
         'show': True,
-        #'step_container': override_widgets.TabStepContainerWidget,
         'step_container': default_widgets.DefaultStepContainerWidgetObject,
         'step_widget': default_widgets.DefaultStepWidgetObject,
-        #'stage_widget': override_widgets.GroupBoxStageWidgetObject,
         'stage_widget': default_widgets.DefaultStageWidgetObject,
         'plugin_container': override_widgets.AccordionPluginContainerWidgetObject,
     },

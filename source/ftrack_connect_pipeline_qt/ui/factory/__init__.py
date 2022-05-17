@@ -11,7 +11,7 @@ import ftrack_api
 
 from ftrack_connect_pipeline import constants as core_constants
 
-from ftrack_connect_pipeline_qt import constants
+from ftrack_connect_pipeline_qt import constants as qt_constants
 from ftrack_connect_pipeline_qt.utils import BaseThread
 from ftrack_connect_pipeline_qt.plugin.widgets import BaseOptionsWidget
 from ftrack_connect_pipeline_qt.ui.factory.base import BaseUIWidgetObject
@@ -120,19 +120,19 @@ class WidgetFactoryBase(QtWidgets.QWidget):
         in the client_ui_overrides.py file
         '''
         obj_override = UI_OVERRIDES.get(type_name).get(
-            '{}.{}'.format(widget_type, name), constants.NOT_SET
+            '{}.{}'.format(widget_type, name), qt_constants.NOT_SET
         )
-        if obj_override == constants.NOT_SET:
+        if obj_override == qt_constants.NOT_SET:
             obj_override = UI_OVERRIDES.get(type_name).get(
-                '{}.{}'.format(widget_type, data['type']), constants.NOT_SET
+                '{}.{}'.format(widget_type, data['type']), qt_constants.NOT_SET
             )
-        if obj_override == constants.NOT_SET:
+        if obj_override == qt_constants.NOT_SET:
             obj_override = UI_OVERRIDES.get(type_name).get(
-                '{}.{}'.format(widget_type, client_type), constants.NOT_SET
+                '{}.{}'.format(widget_type, client_type), qt_constants.NOT_SET
             )
-        if obj_override == constants.NOT_SET:
+        if obj_override == qt_constants.NOT_SET:
             obj_override = UI_OVERRIDES.get(type_name).get(widget_type)
-        if obj_override and obj_override != constants.NOT_SET:
+        if obj_override and obj_override != qt_constants.NOT_SET:
             return obj_override(name, data, parent=self.parent())
         return obj_override
 
@@ -429,7 +429,7 @@ class WidgetFactoryBase(QtWidgets.QWidget):
             widget = result.get(list(result.keys())[0])
         status = data['status']
 
-        if status == constants.EXCEPTION_STATUS:
+        if status == core_constants.EXCEPTION_STATUS:
             raise Exception(
                 'Got response "{}"" while fetching:\n'
                 'plugin: {}\n'
@@ -446,7 +446,6 @@ class WidgetFactoryBase(QtWidgets.QWidget):
                 )
             )
 
-        widget.statusUpdated.connect(self._on_widget_status_updated)
         widget.assetVersionChanged.connect(self._asset_version_changed)  # Load
         widget.assetChanged.connect(self._on_widget_asset_changed)  # Publish
 
@@ -521,7 +520,7 @@ class WidgetFactoryBase(QtWidgets.QWidget):
             step_name if step_type != 'finalizer' else stage_name
         )
 
-        if status == constants.RUNNING_STATUS:
+        if status == core_constants.RUNNING_STATUS:
             status_message = "Running Stage {}... ({}/{})".format(
                 stage_name, current_plugin_index, total_plugins
             )
@@ -533,7 +532,7 @@ class WidgetFactoryBase(QtWidgets.QWidget):
                 results,
                 self._version_id,
             )
-        elif status == constants.ERROR_STATUS:
+        elif status == core_constants.ERROR_STATUS:
             status_message = "Failed"
             self.progress_widget.update_component_status(
                 step_type,
@@ -544,7 +543,7 @@ class WidgetFactoryBase(QtWidgets.QWidget):
                 self._version_id,
             )
             self.has_error = True
-        elif status == constants.SUCCESS_STATUS:
+        elif status == core_constants.SUCCESS_STATUS:
             status_message = "Completed"
             self.progress_widget.update_component_status(
                 step_type,
@@ -555,49 +554,11 @@ class WidgetFactoryBase(QtWidgets.QWidget):
                 self._version_id,
             )
 
-    def update_widget(self, log_item):
-        '''*event* callback to update widget with the current status/value'''
-        if not log_item.widget_ref:
-            self.logger.debug(
-                'No widget_ref on the log item. log_item: {}'.format(log_item)
-            )
-            return
-        widget = self.widgets.get(log_item.widget_ref)
-        if not widget:
-            self.logger.debug(
-                'Widget ref :{} not found for host_id {} ! '.format(
-                    log_item.widget_ref, log_item.host_id
-                )
-            )
-            return
-
-        if log_item.status:
-            self.logger.debug(
-                'updating widget: {} Status: {}, Message: {}, User Message: {}'.format(
-                    widget,
-                    log_item.status,
-                    log_item.message,
-                    log_item.user_message,
-                )
-            )
-            if log_item.user_message:
-                widget.set_status(log_item.status, log_item.user_message)
-            else:
-                widget.set_status(log_item.status, log_item.message)
-
-        if log_item.result:
-            self.logger.debug(
-                'updating widget: {} with run result {}'.format(
-                    widget, log_item.result
-                )
-            )
-            widget.set_run_result(log_item.result)
-
     def listen_widget_updates(self):
         '''
         Subscribe to the
         :const:`~ftrack_connnect_pipeline.constants.PIPELINE_CLIENT_NOTIFICATION`
-        topic to call the _update_widget function when the host returns and
+        topic to call the _update_progress_widget function when the host returns and
         answer through the same topic
         '''
 

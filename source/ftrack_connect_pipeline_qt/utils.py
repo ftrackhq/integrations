@@ -9,6 +9,7 @@ import contextlib
 from Qt import QtCore, QtWidgets, QtGui
 
 from ftrack_connect_pipeline_qt import constants as qt_constants
+from ftrack_connect_pipeline_qt.ui import theme
 
 
 class Worker(QtCore.QThread):
@@ -108,6 +109,16 @@ class BaseThread(threading.Thread):
         result = self.method(*self.target_args)
         if self.callback is not None:
             self.callback(result)
+
+
+def get_theme():
+    '''Return the theme, return None to disable themes. Can be overridden by child.'''
+    return 'dark'
+
+
+def set_theme(widget, selected_theme):
+    '''Set the widget theme'''
+    theme.applyTheme(widget, selected_theme, 'plastique')
 
 
 def find_parent(widget, name):

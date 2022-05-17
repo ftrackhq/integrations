@@ -4,8 +4,6 @@ from functools import partial
 
 from Qt import QtCore, QtWidgets
 
-from ftrack_connect_pipeline_qt import constants
-from ftrack_connect_pipeline import constants as pipeline_constants
 from ftrack_connect_pipeline_qt.ui.factory.base import BaseUIWidgetObject
 from ftrack_connect_pipeline_qt.ui.utility.widget.base.accordion_base import (
     AccordionBaseWidget,
@@ -175,38 +173,12 @@ class PublisherAccordionWidget(AccordionBaseWidget):
         self.update_input(self._input_message, self._input_status)
         super(PublisherAccordionWidget, self).post_build()
 
-    def update_inner_status(self, inner_widget, data):
-        status, message = data
-
-        self._inner_widget_status[inner_widget] = status
-
-        all_bool_status = [
-            pipeline_constants.status_bool_mapping[_status]
-            for _status in list(self._inner_widget_status.values())
-        ]
-        if all(all_bool_status):
-            self.set_status(constants.SUCCESS_STATUS, None)
-        else:
-            if constants.RUNNING_STATUS in list(
-                self._inner_widget_status.values()
-            ):
-                self.set_status(constants.RUNNING_STATUS, None)
-            else:
-                self.set_status(constants.ERROR_STATUS, None)
-
     def _connect_inner_widgets(self, widget):
         if issubclass(widget.__class__, BaseOptionsWidget):
             self._widgets[widget] = widget
-            widget.statusUpdated.connect(
-                partial(self.update_inner_status, widget)
-            )
             return
         inner_widgets = widget.findChildren(BaseOptionsWidget)
         self._widgets[widget] = inner_widgets
-        for inner_widget in inner_widgets:
-            inner_widget.statusUpdated.connect(
-                partial(self.update_inner_status, inner_widget)
-            )
 
     def on_collapse(self, collapsed):
         '''Callback on accordion collapse/expand.'''
@@ -432,6 +404,18 @@ class OptionsStepWidget(DefaultStepWidgetObject):
 class ComboBoxItemStepWidget(DefaultStepWidgetObject):
     '''Widget representation of a boolean'''
 
+    @property
+    def enabled(self):
+        return self._is_enabled
+
+    @enabled.setter
+    def enabled(self, value):
+        self.check_box.setChecked(value)
+        if self._parent:
+            '''Update parent combobox'''
+            combobox = self._parent.widget
+            combobox.setItemText(self._row, self.get_label())
+
     def __init__(self, name, fragment_data, parent=None):
         '''Initialise JsonBoolean with *name*, *schema_fragment*,
         *fragment_data*, *previous_object_data*, *widget_factory*, *parent*'''
@@ -460,13 +444,6 @@ class ComboBoxItemStepWidget(DefaultStepWidgetObject):
             result += 'UNAVAILABLE - please choose another version!'
         return result
 
-    def set_enabled(self, enabled):
-        super(ComboBoxItemStepWidget, self).enabled = enabled
-        if self._parent:
-            '''Update parent combobox'''
-            combobox = self._parent.widget
-            combobox.setItemText(self._row, self.get_label())
-
 
 class RadioButtonItemStepWidgetObject(BaseUIWidgetObject):
     '''Widget representation of a boolean'''
@@ -475,28 +452,28 @@ class RadioButtonItemStepWidgetObject(BaseUIWidgetObject):
     def enabled(self):
         return self._button.isChecked()
 
-    @property
-    def is_available(self):
-        return self._button and self._button.isEnabled()
-
-    @property
-    def button(self):
-        return self._button
+    @enabled.setter
+    def enabled(self, enabled):
+        self._is_enabled = enabled
+        self.button.setEnabled(enabled)
+        self.button.setText(self.get_label())
 
     @property
     def available(self):
-        return self.enabled
+        return self._button and self._button.isEnabled()
 
     @available.setter
     def available(self, value):
         if value:
-            self.button.setEnabled(True)
-            self.set_enabled(True)
+            self.enabled = True
         else:
-            self.button.setEnabled(False)
-            self.set_enabled(False)
+            self.enabled = False
             if self.button.isChecked():
                 self.button.setChecked(False)
+
+    @property
+    def button(self):
+        return self._button
 
     def __init__(self, name, fragment_data, parent=None):
         '''Initialise JsonBoolean with *name*, *schema_fragment*,
@@ -541,7 +518,7 @@ class RadioButtonItemStepWidgetObject(BaseUIWidgetObject):
     def get_label(self):
         '''Return the label for parent combobox'''
         result = '{}'.format(self.name)
-        if self.is_available and self._component:
+        if self.available and self._component:
             # Fetch path
             try:
                 location = self._session.pick_location()
@@ -566,13 +543,8 @@ class RadioButtonItemStepWidgetObject(BaseUIWidgetObject):
             result += ': {}'.format(self._unavailable_reason)
         return result
 
-    def set_enabled(self, enabled):
-        super(RadioButtonItemStepWidgetObject, self).enabled = enabled
-        self.button.setEnabled(enabled)
-        self.button.setText(self.get_label())
-
     def to_json_object(self):
         '''Return a formatted json with the data from the current widget'''
         out = {}
-        out['enabled'] = self.is_available and self.enabled
+        out['enabled'] = self.available and self.enabled
         return out

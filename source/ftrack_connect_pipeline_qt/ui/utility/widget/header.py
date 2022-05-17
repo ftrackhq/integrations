@@ -3,7 +3,6 @@
 
 from Qt import QtCore, QtWidgets, QtGui
 
-from ftrack_connect_pipeline_qt import constants
 from ftrack_connect_pipeline_qt.ui.utility.widget import (
     thumbnail,
     circular_button,
@@ -187,60 +186,3 @@ class User(QtWidgets.QFrame):
             tooltip += 'Location: - not set -'
         tooltip += '\n'
         self.setToolTip(tooltip)
-
-
-class MessageBox(QtWidgets.QWidget):
-    '''Message widget.'''
-
-    def __init__(self, parent=None):
-        '''Instantiate message widget.'''
-
-        super(MessageBox, self).__init__(parent=parent)
-        self.setObjectName('ftrack-message-box')
-
-        self.pre_build()
-        self.build()
-
-    def pre_build(self):
-        self.setLayout(QtWidgets.QHBoxLayout())
-        self.layout().setContentsMargins(0, 0, 0, 0)
-        self.layout().setSpacing(0)
-        self.layout().setAlignment(QtCore.Qt.AlignTop)
-
-    def build(self):
-        self.label = QtWidgets.QLabel(parent=self.parent())
-        self.label.resize(QtCore.QSize(900, 80))
-
-        self.icon = QtWidgets.QLabel(parent=self.parent())
-        self.icon.resize(QtCore.QSize(45, 45))
-
-        self.label.setSizePolicy(
-            QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Fixed
-        )
-        self.label.hide()
-        self.label.setObjectName('ftrack-header-message-info')
-
-        self.layout().addWidget(self.icon)
-        self.layout().addStretch()
-
-        self.layout().addWidget(self.label)
-
-    def setMessage(self, message, level):
-        '''Set *message* and *level*.'''
-
-        class_type = 'ftrack-header-message-%s' % level
-
-        self.label.setObjectName(class_type)
-
-        self.setStyleSheet(self.styleSheet())
-        self.label.setText(str(message))
-        self.icon.setPixmap(constants.status_icons[level])
-        self.icon.setVisible(True)
-        self.label.setVisible(True)
-
-    def dismissMessage(self):
-        '''Dismiss the message.'''
-        self.label.setText('')
-        self.label.setVisible(False)
-        self.icon.setText('')
-        self.icon.setVisible(False)

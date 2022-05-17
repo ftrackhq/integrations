@@ -31,7 +31,7 @@ from ftrack_connect_pipeline_qt.ui.utility.widget.dialog import ModalDialog
 from ftrack_connect_pipeline_qt.ui.utility.widget.busy_indicator import (
     BusyIndicator,
 )
-from ftrack_connect_pipeline_qt.ui.utility.widget.dialog import ApproveButton
+from ftrack_connect_pipeline_qt.ui.utility.widget.button import ApproveButton
 
 
 class AssetManagerWidget(AssetManagerBaseWidget):

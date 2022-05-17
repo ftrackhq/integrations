@@ -1,19 +1,21 @@
 #! /usr/bin/env python
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2022 ftrack
-import copy
-import json
 from functools import partial
 
 from Qt import QtCore, QtWidgets
 
-from ftrack_connect_pipeline.client import constants
 from ftrack_connect_pipeline.utils import ftrack_context_id, str_version
-
 from ftrack_connect_pipeline import constants as core_constants
+from ftrack_connect_pipeline.client import constants as client_constants
 from ftrack_connect_pipeline.client.loader import LoaderClient
+from ftrack_connect_pipeline_qt.ui.utility.widget.button import (
+    AddRunButton,
+    LoadRunButton,
+)
 
-from ftrack_connect_pipeline_qt import client
+from ftrack_connect_pipeline_qt.utils import get_theme, set_theme
+from ftrack_connect_pipeline_qt import constants as qt_constants
 from ftrack_connect_pipeline_qt.ui.utility.widget.dialog import ModalDialog
 from ftrack_connect_pipeline_qt.ui.utility.widget import (
     dialog,
@@ -34,6 +36,9 @@ from ftrack_connect_pipeline_qt.ui.assembler.assembler import (
     AssemblerDependenciesWidget,
     AssemblerBrowserWidget,
 )
+from ftrack_connect_pipeline_qt.ui.factory.assembler import (
+    AssemblerWidgetFactory,
+)
 
 
 class QtLoaderClient(LoaderClient):
@@ -41,12 +46,19 @@ class QtLoaderClient(LoaderClient):
     Loader client class, as assembler is based on
     '''
 
+    ui_types = [client_constants.UI_TYPE, qt_constants.UI_TYPE]
+    contextChanged = QtCore.Signal(object)  # Client context has changed
+    _shown = (
+        False  # Flag telling if widget has been shown before and needs refresh
+    )
+    scroll = None  # Main content scroll pane
+
     def __init__(self, event_manager):
         super(QtLoaderClient, self).__init__(event_manager)
         self.logger.debug('start qt loader')
 
 
-class QtAssemblerClient(QtLoaderClient, client.QtClientMixin, dialog.Dialog):
+class QtAssemblerWidget(QtLoaderClient, dialog.Dialog):
     '''Compound client dialog containing the assembler based on loader with the asset manager docked'''
 
     assembler_match_extension = (
@@ -74,12 +86,28 @@ class QtAssemblerClient(QtLoaderClient, client.QtClientMixin, dialog.Dialog):
         self.modes = modes
         self._asset_list_model = asset_list_model
 
-        client.QtClientMixin.__init__(self)  # Build widget
+        set_theme(self, get_theme())
+        if self.get_theme_background_style():
+            self.setProperty('background', self.get_theme_background_style())
+        self.setProperty('docked', 'true' if self.is_docked() else 'false')
+        self.setObjectName(
+            '{}_{}'.format(
+                qt_constants.MAIN_FRAMEWORK_WIDGET, self.__class__.__name__
+            )
+        )
+
+        self.pre_build()
+        self.build()
+        self.post_build()
+
+        self.set_context_id(self.context_id or ftrack_context_id())
+        if self.context_id:
+            self.add_hosts(self.discover_hosts())
 
         self.setWindowTitle('ftrack Connect Assembler')
         self.resize(1000, 500)
 
-    def getThemeBackgroundStyle(self):
+    def get_theme_background_style(self):
         return 'ftrack'
 
     def is_docked(self):
@@ -115,10 +143,8 @@ class QtAssemblerClient(QtLoaderClient, client.QtClientMixin, dialog.Dialog):
             line.Line(style='solid', parent=self.parent())
         )
 
-        self.progress_widget = (
-            factory.AssemblerWidgetFactory.create_progress_widget(
-                parent=self.parent()
-            )
+        self.progress_widget = AssemblerWidgetFactory.create_progress_widget(
+            parent=self.parent()
         )
         self.header.content_container.layout().addWidget(
             self.progress_widget.widget
@@ -222,7 +248,7 @@ class QtAssemblerClient(QtLoaderClient, client.QtClientMixin, dialog.Dialog):
             self.change_definition
         )
 
-        if self.event_manager.mode == constants.LOCAL_EVENT_MODE:
+        if self.event_manager.mode == core_constants.LOCAL_EVENT_MODE:
             self.host_and_definition_selector.host_widget.hide()
 
         self.context_selector.changeContextClicked.connect(
@@ -239,6 +265,15 @@ class QtAssemblerClient(QtLoaderClient, client.QtClientMixin, dialog.Dialog):
         )
         self.run_button.clicked.connect(partial(self.run, "init_and_load"))
 
+    def _on_context_selector_context_changed(self, context):
+        '''Context has been set in context selector'''
+        self.set_context_id(context['id'])
+
+        # Reset definition selector and clear client
+        self.host_and_definition_selector.clear_definitions()
+        self.host_and_definition_selector.populate_definitions()
+        self._clear_widget()
+
     def _on_hosts_discovered(self, host_connections):
         self.host_and_definition_selector.setVisible(len(host_connections) > 1)
 
@@ -248,7 +283,7 @@ class QtAssemblerClient(QtLoaderClient, client.QtClientMixin, dialog.Dialog):
         :attr:`~ftrack_connect_pipeline.client.HostConnection.context_id` emit
         on_context_change signal.
         """
-        super(QtAssemblerClient, self).change_context(context_id)
+        super(QtAssemblerWidget, self).change_context(context_id)
         self.context_selector.set_context_id(self.context_id)
         self.contextChanged.emit(context_id)
 
@@ -274,7 +309,7 @@ class QtAssemblerClient(QtLoaderClient, client.QtClientMixin, dialog.Dialog):
 
         *event*: :class:`ftrack_api.event.base.Event`
         '''
-        super(QtAssemblerClient, self)._host_discovered(event)
+        super(QtAssemblerWidget, self)._host_discovered(event)
         if self.definition_filter:
             self.host_and_definition_selector.definition_title_filter = (
                 self.definition_filter
@@ -287,7 +322,7 @@ class QtAssemblerClient(QtLoaderClient, client.QtClientMixin, dialog.Dialog):
 
     def change_host(self, host_connection):
         self._clear_widget()
-        super(QtAssemblerClient, self).change_host(host_connection)
+        super(QtAssemblerWidget, self).change_host(host_connection)
         self.context_selector.host_changed(host_connection)
         # Feed the host to the asset manager
         self.asset_manager.change_host(host_connection)
@@ -295,6 +330,66 @@ class QtAssemblerClient(QtLoaderClient, client.QtClientMixin, dialog.Dialog):
     def _assets_discovered(self):
         '''The assets in AM has been discovered, refresh at our end.'''
         self.refresh()
+
+    def _on_context_selector_context_changed(self, context):
+        '''Context has been set in context selector'''
+        self.set_context_id(context['id'])
+
+        # Reset definition selector and clear client
+        self.host_and_definition_selector.clear_definitions()
+        self.host_and_definition_selector.populate_definitions()
+        self._clear_widget()
+
+    def set_context_id(self, context_id):
+        '''Set the context id for this client'''
+        if context_id and context_id != self.context_id:
+            discover_hosts = self.context_id is None
+            self.change_context(context_id)
+            if discover_hosts:
+                self.add_hosts(self.discover_hosts())
+
+    def add_hosts(self, host_connections):
+        '''
+        Adds the given *host_connections*
+
+        *host_connections* : list of
+        :class:`~ftrack_connect_pipeline.client.HostConnection`
+        '''
+        for host_connection in host_connections:
+            if host_connection in self.host_connections:
+                continue
+            if self.context_id:
+                host_connection.context_id = self.context_id
+            self._host_connections.append(host_connection)
+
+    def conditional_rebuild(self):
+        '''Reset a client that has become visible after being hidden.'''
+        if self._shown:
+            # Refresh when re-opened
+            self.set_context_id(ftrack_context_id())
+            self.host_and_definition_selector.refresh()
+        self._shown = True
+
+    def _clear_widget(self):
+        if self.scroll and self.scroll.widget():
+            self.scroll.widget().deleteLater()
+
+    def _on_components_checked(self, available_components_count):
+        self.definition_changed(self.definition, available_components_count)
+        self.run_button.setEnabled(available_components_count >= 1)
+        if available_components_count == 0:
+            self._clear_widget()
+
+    def _open_assembler(self):
+        '''Open the assembler and close client if dialog'''
+        if not self.is_docked():
+            self.hide()
+        self.host_connection.launch_widget(core_constants.ASSEMBLER)
+
+    def _open_publisher(self):
+        if not self.is_docked():
+            self.hide()
+        self.host_connection.launch_widget(core_constants.PUBLISHER)
 
     def _on_tab_changed(self, index):
         self.set_assemble_mode(index)
@@ -355,7 +450,7 @@ class QtAssemblerClient(QtLoaderClient, client.QtClientMixin, dialog.Dialog):
 
     def reset(self):
         '''Assembler is shown again after being hidden.'''
-        super(QtAssemblerClient, self).reset()
+        super(QtAssemblerWidget, self).reset()
         self.asset_manager.asset_manager_widget.rebuild.emit()
         self._assembler_widget.reset()
         self.progress_widget.hide_widget()
@@ -395,7 +490,7 @@ class QtAssemblerClient(QtLoaderClient, client.QtClientMixin, dialog.Dialog):
             # run them one by one. Start by preparing progress widget
             self.progress_widget.prepare_add_components()
             self.progress_widget.set_status(
-                constants.RUNNING_STATUS, 'Initializing...'
+                core_constants.RUNNING_STATUS, 'Initializing...'
             )
             for component_widget in component_widgets:
                 component = self._assembler_widget.component_list.model.data(
@@ -417,7 +512,7 @@ class QtAssemblerClient(QtLoaderClient, client.QtClientMixin, dialog.Dialog):
                     component_widget.index
                 )[0]
                 self.progress_widget.set_status(
-                    constants.RUNNING_STATUS,
+                    core_constants.RUNNING_STATUS,
                     'Loading {} / {}...'.format(
                         str_version(component['version']), component['name']
                     ),
@@ -449,7 +544,7 @@ class QtAssemblerClient(QtLoaderClient, client.QtClientMixin, dialog.Dialog):
             if succeeded > 0:
                 if failed == 0:
                     self.progress_widget.set_status(
-                        constants.SUCCESS_STATUS,
+                        core_constants.SUCCESS_STATUS,
                         'Successfully {} {}/{} asset{}!'.format(
                             'loaded' if method == 'run' else 'tracked',
                             succeeded,
@@ -459,7 +554,7 @@ class QtAssemblerClient(QtLoaderClient, client.QtClientMixin, dialog.Dialog):
                     )
                 else:
                     self.progress_widget.set_status(
-                        constants.WARNING_STATUS,
+                        core_constants.WARNING_STATUS,
                         'Successfully {} {}/{} asset{}, {} failed - check logs for more information!'.format(
                             'loaded' if method == 'run' else 'tracked',
                             succeeded,
@@ -471,7 +566,7 @@ class QtAssemblerClient(QtLoaderClient, client.QtClientMixin, dialog.Dialog):
                 self.asset_manager.asset_manager_widget.rebuild.emit()
             else:
                 self.progress_widget.set_status(
-                    constants.ERROR_STATUS,
+                    core_constants.ERROR_STATUS,
                     'Could not {} asset{} - check logs for more information!'.format(
                         'loaded' if method == 'run' else 'tracked',
                         's' if len(component_widgets) > 1 else '',
@@ -488,17 +583,3 @@ class QtAssemblerClient(QtLoaderClient, client.QtClientMixin, dialog.Dialog):
 class AssemblerTabWidget(tab.TabWidget):
     def __init__(self, parent=None):
         super(AssemblerTabWidget, self).__init__(parent=parent)
-
-
-class AddRunButton(QtWidgets.QPushButton):
-    def __init__(self, label, parent=None):
-        super(AddRunButton, self).__init__(label, parent=parent)
-        self.setMaximumHeight(32)
-        self.setMinimumHeight(32)
-
-
-class LoadRunButton(QtWidgets.QPushButton):
-    def __init__(self, label, parent=None):
-        super(LoadRunButton, self).__init__(label, parent=parent)
-        self.setMaximumHeight(32)
-        self.setMinimumHeight(32)

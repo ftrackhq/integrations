@@ -13,6 +13,10 @@ class DefaultStepWidgetObject(BaseUIWidgetObject):
     def enabled(self):
         return self.check_box.isChecked()
 
+    @enabled.setter
+    def enabled(self, value):
+        self.check_box.setChecked(value)
+
     @property
     def available(self):
         return self.widget.isEnabled()
@@ -20,17 +24,15 @@ class DefaultStepWidgetObject(BaseUIWidgetObject):
     @available.setter
     def available(self, value):
         if value:
-            self.widget.setEnabled(True)
             self.enabled = True
-            self.check_box.setChecked(True)
+            self.widget.setEnabled(True)
             if not self.optional:
                 self.check_box.setEnabled(False)
             else:
                 self.check_box.setEnabled(True)
         else:
-            self.check_box.setChecked(False)
-            self.widget.setEnabled(False)
             self.enabled = False
+            self.widget.setEnabled(False)
 
     def __init__(self, name, fragment_data, parent=None):
         '''Initialise JsonBoolean with *name*, *schema_fragment*,

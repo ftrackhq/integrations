@@ -10,7 +10,8 @@ from PySide2 import (
 from ftrack_connect_pipeline.utils import ftrack_context_id
 from ftrack_connect_pipeline.client import Client
 from ftrack_connect_pipeline_qt.ui.utility.widget import dialog, header
-from ftrack_connect_pipeline_qt.ui import theme
+
+from ftrack_connect_pipeline_qt.utils import get_theme, set_theme
 
 
 class QtWebViewClient(Client, dialog.Dialog):
@@ -24,24 +25,18 @@ class QtWebViewClient(Client, dialog.Dialog):
 
         self._context = None
 
-        if self.getTheme():
-            self.setTheme(self.getTheme())
-            if self.getThemeBackgroundStyle():
-                self.setProperty('background', self.getThemeBackgroundStyle())
+        set_theme(self, get_theme())
+        if self.get_theme_background_style():
+            self.setProperty('background', self.get_theme_background_style())
+        if self.get_theme_background_style():
+            self.setProperty('background', self.get_theme_background_style())
 
         self.pre_build()
         self.build()
 
         self.resize(500, 600)
 
-    def getTheme(self):
-        '''Return the client theme, return None to disable themes. Can be overridden by child.'''
-        return 'dark'
-
-    def setTheme(self, selected_theme):
-        theme.applyTheme(self, selected_theme, 'plastique')
-
-    def getThemeBackgroundStyle(self):
+    def get_theme_background_style(self):
         '''Return the theme background color style. Can be overridden by child.'''
         return 'ftrack'
 

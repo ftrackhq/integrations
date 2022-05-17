@@ -3,6 +3,7 @@
 from functools import partial
 import time
 
+import ftrack_connect_pipeline_qt.ui.utility.widget.button
 from Qt import QtWidgets, QtCore, QtGui
 
 import shiboken2
@@ -135,10 +136,16 @@ class EntityBrowser(dialog.ModalDialog):
         return widget
 
     def get_approve_button(self):
-        return dialog.ApproveButton("APPLY CONTEXT", width=80)
+        return (
+            ftrack_connect_pipeline_qt.ui.utility.widget.button.ApproveButton(
+                "APPLY CONTEXT", width=80
+            )
+        )
 
     def get_deny_button(self):
-        return dialog.DenyButton("CANCEL", width=80)
+        return ftrack_connect_pipeline_qt.ui.utility.widget.button.DenyButton(
+            "CANCEL", width=80
+        )
 
     def post_build(self):
         super(EntityBrowser, self).post_build()

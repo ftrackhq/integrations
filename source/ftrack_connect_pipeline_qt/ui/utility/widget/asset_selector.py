@@ -3,6 +3,7 @@
 import logging
 
 from Qt import QtWidgets, QtCore, QtGui
+from ftrack_connect_pipeline_qt.ui.utility.widget.button import NewAssetButton
 
 from ftrack_connect_pipeline_qt.utils import BaseThread
 from ftrack_connect_pipeline_qt.ui.utility.widget.thumbnail import AssetVersion
@@ -385,9 +386,3 @@ class AssetSelector(QtWidgets.QWidget):
         else:
             set_property(self.new_asset_input.name, 'input', 'invalid')
         return is_valid_bool
-
-
-class NewAssetButton(QtWidgets.QPushButton):
-    def __init__(self, parent=None):
-        super(NewAssetButton, self).__init__('NEW', parent=parent)
-        self.setStyleSheet('background: #FFDD86;')

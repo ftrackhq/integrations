@@ -19,7 +19,7 @@ class EntityPath(QtWidgets.QLineEdit):
     def post_build(self):
         self.pathReady.connect(self.on_path_ready)
 
-    def setEntity(self, entity):
+    def set_entity(self, entity):
         '''Set the *entity* for this widget.'''
         if not entity:
             return

@@ -18,7 +18,7 @@ if __name__ == '__main__':
         app = QtWidgets.QApplication(sys.argv)
 
     import ftrack_api
-    from ftrack_connect_pipeline import constants, host
+    from ftrack_connect_pipeline import host, constants as core_constants
     from ftrack_connect_pipeline_qt import event
 
     from ftrack_connect_pipeline_qt.client.asset_manager import (

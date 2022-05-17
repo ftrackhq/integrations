@@ -34,7 +34,7 @@ class BaseUIWidgetObject(object):
     def enabled(self):
         return self._is_enabled
 
-    @name.setter
+    @enabled.setter
     def enabled(self, value):
         self._is_enabled = value
 

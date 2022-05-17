@@ -1,22 +1,22 @@
 #! /usr/bin/env python
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2020 ftrack
-from functools import partial
 
-from Qt import QtWidgets, QtCore, QtCompat, QtGui
+from Qt import QtWidgets, QtCore
 
 from ftrack_connect_pipeline import constants as core_constants
 
 from ftrack_connect_pipeline.constants import asset as asset_const
 from ftrack_connect_pipeline.utils import ftrack_context_id
 from ftrack_connect_pipeline.client.asset_manager import AssetManagerClient
+from ftrack_connect_pipeline_qt.ui.utility.widget.button import RemoveButton
 
-from ftrack_connect_pipeline_qt import client, constants as qt_constants
+from ftrack_connect_pipeline_qt.utils import get_theme, set_theme
+from ftrack_connect_pipeline_qt import constants as qt_constants
 from ftrack_connect_pipeline_qt.ui.utility.widget import (
     header,
     host_selector,
     line,
-    icon,
     scroll_area,
 )
 from ftrack_connect_pipeline_qt.ui.asset_manager.asset_manager import (
@@ -25,14 +25,11 @@ from ftrack_connect_pipeline_qt.ui.asset_manager.asset_manager import (
 from ftrack_connect_pipeline_qt.ui.utility.widget.context_selector import (
     ContextSelector,
 )
-from ftrack_connect_pipeline_qt.ui import theme
 from ftrack_connect_pipeline_qt.ui.utility.widget.dialog import ModalDialog
 from ftrack_connect_pipeline_qt.utils import BaseThread, set_property
 
 
-class QtAssetManagerClient(
-    AssetManagerClient, client.QtClientMixin, QtWidgets.QFrame
-):
+class QtAssetManagerClient(AssetManagerClient, QtWidgets.QFrame):
     '''
     QtAssetManagerClient class.
     '''
@@ -64,16 +61,26 @@ class QtAssetManagerClient(
         self.is_assembler = is_assembler
         self._host_connection = None
 
-        client.QtClientMixin.__init__(
-            self, set_context_id=False
-        )  # Build widget
+        set_theme(self, get_theme())
+        if self.get_theme_background_style():
+            self.setProperty('background', self.get_theme_background_style())
+        self.setProperty('docked', 'true' if self.is_docked() else 'false')
+        self.setObjectName(
+            '{}_{}'.format(
+                qt_constants.MAIN_FRAMEWORK_WIDGET, self.__class__.__name__
+            )
+        )
+
+        self.pre_build()
+        self.build()
+        self.post_build()
 
         if not self.is_assembler:
             self.set_context_id(self.context_id or ftrack_context_id())
             if self.context_id:
                 self.add_hosts(self.discover_hosts())
 
-    def getThemeBackgroundStyle(self):
+    def get_theme_background_style(self):
         '''Return the theme background color style. Can be overridden by child.'''
         return 'default'
 
@@ -169,6 +176,14 @@ class QtAssetManagerClient(
 
         self.selectionUpdated.connect(self._on_asset_selection_updated)
         self.setMinimumWidth(300)
+
+    def set_context_id(self, context_id):
+        '''Set the context id for this client'''
+        if context_id and context_id != self.context_id:
+            discover_hosts = self.context_id is None
+            self.change_context(context_id)
+            if discover_hosts:
+                self.add_hosts(self.discover_hosts())
 
     def add_hosts(self, host_connections):
         '''
@@ -500,13 +515,22 @@ class QtAssetManagerClient(
             self.asset_manager_widget.rebuild.emit()
         self._shown = True
 
+    def _clear_widget(self):
+        if self.scroll and self.scroll.widget():
+            self.scroll.widget().deleteLater()
+
+    def _open_assembler(self):
+        '''Open the assembler and close client if dialog'''
+        if not self.is_docked():
+            self.hide()
+        self.host_connection.launch_widget(core_constants.ASSEMBLER)
+
+    def _open_publisher(self):
+        if not self.is_docked():
+            self.hide()
+        self.host_connection.launch_widget(core_constants.PUBLISHER)
+
     def mousePressEvent(self, event):
         if event.button() != QtCore.Qt.RightButton:
             self.asset_manager_widget.asset_list.clear_selection()
         return super(QtAssetManagerClient, self).mousePressEvent(event)
-
-
-class RemoveButton(QtWidgets.QPushButton):
-    def __init__(self, label, parent=None):
-        super(RemoveButton, self).__init__(label, parent=parent)
-        self.setIcon(icon.MaterialIcon('close', color='#E74C3C'))
