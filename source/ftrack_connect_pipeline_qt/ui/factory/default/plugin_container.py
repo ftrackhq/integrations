@@ -3,16 +3,16 @@
 
 from Qt import QtWidgets
 
-from ftrack_connect_pipeline_qt.ui.factory import BaseUIWidget
+from ftrack_connect_pipeline_qt.ui.factory.base import BaseUIWidgetObject
 
 
-class DefaultPluginContainerWidget(BaseUIWidget):
+class DefaultPluginContainerWidgetObject(BaseUIWidgetObject):
     '''Widget representation of a boolean'''
 
     def __init__(self, name, fragment_data, parent=None):
         '''Initialise JsonBoolean with *name*, *schema_fragment*,
         *fragment_data*, *previous_object_data*, *widget_factory*, *parent*'''
-        super(DefaultPluginContainerWidget, self).__init__(
+        super(DefaultPluginContainerWidgetObject, self).__init__(
             name, fragment_data, parent=parent
         )
 

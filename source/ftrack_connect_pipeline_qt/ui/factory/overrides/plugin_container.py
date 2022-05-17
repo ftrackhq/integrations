@@ -4,7 +4,7 @@ import logging
 
 from Qt import QtWidgets
 
-from ftrack_connect_pipeline_qt.ui.factory import BaseUIWidget
+from ftrack_connect_pipeline_qt.ui.factory.base import BaseUIWidgetObject
 from ftrack_connect_pipeline_qt.ui.utility.widget.base.accordion_base import (
     AccordionBaseWidget,
 )
@@ -38,13 +38,13 @@ class PluginAccordion(AccordionBaseWidget):
         pass
 
 
-class AccordionPluginContainerWidget(BaseUIWidget):
+class AccordionPluginContainerWidgetObject(BaseUIWidgetObject):
     '''Widget representation of a boolean'''
 
     def __init__(self, name, fragment_data, parent=None):
         '''Initialise JsonBoolean with *name*, *schema_fragment*,
         *fragment_data*, *previous_object_data*, *widget_factory*, *parent*'''
-        super(AccordionPluginContainerWidget, self).__init__(
+        super(AccordionPluginContainerWidgetObject, self).__init__(
             name, fragment_data, parent=parent
         )
 
@@ -56,7 +56,9 @@ class AccordionPluginContainerWidget(BaseUIWidget):
     def parent_widget(self, widget):
         if self.widget:
             widget = (
-                widget.widget if isinstance(widget, BaseUIWidget) else widget
+                widget.widget
+                if isinstance(widget, BaseUIWidgetObject)
+                else widget
             )
             self.widget.add_widget(widget)
         else:

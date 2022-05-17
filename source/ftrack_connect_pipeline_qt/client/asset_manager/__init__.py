@@ -11,7 +11,7 @@ from ftrack_connect_pipeline.constants import asset as asset_const
 from ftrack_connect_pipeline.utils import ftrack_context_id
 from ftrack_connect_pipeline.client.asset_manager import AssetManagerClient
 
-from ftrack_connect_pipeline_qt import constants as qt_constants
+from ftrack_connect_pipeline_qt import client, constants as qt_constants
 from ftrack_connect_pipeline_qt.ui.utility.widget import (
     header,
     host_selector,
@@ -30,7 +30,9 @@ from ftrack_connect_pipeline_qt.ui.utility.widget.dialog import ModalDialog
 from ftrack_connect_pipeline_qt.utils import BaseThread, set_property
 
 
-class QtAssetManagerClient(AssetManagerClient, QtWidgets.QFrame):
+class QtAssetManagerClient(
+    AssetManagerClient, client.QtClientMixin, QtWidgets.QFrame
+):
     '''
     QtAssetManagerClient class.
     '''
@@ -40,10 +42,6 @@ class QtAssetManagerClient(AssetManagerClient, QtWidgets.QFrame):
     )  # Emitted when assets has been discovered and loaded
 
     selectionUpdated = QtCore.Signal(object)
-
-    definition_filter = 'asset_manager'  # Use only definitions that matches the definition_filter
-
-    _shown = False
 
     def __init__(
         self,
@@ -66,30 +64,14 @@ class QtAssetManagerClient(AssetManagerClient, QtWidgets.QFrame):
         self.is_assembler = is_assembler
         self._host_connection = None
 
-        if self.getTheme():
-            self.setTheme(self.getTheme())
-            if is_assembler:
-                # Override AM background color
-                self.setProperty('background', 'transparent')
-            elif self.getThemeBackgroundStyle():
-                self.setProperty('background', self.getThemeBackgroundStyle())
-        self.setProperty('docked', 'true' if self.is_docked() else 'false')
-
-        self.pre_build()
-        self.build()
-        self.post_build()
+        client.QtClientMixin.__init__(
+            self, set_context_id=False
+        )  # Build widget
 
         if not self.is_assembler:
             self.set_context_id(self.context_id or ftrack_context_id())
             if self.context_id:
                 self.add_hosts(self.discover_hosts())
-
-    def setTheme(self, selected_theme):
-        theme.applyTheme(self, selected_theme, 'plastique')
-
-    def getTheme(self):
-        '''Return the client theme, return None to disable themes. Can be overridden by child.'''
-        return 'dark'
 
     def getThemeBackgroundStyle(self):
         '''Return the theme background color style. Can be overridden by child.'''
@@ -187,15 +169,6 @@ class QtAssetManagerClient(AssetManagerClient, QtWidgets.QFrame):
 
         self.selectionUpdated.connect(self._on_asset_selection_updated)
         self.setMinimumWidth(300)
-
-    def set_context_id(self, context_id):
-        '''Set the context id for this client'''
-        if context_id and context_id != self.context_id:
-            discover_hosts = self.context_id is None
-            self.context_id = context_id
-            if discover_hosts:
-                self.add_hosts(self.discover_hosts())
-        self.context_selector.set_context_id(context_id)
 
     def add_hosts(self, host_connections):
         '''
@@ -520,10 +493,8 @@ class QtAssetManagerClient(AssetManagerClient, QtWidgets.QFrame):
         finally:
             self.asset_manager_widget.stopBusyIndicator.emit()
 
-    def _open_publisher(self):
-        self.host_connection.launch_widget(core_constants.PUBLISHER)
-
     def conditional_rebuild(self):
+        '''(Override)'''
         if self._shown:
             # Refresh when re-opened
             self.asset_manager_widget.rebuild.emit()

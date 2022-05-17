@@ -4,7 +4,7 @@ import logging
 
 from Qt import QtWidgets, QtCore, QtGui
 
-from ftrack_connect_pipeline_qt.ui.factory import BaseUIWidget
+from ftrack_connect_pipeline_qt.ui.factory.base import BaseUIWidgetObject
 from ftrack_connect_pipeline_qt import constants
 from ftrack_connect_pipeline_qt.ui.utility.widget import (
     overlay,
@@ -171,7 +171,7 @@ class StatusButtonWidget(QtWidgets.QPushButton):
         self.message_label.setStyleSheet('color: #{}'.format(color))
 
 
-class ProgressWidget(BaseUIWidget):
+class ProgressWidgetObject(BaseUIWidgetObject):
     '''Widget representation of a boolean'''
 
     component_widgets = {}
@@ -185,7 +185,7 @@ class ProgressWidget(BaseUIWidget):
         self.content_widget = None
         self.status_banner = None
         self._status_view_mode = status_view_mode
-        super(ProgressWidget, self).__init__(
+        super(ProgressWidgetObject, self).__init__(
             name, fragment_data, parent=parent
         )
         self.step_types = []
@@ -280,7 +280,7 @@ class ProgressWidget(BaseUIWidget):
                     )
 
 
-class BatchProgressWidget(ProgressWidget):
+class BatchProgressWidget(ProgressWidgetObject):
     def __init__(
         self, name, fragment_data, status_view_mode=None, parent=None
     ):

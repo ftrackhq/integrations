@@ -11,7 +11,6 @@ from ftrack_connect_pipeline.client.opener import OpenerClient
 
 from ftrack_connect_pipeline_qt import constants as qt_constants
 from ftrack_connect_pipeline_qt import client
-from ftrack_connect_pipeline_qt.client import constants as client_constants
 
 from ftrack_connect_pipeline_qt.ui.factory.opener import OpenerWidgetFactory
 from ftrack_connect_pipeline_qt.ui.utility.widget import (
@@ -26,22 +25,16 @@ from ftrack_connect_pipeline_qt.ui.utility.widget.context_selector import (
 )
 
 
-class QtOpenerClient(OpenerClient, dialog.Dialog):
+class QtOpenerClient(OpenerClient, client.QtClientMixin, dialog.Dialog):
     '''
     Opener widget class.
     '''
 
-    ui_types = [client_constants.UI_TYPE, qt_constants.UI_TYPE]
-
-    contextChanged = QtCore.Signal(object)  # Client context has changed
-
-    _shown = False
-
     def __init__(
         self, event_manager, definition_extensions_filter=None, parent=None
     ):
-        dialog.Dialog.__init__(self, parent=parent)
         OpenerClient.__init__(self, event_manager)
+        dialog.Dialog.__init__(self, parent=parent)
 
         self.logger.debug('start qt opener')
 
@@ -53,29 +46,9 @@ class QtOpenerClient(OpenerClient, dialog.Dialog):
             self.ui_types,
             parent=self.parent(),
         )
-        self._shown = False
         self.open_assembler_button = None
 
-        if self.getTheme():
-            self.setTheme(self.getTheme())
-            if self.getThemeBackgroundStyle():
-                self.setProperty('background', self.getThemeBackgroundStyle())
-        self.setProperty('docked', 'true' if self.is_docked() else 'false')
-        self.setObjectName(
-            '{}_{}'.format(
-                qt_constants.MAIN_FRAMEWORK_WIDGET, self.__class__.__name__
-            )
-        )
-
-        self.scroll = None
-
-        self.pre_build()
-        self.build()
-        self.post_build()
-
-        self.set_context_id(self.context_id or ftrack_context_id())
-        if self.context_id:
-            self.add_hosts(self.discover_hosts())
+        client.QtClientMixin.__init__(self)  # Build widget
 
         self.setWindowTitle('ftrack Open')
         self.resize(450, 530)
@@ -163,21 +136,9 @@ class QtOpenerClient(OpenerClient, dialog.Dialog):
         if self.host_connection:
             # Send event to other listening clients
             self.host_connection.change_ftrack_context_id(context)
-
-        self.set_context_id(context['id'])
-
-        # Reset definition selector and clear client
-        self.host_and_definition_selector.clear_definitions()
-        self.host_and_definition_selector.populate_definitions()
-        self._clear_widget()
-
-    def set_context_id(self, context_id):
-        '''Set the context id for this client'''
-        if context_id and context_id != self.context_id:
-            discover_hosts = self.context_id is None
-            self.change_context(context_id)
-            if discover_hosts:
-                self.add_hosts(self.discover_hosts())
+        super(QtOpenerClient, self)._on_context_selector_context_changed(
+            context
+        )
 
     def change_context(self, context_id):
         '''
@@ -188,20 +149,6 @@ class QtOpenerClient(OpenerClient, dialog.Dialog):
         super(QtOpenerClient, self).change_context(context_id)
         self.context_selector.set_context_id(self.context_id)
         self.contextChanged.emit(context_id)
-
-    def add_hosts(self, host_connections):
-        '''
-        Adds the given *host_connections*
-
-        *host_connections* : list of
-        :class:`~ftrack_connect_pipeline.client.HostConnection`
-        '''
-        for host_connection in host_connections:
-            if host_connection in self.host_connections:
-                continue
-            if self.context_id:
-                host_connection.context_id = self.context_id
-            self._host_connections.append(host_connection)
 
     def _host_discovered(self, event):
         '''
@@ -221,10 +168,6 @@ class QtOpenerClient(OpenerClient, dialog.Dialog):
                 self.definition_extensions_filter
             )
         self.host_and_definition_selector.add_hosts(self.host_connections)
-
-    def _clear_widget(self):
-        if self.scroll and self.scroll.widget():
-            self.scroll.widget().deleteLater()
 
     def change_host(self, host_connection):
         '''Triggered when host_changed is called from the host_selector.'''
@@ -270,12 +213,6 @@ class QtOpenerClient(OpenerClient, dialog.Dialog):
         plugin information and the *method* to be run has to be passed'''
         self.run_plugin(plugin_data, method, self.engine_type)
 
-    def _open_assembler(self):
-        '''Open the assembler and close client if dialog'''
-        if not self.is_docked():
-            self.hide()
-        self.host_connection.launch_widget(core_constants.ASSEMBLER)
-
     def run(self):
         '''Function called when click the run button'''
         self.widget_factory.has_error = False
@@ -288,12 +225,6 @@ class QtOpenerClient(OpenerClient, dialog.Dialog):
                 core_constants.SUCCESS_STATUS, 'Successfully opened version!'
             )
 
-    def _on_components_checked(self, available_components_count):
-        self.definition_changed(self.definition, available_components_count)
-        self.run_button.setEnabled(available_components_count >= 1)
-        if available_components_count == 0:
-            self._clear_widget()
-
     def _on_log_item_added(self, log_item):
         self.widget_factory.update_widget(log_item)
 
@@ -301,29 +232,11 @@ class QtOpenerClient(OpenerClient, dialog.Dialog):
         '''Called upon definition selector refresh button click.'''
         self.widget_factory.progress_widget.set_status_widget_visibility(False)
 
-    def reset(self):
-        '''Reset a client that has become visible after being hidden.'''
-        self.set_context_id(ftrack_context_id())
-        self.host_and_definition_selector.refresh()
-
-    def conditional_rebuild(self):
-        if self._shown:
-            # Refresh when re-opened
-            self.host_and_definition_selector.refresh()
-        self._shown = True
-
     def _launch_context_selector(self):
         '''Close client (if not docked) and open entity browser.'''
         if not self.is_docked():
             self.hide()
         self.host_connection.launch_widget(core_constants.CHANGE_CONTEXT)
-
-    def show(self):
-        if self._shown:
-            # Widget has been shown before, reset client
-            self.reset()
-        super(QtOpenerClient, self).show()
-        self._shown = True
 
 
 class OpenAssemblerButton(QtWidgets.QPushButton):

@@ -11,7 +11,7 @@ from ftrack_connect_pipeline_qt.ui.factory.ui_overrides import (
     UI_OVERRIDES,
 )
 
-from ftrack_connect_pipeline_qt.ui.factory.base import (
+from ftrack_connect_pipeline_qt.ui.factory import (
     OpenerAssemblerWidgetFactoryBase,
 )
 

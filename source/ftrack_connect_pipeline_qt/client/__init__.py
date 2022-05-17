@@ -8,7 +8,7 @@ import subprocess
 from Qt import QtCore, QtWidgets
 
 from ftrack_connect_pipeline import constants as core_constants
-from ftrack_connect_pipeline.client import Client, constants
+from ftrack_connect_pipeline.client import constants as client_constants
 from ftrack_connect_pipeline.utils import ftrack_context_id
 from ftrack_connect_pipeline_qt.ui.utility.widget import (
     header,
@@ -31,13 +31,125 @@ from ftrack_connect_pipeline_qt.ui.utility.widget.entity_browser import (
     EntityBrowser,
 )
 
+
+class QtClientMixin(object):
+    '''Client utility class providing common functionality'''
+
+    ui_types = [client_constants.UI_TYPE, qt_constants.UI_TYPE]
+    contextChanged = QtCore.Signal(object)  # Client context has changed
+    _shown = (
+        False  # Flag telling if widget has been shown before and needs refresh
+    )
+    scroll = None  # Main content scroll pane
+
+    def __init__(self, set_context_id=True):
+
+        if self.getTheme():
+            self.setTheme(self.getTheme())
+            if self.getThemeBackgroundStyle():
+                self.setProperty('background', self.getThemeBackgroundStyle())
+        self.setProperty('docked', 'true' if self.is_docked() else 'false')
+        self.setObjectName(
+            '{}_{}'.format(
+                qt_constants.MAIN_FRAMEWORK_WIDGET, self.__class__.__name__
+            )
+        )
+
+        self.pre_build()
+        self.build()
+        self.post_build()
+
+        if set_context_id:
+            self.set_context_id(self.context_id or ftrack_context_id())
+            if self.context_id:
+                self.add_hosts(self.discover_hosts())
+
+    def is_docked(self):
+        raise NotImplementedError()
+
+    def setTheme(self, selected_theme):
+        theme.applyTheme(self, selected_theme, 'plastique')
+
+    def getTheme(self):
+        '''Return the client theme, return None to disable themes. Can be overridden by child.'''
+        return 'dark'
+
+    def set_context_id(self, context_id):
+        '''Set the context id for this client'''
+        if context_id and context_id != self.context_id:
+            discover_hosts = self.context_id is None
+            self.change_context(context_id)
+            if discover_hosts:
+                self.add_hosts(self.discover_hosts())
+
+    def _on_context_selector_context_changed(self, context):
+        '''Context has been set in context selector'''
+        self.set_context_id(context['id'])
+
+        # Reset definition selector and clear client
+        self.host_and_definition_selector.clear_definitions()
+        self.host_and_definition_selector.populate_definitions()
+        self._clear_widget()
+
+    def set_context_id(self, context_id):
+        '''Set the context id for this client'''
+        if context_id and context_id != self.context_id:
+            discover_hosts = self.context_id is None
+            self.change_context(context_id)
+            if discover_hosts:
+                self.add_hosts(self.discover_hosts())
+
+    def add_hosts(self, host_connections):
+        '''
+        Adds the given *host_connections*
+
+        *host_connections* : list of
+        :class:`~ftrack_connect_pipeline.client.HostConnection`
+        '''
+        for host_connection in host_connections:
+            if host_connection in self.host_connections:
+                continue
+            if self.context_id:
+                host_connection.context_id = self.context_id
+            self._host_connections.append(host_connection)
+
+    def conditional_rebuild(self):
+        '''Reset a client that has become visible after being hidden.'''
+        if self._shown:
+            # Refresh when re-opened
+            self.set_context_id(ftrack_context_id())
+            self.host_and_definition_selector.refresh()
+        self._shown = True
+
+    def _clear_widget(self):
+        if self.scroll and self.scroll.widget():
+            self.scroll.widget().deleteLater()
+
+    def _on_components_checked(self, available_components_count):
+        self.definition_changed(self.definition, available_components_count)
+        self.run_button.setEnabled(available_components_count >= 1)
+        if available_components_count == 0:
+            self._clear_widget()
+
+    def _open_assembler(self):
+        '''Open the assembler and close client if dialog'''
+        if not self.is_docked():
+            self.hide()
+        self.host_connection.launch_widget(core_constants.ASSEMBLER)
+
+    def _open_publisher(self):
+        if not self.is_docked():
+            self.hide()
+        self.host_connection.launch_widget(core_constants.PUBLISHER)
+
+
 #
-# class QtClient():
+# class QtClientOld():
 #     '''
-#     Base QT client widget class.
+#     Base QT client widget mixin class.
 #     '''
 #
-#     ui_types = [constants.UI_TYPE, qt_constants.UI_TYPE]
+#     ui_types = [client_constants.UI_TYPE, qt_constants.UI_TYPE]
 #
 #     contextChanged = QtCore.Signal(object)  # Client context has changed
 #
@@ -46,7 +158,7 @@ from ftrack_connect_pipeline_qt.ui.utility.widget.entity_browser import (
 #     def __init__(self, event_manager):
 #         '''Initialise with *event_manager* and
 #         *parent* widget'''
-#         super(QtClient, self).__init__(event_manager)
+#         super(QtClientOld, self).__init__(event_manager)
 #
 #         self.widget_factory = self.get_factory()
 #         self.is_valid_asset_name = False
@@ -327,7 +439,7 @@ from ftrack_connect_pipeline_qt.ui.utility.widget.entity_browser import (
 #         if not self.is_docked():
 #             self.hide()
 #         self.host_connection.launch_widget(core_constants.CHANGE_CONTEXT)
-
+#
 
 # class QtDockedClient(QtClient, QtWidgets.QFrame):
 #     '''Docked QT client'''

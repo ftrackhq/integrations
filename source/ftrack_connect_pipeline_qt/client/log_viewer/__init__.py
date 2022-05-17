@@ -2,16 +2,10 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2020 ftrack
 
-from functools import partial
-import os
-import sys
-import subprocess
-
 from Qt import QtGui, QtCore, QtWidgets
 
-from ftrack_connect_pipeline import client, constants
 from ftrack_connect_pipeline.client.log_viewer import LogViewerClient
-from ftrack_connect_pipeline_qt import constants as qt_constants
+from ftrack_connect_pipeline_qt import client, constants as qt_constants
 from ftrack_connect_pipeline_qt.ui.log_viewer.plugin_log import (
     PluginLogViewerWidget,
 )
@@ -29,20 +23,16 @@ from ftrack_connect_pipeline_qt.ui.utility.widget import (
 from ftrack_connect_pipeline_qt.ui import (
     resource,
 )
-from ftrack_connect_pipeline_qt.ui import theme
 from ftrack_connect_pipeline_qt.ui.utility.widget import dialog
 
 
-class QtLogViewerClient(LogViewerClient, dialog.Dialog):
+class QtLogViewerClient(LogViewerClient, client.QtClientMixin, dialog.Dialog):
     '''
     QtLogViewerClient class.
     '''
 
     # LOG_MODE_PLUGIN = 0
     # LOG_MODE_FILE = 1
-
-    definition_filter = 'log_viewer'
-    '''Use only definitions that matches the definition_filter'''
 
     logItemAdded = QtCore.Signal(object)
 
@@ -57,26 +47,11 @@ class QtLogViewerClient(LogViewerClient, dialog.Dialog):
         dialog.Dialog.__init__(self, parent=parent)
         LogViewerClient.__init__(self, event_manager)
 
-        if self.getTheme():
-            self.setTheme(self.getTheme())
-            if self.getThemeBackgroundStyle():
-                self.setProperty('background', self.getThemeBackgroundStyle())
-        self.setProperty('docked', 'false')
-
-        self._host_connection = None
-
-        self.pre_build()
-        self.build()
-        self.post_build()
+        client.QtClientMixin.__init__(
+            self, set_context_id=False
+        )  # Build widget
 
         self.add_hosts(self.discover_hosts())
-
-    def getTheme(self):
-        '''Return the client theme, return None to disable themes. Can be overridden by child.'''
-        return 'dark'
-
-    def setTheme(self, selected_theme):
-        theme.applyTheme(self, selected_theme, 'plastique')
 
     def getThemeBackgroundStyle(self):
         return 'ftrack'

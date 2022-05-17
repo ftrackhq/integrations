@@ -6,12 +6,12 @@ from Qt import QtCore, QtWidgets
 
 from ftrack_connect_pipeline_qt import constants
 from ftrack_connect_pipeline import constants as pipeline_constants
-from ftrack_connect_pipeline_qt.ui.factory import BaseUIWidget
+from ftrack_connect_pipeline_qt.ui.factory.base import BaseUIWidgetObject
 from ftrack_connect_pipeline_qt.ui.utility.widget.base.accordion_base import (
     AccordionBaseWidget,
 )
 from ftrack_connect_pipeline_qt.ui.factory.default.step_widget import (
-    DefaultStepWidget,
+    DefaultStepWidgetObject,
 )
 from ftrack_connect_pipeline_qt.plugin.widgets.load_widget import (
     LoadBaseWidget,
@@ -232,14 +232,14 @@ class PublisherAccordionWidget(AccordionBaseWidget):
             )
 
 
-class AccordionStepWidget(BaseUIWidget):
+class AccordionStepWidgetObject(BaseUIWidgetObject):
     '''Widget representation of a boolean'''
 
     def __init__(self, name, fragment_data, parent=None):
         '''Initialise JsonBoolean with *name*, *schema_fragment*,
         *fragment_data*, *previous_object_data*, *widget_factory*, *parent*'''
 
-        super(AccordionStepWidget, self).__init__(
+        super(AccordionStepWidgetObject, self).__init__(
             name, fragment_data, parent=parent
         )
 
@@ -255,7 +255,7 @@ class AccordionStepWidget(BaseUIWidget):
         if self.widget:
             widget = (
                 step_widget.widget
-                if isinstance(step_widget, BaseUIWidget)
+                if isinstance(step_widget, BaseUIWidgetObject)
                 else step_widget
             )
             self.widget.add_widget(widget)
@@ -263,7 +263,7 @@ class AccordionStepWidget(BaseUIWidget):
             self.logger.error("Please create a widget before parent")
 
 
-class PublisherAccordionStepWidget(BaseUIWidget):
+class PublisherAccordionStepWidgetObject(BaseUIWidgetObject):
     '''Widget representation of a boolean'''
 
     @property
@@ -281,7 +281,7 @@ class PublisherAccordionStepWidget(BaseUIWidget):
         '''Initialise JsonBoolean with *name*, *schema_fragment*,
         *fragment_data*, *previous_object_data*, *widget_factory*, *parent*'''
 
-        super(PublisherAccordionStepWidget, self).__init__(
+        super(PublisherAccordionStepWidgetObject, self).__init__(
             name, fragment_data, parent=parent
         )
 
@@ -298,7 +298,7 @@ class PublisherAccordionStepWidget(BaseUIWidget):
 
     def parent_validator(self, step_widget):
         if self.options_widget:
-            if isinstance(step_widget, BaseUIWidget):
+            if isinstance(step_widget, BaseUIWidgetObject):
                 self.options_widget.add_validator_widget(step_widget.widget)
             else:
                 self.options_widget.add_validator_widget(step_widget)
@@ -307,7 +307,7 @@ class PublisherAccordionStepWidget(BaseUIWidget):
 
     def parent_exporter(self, step_widget):
         if self.options_widget:
-            if isinstance(step_widget, BaseUIWidget):
+            if isinstance(step_widget, BaseUIWidgetObject):
                 self.options_widget.add_exporter_widget(step_widget.widget)
             else:
                 self.options_widget.add_exporter_widget(step_widget)
@@ -324,7 +324,7 @@ class PublisherAccordionStepWidget(BaseUIWidget):
         if self.widget:
             widget = (
                 step_widget.widget
-                if isinstance(step_widget, BaseUIWidget)
+                if isinstance(step_widget, BaseUIWidgetObject)
                 else step_widget
             )
             self.widget.add_widget(widget)
@@ -344,7 +344,7 @@ class PublisherAccordionStepWidget(BaseUIWidget):
         return out
 
 
-class OptionsStepWidget(DefaultStepWidget):
+class OptionsStepWidget(DefaultStepWidgetObject):
     '''Widget representation of a boolean'''
 
     @property
@@ -387,7 +387,7 @@ class OptionsStepWidget(DefaultStepWidget):
     def parent_options(self, stage_widget):
         if self.options_widget:
             load_mode_cointainer = None
-            if isinstance(stage_widget, BaseUIWidget):
+            if isinstance(stage_widget, BaseUIWidgetObject):
                 self.options_widget.layout().addWidget(stage_widget.widget)
                 load_mode_cointainer = recursive_get_load_mode_container(
                     stage_widget.widget
@@ -411,7 +411,9 @@ class OptionsStepWidget(DefaultStepWidget):
                 self.show_options_button
             )
             insert_widget = (
-                widget.widget if isinstance(widget, BaseUIWidget) else widget
+                widget.widget
+                if isinstance(widget, BaseUIWidgetObject)
+                else widget
             )
             self.widget.layout().insertWidget((options_idx), insert_widget)
         else:
@@ -427,7 +429,7 @@ class OptionsStepWidget(DefaultStepWidget):
             self.logger.error("Please create a widget before parent")
 
 
-class ComboBoxItemStepWidget(DefaultStepWidget):
+class ComboBoxItemStepWidget(DefaultStepWidgetObject):
     '''Widget representation of a boolean'''
 
     def __init__(self, name, fragment_data, parent=None):
@@ -466,7 +468,7 @@ class ComboBoxItemStepWidget(DefaultStepWidget):
             combobox.setItemText(self._row, self.get_label())
 
 
-class RadioButtonItemStepWidget(BaseUIWidget):
+class RadioButtonItemStepWidgetObject(BaseUIWidgetObject):
     '''Widget representation of a boolean'''
 
     @property
@@ -484,7 +486,7 @@ class RadioButtonItemStepWidget(BaseUIWidget):
     def __init__(self, name, fragment_data, parent=None):
         '''Initialise JsonBoolean with *name*, *schema_fragment*,
         *fragment_data*, *previous_object_data*, *widget_factory*, *parent*'''
-        super(RadioButtonItemStepWidget, self).__init__(
+        super(RadioButtonItemStepWidgetObject, self).__init__(
             name, fragment_data, parent=parent
         )
         self._unavailable_reason = ''
@@ -558,7 +560,7 @@ class RadioButtonItemStepWidget(BaseUIWidget):
         return result
 
     def set_enabled(self, enabled):
-        super(RadioButtonItemStepWidget, self).enabled = enabled
+        super(RadioButtonItemStepWidgetObject, self).enabled = enabled
         self.button.setEnabled(enabled)
         self.button.setText(self.get_label())
 

@@ -3,10 +3,10 @@
 
 from Qt import QtWidgets
 
-from ftrack_connect_pipeline_qt.ui.factory import BaseUIWidget
+from ftrack_connect_pipeline_qt.ui.factory.base import BaseUIWidgetObject
 
 
-class DefaultStepWidget(BaseUIWidget):
+class DefaultStepWidgetObject(BaseUIWidgetObject):
     '''Widget representation of a boolean'''
 
     @property
@@ -17,7 +17,7 @@ class DefaultStepWidget(BaseUIWidget):
         '''Initialise JsonBoolean with *name*, *schema_fragment*,
         *fragment_data*, *previous_object_data*, *widget_factory*, *parent*'''
 
-        super(DefaultStepWidget, self).__init__(
+        super(DefaultStepWidgetObject, self).__init__(
             name, fragment_data, parent=parent
         )
         self._component = None
@@ -36,7 +36,7 @@ class DefaultStepWidget(BaseUIWidget):
         self.check_box.hide()
 
     def post_build(self):
-        super(DefaultStepWidget, self).post_build()
+        super(DefaultStepWidgetObject, self).post_build()
 
     def check_components(self, session, components):
         self._component = None

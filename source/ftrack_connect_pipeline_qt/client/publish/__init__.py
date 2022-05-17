@@ -25,16 +25,12 @@ from ftrack_connect_pipeline_qt.ui.utility.widget.context_selector import (
 )
 
 
-class QtPublisherClient(PublisherClient, QtWidgets.QFrame):
+class QtPublisherClient(
+    PublisherClient, client.QtClientMixin, QtWidgets.QFrame
+):
     '''
     Publish widget class.
     '''
-
-    ui_types = [constants.UI_TYPE, qt_constants.UI_TYPE]
-
-    contextChanged = QtCore.Signal(object)  # Client context has changed
-
-    _shown = False
 
     def __init__(self, event_manager, parent=None):
         QtWidgets.QFrame.__init__(self, parent=parent)
@@ -48,29 +44,10 @@ class QtPublisherClient(PublisherClient, QtWidgets.QFrame):
             parent=self.parent(),
         )
         self.is_valid_asset_name = False
-        self._shown = False
         self.open_assembler_button = None
-
-        if self.getTheme():
-            self.setTheme(self.getTheme())
-            if self.getThemeBackgroundStyle():
-                self.setProperty('background', self.getThemeBackgroundStyle())
-        self.setProperty('docked', 'true' if self.is_docked() else 'false')
-        self.setObjectName(
-            '{}_{}'.format(
-                qt_constants.MAIN_FRAMEWORK_WIDGET, self.__class__.__name__
-            )
-        )
-
         self.scroll = None
 
-        self.pre_build()
-        self.build()
-        self.post_build()
-
-        self.set_context_id(self.context_id or ftrack_context_id())
-        if self.context_id:
-            self.add_hosts(self.discover_hosts())
+        client.QtClientMixin.__init__(self)  # Build widget
 
         self.setWindowTitle('Standalone Pipeline Publisher')
 
@@ -155,17 +132,6 @@ class QtPublisherClient(PublisherClient, QtWidgets.QFrame):
         )
         self.setMinimumWidth(300)
 
-    def _on_context_selector_context_changed(self, context_entity):
-        '''Updates the option dictionary with provided *context* when
-        entityChanged of context_selector event is triggered'''
-
-        self.set_context_id(context_entity['id'])
-
-        # Reset definition selector and clear client
-        self.host_and_definition_selector.clear_definitions()
-        self.host_and_definition_selector.populate_definitions()
-        self._clear_widget()
-
     def set_context_id(self, context_id):
         '''Set the context id for this client'''
         if context_id and context_id != self.context_id:
@@ -217,10 +183,6 @@ class QtPublisherClient(PublisherClient, QtWidgets.QFrame):
             )
         self.host_and_definition_selector.add_hosts(self.host_connections)
 
-    def _clear_widget(self):
-        if self.scroll and self.scroll.widget():
-            self.scroll.widget().deleteLater()
-
     def change_host(self, host_connection):
         '''Triggered when host_changed is called from the host_selector.'''
         self._clear_widget()
@@ -267,12 +229,6 @@ class QtPublisherClient(PublisherClient, QtWidgets.QFrame):
         plugin information and the *method* to be run has to be passed'''
         self.run_plugin(plugin_data, method, self.engine_type)
 
-    def _open_assembler(self):
-        '''Open the assembler and close client if dialog'''
-        if not self.is_docked():
-            self.hide()
-        self.host_connection.launch_widget(core_constants.ASSEMBLER)
-
     def run(self):
         '''Function called when click the run button'''
         self.widget_factory.has_error = False
@@ -297,29 +253,12 @@ class QtPublisherClient(PublisherClient, QtWidgets.QFrame):
                 ),
             )
 
-    def _on_components_checked(self, available_components_count):
-        self.definition_changed(self.definition, available_components_count)
-        self.run_button.setEnabled(available_components_count >= 1)
-        if available_components_count == 0:
-            self._clear_widget()
-
     def _on_log_item_added(self, log_item):
         self.widget_factory.update_widget(log_item)
 
     def refresh(self):
         '''Called upon definition selector refresh button click.'''
         self.widget_factory.progress_widget.set_status_widget_visibility(False)
-
-    def reset(self):
-        '''Reset a client that has become visible after being hidden.'''
-        self.set_context_id(ftrack_context_id())
-        self.host_and_definition_selector.refresh()
-
-    def conditional_rebuild(self):
-        if self._shown:
-            # Refresh when re-opened
-            self.host_and_definition_selector.refresh()
-        self._shown = True
 
     def _launch_context_selector(self):
         '''Close client (if not docked) and open entity browser.'''

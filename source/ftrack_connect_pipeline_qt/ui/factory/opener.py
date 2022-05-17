@@ -3,7 +3,7 @@
 
 from ftrack_connect_pipeline import constants as core_constants
 
-from ftrack_connect_pipeline_qt.ui.factory.base import (
+from ftrack_connect_pipeline_qt.ui.factory import (
     OpenerAssemblerWidgetFactoryBase,
 )
 
