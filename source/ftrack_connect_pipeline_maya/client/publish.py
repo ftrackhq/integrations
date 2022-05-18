@@ -33,7 +33,7 @@ class MayaPublisherClient(MayaQWidgetDockableMixin, QtMayaPublisherClient):
         super(MayaPublisherClient, self).__init__(event_manager=event_manager)
         self.setWindowTitle('ftrack Publisher')
 
-    def getThemeBackgroundStyle(self):
+    def get_theme_background_style(self):
         return 'maya'
 
     def show(self):

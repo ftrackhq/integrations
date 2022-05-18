@@ -15,7 +15,6 @@ import maya.mel as mm
 
 from ftrack_connect_pipeline.utils import (
     get_snapshot_save_path,
-    ftrack_context_id,
 )
 from ftrack_connect_pipeline_maya.constants import asset as asset_const
 
@@ -94,7 +93,7 @@ def get_main_window():
     return window
 
 
-def init_maya(session, from_context=False):
+def init_maya(host, from_context=False):
     '''
     Initialise timeline in Nuke based on shot/asset build settings.
 
@@ -104,13 +103,13 @@ def init_maya(session, from_context=False):
     '''
     fps = None
     if from_context:
-        context = session.query(
-            'Context where id={}'.format(ftrack_context_id())
+        context = host.session.query(
+            'Context where id={}'.format(host.context_id)
         ).first()
         if context is None:
             logger.error(
                 'Cannot initialize Maya timeline - no such context: {}'.format(
-                    ftrack_context_id()
+                    host.context_id
                 )
             )
             return
@@ -124,7 +123,7 @@ def init_maya(session, from_context=False):
         if not shot:
             logger.warning(
                 'Cannot initialize Maya timeline - no shot related to context: {}'.format(
-                    ftrack_context_id()
+                    host.context_id
                 )
             )
             return
@@ -173,7 +172,7 @@ def init_maya(session, from_context=False):
         cmds.currentUnit(time=fps_unit)
 
 
-def save_snapshot(context_id, session):
+def save(context_id, session):
     '''Save snapshot scene locally, with the next version number based on latest version
     in ftrack.'''
 

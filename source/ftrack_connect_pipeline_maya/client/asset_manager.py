@@ -38,7 +38,7 @@ class MayaAssetManagerClient(
         )
         self.setWindowTitle('ftrack Connect')
 
-    def getThemeBackgroundStyle(self):
+    def get_theme_background_style(self):
         return 'maya'
 
     def show(self):

@@ -11,7 +11,7 @@ import ftrack_connect_pipeline_maya.constants as maya_constants
 from ftrack_connect_pipeline_maya.utils.custom_commands import get_main_window
 
 
-class MayaAssemblerClient(load.QtAssemblerClient):
+class MayaAssemblerWidget(load.QtAssemblerWidget):
     '''Maya assembler dialog'''
 
     ui_types = [
@@ -21,7 +21,7 @@ class MayaAssemblerClient(load.QtAssemblerClient):
     ]
 
     def __init__(self, event_manager, asset_list_model, parent=None):
-        super(MayaAssemblerClient, self).__init__(
+        super(MayaAssemblerWidget, self).__init__(
             event_manager,
             load_const.LOAD_MODES,
             asset_list_model,
@@ -32,5 +32,5 @@ class MayaAssemblerClient(load.QtAssemblerClient):
         self.setWindowFlags(QtCore.Qt.Tool)
 
     def show(self):
-        super(MayaAssemblerClient, self).conditional_rebuild()
-        super(MayaAssemblerClient, self).show()
+        super(MayaAssemblerWidget, self).conditional_rebuild()
+        super(MayaAssemblerWidget, self).show()

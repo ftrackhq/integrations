@@ -14,7 +14,7 @@ from ftrack_connect_pipeline import constants as core_constants
 from ftrack_connect_pipeline.configure_logging import configure_logging
 
 from ftrack_connect_pipeline_qt import event
-from ftrack_connect_pipeline_qt.ui.asset_manager.base import AssetListModel
+from ftrack_connect_pipeline_qt.ui.asset_manager.model import AssetListModel
 
 from ftrack_connect_pipeline_maya import host as maya_host
 from ftrack_connect_pipeline_maya.client import (
@@ -156,7 +156,7 @@ def initialise():
     widgets.append(
         (
             core_constants.ASSEMBLER,
-            load.MayaAssemblerClient,
+            load.MayaAssemblerWidget,
             'Assembler',
             'greasePencilImport',
         )
@@ -172,7 +172,7 @@ def initialise():
     widgets.append(
         (
             core_constants.SAVE,
-            save.QtSaveClient,
+            save.QtMayaSaveClient,
             'Save Scene',
             'fileSave',
         )
@@ -228,7 +228,7 @@ def initialise():
         ),
     )
 
-    maya_utils.init_maya(session)
+    maya_utils.init_maya(host)
 
     # host.launch_widget(qt_constants.OPENER_WIDGET)
 
