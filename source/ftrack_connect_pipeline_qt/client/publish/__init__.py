@@ -7,7 +7,6 @@ from Qt import QtWidgets, QtCore
 from ftrack_connect_pipeline import constants as core_constants
 from ftrack_connect_pipeline.client import constants as client_constants
 from ftrack_connect_pipeline.client.publisher import PublisherClient
-from ftrack_connect_pipeline.utils import ftrack_context_id
 
 from ftrack_connect_pipeline_qt.utils import get_theme, set_theme
 from ftrack_connect_pipeline_qt import constants as qt_constants
@@ -17,6 +16,7 @@ from ftrack_connect_pipeline_qt.ui.factory.publisher import (
 from ftrack_connect_pipeline_qt.ui.utility.widget import (
     header,
     line,
+    host_selector,
     definition_selector,
     scroll_area,
 )
@@ -31,7 +31,6 @@ class QtPublisherClient(PublisherClient, QtWidgets.QFrame):
     '''
 
     ui_types = [client_constants.UI_TYPE, qt_constants.UI_TYPE]
-    contextChanged = QtCore.Signal(object)  # Client context has changed
     _shown = (
         False  # Flag telling if widget has been shown before and needs refresh
     )
@@ -66,14 +65,14 @@ class QtPublisherClient(PublisherClient, QtWidgets.QFrame):
         self.build()
         self.post_build()
 
-        self.set_context_id(self.context_id or ftrack_context_id())
-        if self.context_id:
-            self.add_hosts(self.discover_hosts())
+        self.discover_hosts()
 
         self.setWindowTitle('Standalone Pipeline Publisher')
 
     def is_docked(self):
         return True
+
+    # Build
 
     def pre_build(self):
         '''Prepare general layout.'''
@@ -91,6 +90,9 @@ class QtPublisherClient(PublisherClient, QtWidgets.QFrame):
             self.progress_widget.widget
         )
 
+        self.host_selector = host_selector.HostSelector()
+        self.layout().addWidget(self.host_selector)
+
         self.layout().addWidget(line.Line(style='solid', parent=self))
 
         self.context_selector = ContextSelector(self.session, parent=self)
@@ -98,18 +100,18 @@ class QtPublisherClient(PublisherClient, QtWidgets.QFrame):
 
         self.layout().addWidget(line.Line(parent=self))
 
-        self.host_and_definition_selector = (
+        self.definition_selector = (
             definition_selector.PublisherDefinitionSelector(
                 parent=self.parent()
             )
         )
-        self.host_and_definition_selector.refreshed.connect(self.refresh)
+        self.definition_selector.refreshed.connect(self.refresh)
 
         self.scroll = scroll_area.ScrollArea()
         self.scroll.setWidgetResizable(True)
         self.scroll.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
 
-        self.layout().addWidget(self.host_and_definition_selector)
+        self.layout().addWidget(self.definition_selector)
         self.layout().addWidget(self.scroll, 100)
 
         self.layout().addWidget(self._build_button_widget())
@@ -132,16 +134,10 @@ class QtPublisherClient(PublisherClient, QtWidgets.QFrame):
 
     def post_build(self):
         '''Post Build ui method for events connections.'''
-        self.context_selector.entityChanged.connect(
-            self._on_context_selector_context_changed
-        )
-        self.host_and_definition_selector.hostChanged.connect(self.change_host)
-        self.host_and_definition_selector.definitionChanged.connect(
+        self.host_selector.hostChanged.connect(self.change_host)
+        self.definition_selector.definitionChanged.connect(
             self.change_definition
         )
-
-        if self.event_manager.mode == core_constants.LOCAL_EVENT_MODE:
-            self.host_and_definition_selector.host_widget.hide()
 
         self.run_button.clicked.connect(self.run)
         self.context_selector.changeContextClicked.connect(
@@ -157,93 +153,37 @@ class QtPublisherClient(PublisherClient, QtWidgets.QFrame):
         )
         self.setMinimumWidth(300)
 
-    def _on_context_selector_context_changed(self, context):
-        '''Context has been set in context selector'''
-        self.set_context_id(context['id'])
+    # Host
 
-        # Reset definition selector and clear client
-        self.host_and_definition_selector.clear_definitions()
-        self.host_and_definition_selector.populate_definitions()
+    def on_hosts_discovered(self, host_connections):
+        '''(Override)'''
+        self.host_selector.add_hosts(host_connections)
+
+    def on_host_changed(self, host_connection):
+        '''Triggered when client has set host connection'''
         self._clear_widget()
-
-    def set_context_id(self, context_id):
-        '''Set the context id for this client'''
-        if context_id and context_id != self.context_id:
-            discover_hosts = self.context_id is None
-            self.change_context(context_id)
-            if discover_hosts:
-                self.add_hosts(self.discover_hosts())
-
-    def add_hosts(self, host_connections):
-        '''
-        Adds the given *host_connections*
-
-        *host_connections* : list of
-        :class:`~ftrack_connect_pipeline.client.HostConnection`
-        '''
-        for host_connection in host_connections:
-            if host_connection in self.host_connections:
-                continue
-            if self.context_id:
-                host_connection.context_id = self.context_id
-            self._host_connections.append(host_connection)
-
-    def set_context_id(self, context_id):
-        '''Set the context id for this client'''
-        if context_id and context_id != self.context_id:
-            discover_hosts = self.context_id is None
-            self.change_context(context_id)
-            if discover_hosts:
-                self.add_hosts(self.discover_hosts())
-
-    def change_context(self, context_id):
-        """
-        Assign the given *context_id* as the current :obj:`context_id` and to the
-        :attr:`~ftrack_connect_pipeline.client.HostConnection.context_id` emit
-        on_context_change signal.
-        """
-        super(QtPublisherClient, self).change_context(context_id)
-        self.context_selector.set_context_id(self.context_id)
-        self.contextChanged.emit(context_id)
-
-    def add_hosts(self, host_connections):
-        '''
-        Adds the given *host_connections*
-
-        *host_connections* : list of
-        :class:`~ftrack_connect_pipeline.client.HostConnection`
-        '''
-        for host_connection in host_connections:
-            if host_connection in self.host_connections:
-                continue
-            if self.context_id:
-                host_connection.context_id = self.context_id
-            self._host_connections.append(host_connection)
-
-    def _host_discovered(self, event):
-        '''
-        Callback, add the :class:`~ftrack_connect_pipeline.client.HostConnection`
-        of the new discovered :class:`~ftrack_connect_pipeline.host.HOST` from
-        the given *event*.
-
-        *event*: :class:`ftrack_api.event.base.Event`
-        '''
-        super(QtPublisherClient, self)._host_discovered(event)
         if self.definition_filter:
-            self.host_and_definition_selector.definition_title_filter = (
+            self.definition_selector.definition_title_filter = (
                 self.definition_filter
             )
         if self.definition_extensions_filter:
-            self.host_and_definition_selector.definition_extensions_filter = (
+            self.definition_selector.definition_extensions_filter = (
                 self.definition_extensions_filter
             )
-        self.host_and_definition_selector.add_hosts(self.host_connections)
+        self.definition_selector.on_host_changed(host_connection)
 
-    def change_host(self, host_connection):
-        '''Triggered when host_changed is called from the host_selector.'''
+    # Context
+
+    def on_context_changed(self, context_id):
+        '''Context has been set in context selector'''
+        self.context_selector.context_id = context_id
+
+        # Reset definition selector and clear client
+        self.definition_selector.clear_definitions()
+        self.definition_selector.populate_definitions()
         self._clear_widget()
-        super(QtPublisherClient, self).change_host(host_connection)
-        self.context_selector.host_changed(host_connection)
+
+    # Definition
 
     def change_definition(self, schema, definition, component_names_filter):
         '''
@@ -274,12 +214,13 @@ class QtPublisherClient(PublisherClient, QtWidgets.QFrame):
         '''Can be overridden by child'''
         pass
 
+    # Use
+
     def conditional_rebuild(self):
         '''Reset a client that has become visible after being hidden.'''
         if self._shown:
             # Refresh when re-opened
-            self.set_context_id(ftrack_context_id())
-            self.host_and_definition_selector.refresh()
+            self.definition_selector.refresh()
         self._shown = True
 
     def _clear_widget(self):
@@ -292,10 +233,21 @@ class QtPublisherClient(PublisherClient, QtWidgets.QFrame):
         else:
             self.is_valid_asset_name = True
 
+    def _on_components_checked(self, available_components_count):
+        self.definition_changed(self.definition, available_components_count)
+        self.run_button.setEnabled(available_components_count >= 1)
+        if available_components_count == 0:
+            self._clear_widget()
+
+    # Run
+
     def _on_run_plugin(self, plugin_data, method):
         '''Function called to run one single plugin *plugin_data* with the
         plugin information and the *method* to be run has to be passed'''
         self.run_plugin(plugin_data, method, self.engine_type)
+
+    def _on_log_item_added(self, log_item):
+        self.widget_factory.update_widget(log_item)
 
     def run(self):
         '''Function called when click the run button'''
@@ -320,9 +272,6 @@ class QtPublisherClient(PublisherClient, QtWidgets.QFrame):
                     ].lower()
                 ),
             )
-
-    def _on_log_item_added(self, log_item):
-        self.widget_factory.update_widget(log_item)
 
     def refresh(self):
         '''Called upon definition selector refresh button click.'''

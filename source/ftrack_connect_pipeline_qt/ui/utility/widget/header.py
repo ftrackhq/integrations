@@ -63,7 +63,7 @@ class Header(QtWidgets.QFrame):
         self.content_container.setLayout(QtWidgets.QHBoxLayout())
         self.content_container.layout().setContentsMargins(0, 0, 0, 0)
         self.content_container.layout().setSpacing(0)
-        self._open_publisher_button = circular_button.CircularButton(
+        self._launch_publisher_button = circular_button.CircularButton(
             'publish', '#79DFB6'
         )
         self.user = User(self.session, parent=self.parent())
@@ -72,16 +72,18 @@ class Header(QtWidgets.QFrame):
         if len(self._title or ''):
             self.id_container_layout.addWidget(self._title_label)
         self.id_container_layout.addWidget(self.content_container, 1000)
-        self.id_container_layout.addWidget(self._open_publisher_button)
+        self.id_container_layout.addWidget(self._launch_publisher_button)
         self.id_container_layout.addWidget(self.user)
 
         # Add (Logo & User ID) & Message
         self.layout().addWidget(self.id_container)
 
     def post_build(self):
-        self._open_publisher_button.clicked.connect(self._on_publisher_clicked)
+        self._launch_publisher_button.clicked.connect(
+            self._on_publisher_clicked
+        )
         self.logo.setVisible(self._show_logo)
-        self._open_publisher_button.setVisible(self._show_publisher)
+        self._launch_publisher_button.setVisible(self._show_publisher)
         self.user.setVisible(self._show_user)
 
     def _on_publisher_clicked(self):

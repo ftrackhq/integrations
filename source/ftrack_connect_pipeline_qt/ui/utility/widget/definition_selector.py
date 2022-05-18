@@ -15,17 +15,10 @@ from ftrack_connect_pipeline_qt.ui.utility.widget.circular_button import (
 
 
 class DefinitionSelectorBase(QtWidgets.QWidget):
-    '''Host and definition selector widget. Hides the host input
-    if only one host (default usage scenario within DCCs).'''
+    '''Definition selector widget.'''
 
-    hostsDiscovered = QtCore.Signal(object)
-    hostChanged = QtCore.Signal(object)
     definitionChanged = QtCore.Signal(object, object, object)
     refreshed = QtCore.Signal()
-
-    @property
-    def selected_host_connection(self):
-        return self._host_combobox.itemData(self._host_combobox.currentIndex())
 
     @property
     def definition_title_filter(self):
@@ -62,13 +55,12 @@ class DefinitionSelectorBase(QtWidgets.QWidget):
             __name__ + '.' + self.__class__.__name__
         )
 
-        self.host_connection = None
+        self._host_connection = None
         self.schemas = None
         self._definition_title_filter = None
         self._definition_extensions_filter = None
         self.definitions = []
 
-        self.host_connections = []
         self.pre_build()
         self.build()
         self.post_build()
@@ -79,78 +71,54 @@ class DefinitionSelectorBase(QtWidgets.QWidget):
         self.label_widget = QtWidgets.QLabel()
 
     def build(self):
-        # Host section
-        self.layout().addWidget(self.build_host_widget())
-
         # Definition section
         self.layout().addWidget(self.build_definition_widget())
 
         self.no_definitions_label = QtWidgets.QLabel()
         self.layout().addWidget(self.no_definitions_label)
 
-    def build_host_widget(self):
-        self.host_widget = QtWidgets.QWidget()
-        self.host_widget.setLayout(QtWidgets.QHBoxLayout())
-        self.host_widget.layout().setContentsMargins(0, 0, 0, 0)
-        self.host_widget.layout().setSpacing(10)
-
-        l_host = QtWidgets.QLabel('Select host:')
-        l_host.setObjectName('gray')
-        self.host_widget.layout().addWidget(l_host)
-
-        self._host_combobox = QtWidgets.QComboBox()
-        self._host_combobox.addItem('- Select host -')
-        self.host_widget.layout().addWidget(self._host_combobox, 10)
-        return self.host_widget
-
     def build_definition_widget(self):
         raise NotImplementedError()
 
     def post_build(self):
         '''Connect the widget signals'''
-        self._host_combobox.currentIndexChanged.connect(self._on_change_host)
         self.no_definitions_label.setVisible(False)
 
-    def add_hosts(self, host_connections):
-        '''Ass host connections to combobox for user selection'''
-        for host_connection in host_connections:
-            self._host_combobox.addItem(host_connection.name, host_connection)
-            self.host_connections.append(host_connection)
-        if (
-            len(host_connections) == 1
-            and host_connections[0].context_id != None
-        ):
-            self._host_combobox.setCurrentIndex(1)
-        self.hostsDiscovered.emit(host_connections)
-
-    def _on_change_host(self, index):
-        '''triggered when changing host selection to *index*'''
+    def on_host_changed(self, host_connection):
+        '''Triggered when client has set host connection'''
         self.clear_definitions()
-        self.host_connection = self._host_combobox.itemData(index)
-        self.hostChanged.emit(self.host_connection)
+        self._host_connection = host_connection
 
-        if not self.host_connection:
+        if not self._host_connection:
             self.logger.debug('No data for selected host')
             return
 
-        self.schemas = self.host_connection.definitions['schema']
+        self.schemas = self._host_connection.definitions['schema']
         self.populate_definitions()
 
     def clear_definitions(self):
         '''Remove all definitions and prepare for re-populate. Disconnects
         signals so we do not get any unwanted events during build'''
-        self._definition_selector.currentIndexChanged.disconnect()
         self._definition_selector.clear()
 
     def populate_definitions(self):
         '''Host has been selected, fill up basic definition selector combobox with
         compatible definitions.'''
+        try:
+            self._definition_selector.currentIndexChanged.disconnect()
+        except:
+            pass
+        if self.schemas is None:
+            self.logger.warning(
+                'Not able to populate definitions - no schemas available!'
+            )
+            return
         for schema in self.schemas:
             schema_title = schema.get('title').lower()
             if self._definition_title_filter:
                 if schema_title != self._definition_title_filter:
                     continue
-            items = self.host_connection.definitions.get(schema_title)
+            items = self._host_connection.definitions.get(schema_title)
             self.definitions = items
             for item in items:
                 # Remove ' Publisher/Loader'
@@ -237,9 +205,22 @@ class OpenerDefinitionSelector(DefinitionSelectorBase):
 
     def populate_definitions(self):
         '''Find components that can be opened and add their definitions to combobox'''
+        print(
+            '@@@ definition_selector::populate_definitions; {}'.format(
+                self.schemas
+            )
+        )
+        try:
+            self._definition_selector.currentIndexChanged.disconnect()
+        except:
+            pass
+
         self.definitions = []
 
         if self.schemas is None:
+            self.logger.warning(
+                'Not able to populate definitions - no schemas available!'
+            )
             return
 
         latest_version = None  # The current latest openable version
@@ -251,7 +232,7 @@ class OpenerDefinitionSelector(DefinitionSelectorBase):
             if self._definition_title_filter:
                 if schema_title != self._definition_title_filter:
                     continue
-            items = self.host_connection.definitions.get(schema_title)
+            items = self._host_connection.definitions.get(schema_title)
             self.definitions = items
 
             self._definition_selector.addItem("", None)
@@ -297,7 +278,7 @@ class OpenerDefinitionSelector(DefinitionSelectorBase):
                 asset_version = None
                 # Package is referring to asset type code, find out name
                 asset_type_name = None
-                asset_type = self.host_connection.session.query(
+                asset_type = self._host_connection.session.query(
                     'AssetType where short={}'.format(asset_type_short)
                 ).first()
                 if asset_type:
@@ -309,10 +290,10 @@ class OpenerDefinitionSelector(DefinitionSelectorBase):
                         )
                     )
                 if asset_type_name:
-                    asset_version = self.host_connection.session.query(
+                    asset_version = self._host_connection.session.query(
                         'AssetVersion where '
                         'task.id={} and asset.type.name="{}" and is_latest_version=true'.format(
-                            self.host_connection.context_id,
+                            self._host_connection.context_id,
                             asset_type_name,
                         )
                     ).first()
@@ -438,9 +419,17 @@ class PublisherDefinitionSelector(DefinitionSelectorBase):
 
     def populate_definitions(self):
         '''Find components that can be opened and add their definitions to combobox'''
+        try:
+            self._definition_selector.currentIndexChanged.disconnect()
+        except:
+            pass
+
         self.definitions = []
 
         if self.schemas is None:
+            self.logger.warning(
+                'Not able to populate definitions - no schemas available!'
+            )
             return
 
         latest_version = None  # The current latest openable version
@@ -452,7 +441,7 @@ class PublisherDefinitionSelector(DefinitionSelectorBase):
             if self._definition_title_filter:
                 if schema_title != self._definition_title_filter:
                     continue
-            items = self.host_connection.definitions.get(schema_title)
+            items = self._host_connection.definitions.get(schema_title)
             self.definitions = items
 
             self._definition_selector.addItem("", None)

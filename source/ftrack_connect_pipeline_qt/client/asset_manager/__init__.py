@@ -7,7 +7,6 @@ from Qt import QtWidgets, QtCore
 from ftrack_connect_pipeline import constants as core_constants
 
 from ftrack_connect_pipeline.constants import asset as asset_const
-from ftrack_connect_pipeline.utils import ftrack_context_id
 from ftrack_connect_pipeline.client.asset_manager import AssetManagerClient
 from ftrack_connect_pipeline_qt.ui.utility.widget.button import RemoveButton
 
@@ -34,6 +33,11 @@ class QtAssetManagerClient(AssetManagerClient, QtWidgets.QFrame):
     QtAssetManagerClient class.
     '''
 
+    ui_types = [core_constants.UI_TYPE, qt_constants.UI_TYPE]
+    _shown = (
+        False  # Flag telling if widget has been shown before and needs refresh
+    )
+
     assetsDiscovered = (
         QtCore.Signal()
     )  # Emitted when assets has been discovered and loaded
@@ -59,7 +63,6 @@ class QtAssetManagerClient(AssetManagerClient, QtWidgets.QFrame):
         AssetManagerClient.__init__(self, event_manager)
 
         self.is_assembler = is_assembler
-        self._host_connection = None
 
         set_theme(self, get_theme())
         if self.get_theme_background_style():
@@ -70,22 +73,23 @@ class QtAssetManagerClient(AssetManagerClient, QtWidgets.QFrame):
                 qt_constants.MAIN_FRAMEWORK_WIDGET, self.__class__.__name__
             )
         )
+        # self.setStyleSheet('background-color: red;')
 
         self.pre_build()
         self.build()
         self.post_build()
 
         if not self.is_assembler:
-            self.set_context_id(self.context_id or ftrack_context_id())
-            if self.context_id:
-                self.add_hosts(self.discover_hosts())
+            self.discover_hosts()
 
     def get_theme_background_style(self):
         '''Return the theme background color style. Can be overridden by child.'''
-        return 'default'
+        return 'default' if not self.is_assembler else 'transparent'
 
     def is_docked(self):
         return not self.is_assembler
+
+    # Build
 
     def pre_build(self):
         '''Prepare general layout.'''
@@ -114,16 +118,15 @@ class QtAssetManagerClient(AssetManagerClient, QtWidgets.QFrame):
                 line.Line(style='solid', parent=self.parent())
             )
 
+            self.host_selector = host_selector.HostSelector()
+            self.layout().addWidget(self.host_selector)
+
             self.context_selector = ContextSelector(
                 self.session, parent=self.parent()
             )
             self.layout().addWidget(self.context_selector, QtCore.Qt.AlignTop)
 
             self.layout().addWidget(line.Line(parent=self.parent()))
-
-            self.host_selector = host_selector.HostSelector()
-            self.layout().addWidget(self.host_selector)
-            self.host_selector.setVisible(False)
 
         self.scroll = scroll_area.ScrollArea()
         self.scroll.setWidgetResizable(True)
@@ -145,7 +148,7 @@ class QtAssetManagerClient(AssetManagerClient, QtWidgets.QFrame):
     def post_build(self):
         '''Post Build ui method for events connections.'''
         if not self.is_assembler:
-            self.header.publishClicked.connect(self._open_publisher)
+            self.header.publishClicked.connect(self._launch_publisher)
             self.context_selector.changeContextClicked.connect(
                 self._launch_context_selector
             )
@@ -177,48 +180,22 @@ class QtAssetManagerClient(AssetManagerClient, QtWidgets.QFrame):
         self.selectionUpdated.connect(self._on_asset_selection_updated)
         self.setMinimumWidth(300)
 
-    def set_context_id(self, context_id):
-        '''Set the context id for this client'''
-        if context_id and context_id != self.context_id:
-            discover_hosts = self.context_id is None
-            self.change_context(context_id)
-            if discover_hosts:
-                self.add_hosts(self.discover_hosts())
+    # Host
 
-    def add_hosts(self, host_connections):
-        '''
-        Adds the given *host_connections*
+    def on_hosts_discovered(self, host_connections):
+        '''(Override)'''
+        self.host_selector.add_hosts(host_connections)
 
-        *host_connections* : list of
-        :class:`~ftrack_connect_pipeline.client.HostConnection`
-        '''
-        for host_connection in host_connections:
-            if host_connection in self.host_connections:
-                continue
-            self._host_connections.append(host_connection)
-        self.host_selector.setVisible(1 < len(self._host_connections))
-
-    def _host_discovered(self, event):
-        '''
-        Callback, add the :class:`~ftrack_connect_pipeline.client.HostConnection`
-        of the new discovered :class:`~ftrack_connect_pipeline.host.HOST` from
-        the given *event*.
-
-        *event*: :class:`ftrack_api.event.base.Event`
-        '''
-        AssetManagerClient._host_discovered(self, event)
-        self.host_selector.add_hosts(self.host_connections)
-
-    def change_host(self, host_connection):
-        '''
-        Triggered host is selected in the host_selector.
-        '''
+    def on_host_changed(self, host_connection):
+        '''Triggered when client has set host connection'''
         self._reset_asset_list()
         # self.asset_manager_widget.set_asset_list(self.asset_entities_list)
         if not host_connection:
             return
 
-        if not AssetManagerClient.change_host(self, host_connection):
+        if not super(QtAssetManagerClient, self).on_host_changed(
+            host_connection
+        ):
             ModalDialog(
                 self.parent(),
                 title='Asset Manager',
@@ -226,15 +203,20 @@ class QtAssetManagerClient(AssetManagerClient, QtWidgets.QFrame):
             )
             return
 
-        if not self.is_assembler:
-            self.context_selector.host_changed(host_connection)
-        self.asset_manager_widget.host_connection = self.host_connection
-
         self.rebuild()
         self.asset_manager_widget.engine_type = self.engine_type
         self.asset_manager_widget.set_context_actions(self.menu_action_plugins)
 
         self.scroll.setWidget(self.asset_manager_widget)
+
+    # Context
+
+    def on_context_changed(self, context_id):
+        '''Context has been set in context selector'''
+        if not self.is_assembler:
+            self.context_selector.context_id = context_id
+
+    # Use
 
     def _on_widget_status_updated(self, data):
         '''Triggered when a widget emits the
@@ -243,10 +225,6 @@ class QtAssetManagerClient(AssetManagerClient, QtWidgets.QFrame):
         '''
         status, message = data
         self.header.setMessage(message, status)
-
-    def _launch_context_selector(self):
-        '''Open entity browser.'''
-        self.host_connection.launch_widget(core_constants.CHANGE_CONTEXT)
 
     # Implementation of assetmanager client callbacks
 
@@ -519,18 +497,22 @@ class QtAssetManagerClient(AssetManagerClient, QtWidgets.QFrame):
         if self.scroll and self.scroll.widget():
             self.scroll.widget().deleteLater()
 
-    def _open_assembler(self):
+    def mousePressEvent(self, event):
+        if event.button() != QtCore.Qt.RightButton:
+            self.asset_manager_widget.asset_list.clear_selection()
+        return super(QtAssetManagerClient, self).mousePressEvent(event)
+
+    def _launch_assembler(self):
         '''Open the assembler and close client if dialog'''
         if not self.is_docked():
             self.hide()
         self.host_connection.launch_widget(core_constants.ASSEMBLER)
 
-    def _open_publisher(self):
+    def _launch_publisher(self):
         if not self.is_docked():
             self.hide()
         self.host_connection.launch_widget(core_constants.PUBLISHER)
 
-    def mousePressEvent(self, event):
-        if event.button() != QtCore.Qt.RightButton:
-            self.asset_manager_widget.asset_list.clear_selection()
-        return super(QtAssetManagerClient, self).mousePressEvent(event)
+    def _launch_context_selector(self):
+        '''Open entity browser.'''
+        self.host_connection.launch_widget(core_constants.CHANGE_CONTEXT)

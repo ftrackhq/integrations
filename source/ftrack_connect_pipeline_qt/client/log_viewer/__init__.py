@@ -9,9 +9,10 @@ import subprocess
 
 from Qt import QtGui, QtCore, QtWidgets
 
-from ftrack_connect_pipeline import client, constants
+from ftrack_connect_pipeline import client, constants as client_constants
 from ftrack_connect_pipeline.client.log_viewer import LogViewerClient
 
+from ftrack_connect_pipeline_qt import constants as qt_constants
 from ftrack_connect_pipeline_qt.utils import get_theme, set_theme
 from ftrack_connect_pipeline_qt.ui.log_viewer.plugin_log import (
     PluginLogViewerWidget,
@@ -38,6 +39,11 @@ class QtLogViewerClient(LogViewerClient, dialog.Dialog):
     '''
     QtLogViewerClient class.
     '''
+
+    ui_types = [client_constants.UI_TYPE, qt_constants.UI_TYPE]
+    _shown = (
+        False  # Flag telling if widget has been shown before and needs refresh
+    )
 
     # LOG_MODE_PLUGIN = 0
     # LOG_MODE_FILE = 1
@@ -66,7 +72,7 @@ class QtLogViewerClient(LogViewerClient, dialog.Dialog):
         self.build()
         self.post_build()
 
-        self.add_hosts(self.discover_hosts())
+        self.discover_hosts()
 
     def get_theme_background_style(self):
         return 'ftrack'
@@ -74,42 +80,7 @@ class QtLogViewerClient(LogViewerClient, dialog.Dialog):
     def is_docked(self):
         False
 
-    def add_hosts(self, host_connections):
-        '''
-        Adds the given *host_connections*
-
-        *host_connections* : list of
-        :class:`~ftrack_connect_pipeline.client.HostConnection`
-        '''
-        for host_connection in host_connections:
-            if host_connection in self.host_connections:
-                continue
-            self._host_connections.append(host_connection)
-
-    def _host_discovered(self, event):
-        '''
-        Callback, add the :class:`~ftrack_connect_pipeline.client.HostConnection`
-        of the new discovered :class:`~ftrack_connect_pipeline.host.HOST` from
-        the given *event*.
-
-        *event*: :class:`ftrack_api.event.base.Event`
-        '''
-        LogViewerClient._host_discovered(self, event)
-        self.host_selector.add_hosts(self.host_connections)
-
-        self.host_selector.setVisible(len(self.host_connections) > 1)
-
-    def change_host(self, host_connection):
-        '''
-        Triggered host is selected in the host_selector.
-        '''
-
-        if not host_connection:
-            return
-
-        LogViewerClient.change_host(self, host_connection)
-
-        self.update_log_items()
+    # Build
 
     def pre_build(self):
         '''Prepare general layout.'''
@@ -132,7 +103,6 @@ class QtLogViewerClient(LogViewerClient, dialog.Dialog):
 
         self.host_selector = host_selector.HostSelector()
         self.layout().addWidget(self.host_selector)
-        self.host_selector.setVisible(False)
 
         # Add tabbed pane
         self._tab_widget = tab.TabWidget()
@@ -160,6 +130,18 @@ class QtLogViewerClient(LogViewerClient, dialog.Dialog):
         self.resize(750, 630)
         self.setModal(True)
 
+    # Host
+
+    def on_hosts_discovered(self, host_connections):
+        '''(Override)'''
+        self.host_selector.add_hosts(host_connections)
+
+    def on_host_changed(self, host_connection):
+        '''Triggered when client has set host connection'''
+        self.update_log_items()
+
+    # Use
+
     def _on_tab_changed(self, index):
         if index == 1:
             self._file_log_viewer_widget.refresh_ui()
@@ -176,3 +158,10 @@ class QtLogViewerClient(LogViewerClient, dialog.Dialog):
         if not self.host_connection:
             return
         self.update_log_items()
+
+    def conditional_rebuild(self):
+        '''Reset a client that has become visible after being hidden.'''
+        if self._shown:
+            # Refresh when re-opened
+            self._refresh_ui()
+        self._shown = True

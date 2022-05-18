@@ -24,7 +24,8 @@ class QtChangeContextClient(Client):
         self._host_connection = None
 
         self.pre_build()
-        self.post_build()
+
+        self.discover_hosts()
 
     def pre_build(self):
         self.entity_browser = EntityBrowser(
@@ -33,27 +34,24 @@ class QtChangeContextClient(Client):
             title='CHOOSE TASK (WORKING CONTEXT)',
         )
 
-    def post_build(self):
-        self._host_connections = self.discover_hosts()
-        if len(self._host_connections) == 1:
-            self._host_connection = self._host_connections[0]
+    def on_hosts_discovered(self, host_connections):
+        if len(host_connections) > 0:
+            self.change_host(host_connections[0])
 
     def show(self):
         # Find my host
-        if self._host_connection is None:
-            if len(self._host_connections) == 0:
-                dialog.ModalDialog(
-                    None,
-                    title='Change context',
-                    message='No host detected, cannot change context!',
-                )
-                return
-            # Need to choose host connection
-            self._host_connections[0].launch_widget(core_constants.OPENER)
+        if self.host_connection is None:
+            # TODO: support multiple hosts
+            dialog.ModalDialog(
+                None,
+                title='Change context',
+                message='No host detected, cannot change context!',
+            )
             return
+        self.entity_browser.entity_id = self.context_id
         self.entity_browser.setMinimumWidth(600)
         if self.entity_browser.exec_():
             self.change_ftrack_context_id(self.entity_browser.entity)
 
-    def change_ftrack_context_id(self, context):
-        self._host_connection.change_ftrack_context_id(context)
+    def change_ftrack_context_id(self, context_id):
+        self.host_connection.context_id = context_id

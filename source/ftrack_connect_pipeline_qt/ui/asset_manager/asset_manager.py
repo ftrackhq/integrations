@@ -64,13 +64,7 @@ class AssetManagerWidget(AssetManagerBaseWidget):
 
     @property
     def host_connection(self):
-        return self._host_connection
-
-    @host_connection.setter
-    def host_connection(self, host_connection):
-        '''Sets :obj:`host_connection` with the given *host_connection*.'''
-        self._host_connection = host_connection
-        # self._listen_widget_updates()
+        return self._asset_manager_client.host_connection
 
     def __init__(self, asset_manager_client, asset_list_model, parent=None):
         self._asset_manager_client = asset_manager_client
@@ -80,7 +74,6 @@ class AssetManagerWidget(AssetManagerBaseWidget):
             asset_list_model,
             parent=parent,
         )
-        self._host_connection = None
 
     def _build_docked_header(self, layout):
         row1 = QtWidgets.QWidget()

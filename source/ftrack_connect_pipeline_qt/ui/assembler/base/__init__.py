@@ -190,7 +190,7 @@ class AssemblerBaseWidget(QtWidgets.QWidget):
             # Check if there is any loader definitions
             if (
                 len(
-                    self._assembler_client.host_and_definition_selector.definitions
+                    self._assembler_client.definition_selector.definitions
                     or []
                 )
                 == 0
@@ -265,7 +265,7 @@ class AssemblerBaseWidget(QtWidgets.QWidget):
 
         # Fetch all definitions, append asset type name
         loader_definitions = (
-            self._assembler_client.host_and_definition_selector.definitions
+            self._assembler_client.definition_selector.definitions
         )
 
         # import json

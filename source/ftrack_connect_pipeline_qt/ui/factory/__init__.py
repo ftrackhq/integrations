@@ -554,6 +554,44 @@ class WidgetFactoryBase(QtWidgets.QWidget):
                 self._version_id,
             )
 
+    def update_widget(self, log_item):
+        '''*event* callback to update widget with the current status/value'''
+        if not log_item.widget_ref:
+            self.logger.debug(
+                'No widget_ref on the log item. log_item: {}'.format(log_item)
+            )
+            return
+        widget = self.widgets.get(log_item.widget_ref)
+        if not widget:
+            self.logger.debug(
+                'Widget ref :{} not found for host_id {} ! '.format(
+                    log_item.widget_ref, log_item.host_id
+                )
+            )
+            return
+
+        if log_item.status:
+            self.logger.debug(
+                'updating widget: {} Status: {}, Message: {}, User Message: {}'.format(
+                    widget,
+                    log_item.status,
+                    log_item.message,
+                    log_item.user_message,
+                )
+            )
+            if log_item.user_message:
+                widget.set_status(log_item.status, log_item.user_message)
+            else:
+                widget.set_status(log_item.status, log_item.message)
+
+        if log_item.result:
+            self.logger.debug(
+                'updating widget: {} with run result {}'.format(
+                    widget, log_item.result
+                )
+            )
+            widget.set_run_result(log_item.result)
+
     def listen_widget_updates(self):
         '''
         Subscribe to the

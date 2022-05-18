@@ -7,9 +7,13 @@ from PySide2 import (
     QtWebEngineWidgets,
 )  # Qt.py does not provide QtWebEngineWidgets
 
-from ftrack_connect_pipeline.utils import ftrack_context_id
 from ftrack_connect_pipeline.client import Client
-from ftrack_connect_pipeline_qt.ui.utility.widget import dialog, header
+from ftrack_connect_pipeline_qt.ui.utility.widget import (
+    dialog,
+    header,
+    line,
+    host_selector,
+)
 
 from ftrack_connect_pipeline_qt.utils import get_theme, set_theme
 
@@ -33,6 +37,9 @@ class QtWebViewClient(Client, dialog.Dialog):
 
         self.pre_build()
         self.build()
+        self.post_build()
+
+        self.discover_hosts()
 
         self.resize(500, 600)
 
@@ -40,8 +47,11 @@ class QtWebViewClient(Client, dialog.Dialog):
         '''Return the theme background color style. Can be overridden by child.'''
         return 'ftrack'
 
+    # Build
+
     def pre_build(self):
         self._header = header.Header(self.session, parent=self.parent())
+        self.host_selector = host_selector.HostSelector()
         self._web_engine_view = QtWebEngineWidgets.QWebEngineView(
             parent=self.parent()
         )
@@ -51,10 +61,24 @@ class QtWebViewClient(Client, dialog.Dialog):
 
     def build(self):
         self.layout().addWidget(self._header)
+        self.layout().addWidget(self.host_selector)
+        self.layout().addWidget(line.Line(style='solid', parent=self))
         self.layout().addWidget(self._web_engine_view, 100)
 
-    def set_context_id(self, context_id):
-        '''Set the context ID supplied bu *context_id* and load web contents'''
+    def post_build(self):
+        self.host_selector.hostChanged.connect(self.change_host)
+
+    # Host
+
+    def on_hosts_discovered(self, host_connections):
+        '''(Override)'''
+        self.host_selector.add_hosts(host_connections)
+
+    # Context
+
+    def on_context_changed(self, context_id):
+        '''Context has been set in context selector'''
+        print('@@@ webview::on_context_changed({})'.format(context_id))
         self._context = self.session.query(
             'Task where id={}'.format(context_id)
         ).one()
@@ -62,8 +86,6 @@ class QtWebViewClient(Client, dialog.Dialog):
 
     def show(self):
         '''Show the dialog, sets the context to default and loads content if not done previously'''
-        if self._context is None:
-            self.set_context_id(ftrack_context_id())
         super(QtWebViewClient, self).show()
 
     def get_url(self):

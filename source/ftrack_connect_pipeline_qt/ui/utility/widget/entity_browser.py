@@ -8,7 +8,6 @@ from Qt import QtWidgets, QtCore, QtGui
 
 import shiboken2
 
-from ftrack_connect_pipeline.utils import ftrack_context_id
 from ftrack_connect_pipeline_qt.ui.utility.widget.thumbnail import Context
 from ftrack_connect_pipeline_qt.ui.utility.widget.search import Search
 from ftrack_connect_pipeline_qt.utils import (
@@ -60,6 +59,10 @@ class EntityBrowser(dialog.ModalDialog):
     def entity_id(self):
         return self._entity['id'] if self._entity else None
 
+    @entity_id.setter
+    def entity_id(self, value):
+        self.entity = self.find_context_entity(value)
+
     @property
     def intermediate_entity(self):
         return self._intermediate_entity
@@ -91,11 +94,8 @@ class EntityBrowser(dialog.ModalDialog):
             parent, prompt=None, title=title or 'ftrack Entity Browser'
         )
 
-        if entity is None:
-            if ftrack_context_id():
-                entity = self.find_context_entity(ftrack_context_id())
-
-        self.set_entity(entity)
+        if entity:
+            self.set_entity(entity)
 
     def pre_build(self):
         super(EntityBrowser, self).pre_build()

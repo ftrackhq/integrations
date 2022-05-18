@@ -10,7 +10,6 @@ from functools import partial
 from Qt import QtCore, QtWidgets
 
 from ftrack_connect_pipeline.client import constants
-from ftrack_connect_pipeline.utils import ftrack_context_id
 from ftrack_connect_pipeline_qt.ui.utility.widget.thumbnail import (
     Context,
 )
@@ -245,7 +244,7 @@ class AssemblerBrowserWidget(AssemblerBaseWidget):
 
         self._entity_browser = EntityBrowser(
             self._assembler_client.parent(),
-            session=self._assembler_client.session,
+            self._assembler_client.session,
             mode=EntityBrowser.MODE_CONTEXT,
             entity=entity,
         )
@@ -312,11 +311,8 @@ class AssemblerBrowserWidget(AssemblerBaseWidget):
             thread.start()
 
     def reset(self):
-        self._entity_browser.set_entity(
-            ftrack_context_id(
-                as_entity=True, session=self._assembler_client.session
-            )
-        )
+        '''Reset browser entity ID back to current working context'''
+        self._entity_browser.entity_id = self._assembler_client.context_id
 
     def _fetch_more(self):
         '''Continue previous query'''

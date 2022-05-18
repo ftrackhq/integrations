@@ -12,6 +12,7 @@ class BaseOptionsWidget(QtWidgets.QWidget):
     Base class of a widget representation for options widgets
     '''
 
+    statusUpdated = QtCore.Signal(object)
     assetChanged = QtCore.Signal(object, object, object)
     runPluginClicked = QtCore.Signal(object, object)
     runResultUpdated = QtCore.Signal(object)
@@ -66,6 +67,10 @@ class BaseOptionsWidget(QtWidgets.QWidget):
     def set_option_result(self, value, key):
         '''set the result options of value for the key.'''
         self._options[key] = value
+
+    def _set_internal_status(self, data):
+        '''set the status icon with the provided *data*'''
+        pass
 
     def _set_internal_run_result(self, data):
         '''Calls the function on_{method}_callback with values returned
@@ -175,6 +180,7 @@ class BaseOptionsWidget(QtWidgets.QWidget):
 
     def post_build(self):
         '''post build function , mostly used connect widgets events.'''
+        self.statusUpdated.connect(self._set_internal_status)
         self.runResultUpdated.connect(self._set_internal_run_result)
 
     def set_asset_type_entity(self, asset_type_name):

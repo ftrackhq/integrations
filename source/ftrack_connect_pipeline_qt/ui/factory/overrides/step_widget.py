@@ -404,11 +404,7 @@ class OptionsStepWidget(DefaultStepWidgetObject):
 class ComboBoxItemStepWidget(DefaultStepWidgetObject):
     '''Widget representation of a boolean'''
 
-    @property
-    def enabled(self):
-        return self._is_enabled
-
-    @enabled.setter
+    @DefaultStepWidgetObject.enabled.setter
     def enabled(self, value):
         self.check_box.setChecked(value)
         if self._parent:
