@@ -8,7 +8,8 @@
 Release Notes
 *************
 
-.. release:: Upcoming
+.. release:: 0.1.4
+    :date: 2022-05-18
 
     .. change:: added
         :tags: Event
