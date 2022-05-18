@@ -7,18 +7,6 @@ import appdirs
 from ftrack_connect_pipeline import constants as core_constants
 
 
-def ftrack_context_id(as_entity=False, session=None):
-    '''Return the current global context (Task) id'''
-    context_id = os.getenv(
-        'FTRACK_CONTEXTID',
-        os.getenv('FTRACK_TASKID', os.getenv('FTRACK_SHOTID')),
-    )
-    if as_entity is True:
-        return session.query('Task where id is "{}"'.format(context_id)).one()
-    else:
-        return context_id
-
-
 def str_context(context, with_id=False, force_version_nr=None, delimiter='/'):
     '''Utility function to produce a human readable string out or a context.'''
     return '{}/{}'.format(

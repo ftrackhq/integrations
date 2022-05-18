@@ -5,6 +5,7 @@ import uuid
 import ftrack_api
 import logging
 import socket
+import os
 
 from ftrack_connect_pipeline.host import engine as host_engine
 from ftrack_connect_pipeline.host import validation
@@ -17,7 +18,9 @@ from ftrack_connect_pipeline.log import LogDB
 logger = logging.getLogger(__name__)
 
 
-def provide_host_information(host_id, definitions, host_name, event):
+def provide_host_information(
+    context_id, host_id, definitions, host_name, event
+):
     '''
     Returns dictionary with host id, host name, context id and definition from
     the given *host_id*, *definitions* and *host_name*.
@@ -29,7 +32,6 @@ def provide_host_information(host_id, definitions, host_name, event):
     *host_name* : Host name
     '''
     logger.debug('providing host_id: {}'.format(host_id))
-    context_id = utils.ftrack_context_id()
     host_dict = {
         'host_id': host_id,
         'host_name': host_name,
@@ -57,6 +59,23 @@ class Host(object):
 
     def __del__(self):
         self.logger.debug('Closing {}'.format(self))
+
+    @property
+    def context_id(self):
+        return os.getenv(
+            'FTRACK_CONTEXTID',
+            os.getenv('FTRACK_TASKID', os.getenv('FTRACK_SHOTID')),
+        )
+
+    @context_id.setter
+    def context_id(self, value):
+        if value == self.context_id:
+            return
+        os.environ['FTRACK_CONTEXTID'] = value
+        self.logger.warning(
+            'ftrack host context is now: {}'.format(self.context_id)
+        )
+        self._change_ftrack_context_id()
 
     @property
     def host_id(self):
@@ -165,6 +184,7 @@ class Host(object):
 
         handle_event = partial(
             provide_host_information,
+            self.context_id,
             self.host_id,
             validated_result,
             self.host_name,
@@ -268,6 +288,14 @@ class Host(object):
             self._on_client_notification,
         )
 
+        ''' Listen to context change events for this host and its connected clients'''
+        self.session.event_hub.subscribe(
+            'topic={} and data.pipeline.host_id={}'.format(
+                constants.PIPELINE_CONTEXT_CHANGE, self._host_id
+            ),
+            self._ftrack_context_id_changed,
+        )
+
     def reset(self):
         '''
         Empty the variables :obj:`host_type`, :obj:`host_id` and :obj:`__registry`
@@ -291,3 +319,19 @@ class Host(object):
         self._event_manager.publish(
             event,
         )
+
+    def _change_ftrack_context_id(self):
+        '''The context has been changed by user, send an event to picked up by clients.'''
+        event = ftrack_api.event.base.Event(
+            topic=constants.PIPELINE_CONTEXT_CHANGE,
+            data={
+                'pipeline': {'host_id': self.id, 'context_id': self.context_id}
+            },
+        )
+        self.event_manager.publish(
+            event,
+        )
+
+    def _ftrack_context_id_changed(self, event):
+        if os.environ.get('FTRACK_CONTEXTID') != self.context_id:
+            self.context_id = event['context_id']

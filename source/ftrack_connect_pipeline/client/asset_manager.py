@@ -2,7 +2,7 @@
 # :copyright: Copyright (c) 2014-2020 ftrack
 
 from ftrack_connect_pipeline.client import Client
-from ftrack_connect_pipeline.constants import asset as asset_const
+from ftrack_connect_pipeline import constants as core_constants
 
 
 class AssetManagerClient(Client):
@@ -10,7 +10,7 @@ class AssetManagerClient(Client):
     Asset Manager Client Base Class
     '''
 
-    definition_filter = 'asset_manager'
+    definition_filter = core_constants.ASSET_MANAGER
     '''Use only definitions that matches the definition_filter'''
 
     def __init__(self, event_manager):
@@ -20,9 +20,8 @@ class AssetManagerClient(Client):
         super(AssetManagerClient, self).__init__(event_manager)
         self._reset_asset_list()
 
-    def change_host(self, host_connection):
+    def on_host_changed(self, host_connection):
         '''Asset manager host has been selected, fetch definition. Return False if no definitions.'''
-        super(AssetManagerClient, self).change_host(host_connection)
 
         self.schemas = [
             schema
