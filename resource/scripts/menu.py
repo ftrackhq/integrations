@@ -19,7 +19,7 @@ from ftrack_connect_pipeline.configure_logging import configure_logging
 
 from ftrack_connect_pipeline_qt import event
 from ftrack_connect_pipeline_qt import constants as qt_constants
-from ftrack_connect_pipeline_qt.ui.asset_manager.base import AssetListModel
+from ftrack_connect_pipeline_qt.ui.asset_manager.model import AssetListModel
 
 from ftrack_connect_pipeline_nuke.client import (
     open,
@@ -172,7 +172,7 @@ def initialise():
     widgets.append(
         (
             core_constants.ASSEMBLER,
-            load.NukeAssemblerClient,
+            load.NukeAssemblerWidget,
             'Assembler',
             '',
         )
@@ -180,7 +180,7 @@ def initialise():
     widgets.append(
         (
             core_constants.SAVE,
-            save.QtSaveClient,
+            save.QtNukeSaveClient,
             'Save Script',
             '',
         )
@@ -242,7 +242,7 @@ def initialise():
     app = QtWidgets.QApplication.instance()
     app.aboutToQuit.connect(on_nuke_exit)
 
-    nuke_utils.init_nuke(session)
+    nuke_utils.init_nuke(host)
 
     host.launch_widget(core_constants.OPENER)
 

@@ -4,7 +4,7 @@ import os
 import re
 import clique
 
-from ftrack_connect_pipeline import constants
+from ftrack_connect_pipeline import constants as core_constants
 from ftrack_connect_pipeline import plugin
 from ftrack_connect_pipeline_qt import plugin as pluginWidget
 from ftrack_connect_pipeline_nuke.plugin import (
@@ -60,7 +60,7 @@ class NukePublisherFinalizerPlugin(
 
         cleanup_files = []
         for step in data:
-            if step['type'] == constants.COMPONENT:
+            if step['type'] == core_constants.COMPONENT:
                 component_name = step['name']
                 for stage in step['result']:
                     for plugin in stage['result']:
