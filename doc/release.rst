@@ -5,6 +5,18 @@
 Releases
 ########
 
+
+.. release:: Upcoming
+
+   .. change:: changed
+
+        Remove plugin manager for package.
+
+    .. change:: changed
+
+        Force certifi to be up to date.
+
+
 .. release:: 2.0.0-rc-5
     :date: 2022-03-25
 
