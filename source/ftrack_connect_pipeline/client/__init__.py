@@ -16,31 +16,34 @@ from ftrack_connect_pipeline.log.log_item import LogItem
 class HostConnection(object):
     '''
     Host Connection Base class.
-    This class is used to communicate from the client to the host.
+    This class is used to communicate between the client and the host.
     '''
 
     @property
     def context_id(self):
-        '''Returns the current context id'''
+        '''Returns the current context id as fetched from the host'''
         return self._context_id
 
     @context_id.setter
     def context_id(self, value):
-        '''Returns the current context id'''
+        '''Set the context id for this host connection to *value*. Will notify the host and
+        other active host connection through an event, and tell the client through callback.'''
         if value == self.context_id:
             return
         self._context_id = value
         self._change_ftrack_context_id()
-        if self.on_context_change:
-            self.on_context_change(self.context_id)
+        if self.context_changed:
+            self.context_changed(self.context_id)
 
     @property
-    def on_context_change(self):
-        return self._on_context_change
+    def context_changed(self):
+        '''Return the context change callback function'''
+        return self._context_changed
 
-    @on_context_change.setter
-    def on_context_change(self, value):
-        self._on_context_change = value
+    @context_changed.setter
+    def context_changed(self, value):
+        '''Set the context change callback function to *value*'''
+        self._context_changed = value
 
     @property
     def event_manager(self):
@@ -87,7 +90,7 @@ class HostConnection(object):
         return self._raw_host_data['definition']
 
     def _filter_definitions(self, context_identifiers, definitions):
-        '''Filter definitions on context idents and discoverable.'''
+        '''Filter *definitions* on *context_identifiers* and discoverable.'''
         result = []
         for definition in definitions:
             match = False
@@ -157,7 +160,7 @@ class HostConnection(object):
         self.logger = logging.getLogger(
             '{0}.{1}'.format(__name__, self.__class__.__name__)
         )
-        self._on_context_change = None
+        self._context_changed = None
 
         copy_data = copy.deepcopy(host_data)
 
@@ -201,7 +204,8 @@ class HostConnection(object):
         )
 
     def _change_ftrack_context_id(self):
-        '''The context has been changed by user, send an event to picked up by clients.'''
+        '''The context has been changed, send an event to picked up
+        by host and clients (through host connections).'''
         event = ftrack_api.event.base.Event(
             topic=constants.PIPELINE_CONTEXT_CHANGE,
             data={
@@ -213,6 +217,8 @@ class HostConnection(object):
         )
 
     def subscribe_context_change(self):
+        '''Have host connection subscribe to context change events, to be able
+        to notify client'''
         self.session.event_hub.subscribe(
             'topic={} and data.pipeline.host_id={}'.format(
                 constants.PIPELINE_CONTEXT_CHANGE, self.id
@@ -221,7 +227,8 @@ class HostConnection(object):
         )
 
     def _ftrack_context_id_changed(self, event):
-        self.context_id = event['context_id']
+        '''Set the new context ID based on data provided in *event*'''
+        self.context_id = event['data']['pipeline']['context_id']
 
 
 class Client(object):
@@ -264,14 +271,15 @@ class Client(object):
 
     @property
     def context_id(self):
-        '''Returns the context id.'''
+        '''Returns the current context id from host.'''
         if self.host_connection is None:
             raise Exception('No host connection available')
         return self.host_connection.context_id
 
     @context_id.setter
     def context_id(self, context_id):
-        '''Sets the context id.'''
+        '''Sets the context id on current host connection, will throw an exception
+        if no host connection is active'''
         if not isinstance(context_id, string_types):
             raise ValueError('Context should be in form of a string.')
         if self.host_connection is None:
@@ -299,14 +307,14 @@ class Client(object):
         *host_connection* : should be instance of
         :class:`~ftrack_connect_pipeline.client.HostConnection`
         '''
-        if value is None:
+        if value is None or value == self.host_connection:
             return
 
         self.logger.debug('host connection: {}'.format(value))
         if self.host_connection:
-            self.host_connection.on_context_change = None
+            self.host_connection.context_changed = None
         self._host_connection = value
-        self.host_connection.on_context_change = self.on_context_changed
+        self.host_connection.context_changed = self.on_context_changed
         self.on_client_notification()
         self.on_host_changed(self.host_connection)
         self.on_context_changed(self.host_connection.context_id)
@@ -454,6 +462,7 @@ class Client(object):
         pass
 
     def change_host(self, host_connection):
+        '''Client(user) has chosen the host connection to use, set it to *host_connection*'''
         self.host_connection = host_connection
 
     def on_host_changed(self, host_connection):
@@ -464,7 +473,7 @@ class Client(object):
     # Context
 
     def on_context_changed(self, context_id):
-        '''Called when the context has been set or changed, either from this
+        '''Called when the context has been set or changed within the host connection, either from this
         client or remote (other client or the host). Should be overridden by client.'''
         pass
 
@@ -491,9 +500,6 @@ class Client(object):
         if not self.host_connection:
             self.logger.error("please set the host connection first")
             return
-
-        print('@@@; change_definition; schema: {}'.format(schema))
-        print('@@@; change_definition; definition: {}'.format(definition))
 
         self._schema = schema
         self._definition = definition
