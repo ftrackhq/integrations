@@ -14,7 +14,7 @@ import maya.cmds as cmds
 import maya.mel as mm
 
 from ftrack_connect_pipeline.utils import (
-    get_snapshot_save_path,
+    get_save_path,
 )
 from ftrack_connect_pipeline_maya.constants import asset as asset_const
 
@@ -176,26 +176,24 @@ def save(context_id, session):
     '''Save snapshot scene locally, with the next version number based on latest version
     in ftrack.'''
 
-    snapshot_path, message = get_snapshot_save_path(
-        context_id, session, extension='.mb'
-    )
+    save_path, message = get_save_path(context_id, session, extension='.mb')
 
-    if snapshot_path is None:
+    if save_path is None:
         return (False, message)
 
     # Save Maya scene to this path
-    cmds.file(rename=snapshot_path)
+    cmds.file(rename=save_path)
     cmds.file(save=True)
-    message = 'Saved Maya scene @ "{}"'.format(snapshot_path)
+    message = 'Saved Maya scene @ "{}"'.format(save_path)
 
     # Add to recent files
     mm.eval("source addRecentFile;")
     mm.eval(
         'addRecentFile("{}.mb","{}");'.format(
-            snapshot_path.replace('\\', '/'), 'mayaBinary'
+            save_path.replace('\\', '/'), 'mayaBinary'
         )
     )
 
-    result = snapshot_path
+    result = save_path
 
     return result, message
