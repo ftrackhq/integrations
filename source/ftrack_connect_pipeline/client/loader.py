@@ -10,7 +10,7 @@ class LoaderClient(client.Client):
     Loader Client Base Class
     '''
 
-    definition_filter = constants.LOADER
+    definition_filters = [constants.LOADER]
 
     def __init__(self, event_manager):
         '''

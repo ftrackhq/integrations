@@ -1,14 +1,16 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2022 ftrack
-
 import os
 import appdirs
+import tempfile
 
 from ftrack_connect_pipeline import constants as core_constants
 
 
 def str_context(context, with_id=False, force_version_nr=None, delimiter='/'):
     '''Utility function to produce a human readable string out or a context.'''
+    if not 'project' is context:
+        return str(context)
     return '{}/{}'.format(
         context['project']['name'],
         '/'.join(['{}'.format(link['name']) for link in context['link'][1:]]),
@@ -25,7 +27,7 @@ def str_version(v, with_id=False, force_version_nr=None, delimiter='/'):
     ).replace('/', delimiter)
 
 
-def get_snapshot_save_path(context_id, session, extension=None):
+def get_save_path(context_id, session, extension=None, temp=False):
     '''Calculate the path to local snapshot save (work path), DCC independent.'''
 
     result = False
@@ -33,7 +35,7 @@ def get_snapshot_save_path(context_id, session, extension=None):
 
     if context_id is None:
         raise Exception(
-            'Could not save snapshot - no context id provided'.format(
+            'Could not get save path- no context id provided'.format(
                 context_id
             )
         )
@@ -42,19 +44,26 @@ def get_snapshot_save_path(context_id, session, extension=None):
 
     if context is None:
         raise Exception(
-            'Could not save snapshot - unknown context: {}'.format(context_id)
+            'Could not get save path - unknown context: {}'.format(context_id)
         )
 
-    snapshot_path_base = os.environ.get('FTRACK_SNAPSHOT_PATH')
-    if snapshot_path_base is None:
-        server_folder_name = (
-            session.server_url.split('//')[-1].split('.')[0].replace('-', '_')
-        )
+    server_folder_name = (
+        session.server_url.split('//')[-1].split('.')[0].replace('-', '_')
+    )
+    if temp:
         snapshot_path_base = os.path.join(
-            appdirs.user_data_dir('ftrack-connect', 'ftrack'),
+            tempfile.gettempdir('ftrack-connect', 'ftrack'),
             core_constants.SNAPSHOT_COMPONENT_NAME,
             server_folder_name,
         )
+    else:
+        snapshot_path_base = os.environ.get('FTRACK_SAVE_PATH')
+        if snapshot_path_base is None:
+            snapshot_path_base = os.path.join(
+                appdirs.user_data_dir('ftrack-connect', 'ftrack'),
+                core_constants.SNAPSHOT_COMPONENT_NAME,
+                server_folder_name,
+            )
 
     # Try to query location system (future) for getting task path
     try:

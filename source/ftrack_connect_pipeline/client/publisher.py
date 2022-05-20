@@ -7,10 +7,10 @@ from ftrack_connect_pipeline import constants
 
 class PublisherClient(client.Client):
     '''
-    Log Viewer Client Base Class
+    Publisher Client Base Class
     '''
 
-    definition_filter = constants.PUBLISHER
+    definition_filters = [constants.PUBLISHER]
 
     def __init__(self, event_manager):
         '''

@@ -31,7 +31,7 @@ class HostConnection(object):
         if value == self.context_id:
             return
         self._context_id = value
-        self._change_ftrack_context_id()
+        self._change_host_context_id()
 
     @property
     def event_manager(self):
@@ -204,7 +204,7 @@ class HostConnection(object):
         '''Set the new context ID based on data provided in *event*'''
         self.context_id = event['data']['pipeline']['context_id']
 
-    def _change_ftrack_context_id(self):
+    def _change_host_context_id(self):
         '''The context has been changed, send events'''
         #  Send an remote mode event to be picked up by host and other host connections.
         event = ftrack_api.event.base.Event(
@@ -235,8 +235,8 @@ class Client(object):
 
     ui_types = [constants.UI_TYPE]
     '''Compatible UI for this client.'''
-    definition_filter = None
-    '''Use only definitions that matches the definition_filter'''
+    definition_filters = None
+    '''Use only definitions that matches the definition_filters'''
     definition_extensions_filter = None
     '''(Open) Only show definitions and components capable of accept these filename extensions. '''
 
@@ -293,6 +293,11 @@ class Client(object):
         '''Return the current list of host_connections'''
         return Client._host_connections
 
+    @host_connections.setter
+    def host_connections(self, value):
+        '''Return the current list of host_connections'''
+        Client._host_connections = value
+
     @property
     def host_connection(self):
         '''
@@ -338,6 +343,7 @@ class Client(object):
 
     @property
     def logs(self):
+        '''Return the log items'''
         self._init_logs()
         return self._logs.get_log_items(
             self.host_connection.id
@@ -411,7 +417,7 @@ class Client(object):
         with the callback
         py:meth:`~ftrack_connect_pipeline.client._host_discovered`
         '''
-        Client._host_connections = []  # Start over
+        self.host_connections = []  # Start over
         discover_event = ftrack_api.event.base.Event(
             topic=constants.PIPELINE_DISCOVER_HOST
         )
@@ -441,10 +447,7 @@ class Client(object):
         self._connected = True
 
     def do_consider_host(self, host_connection):
-        '''Callback, add the :class:`~ftrack_connect_pipeline.client.HostConnection`
-        of the new discovered :class:`~ftrack_connect_pipeline.host.HOST` from
-        the given *host_connection*. To be overridden by clients and they should return
-        False if the host connection should be ignored.
+        '''Return True if the *host_connection* should be considered
 
         *host_connection*: :class:`ftrack_connect_pipeline.client.HostConnection`
         '''
@@ -458,17 +461,15 @@ class Client(object):
         return True
 
     def on_hosts_discovered(self, host_connections):
-        '''Callback, hosts has been discovered. To be overridden by hild.'''
-        pass
+        '''Callback, hosts has been discovered. To be overridden by the qt client'''
 
     def change_host(self, host_connection):
         '''Client(user) has chosen the host connection to use, set it to *host_connection*'''
         self.host_connection = host_connection
 
     def on_host_changed(self, host_connection):
-        '''Called when the host has been (re-)selected by the user. Should be
-        overridden by the client.'''
-        pass
+        '''Called when the host has been (re-)selected by the user. To be
+        overridden by the qt client.'''
 
     # Context
 
@@ -514,13 +515,16 @@ class Client(object):
         Assign the given *schema* and the given *definition* as the current
         :obj:`schema` and :obj:`definition`
         '''
+        import traceback
+
+        traceback.print_stack()
         if not self.host_connection:
             self.logger.error("please set the host connection first")
             return
 
         self._schema = schema
         self._definition = definition
-
+        print('@@@ definition: {}'.format(definition))
         self.change_engine(self.definition['_config']['engine_type'])
 
     # Plugin
@@ -594,7 +598,6 @@ class Client(object):
 
         *event*: :class:`ftrack_api.event.base.Event`
         '''
-        '''callback to notify the client with the *event* data'''
         result = event['data']['pipeline']['result']
         status = event['data']['pipeline']['status']
         plugin_name = event['data']['pipeline']['plugin_name']

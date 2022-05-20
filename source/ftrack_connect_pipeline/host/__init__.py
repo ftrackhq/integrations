@@ -69,13 +69,14 @@ class Host(object):
 
     @context_id.setter
     def context_id(self, value):
+        '''Set the context id to *value* and send event to clients (through host connections)'''
         if value == self.context_id:
             return
         os.environ['FTRACK_CONTEXTID'] = value
         self.logger.warning(
             'ftrack host context is now: {}'.format(self.context_id)
         )
-        self._change_ftrack_context_id()
+        self._change_host_context_id()
 
     @property
     def host_id(self):
@@ -320,7 +321,7 @@ class Host(object):
             event,
         )
 
-    def _change_ftrack_context_id(self):
+    def _change_host_context_id(self):
         '''The context has been changed by user, send an event to picked up by clients.'''
         event = ftrack_api.event.base.Event(
             topic=constants.PIPELINE_HOST_CONTEXT_CHANGE,

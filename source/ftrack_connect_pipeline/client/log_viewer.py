@@ -11,8 +11,8 @@ class LogViewerClient(client.Client):
     Log Viewer Client Base Class
     '''
 
-    definition_filter = core_constants.LOG_VIEWER
-    '''Use only definitions that matches the definition_filter'''
+    definition_filters = [core_constants.LOG_VIEWER]
+    '''Use only definitions that matches the definition_filters'''
 
     def __init__(self, event_manager):
         '''

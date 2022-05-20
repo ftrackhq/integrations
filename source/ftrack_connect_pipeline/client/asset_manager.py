@@ -10,8 +10,8 @@ class AssetManagerClient(Client):
     Asset Manager Client Base Class
     '''
 
-    definition_filter = core_constants.ASSET_MANAGER
-    '''Use only definitions that matches the definition_filter'''
+    definition_filters = [core_constants.ASSET_MANAGER]
+    '''Use only definitions that matches the definition_filters'''
 
     def __init__(self, event_manager):
         '''Initialise AssetManagerClient with instance of
@@ -26,7 +26,7 @@ class AssetManagerClient(Client):
         self.schemas = [
             schema
             for schema in self.host_connection.definitions['schema']
-            if schema.get('title').lower() == self.definition_filter
+            if schema.get('title').lower() in self.definition_filters
         ]
 
         # Only one schema available for now, we Don't have a schema selector
@@ -63,6 +63,8 @@ class AssetManagerClient(Client):
 
         *resolve_dependencies_callback* : Callback function that should take the result
         as argument.
+
+        *options* : The options to supply to the plugin.
         '''
 
         resolver_plugin = self.resolver_plugins[0]

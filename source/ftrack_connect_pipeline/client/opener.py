@@ -10,7 +10,7 @@ class OpenerClient(client.Client):
     Opener Client Base Class
     '''
 
-    definition_filter = constants.OPENER
+    definition_filters = [constants.OPENER]
 
     def __init__(self, event_manager):
         '''
