@@ -291,7 +291,7 @@ class Host(object):
         ''' Listen to context change events for this host and its connected clients'''
         self.session.event_hub.subscribe(
             'topic={} and data.pipeline.host_id={}'.format(
-                constants.PIPELINE_CONTEXT_CHANGE, self._host_id
+                constants.PIPELINE_HOST_CONTEXT_CHANGE, self._host_id
             ),
             self._ftrack_context_id_changed,
         )
@@ -323,7 +323,7 @@ class Host(object):
     def _change_ftrack_context_id(self):
         '''The context has been changed by user, send an event to picked up by clients.'''
         event = ftrack_api.event.base.Event(
-            topic=constants.PIPELINE_CONTEXT_CHANGE,
+            topic=constants.PIPELINE_HOST_CONTEXT_CHANGE,
             data={
                 'pipeline': {'host_id': self.id, 'context_id': self.context_id}
             },

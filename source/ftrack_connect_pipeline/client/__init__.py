@@ -32,18 +32,6 @@ class HostConnection(object):
             return
         self._context_id = value
         self._change_ftrack_context_id()
-        if self.context_changed:
-            self.context_changed(self.context_id)
-
-    @property
-    def context_changed(self):
-        '''Return the context change callback function'''
-        return self._context_changed
-
-    @context_changed.setter
-    def context_changed(self, value):
-        '''Set the context change callback function to *value*'''
-        self._context_changed = value
 
     @property
     def event_manager(self):
@@ -160,14 +148,13 @@ class HostConnection(object):
         self.logger = logging.getLogger(
             '{0}.{1}'.format(__name__, self.__class__.__name__)
         )
-        self._context_changed = None
 
         copy_data = copy.deepcopy(host_data)
 
         self._event_manager = event_manager
         self._raw_host_data = copy_data
         self._context_id = self._raw_host_data.get('context_id')
-        self.subscribe_context_change()
+        self.subscribe_host_context_change()
 
     def run(self, data, engine, callback=None):
         '''
@@ -203,11 +190,25 @@ class HostConnection(object):
             event,
         )
 
+    def subscribe_host_context_change(self):
+        '''Have host connection subscribe to context change events, to be able
+        to notify client'''
+        self.session.event_hub.subscribe(
+            'topic={} and data.pipeline.host_id={}'.format(
+                constants.PIPELINE_HOST_CONTEXT_CHANGE, self.id
+            ),
+            self._ftrack_host_context_id_changed,
+        )
+
+    def _ftrack_host_context_id_changed(self, event):
+        '''Set the new context ID based on data provided in *event*'''
+        self.context_id = event['data']['pipeline']['context_id']
+
     def _change_ftrack_context_id(self):
-        '''The context has been changed, send an event to picked up
-        by host and clients (through host connections).'''
+        '''The context has been changed, send events'''
+        #  Send an remote mode event to be picked up by host and other host connections.
         event = ftrack_api.event.base.Event(
-            topic=constants.PIPELINE_CONTEXT_CHANGE,
+            topic=constants.PIPELINE_HOST_CONTEXT_CHANGE,
             data={
                 'pipeline': {'host_id': self.id, 'context_id': self.context_id}
             },
@@ -215,20 +216,16 @@ class HostConnection(object):
         self.event_manager.publish(
             event,
         )
-
-    def subscribe_context_change(self):
-        '''Have host connection subscribe to context change events, to be able
-        to notify client'''
-        self.session.event_hub.subscribe(
-            'topic={} and data.pipeline.host_id={}'.format(
-                constants.PIPELINE_CONTEXT_CHANGE, self.id
-            ),
-            self._ftrack_context_id_changed,
+        #  Send an local event to be picked up by host and other host connections.
+        event = ftrack_api.event.base.Event(
+            topic=constants.PIPELINE_CLIENT_CONTEXT_CHANGE,
+            data={
+                'pipeline': {'host_id': self.id, 'context_id': self.context_id}
+            },
         )
-
-    def _ftrack_context_id_changed(self, event):
-        '''Set the new context ID based on data provided in *event*'''
-        self.context_id = event['data']['pipeline']['context_id']
+        self.event_manager.publish(
+            event,
+        )
 
 
 class Client(object):
@@ -242,6 +239,11 @@ class Client(object):
     '''Use only definitions that matches the definition_filter'''
     definition_extensions_filter = None
     '''(Open) Only show definitions and components capable of accept these filename extensions. '''
+
+    _host_connection = None
+    '''The singleton host connection used by all clients within the process space / DCC'''
+    _host_connections = []
+    '''The list of discovered host connections'''
 
     def __repr__(self):
         return '<Client:{0}>'.format(self.ui_types)
@@ -289,7 +291,7 @@ class Client(object):
     @property
     def host_connections(self):
         '''Return the current list of host_connections'''
-        return self._host_connections
+        return Client._host_connections
 
     @property
     def host_connection(self):
@@ -297,7 +299,7 @@ class Client(object):
         Return instance of
         :class:`~ftrack_connect_pipeline.client.HostConnection`
         '''
-        return self._host_connection
+        return Client._host_connection
 
     @host_connection.setter
     def host_connection(self, value):
@@ -307,15 +309,15 @@ class Client(object):
         *host_connection* : should be instance of
         :class:`~ftrack_connect_pipeline.client.HostConnection`
         '''
-        if value is None or value == self.host_connection:
+        if value is None or (
+            self.host_connection and value.id == self.host_connection.id
+        ):
             return
 
         self.logger.debug('host connection: {}'.format(value))
-        if self.host_connection:
-            self.host_connection.context_changed = None
-        self._host_connection = value
-        self.host_connection.context_changed = self.on_context_changed
+        Client._host_connection = value
         self.on_client_notification()
+        self.subscribe_client_context_change()
         self.on_host_changed(self.host_connection)
         self.on_context_changed(self.host_connection.context_id)
 
@@ -358,10 +360,8 @@ class Client(object):
         :class:`~ftrack_connect_pipeline.event.EventManager`
         '''
         self._current = {}
-
-        self._host_connections = []
+        self.context_change_subscribe_id = None
         self._connected = False
-        self._host_connection = None
         self._logs = None
         self._schema = None
         self._definition = None
@@ -411,7 +411,7 @@ class Client(object):
         with the callback
         py:meth:`~ftrack_connect_pipeline.client._host_discovered`
         '''
-        self._host_connections = []
+        Client._host_connections = []  # Start over
         discover_event = ftrack_api.event.base.Event(
             topic=constants.PIPELINE_DISCOVER_HOST
         )
@@ -436,7 +436,7 @@ class Client(object):
             and host_connection not in self.host_connections
             and self.do_consider_host(host_connection)
         ):
-            self._host_connections.append(host_connection)
+            Client._host_connections.append(host_connection)
 
         self._connected = True
 
@@ -471,6 +471,23 @@ class Client(object):
         pass
 
     # Context
+
+    def subscribe_client_context_change(self):
+        '''Have host connection subscribe to context change events, to be able
+        to notify client'''
+        if self.context_change_subscribe_id:
+            self.session.unsubscribe(self.context_change_subscribe_id)
+        self.context_change_subscribe_id = self.session.event_hub.subscribe(
+            'topic={} and data.pipeline.host_id={}'.format(
+                constants.PIPELINE_CLIENT_CONTEXT_CHANGE,
+                self.host_connection.id,
+            ),
+            self._ftrack_client_context_id_changed,
+        )
+
+    def _ftrack_client_context_id_changed(self, event):
+        '''Set the new context ID based on data provided in *event*'''
+        self.on_context_changed(event['data']['pipeline']['context_id'])
 
     def on_context_changed(self, context_id):
         '''Called when the context has been set or changed within the host connection, either from this
