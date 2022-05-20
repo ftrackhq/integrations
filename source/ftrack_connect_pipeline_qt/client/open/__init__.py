@@ -168,9 +168,9 @@ class QtOpenerClient(OpenerClient, dialog.Dialog):
 
     def on_host_changed(self, host_connection):
         '''Triggered when client has set host connection'''
-        if self.definition_filter:
-            self.definition_selector.definition_title_filter = (
-                self.definition_filter
+        if self.definition_filters:
+            self.definition_selector.definition_title_filters = (
+                self.definition_filters
             )
         if self.definition_extensions_filter:
             self.definition_selector.definition_extensions_filter = (

@@ -37,9 +37,9 @@ class QtAssetManagerClient(AssetManagerClient, QtWidgets.QFrame):
 
     assetsDiscovered = (
         QtCore.Signal()
-    )  # Emitted when assets has been discovered and loaded
+    )  # Assets has been discovered and loaded
 
-    selectionUpdated = QtCore.Signal(object)
+    selectionUpdated = QtCore.Signal(object) # Selection has changed
 
     def __init__(
         self,
@@ -48,11 +48,16 @@ class QtAssetManagerClient(AssetManagerClient, QtWidgets.QFrame):
         is_assembler=False,
         parent=None,
     ):
-        '''Initialise AssetManagerClient with instance of
-        :class:`~ftrack_connect_pipeline.event.EventManager`
+        '''Initialise AssetManagerClient
 
-        Due to the Maya panel behaviour, we have to use *parent_window*
-        instead of *parent*.
+        :*event_manager*: : instance of :class:`~ftrack_connect_pipeline.event.EventManager`
+
+        :*asset_list_model*: : instance of :class:`~ftrack_connect_pipeline_qt.ui.asset_manager.model.AssetListModel`
+
+        :*is_assembler*: : if True, the asset manager is docked inside the assembler
+
+        :*parent*: : The parent window
+
         '''
         self._asset_list_model = asset_list_model
 
@@ -72,7 +77,6 @@ class QtAssetManagerClient(AssetManagerClient, QtWidgets.QFrame):
                 qt_constants.MAIN_FRAMEWORK_WIDGET, self.__class__.__name__
             )
         )
-        # self.setStyleSheet('background-color: red;')
 
         self.pre_build()
         self.build()
@@ -89,6 +93,7 @@ class QtAssetManagerClient(AssetManagerClient, QtWidgets.QFrame):
         return 'default' if not self.is_assembler else 'transparent'
 
     def is_docked(self):
+        '''Return True if widget is docked and should have corresponding style'''
         return not self.is_assembler
 
     # Build
@@ -185,7 +190,7 @@ class QtAssetManagerClient(AssetManagerClient, QtWidgets.QFrame):
     # Host
 
     def on_hosts_discovered(self, host_connections):
-        '''(Override)'''
+        '''(Override) Host(s) have been discovered, add to host selector'''
         self.host_selector.add_hosts(host_connections)
 
     def on_host_changed(self, host_connection):
@@ -214,7 +219,7 @@ class QtAssetManagerClient(AssetManagerClient, QtWidgets.QFrame):
     # Context
 
     def on_context_changed(self, context_id):
-        '''Context has been set in context selector'''
+        '''(Override) Context has been evaluated'''
         if not self.is_assembler:
             self.context_selector.context_id = context_id
 

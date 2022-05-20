@@ -21,12 +21,12 @@ class DefinitionSelectorBase(QtWidgets.QWidget):
     refreshed = QtCore.Signal()
 
     @property
-    def definition_title_filter(self):
-        return self._definition_title_filter
+    def definition_title_filters(self):
+        return self._definition_title_filters
 
-    @definition_title_filter.setter
-    def definition_title_filter(self, value):
-        self._definition_title_filter = value
+    @definition_title_filters.setter
+    def definition_title_filters(self, value):
+        self._definition_title_filters = value
 
     @property
     def definition_extensions_filter(self):
@@ -57,7 +57,7 @@ class DefinitionSelectorBase(QtWidgets.QWidget):
 
         self._host_connection = None
         self.schemas = None
-        self._definition_title_filter = None
+        self._definition_title_filters = None
         self._definition_extensions_filter = None
         self.definitions = []
 
@@ -115,8 +115,8 @@ class DefinitionSelectorBase(QtWidgets.QWidget):
             return
         for schema in self.schemas:
             schema_title = schema.get('title').lower()
-            if self._definition_title_filter:
-                if schema_title != self._definition_title_filter:
+            if self._definition_title_filters:
+                if not schema_title in self._definition_title_filters:
                     continue
             items = self._host_connection.definitions.get(schema_title)
             self.definitions = items
@@ -224,8 +224,8 @@ class OpenerDefinitionSelector(DefinitionSelectorBase):
 
         for schema in self.schemas:
             schema_title = schema.get('title').lower()
-            if self._definition_title_filter:
-                if schema_title != self._definition_title_filter:
+            if self._definition_title_filters:
+                if not schema_title in self._definition_title_filters:
                     continue
             items = self._host_connection.definitions.get(schema_title)
             self.definitions = items
@@ -315,7 +315,7 @@ class OpenerDefinitionSelector(DefinitionSelectorBase):
                                     str_version(asset_version)
                                 )
                             )
-                if not self._definition_title_filter:
+                if not self._definition_title_filters:
                     text = '{} - {}'.format(
                         schema.get('title'), item.get('name')
                     )
@@ -433,8 +433,8 @@ class PublisherDefinitionSelector(DefinitionSelectorBase):
 
         for schema in self.schemas:
             schema_title = schema.get('title').lower()
-            if self._definition_title_filter:
-                if schema_title != self._definition_title_filter:
+            if self._definition_title_filters:
+                if not schema_title in self._definition_title_filters:
                     continue
             items = self._host_connection.definitions.get(schema_title)
             self.definitions = items
@@ -447,7 +447,7 @@ class PublisherDefinitionSelector(DefinitionSelectorBase):
                 text = '{}'.format(' '.join(item.get('name').split(' ')[:-1]))
                 component_names_filter = None  # Outlined openable components
 
-                if not self._definition_title_filter:
+                if not self._definition_title_filters:
                     text = '{} - {}'.format(
                         schema.get('title'), item.get('name')
                     )
