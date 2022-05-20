@@ -271,13 +271,6 @@ class BaseEngine(object):
             event,
         )
 
-    def run_definition(self, data):
-        '''
-        Returns a :exc:`NotImplementedError`.
-        '''
-
-        raise (NotImplementedError)
-
     def run(self, data):
         '''
         Executes the :meth:`_run_plugin` with the provided *data*.
@@ -599,6 +592,7 @@ class BaseEngine(object):
 
         context_data = None
         components_output = []
+        finalizers_output = []
         for step_group in constants.STEP_GROUPS:
             group_steps = data[step_group]
             group_results = []
@@ -707,10 +701,10 @@ class BaseEngine(object):
                                 component_stage
                             )
                     i += 1
+            elif step_group == constants.FINALIZERS:
+                finalizers_output = group_results
 
-        # TODO: maybe we could be returning the finalizers_result? or maybe not
-        # needed and just add it to a log or pass it to the notify client
-        return True
+        return finalizers_output or True
 
 
 from ftrack_connect_pipeline.host.engine.publish import *
