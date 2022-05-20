@@ -16,7 +16,7 @@ import nuke
 import nukescripts
 
 from ftrack_connect_pipeline.utils import (
-    get_snapshot_save_path,
+    get_save_path,
 )
 from ftrack_connect_pipeline_nuke.constants import asset as asset_const
 
@@ -227,15 +227,13 @@ def save(context_id, session):
     '''Save snapshot script locally, with the next version number based on latest version
     in ftrack.'''
 
-    snapshot_path, message = get_snapshot_save_path(
-        context_id, session, extension='.nk'
-    )
+    save_path, message = get_save_path(context_id, session, extension='.nk')
 
-    if snapshot_path is None:
+    if save_path is None:
         return (False, message)
 
-    nuke.scriptSaveAs(snapshot_path, overwrite=1)
-    message = 'Saved Nuke script @ "{}"'.format(snapshot_path)
-    result = snapshot_path
+    nuke.scriptSaveAs(save_path, overwrite=1)
+    message = 'Saved Nuke script @ "{}"'.format(save_path)
+    result = save_path
 
     return result, message
