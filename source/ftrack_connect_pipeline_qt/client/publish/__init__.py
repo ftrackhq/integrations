@@ -31,10 +31,6 @@ class QtPublisherClient(PublisherClient, QtWidgets.QFrame):
     '''
 
     ui_types = [client_constants.UI_TYPE, qt_constants.UI_TYPE]
-    _shown = (
-        False  # Flag telling if widget has been shown before and needs refresh
-    )
-    scroll = None  # Main content scroll pane
 
     def __init__(self, event_manager, parent=None):
         QtWidgets.QFrame.__init__(self, parent=parent)
@@ -49,7 +45,8 @@ class QtPublisherClient(PublisherClient, QtWidgets.QFrame):
         )
         self.is_valid_asset_name = False
         self.open_assembler_button = None
-        self.scroll = None
+        self._shown = False  # Flag telling if widget has been shown before and needs refresh
+        self.scroll = None  # Main content scroll pane
 
         set_theme(self, get_theme())
         if self.get_theme_background_style():
@@ -65,7 +62,10 @@ class QtPublisherClient(PublisherClient, QtWidgets.QFrame):
         self.build()
         self.post_build()
 
-        self.discover_hosts()
+        if not self.host_connections:
+            self.discover_hosts()
+        elif self.host_connection:
+            self.on_context_changed(self.host_connection.context_id)
 
         self.setWindowTitle('Standalone Pipeline Publisher')
 
@@ -90,7 +90,7 @@ class QtPublisherClient(PublisherClient, QtWidgets.QFrame):
             self.progress_widget.widget
         )
 
-        self.host_selector = host_selector.HostSelector()
+        self.host_selector = host_selector.HostSelector(self)
         self.layout().addWidget(self.host_selector)
 
         self.layout().addWidget(line.Line(style='solid', parent=self))

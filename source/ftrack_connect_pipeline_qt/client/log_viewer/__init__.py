@@ -72,7 +72,8 @@ class QtLogViewerClient(LogViewerClient, dialog.Dialog):
         self.build()
         self.post_build()
 
-        self.discover_hosts()
+        if not self.host_connections:
+            self.discover_hosts()
 
     def get_theme_background_style(self):
         return 'ftrack'
@@ -101,7 +102,7 @@ class QtLogViewerClient(LogViewerClient, dialog.Dialog):
         self.header = header.Header(self.session, parent=self.parent())
         self.layout().addWidget(self.header)
 
-        self.host_selector = host_selector.HostSelector()
+        self.host_selector = host_selector.HostSelector(self)
         self.layout().addWidget(self.host_selector)
 
         # Add tabbed pane

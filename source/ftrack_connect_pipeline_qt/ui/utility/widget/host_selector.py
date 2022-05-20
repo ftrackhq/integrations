@@ -13,7 +13,14 @@ class HostSelector(QtWidgets.QWidget):
     def host_connection(self):
         return self.host_combobox.itemData(self.host_combobox.currentIndex())
 
-    def __init__(self, parent=None):
+    @host_connection.setter
+    def host_connection(self, value):
+        for index in range(self.host_combobox.count()):
+            if self.host_combobox.itemData(index) == value:
+                self.host_combobox.setCurrentIndex(index)
+                break
+
+    def __init__(self, client, parent=None):
         '''Initialize DefinitionSelector widget'''
         super(HostSelector, self).__init__(parent=parent)
         self.logger = logging.getLogger(
@@ -22,6 +29,11 @@ class HostSelector(QtWidgets.QWidget):
         self.pre_build()
         self.build()
         self.post_build()
+
+        if client.host_connections:
+            self.add_hosts(client.host_connections)
+            if client.host_connection:
+                self.host_connection = client.host_connection
 
     def pre_build(self):
         self.setLayout(QtWidgets.QHBoxLayout())

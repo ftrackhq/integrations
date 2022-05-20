@@ -48,10 +48,6 @@ class QtLoaderClient(LoaderClient):
     '''
 
     ui_types = [client_constants.UI_TYPE, qt_constants.UI_TYPE]
-    _shown = (
-        False  # Flag telling if widget has been shown before and needs refresh
-    )
-    scroll = None  # Main content scroll pane
 
     def __init__(self, event_manager):
         super(QtLoaderClient, self).__init__(event_manager)
@@ -70,11 +66,6 @@ class QtAssemblerWidget(QtLoaderClient, dialog.Dialog):
 
     ASSEMBLE_MODE_DEPENDENCIES = 0
     ASSEMBLE_MODE_BROWSE = 1
-    assemble_mode = -1
-    ''' The mode assembler is in - resolve dependencies or manual browse '''
-
-    hard_refresh = True
-    ''' Flag telling assembler that next refresh should include dependency resolve '''
 
     def __init__(self, event_manager, modes, asset_list_model, parent=None):
 
@@ -85,6 +76,14 @@ class QtAssemblerWidget(QtLoaderClient, dialog.Dialog):
 
         self.modes = modes
         self._asset_list_model = asset_list_model
+        self._shown = False
+        ''' Flag telling if widget has been shown before and needs refresh '''
+        self.scroll = None  # Main content scroll pane
+        self.assemble_mode = -1
+        ''' The mode assembler is in - resolve dependencies or manual browse '''
+
+        self.hard_refresh = True
+        ''' Flag telling assembler that next refresh should include dependency resolve '''
 
         set_theme(self, get_theme())
         if self.get_theme_background_style():
@@ -100,7 +99,10 @@ class QtAssemblerWidget(QtLoaderClient, dialog.Dialog):
         self.build()
         self.post_build()
 
-        self.discover_hosts()
+        if not self.host_connections:
+            self.discover_hosts()
+        elif self.host_connection:
+            self.on_context_changed(self.host_connection.context_id)
 
         self.setWindowTitle('ftrack Connect Assembler')
         self.resize(1000, 500)
@@ -229,7 +231,7 @@ class QtAssemblerWidget(QtLoaderClient, dialog.Dialog):
         '''Build assembler widget.'''
 
         # Create the host selector, usually hidden
-        self.host_selector = host_selector.HostSelector()
+        self.host_selector = host_selector.HostSelector(self)
         self.layout().addWidget(self.host_selector)
 
         # Create a splitter and add to client

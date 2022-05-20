@@ -205,11 +205,6 @@ class OpenerDefinitionSelector(DefinitionSelectorBase):
 
     def populate_definitions(self):
         '''Find components that can be opened and add their definitions to combobox'''
-        print(
-            '@@@ definition_selector::populate_definitions; {}'.format(
-                self.schemas
-            )
-        )
         try:
             self._definition_selector.currentIndexChanged.disconnect()
         except:

@@ -34,9 +34,6 @@ class QtAssetManagerClient(AssetManagerClient, QtWidgets.QFrame):
     '''
 
     ui_types = [core_constants.UI_TYPE, qt_constants.UI_TYPE]
-    _shown = (
-        False  # Flag telling if widget has been shown before and needs refresh
-    )
 
     assetsDiscovered = (
         QtCore.Signal()
@@ -63,6 +60,8 @@ class QtAssetManagerClient(AssetManagerClient, QtWidgets.QFrame):
         AssetManagerClient.__init__(self, event_manager)
 
         self.is_assembler = is_assembler
+        self._shown = False
+        ''' Flag telling if widget has been shown before and needs refresh '''
 
         set_theme(self, get_theme())
         if self.get_theme_background_style():
@@ -80,7 +79,10 @@ class QtAssetManagerClient(AssetManagerClient, QtWidgets.QFrame):
         self.post_build()
 
         if not self.is_assembler:
-            self.discover_hosts()
+            if not self.host_connections:
+                self.discover_hosts()
+            elif self.host_connection:
+                self.on_context_changed(self.host_connection.context_id)
 
     def get_theme_background_style(self):
         '''Return the theme background color style. Can be overridden by child.'''
@@ -118,7 +120,7 @@ class QtAssetManagerClient(AssetManagerClient, QtWidgets.QFrame):
                 line.Line(style='solid', parent=self.parent())
             )
 
-            self.host_selector = host_selector.HostSelector()
+            self.host_selector = host_selector.HostSelector(self)
             self.layout().addWidget(self.host_selector)
 
             self.context_selector = ContextSelector(

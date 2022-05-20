@@ -727,7 +727,7 @@ class AssetWidget(AccordionBaseWidget):
                 self._entity_info = EntityInfo(
                     additional_widget=self._component_and_version_widget
                 )
-                self._entity_info.set_entity(version['asset']['parent'])
+                self._entity_info.entity = version['asset']['parent']
                 self._entity_info.setMinimumHeight(100)
                 context_widget.layout().addWidget(self._entity_info, 100)
                 # context_widget.layout().addWidget(QtWidgets.QLabel('Test'))
@@ -804,7 +804,7 @@ class AssetWidget(AccordionBaseWidget):
                                 ' - v{}'.format(dep_version['version'])
                             )
                         )
-                        dep_entity_info.set_entity(version['task'])
+                        dep_entity_info.entity = version['task']
                         dep_entity_info.setMinimumHeight(100)
                         dep_version_widget.layout().addWidget(dep_entity_info)
 

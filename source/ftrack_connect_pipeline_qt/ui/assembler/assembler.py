@@ -269,7 +269,7 @@ class AssemblerBrowserWidget(AssemblerBaseWidget):
 
             if self._entity_browser.entity is None:
                 # First time set
-                self._entity_browser.set_entity(self.get_context())
+                self._entity_browser.entity = self.get_context()
 
             # Create viewport widget, component list with load more button
             widget = QtWidgets.QWidget()
@@ -591,7 +591,7 @@ class DependenciesListWidget(AssemblerListBaseWidget):
                 entity_info = AssemblerEntityInfo()
                 entity_info.setMinimumHeight(40)
                 entity_info.setMaximumHeight(40)
-                entity_info.set_entity(context_entity)
+                entity_info.entity = context_entity
 
                 widget.layout().addWidget(entity_info)
 

@@ -27,6 +27,18 @@ class ContextSelector(QtWidgets.QFrame):
     def entity(self):
         return self._entity
 
+    @entity.setter
+    def entity(self, value):
+        if not value:
+            return
+        do_emit_context_change = self._entity is not None
+        self._entity = value
+        self.entity_info.entity = value
+        self._context_id = value['id']
+        self.set_thumbnail(self._entity)
+        if do_emit_context_change:
+            self.entityChanged.emit(value)
+
     @property
     def context_id(self):
         return self._context_id
@@ -38,7 +50,7 @@ class ContextSelector(QtWidgets.QFrame):
         thread = BaseThread(
             name='context entity thread',
             target=self.find_context_entity,
-            callback=self.set_entity,
+            callback=self.on_entity_found,
             target_args=[value],
         )
         thread.start()
@@ -117,24 +129,12 @@ class ContextSelector(QtWidgets.QFrame):
                     context['name'], context['id']
                 )
             )
-            self.set_entity(context)
+            self.entity = context
 
     def reset(self, entity=None):
         '''Reset browser to the given *entity* or the default one'''
         current_entity = entity or self._entity
-        self.set_entity(current_entity)
-
-    def set_entity(self, entity):
-        '''Set the *entity* for the view.'''
-        if not entity:
-            return
-        do_emit_context_change = self._entity is not None
-        self._entity = entity
-        self.entity_info.set_entity(entity)
-        self._context_id = entity['id']
-        self.set_thumbnail(self._entity)
-        if do_emit_context_change:
-            self.entityChanged.emit(entity)
+        self.entity = current_entity
 
     def find_context_entity(self, context_id):
         context_entity = self.session.query(
@@ -143,12 +143,15 @@ class ContextSelector(QtWidgets.QFrame):
         ).one()
         return context_entity
 
+    def on_entity_found(self, entity):
+        self.entity = entity
+
     def set_context_id(self, context_id):
         if context_id:
             thread = BaseThread(
                 name='context entity thread',
                 target=self.find_context_entity,
-                callback=self.set_entity,
+                callback=self.on_entity_found,
                 target_args=[context_id],
             )
             thread.start()
@@ -156,12 +159,12 @@ class ContextSelector(QtWidgets.QFrame):
     def _on_entity_browse_button_clicked(self):
         '''Handle entity browse button clicked'''
         if self._enble_context_change:
-            self._entity_browser.set_entity(
+            self._entity_browser.entity = (
                 self._entity['parent'] if self._entity else None
             )
             # Launch browser.
             if self._entity_browser.exec_():
-                self.set_entity(self._entity_browser.entity)
+                self.entity = self._entity_browser.entity
         else:
             # Let client decide what to do when user wants to change context
             self.changeContextClicked.emit()

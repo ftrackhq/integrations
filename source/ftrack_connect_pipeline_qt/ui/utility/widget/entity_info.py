@@ -10,9 +10,29 @@ class EntityInfo(QtWidgets.QWidget):
 
     pathReady = QtCore.Signal(object)
 
+    @property
+    def entity(self):
+        return self._entity
+
+    @entity.setter
+    def entity(self, value):
+        '''Set the *entity* for this widget.'''
+        if not value:
+            return
+        self._entity = value
+        parent = value['parent']
+        parents = [value]
+        while parent is not None:
+            parents.append(parent)
+            parent = parent['parent']
+        parents.reverse()
+        self.pathReady.emit(parents)
+
     def __init__(self, additional_widget=None, parent=None):
         '''Instantiate the entity path widget.'''
         super(EntityInfo, self).__init__(parent=parent)
+
+        self._entity = None
 
         self._additional_widget = additional_widget
 
@@ -48,18 +68,6 @@ class EntityInfo(QtWidgets.QWidget):
 
     def post_build(self):
         self.pathReady.connect(self.on_path_ready)
-
-    def set_entity(self, entity):
-        '''Set the *entity* for this widget.'''
-        if not entity:
-            return
-        parent = entity['parent']
-        parents = [entity]
-        while parent is not None:
-            parents.append(parent)
-            parent = parent['parent']
-        parents.reverse()
-        self.pathReady.emit(parents)
 
     def on_path_ready(self, parents):
         '''Set current path to *names*.'''

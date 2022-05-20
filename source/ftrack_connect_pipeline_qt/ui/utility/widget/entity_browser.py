@@ -55,6 +55,21 @@ class EntityBrowser(dialog.ModalDialog):
     def entity(self):
         return self._entity
 
+    @entity.setter
+    def entity(self, value):
+        if self.working:
+            return
+        prev_entity = self._entity
+        self._entity = value
+        self.set_intermediate_entity(value)
+        if self._external_navigator is not None:
+            self._external_navigator.refreshNavigator.emit()
+        if (value or {}).get('id') != (prev_entity or {}).get('id'):
+            if prev_entity is not None:
+                self.entityChanged.emit(value)
+            if self.isVisible():
+                self.rebuildEntityBrowser.emit()
+
     @property
     def entity_id(self):
         return self._entity['id'] if self._entity else None
@@ -95,7 +110,7 @@ class EntityBrowser(dialog.ModalDialog):
         )
 
         if entity:
-            self.set_entity(entity)
+            self.entity = entity
 
     def pre_build(self):
         super(EntityBrowser, self).pre_build()
@@ -181,20 +196,6 @@ class EntityBrowser(dialog.ModalDialog):
         self._external_navigator.refreshNavigator.emit()
         return self._external_navigator
 
-    def set_entity(self, entity):
-        if self.working:
-            return
-        prev_entity = self._entity
-        self._entity = entity
-        self.set_intermediate_entity(entity)
-        if self._external_navigator is not None:
-            self._external_navigator.refreshNavigator.emit()
-        if (entity or {}).get('id') != (prev_entity or {}).get('id'):
-            if prev_entity is not None:
-                self.entityChanged.emit(entity)
-            if self.isVisible():
-                self.rebuildEntityBrowser.emit()
-
     def set_intermediate_entity(self, entity=None):
         if self.working:
             return
@@ -221,7 +222,7 @@ class EntityBrowser(dialog.ModalDialog):
     def _set_parent_entity(self, entity):
         if self.working:
             return
-        self.set_entity(entity['parent'] if entity else None)
+        self.entity = entity['parent'] if entity else None
 
     def show(self):
         '''Show dialog, on the entity supplied'''
@@ -419,7 +420,7 @@ class EntityBrowser(dialog.ModalDialog):
         '''Set the immediate entity and close dialog'''
         if self.working:
             return
-        self.set_entity(self._selected_entity)
+        self.entity = self._selected_entity
         self.done(1)
 
 

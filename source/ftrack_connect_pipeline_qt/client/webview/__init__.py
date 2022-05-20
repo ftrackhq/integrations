@@ -39,7 +39,10 @@ class QtWebViewClient(Client, dialog.Dialog):
         self.build()
         self.post_build()
 
-        self.discover_hosts()
+        if not self.host_connections:
+            self.discover_hosts()
+        elif self.host_connection:
+            self.on_context_changed(self.host_connection.context_id)
 
         self.resize(500, 600)
 
@@ -51,7 +54,7 @@ class QtWebViewClient(Client, dialog.Dialog):
 
     def pre_build(self):
         self._header = header.Header(self.session, parent=self.parent())
-        self.host_selector = host_selector.HostSelector()
+        self.host_selector = host_selector.HostSelector(self)
         self._web_engine_view = QtWebEngineWidgets.QWebEngineView(
             parent=self.parent()
         )
@@ -78,7 +81,6 @@ class QtWebViewClient(Client, dialog.Dialog):
 
     def on_context_changed(self, context_id):
         '''Context has been set in context selector'''
-        print('@@@ webview::on_context_changed({})'.format(context_id))
         self._context = self.session.query(
             'Task where id={}'.format(context_id)
         ).one()

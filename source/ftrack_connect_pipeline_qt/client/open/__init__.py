@@ -34,10 +34,6 @@ class QtOpenerClient(OpenerClient, dialog.Dialog):
     '''
 
     ui_types = [core_constants.UI_TYPE, qt_constants.UI_TYPE]
-    _shown = (
-        False  # Flag telling if widget has been shown before and needs refresh
-    )
-    scroll = None  # Main content scroll pane
 
     def __init__(
         self, event_manager, definition_extensions_filter=None, parent=None
@@ -55,6 +51,8 @@ class QtOpenerClient(OpenerClient, dialog.Dialog):
             parent=self.parent(),
         )
         self.open_assembler_button = None
+        self._shown = False  # Flag telling if widget has been shown before and needs refresh
+        self.scroll = None  # Main content scroll pane
 
         set_theme(self, get_theme())
         if self.get_theme_background_style():
@@ -70,7 +68,10 @@ class QtOpenerClient(OpenerClient, dialog.Dialog):
         self.build()
         self.post_build()
 
-        self.discover_hosts()
+        if not self.host_connections:
+            self.discover_hosts()
+        elif self.host_connection:
+            self.on_context_changed(self.host_connection.context_id)
 
         self.setWindowTitle('ftrack Open')
         self.resize(450, 530)
@@ -99,7 +100,7 @@ class QtOpenerClient(OpenerClient, dialog.Dialog):
             self.progress_widget.widget
         )
 
-        self.host_selector = host_selector.HostSelector()
+        self.host_selector = host_selector.HostSelector(self)
         self.layout().addWidget(self.host_selector)
 
         self.layout().addWidget(line.Line(style='solid', parent=self))
@@ -183,7 +184,7 @@ class QtOpenerClient(OpenerClient, dialog.Dialog):
         '''Context has been set in context selector, change working context.'''
         if self.host_connection:
             # Send context id to host and other listening clients
-            self.host_connection.context_id = context
+            self.host_connection.context_id = context['id']
 
     def on_context_changed(self, contexts_id):
         '''Override'''

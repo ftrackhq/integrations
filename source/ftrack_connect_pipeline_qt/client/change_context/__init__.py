@@ -25,7 +25,10 @@ class QtChangeContextClient(Client):
 
         self.pre_build()
 
-        self.discover_hosts()
+        if not self.host_connections:
+            self.discover_hosts()
+        elif self.host_connection:
+            self.on_context_changed(self.host_connection.context_id)
 
     def pre_build(self):
         self.entity_browser = EntityBrowser(
@@ -51,7 +54,8 @@ class QtChangeContextClient(Client):
         self.entity_browser.entity_id = self.context_id
         self.entity_browser.setMinimumWidth(600)
         if self.entity_browser.exec_():
-            self.change_ftrack_context_id(self.entity_browser.entity)
+            self.change_ftrack_context_id(self.entity_browser.entity['id'])
 
     def change_ftrack_context_id(self, context_id):
+        '''A new context has been chose, store it in host and tell other clients'''
         self.host_connection.context_id = context_id

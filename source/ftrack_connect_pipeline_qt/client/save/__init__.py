@@ -9,6 +9,8 @@ from PySide2 import (
 
 from ftrack_connect_pipeline.client import Client
 
+from ftrack_connect_pipeline_qt.ui.utility.widget import dialog
+
 
 class QtSaveClient(Client, QtWidgets.QWidget):
     '''Web widget viewer client base - a dialog for rendering web content within
@@ -17,7 +19,8 @@ class QtSaveClient(Client, QtWidgets.QWidget):
     def __init__(self, event_manager, unused_asset_list_model):
         Client.__init__(self, event_manager)
 
-        self.discover_hosts()
+        if not self.host_connections:
+            self.discover_hosts()
 
     # Host
 
