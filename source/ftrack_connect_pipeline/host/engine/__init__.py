@@ -704,7 +704,7 @@ class BaseEngine(object):
             elif step_group == constants.FINALIZERS:
                 finalizers_output = group_results
 
-        return finalizers_output or True
+        return finalizers_output
 
 
 from ftrack_connect_pipeline.host.engine.publish import *
