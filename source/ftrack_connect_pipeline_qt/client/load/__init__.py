@@ -31,7 +31,7 @@ from ftrack_connect_pipeline_qt.ui.utility.widget.context_selector import (
 from ftrack_connect_pipeline_qt.utils import clear_layout
 
 from ftrack_connect_pipeline_qt.client.asset_manager import (
-    QtAssetManagerClient,
+    QtAssetManagerClientWidget,
 )
 from ftrack_connect_pipeline_qt.ui.assembler.assembler import (
     AssemblerDependenciesWidget,
@@ -54,7 +54,7 @@ class QtLoaderClient(LoaderClient):
         self.logger.debug('start qt loader')
 
 
-class QtAssemblerWidget(QtLoaderClient, dialog.Dialog):
+class QtAssemblerClientWidget(QtLoaderClient, dialog.Dialog):
     '''Compound client dialog containing the assembler based on loader with the asset manager docked'''
 
     assembler_match_extension = (
@@ -124,7 +124,7 @@ class QtAssemblerWidget(QtLoaderClient, dialog.Dialog):
         self.header = header.Header(self.session, parent=self.parent())
         self.header.setMinimumHeight(50)
         # Create and add the asset manager client
-        self.asset_manager = QtAssetManagerClient(
+        self.asset_manager = QtAssetManagerClientWidget(
             self.event_manager,
             self._asset_list_model,
             is_assembler=True,
@@ -366,7 +366,7 @@ class QtAssemblerWidget(QtLoaderClient, dialog.Dialog):
 
     def reset(self):
         '''Assembler is shown again after being hidden.'''
-        super(QtAssemblerWidget, self).reset()
+        super(QtAssemblerClientWidget, self).reset()
         self.asset_manager.asset_manager_widget.rebuild.emit()
         self._assembler_widget.reset()
         self.progress_widget.hide_widget()

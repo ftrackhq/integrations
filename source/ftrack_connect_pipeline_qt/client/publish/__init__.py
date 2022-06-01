@@ -24,19 +24,28 @@ from ftrack_connect_pipeline_qt.ui.utility.widget.context_selector import (
     ContextSelector,
 )
 
-
-class QtPublisherClient(PublisherClient, QtWidgets.QFrame):
+class QtPublisherClient(PublisherClient):
     '''
-    Publish widget class.
+    Publisher client class.
     '''
 
     ui_types = [client_constants.UI_TYPE, qt_constants.UI_TYPE]
 
+    def __init__(self, event_manager):
+        super(QtPublisherClient, self).__init__(event_manager)
+        self.logger.debug('start qt publisher')
+
+
+class QtPublisherClientWidget(QtPublisherClient, QtWidgets.QFrame):
+    '''
+    Publish widget class.
+    '''
+
     def __init__(self, event_manager, parent=None):
         QtWidgets.QFrame.__init__(self, parent=parent)
-        PublisherClient.__init__(self, event_manager)
+        QtPublisherClient.__init__(self, event_manager)
 
-        self.logger.debug('start qt publisher')
+        self.logger.debug('start qt publisher widget')
 
         self.widget_factory = PublisherWidgetFactory(
             self.event_manager,
@@ -197,7 +206,7 @@ class QtPublisherClient(PublisherClient, QtWidgets.QFrame):
             self.definition_changed(None, 0)
             return
 
-        super(QtPublisherClient, self).change_definition(schema, definition)
+        super(QtPublisherClientWidget, self).change_definition(schema, definition)
 
         asset_type_name = definition['asset_type']
 

@@ -3,16 +3,12 @@
 
 from Qt import QtCore, QtWidgets
 
-from PySide2 import (
-    QtWebEngineWidgets,
-)  # Qt.py does not provide QtWebEngineWidgets
-
 from ftrack_connect_pipeline.client import Client
 
 from ftrack_connect_pipeline_qt.ui.utility.widget import dialog
 
 
-class QtSaveClient(Client, QtWidgets.QWidget):
+class QtSaveClientWidget(Client, QtWidgets.QWidget):
     '''Web widget viewer client base - a dialog for rendering web content within
     framework'''
 

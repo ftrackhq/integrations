@@ -39,7 +39,7 @@ from ftrack_connect_pipeline_qt.client import (
     log_viewer,
 )
 
-pub_client_connection = publish.QtPublisherClient(event_manager)
+pub_client_connection = publish.QtPublisherClientWidget(event_manager)
 # load_client_connection = load.QtLoaderClient(event_manager)
 # am_client_connection = asset_manager.QtAssetManagerClient(event_manager)
 # lv_client_connection = log_viewer.QtLogViewerClient(event_manager)

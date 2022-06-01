@@ -13,11 +13,11 @@ from ftrack_connect_pipeline_qt.ui.utility.widget import (
 )
 
 
-class QtChangeContextClient(Client):
+class QtChangeContextClientWidget(Client):
     '''Client for changing the current working context.'''
 
-    def __init__(self, event_manager, unused_asset_list_model):
-        Client.__init__(self, event_manager)
+    def __init__(self, event_manager):
+        super(QtChangeContextClientWidget, self).__init__(event_manager)
         self.logger = logging.getLogger(
             __name__ + '.' + self.__class__.__name__
         )
