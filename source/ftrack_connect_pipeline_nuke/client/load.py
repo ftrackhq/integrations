@@ -12,7 +12,7 @@ import ftrack_connect_pipeline_nuke.constants as nuke_constants
 from ftrack_connect_pipeline_nuke.utils.custom_commands import get_main_window
 
 
-class NukeAssemblerWidget(load.QtAssemblerWidget):
+class NukeQtAssemblerClientWidget(load.QtAssemblerClientWidget):
     '''Nuke assembler dialog'''
 
     ui_types = [
@@ -26,7 +26,7 @@ class NukeAssemblerWidget(load.QtAssemblerWidget):
     )
 
     def __init__(self, event_manager, asset_list_model, parent=None):
-        super(NukeAssemblerWidget, self).__init__(
+        super(NukeQtAssemblerClientWidget, self).__init__(
             event_manager,
             load_const.LOAD_MODES,
             asset_list_model,
@@ -42,5 +42,5 @@ class NukeAssemblerWidget(load.QtAssemblerWidget):
         event.ignore()
 
     def show(self):
-        super(NukeAssemblerWidget, self).conditional_rebuild()
-        super(NukeAssemblerWidget, self).show()
+        super(NukeQtAssemblerClientWidget, self).conditional_rebuild()
+        super(NukeQtAssemblerClientWidget, self).show()

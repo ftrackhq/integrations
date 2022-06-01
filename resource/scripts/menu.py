@@ -143,12 +143,12 @@ def initialise():
 
     widgets = list()
     widgets.append(
-        (core_constants.OPENER, open.NukeOpenerClient, 'Open', 'fileOpen')
+        (core_constants.OPENER, open.NukeQtOpenerClientWidget, 'Open', 'fileOpen')
     )
     widgets.append(
         (
             core_constants.INFO,
-            webview.QtInfoWebViewClient,
+            webview.QtInfoWebViewClientWidget,
             'Info',
             '',
         )
@@ -156,7 +156,7 @@ def initialise():
     widgets.append(
         (
             core_constants.TASKS,
-            webview.QtTasksWebViewClient,
+            webview.QtTasksWebViewClientWidget,
             'My Tasks',
             '',
         )
@@ -164,7 +164,7 @@ def initialise():
     widgets.append(
         (
             core_constants.CHANGE_CONTEXT,
-            change_context.QtChangeContextClient,
+            change_context.QtChangeContextClientWidget,
             'Change context',
             '',
         )
@@ -172,7 +172,7 @@ def initialise():
     widgets.append(
         (
             core_constants.ASSEMBLER,
-            load.NukeAssemblerWidget,
+            load.NukeQtAssemblerClientWidget,
             'Assembler',
             '',
         )
@@ -180,7 +180,7 @@ def initialise():
     widgets.append(
         (
             core_constants.SAVE,
-            save.QtNukeSaveClient,
+            save.NukeQtSaveClientWidget,
             'Save Script',
             '',
         )
@@ -188,7 +188,7 @@ def initialise():
     widgets.append(
         (
             core_constants.ASSET_MANAGER,
-            asset_manager.NukeAssetManagerClient,
+            asset_manager.NukeQtAssetManagerClientWidget,
             'Asset Manager',
             '',
         )
@@ -196,7 +196,7 @@ def initialise():
     widgets.append(
         (
             core_constants.PUBLISHER,
-            publish.NukePublisherClient,
+            publish.NukeQtPublisherClientWidget,
             'Publisher',
             '',
         )
@@ -204,7 +204,7 @@ def initialise():
     widgets.append(
         (
             core_constants.LOG_VIEWER,
-            log_viewer.NukeLogViewerClient,
+            log_viewer.NukeQtLogViewerClientWidget,
             'Log Viewer',
             '',
         )
@@ -212,7 +212,7 @@ def initialise():
     widgets.append(
         (
             core_constants.DOCUMENTATION,
-            documentation.QtDocumentationClient,
+            documentation.QtDocumentationClientWidget,
             'Documentation',
             '',
         )

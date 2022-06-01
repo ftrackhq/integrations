@@ -3,14 +3,14 @@
 
 from Qt import QtWidgets, QtCore
 
-from ftrack_connect_pipeline_qt.client.publish import QtPublisherClient
+from ftrack_connect_pipeline_qt.client.publish import QtPublisherClientWidget
 import ftrack_connect_pipeline.constants as constants
 import ftrack_connect_pipeline_qt.constants as qt_constants
 import ftrack_connect_pipeline_nuke.constants as nuke_constants
 from ftrack_connect_pipeline_nuke.utils.custom_commands import get_main_window
 
 
-class NukePublisherClient(QtPublisherClient):
+class NukeQtPublisherClientWidget(QtPublisherClientWidget):
     ui_types = [
         constants.UI_TYPE,
         qt_constants.UI_TYPE,
@@ -20,7 +20,7 @@ class NukePublisherClient(QtPublisherClient):
     '''Dockable nuke publish widget'''
 
     def __init__(self, event_manager, unused_asset_list_model):
-        super(NukePublisherClient, self).__init__(
+        super(NukeQtPublisherClientWidget, self).__init__(
             event_manager, parent=get_main_window()
         )
         self.setWindowTitle('ftrack Publisher')
@@ -29,5 +29,5 @@ class NukePublisherClient(QtPublisherClient):
         return 'nuke'
 
     def show(self):
-        super(NukePublisherClient, self).conditional_rebuild()
-        super(NukePublisherClient, self).show()
+        super(NukeQtPublisherClientWidget, self).conditional_rebuild()
+        super(NukeQtPublisherClientWidget, self).show()
