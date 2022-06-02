@@ -27,8 +27,18 @@ from ftrack_connect_pipeline_qt.ui.utility.widget.context_selector import (
     ContextSelector,
 )
 
+class QtOpenerClient(OpenerClient):
+    '''
+    QtOpenerClient class.
+    '''
 
-class QtOpenerClient(OpenerClient, dialog.Dialog):
+    ui_types = [core_constants.UI_TYPE, qt_constants.UI_TYPE]
+
+    def __init__(self, event_manager):
+        super(QtOpenerClient, self).__init__(event_manager)
+        self.logger.debug('start qt opener')
+
+class QtOpenerClientWidget(QtOpenerClient, dialog.Dialog):
     '''
     Opener widget class.
     '''
@@ -38,7 +48,7 @@ class QtOpenerClient(OpenerClient, dialog.Dialog):
     def __init__(
         self, event_manager, definition_extensions_filter=None, parent=None
     ):
-        OpenerClient.__init__(self, event_manager)
+        QtOpenerClient.__init__(self, event_manager)
         dialog.Dialog.__init__(self, parent=parent)
 
         self.logger.debug('start qt opener')
@@ -209,7 +219,7 @@ class QtOpenerClient(OpenerClient, dialog.Dialog):
             self.definition_changed(None, 0)
             return
 
-        super(QtOpenerClient, self).change_definition(schema, definition)
+        super(QtOpenerClientWidget, self).change_definition(schema, definition)
 
         asset_type_name = definition['asset_type']
 

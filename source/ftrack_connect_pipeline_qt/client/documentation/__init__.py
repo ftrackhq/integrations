@@ -7,11 +7,11 @@ import platform
 from ftrack_connect_pipeline.client import Client
 
 
-class QtDocumentationClient(Client):
+class QtDocumentationClientWidget(Client):
     '''Client for opening Connect documentation'''
 
-    def __init__(self, event_manager, unused_asset_list_model):
-        super(QtDocumentationClient, self).__init__(event_manager)
+    def __init__(self, event_manager):
+        super(QtDocumentationClientWidget, self).__init__(event_manager)
 
         self.logger = logging.getLogger(
             __name__ + '.' + self.__class__.__name__
