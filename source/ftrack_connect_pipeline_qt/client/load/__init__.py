@@ -55,7 +55,11 @@ class QtLoaderClient(LoaderClient):
 
 
 class QtAssemblerWidget(QtLoaderClient, dialog.Dialog):
-    '''Compound client dialog containing the assembler based on loader with the asset manager docked'''
+    '''
+    Compound client dialog containing the assembler based on loader with the
+    asset manager docked. Designed to ease to the load of dependencies and browsed
+    assets into DCC.
+    '''
 
     assembler_match_extension = (
         False  # Have assembler match on file extension (relaxed)
@@ -64,11 +68,20 @@ class QtAssemblerWidget(QtLoaderClient, dialog.Dialog):
         10  # Amount of assets to fetch at a time within the browser
     )
 
-    ASSEMBLE_MODE_DEPENDENCIES = 0
+    # Assembler modes
+    ASSEMBLE_MODE_DEPENDENCIES = 0  # (Default)
     ASSEMBLE_MODE_BROWSE = 1
 
     def __init__(self, event_manager, modes, asset_list_model, parent=None):
+        '''
+        Initialize the assembler client
 
+        :param event_manager: :class:`~ftrack_connect_pipeline.event.EventManager` instance
+        :param modes: Dictionary containing the load mode mapped functions
+        :param asset_list_model: instance of :class:`~ftrack_connect_pipeline_qt.ui.asset_manager.model.AssetListModel`
+
+        :param parent:
+        '''
         dialog.Dialog.__init__(self, parent=parent)
         QtLoaderClient.__init__(self, event_manager)
 

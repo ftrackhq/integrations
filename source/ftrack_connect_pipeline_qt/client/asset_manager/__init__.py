@@ -35,11 +35,9 @@ class QtAssetManagerClient(AssetManagerClient, QtWidgets.QFrame):
 
     ui_types = [core_constants.UI_TYPE, qt_constants.UI_TYPE]
 
-    assetsDiscovered = (
-        QtCore.Signal()
-    )  # Assets has been discovered and loaded
+    assetsDiscovered = QtCore.Signal()  # Assets has been discovered and loaded
 
-    selectionUpdated = QtCore.Signal(object) # Selection has changed
+    selectionUpdated = QtCore.Signal(object)  # Selection has changed
 
     def __init__(
         self,
@@ -181,10 +179,10 @@ class QtAssetManagerClient(AssetManagerClient, QtWidgets.QFrame):
         if self.is_assembler:
             self._remove_button.clicked.connect(self._remove_assets_clicked)
             self.asset_manager_widget.asset_list.selectionUpdated.connect(
-                self._asset_selection_updated
+                self._on_am_widget_selection_updated
             )
 
-        self.selectionUpdated.connect(self._on_asset_selection_updated)
+        self.selectionUpdated.connect(self._on_am_selection_updated)
         self.setMinimumWidth(300)
 
     # Host
@@ -233,7 +231,7 @@ class QtAssetManagerClient(AssetManagerClient, QtWidgets.QFrame):
         status, message = data
         self.header.setMessage(message, status)
 
-    # Implementation of assetmanager client callbacks
+    # Implementation of asset manager client callbacks
 
     def _reset_asset_list(self):
         '''Empty the :obj:`asset_entities_list`'''
@@ -241,7 +239,7 @@ class QtAssetManagerClient(AssetManagerClient, QtWidgets.QFrame):
 
     def rebuild(self):
         '''
-        Refreshes the ui running the discover_assets()
+        Do a deep refresh of the ui - running the discover_assets() to locate all asset within the DCC
         '''
         if not self.host_connection:
             return
@@ -287,13 +285,16 @@ class QtAssetManagerClient(AssetManagerClient, QtWidgets.QFrame):
         ).start()
 
     def _assets_selected(self, *args):
+        '''Called when asset(s) have been selected'''
         self.asset_manager_widget.stopBusyIndicator.emit()
 
-    def _asset_selection_updated(self, selected_assets):
+    def _on_am_widget_selection_updated(self, selected_assets):
+        '''Called when asset(s) have been selected in the asset manager widget'''
         self.selectionUpdated.emit(selected_assets)
         self.asset_manager_widget.stopBusyIndicator.emit()
 
-    def _on_asset_selection_updated(self, selected_assets):
+    def _on_am_selection_updated(self, selected_assets):
+        '''Called when asset(s) have been selected'''
         if self.is_assembler:
             self._remove_button.setEnabled(len(selected_assets) > 0)
 
@@ -333,6 +334,8 @@ class QtAssetManagerClient(AssetManagerClient, QtWidgets.QFrame):
                 self.asset_manager_widget.refresh.emit()
         finally:
             self.asset_manager_widget.stopBusyIndicator.emit()
+
+    # Update
 
     def _on_update_assets(self, asset_info_list, plugin):
         '''
@@ -449,6 +452,9 @@ class QtAssetManagerClient(AssetManagerClient, QtWidgets.QFrame):
     # Remove
 
     def _remove_assets_clicked(self):
+        '''
+        Triggered when remove action is clicked on the ui.
+        '''
         selection = self.asset_manager_widget.asset_list.selection()
         if self.asset_manager_widget.check_selection(selection):
             if ModalDialog(
@@ -494,32 +500,24 @@ class QtAssetManagerClient(AssetManagerClient, QtWidgets.QFrame):
             self.asset_manager_widget.stopBusyIndicator.emit()
 
     def conditional_rebuild(self):
-        '''(Override)'''
+        '''Colled when the ui are shown'''
         if self._shown:
             # Refresh when re-opened
             self.asset_manager_widget.rebuild.emit()
         self._shown = True
 
-    def _clear_widget(self):
-        if self.scroll and self.scroll.widget():
-            self.scroll.widget().deleteLater()
-
     def mousePressEvent(self, event):
+        '''(Override) Intercept mouse press event'''
         if event.button() != QtCore.Qt.RightButton:
             self.asset_manager_widget.asset_list.clear_selection()
         return super(QtAssetManagerClient, self).mousePressEvent(event)
 
-    def _launch_assembler(self):
-        '''Open the assembler and close client if dialog'''
-        if not self.is_docked():
-            self.hide()
-        self.host_connection.launch_widget(core_constants.ASSEMBLER)
-
     def _launch_publisher(self):
+        '''Called when the publisher button is pressed'''
         if not self.is_docked():
             self.hide()
         self.host_connection.launch_widget(core_constants.PUBLISHER)
 
     def _launch_context_selector(self):
-        '''Open entity browser.'''
+        '''Open entity browser'''
         self.host_connection.launch_widget(core_constants.CHANGE_CONTEXT)

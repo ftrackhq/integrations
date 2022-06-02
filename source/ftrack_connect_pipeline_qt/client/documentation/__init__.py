@@ -8,7 +8,7 @@ from ftrack_connect_pipeline.client import Client
 
 
 class QtDocumentationClient(Client):
-    '''Client for opening Connect documentation'''
+    '''Client for opening Connect documentation URL'''
 
     def __init__(self, event_manager, unused_asset_list_model):
         super(QtDocumentationClient, self).__init__(event_manager)
@@ -18,13 +18,16 @@ class QtDocumentationClient(Client):
         )
 
     def show(self):
+        '''Open the URL in operating system'''
         DOC_URL = 'https://www.ftrack.com/en/portfolio/connect'
         if platform.system() == "Windows":
+            # Windows / PC
             commands = ['start']
         elif platform.system() == "Darwin":
+            # Mac OS
             commands = ['open']
         else:
-            # Assume linux
+            # Assume we are on linux
             commands = ['xdg-open']
         commands.append(DOC_URL)
         self.logger.debug(

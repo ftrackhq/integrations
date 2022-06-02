@@ -14,7 +14,7 @@ from ftrack_connect_pipeline_qt.ui.utility.widget import (
 
 
 class QtChangeContextClient(Client):
-    '''Client for changing the current working context.'''
+    '''Client for changing the current working context within the host/DCC'''
 
     def __init__(self, event_manager, unused_asset_list_model):
         Client.__init__(self, event_manager)
@@ -23,25 +23,24 @@ class QtChangeContextClient(Client):
         )
         self._host_connection = None
 
-        self.pre_build()
-
-        if not self.host_connections:
-            self.discover_hosts()
-        elif self.host_connection:
-            self.on_context_changed(self.host_connection.context_id)
-
-    def pre_build(self):
         self.entity_browser = EntityBrowser(
             None,
             self.session,
             title='CHOOSE TASK (WORKING CONTEXT)',
         )
 
+        if not self.host_connections:
+            self.discover_hosts()
+        elif self.host_connection:
+            self.on_context_changed(self.host_connection.context_id)
+
     def on_hosts_discovered(self, host_connections):
+        '''(Override)'''
         if len(host_connections) > 0:
             self.change_host(host_connections[0])
 
     def show(self):
+        '''Show the entity browser'''
         # Find my host
         if self.host_connection is None:
             # TODO: support multiple hosts
