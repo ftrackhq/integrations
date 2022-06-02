@@ -8,17 +8,17 @@ def build_menu_widgets(
 ):
     def wrap_asset_manager_class(*args, **kwargs):
         from ftrack_connect_pipeline_nuke.client.asset_manager import (
-            NukeAssetManagerClient,
+            NukeQtAssetManagerClientWidget,
         )
 
-        return NukeAssetManagerClient(event_manager, asset_list_model)
+        return NukeQtAssetManagerClientWidget(event_manager, asset_list_model)
 
     def wrap_publisher_class(*args, **kwargs):
         from ftrack_connect_pipeline_nuke.client.publish import (
-            NukePublisherClient,
+            NukeQtPublisherClientWidget,
         )
 
-        return NukePublisherClient(event_manager, asset_list_model)
+        return NukeQtPublisherClientWidget(event_manager, asset_list_model)
 
     globals()['ftrackWidgetLauncher'] = widget_launcher
     globals()['ftrackAssetManagerClass'] = wrap_asset_manager_class

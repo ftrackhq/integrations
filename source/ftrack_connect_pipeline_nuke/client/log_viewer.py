@@ -7,12 +7,12 @@ from ftrack_connect_pipeline_qt.client import log_viewer
 from ftrack_connect_pipeline_nuke.utils.custom_commands import get_main_window
 
 
-class NukeLogViewerClient(log_viewer.QtLogViewerClient):
+class NukeQtLogViewerClientWidget(log_viewer.QtLogViewerClientWidget):
 
     '''Nuke log viewer dialog'''
 
     def __init__(self, event_manager, unused_asset_list_model, parent=None):
-        super(NukeLogViewerClient, self).__init__(
+        super(NukeQtLogViewerClientWidget, self).__init__(
             event_manager=event_manager,
             parent=(parent or get_main_window()),
         )
@@ -20,5 +20,5 @@ class NukeLogViewerClient(log_viewer.QtLogViewerClient):
         self.setWindowFlags(QtCore.Qt.Tool)
 
     def show(self):
-        super(NukeLogViewerClient, self).conditional_rebuild()
-        super(NukeLogViewerClient, self).show()
+        super(NukeQtLogViewerClientWidget, self).conditional_rebuild()
+        super(NukeQtLogViewerClientWidget, self).show()
