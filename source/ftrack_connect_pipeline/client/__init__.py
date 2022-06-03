@@ -273,7 +273,7 @@ class Client(object):
 
     @property
     def context_id(self):
-        '''Returns the current context id from host.'''
+        '''Returns the current context id from host'''
         if self.host_connection is None:
             raise Exception('No host connection available')
         return self.host_connection.context_id
@@ -287,6 +287,17 @@ class Client(object):
         if self.host_connection is None:
             raise Exception('No host connection available')
         self.host_connection.context_id = context_id
+
+    @property
+    def context(self):
+        '''Returns the current context'''
+        if self.host_connection is None:
+            raise Exception('No host connection available')
+        if self.host_connection.context_id is None:
+            raise Exception('No host context id set')
+        return self.session.query(
+            'Context where id={}'.format(self.context_id)
+        ).first()
 
     @property
     def host_connections(self):
@@ -381,11 +392,21 @@ class Client(object):
 
     # Host
 
-    def discover_hosts(self, time_out=3):
+    def discover_hosts(self, force_rediscover=False, time_out=3):
         '''
         Find for available hosts during the optional *time_out* and Returns
         a list of discovered :class:`~ftrack_connect_pipeline.client.HostConnection`.
+
+        Skip this and use existing singleton host connection if previously detected, unless *force_rediscover* is True.
         '''
+        if force_rediscover:
+            self.host_connections = None
+            self.host_connection = None
+        if self.host_connection is not None:
+            self.on_client_notification()
+            self.subscribe_client_context_change()
+            self.on_host_changed(self.host_connection)
+            self.on_context_changed(self.host_connection.context_id)
         # discovery host loop and timeout.
         start_time = time.time()
         self.logger.debug('time out set to {}:'.format(time_out))
@@ -515,16 +536,12 @@ class Client(object):
         Assign the given *schema* and the given *definition* as the current
         :obj:`schema` and :obj:`definition`
         '''
-        import traceback
-
-        traceback.print_stack()
         if not self.host_connection:
             self.logger.error("please set the host connection first")
             return
 
         self._schema = schema
         self._definition = definition
-        print('@@@ definition: {}'.format(definition))
         self.change_engine(self.definition['_config']['engine_type'])
 
     # Plugin

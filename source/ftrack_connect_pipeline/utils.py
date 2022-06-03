@@ -9,7 +9,7 @@ from ftrack_connect_pipeline import constants as core_constants
 
 def str_context(context, with_id=False, force_version_nr=None, delimiter='/'):
     '''Utility function to produce a human readable string out or a context.'''
-    if not 'project' is context:
+    if not 'project' in context:
         return str(context)
     return '{}/{}'.format(
         context['project']['name'],
@@ -72,8 +72,11 @@ def get_save_path(context_id, session, extension=None, temp=False):
             snapshot_path_base, location.get_filesystem_path(context)
         )
     except:
-        structure_names = [context['project']['name']] + [
-            item['name'] for item in context['link'][1:]
+        structure_names = [
+            context['project']['name'].replace(' ', '_').lower()
+        ] + [
+            item['name'].replace(' ', '_').lower()
+            for item in context['link'][1:]
         ]
 
         # Build path down to context
