@@ -18,7 +18,7 @@ from ftrack_connect_pipeline_qt.utils import (
     BaseThread,
     center_widget,
     set_property,
-    clear_layout
+    clear_layout,
 )
 from ftrack_connect_pipeline_qt.ui.utility.widget.entity_browser import (
     EntityBrowser,
@@ -36,9 +36,14 @@ from ftrack_connect_pipeline_qt.ui.utility.widget import dialog
 
 
 class AssemblerDependenciesWidget(AssemblerBaseWidget):
-    ''' Dependencies widget '''
-    dependencyResolveWarning = QtCore.Signal(object, object, object) # Emitted when a error/warning message needs to be displayed
-    dependenciesResolved = QtCore.Signal(object) # Emitted from background thread when components has been extracted
+    '''Dependencies widget'''
+
+    dependencyResolveWarning = QtCore.Signal(
+        object, object, object
+    )  # Emitted when a error/warning message needs to be displayed
+    dependenciesResolved = QtCore.Signal(
+        object
+    )  # Emitted from background thread when components has been extracted
 
     @property
     def linked_only(self):
@@ -51,9 +56,7 @@ class AssemblerDependenciesWidget(AssemblerBaseWidget):
 
         :param assembler_client: :class:`~ftrack_connect_pipeline_qt.client.load.QtAssemblerWidget` instance
         '''
-        super(AssemblerDependenciesWidget, self).__init__(
-            assembler_client
-        )
+        super(AssemblerDependenciesWidget, self).__init__(assembler_client)
 
     def post_build(self):
         '''(Override)'''
@@ -86,7 +89,7 @@ class AssemblerDependenciesWidget(AssemblerBaseWidget):
                 name='resolve_dependencies_thread',
                 target=self._resolve_dependencies,
                 target_args=[
-                    self.assembler_client.context_selector.context_id,
+                    self.assembler_client.context_id,
                     {'linked_only': False}
                     if self.linked_only is False
                     else None,
@@ -196,11 +199,17 @@ class AssemblerDependenciesWidget(AssemblerBaseWidget):
             widget.layout().addWidget(QtWidgets.QLabel(), 100)
             self.scroll.setWidget(widget)
         self._label_info.setText(info_message)
+        self.assembler_client.run_button_no_load.setEnabled(
+            self.loadable_count > 0
+        )
+        self.assembler_client.run_button.setEnabled(self.loadable_count > 0)
 
     def _on_dependencies_resolved(self, components):
         '''Create and deploy list of resolved components'''
         # Create component list
-        self._component_list = DependenciesListWidget(self, parent=self.assembler_client)
+        self._component_list = DependenciesListWidget(
+            self, parent=self.assembler_client
+        )
         self.listWidgetCreated.emit(self._component_list)
         # self._asset_list.setStyleSheet('background-color: blue;')
 
@@ -251,22 +260,19 @@ class AssemblerBrowserWidget(AssemblerBaseWidget):
         :param assembler_client:  :class:`~ftrack_connect_pipeline_qt.client.load.QtAssemblerWidget` instance
         '''
         self._component_list = None
-        super(AssemblerBrowserWidget, self).__init__(
-            assembler_client
-        )
+        super(AssemblerBrowserWidget, self).__init__(assembler_client)
         self._cached_context_path_id = None
 
     def pre_build(self):
         '''(Override)'''
         super(AssemblerBrowserWidget, self).pre_build()
         # Fetch entity, might not be loaded yet
-        entity = self.get_context(False)
 
         self._entity_browser = EntityBrowser(
             self.assembler_client,
             self.assembler_client.session,
             mode=EntityBrowser.MODE_CONTEXT,
-            entity=entity,
+            entity=self.assembler_client.context,
         )
 
     def _get_header_widget(self):
@@ -291,7 +297,7 @@ class AssemblerBrowserWidget(AssemblerBaseWidget):
 
             if self._entity_browser.entity is None:
                 # First time set
-                self._entity_browser.entity = self.get_context()
+                self._entity_browser.entity = self.assembler_client.context
 
             # Create viewport widget, component list with load more button
             widget = QtWidgets.QWidget()
@@ -552,13 +558,12 @@ class AssemblerBrowserWidget(AssemblerBaseWidget):
 
 
 class DependenciesListWidget(AssemblerListBaseWidget):
-
     def __init__(self, assembler_widget, parent=None):
         '''
-            Instantiate the dependency list widget
+        Instantiate the dependency list widget
 
-            :param assembler_widget: :class:`~ftrack_connect_pipeline_qt.ui.assembler.base.AssemblerBaseWidget` instance
-            :param parent: The parent dialog or frame
+        :param assembler_widget: :class:`~ftrack_connect_pipeline_qt.ui.assembler.base.AssemblerBaseWidget` instance
+        :param parent: The parent dialog or frame
         '''
         self._asset_widget_class = DependencyComponentWidget
         super(DependenciesListWidget, self).__init__(
@@ -631,7 +636,10 @@ class DependenciesListWidget(AssemblerListBaseWidget):
             # Append component accordion
 
             component_widget = self._asset_widget_class(
-                index, self._assembler_widget, self.model.event_manager, parent=self.parent()
+                index,
+                self._assembler_widget,
+                self.model.event_manager,
+                parent=self.parent(),
             )
             set_property(
                 component_widget,
@@ -658,10 +666,10 @@ class BrowserListWidget(AssemblerListBaseWidget):
 
     def __init__(self, assembler_widget, parent=None):
         '''
-            Instantiate the dependency list widget
+        Instantiate the dependency list widget
 
-            :param assembler_widget: :class:`~ftrack_connect_pipeline_qt.ui.assembler.base.AssemblerBaseWidget` instance
-            :param parent: The parent dialog or frame
+        :param assembler_widget: :class:`~ftrack_connect_pipeline_qt.ui.assembler.base.AssemblerBaseWidget` instance
+        :param parent: The parent dialog or frame
         '''
         self._asset_widget_class = BrowsedComponentWidget
         self.prev_search_text = None
@@ -678,10 +686,12 @@ class BrowserListWidget(AssemblerListBaseWidget):
         '''(Override)'''
         super(BrowserListWidget, self).post_build()
         self.model.rowsInserted.connect(self._on_components_added)
-        self.model.dataChanged.connect(self._on_component_set) # Support change version > change component
+        self.model.dataChanged.connect(
+            self._on_component_set
+        )  # Support change version > change component
 
     def _on_component_set(self, index_first, unused_index_last):
-        '''Replace an asset with another (version) '''
+        '''Replace an asset with another (version)'''
         current_widget = self.get_widget(index_first)
         updated_widget = self._build_widget(index_first)
         updated_widget.selected = current_widget.selected
@@ -708,7 +718,10 @@ class BrowserListWidget(AssemblerListBaseWidget):
         '''Build component accordion widget'''
         (component, definitions, availability) = self.model.data(index)
         component_widget = self._asset_widget_class(
-            index, self._assembler_widget, self.model.event_manager, parent=self.parent()
+            index,
+            self._assembler_widget,
+            self.model.event_manager,
+            parent=self.parent(),
         )
         set_property(
             component_widget,
@@ -750,9 +763,7 @@ class BrowserListWidget(AssemblerListBaseWidget):
 class DependencyComponentWidget(ComponentBaseWidget):
     '''Widget representation of a minimal asset representation'''
 
-    def __init__(
-        self, index, assembler_widget, event_manager, parent=None
-    ):
+    def __init__(self, index, assembler_widget, event_manager, parent=None):
         super(DependencyComponentWidget, self).__init__(
             index, assembler_widget, event_manager, parent=parent
         )
@@ -805,9 +816,7 @@ class BrowsedComponentWidget(ComponentBaseWidget):
 
     versionChanged = QtCore.Signal(object)
 
-    def __init__(
-        self, index, assembler_widget, event_manager, parent=None
-    ):
+    def __init__(self, index, assembler_widget, event_manager, parent=None):
         super(BrowsedComponentWidget, self).__init__(
             index, assembler_widget, event_manager, parent=parent
         )

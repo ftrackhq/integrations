@@ -39,10 +39,7 @@ class QtWebViewClientWidget(Client, dialog.Dialog):
         self.build()
         self.post_build()
 
-        if not self.host_connections:
-            self.discover_hosts()
-        elif self.host_connection:
-            self.on_context_changed(self.host_connection.context_id)
+        self.discover_hosts()
 
         self.resize(500, 600)
 
@@ -99,7 +96,9 @@ class QtInfoWebViewClientWidget(QtWebViewClientWidget):
     '''Show the current context(task) info within a web client dialog'''
 
     def __init__(self, event_manger, unused_asset_model, parent=None):
-        super(QtInfoWebViewClientWidget, self).__init__(event_manger, parent=parent)
+        super(QtInfoWebViewClientWidget, self).__init__(
+            event_manger, parent=parent
+        )
         self.setWindowTitle('Task info')
 
     def get_url(self):
@@ -110,7 +109,9 @@ class QtTasksWebViewClientWidget(QtWebViewClientWidget):
     '''Show assigned tasks with a web client dialog'''
 
     def __init__(self, event_manger, unused_asset_model, parent=None):
-        super(QtTasksWebViewClientWidget, self).__init__(event_manger, parent=parent)
+        super(QtTasksWebViewClientWidget, self).__init__(
+            event_manger, parent=parent
+        )
         self.setWindowTitle('My Tasks')
 
     def get_url(self):

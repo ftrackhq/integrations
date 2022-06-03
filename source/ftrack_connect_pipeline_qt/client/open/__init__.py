@@ -27,6 +27,7 @@ from ftrack_connect_pipeline_qt.ui.utility.widget.context_selector import (
     ContextSelector,
 )
 
+
 class QtOpenerClient(OpenerClient):
     '''
     QtOpenerClient class.
@@ -37,6 +38,7 @@ class QtOpenerClient(OpenerClient):
     def __init__(self, event_manager):
         super(QtOpenerClient, self).__init__(event_manager)
         self.logger.debug('start qt opener')
+
 
 class QtOpenerClientWidget(QtOpenerClient, dialog.Dialog):
     '''
@@ -78,10 +80,7 @@ class QtOpenerClientWidget(QtOpenerClient, dialog.Dialog):
         self.build()
         self.post_build()
 
-        if not self.host_connections:
-            self.discover_hosts()
-        elif self.host_connection:
-            self.on_context_changed(self.host_connection.context_id)
+        self.discover_hosts()
 
         self.setWindowTitle('ftrack Open')
         self.resize(450, 530)
@@ -178,6 +177,7 @@ class QtOpenerClientWidget(QtOpenerClient, dialog.Dialog):
 
     def on_host_changed(self, host_connection):
         '''Triggered when client has set host connection'''
+
         if self.definition_filters:
             self.definition_selector.definition_title_filters = (
                 self.definition_filters

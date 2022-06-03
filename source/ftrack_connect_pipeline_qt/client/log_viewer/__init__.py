@@ -34,6 +34,7 @@ from ftrack_connect_pipeline_qt.ui import (
 from ftrack_connect_pipeline_qt.ui import theme
 from ftrack_connect_pipeline_qt.ui.utility.widget import dialog
 
+
 class QtLogViewerClient(LogViewerClient):
     '''
     QtLogViewerClient class.
@@ -82,8 +83,7 @@ class QtLogViewerClientWidget(QtLogViewerClient, dialog.Dialog):
         self.build()
         self.post_build()
 
-        if not self.host_connections:
-            self.discover_hosts()
+        self.discover_hosts()
 
     def get_theme_background_style(self):
         return 'ftrack'

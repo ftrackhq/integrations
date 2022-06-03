@@ -24,6 +24,7 @@ from ftrack_connect_pipeline_qt.ui.utility.widget.context_selector import (
     ContextSelector,
 )
 
+
 class QtPublisherClient(PublisherClient):
     '''
     Publisher client class.
@@ -71,10 +72,7 @@ class QtPublisherClientWidget(QtPublisherClient, QtWidgets.QFrame):
         self.build()
         self.post_build()
 
-        if not self.host_connections:
-            self.discover_hosts()
-        elif self.host_connection:
-            self.on_context_changed(self.host_connection.context_id)
+        self.discover_hosts()
 
         self.setWindowTitle('Standalone Pipeline Publisher')
 
@@ -184,13 +182,13 @@ class QtPublisherClientWidget(QtPublisherClient, QtWidgets.QFrame):
     # Context
 
     def on_context_changed(self, context_id):
-        '''Context has been set in context selector'''
+        '''Context has been set'''
         self.context_selector.context_id = context_id
 
         # Reset definition selector and clear client
         self.definition_selector.clear_definitions()
-        self.definition_selector.populate_definitions()
         self._clear_widget()
+        self.definition_selector.populate_definitions()
 
     # Definition
 
@@ -206,7 +204,9 @@ class QtPublisherClientWidget(QtPublisherClient, QtWidgets.QFrame):
             self.definition_changed(None, 0)
             return
 
-        super(QtPublisherClientWidget, self).change_definition(schema, definition)
+        super(QtPublisherClientWidget, self).change_definition(
+            schema, definition
+        )
 
         asset_type_name = definition['asset_type']
 

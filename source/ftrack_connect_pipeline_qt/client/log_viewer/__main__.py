@@ -21,7 +21,9 @@ if __name__ == '__main__':
     from ftrack_connect_pipeline import host, constants as core_constants
     from ftrack_connect_pipeline_qt import event
 
-    from ftrack_connect_pipeline_qt.client.log_viewer import QtLogViewerClientWidget
+    from ftrack_connect_pipeline_qt.client.log_viewer import (
+        QtLogViewerClientWidget,
+    )
 
     class StandaloneLoggerManagerClient(QtLogViewerClientWidget):
         def __init__(self, parent=None):

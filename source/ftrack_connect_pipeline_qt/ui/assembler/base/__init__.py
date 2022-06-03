@@ -201,12 +201,16 @@ class AssemblerBaseWidget(QtWidgets.QWidget):
     def rebuild(self, reset=True):
         '''Prepare rebuild of the widget. If *reset* is False, assume chunked
         fetch to continue were left off'''
+        if self.assembler_client.context_id is None:
+            self.logger.warning(
+                'No context set, cannut rebuild assembler widget'
+            )
+            return
         if reset:
             # Check if there is any loader definitions
             if (
                 len(
-                    self.assembler_client.definition_selector.definitions
-                    or []
+                    self.assembler_client.definition_selector.definitions or []
                 )
                 == 0
             ):
@@ -226,9 +230,6 @@ class AssemblerBaseWidget(QtWidgets.QWidget):
         self._busy_widget.start()
         self._rebuild_button.setVisible(False)
         self._busy_widget.setVisible(True)
-
-        # Wait for context to be loaded
-        self.get_context()
 
         return True
 
@@ -265,14 +266,6 @@ class AssemblerBaseWidget(QtWidgets.QWidget):
         if event.button() != QtCore.Qt.RightButton and self._component_list:
             self._component_list.clear_selection()
         return super(AssemblerBaseWidget, self).mousePressEvent(event)
-
-    def get_context(self, wait=True):
-        '''Wait for current working context to be properly set, then return it.'''
-        while (
-            self.assembler_client.context_selector.context_id is None and wait
-        ):
-            time.sleep(0.5)
-        return self.assembler_client.context_selector.entity
 
     def extract_components(self, versions):
         '''Build a list of loadable components from the supplied *versions*'''
@@ -456,6 +449,7 @@ class AssemblerBaseWidget(QtWidgets.QWidget):
 
 class AssemblerListBaseWidget(AssetListWidget):
     '''Base for asset lists within the assembler'''
+
     def __init__(self, assembler_widget, parent=None):
         self._assembler_widget = assembler_widget
         super(AssemblerListBaseWidget, self).__init__(
@@ -536,9 +530,7 @@ class ComponentBaseWidget(AccordionBaseWidget):
     def session(self):
         return self._assembler_widget.session
 
-    def __init__(
-        self, index, assembler_widget, event_manager, parent=None
-    ):
+    def __init__(self, index, assembler_widget, event_manager, parent=None):
         '''
         Instantiate the asset widget
 
@@ -764,7 +756,9 @@ class ComponentBaseWidget(AccordionBaseWidget):
             # No loaders, disable entire component
             self.setEnabled(False)
             if len(self.warning_message) == 0:
-                self.warning_message = 'No loader found compatible with this asset.'
+                self.warning_message = (
+                    'No loader found compatible with this asset.'
+                )
 
         self._asset_name_widget.setText(
             '{} '.format(version_entity['asset']['name'])
@@ -807,6 +801,7 @@ class ComponentBaseWidget(AccordionBaseWidget):
 
 class DefinitionSelector(QtWidgets.QComboBox):
     '''Combobox for selecting loader definition'''
+
     def __init__(self):
         super(DefinitionSelector, self).__init__()
         self.setMinimumHeight(22)
@@ -815,6 +810,7 @@ class DefinitionSelector(QtWidgets.QComboBox):
 
 class ModeSelector(QtWidgets.QComboBox):
     '''Combobox for selecting the load mode'''
+
     def __init__(self):
         super(ModeSelector, self).__init__()
         self.setMinimumHeight(22)
@@ -823,6 +819,7 @@ class ModeSelector(QtWidgets.QComboBox):
 
 class ImporterOptionsButton(OptionsButton):
     '''Create loader options button with its overlay'''
+
     def __init__(self, title, icon, parent=None):
         super(ImporterOptionsButton, self).__init__(parent=parent)
         self.name = title

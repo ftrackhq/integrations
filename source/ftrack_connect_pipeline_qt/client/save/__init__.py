@@ -12,11 +12,10 @@ class QtSaveClientWidget(Client, QtWidgets.QWidget):
     '''Web widget viewer client base - a dialog for rendering web content within
     framework'''
 
-    def __init__(self, event_manager, unused_asset_list_model):
+    def __init__(self, event_manager):
         Client.__init__(self, event_manager)
 
-        if not self.host_connections:
-            self.discover_hosts()
+        self.discover_hosts()
 
     # Host
 

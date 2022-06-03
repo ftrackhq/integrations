@@ -29,10 +29,7 @@ class QtChangeContextClientWidget(Client):
             title='CHOOSE TASK (WORKING CONTEXT)',
         )
 
-        if not self.host_connections:
-            self.discover_hosts()
-        elif self.host_connection:
-            self.on_context_changed(self.host_connection.context_id)
+        self.discover_hosts()
 
     def on_hosts_discovered(self, host_connections):
         '''(Override)'''

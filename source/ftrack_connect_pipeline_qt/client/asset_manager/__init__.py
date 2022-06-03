@@ -45,9 +45,7 @@ class QtAssetManagerClientWidget(QtAssetManagerClient, QtWidgets.QFrame):
     QtAssetManagerClientWidget class.
     '''
 
-    assetsDiscovered = (
-        QtCore.Signal()
-    )  # Assets has been discovered and loaded
+    assetsDiscovered = QtCore.Signal()  # Assets has been discovered and loaded
 
     selectionUpdated = QtCore.Signal(object)  # Selection has changed
 
@@ -93,10 +91,7 @@ class QtAssetManagerClientWidget(QtAssetManagerClient, QtWidgets.QFrame):
         self.post_build()
 
         if not self.is_assembler:
-            if not self.host_connections:
-                self.discover_hosts()
-            elif self.host_connection:
-                self.on_context_changed(self.host_connection.context_id)
+            self.discover_hosts()
 
     def get_theme_background_style(self):
         '''Return the theme background color style. Can be overridden by child.'''
@@ -201,7 +196,8 @@ class QtAssetManagerClientWidget(QtAssetManagerClient, QtWidgets.QFrame):
 
     def on_hosts_discovered(self, host_connections):
         '''(Override) Host(s) have been discovered, add to host selector'''
-        self.host_selector.add_hosts(host_connections)
+        if not self.is_assembler:
+            self.host_selector.add_hosts(host_connections)
 
     def on_host_changed(self, host_connection):
         '''Triggered when client has set host connection'''

@@ -96,7 +96,7 @@ class QtAssemblerClientWidget(QtLoaderClient, dialog.Dialog):
         ''' The mode assembler is in - resolve dependencies or manual browse '''
 
         self.hard_refresh = True
-        ''' Flag telling assembler that next refresh should include dependency resolve '''
+        ''' Flag telling assembler that next refresh should be a complete rebuild '''
 
         set_theme(self, get_theme())
         if self.get_theme_background_style():
@@ -112,10 +112,7 @@ class QtAssemblerClientWidget(QtLoaderClient, dialog.Dialog):
         self.build()
         self.post_build()
 
-        if not self.host_connections:
-            self.discover_hosts()
-        elif self.host_connection:
-            self.on_context_changed(self.host_connection.context_id)
+        self.discover_hosts()
 
         self.setWindowTitle('ftrack Connect Assembler')
         self.resize(1000, 500)
@@ -266,7 +263,7 @@ class QtAssemblerClientWidget(QtLoaderClient, dialog.Dialog):
             self._launch_context_selector
         )
         self._tab_widget.currentChanged.connect(self._on_tab_changed)
-        self.asset_manager.assetsDiscovered.connect(self._assets_discovered)
+        self.asset_manager.assetsDiscovered.connect(self._on_assets_discovered)
         self.run_button.setFocus()
         self.run_button_no_load.clicked.connect(
             partial(self.run, "init_nodes")
@@ -290,16 +287,18 @@ class QtAssemblerClientWidget(QtLoaderClient, dialog.Dialog):
             self.definition_selector.definition_extensions_filter = (
                 self.definition_extensions_filter
             )
+        # Feed it to definition selector, to get schemas stored
         self.definition_selector.on_host_changed(host_connection)
         # Feed the host connection to asset manager
-        self.asset_manager.change_host(host_connection)
-        # self.asset_manager.on_host_changed(host_connection)
+        # self.asset_manager.change_host(host_connection)
 
     # Context
 
     def on_context_changed(self, context_id):
         '''(Override) Context has been set'''
         self.context_selector.context_id = self.context_id
+        # Have AM fetch assets
+        self.asset_manager.on_host_changed(self.host_connection)
         # Reset definition selector and clear client
         self.definition_selector.clear_definitions()
         self.definition_selector.populate_definitions()
@@ -307,7 +306,7 @@ class QtAssemblerClientWidget(QtLoaderClient, dialog.Dialog):
 
     # Use
 
-    def _assets_discovered(self):
+    def _on_assets_discovered(self):
         '''The assets in AM has been discovered, refresh at our end.'''
         self.refresh()
 
@@ -315,7 +314,10 @@ class QtAssemblerClientWidget(QtLoaderClient, dialog.Dialog):
         '''Reset a client that has become visible after being hidden.'''
         if self._shown:
             # Refresh when re-opened
-            self.definition_selector.refresh()
+            self.hard_refresh = (
+                self.assemble_mode == self.ASSEMBLE_MODE_DEPENDENCIES
+            )
+            self.asset_manager.asset_manager_widget.rebuild.emit()
         self._shown = True
 
     def _clear_widget(self):
@@ -360,6 +362,7 @@ class QtAssemblerClientWidget(QtLoaderClient, dialog.Dialog):
 
     def _on_component_list_created(self, component_list):
         component_list.selectionUpdated.connect(self._asset_selection_updated)
+        self._asset_selection_updated()
 
     def _asset_selection_updated(self, asset_selection=None):
         loadable_count = self._assembler_widget.loadable_count
@@ -376,14 +379,6 @@ class QtAssemblerClientWidget(QtLoaderClient, dialog.Dialog):
         self.run_button_no_load.setEnabled(loadable_count > 0)
         self.run_button.setText('LOAD{} INTO SCENE'.format(s))
         self.run_button.setEnabled(loadable_count > 0)
-
-    def reset(self):
-        '''Assembler is shown again after being hidden.'''
-        super(QtAssemblerClientWidget, self).reset()
-        self.asset_manager.asset_manager_widget.rebuild.emit()
-        self._assembler_widget.reset()
-        self.progress_widget.hide_widget()
-        self.progress_widget.clear_components()
 
     # Run
 

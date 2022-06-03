@@ -94,7 +94,6 @@ class DefinitionSelectorBase(QtWidgets.QWidget):
             return
 
         self.schemas = self._host_connection.definitions['schema']
-        self.populate_definitions()
 
     def clear_definitions(self):
         '''Remove all definitions and prepare for re-populate. Disconnects
@@ -116,26 +115,22 @@ class DefinitionSelectorBase(QtWidgets.QWidget):
             self._definition_selector.setToolTip(
                 json.dumps(self.definition, indent=4)
             )
-        else:
-            self._definition_selector.setToolTip(
-                'Please select an importer definition.'
+            # Locate the schema for definition
+            for schema in self.schemas:
+                if (
+                    self.definition.get('type').lower()
+                    == schema.get('title').lower()
+                ):
+                    self.schema = schema
+                    break
+            self.definitionChanged.emit(
+                self.schema, self.definition, self.component_names_filter
             )
-            self.definition = self.component_names_filter = None
-        if not self.definition:
+        else:
             self.logger.debug('No data for selected definition')
+            self._definition_selector.setToolTip('Please select a definition.')
+            self.definition = self.component_names_filter = None
             self.definitionChanged.emit(None, None, None)
-            return
-
-        for schema in self.schemas:
-            if (
-                self.definition.get('type').lower()
-                == schema.get('title').lower()
-            ):
-                self.schema = schema
-                break
-        self.definitionChanged.emit(
-            self.schema, self.definition, self.component_names_filter
-        )
 
     def refresh(self):
         self._on_change_definition(self._definition_selector.currentIndex())
@@ -200,6 +195,9 @@ class OpenerDefinitionSelector(DefinitionSelectorBase):
         index_latest_version = -1
         compatible_definition_count = 0
 
+        self._definition_selector.addItem("", None)
+        index = 1
+
         for schema in self.schemas:
             schema_title = schema.get('title').lower()
             if self._definition_title_filters:
@@ -207,9 +205,6 @@ class OpenerDefinitionSelector(DefinitionSelectorBase):
                     continue
             items = self._host_connection.definitions.get(schema_title)
             self.definitions = items
-
-            self._definition_selector.addItem("", None)
-            index = 1
 
             for item in items:
                 # Remove ' Publisher/Loader'
@@ -262,7 +257,7 @@ class OpenerDefinitionSelector(DefinitionSelectorBase):
                             asset_type_short
                         )
                     )
-                if asset_type_name:
+                if asset_type_name and self._host_connection.context_id:
                     asset_version = self._host_connection.session.query(
                         'AssetVersion where '
                         'task.id={} and asset.type.name="{}" and is_latest_version=true'.format(
@@ -301,6 +296,8 @@ class OpenerDefinitionSelector(DefinitionSelectorBase):
                     text.upper(), (item, component_names_filter)
                 )
                 index += 1
+            break  # Done with schemas
+
         self._definition_selector.currentIndexChanged.connect(
             self._on_change_definition
         )
@@ -314,6 +311,7 @@ class OpenerDefinitionSelector(DefinitionSelectorBase):
 
             self.no_definitions_label.setVisible(True)
             self._definition_selector.setCurrentIndex(0)
+            self.definitionChanged.emit(None, None, None)  # Have client react
         elif index_latest_version == -1:
             # No version were detected
             self.no_definitions_label.setText(
@@ -321,9 +319,7 @@ class OpenerDefinitionSelector(DefinitionSelectorBase):
             )
             self.no_definitions_label.setVisible(True)
             self._definition_selector.setCurrentIndex(0)
-            self.definitionChanged.emit(
-                None, None, None
-            )  # Tell client there are no versions
+            self.definitionChanged.emit(None, None, None)  # Have client react
         else:
             self._definition_selector.setCurrentIndex(index_latest_version)
 
@@ -351,8 +347,19 @@ class AssemblerDefinitionSelector(DefinitionSelectorBase):
         self._definition_widget.setVisible(False)
 
     def populate_definitions(self):
-        '''(Override)'''
-        pass
+        '''(Override) Simply extract and store loader definitions from schemas'''
+        if self.schemas is None:
+            self.logger.warning(
+                'Not able to populate definitions - no schemas available!'
+            )
+            return
+        for schema in self.schemas:
+            schema_title = schema.get('title').lower()
+            if self._definition_title_filters:
+                if not schema_title in self._definition_title_filters:
+                    continue
+            items = self._host_connection.definitions.get(schema_title)
+            self.definitions = items
 
 
 class PublisherDefinitionSelector(DefinitionSelectorBase):
@@ -395,7 +402,7 @@ class PublisherDefinitionSelector(DefinitionSelectorBase):
         )
 
     def populate_definitions(self):
-        '''Find components that can be opened and add their definitions to combobox'''
+        '''Find publisher schemas and add their definitions to combobox'''
         try:
             self._definition_selector.currentIndexChanged.disconnect()
         except:
@@ -411,7 +418,9 @@ class PublisherDefinitionSelector(DefinitionSelectorBase):
 
         latest_version = None  # The current latest openable version
         index_latest_version = -1
-        compatible_definition_count = 0
+
+        self._definition_selector.addItem("", None)
+        index = 1
 
         for schema in self.schemas:
             schema_title = schema.get('title').lower()
@@ -420,9 +429,6 @@ class PublisherDefinitionSelector(DefinitionSelectorBase):
                     continue
             items = self._host_connection.definitions.get(schema_title)
             self.definitions = items
-
-            self._definition_selector.addItem("", None)
-            index = 1
 
             for item in items:
                 # Remove ' Publisher/Loader'
@@ -437,11 +443,13 @@ class PublisherDefinitionSelector(DefinitionSelectorBase):
                     text.upper(), (item, component_names_filter)
                 )
                 index += 1
+            break
+
         self._definition_selector.currentIndexChanged.connect(
             self._on_change_definition
         )
         self.no_definitions_label.setVisible(False)
-        if compatible_definition_count == 0:
+        if index == 1:
             # No compatible definitions
             self.no_definitions_label.setText(
                 '<html><i>No pipeline publisher definitions are available!</i></html>'

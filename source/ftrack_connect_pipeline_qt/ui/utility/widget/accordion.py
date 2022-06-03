@@ -23,7 +23,7 @@ class AccordionWidget(AccordionBaseWidget):
         checkable=False,
         checked=True,
         collapsed=False,
-        collapsable=True
+        collapsable=True,
     ):
         super(AccordionWidget, self).__init__(
             AccordionBaseWidget.SELECT_MODE_NONE,
