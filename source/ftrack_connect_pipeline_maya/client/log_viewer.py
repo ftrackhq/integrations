@@ -11,7 +11,7 @@ from ftrack_connect_pipeline_maya.utils.custom_commands import get_main_window
 class MayaQtLogViewerClientWidget(log_viewer.QtLogViewerClientWidget):
     '''Maya log viewer dialog'''
 
-    def __init__(self, event_manager, unused_asset_list_model, parent=None):
+    def __init__(self, event_manager, parent=None):
         super(MayaQtLogViewerClientWidget, self).__init__(
             event_manager, parent=(parent or get_main_window())
         )

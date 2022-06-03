@@ -20,7 +20,9 @@ class MayaQtPublisherClientWidget(QtPublisherClientWidget):
         )
 
 
-class MayaQtPublisherClientWidgetMixin(MayaQWidgetDockableMixin, MayaQtPublisherClientWidget):
+class MayaQtPublisherClientWidgetMixin(
+    MayaQWidgetDockableMixin, MayaQtPublisherClientWidget
+):
     ui_types = [
         constants.UI_TYPE,
         qt_constants.UI_TYPE,
@@ -29,8 +31,10 @@ class MayaQtPublisherClientWidgetMixin(MayaQWidgetDockableMixin, MayaQtPublisher
 
     '''Dockable maya publish widget'''
 
-    def __init__(self, event_manager, unused_asset_list_model):
-        super(MayaQtPublisherClientWidgetMixin, self).__init__(event_manager=event_manager)
+    def __init__(self, event_manager):
+        super(MayaQtPublisherClientWidgetMixin, self).__init__(
+            event_manager=event_manager
+        )
         self.setWindowTitle('ftrack Publisher')
 
     def get_theme_background_style(self):

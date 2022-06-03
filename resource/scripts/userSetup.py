@@ -94,9 +94,15 @@ def _open_widget(event_manager, asset_list_model, widgets, event):
     if widget_name:
         if widget_name not in created_widgets:
             ftrack_client = widget_class
-            created_widgets[widget_name] = ftrack_client(
-                event_manager, asset_list_model
-            )
+            if widget_name in [
+                core_constants.ASSEMBLER,
+                core_constants.ASSET_MANAGER,
+            ]:
+                created_widgets[widget_name] = ftrack_client(
+                    event_manager, asset_list_model
+                )
+            else:
+                created_widgets[widget_name] = ftrack_client(event_manager)
         created_widgets[widget_name].show()
     else:
         raise Exception(
@@ -127,7 +133,12 @@ def initialise():
 
     widgets = list()
     widgets.append(
-        (core_constants.OPENER, open.MayaQtOpenerClientWidget, 'Open', 'fileOpen')
+        (
+            core_constants.OPENER,
+            open.MayaQtOpenerClientWidget,
+            'Open',
+            'fileOpen',
+        )
     )
     widgets.append(
         (
