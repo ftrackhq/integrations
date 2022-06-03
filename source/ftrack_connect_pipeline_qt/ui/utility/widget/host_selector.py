@@ -64,7 +64,7 @@ class HostSelector(QtWidgets.QWidget):
             self.setVisible(True)
 
     def _on_host_selected(self, index):
-        '''triggered when chaging host selection to *index*'''
+        '''triggered when changing host selection to *index*'''
         host_connection = self.host_combobox.itemData(index)
 
         if not host_connection:

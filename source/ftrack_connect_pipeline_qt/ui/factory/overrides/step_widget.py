@@ -219,6 +219,7 @@ class AccordionStepWidgetObject(BaseUIWidgetObject):
         self._widget = AccordionWidget(
             title="{}".format(self._name),
             checkable=False,
+            collapsable=False,
             parent=self.parent(),
         )
         self._widget.content.layout().setContentsMargins(0, 10, 0, 0)
