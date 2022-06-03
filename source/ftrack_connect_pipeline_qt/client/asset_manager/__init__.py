@@ -28,14 +28,26 @@ from ftrack_connect_pipeline_qt.ui.utility.widget.dialog import ModalDialog
 from ftrack_connect_pipeline_qt.utils import BaseThread, set_property
 
 
-class QtAssetManagerClient(AssetManagerClient, QtWidgets.QFrame):
+class QtAssetManagerClient(AssetManagerClient):
     '''
     QtAssetManagerClient class.
     '''
 
     ui_types = [core_constants.UI_TYPE, qt_constants.UI_TYPE]
 
-    assetsDiscovered = QtCore.Signal()  # Assets has been discovered and loaded
+    def __init__(self, event_manager):
+        super(QtAssetManagerClient, self).__init__(event_manager)
+        self.logger.debug('start qt asset manager')
+
+
+class QtAssetManagerClientWidget(QtAssetManagerClient, QtWidgets.QFrame):
+    '''
+    QtAssetManagerClientWidget class.
+    '''
+
+    assetsDiscovered = (
+        QtCore.Signal()
+    )  # Assets has been discovered and loaded
 
     selectionUpdated = QtCore.Signal(object)  # Selection has changed
 
@@ -46,7 +58,7 @@ class QtAssetManagerClient(AssetManagerClient, QtWidgets.QFrame):
         is_assembler=False,
         parent=None,
     ):
-        '''Initialise AssetManagerClient
+        '''Initialise QtAssetManagerClientWidget
 
         :*event_manager*: : instance of :class:`~ftrack_connect_pipeline.event.EventManager`
 
@@ -60,7 +72,7 @@ class QtAssetManagerClient(AssetManagerClient, QtWidgets.QFrame):
         self._asset_list_model = asset_list_model
 
         QtWidgets.QFrame.__init__(self, parent=parent)
-        AssetManagerClient.__init__(self, event_manager)
+        QtAssetManagerClient.__init__(self, event_manager)
 
         self.is_assembler = is_assembler
         self._shown = False
@@ -198,7 +210,7 @@ class QtAssetManagerClient(AssetManagerClient, QtWidgets.QFrame):
         if not host_connection:
             return
 
-        if not super(QtAssetManagerClient, self).on_host_changed(
+        if not super(QtAssetManagerClientWidget, self).on_host_changed(
             host_connection
         ):
             ModalDialog(
@@ -510,7 +522,7 @@ class QtAssetManagerClient(AssetManagerClient, QtWidgets.QFrame):
         '''(Override) Intercept mouse press event'''
         if event.button() != QtCore.Qt.RightButton:
             self.asset_manager_widget.asset_list.clear_selection()
-        return super(QtAssetManagerClient, self).mousePressEvent(event)
+        return super(QtAssetManagerClientWidget, self).mousePressEvent(event)
 
     def _launch_publisher(self):
         '''Called when the publisher button is pressed'''

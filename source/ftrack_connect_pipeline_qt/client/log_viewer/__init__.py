@@ -34,13 +34,23 @@ from ftrack_connect_pipeline_qt.ui import (
 from ftrack_connect_pipeline_qt.ui import theme
 from ftrack_connect_pipeline_qt.ui.utility.widget import dialog
 
-
-class QtLogViewerClient(LogViewerClient, dialog.Dialog):
+class QtLogViewerClient(LogViewerClient):
     '''
     QtLogViewerClient class.
     '''
 
     ui_types = [client_constants.UI_TYPE, qt_constants.UI_TYPE]
+
+    def __init__(self, event_manager):
+        super(QtLogViewerClient, self).__init__(event_manager)
+        self.logger.debug('start qt log viewer')
+
+
+class QtLogViewerClientWidget(QtLogViewerClient, dialog.Dialog):
+    '''
+    QtLogViewerClientWidget class.
+    '''
+
     _shown = (
         False  # Flag telling if widget has been shown before and needs refresh
     )
@@ -51,7 +61,7 @@ class QtLogViewerClient(LogViewerClient, dialog.Dialog):
     logItemAdded = QtCore.Signal(object)
 
     def __init__(self, event_manager, parent=None):
-        '''Initialise QtAssetManagerClient with *event_manager*
+        '''Initialise QtLogViewerClientWidget with *event_manager*
 
         *event_manager* should be the
         :class:`ftrack_connect_pipeline.event.EventManager`instance to
@@ -59,7 +69,7 @@ class QtLogViewerClient(LogViewerClient, dialog.Dialog):
         '''
 
         dialog.Dialog.__init__(self, parent=parent)
-        LogViewerClient.__init__(self, event_manager)
+        QtLogViewerClient.__init__(self, event_manager)
 
         set_theme(self, get_theme())
         if self.get_theme_background_style():

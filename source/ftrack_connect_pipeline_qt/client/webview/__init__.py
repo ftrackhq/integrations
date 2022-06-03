@@ -18,7 +18,7 @@ from ftrack_connect_pipeline_qt.ui.utility.widget import (
 from ftrack_connect_pipeline_qt.utils import get_theme, set_theme
 
 
-class QtWebViewClient(Client, dialog.Dialog):
+class QtWebViewClientWidget(Client, dialog.Dialog):
     '''Web widget viewer client base - a dialog for rendering web content within
     framework'''
 
@@ -88,29 +88,29 @@ class QtWebViewClient(Client, dialog.Dialog):
 
     def show(self):
         '''Show the dialog, sets the context to default and loads content if not done previously'''
-        super(QtWebViewClient, self).show()
+        super(QtWebViewClientWidget, self).show()
 
     def get_url(self):
         '''Retreive the URL of content to view'''
         raise NotImplementedError()
 
 
-class QtInfoWebViewClient(QtWebViewClient):
+class QtInfoWebViewClientWidget(QtWebViewClientWidget):
     '''Show the current context(task) info within a web client dialog'''
 
     def __init__(self, event_manger, unused_asset_model, parent=None):
-        super(QtInfoWebViewClient, self).__init__(event_manger, parent=parent)
+        super(QtInfoWebViewClientWidget, self).__init__(event_manger, parent=parent)
         self.setWindowTitle('Task info')
 
     def get_url(self):
         return self.session.get_widget_url('info', entity=self._context)
 
 
-class QtTasksWebViewClient(QtWebViewClient):
+class QtTasksWebViewClientWidget(QtWebViewClientWidget):
     '''Show assigned tasks with a web client dialog'''
 
     def __init__(self, event_manger, unused_asset_model, parent=None):
-        super(QtTasksWebViewClient, self).__init__(event_manger, parent=parent)
+        super(QtTasksWebViewClientWidget, self).__init__(event_manger, parent=parent)
         self.setWindowTitle('My Tasks')
 
     def get_url(self):
