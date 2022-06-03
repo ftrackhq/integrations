@@ -127,12 +127,12 @@ def initialise():
 
     widgets = list()
     widgets.append(
-        (core_constants.OPENER, open.MayaOpenerClient, 'Open', 'fileOpen')
+        (core_constants.OPENER, open.MayaQtOpenerClientWidget, 'Open', 'fileOpen')
     )
     widgets.append(
         (
             core_constants.INFO,
-            webview.QtInfoWebViewClient,
+            webview.QtInfoWebViewClientWidget,
             'Info',
             'info',
         )
@@ -140,7 +140,7 @@ def initialise():
     widgets.append(
         (
             core_constants.TASKS,
-            webview.QtTasksWebViewClient,
+            webview.QtTasksWebViewClientWidget,
             'My Tasks',
             'SP_FileDialogListView',
         )
@@ -148,7 +148,7 @@ def initialise():
     widgets.append(
         (
             core_constants.CHANGE_CONTEXT,
-            change_context.QtChangeContextClient,
+            change_context.QtChangeContextClientWidget,
             'Change context',
             'refresh',
         )
@@ -156,7 +156,7 @@ def initialise():
     widgets.append(
         (
             core_constants.ASSEMBLER,
-            load.MayaAssemblerWidget,
+            load.MayaQtAssemblerClientWidget,
             'Assembler',
             'greasePencilImport',
         )
@@ -164,7 +164,7 @@ def initialise():
     widgets.append(
         (
             core_constants.ASSET_MANAGER,
-            asset_manager.MayaAssetManagerClient,
+            asset_manager.MayaQtAssetManagerClientWidgetMixin,
             'Asset Manager',
             'volumeCube',
         )
@@ -172,7 +172,7 @@ def initialise():
     widgets.append(
         (
             core_constants.SAVE,
-            save.QtMayaSaveClient,
+            save.MayaQtSaveClientWidget,
             'Save Scene',
             'fileSave',
         )
@@ -180,7 +180,7 @@ def initialise():
     widgets.append(
         (
             core_constants.PUBLISHER,
-            publish.MayaPublisherClient,
+            publish.MayaQtPublisherClientWidgetMixin,
             'Publisher',
             'greasePencilExport',
         )
@@ -188,7 +188,7 @@ def initialise():
     widgets.append(
         (
             core_constants.LOG_VIEWER,
-            log_viewer.MayaLogViewerDialog,
+            log_viewer.MayaQtLogViewerClientWidget,
             'Log Viewer',
             'zoom',
         )
@@ -196,7 +196,7 @@ def initialise():
     widgets.append(
         (
             core_constants.DOCUMENTATION,
-            documentation.QtDocumentationClient,
+            documentation.QtDocumentationClientWidget,
             'Documentation',
             'SP_FileIcon',
         )
