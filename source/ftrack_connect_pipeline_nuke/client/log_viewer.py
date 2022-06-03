@@ -11,7 +11,7 @@ class NukeQtLogViewerClientWidget(log_viewer.QtLogViewerClientWidget):
 
     '''Nuke log viewer dialog'''
 
-    def __init__(self, event_manager, unused_asset_list_model, parent=None):
+    def __init__(self, event_manager, parent=None):
         super(NukeQtLogViewerClientWidget, self).__init__(
             event_manager=event_manager,
             parent=(parent or get_main_window()),

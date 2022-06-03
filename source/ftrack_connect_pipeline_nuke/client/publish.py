@@ -19,7 +19,7 @@ class NukeQtPublisherClientWidget(QtPublisherClientWidget):
 
     '''Dockable nuke publish widget'''
 
-    def __init__(self, event_manager, unused_asset_list_model):
+    def __init__(self, event_manager):
         super(NukeQtPublisherClientWidget, self).__init__(
             event_manager, parent=get_main_window()
         )
