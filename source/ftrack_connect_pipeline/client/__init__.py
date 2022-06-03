@@ -73,9 +73,9 @@ class HostConnection(object):
                     context_identifiers,
                     self._raw_host_data['definition'][schema_title],
                 )
-            return result
+            return copy.deepcopy(result)
 
-        return self._raw_host_data['definition']
+        return copy.deepcopy(self._raw_host_data['definition'])
 
     def _filter_definitions(self, context_identifiers, definitions):
         '''Filter *definitions* on *context_identifiers* and discoverable.'''
