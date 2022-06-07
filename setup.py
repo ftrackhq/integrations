@@ -26,6 +26,7 @@ from setuptools_scm import get_version
 
 
 embedded_plugins = [
+    # new/updated releases
 ]
 
 

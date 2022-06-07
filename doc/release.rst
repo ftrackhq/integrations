@@ -12,7 +12,6 @@ Releases
    .. change:: changed
 
         Remove plugin manager from package.
-
 .. release:: 2.0.0-rc-5
     :date: 2022-03-25
 
