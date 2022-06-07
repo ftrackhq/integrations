@@ -6,7 +6,8 @@ Releases
 ########
 
 
-.. release:: Upcoming
+.. release:: 2.0.0-rc-6
+    :date: 2022-06-07
 
    .. change:: changed
 
