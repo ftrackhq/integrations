@@ -7,6 +7,13 @@
 Release Notes
 *************
 
+.. releaes:: Upcoming
+    
+    .. change:: changed
+        :tags: Environment Variables
+
+        **HIERO_PLUGIN_PATH** Environment variable is now prepended rather than just set.
+
 .. release:: 2.5.1
     :date: 2022-02-24
 
