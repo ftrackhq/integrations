@@ -11,11 +11,11 @@ from ftrack_connect_pipeline_qt.ui.utility.widget import group_box
 
 
 class GroupBoxStepContainerWidgetObject(BaseUIWidgetObject):
-    '''Widget representation of a boolean'''
+    '''Widget representation of a group box containing schema steps'''
 
     def __init__(self, name, fragment_data, parent=None):
-        '''Initialise JsonBoolean with *name*, *schema_fragment*,
-        *fragment_data*, *previous_object_data*, *widget_factory*, *parent*'''
+        '''Initialise GroupBoxStepContainerWidgetObject with *name*,
+        *fragment_data* and *parent*'''
 
         super(GroupBoxStepContainerWidgetObject, self).__init__(
             name, fragment_data, parent=parent
@@ -28,11 +28,11 @@ class GroupBoxStepContainerWidgetObject(BaseUIWidgetObject):
 
 
 class AccordionStepContainerWidgetObject(BaseUIWidgetObject):
-    '''Widget representation of a boolean'''
+    '''Widget representation of a accordion container of schema steps (components)'''
 
     def __init__(self, name, fragment_data, parent=None):
-        '''Initialise JsonBoolean with *name*, *schema_fragment*,
-        *fragment_data*, *previous_object_data*, *widget_factory*, *parent*'''
+        '''Initialise JsonBoolean with *name*,
+        *fragment_data* and *parent*'''
 
         super(AccordionStepContainerWidgetObject, self).__init__(
             name, fragment_data, parent=parent
@@ -47,6 +47,7 @@ class AccordionStepContainerWidgetObject(BaseUIWidgetObject):
         )
 
     def update_selected_components(self, enabled, total):
+        '''Update header title according to amount of *enabled* components out of *total*'''
         self._widget._header.title_label.setText(
             "{}: {} of {} components selected".format(
                 self._name, enabled, total
@@ -54,6 +55,7 @@ class AccordionStepContainerWidgetObject(BaseUIWidgetObject):
         )
 
     def parent_widget(self, step_widget):
+        '''(Override)'''
         if self.widget:
             widget = (
                 step_widget.widget
@@ -66,11 +68,11 @@ class AccordionStepContainerWidgetObject(BaseUIWidgetObject):
 
 
 class ComboBoxStepContainerWidgetObject(BaseUIWidgetObject):
-    '''Widget representation of a boolean'''
+    '''Widget representation of a combobox container of schema steps'''
 
     def __init__(self, name, fragment_data, parent=None):
-        '''Initialise JsonBoolean with *name*, *schema_fragment*,
-        *fragment_data*, *previous_object_data*, *widget_factory*, *parent*'''
+        '''Initialise ComboBoxStepContainerWidgetObject with *name*,
+        *fragment_data* and *parent*'''
 
         super(ComboBoxStepContainerWidgetObject, self).__init__(
             name, fragment_data, parent=parent
@@ -83,6 +85,7 @@ class ComboBoxStepContainerWidgetObject(BaseUIWidgetObject):
         pass
 
     def parent_widget(self, step_widget):
+        '''(Override)'''
         if self.widget:
             self.widget.addItem(step_widget.get_label())
             # Assume ComboBoxItemStepWidget
@@ -92,11 +95,11 @@ class ComboBoxStepContainerWidgetObject(BaseUIWidgetObject):
 
 
 class RadioButtonStepContainerWidgetObject(BaseUIWidgetObject):
-    '''Widget representation of a boolean'''
+    '''Widget representation of a container of radio button schema steps'''
 
     def __init__(self, name, fragment_data, parent=None):
-        '''Initialise JsonBoolean with *name*, *schema_fragment*,
-        *fragment_data*, *previous_object_data*, *widget_factory*, *parent*'''
+        '''Initialise JsonBoolean with *name*,
+        *fragment_data* and *parent*'''
 
         super(RadioButtonStepContainerWidgetObject, self).__init__(
             name, fragment_data, parent=parent
@@ -108,6 +111,7 @@ class RadioButtonStepContainerWidgetObject(BaseUIWidgetObject):
         self.button_group = QtWidgets.QButtonGroup(self._widget)
 
     def parent_widget(self, widget):
+        '''(Override)'''
         super(RadioButtonStepContainerWidgetObject, self).parent_widget(widget)
         self.button_group.addButton(widget.button)
 

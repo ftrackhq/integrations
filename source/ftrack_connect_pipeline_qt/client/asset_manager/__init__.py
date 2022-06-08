@@ -64,7 +64,7 @@ class QtAssetManagerClientWidget(QtAssetManagerClient, QtWidgets.QFrame):
 
         :*is_assembler*: : if True, the asset manager is docked inside the assembler
 
-        :*parent*: : The parent window
+        :*parent*: : The parent dialog or window
 
         '''
         self._asset_list_model = asset_list_model
@@ -170,9 +170,6 @@ class QtAssetManagerClientWidget(QtAssetManagerClient, QtWidgets.QFrame):
         if not self.is_assembler:
             self.host_selector.hostChanged.connect(self.change_host)
 
-        self.asset_manager_widget.widgetStatusUpdated.connect(
-            self._on_widget_status_updated
-        )
         self.asset_manager_widget.changeAssetVersion.connect(
             self._on_change_asset_version
         )
@@ -228,16 +225,6 @@ class QtAssetManagerClientWidget(QtAssetManagerClient, QtWidgets.QFrame):
         '''(Override) Context has been evaluated'''
         if not self.is_assembler:
             self.context_selector.context_id = context_id
-
-    # Use
-
-    def _on_widget_status_updated(self, data):
-        '''Triggered when a widget emits the
-        widget_status_update signal.
-        Sets the status from the given *data* to the header
-        '''
-        status, message = data
-        self.header.setMessage(message, status)
 
     # Implementation of asset manager client callbacks
 
@@ -471,7 +458,6 @@ class QtAssetManagerClientWidget(QtAssetManagerClient, QtWidgets.QFrame):
                 question='Really remove {} asset{}?'.format(
                     len(selection), 's' if len(selection) > 1 else ''
                 ),
-                prompt=True,
             ).exec_():
                 self._on_remove_assets(selection)
 

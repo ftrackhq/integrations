@@ -7,6 +7,8 @@ from ftrack_connect_pipeline_qt.ui.factory import WidgetFactoryBase
 
 
 class PublisherWidgetFactory(WidgetFactoryBase):
+    '''Augmented widget factory for publisher client'''
+
     def __init__(self, event_manager, ui_types, parent=None):
         super(PublisherWidgetFactory, self).__init__(
             event_manager, ui_types, parent=parent
@@ -20,11 +22,12 @@ class PublisherWidgetFactory(WidgetFactoryBase):
         return core_constants.PUBLISHER
 
     def check_components(self, unused_asset_version_entity):
+        '''(Override)'''
         available_components = 0
         try:
-            if self.working_definition:
+            if self.definition:
                 available_components = len(
-                    self.working_definition[core_constants.COMPONENTS]
+                    self.definition[core_constants.COMPONENTS]
                 )
         finally:
             self.componentsChecked.emit(available_components)

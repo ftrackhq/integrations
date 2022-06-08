@@ -1,5 +1,5 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2014-2020 ftrack
+# :copyright: Copyright (c) 2014-2022 ftrack
 
 from Qt import QtWidgets
 
@@ -7,11 +7,11 @@ from ftrack_connect_pipeline_qt.ui.factory.base import BaseUIWidgetObject
 
 
 class DefaultPluginContainerWidgetObject(BaseUIWidgetObject):
-    '''Widget representation of a boolean'''
+    '''Widget representation of a container holding on or more schema plugins'''
 
     def __init__(self, name, fragment_data, parent=None):
-        '''Initialise JsonBoolean with *name*, *schema_fragment*,
-        *fragment_data*, *previous_object_data*, *widget_factory*, *parent*'''
+        '''Initialise DefaultPluginContainerWidgetObject with *name*,
+        *fragment_data*, *previous_object_data* and *parent*'''
         super(DefaultPluginContainerWidgetObject, self).__init__(
             name, fragment_data, parent=parent
         )

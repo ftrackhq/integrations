@@ -1,5 +1,5 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2014-2020 ftrack
+# :copyright: Copyright (c) 2014-2022 ftrack
 import logging
 import uuid
 
@@ -10,58 +10,52 @@ from ftrack_connect_pipeline_qt.ui.utility.widget import line
 
 class BaseUIWidgetObject(object):
     '''
-    Base class of a widget representation from json schema types
+    Base class of a widget representation from json schema types, wrapping a QT widget. Instantiated from the widget factory.
     '''
 
     @property
     def name(self):
+        '''Return the name of the widget'''
         return self._name
 
     @name.setter
     def name(self, value):
-        '''Sets asset type from the given *value*'''
+        '''Sets the name of widget to *value*'''
         self._name = value
 
     @property
     def widget_id(self):
+        '''Return the widget unique id'''
         return self._widget_id
 
     @property
     def widget(self):
+        '''Return the actual wrapped QT widget'''
         return self._widget
 
     @property
     def enabled(self):
+        '''Return True if widget is enabled as evaluated from schema'''
         return self._is_enabled
 
     @enabled.setter
     def enabled(self, value):
+        '''Set widget enable property'''
         self._is_enabled = value
 
     @property
     def optional(self):
+        '''Return True if widget is optional or not as evaluated from schema'''
         return self._is_optional
 
     def __init__(self, name, fragment_data, parent=None):
-        '''Initialise BaseJsonWidget with *name*, *schema_fragment*,
-        *fragment_data*, *previous_object_data*, *widget_factory*, *parent*
+        '''
+        Initialise BaseUIWidgetObject
 
-        *name* widget name
-
-        *schema_fragment* fragment of the schema to generate the current widget
-
-        *fragment_data* fragment of the data from the definition to fill
+        :param name: The name of the widget as evaluated from schema
+        :param fragment_data: JSON fragment of the data from the definition to fill
         the current widget.
-
-        *previous_object_data* fragment of the data from the previous schema
-        fragment
-
-        *widget_factory* should be the
-        :class:`ftrack_connect_pipeline_qt.client.widgets.json.factory.WidgetFactory`
-        instance to use for recursive generation of json widgets.
-
-        *parent* widget to parent the current widget (optional).
-
+        :param parent: the parent dialog or frame
         '''
         super(BaseUIWidgetObject, self).__init__()
         # setup default vars
@@ -89,25 +83,26 @@ class BaseUIWidgetObject(object):
         self.post_build()
 
     def pre_build(self):
-        '''pre build function, mostly used setup the widget's layout.'''
+        '''pre build function, mostly used setup the widget's layout. To be overridden by child'''
         pass
 
     def build(self):
-        '''build function, mostly used to create the widgets.'''
+        '''build function, mostly used to create the widgets. To be overridden by child'''
         pass
 
     def post_build(self):
-        '''post build function , mostly used connect widgets events.'''
+        '''post build function , mostly used connect widgets events. To be overridden by child'''
         if self.widget and self.widget.layout():
             self.widget.layout().setContentsMargins(0, 0, 0, 0)
             self.widget.layout().setSpacing(5)
             self.widget.setToolTip(self.description)
 
     def parent(self):
+        '''Return the parent widget'''
         return self._parent
 
     def parent_widget(self, widget, add_line=False):
-        '''Add the *widget*, setting me as the parent.'''
+        '''Add the *widget* to wrapped widget layout, setting this widget (me) to be the parent.'''
         if self.widget:
             widget = (
                 widget.widget
@@ -126,9 +121,11 @@ class BaseUIWidgetObject(object):
             self.logger.error("Please create a widget before parent")
 
     def parent_validator(self, step_widget):
+        '''Parent the *step_widget* as validator options. To be overridden by child'''
         raise NotImplementedError
 
     def parent_exporter(self, step_widget):
+        '''Parent the *step_widget* as exporter options. To be overridden by child'''
         raise NotImplementedError
 
     def to_json_object(self):

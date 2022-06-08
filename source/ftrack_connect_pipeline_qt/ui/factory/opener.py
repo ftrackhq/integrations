@@ -9,6 +9,8 @@ from ftrack_connect_pipeline_qt.ui.factory import (
 
 
 class OpenerWidgetFactory(OpenerAssemblerWidgetFactoryBase):
+    '''Augmented widget factory for opener client'''
+
     def __init__(self, event_manager, ui_types, parent=None):
         super(OpenerWidgetFactory, self).__init__(
             event_manager, ui_types, parent=parent
@@ -23,6 +25,7 @@ class OpenerWidgetFactory(OpenerAssemblerWidgetFactoryBase):
 
     @staticmethod
     def create_progress_widget(parent=None):
+        '''(Override)'''
         return OpenerAssemblerWidgetFactoryBase.create_progress_widget(
             OpenerWidgetFactory.client_type(), parent=parent
         )

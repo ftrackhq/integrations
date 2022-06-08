@@ -23,6 +23,7 @@ class AddRunButton(QtWidgets.QPushButton):
         super(AddRunButton, self).__init__(label, parent=parent)
         self.setMaximumHeight(32)
         self.setMinimumHeight(32)
+        self.setToolTip('Add asset(s) but do not load yet')
 
 
 class LoadRunButton(QtWidgets.QPushButton):
@@ -30,6 +31,7 @@ class LoadRunButton(QtWidgets.QPushButton):
         super(LoadRunButton, self).__init__(label, parent=parent)
         self.setMaximumHeight(32)
         self.setMinimumHeight(32)
+        self.setToolTip('Add asset(s) and load them')
 
 
 class OpenAssemblerButton(QtWidgets.QPushButton):
@@ -58,3 +60,8 @@ class NewAssetButton(QtWidgets.QPushButton):
     def __init__(self, parent=None):
         super(NewAssetButton, self).__init__('NEW', parent=parent)
         self.setStyleSheet('background: #FFDD86;')
+
+
+class OptionsButton(QtWidgets.QPushButton):
+    def __init__(self, parent=None):
+        super(OptionsButton, self).__init__(parent=parent)

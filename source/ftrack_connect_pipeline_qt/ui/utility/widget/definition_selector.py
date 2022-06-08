@@ -1,13 +1,12 @@
+# :coding: utf-8
+# :copyright: Copyright (c) 2015-2022 ftrack
 import logging
 import json
-import copy
-from functools import partial
+
 
 from Qt import QtWidgets, QtCore
 
 from ftrack_connect_pipeline.utils import str_version
-from ftrack_connect_pipeline import constants as core_constants
-from ftrack_connect_pipeline_qt import constants as qt_constants
 
 from ftrack_connect_pipeline_qt.ui.utility.widget.circular_button import (
     CircularButton,
@@ -15,40 +14,52 @@ from ftrack_connect_pipeline_qt.ui.utility.widget.circular_button import (
 
 
 class DefinitionSelectorBase(QtWidgets.QWidget):
-    '''Definition selector widget.'''
+    '''Definition selector base widget - enables user to select which definition to use for opening and publishing'''
 
-    definitionChanged = QtCore.Signal(object, object, object)
-    refreshed = QtCore.Signal()
+    definitionChanged = QtCore.Signal(
+        object, object, object
+    )  # User has selected a definition, or no definition is selectable
+    refreshed = QtCore.Signal()  # Widget has been refreshed
 
     @property
     def definition_title_filters(self):
+        '''Return the list of definition title filters'''
         return self._definition_title_filters
 
     @definition_title_filters.setter
     def definition_title_filters(self, value):
+        '''Set the list of definition title filters to *value*'''
         self._definition_title_filters = value
 
     @property
     def definition_extensions_filter(self):
+        '''Return the list of component filename extension filters, e.g. [".ma",".mb"]'''
         return self._definition_extensions_filter
 
     @definition_extensions_filter.setter
     def definition_extensions_filter(self, value):
+        '''Set the list of component filename extension filter to *value*'''
         self._definition_extensions_filter = value
 
     @property
     def current_definition_index(self):
+        '''Return the current index of selected definition, 1-based (0 is no definition selected)'''
         return self._definition_selector.currentIndex()
 
     @current_definition_index.setter
     def current_definition_index(self, value):
+        '''Set the current index of selected definition to *value*'''
         if self._definition_selector.currentIndex() != value:
             self._definition_selector.setCurrentIndex(value)
         else:
             self._on_change_definition(value)
 
     def __init__(self, parent=None):
-        '''Initialize DefinitionSelector widget'''
+        '''
+        Initialize DefinitionSelector widget
+
+        :param parent: The parent dialog or frame
+        '''
         super(DefinitionSelectorBase, self).__init__(parent=parent)
 
         self.logger = logging.getLogger(
@@ -78,6 +89,7 @@ class DefinitionSelectorBase(QtWidgets.QWidget):
         self.layout().addWidget(self.no_definitions_label)
 
     def build_definition_widget(self):
+        '''Must be implemented by the child'''
         raise NotImplementedError()
 
     def post_build(self):
@@ -85,7 +97,7 @@ class DefinitionSelectorBase(QtWidgets.QWidget):
         self.no_definitions_label.setVisible(False)
 
     def on_host_changed(self, host_connection):
-        '''Triggered when client has set host connection'''
+        '''Called when client has set the host connection and thus provided the schemas/definitions'''
         self.clear_definitions()
         self._host_connection = host_connection
 
@@ -133,11 +145,14 @@ class DefinitionSelectorBase(QtWidgets.QWidget):
             self.definitionChanged.emit(None, None, None)
 
     def refresh(self):
+        '''Refresh the widget'''
         self._on_change_definition(self._definition_selector.currentIndex())
         self.refreshed.emit()
 
 
 class OpenerDefinitionSelector(DefinitionSelectorBase):
+    '''Definition selector tailored for opener client'''
+
     def __init__(self, parent=None):
         super(OpenerDefinitionSelector, self).__init__(parent=parent)
 
@@ -327,6 +342,9 @@ class OpenerDefinitionSelector(DefinitionSelectorBase):
 
 
 class AssemblerDefinitionSelector(DefinitionSelectorBase):
+    '''Definition selector tailored for assembler(loader) client.
+    Selection of definitions are disabled, widget is only used for extraction of definitions'''
+
     def __init__(self, parent=None):
         super(AssemblerDefinitionSelector, self).__init__(parent=parent)
 
@@ -363,6 +381,8 @@ class AssemblerDefinitionSelector(DefinitionSelectorBase):
 
 
 class PublisherDefinitionSelector(DefinitionSelectorBase):
+    '''Definition selector tailored for publisher client'''
+
     def __init__(self, parent=None):
         super(PublisherDefinitionSelector, self).__init__(parent=parent)
 

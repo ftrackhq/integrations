@@ -30,7 +30,7 @@ from ftrack_connect_pipeline_qt.ui.utility.widget.context_selector import (
 
 class QtOpenerClient(OpenerClient):
     '''
-    QtOpenerClient class.
+    Client for opening a snapshot in DCC and proceed work leading up to a publish
     '''
 
     ui_types = [core_constants.UI_TYPE, qt_constants.UI_TYPE]
@@ -42,7 +42,7 @@ class QtOpenerClient(OpenerClient):
 
 class QtOpenerClientWidget(QtOpenerClient, dialog.Dialog):
     '''
-    Opener widget class.
+    Opener client widget class.
     '''
 
     ui_types = [core_constants.UI_TYPE, qt_constants.UI_TYPE]
@@ -227,7 +227,7 @@ class QtOpenerClientWidget(QtOpenerClient, dialog.Dialog):
         self.widget_factory.host_connection = self.host_connection
         self.widget_factory.listen_widget_updates()
         self.widget_factory.set_definition_type(self.definition['type'])
-        self.definition_widget = self.widget_factory.build_definition_ui(
+        self.definition_widget = self.widget_factory.build(
             self.definition, component_names_filter
         )
         self.scroll.setWidget(self.definition_widget)
@@ -256,6 +256,7 @@ class QtOpenerClientWidget(QtOpenerClient, dialog.Dialog):
         serialized_data = self.widget_factory.to_json_object()
         engine_type = serialized_data['_config']['engine_type']
         self.widget_factory.progress_widget.show_widget()
+        self.widget_factory.progress_widget.reset_statuses()
         self.run_definition(serialized_data, engine_type)
         if not self.widget_factory.has_error:
             self.widget_factory.progress_widget.set_status(

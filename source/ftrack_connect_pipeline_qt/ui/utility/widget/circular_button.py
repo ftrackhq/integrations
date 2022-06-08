@@ -9,9 +9,20 @@ from ftrack_connect_pipeline_qt.ui.utility.widget.icon import (
 
 
 class CircularButton(QtWidgets.QPushButton):
+    '''Widget representing a circular button with an outline'''
+
     def __init__(
         self, icon_name, color=None, diameter=32, variant=None, parent=None
     ):
+        '''
+        Initialize circular button
+
+        :param icon_name: The material icon name
+        :param color: The color, in html #RRGGBB format, or rgba(r,g,b,alpha)
+        :param diameter: The circle diameter in pixels
+        :param variant: The material icon variant to use (optional)
+        :param parent: The parent dialog or frame
+        '''
         super(CircularButton, self).__init__(parent)
         self.color = color
 

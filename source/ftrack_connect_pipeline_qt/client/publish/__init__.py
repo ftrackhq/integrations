@@ -27,7 +27,7 @@ from ftrack_connect_pipeline_qt.ui.utility.widget.context_selector import (
 
 class QtPublisherClient(PublisherClient):
     '''
-    Publisher client class.
+    Client for publishing DCC asset data to ftrack and storage, through location system
     '''
 
     ui_types = [client_constants.UI_TYPE, qt_constants.UI_TYPE]
@@ -39,7 +39,7 @@ class QtPublisherClient(PublisherClient):
 
 class QtPublisherClientWidget(QtPublisherClient, QtWidgets.QFrame):
     '''
-    Publish widget class.
+    Publisher client widget class.
     '''
 
     def __init__(self, event_manager, parent=None):
@@ -214,7 +214,7 @@ class QtPublisherClientWidget(QtPublisherClient, QtWidgets.QFrame):
         self.widget_factory.host_connection = self.host_connection
         self.widget_factory.listen_widget_updates()
         self.widget_factory.set_definition_type(self.definition['type'])
-        self.definition_widget = self.widget_factory.build_definition_ui(
+        self.definition_widget = self.widget_factory.build(
             self.definition, component_names_filter
         )
         self.scroll.setWidget(self.definition_widget)
@@ -233,6 +233,7 @@ class QtPublisherClientWidget(QtPublisherClient, QtWidgets.QFrame):
         self._shown = True
 
     def _clear_widget(self):
+        '''Remove main client widget'''
         if self.scroll and self.scroll.widget():
             self.scroll.widget().deleteLater()
 
@@ -271,6 +272,7 @@ class QtPublisherClientWidget(QtPublisherClient, QtWidgets.QFrame):
             return False
         engine_type = serialized_data['_config']['engine_type']
         self.widget_factory.progress_widget.show_widget()
+        self.widget_factory.progress_widget.reset_statuses()
         self.run_definition(serialized_data, engine_type)
         if not self.widget_factory.has_error:
             self.widget_factory.progress_widget.set_status(

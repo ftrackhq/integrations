@@ -5,6 +5,8 @@ from Qt import QtWidgets
 
 
 class GroupBox(QtWidgets.QGroupBox):
+    '''Group box widget wrapper'''
+
     def __init__(self, title=None, parent=None):
         super(GroupBox, self).__init__(title, parent=parent)
         # Mitigate Maya style issues

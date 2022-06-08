@@ -6,7 +6,7 @@ import shiboken2
 
 
 class BusyIndicator(QtWidgets.QWidget):
-    '''Draw a busy indicator.'''
+    '''Widget implementing busy indicator - a spinning wheel'''
 
     def __init__(self, start=True, parent=None):
         '''Initialise indicator with optional *parent*.'''

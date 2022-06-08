@@ -20,7 +20,7 @@ UI_OVERRIDES = {
     core_constants.COMPONENTS: {
         'step_container': default_widgets.DefaultStepContainerWidgetObject,
         'step_container.opener': override_widgets.RadioButtonStepContainerWidgetObject,
-        'step_widget.opener': override_widgets.RadioButtonItemStepWidgetObject,
+        'step_widget.opener': override_widgets.RadioButtonStepWidgetObject,
         'step_widget.loader': override_widgets.AccordionStepWidgetObject,
         'step_widget.publisher': override_widgets.PublisherAccordionStepWidgetObject,
         'stage_widget': default_widgets.DefaultStageWidgetObject,

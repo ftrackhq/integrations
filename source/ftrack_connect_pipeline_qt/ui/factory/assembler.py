@@ -17,7 +17,7 @@ from ftrack_connect_pipeline_qt.ui.factory import (
 
 
 class AssemblerWidgetFactory(OpenerAssemblerWidgetFactoryBase):
-    '''Augmented widget factory for loader/assembler'''
+    '''Augmented widget factory for assembler(loader) client'''
 
     def __init__(self, event_manager, ui_types, parent=None):
         super(AssemblerWidgetFactory, self).__init__(
@@ -32,28 +32,25 @@ class AssemblerWidgetFactory(OpenerAssemblerWidgetFactoryBase):
 
     @staticmethod
     def create_progress_widget(parent=None):
+        '''(Override) Create the progress widget'''
         return OpenerAssemblerWidgetFactoryBase.create_progress_widget(
             AssemblerWidgetFactory.client_type(), parent=parent
         )
 
     def set_definition(self, definition):
-        self.working_definition = definition
+        self.definition = definition
 
-    def build_definition_ui(self, main_widget):
-        '''Based on the given definition, build options widget. Assume that
-        definition has been set in advance.'''
-
-        # Backup the original definition, as it will be extended by the user UI
-        self.original_definition = copy.deepcopy(self.working_definition)
+    def build(self, main_widget):
+        '''(Override)'''
 
         # Create the components widget based on the definition
-        self.components_obj = self.create_typed_widget(
-            self.working_definition, type_name=core_constants.COMPONENTS
+        self.components_obj = self.create_step_container_widget(
+            self.definition, core_constants.COMPONENTS
         )
 
         # Create the finalizers widget based on the definition
-        self.finalizers_obj = self.create_typed_widget(
-            self.working_definition, type_name=core_constants.FINALIZERS
+        self.finalizers_obj = self.create_step_container_widget(
+            self.definition, core_constants.FINALIZERS
         )
 
         main_widget.layout().addWidget(self.components_obj.widget)
@@ -70,7 +67,7 @@ class AssemblerWidgetFactory(OpenerAssemblerWidgetFactoryBase):
         main_widget.layout().addStretch()
 
         # Check all components status of the current UI
-        self.post_build_definition()
+        self.post_build()
 
         return main_widget
 
@@ -84,7 +81,7 @@ class AssemblerWidgetFactory(OpenerAssemblerWidgetFactoryBase):
         ]
 
         for type_name in types:
-            for step in self.working_definition[type_name]:
+            for step in self.definition[type_name]:
                 step_type = step['type']
                 step_name = step.get('name')
                 if (
@@ -92,12 +89,11 @@ class AssemblerWidgetFactory(OpenerAssemblerWidgetFactoryBase):
                     and step_type != 'finalizer'
                     and step.get('visible', True) is True
                 ):
-                    self.progress_widget.add_component(
+                    self.progress_widget.add_step(
                         step_type,
                         step_name,
                         version_id=component['version']['id'],
                     )
-                step_obj = self.get_registered_object(step, step['category'])
                 for stage in step['stages']:
                     stage_name = stage.get('name')
                     if (
@@ -105,13 +101,14 @@ class AssemblerWidgetFactory(OpenerAssemblerWidgetFactoryBase):
                         and step_type == 'finalizer'
                         and stage.get('visible', True) is True
                     ):
-                        self.progress_widget.add_component(
+                        self.progress_widget.add_step(
                             step_type,
                             stage_name,
                             version_id=component['version']['id'],
                         )
 
     def check_components(self, asset_version_entity):
+        '''(Override)'''
         if not self.components:
             # Wait for version to be selected and loaded
             return

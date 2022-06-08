@@ -37,7 +37,7 @@ from ftrack_connect_pipeline_qt.ui.utility.widget import dialog
 
 class QtLogViewerClient(LogViewerClient):
     '''
-    QtLogViewerClient class.
+    Client for displaying log items, either from framework plugin run operations (default) or the file logs on disk
     '''
 
     ui_types = [client_constants.UI_TYPE, qt_constants.UI_TYPE]
@@ -49,15 +49,12 @@ class QtLogViewerClient(LogViewerClient):
 
 class QtLogViewerClientWidget(QtLogViewerClient, dialog.Dialog):
     '''
-    QtLogViewerClientWidget class.
+    Log viewer client widget
     '''
 
     _shown = (
         False  # Flag telling if widget has been shown before and needs refresh
     )
-
-    # LOG_MODE_PLUGIN = 0
-    # LOG_MODE_FILE = 1
 
     logItemAdded = QtCore.Signal(object)
 

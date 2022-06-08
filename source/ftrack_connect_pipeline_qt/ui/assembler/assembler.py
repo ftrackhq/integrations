@@ -1,5 +1,5 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2014-2020 ftrack
+# :copyright: Copyright (c) 2014-2022 ftrack
 import os
 import json
 import copy
@@ -657,6 +657,7 @@ class DependenciesListWidget(AssemblerListBaseWidget):
             )
 
         self.layout().addWidget(QtWidgets.QLabel(), 1000)
+        self.refreshed.emit()
 
 
 class BrowserListWidget(AssemblerListBaseWidget):
@@ -752,26 +753,38 @@ class BrowserListWidget(AssemblerListBaseWidget):
             )
 
     def on_search(self, text):
+        '''Search input text change callback'''
         if text != self.prev_search_text:
             self.refresh(text.lower())
             self.prev_search_text = text
 
     def _on_version_change(self, widget, version_entity):
+        '''Another version has been selected by user, emit event'''
         self.versionChanged.emit(widget, version_entity)
 
 
 class DependencyComponentWidget(ComponentBaseWidget):
-    '''Widget representation of a minimal asset representation'''
+    '''Widget representation of a dependency asset (component)'''
 
     def __init__(self, index, assembler_widget, event_manager, parent=None):
+        '''
+        Initialize dependency asset widget
+
+        :param index: index of this asset has in list
+        :param assembler_widget: :class:`~ftrack_connect_pipeline_qt.ui.assembler.base.AssemblerBaseWidget` instance
+        :param event_manager: :class:`~ftrack_connect_pipeline.event.EventManager` instance
+        :param parent: the parent dialog or frame
+        '''
         super(DependencyComponentWidget, self).__init__(
             index, assembler_widget, event_manager, parent=parent
         )
 
     def get_height(self):
+        '''(Override)'''
         return 32
 
     def get_thumbnail_height(self):
+        '''(Override)'''
         return 32
 
     def get_ident_widget(self):
@@ -796,15 +809,18 @@ class DependencyComponentWidget(ComponentBaseWidget):
         return widget
 
     def get_version_widget(self):
+        '''(Override)'''
         self._version_nr_widget = QtWidgets.QLabel('?')
         return self._version_nr_widget
 
     def set_version(self, version_entity):
+        '''(Override)'''
         self._version_nr_widget.setText(
             'v{}  '.format(str(version_entity['version']))
         )
 
     def set_latest_version(self, is_latest_version):
+        '''(Override)'''
         color = '#A5A8AA' if is_latest_version else '#FFBA5C'
         self._version_nr_widget.setStyleSheet(
             'color: {}; font-weight: bold;'.format(color)
@@ -812,11 +828,19 @@ class DependencyComponentWidget(ComponentBaseWidget):
 
 
 class BrowsedComponentWidget(ComponentBaseWidget):
-    '''Widget representation of a minimal asset representation'''
+    '''Widget representation of a browsed asset (component)'''
 
-    versionChanged = QtCore.Signal(object)
+    versionChanged = QtCore.Signal(object)  # Emitted when user changes version
 
     def __init__(self, index, assembler_widget, event_manager, parent=None):
+        '''
+        Initialize browsed asset widget
+
+        :param index: index of this asset has in list
+        :param assembler_widget: :class:`~ftrack_connect_pipeline_qt.ui.assembler.base.AssemblerBaseWidget` instance
+        :param event_manager: :class:`~ftrack_connect_pipeline.event.EventManager` instance
+        :param parent: the parent dialog or frame
+        '''
         super(BrowsedComponentWidget, self).__init__(
             index, assembler_widget, event_manager, parent=parent
         )
@@ -833,13 +857,15 @@ class BrowsedComponentWidget(ComponentBaseWidget):
         self._version_nr_widget.set_context_id(value)
 
     def get_height(self):
+        '''(Override)'''
         return 32
 
     def get_thumbnail_height(self):
+        '''(Override)'''
         return 32
 
     def get_ident_widget(self):
-        '''Asset name and component name.file_type'''
+        '''Build and return the main widget identifying the component'''
         widget = QtWidgets.QWidget()
         widget.setLayout(QtWidgets.QVBoxLayout())
         widget.layout().setContentsMargins(5, 0, 0, 0)
@@ -871,6 +897,7 @@ class BrowsedComponentWidget(ComponentBaseWidget):
         return widget
 
     def get_version_widget(self):
+        '''(Override)'''
         self._version_nr_widget = AssemblerVersionComboBox(self.session)
         self._version_nr_widget.versionChanged.connect(
             self._on_version_changed
@@ -878,15 +905,18 @@ class BrowsedComponentWidget(ComponentBaseWidget):
         return self._version_nr_widget
 
     def set_version(self, version_entity):
+        '''(Override)'''
         self._version_nr_widget.set_version_entity(version_entity)
 
     def set_latest_version(self, is_latest_version):
+        '''(Override)'''
         color = '#A5A8AA' if is_latest_version else '#FFBA5C'
         self._version_nr_widget.setStyleSheet(
             'color: {}; font-weight: bold;'.format(color)
         )
 
     def set_component_and_definitions(self, component, definitions):
+        '''(Override)'''
         super(BrowsedComponentWidget, self).set_component_and_definitions(
             component, definitions
         )
@@ -905,7 +935,7 @@ class BrowsedComponentWidget(ComponentBaseWidget):
         self._path_widget.setVisible(len(sub_path) > 0)
 
     def _on_version_changed(self, entity_version):
-        '''Another version has been selected, emit event.'''
+        '''Another version has been selected by user, emit event'''
         self.versionChanged.emit(entity_version)
 
     def matches(self, search_text):
@@ -924,13 +954,33 @@ class BrowsedComponentWidget(ComponentBaseWidget):
 
 
 class AssemblerEntityInfo(QtWidgets.QWidget):
-    '''Entity path widget.'''
+    '''Entity info widget for the assembler.'''
 
     pathReady = QtCore.Signal(object)
+
+    @property
+    def entity(self):
+        return self._entity
+
+    @entity.setter
+    def entity(self, value):
+        '''Set the entity for this widget to *value*'''
+        if not value:
+            return
+        self._entity = value
+        parent = value['parent']
+        parents = [value]
+        while parent is not None:
+            parents.append(parent)
+            parent = parent['parent']
+        parents.reverse()
+        self.pathReady.emit(parents)
 
     def __init__(self, parent=None):
         '''Instantiate the entity path widget.'''
         super(AssemblerEntityInfo, self).__init__(parent=parent)
+
+        self._entity = None
 
         self.pre_build()
         self.build()
@@ -947,25 +997,12 @@ class AssemblerEntityInfo(QtWidgets.QWidget):
         self.layout().addWidget(self._from_field)
 
         self._path_field = QtWidgets.QLabel()
-        # self._path_field.setObjectName('gray')
         self.layout().addWidget(self._path_field)
 
         self.layout().addStretch()
 
     def post_build(self):
         self.pathReady.connect(self.on_path_ready)
-
-    def set_entity(self, entity):
-        '''Set the *entity* for this widget.'''
-        if not entity:
-            return
-        parent = entity['parent']
-        parents = [entity]
-        while parent is not None:
-            parents.append(parent)
-            parent = parent['parent']
-        parents.reverse()
-        self.pathReady.emit(parents)
 
     def on_path_ready(self, parents):
         '''Set current path to *names*.'''

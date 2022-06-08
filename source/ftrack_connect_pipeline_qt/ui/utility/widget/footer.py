@@ -1,14 +1,11 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2022 ftrack
+# :copyright: Copyright (c) 2014-2022 ftrack
 
 from Qt import QtCore, QtWidgets, QtGui
 
-# Cache of user names.
-NAME_CACHE = dict()
-
 
 class Footer(QtWidgets.QFrame):
-    '''Footer with location info.'''
+    '''Widget for displaying information in dialog footers'''
 
     def __init__(self, session, show_location_stats=True, parent=None):
         '''Instantiate the header widget for a user with *username*.'''

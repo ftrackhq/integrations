@@ -9,8 +9,7 @@ from ftrack_connect_pipeline_qt.ui.utility.widget import dialog
 
 
 class QtSaveClientWidget(Client, QtWidgets.QWidget):
-    '''Web widget viewer client base - a dialog for rendering web content within
-    framework'''
+    '''Client for saving the project/scene/script within DCC locally during work'''
 
     def __init__(self, event_manager):
         Client.__init__(self, event_manager)

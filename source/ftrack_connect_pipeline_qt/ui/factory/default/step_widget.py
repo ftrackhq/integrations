@@ -1,5 +1,5 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2014-2020 ftrack
+# :copyright: Copyright (c) 2014-2022 ftrack
 
 from Qt import QtWidgets
 
@@ -7,22 +7,26 @@ from ftrack_connect_pipeline_qt.ui.factory.base import BaseUIWidgetObject
 
 
 class DefaultStepWidgetObject(BaseUIWidgetObject):
-    '''Widget representation of a boolean'''
+    '''Widget representation of a schema step'''
 
     @property
     def enabled(self):
+        '''(Redefine) Return True if widget is enabled as evaluated from schema'''
         return self.check_box.isChecked()
 
     @enabled.setter
     def enabled(self, value):
+        '''(Redefine) Set widget enable property'''
         self.check_box.setChecked(value)
 
     @property
     def available(self):
+        '''Return true if widget is available'''
         return self.widget.isEnabled()
 
     @available.setter
     def available(self, value):
+        '''Set widget available property to *value*'''
         if value:
             self.enabled = True
             self.widget.setEnabled(True)
@@ -35,8 +39,8 @@ class DefaultStepWidgetObject(BaseUIWidgetObject):
             self.widget.setEnabled(False)
 
     def __init__(self, name, fragment_data, parent=None):
-        '''Initialise JsonBoolean with *name*, *schema_fragment*,
-        *fragment_data*, *previous_object_data*, *widget_factory*, *parent*'''
+        '''Initialise DefaultStepWidgetObject with *name*,
+        *fragment_data* and *parent*'''
 
         super(DefaultStepWidgetObject, self).__init__(
             name, fragment_data, parent=parent
@@ -60,6 +64,7 @@ class DefaultStepWidgetObject(BaseUIWidgetObject):
         super(DefaultStepWidgetObject, self).post_build()
 
     def check_components(self, session, components):
+        '''Set available property based on *components*'''
         self._component = None
         self._session = session
         for component in components:
@@ -72,7 +77,7 @@ class DefaultStepWidgetObject(BaseUIWidgetObject):
             self.available = True
 
     def to_json_object(self):
-        '''Return a formatted json with the data from the current widget'''
+        '''(Override)'''
         out = {}
         out['enabled'] = self.enabled
         return out

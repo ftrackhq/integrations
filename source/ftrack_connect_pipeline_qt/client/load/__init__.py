@@ -89,14 +89,12 @@ class QtAssemblerClientWidget(QtLoaderClient, dialog.Dialog):
 
         self.modes = modes
         self._asset_list_model = asset_list_model
-        self._shown = False
-        ''' Flag telling if widget has been shown before and needs refresh '''
-        self.scroll = None  # Main content scroll pane
-        self.assemble_mode = -1
-        ''' The mode assembler is in - resolve dependencies or manual browse '''
+        self._shown = False  # Flag telling if widget has been shown before and needs refresh
+        self.assemble_mode = (
+            -1
+        )  # The mode assembler is in - resolve dependencies or manual browse
 
-        self.hard_refresh = True
-        ''' Flag telling assembler that next refresh should be a complete rebuild '''
+        self.hard_refresh = True  # Flag telling assembler that next refresh should be a complete rebuild
 
         set_theme(self, get_theme())
         if self.get_theme_background_style():
@@ -278,7 +276,6 @@ class QtAssemblerClientWidget(QtLoaderClient, dialog.Dialog):
 
     def on_host_changed(self, host_connection):
         '''Triggered when client has set host connection'''
-        self._clear_widget()
         if self.definition_filters:
             self.definition_selector.definition_title_filters = (
                 self.definition_filters
@@ -302,7 +299,6 @@ class QtAssemblerClientWidget(QtLoaderClient, dialog.Dialog):
         # Reset definition selector and clear client
         self.definition_selector.clear_definitions()
         self.definition_selector.populate_definitions()
-        self._clear_widget()
 
     # Use
 
@@ -320,15 +316,9 @@ class QtAssemblerClientWidget(QtLoaderClient, dialog.Dialog):
             self.asset_manager.asset_manager_widget.rebuild.emit()
         self._shown = True
 
-    def _clear_widget(self):
-        if self.scroll and self.scroll.widget():
-            self.scroll.widget().deleteLater()
-
     def _on_components_checked(self, available_components_count):
         self.definition_changed(self.definition, available_components_count)
         self.run_button.setEnabled(available_components_count >= 1)
-        if available_components_count == 0:
-            self._clear_widget()
 
     def _on_tab_changed(self, index):
         self.set_assemble_mode(index)
@@ -394,7 +384,8 @@ class QtAssemblerClientWidget(QtLoaderClient, dialog.Dialog):
         self.run_plugin(plugin_data, method, self.engine_type)
 
     def run(self, method=None):
-        '''(Override) Function called when click the run button.'''
+        '''(Override) Function called when the run button is clicked.
+        *method* decides which load method to use, "init_nodes"(track) or "init_and_load"(track and load)'''
         # Load batch of components, any selected
         component_widgets = self._assembler_widget.component_list.selection(
             as_widgets=True
@@ -403,8 +394,9 @@ class QtAssemblerClientWidget(QtLoaderClient, dialog.Dialog):
             dlg = ModalDialog(
                 self.parent(),
                 title='ftrack Assembler',
-                question='Load all?',
-                prompt=True,
+                question='{} all?'.format(
+                    'Load' if method == 'init_and_load' else 'Track'
+                ),
             )
             if dlg.exec_():
                 # Select and use all loadable - having definition
@@ -414,7 +406,7 @@ class QtAssemblerClientWidget(QtLoaderClient, dialog.Dialog):
         if len(component_widgets) > 0:
             # Each component contains a definition ready to run and a factory,
             # run them one by one. Start by preparing progress widget
-            self.progress_widget.prepare_add_components()
+            self.progress_widget.prepare_add_steps()
             self.progress_widget.set_status(
                 core_constants.RUNNING_STATUS, 'Initializing...'
             )
@@ -472,7 +464,9 @@ class QtAssemblerClientWidget(QtLoaderClient, dialog.Dialog):
                     self.progress_widget.set_status(
                         core_constants.SUCCESS_STATUS,
                         'Successfully {} {}/{} asset{}!'.format(
-                            'loaded' if method == 'run' else 'tracked',
+                            'loaded'
+                            if method == 'init_and_load'
+                            else 'tracked',
                             succeeded,
                             len(component_widgets),
                             's' if len(component_widgets) > 1 else '',
@@ -482,7 +476,9 @@ class QtAssemblerClientWidget(QtLoaderClient, dialog.Dialog):
                     self.progress_widget.set_status(
                         core_constants.WARNING_STATUS,
                         'Successfully {} {}/{} asset{}, {} failed - check logs for more information!'.format(
-                            'loaded' if method == 'run' else 'tracked',
+                            'loaded'
+                            if method == 'init_and_load'
+                            else 'tracked',
                             succeeded,
                             len(component_widgets),
                             's' if len(component_widgets) > 1 else '',
@@ -494,7 +490,7 @@ class QtAssemblerClientWidget(QtLoaderClient, dialog.Dialog):
                 self.progress_widget.set_status(
                     core_constants.ERROR_STATUS,
                     'Could not {} asset{} - check logs for more information!'.format(
-                        'loaded' if method == 'run' else 'tracked',
+                        'load' if method == 'init_and_load' else 'tracked',
                         's' if len(component_widgets) > 1 else '',
                     ),
                 )

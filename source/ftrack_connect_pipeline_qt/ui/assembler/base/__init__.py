@@ -41,9 +41,7 @@ from ftrack_connect_pipeline_qt.ui.utility.widget.circular_button import (
     CircularButton,
 )
 from ftrack_connect_pipeline_qt.ui.utility.widget.search import Search
-from ftrack_connect_pipeline_qt.ui.utility.widget.options_button import (
-    OptionsButton,
-)
+from ftrack_connect_pipeline_qt.ui.utility.widget.button import OptionsButton
 from ftrack_connect_pipeline_qt.ui.utility.widget import (
     icon,
     overlay,
@@ -486,9 +484,7 @@ class ComponentBaseWidget(AccordionBaseWidget):
     def definition(self):
         '''Return the currently selected definition to use for loading'''
         return (
-            self._widget_factory.working_definition
-            if self._widget_factory
-            else None
+            self._widget_factory.definition if self._widget_factory else None
         )
 
     @property
@@ -553,9 +549,9 @@ class ComponentBaseWidget(AccordionBaseWidget):
         self._adjust_height()
 
     def init_status_widget(self):
+        '''Build the asset status widget.'''
         self._status_widget = AssetVersionStatusWidget(bordered=False)
         self._status_widget.setMinimumWidth(60)
-        # self._status_widget.setObjectName('borderless')
         return self._status_widget
 
     def init_options_button(self):
@@ -580,6 +576,11 @@ class ComponentBaseWidget(AccordionBaseWidget):
         raise NotImplementedError()
 
     def set_version(self, version_entity):
+        '''Set the current *version_entity*, must be overridden by child'''
+        raise NotImplementedError()
+
+    def set_latest_version(self, is_latest_version):
+        '''Set the current *is_latest_version*, must be overridden by child'''
         raise NotImplementedError()
 
     def init_header_content(self, header_widget, collapsed):
@@ -706,9 +707,7 @@ class ComponentBaseWidget(AccordionBaseWidget):
 
     def _build_options(self):
         '''Build options overlay with factory'''
-        self._widget_factory.build_definition_ui(
-            self.options_widget.main_widget
-        )
+        self._widget_factory.build(self.options_widget.main_widget)
         # Make sure we can save options on close
         self.options_widget.overlay_container.close_btn.clicked.connect(
             self._store_options
@@ -785,7 +784,7 @@ class ComponentBaseWidget(AccordionBaseWidget):
         pass
 
     def get_height(self):
-        '''Return the height of the widget, should be overridden by child'''
+        '''Return the height of the widget in pixels, should be overridden by child'''
         raise NotImplementedError()
 
     def _adjust_height(self):

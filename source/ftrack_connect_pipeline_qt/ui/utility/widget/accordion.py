@@ -1,13 +1,6 @@
-from functools import partial
+# :coding: utf-8
+# :copyright: Copyright (c) 2014-2022 ftrack
 
-from Qt import QtWidgets, QtCore, QtGui
-
-from ftrack_connect_pipeline_qt import constants
-from ftrack_connect_pipeline import constants as pipeline_constants
-from ftrack_connect_pipeline_qt.plugin.widgets import BaseOptionsWidget
-from ftrack_connect_pipeline_qt.ui.utility.widget import overlay
-from ftrack_connect_pipeline_qt import utils
-from ftrack_connect_pipeline_qt.ui.utility.widget import line, icon
 from ftrack_connect_pipeline_qt.ui.utility.widget.base.accordion_base import (
     AccordionBaseWidget,
 )

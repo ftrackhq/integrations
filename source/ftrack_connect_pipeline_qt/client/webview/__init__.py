@@ -23,7 +23,12 @@ class QtWebViewClientWidget(Client, dialog.Dialog):
     framework'''
 
     def __init__(self, event_manager, parent=None):
+        '''
+        Initialize QtWebViewClientWidget
 
+        :param event_manager: :class:`~ftrack_connect_pipeline.event.EventManager` instance
+        :param parent: The parent dialog or frame
+        '''
         dialog.Dialog.__init__(self, parent=parent)
         Client.__init__(self, event_manager)
 
@@ -95,7 +100,7 @@ class QtWebViewClientWidget(Client, dialog.Dialog):
 class QtInfoWebViewClientWidget(QtWebViewClientWidget):
     '''Show the current context(task) info within a web client dialog'''
 
-    def __init__(self, event_manger, unused_asset_model, parent=None):
+    def __init__(self, event_manger, parent=None):
         super(QtInfoWebViewClientWidget, self).__init__(
             event_manger, parent=parent
         )
@@ -108,7 +113,7 @@ class QtInfoWebViewClientWidget(QtWebViewClientWidget):
 class QtTasksWebViewClientWidget(QtWebViewClientWidget):
     '''Show assigned tasks with a web client dialog'''
 
-    def __init__(self, event_manger, unused_asset_model, parent=None):
+    def __init__(self, event_manger, parent=None):
         super(QtTasksWebViewClientWidget, self).__init__(
             event_manger, parent=parent
         )

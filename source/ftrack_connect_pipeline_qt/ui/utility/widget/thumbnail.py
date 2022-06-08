@@ -1,6 +1,6 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2015 ftrack
-
+import time
 import os
 import logging
 import urllib.request, urllib.parse, urllib.error
@@ -9,21 +9,24 @@ import urllib.request, urllib.error, urllib.parse
 from Qt import QtCore, QtGui, QtWidgets
 import shiboken2
 
-# rom ftrack_connect_pipeline_qt.utils import Worker
 from ftrack_connect_pipeline_qt.utils import BaseThread
 
 # Cache of thumbnail images.
 IMAGE_CACHE = dict()
 
 
-class Base(QtWidgets.QLabel):
+class ThumbnailBase(QtWidgets.QLabel):
     '''Widget to load thumbnails from ftrack server.'''
+
+    MAX_CONNECTIONS = 10  # Maximum number of parallel connections to allow
 
     thumbnailFetched = QtCore.Signal(object)
     thumbnailNotFound = QtCore.Signal()
 
+    _connection_count = 0
+
     def __init__(self, session, scale=True, parent=None):
-        super(Base, self).__init__(parent)
+        super(ThumbnailBase, self).__init__(parent)
         self.session = session
         self._alive = True
         self._scale = scale
@@ -60,11 +63,6 @@ class Base(QtWidgets.QLabel):
                 self._updateWithPlaceholderPixmap()
             return
 
-        # if self._worker and self._worker.isRunning():
-        #    while self._worker:
-        #        app = QtWidgets.QApplication.instance()
-        #        app.processEvents()
-
         thread = BaseThread(
             name='get_thumbnail_thread',
             target=self._download_async,
@@ -76,13 +74,26 @@ class Base(QtWidgets.QLabel):
         self.__loadingReference = reference
 
     def _download_async(self, reference):
+        '''(Run in background thread) Download image'''
+        while ThumbnailBase.MAX_CONNECTIONS <= ThumbnailBase._connection_count:
+            time.sleep(0.01)
+            # Thumbnail widget still active?
+            if not shiboken2.isValid(self):
+                return
+        ThumbnailBase._connection_count += 1
         try:
             return self._download(reference)
         except urllib.error.URLError:
             # Not found
+            if not shiboken2.isValid(self):
+                # Thumbnail widget has been destroyed
+                return
             self.thumbnailNotFound.emit()
+        finally:
+            ThumbnailBase._connection_count -= 1
 
     def _downloaded_async(self, html):
+        '''(Run in background thread) Image has been downloaded, propagate to QT thread'''
         if not shiboken2.isValid(self):
             # Thumbnail widget has been destroyed
             return
@@ -99,17 +110,19 @@ class Base(QtWidgets.QLabel):
         self.__loadingReference = None
 
     def _use_placeholder(self):
+        '''Use placeholder image'''
         IMAGE_CACHE[self.__loadingReference] = None
         self._updateWithPlaceholderPixmap()
 
     def _updatePixmapData(self, data):
-        '''Update thumbnail with *data*.'''
+        '''Update thumbnail with *data*'''
         if data:
             pixmap = QtGui.QPixmap()
             pixmap.loadFromData(data)
             self._scaleAndSetPixmap(pixmap)
 
     def _updateWithPlaceholderPixmap(self):
+        '''Update thumbnail with default placeholder image'''
         resource_path = ':ftrack/image/default/placeholderThumbnail'
         self._scaleAndSetPixmap(QtGui.QPixmap(resource_path))
 
@@ -161,7 +174,7 @@ class Base(QtWidgets.QLabel):
         return None
 
 
-class EllipseBase(Base):
+class EllipseThumbnailBase(ThumbnailBase):
     '''Thumbnail which is drawn as an ellipse.'''
 
     def paintEvent(self, event):
@@ -178,7 +191,9 @@ class EllipseBase(Base):
         painter.drawEllipse(QtCore.QRectF(0, 0, self.width(), self.height()))
 
 
-class Context(Base):
+class Context(ThumbnailBase):
+    '''Context thumbnail widget'''
+
     def _download(self, reference):
         '''Return thumbnail from *reference*.'''
         context = self.session.get('Context', reference)
@@ -225,7 +240,9 @@ class Context(Base):
         self.setPixmap(scaled_pixmap)
 
 
-class AssetVersion(Base):
+class AssetVersion(ThumbnailBase):
+    '''Asset version thumbnail widget'''
+
     def _download(self, reference):
         '''Return thumbnail from *reference*.'''
         url = self.session.get('AssetVersion', reference)['thumbnail_url'][
@@ -264,7 +281,9 @@ class AssetVersion(Base):
         self.setPixmap(scaled_pixmap)
 
 
-class User(EllipseBase):
+class User(EllipseThumbnailBase):
+    '''User(avatar) thumbnail widget'''
+
     def _download(self, reference):
         '''Return thumbnail from *reference*.'''
         thumbnail = self.session.query(

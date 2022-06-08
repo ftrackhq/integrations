@@ -13,7 +13,7 @@ from ftrack_connect_pipeline_qt.ui.utility.widget import scroll_area
 
 
 class AssetManagerBaseWidget(QtWidgets.QWidget):
-    '''Base widget of the asset manager and is_assembler'''
+    '''Base widget of the asset manager'''
 
     @property
     def event_manager(self):
@@ -38,11 +38,13 @@ class AssetManagerBaseWidget(QtWidgets.QWidget):
     def __init__(
         self, is_assembler, event_manager, asset_list_model, parent=None
     ):
-        '''Initialise AssetManagerWidget with *event_manager*
+        '''
+        Initialize asset manager widget
 
-        *event_manager* should be the
-        :class:`ftrack_connect_pipeline.event.EventManager` instance to
-        communicate to the event server.
+        :param is_assembler: Boolean telling if this asset manager is docked in assembler (True) or in DCC (False)
+        :param event_manager:  :class:`~ftrack_connect_pipeline.event.EventManager` instance
+        :param asset_list_model: : instance of :class:`~ftrack_connect_pipeline_qt.ui.asset_manager.model.AssetListModel`
+        :param parent: the parent dialog or frame
         '''
         super(AssetManagerBaseWidget, self).__init__(parent=parent)
 
@@ -62,7 +64,7 @@ class AssetManagerBaseWidget(QtWidgets.QWidget):
         self.layout().setSpacing(0)
 
     def build_header(self, layout):
-        '''To be overridden by child'''
+        '''Build the asset manager header and add to *layout*. To be overridden by child'''
         layout.addStretch()
 
     def build(self):
@@ -84,7 +86,7 @@ class AssetManagerBaseWidget(QtWidgets.QWidget):
         pass
 
     def init_search(self):
-        '''Create search box'''
+        '''Create search input'''
         self._search = Search(
             collapsed=self._is_assembler,
             collapsable=self._is_assembler,
@@ -99,12 +101,14 @@ class AssetManagerBaseWidget(QtWidgets.QWidget):
 
 
 class AssetListWidget(QtWidgets.QWidget):
-    '''Generic asset list view'''
+    '''Generic asset list view widget'''
 
-    _last_clicked = None
+    _last_clicked = None  # The asset last clicked, used for SHIFT+ selections
 
-    selectionUpdated = QtCore.Signal(object)
-    refreshed = QtCore.Signal()
+    selectionUpdated = QtCore.Signal(
+        object
+    )  # Emitted when selection has been updated
+    refreshed = QtCore.Signal()  # Should be emitted when list has been rebuilt
 
     @property
     def model(self):
@@ -112,12 +116,19 @@ class AssetListWidget(QtWidgets.QWidget):
 
     @property
     def assets(self):
+        '''Return assets added to widget'''
         for i in range(self.layout().count()):
             widget = self.layout().itemAt(i).widget()
             if widget and isinstance(widget, AccordionBaseWidget):
                 yield widget
 
     def __init__(self, model, parent=None):
+        '''
+        Initialize asset list widget
+
+        :param model: :class:`~ftrack_connect_pipeline_qt.ui.asset_manager.model.AssetListModel` instance
+        :param parent:  The parent dialog or frame
+        '''
         super(AssetListWidget, self).__init__(parent=parent)
         self._model = model
         self.was_clicked = False
@@ -138,10 +149,11 @@ class AssetListWidget(QtWidgets.QWidget):
         pass
 
     def rebuild(self):
-        '''Clear widget and add all assets again from model.'''
+        '''Clear widget and add all assets again from model. Should be overridden by child'''
         raise NotImplementedError()
 
     def selection(self, as_widgets=False):
+        '''Return list of asset infos or asset widgets if *as_widgets* is True'''
         result = []
         for widget in self.assets:
             if widget.selected:
@@ -156,6 +168,7 @@ class AssetListWidget(QtWidgets.QWidget):
         return result
 
     def clear_selection(self):
+        '''De-select all assets'''
         if not shiboken2.isValid(self):
             return
         selection_asset_data_changed = False
@@ -168,7 +181,7 @@ class AssetListWidget(QtWidgets.QWidget):
                 self.selectionUpdated.emit(selection)
 
     def asset_clicked(self, asset_widget, event):
-        '''An asset (accordion) were clicked in list, evaluate selection.'''
+        '''An asset were clicked in list, evaluate selection.'''
         selection_asset_data_changed = False
         modifiers = QtWidgets.QApplication.keyboardModifiers()
         if event.button() == QtCore.Qt.RightButton:
@@ -210,10 +223,11 @@ class AssetListWidget(QtWidgets.QWidget):
                 self.selectionUpdated.emit(selection)
 
     def get_widget(self, index):
+        '''Return the asset widget representation at *index*'''
         for widget in self.assets:
             if widget.index.row() == index.row():
                 return widget
 
     def mousePressEvent(self, event):
-        # Consume this event, so parent client does not de-select all
+        '''Consume this event, so parent client does not de-select all'''
         pass

@@ -8,11 +8,11 @@ from ftrack_connect_pipeline_qt.ui.utility.widget import group_box
 
 
 class GroupBoxStageWidgetObject(BaseUIWidgetObject):
-    '''Widget representation of a boolean'''
+    '''Widget representation of a stage group box'''
 
     def __init__(self, name, fragment_data, parent=None):
-        '''Initialise JsonBoolean with *name*, *schema_fragment*,
-        *fragment_data*, *previous_object_data*, *widget_factory*, *parent*'''
+        '''Initialise JsonBoolean with *name*,
+        *fragment_data* and *parent*'''
         super(GroupBoxStageWidgetObject, self).__init__(
             name, fragment_data, parent=parent
         )

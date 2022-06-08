@@ -1,5 +1,5 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2014-2020 ftrack
+# :copyright: Copyright (c) 2014-2022 ftrack
 import logging
 
 from Qt import QtWidgets
@@ -11,11 +11,21 @@ from ftrack_connect_pipeline_qt.ui.utility.widget.base.accordion_base import (
 
 
 class PluginAccordion(AccordionBaseWidget):
+    '''Accordion widget representation of a schema plugin'''
+
     @property
     def options_widget(self):
+        '''Return the options widget'''
         return self._options_button
 
     def __init__(self, title=None, checkable=False, parent=None):
+        '''
+        Initialize the plugin accordion
+
+        :param title: The name of the plugin
+        :param checkable: True if user can check and uncheck it or not
+        :param parent: the parent dialog or frame
+        '''
         super(PluginAccordion, self).__init__(
             AccordionBaseWidget.SELECT_MODE_NONE,
             AccordionBaseWidget.CHECK_MODE_CHECKBOX
@@ -26,7 +36,7 @@ class PluginAccordion(AccordionBaseWidget):
         )
 
     def init_header_content(self, header_widget, collapsed):
-        '''Add publish related widgets to the accordion header'''
+        '''(Override) Setup the header widget layout'''
         header_layout = QtWidgets.QHBoxLayout()
         header_widget.setLayout(header_layout)
         header_layout.setContentsMargins(0, 0, 0, 0)
@@ -39,11 +49,11 @@ class PluginAccordion(AccordionBaseWidget):
 
 
 class AccordionPluginContainerWidgetObject(BaseUIWidgetObject):
-    '''Widget representation of a boolean'''
+    '''Widget representation of a accordion plugin container'''
 
     def __init__(self, name, fragment_data, parent=None):
-        '''Initialise JsonBoolean with *name*, *schema_fragment*,
-        *fragment_data*, *previous_object_data*, *widget_factory*, *parent*'''
+        '''Initialise AccordionPluginContainerWidgetObject with *name*,
+        *fragment_data* and *parent*'''
         super(AccordionPluginContainerWidgetObject, self).__init__(
             name, fragment_data, parent=parent
         )
@@ -54,6 +64,7 @@ class AccordionPluginContainerWidgetObject(BaseUIWidgetObject):
         )
 
     def parent_widget(self, widget):
+        '''(Override)'''
         if self.widget:
             widget = (
                 widget.widget

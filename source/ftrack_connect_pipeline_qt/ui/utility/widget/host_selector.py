@@ -4,24 +4,31 @@ from Qt import QtWidgets, QtCore
 
 
 class HostSelector(QtWidgets.QWidget):
-    '''Host selector Class. Hides the widget input
-    if only one host (default usage scenario within DCCs)'''
+    '''Host selector widget. Hides the widget input if only one host (default usage scenario within DCCs)'''
 
-    hostChanged = QtCore.Signal(object)
+    hostChanged = QtCore.Signal(object)  # The host has been changed by user
 
     @property
     def host_connection(self):
+        '''Return the current selected host connection, 1-based (0 is no host selected)'''
         return self.host_combobox.itemData(self.host_combobox.currentIndex())
 
     @host_connection.setter
     def host_connection(self, value):
+        '''Set the current selected host connection to *value*'''
         for index in range(self.host_combobox.count()):
             if self.host_combobox.itemData(index) == value:
                 self.host_combobox.setCurrentIndex(index)
-                break
+                return
+        self.host_combobox.setCurrentIndex(0)
 
     def __init__(self, client, parent=None):
-        '''Initialize DefinitionSelector widget'''
+        '''
+        Initialize HostSelector widget
+
+        :param client: :class:`~ftrack_connect_pipeline.client.Client` instance
+        :param parent: The parent dialog or frame
+        '''
         super(HostSelector, self).__init__(parent=parent)
         self.logger = logging.getLogger(
             __name__ + '.' + self.__class__.__name__
@@ -55,8 +62,12 @@ class HostSelector(QtWidgets.QWidget):
         self.setVisible(False)
 
     def add_hosts(self, host_connections):
+        '''Add the host(connections) to combobox. If only one, select it (default behaviour)'''
         for host_connection in host_connections:
-            self.host_combobox.addItem(host_connection.name, host_connection)
+            self.host_combobox.addItem(
+                '{}({})'.format(host_connection.name, host_connection.id),
+                host_connection,
+            )
         if self.host_combobox.count() == 2:
             self.host_combobox.setCurrentIndex(1)
             self.setVisible(False)
@@ -64,7 +75,7 @@ class HostSelector(QtWidgets.QWidget):
             self.setVisible(True)
 
     def _on_host_selected(self, index):
-        '''triggered when changing host selection to *index*'''
+        '''Triggered when changing host selection to *index*'''
         host_connection = self.host_combobox.itemData(index)
 
         if not host_connection:

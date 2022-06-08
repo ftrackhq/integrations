@@ -1,16 +1,15 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2014-2021 ftrack
-
+# :copyright: Copyright (c) 2014-2022 ftrack
 import logging
 
 from Qt import QtWidgets, QtCore, QtGui
 
-from ftrack_connect_pipeline_qt.utils import BaseThread
-
 
 class VersionComboBox(QtWidgets.QComboBox):
+    '''The version selector combobox within VersionSelector widget'''
+
     versionsQueryDone = QtCore.Signal()
-    versionChanged = QtCore.Signal(object)
+    versionChanged = QtCore.Signal(object)  # User has selected the version
 
     def __init__(self, session, parent=None):
         super(VersionComboBox, self).__init__(parent=parent)
@@ -77,6 +76,7 @@ class VersionComboBox(QtWidgets.QComboBox):
         self.versionsQueryDone.emit()
 
     def _on_current_index_changed(self, index):
+        '''Process user version selection, propagate to widget'''
         if self._version_id is not None:
             version_id = self.itemData(index)
             if version_id is not None and version_id != self._version_id:
@@ -89,8 +89,11 @@ class VersionComboBox(QtWidgets.QComboBox):
 
 
 class VersionSelector(QtWidgets.QWidget):
+    '''Version selector widget implemented by a combobox'''
 
-    versionChanged = QtCore.Signal(object, object)
+    versionChanged = QtCore.Signal(
+        object, object
+    )  # User has selected the version
 
     def __init__(self, session, parent=None):
         super(VersionSelector, self).__init__(parent=parent)
@@ -125,6 +128,7 @@ class VersionSelector(QtWidgets.QWidget):
         )
 
     def _current_version_changed(self, index):
+        '''Process user version selection, promote to event'''
         if index == -1:
             return
         version_num = self.version_combobox.currentText().split("Version ")[1]

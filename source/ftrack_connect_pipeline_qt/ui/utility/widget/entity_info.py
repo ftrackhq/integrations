@@ -6,17 +6,18 @@ from Qt import QtWidgets, QtCore
 
 
 class EntityInfo(QtWidgets.QWidget):
-    '''Entity path widget.'''
+    '''Widget presenting basic information about an entity(context)'''
 
-    pathReady = QtCore.Signal(object)
+    pathReady = QtCore.Signal(object)  # List if context parents are provided
 
     @property
     def entity(self):
+        '''Return the current entity'''
         return self._entity
 
     @entity.setter
     def entity(self, value):
-        '''Set the *entity* for this widget.'''
+        '''Set the entity for this widget to *value*'''
         if not value:
             return
         self._entity = value
@@ -29,7 +30,12 @@ class EntityInfo(QtWidgets.QWidget):
         self.pathReady.emit(parents)
 
     def __init__(self, additional_widget=None, parent=None):
-        '''Instantiate the entity path widget.'''
+        '''
+        Instantiate the entity info widget
+
+        :param additional_widget: The optional insertion widget
+        :param parent: The parent dialog or frame
+        '''
         super(EntityInfo, self).__init__(parent=parent)
 
         self._entity = None
@@ -67,47 +73,11 @@ class EntityInfo(QtWidgets.QWidget):
         self.layout().addStretch()
 
     def post_build(self):
-        self.pathReady.connect(self.on_path_ready)
+        self.pathReady.connect(self._on_path_ready)
 
-    def on_path_ready(self, parents):
+    def _on_path_ready(self, parents):
         '''Set current path to *names*.'''
-        # self.type_field.setText(parents[-1].get('type', {}).get('name', 'Project'))
         self._name_field.setText('{} '.format(parents[-1]['name']))
         self._path_field.setText(
             os.sep.join([p['name'] for p in parents[:-1]])
-        )
-
-
-class VersionInfo(QtWidgets.QWidget):
-    def __init__(self, session=None, parent=None):
-        '''Instantiate the entity path widget.'''
-        super(VersionInfo, self).__init__(parent=parent)
-        self.session = session
-        self.setLayout(QtWidgets.QVBoxLayout())
-        self.build()
-        self.layout().addStretch()
-
-    def build(self):
-        self.date_field = QtWidgets.QLabel()
-        self.user_field = QtWidgets.QLabel()
-        self.description_field = QtWidgets.QLabel()
-
-        self.layout().addWidget(self.date_field)
-        self.layout().addWidget(self.user_field)
-        self.layout().addWidget(self.description_field)
-
-    def set_entity(self, version_id):
-        version = self.session.get('AssetVersion', version_id)
-        self.date_field.setText(
-            'Date : {}'.format(str(version['date'].humanize()))
-        )
-        self.user_field.setText(
-            'User : {}'.format(
-                str(version['user'].get('username', 'No User set'))
-            )
-        )
-        self.description_field.setText(
-            'Comment : {}'.format(
-                str(version.get('comment') or 'No Comment set')
-            )
         )

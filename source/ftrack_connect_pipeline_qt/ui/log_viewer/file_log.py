@@ -16,15 +16,10 @@ from ftrack_connect_pipeline_qt.ui.utility.widget.circular_button import (
 
 
 class FileLogViewerWidget(QtWidgets.QWidget):
-    '''Main widget of the Log viewer'''
+    '''Main widget of the file log viewer'''
 
     def __init__(self, parent=None):
-        '''Initialise LogViewerWidget with *event_manager*
-
-        *event_manager* should be the
-        :class:`ftrack_connect_pipeline.event.EventManager` instance to
-        communicate to the event server.
-        '''
+        '''Initialise FileLogViewerWidget with *parent*'''
         super(FileLogViewerWidget, self).__init__(parent=parent)
 
         self.logger = logging.getLogger(__name__)
@@ -122,6 +117,7 @@ class FileLogViewerWidget(QtWidgets.QWidget):
             )
 
     def _on_file_index_changed(self, selected_index):
+        '''Callback on user log file selection'''
         if len(self._files_combobox.currentText() or '') > 0:
             file_path = os.path.join(
                 get_log_directory(), self._files_combobox.currentText()

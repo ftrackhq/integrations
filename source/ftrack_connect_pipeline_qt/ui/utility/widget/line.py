@@ -1,5 +1,5 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2014-2021 ftrack
+# :copyright: Copyright (c) 2014-2022 ftrack
 
 from Qt import QtWidgets, QtCore, QtGui
 
@@ -7,7 +7,16 @@ from ftrack_connect_pipeline_qt.utils import set_property
 
 
 class Line(QtWidgets.QFrame):
+    '''Widget presenting a one pixel wide line'''
+
     def __init__(self, horizontal=True, style=None, parent=None):
+        '''
+        Initialize Line
+
+        :param horizontal: Line orientation
+        :param style: The CSS style
+        :param parent: The parent dialog or frame
+        '''
         super(Line, self).__init__(parent=parent)
 
         if horizontal:

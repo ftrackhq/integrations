@@ -13,7 +13,7 @@ NAME_CACHE = dict()
 
 
 class Header(QtWidgets.QFrame):
-    '''Header widget with name and thumbnail.'''
+    '''Header widget with name and thumbnail'''
 
     publishClicked = QtCore.Signal()
 
@@ -26,8 +26,16 @@ class Header(QtWidgets.QFrame):
         show_publisher=False,
         parent=None,
     ):
-        '''Instantiate the header widget for a user with *username*.'''
+        '''
+        Instantiate the header widget
 
+        :param session: :class:`ftrack_api.session.Session` instance
+        :param title: (Optional) The title to put in header
+        :param show_logo: If True, Connect logo should be displayed
+        :param show_user: If True, the user avatar icon should be displayed
+        :param show_publisher: IF True, a circular publisher button should be displaued
+        :param parent: The parent dialog or frame
+        '''
         super(Header, self).__init__(parent=parent)
 
         self.session = session
@@ -91,7 +99,7 @@ class Header(QtWidgets.QFrame):
 
 
 class Logo(QtWidgets.QLabel):
-    '''Logo widget.'''
+    '''Header logo widget'''
 
     def __init__(self, parent=None):
         '''Instantiate logo widget.'''
@@ -126,7 +134,7 @@ class Logo(QtWidgets.QLabel):
 
 
 class User(QtWidgets.QFrame):
-    '''User name and logo widget.'''
+    '''Header user avatar widget'''
 
     def __init__(self, session, parent=None):
         '''Instantiate user name and logo widget using *username*.'''

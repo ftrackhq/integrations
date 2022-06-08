@@ -16,7 +16,13 @@ from ftrack_connect_pipeline_qt.ui.utility.widget import (
 class QtChangeContextClientWidget(Client):
     '''Client for changing the current working context within the host/DCC'''
 
-    def __init__(self, event_manager):
+    def __init__(self, event_manager, parent=None):
+        '''
+        Initialize QtChangeContextClientWidget
+
+        :param event_manager:  :class:`~ftrack_connect_pipeline.event.EventManager` instance
+        :param parent: The parent dialog or frame
+        '''
         super(QtChangeContextClientWidget, self).__init__(event_manager)
         self.logger = logging.getLogger(
             __name__ + '.' + self.__class__.__name__
