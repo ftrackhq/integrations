@@ -39,4 +39,5 @@ Thumbs.db
 .idea/
 *.orig
 # SCM
+source/ftrack_connect_pipeline_qt/ui/resource.py
 source/ftrack_connect_pipeline_qt/_version.py
