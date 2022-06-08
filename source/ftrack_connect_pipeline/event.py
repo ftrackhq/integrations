@@ -87,7 +87,7 @@ class EventManager(object):
             # self.logger.debug('Initializing new hub thread {}'.format(self))
             self._event_hub_thread = _EventHubThread(self.session)
 
-        if not self._event_hub_thread.isAlive():
+        if not self._event_hub_thread.is_alive():
             # self.logger.debug('Starting new hub thread for {}'.format(self))
             self._event_hub_thread.start()
 
