@@ -57,6 +57,10 @@ class BuildPlugin(setuptools.Command):
 
         # Copy plugin files
         shutil.copytree(HOOK_PATH, os.path.join(STAGING_PATH, 'hook'))
+        dependencies_path = os.path.join(STAGING_PATH, 'dependencies')
+
+
+        os.makedirs(dependencies_path)
 
         subprocess.check_call(
             [
@@ -66,7 +70,7 @@ class BuildPlugin(setuptools.Command):
                 'install',
                 '.',
                 '--target',
-                os.path.join(STAGING_PATH, 'dependencies'),
+                dependencies_path,
             ]
         )
 
@@ -131,5 +135,5 @@ setup(
     tests_require=['pytest >= 2.3.5, < 3'],
     cmdclass={'test': PyTest, 'build_plugin': BuildPlugin},
     zip_safe=False,
-    python_requires='<3.8',
+    python_requires='<3.10',
 )
