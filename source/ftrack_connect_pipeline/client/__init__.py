@@ -407,6 +407,7 @@ class Client(object):
             self.subscribe_client_context_change()
             self.on_host_changed(self.host_connection)
             self.on_context_changed(self.host_connection.context_id)
+            return
         # discovery host loop and timeout.
         start_time = time.time()
         self.logger.debug('time out set to {}:'.format(time_out))

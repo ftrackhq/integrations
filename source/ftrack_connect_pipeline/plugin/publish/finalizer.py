@@ -1,7 +1,7 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2020 ftrack
-
 import os
+import traceback
 
 from ftrack_connect_pipeline import constants
 from ftrack_connect_pipeline.plugin import base
@@ -95,7 +95,7 @@ class PublisherFinalizerPlugin(base.BaseFinalizerPlugin):
 
         Returns a dictionary with the result information of the called method.
 
-        *event* : Diccionary returned when the event topic
+        *event* : Dictionary returned when the event topic
         :const:`~ftrack_connect_pipeline.constants.PIPELINE_RUN_PLUGIN_TOPIC` is
         called.
 
@@ -145,42 +145,59 @@ class PublisherFinalizerPlugin(base.BaseFinalizerPlugin):
                 },
             )
 
-        asset_version_entity = self.session.create(
-            'AssetVersion',
-            {
-                'asset': asset_entity,
-                'task': context_object,
-                'comment': comment,
-                'status': status,
-            },
-        )
+        rollback = False
+        try:
+            asset_version_entity = self.session.create(
+                'AssetVersion',
+                {
+                    'asset': asset_entity,
+                    'task': context_object,
+                    'comment': comment,
+                    'status': status,
+                },
+            )
 
-        if self.version_dependencies:
-            for dependency in self.version_dependencies:
-                asset_version_entity['uses_versions'].append(dependency)
+            if self.version_dependencies:
+                for dependency in self.version_dependencies:
+                    asset_version_entity['uses_versions'].append(dependency)
 
-        self.session.commit()
+            self.session.commit()
 
-        results = {}
+            rollback = True  # Undo version creation from this point
 
-        for step in data:
-            if step['type'] == constants.COMPONENT:
-                component_name = step['name']
-                for stage in step['result']:
-                    for plugin in stage['result']:
-                        for component_path in plugin['result']:
-                            publish_component_fn = (
-                                self.component_functions.get(
-                                    component_name, self.create_component
+            results = {}
+
+            for step in data:
+                if step['type'] == constants.COMPONENT:
+                    component_name = step['name']
+                    for stage in step['result']:
+                        for plugin in stage['result']:
+                            for component_path in plugin['result']:
+                                publish_component_fn = (
+                                    self.component_functions.get(
+                                        component_name, self.create_component
+                                    )
                                 )
-                            )
-                            publish_component_fn(
-                                asset_version_entity,
-                                component_name,
-                                component_path,
-                            )
-                            results[component_name] = True
-        self.session.commit()
+                                publish_component_fn(
+                                    asset_version_entity,
+                                    component_name,
+                                    component_path,
+                                )
+                                results[component_name] = True
+            self.session.commit()
+            rollback = False
+        except:
+            # An exception occurred when creating components, return its traceback as error message
+            tb = traceback.format_exc()
+            super_result['status'] = constants.EXCEPTION_STATUS
+            super_result['message'] = str(tb)
+            return super_result
+        finally:
+            if rollback:
+                self.session.reset()
+                self.logger.warning("Rolling back asset version creation")
+                self.session.delete(asset_version_entity)
+                self.session.commit()
 
         self.logger.debug(
             "publishing: {} to {} as {}".format(

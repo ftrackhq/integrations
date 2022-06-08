@@ -103,7 +103,7 @@ def get_save_path(context_id, session, extension=None, temp=False):
             next_version_number = latest_asset_version['version'] + 1
 
         # TODO: use task type <> asset type mappings
-        filename = context['type']['name']  # Modeling, compositing...
+        filename = context['type']['name'].lower()  # modeling, compositing...
 
         # Make sure we do not overwrite existing work done
         snapshot_path = os.path.join(
