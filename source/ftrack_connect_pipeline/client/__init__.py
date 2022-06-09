@@ -334,7 +334,7 @@ class Client(object):
         Client._host_connection = value
         self.on_client_notification()
         self.subscribe_client_context_change()
-        # Feed change of host and contextd to client
+        # Feed change of host and context to client
         self.on_host_changed(self.host_connection)
         self.on_context_changed(self.host_connection.context_id)
 
