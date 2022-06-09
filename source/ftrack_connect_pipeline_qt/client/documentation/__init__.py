@@ -11,7 +11,7 @@ class QtDocumentationClientWidget(object):
     '''Client for opening Connect documentation URL'''
 
     def __init__(self, event_manager):
-        super(QtDocumentationClientWidget, self).__init__(event_manager)
+        super(QtDocumentationClientWidget, self).__init__()
 
         self.logger = logging.getLogger(
             __name__ + '.' + self.__class__.__name__
@@ -22,14 +22,13 @@ class QtDocumentationClientWidget(object):
         DOC_URL = 'https://www.ftrack.com/en/portfolio/connect'
         if platform.system() == "Windows":
             # Windows / PC
-            commands = ['start']
+            commands = ['CMD', '/C', 'START {}'.format(DOC_URL)]
         elif platform.system() == "Darwin":
             # Mac OS
-            commands = ['open']
+            commands = ['open', DOC_URL]
         else:
             # Assume we are on linux
-            commands = ['xdg-open']
-        commands.append(DOC_URL)
+            commands = ['xdg-open', DOC_URL]
         self.logger.debug(
             'Launching documentation through system command: {}'.format(
                 commands
