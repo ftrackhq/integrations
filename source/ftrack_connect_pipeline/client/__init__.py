@@ -334,6 +334,7 @@ class Client(object):
         Client._host_connection = value
         self.on_client_notification()
         self.subscribe_client_context_change()
+        # Feed change of host and contextd to client
         self.on_host_changed(self.host_connection)
         self.on_context_changed(self.host_connection.context_id)
 
@@ -430,6 +431,7 @@ class Client(object):
         if self.__callback and self.host_connections:
             self.__callback(self.host_connections)
 
+        # Feed host connections to the client
         self.on_hosts_discovered(self.host_connections)
 
     def _discover_hosts(self):
@@ -462,13 +464,13 @@ class Client(object):
         if (
             host_connection
             and host_connection not in self.host_connections
-            and self.do_consider_host(host_connection)
+            and self.filter_host(host_connection)
         ):
             Client._host_connections.append(host_connection)
 
         self._connected = True
 
-    def do_consider_host(self, host_connection):
+    def filter_host(self, host_connection):
         '''Return True if the *host_connection* should be considered
 
         *host_connection*: :class:`ftrack_connect_pipeline.client.HostConnection`
@@ -482,16 +484,9 @@ class Client(object):
             return False
         return True
 
-    def on_hosts_discovered(self, host_connections):
-        '''Callback, hosts has been discovered. To be overridden by the qt client'''
-
     def change_host(self, host_connection):
         '''Client(user) has chosen the host connection to use, set it to *host_connection*'''
         self.host_connection = host_connection
-
-    def on_host_changed(self, host_connection):
-        '''Called when the host has been (re-)selected by the user. To be
-        overridden by the qt client.'''
 
     # Context
 
@@ -505,17 +500,13 @@ class Client(object):
                 constants.PIPELINE_CLIENT_CONTEXT_CHANGE,
                 self.host_connection.id,
             ),
-            self._ftrack_client_context_id_changed,
+            self._client_context_id_changed,
         )
 
-    def _ftrack_client_context_id_changed(self, event):
+    def _client_context_id_changed(self, event):
         '''Set the new context ID based on data provided in *event*'''
+        # Feed the new context to the client
         self.on_context_changed(event['data']['pipeline']['context_id'])
-
-    def on_context_changed(self, context_id):
-        '''Called when the context has been set or changed within the host connection, either from this
-        client or remote (other client or the host). Should be overridden by client.'''
-        pass
 
     # Definition
 
