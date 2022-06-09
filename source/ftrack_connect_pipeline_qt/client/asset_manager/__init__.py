@@ -494,7 +494,7 @@ class QtAssetManagerClientWidget(QtAssetManagerClient, QtWidgets.QFrame):
             self.asset_manager_widget.stopBusyIndicator.emit()
 
     def conditional_rebuild(self):
-        '''Colled when the ui are shown'''
+        '''Called when the ui are shown'''
         if self._shown:
             # Refresh when re-opened
             self.asset_manager_widget.rebuild.emit()

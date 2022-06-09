@@ -79,6 +79,10 @@ class QtWebViewClientWidget(Client, dialog.Dialog):
         '''(Override)'''
         self.host_selector.add_hosts(host_connections)
 
+    def on_host_changed(self, host_connection):
+        '''(Override)'''
+        pass
+
     # Context
 
     def on_context_changed(self, context_id):
@@ -87,6 +91,8 @@ class QtWebViewClientWidget(Client, dialog.Dialog):
             'Task where id={}'.format(context_id)
         ).one()
         self._web_engine_view.load(self.get_url())
+
+    # User
 
     def show(self):
         '''Show the dialog, sets the context to default and loads content if not done previously'''

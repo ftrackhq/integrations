@@ -50,13 +50,13 @@ class AssemblerDependenciesWidget(AssemblerBaseWidget):
         '''Return True if user has chosen to return linked dependencies only'''
         return self._cb_linked_only.isChecked()
 
-    def __init__(self, assembler_client):
+    def __init__(self, client):
         '''
         Instantiate the dependencies widget
 
-        :param assembler_client: :class:`~ftrack_connect_pipeline_qt.client.load.QtAssemblerWidget` instance
+        :param client: :class:`~ftrack_connect_pipeline_qt.client.load.QtAssemblerWidget` instance
         '''
-        super(AssemblerDependenciesWidget, self).__init__(assembler_client)
+        super(AssemblerDependenciesWidget, self).__init__(client)
 
     def post_build(self):
         '''(Override)'''
@@ -89,7 +89,7 @@ class AssemblerDependenciesWidget(AssemblerBaseWidget):
                 name='resolve_dependencies_thread',
                 target=self._resolve_dependencies,
                 target_args=[
-                    self.assembler_client.context_id,
+                    self.client.context_id,
                     {'linked_only': False}
                     if self.linked_only is False
                     else None,
@@ -100,7 +100,7 @@ class AssemblerDependenciesWidget(AssemblerBaseWidget):
     def _resolve_dependencies(self, context_id, options):
         '''(Background thread) Resolve dependencies from ftrack'''
         try:
-            return self.assembler_client.asset_manager.resolve_dependencies(
+            return self.client.asset_manager.resolve_dependencies(
                 context_id,
                 self._on_dependencies_resolved_async,
                 options=options,
@@ -115,8 +115,8 @@ class AssemblerDependenciesWidget(AssemblerBaseWidget):
             try:
 
                 if (
-                    self.assembler_client.assemble_mode
-                    != self.assembler_client.ASSEMBLE_MODE_DEPENDENCIES
+                    self.client.assemble_mode
+                    != self.client.ASSEMBLE_MODE_DEPENDENCIES
                 ):
                     return
 
@@ -163,8 +163,8 @@ class AssemblerDependenciesWidget(AssemblerBaseWidget):
                 components = self.extract_components(versions)
 
                 if (
-                    self.assembler_client.assemble_mode
-                    != self.assembler_client.ASSEMBLE_MODE_DEPENDENCIES
+                    self.client.assemble_mode
+                    != self.client.ASSEMBLE_MODE_DEPENDENCIES
                 ):
                     return
 
@@ -187,7 +187,7 @@ class AssemblerDependenciesWidget(AssemblerBaseWidget):
     def _on_dependency_resolve_warning(self, is_error, message, info_message):
         '''Display error/warning message from resolve process'''
         if is_error:
-            self.assembler_client.progress_widget.set_status(
+            self.client.progress_widget.set_status(
                 constants.WARNING_STATUS, message
             )
         else:
@@ -199,17 +199,13 @@ class AssemblerDependenciesWidget(AssemblerBaseWidget):
             widget.layout().addWidget(QtWidgets.QLabel(), 100)
             self.scroll.setWidget(widget)
         self._label_info.setText(info_message)
-        self.assembler_client.run_button_no_load.setEnabled(
-            self.loadable_count > 0
-        )
-        self.assembler_client.run_button.setEnabled(self.loadable_count > 0)
+        self.client.run_button_no_load.setEnabled(self.loadable_count > 0)
+        self.client.run_button.setEnabled(self.loadable_count > 0)
 
     def _on_dependencies_resolved(self, components):
         '''Create and deploy list of resolved components'''
         # Create component list
-        self._component_list = DependenciesListWidget(
-            self, parent=self.assembler_client
-        )
+        self._component_list = DependenciesListWidget(self, parent=self.client)
         self.listWidgetCreated.emit(self._component_list)
         # self._asset_list.setStyleSheet('background-color: blue;')
 
@@ -253,14 +249,14 @@ class AssemblerBrowserWidget(AssemblerBaseWidget):
             self._cached_context_path_id = self._entity_browser.entity['id']
         return self._cached_context_path
 
-    def __init__(self, assembler_client):
+    def __init__(self, client):
         '''
         Instantiate the browser widget
 
-        :param assembler_client:  :class:`~ftrack_connect_pipeline_qt.client.load.QtAssemblerWidget` instance
+        :param client:  :class:`~ftrack_connect_pipeline_qt.client.load.QtAssemblerWidget` instance
         '''
         self._component_list = None
-        super(AssemblerBrowserWidget, self).__init__(assembler_client)
+        super(AssemblerBrowserWidget, self).__init__(client)
         self._cached_context_path_id = None
 
     def pre_build(self):
@@ -269,10 +265,10 @@ class AssemblerBrowserWidget(AssemblerBaseWidget):
         # Fetch entity, might not be loaded yet
 
         self._entity_browser = EntityBrowser(
-            self.assembler_client,
-            self.assembler_client.session,
+            self.client,
+            self.client.session,
             mode=EntityBrowser.MODE_CONTEXT,
-            entity=self.assembler_client.context,
+            entity=self.client.context,
         )
 
     def _get_header_widget(self):
@@ -297,7 +293,7 @@ class AssemblerBrowserWidget(AssemblerBaseWidget):
 
             if self._entity_browser.entity is None:
                 # First time set
-                self._entity_browser.entity = self.assembler_client.context
+                self._entity_browser.entity = self.client.context
 
             # Create viewport widget, component list with load more button
             widget = QtWidgets.QWidget()
@@ -325,7 +321,7 @@ class AssemblerBrowserWidget(AssemblerBaseWidget):
             context = self._entity_browser.entity
 
             # Find version beneath browsed entity, in chunks
-            self._limit = self.assembler_client.asset_fetch_chunk_size
+            self._limit = self.client.asset_fetch_chunk_size
             self._tail = 0  # The current fetch position
             self.parent_ids = None
             self.fetched_version_ids = []
@@ -340,7 +336,7 @@ class AssemblerBrowserWidget(AssemblerBaseWidget):
 
     def reset(self):
         '''(Override) Reset browser entity ID back to current working context'''
-        self._entity_browser.entity_id = self.assembler_client.context_id
+        self._entity_browser.entity_id = self.client.context_id
 
     def _fetch_more(self):
         '''Continue previous query and fetch more assets'''
@@ -422,8 +418,8 @@ class AssemblerBrowserWidget(AssemblerBaseWidget):
 
             if (
                 self._recent_context_browsed != context
-                or self.assembler_client.assemble_mode
-                != self.assembler_client.ASSEMBLE_MODE_BROWSE
+                or self.client.assemble_mode
+                != self.client.ASSEMBLE_MODE_BROWSE
             ):
                 # User is fast, have already traveled to a new context or switched mode
                 return
@@ -434,8 +430,8 @@ class AssemblerBrowserWidget(AssemblerBaseWidget):
 
                 if (
                     self._recent_context_browsed != context
-                    or self.assembler_client.assemble_mode
-                    != self.assembler_client.ASSEMBLE_MODE_BROWSE
+                    or self.client.assemble_mode
+                    != self.client.ASSEMBLE_MODE_BROWSE
                 ):
                     # User is fast, have already traveled to a new context
                     return
@@ -483,10 +479,8 @@ class AssemblerBrowserWidget(AssemblerBaseWidget):
         else:
             self._label_info.setText('No assets found')
 
-        self.assembler_client.run_button_no_load.setEnabled(
-            self._loadable_count > 0
-        )
-        self.assembler_client.run_button.setEnabled(self._loadable_count > 0)
+        self.client.run_button_no_load.setEnabled(self._loadable_count > 0)
+        self.client.run_button.setEnabled(self._loadable_count > 0)
 
     def _on_search(self, text):
         '''Filter list on free text search'''
@@ -496,12 +490,12 @@ class AssemblerBrowserWidget(AssemblerBaseWidget):
     def _on_version_changed(self, widget, version_entity):
         '''User request a change of version, check that the new version
         has the component and it matches.'''
-        current_component = self.assembler_client.session.query(
+        current_component = self.client.session.query(
             'name, file_type from Component where id={}'.format(
                 widget.component_id
             )
         ).one()
-        component = self.assembler_client.session.query(
+        component = self.client.session.query(
             'name, file_type from Component where version.id={} and name={}'.format(
                 version_entity['id'], current_component['name']
             )
@@ -549,7 +543,7 @@ class AssemblerBrowserWidget(AssemblerBaseWidget):
             )
         else:
             dialog.ModalDialog(
-                self.assembler_client,
+                self.client,
                 title='Change Import Version',
                 message=error_message,
             )

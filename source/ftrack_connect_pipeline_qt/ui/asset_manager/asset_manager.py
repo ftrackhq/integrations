@@ -68,7 +68,7 @@ class AssetManagerWidget(AssetManagerBaseWidget):
     @property
     def host_connection(self):
         '''Return the host connection'''
-        return self._asset_manager_client.host_connection
+        return self._client.host_connection
 
     def __init__(self, asset_manager_client, asset_list_model, parent=None):
         '''
@@ -78,7 +78,7 @@ class AssetManagerWidget(AssetManagerBaseWidget):
         :param asset_list_model: : instance of :class:`~ftrack_connect_pipeline_qt.ui.asset_manager.model.AssetListModel`
         :param parent:  The parent dialog or window
         '''
-        self._asset_manager_client = asset_manager_client
+        self._client = asset_manager_client
         super(AssetManagerWidget, self).__init__(
             asset_manager_client.is_assembler,
             asset_manager_client.event_manager,
@@ -172,7 +172,7 @@ class AssetManagerWidget(AssetManagerBaseWidget):
         self._asset_list = AssetManagerListWidget(
             self._asset_list_model,
             AssetWidget,
-            docked=self._asset_manager_client.is_docked(),
+            docked=self._client.is_docked(),
         )
 
         asset_list_container = QtWidgets.QWidget()
@@ -283,7 +283,7 @@ class AssetManagerWidget(AssetManagerBaseWidget):
         '''Check if *selected_assets* is empty and show dialog message'''
         if len(selected_assets) == 0:
             ModalDialog(
-                self._asset_manager_client,
+                self._client,
                 title='Error!',
                 message="Please select at least one asset!",
             )
@@ -315,7 +315,7 @@ class AssetManagerWidget(AssetManagerBaseWidget):
                     selection.remove(a_info)
             if len(selection) == 0:
                 ModalDialog(
-                    self._asset_manager_client,
+                    self._client,
                     title='ftrack Asset manager',
                     message='Selected Assets are already loaded.',
                 )
@@ -331,7 +331,7 @@ class AssetManagerWidget(AssetManagerBaseWidget):
         selection = self._asset_list.selection()
         if self.check_selection(selection):
             if ModalDialog(
-                self._asset_manager_client.parent(),
+                self._client.parent(),
                 title='ftrack Asset manager',
                 question='Really update {} asset{} to latest version?'.format(
                     len(selection), 's' if len(selection) > 1 else ''
@@ -354,13 +354,13 @@ class AssetManagerWidget(AssetManagerBaseWidget):
                     selection.remove(a_info)
             if len(selection) == 0:
                 ModalDialog(
-                    self._asset_manager_client,
+                    self._client,
                     title='ftrack Asset manager',
                     message='Selected Assets are already unloaded.',
                 )
             else:
                 if ModalDialog(
-                    self._asset_manager_client.parent(),
+                    self._client.parent(),
                     title='ftrack Asset manager',
                     question='Really unload {} asset{}?'.format(
                         len(selection), 's' if len(selection) > 1 else ''
@@ -376,7 +376,7 @@ class AssetManagerWidget(AssetManagerBaseWidget):
         selection = self._asset_list.selection()
         if self.check_selection(selection):
             if ModalDialog(
-                self._asset_manager_client.parent(),
+                self._client.parent(),
                 title='ftrack Asset manager',
                 question='Really remove {} asset{}?'.format(
                     len(selection), 's' if len(selection) > 1 else ''
@@ -424,9 +424,7 @@ class AssetManagerWidget(AssetManagerBaseWidget):
                     's' if self._asset_list.model.rowCount() > 1 else '',
                 )
             )
-        self._asset_manager_client.selectionUpdated.emit(
-            self._asset_list.selection()
-        )
+        self._client.selectionUpdated.emit(self._asset_list.selection())
 
     def _on_rebuild(self):
         '''Query DCC for scene assets.'''
@@ -451,7 +449,7 @@ class AssetManagerWidget(AssetManagerBaseWidget):
             )
         ).first()
         if ModalDialog(
-            self._asset_manager_client.parent(),
+            self._client.parent(),
             title='ftrack Asset manager',
             question='Change version of {} to v{}?'.format(
                 str_version(current_version), version_entity['version']

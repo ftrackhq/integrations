@@ -286,8 +286,6 @@ class QtAssemblerClientWidget(QtLoaderClient, dialog.Dialog):
             )
         # Feed it to definition selector, to get schemas stored
         self.definition_selector.on_host_changed(host_connection)
-        # Feed the host connection to asset manager
-        # self.asset_manager.change_host(host_connection)
 
     # Context
 

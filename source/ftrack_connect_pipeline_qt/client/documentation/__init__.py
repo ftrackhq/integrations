@@ -7,7 +7,7 @@ import platform
 from ftrack_connect_pipeline.client import Client
 
 
-class QtDocumentationClientWidget(Client):
+class QtDocumentationClientWidget(object):
     '''Client for opening Connect documentation URL'''
 
     def __init__(self, event_manager):

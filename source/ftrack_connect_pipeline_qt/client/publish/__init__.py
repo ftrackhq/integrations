@@ -223,7 +223,7 @@ class QtPublisherClientWidget(QtPublisherClient, QtWidgets.QFrame):
         '''Can be overridden by child'''
         pass
 
-    # Use
+    # User
 
     def conditional_rebuild(self):
         '''Reset a client that has become visible after being hidden.'''

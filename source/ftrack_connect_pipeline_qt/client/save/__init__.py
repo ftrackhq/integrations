@@ -24,7 +24,16 @@ class QtSaveClientWidget(Client, QtWidgets.QWidget):
             # Use the first available host connection
             self.change_host(host_connections[0])
 
-    # Use
+    def on_host_changed(self, host_connection):
+        '''(Override)'''
+        pass
+
+    # Context
+
+    def on_context_changed(self, context_id):
+        '''(Override) Context has been evaluated'''
+
+    # User
 
     def show(self):
         self.logger.info('Attempting to save DCC work file locally..')

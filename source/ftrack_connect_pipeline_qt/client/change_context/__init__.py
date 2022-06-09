@@ -27,7 +27,6 @@ class QtChangeContextClientWidget(Client):
         self.logger = logging.getLogger(
             __name__ + '.' + self.__class__.__name__
         )
-        self._host_connection = None
 
         self.entity_browser = EntityBrowser(
             None,
@@ -37,10 +36,24 @@ class QtChangeContextClientWidget(Client):
 
         self.discover_hosts()
 
+    # Host
+
     def on_hosts_discovered(self, host_connections):
         '''(Override)'''
         if len(host_connections) > 0:
             self.change_host(host_connections[0])
+
+    def on_host_changed(self, host_connection):
+        '''(Override)'''
+        pass
+
+    # Context
+
+    def on_context_changed(self, context_id):
+        '''(Override) Context has been evaluated'''
+        pass
+
+    # User
 
     def show(self):
         '''Show the entity browser'''

@@ -148,6 +148,12 @@ class QtLogViewerClientWidget(QtLogViewerClient, dialog.Dialog):
         '''Triggered when client has set host connection'''
         self.update_log_items()
 
+    # Context
+
+    def on_context_changed(self, context_id):
+        '''(Override) Context has been evaluated'''
+        pass
+
     # Use
 
     def _on_tab_changed(self, index):

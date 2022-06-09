@@ -74,20 +74,20 @@ class AssemblerBaseWidget(QtWidgets.QWidget):
         return self._cb_show_non_compatible.isChecked()
 
     @property
-    def assembler_client(self):
-        return self._assembler_client
+    def client(self):
+        return self._client
 
     @property
     def session(self):
-        return self._assembler_client.session
+        return self._client.session
 
-    def __init__(self, assembler_client):
+    def __init__(self, client):
         '''
-        :param assembler_client: The assembler/loader client
+        :param client: The assembler/loader client
         :param parent: The parent dialog widget
         '''
-        super(AssemblerBaseWidget, self).__init__(parent=assembler_client)
-        self._assembler_client = assembler_client
+        super(AssemblerBaseWidget, self).__init__(parent=client)
+        self._client = client
         self._component_list = None
         self._loadable_count = -1
 
@@ -103,7 +103,7 @@ class AssemblerBaseWidget(QtWidgets.QWidget):
         self.setLayout(QtWidgets.QVBoxLayout())
         self.layout().setContentsMargins(1, 0, 1, 0)
         self.layout().setSpacing(0)
-        self.model = AssetListModel(self.assembler_client.event_manager)
+        self.model = AssetListModel(self.client.event_manager)
 
     def _build_header(self):
         '''Create assembler widget header'''
@@ -199,20 +199,15 @@ class AssemblerBaseWidget(QtWidgets.QWidget):
     def rebuild(self, reset=True):
         '''Prepare rebuild of the widget. If *reset* is False, assume chunked
         fetch to continue were left off'''
-        if self.assembler_client.context_id is None:
+        if self.client.context_id is None:
             self.logger.warning(
                 'No context set, cannut rebuild assembler widget'
             )
             return
         if reset:
             # Check if there is any loader definitions
-            if (
-                len(
-                    self.assembler_client.definition_selector.definitions or []
-                )
-                == 0
-            ):
-                self.assembler_client.progress_widget.set_status(
+            if len(self.client.definition_selector.definitions or []) == 0:
+                self.client.progress_widget.set_status(
                     constants.WARNING_STATUS,
                     'No loader definitions are available, please check pipeline configuration!',
                 )
@@ -223,7 +218,7 @@ class AssemblerBaseWidget(QtWidgets.QWidget):
 
         self.update()
         self._label_info.setText('Fetching, please stand by...')
-        self.assembler_client.progress_widget.hide_widget()
+        self.client.progress_widget.hide_widget()
 
         self._busy_widget.start()
         self._rebuild_button.setVisible(False)
@@ -237,7 +232,7 @@ class AssemblerBaseWidget(QtWidgets.QWidget):
 
     def post_build(self):
         self._cb_show_non_compatible.clicked.connect(self.rebuild)
-        if self.assembler_client.assembler_match_extension:
+        if self.client.assembler_match_extension:
             self._rb_match_extension.setChecked(True)
         else:
             self._rb_match_component_name.setChecked(True)
@@ -269,12 +264,10 @@ class AssemblerBaseWidget(QtWidgets.QWidget):
         '''Build a list of loadable components from the supplied *versions*'''
 
         # Fetch all definitions, append asset type name
-        loader_definitions = (
-            self.assembler_client.definition_selector.definitions
-        )
+        loader_definitions = self.client.definition_selector.definitions
 
         # import json
-        self.assembler_client.logger.debug(
+        self.client.logger.debug(
             'Available loader definitions: {}'.format(
                 '\n'.join(
                     [
@@ -299,7 +292,7 @@ class AssemblerBaseWidget(QtWidgets.QWidget):
                 v['asset']['parent']['id'], v['asset']['name']
             ),
         ):
-            self.assembler_client.logger.debug(
+            self.client.logger.debug(
                 'Processing version: {}'.format(
                     str_version(version, with_id=True)
                 )
@@ -307,7 +300,7 @@ class AssemblerBaseWidget(QtWidgets.QWidget):
 
             for component in version['components']:
                 component_extension = component.get('file_type')
-                self.assembler_client.logger.debug(
+                self.client.logger.debug(
                     '     Processing component: {}({})'.format(
                         component['name'], component['file_type']
                     )
@@ -347,7 +340,7 @@ class AssemblerBaseWidget(QtWidgets.QWidget):
                         definition_asset_type_name_short
                         != version['asset']['type']['short']
                     ):
-                        self.assembler_client.logger.debug(
+                        self.client.logger.debug(
                             '        Definition asset type {} mismatch version {}!'.format(
                                 definition_asset_type_name_short,
                                 version['asset']['type']['short'],
@@ -362,7 +355,7 @@ class AssemblerBaseWidget(QtWidgets.QWidget):
                             != component['name'].lower()
                         ):
                             if self.match_component_names:
-                                self.assembler_client.logger.debug(
+                                self.client.logger.debug(
                                     '        Definition component name {} mismatch!'.format(
                                         d_component['name']
                                     )
@@ -410,7 +403,7 @@ class AssemblerBaseWidget(QtWidgets.QWidget):
                                                     'version_id'
                                                 ] = version['id']
                         else:
-                            self.assembler_client.logger.debug(
+                            self.client.logger.debug(
                                 '        File formats {} does not intersect with {}!'.format(
                                     file_formats,
                                     [component_extension],
@@ -633,9 +626,7 @@ class ComponentBaseWidget(AccordionBaseWidget):
         set_property(self._mode_selector, 'chip', 'true')
         self._modes = [
             mode
-            for mode in list(
-                self._assembler_widget.assembler_client.modes.keys()
-            )
+            for mode in list(self._assembler_widget.client.modes.keys())
             if mode.lower() != 'open'
         ]
         for mode in self._modes:
@@ -649,7 +640,7 @@ class ComponentBaseWidget(AccordionBaseWidget):
 
         self._widget_factory = AssemblerWidgetFactory(
             self.event_manager,
-            self._assembler_widget.assembler_client.ui_types,
+            self._assembler_widget.client.ui_types,
             parent=self.parent(),
         )
 
@@ -676,7 +667,7 @@ class ComponentBaseWidget(AccordionBaseWidget):
 
     def _definition_selected(self, index):
         '''Loader definition were selected,'''
-        self._assembler_widget.assembler_client.setup_widget_factory(
+        self._assembler_widget.client.setup_widget_factory(
             self._widget_factory,
             self._definition_selector.itemData(index),
             self.context_id,
