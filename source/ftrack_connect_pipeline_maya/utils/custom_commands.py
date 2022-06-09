@@ -173,7 +173,7 @@ def init_maya(host, from_context=False):
 
 
 def save(context_id, session):
-    '''Save snapshot scene locally, with the next version number based on latest version
+    '''Save scene locally, with the next version number based on latest version
     in ftrack.'''
 
     save_path, message = get_save_path(context_id, session, extension='.mb')
