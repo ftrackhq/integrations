@@ -7,6 +7,6 @@ from ftrack_connect_pipeline_nuke.utils import custom_commands as nuke_utils
 
 
 class NukeQtSaveClientWidget(QtSaveClientWidget):
-    '''Client for doing an incremental save of Maya scene locally'''
+    '''Client for doing an incremental save of Nuke script locally'''
 
     dcc_utils = nuke_utils
