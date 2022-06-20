@@ -162,11 +162,16 @@ class AssetManagerEngine(BaseEngine):
 
             plugin['plugin_data'] = {'context_id': context_id}
 
+            # Fill in default options from definition
+            for key in plugin['options']:
+                if not key in options:
+                    options[key] = plugin['options'][key]
+
             plugin_result = self._run_plugin(
                 plugin,
                 plugin_type,
                 data=plugin.get('plugin_data'),
-                options=plugin['options'],
+                options=options,
                 context_data=None,
                 method=plugin['default_method'],
             )

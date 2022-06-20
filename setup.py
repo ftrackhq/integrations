@@ -53,6 +53,9 @@ class BuildPlugin(setuptools.Command):
 
         # Copy plugin files
         shutil.copytree(HOOK_PATH, os.path.join(STAGING_PATH, 'hook'))
+        dependencies_path = os.path.join(STAGING_PATH, 'dependencies')
+
+        os.makedirs(dependencies_path)
 
         subprocess.check_call(
             [
@@ -62,7 +65,7 @@ class BuildPlugin(setuptools.Command):
                 'install',
                 '.',
                 '--target',
-                os.path.join(STAGING_PATH, 'dependencies'),
+                dependencies_path,
             ]
         )
 
@@ -117,7 +120,7 @@ setup(
         'write_to_template': version_template,
         'version_scheme': 'post-release',
     },
-    python_requires='<3.8',
+    python_requires='<3.10',
     setup_requires=[
         'sphinx >= 1.8.5, < 4',
         'sphinx_rtd_theme >= 0.1.6, < 2',

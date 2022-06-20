@@ -39,14 +39,17 @@ IMPORTER = 'importer'
 #: Post_import component stage name.
 POST_IMPORTER = 'post_importer'
 
-# Common definition types.
-#: Loader definition.
-LOADER = 'loader'
-#: Opener definition.
+# Common definition/client types.
+#: Opener client and its definition.
 OPENER = 'opener'
-#: Publisher definition.
+#: Loader client and its definition used with assembler
+LOADER = 'loader'
+#: Publisher client and its definition.
 PUBLISHER = 'publisher'
-
+# Asset manager
+ASSET_MANAGER = 'asset_manager'
+# Log viewer dialog
+LOG_VIEWER = 'log_viewer'
 
 # External events.
 #: Pipeline register topic event. Published by the
@@ -92,10 +95,13 @@ PIPELINE_CLIENT_PROGRESS_NOTIFICATION = (
 PIPELINE_DISCOVER_HOST = '{}.host.discover'.format(_BASE_)
 
 # Launch a widget within a client
-PIPELINE_WIDGET_LAUNCH = '{}.widget.launch'.format(_BASE_)
+PIPELINE_CLIENT_LAUNCH = '{}.client.launch'.format(_BASE_)
 
-# The main context has changed
-PIPELINE_CONTEXT_CHANGE = '{}.context.change'.format(_BASE_)
+# The main host context has changed, sent from host or host connection (change context)
+PIPELINE_HOST_CONTEXT_CHANGE = '{}.host.context.change'.format(_BASE_)
+
+# The host connection context has changed, sent from host connection to clients
+PIPELINE_CLIENT_CONTEXT_CHANGE = '{}.client.context.change'.format(_BASE_)
 
 
 # Misc

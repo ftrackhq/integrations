@@ -1,8 +1,9 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2020 ftrack
+from functools import partial
 
 from ftrack_connect_pipeline.client import Client
-from ftrack_connect_pipeline.constants import asset as asset_const
+from ftrack_connect_pipeline import constants as core_constants
 
 
 class AssetManagerClient(Client):
@@ -10,8 +11,8 @@ class AssetManagerClient(Client):
     Asset Manager Client Base Class
     '''
 
-    definition_filter = 'asset_manager'
-    '''Use only definitions that matches the definition_filter'''
+    definition_filters = [core_constants.ASSET_MANAGER]
+    '''Use only definitions that matches the definition_filters'''
 
     def __init__(self, event_manager):
         '''Initialise AssetManagerClient with instance of
@@ -20,14 +21,13 @@ class AssetManagerClient(Client):
         super(AssetManagerClient, self).__init__(event_manager)
         self._reset_asset_list()
 
-    def change_host(self, host_connection):
+    def on_host_changed(self, host_connection):
         '''Asset manager host has been selected, fetch definition. Return False if no definitions.'''
-        super(AssetManagerClient, self).change_host(host_connection)
 
         self.schemas = [
             schema
             for schema in self.host_connection.definitions['schema']
-            if schema.get('title').lower() == self.definition_filter
+            if schema.get('title').lower() in self.definition_filters
         ]
 
         # Only one schema available for now, we Don't have a schema selector
@@ -36,8 +36,7 @@ class AssetManagerClient(Client):
         schema_title = schema.get('title').lower()
         definitions = self.host_connection.definitions.get(schema_title)
         if len(definitions) > 0:
-            # Only one definition for now, we don't have a definition schema on the
-            # AM
+            # Only one definition for now, we don't have a definition schema on the AM
             self.change_definition(schema, definitions[0])
 
             self.menu_action_plugins = self.definition.get('actions')
@@ -49,7 +48,9 @@ class AssetManagerClient(Client):
         else:
             return False
 
-    def resolve_dependencies(self, context_id, resolve_dependencies_callback):
+    def resolve_dependencies(
+        self, context_id, resolve_dependencies_callback, options=None
+    ):
         '''
         Calls the :meth:`~ftrack_connect_pipeline.client.HostConnection.run`
         to run the method
@@ -62,6 +63,8 @@ class AssetManagerClient(Client):
 
         *resolve_dependencies_callback* : Callback function that should take the result
         as argument.
+
+        *options* : The options to supply to the plugin.
         '''
 
         resolver_plugin = self.resolver_plugins[0]
@@ -72,16 +75,24 @@ class AssetManagerClient(Client):
             'plugin': resolver_plugin,
             'context_id': context_id,
             'plugin_type': plugin_type,
+            'options': options,
         }
 
-        def _resolve_dependencies_callback(event):
-            if not event['data']:
-                return
-            resolve_dependencies_callback(event['data'])
-
         self.host_connection.run(
-            data, self.engine_type, callback=_resolve_dependencies_callback
+            data,
+            self.engine_type,
+            callback=partial(
+                self._resolve_dependencies_callback,
+                resolve_dependencies_callback,
+            ),
         )
+
+    def _resolve_dependencies_callback(
+        self, resolve_dependencies_callback, event
+    ):
+        if not event['data']:
+            return
+        resolve_dependencies_callback(event['data'])
 
     def _reset_asset_list(self):
         '''Empty the :obj:`asset_entities_list`'''

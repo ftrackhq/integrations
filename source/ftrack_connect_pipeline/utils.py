@@ -1,26 +1,16 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2022 ftrack
-
 import os
 import appdirs
+import tempfile
 
 from ftrack_connect_pipeline import constants as core_constants
 
 
-def ftrack_context_id(as_entity=False, session=None):
-    '''Return the current global context (Task) id'''
-    context_id = os.getenv(
-        'FTRACK_CONTEXTID',
-        os.getenv('FTRACK_TASKID', os.getenv('FTRACK_SHOTID')),
-    )
-    if as_entity is True:
-        return session.query('Task where id is "{}"'.format(context_id)).one()
-    else:
-        return context_id
-
-
 def str_context(context, with_id=False, force_version_nr=None, delimiter='/'):
     '''Utility function to produce a human readable string out or a context.'''
+    if not 'project' in context:
+        return str(context)
     return '{}/{}'.format(
         context['project']['name'],
         '/'.join(['{}'.format(link['name']) for link in context['link'][1:]]),
@@ -37,15 +27,15 @@ def str_version(v, with_id=False, force_version_nr=None, delimiter='/'):
     ).replace('/', delimiter)
 
 
-def get_snapshot_save_path(context_id, session, extension=None):
-    '''Calculate the path to local snapshot save (work path), DCC independent.'''
+def get_save_path(context_id, session, extension=None, temp=False):
+    '''Calculate the path to local snapshot save (work path), DCC independent'''
 
     result = False
     message = None
 
     if context_id is None:
         raise Exception(
-            'Could not save snapshot - no context id provided'.format(
+            'Could not get save path- no context id provided'.format(
                 context_id
             )
         )
@@ -54,19 +44,26 @@ def get_snapshot_save_path(context_id, session, extension=None):
 
     if context is None:
         raise Exception(
-            'Could not save snapshot - unknown context: {}'.format(context_id)
+            'Could not get save path - unknown context: {}'.format(context_id)
         )
 
-    snapshot_path_base = os.environ.get('FTRACK_SNAPSHOT_PATH')
-    if snapshot_path_base is None:
-        server_folder_name = (
-            session.server_url.split('//')[-1].split('.')[0].replace('-', '_')
-        )
+    server_folder_name = (
+        session.server_url.split('//')[-1].split('.')[0].replace('-', '_')
+    )
+    if temp:
         snapshot_path_base = os.path.join(
-            appdirs.user_data_dir('ftrack-connect', 'ftrack'),
+            tempfile.gettempdir(), 'ftrack-connect', 'ftrack',
             core_constants.SNAPSHOT_COMPONENT_NAME,
             server_folder_name,
         )
+    else:
+        snapshot_path_base = os.environ.get('FTRACK_SAVE_PATH')
+        if snapshot_path_base is None:
+            snapshot_path_base = os.path.join(
+                appdirs.user_data_dir('ftrack-connect', 'ftrack'),
+                core_constants.SNAPSHOT_COMPONENT_NAME,
+                server_folder_name,
+            )
 
     # Try to query location system (future) for getting task path
     try:
@@ -75,8 +72,11 @@ def get_snapshot_save_path(context_id, session, extension=None):
             snapshot_path_base, location.get_filesystem_path(context)
         )
     except:
-        structure_names = [context['project']['name']] + [
-            item['name'] for item in context['link'][1:]
+        structure_names = [
+            context['project']['name'].replace(' ', '_').lower()
+        ] + [
+            item['name'].replace(' ', '_').lower()
+            for item in context['link'][1:]
         ]
 
         # Build path down to context
@@ -103,7 +103,7 @@ def get_snapshot_save_path(context_id, session, extension=None):
             next_version_number = latest_asset_version['version'] + 1
 
         # TODO: use task type <> asset type mappings
-        filename = context['type']['name']  # Modeling, compositing...
+        filename = context['type']['name'].lower()  # modeling, compositing...
 
         # Make sure we do not overwrite existing work done
         snapshot_path = os.path.join(

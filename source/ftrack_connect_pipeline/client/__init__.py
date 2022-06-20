@@ -5,9 +5,9 @@ import time
 import logging
 import copy
 import uuid
+
 from six import string_types
 import ftrack_api
-from ftrack_connect_pipeline import utils
 from ftrack_connect_pipeline import constants
 from ftrack_connect_pipeline.log import LogDB
 from ftrack_connect_pipeline.log.log_item import LogItem
@@ -16,31 +16,35 @@ from ftrack_connect_pipeline.log.log_item import LogItem
 class HostConnection(object):
     '''
     Host Connection Base class.
-    This class is used to communicate from the client to the host.
+    This class is used to communicate between the client and the host.
     '''
 
     @property
     def context_id(self):
-        '''Returns the current context id'''
+        '''Returns the current context id as fetched from the host'''
         return self._context_id
 
     @context_id.setter
     def context_id(self, value):
-        '''Sets the current context id with the given *value*'''
+        '''Set the context id for this host connection to *value*. Will notify the host and
+        other active host connection through an event, and tell the client through callback.'''
+        if value == self.context_id:
+            return
         self._context_id = value
-
-    @property
-    def session(self):
-        '''
-        Returns instance of :class:`ftrack_api.session.Session`
-        '''
-        return self._event_manager.session
+        self._change_host_context_id()
 
     @property
     def event_manager(self):
         '''Returns instance of
         :class:`~ftrack_connect_pipeline.event.EventManager`'''
         return self._event_manager
+
+    @property
+    def session(self):
+        '''
+        Returns instance of :class:`ftrack_api.session.Session`
+        '''
+        return self.event_manager.session
 
     @property
     def definitions(self):
@@ -69,12 +73,12 @@ class HostConnection(object):
                     context_identifiers,
                     self._raw_host_data['definition'][schema_title],
                 )
-            return result
+            return copy.deepcopy(result)
 
-        return self._raw_host_data['definition']
+        return copy.deepcopy(self._raw_host_data['definition'])
 
     def _filter_definitions(self, context_identifiers, definitions):
-        '''Filter definitions on context idents and discoverable.'''
+        '''Filter *definitions* on *context_identifiers* and discoverable.'''
         result = []
         for definition in definitions:
             match = False
@@ -149,10 +153,8 @@ class HostConnection(object):
 
         self._event_manager = event_manager
         self._raw_host_data = copy_data
-
-        self.context_id = utils.ftrack_context_id() or self._raw_host_data.get(
-            'context_id'
-        )
+        self._context_id = self._raw_host_data.get('context_id')
+        self.subscribe_host_context_change()
 
     def run(self, data, engine, callback=None):
         '''
@@ -170,40 +172,58 @@ class HostConnection(object):
                 }
             },
         )
-        self._event_manager.publish(event, callback)
+        self.event_manager.publish(event, callback)
 
-    def launch_widget(self, widget_name, source=None):
+    def launch_client(self, name, source=None):
         '''Send a widget launch event, to be picked up by DCC.'''
         event = ftrack_api.event.base.Event(
-            topic=constants.PIPELINE_WIDGET_LAUNCH,
+            topic=constants.PIPELINE_CLIENT_LAUNCH,
             data={
                 'pipeline': {
                     'host_id': self.id,
-                    'widget_name': widget_name,
+                    'name': name,
                     'source': source,
                 }
             },
         )
-        self._event_manager.publish(
+        self.event_manager.publish(
             event,
         )
 
-    def change_ftrack_context_id(self, context, source=None):
-        '''The context has been changed by user, send an event to picked up by clients.'''
-        if os.environ.get('FTRACK_CONTEXTID') != context['id']:
-            os.environ['FTRACK_CONTEXTID'] = context['id']
-            self.logger.warning('ftrack context is now: {}'.format(context))
+    def subscribe_host_context_change(self):
+        '''Have host connection subscribe to context change events, to be able
+        to notify client'''
+        self.session.event_hub.subscribe(
+            'topic={} and data.pipeline.host_id={}'.format(
+                constants.PIPELINE_HOST_CONTEXT_CHANGE, self.id
+            ),
+            self._ftrack_host_context_id_changed,
+        )
+
+    def _ftrack_host_context_id_changed(self, event):
+        '''Set the new context ID based on data provided in *event*'''
+        self.context_id = event['data']['pipeline']['context_id']
+
+    def _change_host_context_id(self):
+        '''The context has been changed, send events'''
+        #  Send an remote mode event to be picked up by host and other host connections.
         event = ftrack_api.event.base.Event(
-            topic=constants.PIPELINE_CONTEXT_CHANGE,
+            topic=constants.PIPELINE_HOST_CONTEXT_CHANGE,
             data={
-                'pipeline': {
-                    'host_id': self.id,
-                    'context_id': context['id'],
-                    'source': source,
-                }
+                'pipeline': {'host_id': self.id, 'context_id': self.context_id}
             },
         )
-        self._event_manager.publish(
+        self.event_manager.publish(
+            event,
+        )
+        #  Send an local event to be picked up by host and other host connections.
+        event = ftrack_api.event.base.Event(
+            topic=constants.PIPELINE_CLIENT_CONTEXT_CHANGE,
+            data={
+                'pipeline': {'host_id': self.id, 'context_id': self.context_id}
+            },
+        )
+        self.event_manager.publish(
             event,
         )
 
@@ -215,10 +235,15 @@ class Client(object):
 
     ui_types = [constants.UI_TYPE]
     '''Compatible UI for this client.'''
-    definition_filter = None
-    '''Use only definitions that matches the definition_filter'''
+    definition_filters = None
+    '''Use only definitions that matches the definition_filters'''
     definition_extensions_filter = None
     '''(Open) Only show definitions and components capable of accept these filename extensions. '''
+
+    _host_connection = None
+    '''The singleton host connection used by all clients within the process space / DCC'''
+    _host_connections = []
+    '''The list of discovered host connections'''
 
     def __repr__(self):
         return '<Client:{0}>'.format(self.ui_types)
@@ -248,16 +273,41 @@ class Client(object):
 
     @property
     def context_id(self):
-        '''Returns the context id.'''
-        return self._context_id
+        '''Returns the current context id from host'''
+        if self.host_connection is None:
+            raise Exception('No host connection available')
+        return self.host_connection.context_id
 
     @context_id.setter
     def context_id(self, context_id):
-        '''Sets the context id.'''
+        '''Sets the context id on current host connection, will throw an exception
+        if no host connection is active'''
         if not isinstance(context_id, string_types):
             raise ValueError('Context should be in form of a string.')
+        if self.host_connection is None:
+            raise Exception('No host connection available')
+        self.host_connection.context_id = context_id
 
-        self._context_id = context_id
+    @property
+    def context(self):
+        '''Returns the current context'''
+        if self.host_connection is None:
+            raise Exception('No host connection available')
+        if self.host_connection.context_id is None:
+            raise Exception('No host context id set')
+        return self.session.query(
+            'Context where id={}'.format(self.context_id)
+        ).first()
+
+    @property
+    def host_connections(self):
+        '''Return the current list of host_connections'''
+        return Client._host_connections
+
+    @host_connections.setter
+    def host_connections(self, value):
+        '''Return the current list of host_connections'''
+        Client._host_connections = value
 
     @property
     def host_connection(self):
@@ -265,7 +315,28 @@ class Client(object):
         Return instance of
         :class:`~ftrack_connect_pipeline.client.HostConnection`
         '''
-        return self._host_connection
+        return Client._host_connection
+
+    @host_connection.setter
+    def host_connection(self, value):
+        '''
+        Assign the host_connection to the given *value*
+
+        *value* : should be instance of
+        :class:`~ftrack_connect_pipeline.client.HostConnection`
+        '''
+        if value is None or (
+            self.host_connection and value.id == self.host_connection.id
+        ):
+            return
+
+        self.logger.debug('host connection: {}'.format(value))
+        Client._host_connection = value
+        self.on_client_notification()
+        self.subscribe_client_context_change()
+        # Feed change of host and context to client
+        self.on_host_changed(self.host_connection)
+        self.on_context_changed(self.host_connection.context_id)
 
     @property
     def schema(self):
@@ -283,12 +354,8 @@ class Client(object):
         return self._engine_type
 
     @property
-    def host_connections(self):
-        '''Return the current list of host_connections'''
-        return self._host_connections
-
-    @property
     def logs(self):
+        '''Return the log items'''
         self._init_logs()
         return self._logs.get_log_items(
             self.host_connection.id
@@ -311,11 +378,8 @@ class Client(object):
         :class:`~ftrack_connect_pipeline.event.EventManager`
         '''
         self._current = {}
-
-        self._context_id = utils.ftrack_context_id()
-        self._host_connections = []
+        self.context_change_subscribe_id = None
         self._connected = False
-        self._host_connection = None
         self._logs = None
         self._schema = None
         self._definition = None
@@ -327,11 +391,25 @@ class Client(object):
         self._event_manager = event_manager
         self.logger.debug('Initialising {}'.format(self))
 
-    def discover_hosts(self, time_out=3):
+    # Host
+
+    def discover_hosts(self, force_rediscover=False, time_out=3):
         '''
         Find for available hosts during the optional *time_out* and Returns
         a list of discovered :class:`~ftrack_connect_pipeline.client.HostConnection`.
+
+        Skip this and use existing singleton host connection if previously detected,
+        unless *force_rediscover* is True.
         '''
+        if force_rediscover:
+            self.host_connections = None
+            self.host_connection = None
+        if self.host_connection is not None:
+            self.on_client_notification()
+            self.subscribe_client_context_change()
+            self.on_host_changed(self.host_connection)
+            self.on_context_changed(self.host_connection.context_id)
+            return
         # discovery host loop and timeout.
         start_time = time.time()
         self.logger.debug('time out set to {}:'.format(time_out))
@@ -354,7 +432,24 @@ class Client(object):
         if self.__callback and self.host_connections:
             self.__callback(self.host_connections)
 
-        return self.host_connections
+        # Feed host connections to the client
+        self.on_hosts_discovered(self.host_connections)
+
+    def _discover_hosts(self):
+        '''
+        Publish an event with the topic
+        :py:data:`~ftrack_connect_pipeline.constants.PIPELINE_DISCOVER_HOST`
+        with the callback
+        py:meth:`~ftrack_connect_pipeline.client._host_discovered`
+        '''
+        self.host_connections = []  # Start over
+        discover_event = ftrack_api.event.base.Event(
+            topic=constants.PIPELINE_DISCOVER_HOST
+        )
+
+        self._event_manager.publish(
+            discover_event, callback=self._host_discovered
+        )
 
     def _host_discovered(self, event):
         '''
@@ -366,27 +461,69 @@ class Client(object):
         '''
         if not event['data']:
             return
-        host_connection = HostConnection(self._event_manager, event['data'])
-        if host_connection not in self.host_connections:
-            self._host_connections.append(host_connection)
+        host_connection = HostConnection(self.event_manager, event['data'])
+        if (
+            host_connection
+            and host_connection not in self.host_connections
+            and self.filter_host(host_connection)
+        ):
+            Client._host_connections.append(host_connection)
 
         self._connected = True
 
-    def _discover_hosts(self):
+    def filter_host(self, host_connection):
+        '''Return True if the *host_connection* should be considered
+
+        *host_connection*: :class:`ftrack_connect_pipeline.client.HostConnection`
         '''
-        Publish an event with the topic
-        :py:data:`~ftrack_connect_pipeline.constants.PIPELINE_DISCOVER_HOST`
-        with the callback
-        py:meth:`~ftrack_connect_pipeline.client._host_discovered`
-        '''
-        self._host_connections = []
-        discover_event = ftrack_api.event.base.Event(
-            topic=constants.PIPELINE_DISCOVER_HOST
+        if host_connection.context_id in [None, '']:
+            self.logger.warning(
+                'Not considering host connection {} - context ID not set!'.format(
+                    host_connection.id
+                )
+            )
+            return False
+        return True
+
+    def change_host(self, host_connection):
+        '''Client(user) has chosen the host connection to use, set it to *host_connection*'''
+        self.host_connection = host_connection
+
+    def on_hosts_discovered(self, host_connections):
+        '''Callback, hosts has been discovered. To be overridden by the qt client'''
+        pass
+
+    def on_host_changed(self, host_connection):
+        '''Called when the host has been (re-)selected by the user. To be
+        overridden by the qt client.'''
+        pass
+
+    # Context
+
+    def subscribe_client_context_change(self):
+        '''Have host connection subscribe to context change events, to be able
+        to notify client'''
+        if self.context_change_subscribe_id:
+            self.session.unsubscribe(self.context_change_subscribe_id)
+        self.context_change_subscribe_id = self.session.event_hub.subscribe(
+            'topic={} and data.pipeline.host_id={}'.format(
+                constants.PIPELINE_CLIENT_CONTEXT_CHANGE,
+                self.host_connection.id,
+            ),
+            self._client_context_id_changed,
         )
 
-        self._event_manager.publish(
-            discover_event, callback=self._host_discovered
-        )
+    def _client_context_id_changed(self, event):
+        '''Set the new context ID based on data provided in *event*'''
+        # Feed the new context to the client
+        self.on_context_changed(event['data']['pipeline']['context_id'])
+
+    def on_context_changed(self, context_id):
+        '''Called when the context has been set or changed within the host connection, either from this
+        client or remote (other client or the host). Should be overridden by client.'''
+        pass
+
+    # Definition
 
     def run_definition(self, definition, engine_type):
         '''
@@ -400,6 +537,21 @@ class Client(object):
             engine_type,
             callback=self._run_callback,
         )
+
+    def change_definition(self, schema, definition):
+        '''
+        Assign the given *schema* and the given *definition* as the current
+        :obj:`schema` and :obj:`definition`
+        '''
+        if not self.host_connection:
+            self.logger.error("please set the host connection first")
+            return
+
+        self._schema = schema
+        self._definition = definition
+        self.change_engine(self.definition['_config']['engine_type'])
+
+    # Plugin
 
     def run_plugin(self, plugin_data, method, engine_type):
         '''
@@ -439,59 +591,11 @@ class Client(object):
         self.__callback = callback
         self.discover_hosts(time_out=time_out)
 
-    def change_host(self, host_connection):
-        '''
-        Assign the given *host_connection* as the current :obj:`host_connection`
-
-        *host_connection* : should be instance of
-        :class:`~ftrack_connect_pipeline.client.HostConnection`
-        '''
-        if not host_connection:
-            return
-
-        self.logger.debug('connection: {}'.format(host_connection))
-        self._host_connection = host_connection
-        # set current context to host
-        self.change_context(self.host_connection.context_id or self.context_id)
-        self.on_client_notification()
-
-    def change_definition(self, schema, definition):
-        '''
-        Assign the given *schema* and the given *definition* as the current
-        :obj:`schema` and :obj:`definition`
-        '''
-        if not self.host_connection:
-            self.logger.error("please set the host connection first")
-            return
-
-        # self.logger.debug('schema: {}'.format(schema))
-        # self.logger.debug('definition: {}'.format(definition))
-
-        self._schema = schema
-        self._definition = definition
-
-        self.change_engine(self.definition['_config']['engine_type'])
-
     def change_engine(self, engine_type):
         '''
         Assign the given *engine_type* as the current :obj:`engine_type`
         '''
         self._engine_type = engine_type
-
-    def change_context(self, context_id):
-        '''
-        Assign the given *context_id* as the current :obj:`context_id` and to the
-        :attr:`~ftrack_connect_pipeline.client.HostConnection.context_id`
-        '''
-        if not context_id:
-            self.logger.debug("No context id provided")
-            return
-        self.context_id = context_id
-        if self._host_connections:
-            for host_connection in self._host_connections:
-                host_connection.context_id = self.context_id
-            if self.host_connection:
-                self._host_connection.context_id = context_id
 
     def _on_log_item_added(self, log_item):
         '''Called when a client notify event arrives.'''
@@ -518,7 +622,6 @@ class Client(object):
 
         *event*: :class:`ftrack_api.event.base.Event`
         '''
-        '''callback to notify the client with the *event* data'''
         result = event['data']['pipeline']['result']
         status = event['data']['pipeline']['status']
         plugin_name = event['data']['pipeline']['plugin_name']
