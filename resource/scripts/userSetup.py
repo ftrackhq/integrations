@@ -14,6 +14,7 @@ from ftrack_connect_pipeline import constants as core_constants
 from ftrack_connect_pipeline.configure_logging import configure_logging
 
 from ftrack_connect_pipeline_qt import event
+from ftrack_connect_pipeline_qt import constants as qt_constants
 from ftrack_connect_pipeline_qt.ui.asset_manager.model import AssetListModel
 
 from ftrack_connect_pipeline_maya import host as maya_host
@@ -87,7 +88,7 @@ def _open_widget(event_manager, asset_list_model, widgets, event):
     widget_name = None
     widget_class = None
     for (_widget_name, _widget_class, unused_label, unused_image) in widgets:
-        if _widget_name == event['data']['pipeline']['widget_name']:
+        if _widget_name == event['data']['pipeline']['name']:
             widget_name = _widget_name
             widget_class = _widget_class
             break
@@ -95,7 +96,7 @@ def _open_widget(event_manager, asset_list_model, widgets, event):
         if widget_name not in created_widgets:
             ftrack_client = widget_class
             if widget_name in [
-                core_constants.ASSEMBLER,
+                qt_constants.ASSEMBLER_WIDGET,
                 core_constants.ASSET_MANAGER,
             ]:
                 created_widgets[widget_name] = ftrack_client(
@@ -106,9 +107,7 @@ def _open_widget(event_manager, asset_list_model, widgets, event):
         created_widgets[widget_name].show()
     else:
         raise Exception(
-            'Unknown widget {}!'.format(
-                event['data']['pipeline']['widget_name']
-            )
+            'Unknown widget {}!'.format(event['data']['pipeline']['name'])
         )
 
 
@@ -142,7 +141,7 @@ def initialise():
     )
     widgets.append(
         (
-            core_constants.INFO,
+            qt_constants.INFO_WIDGET,
             webview.QtInfoWebViewClientWidget,
             'Info',
             'info',
@@ -150,7 +149,7 @@ def initialise():
     )
     widgets.append(
         (
-            core_constants.TASKS,
+            qt_constants.TASKS_WIDGET,
             webview.QtTasksWebViewClientWidget,
             'My Tasks',
             'SP_FileDialogListView',
@@ -158,7 +157,7 @@ def initialise():
     )
     widgets.append(
         (
-            core_constants.CHANGE_CONTEXT,
+            qt_constants.CHANGE_CONTEXT_WIDGET,
             change_context.QtChangeContextClientWidget,
             'Change context',
             'refresh',
@@ -166,7 +165,7 @@ def initialise():
     )
     widgets.append(
         (
-            core_constants.ASSEMBLER,
+            qt_constants.ASSEMBLER_WIDGET,
             load.MayaQtAssemblerClientWidget,
             'Assembler',
             'greasePencilImport',
@@ -182,7 +181,7 @@ def initialise():
     )
     widgets.append(
         (
-            core_constants.SAVE,
+            qt_constants.SAVE_WIDGET,
             save.MayaQtSaveClientWidget,
             'Save Scene',
             'fileSave',
@@ -206,7 +205,7 @@ def initialise():
     )
     widgets.append(
         (
-            core_constants.DOCUMENTATION,
+            qt_constants.DOCUMENTATION_WIDGET,
             documentation.QtDocumentationClientWidget,
             'Documentation',
             'SP_FileIcon',
@@ -225,14 +224,14 @@ def initialise():
         cmds.menuItem(
             parent=ftrack_menu,
             label=label,
-            command=(functools.partial(host.launch_widget, widget_name)),
+            command=(functools.partial(host.launch_client, widget_name)),
             image=":/{}.png".format(image),
         )
 
-    # Listen to client launch events
+    # Listen to widget launch events
     session.event_hub.subscribe(
         'topic={} and data.pipeline.host_id={}'.format(
-            core_constants.PIPELINE_WIDGET_LAUNCH, host.host_id
+            core_constants.PIPELINE_CLIENT_LAUNCH, host.host_id
         ),
         functools.partial(
             _open_widget, event_manager, asset_list_model, widgets
@@ -241,7 +240,7 @@ def initialise():
 
     maya_utils.init_maya(host)
 
-    # host.launch_widget(qt_constants.OPENER_WIDGET)
+    # host.launch_client(qt_constants.OPENER_WIDGET)
 
 
 cmds.evalDeferred('initialise()', lp=True)

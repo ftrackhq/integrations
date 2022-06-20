@@ -172,11 +172,13 @@ def init_maya(host, from_context=False):
         cmds.currentUnit(time=fps_unit)
 
 
-def save(context_id, session):
+def save(context_id, session, temp=False):
     '''Save scene locally, with the next version number based on latest version
     in ftrack.'''
 
-    save_path, message = get_save_path(context_id, session, extension='.mb')
+    save_path, message = get_save_path(
+        context_id, session, extension='.mb', temp=temp
+    )
 
     if save_path is None:
         return (False, message)
@@ -186,13 +188,14 @@ def save(context_id, session):
     cmds.file(save=True)
     message = 'Saved Maya scene @ "{}"'.format(save_path)
 
-    # Add to recent files
-    mm.eval("source addRecentFile;")
-    mm.eval(
-        'addRecentFile("{}.mb","{}");'.format(
-            save_path.replace('\\', '/'), 'mayaBinary'
+    if not temp:
+        # Add to recent files
+        mm.eval("source addRecentFile;")
+        mm.eval(
+            'addRecentFile("{}.mb","{}");'.format(
+                save_path.replace('\\', '/'), 'mayaBinary'
+            )
         )
-    )
 
     result = save_path
 
