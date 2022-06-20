@@ -59,7 +59,6 @@ class BuildPlugin(setuptools.Command):
         shutil.copytree(HOOK_PATH, os.path.join(STAGING_PATH, 'hook'))
         dependencies_path = os.path.join(STAGING_PATH, 'dependencies')
 
-
         os.makedirs(dependencies_path)
 
         subprocess.check_call(

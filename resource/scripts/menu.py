@@ -71,7 +71,7 @@ class WidgetLauncher(object):
         self._host = host
 
     def launch(self, widget_name):
-        self._host.launch_widget(widget_name)
+        self._host.launch_client(widget_name)
 
 
 def handle_exception(exc_type, exc_value, exc_traceback):
@@ -99,7 +99,7 @@ def _open_widget(event_manager, asset_list_model, widgets, event):
     widget_name = None
     widget_class = None
     for (_widget_name, _widget_class, unused_label, unused_image) in widgets:
-        if _widget_name == event['data']['pipeline']['widget_name']:
+        if _widget_name == event['data']['pipeline']['name']:
             widget_name = _widget_name
             widget_class = _widget_class
             break
@@ -115,20 +115,19 @@ def _open_widget(event_manager, asset_list_model, widgets, event):
         else:
             if widget_name not in created_widgets:
                 ftrack_client = widget_class
-                if widget_name in [core_constants.ASSEMBLER, core_constants.ASSET_MANAGER]:
+                if widget_name in [
+                    qt_constants.ASSEMBLER_WIDGET,
+                    core_constants.ASSET_MANAGER,
+                ]:
                     created_widgets[widget_name] = ftrack_client(
                         event_manager, asset_list_model
                     )
                 else:
-                    created_widgets[widget_name] = ftrack_client(
-                        event_manager
-                    )
+                    created_widgets[widget_name] = ftrack_client(event_manager)
             created_widgets[widget_name].show()
     else:
         raise Exception(
-            'Unknown widget {}!'.format(
-                event['data']['pipeline']['widget_name']
-            )
+            'Unknown widget {}!'.format(event['data']['pipeline']['name'])
         )
 
 
@@ -148,11 +147,16 @@ def initialise():
 
     widgets = list()
     widgets.append(
-        (core_constants.OPENER, open.NukeQtOpenerClientWidget, 'Open', 'fileOpen')
+        (
+            core_constants.OPENER,
+            open.NukeQtOpenerClientWidget,
+            'Open',
+            'fileOpen',
+        )
     )
     widgets.append(
         (
-            core_constants.INFO,
+            qt_constants.INFO_WIDGET,
             webview.QtInfoWebViewClientWidget,
             'Info',
             '',
@@ -160,7 +164,7 @@ def initialise():
     )
     widgets.append(
         (
-            core_constants.TASKS,
+            qt_constants.TASKS_WIDGET,
             webview.QtTasksWebViewClientWidget,
             'My Tasks',
             '',
@@ -168,7 +172,7 @@ def initialise():
     )
     widgets.append(
         (
-            core_constants.CHANGE_CONTEXT,
+            qt_constants.CHANGE_CONTEXT_WIDGET,
             change_context.QtChangeContextClientWidget,
             'Change context',
             '',
@@ -176,7 +180,7 @@ def initialise():
     )
     widgets.append(
         (
-            core_constants.ASSEMBLER,
+            qt_constants.ASSEMBLER_WIDGET,
             load.NukeQtAssemblerClientWidget,
             'Assembler',
             '',
@@ -184,7 +188,7 @@ def initialise():
     )
     widgets.append(
         (
-            core_constants.SAVE,
+            qt_constants.SAVE_WIDGET,
             save.NukeQtSaveClientWidget,
             'Save Script',
             '',
@@ -216,7 +220,7 @@ def initialise():
     )
     widgets.append(
         (
-            core_constants.DOCUMENTATION,
+            qt_constants.DOCUMENTATION_WIDGET,
             documentation.QtDocumentationClientWidget,
             'Documentation',
             '',
@@ -233,7 +237,7 @@ def initialise():
     # Listen to client launch events
     session.event_hub.subscribe(
         'topic={} and data.pipeline.host_id={}'.format(
-            core_constants.PIPELINE_WIDGET_LAUNCH, host.host_id
+            core_constants.PIPELINE_CLIENT_LAUNCH, host.host_id
         ),
         functools.partial(
             _open_widget, event_manager, asset_list_model, widgets
@@ -249,7 +253,7 @@ def initialise():
 
     nuke_utils.init_nuke(host)
 
-    host.launch_widget(core_constants.OPENER)
+    host.launch_client(core_constants.OPENER)
 
 
 initialise()

@@ -18,7 +18,7 @@ def build_menu_widgets(
             NukeQtPublisherClientWidget,
         )
 
-        return NukeQtPublisherClientWidget(event_manager, asset_list_model)
+        return NukeQtPublisherClientWidget(event_manager)
 
     globals()['ftrackWidgetLauncher'] = widget_launcher
     globals()['ftrackAssetManagerClass'] = wrap_asset_manager_class
