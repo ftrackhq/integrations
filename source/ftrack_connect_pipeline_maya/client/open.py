@@ -10,7 +10,7 @@ from ftrack_connect_pipeline_maya.utils.custom_commands import get_main_window
 from ftrack_connect_pipeline_qt import constants as qt_constants
 
 
-class MayaOpenerClient(open.QtOpenerClient):
+class MayaQtOpenerClientWidget(open.QtOpenerClientWidget):
     '''Open dialog and client'''
 
     ui_types = [
@@ -20,10 +20,14 @@ class MayaOpenerClient(open.QtOpenerClient):
     ]
     definition_extensions_filter = ['.mb', '.ma']
 
-    def __init__(self, event_manager, unused_asset_list_model, parent=None):
-        super(MayaOpenerClient, self).__init__(
+    def __init__(self, event_manager, parent=None):
+        super(MayaQtOpenerClientWidget, self).__init__(
             event_manager, parent=(parent or get_main_window())
         )
 
         # Make sure we stays on top of Maya
         self.setWindowFlags(QtCore.Qt.Tool)
+
+    def show(self):
+        super(MayaQtOpenerClientWidget, self).conditional_rebuild()
+        super(MayaQtOpenerClientWidget, self).show()

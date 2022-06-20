@@ -5,7 +5,7 @@ import time
 import maya
 import maya.cmds as cmds
 
-from ftrack_connect_pipeline import constants
+from ftrack_connect_pipeline import constants as core_constants
 from ftrack_connect_pipeline.host.engine import AssetManagerEngine
 from ftrack_connect_pipeline.asset.asset_info import FtrackAssetInfo
 from ftrack_connect_pipeline_maya.utils import custom_commands as maya_utils
@@ -38,13 +38,13 @@ class MayaAssetManagerEngine(AssetManagerEngine):
         Returns status and result
         '''
         start_time = time.time()
-        status = constants.UNKNOWN_STATUS
+        status = core_constants.UNKNOWN_STATUS
         result = []
         message = None
 
         result_data = {
             'plugin_name': None,
-            'plugin_type': constants.PLUGIN_AM_ACTION_TYPE,
+            'plugin_type': core_constants.PLUGIN_AM_ACTION_TYPE,
             'method': 'discover_assets',
             'status': status,
             'result': result,
@@ -62,12 +62,12 @@ class MayaAssetManagerEngine(AssetManagerEngine):
                 ftrack_asset_info_list.append(node_asset_info)
 
             if not ftrack_asset_info_list:
-                status = constants.ERROR_STATUS
+                status = core_constants.ERROR_STATUS
             else:
-                status = constants.SUCCESS_STATUS
+                status = core_constants.SUCCESS_STATUS
         else:
             self.logger.debug("No assets in the scene")
-            status = constants.SUCCESS_STATUS
+            status = core_constants.SUCCESS_STATUS
 
         result = ftrack_asset_info_list
 
@@ -91,11 +91,11 @@ class MayaAssetManagerEngine(AssetManagerEngine):
         Returns status and result
         '''
         start_time = time.time()
-        status = constants.UNKNOWN_STATUS
+        status = core_constants.UNKNOWN_STATUS
         result = []
         message = None
 
-        plugin_type = constants.PLUGIN_AM_ACTION_TYPE
+        plugin_type = core_constants.PLUGIN_AM_ACTION_TYPE
         plugin_name = None
         if plugin:
             plugin_type = '{}.{}'.format('asset_manager', plugin['type'])
@@ -127,7 +127,7 @@ class MayaAssetManagerEngine(AssetManagerEngine):
             try:
                 cmds.select(node, add=True)
                 result.append(str(node))
-                status = constants.SUCCESS_STATUS
+                status = core_constants.SUCCESS_STATUS
             except Exception as error:
                 message = str(
                     'Could not select the node {}, error: {}'.format(
@@ -135,9 +135,9 @@ class MayaAssetManagerEngine(AssetManagerEngine):
                     )
                 )
                 self.logger.error(message)
-                status = constants.ERROR_STATUS
+                status = core_constants.ERROR_STATUS
 
-            bool_status = constants.status_bool_mapping[status]
+            bool_status = core_constants.status_bool_mapping[status]
             if not bool_status:
                 end_time = time.time()
                 total_time = end_time - start_time
@@ -182,11 +182,11 @@ class MayaAssetManagerEngine(AssetManagerEngine):
         Returns status and result
         '''
         start_time = time.time()
-        status = constants.UNKNOWN_STATUS
+        status = core_constants.UNKNOWN_STATUS
         result = []
         message = None
 
-        plugin_type = constants.PLUGIN_AM_ACTION_TYPE
+        plugin_type = core_constants.PLUGIN_AM_ACTION_TYPE
         plugin_name = None
         if plugin:
             plugin_type = '{}.{}'.format('asset_manager', plugin['type'])
@@ -229,7 +229,7 @@ class MayaAssetManagerEngine(AssetManagerEngine):
             try:
                 maya_utils.remove_reference_node(reference_node)
                 result.append(str(reference_node))
-                status = constants.SUCCESS_STATUS
+                status = core_constants.SUCCESS_STATUS
             except Exception as error:
                 message = str(
                     'Could not remove the reference node {}, error: {}'.format(
@@ -237,9 +237,9 @@ class MayaAssetManagerEngine(AssetManagerEngine):
                     )
                 )
                 self.logger.error(message)
-                status = constants.ERROR_STATUS
+                status = core_constants.ERROR_STATUS
 
-            bool_status = constants.status_bool_mapping[status]
+            bool_status = core_constants.status_bool_mapping[status]
             if not bool_status:
                 end_time = time.time()
                 total_time = end_time - start_time
@@ -258,7 +258,7 @@ class MayaAssetManagerEngine(AssetManagerEngine):
                     if cmds.objExists(node):
                         cmds.delete(node)
                         result.append(str(node))
-                        status = constants.SUCCESS_STATUS
+                        status = core_constants.SUCCESS_STATUS
                 except Exception as error:
                     message = str(
                         'Node: {0} could not be deleted, error: {1}'.format(
@@ -266,9 +266,9 @@ class MayaAssetManagerEngine(AssetManagerEngine):
                         )
                     )
                     self.logger.error(message)
-                    status = constants.ERROR_STATUS
+                    status = core_constants.ERROR_STATUS
 
-                bool_status = constants.status_bool_mapping[status]
+                bool_status = core_constants.status_bool_mapping[status]
                 if not bool_status:
                     end_time = time.time()
                     total_time = end_time - start_time
@@ -301,11 +301,11 @@ class MayaAssetManagerEngine(AssetManagerEngine):
         Returns status and result
         '''
         start_time = time.time()
-        status = constants.UNKNOWN_STATUS
+        status = core_constants.UNKNOWN_STATUS
         result = []
         message = None
 
-        plugin_type = constants.PLUGIN_AM_ACTION_TYPE
+        plugin_type = core_constants.PLUGIN_AM_ACTION_TYPE
         plugin_name = None
         if plugin:
             plugin_type = '{}.{}'.format('asset_manager', plugin['type'])
@@ -345,7 +345,7 @@ class MayaAssetManagerEngine(AssetManagerEngine):
             try:
                 maya_utils.remove_reference_node(reference_node)
                 result.append(str(reference_node))
-                status = constants.SUCCESS_STATUS
+                status = core_constants.SUCCESS_STATUS
             except Exception as error:
                 message = str(
                     'Could not remove the reference node {}, error: {}'.format(
@@ -353,9 +353,9 @@ class MayaAssetManagerEngine(AssetManagerEngine):
                     )
                 )
                 self.logger.error(message)
-                status = constants.ERROR_STATUS
+                status = core_constants.ERROR_STATUS
 
-            bool_status = constants.status_bool_mapping[status]
+            bool_status = core_constants.status_bool_mapping[status]
             if not bool_status:
                 end_time = time.time()
                 total_time = end_time - start_time
@@ -374,7 +374,7 @@ class MayaAssetManagerEngine(AssetManagerEngine):
                     if cmds.objExists(node):
                         cmds.delete(node)
                         result.append(str(node))
-                        status = constants.SUCCESS_STATUS
+                        status = core_constants.SUCCESS_STATUS
                 except Exception as error:
                     message = str(
                         'Node: {0} could not be deleted, error: {1}'.format(
@@ -382,9 +382,9 @@ class MayaAssetManagerEngine(AssetManagerEngine):
                         )
                     )
                     self.logger.error(message)
-                    status = constants.ERROR_STATUS
+                    status = core_constants.ERROR_STATUS
 
-                bool_status = constants.status_bool_mapping[status]
+                bool_status = core_constants.status_bool_mapping[status]
                 if not bool_status:
                     end_time = time.time()
                     total_time = end_time - start_time
@@ -401,15 +401,15 @@ class MayaAssetManagerEngine(AssetManagerEngine):
             try:
                 cmds.delete(self.dcc_object.name)
                 result.append(str(self.dcc_object.name))
-                status = constants.SUCCESS_STATUS
+                status = core_constants.SUCCESS_STATUS
             except Exception as error:
                 message = str(
                     'Could not delete the dcc_object, error: {}'.format(error)
                 )
                 self.logger.error(message)
-                status = constants.ERROR_STATUS
+                status = core_constants.ERROR_STATUS
 
-            bool_status = constants.status_bool_mapping[status]
+            bool_status = core_constants.status_bool_mapping[status]
             if not bool_status:
                 end_time = time.time()
                 total_time = end_time - start_time

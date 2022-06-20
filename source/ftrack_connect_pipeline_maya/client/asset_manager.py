@@ -2,7 +2,7 @@
 # :copyright: Copyright (c) 2014-2020 ftrack
 
 from ftrack_connect_pipeline_qt.client.asset_manager import (
-    QtAssetManagerClient,
+    QtAssetManagerClientWidget,
 )
 import ftrack_connect_pipeline.constants as constants
 import ftrack_connect_pipeline_qt.constants as qt_constants
@@ -12,17 +12,17 @@ from maya.app.general.mayaMixin import MayaQWidgetDockableMixin
 from ftrack_connect_pipeline_maya.utils.custom_commands import get_main_window
 
 
-class QtMayaAssetManagerClient(QtAssetManagerClient):
+class MayaQtAssetManagerClientWidget(QtAssetManagerClientWidget):
     def __init__(self, event_manager, asset_list_model, parent=None):
         '''Due to the Maya panel behaviour, we have to use *parent_window*
         instead of *parent*.'''
-        super(QtMayaAssetManagerClient, self).__init__(
+        super(MayaQtAssetManagerClientWidget, self).__init__(
             event_manager, asset_list_model, parent=get_main_window()
         )
 
 
-class MayaAssetManagerClient(
-    MayaQWidgetDockableMixin, QtMayaAssetManagerClient
+class MayaQtAssetManagerClientWidgetMixin(
+    MayaQWidgetDockableMixin, MayaQtAssetManagerClientWidget
 ):
     ui_types = [
         constants.UI_TYPE,
@@ -33,16 +33,17 @@ class MayaAssetManagerClient(
     '''Dockable maya asset manager widget'''
 
     def __init__(self, event_manager, asset_list_model):
-        super(MayaAssetManagerClient, self).__init__(
+        super(MayaQtAssetManagerClientWidgetMixin, self).__init__(
             event_manager=event_manager, asset_list_model=asset_list_model
         )
         self.setWindowTitle('ftrack Connect')
 
-    def getThemeBackgroundStyle(self):
+    def get_theme_background_style(self):
         return 'maya'
 
     def show(self):
-        super(MayaAssetManagerClient, self).show(
+        super(MayaQtAssetManagerClientWidgetMixin, self).conditional_rebuild()
+        super(MayaQtAssetManagerClientWidgetMixin, self).show(
             dockable=True,
             floating=False,
             area='right',
@@ -51,4 +52,3 @@ class MayaAssetManagerClient(
             x=300,
             y=600,
         )
-        QtAssetManagerClient.conditional_rebuild(self)
