@@ -16,8 +16,7 @@ import nuke
 import nukescripts
 
 from ftrack_connect_pipeline.utils import (
-    get_snapshot_save_path,
-    ftrack_context_id,
+    get_save_path,
 )
 from ftrack_connect_pipeline_nuke.constants import asset as asset_const
 
@@ -160,7 +159,7 @@ def cleanSelection():
         node['selected'].setValue(False)
 
 
-def init_nuke(session, from_context=False):
+def init_nuke(host, from_context=False):
     '''
     Initialise timeline in Nuke based on shot/asset build settings.
 
@@ -170,13 +169,13 @@ def init_nuke(session, from_context=False):
     '''
     fps = None
     if from_context:
-        context = session.query(
-            'Context where id={}'.format(ftrack_context_id())
+        context = host.session.query(
+            'Context where id={}'.format(host.context_id)
         ).first()
         if context is None:
             logger.error(
                 'Cannot initialize Nuke timeline - no such context: {}'.format(
-                    ftrack_context_id()
+                    host.context_id
                 )
             )
             return
@@ -190,7 +189,7 @@ def init_nuke(session, from_context=False):
         if not shot:
             logger.warning(
                 'Cannot initialize Nuke timeline - no shot related to context: {}'.format(
-                    ftrack_context_id()
+                    host.context_id
                 )
             )
             return
@@ -224,19 +223,17 @@ def init_nuke(session, from_context=False):
         nuke.root().knob("fps").setValue(fps)
 
 
-def save_snapshot(context_id, session):
-    '''Save snapshot script locally, with the next version number based on latest version
+def save(context_id, session):
+    '''Save script locally, with the next version number based on latest version
     in ftrack.'''
 
-    snapshot_path, message = get_snapshot_save_path(
-        context_id, session, extension='.nk'
-    )
+    save_path, message = get_save_path(context_id, session, extension='.nk')
 
-    if snapshot_path is None:
+    if save_path is None:
         return (False, message)
 
-    nuke.scriptSaveAs(snapshot_path, overwrite=1)
-    message = 'Saved Nuke script @ "{}"'.format(snapshot_path)
-    result = snapshot_path
+    nuke.scriptSaveAs(save_path, overwrite=1)
+    message = 'Saved Nuke script @ "{}"'.format(save_path)
+    result = save_path
 
     return result, message

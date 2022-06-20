@@ -12,7 +12,7 @@ import ftrack_connect_pipeline_nuke.constants as nuke_constants
 from ftrack_connect_pipeline_nuke.utils.custom_commands import get_main_window
 
 
-class NukeAssemblerClient(load.QtAssemblerClient):
+class NukeQtAssemblerClientWidget(load.QtAssemblerClientWidget):
     '''Nuke assembler dialog'''
 
     ui_types = [
@@ -26,7 +26,7 @@ class NukeAssemblerClient(load.QtAssemblerClient):
     )
 
     def __init__(self, event_manager, asset_list_model, parent=None):
-        super(NukeAssemblerClient, self).__init__(
+        super(NukeQtAssemblerClientWidget, self).__init__(
             event_manager,
             load_const.LOAD_MODES,
             asset_list_model,
@@ -40,3 +40,7 @@ class NukeAssemblerClient(load.QtAssemblerClient):
         '''Nuke deletes the dialog, instead hide so it can be reused'''
         self.setVisible(False)
         event.ignore()
+
+    def show(self):
+        super(NukeQtAssemblerClientWidget, self).conditional_rebuild()
+        super(NukeQtAssemblerClientWidget, self).show()

@@ -1,6 +1,6 @@
 from nukescripts import panels
 
-from ftrack_connect_pipeline_qt import constants as qt_constants
+from ftrack_connect_pipeline import constants as core_constants
 
 
 def build_menu_widgets(
@@ -8,17 +8,17 @@ def build_menu_widgets(
 ):
     def wrap_asset_manager_class(*args, **kwargs):
         from ftrack_connect_pipeline_nuke.client.asset_manager import (
-            NukeAssetManagerClient,
+            NukeQtAssetManagerClientWidget,
         )
 
-        return NukeAssetManagerClient(event_manager, asset_list_model)
+        return NukeQtAssetManagerClientWidget(event_manager, asset_list_model)
 
     def wrap_publisher_class(*args, **kwargs):
         from ftrack_connect_pipeline_nuke.client.publish import (
-            NukePublisherClient,
+            NukeQtPublisherClientWidget,
         )
 
-        return NukePublisherClient(event_manager, asset_list_model)
+        return NukeQtPublisherClientWidget(event_manager)
 
     globals()['ftrackWidgetLauncher'] = widget_launcher
     globals()['ftrackAssetManagerClass'] = wrap_asset_manager_class
@@ -29,13 +29,13 @@ def build_menu_widgets(
     panels.registerWidgetAsPanel(
         '{0}.{1}'.format(__name__, 'ftrackAssetManagerClass'),
         'ftrack Pipeline Asset Manager',
-        qt_constants.ASSET_MANAGER_WIDGET,
+        core_constants.ASSET_MANAGER,
     )
 
     panels.registerWidgetAsPanel(
         '{0}.{1}'.format(__name__, 'ftrackPublishClass'),
         'ftrack Pipeline Publisher',
-        qt_constants.PUBLISHER_WIDGET,
+        core_constants.PUBLISHER,
     )
 
     for item in widgets:

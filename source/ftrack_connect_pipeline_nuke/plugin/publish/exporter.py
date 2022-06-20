@@ -9,7 +9,9 @@ from ftrack_connect_pipeline_nuke.plugin import (
 )
 
 
-class NukePublisherExporterPlugin(plugin.PublisherExporterPlugin, NukeBasePlugin):
+class NukePublisherExporterPlugin(
+    plugin.PublisherExporterPlugin, NukeBasePlugin
+):
     '''Class representing an exporter Plugin
     .. note::
 

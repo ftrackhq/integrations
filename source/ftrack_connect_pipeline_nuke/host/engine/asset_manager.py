@@ -3,7 +3,7 @@
 
 import time
 import nuke
-from ftrack_connect_pipeline import constants
+from ftrack_connect_pipeline import constants as core_constants
 from ftrack_connect_pipeline.host.engine import AssetManagerEngine
 from ftrack_connect_pipeline.asset.asset_info import FtrackAssetInfo
 from ftrack_connect_pipeline_nuke.utils import custom_commands as nuke_utils
@@ -36,13 +36,13 @@ class NukeAssetManagerEngine(AssetManagerEngine):
         Returns status and result
         '''
         start_time = time.time()
-        status = constants.UNKNOWN_STATUS
+        status = core_constants.UNKNOWN_STATUS
         result = []
         message = None
 
         result_data = {
             'plugin_name': None,
-            'plugin_type': constants.PLUGIN_AM_ACTION_TYPE,
+            'plugin_type': core_constants.PLUGIN_AM_ACTION_TYPE,
             'method': 'discover_assets',
             'status': status,
             'result': result,
@@ -66,12 +66,12 @@ class NukeAssetManagerEngine(AssetManagerEngine):
                 ftrack_asset_info_list.append(node_asset_info)
 
             if not ftrack_asset_info_list:
-                status = constants.ERROR_STATUS
+                status = core_constants.ERROR_STATUS
             else:
-                status = constants.SUCCESS_STATUS
+                status = core_constants.SUCCESS_STATUS
         else:
             self.logger.debug("No assets in the scene")
-            status = constants.SUCCESS_STATUS
+            status = core_constants.SUCCESS_STATUS
 
         result = ftrack_asset_info_list
 
@@ -93,11 +93,11 @@ class NukeAssetManagerEngine(AssetManagerEngine):
         Returns status and result
         '''
         start_time = time.time()
-        status = constants.UNKNOWN_STATUS
+        status = core_constants.UNKNOWN_STATUS
         result = []
         message = None
 
-        plugin_type = constants.PLUGIN_AM_ACTION_TYPE
+        plugin_type = core_constants.PLUGIN_AM_ACTION_TYPE
         plugin_name = None
         if plugin:
             plugin_type = '{}.{}'.format('asset_manager', plugin['type'])
@@ -123,7 +123,7 @@ class NukeAssetManagerEngine(AssetManagerEngine):
         if not ftrack_node:
             message = "There is no ftrack object"
             self.logger.debug(message)
-            status = constants.UNKNOWN_STATUS
+            status = core_constants.UNKNOWN_STATUS
 
             end_time = time.time()
             total_time = end_time - start_time
@@ -157,7 +157,7 @@ class NukeAssetManagerEngine(AssetManagerEngine):
                 try:
                     nuke.delete(node_to_delete)
                     result.append(str(node_name))
-                    status = constants.SUCCESS_STATUS
+                    status = core_constants.SUCCESS_STATUS
                 except Exception as error:
                     message = str(
                         'Could not delete the node {}, error: {}'.format(
@@ -165,9 +165,9 @@ class NukeAssetManagerEngine(AssetManagerEngine):
                         )
                     )
                     self.logger.error(message)
-                    status = constants.ERROR_STATUS
+                    status = core_constants.ERROR_STATUS
 
-                bool_status = constants.status_bool_mapping[status]
+                bool_status = core_constants.status_bool_mapping[status]
                 if not bool_status:
                     end_time = time.time()
                     total_time = end_time - start_time
@@ -180,7 +180,7 @@ class NukeAssetManagerEngine(AssetManagerEngine):
                     self._notify_client(plugin, result_data)
                     return status, result
 
-        bool_status = constants.status_bool_mapping[status]
+        bool_status = core_constants.status_bool_mapping[status]
         if not bool_status:
             end_time = time.time()
             total_time = end_time - start_time
@@ -213,11 +213,11 @@ class NukeAssetManagerEngine(AssetManagerEngine):
         Returns status and result
         '''
         start_time = time.time()
-        status = constants.UNKNOWN_STATUS
+        status = core_constants.UNKNOWN_STATUS
         result = []
         message = None
 
-        plugin_type = constants.PLUGIN_AM_ACTION_TYPE
+        plugin_type = core_constants.PLUGIN_AM_ACTION_TYPE
         plugin_name = None
         if plugin:
             plugin_type = '{}.{}'.format('asset_manager', plugin['type'])
@@ -243,7 +243,7 @@ class NukeAssetManagerEngine(AssetManagerEngine):
         if not ftrack_node:
             message = "There is no ftrack object"
             self.logger.debug(message)
-            status = constants.UNKNOWN_STATUS
+            status = core_constants.UNKNOWN_STATUS
 
             end_time = time.time()
             total_time = end_time - start_time
@@ -279,7 +279,7 @@ class NukeAssetManagerEngine(AssetManagerEngine):
                 try:
                     nuke.delete(node_to_delete)
                     result.append(str(node_name))
-                    status = constants.SUCCESS_STATUS
+                    status = core_constants.SUCCESS_STATUS
                 except Exception as error:
                     message = str(
                         'Could not delete the node {}, error: {}'.format(
@@ -287,9 +287,9 @@ class NukeAssetManagerEngine(AssetManagerEngine):
                         )
                     )
                     self.logger.error(message)
-                    status = constants.ERROR_STATUS
+                    status = core_constants.ERROR_STATUS
 
-                bool_status = constants.status_bool_mapping[status]
+                bool_status = core_constants.status_bool_mapping[status]
                 if not bool_status:
                     end_time = time.time()
                     total_time = end_time - start_time
@@ -307,15 +307,15 @@ class NukeAssetManagerEngine(AssetManagerEngine):
             self.logger.debug("removing : {}".format(str_node))
             nuke.delete(ftrack_node)
             result.append(str_node)
-            status = constants.SUCCESS_STATUS
+            status = core_constants.SUCCESS_STATUS
         except Exception as error:
             message = str(
                 'Could not delete the nuke dcc object, error: {}'.format(error)
             )
             self.logger.error(message)
-            status = constants.ERROR_STATUS
+            status = core_constants.ERROR_STATUS
 
-        bool_status = constants.status_bool_mapping[status]
+        bool_status = core_constants.status_bool_mapping[status]
         if not bool_status:
             end_time = time.time()
             total_time = end_time - start_time
@@ -348,11 +348,11 @@ class NukeAssetManagerEngine(AssetManagerEngine):
         Returns status and result
         '''
         start_time = time.time()
-        status = constants.UNKNOWN_STATUS
+        status = core_constants.UNKNOWN_STATUS
         result = []
         message = None
 
-        plugin_type = constants.PLUGIN_AM_ACTION_TYPE
+        plugin_type = core_constants.PLUGIN_AM_ACTION_TYPE
         plugin_name = None
         if plugin:
             plugin_type = '{}.{}'.format('asset_manager', plugin['type'])
@@ -393,7 +393,7 @@ class NukeAssetManagerEngine(AssetManagerEngine):
                 node_to_select = nuke.toNode(node_name)
                 node_to_select['selected'].setValue(True)
                 result.append(str(node_name))
-                status = constants.SUCCESS_STATUS
+                status = core_constants.SUCCESS_STATUS
             except Exception as error:
                 message = str(
                     'Could not select the node {}, error: {}'.format(
@@ -401,9 +401,9 @@ class NukeAssetManagerEngine(AssetManagerEngine):
                     )
                 )
                 self.logger.error(message)
-                status = constants.ERROR_STATUS
+                status = core_constants.ERROR_STATUS
 
-            bool_status = constants.status_bool_mapping[status]
+            bool_status = core_constants.status_bool_mapping[status]
             if not bool_status:
                 end_time = time.time()
                 total_time = end_time - start_time
@@ -419,15 +419,15 @@ class NukeAssetManagerEngine(AssetManagerEngine):
         try:
             ftrack_node['selected'].setValue(True)
             result.append(str(ftrack_node))
-            status = constants.SUCCESS_STATUS
+            status = core_constants.SUCCESS_STATUS
         except Exception as error:
             message = str(
                 'Could not select the dcc_object, error: {}'.format(error)
             )
             self.logger.error(message)
-            status = constants.ERROR_STATUS
+            status = core_constants.ERROR_STATUS
 
-        bool_status = constants.status_bool_mapping[status]
+        bool_status = core_constants.status_bool_mapping[status]
         if not bool_status:
             end_time = time.time()
             total_time = end_time - start_time
