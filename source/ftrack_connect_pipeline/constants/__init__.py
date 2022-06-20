@@ -44,25 +44,12 @@ POST_IMPORTER = 'post_importer'
 OPENER = 'opener'
 #: Loader client and its definition used with assembler
 LOADER = 'loader'
-# Assembler client
-ASSEMBLER = 'assembler'
 #: Publisher client and its definition.
 PUBLISHER = 'publisher'
 # Asset manager
 ASSET_MANAGER = 'asset_manager'
 # Log viewer dialog
 LOG_VIEWER = 'log_viewer'
-# Change context client
-CHANGE_CONTEXT = 'change_context'
-# Savet client
-SAVE = 'save'
-# Info client
-INFO = 'info'
-# Tasks client
-TASKS = 'tasks'
-# Documentation client
-DOCUMENTATION = 'documentation'
-
 
 # External events.
 #: Pipeline register topic event. Published by the
@@ -108,7 +95,7 @@ PIPELINE_CLIENT_PROGRESS_NOTIFICATION = (
 PIPELINE_DISCOVER_HOST = '{}.host.discover'.format(_BASE_)
 
 # Launch a widget within a client
-PIPELINE_WIDGET_LAUNCH = '{}.widget.launch'.format(_BASE_)
+PIPELINE_CLIENT_LAUNCH = '{}.client.launch'.format(_BASE_)
 
 # The main host context has changed, sent from host or host connection (change context)
 PIPELINE_HOST_CONTEXT_CHANGE = '{}.host.context.change'.format(_BASE_)

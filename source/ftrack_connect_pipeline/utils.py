@@ -28,7 +28,7 @@ def str_version(v, with_id=False, force_version_nr=None, delimiter='/'):
 
 
 def get_save_path(context_id, session, extension=None, temp=False):
-    '''Calculate the path to local snapshot save (work path), DCC independent.'''
+    '''Calculate the path to local snapshot save (work path), DCC independent'''
 
     result = False
     message = None

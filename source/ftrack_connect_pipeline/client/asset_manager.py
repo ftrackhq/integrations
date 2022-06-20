@@ -1,5 +1,6 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2020 ftrack
+from functools import partial
 
 from ftrack_connect_pipeline.client import Client
 from ftrack_connect_pipeline import constants as core_constants
@@ -77,14 +78,21 @@ class AssetManagerClient(Client):
             'options': options,
         }
 
-        def _resolve_dependencies_callback(event):
-            if not event['data']:
-                return
-            resolve_dependencies_callback(event['data'])
-
         self.host_connection.run(
-            data, self.engine_type, callback=_resolve_dependencies_callback
+            data,
+            self.engine_type,
+            callback=partial(
+                self._resolve_dependencies_callback,
+                resolve_dependencies_callback,
+            ),
         )
+
+    def _resolve_dependencies_callback(
+        self, resolve_dependencies_callback, event
+    ):
+        if not event['data']:
+            return
+        resolve_dependencies_callback(event['data'])
 
     def _reset_asset_list(self):
         '''Empty the :obj:`asset_entities_list`'''

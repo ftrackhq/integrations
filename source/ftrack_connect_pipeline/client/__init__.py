@@ -174,14 +174,14 @@ class HostConnection(object):
         )
         self.event_manager.publish(event, callback)
 
-    def launch_widget(self, widget_name, source=None):
+    def launch_client(self, name, source=None):
         '''Send a widget launch event, to be picked up by DCC.'''
         event = ftrack_api.event.base.Event(
-            topic=constants.PIPELINE_WIDGET_LAUNCH,
+            topic=constants.PIPELINE_CLIENT_LAUNCH,
             data={
                 'pipeline': {
                     'host_id': self.id,
-                    'widget_name': widget_name,
+                    'name': name,
                     'source': source,
                 }
             },
@@ -320,9 +320,9 @@ class Client(object):
     @host_connection.setter
     def host_connection(self, value):
         '''
-        Assign the given *host_connection* as the current :obj:`value`
+        Assign the host_connection to the given *value*
 
-        *host_connection* : should be instance of
+        *value* : should be instance of
         :class:`~ftrack_connect_pipeline.client.HostConnection`
         '''
         if value is None or (
@@ -398,7 +398,8 @@ class Client(object):
         Find for available hosts during the optional *time_out* and Returns
         a list of discovered :class:`~ftrack_connect_pipeline.client.HostConnection`.
 
-        Skip this and use existing singleton host connection if previously detected, unless *force_rediscover* is True.
+        Skip this and use existing singleton host connection if previously detected,
+        unless *force_rediscover* is True.
         '''
         if force_rediscover:
             self.host_connections = None
@@ -488,6 +489,15 @@ class Client(object):
         '''Client(user) has chosen the host connection to use, set it to *host_connection*'''
         self.host_connection = host_connection
 
+    def on_hosts_discovered(self, host_connections):
+        '''Callback, hosts has been discovered. To be overridden by the qt client'''
+        pass
+
+    def on_host_changed(self, host_connection):
+        '''Called when the host has been (re-)selected by the user. To be
+        overridden by the qt client.'''
+        pass
+
     # Context
 
     def subscribe_client_context_change(self):
@@ -507,6 +517,11 @@ class Client(object):
         '''Set the new context ID based on data provided in *event*'''
         # Feed the new context to the client
         self.on_context_changed(event['data']['pipeline']['context_id'])
+
+    def on_context_changed(self, context_id):
+        '''Called when the context has been set or changed within the host connection, either from this
+        client or remote (other client or the host). Should be overridden by client.'''
+        pass
 
     # Definition
 
