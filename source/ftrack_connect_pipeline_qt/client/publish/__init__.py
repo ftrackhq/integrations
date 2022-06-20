@@ -292,4 +292,4 @@ class QtPublisherClientWidget(QtPublisherClient, QtWidgets.QFrame):
         '''Close client (if not docked) and open entity browser.'''
         if not self.is_docked():
             self.hide()
-        self.host_connection.launch_widget(core_constants.CHANGE_CONTEXT)
+        self.host_connection.launch_client(core_constants.CHANGE_CONTEXT)

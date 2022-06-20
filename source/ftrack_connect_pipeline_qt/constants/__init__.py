@@ -14,3 +14,16 @@ NOT_SET = 'widget_not_set'
 _BASE_ = 'ftrack.pipeline'
 
 MAIN_FRAMEWORK_WIDGET = 'main_framework_widget'
+
+# Assembler widget
+ASSEMBLER_WIDGET = 'assembler'
+# Change context widget
+CHANGE_CONTEXT_WIDGET = 'change_context'
+# Savet widget
+SAVE_WIDGET = 'save'
+# Info widget
+INFO_WIDGET = 'info'
+# Tasks widget
+TASKS_WIDGET = 'tasks'
+# Documentation widget
+DOCUMENTATION_WIDGET = 'documentation'

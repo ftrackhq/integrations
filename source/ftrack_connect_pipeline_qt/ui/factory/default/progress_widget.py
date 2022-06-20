@@ -253,6 +253,7 @@ class ProgressWidgetObject(BaseUIWidgetObject):
             if self.content_widget.layout().itemAt(i).widget():
                 self.content_widget.layout().itemAt(i).widget().deleteLater()
         self.step_types = []
+        self._step_widgets = {}
 
     def set_status(self, status, message=None):
         self.widget.set_status(status, message=message)

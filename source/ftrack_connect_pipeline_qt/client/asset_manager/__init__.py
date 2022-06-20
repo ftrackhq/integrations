@@ -510,8 +510,8 @@ class QtAssetManagerClientWidget(QtAssetManagerClient, QtWidgets.QFrame):
         '''Called when the publisher button is pressed'''
         if not self.is_docked():
             self.hide()
-        self.host_connection.launch_widget(core_constants.PUBLISHER)
+        self.host_connection.launch_client(core_constants.PUBLISHER)
 
     def _launch_context_selector(self):
         '''Open entity browser'''
-        self.host_connection.launch_widget(core_constants.CHANGE_CONTEXT)
+        self.host_connection.launch_client(core_constants.CHANGE_CONTEXT)

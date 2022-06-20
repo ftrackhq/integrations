@@ -6,6 +6,8 @@ import sys
 import logging
 import contextlib
 
+import ftrack_api
+
 from Qt import QtCore, QtWidgets, QtGui
 
 from ftrack_connect_pipeline_qt import constants as qt_constants

@@ -504,18 +504,18 @@ class QtAssemblerClientWidget(QtLoaderClient, dialog.Dialog):
         '''Open the assembler and close client if dialog'''
         if not self.is_docked():
             self.hide()
-        self.host_connection.launch_widget(core_constants.ASSEMBLER)
+        self.host_connection.launch_client(qt_constants.ASSEMBLER_WIDGET)
 
     def _launch_publisher(self):
         if not self.is_docked():
             self.hide()
-        self.host_connection.launch_widget(core_constants.PUBLISHER)
+        self.host_connection.launch_client(core_constants.PUBLISHER)
 
     def _launch_context_selector(self):
         '''Close client (if not docked) and open entity browser.'''
         if not self.is_docked():
             self.hide()
-        self.host_connection.launch_widget(core_constants.CHANGE_CONTEXT)
+        self.host_connection.launch_client(qt_constants.CHANGE_CONTEXT_WIDGET)
 
 
 class AssemblerTabWidget(tab.TabWidget):

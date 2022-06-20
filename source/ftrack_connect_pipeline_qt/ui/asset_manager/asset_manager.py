@@ -432,11 +432,11 @@ class AssetManagerWidget(AssetManagerBaseWidget):
 
     def _on_config(self):
         '''Callback when user wants to open the assembler'''
-        self.host_connection.launch_widget(core_constants.ASSEMBLER)
+        self.host_connection.launch_client(core_constants.ASSEMBLER)
 
     def _on_add(self):
         '''Callback when user wants to add and asset'''
-        self.host_connection.launch_widget(core_constants.ASSEMBLER)
+        self.host_connection.launch_client(core_constants.ASSEMBLER)
 
     def _on_change_asset_version(self, asset_info, version_entity):
         '''
