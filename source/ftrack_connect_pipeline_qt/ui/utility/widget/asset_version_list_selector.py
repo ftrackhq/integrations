@@ -127,7 +127,7 @@ class AssetList(QtWidgets.QListWidget):
         return assets
 
     def _store_assets(self, assets):
-        '''Async, store assets and add through signal'''
+        '''(Called from background thread) store assets and add through signal'''
         self.assets = assets
         # Add data placeholder for new asset input
         self.assetsQueryDone.emit()
@@ -179,7 +179,7 @@ class AssetList(QtWidgets.QListWidget):
 
 
 class AssetListSelector(QtWidgets.QFrame):
-    '''(Open) Widget for selecting an asset version to load.'''
+    '''Widget for selecting an asset version to open, presented as a list.'''
 
     valid_asset_name = QtCore.QRegExp('[A-Za-z0-9_]+')
 

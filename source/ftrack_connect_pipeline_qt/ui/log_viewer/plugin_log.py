@@ -17,7 +17,7 @@ from ftrack_connect_pipeline_qt.ui.utility.widget.dialog import ModalDialog
 
 
 class PluginLogViewerWidget(QtWidgets.QWidget):
-    '''Main widget of the Log viewer'''
+    '''Main widget of the plugin log viewer'''
 
     TEMPLATE = """
     <div> <b>Status: </b>{status} </div> 
@@ -47,7 +47,7 @@ class PluginLogViewerWidget(QtWidgets.QWidget):
         return self._results
 
     def __init__(self, event_manager, parent=None):
-        '''Initialise LogViewerWidget with *event_manager*
+        '''Initialise LogViewerWidget with *event_manager* and *parent*
 
         *event_manager* should be the
         :class:`ftrack_connect_pipeline.event.EventManager` instance to
@@ -96,7 +96,7 @@ class PluginLogViewerWidget(QtWidgets.QWidget):
 
     def post_build(self):
         '''Post Build ui method for events connections.'''
-        self._search.search.connect(self._on_search)
+        self._search.inputUpdated.connect(self._on_search)
         self.log_table_view.doubleClicked.connect(self.show_detail_widget)
 
     def _on_search(self, value):

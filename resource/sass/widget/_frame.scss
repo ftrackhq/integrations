@@ -22,7 +22,7 @@ QFrame[background='houdini'], QDialog[background='houdini'] {
     background: rgb(55,55,55);
 }
 
-QtAssetManagerClient[assembler='true'] {
+QtAssetManagerClientWidget[assembler='true'] {
     background-color: #1A2027;
 }
 
@@ -69,7 +69,7 @@ AccordionBaseWidget {
 AccordionBaseWidget[first='true'] {
 }
 
-PublisherAccordionStepWidget {
+PublisherAccordionStepWidgetObject {
     border-left: 1px dashed $border-color;
     border-right: 1px dashed $border-color;
 }
@@ -105,7 +105,7 @@ EntityWidget[background='selected'] {
 }
 
 TypeWidget {
-    border: 1 solid $gray-dark;
+    border: 1px solid $gray-darker;
     border-radius: 12px;
 }
 

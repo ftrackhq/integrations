@@ -6,15 +6,11 @@ from functools import partial
 
 from Qt import QtGui, QtCore, QtWidgets
 
-from ftrack_connect_pipeline_qt import constants
-
 
 class BaseOptionsWidget(QtWidgets.QWidget):
     '''
     Base class of a widget representation for options widgets
     '''
-
-    status_icons = constants.icons.status_icons
 
     statusUpdated = QtCore.Signal(object)
     assetChanged = QtCore.Signal(object, object, object)
@@ -74,10 +70,7 @@ class BaseOptionsWidget(QtWidgets.QWidget):
 
     def _set_internal_status(self, data):
         '''set the status icon with the provided *data*'''
-        status, message = data
-        icon = self.status_icons[status]
-        self._status_icon.setPixmap(icon)
-        self._status_icon.setToolTip(str(message))
+        pass
 
     def _set_internal_run_result(self, data):
         '''Calls the function on_{method}_callback with values returned
@@ -157,7 +150,6 @@ class BaseOptionsWidget(QtWidgets.QWidget):
         self._description = description
         self._options = options
 
-        self._status_icon = None
         self.name_label = None
 
         self._context_id = context_id
@@ -172,16 +164,6 @@ class BaseOptionsWidget(QtWidgets.QWidget):
     def pre_build(self):
         '''pre build function, mostly used setup the widget's layout.'''
         layout = QtWidgets.QVBoxLayout()
-
-        self._status_icon = QtWidgets.QLabel()
-        icon = self.status_icons[constants.DEFAULT_STATUS]
-        self._status_icon.setPixmap(icon)
-        self._status_icon.setAlignment(
-            QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter
-        )
-        self._status_icon.setMaximumHeight(10)
-        self._status_icon.hide()
-        layout.addWidget(self._status_icon)
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setAlignment(QtCore.Qt.AlignTop)
         self.setLayout(layout)

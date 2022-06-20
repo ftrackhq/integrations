@@ -139,10 +139,10 @@ class PublishContextWidget(BaseOptionsWidget):
         '''Builds the comments_container widget'''
         self.coments_layout = QtWidgets.QHBoxLayout()
         self.coments_layout.setContentsMargins(0, 0, 0, 0)
-        self.coments_layout.setAlignment(QtCore.Qt.AlignTop)
 
         comment_label = QtWidgets.QLabel('Description')
         comment_label.setObjectName('gray')
+        comment_label.setAlignment(QtCore.Qt.AlignTop)
         self.comments_input = QtWidgets.QTextEdit()
         self.comments_input.setMaximumHeight(40)
         self.comments_input.setPlaceholderText("Type a description...")

@@ -1,5 +1,5 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2014-2021 ftrac
+# :copyright: Copyright (c) 2014-2022 ftrack
 
 from Qt import QtGui, QtCore, QtWidgets
 
@@ -12,23 +12,31 @@ from ftrack_connect_pipeline_qt.utils import clear_layout
 
 class Search(QtWidgets.QFrame):
     '''
-    Display a search box, that can be collapsed and expanded.
+    Widget displaying a search box, that can be collapsed and expanded.
     '''
 
-    inputUpdated = QtCore.Signal(object)
-    search = QtCore.Signal()
-    clear = QtCore.Signal()
+    inputUpdated = QtCore.Signal(object)  # User has update input
+    clear = QtCore.Signal()  # Clear button was pressed
 
     @property
     def text(self):
+        '''Retrieve the search text'''
         return self._input.text() if self._input else ''
 
     @text.setter
     def text(self, value):
+        '''Set the search text to *value*'''
         if self._input:
             self._input.setText(value)
 
-    def __init__(self, parent=None, collapsed=True, collapsable=True):
+    def __init__(self, collapsed=True, collapsable=True, parent=None):
+        '''
+        Initialize the search widget
+
+        :param collapsed: If True, search box should start collapsed (default)
+        :param collapsable: If True, search can be collapsed by user.
+        :param parent: The parent dialog or frame
+        '''
         super(Search, self).__init__(parent=parent)
 
         self._collapsed = collapsed
@@ -51,10 +59,10 @@ class Search(QtWidgets.QFrame):
 
     def post_build(self):
         '''Post Build ui method for events connections.'''
-        self._search_button.clicked.connect(self._on_search)
+        self._search_button.clicked.connect(self._on_search_clicked)
 
     def rebuild(self):
-        # Remove current widgets, clear input
+        '''Remove current widgets, clear input'''
         clear_layout(self.layout())
         if self._collapsed:
             # Just the circular search button
@@ -91,12 +99,7 @@ class Search(QtWidgets.QFrame):
             )
             self._input.setFocus()
             self.layout().addWidget(self._input, 100)
-            # self._clear_button = CircularButton(
-            #    'close', '#555555', diameter=30
-            # )
-            # self._clear_button.setStyleSheet('''border:none;''')
-            # self._clear_button.clicked.connect(self._on_clear)
-            # self.layout().addWidget(self._clear_button)
+
             self.setStyleSheet(
                 '''
                 border: 1px solid #555555;
@@ -106,16 +109,19 @@ class Search(QtWidgets.QFrame):
             if not self._collapsable:
                 self.layout().addWidget(self._search_button)
 
-    def _on_search(self):
+    def _on_search_clicked(self):
+        '''User clicked search button, update collapsed state'''
         if self._collapsable:
             self._collapsed = not self._collapsed
             self.rebuild()
             self.inputUpdated.emit('')
 
     def _on_input_changed(self):
+        '''Search input text changed'''
         self.inputUpdated.emit(self._input.text())
 
-    def _on_clear(self):
+    def _on_clear_clicked(self):
+        '''Clear search input'''
         self._input.setText('')
         self._input.setFocus()
         self.clear.emit()

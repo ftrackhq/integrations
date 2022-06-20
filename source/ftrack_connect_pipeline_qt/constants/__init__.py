@@ -15,17 +15,15 @@ _BASE_ = 'ftrack.pipeline'
 
 MAIN_FRAMEWORK_WIDGET = 'main_framework_widget'
 
-OPENER_WIDGET = 'opener'
-INFO_WIDGET = 'info'
-TASKS_WIDGET = 'tasks'
-CHANGE_CONTEXT_WIDGET = 'change_context'
-LOADER_WIDGET = 'loader'
+# Assembler widget
 ASSEMBLER_WIDGET = 'assembler'
+# Change context widget
+CHANGE_CONTEXT_WIDGET = 'change_context'
+# Savet widget
 SAVE_WIDGET = 'save'
-ASSET_MANAGER_WIDGET = 'asset_manager'
-PUBLISHER_WIDGET = 'publisher'
-LOG_VIEWER_WIDGET = 'log_viewer'
-DOC_WIDGET = 'doc'
-
-# Avoid circular dependencies.
-from ftrack_connect_pipeline_qt.constants.icons import *
+# Info widget
+INFO_WIDGET = 'info'
+# Tasks widget
+TASKS_WIDGET = 'tasks'
+# Documentation widget
+DOCUMENTATION_WIDGET = 'documentation'

@@ -17,11 +17,25 @@ class Overlay(QtWidgets.QFrame):
     '''
 
     def __init__(
-        self, widget, width_percentage=0.8, height_percentage=0.6, parent=None
+        self,
+        widget,
+        width_percentage=0.95,
+        height_percentage=0.6,
+        transparent_background=True,
+        parent=None,
     ):
-        '''Initialise overlay for target *parent*.'''
+        '''
+        Initialize Overlay
+
+        :param widget: The widget to put inside the overlay
+        :param width_percentage: The percentage (0-100) of width it should consume
+        :param height_percentage: The percentage (0-100) of height it should consume
+        :param transparent_background: If True(default), overlay background should be made semi transparent
+        :param parent: The parent dialog or frame
+        '''
         super(Overlay, self).__init__(parent=parent)
 
+        self._transparent_background = transparent_background
         self._width_percentage = width_percentage
         self._height_percentage = height_percentage
 
@@ -30,8 +44,11 @@ class Overlay(QtWidgets.QFrame):
         self.widget.setLayout(QtWidgets.QVBoxLayout())
         self.widget.layout().setContentsMargins(1, 20, 1, 1)
         self.widget.layout().addWidget(widget)
-        widget.setAutoFillBackground(False)
-        widget.setStyleSheet('background: transparent;')
+        if self._transparent_background:
+            widget.setAutoFillBackground(False)
+            widget.setStyleSheet('background: transparent;')
+        else:
+            widget.setProperty('background', 'ftrack')
 
         self.close_btn = QtWidgets.QPushButton('', parent=self)
         self.close_btn.setIcon(icon.MaterialIcon('close', color='#D3d4D6'))
@@ -48,6 +65,7 @@ class Overlay(QtWidgets.QFrame):
         application.installEventFilter(self)
 
     def paintEvent(self, event):
+        '''(Override)'''
         super(Overlay, self).paintEvent(event)
         # get current window size
         size = self.size()
@@ -60,6 +78,7 @@ class Overlay(QtWidgets.QFrame):
         painter.end()
 
     def resizeEvent(self, event):
+        '''(Override)'''
         super(Overlay, self).resizeEvent(event)
         size = self.size()
         widget_width = size.width() * self._width_percentage
@@ -72,7 +91,7 @@ class Overlay(QtWidgets.QFrame):
         self.close_btn.move(widget_x + widget_width - 22, widget_y)
 
     def setVisible(self, visible):
-        '''Set whether *visible* or not.'''
+        '''(Override) Set whether *visible* or not.'''
         if visible:
             # Manually clear focus from any widget that is overlaid. This
             # works in conjunction with :py:meth`eventFilter` to prevent

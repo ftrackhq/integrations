@@ -1,5 +1,5 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2015 ftrack
+# :copyright: Copyright (c) 2015-2022 ftrack
 import logging
 
 from Qt import QtWidgets, QtCore
@@ -19,37 +19,71 @@ from ftrack_connect_pipeline_qt.ui.utility.widget.entity_browser import (
 
 
 class ContextSelector(QtWidgets.QFrame):
+    '''Widget representing the current context by showing entity info, and a button enabling change of context'''
 
     changeContextClicked = QtCore.Signal()
     entityChanged = QtCore.Signal(object)
+    entityFound = QtCore.Signal(object)
 
     @property
     def entity(self):
+        '''Return the entity'''
         return self._entity
+
+    @entity.setter
+    def entity(self, value):
+        '''Set the entity to *value*'''
+        if not value:
+            return
+        do_emit_context_change = self._entity is not None
+        self._entity = value
+        self.entity_info.entity = value
+        self._context_id = value['id']
+        self.set_thumbnail(self._entity)
+        if do_emit_context_change:
+            self.entityChanged.emit(value)
 
     @property
     def context_id(self):
+        '''Return the context id'''
         return self._context_id
+
+    @context_id.setter
+    def context_id(self, value):
+        '''Set the entity context id to *value*'''
+        if not value:
+            return
+        thread = BaseThread(
+            name='find-context-entity-thread',
+            target=self._find_context_entity,
+            callback=self._on_entity_found_async,
+            target_args=[value],
+        )
+        thread.start()
 
     def __init__(
         self,
         session,
-        enble_entity_browser=False,
+        enble_context_change=False,
         parent=None,
     ):
-        '''Initialise ContextSelector widget with the *current_entity* and
-        *parent* widget. If *enble_entity_browser* is True, this contest selection is allowed to
-        spawn the entity browser and change global context.
         '''
+        Initialise ContextSelector widget
+
+        :param session: :class:`ftrack_api.session.Session`
+        :param enble_context_change:  If set to to True, this contest selection is allowed to
+        spawn the entity browser and change global context.
+        :param parent: The parent dialog or frame
+        '''
+
         super(ContextSelector, self).__init__(parent=parent)
 
         self.logger = logging.getLogger(__name__)
 
-        self._enble_entity_browser = enble_entity_browser
+        self._enble_context_change = enble_context_change
         self._entity = None
         self._context_id = None
         self.session = session
-        self._subscribe_id = None
 
         self.pre_build()
         self.build()
@@ -60,7 +94,7 @@ class ContextSelector(QtWidgets.QFrame):
         layout.setContentsMargins(10, 1, 10, 1)
         layout.setSpacing(8)
         self.setLayout(layout)
-        if self._enble_entity_browser:
+        if self._enble_context_change:
             self._entity_browser = EntityBrowser(
                 self.parent(),
                 self.session,
@@ -88,81 +122,58 @@ class ContextSelector(QtWidgets.QFrame):
         self.layout().addWidget(self.entity_browse_button)
 
     def set_thumbnail(self, entity):
+        '''Set the entity thumbnail'''
         self.thumbnail_widget.load(entity['id'])
 
     def post_build(self):
         self.entity_browse_button.clicked.connect(
             self._on_entity_browse_button_clicked
         )
+        self.entityFound.connect(self._on_entity_found)
         self.setMaximumHeight(50)
-
-    def host_changed(self, host_connection):
-        '''Host has been set, listen to context change (not opener)'''
-        if self._subscribe_id is not None:
-            self.session.unsubscribe(self._subscribe_id)
-            self._subscribe_id = None
-        self._subscribe_id = self.session.event_hub.subscribe(
-            'topic={} and data.pipeline.host_id={}'.format(
-                constants.PIPELINE_CONTEXT_CHANGE, host_connection.id
-            ),
-            self._ftrack_context_id_changed,
-        )
 
     def _ftrack_context_id_changed(self, event):
         '''The main context has been set in another client (opener), align ourselves.'''
         context_id = event['data']['pipeline']['context_id']
         if self._context_id is None or context_id != self._context_id:
-            context = self.find_context_entity(context_id)
+            context = self._find_context_entity(context_id)
             self.logger.info(
                 'Aligning to new global context: {}({})'.format(
                     context['name'], context['id']
                 )
             )
-            self.set_entity(context)
+            self.entity = context
 
     def reset(self, entity=None):
         '''Reset browser to the given *entity* or the default one'''
         current_entity = entity or self._entity
-        self.set_entity(current_entity)
+        self.entity = current_entity
 
-    def set_entity(self, entity):
-        '''Set the *entity* for the view.'''
-        if not entity:
-            return
-        do_emit_context_change = self._entity is not None
-        self._entity = entity
-        self.entity_info.set_entity(entity)
-        self._context_id = entity['id']
-        self.set_thumbnail(self._entity)
-        if do_emit_context_change:
-            self.entityChanged.emit(entity)
-
-    def find_context_entity(self, context_id):
+    def _find_context_entity(self, context_id):
+        '''(Run in background thread) Query entity from ftrack'''
         context_entity = self.session.query(
             'select link, name , parent, parent.name from Context where id '
             'is "{}"'.format(context_id)
         ).one()
         return context_entity
 
-    def set_context_id(self, context_id):
-        if context_id:
-            thread = BaseThread(
-                name='context entity thread',
-                target=self.find_context_entity,
-                callback=self.set_entity,
-                target_args=[context_id],
-            )
-            thread.start()
+    def _on_entity_found_async(self, entity):
+        '''(Run in background thread) Entity found callback'''
+        self.entityFound.emit(entity)
+
+    def _on_entity_found(self, entity):
+        '''Entity found callback, set entity'''
+        self.entity = entity
 
     def _on_entity_browse_button_clicked(self):
         '''Handle entity browse button clicked'''
-        if self._enble_entity_browser:
-            self._entity_browser.set_entity(
+        if self._enble_context_change:
+            self._entity_browser.entity = (
                 self._entity['parent'] if self._entity else None
             )
             # Launch browser.
             if self._entity_browser.exec_():
-                self.set_entity(self._entity_browser.entity)
+                self.entity = self._entity_browser.entity
         else:
             # Let client decide what to do when user wants to change context
             self.changeContextClicked.emit()

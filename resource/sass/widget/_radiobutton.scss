@@ -1,5 +1,5 @@
 QRadioButton {
-    color: $text-color-light;
+    color: $text-color;
 }
 
 QRadioButton::indicator {
@@ -33,4 +33,29 @@ QRadioButton::indicator:checked:hover {
 
 QRadioButton::indicator:checked:pressed {
     image: theme-image('radiobutton_checked_pressed');
+}
+
+
+QRadioButton::indicator:disabled::unchecked {
+    image: theme-image('radiobutton_unchecked_disabled');
+}
+
+QRadioButton::indicator:disabled:unchecked:hover {
+    image: theme-image('radiobutton_unchecked_hover_disabled');
+}
+
+QRadioButton::indicator:disabled:unchecked:pressed {
+    image: theme-image('radiobutton_unchecked_pressed_disabled');
+}
+
+QRadioButton::indicator:disabled::checked {
+    image: theme-image('radiobutton_checked_disabled');
+}
+
+QRadioButton::indicator:disabled:checked:hover {
+    image: theme-image('radiobutton_checked_hover_disabled');
+}
+
+QRadioButton::indicator:disabled:checked:pressed {
+    image: theme-image('radiobutton_checked_pressed_disabled');
 }

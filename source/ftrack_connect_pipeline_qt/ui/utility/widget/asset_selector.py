@@ -1,8 +1,9 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2014-2021 ftrack
+# :copyright: Copyright (c) 2014-2022 ftrack
 import logging
 
 from Qt import QtWidgets, QtCore, QtGui
+from ftrack_connect_pipeline_qt.ui.utility.widget.button import NewAssetButton
 
 from ftrack_connect_pipeline_qt.utils import BaseThread
 from ftrack_connect_pipeline_qt.ui.utility.widget.thumbnail import AssetVersion
@@ -10,7 +11,7 @@ from ftrack_connect_pipeline_qt.utils import set_property
 
 
 class AssetListItem(QtWidgets.QFrame):
-    '''Widget representing an asset within the'''
+    '''Widget representing an asset within the list, for user selection'''
 
     def __init__(self, asset, session):
         super(AssetListItem, self).__init__()
@@ -19,7 +20,6 @@ class AssetListItem(QtWidgets.QFrame):
         self.session = session
         self.pre_build()
         self.build()
-        self.post_build()
 
     def pre_build(self):
         self.setLayout(QtWidgets.QHBoxLayout())
@@ -49,15 +49,12 @@ class AssetListItem(QtWidgets.QFrame):
 
         self.layout().addStretch()
 
-    def post_build(self):
-        pass
-
 
 class AssetList(QtWidgets.QListWidget):
     '''Widget presenting list of existing assets'''
 
-    assetsQueryDone = QtCore.Signal()
-    assetsAdded = QtCore.Signal()
+    assetsQueryDone = QtCore.Signal()  # Assets have been queried from ftrack
+    assetsAdded = QtCore.Signal()  # Assets have been added to the widget
 
     def __init__(self, session, parent=None):
         super(AssetList, self).__init__(parent=parent)
@@ -70,6 +67,18 @@ class AssetList(QtWidgets.QListWidget):
         self.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
         self.setSpacing(1)
         self.assets = []
+
+    def on_context_changed(self, context_id, asset_type_name):
+        '''We have a context, fetch assets in the background'''
+        self.clear()
+
+        thread = BaseThread(
+            name='get_assets_thread',
+            target=self._query_assets_from_context,
+            callback=self._store_assets,
+            target_args=(context_id, asset_type_name),
+        )
+        thread.start()
 
     def _query_assets_from_context(self, context_id, asset_type_name):
         '''(Run in background thread) Fetch assets from current context'''
@@ -111,17 +120,6 @@ class AssetList(QtWidgets.QListWidget):
             self.setItemWidget(list_item, widget)
         self.assetsAdded.emit()
 
-    def on_context_changed(self, context_id, asset_type_name):
-        self.clear()
-
-        thread = BaseThread(
-            name='get_assets_thread',
-            target=self._query_assets_from_context,
-            callback=self._store_assets,
-            target_args=(context_id, asset_type_name),
-        )
-        thread.start()
-
 
 class NewAssetNameInput(QtWidgets.QLineEdit):
     '''Widget holding new asset name input'''
@@ -137,7 +135,7 @@ class NewAssetNameInput(QtWidgets.QLineEdit):
 
 
 class NewAssetInput(QtWidgets.QFrame):
-    '''Widget holding new asset inputs'''
+    '''Widget holding new asset input during publish'''
 
     clicked = QtCore.Signal()
 
@@ -165,7 +163,6 @@ class NewAssetInput(QtWidgets.QFrame):
         self.layout().addWidget(self.button)
 
         self.name = NewAssetNameInput()
-        # self.name.setStyleSheet('border: 1px solid $gray-dark;')
         self.name.setPlaceholderText(self._placeholder_name)
         self.name.setValidator(self._validator)
         self.name.setSizePolicy(
@@ -182,14 +179,17 @@ class NewAssetInput(QtWidgets.QFrame):
         self.name.clicked.connect(self.input_clicked)
 
     def mousePressEvent(self, event):
-        '''Override mouse press to emit signal.'''
+        '''Override mouse press to emit signal'''
         self.input_clicked()
 
     def input_clicked(self):
+        '''Callback on user button or name click'''
         self.clicked.emit()
 
 
 class AssetListAndInput(QtWidgets.QWidget):
+    '''Compound widget containing asset list and new asset input'''
+
     def __init__(self, parent=None):
         super(AssetListAndInput, self).__init__(parent=parent)
         self.setLayout(QtWidgets.QVBoxLayout())
@@ -201,6 +201,7 @@ class AssetListAndInput(QtWidgets.QWidget):
         self.layout().addWidget(asset_list)
 
     def resizeEvent(self, event):
+        '''(Override)'''
         self._size_changed()
 
     def _size_changed(self):
@@ -212,7 +213,7 @@ class AssetListAndInput(QtWidgets.QWidget):
 
 
 class AssetSelector(QtWidgets.QWidget):
-    '''(Publish) Widget for choosing an asset to publish on, or input asset name for creating a new asset'''
+    '''Widget for choosing an existing asset to publish on, or input asset name for creating a new asset'''
 
     VALID_ASSET_NAME = QtCore.QRegExp('[A-Za-z0-9_]+')
 
@@ -294,6 +295,7 @@ class AssetSelector(QtWidgets.QWidget):
         self.list_and_input._size_changed()
 
     def _list_selection_updated(self):
+        '''React upon user list selection'''
         selected_index = self.asset_list.currentRow()
         if selected_index == -1:
             # Deselected, give focus to new asset input
@@ -338,36 +340,15 @@ class AssetSelector(QtWidgets.QWidget):
         self.logger.debug('setting context to :{}'.format(context_id))
         self.asset_list.on_context_changed(context_id, asset_type_name)
         self.new_asset_input.name.setText(asset_type_name)
-        # self.propose_new_asset_placeholder_name(context_id)
-
-    def _get_context_entity(self, context_id):
-        context_entity = self.session.query(
-            'select name from Context where id is "{}"'.format(context_id)
-        ).first()
-        return context_entity
-
-    def propose_new_asset_placeholder_name(self, context_id):
-        thread = BaseThread(
-            name='get_assets_thread',
-            target=self._get_context_entity,
-            callback=self._set_placeholder_name,
-            target_args=[context_id],
-        )
-        thread.start()
-
-    def _set_placeholder_name(self, context_entity):
-        if context_entity.get("name"):
-            self.placeholder_name = context_entity.get("name").replace(
-                " ", "_"
-            )
-        self.new_asset_input.name.setPlaceholderText(self.placeholder_name)
 
     def _new_asset_changed(self):
+        '''New asset name text changed'''
         asset_name = self.new_asset_input.name.text()
         is_valid_name = self.validate_name(asset_name)
         self.assetChanged.emit(asset_name, None, is_valid_name)
 
     def validate_name(self, asset_name):
+        '''Return True if the asset name is valid, also reflect this on input style'''
         is_valid_bool = True
         # Already an asset by that name
         if self.asset_list.assets:
@@ -386,9 +367,3 @@ class AssetSelector(QtWidgets.QWidget):
         else:
             set_property(self.new_asset_input.name, 'input', 'invalid')
         return is_valid_bool
-
-
-class NewAssetButton(QtWidgets.QPushButton):
-    def __init__(self, parent=None):
-        super(NewAssetButton, self).__init__('NEW', parent=parent)
-        self.setStyleSheet('background: #FFDD86;')

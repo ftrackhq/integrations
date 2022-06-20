@@ -1,5 +1,5 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2014-2021 ftrack
+# :copyright: Copyright (c) 2014-2022 ftrack
 import logging
 import time
 from functools import partial
@@ -16,9 +16,21 @@ from ftrack_connect_pipeline_qt.ui.utility.widget.version_selector import (
 
 
 class AssetItem(QtWidgets.QPushButton):
-    versionChanged = QtCore.Signal(object, object)
+    '''An asset item within the grid'''
+
+    versionChanged = QtCore.Signal(
+        object, object
+    )  # User commands a change of version
 
     def __init__(self, session, asset, context_id, parent=None):
+        '''
+        Initialize item
+
+        :param session: :class:`ftrack_api.session.Session`
+        :param asset: The asset entity
+        :param context_id: Id of context
+        :param parent: The parent dialog or frame
+        '''
         super(AssetItem, self).__init__(parent=parent)
         self.logger = logging.getLogger(
             __name__ + '.' + self.__class__.__name__
@@ -64,10 +76,11 @@ class AssetItem(QtWidgets.QPushButton):
 
     def post_build(self):
         self.version_combobox.currentIndexChanged.connect(
-            self._current_version_changed
+            self._on_version_changed
         )
 
-    def _current_version_changed(self, current_index):
+    def _on_version_changed(self, current_index):
+        '''User has commanded change a version, propagate'''
         if current_index == -1:
             return
         self.current_version_number = (
@@ -82,6 +95,7 @@ class AssetItem(QtWidgets.QPushButton):
 
 
 class AssetGridSelector(QtWidgets.QWidget):
+    '''Widget displaying assets (versions) in a grid, allowing user selection'''
 
     MAX_COLUMNS = 4
 
@@ -128,6 +142,7 @@ class AssetGridSelector(QtWidgets.QWidget):
                 child.widget().deleteLater()
 
     def _on_context_changed(self, context_id, asset_type_name):
+        '''React upon context change, fetch assets (and versions) in the background'''
         self.clear_layout()
 
         thread = BaseThread(
@@ -139,6 +154,7 @@ class AssetGridSelector(QtWidgets.QWidget):
         thread.start()
 
     def query_assets_from_context(self, context_id, asset_type_name):
+        '''(Run in background) Query assets and versions from context'''
         asset_type_entity = self.session.query(
             'select name from AssetType where short is "{}"'.format(
                 asset_type_name
@@ -155,9 +171,11 @@ class AssetGridSelector(QtWidgets.QWidget):
         return assets
 
     def add_assets_to_ui(self, assets):
+        '''Assets have been queried, propaget to QT foreground thread'''
         self.assetsQueryDone.emit(assets)
 
     def add_items(self, assets):
+        '''Add fetched assets to widget'''
         if 0 < len(assets):
             row = 0
             column = 0
@@ -194,6 +212,7 @@ class AssetGridSelector(QtWidgets.QWidget):
             )
 
     def _on_asset_changed(self, asset_item):
+        '''User has selected another asset, evaluate and propagate'''
         self.current_asset_entity = asset_item.asset
         asset_name = asset_item.asset['name']
         asset_version_id = asset_item.current_version_id
@@ -206,6 +225,7 @@ class AssetGridSelector(QtWidgets.QWidget):
         )
 
     def _on_version_changed(self, asset_item, version_num, current_version_id):
+        '''Version has been changed by user on an item, propagate'''
         if asset_item.asset != self.current_asset_entity:
             return
         self._on_asset_changed(asset_item)

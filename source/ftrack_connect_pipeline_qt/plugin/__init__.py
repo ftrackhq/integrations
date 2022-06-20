@@ -3,7 +3,7 @@
 
 from ftrack_connect_pipeline import exception
 from ftrack_connect_pipeline import plugin
-from ftrack_connect_pipeline_qt import constants
+from ftrack_connect_pipeline_qt import constants as qt_constants
 from ftrack_connect_pipeline_qt.plugin.widgets import BaseOptionsWidget
 
 
@@ -14,7 +14,7 @@ class BasePluginWidget(plugin.BasePlugin):
     '''Category of the plugin (plugin, plugin.widget...)'''
     return_type = BaseOptionsWidget
     '''Required return type'''
-    ui_type = constants.UI_TYPE
+    ui_type = qt_constants.UI_TYPE
     '''Ui tipe of the widget (qt,....)'''
     widget = None
     '''The current widget'''

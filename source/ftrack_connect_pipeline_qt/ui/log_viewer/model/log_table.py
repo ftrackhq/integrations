@@ -3,11 +3,11 @@
 
 from Qt import QtWidgets, QtCore, QtGui
 
-from ftrack_connect_pipeline import constants
+from ftrack_connect_pipeline import constants as core_constants
 
 
 class LogTableModel(QtCore.QAbstractTableModel):
-    '''Model representing LogViewer.'''
+    '''Model representing LogViewer table data.'''
 
     DATA_ROLE = QtCore.Qt.UserRole + 1
 
@@ -66,7 +66,7 @@ class LogTableModel(QtCore.QAbstractTableModel):
 
         # style versions
         if role == QtCore.Qt.TextColorRole:
-            if constants.status_bool_mapping[item.status]:
+            if core_constants.status_bool_mapping[item.status]:
                 return QtGui.QBrush(QtGui.QColor(155, 250, 218, 200))
             elif item.status == 'RUNNING_STATUS':
                 return

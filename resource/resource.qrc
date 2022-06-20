@@ -67,6 +67,12 @@
         <file alias='radiobutton_checked'>image/light/radiobutton/radiobutton_checked.png</file>
         <file alias='radiobutton_checked_hover'>image/light/radiobutton/radiobutton_checked_hover.png</file>
         <file alias='radiobutton_checked_pressed'>image/light/radiobutton/radiobutton_checked_pressed.png</file>
+        <file alias='radiobutton_unchecked_disabled'>image/light/radiobutton/radiobutton_unchecked_disabled.png</file>
+        <file alias='radiobutton_unchecked_hover_disabled'>image/light/radiobutton/radiobutton_unchecked_hover_disabled.png</file>
+        <file alias='radiobutton_unchecked_pressed_disabled'>image/light/radiobutton/radiobutton_unchecked_pressed_disabled.png</file>
+        <file alias='radiobutton_checked_disabled'>image/light/radiobutton/radiobutton_checked_disabled.png</file>
+        <file alias='radiobutton_checked_hover_disabled'>image/light/radiobutton/radiobutton_checked_hover_disabled.png</file>
+        <file alias='radiobutton_checked_pressed_disabled'>image/light/radiobutton/radiobutton_checked_pressed_disabled.png</file>
         <file alias='checkbox_unchecked'>image/dark/checkbox/checkbox_unchecked.png</file>
         <file alias='checkbox_checked'>image/dark/checkbox/checkbox_checked.png</file>
         <file alias='checkbox_unchecked_disabled'>image/dark/checkbox/checkbox_unchecked_disabled.png</file>
@@ -324,6 +330,12 @@
         <file alias='radiobutton_checked'>image/dark/radiobutton/radiobutton_checked.png</file>
         <file alias='radiobutton_checked_hover'>image/dark/radiobutton/radiobutton_checked_hover.png</file>
         <file alias='radiobutton_checked_pressed'>image/dark/radiobutton/radiobutton_checked_pressed.png</file>
+        <file alias='radiobutton_unchecked_disabled'>image/dark/radiobutton/radiobutton_unchecked_disabled.png</file>
+        <file alias='radiobutton_unchecked_hover_disabled'>image/dark/radiobutton/radiobutton_unchecked_hover_disabled.png</file>
+        <file alias='radiobutton_unchecked_pressed_disabled'>image/dark/radiobutton/radiobutton_unchecked_pressed_disabled.png</file>
+        <file alias='radiobutton_checked_disabled'>image/dark/radiobutton/radiobutton_checked_disabled.png</file>
+        <file alias='radiobutton_checked_hover_disabled'>image/dark/radiobutton/radiobutton_checked_hover_disabled.png</file>
+        <file alias='radiobutton_checked_pressed_disabled'>image/dark/radiobutton/radiobutton_checked_pressed_disabled.png</file>
         <file alias='checkbox_unchecked'>image/dark/checkbox/checkbox_unchecked.png</file>
         <file alias='checkbox_checked'>image/dark/checkbox/checkbox_checked.png</file>
         <file alias='checkbox_unchecked_disabled'>image/dark/checkbox/checkbox_unchecked_disabled.png</file>

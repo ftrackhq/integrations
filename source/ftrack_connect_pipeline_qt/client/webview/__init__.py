@@ -7,47 +7,56 @@ from PySide2 import (
     QtWebEngineWidgets,
 )  # Qt.py does not provide QtWebEngineWidgets
 
-from ftrack_connect_pipeline.utils import ftrack_context_id
 from ftrack_connect_pipeline.client import Client
-from ftrack_connect_pipeline_qt.ui.utility.widget import dialog, header
-from ftrack_connect_pipeline_qt.ui import theme
+from ftrack_connect_pipeline_qt.ui.utility.widget import (
+    dialog,
+    header,
+    line,
+    host_selector,
+)
+
+from ftrack_connect_pipeline_qt.utils import get_theme, set_theme
 
 
-class QtWebViewClient(Client, dialog.Dialog):
+class QtWebViewClientWidget(Client, dialog.Dialog):
     '''Web widget viewer client base - a dialog for rendering web content within
     framework'''
 
     def __init__(self, event_manager, parent=None):
+        '''
+        Initialize QtWebViewClientWidget
 
+        :param event_manager: :class:`~ftrack_connect_pipeline.event.EventManager` instance
+        :param parent: The parent dialog or frame
+        '''
         dialog.Dialog.__init__(self, parent=parent)
         Client.__init__(self, event_manager)
 
         self._context = None
 
-        if self.getTheme():
-            self.setTheme(self.getTheme())
-            if self.getThemeBackgroundStyle():
-                self.setProperty('background', self.getThemeBackgroundStyle())
+        set_theme(self, get_theme())
+        if self.get_theme_background_style():
+            self.setProperty('background', self.get_theme_background_style())
+        if self.get_theme_background_style():
+            self.setProperty('background', self.get_theme_background_style())
 
         self.pre_build()
         self.build()
+        self.post_build()
+
+        self.discover_hosts()
 
         self.resize(500, 600)
 
-    def getTheme(self):
-        '''Return the client theme, return None to disable themes. Can be overridden by child.'''
-        return 'dark'
-
-    def setTheme(self, selected_theme):
-        theme.applyFont()
-        theme.applyTheme(self, selected_theme, 'plastique')
-
-    def getThemeBackgroundStyle(self):
+    def get_theme_background_style(self):
         '''Return the theme background color style. Can be overridden by child.'''
         return 'ftrack'
 
+    # Build
+
     def pre_build(self):
         self._header = header.Header(self.session, parent=self.parent())
+        self.host_selector = host_selector.HostSelector(self)
         self._web_engine_view = QtWebEngineWidgets.QWebEngineView(
             parent=self.parent()
         )
@@ -57,42 +66,63 @@ class QtWebViewClient(Client, dialog.Dialog):
 
     def build(self):
         self.layout().addWidget(self._header)
+        self.layout().addWidget(self.host_selector)
+        self.layout().addWidget(line.Line(style='solid', parent=self))
         self.layout().addWidget(self._web_engine_view, 100)
 
-    def set_context_id(self, context_id):
-        '''Set the context ID supplied bu *context_id* and load web contents'''
+    def post_build(self):
+        self.host_selector.hostChanged.connect(self.change_host)
+
+    # Host
+
+    def on_hosts_discovered(self, host_connections):
+        '''(Override)'''
+        self.host_selector.add_hosts(host_connections)
+
+    def on_host_changed(self, host_connection):
+        '''(Override)'''
+        pass
+
+    # Context
+
+    def on_context_changed(self, context_id):
+        '''Context has been set in context selector'''
         self._context = self.session.query(
             'Task where id={}'.format(context_id)
         ).one()
         self._web_engine_view.load(self.get_url())
 
+    # User
+
     def show(self):
         '''Show the dialog, sets the context to default and loads content if not done previously'''
-        if self._context is None:
-            self.set_context_id(ftrack_context_id())
-        super(QtWebViewClient, self).show()
+        super(QtWebViewClientWidget, self).show()
 
     def get_url(self):
         '''Retreive the URL of content to view'''
         raise NotImplementedError()
 
 
-class QtInfoWebViewClient(QtWebViewClient):
+class QtInfoWebViewClientWidget(QtWebViewClientWidget):
     '''Show the current context(task) info within a web client dialog'''
 
-    def __init__(self, event_manger, unused_asset_model, parent=None):
-        super(QtInfoWebViewClient, self).__init__(event_manger, parent=parent)
+    def __init__(self, event_manger, parent=None):
+        super(QtInfoWebViewClientWidget, self).__init__(
+            event_manger, parent=parent
+        )
         self.setWindowTitle('Task info')
 
     def get_url(self):
         return self.session.get_widget_url('info', entity=self._context)
 
 
-class QtTasksWebViewClient(QtWebViewClient):
+class QtTasksWebViewClientWidget(QtWebViewClientWidget):
     '''Show assigned tasks with a web client dialog'''
 
-    def __init__(self, event_manger, unused_asset_model, parent=None):
-        super(QtTasksWebViewClient, self).__init__(event_manger, parent=parent)
+    def __init__(self, event_manger, parent=None):
+        super(QtTasksWebViewClientWidget, self).__init__(
+            event_manger, parent=parent
+        )
         self.setWindowTitle('My Tasks')
 
     def get_url(self):

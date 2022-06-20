@@ -3,11 +3,21 @@
 
 from Qt import QtCore, QtWidgets, QtGui, QtSvg
 
-from ftrack_connect_pipeline_qt import constants
+from ftrack_connect_pipeline import constants as core_constants
 
 
 class MaterialIcon(QtGui.QIcon):
+    '''Material icon, displaying SVG material icon images'''
+
     def __init__(self, name, color=None, variant=None, parent=None):
+        '''
+        Initialize the MaterialIcon
+
+        :param name: The name of material icon SVG image
+        :param color: The color, in html #RRGGBB format, or rgba(r,g,b,alpha)
+        :param variant: The variant of material icon to use
+        :param parent:  The parent dialog or frame
+        '''
         self._name = name.replace('-', '_')
         self.color = color
         if variant is None:
@@ -63,20 +73,32 @@ class MaterialIcon(QtGui.QIcon):
 
 
 class MaterialIconWidget(QtWidgets.QWidget):
+    '''Material icon widget, support status > icon encoding'''
+
     @property
     def icon(self):
+        '''Return the material icon'''
         return self._icon
 
-    def __init__(self, name, parent=None, color=None):
+    def __init__(self, name, variant=None, color=None, parent=None):
+        '''
+        Initialize MaterialIconWidget
+
+        :param name: The name of material icon SVG image
+        :param color: The color, in html #RRGGBB format, or rgba(r,g,b,alpha)
+        :param variant: The variant of material icon to use
+        :param parent:  The parent dialog or frame
+        '''
         super(MaterialIconWidget, self).__init__(parent=parent)
         self.setLayout(QtWidgets.QHBoxLayout())
         self.layout().setContentsMargins(0, 0, 0, 0)
         self.layout().setSpacing(1)
         self._icon = None
         if name:
-            self.set_icon(name, color=color)
+            self.set_icon(name, color=color, variant=variant)
 
     def set_icon(self, name, variant=None, color=None, size=16):
+        '''Set the icon based on *name*, *variant*, *color* and *size*'''
         for i in reversed(range(self.layout().count())):
             self.layout().itemAt(i).widget().setParent(None)
         if color is None:
@@ -87,22 +109,29 @@ class MaterialIconWidget(QtWidgets.QWidget):
         self.layout().addWidget(label)
 
     def set_status(self, status, size=16):
+        '''Set the icon based on the pipeline *status*'''
         icon_name = ''
         color = '303030'
         variant = 'filled'
-        if status in [constants.UNKNOWN_STATUS, constants.DEFAULT_STATUS]:
+        if status in [
+            core_constants.UNKNOWN_STATUS,
+            core_constants.DEFAULT_STATUS,
+        ]:
             icon_name = 'help'
             color = '303030'
-        elif status in [constants.RUNNING_STATUS]:
+        elif status in [core_constants.RUNNING_STATUS]:
             icon_name = 'hourglass_bottom'
             color = '87E1EB'
-        elif status in [constants.SUCCESS_STATUS]:
+        elif status in [core_constants.SUCCESS_STATUS]:
             icon_name = 'check-circle-outline'
             color = '79DFB6'
-        elif status in [constants.WARNING_STATUS]:
+        elif status in [core_constants.WARNING_STATUS]:
             icon_name = 'error_outline'
             color = 'FFBD5D'
-        elif status in [constants.ERROR_STATUS, constants.EXCEPTION_STATUS]:
+        elif status in [
+            core_constants.ERROR_STATUS,
+            core_constants.EXCEPTION_STATUS,
+        ]:
             icon_name = 'error'
             color = 'FF7A73'
         self.set_icon(

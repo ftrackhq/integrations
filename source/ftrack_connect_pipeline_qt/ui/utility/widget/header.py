@@ -3,7 +3,6 @@
 
 from Qt import QtCore, QtWidgets, QtGui
 
-from ftrack_connect_pipeline_qt import constants
 from ftrack_connect_pipeline_qt.ui.utility.widget import (
     thumbnail,
     circular_button,
@@ -14,7 +13,7 @@ NAME_CACHE = dict()
 
 
 class Header(QtWidgets.QFrame):
-    '''Header widget with name and thumbnail.'''
+    '''Header widget with name and thumbnail'''
 
     publishClicked = QtCore.Signal()
 
@@ -27,8 +26,16 @@ class Header(QtWidgets.QFrame):
         show_publisher=False,
         parent=None,
     ):
-        '''Instantiate the header widget for a user with *username*.'''
+        '''
+        Instantiate the header widget
 
+        :param session: :class:`ftrack_api.session.Session` instance
+        :param title: (Optional) The title to put in header
+        :param show_logo: If True, Connect logo should be displayed
+        :param show_user: If True, the user avatar icon should be displayed
+        :param show_publisher: IF True, a circular publisher button should be displaued
+        :param parent: The parent dialog or frame
+        '''
         super(Header, self).__init__(parent=parent)
 
         self.session = session
@@ -64,7 +71,7 @@ class Header(QtWidgets.QFrame):
         self.content_container.setLayout(QtWidgets.QHBoxLayout())
         self.content_container.layout().setContentsMargins(0, 0, 0, 0)
         self.content_container.layout().setSpacing(0)
-        self._open_publisher_button = circular_button.CircularButton(
+        self._launch_publisher_button = circular_button.CircularButton(
             'publish', '#79DFB6'
         )
         self.user = User(self.session, parent=self.parent())
@@ -73,16 +80,18 @@ class Header(QtWidgets.QFrame):
         if len(self._title or ''):
             self.id_container_layout.addWidget(self._title_label)
         self.id_container_layout.addWidget(self.content_container, 1000)
-        self.id_container_layout.addWidget(self._open_publisher_button)
+        self.id_container_layout.addWidget(self._launch_publisher_button)
         self.id_container_layout.addWidget(self.user)
 
         # Add (Logo & User ID) & Message
         self.layout().addWidget(self.id_container)
 
     def post_build(self):
-        self._open_publisher_button.clicked.connect(self._on_publisher_clicked)
+        self._launch_publisher_button.clicked.connect(
+            self._on_publisher_clicked
+        )
         self.logo.setVisible(self._show_logo)
-        self._open_publisher_button.setVisible(self._show_publisher)
+        self._launch_publisher_button.setVisible(self._show_publisher)
         self.user.setVisible(self._show_user)
 
     def _on_publisher_clicked(self):
@@ -90,7 +99,7 @@ class Header(QtWidgets.QFrame):
 
 
 class Logo(QtWidgets.QLabel):
-    '''Logo widget.'''
+    '''Header logo widget'''
 
     def __init__(self, parent=None):
         '''Instantiate logo widget.'''
@@ -125,7 +134,7 @@ class Logo(QtWidgets.QLabel):
 
 
 class User(QtWidgets.QFrame):
-    '''User name and logo widget.'''
+    '''Header user avatar widget'''
 
     def __init__(self, session, parent=None):
         '''Instantiate user name and logo widget using *username*.'''
@@ -187,60 +196,3 @@ class User(QtWidgets.QFrame):
             tooltip += 'Location: - not set -'
         tooltip += '\n'
         self.setToolTip(tooltip)
-
-
-class MessageBox(QtWidgets.QWidget):
-    '''Message widget.'''
-
-    def __init__(self, parent=None):
-        '''Instantiate message widget.'''
-
-        super(MessageBox, self).__init__(parent=parent)
-        self.setObjectName('ftrack-message-box')
-
-        self.pre_build()
-        self.build()
-
-    def pre_build(self):
-        self.setLayout(QtWidgets.QHBoxLayout())
-        self.layout().setContentsMargins(0, 0, 0, 0)
-        self.layout().setSpacing(0)
-        self.layout().setAlignment(QtCore.Qt.AlignTop)
-
-    def build(self):
-        self.label = QtWidgets.QLabel(parent=self.parent())
-        self.label.resize(QtCore.QSize(900, 80))
-
-        self.icon = QtWidgets.QLabel(parent=self.parent())
-        self.icon.resize(QtCore.QSize(45, 45))
-
-        self.label.setSizePolicy(
-            QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Fixed
-        )
-        self.label.hide()
-        self.label.setObjectName('ftrack-header-message-info')
-
-        self.layout().addWidget(self.icon)
-        self.layout().addStretch()
-
-        self.layout().addWidget(self.label)
-
-    def setMessage(self, message, level):
-        '''Set *message* and *level*.'''
-
-        class_type = 'ftrack-header-message-%s' % level
-
-        self.label.setObjectName(class_type)
-
-        self.setStyleSheet(self.styleSheet())
-        self.label.setText(str(message))
-        self.icon.setPixmap(constants.status_icons[level])
-        self.icon.setVisible(True)
-        self.label.setVisible(True)
-
-    def dismissMessage(self):
-        '''Dismiss the message.'''
-        self.label.setText('')
-        self.label.setVisible(False)
-        self.icon.setText('')
-        self.icon.setVisible(False)

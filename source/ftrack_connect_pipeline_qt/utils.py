@@ -1,14 +1,17 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2019 ftrack
+# :copyright: Copyright (c) 2019-2022 ftrack
 
 import threading
 import sys
 import logging
 import contextlib
 
+import ftrack_api
+
 from Qt import QtCore, QtWidgets, QtGui
 
 from ftrack_connect_pipeline_qt import constants as qt_constants
+from ftrack_connect_pipeline_qt.ui import theme
 
 
 class Worker(QtCore.QThread):
@@ -74,7 +77,7 @@ def asynchronous(method):
         '''Thread wrapped method.'''
 
         def exceptHookWrapper(*args, **kwargs):
-            '''Wrapp method and pass exceptions to global excepthook.
+            '''Wrap method and pass exceptions to global excepthook.
 
             This is needed in threads because of
             https://sourceforge.net/tracker/?func=detail&atid=105470&aid=1230540&group_id=5470
@@ -95,6 +98,8 @@ def asynchronous(method):
 
 
 class BaseThread(threading.Thread):
+    '''Thread helper class providing callback functionality'''
+
     def __init__(self, callback=None, target_args=None, *args, **kwargs):
         target = kwargs.pop('target')
         super(BaseThread, self).__init__(
@@ -108,6 +113,16 @@ class BaseThread(threading.Thread):
         result = self.method(*self.target_args)
         if self.callback is not None:
             self.callback(result)
+
+
+def get_theme():
+    '''Return the theme, return None to disable themes. Can be overridden by child.'''
+    return 'dark'
+
+
+def set_theme(widget, selected_theme):
+    '''Set the widget theme'''
+    theme.applyTheme(widget, selected_theme)
 
 
 def find_parent(widget, name):
@@ -145,6 +160,7 @@ def set_property(widget, name, value):
 
 
 def clear_layout(layout):
+    '''Recursively remove all widgets from the *layout*'''
     while layout is not None and layout.count():
         item = layout.takeAt(0)
         widget = item.widget()
@@ -154,7 +170,8 @@ def clear_layout(layout):
             clear_layout(item.layout())
 
 
-def center_widget(w, width=None, height=None, parent=None):
+def center_widget(widget, width=None, height=None, parent=None):
+    '''Returns a widget that is have *widget* centered horizontally and vertically'''
     v_container = QtWidgets.QWidget(parent=parent)
     v_container.setLayout(QtWidgets.QVBoxLayout())
     v_container.layout().addWidget(QtWidgets.QLabel(""), 100)
@@ -162,10 +179,10 @@ def center_widget(w, width=None, height=None, parent=None):
     h_container = QtWidgets.QWidget(parent=parent)
     h_container.setLayout(QtWidgets.QHBoxLayout())
     h_container.layout().addWidget(QtWidgets.QLabel(), 100)
-    h_container.layout().addWidget(w)
+    h_container.layout().addWidget(widget)
     if not width is None and not height is None:
-        w.setMaximumSize(QtCore.QSize(width, height))
-        w.setMinimumSize(QtCore.QSize(width, height))
+        widget.setMaximumSize(QtCore.QSize(width, height))
+        widget.setMinimumSize(QtCore.QSize(width, height))
     h_container.layout().addWidget(QtWidgets.QLabel(), 100)
     v_container.layout().addWidget(h_container)
 
@@ -174,6 +191,8 @@ def center_widget(w, width=None, height=None, parent=None):
 
 
 class FilterClass(QtCore.QObject):
+    '''Filter class to be used with the input event blocker below'''
+
     def __init__(self, blocker, parent=None):
         super(FilterClass, self).__init__(parent=parent)
         self._blocker = blocker
@@ -203,9 +222,15 @@ def block_input_events(widget=None, blocker=None):
 
 
 class InputEventBlockingWidget(QtWidgets.QWidget):
-    '''Conditional input event blocking widget.'''
+    '''Conditional input event blocking widget'''
 
     def __init__(self, blocker, parent=None):
+        '''
+        Initialize InputEventBlockingWidget
+
+        :param blocker: Blocker function that should return true if event should be blocked
+        :param parent: The parent dialog or frame
+        '''
         super(InputEventBlockingWidget, self).__init__(parent=parent)
         self._blocker = blocker
         application = QtCore.QCoreApplication.instance()
