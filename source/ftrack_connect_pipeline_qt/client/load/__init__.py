@@ -379,9 +379,6 @@ class QtAssemblerClientWidget(QtLoaderClient, dialog.Dialog):
             as_widgets=True
         )
         if len(component_widgets) == 0:
-            import traceback
-
-            traceback.print_stack()
             dlg = ModalDialog(
                 self.parent(),
                 title='ftrack Assembler',
