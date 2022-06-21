@@ -90,8 +90,6 @@ def handle_exception(exc_type, exc_value, exc_traceback):
 
 sys.excepthook = handle_exception
 
-created_widgets = dict()
-
 
 def _open_widget(event_manager, asset_list_model, widgets, event):
     '''Open Nuke widget based on widget name in *event*, and create if not already
@@ -113,18 +111,17 @@ def _open_widget(event_manager, asset_list_model, widgets, event):
             panel = nukescripts.restorePanel(widget_name)
             panel.addToPane(pane)
         else:
-            if widget_name not in created_widgets:
-                ftrack_client = widget_class
-                if widget_name in [
-                    qt_constants.ASSEMBLER_WIDGET,
-                    core_constants.ASSET_MANAGER,
-                ]:
-                    created_widgets[widget_name] = ftrack_client(
-                        event_manager, asset_list_model
-                    )
-                else:
-                    created_widgets[widget_name] = ftrack_client(event_manager)
-            created_widgets[widget_name].show()
+            ftrack_client = widget_class
+            if widget_name in [
+                qt_constants.ASSEMBLER_WIDGET,
+                core_constants.ASSET_MANAGER,
+            ]:
+                widget = ftrack_client(
+                    event_manager, asset_list_model
+                )
+            else:
+                widget = ftrack_client(event_manager)
+            widget.show()
     else:
         raise Exception(
             'Unknown widget {}!'.format(event['data']['pipeline']['name'])

@@ -41,6 +41,3 @@ class NukeQtAssemblerClientWidget(load.QtAssemblerClientWidget):
         self.setVisible(False)
         event.ignore()
 
-    def show(self):
-        super(NukeQtAssemblerClientWidget, self).conditional_rebuild()
-        super(NukeQtAssemblerClientWidget, self).show()

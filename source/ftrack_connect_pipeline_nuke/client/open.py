@@ -33,6 +33,3 @@ class NukeQtOpenerClientWidget(open.QtOpenerClientWidget):
         self.setVisible(False)
         event.ignore()
 
-    def show(self):
-        super(NukeQtOpenerClientWidget, self).conditional_rebuild()
-        super(NukeQtOpenerClientWidget, self).show()
