@@ -74,6 +74,7 @@ class QtOpenerClientWidget(QtOpenerClient, dialog.Dialog):
                 qt_constants.MAIN_FRAMEWORK_WIDGET, self.__class__.__name__
             )
         )
+        self.setAttribute(QtCore.Qt.WA_DeleteOnClose, True)
 
         self.pre_build()
         self.build()

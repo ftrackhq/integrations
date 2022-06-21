@@ -39,6 +39,7 @@ class QtWebViewClientWidget(Client, dialog.Dialog):
             self.setProperty('background', self.get_theme_background_style())
         if self.get_theme_background_style():
             self.setProperty('background', self.get_theme_background_style())
+        self.setAttribute(QtCore.Qt.WA_DeleteOnClose, True)
 
         self.pre_build()
         self.build()

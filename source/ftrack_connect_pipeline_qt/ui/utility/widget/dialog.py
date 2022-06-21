@@ -101,6 +101,7 @@ class ModalDialog(QtWidgets.QDialog):
         set_theme(self, get_theme())
         if self.get_theme_background_style():
             self.setProperty('background', self.get_theme_background_style())
+        self.setAttribute(QtCore.Qt.WA_DeleteOnClose, True)
 
         # None; A utility dialog not waiting for user input
         # True; A modal dialog waiting for user Yes or No input click
