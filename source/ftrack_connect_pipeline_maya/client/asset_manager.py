@@ -42,7 +42,6 @@ class MayaQtAssetManagerClientWidgetMixin(
         return 'maya'
 
     def show(self):
-        super(MayaQtAssetManagerClientWidgetMixin, self).conditional_rebuild()
         super(MayaQtAssetManagerClientWidgetMixin, self).show(
             dockable=True,
             floating=False,

@@ -41,7 +41,6 @@ class MayaQtPublisherClientWidgetMixin(
         return 'maya'
 
     def show(self):
-        super(MayaQtPublisherClientWidgetMixin, self).conditional_rebuild()
         super(MayaQtPublisherClientWidgetMixin, self).show(
             dockable=True,
             floating=False,
