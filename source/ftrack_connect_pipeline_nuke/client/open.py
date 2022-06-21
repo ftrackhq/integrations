@@ -32,4 +32,3 @@ class NukeQtOpenerClientWidget(open.QtOpenerClientWidget):
         '''Nuke deletes the dialog, instead hide it so it can be reused'''
         self.setVisible(False)
         event.ignore()
-

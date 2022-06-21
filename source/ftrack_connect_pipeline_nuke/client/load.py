@@ -40,4 +40,3 @@ class NukeQtAssemblerClientWidget(load.QtAssemblerClientWidget):
         '''Nuke deletes the dialog, instead hide so it can be reused'''
         self.setVisible(False)
         event.ignore()
-

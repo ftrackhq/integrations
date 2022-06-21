@@ -18,4 +18,3 @@ class NukeQtLogViewerClientWidget(log_viewer.QtLogViewerClientWidget):
         )
         # Make toolbar smaller
         self.setWindowFlags(QtCore.Qt.Tool)
-

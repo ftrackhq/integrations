@@ -27,4 +27,3 @@ class NukeQtPublisherClientWidget(QtPublisherClientWidget):
 
     def get_theme_background_style(self):
         return 'nuke'
-

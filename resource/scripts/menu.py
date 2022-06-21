@@ -90,6 +90,8 @@ def handle_exception(exc_type, exc_value, exc_traceback):
 
 sys.excepthook = handle_exception
 
+created_widgets = dict()
+
 
 def _open_widget(event_manager, asset_list_model, widgets, event):
     '''Open Nuke widget based on widget name in *event*, and create if not already
@@ -102,26 +104,34 @@ def _open_widget(event_manager, asset_list_model, widgets, event):
             widget_class = _widget_class
             break
     if widget_name:
-        if widget_name in [
-            core_constants.ASSET_MANAGER,
-            core_constants.PUBLISHER,
-        ]:
-            # Restore panel
-            pane = nuke.getPaneFor("Properties.1")
-            panel = nukescripts.restorePanel(widget_name)
-            panel.addToPane(pane)
-        else:
-            ftrack_client = widget_class
+        widget = None
+        if widget_name in created_widgets:
+            widget = created_widgets[widget_name]
+            # Is it still visible?
+            if widget is None or not widget.isVisible():
+                del created_widgets[widget_name]  # Not active any more
+                widget = None
+        if widget is None:
+            # Need to create
             if widget_name in [
-                qt_constants.ASSEMBLER_WIDGET,
                 core_constants.ASSET_MANAGER,
+                core_constants.PUBLISHER,
             ]:
-                widget = ftrack_client(
-                    event_manager, asset_list_model
-                )
+                # Restore panel
+                pane = nuke.getPaneFor("Properties.1")
+                panel = nukescripts.restorePanel(widget_name)
+                panel.addToPane(pane)
             else:
-                widget = ftrack_client(event_manager)
-            widget.show()
+                ftrack_client = widget_class
+                if widget_name in [
+                    qt_constants.ASSEMBLER_WIDGET,
+                    core_constants.ASSET_MANAGER,
+                ]:
+                    widget = ftrack_client(event_manager, asset_list_model)
+                else:
+                    widget = ftrack_client(event_manager)
+            created_widgets[widget_name] = widget
+        widget.show()
     else:
         raise Exception(
             'Unknown widget {}!'.format(event['data']['pipeline']['name'])
