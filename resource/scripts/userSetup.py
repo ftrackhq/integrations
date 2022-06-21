@@ -93,18 +93,30 @@ def _open_widget(event_manager, asset_list_model, widgets, event):
             widget_class = _widget_class
             break
     if widget_name:
-        if widget_name not in created_widgets:
+        widget = None
+        if widget_name in created_widgets:
+            widget = created_widgets[widget_name]
+        else:
             ftrack_client = widget_class
-            if widget_name in [
+            if widget_name in [core_constants.PUBLISHER]:
+                # Create fresh new widget
+                widget = ftrack_client(event_manager)
+            elif widget_name in [core_constants.ASSET_MANAGER]:
+                # Create fresh new asset manager, supply asset model
+                widget = ftrack_client(event_manager, asset_list_model)
+            elif widget_name in [
                 qt_constants.ASSEMBLER_WIDGET,
-                core_constants.ASSET_MANAGER,
             ]:
-                created_widgets[widget_name] = ftrack_client(
+                # Create with asset model, and re-use later
+                created_widgets[widget_name] = widget = ftrack_client(
                     event_manager, asset_list_model
                 )
             else:
-                created_widgets[widget_name] = ftrack_client(event_manager)
-        created_widgets[widget_name].show()
+                # Create and re-use later
+                created_widgets[widget_name] = widget = ftrack_client(
+                    event_manager
+                )
+        widget.show()
     else:
         raise Exception(
             'Unknown widget {}!'.format(event['data']['pipeline']['name'])

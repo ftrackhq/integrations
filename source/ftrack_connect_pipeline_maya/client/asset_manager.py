@@ -51,4 +51,5 @@ class MayaQtAssetManagerClientWidgetMixin(
             height=300,
             x=300,
             y=600,
+            retain=False,
         )
