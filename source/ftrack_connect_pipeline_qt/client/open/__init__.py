@@ -63,7 +63,6 @@ class QtOpenerClientWidget(QtOpenerClient, dialog.Dialog):
             parent=self.parent(),
         )
         self.open_assembler_button = None
-        self._shown = False  # Flag telling if widget has been shown before and needs refresh
         self.scroll = None  # Main content scroll pane
 
         set_theme(self, get_theme())
@@ -86,7 +85,7 @@ class QtOpenerClientWidget(QtOpenerClient, dialog.Dialog):
         self.resize(450, 530)
 
     def get_theme_background_style(self):
-        return 'ftrack'
+        return 'ftrack-modal'
 
     def is_docked(self):
         return False
@@ -263,13 +262,6 @@ class QtOpenerClientWidget(QtOpenerClient, dialog.Dialog):
                 core_constants.SUCCESS_STATUS, 'Successfully opened version!'
             )
 
-    def conditional_rebuild(self):
-        '''Reset a client that has become visible after being hidden.'''
-        if self._shown:
-            # Refresh when re-opened
-            self.definition_selector.refresh()
-        self._shown = True
-
     def _clear_widget(self):
         if self.scroll and self.scroll.widget():
             self.scroll.widget().deleteLater()
@@ -288,7 +280,7 @@ class QtOpenerClientWidget(QtOpenerClient, dialog.Dialog):
         '''Close client (if not docked) and open entity browser.'''
         if not self.is_docked():
             self.hide()
-        self.host_connection.launch_client(core_constants.CHANGE_CONTEXT)
+        self.host_connection.launch_client(qt_constants.CHANGE_CONTEXT_WIDGET)
 
     def _launch_assembler(self):
         '''Open the assembler and close client if dialog'''

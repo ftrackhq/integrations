@@ -52,10 +52,6 @@ class QtLogViewerClientWidget(QtLogViewerClient, dialog.Dialog):
     Log viewer client widget
     '''
 
-    _shown = (
-        False  # Flag telling if widget has been shown before and needs refresh
-    )
-
     logItemAdded = QtCore.Signal(object)
 
     def __init__(self, event_manager, parent=None):
@@ -172,10 +168,3 @@ class QtLogViewerClientWidget(QtLogViewerClient, dialog.Dialog):
         if not self.host_connection:
             return
         self.update_log_items()
-
-    def conditional_rebuild(self):
-        '''Reset a client that has become visible after being hidden.'''
-        if self._shown:
-            # Refresh when re-opened
-            self._refresh_ui()
-        self._shown = True
