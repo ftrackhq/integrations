@@ -98,7 +98,7 @@ def _open_widget(event_manager, asset_list_model, widgets, event):
         if widget_name in created_widgets:
             widget = created_widgets[widget_name]
             # Is it still visible?
-            if not widget.isVisible():
+            if widget is None or not widget.isVisible():
                 del created_widgets[widget_name]  # Not active any more
                 widget = None
         if widget is None:
