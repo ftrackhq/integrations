@@ -287,7 +287,7 @@ class QtOpenerClientWidget(QtOpenerClient, dialog.Dialog):
         '''Open the assembler and close client if dialog'''
         if not self.is_docked():
             self.hide()
-        self.host_connection.launch_client(core_constants.ASSEMBLER)
+        self.host_connection.launch_client(qt_constants.ASSEMBLER_WIDGET)
 
     def _launch_publisher(self):
         if not self.is_docked():
