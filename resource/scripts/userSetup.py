@@ -98,9 +98,21 @@ def _open_widget(event_manager, asset_list_model, widgets, event):
         if widget_name in created_widgets:
             widget = created_widgets[widget_name]
             # Is it still visible?
-            if widget is None or not widget.isVisible():
-                del created_widgets[widget_name]  # Not active any more
-                widget = None
+            is_valid_and_visible = False
+            try:
+                if widget is not None and widget.isVisible():
+                    is_valid_and_visible = True
+            except:
+                pass
+            finally:
+                if not is_valid_and_visible:
+                    del created_widgets[widget_name]  # Not active any more
+                    if widget:
+                        try:
+                            widget.deleteLater()  # Make sure it is deleted
+                        except:
+                            pass
+                        widget = None
         if widget is None:
             # Need to create
             if widget_name in [
@@ -113,7 +125,7 @@ def _open_widget(event_manager, asset_list_model, widgets, event):
                 # Create without asset model
                 widget = ftrack_client(event_manager)
             created_widgets[widget_name] = widget
-        widget.show()
+            widget.show()
     else:
         raise Exception(
             'Unknown widget {}!'.format(event['data']['pipeline']['name'])
