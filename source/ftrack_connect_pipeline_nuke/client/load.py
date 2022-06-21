@@ -34,7 +34,6 @@ class NukeQtAssemblerClientWidget(load.QtAssemblerClientWidget):
         )
         # Make toolbar smaller
         self.setWindowFlags(QtCore.Qt.Tool)
-        self.setAttribute(QtCore.Qt.WA_DeleteOnClose, False)
 
     def closeEvent(self, event):
         '''Nuke deletes the dialog, instead hide so it can be reused'''

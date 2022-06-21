@@ -24,7 +24,6 @@ class NukeQtOpenerClientWidget(open.QtOpenerClientWidget):
         super(NukeQtOpenerClientWidget, self).__init__(
             event_manager, parent=(parent or get_main_window())
         )
-        self.setAttribute(QtCore.Qt.WA_DeleteOnClose, False)
         # Make toolbar smaller
         self.setWindowFlags(QtCore.Qt.Tool)
 
