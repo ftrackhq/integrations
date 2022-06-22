@@ -809,8 +809,8 @@ class EntityWidget(QtWidgets.QFrame):
         ):
             # Widget has been destroyed
             return
-        self.doubleClicked.emit()
         return super(EntityWidget, self).mouseDoubleClickEvent(event)
+        self.doubleClicked.emit()
 
 
 class AddContextButton(CircularButton):

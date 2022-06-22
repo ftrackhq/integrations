@@ -93,14 +93,16 @@ class ModalDialog(QtWidgets.QDialog):
 
         self.setParent(parent)
 
+        self._message = message or question
+        self._title = title or 'ftrack'
+        self._dialog_mode = None
+
         self.setWindowFlags(QtCore.Qt.Tool)
         set_theme(self, get_theme())
         if self.get_theme_background_style():
             self.setProperty('background', self.get_theme_background_style())
+        self.setAttribute(QtCore.Qt.WA_DeleteOnClose, True)
 
-        self._message = message or question
-        self._title = title or 'ftrack'
-        self._dialog_mode = None
         # None; A utility dialog not waiting for user input
         # True; A modal dialog waiting for user Yes or No input click
         # False; A modal dialog waiting for user OK input click
@@ -119,11 +121,12 @@ class ModalDialog(QtWidgets.QDialog):
             | (QtCore.Qt.WindowStaysOnTopHint if on_top else 0)
         )
 
-        if not self._dialog_mode is None:
+        if self._dialog_mode is False:
+            # Wait for confirmation
             self.exec_()
 
     def get_theme_background_style(self):
-        return 'ftrack'
+        return 'ftrack-modal'
 
     def pre_build(self):
         self.setLayout(QtWidgets.QVBoxLayout())

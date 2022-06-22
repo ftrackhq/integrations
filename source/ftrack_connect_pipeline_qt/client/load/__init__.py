@@ -89,7 +89,6 @@ class QtAssemblerClientWidget(QtLoaderClient, dialog.Dialog):
 
         self.modes = modes
         self._asset_list_model = asset_list_model
-        self._shown = False  # Flag telling if widget has been shown before and needs refresh
         self.assemble_mode = (
             -1
         )  # The mode assembler is in - resolve dependencies or manual browse
@@ -105,6 +104,7 @@ class QtAssemblerClientWidget(QtLoaderClient, dialog.Dialog):
                 qt_constants.MAIN_FRAMEWORK_WIDGET, self.__class__.__name__
             )
         )
+        self.setAttribute(QtCore.Qt.WA_DeleteOnClose, True)
 
         self.pre_build()
         self.build()
@@ -303,16 +303,6 @@ class QtAssemblerClientWidget(QtLoaderClient, dialog.Dialog):
     def _on_assets_discovered(self):
         '''The assets in AM has been discovered, refresh at our end.'''
         self.refresh()
-
-    def conditional_rebuild(self):
-        '''Reset a client that has become visible after being hidden.'''
-        if self._shown:
-            # Refresh when re-opened
-            self.hard_refresh = (
-                self.assemble_mode == self.ASSEMBLE_MODE_DEPENDENCIES
-            )
-            self.asset_manager.asset_manager_widget.rebuild.emit()
-        self._shown = True
 
     def _on_components_checked(self, available_components_count):
         self.definition_changed(self.definition, available_components_count)

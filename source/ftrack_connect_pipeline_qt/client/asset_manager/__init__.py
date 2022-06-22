@@ -73,7 +73,6 @@ class QtAssetManagerClientWidget(QtAssetManagerClient, QtWidgets.QFrame):
         QtAssetManagerClient.__init__(self, event_manager)
 
         self.is_assembler = is_assembler
-        self._shown = False
         ''' Flag telling if widget has been shown before and needs refresh '''
 
         set_theme(self, get_theme())
@@ -85,6 +84,7 @@ class QtAssetManagerClientWidget(QtAssetManagerClient, QtWidgets.QFrame):
                 qt_constants.MAIN_FRAMEWORK_WIDGET, self.__class__.__name__
             )
         )
+        self.setAttribute(QtCore.Qt.WA_DeleteOnClose, True)
 
         self.pre_build()
         self.build()
@@ -493,13 +493,6 @@ class QtAssetManagerClientWidget(QtAssetManagerClient, QtWidgets.QFrame):
         finally:
             self.asset_manager_widget.stopBusyIndicator.emit()
 
-    def conditional_rebuild(self):
-        '''Called when the ui are shown'''
-        if self._shown:
-            # Refresh when re-opened
-            self.asset_manager_widget.rebuild.emit()
-        self._shown = True
-
     def mousePressEvent(self, event):
         '''(Override) Intercept mouse press event'''
         if event.button() != QtCore.Qt.RightButton:
@@ -514,4 +507,4 @@ class QtAssetManagerClientWidget(QtAssetManagerClient, QtWidgets.QFrame):
 
     def _launch_context_selector(self):
         '''Open entity browser'''
-        self.host_connection.launch_client(core_constants.CHANGE_CONTEXT)
+        self.host_connection.launch_client(qt_constants.CHANGE_CONTEXT_WIDGET)

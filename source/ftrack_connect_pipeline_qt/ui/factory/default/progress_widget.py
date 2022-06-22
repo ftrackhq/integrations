@@ -1,6 +1,6 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2022 ftrack
-import logging
+import shiboken2
 
 import ftrack_connect_pipeline_qt.ui.utility.widget.button
 from Qt import QtWidgets, QtCore, QtGui
@@ -82,7 +82,9 @@ class PhaseButton(QtWidgets.QPushButton):
         self._close_button.clicked.connect(self.overlay_container.close)
 
     def update_status(self, status, status_message, results):
-        self.status_message_widget.setText(status_message)
+        # Make sure widget not has been destroyed
+        if shiboken2.isValid(self.status_message_widget):
+            self.status_message_widget.setText(status_message)
         self.set_status(status)
         if status == core_constants.ERROR_STATUS:
             self.update_error_message(results)

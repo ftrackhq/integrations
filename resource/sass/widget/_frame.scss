@@ -6,6 +6,10 @@ QFrame[background='ftrack'], QDialog[background='ftrack'] {
     background: $background;
 }
 
+QFrame[background='ftrack-modal'], QDialog[background='ftrack-modal'] {
+    background: $background-modal;
+}
+
 QFrame[background='default'], QDialog[background='default'] {
     background: $background-docked;
 }

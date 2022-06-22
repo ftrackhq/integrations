@@ -55,7 +55,6 @@ class QtPublisherClientWidget(QtPublisherClient, QtWidgets.QFrame):
         )
         self.is_valid_asset_name = False
         self.open_assembler_button = None
-        self._shown = False  # Flag telling if widget has been shown before and needs refresh
         self.scroll = None  # Main content scroll pane
 
         set_theme(self, get_theme())
@@ -67,6 +66,7 @@ class QtPublisherClientWidget(QtPublisherClient, QtWidgets.QFrame):
                 qt_constants.MAIN_FRAMEWORK_WIDGET, self.__class__.__name__
             )
         )
+        self.setAttribute(QtCore.Qt.WA_DeleteOnClose, True)
 
         self.pre_build()
         self.build()
@@ -225,13 +225,6 @@ class QtPublisherClientWidget(QtPublisherClient, QtWidgets.QFrame):
 
     # User
 
-    def conditional_rebuild(self):
-        '''Reset a client that has become visible after being hidden.'''
-        if self._shown:
-            # Refresh when re-opened
-            self.definition_selector.refresh()
-        self._shown = True
-
     def _clear_widget(self):
         '''Remove main client widget'''
         if self.scroll and self.scroll.widget():
@@ -292,4 +285,4 @@ class QtPublisherClientWidget(QtPublisherClient, QtWidgets.QFrame):
         '''Close client (if not docked) and open entity browser.'''
         if not self.is_docked():
             self.hide()
-        self.host_connection.launch_client(core_constants.CHANGE_CONTEXT)
+        self.host_connection.launch_client(qt_constants.CHANGE_CONTEXT_WIDGET)
