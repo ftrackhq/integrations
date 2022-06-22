@@ -9,7 +9,11 @@ from ftrack_connect_pipeline_qt.ui.utility.widget import dialog
 
 
 class QtSaveClientWidget(Client, QtWidgets.QWidget):
-    '''Client for saving the project/scene/script within DCC locally during work'''
+    '''Client for saving the project/scene/script within DCC locally during work.
+
+    This is sample code that exists here for reference and not used by the current
+    version of the framework.
+    '''
 
     def __init__(self, event_manager):
         Client.__init__(self, event_manager)
