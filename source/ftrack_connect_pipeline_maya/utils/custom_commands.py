@@ -53,10 +53,20 @@ def import_file(path, options):
 def reference_file(path, options):
     return cmds.file(path, r=True, **options)
 
-
 def remove_reference_node(referenceNode):
     return cmds.file(rfn=referenceNode, rr=True)
 
+def unload_reference_node(referenceNode):
+    return cmds.file(unloadReference=referenceNode)
+
+def load_reference_node(referenceNode):
+    return cmds.file(loadReference=referenceNode)
+
+def obj_exists(object_name):
+    return cmds.objExists(object_name)
+
+def delete_object(object_name):
+    return cmds.delete(object_name)
 
 def getReferenceNode(assetLink):
     '''Return the references dcc_objects for the given *assetLink*'''
