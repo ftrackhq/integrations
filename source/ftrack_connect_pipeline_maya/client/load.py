@@ -30,7 +30,3 @@ class MayaQtAssemblerClientWidget(load.QtAssemblerClientWidget):
 
         # Make sure we stays on top of Maya
         self.setWindowFlags(QtCore.Qt.Tool)
-
-    def show(self):
-        super(MayaQtAssemblerClientWidget, self).conditional_rebuild()
-        super(MayaQtAssemblerClientWidget, self).show()

@@ -93,30 +93,39 @@ def _open_widget(event_manager, asset_list_model, widgets, event):
             widget_class = _widget_class
             break
     if widget_name:
+        ftrack_client = widget_class
         widget = None
         if widget_name in created_widgets:
             widget = created_widgets[widget_name]
-        else:
-            ftrack_client = widget_class
-            if widget_name in [core_constants.PUBLISHER]:
-                # Create fresh new widget
-                widget = ftrack_client(event_manager)
-            elif widget_name in [core_constants.ASSET_MANAGER]:
-                # Create fresh new asset manager, supply asset model
-                widget = ftrack_client(event_manager, asset_list_model)
-            elif widget_name in [
+            # Is it still visible?
+            is_valid_and_visible = False
+            try:
+                if widget is not None and widget.isVisible():
+                    is_valid_and_visible = True
+            except:
+                pass
+            finally:
+                if not is_valid_and_visible:
+                    del created_widgets[widget_name]  # Not active any more
+                    if widget:
+                        try:
+                            widget.deleteLater()  # Make sure it is deleted
+                        except:
+                            pass
+                        widget = None
+        if widget is None:
+            # Need to create
+            if widget_name in [
                 qt_constants.ASSEMBLER_WIDGET,
+                core_constants.ASSET_MANAGER,
             ]:
-                # Create with asset model, and re-use later
-                created_widgets[widget_name] = widget = ftrack_client(
-                    event_manager, asset_list_model
-                )
+                # Create with asset model
+                widget = ftrack_client(event_manager, asset_list_model)
             else:
-                # Create and re-use later
-                created_widgets[widget_name] = widget = ftrack_client(
-                    event_manager
-                )
-        widget.show()
+                # Create without asset model
+                widget = ftrack_client(event_manager)
+            created_widgets[widget_name] = widget
+            widget.show()
     else:
         raise Exception(
             'Unknown widget {}!'.format(event['data']['pipeline']['name'])
