@@ -40,7 +40,9 @@ class QtSaveClientWidget(Client, QtWidgets.QWidget):
     # User
 
     def show(self):
-        self.logger.info('Attempting to save DCC work file locally..')
+        self.logger.info(
+            'Attempting to incrementally save DCC work file locally..'
+        )
         if self.context_id is None:
             dialog.ModalDialog(
                 None,
@@ -49,7 +51,7 @@ class QtSaveClientWidget(Client, QtWidgets.QWidget):
             )
             return
         work_path, message = self.dcc_utils.save(
-            self.context_id, self._event_manager.session
+            self.context_id, self._event_manager.session, temp=False
         )
         if not message is None:
             self.logger.info(message)
