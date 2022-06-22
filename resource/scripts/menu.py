@@ -205,14 +205,14 @@ def initialise():
             '',
         )
     )
-    widgets.append(
-        (
-            qt_constants.SAVE_WIDGET,
-            save.NukeQtSaveClientWidget,
-            'Save Script',
-            '',
-        )
-    )
+    # widgets.append(
+    #    (
+    #        qt_constants.SAVE_WIDGET,
+    #        save.NukeQtSaveClientWidget,
+    #        'Save Script',
+    #        '',
+    #    )
+    # )
     widgets.append(
         (
             core_constants.ASSET_MANAGER,
