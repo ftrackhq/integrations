@@ -210,7 +210,10 @@ class MayaAssetManagerEngine(AssetManagerEngine):
         self.dcc_object = dcc_object
 
         # It's an import, so load asset with the main method
-        if self.dcc_object.get(asset_const.LOAD_MODE) != modes_const.REFERENCE_MODE:
+        if (
+            self.dcc_object.get(asset_const.LOAD_MODE)
+            != modes_const.REFERENCE_MODE
+        ):
             return super(MayaAssetManagerEngine, self).load_asset(
                 asset_info=asset_info, options=options, plugin=plugin
             )
@@ -218,10 +221,10 @@ class MayaAssetManagerEngine(AssetManagerEngine):
         # Find the reference node if the reference has been unloaded
         reference_node = False
         nodes = (
-                cmds.listConnections(
-                    '{}.{}'.format(self.dcc_object.name, asset_const.ASSET_LINK)
-                )
-                or []
+            cmds.listConnections(
+                '{}.{}'.format(self.dcc_object.name, asset_const.ASSET_LINK)
+            )
+            or []
         )
 
         for node in nodes:
