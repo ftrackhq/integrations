@@ -4,9 +4,9 @@
 from ftrack_connect_pipeline_nuke.utils import custom_commands as nuke_utils
 
 # Load Modes
-IMPORT_MODE = 'Import'
-OPEN_MODE = 'Open'
-REFERENCE_MODE = 'Reference'
+IMPORT_MODE = 'import'
+OPEN_MODE = 'open'
+REFERENCE_MODE = 'reference'
 
 
 LOAD_MODES = {
