@@ -188,8 +188,8 @@ def init_maya(host, from_context=False):
         cmds.currentUnit(time=fps_unit)
 
 
-def save(context_id, session, temp=True):
-    '''Save scene locally, with the next version number based on latest version
+def save(context_id, session, temp=True, save=True):
+    '''Save scene locally in temp or with the next version number based on latest version
     in ftrack.'''
 
     save_path, message = get_save_path(
@@ -201,9 +201,11 @@ def save(context_id, session, temp=True):
 
     # Save Maya scene to this path
     cmds.file(rename=save_path)
-    cmds.file(save=True)
-    message = 'Saved Maya scene @ "{}"'.format(save_path)
-
+    if save:
+        cmds.file(save=True)
+        message = 'Saved Maya scene @ "{}"'.format(save_path)
+    else:
+        message = 'Renamed Maya scene @ "{}"'.format(save_path)
     if not temp:
         # Add to recent files
         mm.eval("source addRecentFile;")
