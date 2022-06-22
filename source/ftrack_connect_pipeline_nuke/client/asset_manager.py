@@ -29,7 +29,3 @@ class NukeQtAssetManagerClientWidget(QtAssetManagerClientWidget):
 
     def get_theme_background_style(self):
         return 'nuke'
-
-    def show(self):
-        super(NukeQtAssetManagerClientWidget, self).conditional_rebuild()
-        super(NukeQtAssetManagerClientWidget, self).show()

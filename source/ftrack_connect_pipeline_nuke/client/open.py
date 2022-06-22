@@ -24,7 +24,6 @@ class NukeQtOpenerClientWidget(open.QtOpenerClientWidget):
         super(NukeQtOpenerClientWidget, self).__init__(
             event_manager, parent=(parent or get_main_window())
         )
-        self.setAttribute(QtCore.Qt.WA_DeleteOnClose, False)
         # Make toolbar smaller
         self.setWindowFlags(QtCore.Qt.Tool)
 
@@ -32,7 +31,3 @@ class NukeQtOpenerClientWidget(open.QtOpenerClientWidget):
         '''Nuke deletes the dialog, instead hide it so it can be reused'''
         self.setVisible(False)
         event.ignore()
-
-    def show(self):
-        super(NukeQtOpenerClientWidget, self).conditional_rebuild()
-        super(NukeQtOpenerClientWidget, self).show()
