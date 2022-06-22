@@ -428,23 +428,24 @@ class QtAssemblerClientWidget(QtLoaderClient, dialog.Dialog):
                 factory.listen_widget_updates()
 
                 engine_type = definition['_config']['engine_type']
-
-                # Set method to importer plugins
-                if method:
-                    for component in definition['components']:
-                        for stage in component['stages']:
-                            if stage['type'] != 'importer':
-                                continue
-                            for plugin in stage['plugins']:
-                                if plugin['type'] != 'importer':
+                try:
+                    # Set method to importer plugins
+                    if method:
+                        for component in definition['components']:
+                            for stage in component['stages']:
+                                if stage['type'] != 'importer':
                                     continue
-                                plugin['default_method'] = method
+                                for plugin in stage['plugins']:
+                                    if plugin['type'] != 'importer':
+                                        continue
+                                    plugin['default_method'] = method
 
-                self.run_definition(definition, engine_type)
-                # Did it go well?
-                if factory.has_error:
-                    failed += 1
-                component_widget.factory.end_widget_updates()
+                    self.run_definition(definition, engine_type)
+                    # Did it go well?
+                    if factory.has_error:
+                        failed += 1
+                finally:
+                    component_widget.factory.end_widget_updates()
 
             succeeded = len(component_widgets) - failed
             if succeeded > 0:
