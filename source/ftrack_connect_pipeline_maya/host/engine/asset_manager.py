@@ -10,6 +10,7 @@ from ftrack_connect_pipeline.host.engine import AssetManagerEngine
 from ftrack_connect_pipeline.asset.asset_info import FtrackAssetInfo
 from ftrack_connect_pipeline_maya.utils import custom_commands as maya_utils
 from ftrack_connect_pipeline_maya.constants import asset as asset_const
+from ftrack_connect_pipeline_maya.constants.asset import modes as modes_const
 from ftrack_connect_pipeline_maya.asset import MayaFtrackObjectManager
 from ftrack_connect_pipeline_maya.asset.dcc_object import MayaDccObject
 
@@ -176,6 +177,94 @@ class MayaAssetManagerEngine(AssetManagerEngine):
         )
 
     @maya_utils.run_in_main_thread
+    def load_asset(self, asset_info, options=None, plugin=None):
+        '''
+        Override load_asset method to deal with unloaded references.
+        '''
+
+        start_time = time.time()
+        status = core_constants.UNKNOWN_STATUS
+        result = []
+        message = None
+
+        plugin_type = core_constants.PLUGIN_AM_ACTION_TYPE
+        plugin_name = None
+        if plugin:
+            plugin_type = '{}.{}'.format('asset_manager', plugin['type'])
+            plugin_name = plugin.get('name')
+
+        result_data = {
+            'plugin_name': plugin_name,
+            'plugin_type': plugin_type,
+            'method': 'load_asset',
+            'status': status,
+            'result': result,
+            'execution_time': 0,
+            'message': message,
+        }
+
+        self.asset_info = asset_info
+        dcc_object = self.DccObject(
+            from_id=asset_info[asset_const.ASSET_INFO_ID]
+        )
+        self.dcc_object = dcc_object
+
+        # It's an import, so load asset with the main method
+        if self.dcc_object.get(asset_const.LOAD_MODE) != modes_const.REFERENCE_MODE:
+            return super(MayaAssetManagerEngine, self).load_asset(
+                asset_info=asset_info, options=options, plugin=plugin
+            )
+
+        # Find the reference node if the reference has been unloaded
+        reference_node = False
+        nodes = (
+                cmds.listConnections(
+                    '{}.{}'.format(self.dcc_object.name, asset_const.ASSET_LINK)
+                )
+                or []
+        )
+
+        for node in nodes:
+            if cmds.nodeType(node) == 'reference':
+                reference_node = maya_utils.getReferenceNode(node)
+                if reference_node:
+                    break
+
+        # Load asset with the main method, the reference has not been created yet.
+        if not reference_node:
+            return super(MayaAssetManagerEngine, self).load_asset(
+                asset_info=asset_info, options=options, plugin=plugin
+            )
+
+        try:
+            maya_utils.load_reference_node(reference_node)
+            result.append(str(reference_node))
+            status = core_constants.SUCCESS_STATUS
+        except Exception as error:
+            message = str(
+                'Could not load the reference node {}, error: {}'.format(
+                    str(reference_node), error
+                )
+            )
+            self.logger.error(message)
+            status = core_constants.ERROR_STATUS
+
+        bool_status = core_constants.status_bool_mapping[status]
+        if bool_status:
+            self.ftrack_object_manager.objects_loaded = True
+
+        end_time = time.time()
+        total_time = end_time - start_time
+
+        result_data['status'] = status
+        result_data['result'] = result
+        result_data['execution_time'] = total_time
+        result_data['message'] = message
+
+        self._notify_client(plugin, result_data)
+        return status, result
+
+    @maya_utils.run_in_main_thread
     def unload_asset(self, asset_info, options=None, plugin=None):
         '''
         Removes the given *asset_info* from the scene.
@@ -227,7 +316,7 @@ class MayaAssetManagerEngine(AssetManagerEngine):
         if reference_node:
             self.logger.debug("Removing reference: {}".format(reference_node))
             try:
-                maya_utils.remove_reference_node(reference_node)
+                maya_utils.unload_reference_node(reference_node)
                 result.append(str(reference_node))
                 status = core_constants.SUCCESS_STATUS
             except Exception as error:
@@ -255,8 +344,8 @@ class MayaAssetManagerEngine(AssetManagerEngine):
             for node in nodes:
                 self.logger.debug("Removing object: {}".format(node))
                 try:
-                    if cmds.objExists(node):
-                        cmds.delete(node)
+                    if maya_utils.obj_exists(node):
+                        maya_utils.delete_object(node)
                         result.append(str(node))
                         status = core_constants.SUCCESS_STATUS
                 except Exception as error:
@@ -371,8 +460,8 @@ class MayaAssetManagerEngine(AssetManagerEngine):
             for node in nodes:
                 self.logger.debug("Removing object: {}".format(node))
                 try:
-                    if cmds.objExists(node):
-                        cmds.delete(node)
+                    if maya_utils.obj_exists(node):
+                        maya_utils.delete_object(node)
                         result.append(str(node))
                         status = core_constants.SUCCESS_STATUS
                 except Exception as error:
@@ -397,9 +486,9 @@ class MayaAssetManagerEngine(AssetManagerEngine):
                     self._notify_client(plugin, result_data)
                     return status, result
 
-        if cmds.objExists(self.dcc_object.name):
+        if maya_utils.obj_exists(self.dcc_object.name):
             try:
-                cmds.delete(self.dcc_object.name)
+                maya_utils.delete_object(self.dcc_object.name)
                 result.append(str(self.dcc_object.name))
                 status = core_constants.SUCCESS_STATUS
             except Exception as error:

@@ -4,9 +4,9 @@
 from ftrack_connect_pipeline_maya.utils import custom_commands as maya_utils
 
 # Load Modes
-IMPORT_MODE = 'Import'
-REFERENCE_MODE = 'Reference'
-OPEN_MODE = 'Open'
+IMPORT_MODE = 'import'
+REFERENCE_MODE = 'reference'
+OPEN_MODE = 'open'
 
 LOAD_MODES = {
     OPEN_MODE: maya_utils.open_file,
