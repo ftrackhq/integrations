@@ -27,7 +27,7 @@ def str_version(v, with_id=False, force_version_nr=None, delimiter='/'):
     ).replace('/', delimiter)
 
 
-def get_save_path(context_id, session, extension=None, temp=False):
+def get_save_path(context_id, session, extension=None, temp=True):
     '''Calculate the path to local snapshot save (work path), DCC independent'''
 
     result = False
