@@ -52,7 +52,9 @@ def get_save_path(context_id, session, extension=None, temp=False):
     )
     if temp:
         snapshot_path_base = os.path.join(
-            tempfile.gettempdir(), 'ftrack-connect', 'ftrack',
+            tempfile.gettempdir(),
+            'ftrack-connect',
+            'ftrack',
             core_constants.SNAPSHOT_COMPONENT_NAME,
             server_folder_name,
         )
