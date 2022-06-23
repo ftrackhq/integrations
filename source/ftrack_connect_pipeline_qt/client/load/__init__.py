@@ -8,6 +8,7 @@ from Qt import QtCore, QtWidgets
 
 from ftrack_connect_pipeline.utils import str_version
 from ftrack_connect_pipeline import constants as core_constants
+from ftrack_connect_pipeline.constants import plugin
 from ftrack_connect_pipeline.client import constants as client_constants
 from ftrack_connect_pipeline.client.loader import LoaderClient
 from ftrack_connect_pipeline_qt.ui.utility.widget.button import (
@@ -437,10 +438,10 @@ class QtAssemblerClientWidget(QtLoaderClient, dialog.Dialog):
                     if method:
                         for component in definition['components']:
                             for stage in component['stages']:
-                                if stage['type'] != core_constants.PLUGIN_IMPORTER_TYPE:
+                                if stage['type'] != plugin._PLUGIN_IMPORTER_TYPE:
                                     continue
                                 for plugin in stage['plugins']:
-                                    if plugin['type'] != core_constants.PLUGIN_IMPORTER_TYPE:
+                                    if plugin['type'] != plugin._PLUGIN_IMPORTER_TYPE:
                                         continue
                                     plugin['default_method'] = method
 

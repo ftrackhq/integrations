@@ -1,9 +1,6 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2022 ftrack
-
-import os
 import json
-import time
 import logging
 import copy
 
@@ -11,6 +8,7 @@ from Qt import QtCore, QtWidgets
 
 from ftrack_connect_pipeline import constants as core_constants
 from ftrack_connect_pipeline.client import constants
+from ftrack_connect_pipeline.constants import plugin
 from ftrack_connect_pipeline_qt.ui.asset_manager.model import AssetListModel
 from ftrack_connect_pipeline_qt.ui.asset_manager.base import (
     AssetListWidget,
@@ -678,7 +676,7 @@ class ComponentBaseWidget(AccordionBaseWidget):
         '''Find out from definition which is the default load mode and set it'''
         mode = self._modes[0]
         for stage in self.definition['components'][0]['stages']:
-            if stage['name'] == core_constants.PLUGIN_IMPORTER_TYPE:
+            if stage['name'] == plugin._PLUGIN_IMPORTER_TYPE:
                 if not 'options' in stage['plugins'][0]:
                     stage['plugins'][0]['options'] = {}
                 mode = stage['plugins'][0]['options'].get(
@@ -692,7 +690,7 @@ class ComponentBaseWidget(AccordionBaseWidget):
         mode = self._mode_selector.itemData(index)
         # Store mode in working definition
         for stage in self.definition['components'][0]['stages']:
-            if stage['name'] == core_constants.PLUGIN_IMPORTER_TYPE:
+            if stage['name'] == plugin._PLUGIN_IMPORTER_TYPE:
                 stage['plugins'][0]['options']['load_mode'] = mode
                 break
 
