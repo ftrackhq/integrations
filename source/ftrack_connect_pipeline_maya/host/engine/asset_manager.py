@@ -84,6 +84,238 @@ class MayaAssetManagerEngine(AssetManagerEngine):
         return status, result
 
     @maya_utils.run_in_main_thread
+    def change_version(self, asset_info, options, plugin=None):
+        '''
+        Returns the :const:`~ftrack_connnect_pipeline.constants.status` and the
+        result of changing the version of the given *asset_info* to the new
+        version id passed in the given *options*
+
+        *asset_info* : :class:`~ftrack_connect_pipeline.asset.FtrackAssetInfo`
+
+        *options* : Options should contain the new_version_id key with the id
+        value
+
+        *plugin* : Default None. Plugin definition, a dictionary with the
+        plugin information.
+        '''
+        start_time = time.time()
+        status = core_constants.UNKNOWN_STATUS
+        result ={}
+        message = None
+
+        plugin_type = core_constants.PLUGIN_AM_ACTION_TYPE
+        plugin_name = None
+        if plugin:
+            plugin_type = '{}.{}'.format('asset_manager', plugin['type'])
+            plugin_name = plugin.get('name')
+
+        result_data = {
+            'plugin_name': plugin_name,
+            'plugin_type': plugin_type,
+            'method': 'change_version',
+            'status': status,
+            'result': result,
+            'execution_time': 0,
+            'message': message,
+        }
+
+        new_version_id = options['new_version_id']
+
+        self.asset_info = asset_info
+        dcc_object = self.DccObject(
+            from_id=asset_info[asset_const.ASSET_INFO_ID]
+        )
+        self.dcc_object = dcc_object
+
+        # It's an import, so change version with the main method
+        if self.dcc_object.get(asset_const.LOAD_MODE) != modes_const.REFERENCE_MODE:
+            return super(MayaAssetManagerEngine, self).change_version(
+                asset_info=asset_info, options=options, plugin=plugin
+            )
+
+        # Unload the reference
+        unload_result = None
+        unload_status = None
+        try:
+            unload_status, unload_result = self.unload_asset(
+                asset_info=asset_info, options=None, plugin=None
+            )
+        except Exception as e:
+            unload_status = core_constants.ERROR_STATUS
+            self.logger.exception(e)
+            message = str(
+                "Error unloading asset with version id {} \n error: {} "
+                "\n asset_info: {}".format(
+                    asset_info[asset_const.VERSION_ID], e, asset_info
+                )
+            )
+            self.logger.error(message)
+
+        bool_status = core_constants.status_bool_mapping[unload_status]
+        if not bool_status:
+            end_time = time.time()
+            total_time = end_time - start_time
+
+            result_data['status'] = status
+            result_data['result'] = result
+            result_data['execution_time'] = total_time
+            result_data['message'] = message
+
+            self._notify_client(plugin, result_data)
+
+            return unload_status, unload_result
+
+        # Get reference Node
+        reference_node = None
+        for obj in unload_result:
+            if cmds.nodeType(obj) == 'reference':
+                reference_node = unload_result[0]
+                break
+        if not reference_node:
+            return super(MayaAssetManagerEngine, self).change_version(
+                asset_info=asset_info, options=options, plugin=plugin
+            )
+
+        collect_status = None
+        component_path = None
+        # Find new reference path
+        try:
+            # Get Component name from the original asset info
+            component_name = self.asset_info.get(asset_const.COMPONENT_NAME)
+            # Get asset version entity of the ne_ version_id
+            asset_version_entity = self.session.query(
+                'select version from AssetVersion where id is "{}"'.format(
+                    new_version_id
+                )
+            ).one()
+
+            # Collect data of the new version
+            asset_entity = asset_version_entity['asset']
+            asset_id = asset_entity['id']
+            version_number = int(asset_version_entity['version'])
+            asset_name = asset_entity['name']
+            asset_type_name = asset_entity['type']['name']
+            version_id = asset_version_entity['id']
+            location = asset_version_entity.session.pick_location()
+            component_path = None
+            for component in asset_version_entity['components']:
+                if component['name'] == component_name:
+                    if location.get_component_availability(component) == 100.0:
+                        component_path = location.get_filesystem_path(
+                            component
+                        )
+            if component_path:
+                collect_status = core_constants.SUCCESS_STATUS
+
+        except Exception as e:
+            collect_status = core_constants.ERROR_STATUS
+            self.logger.exception(e)
+            message = str(
+                "Error getting the new component path of asset with version id {} \n error: {} "
+                "\n asset_info: {}".format(
+                    asset_info[asset_const.VERSION_ID], e, asset_info
+                )
+            )
+            self.logger.error(message)
+
+        bool_status = core_constants.status_bool_mapping[collect_status]
+        if not bool_status:
+            end_time = time.time()
+            total_time = end_time - start_time
+
+            result_data['status'] = status
+            result_data['result'] = result
+            result_data['execution_time'] = total_time
+            result_data['message'] = message
+
+            self._notify_client(plugin, result_data)
+
+            return collect_status, result
+
+        update_status = None
+        try:
+            #update reference
+            cmds.file(component_path, loadReference=reference_node)
+            update_status = core_constants.SUCCESS_STATUS
+        except Exception as e:
+            update_status = core_constants.ERROR_STATUS
+            self.logger.exception(e)
+            message = str(
+                "Error reloading the reference of the asset with version id {} \n error: {} "
+                "\n asset_info: {}".format(
+                    asset_info[asset_const.VERSION_ID], e, asset_info
+                )
+            )
+            self.logger.error(message)
+
+        bool_status = core_constants.status_bool_mapping[update_status]
+        if not bool_status:
+            end_time = time.time()
+            total_time = end_time - start_time
+
+            result_data['status'] = status
+            result_data['result'] = result
+            result_data['execution_time'] = total_time
+            result_data['message'] = message
+
+            self._notify_client(plugin, result_data)
+
+            return update_status, result
+
+        #Reload asset
+        try:
+            maya_utils.load_reference_node(reference_node)
+            status = core_constants.SUCCESS_STATUS
+        except Exception as error:
+            message = str(
+                'Could not load the reference node {}, error: {}'.format(
+                    str(reference_node), error
+                )
+            )
+            self.logger.error(message)
+            status = core_constants.ERROR_STATUS
+
+        bool_status = core_constants.status_bool_mapping[update_status]
+        if bool_status:
+            # update ftrack Node
+            try:
+                self.ftrack_object_manager.objects_loaded = True
+                self.ftrack_object_manager.dcc_object[asset_const.ASSET_ID] = asset_id
+                self.ftrack_object_manager.dcc_object[asset_const.VERSION_NUMBER] = version_number
+                self.ftrack_object_manager.dcc_object[asset_const.ASSET_NAME] = asset_name
+                self.ftrack_object_manager.dcc_object[asset_const.ASSET_TYPE_NAME] = asset_type_name
+                self.ftrack_object_manager.dcc_object[asset_const.VERSION_ID] = version_id
+
+                self.ftrack_object_manager.asset_info[asset_const.ASSET_ID] = asset_id
+                self.ftrack_object_manager.asset_info[asset_const.VERSION_NUMBER] = version_number
+                self.ftrack_object_manager.asset_info[asset_const.ASSET_NAME] = asset_name
+                self.ftrack_object_manager.asset_info[asset_const.ASSET_TYPE_NAME] = asset_type_name
+                self.ftrack_object_manager.asset_info[asset_const.VERSION_ID] = version_id
+
+                status = core_constants.SUCCESS_STATUS
+            except Exception as error:
+                message = str(
+                    'Could not update ftrack node {}, error: {}'.format(
+                        str(reference_node), error
+                    )
+                )
+                self.logger.error(message)
+                status = core_constants.ERROR_STATUS
+        end_time = time.time()
+        total_time = end_time - start_time
+
+        result[asset_info[asset_const.ASSET_INFO_ID]] = self.ftrack_object_manager.asset_info
+
+        result_data['status'] = status
+        result_data['result'] = result
+        result_data['execution_time'] = total_time
+        result_data['message'] = message
+
+        self._notify_client(plugin, result_data)
+
+        return status, result
+
+    @maya_utils.run_in_main_thread
     def select_asset(self, asset_info, options=None, plugin=None):
         '''
         Selects the given *asset_info* from the scene.
