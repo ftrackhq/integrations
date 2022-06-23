@@ -212,7 +212,6 @@ class QtPublisherClientWidget(QtPublisherClient, QtWidgets.QFrame):
 
         self.widget_factory.set_context(self.context_id, asset_type_name)
         self.widget_factory.host_connection = self.host_connection
-        self.widget_factory.listen_widget_updates()
         self.widget_factory.set_definition_type(self.definition['type'])
         self.definition_widget = self.widget_factory.build(
             self.definition, component_names_filter
@@ -264,18 +263,22 @@ class QtPublisherClientWidget(QtPublisherClient, QtWidgets.QFrame):
             self.logger.error(msg)
             return False
         engine_type = serialized_data['_config']['engine_type']
-        self.widget_factory.progress_widget.show_widget()
-        self.widget_factory.progress_widget.reset_statuses()
-        self.run_definition(serialized_data, engine_type)
-        if not self.widget_factory.has_error:
-            self.widget_factory.progress_widget.set_status(
-                core_constants.SUCCESS_STATUS,
-                'Successfully published {}!'.format(
-                    self.definition['name'][
-                        : self.definition['name'].rfind(' ')
-                    ].lower()
-                ),
-            )
+        self.widget_factory.listen_widget_updates()
+        try:
+            self.widget_factory.progress_widget.show_widget()
+            self.widget_factory.progress_widget.reset_statuses()
+            self.run_definition(serialized_data, engine_type)
+            if not self.widget_factory.has_error:
+                self.widget_factory.progress_widget.set_status(
+                    core_constants.SUCCESS_STATUS,
+                    'Successfully published {}!'.format(
+                        self.definition['name'][
+                            : self.definition['name'].rfind(' ')
+                        ].lower()
+                    ),
+                )
+        finally:
+            self.widget_factory.end_widget_updates()
 
     def refresh(self):
         '''Called upon definition selector refresh button click.'''

@@ -1,6 +1,7 @@
 #! /usr/bin/env python
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2022 ftrack
+import shiboken2
 
 import ftrack_connect_pipeline_qt.ui.utility.widget.button
 from Qt import QtWidgets, QtCore
@@ -198,6 +199,9 @@ class QtOpenerClientWidget(QtOpenerClient, dialog.Dialog):
 
     def on_context_changed(self, contexts_id):
         '''Override'''
+        if not shiboken2.isValid(self):
+            # Widget has been closed while context changed
+            return
         self.context_selector.context_id = self.context_id
 
         # Reset definition selector and clear client
@@ -225,7 +229,6 @@ class QtOpenerClientWidget(QtOpenerClient, dialog.Dialog):
 
         self.widget_factory.set_context(self.context_id, asset_type_name)
         self.widget_factory.host_connection = self.host_connection
-        self.widget_factory.listen_widget_updates()
         self.widget_factory.set_definition_type(self.definition['type'])
         self.definition_widget = self.widget_factory.build(
             self.definition, component_names_filter
@@ -255,13 +258,18 @@ class QtOpenerClientWidget(QtOpenerClient, dialog.Dialog):
         self.widget_factory.has_error = False
         serialized_data = self.widget_factory.to_json_object()
         engine_type = serialized_data['_config']['engine_type']
-        self.widget_factory.progress_widget.show_widget()
-        self.widget_factory.progress_widget.reset_statuses()
-        self.run_definition(serialized_data, engine_type)
-        if not self.widget_factory.has_error:
-            self.widget_factory.progress_widget.set_status(
-                core_constants.SUCCESS_STATUS, 'Successfully opened version!'
-            )
+        self.widget_factory.listen_widget_updates()
+        try:
+            self.widget_factory.progress_widget.show_widget()
+            self.widget_factory.progress_widget.reset_statuses()
+            self.run_definition(serialized_data, engine_type)
+            if not self.widget_factory.has_error:
+                self.widget_factory.progress_widget.set_status(
+                    core_constants.SUCCESS_STATUS,
+                    'Successfully opened version!',
+                )
+        finally:
+            self.widget_factory.end_widget_updates()
 
     def _clear_widget(self):
         if self.scroll and self.scroll.widget():

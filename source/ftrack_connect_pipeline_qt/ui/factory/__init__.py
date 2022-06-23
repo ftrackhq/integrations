@@ -40,6 +40,9 @@ class WidgetFactoryBase(QtWidgets.QWidget):
     componentsChecked = QtCore.Signal(
         object
     )  # (Open) Emitted when components has been checked against the available components on version
+    updateProgressWidget = QtCore.Signal(
+        object
+    )  # Process async notification event
 
     host_types = None
     ui_types = None
@@ -117,6 +120,7 @@ class WidgetFactoryBase(QtWidgets.QWidget):
         self.components = None
 
         self.onQueryAssetVersionDone.connect(self.check_components)
+        self.updateProgressWidget.connect(self._update_progress_widget)
 
     def set_context(self, context_id, asset_type_name):
         '''Set :obj:`context_id` and :obj:`asset_type_name` with the given
@@ -522,6 +526,9 @@ class WidgetFactoryBase(QtWidgets.QWidget):
                 if result:
                     return result
 
+    def _update_progress_widget_async(self, event):
+        self.updateProgressWidget.emit(event)
+
     def _update_progress_widget(self, event):
         '''Update the progress widget based on the client progress notification *event* emitted during run'''
         step_type = event['data']['pipeline']['step_type']
@@ -623,7 +630,7 @@ class WidgetFactoryBase(QtWidgets.QWidget):
                 core_constants.PIPELINE_CLIENT_PROGRESS_NOTIFICATION,
                 self.host_connection.id,
             ),
-            self._update_progress_widget,
+            self._update_progress_widget_async,
         )
         self.has_error = False
 

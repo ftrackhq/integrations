@@ -678,7 +678,7 @@ class ComponentBaseWidget(AccordionBaseWidget):
         '''Find out from definition which is the default load mode and set it'''
         mode = self._modes[0]
         for stage in self.definition['components'][0]['stages']:
-            if stage['name'] == 'importer':
+            if stage['name'] == core_constants._PLUGIN_IMPORTER_TYPE:
                 if not 'options' in stage['plugins'][0]:
                     stage['plugins'][0]['options'] = {}
                 mode = stage['plugins'][0]['options'].get(
@@ -692,7 +692,7 @@ class ComponentBaseWidget(AccordionBaseWidget):
         mode = self._mode_selector.itemData(index)
         # Store mode in working definition
         for stage in self.definition['components'][0]['stages']:
-            if stage['name'] == 'importer':
+            if stage['name'] == core_constants._PLUGIN_IMPORTER_TYPE:
                 stage['plugins'][0]['options']['load_mode'] = mode
                 break
 

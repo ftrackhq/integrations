@@ -1,6 +1,7 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2015-2022 ftrack
 import logging
+import shiboken2
 
 from Qt import QtWidgets, QtCore
 
@@ -94,13 +95,6 @@ class ContextSelector(QtWidgets.QFrame):
         layout.setContentsMargins(10, 1, 10, 1)
         layout.setSpacing(8)
         self.setLayout(layout)
-        if self._enble_context_change:
-            self._entity_browser = EntityBrowser(
-                self.parent(),
-                self.session,
-                title='CHOOSE TASK (WORKING CONTEXT)',
-            )
-            self._entity_browser.setMinimumWidth(600)
 
     def build(self):
         self.thumbnail_widget = Context(self.session)
@@ -159,6 +153,9 @@ class ContextSelector(QtWidgets.QFrame):
 
     def _on_entity_found_async(self, entity):
         '''(Run in background thread) Entity found callback'''
+        if not shiboken2.isValid(self):
+            # Widget has been closed while entity fetched
+            return
         self.entityFound.emit(entity)
 
     def _on_entity_found(self, entity):
@@ -167,13 +164,20 @@ class ContextSelector(QtWidgets.QFrame):
 
     def _on_entity_browse_button_clicked(self):
         '''Handle entity browse button clicked'''
+
         if self._enble_context_change:
-            self._entity_browser.entity = (
+            entity_browser = EntityBrowser(
+                self.parent(),
+                self.session,
+                title='CHOOSE TASK (WORKING CONTEXT)',
+            )
+            entity_browser.setMinimumWidth(600)
+            entity_browser.entity = (
                 self._entity['parent'] if self._entity else None
             )
             # Launch browser.
-            if self._entity_browser.exec_():
-                self.entity = self._entity_browser.entity
+            if entity_browser.exec_():
+                self.entity = entity_browser.entity
         else:
             # Let client decide what to do when user wants to change context
             self.changeContextClicked.emit()

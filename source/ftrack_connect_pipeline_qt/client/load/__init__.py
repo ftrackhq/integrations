@@ -1,6 +1,7 @@
 #! /usr/bin/env python
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2022 ftrack
+import shiboken2
 from functools import partial
 
 from Qt import QtCore, QtWidgets
@@ -291,6 +292,9 @@ class QtAssemblerClientWidget(QtLoaderClient, dialog.Dialog):
 
     def on_context_changed(self, context_id):
         '''(Override) Context has been set'''
+        if not shiboken2.isValid(self):
+            # Widget has been closed while context changed
+            return
         self.context_selector.context_id = self.context_id
         # Have AM fetch assets
         self.asset_manager.on_host_changed(self.host_connection)
@@ -428,23 +432,24 @@ class QtAssemblerClientWidget(QtLoaderClient, dialog.Dialog):
                 factory.listen_widget_updates()
 
                 engine_type = definition['_config']['engine_type']
-
-                # Set method to importer plugins
-                if method:
-                    for component in definition['components']:
-                        for stage in component['stages']:
-                            if stage['type'] != 'importer':
-                                continue
-                            for plugin in stage['plugins']:
-                                if plugin['type'] != 'importer':
+                try:
+                    # Set method to importer plugins
+                    if method:
+                        for component in definition['components']:
+                            for stage in component['stages']:
+                                if stage['type'] != core_constants._PLUGIN_IMPORTER_TYPE:
                                     continue
-                                plugin['default_method'] = method
+                                for plugin in stage['plugins']:
+                                    if plugin['type'] != core_constants._PLUGIN_IMPORTER_TYPE:
+                                        continue
+                                    plugin['default_method'] = method
 
-                self.run_definition(definition, engine_type)
-                # Did it go well?
-                if factory.has_error:
-                    failed += 1
-                component_widget.factory.end_widget_updates()
+                    self.run_definition(definition, engine_type)
+                    # Did it go well?
+                    if factory.has_error:
+                        failed += 1
+                finally:
+                    component_widget.factory.end_widget_updates()
 
             succeeded = len(component_widgets) - failed
             if succeeded > 0:
