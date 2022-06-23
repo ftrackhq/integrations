@@ -43,6 +43,8 @@ def get_save_path(context_id, session, extension=None, temp=True):
                 extension if extension else '',
             ),
         )
+        if not os.path.exists(os.path.dirname(result)):
+            os.makedirs(os.path.dirname(result))
     else:
         if context_id is None:
             raise Exception(
