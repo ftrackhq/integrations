@@ -440,10 +440,10 @@ class QtAssemblerClientWidget(QtLoaderClient, dialog.Dialog):
                             for stage in component['stages']:
                                 if stage['type'] != plugin._PLUGIN_IMPORTER_TYPE:
                                     continue
-                                for plugin in stage['plugins']:
-                                    if plugin['type'] != plugin._PLUGIN_IMPORTER_TYPE:
+                                for _plugin in stage['plugins']:
+                                    if _plugin['type'] != plugin._PLUGIN_IMPORTER_TYPE:
                                         continue
-                                    plugin['default_method'] = method
+                                    _plugin['default_method'] = method
 
                     self.run_definition(definition, engine_type)
                     # Did it go well?
