@@ -1,6 +1,7 @@
 #! /usr/bin/env python
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2022 ftrack
+import shiboken2
 from functools import partial
 
 from Qt import QtCore, QtWidgets
@@ -291,6 +292,9 @@ class QtAssemblerClientWidget(QtLoaderClient, dialog.Dialog):
 
     def on_context_changed(self, context_id):
         '''(Override) Context has been set'''
+        if not shiboken2.isValid(self):
+            # Widget has been closed while context changed
+            return
         self.context_selector.context_id = self.context_id
         # Have AM fetch assets
         self.asset_manager.on_host_changed(self.host_connection)

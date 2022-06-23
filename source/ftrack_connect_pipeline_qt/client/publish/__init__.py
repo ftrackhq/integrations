@@ -280,7 +280,6 @@ class QtPublisherClientWidget(QtPublisherClient, QtWidgets.QFrame):
         finally:
             self.widget_factory.end_widget_updates()
 
-
     def refresh(self):
         '''Called upon definition selector refresh button click.'''
         self.widget_factory.progress_widget.set_status_widget_visibility(False)

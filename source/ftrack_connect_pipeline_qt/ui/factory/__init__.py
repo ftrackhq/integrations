@@ -42,7 +42,7 @@ class WidgetFactoryBase(QtWidgets.QWidget):
     )  # (Open) Emitted when components has been checked against the available components on version
     updateProgressWidget = QtCore.Signal(
         object
-    ) # Process async notification event
+    )  # Process async notification event
 
     host_types = None
     ui_types = None

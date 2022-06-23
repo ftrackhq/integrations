@@ -1,6 +1,7 @@
 #! /usr/bin/env python
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2022 ftrack
+import shiboken2
 
 import ftrack_connect_pipeline_qt.ui.utility.widget.button
 from Qt import QtWidgets, QtCore
@@ -198,6 +199,9 @@ class QtOpenerClientWidget(QtOpenerClient, dialog.Dialog):
 
     def on_context_changed(self, contexts_id):
         '''Override'''
+        if not shiboken2.isValid(self):
+            # Widget has been closed while context changed
+            return
         self.context_selector.context_id = self.context_id
 
         # Reset definition selector and clear client
@@ -261,7 +265,8 @@ class QtOpenerClientWidget(QtOpenerClient, dialog.Dialog):
             self.run_definition(serialized_data, engine_type)
             if not self.widget_factory.has_error:
                 self.widget_factory.progress_widget.set_status(
-                    core_constants.SUCCESS_STATUS, 'Successfully opened version!'
+                    core_constants.SUCCESS_STATUS,
+                    'Successfully opened version!',
                 )
         finally:
             self.widget_factory.end_widget_updates()
