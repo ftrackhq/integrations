@@ -5,6 +5,10 @@ from ftrack_connect_pipeline_maya.utils import custom_commands as maya_utils
 
 
 class MayaQtSaveClientWidget(QtSaveClientWidget):
-    '''Client for doing an incremental save of Maya scene locally'''
+    '''Client for doing an incremental save of Maya scene locally
+
+    This is sample code that exists here for reference and not used by the current
+    version of the framework.
+    '''
 
     dcc_utils = maya_utils

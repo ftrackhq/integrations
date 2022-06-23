@@ -200,14 +200,14 @@ def initialise():
             'volumeCube',
         )
     )
-    widgets.append(
-        (
-            qt_constants.SAVE_WIDGET,
-            save.MayaQtSaveClientWidget,
-            'Save Scene',
-            'fileSave',
-        )
-    )
+    # widgets.append(
+    #    (
+    #        qt_constants.SAVE_WIDGET,
+    #        save.MayaQtSaveClientWidget,
+    #        'Save Scene',
+    #        'fileSave',
+    #    )
+    # )
     widgets.append(
         (
             core_constants.PUBLISHER,

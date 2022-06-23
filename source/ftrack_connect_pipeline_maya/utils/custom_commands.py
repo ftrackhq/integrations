@@ -53,20 +53,26 @@ def import_file(path, options):
 def reference_file(path, options):
     return cmds.file(path, r=True, **options)
 
+
 def remove_reference_node(referenceNode):
     return cmds.file(rfn=referenceNode, rr=True)
+
 
 def unload_reference_node(referenceNode):
     return cmds.file(unloadReference=referenceNode)
 
+
 def load_reference_node(referenceNode):
     return cmds.file(loadReference=referenceNode)
+
 
 def obj_exists(object_name):
     return cmds.objExists(object_name)
 
+
 def delete_object(object_name):
     return cmds.delete(object_name)
+
 
 def getReferenceNode(assetLink):
     '''Return the references dcc_objects for the given *assetLink*'''
@@ -182,8 +188,8 @@ def init_maya(host, from_context=False):
         cmds.currentUnit(time=fps_unit)
 
 
-def save(context_id, session, temp=False):
-    '''Save scene locally, with the next version number based on latest version
+def save(context_id, session, temp=True, save=True):
+    '''Save scene locally in temp or with the next version number based on latest version
     in ftrack.'''
 
     save_path, message = get_save_path(
@@ -195,9 +201,11 @@ def save(context_id, session, temp=False):
 
     # Save Maya scene to this path
     cmds.file(rename=save_path)
-    cmds.file(save=True)
-    message = 'Saved Maya scene @ "{}"'.format(save_path)
-
+    if save:
+        cmds.file(save=True)
+        message = 'Saved Maya scene @ "{}"'.format(save_path)
+    else:
+        message = 'Renamed Maya scene @ "{}"'.format(save_path)
     if not temp:
         # Add to recent files
         mm.eval("source addRecentFile;")
