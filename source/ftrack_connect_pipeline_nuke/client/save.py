@@ -7,6 +7,10 @@ from ftrack_connect_pipeline_nuke.utils import custom_commands as nuke_utils
 
 
 class NukeQtSaveClientWidget(QtSaveClientWidget):
-    '''Client for doing an incremental save of Nuke script locally'''
+    '''Client for doing an incremental save of Nuke script locally
+
+    This is sample code that exists here for reference and not used by the current
+    version of the framework.
+    '''
 
     dcc_utils = nuke_utils

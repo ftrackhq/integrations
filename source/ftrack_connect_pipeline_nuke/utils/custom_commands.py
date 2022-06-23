@@ -223,11 +223,13 @@ def init_nuke(host, from_context=False):
         nuke.root().knob("fps").setValue(fps)
 
 
-def save(context_id, session):
+def save(context_id, session, temp=True):
     '''Save script locally, with the next version number based on latest version
     in ftrack.'''
 
-    save_path, message = get_save_path(context_id, session, extension='.nk')
+    save_path, message = get_save_path(
+        context_id, session, extension='.nk', temp=temp
+    )
 
     if save_path is None:
         return (False, message)
