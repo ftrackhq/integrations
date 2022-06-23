@@ -28,7 +28,7 @@ def str_version(v, with_id=False, force_version_nr=None, delimiter='/'):
 
 
 def get_save_path(context_id, session, extension=None, temp=True):
-    '''Calculate the path to local snapshot save (work path), DCC independent'''
+    '''Calculate the path to local save (work path), DCC independent'''
 
     result = False
     message = None
@@ -65,9 +65,9 @@ def get_save_path(context_id, session, extension=None, temp=True):
         server_folder_name = (
             session.server_url.split('//')[-1].split('.')[0].replace('-', '_')
         )
-        snapshot_path_base = os.environ.get('FTRACK_SAVE_PATH')
-        if snapshot_path_base is None:
-            snapshot_path_base = os.path.join(
+        save_path_base = os.environ.get('FTRACK_SAVE_PATH')
+        if save_path_base is None:
+            save_path_base = os.path.join(
                 appdirs.user_data_dir('ftrack-connect', 'ftrack'),
                 core_constants.SNAPSHOT_COMPONENT_NAME,
                 server_folder_name,
@@ -76,8 +76,8 @@ def get_save_path(context_id, session, extension=None, temp=True):
         # Try to query location system (future) for getting task path
         try:
             location = session.pick_location()
-            snapshot_path = os.path.join(
-                snapshot_path_base, location.get_filesystem_path(context)
+            save_path = os.path.join(
+                save_path_base, location.get_filesystem_path(context)
             )
         except:
             structure_names = [
@@ -88,16 +88,16 @@ def get_save_path(context_id, session, extension=None, temp=True):
             ]
 
             # Build path down to context
-            snapshot_path = os.sep.join([snapshot_path_base] + structure_names)
+            save_path = os.sep.join([save_path_base] + structure_names)
 
-        if snapshot_path is not None:
-            if not os.path.exists(snapshot_path):
-                os.makedirs(snapshot_path)
-            if not os.path.exists(snapshot_path):
+        if save_path is not None:
+            if not os.path.exists(save_path):
+                os.makedirs(save_path)
+            if not os.path.exists(save_path):
                 return (
                     None,
-                    'Could not create snapshot directory: {}!'.format(
-                        snapshot_path
+                    'Could not create save directory: {}!'.format(
+                        save_path
                     ),
                 )
 
@@ -116,22 +116,22 @@ def get_save_path(context_id, session, extension=None, temp=True):
             ].lower()  # modeling, compositing...
 
             # Make sure we do not overwrite existing work done
-            snapshot_path = os.path.join(
-                snapshot_path, '%s_v%03d' % (filename, next_version_number)
+            save_path = os.path.join(
+                save_path, '%s_v%03d' % (filename, next_version_number)
             )
 
-            while os.path.exists(snapshot_path) or (
+            while os.path.exists(save_path) or (
                 extension
-                and os.path.exists('{}{}'.format(snapshot_path, extension))
+                and os.path.exists('{}{}'.format(save_path, extension))
             ):
                 next_version_number += 1
-                snapshot_path = os.path.join(
-                    os.path.dirname(snapshot_path),
+                save_path = os.path.join(
+                    os.path.dirname(save_path),
                     '%s_v%03d' % (filename, next_version_number),
                 )
 
-            result = snapshot_path
+            result = save_path
         else:
-            message = 'Could not evaluate local snapshot path!'
+            message = 'Could not evaluate local save path!'
 
     return result, message
