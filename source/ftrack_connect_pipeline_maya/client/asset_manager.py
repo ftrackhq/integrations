@@ -36,7 +36,6 @@ class MayaQtAssetManagerClientWidgetMixin(
         super(MayaQtAssetManagerClientWidgetMixin, self).__init__(
             event_manager=event_manager, asset_list_model=asset_list_model
         )
-        self.setWindowTitle('ftrack Connect')
 
     def get_theme_background_style(self):
         return 'maya'
