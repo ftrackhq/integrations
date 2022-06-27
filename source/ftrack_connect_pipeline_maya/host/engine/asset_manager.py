@@ -100,7 +100,7 @@ class MayaAssetManagerEngine(AssetManagerEngine):
         '''
         start_time = time.time()
         status = core_constants.UNKNOWN_STATUS
-        result ={}
+        result = {}
         message = None
 
         plugin_type = core_constants.PLUGIN_AM_ACTION_TYPE
@@ -128,7 +128,10 @@ class MayaAssetManagerEngine(AssetManagerEngine):
         self.dcc_object = dcc_object
 
         # It's an import, so change version with the main method
-        if self.dcc_object.get(asset_const.LOAD_MODE) != modes_const.REFERENCE_MODE:
+        if (
+            self.dcc_object.get(asset_const.LOAD_MODE)
+            != modes_const.REFERENCE_MODE
+        ):
             return super(MayaAssetManagerEngine, self).change_version(
                 asset_info=asset_info, options=options, plugin=plugin
             )
@@ -159,7 +162,7 @@ class MayaAssetManagerEngine(AssetManagerEngine):
             result_data['status'] = status
             result_data['result'] = result
             result_data['execution_time'] = total_time
-            result_data['message'] = message
+            result_data['message'] = result['message'] = message
 
             self._notify_client(plugin, result_data)
 
@@ -206,7 +209,9 @@ class MayaAssetManagerEngine(AssetManagerEngine):
                         )
             if component_path:
                 collect_status = core_constants.SUCCESS_STATUS
-
+            else:
+                collect_status = core_constants.ERROR_STATUS
+                message = "Component is not available in your location, please transfer over"
         except Exception as e:
             collect_status = core_constants.ERROR_STATUS
             self.logger.exception(e)
@@ -226,7 +231,7 @@ class MayaAssetManagerEngine(AssetManagerEngine):
             result_data['status'] = status
             result_data['result'] = result
             result_data['execution_time'] = total_time
-            result_data['message'] = message
+            result_data['message'] = result['message'] = message
 
             self._notify_client(plugin, result_data)
 
@@ -234,7 +239,7 @@ class MayaAssetManagerEngine(AssetManagerEngine):
 
         update_status = None
         try:
-            #update reference
+            # update reference
             cmds.file(component_path, loadReference=reference_node)
             update_status = core_constants.SUCCESS_STATUS
         except Exception as e:
@@ -256,13 +261,13 @@ class MayaAssetManagerEngine(AssetManagerEngine):
             result_data['status'] = status
             result_data['result'] = result
             result_data['execution_time'] = total_time
-            result_data['message'] = message
+            result_data['message'] = result['message'] = message
 
             self._notify_client(plugin, result_data)
 
             return update_status, result
 
-        #Reload asset
+        # Reload asset
         try:
             maya_utils.load_reference_node(reference_node)
             status = core_constants.SUCCESS_STATUS
@@ -280,17 +285,37 @@ class MayaAssetManagerEngine(AssetManagerEngine):
             # update ftrack Node
             try:
                 self.ftrack_object_manager.objects_loaded = True
-                self.ftrack_object_manager.dcc_object[asset_const.ASSET_ID] = asset_id
-                self.ftrack_object_manager.dcc_object[asset_const.VERSION_NUMBER] = version_number
-                self.ftrack_object_manager.dcc_object[asset_const.ASSET_NAME] = asset_name
-                self.ftrack_object_manager.dcc_object[asset_const.ASSET_TYPE_NAME] = asset_type_name
-                self.ftrack_object_manager.dcc_object[asset_const.VERSION_ID] = version_id
+                self.ftrack_object_manager.dcc_object[
+                    asset_const.ASSET_ID
+                ] = asset_id
+                self.ftrack_object_manager.dcc_object[
+                    asset_const.VERSION_NUMBER
+                ] = version_number
+                self.ftrack_object_manager.dcc_object[
+                    asset_const.ASSET_NAME
+                ] = asset_name
+                self.ftrack_object_manager.dcc_object[
+                    asset_const.ASSET_TYPE_NAME
+                ] = asset_type_name
+                self.ftrack_object_manager.dcc_object[
+                    asset_const.VERSION_ID
+                ] = version_id
 
-                self.ftrack_object_manager.asset_info[asset_const.ASSET_ID] = asset_id
-                self.ftrack_object_manager.asset_info[asset_const.VERSION_NUMBER] = version_number
-                self.ftrack_object_manager.asset_info[asset_const.ASSET_NAME] = asset_name
-                self.ftrack_object_manager.asset_info[asset_const.ASSET_TYPE_NAME] = asset_type_name
-                self.ftrack_object_manager.asset_info[asset_const.VERSION_ID] = version_id
+                self.ftrack_object_manager.asset_info[
+                    asset_const.ASSET_ID
+                ] = asset_id
+                self.ftrack_object_manager.asset_info[
+                    asset_const.VERSION_NUMBER
+                ] = version_number
+                self.ftrack_object_manager.asset_info[
+                    asset_const.ASSET_NAME
+                ] = asset_name
+                self.ftrack_object_manager.asset_info[
+                    asset_const.ASSET_TYPE_NAME
+                ] = asset_type_name
+                self.ftrack_object_manager.asset_info[
+                    asset_const.VERSION_ID
+                ] = version_id
 
                 status = core_constants.SUCCESS_STATUS
             except Exception as error:
@@ -304,12 +329,14 @@ class MayaAssetManagerEngine(AssetManagerEngine):
         end_time = time.time()
         total_time = end_time - start_time
 
-        result[asset_info[asset_const.ASSET_INFO_ID]] = self.ftrack_object_manager.asset_info
+        result[
+            asset_info[asset_const.ASSET_INFO_ID]
+        ] = self.ftrack_object_manager.asset_info
 
         result_data['status'] = status
         result_data['result'] = result
         result_data['execution_time'] = total_time
-        result_data['message'] = message
+        result_data['message'] = result['message'] = message
 
         self._notify_client(plugin, result_data)
 
@@ -378,7 +405,7 @@ class MayaAssetManagerEngine(AssetManagerEngine):
                 result_data['status'] = status
                 result_data['result'] = result
                 result_data['execution_time'] = total_time
-                result_data['message'] = message
+                result_data['message'] = result['message'] = message
 
                 self._notify_client(plugin, result_data)
                 return status, result
@@ -741,7 +768,7 @@ class MayaAssetManagerEngine(AssetManagerEngine):
                 result_data['status'] = status
                 result_data['result'] = result
                 result_data['execution_time'] = total_time
-                result_data['message'] = message
+                result_data['message'] = result['message'] = message
 
                 self._notify_client(plugin, result_data)
 
