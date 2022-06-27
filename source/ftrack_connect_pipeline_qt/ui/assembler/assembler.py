@@ -491,12 +491,10 @@ class AssemblerBrowserWidget(AssemblerBaseWidget):
         '''User request a change of version, check that the new version
         has the component and it matches.'''
         current_component = self.client.session.query(
-            'name, file_type from Component where id={}'.format(
-                widget.component_id
-            )
+            'Component where id={}'.format(widget.component_id)
         ).one()
         component = self.client.session.query(
-            'name, file_type from Component where version.id={} and name={}'.format(
+            'Component where version.id={} and name={}'.format(
                 version_entity['id'], current_component['name']
             )
         ).first()
