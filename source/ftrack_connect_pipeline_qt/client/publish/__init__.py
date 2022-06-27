@@ -14,6 +14,7 @@ from ftrack_connect_pipeline_qt.ui.factory.publisher import (
     PublisherWidgetFactory,
 )
 from ftrack_connect_pipeline_qt.ui.utility.widget import (
+    dialog,
     header,
     line,
     host_selector,
@@ -47,6 +48,26 @@ class QtPublisherClientWidget(QtPublisherClient, QtWidgets.QFrame):
         QtPublisherClient.__init__(self, event_manager)
 
         self.logger.debug('start qt publisher widget')
+
+        # Check if a proper storage scenario is setup or not
+        location_message = None
+        test_location = self.session.pick_location()
+        if test_location is None:
+            location_message = 'No ftrack location were discoverable, publishing not possible!'
+            dialog.ModalDialog(parent, message=location_message)
+            raise Exception(location_message)
+        elif test_location['name'] == 'ftrack.unmanaged':
+            location_message = 'No ftrack storage scenario have been setup!'
+            if not dialog.ModalDialog(
+                self.parent(),
+                title='ftrack Publisher',
+                question='{} Continue anyway and have published files stay in your temp folder?'.format(
+                    location_message
+                ),
+            ).exec_():
+                raise Exception(location_message)
+        if location_message:
+            self.logger.warning(location_message)
 
         self.widget_factory = PublisherWidgetFactory(
             self.event_manager,
