@@ -680,7 +680,7 @@ class ComponentBaseWidget(AccordionBaseWidget):
                 if not 'options' in stage['plugins'][0]:
                     stage['plugins'][0]['options'] = {}
                 mode = stage['plugins'][0]['options'].get(
-                    'load_mode', 'Import'
+                    'load_mode', 'import'
                 )
                 break
         self._mode_selector.setCurrentIndex(self._modes.index(mode))

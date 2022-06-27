@@ -124,9 +124,7 @@ class DefinitionSelectorBase(QtWidgets.QWidget):
                 self.definition,
                 self.component_names_filter,
             ) = self._definition_selector.itemData(index)
-            self._definition_selector.setToolTip(
-                json.dumps(self.definition, indent=4)
-            )
+            self._definition_selector.setToolTip('')
             # Locate the schema for definition
             for schema in self.schemas:
                 if (

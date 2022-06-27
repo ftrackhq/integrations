@@ -114,7 +114,7 @@ class QtAssemblerClientWidget(QtLoaderClient, dialog.Dialog):
 
         self.discover_hosts()
 
-        self.setWindowTitle('ftrack Connect Assembler')
+        self.setWindowTitle('ftrack Assembler')
         self.resize(1000, 500)
 
     def get_theme_background_style(self):
@@ -384,18 +384,27 @@ class QtAssemblerClientWidget(QtLoaderClient, dialog.Dialog):
             as_widgets=True
         )
         if len(component_widgets) == 0:
-            dlg = ModalDialog(
-                self.parent(),
-                title='ftrack Assembler',
-                question='{} all?'.format(
-                    'Load' if method == 'init_and_load' else 'Track'
-                ),
+            all_component_widgets = (
+                self._assembler_widget.component_list.get_loadable()
             )
-            if dlg.exec_():
-                # Select and use all loadable - having definition
-                component_widgets = (
-                    self._assembler_widget.component_list.get_loadable()
+            if len(all_component_widgets) == 0:
+                ModalDialog(
+                    self, title='ftrack Assembler', message='No assets found!'
                 )
+                return
+            if len(all_component_widgets) > 1:
+                dlg = ModalDialog(
+                    self,
+                    title='ftrack Assembler',
+                    question='{} all?'.format(
+                        'Load' if method == 'init_and_load' else 'Track'
+                    ),
+                )
+                if dlg.exec_():
+                    # Select and use all loadable - having definition
+                    component_widgets = all_component_widgets
+            else:
+                component_widgets = all_component_widgets
         if len(component_widgets) > 0:
             # Each component contains a definition ready to run and a factory,
             # run them one by one. Start by preparing progress widget
