@@ -885,12 +885,16 @@ class AssetManagerEngine(BaseEngine):
             else:
                 bool_status = constants.status_bool_mapping[status]
                 if not bool_status:
-                    import traceback
-
-                    traceback.print_stack()
                     raise Exception(
                         'An error occurred during the execution of '
-                        'the method: {}'.format(method)
+                        'the method "{}"{}'.format(
+                            method,
+                            (
+                                ': {}'.format(result['message'])
+                                if 'message' in result
+                                else ''
+                            ),
+                        )
                     )
 
         elif plugin:
