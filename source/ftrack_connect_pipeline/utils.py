@@ -98,9 +98,7 @@ def get_save_path(context_id, session, extension=None, temp=True):
             if not os.path.exists(save_path):
                 return (
                     None,
-                    'Could not create save directory: {}!'.format(
-                        save_path
-                    ),
+                    'Could not create save directory: {}!'.format(save_path),
                 )
 
             # Find latest version number
