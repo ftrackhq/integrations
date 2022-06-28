@@ -612,7 +612,6 @@ class BaseEngine(object):
                 step_options = {}
 
                 if step_group == constants.COMPONENTS:
-                    step_options = {'component_name': step_name}
                     if 'file_formats' in step:
                         step_options['file_formats'] = step[
                             'file_formats'
