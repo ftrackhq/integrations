@@ -25,7 +25,6 @@ class NukeQtAssetManagerClientWidget(QtAssetManagerClientWidget):
         super(NukeQtAssetManagerClientWidget, self).__init__(
             event_manager, asset_list_model, parent=get_main_window()
         )
-        self.setWindowTitle('ftrack Connect')
 
     def get_theme_background_style(self):
         return 'nuke'

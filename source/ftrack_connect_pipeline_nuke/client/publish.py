@@ -23,7 +23,6 @@ class NukeQtPublisherClientWidget(QtPublisherClientWidget):
         super(NukeQtPublisherClientWidget, self).__init__(
             event_manager, parent=get_main_window()
         )
-        self.setWindowTitle('ftrack Publisher')
 
     def get_theme_background_style(self):
         return 'nuke'
