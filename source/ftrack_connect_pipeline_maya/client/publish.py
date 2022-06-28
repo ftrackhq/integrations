@@ -35,7 +35,6 @@ class MayaQtPublisherClientWidgetMixin(
         super(MayaQtPublisherClientWidgetMixin, self).__init__(
             event_manager=event_manager
         )
-        self.setWindowTitle('ftrack Publisher')
 
     def get_theme_background_style(self):
         return 'maya'
