@@ -86,8 +86,7 @@ class DynamicWidget(BaseOptionsWidget):
     def _build_bool_widget(self, key, value):
         '''build a bool widget out of options *key* and *value*'''
         widget = QtWidgets.QCheckBox()
-        widget.setTristate(False)
-        widget.setCheckState(QtCore.Qt.CheckState(value))
+        widget.setChecked(value)
         self._register_widget(key, widget)
         update_fn = partial(self.set_option_result, key=key)
         widget.stateChanged.connect(update_fn)
