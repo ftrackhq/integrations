@@ -93,6 +93,8 @@ class QtPublisherClientWidget(QtPublisherClient, QtWidgets.QFrame):
         self.build()
         self.post_build()
 
+        self.setWindowTitle('ftrack Publisher')
+
         self.discover_hosts()
 
         self.setWindowTitle('Standalone Pipeline Publisher')

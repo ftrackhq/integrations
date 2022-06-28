@@ -124,9 +124,6 @@ class DefinitionSelectorBase(QtWidgets.QWidget):
                 self.definition,
                 self.component_names_filter,
             ) = self._definition_selector.itemData(index)
-            self._definition_selector.setToolTip(
-                json.dumps(self.definition, indent=4)
-            )
             # Locate the schema for definition
             for schema in self.schemas:
                 if (
@@ -140,7 +137,6 @@ class DefinitionSelectorBase(QtWidgets.QWidget):
             )
         else:
             self.logger.debug('No data for selected definition')
-            self._definition_selector.setToolTip('Please select a definition.')
             self.definition = self.component_names_filter = None
             self.definitionChanged.emit(None, None, None)
 
@@ -173,6 +169,7 @@ class OpenerDefinitionSelector(DefinitionSelectorBase):
 
         definition_select_widget.layout().addWidget(self.label_widget)
         self._definition_selector = DefinitionSelectorComboBox()
+        self._definition_selector.setToolTip('Please select an opener')
 
         definition_select_widget.layout().addWidget(
             self._definition_selector, 10
@@ -353,6 +350,7 @@ class AssemblerDefinitionSelector(DefinitionSelectorBase):
         self._definition_widget = QtWidgets.QWidget()
         self._definition_widget.setLayout(QtWidgets.QHBoxLayout())
         self._definition_selector = DefinitionSelectorComboBox()
+        self._definition_selector.setToolTip('Please select a loader')
         self._definition_widget.layout().addWidget(self._definition_selector)
         return self._definition_widget
 
@@ -403,6 +401,7 @@ class PublisherDefinitionSelector(DefinitionSelectorBase):
 
         definition_select_widget.layout().addWidget(self.label_widget)
         self._definition_selector = DefinitionSelectorComboBox()
+        self._definition_selector.setToolTip('Please select a publisher')
 
         definition_select_widget.layout().addWidget(
             self._definition_selector, 10

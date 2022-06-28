@@ -90,6 +90,8 @@ class QtAssetManagerClientWidget(QtAssetManagerClient, QtWidgets.QFrame):
         self.build()
         self.post_build()
 
+        self.setWindowTitle('ftrack Asset Manager')
+
         if not self.is_assembler:
             self.discover_hosts()
 
