@@ -53,11 +53,6 @@ class WidgetFactoryBase(QtWidgets.QWidget):
         return self._widgets_ref
 
     @property
-    def type_widgets(self):
-        '''Return registered type widgets.'''
-        return self._type_widgets_ref
-
-    @property
     def host_connection(self):
         '''Return the host connection'''
         return self._host_connection
@@ -105,7 +100,6 @@ class WidgetFactoryBase(QtWidgets.QWidget):
         self._widgets_ref = {}
         self._step_objs_ref = {}
         self._stage_objs_ref = {}
-        self._type_widgets_ref = {}
         self.context_id = None
         self.asset_type_name = None
         self._host_connection = None
@@ -681,10 +675,6 @@ class WidgetFactoryBase(QtWidgets.QWidget):
                 return self._stage_objs_ref[data['widget_ref']]
             if category == 'step':
                 return self._step_objs_ref[data['widget_ref']]
-
-    def reset_type_widget_plugin(self):
-        '''empty :obj:`type_widgets_ref`'''
-        self._type_widgets_ref = {}
 
     def query_asset_version_from_version_id(self, version_id):
         '''Retreive asset version from ftrack based on its *version_id*'''

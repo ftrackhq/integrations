@@ -76,8 +76,7 @@ class ModalDialog(QtWidgets.QDialog):
         message=None,
         question=None,
         title=None,
-        on_top=False,
-        modal=False,
+        modal=None,
     ):
         '''
         Initialize modal dialog
@@ -86,7 +85,6 @@ class ModalDialog(QtWidgets.QDialog):
         :param message: The message to show in dialog, makes dialog on only have an OK button
         :param question: The question to show, makes dialog behave like a prompt with Yes+No buttons (default)
         :param title: The text to show in dialog title bar
-        :param on_top: The dialog should be put on top of all operating system windows
         :param modal: The dialog should be modal
         '''
         super(ModalDialog, self).__init__(parent=parent)
@@ -115,10 +113,15 @@ class ModalDialog(QtWidgets.QDialog):
         self.build()
         self.post_build()
 
-        self.setModal(modal)
+        if not modal is None:
+            self.setModal(modal)
         self.setWindowFlags(
             QtCore.Qt.SplashScreen
-            | (QtCore.Qt.WindowStaysOnTopHint if on_top else 0)
+            | (
+                QtCore.Qt.WindowStaysOnTopHint
+                if modal is True or (modal is None and message)
+                else 0
+            )
         )
 
         if self._dialog_mode is False:

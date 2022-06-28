@@ -18,9 +18,11 @@ from ftrack_connect_pipeline_qt.ui.utility.widget.circular_button import (
 class FileLogViewerWidget(QtWidgets.QWidget):
     '''Main widget of the file log viewer'''
 
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, dialog=None):
         '''Initialise FileLogViewerWidget with *parent*'''
         super(FileLogViewerWidget, self).__init__(parent=parent)
+
+        self._dialog = dialog
 
         self.logger = logging.getLogger(__name__)
 
