@@ -18,7 +18,7 @@ class LogTableModel(QtCore.QAbstractTableModel):
         '''
         return self._data
 
-    def __init__(self, parent):
+    def __init__(self, parent=None):
         '''Initialize model model'''
 
         super(LogTableModel, self).__init__(parent)

@@ -171,7 +171,7 @@ class LogDialogTableView(QtWidgets.QTableView):
 
     def build(self):
         '''Build widgets and parent them.'''
-        self.log_model = LogTableModel()
+        self.log_model = LogTableModel(parent=self.parent())
 
         self.proxy_model = FilterProxyModel()
         self.proxy_model.setSourceModel(self.log_model)
