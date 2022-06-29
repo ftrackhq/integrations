@@ -23,7 +23,7 @@ class NukeQtAssetManagerClientWidget(QtAssetManagerClientWidget):
 
     def __init__(self, event_manager, asset_list_model):
         super(NukeQtAssetManagerClientWidget, self).__init__(
-            event_manager, asset_list_model, parent=get_main_window()
+            event_manager, asset_list_model
         )
 
     def get_theme_background_style(self):
