@@ -20,9 +20,7 @@ class NukeQtPublisherClientWidget(QtPublisherClientWidget):
     '''Dockable nuke publish widget'''
 
     def __init__(self, event_manager):
-        super(NukeQtPublisherClientWidget, self).__init__(
-            event_manager, parent=get_main_window()
-        )
+        super(NukeQtPublisherClientWidget, self).__init__(event_manager)
 
     def get_theme_background_style(self):
         return 'nuke'

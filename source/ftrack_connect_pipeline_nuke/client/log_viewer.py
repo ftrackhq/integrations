@@ -13,8 +13,7 @@ class NukeQtLogViewerClientWidget(log_viewer.QtLogViewerClientWidget):
 
     def __init__(self, event_manager, parent=None):
         super(NukeQtLogViewerClientWidget, self).__init__(
-            event_manager=event_manager,
-            parent=(parent or get_main_window()),
+            event_manager=event_manager
         )
         # Make toolbar smaller
         self.setWindowFlags(QtCore.Qt.Tool)

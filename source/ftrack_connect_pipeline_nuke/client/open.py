@@ -21,9 +21,7 @@ class NukeQtOpenerClientWidget(open.QtOpenerClientWidget):
     definition_extensions_filter = ['.nk']
 
     def __init__(self, event_manager, parent=None):
-        super(NukeQtOpenerClientWidget, self).__init__(
-            event_manager, parent=(parent or get_main_window())
-        )
+        super(NukeQtOpenerClientWidget, self).__init__(event_manager)
         # Make toolbar smaller
         self.setWindowFlags(QtCore.Qt.Tool)
 

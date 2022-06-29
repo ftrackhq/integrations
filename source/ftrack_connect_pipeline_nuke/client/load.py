@@ -30,7 +30,6 @@ class NukeQtAssemblerClientWidget(load.QtAssemblerClientWidget):
             event_manager,
             load_const.LOAD_MODES,
             asset_list_model,
-            parent=(parent or get_main_window()),
         )
         # Make toolbar smaller
         self.setWindowFlags(QtCore.Qt.Tool)
