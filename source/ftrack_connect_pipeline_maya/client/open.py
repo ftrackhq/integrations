@@ -21,9 +21,7 @@ class MayaQtOpenerClientWidget(open.QtOpenerClientWidget):
     definition_extensions_filter = ['.mb', '.ma']
 
     def __init__(self, event_manager, parent=None):
-        super(MayaQtOpenerClientWidget, self).__init__(
-            event_manager, parent=(parent or get_main_window())
-        )
+        super(MayaQtOpenerClientWidget, self).__init__(event_manager)
 
         # Make sure we stays on top of Maya
         self.setWindowFlags(QtCore.Qt.Tool)

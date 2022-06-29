@@ -15,9 +15,7 @@ class MayaQtPublisherClientWidget(QtPublisherClientWidget):
     def __init__(self, event_manager, parent=None):
         '''Due to the Maya panel behaviour, we have to use *parent_window*
         instead of *parent*.'''
-        super(MayaQtPublisherClientWidget, self).__init__(
-            event_manager, parent=get_main_window()
-        )
+        super(MayaQtPublisherClientWidget, self).__init__(event_manager)
 
 
 class MayaQtPublisherClientWidgetMixin(

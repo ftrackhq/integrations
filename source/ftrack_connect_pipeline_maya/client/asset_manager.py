@@ -17,7 +17,7 @@ class MayaQtAssetManagerClientWidget(QtAssetManagerClientWidget):
         '''Due to the Maya panel behaviour, we have to use *parent_window*
         instead of *parent*.'''
         super(MayaQtAssetManagerClientWidget, self).__init__(
-            event_manager, asset_list_model, parent=get_main_window()
+            event_manager, asset_list_model
         )
 
 

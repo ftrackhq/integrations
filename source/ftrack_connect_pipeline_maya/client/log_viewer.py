@@ -12,9 +12,7 @@ class MayaQtLogViewerClientWidget(log_viewer.QtLogViewerClientWidget):
     '''Maya log viewer dialog'''
 
     def __init__(self, event_manager, parent=None):
-        super(MayaQtLogViewerClientWidget, self).__init__(
-            event_manager, parent=(parent or get_main_window())
-        )
+        super(MayaQtLogViewerClientWidget, self).__init__(event_manager)
 
         # Make sure we stays on top of Maya
         self.setWindowFlags(QtCore.Qt.Tool)
