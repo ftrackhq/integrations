@@ -38,6 +38,7 @@ class Overlay(QtWidgets.QFrame):
         self._transparent_background = transparent_background
         self._width_percentage = width_percentage
         self._height_percentage = height_percentage
+        self._event_filter_installed = False
 
         self.widget = QtWidgets.QFrame(parent=self)
         self.widget.setProperty('background', 'ftrack')
@@ -59,10 +60,10 @@ class Overlay(QtWidgets.QFrame):
         self.fill_color = QtGui.QColor(26, 32, 39, 200)
         self.pen_color = QtGui.QColor("#1A2027")
 
-        # Install global event filter that will deal with matching parent size
-        # and disabling parent interaction when overlay is visible.
-        application = QtCore.QCoreApplication.instance()
-        application.installEventFilter(self)
+    def __del__(self):
+        if self._event_filter_installed:
+            application = QtCore.QCoreApplication.instance()
+            application.removeEventFilter(self)
 
     def paintEvent(self, event):
         '''(Override)'''
@@ -93,6 +94,12 @@ class Overlay(QtWidgets.QFrame):
     def setVisible(self, visible):
         '''(Override) Set whether *visible* or not.'''
         if visible:
+            if not self._event_filter_installed:
+                # Install global event filter that will deal with matching parent size
+                # and disabling parent interaction when overlay is visible.
+                application = QtCore.QCoreApplication.instance()
+                application.installEventFilter(self)
+                self._event_filter_installed = True
             # Manually clear focus from any widget that is overlaid. This
             # works in conjunction with :py:meth`eventFilter` to prevent
             # interaction with overlaid widgets.
@@ -108,11 +115,20 @@ class Overlay(QtWidgets.QFrame):
                     if widget.hasFocus():
                         widget.clearFocus()
                         break
+        else:
+            if self._event_filter_installed:
+                application = QtCore.QCoreApplication.instance()
+                application.removeEventFilter(self)
+                self._event_filter_installed = False
 
         super(Overlay, self).setVisible(visible)
-        main_window = utils.get_main_framework_window_from_widget(self.widget)
-        if main_window:
-            self.resize(main_window.size())
+        if visible:
+            # Make sure size is correct
+            main_window = utils.get_main_framework_window_from_widget(
+                self.widget
+            )
+            if main_window:
+                self.resize(main_window.size())
 
     def eventFilter(self, obj, event):
         '''Filter *event* sent to *obj*.
@@ -145,11 +161,7 @@ class Overlay(QtWidgets.QFrame):
         # enabled state of each child grows too complex as have to remember the
         # initial state of each widget when the overlay is shown and then revert
         # to it on hide.
-        if (
-            self.isVisible()
-            and obj != self
-            and event.type() == QtCore.QEvent.FocusIn
-        ):
+        if event.type() == QtCore.QEvent.FocusIn and obj != self:
             parent = self.parent()
             if isinstance(obj, QtWidgets.QWidget) and parent.isAncestorOf(obj):
                 # Ensure the targeted object loses its focus.

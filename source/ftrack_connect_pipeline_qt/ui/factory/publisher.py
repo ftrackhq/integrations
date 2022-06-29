@@ -14,7 +14,7 @@ class PublisherWidgetFactory(WidgetFactoryBase):
             event_manager, ui_types, parent=parent
         )
         self.progress_widget = self.create_progress_widget(
-            core_constants.PUBLISHER, parent=self.parent()
+            core_constants.PUBLISHER
         )
 
     @staticmethod

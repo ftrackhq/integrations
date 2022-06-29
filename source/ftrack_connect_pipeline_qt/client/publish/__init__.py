@@ -44,7 +44,7 @@ class QtPublisherClientWidget(QtPublisherClient, QtWidgets.QFrame):
     '''
 
     def __init__(self, event_manager, parent=None):
-        QtWidgets.QFrame.__init__(self, parent=parent)
+        QtWidgets.QFrame.__init__(self)
         QtPublisherClient.__init__(self, event_manager)
 
         self.logger.debug('start qt publisher widget')
@@ -70,9 +70,7 @@ class QtPublisherClientWidget(QtPublisherClient, QtWidgets.QFrame):
             self.logger.warning(location_message)
 
         self.widget_factory = PublisherWidgetFactory(
-            self.event_manager,
-            self.ui_types,
-            parent=self.parent(),
+            self.event_manager, self.ui_types
         )
         self.is_valid_asset_name = False
         self.open_assembler_button = None
@@ -113,7 +111,7 @@ class QtPublisherClientWidget(QtPublisherClient, QtWidgets.QFrame):
 
     def build(self):
         '''Build widgets and parent them.'''
-        self.header = header.Header(self.session, parent=self)
+        self.header = header.Header(self.session)
         self.layout().addWidget(self.header)
         self.progress_widget = self.widget_factory.progress_widget
         self.header.content_container.layout().addWidget(
@@ -123,17 +121,15 @@ class QtPublisherClientWidget(QtPublisherClient, QtWidgets.QFrame):
         self.host_selector = host_selector.HostSelector(self)
         self.layout().addWidget(self.host_selector)
 
-        self.layout().addWidget(line.Line(style='solid', parent=self))
+        self.layout().addWidget(line.Line(style='solid'))
 
-        self.context_selector = ContextSelector(self.session, parent=self)
+        self.context_selector = ContextSelector(self.session)
         self.layout().addWidget(self.context_selector, QtCore.Qt.AlignTop)
 
-        self.layout().addWidget(line.Line(parent=self))
+        self.layout().addWidget(line.Line())
 
         self.definition_selector = (
-            definition_selector.PublisherDefinitionSelector(
-                parent=self.parent()
-            )
+            definition_selector.PublisherDefinitionSelector()
         )
         self.definition_selector.refreshed.connect(self.refresh)
 
