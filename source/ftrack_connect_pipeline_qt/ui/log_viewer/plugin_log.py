@@ -45,7 +45,7 @@ class PluginLogViewerWidget(QtWidgets.QWidget):
         '''Returns results'''
         return self._results
 
-    def __init__(self, event_manager, parent=None, dialog=None):
+    def __init__(self, event_manager, parent=None):
         '''Initialise LogViewerWidget with *event_manager* and *parent*
 
         *event_manager* should be the
@@ -55,7 +55,6 @@ class PluginLogViewerWidget(QtWidgets.QWidget):
         super(PluginLogViewerWidget, self).__init__(parent=parent)
 
         self._event_manager = event_manager
-        self._dialog = dialog
         self._results = []
 
         self.pre_build()
@@ -114,7 +113,6 @@ class PluginLogViewerWidget(QtWidgets.QWidget):
         Raises a dock widget with the log details.
         '''
 
-        print('@@@ parent: {}'.format(self._dialog))
         data = self.log_table_view.model().data(
             index, self.log_table_view.model().DATA_ROLE
         )
@@ -131,7 +129,7 @@ class PluginLogViewerWidget(QtWidgets.QWidget):
         )
 
         ModalDialog(
-            self._dialog,
+            self,
             title='View ftrack plugin log message',
             message=formated_text,
         )
