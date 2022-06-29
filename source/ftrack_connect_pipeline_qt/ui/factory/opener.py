@@ -15,9 +15,7 @@ class OpenerWidgetFactory(OpenerAssemblerWidgetFactoryBase):
         super(OpenerWidgetFactory, self).__init__(
             event_manager, ui_types, parent=parent
         )
-        self.progress_widget = OpenerWidgetFactory.create_progress_widget(
-            parent=self.parent()
-        )
+        self.progress_widget = OpenerWidgetFactory.create_progress_widget()
 
     @staticmethod
     def client_type():

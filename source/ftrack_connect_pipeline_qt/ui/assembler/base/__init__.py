@@ -128,8 +128,6 @@ class AssemblerBaseWidget(QtWidgets.QWidget):
         bottom_toolbar_widget.layout().setContentsMargins(4, 0, 4, 1)
         bottom_toolbar_widget.layout().setSpacing(6)
 
-        # bottom_toolbar_widget.layout().addWidget(line.Line(horizontal=False, parent=self.parent()))
-
         match_label = QtWidgets.QLabel('Match: ')
         match_label.setObjectName('gray-dark')
         bottom_toolbar_widget.layout().addWidget(match_label)
@@ -165,7 +163,7 @@ class AssemblerBaseWidget(QtWidgets.QWidget):
         self._label_info.setObjectName('gray')
         bottom_toolbar_widget.layout().addWidget(self._label_info)
 
-        self._search = Search(parent=self.parent())
+        self._search = Search()
         bottom_toolbar_widget.layout().addWidget(self._search)
 
         self._rebuild_button = CircularButton('sync')
@@ -547,9 +545,7 @@ class ComponentBaseWidget(AccordionBaseWidget):
 
     def init_options_button(self):
         self._options_button = ImporterOptionsButton(
-            'O',
-            icon.MaterialIcon('settings', color='gray'),
-            parent=self.parent(),
+            'O', icon.MaterialIcon('settings', color='gray')
         )
         self._options_button.setObjectName('borderless')
         self._options_button.clicked.connect(self._build_options)
@@ -637,9 +633,7 @@ class ComponentBaseWidget(AccordionBaseWidget):
         upper_layout.addWidget(self.init_options_button())
 
         self._widget_factory = AssemblerWidgetFactory(
-            self.event_manager,
-            self._assembler_widget.client.ui_types,
-            parent=self.parent(),
+            self.event_manager, self._assembler_widget.client.ui_types
         )
 
         header_layout.addWidget(upper_widget, 10)
@@ -835,10 +829,7 @@ class ImporterOptionsButton(OptionsButton):
         self.scroll.setWidget(self.main_widget)
 
         self.overlay_container = overlay.Overlay(
-            self.scroll,
-            width_percentage=0.6,
-            height_percentage=0.9,
-            parent=self.parent(),
+            self.scroll, width_percentage=0.6, height_percentage=0.9
         )
         self.overlay_container.setVisible(False)
 

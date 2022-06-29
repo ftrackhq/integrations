@@ -69,7 +69,7 @@ class QtAssetManagerClientWidget(QtAssetManagerClient, QtWidgets.QFrame):
         '''
         self._asset_list_model = asset_list_model
 
-        QtWidgets.QFrame.__init__(self, parent=parent)
+        QtWidgets.QFrame.__init__(self)
         QtAssetManagerClient.__init__(self, event_manager)
 
         self.is_assembler = is_assembler
@@ -123,24 +123,18 @@ class QtAssetManagerClientWidget(QtAssetManagerClient, QtWidgets.QFrame):
         if not self.is_assembler:
             self.header = header.Header(
                 self.session,
-                show_publisher=True,
-                parent=self.parent(),
             )
             self.layout().addWidget(self.header)
 
-            self.layout().addWidget(
-                line.Line(style='solid', parent=self.parent())
-            )
+            self.layout().addWidget(line.Line(style='solid'))
 
             self.host_selector = host_selector.HostSelector(self)
             self.layout().addWidget(self.host_selector)
 
-            self.context_selector = ContextSelector(
-                self.session, parent=self.parent()
-            )
+            self.context_selector = ContextSelector(self.session)
             self.layout().addWidget(self.context_selector, QtCore.Qt.AlignTop)
 
-            self.layout().addWidget(line.Line(parent=self.parent()))
+            self.layout().addWidget(line.Line())
 
         self.scroll = scroll_area.ScrollArea()
         self.scroll.setWidgetResizable(True)

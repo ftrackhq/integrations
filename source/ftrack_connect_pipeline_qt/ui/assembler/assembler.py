@@ -205,7 +205,7 @@ class AssemblerDependenciesWidget(AssemblerBaseWidget):
     def _on_dependencies_resolved(self, components):
         '''Create and deploy list of resolved components'''
         # Create component list
-        self._component_list = DependenciesListWidget(self, parent=self.client)
+        self._component_list = DependenciesListWidget(self)
         self.listWidgetCreated.emit(self._component_list)
         # self._asset_list.setStyleSheet('background-color: blue;')
 
@@ -628,10 +628,7 @@ class DependenciesListWidget(AssemblerListBaseWidget):
             # Append component accordion
 
             component_widget = self._asset_widget_class(
-                index,
-                self._assembler_widget,
-                self.model.event_manager,
-                parent=self.parent(),
+                index, self._assembler_widget, self.model.event_manager
             )
             set_property(
                 component_widget,
@@ -711,10 +708,7 @@ class BrowserListWidget(AssemblerListBaseWidget):
         '''Build component accordion widget'''
         (component, definitions, availability) = self.model.data(index)
         component_widget = self._asset_widget_class(
-            index,
-            self._assembler_widget,
-            self.model.event_manager,
-            parent=self.parent(),
+            index, self._assembler_widget, self.model.event_manager
         )
         set_property(
             component_widget,

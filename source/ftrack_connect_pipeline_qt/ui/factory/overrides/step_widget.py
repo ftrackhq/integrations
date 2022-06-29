@@ -73,17 +73,13 @@ class PublisherOptionsButton(OptionsButton):
         self.main_widget.setLayout(QtWidgets.QVBoxLayout())
         self.main_widget.layout().setAlignment(QtCore.Qt.AlignTop)
         self._component_widget = AccordionWidget(
-            title=self._name,
-            checkable=False,
-            collapsed=False,
-            parent=self.parent(),
+            title=self._name, checkable=False, collapsed=False
         )
         self.main_widget.layout().addWidget(self._component_widget)
         self.overlay_container = overlay.Overlay(
             self.main_widget,
             height_percentage=0.8,
             transparent_background=False,
-            parent=self.parent(),
         )
         self.overlay_container.setVisible(False)
 
@@ -100,7 +96,7 @@ class PublisherOptionsButton(OptionsButton):
     def add_validator_widget(self, widget):
         '''Add validator plugin container widget to overlay'''
         self._component_widget.add_widget(QtWidgets.QLabel(''))
-        self._component_widget.add_widget(line.Line(parent=self.parent()))
+        self._component_widget.add_widget(line.Line())
         self._component_widget.add_widget(QtWidgets.QLabel(''))
         self._component_widget.add_widget(
             QtWidgets.QLabel('<html><strong>Validators:<strong><html>')
@@ -110,7 +106,7 @@ class PublisherOptionsButton(OptionsButton):
     def add_exporter_widget(self, widget):
         '''Add exporter plugin container widget to overlay'''
         self._component_widget.add_widget(QtWidgets.QLabel(''))
-        self._component_widget.add_widget(line.Line(parent=self.parent()))
+        self._component_widget.add_widget(line.Line())
         self._component_widget.add_widget(QtWidgets.QLabel(''))
         self._component_widget.add_widget(
             QtWidgets.QLabel('<html><strong>Exporter:<strong><html>')
@@ -159,9 +155,7 @@ class PublisherAccordionWidget(AccordionBaseWidget):
     def init_options_button(self):
         '''Create widget representing publisher options'''
         self._options_button = PublisherOptionsButton(
-            self.title,
-            icon.MaterialIcon('settings', color='gray'),
-            parent=self.parent(),
+            self.title, icon.MaterialIcon('settings', color='gray')
         )
         self._options_button.setObjectName('borderless')
         return self._options_button
@@ -181,13 +175,9 @@ class PublisherAccordionWidget(AccordionBaseWidget):
         header_layout.addWidget(self.init_output_plugin_name_label())
         header_layout.addWidget(self.init_status_label())
         header_layout.addStretch()
-        header_layout.addWidget(
-            line.Line(horizontal=True, parent=self.parent())
-        )
+        header_layout.addWidget(line.Line(horizontal=True))
         header_layout.addWidget(self.init_options_button())
-        header_layout.addWidget(
-            line.Line(horizontal=True, parent=self.parent())
-        )
+        header_layout.addWidget(line.Line(horizontal=True))
         header_layout.addWidget(self.init_status_icon())
 
     def add_widget(self, widget):
@@ -243,10 +233,7 @@ class AccordionStepWidgetObject(BaseUIWidgetObject):
 
     def build(self):
         self._widget = AccordionWidget(
-            title="{}".format(self._name),
-            checkable=False,
-            collapsable=False,
-            parent=self.parent(),
+            title="{}".format(self._name), checkable=False, collapsable=False
         )
         self._widget.content.layout().setContentsMargins(0, 10, 0, 0)
 
@@ -291,10 +278,7 @@ class PublisherAccordionStepWidgetObject(BaseUIWidgetObject):
 
     def build(self):
         self._widget = PublisherAccordionWidget(
-            title=self.name,
-            checkable=self.optional,
-            checked=self._is_selected,
-            parent=self.parent(),
+            title=self.name, checkable=self.optional, checked=self._is_selected
         )
 
     def parent_validator(self, step_widget):
@@ -393,7 +377,7 @@ class RadioButtonStepWidgetObject(BaseUIWidgetObject):
 
     def build(self):
         self._button = QtWidgets.QRadioButton(self.name)
-        self._widget = QtWidgets.QWidget(parent=self.parent())
+        self._widget = QtWidgets.QWidget()
         self._widget.setLayout(QtWidgets.QHBoxLayout())
         self._widget.layout().addWidget(self.button)
 

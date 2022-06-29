@@ -100,7 +100,7 @@ class QtLogViewerClientWidget(QtLogViewerClient, dialog.Dialog):
 
     def build(self):
         '''Build widgets and parent them.'''
-        self.header = header.Header(self.session, parent=self.parent())
+        self.header = header.Header(self.session)
         self.layout().addWidget(self.header)
 
         self.host_selector = host_selector.HostSelector(self)
