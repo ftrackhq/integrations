@@ -93,12 +93,10 @@ class QtLogViewerClientWidget(QtLogViewerClient, dialog.Dialog):
         self.layout().setSpacing(0)
 
         self._plugin_log_viewer_widget = PluginLogViewerWidget(
-            self.event_manager, parent=self.parent()
+            self.event_manager
         )
 
-        self._file_log_viewer_widget = FileLogViewerWidget(
-            parent=self.parent()
-        )
+        self._file_log_viewer_widget = FileLogViewerWidget()
 
     def build(self):
         '''Build widgets and parent them.'''

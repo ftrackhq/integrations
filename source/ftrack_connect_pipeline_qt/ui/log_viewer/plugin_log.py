@@ -22,7 +22,6 @@ class PluginLogViewerWidget(QtWidgets.QWidget):
     TEMPLATE = """
     <div> <b>Status: </b>{status} </div> 
     <div> <b>Host_id: </b>{host_id} </div> 
-    <div> <b>Widget_ref: </b>{widget_ref} </div> 
     <div> <b>Execution_time: </b>{execution_time} sec.</div> 
     <div> <b>Plugin_name: </b>{plugin_name} </div> 
     <div> <b>Plugin_type: </b>{plugin_type} </div>
@@ -117,17 +116,16 @@ class PluginLogViewerWidget(QtWidgets.QWidget):
         formated_text = self.TEMPLATE.format(
             status=data.status,
             host_id=data.host_id,
-            widget_ref=data.widget_ref,
             execution_time=data.execution_time,
             plugin_name=data.plugin_name,
             plugin_type=data.plugin_type,
-            result=data.result,
-            message=data.message,
-            user_message=data.user_message,
+            result=data.result or '',
+            message=data.message or '',
+            user_message=data.user_message or '',
         )
 
         ModalDialog(
-            self.parent(),
+            self,
             title='View ftrack plugin log message',
             message=formated_text,
         )
@@ -168,7 +166,8 @@ class LogDialogTableView(QtWidgets.QTableView):
 
         self.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectRows)
 
-        self.horizontalHeader().setStretchLastSection(True)
+        # self.horizontalHeader().setStretchLastSection(True)
+        self.resizeColumnsToContents()
 
     def build(self):
         '''Build widgets and parent them.'''
@@ -188,56 +187,3 @@ class LogDialogTableView(QtWidgets.QTableView):
         Sets the :obj:`log_items` with the given *log_items*
         '''
         self.log_model.set_log_items(log_items)
-
-
-class LogViewerDetailWidget(QtWidgets.QDockWidget):
-    @property
-    def event_manager(self):
-        '''Returns event_manager'''
-        return self._event_manager
-
-    @property
-    def session(self):
-        '''Returns Session'''
-        return self.event_manager.session
-
-    @property
-    def results(self):
-        '''Returns Session'''
-        return self._results
-
-    def __init__(self, event_manager, parent=None):
-        super(LogViewerDetailWidget, self).__init__(parent=parent)
-
-        self._event_manager = event_manager
-        self._results = []
-
-        self.pre_build()
-        self.build()
-        self.post_build()
-
-    def pre_build(self):
-        pass
-
-    def build(self):
-        self.textEdit = QtWidgets.QTextEdit()
-        self.textEdit.setReadOnly(True)
-
-        self.setWidget(self.textEdit)
-
-    def post_build(self):
-        pass
-
-    def set_data(self, data):
-        formated_text = self.template.format(
-            status=data.status,
-            host_id=data.host_id,
-            widget_ref=data.widget_ref,
-            execution_time=data.execution_time,
-            plugin_name=data.plugin_name,
-            plugin_type=data.plugin_type,
-            result=data.result,
-            message=data.message,
-            user_message=data.user_message,
-        )
-        self.textEdit.setText(formated_text)
