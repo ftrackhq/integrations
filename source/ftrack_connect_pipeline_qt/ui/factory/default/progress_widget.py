@@ -59,7 +59,7 @@ class PhaseButton(QtWidgets.QPushButton):
 
         self.layout().addLayout(v_layout, 100)
 
-        self.log_widget = QtWidgets.QFrame(parent=self.parent())
+        self.log_widget = QtWidgets.QFrame()
         self.log_widget.setVisible(False)
         self.log_widget.setLayout(QtWidgets.QVBoxLayout())
         self.log_widget.layout().addSpacing(10)
@@ -72,9 +72,7 @@ class PhaseButton(QtWidgets.QPushButton):
             )
         )
         self.log_widget.layout().addWidget(self._close_button)
-        self.overlay_container = overlay.Overlay(
-            self.log_widget, parent=self.parent()
-        )
+        self.overlay_container = overlay.Overlay(self.log_widget)
         self.overlay_container.setVisible(False)
 
     def post_build(self):
@@ -193,15 +191,13 @@ class ProgressWidgetObject(BaseUIWidgetObject):
         self.step_types = []
 
     def build(self):
-        self._widget = StatusButtonWidget(
-            self._status_view_mode, parent=self.parent()
-        )
+        self._widget = StatusButtonWidget(self._status_view_mode)
         self.set_status_widget_visibility(False)
 
         self.scroll = scroll_area.ScrollArea()
         self.scroll.setWidgetResizable(True)
 
-        self.content_widget = QtWidgets.QFrame(parent=self.parent())
+        self.content_widget = QtWidgets.QFrame()
         self.content_widget.setObjectName('overlay')
         self.content_widget.setLayout(QtWidgets.QVBoxLayout())
         self.content_widget.layout().setContentsMargins(15, 15, 15, 15)
@@ -209,7 +205,7 @@ class ProgressWidgetObject(BaseUIWidgetObject):
         self.scroll.setWidget(self.content_widget)
 
         self.overlay_container = overlay.Overlay(
-            self.scroll, height_percentage=0.8, parent=self.parent()
+            self.scroll, height_percentage=0.8
         )
         self.overlay_container.setVisible(False)
 
@@ -231,15 +227,13 @@ class ProgressWidgetObject(BaseUIWidgetObject):
     def prepare_add_steps(self):
         self.clear_components()
         self.status_banner = StatusButtonWidget(
-            StatusButtonWidget.VIEW_EXPANDED_BANNER, parent=self.parent()
+            StatusButtonWidget.VIEW_EXPANDED_BANNER
         )
         self.content_widget.layout().addWidget(self.status_banner)
 
     def add_step(self, step_type, step_name, version_id=None):
         id_name = "{}.{}.{}".format(version_id or '-', step_type, step_name)
-        step_button = PhaseButton(
-            step_name, "Not started", parent=self.parent()
-        )
+        step_button = PhaseButton(step_name, "Not started")
         self._step_widgets[id_name] = step_button
         if step_type not in self.step_types:
             self.step_types.append(step_type)

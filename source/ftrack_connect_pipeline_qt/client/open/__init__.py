@@ -59,9 +59,7 @@ class QtOpenerClientWidget(QtOpenerClient, dialog.Dialog):
         if not definition_extensions_filter is None:
             self.definition_extensions_filter = definition_extensions_filter
         self.widget_factory = OpenerWidgetFactory(
-            self.event_manager,
-            self.ui_types,
-            parent=self.parent(),
+            self.event_manager, self.ui_types
         )
         self.open_assembler_button = None
         self.scroll = None  # Main content scroll pane
@@ -103,7 +101,7 @@ class QtOpenerClientWidget(QtOpenerClient, dialog.Dialog):
 
     def build(self):
         '''Build widgets and parent them.'''
-        self.header = header.Header(self.session, parent=self)
+        self.header = header.Header(self.session)
         self.layout().addWidget(self.header)
         self.progress_widget = self.widget_factory.progress_widget
         self.header.content_container.layout().addWidget(
@@ -113,17 +111,17 @@ class QtOpenerClientWidget(QtOpenerClient, dialog.Dialog):
         self.host_selector = host_selector.HostSelector(self)
         self.layout().addWidget(self.host_selector)
 
-        self.layout().addWidget(line.Line(style='solid', parent=self))
+        self.layout().addWidget(line.Line(style='solid'))
 
         self.context_selector = ContextSelector(
-            self.session, enble_context_change=True, parent=self.parent()
+            self.session, enble_context_change=True
         )
         self.layout().addWidget(self.context_selector, QtCore.Qt.AlignTop)
 
-        self.layout().addWidget(line.Line(parent=self))
+        self.layout().addWidget(line.Line())
 
         self.definition_selector = (
-            definition_selector.OpenerDefinitionSelector(parent=self.parent())
+            definition_selector.OpenerDefinitionSelector()
         )
         self.definition_selector.refreshed.connect(self.refresh)
 

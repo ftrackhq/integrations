@@ -800,7 +800,7 @@ class AssetWidget(AccordionBaseWidget):
             )
 
             if 0 < len(self._version_dependency_ids or []):
-                self.add_widget(line.Line(parent=self.parent()))
+                self.add_widget(line.Line())
 
                 dependencies_label = QtWidgets.QLabel(
                     'DEPENDENCIES({}):'.format(
@@ -851,7 +851,7 @@ class AssetWidget(AccordionBaseWidget):
                             )
                         )
 
-                self.add_widget(line.Line(parent=self.parent()))
+                self.add_widget(line.Line())
 
             self.content.layout().addStretch()
 

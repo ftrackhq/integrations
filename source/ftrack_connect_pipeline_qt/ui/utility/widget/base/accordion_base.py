@@ -171,7 +171,7 @@ class AccordionBaseWidget(QtWidgets.QFrame):
         self.layout().setSpacing(0)
 
     def build(self):
-        self._indicator_widget = QtWidgets.QFrame(parent=self.parent())
+        self._indicator_widget = QtWidgets.QFrame()
         self._indicator_widget.setMaximumWidth(4)
         self._indicator_widget.setMinimumWidth(4)
         self._indicator_widget.setVisible(False)
@@ -207,7 +207,7 @@ class AccordionBaseWidget(QtWidgets.QFrame):
 
     def _init_content(self):
         '''Initialize the content'''
-        self._content = QtWidgets.QFrame(parent=self.parent())
+        self._content = QtWidgets.QFrame()
         self._content.setLayout(QtWidgets.QVBoxLayout())
 
         self._content.layout().setContentsMargins(2, 2, 2, 2)

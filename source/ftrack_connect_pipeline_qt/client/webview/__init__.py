@@ -29,7 +29,7 @@ class QtWebViewClientWidget(Client, dialog.Dialog):
         :param event_manager: :class:`~ftrack_connect_pipeline.event.EventManager` instance
         :param parent: The parent dialog or frame
         '''
-        dialog.Dialog.__init__(self, parent=parent)
+        dialog.Dialog.__init__(self)
         Client.__init__(self, event_manager)
 
         self._context = None
@@ -56,11 +56,9 @@ class QtWebViewClientWidget(Client, dialog.Dialog):
     # Build
 
     def pre_build(self):
-        self._header = header.Header(self.session, parent=self.parent())
+        self._header = header.Header(self.session)
         self.host_selector = host_selector.HostSelector(self)
-        self._web_engine_view = QtWebEngineWidgets.QWebEngineView(
-            parent=self.parent()
-        )
+        self._web_engine_view = QtWebEngineWidgets.QWebEngineView()
         self.setLayout(QtWidgets.QVBoxLayout())
         self.layout().setContentsMargins(0, 0, 0, 0)
         self.layout().setSpacing(0)
@@ -68,7 +66,7 @@ class QtWebViewClientWidget(Client, dialog.Dialog):
     def build(self):
         self.layout().addWidget(self._header)
         self.layout().addWidget(self.host_selector)
-        self.layout().addWidget(line.Line(style='solid', parent=self))
+        self.layout().addWidget(line.Line(style='solid'))
         self.layout().addWidget(self._web_engine_view, 100)
 
     def post_build(self):
@@ -108,9 +106,7 @@ class QtInfoWebViewClientWidget(QtWebViewClientWidget):
     '''Show the current context(task) info within a web client dialog'''
 
     def __init__(self, event_manger, parent=None):
-        super(QtInfoWebViewClientWidget, self).__init__(
-            event_manger, parent=parent
-        )
+        super(QtInfoWebViewClientWidget, self).__init__(event_manger)
         self.setWindowTitle('Task info')
 
     def get_url(self):
@@ -121,9 +117,7 @@ class QtTasksWebViewClientWidget(QtWebViewClientWidget):
     '''Show assigned tasks with a web client dialog'''
 
     def __init__(self, event_manger, parent=None):
-        super(QtTasksWebViewClientWidget, self).__init__(
-            event_manger, parent=parent
-        )
+        super(QtTasksWebViewClientWidget, self).__init__(event_manger)
         self.setWindowTitle('My Tasks')
 
     def get_url(self):

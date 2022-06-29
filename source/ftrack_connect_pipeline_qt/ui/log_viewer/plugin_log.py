@@ -74,9 +74,7 @@ class PluginLogViewerWidget(QtWidgets.QWidget):
         toolbar_layout.setContentsMargins(5, 5, 5, 5)
         toolbar_layout.setSpacing(5)
 
-        self._search = Search(
-            collapsed=False, collapsable=False, parent=self.parent()
-        )
+        self._search = Search(collapsed=False, collapsable=False)
         toolbar_layout.addWidget(self._search, 10)
 
         self.refresh_button = CircularButton('sync')
@@ -84,9 +82,7 @@ class PluginLogViewerWidget(QtWidgets.QWidget):
 
         self.layout().addLayout(toolbar_layout)
 
-        self.log_table_view = LogDialogTableView(
-            self.event_manager, parent=self.parent()
-        )
+        self.log_table_view = LogDialogTableView(self.event_manager)
 
         self._scroll = scroll_area.ScrollArea()
         self._scroll.setWidgetResizable(True)
@@ -176,9 +172,9 @@ class LogDialogTableView(QtWidgets.QTableView):
 
     def build(self):
         '''Build widgets and parent them.'''
-        self.log_model = LogTableModel(parent=self.parent())
+        self.log_model = LogTableModel()
 
-        self.proxy_model = FilterProxyModel(parent=self.parent())
+        self.proxy_model = FilterProxyModel()
         self.proxy_model.setSourceModel(self.log_model)
 
         self.setModel(self.proxy_model)

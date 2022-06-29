@@ -53,11 +53,6 @@ class WidgetFactoryBase(QtWidgets.QWidget):
         return self._widgets_ref
 
     @property
-    def type_widgets(self):
-        '''Return registered type widgets.'''
-        return self._type_widgets_ref
-
-    @property
     def host_connection(self):
         '''Return the host connection'''
         return self._host_connection
@@ -105,7 +100,6 @@ class WidgetFactoryBase(QtWidgets.QWidget):
         self._widgets_ref = {}
         self._step_objs_ref = {}
         self._stage_objs_ref = {}
-        self._type_widgets_ref = {}
         self.context_id = None
         self.asset_type_name = None
         self._host_connection = None
@@ -151,7 +145,7 @@ class WidgetFactoryBase(QtWidgets.QWidget):
         if obj_override == qt_constants.NOT_SET:
             obj_override = UI_OVERRIDES.get(type_name).get(widget_type)
         if obj_override and obj_override != qt_constants.NOT_SET:
-            return obj_override(name, data, parent=self.parent())
+            return obj_override(name, data)
         return obj_override
 
     @staticmethod
@@ -170,9 +164,7 @@ class WidgetFactoryBase(QtWidgets.QWidget):
         '''
         Return the main widget
         '''
-        return UI_OVERRIDES.get('main_widget')(
-            None, None, parent=self.parent()
-        )
+        return UI_OVERRIDES.get('main_widget')(None, None)
 
     @staticmethod
     def client_type():
@@ -326,7 +318,7 @@ class WidgetFactoryBase(QtWidgets.QWidget):
 
         main_obj.widget.layout().addWidget(self.context_obj.widget)
 
-        main_obj.widget.layout().addWidget(line.Line(parent=self.parent()))
+        main_obj.widget.layout().addWidget(line.Line())
 
         self.components_section = QtWidgets.QWidget()
         self.components_section.setLayout(QtWidgets.QVBoxLayout())
@@ -681,10 +673,6 @@ class WidgetFactoryBase(QtWidgets.QWidget):
                 return self._stage_objs_ref[data['widget_ref']]
             if category == 'step':
                 return self._step_objs_ref[data['widget_ref']]
-
-    def reset_type_widget_plugin(self):
-        '''empty :obj:`type_widgets_ref`'''
-        self._type_widgets_ref = {}
 
     def query_asset_version_from_version_id(self, version_id):
         '''Retreive asset version from ftrack based on its *version_id*'''

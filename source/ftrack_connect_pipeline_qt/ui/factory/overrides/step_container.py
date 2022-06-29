@@ -22,7 +22,7 @@ class GroupBoxStepContainerWidgetObject(BaseUIWidgetObject):
         )
 
     def build(self):
-        self._widget = group_box.GroupBox(self.name, parent=self.parent())
+        self._widget = group_box.GroupBox(self.name)
         main_layout = QtWidgets.QVBoxLayout()
         self.widget.setLayout(main_layout)
 
@@ -43,7 +43,6 @@ class AccordionStepContainerWidgetObject(BaseUIWidgetObject):
             title="{}: 0 components selected".format(self._name),
             checkable=False,
             collapsed=False,
-            parent=self.parent(),
         )
 
     def update_selected_components(self, enabled, total):

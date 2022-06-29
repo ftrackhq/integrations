@@ -178,9 +178,7 @@ class EntityBrowser(dialog.ModalDialog):
 
         widget.layout().addWidget(toolbar)
 
-        self._search = Search(
-            collapsed=False, collapsable=False, parent=self.parent()
-        )
+        self._search = Search(collapsed=False, collapsable=False)
         self._search.inputUpdated.connect(self._on_search)
         widget.layout().addWidget(self._search)
 
@@ -283,10 +281,8 @@ class EntityBrowser(dialog.ModalDialog):
         self.working = True
         self.entity_widgets = []
 
-        self._busy_indicator = BusyIndicator(parent=self)
-        self._scroll.setWidget(
-            center_widget(self._busy_indicator, 30, 30, parent=self)
-        )
+        self._busy_indicator = BusyIndicator()
+        self._scroll.setWidget(center_widget(self._busy_indicator, 30, 30))
 
         self.update()
 
@@ -344,7 +340,6 @@ class EntityBrowser(dialog.ModalDialog):
                     False,
                     self,
                     is_parent=True,
-                    parent=self.parent(),
                 )
                 parent_entity_widget.clicked.connect(
                     partial(
@@ -362,9 +357,7 @@ class EntityBrowser(dialog.ModalDialog):
                 entities_widget.layout().addWidget(parent_entity_widget)
                 self.entity_widgets.append(parent_entity_widget)
             for entity in entities:
-                entity_widget = EntityWidget(
-                    entity, False, self, parent=self.parent()
-                )
+                entity_widget = EntityWidget(entity, False, self)
                 entity_widget.clicked.connect(
                     partial(self._entity_selected, entity)
                 )
@@ -377,7 +370,7 @@ class EntityBrowser(dialog.ModalDialog):
                     for sub_entity in entity['children']:
                         if sub_entity.entity_type == 'Task':
                             sub_entity_widget = EntityWidget(
-                                sub_entity, True, self, parent=self.parent()
+                                sub_entity, True, self
                             )
                             sub_entity_widget.clicked.connect(
                                 partial(self._entity_selected, sub_entity)
@@ -577,7 +570,7 @@ class EntityBrowserNavigator(InputEventBlockingWidget):
 
             if self.entity:
                 for index, link in enumerate(self.entity['link']):
-                    button = NavigationEntityButton(link, parent=self.parent())
+                    button = NavigationEntityButton(link)
                     button.clicked.connect(
                         partial(self._on_entity_changed, button.link_entity)
                     )
@@ -757,7 +750,7 @@ class EntityWidget(QtWidgets.QFrame):
             lower_widget.layout().addWidget(sub_path)
 
         if not self.is_parent:
-            type_widget = TypeWidget(self.entity, parent=self.parent())
+            type_widget = TypeWidget(self.entity)
             lower_widget.layout().addWidget(type_widget)
 
         lower_widget.layout().addWidget(QtWidgets.QLabel(), 100)

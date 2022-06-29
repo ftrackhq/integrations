@@ -74,7 +74,7 @@ class Header(QtWidgets.QFrame):
         self._launch_publisher_button = circular_button.CircularButton(
             'publish', '#79DFB6'
         )
-        self.user = User(self.session, parent=self.parent())
+        self.user = User(self.session)
 
         self.id_container_layout.addWidget(self.logo)
         if len(self._title or ''):
@@ -155,7 +155,7 @@ class User(QtWidgets.QFrame):
     def build(self):
         username = self.session.api_user
         # self.label = QtWidgets.QLabel(self)
-        self.image = thumbnail.User(self.session, parent=self.parent())
+        self.image = thumbnail.User(self.session)
         self.image.setFixedSize(35, 35)
 
         self.layout().addWidget(self.image)

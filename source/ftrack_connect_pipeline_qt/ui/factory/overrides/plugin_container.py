@@ -59,9 +59,7 @@ class AccordionPluginContainerWidgetObject(BaseUIWidgetObject):
         )
 
     def build(self):
-        self._widget = PluginAccordion(
-            title=self.name, checkable=True, parent=self.parent()
-        )
+        self._widget = PluginAccordion(title=self.name, checkable=True)
 
     def parent_widget(self, widget):
         '''(Override)'''
