@@ -507,3 +507,10 @@ class QtAssetManagerClientWidget(
     def _launch_context_selector(self):
         '''Open entity browser'''
         self.host_connection.launch_client(qt_constants.CHANGE_CONTEXT_WIDGET)
+
+    def closeEvent(self, e):
+        super(QtClient, self).closeEvent(e)
+        if self.asset_manager_widget.client_notification_subscribe_id:
+            self.session.unsubscribe(
+                self.asset_manager_widget.client_notification_subscribe_id
+            )

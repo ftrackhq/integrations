@@ -79,6 +79,7 @@ class AssetManagerWidget(AssetManagerBaseWidget):
         :param parent:  The parent dialog or window
         '''
         self._client = asset_manager_client
+        self.client_notification_subscribe_id = None
         super(AssetManagerWidget, self).__init__(
             asset_manager_client.is_assembler,
             asset_manager_client.event_manager,
@@ -403,12 +404,14 @@ class AssetManagerWidget(AssetManagerBaseWidget):
         _update_widget function when the host returns and answer through the
         same topic'''
 
-        self.session.event_hub.subscribe(
-            'topic={} and data.pipeline.host_id={}'.format(
-                core_constants.PIPELINE_CLIENT_NOTIFICATION,
-                self.host_connection.id,
-            ),
-            self._update_widget,
+        self.client_notification_subscribe_id = (
+            self.session.event_hub.subscribe(
+                'topic={} and data.pipeline.host_id={}'.format(
+                    core_constants.PIPELINE_CLIENT_NOTIFICATION,
+                    self.host_connection.id,
+                ),
+                self._update_widget,
+            )
         )
 
     def _on_refresh(self):
