@@ -35,7 +35,7 @@ class QtAssetManagerClient(AssetManagerClient):
     '''
 
     def __init__(self, event_manager):
-        AssetManagerClient.__init__(self, event_manager)
+        super(AssetManagerClient, self).__init__(event_manager)
 
         self.logger.debug('start qt asset manager')
 
