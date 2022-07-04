@@ -80,8 +80,11 @@ class BaseCollectorWidget(BaseOptionsWidget):
         select_action_widget.setData('ctx_select')
         remove_action_widget = QtWidgets.QAction('Remove', self)
         remove_action_widget.setData('ctx_remove')
+        clear_action_widget = QtWidgets.QAction('Clear', self)
+        clear_action_widget.setData('ctx_clear')
         self.menu.addAction(select_action_widget)
         self.menu.addAction(remove_action_widget)
+        self.menu.addAction(clear_action_widget)
         self.menu.triggered.connect(self.menu_triggered)
 
         # add other required actions
@@ -170,7 +173,7 @@ class BaseCollectorWidget(BaseOptionsWidget):
 
     def ctx_remove(self):
         '''
-        Triggered when select action menu been clicked.
+        Triggered when remove action menu been clicked.
         '''
         selected_widget_items = self.list_widget.selectedItems()
         for item in selected_widget_items:
@@ -185,6 +188,13 @@ class BaseCollectorWidget(BaseOptionsWidget):
                 )
             row = self.list_widget.row(item)
             self.list_widget.takeItem(row)
+        self.report_input()
+
+    def ctx_clear(self):
+        '''
+        Triggered when clear action menu been clicked.
+        '''
+        self.list_widget.clear()
         self.report_input()
 
     def report_input(self):
