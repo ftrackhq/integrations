@@ -13,6 +13,7 @@ from ftrack_connect_pipeline import client, constants as client_constants
 from ftrack_connect_pipeline.client.log_viewer import LogViewerClient
 
 from ftrack_connect_pipeline_qt import constants as qt_constants
+from ftrack_connect_pipeline_qt.client import QtClient
 from ftrack_connect_pipeline_qt.utils import get_theme, set_theme
 from ftrack_connect_pipeline_qt.ui.log_viewer.plugin_log import (
     PluginLogViewerWidget,
@@ -47,7 +48,7 @@ class QtLogViewerClient(LogViewerClient):
         self.logger.debug('start qt log viewer')
 
 
-class QtLogViewerClientWidget(QtLogViewerClient, dialog.Dialog):
+class QtLogViewerClientWidget(QtClient, QtLogViewerClient, dialog.Dialog):
     '''
     Log viewer client widget
     '''
@@ -63,6 +64,7 @@ class QtLogViewerClientWidget(QtLogViewerClient, dialog.Dialog):
         '''
 
         dialog.Dialog.__init__(self, parent=parent)
+        QtClient.__init__(self)
         QtLogViewerClient.__init__(self, event_manager)
 
         set_theme(self, get_theme())
@@ -144,8 +146,8 @@ class QtLogViewerClientWidget(QtLogViewerClient, dialog.Dialog):
 
     # Context
 
-    def on_context_changed(self, context_id):
-        '''(Override) Context has been evaluated'''
+    def on_context_changed_sync(self, context_id):
+        '''(Override) Context has been changed'''
         pass
 
     # Use

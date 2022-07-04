@@ -18,6 +18,7 @@ from ftrack_connect_pipeline_qt.ui.utility.widget.button import (
 
 from ftrack_connect_pipeline_qt.utils import get_theme, set_theme
 from ftrack_connect_pipeline_qt import constants as qt_constants
+from ftrack_connect_pipeline_qt.client import QtClient
 from ftrack_connect_pipeline_qt.ui.utility.widget.dialog import ModalDialog
 from ftrack_connect_pipeline_qt.ui.utility.widget import (
     dialog,
@@ -49,14 +50,12 @@ class QtLoaderClient(LoaderClient):
     Loader client class, as assembler is based on
     '''
 
-    ui_types = [client_constants.UI_TYPE, qt_constants.UI_TYPE]
-
     def __init__(self, event_manager):
         super(QtLoaderClient, self).__init__(event_manager)
         self.logger.debug('start qt loader')
 
 
-class QtAssemblerClientWidget(QtLoaderClient, dialog.Dialog):
+class QtAssemblerClientWidget(QtClient, QtLoaderClient, dialog.Dialog):
     '''
     Compound client dialog containing the assembler based on loader with the
     asset manager docked. Designed to ease to the load of dependencies and browsed
@@ -85,6 +84,7 @@ class QtAssemblerClientWidget(QtLoaderClient, dialog.Dialog):
         :param parent:
         '''
         dialog.Dialog.__init__(self, parent=parent)
+        QtClient.__init__(self)
         QtLoaderClient.__init__(self, event_manager)
 
         self.logger.debug('start qt assembler')
@@ -278,7 +278,7 @@ class QtAssemblerClientWidget(QtLoaderClient, dialog.Dialog):
 
     # Context
 
-    def on_context_changed(self, context_id):
+    def on_context_changed_sync(self, context_id):
         '''(Override) Context has been set'''
         if not shiboken2.isValid(self):
             # Widget has been closed while context changed

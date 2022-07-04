@@ -12,6 +12,7 @@ from ftrack_connect_pipeline_qt.ui.utility.widget.button import RemoveButton
 
 from ftrack_connect_pipeline_qt.utils import get_theme, set_theme
 from ftrack_connect_pipeline_qt import constants as qt_constants
+from ftrack_connect_pipeline_qt.client import QtClient
 from ftrack_connect_pipeline_qt.ui.utility.widget import (
     header,
     host_selector,
@@ -33,14 +34,15 @@ class QtAssetManagerClient(AssetManagerClient):
     QtAssetManagerClient class.
     '''
 
-    ui_types = [core_constants.UI_TYPE, qt_constants.UI_TYPE]
-
     def __init__(self, event_manager):
-        super(QtAssetManagerClient, self).__init__(event_manager)
+        AssetManagerClient.__init__(self, event_manager)
+
         self.logger.debug('start qt asset manager')
 
 
-class QtAssetManagerClientWidget(QtAssetManagerClient, QtWidgets.QFrame):
+class QtAssetManagerClientWidget(
+    QtClient, QtAssetManagerClient, QtWidgets.QFrame
+):
     '''
     QtAssetManagerClientWidget class.
     '''
@@ -70,6 +72,7 @@ class QtAssetManagerClientWidget(QtAssetManagerClient, QtWidgets.QFrame):
         self._asset_list_model = asset_list_model
 
         QtWidgets.QFrame.__init__(self)
+        QtClient.__init__(self)
         QtAssetManagerClient.__init__(self, event_manager)
 
         self.is_assembler = is_assembler
@@ -217,7 +220,7 @@ class QtAssetManagerClientWidget(QtAssetManagerClient, QtWidgets.QFrame):
 
     # Context
 
-    def on_context_changed(self, context_id):
+    def on_context_changed_sync(self, context_id):
         '''(Override) Context has been evaluated'''
         if not self.is_assembler:
             self.context_selector.context_id = context_id
