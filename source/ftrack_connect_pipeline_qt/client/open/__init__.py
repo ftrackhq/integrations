@@ -44,8 +44,6 @@ class QtOpenerClientWidget(QtClient, QtOpenerClient, dialog.Dialog):
     Opener client widget class.
     '''
 
-    ui_types = [core_constants.UI_TYPE, qt_constants.UI_TYPE]
-
     def __init__(
         self, event_manager, definition_extensions_filter=None, parent=None
     ):
