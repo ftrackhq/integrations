@@ -5,6 +5,11 @@
 Releases
 ########
 
+.. release:: Upcoming
+
+   .. change:: fixed
+
+        logo.svg used in linux shortcut does not exist.
 
 .. release:: 2.0.0-rc-6
     :date: 2022-06-07
@@ -12,6 +17,7 @@ Releases
    .. change:: changed
 
         Remove plugin manager from package.
+
 .. release:: 2.0.0-rc-5
     :date: 2022-03-25
 
