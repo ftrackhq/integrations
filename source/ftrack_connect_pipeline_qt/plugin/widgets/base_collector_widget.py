@@ -182,8 +182,8 @@ class BaseCollectorWidget(BaseOptionsWidget):
                 self._collected_objects.remove(item.text())
             except ValueError as ve:
                 self.logger.warning(
-                    'Could not remove "{}" from collected objects() Details: {}'.format(
-                        item.text(), self._collected_objects, ve
+                    'Could not remove "{}" from {} collected object(s) Details: {}'.format(
+                        item.text(), len(self._collected_objects), ve
                     )
                 )
             row = self.list_widget.row(item)
@@ -194,6 +194,7 @@ class BaseCollectorWidget(BaseOptionsWidget):
         '''
         Triggered when clear action menu been clicked.
         '''
+        self._collected_objects = []
         self.list_widget.clear()
         self.report_input()
 
