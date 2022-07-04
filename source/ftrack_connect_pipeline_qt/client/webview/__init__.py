@@ -29,7 +29,7 @@ class QtWebViewClientWidget(Client, dialog.Dialog):
         :param event_manager: :class:`~ftrack_connect_pipeline.event.EventManager` instance
         :param parent: The parent dialog or frame
         '''
-        dialog.Dialog.__init__(self)
+        dialog.Dialog.__init__(self, parent)
         Client.__init__(self, event_manager)
 
         self._context = None
