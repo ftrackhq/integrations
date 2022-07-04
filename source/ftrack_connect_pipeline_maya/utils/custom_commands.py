@@ -159,8 +159,13 @@ def init_maya(host, from_context=False):
         # Set default values from environments.
         start_frame = os.environ.get('FS', 0)
         end_frame = os.environ.get('FE', 100)
-        if 'FPS' in os.environ:
-            fps = float(os.environ['FPS'])
+        if 'FPS' in os.environ and len(os.environ['FPS'] or '') > 0:
+            try:
+                fps = float(os.environ['FPS'])
+            except:
+                import traceback
+
+                logger.warning(traceback.format_exc())
 
     logger.info('Setting start frame : {}'.format(start_frame))
     cmds.setAttr('defaultRenderGlobals.startFrame', start_frame)
