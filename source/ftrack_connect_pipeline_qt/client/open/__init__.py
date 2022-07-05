@@ -194,9 +194,9 @@ class QtOpenerClientWidget(QtWidgetMixin, QtOpenerClient, dialog.Dialog):
             # Send context id to host and other listening clients
             self.host_connection.context_id = context['id']
 
-    def on_context_changed_sync(self, contexts_id):
+    def on_context_changed_sync(self, context_id):
         '''Override'''
-        self.context_selector.context_id = self.context_id
+        self.context_selector.context_id = context_id
 
         # Reset definition selector and clear client
         self._clear_widget()
