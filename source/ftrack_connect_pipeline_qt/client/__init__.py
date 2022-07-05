@@ -7,7 +7,7 @@ from ftrack_connect_pipeline import constants as core_constants
 from ftrack_connect_pipeline_qt import constants as qt_constants
 
 
-class QtClient:
+class QtWidgetMixin:
     '''Minimal QT client class handling async processing of host callbacks'''
 
     ui_types = [core_constants.UI_TYPE, qt_constants.UI_TYPE]
@@ -22,7 +22,7 @@ class QtClient:
         self.contextChanged.emit(context_id)
 
     def closeEvent(self, e):
-        super(QtClient, self).closeEvent(e)
+        super(QtWidgetMixin, self).closeEvent(e)
         # Unsubscribe to events
         if self.context_change_subscribe_id:
             self.logger.debug('closing qt client')

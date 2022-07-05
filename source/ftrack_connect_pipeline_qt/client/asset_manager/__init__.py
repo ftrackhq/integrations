@@ -12,7 +12,7 @@ from ftrack_connect_pipeline_qt.ui.utility.widget.button import RemoveButton
 
 from ftrack_connect_pipeline_qt.utils import get_theme, set_theme
 from ftrack_connect_pipeline_qt import constants as qt_constants
-from ftrack_connect_pipeline_qt.client import QtClient
+from ftrack_connect_pipeline_qt.client import QtWidgetMixin
 from ftrack_connect_pipeline_qt.ui.utility.widget import (
     header,
     host_selector,
@@ -41,7 +41,7 @@ class QtAssetManagerClient(AssetManagerClient):
 
 
 class QtAssetManagerClientWidget(
-    QtClient, QtAssetManagerClient, QtWidgets.QFrame
+    QtWidgetMixin, QtAssetManagerClient, QtWidgets.QFrame
 ):
     '''
     QtAssetManagerClientWidget class.
@@ -72,7 +72,7 @@ class QtAssetManagerClientWidget(
         self._asset_list_model = asset_list_model
 
         QtWidgets.QFrame.__init__(self)
-        QtClient.__init__(self)
+        QtWidgetMixin.__init__(self)
         QtAssetManagerClient.__init__(self, event_manager)
 
         self.is_assembler = is_assembler
@@ -509,7 +509,7 @@ class QtAssetManagerClientWidget(
         self.host_connection.launch_client(qt_constants.CHANGE_CONTEXT_WIDGET)
 
     def closeEvent(self, e):
-        super(QtClient, self).closeEvent(e)
+        super(QtWidgetMixin, self).closeEvent(e)
         if self.asset_manager_widget.client_notification_subscribe_id:
             self.session.unsubscribe(
                 self.asset_manager_widget.client_notification_subscribe_id

@@ -18,7 +18,7 @@ from ftrack_connect_pipeline_qt.ui.utility.widget.button import (
 
 from ftrack_connect_pipeline_qt.utils import get_theme, set_theme
 from ftrack_connect_pipeline_qt import constants as qt_constants
-from ftrack_connect_pipeline_qt.client import QtClient
+from ftrack_connect_pipeline_qt.client import QtWidgetMixin
 from ftrack_connect_pipeline_qt.ui.utility.widget.dialog import ModalDialog
 from ftrack_connect_pipeline_qt.ui.utility.widget import (
     dialog,
@@ -55,7 +55,7 @@ class QtLoaderClient(LoaderClient):
         self.logger.debug('start qt loader')
 
 
-class QtAssemblerClientWidget(QtClient, QtLoaderClient, dialog.Dialog):
+class QtAssemblerClientWidget(QtWidgetMixin, QtLoaderClient, dialog.Dialog):
     '''
     Compound client dialog containing the assembler based on loader with the
     asset manager docked. Designed to ease to the load of dependencies and browsed
@@ -84,7 +84,7 @@ class QtAssemblerClientWidget(QtClient, QtLoaderClient, dialog.Dialog):
         :param parent:
         '''
         dialog.Dialog.__init__(self, parent=parent)
-        QtClient.__init__(self)
+        QtWidgetMixin.__init__(self)
         QtLoaderClient.__init__(self, event_manager)
 
         self.logger.debug('start qt assembler')

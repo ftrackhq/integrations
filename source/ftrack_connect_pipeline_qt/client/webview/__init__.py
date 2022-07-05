@@ -8,7 +8,7 @@ from PySide2 import (
 )  # Qt.py does not provide QtWebEngineWidgets
 
 from ftrack_connect_pipeline.client import Client
-from ftrack_connect_pipeline_qt.client import QtClient
+from ftrack_connect_pipeline_qt.client import QtWidgetMixin
 from ftrack_connect_pipeline_qt.ui.utility.widget import (
     dialog,
     header,
@@ -19,7 +19,7 @@ from ftrack_connect_pipeline_qt.ui.utility.widget import (
 from ftrack_connect_pipeline_qt.utils import get_theme, set_theme
 
 
-class QtWebViewClientWidget(QtClient, Client, dialog.Dialog):
+class QtWebViewClientWidget(QtWidgetMixin, Client, dialog.Dialog):
     '''Web widget viewer client base - a dialog for rendering web content within
     framework'''
 
@@ -31,7 +31,7 @@ class QtWebViewClientWidget(QtClient, Client, dialog.Dialog):
         :param parent: The parent dialog or frame
         '''
         dialog.Dialog.__init__(self)
-        QtClient.__init__(self)
+        QtWidgetMixin.__init__(self)
         Client.__init__(self, event_manager)
 
         self._context = None

@@ -11,7 +11,7 @@ from ftrack_connect_pipeline_qt.ui.utility.widget.button import (
     OpenAssemblerButton,
 )
 
-from ftrack_connect_pipeline_qt.client import QtClient
+from ftrack_connect_pipeline_qt.client import QtWidgetMixin
 from ftrack_connect_pipeline_qt.utils import get_theme, set_theme
 from ftrack_connect_pipeline_qt import constants as qt_constants
 
@@ -39,7 +39,7 @@ class QtOpenerClient(OpenerClient):
         self.logger.debug('start qt opener')
 
 
-class QtOpenerClientWidget(QtClient, QtOpenerClient, dialog.Dialog):
+class QtOpenerClientWidget(QtWidgetMixin, QtOpenerClient, dialog.Dialog):
     '''
     Opener client widget class.
     '''
@@ -48,7 +48,7 @@ class QtOpenerClientWidget(QtClient, QtOpenerClient, dialog.Dialog):
         self, event_manager, definition_extensions_filter=None, parent=None
     ):
         dialog.Dialog.__init__(self, parent=parent)
-        QtClient.__init__(self)
+        QtWidgetMixin.__init__(self)
         QtOpenerClient.__init__(self, event_manager)
 
         self.logger.debug('start qt opener')
