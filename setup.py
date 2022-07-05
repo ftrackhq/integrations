@@ -200,6 +200,7 @@ if sys.platform in ('darwin', 'win32', 'linux'):
             'resource/ftrack_connect_package_version.py'
         ),
         ('qt.conf', 'qt.conf'),
+        ('logo.svg', 'logo.svg'),
         (distutils_path, 'distutils'),
         (encodings_path, 'encodings')
     ]
