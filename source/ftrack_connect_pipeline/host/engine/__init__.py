@@ -238,7 +238,6 @@ class BaseEngine(object):
                 break
 
         self._notify_client(plugin, result_data)
-        self.logger.debug("_notify_client: {}".format(plugin, result_data))
         return result_data
 
     def _notify_client(self, plugin, result_data):
