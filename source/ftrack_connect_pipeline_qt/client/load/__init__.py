@@ -50,6 +50,8 @@ class QtLoaderClient(LoaderClient):
     Loader client class, as assembler is based on
     '''
 
+    ui_types = [core_constants.UI_TYPE, qt_constants.UI_TYPE]
+
     def __init__(self, event_manager):
         super(QtLoaderClient, self).__init__(event_manager)
         self.logger.debug('start qt loader')

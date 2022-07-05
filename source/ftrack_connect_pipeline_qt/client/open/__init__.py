@@ -34,6 +34,8 @@ class QtOpenerClient(OpenerClient):
     Client for opening a snapshot in DCC and proceed work leading up to a publish
     '''
 
+    ui_types = [core_constants.UI_TYPE, qt_constants.UI_TYPE]
+
     def __init__(self, event_manager):
         super(QtOpenerClient, self).__init__(event_manager)
         self.logger.debug('start qt opener')

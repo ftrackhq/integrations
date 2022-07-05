@@ -32,6 +32,8 @@ class QtPublisherClient(PublisherClient):
     Client for publishing DCC asset data to ftrack and storage, through location system
     '''
 
+    ui_types = [core_constants.UI_TYPE, qt_constants.UI_TYPE]
+
     def __init__(self, event_manager):
         super(QtPublisherClient, self).__init__(event_manager)
         self.logger.debug('start qt publisher')

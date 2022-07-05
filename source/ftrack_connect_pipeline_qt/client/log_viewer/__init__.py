@@ -9,7 +9,7 @@ import subprocess
 
 from Qt import QtGui, QtCore, QtWidgets
 
-from ftrack_connect_pipeline import client, constants as client_constants
+from ftrack_connect_pipeline import client, constants as core_constants
 from ftrack_connect_pipeline.client.log_viewer import LogViewerClient
 
 from ftrack_connect_pipeline_qt import constants as qt_constants
@@ -41,7 +41,7 @@ class QtLogViewerClient(LogViewerClient):
     Client for displaying log items, either from framework plugin run operations (default) or the file logs on disk
     '''
 
-    ui_types = [client_constants.UI_TYPE, qt_constants.UI_TYPE]
+    ui_types = [core_constants.UI_TYPE, qt_constants.UI_TYPE]
 
     def __init__(self, event_manager):
         super(QtLogViewerClient, self).__init__(event_manager)
