@@ -285,8 +285,10 @@ class OpenerDefinitionSelector(DefinitionSelectorBase):
                                     component['name'].lower()
                                     == component_name.lower()
                                 ):
-                                    version_has_openable_component = True
-                                    break
+                                    # Check if file extension matches
+                                    if component['file_type'] in self._definition_extensions_filter:
+                                        version_has_openable_component = True
+                                        break
                             if version_has_openable_component:
                                 break
                         if version_has_openable_component and (
