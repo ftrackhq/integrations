@@ -32,7 +32,6 @@ class QtWebViewClientWidget(Client, dialog.Dialog):
         :param parent: The parent dialog or frame
         '''
         dialog.Dialog.__init__(self, parent)
-
         Client.__init__(self, event_manager)
 
         self._context = None
