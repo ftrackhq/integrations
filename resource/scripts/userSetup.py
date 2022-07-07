@@ -184,18 +184,18 @@ def initialise():
     )
     widgets.append(
         (
-            core_constants.LOG_VIEWER,
-            log_viewer.MayaQtLogViewerClientWidget,
-            'Log Viewer',
-            'zoom',
-        )
-    )
-    widgets.append(
-        (
             qt_constants.CHANGE_CONTEXT_WIDGET,
             change_context.MayaQtChangeContextClientWidget,
             'Change context',
             'refresh',
+        )
+    )
+    widgets.append(
+        (
+            core_constants.LOG_VIEWER,
+            log_viewer.MayaQtLogViewerClientWidget,
+            'Log Viewer',
+            'zoom',
         )
     )
     widgets.append(
