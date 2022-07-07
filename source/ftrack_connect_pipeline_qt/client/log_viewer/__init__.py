@@ -9,10 +9,11 @@ import subprocess
 
 from Qt import QtGui, QtCore, QtWidgets
 
-from ftrack_connect_pipeline import client, constants as client_constants
+from ftrack_connect_pipeline import client, constants as core_constants
 from ftrack_connect_pipeline.client.log_viewer import LogViewerClient
 
 from ftrack_connect_pipeline_qt import constants as qt_constants
+from ftrack_connect_pipeline_qt.client import QtWidgetMixin
 from ftrack_connect_pipeline_qt.utils import get_theme, set_theme
 from ftrack_connect_pipeline_qt.ui.log_viewer.plugin_log import (
     PluginLogViewerWidget,
@@ -40,14 +41,14 @@ class QtLogViewerClient(LogViewerClient):
     Client for displaying log items, either from framework plugin run operations (default) or the file logs on disk
     '''
 
-    ui_types = [client_constants.UI_TYPE, qt_constants.UI_TYPE]
+    ui_types = [core_constants.UI_TYPE, qt_constants.UI_TYPE]
 
     def __init__(self, event_manager):
         super(QtLogViewerClient, self).__init__(event_manager)
         self.logger.debug('start qt log viewer')
 
 
-class QtLogViewerClientWidget(QtLogViewerClient, dialog.Dialog):
+class QtLogViewerClientWidget(QtWidgetMixin, QtLogViewerClient, dialog.Dialog):
     '''
     Log viewer client widget
     '''
@@ -63,6 +64,7 @@ class QtLogViewerClientWidget(QtLogViewerClient, dialog.Dialog):
         '''
 
         dialog.Dialog.__init__(self, parent=parent)
+        QtWidgetMixin.__init__(self)
         QtLogViewerClient.__init__(self, event_manager)
 
         set_theme(self, get_theme())
@@ -144,8 +146,8 @@ class QtLogViewerClientWidget(QtLogViewerClient, dialog.Dialog):
 
     # Context
 
-    def on_context_changed(self, context_id):
-        '''(Override) Context has been evaluated'''
+    def on_context_changed_sync(self, context_id):
+        '''(Override) Context has been changed'''
         pass
 
     # Use

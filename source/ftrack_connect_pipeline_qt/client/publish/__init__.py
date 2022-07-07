@@ -8,6 +8,7 @@ from ftrack_connect_pipeline import constants as core_constants
 from ftrack_connect_pipeline.client import constants as client_constants
 from ftrack_connect_pipeline.client.publisher import PublisherClient
 
+from ftrack_connect_pipeline_qt.client import QtWidgetMixin
 from ftrack_connect_pipeline_qt.utils import get_theme, set_theme
 from ftrack_connect_pipeline_qt import constants as qt_constants
 from ftrack_connect_pipeline_qt.ui.factory.publisher import (
@@ -31,20 +32,23 @@ class QtPublisherClient(PublisherClient):
     Client for publishing DCC asset data to ftrack and storage, through location system
     '''
 
-    ui_types = [client_constants.UI_TYPE, qt_constants.UI_TYPE]
+    ui_types = [core_constants.UI_TYPE, qt_constants.UI_TYPE]
 
     def __init__(self, event_manager):
         super(QtPublisherClient, self).__init__(event_manager)
         self.logger.debug('start qt publisher')
 
 
-class QtPublisherClientWidget(QtPublisherClient, QtWidgets.QFrame):
+class QtPublisherClientWidget(
+    QtWidgetMixin, QtPublisherClient, QtWidgets.QFrame
+):
     '''
     Publisher client widget class.
     '''
 
     def __init__(self, event_manager, parent=None):
         QtWidgets.QFrame.__init__(self)
+        QtWidgetMixin.__init__(self)
         QtPublisherClient.__init__(self, event_manager)
 
         self.logger.debug('start qt publisher widget')
@@ -200,7 +204,7 @@ class QtPublisherClientWidget(QtPublisherClient, QtWidgets.QFrame):
 
     # Context
 
-    def on_context_changed(self, context_id):
+    def on_context_changed_sync(self, context_id):
         '''Context has been set'''
         self.context_selector.context_id = context_id
 
