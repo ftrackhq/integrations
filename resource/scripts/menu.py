@@ -175,22 +175,6 @@ def initialise():
     )
     widgets.append(
         (
-            qt_constants.INFO_WIDGET,
-            webview.QtInfoWebViewClientWidget,
-            'Info',
-            '',
-        )
-    )
-    widgets.append(
-        (
-            qt_constants.TASKS_WIDGET,
-            webview.QtTasksWebViewClientWidget,
-            'My Tasks',
-            '',
-        )
-    )
-    widgets.append(
-        (
             qt_constants.CHANGE_CONTEXT_WIDGET,
             change_context.QtChangeContextClientWidget,
             'Change context',
