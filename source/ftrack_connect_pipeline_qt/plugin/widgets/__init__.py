@@ -64,8 +64,10 @@ class BaseOptionsWidget(QtWidgets.QWidget):
         '''return the widget's options.'''
         return self._options
 
-    def set_option_result(self, value, key):
+    def set_option_result(self, value, key, cast_type=None):
         '''set the result options of value for the key.'''
+        if cast_type:
+            value = cast_type(value)
         self._options[key] = value
 
     def _set_internal_status(self, data):

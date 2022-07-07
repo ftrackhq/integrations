@@ -22,6 +22,8 @@ class QtWebViewClientWidget(Client, dialog.Dialog):
     '''Web widget viewer client base - a dialog for rendering web content within
     framework'''
 
+    contextChanged = QtCore.Signal(object)  # Context has changed
+
     def __init__(self, event_manager, parent=None):
         '''
         Initialize QtWebViewClientWidget
@@ -70,6 +72,7 @@ class QtWebViewClientWidget(Client, dialog.Dialog):
         self.layout().addWidget(self._web_engine_view, 100)
 
     def post_build(self):
+        self.contextChanged.connect(self.on_context_changed_sync)
         self.host_selector.hostChanged.connect(self.change_host)
 
     # Host
@@ -85,6 +88,10 @@ class QtWebViewClientWidget(Client, dialog.Dialog):
     # Context
 
     def on_context_changed(self, context_id):
+        '''Async call upon context changed'''
+        self.contextChanged.emit(context_id)
+
+    def on_context_changed_sync(self, context_id):
         '''Context has been set in context selector'''
         self._context = self.session.query(
             'Task where id={}'.format(context_id)
@@ -100,6 +107,15 @@ class QtWebViewClientWidget(Client, dialog.Dialog):
     def get_url(self):
         '''Retreive the URL of content to view'''
         raise NotImplementedError()
+
+    def closeEvent(self, e):
+        super(QtWebViewClientWidget, self).closeEvent(e)
+        # Unsubscribe to events
+        self.logger.debug('closing qt client')
+        if self.context_change_subscribe_id:
+            self.session.event_hub.unsubscribe(
+                self.context_change_subscribe_id
+            )
 
 
 class QtInfoWebViewClientWidget(QtWebViewClientWidget):

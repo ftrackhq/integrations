@@ -37,6 +37,7 @@ class QtAssetManagerClient(AssetManagerClient):
 
     def __init__(self, event_manager):
         super(QtAssetManagerClient, self).__init__(event_manager)
+
         self.logger.debug('start qt asset manager')
 
 
@@ -44,6 +45,8 @@ class QtAssetManagerClientWidget(QtAssetManagerClient, QtWidgets.QFrame):
     '''
     QtAssetManagerClientWidget class.
     '''
+
+    contextChanged = QtCore.Signal(object)  # Context has changed
 
     assetsDiscovered = QtCore.Signal()  # Assets has been discovered and loaded
 
@@ -155,6 +158,12 @@ class QtAssetManagerClientWidget(QtAssetManagerClient, QtWidgets.QFrame):
 
     def post_build(self):
         '''Post Build ui method for events connections.'''
+
+        if not self.is_assembler:
+            self.host_selector.hostChanged.connect(self.change_host)
+
+        self.contextChanged.connect(self.on_context_changed_sync)
+
         if not self.is_assembler:
             self.header.publishClicked.connect(self._launch_publisher)
             self.context_selector.changeContextClicked.connect(
@@ -162,9 +171,6 @@ class QtAssetManagerClientWidget(QtAssetManagerClient, QtWidgets.QFrame):
             )
 
         self.asset_manager_widget.rebuild.connect(self.rebuild)
-
-        if not self.is_assembler:
-            self.host_selector.hostChanged.connect(self.change_host)
 
         self.asset_manager_widget.changeAssetVersion.connect(
             self._on_change_asset_version
@@ -218,6 +224,10 @@ class QtAssetManagerClientWidget(QtAssetManagerClient, QtWidgets.QFrame):
     # Context
 
     def on_context_changed(self, context_id):
+        '''Async call upon context changed'''
+        self.contextChanged.emit(context_id)
+
+    def on_context_changed_sync(self, context_id):
         '''(Override) Context has been evaluated'''
         if not self.is_assembler:
             self.context_selector.context_id = context_id
@@ -504,3 +514,16 @@ class QtAssetManagerClientWidget(QtAssetManagerClient, QtWidgets.QFrame):
     def _launch_context_selector(self):
         '''Open entity browser'''
         self.host_connection.launch_client(qt_constants.CHANGE_CONTEXT_WIDGET)
+
+    def closeEvent(self, e):
+        super(QtAssetManagerClientWidget, self).closeEvent(e)
+        self.logger.debug('closing qt client')
+        if self.context_change_subscribe_id:
+            self.session.event_hub.unsubscribe(
+                self.context_change_subscribe_id
+            )
+        # Unsubscribe to events
+        if self.asset_manager_widget.client_notification_subscribe_id:
+            self.session.unsubscribe(
+                self.asset_manager_widget.client_notification_subscribe_id
+            )
