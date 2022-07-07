@@ -88,7 +88,7 @@ class DynamicWidget(BaseOptionsWidget):
         widget = QtWidgets.QCheckBox()
         widget.setChecked(value)
         self._register_widget(key, widget)
-        update_fn = partial(self.set_option_result, key=key)
+        update_fn = partial(self.set_option_result, key=key, cast_type=bool)
         widget.stateChanged.connect(update_fn)
         self.set_option_result(value, key)
 
