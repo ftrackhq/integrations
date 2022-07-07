@@ -5,7 +5,7 @@ import logging
 import os
 import re
 
-import ftrack
+import ftrack_api
 
 
 FTRACK_CONNECT_PACKAGE_RESOURCE_PATH = os.environ.get(
@@ -30,31 +30,28 @@ def get_version_information(event):
     '''Return version information for ftrack connect package.'''
     return [
         dict(
-            name='ftrack connect package',
+            name='Package',
             version=VERSION,
             core=True
         )
     ]
 
 
-def register(registry, **kw):
+def register(api_object, **kw):
     '''Register version information hook.'''
 
     logger = logging.getLogger(
         'ftrack_connect_package_version_information:register'
     )
 
-    # Validate that registry is an instance of ftrack.Registry. If not,
-    # assume that register is being called from a new or incompatible API and
-    # return without doing anything.
-    if not isinstance(registry, ftrack.Registry):
-        logger.debug(
-            'Not subscribing plugin as passed argument {0!r} is not an '
-            'ftrack.Registry instance.'.format(registry)
-        )
+    # Validate that api_object is an instance of ftrack_api.Session. If not,
+    # assume that register is being called from an incompatible API
+    # and return without doing anything.
+    if not isinstance(api_object, ftrack_api.Session):
+        # Exit to avoid registering this plugin again.
         return
 
-    ftrack.EVENT_HUB.subscribe(
+    api_object.event_hub.subscribe(
         'topic=ftrack.connect.plugin.debug-information',
         get_version_information
     )

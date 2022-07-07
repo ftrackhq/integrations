@@ -7,6 +7,44 @@ Releases
 
 .. release:: Upcoming
 
+   .. change:: fixed
+
+        logo.svg used in linux shortcut does not exist.
+
+.. release:: 2.0.0-rc-6
+    :date: 2022-06-07
+
+   .. change:: changed
+
+        Remove plugin manager from package.
+
+.. release:: 2.0.0-rc-5
+    :date: 2022-03-25
+
+   .. change:: changed
+
+        Bump ftrack-connect-plugin-manager to 0.1.3.
+
+   .. change:: changed
+
+        Installation path does not include Connect version.
+
+   .. change:: changed
+
+        Update icon set based on new style.
+
+
+.. release:: 2.0.0-rc-4
+    :date: 2022-01-15
+
+    .. change:: added
+
+        ftrack-connect-plugin-manager is now included in package.
+
+    .. change:: fixed
+
+        DMG can now be build without needing to code sign it.
+
     .. change:: fixed
 
         Connect package does not provide a consistent ProductCode when generating msi installer.

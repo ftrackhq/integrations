@@ -1,12 +1,49 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014 ftrack
 
-import sys
 import os
-import argparse
 import logging
-
+from pathlib import Path
+import sys
+import argparse
 logger = logging.getLogger(__name__)
+
+class DummyStream:
+    ''' dummyStream behaves like a stream but does nothing. '''
+    def __init__(self): pass
+    def write(self, data): pass
+    def read(self, data): pass
+    def flush(self): pass
+    def close(self): pass
+
+'''
+Fix for missing sys.stderr when building Win32GUI cx_freeze
+see: https://github.com/marcelotduarte/cx_Freeze/issues/60
+'''
+
+try:
+    sys.stderr.write("\n")
+    sys.stderr.flush()
+except Exception:
+    import sys
+    import http.server
+
+    class SysWrapper(object):
+        def __getattribute__(self, item):
+            if item is 'stderr':
+                return DummyStream()
+            return getattr(sys, item)
+
+
+    http.server.sys = SysWrapper()
+
+    # and now redirect all default streams to this dummyStream:
+    sys.stdout = DummyStream()
+    sys.stderr = DummyStream()
+    sys.stdin = DummyStream()
+    sys.__stdout__ = DummyStream()
+    sys.__stderr__ = DummyStream()
+    sys.__stdin__ = DummyStream()
 
 
 def set_environ_default(name, value):
@@ -21,89 +58,94 @@ def set_environ_default(name, value):
     os.environ.setdefault(name, value)
 
 
-if getattr(sys, 'frozen', False):
-    # Hooks use the ftrack event system. Set the FTRACK_EVENT_PLUGIN_PATH
-    # to pick up the default hooks if it has not already been set.
-    set_environ_default(
-        'FTRACK_EVENT_PLUGIN_PATH',
-        os.path.abspath(
+resource_path = os.path.abspath(
+    os.path.join(
+        os.path.dirname(sys.executable), 'resource'
+    )
+)
+
+if sys.platform == "darwin":
+    exec_path = Path(os.path.dirname(sys.executable))
+    resource_path = os.path.abspath(
+        os.path.join(
+            str(exec_path.parent), 'Resources', 'resource'
+        )
+    )
+
+set_environ_default(
+    'FTRACK_EVENT_PLUGIN_PATH',
+    os.path.abspath(
+        os.path.join(
+            resource_path, 'hook'
+        )
+    )
+)
+
+# Set the path to certificate file in resource folder. This allows requests
+# module to read it outside frozen zip file.
+set_environ_default(
+    'REQUESTS_CA_BUNDLE',
+    os.path.abspath(
+        os.path.join(
+            resource_path, 'cacert.pem'
+        )
+    )
+)
+
+# Websocket-client ships with its own cacert file, we however default
+# to the one shipped with the requests library.
+set_environ_default(
+    'WEBSOCKET_CLIENT_CA_BUNDLE',
+    os.environ.get('REQUESTS_CA_BUNDLE')
+)
+
+# The httplib in python +2.7.9 requires a cacert file.
+set_environ_default(
+    'SSL_CERT_FILE',
+    os.environ.get('REQUESTS_CA_BUNDLE')
+)
+
+# handle default connect and event plugin paths
+ftrack_connect_plugin_paths = [
+    os.path.abspath(
+        os.path.join(
+            resource_path,
+            'connect-standard-plugins'
+        )
+    )
+]
+
+if 'FTRACK_CONNECT_PLUGIN_PATH' in os.environ:
+    ftrack_connect_plugin_paths.append(
+        os.environ['FTRACK_CONNECT_PLUGIN_PATH']
+    )
+
+os.environ['FTRACK_CONNECT_PLUGIN_PATH'] = os.path.pathsep.join(
+    ftrack_connect_plugin_paths
+)
+
+# handle default event plugin paths
+ftrack_event_plugin_paths = [
+    os.path.abspath(
             os.path.join(
-                os.path.dirname(sys.executable), 'resource', 'hook'
+                resource_path, 'hook'
             )
         )
+]
+
+if 'FTRACK_EVENT_PLUGIN_PATH' in os.environ:
+    ftrack_event_plugin_paths.append(
+        os.environ['FTRACK_EVENT_PLUGIN_PATH']
     )
 
-    # Set path to resource script folder if package is frozen.
-    set_environ_default(
-        'FTRACK_RESOURCE_SCRIPT_PATH',
-        os.path.abspath(
-            os.path.join(
-                os.path.dirname(sys.executable), 'resource', 'script'
-            )
-        )
-    )
+os.environ['FTRACK_EVENT_PLUGIN_PATH'] = os.path.pathsep.join(
+    ftrack_event_plugin_paths
+)
 
-    # Set the path to certificate file in resource folder. This allows requests
-    # module to read it outside frozen zip file.
-    set_environ_default(
-        'REQUESTS_CA_BUNDLE',
-        os.path.abspath(
-            os.path.join(
-                os.path.dirname(sys.executable), 'resource', 'cacert.pem'
-            )
-        )
-    )
-
-    # Websocket-client ships with its own cacert file, we however default
-    # to the one shipped with the requests library.
-    set_environ_default(
-        'WEBSOCKET_CLIENT_CA_BUNDLE',
-        os.environ.get('REQUESTS_CA_BUNDLE')
-    )
-
-    # The httplib in python +2.7.9 requires a cacert file.
-    set_environ_default(
-        'SSL_CERT_FILE',
-        os.environ.get('REQUESTS_CA_BUNDLE')
-    )
-
-    # Set the path to the included Nuke studio plugin.
-    set_environ_default(
-        'FTRACK_CONNECT_NUKE_STUDIO_PATH',
-        os.path.abspath(
-            os.path.join(
-                os.path.dirname(sys.executable), 'resource',
-                'ftrack_connect_nuke_studio'
-            )
-        )
-    )
-
-    ftrack_connect_plugin_paths = [
-        os.path.abspath(
-            os.path.join(
-                os.path.dirname(sys.executable), 'resource',
-                'connect-standard-plugins'
-            )
-        )
-    ]
-
-    if 'FTRACK_CONNECT_PLUGIN_PATH' in os.environ:
-        ftrack_connect_plugin_paths.append(
-            os.environ['FTRACK_CONNECT_PLUGIN_PATH']
-        )
-
-    os.environ['FTRACK_CONNECT_PLUGIN_PATH'] = os.path.pathsep.join(
-        ftrack_connect_plugin_paths
-    )
-
-    set_environ_default(
-        'FTRACK_CONNECT_PACKAGE_RESOURCE_PATH',
-        os.path.abspath(
-            os.path.join(
-                os.path.dirname(sys.executable), 'resource'
-            )
-        )
-    )
+set_environ_default(
+    'FTRACK_CONNECT_PACKAGE_RESOURCE_PATH',
+    resource_path
+)
 
 import ftrack_connect.__main__
 
@@ -145,8 +187,7 @@ if __name__ == '__main__':
         parsedArguments.script and
         _validatePythonScript(parsedArguments.script)
     ):
-        execfile(parsedArguments.script)
-
+        exec(open(parsedArguments.script).read())
         raise SystemExit()
 
     raise SystemExit(

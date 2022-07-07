@@ -32,5 +32,6 @@ pip-log.txt
 .idea/
 .vscode/
 
-# exclude built files
-docker/**
+
+#scm version
+source/ftrack_connect_package/_version.py
