@@ -109,23 +109,25 @@ def get_main_window():
     return window
 
 
-def init_maya(host, from_context=False):
+def init_maya(context_id=None, session=None):
     '''
     Initialise timeline in Maya based on shot/asset build settings.
 
     :param session:
-    :param from_context: If True, the timeline data should be fetched from current context instead of environment variables.
+    :param context_id: If provided, the timeline data should be fetched this context instead of environment variables.
+    :param session: The session required to query from *context_id*.
     :return:
     '''
     fstart = fend = fps = None
-    if from_context:
-        context = host.session.query(
-            'Context where id={}'.format(host.context_id)
+    if context_id:
+        assert session is not None, 'Session not provided'
+        context = session.query(
+            'Context where id={}'.format(context_id)
         ).first()
         if context is None:
             logger.error(
                 'Cannot initialize Maya timeline - no such context: {}'.format(
-                    host.context_id
+                    context_id
                 )
             )
             return
@@ -139,7 +141,7 @@ def init_maya(host, from_context=False):
         if not shot:
             logger.warning(
                 'Cannot initialize Maya timeline - no shot related to context: {}'.format(
-                    host.context_id
+                    context_id
                 )
             )
             return
@@ -152,7 +154,7 @@ def init_maya(host, from_context=False):
             )
             return
         if 'fstart' in shot['custom_attributes']:
-            fstart = int(float(shot['custom_attributes']['fstart']))
+            fstart = float(shot['custom_attributes']['fstart'])
         if 'fend' in shot['custom_attributes']:
             fend = float(shot['custom_attributes']['fend'])
         if 'fps' in shot['custom_attributes']:
