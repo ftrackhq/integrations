@@ -125,7 +125,9 @@ def _open_widget(event_manager, asset_list_model, widgets, event):
                 # Create without asset model
                 widget = ftrack_client(event_manager)
             created_widgets[widget_name] = widget
-            widget.show()
+        widget.show()
+        widget.raise_()
+        widget.activateWindow()
     else:
         raise Exception(
             'Unknown widget {}!'.format(event['data']['pipeline']['name'])
