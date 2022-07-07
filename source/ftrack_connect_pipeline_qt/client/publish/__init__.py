@@ -8,7 +8,6 @@ from ftrack_connect_pipeline import constants as core_constants
 from ftrack_connect_pipeline.client import constants as client_constants
 from ftrack_connect_pipeline.client.publisher import PublisherClient
 
-from ftrack_connect_pipeline_qt.client import QtWidgetMixin
 from ftrack_connect_pipeline_qt.utils import get_theme, set_theme
 from ftrack_connect_pipeline_qt import constants as qt_constants
 from ftrack_connect_pipeline_qt.ui.factory.publisher import (
@@ -39,16 +38,15 @@ class QtPublisherClient(PublisherClient):
         self.logger.debug('start qt publisher')
 
 
-class QtPublisherClientWidget(
-    QtWidgetMixin, QtPublisherClient, QtWidgets.QFrame
-):
+class QtPublisherClientWidget(QtPublisherClient, QtWidgets.QFrame):
     '''
     Publisher client widget class.
     '''
 
+    contextChanged = QtCore.Signal(object)  # Context has changed
+
     def __init__(self, event_manager, parent=None):
         QtWidgets.QFrame.__init__(self)
-        QtWidgetMixin.__init__(self)
         QtPublisherClient.__init__(self, event_manager)
 
         self.logger.debug('start qt publisher widget')
@@ -165,6 +163,7 @@ class QtPublisherClientWidget(
     def post_build(self):
         '''Post Build ui method for events connections.'''
         self.host_selector.hostChanged.connect(self.change_host)
+        self.contextChanged.connect(self.on_context_changed_sync)
         self.definition_selector.definitionChanged.connect(
             self.change_definition
         )
@@ -203,6 +202,10 @@ class QtPublisherClientWidget(
         self.definition_selector.on_host_changed(host_connection)
 
     # Context
+
+    def on_context_changed(self, context_id):
+        '''Async call upon context changed'''
+        self.contextChanged.emit(context_id)
 
     def on_context_changed_sync(self, context_id):
         '''Context has been set'''
@@ -312,3 +315,12 @@ class QtPublisherClientWidget(
         if not self.is_docked():
             self.hide()
         self.host_connection.launch_client(qt_constants.CHANGE_CONTEXT_WIDGET)
+
+    def closeEvent(self, e):
+        super(QtPublisherClientWidget, self).closeEvent(e)
+        # Unsubscribe to events
+        self.logger.debug('closing qt client')
+        if self.context_change_subscribe_id:
+            self.session.event_hub.unsubscribe(
+                self.context_change_subscribe_id
+            )
