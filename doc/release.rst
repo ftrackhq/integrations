@@ -5,11 +5,13 @@
 Releases
 ########
 
-.. release:: Upcoming
+.. release:: 2.0.0
+    :date: 2022-07-07
 
    .. change:: fixed
 
         logo.svg used in linux shortcut does not exist.
+
 
 .. release:: 2.0.0-rc-6
     :date: 2022-06-07
