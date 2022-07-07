@@ -2,6 +2,8 @@
 # :copyright: Copyright (c) 2014-2022 ftrack
 import logging
 
+from Qt import QtWidgets
+
 from ftrack_connect_pipeline import constants as core_constants
 from ftrack_connect_pipeline.client import Client
 
@@ -13,7 +15,12 @@ from ftrack_connect_pipeline_qt.ui.utility.widget import (
 )
 
 
-class QtChangeContextClientWidget(Client):
+class QtChangeContextClient(Client):
+    def __init__(self, event_manager):
+        super(QtChangeContextClient, self).__init__(event_manager)
+
+
+class QtChangeContextClientWidget(QtChangeContextClient, QtWidgets.QWidget):
     '''Client for changing the current working context within the host/DCC'''
 
     def __init__(self, event_manager, parent=None):
@@ -23,7 +30,8 @@ class QtChangeContextClientWidget(Client):
         :param event_manager:  :class:`~ftrack_connect_pipeline.event.EventManager` instance
         :param parent: The parent dialog or frame
         '''
-        super(QtChangeContextClientWidget, self).__init__(event_manager)
+        QtWidgets.QWidget.__init__(self, parent=parent)
+        QtChangeContextClient.__init__(self, event_manager)
         self.logger = logging.getLogger(
             __name__ + '.' + self.__class__.__name__
         )
@@ -70,6 +78,9 @@ class QtChangeContextClientWidget(Client):
         self.entity_browser.setMinimumWidth(600)
         if self.entity_browser.exec_():
             self.change_ftrack_context_id(self.entity_browser.entity['id'])
+            return True
+        else:
+            return False
 
     def change_ftrack_context_id(self, context_id):
         '''A new context has been chose, store it in host and tell other clients'''
