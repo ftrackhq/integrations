@@ -31,7 +31,7 @@ class QtPublisherClient(PublisherClient):
     Client for publishing DCC asset data to ftrack and storage, through location system
     '''
 
-    ui_types = [client_constants.UI_TYPE, qt_constants.UI_TYPE]
+    ui_types = [core_constants.UI_TYPE, qt_constants.UI_TYPE]
 
     def __init__(self, event_manager):
         super(QtPublisherClient, self).__init__(event_manager)
@@ -42,6 +42,8 @@ class QtPublisherClientWidget(QtPublisherClient, QtWidgets.QFrame):
     '''
     Publisher client widget class.
     '''
+
+    contextChanged = QtCore.Signal(object)  # Context has changed
 
     def __init__(self, event_manager, parent=None):
         QtWidgets.QFrame.__init__(self)
@@ -161,6 +163,7 @@ class QtPublisherClientWidget(QtPublisherClient, QtWidgets.QFrame):
     def post_build(self):
         '''Post Build ui method for events connections.'''
         self.host_selector.hostChanged.connect(self.change_host)
+        self.contextChanged.connect(self.on_context_changed_sync)
         self.definition_selector.definitionChanged.connect(
             self.change_definition
         )
@@ -201,6 +204,10 @@ class QtPublisherClientWidget(QtPublisherClient, QtWidgets.QFrame):
     # Context
 
     def on_context_changed(self, context_id):
+        '''Async call upon context changed'''
+        self.contextChanged.emit(context_id)
+
+    def on_context_changed_sync(self, context_id):
         '''Context has been set'''
         self.context_selector.context_id = context_id
 
@@ -308,3 +315,12 @@ class QtPublisherClientWidget(QtPublisherClient, QtWidgets.QFrame):
         if not self.is_docked():
             self.hide()
         self.host_connection.launch_client(qt_constants.CHANGE_CONTEXT_WIDGET)
+
+    def closeEvent(self, e):
+        super(QtPublisherClientWidget, self).closeEvent(e)
+        # Unsubscribe to events
+        self.logger.debug('closing qt client')
+        if self.context_change_subscribe_id:
+            self.session.event_hub.unsubscribe(
+                self.context_change_subscribe_id
+            )

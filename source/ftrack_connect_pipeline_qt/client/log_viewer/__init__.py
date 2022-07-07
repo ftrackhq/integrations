@@ -9,7 +9,7 @@ import subprocess
 
 from Qt import QtGui, QtCore, QtWidgets
 
-from ftrack_connect_pipeline import client, constants as client_constants
+from ftrack_connect_pipeline import client, constants as core_constants
 from ftrack_connect_pipeline.client.log_viewer import LogViewerClient
 
 from ftrack_connect_pipeline_qt import constants as qt_constants
@@ -40,7 +40,7 @@ class QtLogViewerClient(LogViewerClient):
     Client for displaying log items, either from framework plugin run operations (default) or the file logs on disk
     '''
 
-    ui_types = [client_constants.UI_TYPE, qt_constants.UI_TYPE]
+    ui_types = [core_constants.UI_TYPE, qt_constants.UI_TYPE]
 
     def __init__(self, event_manager):
         super(QtLogViewerClient, self).__init__(event_manager)
@@ -51,6 +51,8 @@ class QtLogViewerClientWidget(QtLogViewerClient, dialog.Dialog):
     '''
     Log viewer client widget
     '''
+
+    contextChanged = QtCore.Signal(object)  # Context has changed
 
     logItemAdded = QtCore.Signal(object)
 
@@ -122,6 +124,7 @@ class QtLogViewerClientWidget(QtLogViewerClient, dialog.Dialog):
     def post_build(self):
         '''Post Build ui method for events connections.'''
         self.host_selector.hostChanged.connect(self.change_host)
+        self.contextChanged.connect(self.on_context_changed_sync)
         self._plugin_log_viewer_widget.refresh_button.clicked.connect(
             self._refresh_ui
         )
@@ -145,7 +148,11 @@ class QtLogViewerClientWidget(QtLogViewerClient, dialog.Dialog):
     # Context
 
     def on_context_changed(self, context_id):
-        '''(Override) Context has been evaluated'''
+        '''Async call upon context changed'''
+        self.contextChanged.emit(context_id)
+
+    def on_context_changed_sync(self, context_id):
+        '''(Override) Context has been changed'''
         pass
 
     # Use
@@ -166,3 +173,12 @@ class QtLogViewerClientWidget(QtLogViewerClient, dialog.Dialog):
         if not self.host_connection:
             return
         self.update_log_items()
+
+    def closeEvent(self, e):
+        super(QtLogViewerClientWidget, self).closeEvent(e)
+        # Unsubscribe to events
+        self.logger.debug('closing qt client')
+        if self.context_change_subscribe_id:
+            self.session.event_hub.unsubscribe(
+                self.context_change_subscribe_id
+            )

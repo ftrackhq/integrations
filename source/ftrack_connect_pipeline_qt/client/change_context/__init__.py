@@ -51,7 +51,7 @@ class QtChangeContextClientWidget(Client):
 
     def on_context_changed(self, context_id):
         '''(Override) Context has been evaluated'''
-        pass
+        # TODO: Handle context changed while widget is active (remote mode)
 
     # User
 

@@ -1,7 +1,6 @@
 #! /usr/bin/env python
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2022 ftrack
-import shiboken2
 
 import ftrack_connect_pipeline_qt.ui.utility.widget.button
 from Qt import QtWidgets, QtCore
@@ -46,13 +45,13 @@ class QtOpenerClientWidget(QtOpenerClient, dialog.Dialog):
     Opener client widget class.
     '''
 
-    ui_types = [core_constants.UI_TYPE, qt_constants.UI_TYPE]
+    contextChanged = QtCore.Signal(object)  # Context has changed
 
     def __init__(
         self, event_manager, definition_extensions_filter=None, parent=None
     ):
-        QtOpenerClient.__init__(self, event_manager)
         dialog.Dialog.__init__(self, parent=parent)
+        QtOpenerClient.__init__(self, event_manager)
 
         self.logger.debug('start qt opener')
 
@@ -154,6 +153,7 @@ class QtOpenerClientWidget(QtOpenerClient, dialog.Dialog):
 
     def post_build(self):
         self.host_selector.hostChanged.connect(self.change_host)
+        self.contextChanged.connect(self.on_context_changed_sync)
         self.context_selector.entityChanged.connect(
             self._on_context_selector_context_changed
         )
@@ -195,12 +195,13 @@ class QtOpenerClientWidget(QtOpenerClient, dialog.Dialog):
             # Send context id to host and other listening clients
             self.host_connection.context_id = context['id']
 
-    def on_context_changed(self, contexts_id):
+    def on_context_changed(self, context_id):
+        '''Async call upon context changed'''
+        self.contextChanged.emit(context_id)
+
+    def on_context_changed_sync(self, context_id):
         '''Override'''
-        if not shiboken2.isValid(self):
-            # Widget has been closed while context changed
-            return
-        self.context_selector.context_id = self.context_id
+        self.context_selector.context_id = context_id
 
         # Reset definition selector and clear client
         self._clear_widget()
@@ -299,3 +300,12 @@ class QtOpenerClientWidget(QtOpenerClient, dialog.Dialog):
         if not self.is_docked():
             self.hide()
         self.host_connection.launch_client(core_constants.PUBLISHER)
+
+    def closeEvent(self, e):
+        super(QtOpenerClientWidget, self).closeEvent(e)
+        # Unsubscribe to events
+        self.logger.debug('closing qt client')
+        if self.context_change_subscribe_id:
+            self.session.event_hub.unsubscribe(
+                self.context_change_subscribe_id
+            )
