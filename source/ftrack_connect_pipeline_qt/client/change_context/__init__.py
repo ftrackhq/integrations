@@ -78,6 +78,9 @@ class QtChangeContextClientWidget(QtChangeContextClient, QtWidgets.QWidget):
         self.entity_browser.setMinimumWidth(600)
         if self.entity_browser.exec_():
             self.change_ftrack_context_id(self.entity_browser.entity['id'])
+            return True
+        else:
+            return False
 
     def change_ftrack_context_id(self, context_id):
         '''A new context has been chose, store it in host and tell other clients'''
