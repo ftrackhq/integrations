@@ -159,7 +159,7 @@ def cleanSelection():
         node['selected'].setValue(False)
 
 
-def init_nuke(host, from_context=False):
+def init_nuke(context_id=None, session=None):
     '''
     Initialise timeline in Nuke based on shot/asset build settings.
 
@@ -167,15 +167,15 @@ def init_nuke(host, from_context=False):
     :param from_context: If True, the timeline data should be fetched from current context instead of environment variables.
     :return:
     '''
-    fps = None
-    if from_context:
-        context = host.session.query(
-            'Context where id={}'.format(host.context_id)
+    fstart = fend = fps = None
+    if context_id:
+        context = session.query(
+            'Context where id={}'.format(context_id)
         ).first()
         if context is None:
             logger.error(
                 'Cannot initialize Nuke timeline - no such context: {}'.format(
-                    host.context_id
+                    context_id
                 )
             )
             return
@@ -189,7 +189,7 @@ def init_nuke(host, from_context=False):
         if not shot:
             logger.warning(
                 'Cannot initialize Nuke timeline - no shot related to context: {}'.format(
-                    host.context_id
+                    context_id
                 )
             )
             return
@@ -201,23 +201,28 @@ def init_nuke(host, from_context=False):
                 'Cannot initialize Nuke timeline - no fstart or fend shot custom attributes available'.format()
             )
             return
-        start_frame = int(shot['custom_attributes']['fstart'])
-        end_frame = int(shot['custom_attributes']['fend'])
+        if 'fstart' in shot['custom_attributes']:
+            fstart = int(shot['custom_attributes']['fstart'])
+        if 'fend' in shot['custom_attributes']:
+            fend = int(shot['custom_attributes']['fend'])
         if 'fps' in shot['custom_attributes']:
             fps = float(shot['custom_attributes']['fps'])
     else:
         # Set default values from environments.
-        start_frame = os.environ.get('FS', 0)
-        end_frame = os.environ.get('FE', 100)
+        if 'FS' in os.environ and len(os.environ['FS'] or '') > 0:
+            fstart = os.environ.get('FS', 0)
+        if 'FE' in os.environ and len(os.environ['FE'] or '') > 0:
+            fend = os.environ.get('FE', 100)
         if 'FPS' in os.environ:
             fps = float(os.environ['FPS'])
 
-    nuke.root().knob("lock_range").setValue(False)
-    logger.info('Setting start frame : {}'.format(start_frame))
-    nuke.knob('root.first_frame', str(start_frame))
-    logger.info('Setting end frame : {}'.format(end_frame))
-    nuke.knob('root.last_frame', str(end_frame))
-    nuke.root().knob("lock_range").setValue(True)
+    if fstart is not None and fend is not None:
+        nuke.root().knob("lock_range").setValue(False)
+        logger.info('Setting start frame : {}'.format(fstart))
+        nuke.knob('root.first_frame', str(fstart))
+        logger.info('Setting end frame : {}'.format(fend))
+        nuke.knob('root.last_frame', str(fend))
+        nuke.root().knob("lock_range").setValue(True)
     if fps is not None:
         logger.info('Setting FPS : {}'.format(fps))
         nuke.root().knob("fps").setValue(fps)

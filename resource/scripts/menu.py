@@ -24,16 +24,12 @@ from ftrack_connect_pipeline_qt.ui.asset_manager.model import AssetListModel
 from ftrack_connect_pipeline_nuke.client import (
     open,
     load,
-    save,
     asset_manager,
     publish,
+    change_context,
     log_viewer,
 )
-from ftrack_connect_pipeline_qt.client import (
-    change_context,
-    documentation,
-    webview,
-)
+from ftrack_connect_pipeline_qt.client import documentation
 
 from ftrack_connect_pipeline_nuke.menu import build_menu_widgets
 from ftrack_connect_pipeline_nuke.utils import custom_commands as nuke_utils
@@ -175,28 +171,12 @@ def initialise():
     )
     widgets.append(
         (
-            qt_constants.CHANGE_CONTEXT_WIDGET,
-            change_context.QtChangeContextClientWidget,
-            'Change context',
-            '',
-        )
-    )
-    widgets.append(
-        (
             qt_constants.ASSEMBLER_WIDGET,
             load.NukeQtAssemblerClientWidget,
             'Assembler',
             '',
         )
     )
-    # widgets.append(
-    #    (
-    #        qt_constants.SAVE_WIDGET,
-    #        save.NukeQtSaveClientWidget,
-    #        'Save Script',
-    #        '',
-    #    )
-    # )
     widgets.append(
         (
             core_constants.ASSET_MANAGER,
@@ -218,6 +198,14 @@ def initialise():
             core_constants.LOG_VIEWER,
             log_viewer.NukeQtLogViewerClientWidget,
             'Log Viewer',
+            '',
+        )
+    )
+    widgets.append(
+        (
+            qt_constants.CHANGE_CONTEXT_WIDGET,
+            change_context.NukeQtChangeContextClientWidget,
+            'Change context',
             '',
         )
     )
@@ -254,7 +242,7 @@ def initialise():
     app = QtWidgets.QApplication.instance()
     app.aboutToQuit.connect(on_nuke_exit)
 
-    nuke_utils.init_nuke(host)
+    nuke_utils.init_nuke()
 
     host.launch_client(core_constants.OPENER)
 
