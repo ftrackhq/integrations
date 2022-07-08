@@ -73,6 +73,8 @@ class QtAssemblerClientWidget(QtLoaderClient, dialog.Dialog):
     ASSEMBLE_MODE_DEPENDENCIES = 0  # (Default)
     ASSEMBLE_MODE_BROWSE = 1
 
+    contextChanged = QtCore.Signal(object)  # Context has changed
+
     def __init__(self, event_manager, modes, asset_list_model, parent=None):
         '''
         Initialize the assembler client
