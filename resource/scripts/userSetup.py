@@ -21,16 +21,12 @@ from ftrack_connect_pipeline_maya import host as maya_host
 from ftrack_connect_pipeline_maya.client import (
     open,
     load,
-    save,
     asset_manager,
     publish,
+    change_context,
     log_viewer,
 )
-from ftrack_connect_pipeline_qt.client import (
-    change_context,
-    documentation,
-    webview,
-)
+from ftrack_connect_pipeline_qt.client import documentation
 
 from ftrack_connect_pipeline_maya.utils import custom_commands as maya_utils
 
@@ -164,14 +160,6 @@ def initialise():
     )
     widgets.append(
         (
-            qt_constants.CHANGE_CONTEXT_WIDGET,
-            change_context.QtChangeContextClientWidget,
-            'Change context',
-            'refresh',
-        )
-    )
-    widgets.append(
-        (
             qt_constants.ASSEMBLER_WIDGET,
             load.MayaQtAssemblerClientWidget,
             'Assembler',
@@ -186,20 +174,20 @@ def initialise():
             'volumeCube',
         )
     )
-    # widgets.append(
-    #    (
-    #        qt_constants.SAVE_WIDGET,
-    #        save.MayaQtSaveClientWidget,
-    #        'Save Scene',
-    #        'fileSave',
-    #    )
-    # )
     widgets.append(
         (
             core_constants.PUBLISHER,
             publish.MayaQtPublisherClientWidgetMixin,
             'Publisher',
             'greasePencilExport',
+        )
+    )
+    widgets.append(
+        (
+            qt_constants.CHANGE_CONTEXT_WIDGET,
+            change_context.MayaQtChangeContextClientWidget,
+            'Change context',
+            'refresh',
         )
     )
     widgets.append(
@@ -245,7 +233,7 @@ def initialise():
         ),
     )
 
-    maya_utils.init_maya(host)
+    maya_utils.init_maya()
 
     # host.launch_client(qt_constants.OPENER_WIDGET)
 
