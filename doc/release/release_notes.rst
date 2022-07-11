@@ -7,12 +7,17 @@
 Release Notes
 *************
 
-.. release:: Upcoming
+.. releaes:: Upcoming
 
     .. change:: fixed
         :tags: Tags
 
         Tags on sequences break exporters. 
+
+    .. change:: changed
+        :tags: Environment Variables
+
+        **HIERO_PLUGIN_PATH** Environment variable is now prepended rather than just set.
 
 .. release:: 2.5.1
     :date: 2022-02-24
@@ -66,7 +71,7 @@ Release Notes
 
         Startup error related to location setup are now visually reported.
 
-    .. change:: fixed
+    .. change:: fix
         :tags: Action
 
         Discovery does break on non context entities.
@@ -104,12 +109,12 @@ Release Notes
 
         Replace fixed version with automatic versioning from git repository.
     
-    .. change:: fixed
+    .. change:: fix
         :tags: Exporter
 
         Reviewable export audio breaks on earlier Nuke Studio versions (version < 12.1).
 
-    .. change:: fixed
+    .. change:: fix
         :tags: Exporter
 
         Reviewable Task break when including audio.
@@ -118,7 +123,7 @@ Release Notes
 .. release:: 2.3.0
     :date: 2020-04-23
 
-    .. change:: fixed
+    .. change:: fix
         :tags: Internal
 
         Custom start frame are not consistently output in frame sequence.
@@ -128,17 +133,17 @@ Release Notes
 
         Lock OTIO dependency version to last python only.
 
-    .. change:: fixed
+    .. change:: fix
         :tags: Internal
 
         Sequences rendered with Nuke Studio cannot be imported in nuke.
 
-    .. change:: fixed
+    .. change:: fix
         :tags: Internal
 
         ImageSequences are rendered as FileComponent.
 
-    .. change:: fixed
+    .. change:: fix
         :tags: Internal
 
         Thumbnail generation breaks when exporting just nuke scripts.
