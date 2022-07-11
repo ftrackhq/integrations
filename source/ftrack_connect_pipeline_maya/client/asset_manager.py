@@ -51,3 +51,11 @@ class MayaQtAssetManagerClientWidgetMixin(
             y=600,
             retain=False,
         )
+
+    def dockCloseEventTriggered(self):
+        super(
+            MayaQtAssetManagerClientWidgetMixin, self
+        ).dockCloseEventTriggered()
+        self.logger.debug('closing qt client')
+        # Unsubscribe to context change events
+        self.unsubscribe_client_context_change()
