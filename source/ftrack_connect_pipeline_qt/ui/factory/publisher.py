@@ -21,6 +21,12 @@ class PublisherWidgetFactory(WidgetFactoryBase):
     def client_type():
         return core_constants.PUBLISHER
 
+    def post_build(self):
+        super(PublisherWidgetFactory, self).post_build()
+        self.onQueryAssetVersionDone.emit(
+            None
+        )  # No asset to query, trigger component check
+
     def check_components(self, unused_asset_version_entity):
         '''(Override)'''
         available_components = 0
