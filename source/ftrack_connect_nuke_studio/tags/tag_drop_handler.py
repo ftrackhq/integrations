@@ -43,12 +43,17 @@ class TagDropHandler(object):
         except AttributeError:
             return
 
-        if not any([
+        can_use_tags = all([
             hasattr(track_item, 'tags'),
             hasattr(track_item, 'sourceIn'),
             hasattr(track_item, 'sourceOut'),
-            isinstance(track_item, hiero.core.Sequence),
-        ]):
+            not isinstance(track_item, hiero.core.Sequence),
+        ])
+
+        if not can_use_tags:
+            self.logger.debug(
+                'cannot use tags on {}'.format(track_item)
+            )
             return
 
         dropped_tags = event.items
