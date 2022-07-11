@@ -1,5 +1,5 @@
-# # :coding: utf-8
-# # :copyright: Copyright (c) 2019 ftrack
+# :coding: utf-8
+# :copyright: Copyright (c) 2014-2022 ftrack
 
 from Qt import QtWidgets, QtCore
 
@@ -7,7 +7,6 @@ from ftrack_connect_pipeline_qt.client.publish import QtPublisherClientWidget
 import ftrack_connect_pipeline.constants as constants
 import ftrack_connect_pipeline_qt.constants as qt_constants
 import ftrack_connect_pipeline_nuke.constants as nuke_constants
-from ftrack_connect_pipeline_nuke.utils.custom_commands import get_main_window
 
 
 class NukeQtPublisherClientWidget(QtPublisherClientWidget):
@@ -24,3 +23,9 @@ class NukeQtPublisherClientWidget(QtPublisherClientWidget):
 
     def get_theme_background_style(self):
         return 'nuke'
+
+    def hideEvent(self, *args, **kwargs):
+        super(NukeQtPublisherClientWidget, self).hideEvent(*args, **kwargs)
+        self.logger.debug('closing qt client')
+        # Unsubscribe to context change events
+        self.unsubscribe_client_context_change()
