@@ -43,7 +43,7 @@ class TagDropHandler(object):
         except AttributeError:
             return
 
-        if not all([
+        if not any([
             hasattr(track_item, 'tags'),
             hasattr(track_item, 'sourceIn'),
             hasattr(track_item, 'sourceOut'),
