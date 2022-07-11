@@ -19,6 +19,7 @@ class DefinitionSelectorBase(QtWidgets.QWidget):
     definitionChanged = QtCore.Signal(
         object, object, object
     )  # User has selected a definition, or no definition is selectable
+
     refreshed = QtCore.Signal()  # Widget has been refreshed
 
     @property
@@ -119,6 +120,7 @@ class DefinitionSelectorBase(QtWidgets.QWidget):
 
     def _on_change_definition(self, index):
         '''A definition has been selected, fire signal for client to pick up'''
+        self.definitionChanged.emit(None, None, None)  # Clear widgets
         if index > 0:
             (
                 self.definition,
@@ -138,7 +140,6 @@ class DefinitionSelectorBase(QtWidgets.QWidget):
         else:
             self.logger.debug('No data for selected definition')
             self.definition = self.component_names_filter = None
-            self.definitionChanged.emit(None, None, None)
 
     def refresh(self):
         '''Refresh the widget'''
