@@ -358,7 +358,6 @@ class WidgetFactoryBase(QtWidgets.QWidget):
 
     def post_build(self):
         '''Post build actions'''
-        self.check_components(None)
         self.update_selected_components(True)
         for step in self.definition[core_constants.COMPONENTS]:
             step_obj = self.get_registered_object(step, step['category'])
@@ -754,10 +753,10 @@ class OpenerAssemblerWidgetFactoryBase(WidgetFactoryBase):
 
     def check_components(self, asset_version_entity):
         '''(Override)'''
+        if not self.components or asset_version_entity is None:
+            return
         available_components = 0
         try:
-            if not self.components or asset_version_entity is None:
-                return
             for step in self.definition[core_constants.COMPONENTS]:
                 step_obj = self.get_registered_object(step, step['category'])
                 if not isinstance(
