@@ -11,6 +11,7 @@ class LogItem(object):
 
         *log_result*: Dictionary with log information.
         '''
+        self.date = log_result.get('date')
         self.status = log_result.get('status')
         self.widget_ref = log_result.get('widget_ref')
         self.host_id = log_result.get('host_id')
