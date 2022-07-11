@@ -672,7 +672,14 @@ class FtrackProcessor(FtrackBase):
     def add_ftrack_tag(self, original_item, task):
         ''' Add ftrack tag to *original_item* for *task*. '''
 
-        if not hasattr(original_item, 'tags'):
+        can_use_tags = all([
+            hasattr(original_item, 'tags'),
+            hasattr(original_item, 'sourceIn'),
+            hasattr(original_item, 'sourceOut'),
+            not isinstance(original_item, hiero.core.Sequence),
+        ])
+
+        if not can_use_tags:
             return
 
         # TrackItem
