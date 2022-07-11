@@ -127,7 +127,6 @@ class QtLogViewerClientWidget(QtLogViewerClient, dialog.Dialog):
 
         self.setWindowTitle('ftrack Log viewer')
         self.resize(750, 630)
-        self.setModal(True)
 
     # Host
 
