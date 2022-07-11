@@ -1,7 +1,6 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2022 ftrack
 from functools import partial
-import time
 
 import ftrack_connect_pipeline_qt.ui.utility.widget.button
 from Qt import QtWidgets, QtCore, QtGui
@@ -281,8 +280,11 @@ class EntityBrowser(dialog.ModalDialog):
         self.working = True
         self.entity_widgets = []
 
-        self._busy_indicator = BusyIndicator()
+        self._busy_indicator = BusyIndicator(False)
+
         self._scroll.setWidget(center_widget(self._busy_indicator, 30, 30))
+
+        self._busy_indicator.start()
 
         self.update()
 
@@ -328,6 +330,7 @@ class EntityBrowser(dialog.ModalDialog):
             entities_widget.layout().setSpacing(0)
 
             self._busy_indicator.stop()
+
             self._scroll.setWidget(entities_widget)
 
             self.entity_widgets = []
@@ -395,7 +398,7 @@ class EntityBrowser(dialog.ModalDialog):
             )
 
     def _entity_selected(self, entity, double_click=False):
-        '''User has selected and entity'''
+        '''User has selected an entity'''
         self._selected_entity = entity
         for entity_widget in self.entity_widgets:
             set_property(
@@ -421,7 +424,6 @@ class EntityBrowser(dialog.ModalDialog):
 
     def _on_set_intermediate_entity(self, entity):
         '''Callback for setting the intermediate entity'''
-        time.sleep(0.3)
         self.intermediate_entity = entity
 
     def update(self):
@@ -537,13 +539,12 @@ class EntityBrowserNavigator(InputEventBlockingWidget):
 
         thread = BaseThread(
             name='fetch_entities_thread',
-            target=self._trig_delayed_refresh_async,
+            target=self._on_entities_fetched,
             target_args=(),
         )
         thread.start()
 
-    def _trig_delayed_refresh_async(self):
-        time.sleep(0.1)
+    def _on_entities_fetched(self):
         self.rebuildNavigator.emit()
 
     def rebuild(self):
