@@ -523,6 +523,14 @@ class Client(object):
         client or remote (other client or the host). Should be overridden by client.'''
         pass
 
+    def unsubscribe_client_context_change(self):
+        '''Unsubscribe to client context change events'''
+        if self.context_change_subscribe_id:
+            self.session.event_hub.unsubscribe(
+                self.context_change_subscribe_id
+            )
+            self.context_change_subscribe_id = None
+
     # Definition
 
     def run_definition(self, definition, engine_type):
