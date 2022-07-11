@@ -122,7 +122,9 @@ class QtOpenerClientWidget(QtOpenerClient, dialog.Dialog):
         self.definition_selector = (
             definition_selector.OpenerDefinitionSelector()
         )
-        self.definition_selector.refreshed.connect(self.refresh)
+        self.definition_selector.refreshed.connect(
+            self._definition_selector_refreshed
+        )
 
         self.scroll = scroll_area.ScrollArea()
         self.scroll.setWidgetResizable(True)
@@ -212,14 +214,16 @@ class QtOpenerClientWidget(QtOpenerClient, dialog.Dialog):
 
     def change_definition(self, schema, definition, component_names_filter):
         '''
-        Triggered when definition_changed is called from the host_selector.
+        Triggered when _on_change_definition is called within the definition selector.
         Generates the widgets interface from the given *schema* and *definition*
         '''
         self._component_names_filter = component_names_filter
-        self._clear_widget()
 
+        self.scroll.viewport().setVisible(False)
+        self.scroll.verticalScrollBar().setVisible(False)
+        self.scroll.horizontalScrollBar().setVisible(False)
         if not schema and not definition:
-            self.definition_changed(None, 0)
+            self.refresh(None, 0)
             return
 
         super(QtOpenerClientWidget, self).change_definition(schema, definition)
@@ -229,18 +233,28 @@ class QtOpenerClientWidget(QtOpenerClient, dialog.Dialog):
         self.widget_factory.set_context(self.context_id, asset_type_name)
         self.widget_factory.host_connection = self.host_connection
         self.widget_factory.set_definition_type(self.definition['type'])
-        self.definition_widget = self.widget_factory.build(
+        definition_widget = self.widget_factory.build(
             self.definition, component_names_filter
         )
-        self.scroll.setWidget(self.definition_widget)
+        self.scroll.setWidget(definition_widget)
 
-    def definition_changed(self, definition, available_components_count):
-        '''React upon change of definition, or no versions/components(definitions) available.'''
+    def refresh(self, definition, available_components_count):
+        '''Refresh UI based on the selected definition and openable components available.'''
         if definition is not None and available_components_count >= 1:
             self.run_button.setEnabled(True)
+            self.scroll.viewport().setVisible(True)
+            self.scroll.verticalScrollBar().setVisible(True)
+            self.scroll.horizontalScrollBar().setVisible(True)
         else:
             self.run_button.setEnabled(False)
             self._clear_widget()
+
+    def _on_components_checked(self, available_components_count):
+        self.refresh(self.definition, available_components_count)
+
+    def _definition_selector_refreshed(self):
+        '''Called upon definition selector refresh button click.'''
+        self.widget_factory.progress_widget.set_status_widget_visibility(False)
 
     # Run
 
@@ -274,16 +288,6 @@ class QtOpenerClientWidget(QtOpenerClient, dialog.Dialog):
         if self.scroll and self.scroll.widget():
             self.scroll.widget().deleteLater()
 
-    def _on_components_checked(self, available_components_count):
-        self.definition_changed(self.definition, available_components_count)
-        self.run_button.setEnabled(available_components_count >= 1)
-        if available_components_count == 0:
-            self._clear_widget()
-
-    def refresh(self):
-        '''Called upon definition selector refresh button click.'''
-        self.widget_factory.progress_widget.set_status_widget_visibility(False)
-
     def _launch_context_selector(self):
         '''Close client (if not docked) and open entity browser.'''
         if not self.is_docked():
@@ -303,9 +307,6 @@ class QtOpenerClientWidget(QtOpenerClient, dialog.Dialog):
 
     def closeEvent(self, e):
         super(QtOpenerClientWidget, self).closeEvent(e)
-        # Unsubscribe to events
         self.logger.debug('closing qt client')
-        if self.context_change_subscribe_id:
-            self.session.event_hub.unsubscribe(
-                self.context_change_subscribe_id
-            )
+        # Unsubscribe to context change events
+        self.unsubscribe_client_context_change()

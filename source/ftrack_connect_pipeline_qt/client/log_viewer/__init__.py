@@ -170,9 +170,6 @@ class QtLogViewerClientWidget(QtLogViewerClient, dialog.Dialog):
 
     def closeEvent(self, e):
         super(QtLogViewerClientWidget, self).closeEvent(e)
-        # Unsubscribe to events
         self.logger.debug('closing qt client')
-        if self.context_change_subscribe_id:
-            self.session.event_hub.unsubscribe(
-                self.context_change_subscribe_id
-            )
+        # Unsubscribe to context change events
+        self.unsubscribe_client_context_change()

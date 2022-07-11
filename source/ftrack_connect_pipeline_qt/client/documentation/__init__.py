@@ -4,14 +4,14 @@ import logging
 import subprocess
 import platform
 
-from ftrack_connect_pipeline.client import Client
+from Qt import QtWidgets
 
 
-class QtDocumentationClientWidget(object):
+class QtDocumentationClientWidget(QtWidgets.QWidget):
     '''Client for opening Connect documentation URL'''
 
-    def __init__(self, event_manager):
-        super(QtDocumentationClientWidget, self).__init__()
+    def __init__(self, event_manager, parent=None):
+        QtWidgets.QWidget.__init__(self, parent=parent)
 
         self.logger = logging.getLogger(
             __name__ + '.' + self.__class__.__name__
