@@ -11,6 +11,7 @@ from json import JSONEncoder
 import base64
 import traceback
 import datetime
+import time
 
 from ftrack_connect_pipeline.log.log_item import LogItem
 
@@ -65,7 +66,7 @@ class LogDB(object):
         if cur.fetchone()[0] == 0:
             cur.execute(
                 '''CREATE TABLE {0} (id INTEGER PRIMARY KEY,'''
-                ''' status text,widget_ref text,'''
+                ''' date int, status text, widget_ref text,'''
                 ''' host_id text, execution_time real, plugin_name text,'''
                 ''' result text, message text, user_message text,'''
                 ''' plugin_type text, plugin_id text)'''.format(
@@ -153,12 +154,13 @@ class LogDB(object):
             cur = self.connection.cursor()
 
             cur.execute(
-                '''INSERT INTO {0} (status,widget_ref,host_id,'''
+                '''INSERT INTO {0} (date,status,widget_ref,host_id,'''
                 '''execution_time,plugin_name,result,message,user_message,'''
-                '''plugin_type, plugin_id) VALUES (?,?,?,?,?,?,?,?,?,?)'''.format(
+                '''plugin_type, plugin_id) VALUES (?,?,?,?,?,?,?,?,?,?,?)'''.format(
                     self.table_name
                 ),
                 (
+                    time.time(),
                     log_item.status,
                     log_item.widget_ref,
                     log_item.host_id,
@@ -194,7 +196,7 @@ class LogDB(object):
         log_items = []
         if not host_id is None:
             cur.execute(
-                ''' SELECT status,widget_ref,host_id,execution_time,'''
+                ''' SELECT date,status,widget_ref,host_id,execution_time,'''
                 '''plugin_name,result,message,user_message,plugin_type, plugin_id '''
                 ''' FROM {0} WHERE host_id=?;  '''.format(self.table_name),
                 (host_id,),
@@ -204,18 +206,19 @@ class LogDB(object):
                 log_items.append(
                     LogItem(
                         {
-                            'status': t[0],
-                            'widget_ref': t[1],
-                            'host_id': t[2],
-                            'execution_time': t[3],
-                            'plugin_name': t[4],
+                            'date': datetime.datetime.fromtimestamp(t[0]),
+                            'status': t[1],
+                            'widget_ref': t[2],
+                            'host_id': t[3],
+                            'execution_time': t[4],
+                            'plugin_name': t[5],
                             'result': json.loads(
-                                base64.b64decode(t[5]).decode('utf-8')
+                                base64.b64decode(t[6]).decode('utf-8')
                             ),
-                            'message': t[6],
-                            'user_message': t[7],
-                            'plugin_type': t[8],
-                            'plugin_id': t[9],
+                            'message': t[7],
+                            'user_message': t[8],
+                            'plugin_type': t[9],
+                            'plugin_id': t[10],
                         }
                     )
                 )
@@ -232,7 +235,7 @@ class LogDB(object):
         log_items = []
         if not host_id is None:
             cur.execute(
-                ''' SELECT status,widget_ref,host_id,execution_time,'''
+                ''' SELECT date,status,widget_ref,host_id,execution_time,'''
                 '''plugin_name,result,message,user_message,plugin_type, plugin_id '''
                 ''' FROM {0} WHERE host_id=? AND plugin_id=?;  '''.format(
                     self.table_name
@@ -244,18 +247,19 @@ class LogDB(object):
                 log_items.append(
                     LogItem(
                         {
-                            'status': t[0],
-                            'widget_ref': t[1],
-                            'host_id': t[2],
-                            'execution_time': t[3],
-                            'plugin_name': t[4],
+                            'date': datetime.datetime.fromtimestamp(t[0]),
+                            'status': t[1],
+                            'widget_ref': t[2],
+                            'host_id': t[3],
+                            'execution_time': t[4],
+                            'plugin_name': t[5],
                             'result': json.loads(
-                                base64.b64decode(t[5]).decode('utf-8')
+                                base64.b64decode(t[6]).decode('utf-8')
                             ),
-                            'message': t[6],
-                            'user_message': t[7],
-                            'plugin_type': t[8],
-                            'plugin_id': t[9],
+                            'message': t[7],
+                            'user_message': t[8],
+                            'plugin_type': t[9],
+                            'plugin_id': t[10],
                         }
                     )
                 )
