@@ -48,3 +48,9 @@ class MayaQtPublisherClientWidgetMixin(
             y=600,
             retain=False,
         )
+
+    def dockCloseEventTriggered(self):
+        super(MayaQtPublisherClientWidgetMixin, self).dockCloseEventTriggered()
+        self.logger.debug('closing qt client')
+        # Unsubscribe to context change events
+        self.unsubscribe_client_context_change()
