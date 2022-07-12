@@ -174,8 +174,6 @@ class LogDetailDialog(ModalDialog):
         <div> <b>Execution_time: </b>{execution_time} sec.</div> 
         <div> <b>Plugin_name: </b>{plugin_name} </div> 
         <div> <b>Plugin_type: </b>{plugin_type} </div>
-        <p> <b>Message: </b>{message} </p>
-        <p> <b>User Message: </b>{user_message} </p>
     """
 
     def __init__(self, parent, data):
@@ -217,7 +215,37 @@ class LogDetailDialog(ModalDialog):
         result_widget.setLineWrapMode(QtWidgets.QTextEdit.NoWrap)
         result_widget.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOn)
         result_widget.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOn)
-        result_widget.setMinimumHeight(80)
+        result_widget.setMinimumHeight(40)
         widget.layout().addWidget(result_widget, 100)
+
+        widget.layout().addWidget(QtWidgets.QLabel('Message:'))
+
+        message_widget = QtWidgets.QTextEdit(
+            json.dumps(self._data.message or '', indent=2)
+        )
+        message_widget.setReadOnly(True)
+        message_widget.setLineWrapMode(QtWidgets.QTextEdit.NoWrap)
+        message_widget.setHorizontalScrollBarPolicy(
+            QtCore.Qt.ScrollBarAlwaysOn
+        )
+        message_widget.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOn)
+        message_widget.setMinimumHeight(40)
+        widget.layout().addWidget(message_widget)
+
+        widget.layout().addWidget(QtWidgets.QLabel('User message:'))
+
+        user_message_widget = QtWidgets.QTextEdit(
+            json.dumps(self._data.user_message + '', indent=2)
+        )
+        user_message_widget.setReadOnly(True)
+        user_message_widget.setLineWrapMode(QtWidgets.QTextEdit.NoWrap)
+        user_message_widget.setHorizontalScrollBarPolicy(
+            QtCore.Qt.ScrollBarAlwaysOn
+        )
+        user_message_widget.setVerticalScrollBarPolicy(
+            QtCore.Qt.ScrollBarAlwaysOn
+        )
+        user_message_widget.setMinimumHeight(40)
+        widget.layout().addWidget(user_message_widget, 100)
 
         return widget
