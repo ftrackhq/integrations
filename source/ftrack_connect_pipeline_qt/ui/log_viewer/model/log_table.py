@@ -82,7 +82,7 @@ class LogTableModel(QtCore.QAbstractTableModel):
             value = getattr(item, column_name)
             if value:
                 if column == 0:
-                    return value.strftime('%y-%m-%d %H:%M:%S.%f')
+                    return value.strftime('%H:%M:%S.%f')
                 elif (
                     column == 1 and item.status == core_constants.ERROR_STATUS
                 ):
