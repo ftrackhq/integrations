@@ -1,7 +1,7 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2020 ftrack
+import json
 
-import os, sys, subprocess
 from Qt import QtWidgets, QtCore, QtCompat, QtGui
 
 from ftrack_connect_pipeline_qt.ui.log_viewer.model.log_table import (
@@ -18,17 +18,6 @@ from ftrack_connect_pipeline_qt.ui.utility.widget.dialog import ModalDialog
 
 class PluginLogViewerWidget(QtWidgets.QWidget):
     '''Main widget of the plugin log viewer'''
-
-    TEMPLATE = """
-    <div> <b>Status: </b>{status} </div> 
-    <div> <b>Host_id: </b>{host_id} </div> 
-    <div> <b>Execution_time: </b>{execution_time} sec.</div> 
-    <div> <b>Plugin_name: </b>{plugin_name} </div> 
-    <div> <b>Plugin_type: </b>{plugin_type} </div>
-    <p> <b>Result: </b>{result} </p>
-    <p> <b>Message: </b>{message} </p>
-    <p> <b>User Message: </b>{user_message} </p>
-    """
 
     @property
     def event_manager(self):
@@ -61,6 +50,8 @@ class PluginLogViewerWidget(QtWidgets.QWidget):
         self.build()
         self.post_build()
 
+        self.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint)
+
     def pre_build(self):
         '''Prepare general layout.'''
         self.setLayout(QtWidgets.QVBoxLayout())
@@ -81,7 +72,7 @@ class PluginLogViewerWidget(QtWidgets.QWidget):
 
         self.layout().addLayout(toolbar_layout)
 
-        self.log_table_view = LogDialogTableView(self.event_manager)
+        self.log_table_view = LogTableView(self.event_manager)
 
         self._scroll = scroll_area.ScrollArea()
         self._scroll.setWidgetResizable(True)
@@ -112,26 +103,10 @@ class PluginLogViewerWidget(QtWidgets.QWidget):
         data = self.log_table_view.model().data(
             index, self.log_table_view.model().DATA_ROLE
         )
-
-        formated_text = self.TEMPLATE.format(
-            status=data.status,
-            host_id=data.host_id,
-            execution_time=data.execution_time,
-            plugin_name=data.plugin_name,
-            plugin_type=data.plugin_type,
-            result=data.result or '',
-            message=data.message or '',
-            user_message=data.user_message or '',
-        )
-
-        ModalDialog(
-            self,
-            title='View ftrack plugin log message',
-            message=formated_text,
-        )
+        LogDetailDialog(self, data)
 
 
-class LogDialogTableView(QtWidgets.QTableView):
+class LogTableView(QtWidgets.QTableView):
     '''Table view representing Log Viewer.'''
 
     @property
@@ -145,13 +120,13 @@ class LogDialogTableView(QtWidgets.QTableView):
         return self.event_manager.session
 
     def __init__(self, event_manager, parent=None):
-        '''Initialise LogDialogTableView with *event_manager*
+        '''Initialise LogTableView with *event_manager*
 
         *event_manager* should be the
         :class:`ftrack_connect_pipeline.event.EventManager` instance to
         communicate to the event server.
         '''
-        super(LogDialogTableView, self).__init__(parent=parent)
+        super(LogTableView, self).__init__(parent=parent)
 
         self._event_manager = event_manager
 
@@ -161,13 +136,15 @@ class LogDialogTableView(QtWidgets.QTableView):
 
     def pre_build(self):
         '''Prepare general layout.'''
+
         self.setAlternatingRowColors(True)
         self.verticalHeader().hide()
 
         self.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectRows)
 
-        # self.horizontalHeader().setStretchLastSection(True)
-        self.resizeColumnsToContents()
+        header = self.horizontalHeader()
+        header.setSectionResizeMode(QtWidgets.QHeaderView.Interactive)
+        header.setDefaultSectionSize(150)
 
     def build(self):
         '''Build widgets and parent them.'''
@@ -187,3 +164,60 @@ class LogDialogTableView(QtWidgets.QTableView):
         Sets the :obj:`log_items` with the given *log_items*
         '''
         self.log_model.set_log_items(log_items)
+
+
+class LogDetailDialog(ModalDialog):
+    TEMPLATE = """
+        <div> <b>Date: </b>{date} </div> 
+        <div> <b>Status: </b>{status} </div> 
+        <div> <b>Host_id: </b>{host_id} </div> 
+        <div> <b>Execution_time: </b>{execution_time} sec.</div> 
+        <div> <b>Plugin_name: </b>{plugin_name} </div> 
+        <div> <b>Plugin_type: </b>{plugin_type} </div>
+        <p> <b>Message: </b>{message} </p>
+        <p> <b>User Message: </b>{user_message} </p>
+    """
+
+    def __init__(self, parent, data):
+
+        self._data = data
+        formatted_text = self.TEMPLATE.format(
+            date=data.date,
+            status=data.status,
+            host_id=data.host_id,
+            execution_time=data.execution_time,
+            plugin_name=data.plugin_name,
+            plugin_type=data.plugin_type,
+            message=data.message or '',
+            user_message=data.user_message or '',
+        )
+
+        super(LogDetailDialog, self).__init__(
+            parent,
+            title='View ftrack plugin log message',
+            message=formatted_text,
+            modal=True,
+        )
+
+    def get_content_widget(self):
+        widget = QtWidgets.QWidget()
+        widget.setLayout(QtWidgets.QVBoxLayout())
+
+        widget.layout().addWidget(
+            super(LogDetailDialog, self).get_content_widget()
+        )
+
+        widget.layout().addWidget(QtWidgets.QLabel('Result:'))
+
+        result_widget = QtWidgets.QTextEdit(
+            json.dumps(self._data.result or {}, indent=2)
+        )
+        result_widget.setFontFamily('Courier New')
+        result_widget.setReadOnly(True)
+        result_widget.setLineWrapMode(QtWidgets.QTextEdit.NoWrap)
+        result_widget.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOn)
+        result_widget.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOn)
+        result_widget.setMinimumHeight(80)
+        widget.layout().addWidget(result_widget, 100)
+
+        return widget

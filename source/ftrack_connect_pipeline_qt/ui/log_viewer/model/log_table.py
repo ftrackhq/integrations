@@ -24,6 +24,7 @@ class LogTableModel(QtCore.QAbstractTableModel):
         super(LogTableModel, self).__init__(parent)
 
         self._headers = [
+            'date',
             'status',
             'execution_time',
             'plugin_name',
@@ -65,20 +66,33 @@ class LogTableModel(QtCore.QAbstractTableModel):
         column_name = self._headers[column]
 
         # style versions
-        if role == QtCore.Qt.TextColorRole:
+        if role == QtCore.Qt.TextColorRole or role == QtCore.Qt.ForegroundRole:
             if core_constants.status_bool_mapping[item.status]:
-                return QtGui.QBrush(QtGui.QColor(155, 250, 218, 200))
+                return QtGui.QColor(155, 250, 218, 200)
             elif item.status == 'RUNNING_STATUS':
                 return
             else:
                 return QtGui.QBrush(QtGui.QColor(250, 171, 155, 200))
 
-        elif role == QtCore.Qt.TextAlignmentRole and column == 0:
+        elif role == QtCore.Qt.TextAlignmentRole and column == 1:
             return QtCore.Qt.AlignCenter
 
         # style the rest
         elif role == QtCore.Qt.DisplayRole:
-            return getattr(item, column_name)
+            value = getattr(item, column_name)
+            if value:
+                if column == 0:
+                    return value.strftime('%H:%M:%S.%f')
+                elif (
+                    column == 1 and item.status == core_constants.ERROR_STATUS
+                ):
+                    return '! {} !'.format(
+                        value
+                    )  # Make error messages stand out if color styling fails
+                else:
+                    return value
+            else:
+                return ''
 
         elif role == self.DATA_ROLE:
             return item

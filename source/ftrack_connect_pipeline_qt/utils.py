@@ -170,13 +170,13 @@ def clear_layout(layout):
             clear_layout(item.layout())
 
 
-def center_widget(widget, width=None, height=None, parent=None):
+def center_widget(widget, width=None, height=None):
     '''Returns a widget that is have *widget* centered horizontally and vertically'''
-    v_container = QtWidgets.QWidget(parent=parent)
+    v_container = QtWidgets.QWidget()
     v_container.setLayout(QtWidgets.QVBoxLayout())
     v_container.layout().addWidget(QtWidgets.QLabel(""), 100)
 
-    h_container = QtWidgets.QWidget(parent=parent)
+    h_container = QtWidgets.QWidget()
     h_container.setLayout(QtWidgets.QHBoxLayout())
     h_container.layout().addWidget(QtWidgets.QLabel(), 100)
     h_container.layout().addWidget(widget)
