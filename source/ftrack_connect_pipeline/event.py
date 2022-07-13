@@ -99,6 +99,7 @@ class EventManager(object):
         self._mode = mode
         self._session = session
         if mode == constants.REMOTE_EVENT_MODE:
+            # TODO: Bring this back when API event hub properly can differentiate between local and remote mode
             self._connect()
             self._wait()
 
