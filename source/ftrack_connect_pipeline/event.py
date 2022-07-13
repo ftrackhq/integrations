@@ -98,8 +98,9 @@ class EventManager(object):
         self._event_hub_thread = None
         self._mode = mode
         self._session = session
-        self._connect()
-        self._wait()
+        if mode == constants.REMOTE_EVENT_MODE:
+            self._connect()
+            self._wait()
 
         # self.logger.debug('Initialising {}'.format(self))
 
