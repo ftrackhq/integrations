@@ -85,6 +85,7 @@ class AssetListModel(QtCore.QAbstractTableModel):
             self.logger.warning(
                 'No asset info found for id {}'.format(asset_info_id)
             )
+            return None
         return self.createIndex(row, 0)
 
     def getDataById(self, asset_info_id):
