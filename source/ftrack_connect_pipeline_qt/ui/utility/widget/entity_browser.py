@@ -153,6 +153,8 @@ class EntityBrowser(dialog.ModalDialog):
         if entity:
             self.entity = entity
 
+        self.setAttribute(QtCore.Qt.WA_DeleteOnClose, False)
+
     def pre_build(self):
         super(EntityBrowser, self).pre_build()
         # The navigator within dialog, showing intermediate entity
