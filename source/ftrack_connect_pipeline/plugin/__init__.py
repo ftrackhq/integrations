@@ -406,18 +406,19 @@ class BasePlugin(object):
         '''
 
         # validate result instance type
-        status = constants.UNKNOWN_STATUS
-        message = None
-        user_data_valid, user_data_message = self.validator.validate_user_data(
-            user_data
-        )
+        (
+            user_data_valid,
+            user_data_validation_message,
+        ) = self.validator.validate_user_data(user_data)
         if not user_data_valid:
             status = constants.ERROR_STATUS
-            message = str(user_data_message)
+            message = str(user_data_validation_message)
             return status, message
 
         status = constants.SUCCESS_STATUS
-        message = 'Successfully run :{}'.format(self.__class__.__name__)
+        message = 'Successfully validated user data: {}'.format(
+            self.__class__.__name__
+        )
         return status, message
 
     def _parse_run_event(self, event):
@@ -508,18 +509,23 @@ class BasePlugin(object):
         # We check that the optional user_data it's a dictionary and contains
         # message and data keys.
         if user_data:
-            user_data_status, user_data_message = self._validate_user_data(
-                user_data
-            )
+            (
+                user_data_status,
+                user_data_validation_message,
+            ) = self._validate_user_data(user_data)
             user_bool_status = constants.status_bool_mapping[user_data_status]
             if not user_bool_status:
                 result_data['status'] = constants.EXCEPTION_STATUS
-                result_data['message'] = str(user_data_message)
+                result_data['message'] = str(user_data_validation_message)
                 return result_data
-            elif result is False and len(user_data_message or '') > 0:
-                result_data['status'] = constants.EXCEPTION_STATUS
+            elif result is False:
+                user_data_message = user_data.get('message')
+                result_data['status'] = constants.ERROR_STATUS
                 result_data['message'] = 'Failed to run {}: {}'.format(
-                    self.__class__.__name__, user_data_message
+                    self.__class__.__name__,
+                    user_data_message
+                    if len(user_data_message or '') > 0
+                    else 'No message provided',
                 )
                 return result_data
         if self.method == 'run':
