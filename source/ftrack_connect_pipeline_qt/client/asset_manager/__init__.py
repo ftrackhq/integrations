@@ -24,7 +24,7 @@ from ftrack_connect_pipeline_qt.ui.asset_manager.asset_manager import (
 from ftrack_connect_pipeline_qt.ui.utility.widget.context_selector import (
     ContextSelector,
 )
-from ftrack_connect_pipeline_qt.ui.utility.widget.dialog import ModalDialog
+from ftrack_connect_pipeline_qt.ui.utility.widget import dialog
 from ftrack_connect_pipeline_qt.utils import BaseThread, set_property
 
 
@@ -51,6 +51,10 @@ class QtAssetManagerClientWidget(QtAssetManagerClient, QtWidgets.QFrame):
     assetsDiscovered = QtCore.Signal()  # Assets has been discovered and loaded
 
     selectionUpdated = QtCore.Signal(object)  # Selection has changed
+
+    onAssetManagerMessage = QtCore.Signal(
+        object, object
+    )  # A message, with a title amended, has been picked up from the asset management subsystem
 
     def __init__(
         self,
@@ -191,6 +195,8 @@ class QtAssetManagerClientWidget(QtAssetManagerClient, QtWidgets.QFrame):
         self.selectionUpdated.connect(self._on_am_selection_updated)
         self.setMinimumWidth(300)
 
+        self.onAssetManagerMessage.connect(self._on_am_message)
+
     # Host
 
     def on_hosts_discovered(self, host_connections):
@@ -208,7 +214,7 @@ class QtAssetManagerClientWidget(QtAssetManagerClient, QtWidgets.QFrame):
         if not super(QtAssetManagerClientWidget, self).on_host_changed(
             host_connection
         ):
-            ModalDialog(
+            dialog.ModalDialog(
                 self.parent(),
                 title='Asset Manager',
                 message='No asset manager definitions are available, please check your configuration!',
@@ -299,6 +305,13 @@ class QtAssetManagerClientWidget(QtAssetManagerClient, QtWidgets.QFrame):
         if self.is_assembler:
             self._remove_button.setEnabled(len(selected_assets) > 0)
 
+    def _on_am_message(self, message, title):
+        dialog.ModalDialog(
+            None,
+            title=title,
+            message=message,
+        )
+
     # Load
 
     def _on_load_assets(self, asset_info_list):
@@ -322,6 +335,10 @@ class QtAssetManagerClientWidget(QtAssetManagerClient, QtWidgets.QFrame):
             data = event['data']
             do_refresh = None
             for key, value in data.items():
+                if key == 'message':
+                    if len(value or '') > 0:
+                        self.onAssetManagerMessage.emit(value, 'Load asset')
+                    continue
                 asset_info = self._asset_list_model.getDataById(key)
                 if asset_info is None:
                     continue
@@ -358,6 +375,10 @@ class QtAssetManagerClientWidget(QtAssetManagerClient, QtWidgets.QFrame):
             data = event['data']
             do_refresh = None
             for key, value in data.items():
+                if key == 'message':
+                    if len(value or '') > 0:
+                        self.onAssetManagerMessage.emit(value, 'Update asset')
+                    continue
                 index = self._asset_list_model.getIndex(key)
                 if index is None:
                     continue
@@ -395,6 +416,12 @@ class QtAssetManagerClientWidget(QtAssetManagerClient, QtWidgets.QFrame):
             data = event['data']
             do_refresh = None
             for key, value in data.items():
+                if key == 'message':
+                    if len(value or '') > 0:
+                        self.onAssetManagerMessage.emit(
+                            value, 'Change version'
+                        )
+                    continue
                 index = self._asset_list_model.getIndex(key)
                 if index is None:
                     continue
@@ -431,6 +458,10 @@ class QtAssetManagerClientWidget(QtAssetManagerClient, QtWidgets.QFrame):
                 return
             data = event['data']
             for key, value in data.items():
+                if key == 'message':
+                    if len(value or '') > 0:
+                        self.onAssetManagerMessage.emit(value, 'Unload asset')
+                    continue
                 asset_info = self._asset_list_model.getDataById(key)
                 if asset_info is None:
                     self.logger.warning(
@@ -458,7 +489,7 @@ class QtAssetManagerClientWidget(QtAssetManagerClient, QtWidgets.QFrame):
         '''
         selection = self.asset_manager_widget.asset_list.selection()
         if self.asset_manager_widget.check_selection(selection):
-            if ModalDialog(
+            if dialog.ModalDialog(
                 self.parent(),
                 title='ftrack Asset manager',
                 question='Really remove {} asset{}?'.format(
@@ -489,6 +520,10 @@ class QtAssetManagerClientWidget(QtAssetManagerClient, QtWidgets.QFrame):
             data = event['data']
 
             for key, value in data.items():
+                if key == 'message':
+                    if len(value or '') > 0:
+                        self.onAssetManagerMessage.emit(value, 'Remove asset')
+                    continue
                 index = self._asset_list_model.getIndex(key)
                 if index is None:
                     continue
