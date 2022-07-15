@@ -984,7 +984,7 @@ class ComponentAndVersionWidget(QtWidgets.QWidget):
             self._version_nr_widget.setText('v{}'.format(str(version_nr)))
         else:
             self.version_selector.clear()
-            for index, asset_version in enumerate(versions):
+            for index, asset_version in enumerate(reversed(versions)):
                 self.version_selector.addItem(
                     'v{}'.format(asset_version['version']),
                     asset_version['id'],
