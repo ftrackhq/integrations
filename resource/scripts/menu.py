@@ -244,7 +244,9 @@ def initialise():
 
     nuke_utils.init_nuke()
 
-    host.launch_client(core_constants.OPENER)
+    # Deactivating this until is available on maya.
+    # Make opener automatically open when nuke is launched.
+    # host.launch_client(core_constants.OPENER)
 
 
 initialise()
