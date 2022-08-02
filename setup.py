@@ -218,7 +218,7 @@ setup(
     },
     python_requires='<3.10',
     setup_requires=[
-        'PySide2 >=5.12, < 5.20',
+        'PySide2 == 5.12.6',
         'Qt.py >=1.0.0, < 2',
         'pyScss >= 1.2.0, < 2',
         'sphinx >= 1.8.5, < 4',
