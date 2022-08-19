@@ -4,12 +4,15 @@
 from ftrack_connect_pipeline import plugin
 from ftrack_connect_pipeline_qt import plugin as pluginWidget
 from ftrack_connect_pipeline_houdini.plugin import (
-    BaseHoudiniPlugin, BaseHoudiniPluginWidget
+    HoudiniBasePlugin,
+    HoudiniBasePluginWidget,
 )
 
 
-class LoaderCollectorHoudiniPlugin(plugin.LoaderCollectorPlugin, BaseHoudiniPlugin):
-    ''' Class representing a Collector Plugin
+class LoaderCollectorHoudiniPlugin(
+    plugin.LoaderCollectorPlugin, HoudiniBasePlugin
+):
+    '''Class representing a Collector Plugin
 
     .. note::
 
@@ -18,12 +21,11 @@ class LoaderCollectorHoudiniPlugin(plugin.LoaderCollectorPlugin, BaseHoudiniPlug
 
 
 class LoaderCollectorHoudiniWidget(
-    pluginWidget.LoaderCollectorWidget, BaseHoudiniPluginWidget
+    pluginWidget.LoaderCollectorPluginWidget, HoudiniBasePluginWidget
 ):
-    ''' Class representing a Collector Widget
+    '''Class representing a Collector Widget
 
     .. note::
 
         _required_output a List
     '''
-

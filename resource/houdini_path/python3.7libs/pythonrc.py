@@ -9,6 +9,8 @@ import hou, hdefereval
 
 from ftrack_connect_pipeline_qt import event
 from ftrack_connect_pipeline import constants
+from ftrack_connect_pipeline_qt import constants as qt_constants
+from ftrack_connect_pipeline_qt.ui.asset_manager.model import AssetListModel
 from ftrack_connect_pipeline_houdini import host as houdini_host
 
 import ftrack_api
@@ -17,24 +19,29 @@ from ftrack_connect_pipeline.configure_logging import configure_logging
 
 configure_logging(
     'ftrack_connect_pipeline_houdini',
-    extra_modules=['ftrack_connect_pipeline', 'ftrack_connect_pipeline_qt']
+    extra_modules=['ftrack_connect_pipeline', 'ftrack_connect_pipeline_qt'],
 )
 
 logger = logging.getLogger('ftrack_connect_pipeline_houdini')
 
 event_manager = None
+asset_list_model = None
 
 
 def init():
-    global event_manager
+    global event_manager, asset_list_model
 
+    logger.debug('Setting up the menu')
     session = ftrack_api.Session(auto_connect_event_hub=False)
 
     event_manager = event.QEventManager(
         session=session, mode=constants.LOCAL_EVENT_MODE
     )
 
-    houdini_host.HoudiniHost(event_manager)
+    host = houdini_host.HoudiniHost(event_manager)
+
+    # Shared asset manager model
+    asset_list_model = AssetListModel(event_manager)
 
     def setFrameRangeData():
 
@@ -53,7 +60,9 @@ def init():
         except Exception as error:
             logger.error(error)
 
-        logger.info('setting timeline to {} {} '.format(start_frame, end_frame))
+        logger.info(
+            'setting timeline to {} {} '.format(start_frame, end_frame)
+        )
 
         # add handles to start and end frame
         hsf = (start_frame - 1) - handles
@@ -77,7 +86,7 @@ def init():
 
 
 def writePypanel(panel_id):
-    ''' Write temporary xml file for pypanel '''
+    '''Write temporary xml file for pypanel'''
     xml = """<?xml version="1.0" encoding="UTF-8"?>
 <pythonPanelDocument>
   <interface name="{0}" label="{0}" icon="MISC_python" help_url="">
@@ -96,8 +105,12 @@ def createInterface():
 
     xml = xml.format(panel_id)
 
-    path = os.path.join(tempfile.gettempdir(), 'ftrack', 'connect',
-                        '{}.pypanel'.format(panel_id))
+    path = os.path.join(
+        tempfile.gettempdir(),
+        'ftrack',
+        'connect',
+        '{}.pypanel'.format(panel_id),
+    )
     if os.path.exists(path):
         pass
     else:
@@ -110,7 +123,7 @@ def createInterface():
 
 
 def FtrackPipelineDialogs(panel_id):
-    ''' Generate Dialog and create pypanel instance '''
+    '''Generate Dialog and create pypanel instance'''
 
     pan_path = writePypanel(panel_id)
     hou.pypanel.installFile(pan_path)
@@ -141,7 +154,7 @@ def FtrackPipelineDialogs(panel_id):
 
 
 def showPipelineDialog(name):
-    ''' Show Dialog '''
+    '''Show Dialog'''
 
     from ftrack_connect_pipeline_houdini.client import load
     from ftrack_connect_pipeline_houdini.client import publish

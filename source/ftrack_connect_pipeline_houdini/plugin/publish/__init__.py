@@ -6,5 +6,5 @@ from ftrack_connect_pipeline_houdini.plugin.publish.context import *
 from ftrack_connect_pipeline_houdini.plugin.publish.finalizer import *
 from ftrack_connect_pipeline_houdini.plugin.publish.pre_finalizer import *
 from ftrack_connect_pipeline_houdini.plugin.publish.post_finalizer import *
-from ftrack_connect_pipeline_houdini.plugin.publish.output import *
+from ftrack_connect_pipeline_houdini.plugin.publish.exporter import *
 from ftrack_connect_pipeline_houdini.plugin.publish.validator import *

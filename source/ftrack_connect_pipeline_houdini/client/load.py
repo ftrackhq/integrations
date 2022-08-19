@@ -8,9 +8,14 @@ import ftrack_connect_pipeline_houdini.constants as houdini_constants
 
 
 class HoudiniLoaderClient(QtLoaderClient):
-    ui_types = [constants.UI_TYPE, qt_constants.UI_TYPE, houdini_constants.UI_TYPE]
+    ui_types = [
+        constants.UI_TYPE,
+        qt_constants.UI_TYPE,
+        houdini_constants.UI_TYPE,
+    ]
 
     '''Dockable houdini load widget'''
+
     def __init__(self, event_manager, parent=None):
         super(HoudiniLoaderClient, self).__init__(
             event_manager=event_manager, parent=parent
