@@ -9,6 +9,9 @@ from functools import wraps
 import hou, hdefereval
 
 from ftrack_connect_pipeline_houdini.constants import asset as asset_const
+from ftrack_connect_pipeline.utils import (
+    get_save_path,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -140,3 +143,27 @@ def run_in_main_thread(f):
             return f(*args, **kwargs)
 
     return decorated
+
+
+def save(context_id, session, temp=True, save=True):
+    '''Save scene locally in temp or with the next version number based on latest version
+    in ftrack.'''
+
+    save_path, message = get_save_path(
+        context_id, session, extension='.mb', temp=temp
+    )
+
+    if save_path is None:
+        return (False, message)
+
+    # Save Houdini scene to this path
+    if save:
+        hou.hipFile.save(save_path)
+        message = 'Saved Houdini scene @ "{}"'.format(save_path)
+    else:
+        hou.hipFile.setName(save_path)
+        message = 'Renamed Houdini scene @ "{}"'.format(save_path)
+
+    result = save_path
+
+    return result, message
