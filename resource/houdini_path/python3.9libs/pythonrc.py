@@ -51,28 +51,25 @@ widgets = list()
 #         'fileOpen',
 #     )
 # )
-# widgets.append(
-#     (
-#         qt_constants.ASSEMBLER_WIDGET,
-#         load.HoudiniQtAssemblerClientWidget,
-#         'Assembler',
-#         'greasePencilImport',
-#     )
-# )
-# widgets.append(
-#     (
-#         core_constants.ASSET_MANAGER,
-#         asset_manager.HoudiniQtAssetManagerClient,
-#         'Asset Manager',
-#         'volumeCube',
-#     )
-# )
+widgets.append(
+    (
+        qt_constants.ASSEMBLER_WIDGET,
+        load.HoudiniQtAssemblerClientWidget,
+        'Assembler',
+    )
+)
+widgets.append(
+    (
+        core_constants.ASSET_MANAGER,
+        asset_manager.HoudiniQtAssetManagerClientWidget,
+        'Asset Manager',
+    )
+)
 widgets.append(
     (
         core_constants.PUBLISHER,
         publish.HoudiniQtPublisherClientWidget,
         'Publisher',
-        'greasePencilExport',
     )
 )
 widgets.append(
@@ -80,23 +77,20 @@ widgets.append(
         qt_constants.CHANGE_CONTEXT_WIDGET,
         change_context.HoudiniQtChangeContextClientWidget,
         'Change context',
-        'refresh',
     )
 )
 # widgets.append(
 #     (
 #         core_constants.LOG_VIEWER,
 #         log_viewer.MayaQtLogViewerClientWidget,
-#         'Log Viewer',
-#         'zoom',
+#         'Log Viewer'
 #     )
 # )
 # widgets.append(
 #     (
 #         qt_constants.DOCUMENTATION_WIDGET,
 #         documentation.QtDocumentationClientWidget,
-#         'Documentation',
-#         'SP_FileIcon',
+#         'Documentation'
 #     )
 # )
 
@@ -142,10 +136,12 @@ def _open_widget(event_manager, asset_list_model, event):
     '''Create and (re-)display the widget'''
     widget_name = None
     widget_class = None
-    for (_widget_name, _widget_class, unused_label, unused_image) in widgets:
+    widget_label = None
+    for (_widget_name, _widget_class, _widget_label) in widgets:
         if _widget_name == event['data']['pipeline']['name']:
             widget_name = _widget_name
             widget_class = _widget_class
+            widget_label = _widget_label
             break
     if widget_name:
         ftrack_client = widget_class
@@ -175,7 +171,7 @@ def _open_widget(event_manager, asset_list_model, event):
                 core_constants.ASSET_MANAGER,
             ]:
                 # Create a docked pypanel instance in Houdini interface
-                pan_path = _generate_pypanel(widget_name)
+                pan_path = _generate_pypanel(widget_name, widget_label)
                 hou.pypanel.installFile(pan_path)
 
                 ftrack_id = 'Ftrack_ID'
@@ -183,7 +179,7 @@ def _open_widget(event_manager, asset_list_model, event):
 
                 try:
                     for interface, value in hou.pypanel.interfaces().items():
-                        if interface == widget_name:
+                        if interface == widget_label:
                             panel_interface = value
                             break
                 except hou.OperationFailed as e:
@@ -192,7 +188,6 @@ def _open_widget(event_manager, asset_list_model, event):
                     )
 
                 main_tab = hou.ui.curDesktop().findPaneTab(ftrack_id)
-
                 if main_tab:
                     panel = main_tab.pane().createTab(
                         hou.paneTabType.PythonPanel
@@ -209,10 +204,7 @@ def _open_widget(event_manager, asset_list_model, event):
                         panel.setActiveInterface(panel_interface)
             else:
                 # Create and bring up a dialog
-                if widget_name in [
-                    qt_constants.ASSEMBLER_WIDGET,
-                    core_constants.ASSET_MANAGER,
-                ]:
+                if widget_name in [qt_constants.ASSEMBLER_WIDGET]:
                     # Create with asset model
                     widget = ftrack_client(event_manager, asset_list_model)
                 else:
@@ -223,9 +215,13 @@ def _open_widget(event_manager, asset_list_model, event):
             widget.show()
             widget.raise_()
             widget.activateWindow()
+    else:
+        logger.warning(
+            "Don't know how to open widget from event: {}".format(event)
+        )
 
 
-def _generate_pypanel(widget_name):
+def _generate_pypanel(widget_name, panel_title):
     '''Write temporary xml file for pypanel'''
     xml = """<?xml version="1.0" encoding="UTF-8"?>
 <pythonPanelDocument>
@@ -235,19 +231,21 @@ def _generate_pypanel(widget_name):
 import __main__
 
 def createInterface():
-    info_view = __main__.pipelineWidgetFactory('{0}')
-    return info_view]]></script>
+    widget = __main__.pipelineWidgetFactory('{1}')
+    __main__.created_widgets['{1}'] = widget
+    return widget
+]]></script>
     <help><![CDATA[]]></help>
   </interface>
 </pythonPanelDocument>"""
 
-    xml = xml.format(widget_name)
+    xml = xml.format(panel_title, widget_name)
 
     path = os.path.join(
         tempfile.gettempdir(),
         'ftrack',
         'connect',
-        '{}.pypanel'.format(widget_name),
+        '{}.pypanel'.format(panel_title),
     )
     if os.path.exists(path):
         pass
@@ -265,7 +263,7 @@ def pipelineWidgetFactory(widget_name):
     if widget_name == core_constants.PUBLISHER:
         widget = publish.HoudiniQtPublisherClientWidget(event_manager)
     elif widget_name == core_constants.ASSET_MANAGER:
-        widget = asset_manager.HoudiniAssetManagerClient(
+        widget = asset_manager.HoudiniQtAssetManagerClientWidget(
             event_manager, asset_list_model
         )
     created_widgets[widget_name] = widget

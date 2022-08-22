@@ -18,7 +18,7 @@ class HoudiniQtPublisherClientWidget(QtPublisherClientWidget):
 
     def __init__(self, event_manager, parent=None):
         super(HoudiniQtPublisherClientWidget, self).__init__(
-            event_manager=event_manager, parent=parent
+            event_manager, parent=parent
         )
         self.setWindowTitle('Houdini Pipeline Publisher')
 

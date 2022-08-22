@@ -31,7 +31,8 @@ class HoudiniDccObject(DccObject):
         '''
         Creates a new node with the given *name* if doesn't exists.
         '''
-        if self._name_exists(name):
+        node_path = '/obj/{}'.format(name)
+        if self._name_exists(node_path):
             error_message = "{} already exists in the scene".format(name)
             self.logger.error(error_message)
             raise RuntimeError(error_message)
@@ -39,21 +40,24 @@ class HoudiniDccObject(DccObject):
         root = hou.node('/obj')
         ftrack_node = root.createNode('null')
         ftrack_node.setName(name)
-        ftrack_node.hide(True)
+        # ftrack_node.hide(True)
         self.logger.debug('Creating new dcc object {}'.format(ftrack_node))
         self._add_ftab(ftrack_node)
         self.name = ftrack_node.path()
         return self.name
 
-    def _add_ftab(self, node):
+    @staticmethod
+    def _add_ftab(node, keys=None):
         '''
         Add ftrack asset parameters to object.
         '''
+        if keys is None:
+            keys = asset_const.KEYS
         parm_group = node.parmTemplateGroup()
         parm_folder = hou.FolderParmTemplate('folder', 'ftrack')
         alembic_folder = parm_group.findFolder('Alembic Loading Parameters')
 
-        for key in asset_const.KEYS:
+        for key in keys:
             parm_folder.addParmTemplate(
                 hou.StringParmTemplate(key, key, 1, '')
             )
@@ -92,7 +96,7 @@ class HoudiniDccObject(DccObject):
             return str(string)
 
         if k == asset_const.REFERENCE_OBJECT:
-            ftrack_node.parm(k).set(safeString(str(ftrack_node.Class())))
+            ftrack_node.parm(k).set(safeString(str(ftrack_node.type())))
         elif k == asset_const.DEPENDENCY_IDS:
             ftrack_node.parm(k).set(safeString(','.join(v or [])))
         else:
@@ -111,7 +115,7 @@ class HoudiniDccObject(DccObject):
                 self.logger.debug(
                     'Found existing object: {}'.format(node.name())
                 )
-                self.name = node.name()
+                self.name = node.path()
                 return self.name
 
         self.logger.debug(
@@ -156,9 +160,9 @@ class HoudiniDccObject(DccObject):
         ftrack_node = hou.node(self.name)
         asset_info_id = str(ftrack_node.parm(asset_const.ASSET_INFO_ID).eval())
         for node in objects:
-            if not node.parmTemplateGroup().findFolder('ftrack'):
-                self._add_ftab(node)
-            node.parm(asset_const.ASSET_LINK).set(asset_info_id)
+            if node != ftrack_node:
+                self._add_ftab(node, keys=[asset_const.ASSET_LINK])
+                node.parm(asset_const.ASSET_LINK).set(asset_info_id)
 
     def get_connected_objects(self):
         '''
@@ -171,9 +175,9 @@ class HoudiniDccObject(DccObject):
         asset_info_id = str(ftrack_node.parm(asset_const.ASSET_INFO_ID).eval())
         for node in hou.node('/').allSubChildren():
             if node.parmTemplateGroup().findFolder('ftrack'):
-                valueftrackAssetInfoId = node.parm(
-                    asset_const.ASSET_LINK
-                ).eval()
-                if valueftrackAssetInfoId == asset_info_id:
-                    result.append(node)
+                parameter = node.parm(asset_const.ASSET_LINK)
+                if parameter:
+                    valueftrackAssetInfoId = parameter.eval()
+                    if valueftrackAssetInfoId == asset_info_id:
+                        result.append(node)
         return result

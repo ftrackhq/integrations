@@ -24,9 +24,11 @@ def get_ftrack_objects(as_node=False):
     result = []
     for node in hou.node('/').allSubChildren():
         if node.parmTemplateGroup().findFolder('ftrack'):
-            valueftrackId = node.parm(asset_const.ASSET_INFO_ID).eval()
-            if valueftrackId != '':
-                result.append(node.path() if not as_node else node)
+            parameter = node.parm(asset_const.ASSET_INFO_ID)
+            if parameter is not None:
+                valueftrackId = parameter.eval()
+                if valueftrackId != '':
+                    result.append(node.path() if not as_node else node)
     return set(result)
 
 
@@ -36,8 +38,8 @@ def import_scene(path, context_data=None, options=None):
     '''
 
     node = hou.node('/obj').createNode('subnet', context_data['asset_name'])
-    node.loadChildrenFromFile(path.replace('\\', '/'))
-    node.set_selected(1)
+    node.loadItemsFromFile(path.replace('\\', '/'))
+    node.setSelected(True)
     node.moveToGoodPosition()
 
     return node
@@ -138,7 +140,7 @@ def run_in_main_thread(f):
     @wraps(f)
     def decorated(*args, **kwargs):
         if threading.currentThread().name != 'MainThread':
-            return hdefereval.executeDeferred(f, *args, **kwargs)
+            return hdefereval.executeInMainThreadWithResult(f, *args, **kwargs)
         else:
             return f(*args, **kwargs)
 
