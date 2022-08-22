@@ -56,7 +56,7 @@ class HoudiniPublisherFinalizerPlugin(
                 if dependency_version not in self.version_dependencies:
                     self.version_dependencies.append(dependency_version)
 
-        super_result = super(PublisherFinalizerHoudiniPlugin, self)._run(event)
+        super_result = super(HoudiniPublisherFinalizerPlugin, self)._run(event)
 
         return super_result
 

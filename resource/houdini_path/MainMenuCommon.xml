@@ -5,12 +5,13 @@
     <insertBefore>help_menu</insertBefore>
       <label>ftrack</label>
       <scriptItem id="hou_PipelineImportAsset">
-        <label>Loader</label>
+        <label>Assembler</label>
         <scriptCode><![CDATA[__import__('__main__').FtrackPipelineDialogs('ftrack_pipelineLoader_panel')]]></scriptCode>
       </scriptItem>
       <scriptItem id="hou_PipelinePublishAsset">
         <label>Publisher</label>
-        <scriptCode><![CDATA[__import__('__main__').FtrackPipelineDialogs('ftrack_pipelinePublish_panel')]]></scriptCode>
+        <scriptCode><![CDATA[__import__('__main__').launchWidget('publisher')]]></scriptCode>
+        <!-- scriptCode><![CDATA[__import__('__main__').FtrackPipelineDialogs('ftrack_pipelinePublish_panel')]]></scriptCode -->
       </scriptItem>
       <separatorItem />
       <scriptItem id="hou_PipelineAssetManager">
@@ -18,6 +19,10 @@
         <scriptCode><![CDATA[__import__('__main__').FtrackPipelineDialogs('ftrack_pipelineAssetManager_panel')]]></scriptCode>
       </scriptItem>
       <separatorItem />
+      <scriptItem id="hou_PipelineChangeContext">
+        <label>Change context</label>
+        <scriptCode><![CDATA[__import__('__main__').launchWidget('change_context')]]></scriptCode>
+      </scriptItem>
       <scriptItem id="hou_PipelineInfo">
         <label>Log Viewer</label>
         <scriptCode><![CDATA[__import__('__main__').FtrackPipelineDialogs('ftrack_pipelineLogViewer_panel')]]></scriptCode>

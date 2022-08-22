@@ -2,8 +2,10 @@
 # :copyright: Copyright (c) 2014-2022 ftrack
 
 import logging
+import threading
+from functools import wraps
 
-import hou
+import hou, hdefereval
 
 from ftrack_connect_pipeline_houdini.constants import asset as asset_const
 
@@ -54,3 +56,19 @@ def open_scene(path, context_data=None, options=None):
     '''
     hou.hipFile.load(path.replace('\\', '/'))
     return path
+
+def init_houdini(context_id=None, session=None):
+    pass
+
+
+def run_in_main_thread(f):
+    '''Make sure a function runs in the main Maya thread.'''
+
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        if threading.currentThread().name != 'MainThread':
+            return hdefereval.executeDeferred(f, *args, **kwargs)
+        else:
+            return f(*args, **kwargs)
+
+    return decorated
