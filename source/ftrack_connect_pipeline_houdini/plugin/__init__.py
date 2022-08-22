@@ -6,6 +6,9 @@ from ftrack_connect_pipeline_qt import plugin as pluginWidget
 from ftrack_connect_pipeline_houdini import constants as houdini_constants
 from ftrack_connect_pipeline_houdini.asset import HoudiniFtrackObjectManager
 from ftrack_connect_pipeline_houdini.asset.dcc_object import HoudiniDccObject
+from ftrack_connect_pipeline_houdini.utils import (
+    custom_commands as houdini_utils,
+)
 
 
 class HoudiniBasePlugin(plugin.BasePlugin):
@@ -16,12 +19,20 @@ class HoudiniBasePlugin(plugin.BasePlugin):
     DccObject = HoudiniDccObject
     '''DccObject class to use'''
 
+    @houdini_utils.run_in_main_thread
+    def _run(self, event):
+        return super(HoudiniBasePlugin, self)._run(event)
+
 
 class HoudiniBasePluginWidget(
     HoudiniBasePlugin, pluginWidget.BasePluginWidget
 ):
     category = 'plugin.widget'
     ui_type = houdini_constants.UI_TYPE
+
+    @houdini_utils.run_in_main_thread
+    def _run(self, event):
+        return super(HoudiniBasePluginWidget, self)._run(event)
 
 
 from ftrack_connect_pipeline_houdini.plugin.load import *

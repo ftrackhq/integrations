@@ -28,6 +28,7 @@ class HoudiniLoaderImporterPlugin(
 
     dependency_load_mode = load_const.IMPORT_MODE
 
+    @houdini_utils.run_in_main_thread
     def get_current_objects(self):
         return houdini_utils.get_current_scene_objects()
 

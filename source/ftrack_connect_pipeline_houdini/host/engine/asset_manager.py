@@ -31,6 +31,7 @@ class HoudiniAssetManagerEngine(AssetManagerEngine):
             event_manager, host_types, host_id, asset_type_name=asset_type_name
         )
 
+    @houdini_utils.run_in_main_thread
     def discover_assets(self, assets=None, options=None, plugin=None):
         '''
         Discover all the assets in the scene:
@@ -82,6 +83,7 @@ class HoudiniAssetManagerEngine(AssetManagerEngine):
 
         return status, result
 
+    @houdini_utils.run_in_main_thread
     def select_asset(self, asset_info, options=None, plugin=None):
         '''
         Selects the given *asset_info* from the scene.
@@ -159,6 +161,7 @@ class HoudiniAssetManagerEngine(AssetManagerEngine):
 
         return status, result
 
+    @houdini_utils.run_in_main_thread
     def unload_asset(self, asset_info, options=None, plugin=None):
         '''
         Removes the given *asset_info* from the scene.
@@ -233,6 +236,7 @@ class HoudiniAssetManagerEngine(AssetManagerEngine):
 
         return status, result
 
+    @houdini_utils.run_in_main_thread
     def remove_asset(self, asset_info, options=None, plugin=None):
         '''
         Removes the given *asset_info* from the scene.

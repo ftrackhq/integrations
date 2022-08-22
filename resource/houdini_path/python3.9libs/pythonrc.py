@@ -19,14 +19,16 @@ from ftrack_connect_pipeline_qt.ui.asset_manager.model import AssetListModel
 
 from ftrack_connect_pipeline_houdini import host as houdini_host
 from ftrack_connect_pipeline_houdini.client import (
-    #open,
+    # open,
     load,
     asset_manager,
     publish,
     change_context,
     log_viewer,
 )
-
+from ftrack_connect_pipeline_houdini.utils import (
+    custom_commands as houdini_utils,
+)
 
 configure_logging(
     'ftrack_connect_pipeline_houdini',
@@ -100,6 +102,7 @@ widgets.append(
 
 created_widgets = dict()
 
+
 def init():
     global event_manager, host, asset_list_model
 
@@ -120,48 +123,11 @@ def init():
         'topic={} and data.pipeline.host_id={}'.format(
             core_constants.PIPELINE_CLIENT_LAUNCH, host.host_id
         ),
-        functools.partial(
-            _open_widget, event_manager, asset_list_model
-        ),
+        functools.partial(_open_widget, event_manager, asset_list_model),
     )
 
-    def setFrameRangeData():
-
-        start_frame = float(os.getenv('FS', 1001))
-        end_frame = float(os.getenv('FE', 1101))
-        shot_id = os.getenv('FTRACK_SHOTID')
-        fps = 24.0
-        handles = 0.0
-
-        try:
-            shot = session.query('Shot where id={}'.format(shot_id)).one()
-            if 'fps' in shot['custom_attributes'].keys():
-                fps = float(shot['custom_attributes']['fps'])
-            if 'handles' in shot['custom_attributes']:
-                handles = float(shot['custom_attributes']['handles'])
-        except Exception as error:
-            logger.error(error)
-
-        logger.info(
-            'setting timeline to {} {} '.format(start_frame, end_frame)
-        )
-
-        # add handles to start and end frame
-        hsf = (start_frame - 1) - handles
-        hef = end_frame + handles
-
-        hou.setFps(fps)
-        hou.setFrame(start_frame)
-
-        try:
-            if start_frame != end_frame:
-                hou.hscript('tset {0} {1}'.format(hsf / fps, hef / fps))
-                hou.playbar.setPlaybackRange(start_frame, end_frame)
-        except IndexError:
-            pass
-
     try:
-        setFrameRangeData()
+        houdini_utils.init_houdini()
     except Exception as error:
         # Continue execution if this fails
         logger.error(error)
@@ -170,6 +136,7 @@ def init():
 def launchWidget(widget_name):
     '''Send an event to launch the widget'''
     host.launch_client(widget_name)
+
 
 def _open_widget(event_manager, asset_list_model, event):
     '''Create and (re-)display the widget'''
@@ -220,22 +187,28 @@ def _open_widget(event_manager, asset_list_model, event):
                             panel_interface = value
                             break
                 except hou.OperationFailed as e:
-                    logger.error('Something Wrong with Python Panel: {}'.format(e))
+                    logger.error(
+                        'Something Wrong with Python Panel: {}'.format(e)
+                    )
 
                 main_tab = hou.ui.curDesktop().findPaneTab(ftrack_id)
 
                 if main_tab:
-                    panel = main_tab.pane().createTab(hou.paneTabType.PythonPanel)
+                    panel = main_tab.pane().createTab(
+                        hou.paneTabType.PythonPanel
+                    )
                     panel.showToolbar(False)
                     panel.setActiveInterface(panel_interface)
                 else:
                     if panel_interface:
-                        hou.hscript('pane -S -m pythonpanel -o -n {}'.format(ftrack_id))
+                        hou.hscript(
+                            'pane -S -m pythonpanel -o -n {}'.format(ftrack_id)
+                        )
                         panel = hou.ui.curDesktop().findPaneTab(ftrack_id)
                         panel.showToolbar(False)
                         panel.setActiveInterface(panel_interface)
             else:
-                # Create and up dialog
+                # Create and bring up a dialog
                 if widget_name in [
                     qt_constants.ASSEMBLER_WIDGET,
                     core_constants.ASSET_MANAGER,
@@ -250,6 +223,7 @@ def _open_widget(event_manager, asset_list_model, event):
             widget.show()
             widget.raise_()
             widget.activateWindow()
+
 
 def _generate_pypanel(widget_name):
     '''Write temporary xml file for pypanel'''
@@ -287,14 +261,15 @@ def createInterface():
 
 
 def pipelineWidgetFactory(widget_name):
-    '''Instantiate the client panel widget'''
+    '''Instantiate the docked client panel widget'''
     if widget_name == core_constants.PUBLISHER:
         widget = publish.HoudiniQtPublisherClientWidget(event_manager)
     elif widget_name == core_constants.ASSET_MANAGER:
-        widget = asset_manager.HoudiniAssetManagerClient(event_manager, asset_list_model)
+        widget = asset_manager.HoudiniAssetManagerClient(
+            event_manager, asset_list_model
+        )
     created_widgets[widget_name] = widget
     return widget
 
 
 hdefereval.executeDeferred(init)
-
