@@ -5,12 +5,12 @@ import threading
 import sys
 import logging
 import contextlib
+import shiboken2
 
 import ftrack_api
 
 from Qt import QtCore, QtWidgets, QtGui
 
-from ftrack_connect_pipeline_qt import constants as qt_constants
 from ftrack_connect_pipeline_qt.ui import theme
 
 
@@ -125,13 +125,13 @@ def set_theme(widget, selected_theme):
     theme.applyTheme(widget, selected_theme)
 
 
-def find_parent(widget, name):
+def find_parent(widget, class_name):
     parent_widget = widget.parentWidget()
     if not parent_widget:
         return
-    if name in parent_widget.objectName():
+    if parent_widget.__class__.__name__.find(class_name) > -1:
         return parent_widget
-    return find_parent(parent_widget, name)
+    return find_parent(parent_widget, class_name)
 
 
 def get_main_framework_window_from_widget(widget):
@@ -141,12 +141,9 @@ def get_main_framework_window_from_widget(widget):
     if not main_window:
         return
 
-    if qt_constants.MAIN_FRAMEWORK_WIDGET not in main_window.objectName():
-        parent = find_parent(
-            widget.parentWidget(), qt_constants.MAIN_FRAMEWORK_WIDGET
-        )
-        if parent:
-            main_window = parent
+    parent = find_parent(widget.parentWidget(), 'ClientWidget')
+    if parent:
+        main_window = parent
 
     return main_window
 
@@ -154,8 +151,9 @@ def get_main_framework_window_from_widget(widget):
 def set_property(widget, name, value):
     '''Update property *name* to *value* for *widget*, and polish afterwards.'''
     widget.setProperty(name, value)
-    widget.style().unpolish(widget)
-    widget.style().polish(widget)
+    if widget.style() is not None and shiboken2.isValid(widget.style()):
+        widget.style().unpolish(widget)
+        widget.style().polish(widget)
     widget.update()
 
 
@@ -233,10 +231,15 @@ class InputEventBlockingWidget(QtWidgets.QWidget):
         '''
         super(InputEventBlockingWidget, self).__init__(parent=parent)
         self._blocker = blocker
-        application = QtCore.QCoreApplication.instance()
-        application.installEventFilter(self)
+        # self._filtered_widget = self
+        self._filtered_widget = QtCore.QCoreApplication.instance()
+        self._filtered_widget.installEventFilter(self)
+
+    def stop(self):
+        self._filtered_widget.removeEventFilter(self)
 
     def eventFilter(self, obj, event):
+        '''Block *event* on *obj* while if blocker returns True'''
         retval = False
         if self._blocker() and (isinstance(event, QtGui.QInputEvent)):
             retval = True

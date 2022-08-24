@@ -47,11 +47,8 @@ class QtAssetManagerClientWidget(QtAssetManagerClient, QtWidgets.QFrame):
     '''
 
     contextChanged = QtCore.Signal(object)  # Context has changed
-
     assetsDiscovered = QtCore.Signal()  # Assets has been discovered and loaded
-
     selectionUpdated = QtCore.Signal(object)  # Selection has changed
-
     onAssetManagerMessage = QtCore.Signal(
         object, object
     )  # A message, with a title amended, has been picked up from the asset management subsystem
@@ -86,11 +83,6 @@ class QtAssetManagerClientWidget(QtAssetManagerClient, QtWidgets.QFrame):
         if self.get_theme_background_style():
             self.setProperty('background', self.get_theme_background_style())
         self.setProperty('docked', 'true' if self.is_docked() else 'false')
-        self.setObjectName(
-            '{}_{}'.format(
-                qt_constants.MAIN_FRAMEWORK_WIDGET, self.__class__.__name__
-            )
-        )
         self.setAttribute(QtCore.Qt.WA_DeleteOnClose, True)
 
         self.pre_build()

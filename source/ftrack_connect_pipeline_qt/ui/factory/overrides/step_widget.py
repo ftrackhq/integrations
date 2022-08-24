@@ -209,7 +209,7 @@ class PublisherAccordionWidget(AccordionBaseWidget):
             self._status_icon.set_icon(
                 'check' if status else 'error_outline',
                 color='gray'
-                if not self.checkable or not self.checked
+                if not self.checked
                 else ('green' if status else 'orange'),
             )
 

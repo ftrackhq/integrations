@@ -127,6 +127,7 @@ class StatusButtonWidget(QtWidgets.QPushButton):
     VIEW_COLLAPSED_BUTTON = 'collapsed-button'  # AM (Opens progress overlay)
     VIEW_EXPANDED_BUTTON = 'expanded-button'  # Opener/Assembler/Publisher (Opens progress overlay)
     VIEW_EXPANDED_BANNER = 'expanded-banner'  # Progress overlay
+    setStatus = QtCore.Signal(object, object)
 
     def __init__(self, view_mode, parent=None):
         super(StatusButtonWidget, self).__init__(parent=parent)
@@ -159,10 +160,16 @@ class StatusButtonWidget(QtWidgets.QPushButton):
 
         self.set_status(core_constants.SUCCESS_STATUS)
 
+    def post_build(self):
+        self.setStatus.connect(self._set_status)
+
     def get_status(self):
         return self.status
 
     def set_status(self, status, message=''):
+        self.setStatus.emit(status, message)
+
+    def _set_status(self, status, message=''):
         self.status = status or core_constants.DEFAULT_STATUS
         self.message = message
         self._message_label.setText(self.message)

@@ -93,12 +93,13 @@ class Overlay(QtWidgets.QFrame):
 
     def setVisible(self, visible):
         '''(Override) Set whether *visible* or not.'''
+        main_window = utils.get_main_framework_window_from_widget(self.widget)
         if visible:
             if not self._event_filter_installed:
                 # Install global event filter that will deal with matching parent size
                 # and disabling parent interaction when overlay is visible.
-                application = QtCore.QCoreApplication.instance()
-                application.installEventFilter(self)
+                # application = QtCore.QCoreApplication.instance()
+                main_window.installEventFilter(self)
                 self._event_filter_installed = True
             # Manually clear focus from any widget that is overlaid. This
             # works in conjunction with :py:meth`eventFilter` to prevent
@@ -117,16 +118,13 @@ class Overlay(QtWidgets.QFrame):
                         break
         else:
             if self._event_filter_installed:
-                application = QtCore.QCoreApplication.instance()
-                application.removeEventFilter(self)
+                # application = QtCore.QCoreApplication.instance()
+                main_window.removeEventFilter(self)
                 self._event_filter_installed = False
 
         super(Overlay, self).setVisible(visible)
         if visible:
             # Make sure size is correct
-            main_window = utils.get_main_framework_window_from_widget(
-                self.widget
-            )
             if main_window:
                 self.resize(main_window.size())
 
@@ -201,5 +199,8 @@ class Overlay(QtWidgets.QFrame):
     #             # Swallow event.
     #             return True
     #
-    #     # Let event propagate.
-    #     return False
+    # Let event propagate (return False) if the object is child of widget
+    # if not (self.widget.isAncestorOf(obj)):
+    #    return super(Overlay, self).eventFilter(obj, event)
+    # else:
+        return False
