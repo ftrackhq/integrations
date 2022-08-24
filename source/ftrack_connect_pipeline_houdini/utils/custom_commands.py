@@ -152,7 +152,10 @@ def save(context_id, session, temp=True, save=True):
     in ftrack.'''
 
     save_path, message = get_save_path(
-        context_id, session, extension='.mb', temp=temp
+        context_id,
+        session,
+        extension='.hip{}'.format('nc' if hou.isApprentice() else ''),
+        temp=temp,
     )
 
     if save_path is None:

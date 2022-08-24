@@ -1,23 +1,16 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2014-2021 ftrack
+# :copyright: Copyright (c) 2014-2022 ftrack
 
-from ftrack_connect_pipeline_qt.client.log_viewer import QtLogViewerClient
-import ftrack_connect_pipeline.constants as constants
-import ftrack_connect_pipeline_qt.constants as qt_constants
-import ftrack_connect_pipeline_houdini.constants as houdini_constants
+from Qt import QtWidgets, QtCore
+
+from ftrack_connect_pipeline_qt.client import log_viewer
 
 
-class HoudiniLogViewerClient(QtLogViewerClient):
-    ui_types = [
-        constants.UI_TYPE,
-        qt_constants.UI_TYPE,
-        houdini_constants.UI_TYPE,
-    ]
-
-    '''Dockable houdini load widget'''
+class HoudiniQtLogViewerClientWidget(log_viewer.QtLogViewerClientWidget):
+    '''Houdini log viewer dialog'''
 
     def __init__(self, event_manager, parent=None):
-        super(HoudiniLogViewerClient, self).__init__(
-            event_manager=event_manager, parent=parent
-        )
-        self.setWindowTitle('Houdini Pipeline Log Viewer')
+        super(HoudiniQtLogViewerClientWidget, self).__init__(event_manager)
+
+        # Make sure we stays on top of Houdini
+        self.setWindowFlags(QtCore.Qt.Tool)

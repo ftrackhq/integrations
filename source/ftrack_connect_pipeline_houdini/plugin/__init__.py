@@ -35,6 +35,7 @@ class HoudiniBasePluginWidget(
         return super(HoudiniBasePluginWidget, self)._run(event)
 
 
+from ftrack_connect_pipeline_houdini.plugin.open import *
 from ftrack_connect_pipeline_houdini.plugin.load import *
 from ftrack_connect_pipeline_houdini.plugin.publish import *
 from ftrack_connect_pipeline_houdini.plugin.asset_manager import *

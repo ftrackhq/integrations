@@ -6,6 +6,8 @@ import tempfile
 import logging
 import functools
 
+from Qt import QtWidgets, QtCore
+
 import hou, hdefereval
 
 import ftrack_api
@@ -19,13 +21,14 @@ from ftrack_connect_pipeline_qt.ui.asset_manager.model import AssetListModel
 
 from ftrack_connect_pipeline_houdini import host as houdini_host
 from ftrack_connect_pipeline_houdini.client import (
-    # open,
+    open as ftrack_open,
     load,
     asset_manager,
     publish,
     change_context,
     log_viewer,
 )
+from ftrack_connect_pipeline_qt.client import documentation
 from ftrack_connect_pipeline_houdini.utils import (
     custom_commands as houdini_utils,
 )
@@ -43,14 +46,9 @@ asset_list_model = None
 
 # Define widgets and their classes
 widgets = list()
-# widgets.append(
-#     (
-#         core_constants.OPENER,
-#         open.MayaQtOpenerClientWidget,
-#         'Open',
-#         'fileOpen',
-#     )
-# )
+widgets.append(
+    (core_constants.OPENER, ftrack_open.HoudiniQtOpenerClientWidget, 'Open')
+)
 widgets.append(
     (
         qt_constants.ASSEMBLER_WIDGET,
@@ -79,22 +77,27 @@ widgets.append(
         'Change context',
     )
 )
-# widgets.append(
-#     (
-#         core_constants.LOG_VIEWER,
-#         log_viewer.MayaQtLogViewerClientWidget,
-#         'Log Viewer'
-#     )
-# )
-# widgets.append(
-#     (
-#         qt_constants.DOCUMENTATION_WIDGET,
-#         documentation.QtDocumentationClientWidget,
-#         'Documentation'
-#     )
-# )
+widgets.append(
+    (
+        core_constants.LOG_VIEWER,
+        log_viewer.HoudiniQtLogViewerClientWidget,
+        'Log Viewer',
+    )
+)
+widgets.append(
+    (
+        qt_constants.DOCUMENTATION_WIDGET,
+        documentation.QtDocumentationClientWidget,
+        'Documentation',
+    )
+)
 
 created_widgets = dict()
+
+
+class EventFilterWidget(QtWidgets.QWidget):
+    def eventFilter(self, obj, event):
+        return False
 
 
 def init():
@@ -120,6 +123,10 @@ def init():
         functools.partial(_open_widget, event_manager, asset_list_model),
     )
 
+    # Install dummy event filter to prevent Houdini from crashing during widget
+    # build.
+    QtCore.QCoreApplication.instance().installEventFilter(EventFilterWidget())
+
     try:
         houdini_utils.init_houdini()
     except Exception as error:
@@ -133,7 +140,7 @@ def launchWidget(widget_name):
 
 
 def _open_widget(event_manager, asset_list_model, event):
-    '''Create and (re-)display the widget'''
+    '''Create and (re-)display a widget'''
     widget_name = None
     widget_class = None
     widget_label = None
@@ -184,7 +191,7 @@ def _open_widget(event_manager, asset_list_model, event):
                             break
                 except hou.OperationFailed as e:
                     logger.error(
-                        'Something Wrong with Python Panel: {}'.format(e)
+                        'Something wrong with Python Panel: {}'.format(e)
                     )
 
                 main_tab = hou.ui.curDesktop().findPaneTab(ftrack_id)

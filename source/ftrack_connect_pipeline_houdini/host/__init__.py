@@ -18,6 +18,7 @@ class HoudiniHost(Host):
     # Define the Houdini engines to be run during the run function
     engines = {
         'asset_manager': host_engine.HoudiniAssetManagerEngine,
+        'opener': host_engine.HoudiniOpenerEngine,
         'loader': host_engine.HoudiniLoaderEngine,
         'publisher': host_engine.HoudiniPublisherEngine,
     }
