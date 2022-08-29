@@ -1,0 +1,10 @@
+{
+    "project_name": "ftrack Acme Connect framework integration",
+    "package_name": "ftrack_connect_pipeline_acme",
+    "repo_name": "ftrack-connect-pipeline-acme",
+    "host_type": "acme",
+    "description": "A ftrack Connect Acme framework integration.",
+    "year": "2022",
+    "version": "1.0.0",
+    "keywords": "ftrack"
+}

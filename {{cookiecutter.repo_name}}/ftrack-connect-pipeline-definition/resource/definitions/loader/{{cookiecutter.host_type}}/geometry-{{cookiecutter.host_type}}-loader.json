@@ -1,0 +1,223 @@
+{
+  "type": "loader",
+  "name": "Geometry Loader",
+  "asset_type": "geo",
+  "host_type": "{{cookiecutter.host_type}}",
+  "ui_type": "qt",
+  "contexts": [
+    {
+      "name": "main",
+      "stages": [
+        {
+          "name": "context",
+          "plugins":[
+            {
+              "name": "context selector",
+              "plugin": "common_default_loader_context",
+              "widget": "common_default_loader_context"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "components": [
+    {
+      "name": "snapshot",
+      "file_formats": [".mb", ".ma"],
+      "stages": [
+        {
+          "name": "collector",
+          "plugins":[
+            {
+              "name": "Collect components from context",
+              "plugin": "common_context_loader_collector"
+            }
+          ]
+        },
+        {
+          "name": "importer",
+          "plugins":[
+            {
+              "name": "Import paths to {{cookiecutter.host_type|capitalize}}",
+              "plugin": "{{cookiecutter.host_type}}_default_loader_importer",
+              "options": {
+                "load_mode": "import",
+                "load_options": {
+                  "preserve_references": true,
+                  "add_namespace": true,
+                  "namespace_option": "file_name"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "post_importer",
+          "plugins":[
+            {
+              "name": "{{cookiecutter.host_type}}",
+              "plugin": "common_default_loader_post_importer"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "model",
+      "file_formats": [".mb", ".ma"],
+      "stages": [
+        {
+          "name": "collector",
+          "plugins":[
+            {
+              "name": "Collect components from context",
+              "plugin": "common_context_loader_collector"
+            }
+          ]
+        },
+        {
+          "name": "importer",
+          "plugins":[
+            {
+              "name": "Import paths to {{cookiecutter.host_type|capitalize}}",
+              "plugin": "{{cookiecutter.host_type}}_default_loader_importer",
+              "options": {
+                "load_mode": "reference",
+                "load_options": {
+                  "preserve_references": true,
+                  "add_namespace": true,
+                  "namespace_option": "file_name"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "post_importer",
+          "plugins":[
+            {
+              "name": "{{cookiecutter.host_type}}",
+              "plugin": "common_default_loader_post_importer"
+            }
+          ]
+        }
+      ]
+    },
+     {
+      "name": "cache",
+      "file_formats": [".abc"],
+      "optional": true,
+      "selected": false,
+      "stages": [
+        {
+          "name": "collector",
+          "plugins":[
+            {
+              "name": "Collect components from context",
+              "plugin": "common_context_loader_collector"
+            }
+          ]
+        },
+        {
+          "name": "importer",
+          "plugins":[
+            {
+              "name": "Import paths to {{cookiecutter.host_type|capitalize}}",
+              "plugin": "{{cookiecutter.host_type}}_abc_loader_importer"
+            }
+          ]
+        },
+        {
+          "name": "post_importer",
+          "plugins":[
+            {
+              "name": "{{cookiecutter.host_type}}",
+              "plugin": "common_default_loader_post_importer"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "game",
+      "file_formats": [".fbx"],
+      "optional": true,
+      "selected": false,
+      "stages": [
+        {
+          "name": "collector",
+          "plugins":[
+            {
+              "name": "Collect components from context",
+              "plugin": "common_context_loader_collector"
+            }
+          ]
+        },
+        {
+          "name": "importer",
+          "plugins":[
+            {
+              "name": "Import paths to {{cookiecutter.host_type|capitalize}}",
+              "plugin": "{{cookiecutter.host_type}}_default_loader_importer",
+              "options": {
+                "load_mode": "import",
+                "load_options": {
+                  "preserve_references": true,
+                  "add_namespace": true,
+                  "namespace_option": "file_name"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "post_importer",
+          "plugins":[
+            {
+              "name": "{{cookiecutter.host_type}}",
+              "plugin": "common_default_loader_post_importer"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "finalizers": [
+    {
+      "name": "main",
+      "stages": [
+        {
+          "name": "pre_finalizer",
+          "visible": false,
+          "plugins":[
+            {
+              "name": "pre to ftrack server",
+              "plugin": "common_default_loader_pre_finalizer"
+            }
+          ]
+        },
+        {
+          "name": "finalizer",
+          "visible": false,
+          "plugins":[
+            {
+              "name": "Do nothing",
+              "plugin": "common_default_loader_finalizer"
+            }
+          ]
+        },
+        {
+          "name": "post_finalizer",
+          "visible": false,
+          "plugins":[
+            {
+              "name": "post to ftrack server",
+              "plugin": "common_default_loader_post_finalizer"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
