@@ -147,7 +147,12 @@ class HoudiniDccObject(DccObject):
         if ftrack_node.parmTemplateGroup().findFolder('ftrack'):
             for parm in ftrack_node.parms():
                 if parm.name() in asset_const.KEYS:
-                    param_dict[parm.name()] = parm.eval()
+                    value = parm.eval()
+                    if parm.name() == asset_const.DEPENDENCY_IDS:
+                        value = []
+                        if len(value) > 0:
+                            value = value.split(',')
+                    param_dict[parm.name()] = value
         return param_dict
 
     def connect_objects(self, objects):
