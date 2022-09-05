@@ -154,7 +154,7 @@ class AssetManagerClient(Client):
 
     def _load_assets_callback(self, event):
         '''
-        Callback of the :meth:`update_assets`
+        Callback of the :meth:`load_assets`
         Updates the current asset_entities_list
         '''
         raise NotImplementedError()
@@ -275,7 +275,7 @@ class AssetManagerClient(Client):
 
     def _unload_assets_callback(self, event):
         '''
-        Callback of the :meth:`update_assets`
+        Callback of the :meth:`unload_assets`
         Updates the current asset_entities_list
         '''
         raise NotImplementedError()
