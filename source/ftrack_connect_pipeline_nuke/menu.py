@@ -39,10 +39,13 @@ def build_menu_widgets(
     )
 
     for item in widgets:
-        widget_name, unused_widget_class, label, image = item
-        ftrack_menu.addCommand(
-            label,
-            '{0}.ftrackWidgetLauncher.launch("{1}")'.format(
-                __name__, widget_name
-            ),
-        )
+        if item == 'separator':
+            ftrack_menu.addSeparator()
+        else:
+            widget_name, unused_widget_class, label, image = item
+            ftrack_menu.addCommand(
+                label,
+                '{0}.ftrackWidgetLauncher.launch("{1}")'.format(
+                    __name__, widget_name
+                ),
+            )
