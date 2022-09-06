@@ -1,5 +1,5 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2014-2020 ftrack
+# :copyright: Copyright (c) 2014-2022 ftrack
 
 import functools
 import logging
@@ -41,8 +41,6 @@ configure_logging(
 )
 
 logger = logging.getLogger('ftrack_connect_pipeline_nuke')
-
-created_dialogs = dict()
 
 
 def get_ftrack_menu(menu_name='ftrack', submenu_name='pipeline'):
@@ -158,8 +156,6 @@ def initialise():
 
     asset_list_model = AssetListModel(event_manager)
 
-    created_widgets = dict()
-
     widgets = list()
     widgets.append(
         (
@@ -222,7 +218,12 @@ def initialise():
     widget_launcher = WidgetLauncher(host)
 
     build_menu_widgets(
-        ftrack_menu, widget_launcher, widgets, event_manager, asset_list_model
+        ftrack_menu,
+        widget_launcher,
+        widgets,
+        event_manager,
+        asset_list_model,
+        created_widgets,
     )
 
     # Listen to client launch events
