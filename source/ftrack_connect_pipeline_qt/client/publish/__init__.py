@@ -240,7 +240,7 @@ class QtPublisherClientWidget(QtPublisherClient, QtWidgets.QFrame):
         self.widget_factory.host_connection = self.host_connection
         self.widget_factory.set_definition_type(self.definition['type'])
         self.definition_widget = self.widget_factory.build(
-            self.definition, component_names_filter
+            self.definition, component_names_filter, None
         )
         self.scroll.setWidget(self.definition_widget)
 

@@ -313,7 +313,11 @@ class OpenContextWidget(BaseOptionsWidget):
         self._label.setObjectName("gray")
         self.main_layout.addWidget(self._label)
 
-        self.asset_selector = AssetListSelector(self.session)
+        self.asset_selector = AssetListSelector(
+            self.session,
+            extensions_filter=self.options.get('_extensions_filter'),
+            component_names_filter=self.options.get('_component_names_filter'),
+        )
         self.main_layout.addWidget(self.asset_selector)
 
     def _on_assets_added(self):

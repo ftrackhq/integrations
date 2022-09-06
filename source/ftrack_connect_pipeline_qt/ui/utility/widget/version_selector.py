@@ -11,14 +11,16 @@ class VersionComboBox(QtWidgets.QComboBox):
     versionsQueryDone = QtCore.Signal()
     versionChanged = QtCore.Signal(object)  # User has selected the version
 
-    def __init__(self, session, parent=None):
+    def __init__(self, session, versions=None, parent=None):
         super(VersionComboBox, self).__init__(parent=parent)
         self.logger = logging.getLogger(
             __name__ + '.' + self.__class__.__name__
         )
 
-        self.setEditable(False)
         self.session = session
+        self._versions = versions
+
+        self.setEditable(False)
         self.context_id = None
         self.asset_entity = None
         self._version_id = None
@@ -32,8 +34,19 @@ class VersionComboBox(QtWidgets.QComboBox):
         self.asset_entity = asset_entity
         self._version_nr = None
         self.clear()
-        self._add_version(self.asset_entity['latest_version'])
-        self._version_id = self.asset_entity['latest_version']['id']
+        latest_version = None
+        if self._versions is None:
+            latest_version = self.asset_entity['latest_version']
+        else:
+            for version in self._versions:
+                if (
+                    latest_version is None
+                    or latest_version['version'] < version['version']
+                ):
+                    latest_version = version
+        if latest_version:
+            self._add_version(latest_version)
+            self._version_id = latest_version['id']
 
     def set_version_entity(self, version_entity):
         self.asset_entity = version_entity['asset']
@@ -43,8 +56,10 @@ class VersionComboBox(QtWidgets.QComboBox):
 
     def showPopup(self):
         '''Override'''
-        versions = self.query_versions(
-            self.context_id, self.asset_entity['id']
+        versions = (
+            self.query_versions(self.context_id, self.asset_entity['id'])
+            if self._versions is None
+            else self._versions
         )
         if len(versions) != self.count():
             self.clear()

@@ -109,6 +109,8 @@ class DynamicWidget(BaseOptionsWidget):
         super(DynamicWidget, self).build()
 
         for key, value in list(self.options.items()):
+            if key.find('_') == 0:
+                continue  # Skip hidden options
             value_type = type(value)
             widget_fn = self._type_mapping.get(
                 value_type, self._build_str_widget

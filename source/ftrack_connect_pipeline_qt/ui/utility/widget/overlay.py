@@ -147,6 +147,7 @@ class Overlay(QtWidgets.QFrame):
             if event.type() == QtCore.QEvent.Resize:
                 # Relay event.
                 self.resize(event.size())
+
     # TODO: Evaluate if this commented code is still valid. It's currently
     #  deactivated because was disabling the editable of the inner widgets.
     #

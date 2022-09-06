@@ -17,15 +17,33 @@ class AssetVersionListItem(QtWidgets.QFrame):
 
     versionChanged = QtCore.Signal()
 
-    def __init__(self, context_id, asset, session):
+    def __init__(self, context_id, asset, session, versions=None):
         super(AssetVersionListItem, self).__init__()
 
         self.context_id = context_id
         self.asset = asset
         self.session = session
+        self._versions = versions
         self.pre_build()
         self.build()
         self.post_build()
+
+    def get_latest_version(self):
+        latest_version = None
+        if self._versions:
+            for version in self._versions:
+                if (
+                    latest_version is None
+                    or latest_version['version'] < version['version']
+                ):
+                    latest_version = version
+        else:
+            if (
+                self.asset['latest_version']
+                and 'latest_version.date' in self.asset
+            ):
+                latest_version = self.asset['latest_version']
+        return latest_version
 
     def pre_build(self):
         self.setLayout(QtWidgets.QHBoxLayout())
@@ -33,24 +51,28 @@ class AssetVersionListItem(QtWidgets.QFrame):
         self.layout().setSpacing(3)
 
     def build(self):
+        latest_version = self.get_latest_version()
+
         self.thumbnail_widget = AssetVersion(self.session)
         self.thumbnail_widget.setScaledContents(True)
         self.thumbnail_widget.setMinimumSize(46, 32)
         self.thumbnail_widget.setMaximumSize(46, 32)
         self.layout().addWidget(self.thumbnail_widget)
-        self.thumbnail_widget.load(self.asset['latest_version']['id'])
+        self.thumbnail_widget.load(latest_version['id'])
 
         self.asset_name = QtWidgets.QLabel(self.asset['name'])
         self.layout().addWidget(self.asset_name)
 
-        self.version_combobox = VersionComboBox(self.session)
+        self.version_combobox = VersionComboBox(
+            self.session, versions=self._versions
+        )
         self.version_combobox.set_context_id(self.context_id)
         self.version_combobox.set_asset_entity(self.asset)
         self.version_combobox.setMaximumHeight(20)
         self.layout().addWidget(self.version_combobox)
 
-        self.current_version_id = self.asset['latest_version']['id']
-        self.current_version_number = self.asset['latest_version']['version']
+        self.current_version_id = latest_version['id']
+        self.current_version_number = latest_version['version']
 
         self.layout().addStretch()
 
@@ -58,7 +80,7 @@ class AssetVersionListItem(QtWidgets.QFrame):
         self.version_info_label.setObjectName('gray')
         self.layout().addWidget(self.version_info_label)
 
-        self._update_publisher_info(self.asset['latest_version'])
+        self._update_publisher_info(latest_version)
 
     def post_build(self):
         self.version_combobox.currentIndexChanged.connect(
@@ -96,12 +118,26 @@ class AssetList(QtWidgets.QListWidget):
     assetsAdded = QtCore.Signal()
     versionChanged = QtCore.Signal(object)
 
-    def __init__(self, session, parent=None):
+    @property
+    def widgets(self):
+        result = []
+        for row in range(0, self.count()):
+            result.append(self.itemWidget(self.item(row)))
+        return result
+
+    def __init__(
+        self,
+        session,
+        extensions_filter=None,
+        component_names_filter=None,
+        parent=None,
+    ):
         super(AssetList, self).__init__(parent=parent)
         self.logger = logging.getLogger(
             __name__ + '.' + self.__class__.__name__
         )
-
+        self._extensions_filter = extensions_filter
+        self._component_names_filter = component_names_filter
         self.session = session
         self.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
         self.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
@@ -136,22 +172,61 @@ class AssetList(QtWidgets.QListWidget):
         '''Add fetched assets to list'''
         self.clear()
         for asset_entity in self.assets:
-            widget = AssetVersionListItem(
-                self._context_id,
-                asset_entity,
-                self.session,
-            )
-            widget.versionChanged.connect(
-                partial(self._on_version_changed, widget)
-            )
-            list_item = QtWidgets.QListWidgetItem(self)
-            list_item.setSizeHint(
-                QtCore.QSize(
-                    widget.sizeHint().width(), widget.sizeHint().height() + 5
+            compatible_versions = None
+            if self._extensions_filter or self._component_names_filter:
+                compatible_versions = []
+                # Filter out incompatible versions
+                for version in self.session.query(
+                    'AssetVersion where asset.id is {}'.format(
+                        asset_entity['id']
+                    )
+                ):
+                    components = self.session.query(
+                        'Component where version.id is {}'.format(
+                            version['id']
+                        )
+                    ).all()
+                    has_compatible_component = False
+                    if components:
+                        for component in components:
+                            name_compatible = file_type_compatible = False
+                            if (
+                                self._component_names_filter is None
+                                or component['name']
+                                in self._component_names_filter
+                            ):
+                                name_compatible = True
+                            if (
+                                self._extensions_filter is None
+                                or component['file_type']
+                                in self._extensions_filter
+                            ):
+                                file_type_compatible = True
+                            if name_compatible and file_type_compatible:
+                                has_compatible_component = True
+                                break
+                    if has_compatible_component:
+                        compatible_versions.append(version)
+
+            if compatible_versions is None or len(compatible_versions) > 0:
+                widget = AssetVersionListItem(
+                    self._context_id,
+                    asset_entity,
+                    self.session,
+                    versions=compatible_versions,
                 )
-            )
-            self.addItem(list_item)
-            self.setItemWidget(list_item, widget)
+                widget.versionChanged.connect(
+                    partial(self._on_version_changed, widget)
+                )
+                list_item = QtWidgets.QListWidgetItem(self)
+                list_item.setSizeHint(
+                    QtCore.QSize(
+                        widget.sizeHint().width(),
+                        widget.sizeHint().height() + 5,
+                    )
+                )
+                self.addItem(list_item)
+                self.setItemWidget(list_item, widget)
         self.assetsAdded.emit()
 
     def on_context_changed(self, context_id, asset_type_name):
@@ -185,14 +260,21 @@ class AssetListSelector(QtWidgets.QFrame):
 
     assetChanged = QtCore.Signal(object, object, object, object)
 
-    def __init__(self, session, is_loader=False, parent=None):
+    def __init__(
+        self,
+        session,
+        extensions_filter=None,
+        component_names_filter=None,
+        parent=None,
+    ):
         super(AssetListSelector, self).__init__(parent=parent)
         self.logger = logging.getLogger(
             __name__ + '.' + self.__class__.__name__
         )
 
-        self.is_loader = is_loader
         self.session = session
+        self._extensions_filter = extensions_filter
+        self._component_names_filter = component_names_filter
 
         self.pre_build()
         self.build()
@@ -204,7 +286,11 @@ class AssetListSelector(QtWidgets.QFrame):
         self.layout().setSpacing(0)
 
     def build(self):
-        self.asset_list = AssetList(self.session)
+        self.asset_list = AssetList(
+            self.session,
+            extensions_filter=self._extensions_filter,
+            component_names_filter=self._component_names_filter,
+        )
         self.layout().addWidget(self.asset_list)
 
     def post_build(self):
@@ -222,12 +308,13 @@ class AssetListSelector(QtWidgets.QFrame):
         - have the most recent published version'''
         recent_version = None
         selected_index = -1
-        for idx, asset in enumerate(self.asset_list.assets):
-            if recent_version is None or (
-                'latest_version.date' in asset
-                and recent_version['date'] < asset['latest_version.date']
+        for idx, widget in enumerate(self.asset_list.widgets):
+            asset_latest_version = widget.get_latest_version()
+            if (
+                recent_version is None
+                or recent_version['date'] < asset_latest_version['date']
             ):
-                recent_version = asset['latest_version']
+                recent_version = asset_latest_version
                 selected_index = idx
         if selected_index > -1:
             self.asset_list.setCurrentRow(selected_index)

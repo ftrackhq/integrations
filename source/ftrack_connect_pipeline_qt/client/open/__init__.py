@@ -234,7 +234,9 @@ class QtOpenerClientWidget(QtOpenerClient, dialog.Dialog):
         self.widget_factory.host_connection = self.host_connection
         self.widget_factory.set_definition_type(self.definition['type'])
         definition_widget = self.widget_factory.build(
-            self.definition, component_names_filter
+            self.definition,
+            component_names_filter,
+            self.definition_extensions_filter,
         )
         self.scroll.setWidget(definition_widget)
 
