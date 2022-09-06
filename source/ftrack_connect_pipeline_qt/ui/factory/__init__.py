@@ -182,7 +182,8 @@ class WidgetFactoryBase(QtWidgets.QWidget):
         '''
         Main loop to create the widgets UI overrides from schema *definition*
         based on *step_step_type_name* and optional *stage_name_filters*. Pass
-        on *extensions_filter* to
+        on *component_names_filter* and *extensions_filter* as options to the
+        widget to enable filtering on context.
         '''
         step_container_obj = self.get_override(
             step_type_name,
