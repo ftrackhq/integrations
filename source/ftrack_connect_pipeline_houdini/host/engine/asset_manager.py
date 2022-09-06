@@ -53,7 +53,7 @@ class HoudiniAssetManagerEngine(AssetManagerEngine):
             'message': message,
         }
 
-        ftrack_objects = houdini_utils.get_ftrack_objects()
+        ftrack_objects = houdini_utils.get_ftrack_nodes()
         ftrack_asset_info_list = []
 
         if ftrack_objects:

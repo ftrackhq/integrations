@@ -36,7 +36,7 @@ class HoudiniPublisherFinalizerPlugin(
            publishing the dependencies if the plugin fails.
         '''
         self.version_dependencies = []
-        ftrack_dcc_nodes = houdini_utils.get_ftrack_objects(as_node=True)
+        ftrack_dcc_nodes = houdini_utils.get_ftrack_nodes(as_node=True)
         for dependency_node in ftrack_dcc_nodes:
             dependency_version_id = dependency_node.parm(
                 asset_const.VERSION_ID

@@ -17,10 +17,13 @@ logger = logging.getLogger(__name__)
 
 
 def get_current_scene_objects():
+    '''Return all objects within the houdini scene'''
     return set(hou.node('/obj').glob('*'))
 
 
-def get_ftrack_objects(as_node=False):
+def get_ftrack_nodes(as_node=False):
+    '''Return all ftrack node paths within the scene. If *as_node* is True, the node
+    hou.Node object will be returned instead of the path.'''
     result = []
     for node in hou.node('/').allSubChildren():
         if node.parmTemplateGroup().findFolder('ftrack'):

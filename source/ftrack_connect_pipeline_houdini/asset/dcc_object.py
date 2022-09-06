@@ -5,6 +5,7 @@ import six
 
 import logging
 from ftrack_connect_pipeline.asset.dcc_object import DccObject
+from ftrack_connect_pipeline import utils as core_utils
 from ftrack_connect_pipeline_houdini.constants import asset as asset_const
 from ftrack_connect_pipeline_houdini.utils import (
     custom_commands as houdini_utils,
@@ -89,19 +90,12 @@ class HoudiniDccObject(DccObject):
                 'ftrack node "{}" does not exists'.format(self.name)
             )
 
-        def safeString(string):
-            if six.PY2 and isinstance(string, unicode):
-                return string.encode('utf-8')
-            if isinstance(string, bytes):
-                return string.decode("utf-8")
-            return str(string)
-
         if k == asset_const.REFERENCE_OBJECT:
-            ftrack_node.parm(k).set(safeString(str(ftrack_node.type())))
+            ftrack_node.parm(k).set(core_utils.safe_string(str(ftrack_node.name())))
         elif k == asset_const.DEPENDENCY_IDS:
-            ftrack_node.parm(k).set(safeString(','.join(v or [])))
+            ftrack_node.parm(k).set(core_utils.safe_string(','.join(v or [])))
         else:
-            ftrack_node.parm(k).set(safeString(v))
+            ftrack_node.parm(k).set(core_utils.safe_string(v))
 
         super(HoudiniDccObject, self).__setitem__(k, v)
 
@@ -110,7 +104,7 @@ class HoudiniDccObject(DccObject):
         Checks houdini scene to get all the ftrackAssetNode objects. Compares them
         with the given *asset_info_id* and returns them if matches.
         '''
-        for node in houdini_utils.get_ftrack_objects(as_node=True):
+        for node in houdini_utils.get_ftrack_nodes(as_node=True):
             id_value = node.parm(asset_const.ASSET_INFO_ID).eval()
             if id_value == asset_info_id:
                 self.logger.debug(
@@ -164,11 +158,10 @@ class HoudiniDccObject(DccObject):
         *objects* List of Houdini Node objects
         '''
         ftrack_node = hou.node(self.name)
-        asset_info_id = str(ftrack_node.parm(asset_const.ASSET_INFO_ID).eval())
         for node in objects:
             if node != ftrack_node:
                 self._add_ftab(node, keys=[asset_const.ASSET_LINK])
-                node.parm(asset_const.ASSET_LINK).set(asset_info_id)
+                node.parm(asset_const.ASSET_LINK).set(self.name)
 
     def get_connected_objects(self):
         '''
@@ -178,12 +171,11 @@ class HoudiniDccObject(DccObject):
         '''
         result = []
         ftrack_node = hou.node(self.name)
-        asset_info_id = str(ftrack_node.parm(asset_const.ASSET_INFO_ID).eval())
         for node in hou.node('/').allSubChildren():
             if node.parmTemplateGroup().findFolder('ftrack'):
                 parameter = node.parm(asset_const.ASSET_LINK)
                 if parameter:
-                    valueftrackAssetInfoId = parameter.eval()
-                    if valueftrackAssetInfoId == asset_info_id:
+                    linked_ftrack_node_name = parameter.eval()
+                    if linked_ftrack_node_name == self.name:
                         result.append(node)
         return result
