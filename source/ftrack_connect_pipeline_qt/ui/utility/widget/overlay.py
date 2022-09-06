@@ -98,7 +98,6 @@ class Overlay(QtWidgets.QFrame):
             if not self._event_filter_installed:
                 # Install global event filter that will deal with matching parent size
                 # and disabling parent interaction when overlay is visible.
-                # application = QtCore.QCoreApplication.instance()
                 main_window.installEventFilter(self)
                 self._event_filter_installed = True
             # Manually clear focus from any widget that is overlaid. This
@@ -118,7 +117,6 @@ class Overlay(QtWidgets.QFrame):
                         break
         else:
             if self._event_filter_installed:
-                # application = QtCore.QCoreApplication.instance()
                 main_window.removeEventFilter(self)
                 self._event_filter_installed = False
 
@@ -145,62 +143,4 @@ class Overlay(QtWidgets.QFrame):
             if event.type() == QtCore.QEvent.Resize:
                 # Relay event.
                 self.resize(event.size())
-        # TODO: Evaluate if this commented code is still valid. It's currently
-        #  deactivated because was disabling the editable of the inner widgets.
-        #
-        #     # Prevent interaction events reaching parent and its child widgets
-        #     # while this overlay is visible. To do this, intercept appropriate
-        #     # events (currently focus events) and handle them by skipping child
-        #     # widgets of the target parent. This prevents the user from tabbing
-        #     # into a widget that is currently overlaid.
-        #     #
-        #     # Note: Previous solutions attempted to use a simpler method of setting
-        #     # the overlaid widget to disabled. This doesn't work because the overlay
-        #     # itself is a child of the overlaid widget and Qt does not allow a child
-        #     # of a disabled widget to be enabled. Attempting to manage manually the
-        #     # enabled state of each child grows too complex as have to remember the
-        #     # initial state of each widget when the overlay is shown and then revert
-        #     # to it on hide.
-        #     if event.type() == QtCore.QEvent.FocusIn and obj != self:
-        #         parent = self.parent()
-        #         if isinstance(obj, QtWidgets.QWidget) and parent.isAncestorOf(obj):
-        #             # Ensure the targeted object loses its focus.
-        #             obj.clearFocus()
-        #
-        #             # Loop through available widgets to move focus to. If an
-        #             # available widget is not a child of the parent widget targeted
-        #             # by this overlay then move focus to it, respecting requested
-        #             # focus direction.
-        #             seen = []
-        #             candidate = obj
-        #             reason = event.reason()
-        #
-        #             while True:
-        #                 if reason == QtCore.Qt.TabFocusReason:
-        #                     candidate = candidate.nextInFocusChain()
-        #                 elif reason == QtCore.Qt.BacktabFocusReason:
-        #                     candidate = candidate.previousInFocusChain()
-        #                 else:
-        #                     break
-        #
-        #                 if candidate in seen:
-        #                     # No other widget available for focus.
-        #                     break
-        #
-        #                 # Keep track of candidates to avoid infinite recursion.
-        #                 seen.append(candidate)
-        #
-        #                 if isinstance(
-        #                     candidate, QtWidgets.QWidget
-        #                 ) and not parent.isAncestorOf(candidate):
-        #                     candidate.setFocus(event.reason())
-        #                     break
-        #
-        #             # Swallow event.
-        #             return True
-        #
-        # Let event propagate (return False) if the object is child of widget
-        # if not (self.widget.isAncestorOf(obj)):
-        #    return super(Overlay, self).eventFilter(obj, event)
-        # else:
         return False

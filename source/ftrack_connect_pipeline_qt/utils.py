@@ -12,6 +12,7 @@ import ftrack_api
 from Qt import QtCore, QtWidgets, QtGui
 
 from ftrack_connect_pipeline_qt.ui import theme
+from ftrack_connect_pipeline_qt import constants as qt_constants
 
 
 class Worker(QtCore.QThread):
@@ -126,6 +127,8 @@ def set_theme(widget, selected_theme):
 
 
 def find_parent(widget, class_name):
+    '''Recursively find upstream widget having class name
+    containing *class_name*'''
     parent_widget = widget.parentWidget()
     if not parent_widget:
         return
@@ -140,8 +143,8 @@ def get_main_framework_window_from_widget(widget):
     main_window = widget.window()
     if not main_window:
         return
-
-    parent = find_parent(widget.parentWidget(), 'ClientWidget')
+    # Locate the topmost framework(client) widget
+    parent = find_parent(widget.parentWidget(), qt_constants.CLIENT_WIDGET)
     if parent:
         main_window = parent
 
@@ -151,7 +154,9 @@ def get_main_framework_window_from_widget(widget):
 def set_property(widget, name, value):
     '''Update property *name* to *value* for *widget*, and polish afterwards.'''
     widget.setProperty(name, value)
-    if widget.style() is not None and shiboken2.isValid(widget.style()):
+    if widget.style() is not None and shiboken2.isValid(
+        widget.style()
+    ):  # Only update style if applied and valid
         widget.style().unpolish(widget)
         widget.style().polish(widget)
     widget.update()
@@ -231,7 +236,6 @@ class InputEventBlockingWidget(QtWidgets.QWidget):
         '''
         super(InputEventBlockingWidget, self).__init__(parent=parent)
         self._blocker = blocker
-        # self._filtered_widget = self
         self._filtered_widget = QtCore.QCoreApplication.instance()
         self._filtered_widget.installEventFilter(self)
 

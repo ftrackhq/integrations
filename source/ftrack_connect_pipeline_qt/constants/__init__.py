@@ -25,3 +25,6 @@ INFO_WIDGET = 'info'
 TASKS_WIDGET = 'tasks'
 # Documentation widget
 DOCUMENTATION_WIDGET = 'documentation'
+
+# Client widget class name suffix
+CLIENT_WIDGET = 'ClientWidget'
