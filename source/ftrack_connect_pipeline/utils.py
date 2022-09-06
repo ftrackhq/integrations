@@ -3,6 +3,7 @@
 import os
 import appdirs
 import tempfile
+import six
 
 from ftrack_connect_pipeline import constants as core_constants
 
@@ -25,6 +26,14 @@ def str_version(v, with_id=False, force_version_nr=None, delimiter='/'):
         force_version_nr or v['version'],
         ('({})'.format(v['id']) if with_id else ''),
     ).replace('/', delimiter)
+
+
+def safe_string(string):
+    if six.PY2 and isinstance(string, unicode):
+        return string.encode('utf-8')
+    if isinstance(string, bytes):
+        return string.decode("utf-8")
+    return str(string)
 
 
 def get_save_path(context_id, session, extension=None, temp=True):
