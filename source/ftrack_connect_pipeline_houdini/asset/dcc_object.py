@@ -91,7 +91,9 @@ class HoudiniDccObject(DccObject):
             )
 
         if k == asset_const.REFERENCE_OBJECT:
-            ftrack_node.parm(k).set(core_utils.safe_string(str(ftrack_node.name())))
+            ftrack_node.parm(k).set(
+                core_utils.safe_string(str(ftrack_node.name()))
+            )
         elif k == asset_const.DEPENDENCY_IDS:
             ftrack_node.parm(k).set(core_utils.safe_string(','.join(v or [])))
         else:

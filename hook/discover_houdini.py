@@ -112,9 +112,15 @@ def on_launch_pipeline_houdini(session, event):
                 task['parent']['id']
             )
         ).first()  # Make sure updated custom attributes are fetched
-        pipeline_houdini_base_data['integration']['env']['FS.set'] = parent['custom_attributes'].get('fstart', '1.0')
-        pipeline_houdini_base_data['integration']['env']['FE.set'] = parent['custom_attributes'].get('fend', '100.0')
-        pipeline_houdini_base_data['integration']['env']['FPS.set'] = parent['custom_attributes'].get('fps', '24.0')
+        pipeline_houdini_base_data['integration']['env']['FS.set'] = parent[
+            'custom_attributes'
+        ].get('fstart', '1.0')
+        pipeline_houdini_base_data['integration']['env']['FE.set'] = parent[
+            'custom_attributes'
+        ].get('fend', '100.0')
+        pipeline_houdini_base_data['integration']['env']['FPS.set'] = parent[
+            'custom_attributes'
+        ].get('fps', '24.0')
 
     return pipeline_houdini_base_data
 
