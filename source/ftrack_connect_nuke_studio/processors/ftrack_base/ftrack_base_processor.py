@@ -530,8 +530,18 @@ class FtrackProcessor(FtrackBase):
                 # Collect task tags per clip.
                 task_tags = set()
 
-                if not hasattr(track_item, 'tags'):
-                    continue
+                can_use_tags = all([
+                    hasattr(track_item, 'tags'),
+                    hasattr(track_item, 'sourceIn'),
+                    hasattr(track_item, 'sourceOut'),
+                    not isinstance(track_item, hiero.core.Sequence),
+                ])
+
+                if not can_use_tags:
+                    self.logger.debug(
+                        'cannot use tags on {}'.format(track_item)
+                    )
+                    return
 
                 for tag in track_item.tags():
                     meta = tag.metadata()
@@ -662,7 +672,14 @@ class FtrackProcessor(FtrackBase):
     def add_ftrack_tag(self, original_item, task):
         ''' Add ftrack tag to *original_item* for *task*. '''
 
-        if not hasattr(original_item, 'tags'):
+        can_use_tags = all([
+            hasattr(original_item, 'tags'),
+            hasattr(original_item, 'sourceIn'),
+            hasattr(original_item, 'sourceOut'),
+            not isinstance(original_item, hiero.core.Sequence),
+        ])
+
+        if not can_use_tags:
             return
 
         # TrackItem

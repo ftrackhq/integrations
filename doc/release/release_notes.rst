@@ -8,7 +8,12 @@ Release Notes
 *************
 
 .. releaes:: Upcoming
-    
+
+    .. change:: fixed
+        :tags: Tags
+
+        Tags on sequences break exporters. 
+
     .. change:: changed
         :tags: Environment Variables
 
