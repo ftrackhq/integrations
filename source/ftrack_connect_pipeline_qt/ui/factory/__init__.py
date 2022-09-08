@@ -247,18 +247,21 @@ class WidgetFactoryBase(QtWidgets.QWidget):
                         plugin,
                         self.client_type(),
                     )
-                    # Here is where we inject the user custom widgets.
+                    # Here is where we inject the user custom widgets, provide filters if supplied
+                    extra_options = {'_filters': {}}
+                    if extensions_filter:
+                        extra_options['_filters'][
+                            'file_types'
+                        ] = extensions_filter
+                    if component_names_filter:
+                        extra_options['_filters'][
+                            'component_names'
+                        ] = component_names_filter
+
                     plugin_widget = self.fetch_plugin_widget(
                         plugin,
                         stage['name'],
-                        extra_options={
-                            '_extensions_filter': extensions_filter,
-                            '_component_names_filter': list(
-                                component_names_filter
-                            )
-                            if component_names_filter
-                            else None,
-                        },
+                        extra_options=extra_options,
                     )
                     # Start parenting widgets
                     if plugin_container_obj:
@@ -479,7 +482,9 @@ class WidgetFactoryBase(QtWidgets.QWidget):
                 )
             )
 
-        widget.assetVersionChanged.connect(self._asset_version_changed)  # Load
+        widget.assetVersionChanged.connect(
+            self._asset_version_changed
+        )  # Open/load
         widget.assetChanged.connect(self._on_widget_asset_changed)  # Publish
 
         self.register_widget_plugin(plugin_data, widget)
@@ -720,7 +725,7 @@ class WidgetFactoryBase(QtWidgets.QWidget):
     def _asset_version_changed(self, version_id):
         '''Callback function triggered when a asset version has changed'''
         if version_id is None:
-            # No asset available to load
+            # No asset available to open/load
             self._query_asset_version_callback(None)
             return
         thread = BaseThread(

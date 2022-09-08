@@ -313,10 +313,10 @@ class OpenContextWidget(BaseOptionsWidget):
         self._label.setObjectName("gray")
         self.main_layout.addWidget(self._label)
 
+        # Provide filters from options to the selector, to prevent incompatible
+        # version to be shown
         self.asset_selector = AssetListSelector(
-            self.session,
-            extensions_filter=self.options.get('_extensions_filter'),
-            component_names_filter=self.options.get('_component_names_filter'),
+            self.session, filters=self.options.get('_filters')
         )
         self.main_layout.addWidget(self.asset_selector)
 
