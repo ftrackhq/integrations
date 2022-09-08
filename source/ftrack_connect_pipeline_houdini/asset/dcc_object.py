@@ -164,20 +164,3 @@ class HoudiniDccObject(DccObject):
             if node != ftrack_node:
                 self._add_ftab(node, keys=[asset_const.ASSET_LINK])
                 node.parm(asset_const.ASSET_LINK).set(self.name)
-
-    def get_connected_objects(self):
-        '''
-        Return all the Houdini nodes linked to the self :obj:`name` object.
-
-        :return: List of Houdini Node objects
-        '''
-        result = []
-        ftrack_node = hou.node(self.name)
-        for node in hou.node('/').allSubChildren():
-            if node.parmTemplateGroup().findFolder('ftrack'):
-                parameter = node.parm(asset_const.ASSET_LINK)
-                if parameter:
-                    linked_ftrack_node_name = parameter.eval()
-                    if linked_ftrack_node_name == self.name:
-                        result.append(node)
-        return result

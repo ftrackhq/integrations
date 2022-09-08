@@ -35,6 +35,23 @@ def get_ftrack_nodes(as_node=False):
     return set(result)
 
 
+def get_connected_objects(name):
+    '''
+    Return all the Houdini nodes linked to the ftrack node by *name*.
+
+    :return: List of Houdini Node objects
+    '''
+    result = []
+    for node in hou.node('/').allSubChildren():
+        if node.parmTemplateGroup().findFolder('ftrack'):
+            parameter = node.parm(asset_const.ASSET_LINK)
+            if parameter:
+                linked_ftrack_node_name = parameter.eval()
+                if linked_ftrack_node_name == name:
+                    result.append(node)
+    return result
+
+
 def import_scene(path, context_data=None, options=None):
     '''
     Import the scene from the given *path*

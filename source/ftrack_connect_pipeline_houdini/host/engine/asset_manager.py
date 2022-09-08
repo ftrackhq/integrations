@@ -122,7 +122,7 @@ class HoudiniAssetManagerEngine(AssetManagerEngine):
             hou.clearAllSelected()
 
         # Find out all connected (loaded) nodes
-        for node in dcc_object.get_connected_objects():
+        for node in houdini_utils.get_connected_objects(dcc_object.name):
             try:
                 # hou.Node.set_selected(obj, True, clear_all_selected=(options.get('clear_selection') is True))
                 node.setSelected(True)
@@ -194,7 +194,7 @@ class HoudiniAssetManagerEngine(AssetManagerEngine):
         )
         self.dcc_object = dcc_object
 
-        for node in dcc_object.get_connected_objects():
+        for node in houdini_utils.get_connected_objects(dcc_object.name):
             self.logger.debug("Removing object: {}".format(node))
             try:
                 node_path = node.path()
@@ -270,7 +270,7 @@ class HoudiniAssetManagerEngine(AssetManagerEngine):
         self.dcc_object = dcc_object
 
         # Remove the the loaded nodes
-        for node in dcc_object.get_connected_objects():
+        for node in houdini_utils.get_connected_objects(dcc_object.name):
             self.logger.debug("Removing object: {}".format(node))
             try:
                 node_path = node.path()
