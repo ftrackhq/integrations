@@ -485,7 +485,7 @@ class WidgetFactoryBase(QtWidgets.QWidget):
         widget.assetVersionChanged.connect(
             self._asset_version_changed
         )  # Open/load
-        widget.assetChanged.connect(self._on_widget_asset_changed)  # Publish
+        widget.assetChanged.connect(self._on_widget_asset_changed)
 
         self.register_widget_plugin(plugin_data, widget)
 
