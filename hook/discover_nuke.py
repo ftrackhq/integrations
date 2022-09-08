@@ -54,15 +54,20 @@ def on_launch_nuke_pipeline(session, event):
         pipeline_nuke_base_data['integration']['env'][
             'FTRACK_CONTEXTID.set'
         ] = task['id']
-        pipeline_nuke_base_data['integration']['env']['FS.set'] = task[
-            'parent'
-        ]['custom_attributes'].get('fstart', '1.0')
-        pipeline_nuke_base_data['integration']['env']['FE.set'] = task[
-            'parent'
-        ]['custom_attributes'].get('fend', '100.0')
-        pipeline_nuke_base_data['integration']['env']['FPS.set'] = task[
-            'parent'
-        ]['custom_attributes'].get('fps', '24.0')
+        parent = session.query(
+            'select custom_attributes from Context where id={}'.format(
+                task['parent']['id']
+            )
+        ).first()  # Make sure updated custom attributes are fetched
+        pipeline_nuke_base_data['integration']['env']['FS.set'] = parent[
+            'custom_attributes'
+        ].get('fstart', '1.0')
+        pipeline_nuke_base_data['integration']['env']['FE.set'] = parent[
+            'custom_attributes'
+        ].get('fend', '100.0')
+        pipeline_nuke_base_data['integration']['env']['FPS.set'] = parent[
+            'custom_attributes'
+        ].get('fps', '24.0')
 
     return pipeline_nuke_base_data
 
