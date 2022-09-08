@@ -56,11 +56,8 @@ class AssetVersionListItem(QtWidgets.QFrame):
         self.version_combobox.setMaximumHeight(20)
         self.layout().addWidget(self.version_combobox)
 
-        # self.layout().addStretch()
-
         self._version_info_widget = QtWidgets.QLabel()
         self._version_info_widget.setObjectName('gray')
-        # self._version_info_widget.setAlignment(QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter)
         self.layout().addWidget(self._version_info_widget, 10)
 
         self._latest_version = self.version_combobox.set_asset_entity(
