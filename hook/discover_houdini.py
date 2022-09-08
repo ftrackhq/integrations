@@ -1,5 +1,5 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2014-2021 ftrack
+# :copyright: Copyright (c) 2014-2022 ftrack
 
 import functools
 import sys
@@ -8,8 +8,10 @@ import logging
 
 import ftrack_api
 
-NAME = 'ftrack-connect-pipeline-houdini'
-logger = logging.getLogger('{}.hook'.format(NAME.replace('-', '_')))
+integration_name = 'ftrack-connect-pipeline-houdini'
+logger = logging.getLogger(
+    '{}.hook'.format(integration_name.replace('-', '_'))
+)
 
 plugin_base_dir = os.path.normpath(
     os.path.join(os.path.abspath(os.path.dirname(__file__)), '..')
@@ -72,7 +74,12 @@ def on_discover_pipeline_houdini(session, event):
         __version__ as integration_version,
     )
 
-    data = {'integration': {'name': NAME, 'version': integration_version}}
+    data = {
+        'integration': {
+            'name': integration_name,
+            'version': integration_version,
+        }
+    }
 
     options_function = platform_options.get(event['data']['platform'])
     options_function(event, data)
