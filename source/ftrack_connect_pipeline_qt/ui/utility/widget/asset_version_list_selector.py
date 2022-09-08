@@ -84,16 +84,10 @@ class AssetVersionListItem(QtWidgets.QFrame):
         self.versionChanged.emit(version)
 
     def _on_filter_message(self, message):
-        self._version_info_widget.setObjectName('red')
-        self._version_info_widget.style().unpolish(self._version_info_widget)
-        self._version_info_widget.style().polish(self._version_info_widget)
         self._version_info_widget.setText(message)
         self.versionChanged.emit(None)
 
     def _update_publisher_info(self, asset_version):
-        self._version_info_widget.setObjectName('gray')
-        self._version_info_widget.style().unpolish(self._version_info_widget)
-        self._version_info_widget.style().polish(self._version_info_widget)
         self._version_info_widget.setText(
             '{} {} @ {}'.format(
                 asset_version['user']['first_name'],
