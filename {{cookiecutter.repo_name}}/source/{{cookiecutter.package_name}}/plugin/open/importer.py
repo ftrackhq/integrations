@@ -6,8 +6,8 @@ import {{cookiecutter.host_type}}
 from ftrack_connect_pipeline import plugin
 from ftrack_connect_pipeline_qt import plugin as pluginWidget
 from ftrack_connect_pipeline_{{cookiecutter.host_type}}.plugin import (
-    {{cookiecutter.host_type|capitalize}}BasePlugin,
-    {{cookiecutter.host_type|capitalize}}BasePluginWidget,
+    {{cookiecutter.host_type_capitalized}}BasePlugin,
+    {{cookiecutter.host_type_capitalized}}BasePluginWidget,
 )
 
 from ftrack_connect_pipeline_{{cookiecutter.host_type}}.utils import custom_commands as {{cookiecutter.host_type}}_utils
@@ -15,7 +15,7 @@ from ftrack_connect_pipeline_{{cookiecutter.host_type}}.constants.asset import m
 from ftrack_connect_pipeline_{{cookiecutter.host_type}}.constants import asset as asset_const
 
 
-class {{cookiecutter.host_type|capitalize}}OpenerImporterPlugin(plugin.OpenerImporterPlugin, {{cookiecutter.host_type|capitalize}}BasePlugin):
+class {{cookiecutter.host_type_capitalized}}OpenerImporterPlugin(plugin.OpenerImporterPlugin, {{cookiecutter.host_type_capitalized}}BasePlugin):
     '''Class representing a Collector Plugin
 
     .. note::
@@ -34,8 +34,8 @@ class {{cookiecutter.host_type|capitalize}}OpenerImporterPlugin(plugin.OpenerImp
         return {{cookiecutter.host_type}}_utils.get_current_scene_objects()
 
 
-class {{cookiecutter.host_type|capitalize}}OpenerImporterPluginWidget(
-    pluginWidget.OpenerImporterPluginWidget, {{cookiecutter.host_type|capitalize}}BasePluginWidget
+class {{cookiecutter.host_type_capitalized}}OpenerImporterPluginWidget(
+    pluginWidget.OpenerImporterPluginWidget, {{cookiecutter.host_type_capitalized}}BasePluginWidget
 ):
     '''Class representing a Collector Widget
 

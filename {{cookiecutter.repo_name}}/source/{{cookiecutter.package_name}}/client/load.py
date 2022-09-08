@@ -12,8 +12,8 @@ import ftrack_connect_pipeline_{{cookiecutter.host_type}}.constants as {{cookiec
 from ftrack_connect_pipeline_{{cookiecutter.host_type}}.utils.custom_commands import get_main_window
 
 
-class {{cookiecutter.host_type|capitalize}}QtAssemblerClientWidget(load.QtAssemblerClientWidget):
-    '''{{cookiecutter.host_type|capitalize}} assembler dialog'''
+class {{cookiecutter.host_type_capitalized}}QtAssemblerClientWidget(load.QtAssemblerClientWidget):
+    '''{{cookiecutter.host_type_capitalized}} assembler dialog'''
 
     ui_types = [
         constants.UI_TYPE,
@@ -22,11 +22,11 @@ class {{cookiecutter.host_type|capitalize}}QtAssemblerClientWidget(load.QtAssemb
     ]
 
     def __init__(self, event_manager, asset_list_model, parent=None):
-        super({{cookiecutter.host_type|capitalize}}QtAssemblerClientWidget, self).__init__(
+        super({{cookiecutter.host_type_capitalized}}QtAssemblerClientWidget, self).__init__(
             event_manager,
             load_const.LOAD_MODES,
             asset_list_model,
         )
 
-        # Make sure we stays on top of {{cookiecutter.host_type|capitalize}}
+        # Make sure we stays on top of {{cookiecutter.host_type_capitalized}}
         self.setWindowFlags(QtCore.Qt.Tool)

@@ -4,13 +4,13 @@
 from ftrack_connect_pipeline import plugin
 from ftrack_connect_pipeline_qt import plugin as pluginWidget
 from ftrack_connect_pipeline_{{cookiecutter.host_type}}.plugin import (
-    {{cookiecutter.host_type|capitalize}}BasePlugin,
-    {{cookiecutter.host_type|capitalize}}BasePluginWidget,
+    {{cookiecutter.host_type_capitalized}}BasePlugin,
+    {{cookiecutter.host_type_capitalized}}BasePluginWidget,
 )
 
 
-class {{cookiecutter.host_type|capitalize}}PublisherValidatorPlugin(
-    plugin.PublisherValidatorPlugin, {{cookiecutter.host_type|capitalize}}BasePlugin
+class {{cookiecutter.host_type_capitalized}}PublisherValidatorPlugin(
+    plugin.PublisherValidatorPlugin, {{cookiecutter.host_type_capitalized}}BasePlugin
 ):
     '''Class representing a Validator Plugin
 
@@ -20,8 +20,8 @@ class {{cookiecutter.host_type|capitalize}}PublisherValidatorPlugin(
     '''
 
 
-class {{cookiecutter.host_type|capitalize}}PublisherValidatorPluginWidget(
-    pluginWidget.PublisherValidatorPluginWidget, {{cookiecutter.host_type|capitalize}}BasePluginWidget
+class {{cookiecutter.host_type_capitalized}}PublisherValidatorPluginWidget(
+    pluginWidget.PublisherValidatorPluginWidget, {{cookiecutter.host_type_capitalized}}BasePluginWidget
 ):
     '''Class representing a Validator widget
 

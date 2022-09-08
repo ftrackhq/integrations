@@ -10,29 +10,29 @@ from ftrack_connect_pipeline_{{cookiecutter.host_type}}.host import engine as ho
 logger = logging.getLogger(__name__)
 
 
-class {{cookiecutter.host_type|capitalize}}Host(Host):
+class {{cookiecutter.host_type_capitalized}}Host(Host):
     '''
-    {{cookiecutter.host_type|capitalize}}Host class.
+    {{cookiecutter.host_type_capitalized}}Host class.
     '''
 
     host_types = [qt_constants.HOST_TYPE, {{cookiecutter.host_type}}_constants.HOST_TYPE]
-    # Define the {{cookiecutter.host_type|capitalize}} engines to be run during the run function
+    # Define the {{cookiecutter.host_type_capitalized}} engines to be run during the run function
     engines = {
-        'asset_manager': host_engine.{{cookiecutter.host_type|capitalize}}AssetManagerEngine,
-        'loader': host_engine.{{cookiecutter.host_type|capitalize}}LoaderEngine,
-        'opener': host_engine.{{cookiecutter.host_type|capitalize}}OpenerEngine,
-        'publisher': host_engine.{{cookiecutter.host_type|capitalize}}PublisherEngine,
+        'asset_manager': host_engine.{{cookiecutter.host_type_capitalized}}AssetManagerEngine,
+        'loader': host_engine.{{cookiecutter.host_type_capitalized}}LoaderEngine,
+        'opener': host_engine.{{cookiecutter.host_type_capitalized}}OpenerEngine,
+        'publisher': host_engine.{{cookiecutter.host_type_capitalized}}PublisherEngine,
     }
 
     def __init__(self, event_manager):
         '''
-        Initialize {{cookiecutter.host_type|capitalize}}Host with *event_manager*.
+        Initialize {{cookiecutter.host_type_capitalized}}Host with *event_manager*.
 
         *event_manager* instance of
         :class:`ftrack_connect_pipeline.event.EventManager`
         '''
-        super({{cookiecutter.host_type|capitalize}}Host, self).__init__(event_manager)
+        super({{cookiecutter.host_type_capitalized}}Host, self).__init__(event_manager)
 
     def run(self, event):
-        runnerResult = super({{cookiecutter.host_type|capitalize}}Host, self).run(event)
+        runnerResult = super({{cookiecutter.host_type_capitalized}}Host, self).run(event)
         return runnerResult

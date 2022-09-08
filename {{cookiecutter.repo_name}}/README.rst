@@ -1,7 +1,7 @@
 ftrack connect pipeline {{cookiecutter.host_type}}
 ###############################
 
-Community owned {{cookiecutter.host_type|capitalize}} integration for ftrack.
+Community owned {{cookiecutter.host_type_capitalized}} integration for ftrack.
 
 *************
 Documentation

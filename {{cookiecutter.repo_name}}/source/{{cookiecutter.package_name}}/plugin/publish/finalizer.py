@@ -6,16 +6,16 @@
 from ftrack_connect_pipeline import plugin
 from ftrack_connect_pipeline_qt import plugin as pluginWidget
 from ftrack_connect_pipeline_{{cookiecutter.host_type}}.plugin import (
-    {{cookiecutter.host_type|capitalize}}BasePlugin,
-    {{cookiecutter.host_type|capitalize}}BasePluginWidget,
+    {{cookiecutter.host_type_capitalized}}BasePlugin,
+    {{cookiecutter.host_type_capitalized}}BasePluginWidget,
 )
 
 from ftrack_connect_pipeline_{{cookiecutter.host_type}}.utils import custom_commands as {{cookiecutter.host_type}}_utils
 from ftrack_connect_pipeline_{{cookiecutter.host_type}}.constants import asset as asset_const
 
 
-class {{cookiecutter.host_type|capitalize}}PublisherFinalizerPlugin(
-    plugin.PublisherFinalizerPlugin, {{cookiecutter.host_type|capitalize}}BasePlugin
+class {{cookiecutter.host_type_capitalized}}PublisherFinalizerPlugin(
+    plugin.PublisherFinalizerPlugin, {{cookiecutter.host_type_capitalized}}BasePlugin
 ):
     '''Class representing a Finalizer Plugin
 
@@ -57,13 +57,13 @@ class {{cookiecutter.host_type|capitalize}}PublisherFinalizerPlugin(
                 if dependency_version not in self.version_dependencies:
                     self.version_dependencies.append(dependency_version)
 
-        super_result = super({{cookiecutter.host_type|capitalize}}PublisherFinalizerPlugin, self)._run(event)
+        super_result = super({{cookiecutter.host_type_capitalized}}PublisherFinalizerPlugin, self)._run(event)
 
         return super_result
 
 
-class {{cookiecutter.host_type|capitalize}}PublisherFinalizerPluginWidget(
-    pluginWidget.PublisherFinalizerPluginWidget, {{cookiecutter.host_type|capitalize}}BasePluginWidget
+class {{cookiecutter.host_type_capitalized}}PublisherFinalizerPluginWidget(
+    pluginWidget.PublisherFinalizerPluginWidget, {{cookiecutter.host_type_capitalized}}BasePluginWidget
 ):
     '''Class representing a Finalizer Widget
 

@@ -34,7 +34,7 @@ from ftrack_connect_pipeline_{{cookiecutter.host_type}}.utils import custom_comm
 
 extra_handlers = {
     '{{cookiecutter.host_type}}': {
-        'class': '{{cookiecutter.host_type}}.utils.{{cookiecutter.host_type|capitalize}}GuiLogHandler',
+        'class': '{{cookiecutter.host_type}}.utils.{{cookiecutter.host_type_capitalized}}GuiLogHandler',
         'level': 'INFO',
         'formatter': 'file',
     }
@@ -80,7 +80,7 @@ def get_ftrack_menu(menu_name='ftrack', submenu_name=None):
 
 
 def _open_widget(event_manager, asset_list_model, widgets, event):
-    '''Open {{cookiecutter.host_type|capitalize}} widget based on widget name in *event*, and create if not already
+    '''Open {{cookiecutter.host_type_capitalized}} widget based on widget name in *event*, and create if not already
     exists'''
     widget_name = None
     widget_class = None
@@ -143,9 +143,9 @@ def initialise():
         session=session, mode=core_constants.LOCAL_EVENT_MODE
     )
 
-    host = {{cookiecutter.host_type}}_host.{{cookiecutter.host_type|capitalize}}Host(event_manager)
+    host = {{cookiecutter.host_type}}_host.{{cookiecutter.host_type_capitalized}}Host(event_manager)
 
-    cmds.loadPlugin('ftrack{{cookiecutter.host_type|capitalize}}Plugin.py', quiet=True)
+    cmds.loadPlugin('ftrack{{cookiecutter.host_type_capitalized}}Plugin.py', quiet=True)
 
     # Shared asset manager model
     asset_list_model = AssetListModel(event_manager)
@@ -154,7 +154,7 @@ def initialise():
     widgets.append(
         (
             core_constants.OPENER,
-            ftrack_open.{{cookiecutter.host_type|capitalize}}QtOpenerClientWidget,
+            ftrack_open.{{cookiecutter.host_type_capitalized}}QtOpenerClientWidget,
             'Open',
             'fileOpen',
         )
@@ -162,7 +162,7 @@ def initialise():
     widgets.append(
         (
             qt_constants.ASSEMBLER_WIDGET,
-            load.{{cookiecutter.host_type|capitalize}}QtAssemblerClientWidget,
+            load.{{cookiecutter.host_type_capitalized}}QtAssemblerClientWidget,
             'Assembler',
             'greasePencilImport',
         )
@@ -170,7 +170,7 @@ def initialise():
     widgets.append(
         (
             core_constants.ASSET_MANAGER,
-            asset_manager.{{cookiecutter.host_type|capitalize}}QtAssetManagerClientWidgetMixin,
+            asset_manager.{{cookiecutter.host_type_capitalized}}QtAssetManagerClientWidgetMixin,
             'Asset Manager',
             'volumeCube',
         )
@@ -178,7 +178,7 @@ def initialise():
     widgets.append(
         (
             core_constants.PUBLISHER,
-            publish.{{cookiecutter.host_type|capitalize}}QtPublisherClientWidgetMixin,
+            publish.{{cookiecutter.host_type_capitalized}}QtPublisherClientWidgetMixin,
             'Publisher',
             'greasePencilExport',
         )
@@ -186,7 +186,7 @@ def initialise():
     widgets.append(
         (
             qt_constants.CHANGE_CONTEXT_WIDGET,
-            change_context.{{cookiecutter.host_type|capitalize}}QtChangeContextClientWidget,
+            change_context.{{cookiecutter.host_type_capitalized}}QtChangeContextClientWidget,
             'Change context',
             'refresh',
         )
@@ -194,7 +194,7 @@ def initialise():
     widgets.append(
         (
             core_constants.LOG_VIEWER,
-            log_viewer.{{cookiecutter.host_type|capitalize}}QtLogViewerClientWidget,
+            log_viewer.{{cookiecutter.host_type_capitalized}}QtLogViewerClientWidget,
             'Log Viewer',
             'zoom',
         )

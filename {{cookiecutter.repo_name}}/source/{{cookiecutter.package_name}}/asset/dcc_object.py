@@ -10,8 +10,8 @@ from ftrack_connect_pipeline_{{cookiecutter.host_type}}.utils import custom_comm
 #import maya.cmds as cmds
 
 
-class {{cookiecutter.host_type|capitalize}}DccObject(DccObject):
-    '''{{cookiecutter.host_type|capitalize}}DccObject class.'''
+class {{cookiecutter.host_type_capitalized}}DccObject(DccObject):
+    '''{{cookiecutter.host_type_capitalized}}DccObject class.'''
 
     ftrack_plugin_id = asset_const.FTRACK_PLUGIN_ID
     '''Plugin id used on some DCC applications '''
@@ -25,7 +25,7 @@ class {{cookiecutter.host_type|capitalize}}DccObject(DccObject):
         self.logger = logging.getLogger(
             '{0}.{1}'.format(__name__, self.__class__.__name__)
         )
-        super({{cookiecutter.host_type|capitalize}}DccObject, self).__init__(name, from_id, **kwargs)
+        super({{cookiecutter.host_type_capitalized}}DccObject, self).__init__(name, from_id, **kwargs)
 
     def __setitem__(self, k, v):
         '''
@@ -57,7 +57,7 @@ class {{cookiecutter.host_type|capitalize}}DccObject(DccObject):
         #     cmds.setAttr(
         #         '{}.{}'.format(self.name, k), v, type="string", l=True
         #     )
-        super({{cookiecutter.host_type|capitalize}}DccObject, self).__setitem__(k, v)
+        super({{cookiecutter.host_type_capitalized}}DccObject, self).__setitem__(k, v)
 
     def create(self, name):
         '''
@@ -140,7 +140,7 @@ class {{cookiecutter.host_type|capitalize}}DccObject(DccObject):
         Link the given *objects* ftrack attribute to the self
         :obj:`name` object asset_link attribute in {{cookiecutter.host_type}}.
 
-        *objects* List of {{cookiecutter.host_type|capitalize}} DAG objects
+        *objects* List of {{cookiecutter.host_type_capitalized}} DAG objects
         '''
         for obj in objects:
             # if cmds.lockNode(obj, q=True)[0]:

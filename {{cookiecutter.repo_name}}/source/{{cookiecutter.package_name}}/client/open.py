@@ -10,7 +10,7 @@ from ftrack_connect_pipeline_maya.utils.custom_commands import get_main_window
 from ftrack_connect_pipeline_qt import constants as qt_constants
 
 
-class {{cookiecutter.host_type|capitalize}}QtOpenerClientWidget(open.QtOpenerClientWidget):
+class {{cookiecutter.host_type_capitalized}}QtOpenerClientWidget(open.QtOpenerClientWidget):
     '''Open dialog and client'''
 
     ui_types = [
@@ -21,7 +21,7 @@ class {{cookiecutter.host_type|capitalize}}QtOpenerClientWidget(open.QtOpenerCli
     definition_extensions_filter = ['.mb',  .. ]
 
     def __init__(self, event_manager, parent=None):
-        super({{cookiecutter.host_type|capitalize}}QtOpenerClientWidget, self).__init__(event_manager)
+        super({{cookiecutter.host_type_capitalized}}QtOpenerClientWidget, self).__init__(event_manager)
 
-        # Make sure we stays on top of {{cookiecutter.host_type|capitalize}}
+        # Make sure we stays on top of {{cookiecutter.host_type_capitalized}}
         self.setWindowFlags(QtCore.Qt.Tool)

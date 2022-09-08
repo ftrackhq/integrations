@@ -4,13 +4,13 @@
 from ftrack_connect_pipeline import plugin
 from ftrack_connect_pipeline_qt import plugin as pluginWidget
 from ftrack_connect_pipeline_{{cookiecutter.host_type}}.plugin import (
-    {{cookiecutter.host_type|capitalize}}BasePlugin,
-    {{cookiecutter.host_type|capitalize}}BasePluginWidget,
+    {{cookiecutter.host_type_capitalized}}BasePlugin,
+    {{cookiecutter.host_type_capitalized}}BasePluginWidget,
 )
 
 
-class {{cookiecutter.host_type|capitalize}}PublisherPreFinalizerPlugin(
-    plugin.PublisherPreFinalizerPlugin, {{cookiecutter.host_type|capitalize}}BasePlugin
+class {{cookiecutter.host_type_capitalized}}PublisherPreFinalizerPlugin(
+    plugin.PublisherPreFinalizerPlugin, {{cookiecutter.host_type_capitalized}}BasePlugin
 ):
     '''Class representing a Finalizer Plugin
 
@@ -22,8 +22,8 @@ class {{cookiecutter.host_type|capitalize}}PublisherPreFinalizerPlugin(
     '''
 
 
-class {{cookiecutter.host_type|capitalize}}PublisherPreFinalizerPluginWidget(
-    pluginWidget.PublisherPreFinalizerPluginWidget, {{cookiecutter.host_type|capitalize}}BasePluginWidget
+class {{cookiecutter.host_type_capitalized}}PublisherPreFinalizerPluginWidget(
+    pluginWidget.PublisherPreFinalizerPluginWidget, {{cookiecutter.host_type_capitalized}}BasePluginWidget
 ):
     '''Class representing a Pre Finalizer Widget
 

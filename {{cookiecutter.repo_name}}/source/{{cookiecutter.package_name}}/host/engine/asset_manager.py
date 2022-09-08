@@ -12,16 +12,16 @@ from ftrack_connect_pipeline.asset.asset_info import FtrackAssetInfo
 from ftrack_connect_pipeline_{{cookiecutter.host_type}}.utils import custom_commands as {{cookiecutter.host_type}}_utils
 from ftrack_connect_pipeline_{{cookiecutter.host_type}}.constants import asset as asset_const
 from ftrack_connect_pipeline_{{cookiecutter.host_type}}.constants.asset import modes as modes_const
-from ftrack_connect_pipeline_{{cookiecutter.host_type}}.asset import {{cookiecutter.host_type|capitalize}}FtrackObjectManager
-from ftrack_connect_pipeline_{{cookiecutter.host_type}}.asset.dcc_object import {{cookiecutter.host_type|capitalize}}DccObject
+from ftrack_connect_pipeline_{{cookiecutter.host_type}}.asset import {{cookiecutter.host_type_capitalized}}FtrackObjectManager
+from ftrack_connect_pipeline_{{cookiecutter.host_type}}.asset.dcc_object import {{cookiecutter.host_type_capitalized}}DccObject
 
 
-class {{cookiecutter.host_type|capitalize}}AssetManagerEngine(AssetManagerEngine):
+class {{cookiecutter.host_type_capitalized}}AssetManagerEngine(AssetManagerEngine):
     engine_type = 'asset_manager'
 
-    FtrackObjectManager = {{cookiecutter.host_type|capitalize}}FtrackObjectManager
+    FtrackObjectManager = {{cookiecutter.host_type_capitalized}}FtrackObjectManager
     '''FtrackObjectManager class to use'''
-    DccObject = {{cookiecutter.host_type|capitalize}}DccObject
+    DccObject = {{cookiecutter.host_type_capitalized}}DccObject
     '''DccObject class to use'''
 
     def __init__(
@@ -29,7 +29,7 @@ class {{cookiecutter.host_type|capitalize}}AssetManagerEngine(AssetManagerEngine
     ):
         '''Initialise AssetManagerEngine with *event_manager*, *host*, *hostid*
         and *asset_type_name*'''
-        super({{cookiecutter.host_type|capitalize}}AssetManagerEngine, self).__init__(
+        super({{cookiecutter.host_type_capitalized}}AssetManagerEngine, self).__init__(
             event_manager, host_types, host_id, asset_type_name=asset_type_name
         )
 
@@ -133,7 +133,7 @@ class {{cookiecutter.host_type|capitalize}}AssetManagerEngine(AssetManagerEngine
             self.dcc_object.get(asset_const.LOAD_MODE)
             != modes_const.REFERENCE_MODE
         ):
-            return super({{cookiecutter.host_type|capitalize}}AssetManagerEngine, self).change_version(
+            return super({{cookiecutter.host_type_capitalized}}AssetManagerEngine, self).change_version(
                 asset_info=asset_info, options=options, plugin=plugin
             )
 
@@ -176,7 +176,7 @@ class {{cookiecutter.host_type|capitalize}}AssetManagerEngine(AssetManagerEngine
             #    reference_node = unload_result[0]
             #    break
         if not reference_node:
-            return super({{cookiecutter.host_type|capitalize}}AssetManagerEngine, self).change_version(
+            return super({{cookiecutter.host_type_capitalized}}AssetManagerEngine, self).change_version(
                 asset_info=asset_info, options=options, plugin=plugin
             )
 
@@ -432,7 +432,7 @@ class {{cookiecutter.host_type|capitalize}}AssetManagerEngine(AssetManagerEngine
 
         *assets*: List of :class:`~ftrack_connect_pipeline.asset.FtrackAssetInfo`
         '''
-        return super({{cookiecutter.host_type|capitalize}}AssetManagerEngine, self).select_assets(
+        return super({{cookiecutter.host_type_capitalized}}AssetManagerEngine, self).select_assets(
             assets=assets, options=options, plugin=plugin
         )
 
@@ -474,7 +474,7 @@ class {{cookiecutter.host_type|capitalize}}AssetManagerEngine(AssetManagerEngine
             self.dcc_object.get(asset_const.LOAD_MODE)
             != modes_const.REFERENCE_MODE
         ):
-            return super({{cookiecutter.host_type|capitalize}}AssetManagerEngine, self).load_asset(
+            return super({{cookiecutter.host_type_capitalized}}AssetManagerEngine, self).load_asset(
                 asset_info=asset_info, options=options, plugin=plugin
             )
 
@@ -495,7 +495,7 @@ class {{cookiecutter.host_type|capitalize}}AssetManagerEngine(AssetManagerEngine
 
         # Load asset with the main method, the reference has not been created yet.
         if not reference_node:
-            return super({{cookiecutter.host_type|capitalize}}AssetManagerEngine, self).load_asset(
+            return super({{cookiecutter.host_type_capitalized}}AssetManagerEngine, self).load_asset(
                 asset_info=asset_info, options=options, plugin=plugin
             )
 

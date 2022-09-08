@@ -8,11 +8,11 @@ from ftrack_connect_pipeline_qt.client import log_viewer
 from ftrack_connect_pipeline_{{cookiecutter.host_type}}.utils.custom_commands import get_main_window
 
 
-class {{cookiecutter.host_type|capitalize}}QtLogViewerClientWidget(log_viewer.QtLogViewerClientWidget):
-    '''{{cookiecutter.host_type|capitalize}} log viewer dialog'''
+class {{cookiecutter.host_type_capitalized}}QtLogViewerClientWidget(log_viewer.QtLogViewerClientWidget):
+    '''{{cookiecutter.host_type_capitalized}} log viewer dialog'''
 
     def __init__(self, event_manager, parent=None):
-        super({{cookiecutter.host_type|capitalize}}QtLogViewerClientWidget, self).__init__(event_manager)
+        super({{cookiecutter.host_type_capitalized}}QtLogViewerClientWidget, self).__init__(event_manager)
 
-        # Make sure we stays on top of {{cookiecutter.host_type|capitalize}}
+        # Make sure we stays on top of {{cookiecutter.host_type_capitalized}}
         self.setWindowFlags(QtCore.Qt.Tool)
