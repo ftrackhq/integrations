@@ -68,7 +68,11 @@ class VersionComboBox(QtWidgets.QComboBox):
                             break
                 result.append((version, has_compatible_component))
         else:
-            for version in self.query_versions():
+            for version in self.session.query(
+                'select version, id '
+                'from AssetVersion where task.id is {} and asset_id is {} order by'
+                ' version descending'.format(self.context_id, self.asset_entity['id'])
+            ).all():
                 result.append((version, True))
         return result
 
@@ -98,7 +102,7 @@ class VersionComboBox(QtWidgets.QComboBox):
         self.clear()
         self._add_version((version_entity, is_compatible))
         self._version_id = version_entity['id']
-        self._version_nr = latest_version['version']
+        self._version_nr = version_entity['version']
 
     def showPopup(self):
         '''Override'''
@@ -111,14 +115,6 @@ class VersionComboBox(QtWidgets.QComboBox):
     def set_context_id(self, context_id):
         self.context_id = context_id
         self.clear()
-
-    def query_versions(self, context_id, asset_id):
-        versions = self.session.query(
-            'select version, id '
-            'from AssetVersion where task.id is {} and asset_id is {} order by'
-            ' version descending'.format(context_id, asset_id)
-        ).all()
-        return versions
 
     def _add_version(self, version_and_compatible_tuple):
         version, is_compatible = version_and_compatible_tuple
