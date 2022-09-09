@@ -72,20 +72,27 @@ class AssetVersionListItem(QtWidgets.QFrame):
 
     def post_build(self):
         self.version_combobox.versionChanged.connect(
-            self._current_version_changed
+            self._on_current_version_changed
         )
         self.version_combobox.filterMessage.connect(self._on_filter_message)
 
-    def _current_version_changed(self, version):
-        self.current_version_number = version['version']
-        self.current_version_id = version['id']
-        self.thumbnail_widget.load(self.current_version_id)
-        self._update_publisher_info(version)
-        self.versionChanged.emit(version)
+    def _on_current_version_changed(self, version_id):
+        if version_id:
+            version = self.session.query(
+                'AssetVersion where id={}'.format(version_id)
+            ).one()
+            self.current_version_number = version['version']
+            self.current_version_id = version['id']
+            self.thumbnail_widget.load(self.current_version_id)
+            self._update_publisher_info(version)
+            self.versionChanged.emit(self.current_version_id)
+        else:
+            self.current_version_number = -1
+            self.current_version_id = None
+            self.versionChanged.emit(None)
 
     def _on_filter_message(self, message):
         self._version_info_widget.setText(message)
-        self.versionChanged.emit(None)
 
     def _update_publisher_info(self, asset_version):
         self._version_info_widget.setText(
@@ -102,7 +109,7 @@ class AssetList(QtWidgets.QListWidget):
 
     assetsQueryDone = QtCore.Signal()
     assetsAdded = QtCore.Signal()
-    versionChanged = QtCore.Signal(object, object)
+    versionChanged = QtCore.Signal(object)
 
     @property
     def widgets(self):
@@ -187,8 +194,8 @@ class AssetList(QtWidgets.QListWidget):
         )
         thread.start()
 
-    def _on_version_changed(self, asset_item, version):
-        self.versionChanged.emit(asset_item, version)
+    def _on_version_changed(self, asset_item, version_id):
+        self.versionChanged.emit(asset_item)
 
     def resizeEvent(self, event):
         self._size_changed()
@@ -234,7 +241,7 @@ class AssetListSelector(QtWidgets.QFrame):
 
     def post_build(self):
         self.asset_list.itemSelectionChanged.connect(self._list_item_changed)
-        self.asset_list.versionChanged.connect(self._current_asset_changed)
+        self.asset_list.versionChanged.connect(self._on_current_asset_changed)
         self.asset_list.assetsQueryDone.connect(self._refresh)
         self.asset_list.assetsAdded.connect(self._pre_select_asset)
 
@@ -265,25 +272,21 @@ class AssetListSelector(QtWidgets.QFrame):
             asset_widget = self.asset_list.itemWidget(
                 self.asset_list.item(selected_index)
             )
-            current_version = None
-            if asset_widget.current_version_id:
-                current_version = self.session.query(
-                    'AssetVersion where id is {}'.format(
-                        asset_widget.current_version_id
-                    )
-                ).one()
-            self._current_asset_changed(asset_widget, current_version)
+            self._on_current_asset_changed(asset_widget)
 
-    def _current_asset_changed(self, asset_widget, version):
+    def _on_current_asset_changed(self, asset_widget):
         '''An existing asset has been selected.'''
         if asset_widget:
             # A proper asset were selected
             asset_entity = asset_widget.asset
-            asset_name = asset_entity['name']
-            if version:
+            asset_name = asset_entity
+            if asset_widget.current_version_id:
                 version_num = asset_widget.current_version_number
                 self.assetChanged.emit(
-                    asset_name, asset_entity, version['id'], version_num
+                    asset_name,
+                    asset_entity,
+                    asset_widget.current_version_id,
+                    version_num,
                 )
             else:
                 self.assetChanged.emit(asset_name, asset_entity, None, None)

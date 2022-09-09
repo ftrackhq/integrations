@@ -71,7 +71,9 @@ class VersionComboBox(QtWidgets.QComboBox):
             for version in self.session.query(
                 'select version, id '
                 'from AssetVersion where task.id is {} and asset_id is {} order by'
-                ' version descending'.format(self.context_id, self.asset_entity['id'])
+                ' version descending'.format(
+                    self.context_id, self.asset_entity['id']
+                )
             ).all():
                 result.append((version, True))
         return result
@@ -141,13 +143,14 @@ class VersionComboBox(QtWidgets.QComboBox):
                 if is_compatible:
                     self._version_id = version_id
                     self._version_number = version['version']
-                    self.versionChanged.emit(version)
+                    self.versionChanged.emit(version_id)
                 else:
                     self.filterMessage.emit(
                         '<html><i>- not compatible!</i></html>'.format(
                             version['version']
                         )
                     )
+                    self.versionChanged.emit(None)
 
 
 class VersionSelector(QtWidgets.QWidget):
