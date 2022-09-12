@@ -31,7 +31,6 @@ class HostConnection(object):
         if value == self.context_id:
             return
         self._context_id = value
-        self._change_host_context_id()
 
     @property
     def event_manager(self):
@@ -204,23 +203,11 @@ class HostConnection(object):
         '''Set the new context ID based on data provided in *event*'''
         self.context_id = event['data']['pipeline']['context_id']
 
-    def _change_host_context_id(self):
-        '''The context has been changed, send events'''
-        #  Send an remote mode event to be picked up by host and other host connections.
-        event = ftrack_api.event.base.Event(
-            topic=constants.PIPELINE_HOST_CONTEXT_CHANGE,
-            data={
-                'pipeline': {'host_id': self.id, 'context_id': self.context_id}
-            },
-        )
-        self.event_manager.publish(
-            event,
-        )
-        #  Send an local event to be picked up by host and other host connections.
+    def change_host_context_id(self, context_id):
         event = ftrack_api.event.base.Event(
             topic=constants.PIPELINE_CLIENT_CONTEXT_CHANGE,
             data={
-                'pipeline': {'host_id': self.id, 'context_id': self.context_id}
+                'pipeline': {'host_id': self.id, 'context_id': context_id}
             },
         )
         self.event_manager.publish(
@@ -286,7 +273,7 @@ class Client(object):
             raise ValueError('Context should be in form of a string.')
         if self.host_connection is None:
             raise Exception('No host connection available')
-        self.host_connection.context_id = context_id
+        self.host_connection.change_host_context_id(context_id)
 
     @property
     def context(self):
