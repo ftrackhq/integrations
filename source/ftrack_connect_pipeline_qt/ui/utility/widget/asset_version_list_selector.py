@@ -1,7 +1,6 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2022 ftrack
 import logging
-from functools import partial
 
 from Qt import QtWidgets, QtCore, QtGui
 
@@ -85,7 +84,7 @@ class AssetVersionListItem(QtWidgets.QFrame):
             self.current_version_id = version['id']
             self.thumbnail_widget.load(self.current_version_id)
             self._update_publisher_info(version)
-            self.versionChanged.emit(self.current_version_id)
+            self.versionChanged.emit(self)
         else:
             self.current_version_number = -1
             self.current_version_id = None
@@ -169,9 +168,7 @@ class AssetList(QtWidgets.QListWidget):
                 self.session,
                 filters=self._filters,
             )
-            widget.versionChanged.connect(
-                partial(self._on_version_changed, widget)
-            )
+            widget.versionChanged.connect(self._on_version_changed)
             list_item = QtWidgets.QListWidgetItem(self)
             list_item.setSizeHint(
                 QtCore.QSize(
@@ -194,7 +191,7 @@ class AssetList(QtWidgets.QListWidget):
         )
         thread.start()
 
-    def _on_version_changed(self, asset_item, version_id):
+    def _on_version_changed(self, asset_item):
         self.versionChanged.emit(asset_item)
 
     def resizeEvent(self, event):
@@ -288,8 +285,8 @@ class AssetListSelector(QtWidgets.QFrame):
                     asset_widget.current_version_id,
                     version_num,
                 )
-            else:
-                self.assetChanged.emit(asset_name, asset_entity, None, None)
+                return
+        self.assetChanged.emit(asset_name, asset_entity, None, None)
 
     def set_context(self, context_id, asset_type_name):
         self.logger.debug('setting context to :{}'.format(context_id))
