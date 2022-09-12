@@ -476,13 +476,10 @@ class Client(object):
 
         *host_connection*: :class:`ftrack_connect_pipeline.client.HostConnection`
         '''
-        if host_connection.context_id in [None, '']:
-            self.logger.warning(
-                'Not considering host connection {} - context ID not set!'.format(
-                    host_connection.id
-                )
-            )
-            return False
+        # On the discovery time context id could be None, so we have to consider
+        # hosts with non context id. This method could be useful later on to
+        # filter hosts that not match a specific criteria. But considering all
+        # hosts as valid for now.
         return True
 
     def change_host(self, host_connection):
