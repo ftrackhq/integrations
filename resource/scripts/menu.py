@@ -189,19 +189,21 @@ def initialise():
             '',
         )
     )
-    widgets.append(
-        (
-            core_constants.LOG_VIEWER,
-            log_viewer.NukeQtLogViewerClientWidget,
-            'Log Viewer',
-            '',
-        )
-    )
+    widgets.append('separator')
     widgets.append(
         (
             qt_constants.CHANGE_CONTEXT_WIDGET,
             change_context.NukeQtChangeContextClientWidget,
             'Change context',
+            '',
+        )
+    )
+    widgets.append('separator')
+    widgets.append(
+        (
+            core_constants.LOG_VIEWER,
+            log_viewer.NukeQtLogViewerClientWidget,
+            'Log Viewer',
             '',
         )
     )
@@ -238,7 +240,8 @@ def initialise():
 
     def on_nuke_exit():
         logger.info('Shutting down ftrack integration.')
-        session.event_hub.disconnect()
+        if session.event_hub.connected:
+            session.event_hub.disconnect()
 
     app = QtWidgets.QApplication.instance()
     app.aboutToQuit.connect(on_nuke_exit)
