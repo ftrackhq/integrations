@@ -60,6 +60,8 @@ class QtOpenerClientWidget(QtOpenerClient, dialog.Dialog):
 
         self.open_assembler_button = None
         self.scroll = None  # Main content scroll pane
+        self._available_components_count = 0
+        self._openable_version = None
 
         self.setWindowFlags(QtCore.Qt.Tool)
         set_theme(self, get_theme())
@@ -165,6 +167,9 @@ class QtOpenerClientWidget(QtOpenerClient, dialog.Dialog):
         self.widget_factory.componentsChecked.connect(
             self._on_components_checked
         )
+        self.widget_factory.onQueryAssetVersionDone.connect(
+            self._on_version_changed
+        )
         self.open_assembler_button.clicked.connect(self._launch_assembler)
         self.run_button.clicked.connect(self.run)
 
@@ -221,7 +226,8 @@ class QtOpenerClientWidget(QtOpenerClient, dialog.Dialog):
         self.scroll.verticalScrollBar().setVisible(False)
         self.scroll.horizontalScrollBar().setVisible(False)
         if not schema and not definition:
-            self.refresh(None, 0)
+            self._available_components_count = 0
+            self.refresh()
             return
 
         super(QtOpenerClientWidget, self).change_definition(schema, definition)
@@ -232,23 +238,39 @@ class QtOpenerClientWidget(QtOpenerClient, dialog.Dialog):
         self.widget_factory.host_connection = self.host_connection
         self.widget_factory.set_definition_type(self.definition['type'])
         definition_widget = self.widget_factory.build(
-            self.definition, component_names_filter
+            self.definition,
+            component_names_filter,
+            self.definition_extensions_filter,
         )
         self.scroll.setWidget(definition_widget)
 
-    def refresh(self, definition, available_components_count):
+    def refresh(self):
         '''Refresh UI based on the selected definition and openable components available.'''
-        if definition is not None and available_components_count >= 1:
-            self.run_button.setEnabled(True)
+        if (
+            self.definition is not None
+            and self._available_components_count >= 1
+        ):
             self.scroll.viewport().setVisible(True)
             self.scroll.verticalScrollBar().setVisible(True)
             self.scroll.horizontalScrollBar().setVisible(True)
+            self.widget_factory.components_section.setVisible(
+                self._openable_version is not None
+            )
+            self.widget_factory.finalizers_section.setVisible(
+                self._openable_version is not None
+            )
+            self.run_button.setEnabled(self._openable_version is not None)
         else:
             self.run_button.setEnabled(False)
             self._clear_widget()
 
     def _on_components_checked(self, available_components_count):
-        self.refresh(self.definition, available_components_count)
+        self._available_components_count = available_components_count
+        self.refresh()
+
+    def _on_version_changed(self, version):
+        self._openable_version = version
+        self.refresh()
 
     def _definition_selector_refreshed(self):
         '''Called upon definition selector refresh button click.'''

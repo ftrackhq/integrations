@@ -109,6 +109,10 @@ class DynamicWidget(BaseOptionsWidget):
         super(DynamicWidget, self).build()
 
         for key, value in list(self.options.items()):
+            # Make sure it is not a hidden/internal framework option, we do not
+            # want to expose these within the UI
+            if key.find('_') == 0:
+                continue
             value_type = type(value)
             widget_fn = self._type_mapping.get(
                 value_type, self._build_str_widget

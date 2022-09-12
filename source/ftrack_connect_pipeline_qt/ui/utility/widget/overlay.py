@@ -144,3 +144,4 @@ class Overlay(QtWidgets.QFrame):
                 # Relay event.
                 self.resize(event.size())
         return False
+

@@ -220,13 +220,12 @@ class AssetSelector(QtWidgets.QWidget):
     assetChanged = QtCore.Signal(object, object, object)
     updateWidget = QtCore.Signal(object)
 
-    def __init__(self, session, is_loader=False, parent=None):
+    def __init__(self, session, parent=None):
         super(AssetSelector, self).__init__(parent=parent)
         self.logger = logging.getLogger(
             __name__ + '.' + self.__class__.__name__
         )
 
-        self.is_loader = is_loader
         self.session = session
 
         self.validator = QtGui.QRegExpValidator(self.VALID_ASSET_NAME)

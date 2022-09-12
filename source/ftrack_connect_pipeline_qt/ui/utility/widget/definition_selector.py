@@ -271,14 +271,13 @@ class OpenerDefinitionSelector(DefinitionSelectorBase):
                         )
                     )
                 if asset_type_name and self._host_connection.context_id:
-                    asset_version = self._host_connection.session.query(
+                    for asset_version in self._host_connection.session.query(
                         'AssetVersion where '
-                        'task.id={} and asset.type.name="{}" and is_latest_version=true'.format(
+                        'task.id={} and asset.type.name="{}" order by date descending'.format(
                             self._host_connection.context_id,
                             asset_type_name,
                         )
-                    ).first()
-                    if asset_version:
+                    ):
                         version_has_openable_component = False
                         for component in asset_version['components']:
                             for component_name in component_names_filter:
@@ -295,17 +294,15 @@ class OpenerDefinitionSelector(DefinitionSelectorBase):
                                         break
                             if version_has_openable_component:
                                 break
-                        if version_has_openable_component and (
-                            latest_version is None
-                            or latest_version['date'] < asset_version['date']
-                        ):
+                        if version_has_openable_component:
                             latest_version = asset_version
                             index_latest_version = index
                             self.logger.info(
                                 'Version {} can be opened'.format(
-                                    str_version(asset_version)
+                                    str_version(latest_version)
                                 )
                             )
+                            break
                 if not self._definition_title_filters:
                     text = '{} - {}'.format(
                         schema.get('title'), item.get('name')

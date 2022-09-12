@@ -172,11 +172,18 @@ class WidgetFactoryBase(QtWidgets.QWidget):
         raise NotImplementedError()
 
     def create_step_container_widget(
-        self, definition, step_type_name, stage_name_filters=None
+        self,
+        definition,
+        step_type_name,
+        stage_name_filters=None,
+        component_names_filter=None,
+        extensions_filter=None,
     ):
         '''
         Main loop to create the widgets UI overrides from schema *definition*
-        based on *step_step_type_name* and optional *stage_name_filters*
+        based on *step_step_type_name* and optional *stage_name_filters*. Pass
+        on *component_names_filter* and *extensions_filter* as options to the
+        widget to enable filtering on context.
         '''
         step_container_obj = self.get_override(
             step_type_name,
@@ -240,9 +247,21 @@ class WidgetFactoryBase(QtWidgets.QWidget):
                         plugin,
                         self.client_type(),
                     )
-                    # Here is where we inject the user custom widgets.
+                    # Here is where we inject the user custom widgets, provide filters if supplied
+                    extra_options = {'_filters': {}}
+                    if extensions_filter:
+                        extra_options['_filters'][
+                            'file_types'
+                        ] = extensions_filter
+                    if component_names_filter:
+                        extra_options['_filters'][
+                            'component_names'
+                        ] = component_names_filter
+
                     plugin_widget = self.fetch_plugin_widget(
-                        plugin, stage['name']
+                        plugin,
+                        stage['name'],
+                        extra_options=extra_options,
                     )
                     # Start parenting widgets
                     if plugin_container_obj:
@@ -288,7 +307,9 @@ class WidgetFactoryBase(QtWidgets.QWidget):
                 step_container_obj.parent_widget(step_obj)
         return step_container_obj
 
-    def build(self, definition, component_names_filter):
+    def build(
+        self, definition, component_names_filter, component_extensions_filter
+    ):
         '''
         Given the provided *definition* and *component_names_filter*, build the main client UI.
         '''
@@ -299,9 +320,12 @@ class WidgetFactoryBase(QtWidgets.QWidget):
         # Create the main UI widget based on the user overrides
         main_obj = self.create_main_widget()
 
-        # Create the context widget based on the definition ans user overrides
+        # Create the context widget based on the definition and user overrides
         self.context_obj = self.create_step_container_widget(
-            definition, core_constants.CONTEXTS
+            definition,
+            core_constants.CONTEXTS,
+            component_names_filter=component_names_filter,
+            extensions_filter=component_extensions_filter,
         )
 
         # Create the components widget based on the definition
@@ -458,8 +482,10 @@ class WidgetFactoryBase(QtWidgets.QWidget):
                 )
             )
 
-        widget.assetVersionChanged.connect(self._asset_version_changed)  # Load
-        widget.assetChanged.connect(self._on_widget_asset_changed)  # Publish
+        widget.assetVersionChanged.connect(
+            self._asset_version_changed
+        )  # Open/load
+        widget.assetChanged.connect(self._on_widget_asset_changed)
 
         self.register_widget_plugin(plugin_data, widget)
 
@@ -699,7 +725,7 @@ class WidgetFactoryBase(QtWidgets.QWidget):
     def _asset_version_changed(self, version_id):
         '''Callback function triggered when a asset version has changed'''
         if version_id is None:
-            # No asset available to load
+            # No asset available to open/load
             self._query_asset_version_callback(None)
             return
         thread = BaseThread(
