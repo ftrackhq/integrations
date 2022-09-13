@@ -320,7 +320,7 @@ class Client(object):
         self.logger.debug('host connection: {}'.format(value))
         Client._host_connection = value
         self.on_client_notification()
-        self.subscribe_client_context_change()
+        self.subscribe_host_context_change()
         # Feed change of host and context to client
         self.on_host_changed(self.host_connection)
         self.on_context_changed(self.host_connection.context_id)
@@ -393,7 +393,7 @@ class Client(object):
             self.host_connection = None
         if self.host_connection is not None:
             self.on_client_notification()
-            self.subscribe_client_context_change()
+            self.subscribe_host_context_change()
             self.on_host_changed(self.host_connection)
             self.on_context_changed(self.host_connection.context_id)
             return
@@ -487,20 +487,20 @@ class Client(object):
 
     # Context
 
-    def subscribe_client_context_change(self):
+    def subscribe_host_context_change(self):
         '''Have host connection subscribe to context change events, to be able
         to notify client'''
         if self.context_change_subscribe_id:
             self.session.unsubscribe(self.context_change_subscribe_id)
         self.context_change_subscribe_id = self.session.event_hub.subscribe(
             'topic={} and data.pipeline.host_id={}'.format(
-                constants.PIPELINE_CLIENT_CONTEXT_CHANGE,
+                constants.PIPELINE_HOST_CONTEXT_CHANGE,
                 self.host_connection.id,
             ),
-            self._client_context_id_changed,
+            self._host_context_id_changed,
         )
 
-    def _client_context_id_changed(self, event):
+    def _host_context_id_changed(self, event):
         '''Set the new context ID based on data provided in *event*'''
         # Feed the new context to the client
         self.on_context_changed(event['data']['pipeline']['context_id'])
@@ -510,7 +510,7 @@ class Client(object):
         client or remote (other client or the host). Should be overridden by client.'''
         pass
 
-    def unsubscribe_client_context_change(self):
+    def unsubscribe_host_context_change(self):
         '''Unsubscribe to client context change events'''
         if self.context_change_subscribe_id:
             self.session.event_hub.unsubscribe(
