@@ -99,6 +99,10 @@ class QtPublisherClientWidget(QtPublisherClient, QtWidgets.QFrame):
 
         self.setWindowTitle('Standalone Pipeline Publisher')
 
+    def get_theme_background_style(self):
+        '''Return the theme background color style. Can be overridden by child.'''
+        return 'default'
+
     def is_docked(self):
         return True
 
