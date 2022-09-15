@@ -83,5 +83,5 @@ class QtChangeContextClientWidget(QtChangeContextClient, QtWidgets.QWidget):
             return False
 
     def change_ftrack_context_id(self, context_id):
-        '''A new context has been chose, store it in host and tell other clients'''
-        self.host_connection.context_id = context_id
+        '''A new context has been chosen, store it in host and tell other clients'''
+        self.context_id = context_id
