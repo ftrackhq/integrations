@@ -15,6 +15,14 @@ ftrack\_connect\_pipeline.constants.plugin.asset\_manager
     :undoc-members:
     :show-inheritance:
 
+ftrack\_connect\_pipeline.constants.plugin.open
+------------------------------------------------------
+
+.. automodule:: ftrack_connect_pipeline.constants.plugin.open
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 ftrack\_connect\_pipeline.constants.plugin.load
 ------------------------------------------------------
 

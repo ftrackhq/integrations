@@ -23,4 +23,12 @@ ftrack\_connect\_pipeline.plugin.asset\_manager.discover
     :undoc-members:
     :show-inheritance:
 
+ftrack\_connect\_pipeline.plugin.asset\_manager.resolve
+---------------------------------------------------------------
+
+.. automodule:: ftrack_connect_pipeline.plugin.asset_manager.resolve
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 

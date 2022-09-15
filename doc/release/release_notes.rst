@@ -8,7 +8,6 @@ Release Notes
 *************
 
 .. release:: upcoming
-    :date:
 
     .. change:: changed
         :tags: doc
@@ -29,7 +28,6 @@ Release Notes
     :date: 2022-08-01
 
     .. change:: new
-        :tags:
 
         Initial release
 
