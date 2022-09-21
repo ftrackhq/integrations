@@ -1,5 +1,6 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2019 ftrack
+# :copyright: Copyright (c) 2014-2022 ftrack
+
 import os
 import re
 import clique
