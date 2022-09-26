@@ -1,6 +1,6 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2020 ftrack
-
+import copy
 from functools import partial
 
 from Qt import QtWidgets, QtCore
@@ -92,16 +92,63 @@ class DynamicWidget(BaseOptionsWidget):
         widget.stateChanged.connect(update_fn)
         self.set_option_result(value, key)
 
+    def _on_current_index_changed(self, widget, key, index):
+        value = widget.itemData(index)
+        self.set_option_result(value, key=key)
+
     def _build_list_widget(self, key, values):
         '''build a list widget out of options *key* and *values*'''
         widget = QtWidgets.QComboBox()
-        widget.addItems(values)
+        selected_index = 0
+        selected_value = None
+        for index, item in enumerate(values):
+            if isinstance(item, dict):
+                widget.addItem(item['label'], item['value'])
+                if item.get('default') is True:
+                    selected_index = index
+                if index == selected_index:
+                    selected_value = item['value']
+            else:
+                # Fall back on standard list of primitives
+                widget.addItem(str(item), item)
+                if index == selected_index:
+                    selected_value = item
+        widget.setCurrentIndex(selected_index)
         self._register_widget(key, widget)
-        update_fn = partial(self.set_option_result, key=key)
         # QComboBox().currentTextChanged only works for PySide2
-        widget.currentTextChanged.connect(update_fn)
-        if len(values) > 0:
-            self.set_option_result(values[0], key)
+        widget.currentIndexChanged.connect(
+            partial(self._on_current_index_changed, widget, key)
+        )
+        if selected_value:
+            self.set_option_result(selected_value, key)
+
+    def update(self, options):
+        for key, value in options.items():
+            if isinstance(value, list):
+                # List/combobox definition, parse
+                new_value = []
+                supplied_value = self.options.get(key)
+                for item in value:
+                    if item is None:
+                        item = ''
+                    if isinstance(item, str):
+                        item = {'label': item, 'value': item}
+                    else:
+                        item = copy.deepcopy(item)
+                    if (
+                        supplied_value is not None
+                        and item['value'] == supplied_value
+                    ):
+                        item['default'] = True  # Make sure is is selected
+                    elif supplied_value is None and 'default' in item:
+                        del item['default']
+                    new_value.append(item)
+                options[key] = new_value
+            else:
+                if key in self.options:
+                    options[key] = self.options[key]
+
+        self._options = options
 
     def build(self):
         '''build function widgets based on the type of the vaule of every
