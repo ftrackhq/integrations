@@ -1,17 +1,18 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2019 ftrack
+# :copyright: Copyright (c) 2014-2022 ftrack
 
 from ftrack_connect_pipeline import plugin
 from ftrack_connect_pipeline_qt import plugin as pluginWidget
 from ftrack_connect_pipeline_3dsmax.plugin import (
-    BaseMaxPlugin, BaseMaxPluginWidget
+    MaxBasePlugin,
+    MaxBasePluginWidget,
 )
 
 
-class PublisherValidatorMaxPlugin(
-    plugin.PublisherValidatorPlugin, BaseMaxPlugin
+class MaxPublisherValidatorPlugin(
+    plugin.PublisherValidatorPlugin, MaxBasePlugin
 ):
-    ''' Class representing a Validator Plugin
+    '''Class representing a Validator Plugin
 
     .. note::
 
@@ -19,10 +20,10 @@ class PublisherValidatorMaxPlugin(
     '''
 
 
-class PublisherValidatorMaxWidget(
-    pluginWidget.PublisherValidatorWidget, BaseMaxPluginWidget
+class MaxPublisherValidatorPluginWidget(
+    pluginWidget.PublisherValidatorPluginWidget, MaxBasePluginWidget
 ):
-    ''' Class representing a Validator widget
+    '''Class representing a Validator widget
 
     .. note::
 

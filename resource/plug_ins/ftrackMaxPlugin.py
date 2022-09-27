@@ -1,4 +1,4 @@
-# :copyright: Copyright (c) 2019 ftrack
+# :copyright: Copyright (c) 2014-2022 ftrack
 
 import pymxs
 from ftrack_connect_pipeline_3dsmax.constants import asset as asset_const

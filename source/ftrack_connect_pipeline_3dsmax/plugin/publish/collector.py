@@ -1,17 +1,18 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2019 ftrack
+# :copyright: Copyright (c) 2014-2022 ftrack
 
 from ftrack_connect_pipeline import plugin
 from ftrack_connect_pipeline_qt import plugin as pluginWidget
 from ftrack_connect_pipeline_3dsmax.plugin import (
-    BaseMaxPlugin, BaseMaxPluginWidget
+    MaxBasePlugin,
+    MaxBasePluginWidget,
 )
 
 
-class PublisherCollectorMaxPlugin(
-    plugin.PublisherCollectorPlugin, BaseMaxPlugin
+class MaxPublisherCollectorPlugin(
+    plugin.PublisherCollectorPlugin, MaxBasePlugin
 ):
-    ''' Class representing a Collector Plugin
+    '''Class representing a Collector Plugin
 
     .. note::
 
@@ -19,13 +20,12 @@ class PublisherCollectorMaxPlugin(
     '''
 
 
-class PublisherCollectorMaxWidget(
-    pluginWidget.PublisherCollectorWidget, BaseMaxPluginWidget
+class MaxPublisherCollectorPluginWidget(
+    pluginWidget.PublisherCollectorPluginWidget, MaxBasePluginWidget
 ):
-    ''' Class representing a Collector Widget
+    '''Class representing a Collector Widget
 
     .. note::
 
         _required_output a List
     '''
-

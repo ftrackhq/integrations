@@ -1,29 +1,32 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2014-2020 ftrack
+# :copyright: Copyright (c) 2014-2022 ftrack
 
 import logging
-import ftrack_api
-
-from ftrack_connect_pipeline_qt import constants as qt_constants
-from ftrack_connect_pipeline_3dsmax import constants as max_constants
 from ftrack_connect_pipeline.host import Host
+from ftrack_connect_pipeline_qt import constants as qt_constants
+from ftrack_connect_pipeline_3dsmax import constants as 3dsmax_constants
 from ftrack_connect_pipeline_3dsmax.host import engine as host_engine
 
 logger = logging.getLogger(__name__)
 
 
 class MaxHost(Host):
-    host_types = [qt_constants.HOST_TYPE, max_constants.HOST_TYPE]
-    # Define the Maya engines to be run during the run function
+    '''
+    MaxHost class.
+    '''
+
+    host_types = [qt_constants.HOST_TYPE, 3dsmax_constants.HOST_TYPE]
+    # Define the Max engines to be run during the run function
     engines = {
         'asset_manager': host_engine.MaxAssetManagerEngine,
         'loader': host_engine.MaxLoaderEngine,
+        'opener': host_engine.MaxOpenerEngine,
         'publisher': host_engine.MaxPublisherEngine,
     }
 
     def __init__(self, event_manager):
         '''
-        Initialize MayaHost with *event_manager*.
+        Initialize MaxHost with *event_manager*.
 
         *event_manager* instance of
         :class:`ftrack_connect_pipeline.event.EventManager`
