@@ -38,7 +38,7 @@ def on_launch_pipeline_{{cookiecutter.host_type}}(session, event):
 
     # Discover plugins from definitions
     definitions_plugin_hook = os.getenv("FTRACK_DEFINITION_PLUGIN_PATH")
-    plugin_hook = os.path.join(definitions_plugin_hook, {{cookiecutter.host_type}}, 'python')
+    plugin_hook = os.path.join(definitions_plugin_hook, '{{cookiecutter.host_type}}', 'python')
 
     # pipeline_maya_base_data['integration']['env'] = {
     #     'FTRACK_EVENT_PLUGIN_PATH.prepend': plugin_hook,
