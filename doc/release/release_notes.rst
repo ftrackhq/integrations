@@ -10,6 +10,21 @@ Release Notes
 .. release:: upcoming
 
     .. change:: fixed
+
+        Opener not preselecting latest version
+
+
+    .. change:: fixed
+
+        Event filter warnings in Nuke and Maya
+
+
+    .. change:: fixed
+
+        Fixed assembler version selector bug caused by previous opener changes
+
+
+    .. change:: fixed
         :tags: doc
 
         Fixed bug where opener definition selector could not spot an openable version
@@ -17,7 +32,7 @@ Release Notes
 
     .. change:: change
 
-         Removed version id from asset list event
+         Removed version id from asset list event.
 
 
     .. change:: change
