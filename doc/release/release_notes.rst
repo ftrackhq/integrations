@@ -9,17 +9,26 @@ Release Notes
 
 .. release:: upcoming
 
-    .. change:: fix
+
+    .. change:: fixed
+
+        Nuke log viewer and documentation not working
+
+
+    .. change:: fixed
 
         Prevented multiple docked publishers and asset managers
 
-    .. change:: fix
+
+    .. change:: fixed
 
         Frame range not updating on launch
 
-    .. change:: fix
+
+    .. change:: fixed
 
         Remove event hub disconnect, aligned menu and reordered asset manager engine functions
+
 
 .. release:: 1.0.1
     :date: 2022-08-01
