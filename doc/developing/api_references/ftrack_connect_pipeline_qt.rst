@@ -35,3 +35,11 @@ ftrack\_connect\_pipeline\_qt.utils module
    :members:
    :undoc-members:
    :show-inheritance:
+
+ftrack\_connect\_pipeline\_qt._version module
+---------------------------------------------
+
+.. automodule:: ftrack_connect_pipeline_qt._version
+   :members:
+   :undoc-members:
+   :show-inheritance:

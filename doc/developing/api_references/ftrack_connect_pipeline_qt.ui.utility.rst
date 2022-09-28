@@ -12,5 +12,4 @@ Subpackages
 .. toctree::
    :maxdepth: 1
 
-   ftrack_connect_pipeline_qt.ui.utility.model
    ftrack_connect_pipeline_qt.ui.utility.widget

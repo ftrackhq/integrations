@@ -999,8 +999,12 @@ class AssemblerVersionComboBox(VersionComboBox):
     def __init__(self, session, parent=None):
         super(AssemblerVersionComboBox, self).__init__(session, parent=parent)
 
-    def _add_version(self, version):
-        self.addItem(str("v{}".format(version['version'])), version['id'])
+    def _add_version(self, version_and_compatible_tuple):
+        '''Override'''
+        version, is_compatible = version_and_compatible_tuple
+        self.addItem(
+            str("v{}".format(version['version'])), version_and_compatible_tuple
+        )
 
 
 class AssemblerDependencyContextLabel(QtWidgets.QFrame):
