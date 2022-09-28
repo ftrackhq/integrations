@@ -295,13 +295,18 @@ class OpenerDefinitionSelector(DefinitionSelectorBase):
                             if version_has_openable_component:
                                 break
                         if version_has_openable_component:
-                            latest_version = asset_version
-                            index_latest_version = index
                             self.logger.info(
                                 'Version {} can be opened'.format(
-                                    str_version(latest_version)
+                                    str_version(asset_version)
                                 )
                             )
+                            if (
+                                latest_version is None
+                                or latest_version['date']
+                                < asset_version['date']
+                            ):
+                                latest_version = asset_version
+                                index_latest_version = index
                             break
                 if not self._definition_title_filters:
                     text = '{} - {}'.format(

@@ -755,10 +755,11 @@ class ComponentBaseWidget(AccordionBaseWidget):
         self.set_latest_version(version_entity['is_latest_version'])
 
         self.setToolTip(
-            'Published by: {} {} @ {}'.format(
+            'Published by: {} {} @ {}\nComment: {}'.format(
                 version_entity['user']['first_name'],
                 version_entity['user']['last_name'],
                 version_entity['date'].strftime('%y-%m-%d %H:%M'),
+                version_entity['comment'],
             )
         )
 
