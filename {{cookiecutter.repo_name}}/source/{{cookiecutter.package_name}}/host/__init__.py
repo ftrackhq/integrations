@@ -4,8 +4,8 @@
 import logging
 from ftrack_connect_pipeline.host import Host
 from ftrack_connect_pipeline_qt import constants as qt_constants
-from ftrack_connect_pipeline_{{cookiecutter.host_type}} import constants as {{cookiecutter.host_type}}_constants
-from ftrack_connect_pipeline_{{cookiecutter.host_type}}.host import engine as host_engine
+from {{cookiecutter.package_name}} import constants as {{cookiecutter.host_type}}_constants
+from {{cookiecutter.package_name}}.host import engine as host_engine
 
 logger = logging.getLogger(__name__)
 

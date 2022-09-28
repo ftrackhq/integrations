@@ -5,7 +5,7 @@ from Qt import QtWidgets, QtCore
 
 from ftrack_connect_pipeline_qt.client import log_viewer
 
-from ftrack_connect_pipeline_{{cookiecutter.host_type}}.utils.custom_commands import get_main_window
+from {{cookiecutter.package_name}}.utils.custom_commands import get_main_window
 
 
 class {{cookiecutter.host_type_capitalized}}QtLogViewerClientWidget(log_viewer.QtLogViewerClientWidget):

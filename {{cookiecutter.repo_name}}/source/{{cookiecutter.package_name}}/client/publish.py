@@ -4,7 +4,7 @@
 from ftrack_connect_pipeline_qt.client.publish import QtPublisherClientWidget
 import ftrack_connect_pipeline.constants as constants
 import ftrack_connect_pipeline_qt.constants as qt_constants
-import ftrack_connect_pipeline_{{cookiecutter.host_type}}.constants as {{cookiecutter.host_type}}_constants
+import {{cookiecutter.package_name}}.constants as {{cookiecutter.host_type}}_constants
 
 
 class {{cookiecutter.host_type_capitalized}}QtPublisherClientWidget(QtPublisherClientWidget):

@@ -9,11 +9,11 @@ import {{cookiecutter.host_type}}
 from ftrack_connect_pipeline import constants as core_constants
 from ftrack_connect_pipeline.host.engine import AssetManagerEngine
 from ftrack_connect_pipeline.asset.asset_info import FtrackAssetInfo
-from ftrack_connect_pipeline_{{cookiecutter.host_type}}.utils import custom_commands as {{cookiecutter.host_type}}_utils
-from ftrack_connect_pipeline_{{cookiecutter.host_type}}.constants import asset as asset_const
-from ftrack_connect_pipeline_{{cookiecutter.host_type}}.constants.asset import modes as modes_const
-from ftrack_connect_pipeline_{{cookiecutter.host_type}}.asset import {{cookiecutter.host_type_capitalized}}FtrackObjectManager
-from ftrack_connect_pipeline_{{cookiecutter.host_type}}.asset.dcc_object import {{cookiecutter.host_type_capitalized}}DccObject
+from {{cookiecutter.package_name}}.utils import custom_commands as {{cookiecutter.host_type}}_utils
+from {{cookiecutter.package_name}}.constants import asset as asset_const
+from {{cookiecutter.package_name}}.constants.asset import modes as modes_const
+from {{cookiecutter.package_name}}.asset import {{cookiecutter.host_type_capitalized}}FtrackObjectManager
+from {{cookiecutter.package_name}}.asset.dcc_object import {{cookiecutter.host_type_capitalized}}DccObject
 
 
 class {{cookiecutter.host_type_capitalized}}AssetManagerEngine(AssetManagerEngine):

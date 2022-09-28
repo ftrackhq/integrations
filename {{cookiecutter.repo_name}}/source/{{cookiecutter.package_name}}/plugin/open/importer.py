@@ -5,14 +5,14 @@ import {{cookiecutter.host_type}}
 
 from ftrack_connect_pipeline import plugin
 from ftrack_connect_pipeline_qt import plugin as pluginWidget
-from ftrack_connect_pipeline_{{cookiecutter.host_type}}.plugin import (
+from {{cookiecutter.package_name}}.plugin import (
     {{cookiecutter.host_type_capitalized}}BasePlugin,
     {{cookiecutter.host_type_capitalized}}BasePluginWidget,
 )
 
-from ftrack_connect_pipeline_{{cookiecutter.host_type}}.utils import custom_commands as {{cookiecutter.host_type}}_utils
-from ftrack_connect_pipeline_{{cookiecutter.host_type}}.constants.asset import modes as load_const
-from ftrack_connect_pipeline_{{cookiecutter.host_type}}.constants import asset as asset_const
+from {{cookiecutter.package_name}}.utils import custom_commands as {{cookiecutter.host_type}}_utils
+from {{cookiecutter.package_name}}.constants.asset import modes as load_const
+from {{cookiecutter.package_name}}.constants import asset as asset_const
 
 
 class {{cookiecutter.host_type_capitalized}}OpenerImporterPlugin(plugin.OpenerImporterPlugin, {{cookiecutter.host_type_capitalized}}BasePlugin):

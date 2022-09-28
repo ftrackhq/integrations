@@ -18,8 +18,8 @@ from ftrack_connect_pipeline_qt import event
 from ftrack_connect_pipeline_qt import constants as qt_constants
 from ftrack_connect_pipeline_qt.ui.asset_manager.model import AssetListModel
 
-from ftrack_connect_pipeline_{{cookiecutter.host_type}} import host as {{cookiecutter.host_type}}_host
-from ftrack_connect_pipeline_{{cookiecutter.host_type}}.client import (
+from {{cookiecutter.package_name}} import host as {{cookiecutter.host_type}}_host
+from {{cookiecutter.package_name}}.client import (
     open as ftrack_open,
     load,
     asset_manager,
@@ -29,7 +29,7 @@ from ftrack_connect_pipeline_{{cookiecutter.host_type}}.client import (
 )
 from ftrack_connect_pipeline_qt.client import documentation
 
-from ftrack_connect_pipeline_{{cookiecutter.host_type}}.utils import custom_commands as {{cookiecutter.host_type}}_utils
+from {{cookiecutter.package_name}}.utils import custom_commands as {{cookiecutter.host_type}}_utils
 
 
 extra_handlers = {
@@ -40,14 +40,14 @@ extra_handlers = {
     }
 }
 configure_logging(
-    'ftrack_connect_pipeline_{{cookiecutter.host_type}}',
+    '{{cookiecutter.package_name}}',
     extra_modules=['ftrack_connect_pipeline', 'ftrack_connect_pipeline_qt'],
     extra_handlers=extra_handlers,
     propagate=False,
 )
 
 
-logger = logging.getLogger('ftrack_connect_pipeline_{{cookiecutter.host_type}}')
+logger = logging.getLogger('{{cookiecutter.package_name}}')
 
 
 created_widgets = dict()

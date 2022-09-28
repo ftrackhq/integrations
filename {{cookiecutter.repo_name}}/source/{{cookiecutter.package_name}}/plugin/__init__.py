@@ -5,10 +5,10 @@ import {{cookiecutter.host_type}}
 
 from ftrack_connect_pipeline import plugin
 from ftrack_connect_pipeline_qt import plugin as pluginWidget
-from ftrack_connect_pipeline_{{cookiecutter.host_type}} import constants as {{cookiecutter.host_type}}_constants
-from ftrack_connect_pipeline_{{cookiecutter.host_type}}.utils import custom_commands as {{cookiecutter.host_type}}_utils
-from ftrack_connect_pipeline_{{cookiecutter.host_type}}.asset import {{cookiecutter.host_type_capitalized}}FtrackObjectManager
-from ftrack_connect_pipeline_{{cookiecutter.host_type}}.asset.dcc_object import {{cookiecutter.host_type_capitalized}}DccObject
+from {{cookiecutter.package_name}} import constants as {{cookiecutter.host_type}}_constants
+from {{cookiecutter.package_name}}.utils import custom_commands as {{cookiecutter.host_type}}_utils
+from {{cookiecutter.package_name}}.asset import {{cookiecutter.host_type_capitalized}}FtrackObjectManager
+from {{cookiecutter.package_name}}.asset.dcc_object import {{cookiecutter.host_type_capitalized}}DccObject
 
 
 class {{cookiecutter.host_type_capitalized}}BasePlugin(plugin.BasePlugin):
@@ -34,7 +34,7 @@ class {{cookiecutter.host_type_capitalized}}BasePluginWidget({{cookiecutter.host
         return super({{cookiecutter.host_type_capitalized}}BasePluginWidget, self)._run(event)
 
 
-from ftrack_connect_pipeline_{{cookiecutter.host_type}}.plugin.load import *
-from ftrack_connect_pipeline_{{cookiecutter.host_type}}.plugin.open import *
-from ftrack_connect_pipeline_{{cookiecutter.host_type}}.plugin.publish import *
-from ftrack_connect_pipeline_{{cookiecutter.host_type}}.plugin.asset_manager import *
+from {{cookiecutter.package_name}}.plugin.load import *
+from {{cookiecutter.package_name}}.plugin.open import *
+from {{cookiecutter.package_name}}.plugin.publish import *
+from {{cookiecutter.package_name}}.plugin.asset_manager import *
