@@ -1,3 +1,6 @@
+# :coding: utf-8
+# :copyright: Copyright (c) 2014-2022 ftrack
+
 from nukescripts import panels
 
 from ftrack_connect_pipeline import constants as core_constants
