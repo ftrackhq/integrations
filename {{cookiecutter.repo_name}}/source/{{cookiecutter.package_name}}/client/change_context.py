@@ -2,8 +2,7 @@
 # :copyright: Copyright (c) 2014-{{cookiecutter.year}} ftrack
 
 from ftrack_connect_pipeline_qt.client import change_context
-from ftrack_connect_pipeline_cookiecutter.host_type}.utils.custom_commands import init_cookiecutter.host_type}
-
+from {{cookiecutter.package_name}}.utils import custom_commands as {{cookiecutter.host_type}}_utils
 
 class {{cookiecutter.host_type_capitalized}}QtChangeContextClientWidget(
     change_context.QtChangeContextClientWidget

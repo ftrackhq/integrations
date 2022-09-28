@@ -124,9 +124,9 @@ class {{cookiecutter.host_type_capitalized}}DccObject(DccObject):
         )
         param_dict = {}
         #if not cmds.objExists(object_name):
-            error_message = "{} Object doesn't exists".format(object_name)
-            logger.error(error_message)
-            return param_dict
+        #    error_message = "{} Object doesn't exists".format(object_name)
+        #    logger.error(error_message)
+        #    return param_dict
         #all_attr = cmds.listAttr(object_name, c=True, se=True)
         for attr in all_attr:
             #if cmds.attributeQuery(attr, node=object_name, msg=True):

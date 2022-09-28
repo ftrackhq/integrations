@@ -5,8 +5,7 @@ from Qt import QtWidgets, QtCore
 
 from ftrack_connect_pipeline_qt.client import open
 import ftrack_connect_pipeline.constants as constants
-import ftrack_connect_pipeline_maya.constants as maya_constants
-from ftrack_connect_pipeline_maya.utils.custom_commands import get_main_window
+import {{cookiecutter.package_name}}.constants as {{cookiecutter.host_type}}_constants
 from ftrack_connect_pipeline_qt import constants as qt_constants
 
 
@@ -16,7 +15,7 @@ class {{cookiecutter.host_type_capitalized}}QtOpenerClientWidget(open.QtOpenerCl
     ui_types = [
         constants.UI_TYPE,
         qt_constants.UI_TYPE,
-        maya_constants.UI_TYPE,
+        {{cookiecutter.host_type}}_constants.UI_TYPE,
     ]
     definition_extensions_filter = ['.mb',  .. ]
 

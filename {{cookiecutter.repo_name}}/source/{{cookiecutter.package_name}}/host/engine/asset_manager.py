@@ -171,10 +171,10 @@ class {{cookiecutter.host_type_capitalized}}AssetManagerEngine(AssetManagerEngin
 
         # Get reference Node
         reference_node = None
-        for obj in unload_result:
-            #if cmds.nodeType(obj) == 'reference':
-            #    reference_node = unload_result[0]
-            #    break
+        # for obj in unload_result:
+        #     if cmds.nodeType(obj) == 'reference':
+        #         reference_node = unload_result[0]
+        #         break
         if not reference_node:
             return super({{cookiecutter.host_type_capitalized}}AssetManagerEngine, self).change_version(
                 asset_info=asset_info, options=options, plugin=plugin

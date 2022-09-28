@@ -7,10 +7,10 @@
 API Reference
 *************
 
-ftrack_connect_pipeline_{{cookiecutter.repo_name}}
+{{cookiecutter.package_name}}
 ============================
 
 .. toctree::
     :maxdepth: 1
 
-    ftrack_connect_pipeline_{{cookiecutter.repo_name}}
+    {{cookiecutter.package_name}}
