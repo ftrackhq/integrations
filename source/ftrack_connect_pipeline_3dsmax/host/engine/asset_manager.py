@@ -2,14 +2,14 @@
 # :copyright: Copyright (c) 2014-2022 ftrack
 
 import time
-import 3dsmax
+import max
 
 #import maya.cmds as cmds
 
 from ftrack_connect_pipeline import constants as core_constants
 from ftrack_connect_pipeline.host.engine import AssetManagerEngine
 from ftrack_connect_pipeline.asset.asset_info import FtrackAssetInfo
-from ftrack_connect_pipeline_3dsmax.utils import custom_commands as 3dsmax_utils
+from ftrack_connect_pipeline_3dsmax.utils import custom_commands as max_utils
 from ftrack_connect_pipeline_3dsmax.constants import asset as asset_const
 from ftrack_connect_pipeline_3dsmax.constants.asset import modes as modes_const
 from ftrack_connect_pipeline_3dsmax.asset import MaxFtrackObjectManager
@@ -33,7 +33,7 @@ class MaxAssetManagerEngine(AssetManagerEngine):
             event_manager, host_types, host_id, asset_type_name=asset_type_name
         )
 
-    @3dsmax_utils.run_in_main_thread
+    @max_utils.run_in_main_thread
     def discover_assets(self, assets=None, options=None, plugin=None):
         '''
         Discover all the assets in the scene:
@@ -54,7 +54,7 @@ class MaxAssetManagerEngine(AssetManagerEngine):
             'message': message,
         }
 
-        ftrack_asset_nodes = 3dsmax_utils.get_ftrack_nodes()
+        ftrack_asset_nodes = max_utils.get_ftrack_nodes()
         ftrack_asset_info_list = []
 
         if ftrack_asset_nodes:
@@ -84,7 +84,7 @@ class MaxAssetManagerEngine(AssetManagerEngine):
 
         return status, result
 
-    @3dsmax_utils.run_in_main_thread
+    @max_utils.run_in_main_thread
     def change_version(self, asset_info, options, plugin=None):
         '''
         Returns the :const:`~ftrack_connnect_pipeline.constants.status` and the
@@ -171,7 +171,7 @@ class MaxAssetManagerEngine(AssetManagerEngine):
 
         # Get reference Node
         reference_node = None
-        for obj in unload_result:
+        #for obj in unload_result:
             #if cmds.nodeType(obj) == 'reference':
             #    reference_node = unload_result[0]
             #    break
@@ -270,7 +270,7 @@ class MaxAssetManagerEngine(AssetManagerEngine):
 
         # Reload asset
         try:
-            3dsmax_utils.load_reference_node(reference_node)
+            max_utils.load_reference_node(reference_node)
             status = core_constants.SUCCESS_STATUS
         except Exception as error:
             message = str(
@@ -343,7 +343,7 @@ class MaxAssetManagerEngine(AssetManagerEngine):
 
         return status, result
 
-    @3dsmax_utils.run_in_main_thread
+    @max_utils.run_in_main_thread
     def select_asset(self, asset_info, options=None, plugin=None):
         '''
         Selects the given *asset_info* from the scene.
@@ -380,7 +380,7 @@ class MaxAssetManagerEngine(AssetManagerEngine):
 
         if options.get('clear_selection'):
             # cmds.select(cl=True)
-
+            pass
         # nodes = cmds.listConnections(
         #    '{}.{}'.format(self.dcc_object.name, asset_const.ASSET_LINK)
         # )
@@ -422,7 +422,7 @@ class MaxAssetManagerEngine(AssetManagerEngine):
 
         return status, result
 
-    @3dsmax_utils.run_in_main_thread
+    @max_utils.run_in_main_thread
     def select_assets(self, assets, options=None, plugin=None):
         '''
         Returns status dictionary and results dictionary keyed by the id for
@@ -436,7 +436,7 @@ class MaxAssetManagerEngine(AssetManagerEngine):
             assets=assets, options=options, plugin=plugin
         )
 
-    @3dsmax_utils.run_in_main_thread
+    @max_utils.run_in_main_thread
     def load_asset(self, asset_info, options=None, plugin=None):
         '''
         Override load_asset method to deal with unloaded references.
@@ -489,7 +489,7 @@ class MaxAssetManagerEngine(AssetManagerEngine):
 
         for node in nodes:
             if cmds.nodeType(node) == 'reference':
-                reference_node = 3dsmax_utils.getReferenceNode(node)
+                reference_node = max_utils.getReferenceNode(node)
                 if reference_node:
                     break
 
@@ -500,7 +500,7 @@ class MaxAssetManagerEngine(AssetManagerEngine):
             )
 
         try:
-            3dsmax_utils.load_reference_node(reference_node)
+            max_utils.load_reference_node(reference_node)
             result.append(str(reference_node))
             status = core_constants.SUCCESS_STATUS
         except Exception as error:
@@ -527,7 +527,7 @@ class MaxAssetManagerEngine(AssetManagerEngine):
         self._notify_client(plugin, result_data)
         return status, result
 
-    @3dsmax_utils.run_in_main_thread
+    @max_utils.run_in_main_thread
     def unload_asset(self, asset_info, options=None, plugin=None):
         '''
         Removes the given *asset_info* from the scene.
@@ -572,14 +572,14 @@ class MaxAssetManagerEngine(AssetManagerEngine):
 
         for node in nodes:
             if cmds.nodeType(node) == 'reference':
-                reference_node = 3dsmax_utils.getReferenceNode(node)
+                reference_node = max_utils.getReferenceNode(node)
                 if reference_node:
                     break
 
         if reference_node:
             self.logger.debug("Removing reference: {}".format(reference_node))
             try:
-                3dsmax_utils.unload_reference_node(reference_node)
+                max_utils.unload_reference_node(reference_node)
                 result.append(str(reference_node))
                 status = core_constants.SUCCESS_STATUS
             except Exception as error:
@@ -607,8 +607,8 @@ class MaxAssetManagerEngine(AssetManagerEngine):
             for node in nodes:
                 self.logger.debug("Removing object: {}".format(node))
                 try:
-                    if 3dsmax_utils.obj_exists(node):
-                        3dsmax_utils.delete_object(node)
+                    if max_utils.obj_exists(node):
+                        max_utils.delete_object(node)
                         result.append(str(node))
                         status = core_constants.SUCCESS_STATUS
                 except Exception as error:
@@ -646,7 +646,7 @@ class MaxAssetManagerEngine(AssetManagerEngine):
 
         return status, result
 
-    @3dsmax_utils.run_in_main_thread
+    @max_utils.run_in_main_thread
     def remove_asset(self, asset_info, options=None, plugin=None):
         '''
         Removes the given *asset_info* from the scene.
@@ -688,14 +688,14 @@ class MaxAssetManagerEngine(AssetManagerEngine):
         )
         for node in nodes:
             #if cmds.nodeType(node) == 'reference':
-                reference_node = 3dsmax_utils.getReferenceNode(node)
+                reference_node = max_utils.getReferenceNode(node)
                 if reference_node:
                     break
 
         if reference_node:
             self.logger.debug("Removing reference: {}".format(reference_node))
             try:
-                3dsmax_utils.remove_reference_node(reference_node)
+                max_utils.remove_reference_node(reference_node)
                 result.append(str(reference_node))
                 status = core_constants.SUCCESS_STATUS
             except Exception as error:
@@ -723,8 +723,8 @@ class MaxAssetManagerEngine(AssetManagerEngine):
             for node in nodes:
                 self.logger.debug("Removing object: {}".format(node))
                 try:
-                    if 3dsmax_utils.obj_exists(node):
-                        3dsmax_utils.delete_object(node)
+                    if max_utils.obj_exists(node):
+                        max_utils.delete_object(node)
                         result.append(str(node))
                         status = core_constants.SUCCESS_STATUS
                 except Exception as error:
@@ -749,9 +749,9 @@ class MaxAssetManagerEngine(AssetManagerEngine):
                     self._notify_client(plugin, result_data)
                     return status, result
 
-        if 3dsmax_utils.obj_exists(self.dcc_object.name):
+        if max_utils.obj_exists(self.dcc_object.name):
             try:
-                3dsmax_utils.delete_object(self.dcc_object.name)
+                max_utils.delete_object(self.dcc_object.name)
                 result.append(str(self.dcc_object.name))
                 status = core_constants.SUCCESS_STATUS
             except Exception as error:

@@ -8,8 +8,10 @@ from ftrack_connect_pipeline_3dsmax.constants.asset import modes as load_const
 from ftrack_connect_pipeline_qt.client import load
 import ftrack_connect_pipeline.constants as constants
 import ftrack_connect_pipeline_qt.constants as qt_constants
-import ftrack_connect_pipeline_3dsmax.constants as 3dsmax_constants
-from ftrack_connect_pipeline_3dsmax.utils.custom_commands import get_main_window
+import ftrack_connect_pipeline_3dsmax.constants as max_constants
+from ftrack_connect_pipeline_3dsmax.utils.custom_commands import (
+    get_main_window,
+)
 
 
 class MaxQtAssemblerClientWidget(load.QtAssemblerClientWidget):
@@ -18,7 +20,7 @@ class MaxQtAssemblerClientWidget(load.QtAssemblerClientWidget):
     ui_types = [
         constants.UI_TYPE,
         qt_constants.UI_TYPE,
-        3dsmax_constants.UI_TYPE,
+        max_constants.UI_TYPE,
     ]
 
     def __init__(self, event_manager, asset_list_model, parent=None):

@@ -4,7 +4,7 @@
 import logging
 from ftrack_connect_pipeline.host import Host
 from ftrack_connect_pipeline_qt import constants as qt_constants
-from ftrack_connect_pipeline_3dsmax import constants as 3dsmax_constants
+from ftrack_connect_pipeline_3dsmax import constants as max_constants
 from ftrack_connect_pipeline_3dsmax.host import engine as host_engine
 
 logger = logging.getLogger(__name__)
@@ -15,7 +15,7 @@ class MaxHost(Host):
     MaxHost class.
     '''
 
-    host_types = [qt_constants.HOST_TYPE, 3dsmax_constants.HOST_TYPE]
+    host_types = [qt_constants.HOST_TYPE, max_constants.HOST_TYPE]
     # Define the Max engines to be run during the run function
     engines = {
         'asset_manager': host_engine.MaxAssetManagerEngine,

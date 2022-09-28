@@ -5,7 +5,7 @@ import logging
 
 from ftrack_connect_pipeline.asset.dcc_object import DccObject
 from ftrack_connect_pipeline_3dsmax.constants import asset as asset_const
-from ftrack_connect_pipeline_3dsmax.utils import custom_commands as 3dsmax_utils
+from ftrack_connect_pipeline_3dsmax.utils import custom_commands as max_utils
 
 #import maya.cmds as cmds
 
@@ -86,10 +86,10 @@ class MaxDccObject(DccObject):
 
     def from_asset_info_id(self, asset_info_id):
         '''
-        Checks 3dsmax scene to get all the ftrackAssetNode objects. Compares them
+        Checks max scene to get all the ftrackAssetNode objects. Compares them
         with the given *asset_info_id* and returns them if matches.
         '''
-        ftrack_asset_nodes = 3dsmax_utils.get_ftrack_nodes()
+        ftrack_asset_nodes = max_utils.get_ftrack_nodes()
         for dcc_object_name in ftrack_asset_nodes:
 
             # id_value = cmds.getAttr(
@@ -117,16 +117,16 @@ class MaxDccObject(DccObject):
         Returns a dictionary with the keys and values of the given
         *object_name* if exists.
 
-        *object_name* ftrackAssetNode object type from 3dsmax scene.
+        *object_name* ftrackAssetNode object type from max scene.
         '''
         logger = logging.getLogger(
             '{0}.{1}'.format(__name__, __class__.__name__)
         )
         param_dict = {}
         #if not cmds.objExists(object_name):
-            error_message = "{} Object doesn't exists".format(object_name)
-            logger.error(error_message)
-            return param_dict
+        #    error_message = "{} Object doesn't exists".format(object_name)
+        #    logger.error(error_message)
+        #    return param_dict
         #all_attr = cmds.listAttr(object_name, c=True, se=True)
         for attr in all_attr:
             #if cmds.attributeQuery(attr, node=object_name, msg=True):
@@ -138,11 +138,11 @@ class MaxDccObject(DccObject):
     def connect_objects(self, objects):
         '''
         Link the given *objects* ftrack attribute to the self
-        :obj:`name` object asset_link attribute in 3dsmax.
+        :obj:`name` object asset_link attribute in max.
 
         *objects* List of Max DAG objects
         '''
-        for obj in objects:
+        #for obj in objects:
             # if cmds.lockNode(obj, q=True)[0]:
             #     cmds.lockNode(obj, l=False)
             #

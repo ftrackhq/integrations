@@ -1,18 +1,19 @@
 # :copyright: Copyright (c) 2014-2022 ftrack
 
 import pymxs
+
 from ftrack_connect_pipeline_3dsmax.constants import asset as asset_const
 
 
 def register_ftrack_asset_helper():
     pymxs.runtime.execute(
         """
-        -- Copyright (c) 2016 ftrack
+        -- Copyright (c) 2022 ftrack
         plugin Helper {plugin_name}
         name:"{plugin_name}"
         classID:#{class_id}
         invisible:true
-        category:"Ftrack"
+        category:"ftrack"
         version: {version}
         extends:dummy
         (
@@ -51,7 +52,7 @@ def register_ftrack_asset_helper():
             reference_object=asset_const.REFERENCE_OBJECT,
             is_latest_version=asset_const.IS_LATEST_VERSION,
             session=asset_const.SESSION,
-            asset_info_id=asset_const.ASSET_INFO_ID
+            asset_info_id=asset_const.ASSET_INFO_ID,
         )
     )
 

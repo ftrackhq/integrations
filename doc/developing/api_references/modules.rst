@@ -7,10 +7,10 @@
 API Reference
 *************
 
-ftrack_connect_pipeline_ftrack-connect-pipeline-3dsmax
+ftrack_connect_pipeline_3dsmax
 ============================
 
 .. toctree::
     :maxdepth: 1
 
-    ftrack_connect_pipeline_ftrack-connect-pipeline-3dsmax
+    ftrack_connect_pipeline_3dsmax

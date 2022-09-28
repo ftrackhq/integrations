@@ -6,7 +6,7 @@ from Qt import QtWidgets, QtCore
 from ftrack_connect_pipeline_qt.client import open
 import ftrack_connect_pipeline.constants as constants
 import ftrack_connect_pipeline_maya.constants as maya_constants
-from ftrack_connect_pipeline_maya.utils.custom_commands import get_main_window
+from ftrack_connect_pipeline_3dsmax.utils.custom_commands import get_main_window
 from ftrack_connect_pipeline_qt import constants as qt_constants
 
 
@@ -18,7 +18,7 @@ class MaxQtOpenerClientWidget(open.QtOpenerClientWidget):
         qt_constants.UI_TYPE,
         maya_constants.UI_TYPE,
     ]
-    definition_extensions_filter = ['.mb',  .. ]
+    definition_extensions_filter = ['.3dsmax']
 
     def __init__(self, event_manager, parent=None):
         super(MaxQtOpenerClientWidget, self).__init__(event_manager)

@@ -10,7 +10,7 @@ from ftrack_connect_pipeline_3dsmax.plugin import (
     MaxBasePluginWidget,
 )
 
-from ftrack_connect_pipeline_3dsmax.utils import custom_commands as 3dsmax_utils
+from ftrack_connect_pipeline_3dsmax.utils import custom_commands as max_utils
 from ftrack_connect_pipeline_3dsmax.constants import asset as asset_const
 
 
@@ -36,7 +36,7 @@ class MaxPublisherFinalizerPlugin(
            publishing the dependencies if the plugin fails.
         '''
         self.version_dependencies = []
-        ftrack_asset_nodes = 3dsmax_utils.get_ftrack_nodes()
+        ftrack_asset_nodes = max_utils.get_ftrack_nodes()
         for dependency in ftrack_asset_nodes:
             # dependency_version_id = cmds.getAttr(
             #     '{}.{}'.format(dependency, asset_const.VERSION_ID)

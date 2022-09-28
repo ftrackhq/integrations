@@ -1,7 +1,7 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2022 ftrack
 
-import 3dsmax
+import max
 
 from ftrack_connect_pipeline import plugin
 from ftrack_connect_pipeline_qt import plugin as pluginWidget
@@ -10,7 +10,7 @@ from ftrack_connect_pipeline_3dsmax.plugin import (
     MaxBasePluginWidget,
 )
 
-from ftrack_connect_pipeline_3dsmax.utils import custom_commands as 3dsmax_utils
+from ftrack_connect_pipeline_3dsmax.utils import custom_commands as max_utils
 from ftrack_connect_pipeline_3dsmax.constants.asset import modes as load_const
 from ftrack_connect_pipeline_3dsmax.constants import asset as asset_const
 
@@ -29,9 +29,9 @@ class MaxOpenerImporterPlugin(plugin.OpenerImporterPlugin, MaxBasePlugin):
 
     dependency_load_mode = load_const.OPEN_MODE
 
-    @3dsmax_utils.run_in_main_thread
+    @max_utils.run_in_main_thread
     def get_current_objects(self):
-        return 3dsmax_utils.get_current_scene_objects()
+        return max_utils.get_current_scene_objects()
 
 
 class MaxOpenerImporterPluginWidget(

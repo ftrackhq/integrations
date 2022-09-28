@@ -2,7 +2,7 @@
 # :copyright: Copyright (c) 2014-2022 ftrack
 
 from ftrack_connect_pipeline_qt.client import change_context
-from ftrack_connect_pipeline_cookiecutter.host_type}.utils.custom_commands import init_cookiecutter.host_type}
+from ftrack_connect_pipeline_3dsmax.utils.custom_commands import init_max
 
 
 class MaxQtChangeContextClientWidget(
@@ -17,4 +17,4 @@ class MaxQtChangeContextClientWidget(
 
     def show(self):
         if super(MaxQtChangeContextClientWidget, self).show():
-            init_cookiecutter.host_type}(self.context_id, self.session)
+            init_max(self.context_id, self.session)

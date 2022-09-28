@@ -4,14 +4,14 @@
 from ftrack_connect_pipeline_qt.client.publish import QtPublisherClientWidget
 import ftrack_connect_pipeline.constants as constants
 import ftrack_connect_pipeline_qt.constants as qt_constants
-import ftrack_connect_pipeline_3dsmax.constants as 3dsmax_constants
+import ftrack_connect_pipeline_3dsmax.constants as max_constants
 
 
 class MaxQtPublisherClientWidget(QtPublisherClientWidget):
     ui_types = [
         constants.UI_TYPE,
         qt_constants.UI_TYPE,
-        3dsmax_constants.UI_TYPE,
+        max_constants.UI_TYPE,
     ]
 
     '''Dockable Max publisher widget'''
@@ -23,4 +23,4 @@ class MaxQtPublisherClientWidget(QtPublisherClientWidget):
         self.setWindowTitle('Max Pipeline Publisher')
 
     def get_theme_background_style(self):
-        return '3dsmax'
+        return 'max'

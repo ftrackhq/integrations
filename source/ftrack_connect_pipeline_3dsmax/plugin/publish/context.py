@@ -9,9 +9,7 @@ from ftrack_connect_pipeline_3dsmax.plugin import (
 )
 
 
-class MaxPublisherContextPlugin(
-    plugin.PublisherContextPlugin, MaxBasePlugin
-):
+class MaxPublisherContextPlugin(plugin.PublisherContextPlugin, MaxBasePlugin):
     '''Class representing a Context Plugin
     .. note::
 

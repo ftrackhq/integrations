@@ -2,7 +2,6 @@
 # :copyright: Copyright (c) 2019 ftrack
 
 
-
 import os
 import re
 import sys
@@ -18,19 +17,11 @@ ROOT_PATH = os.path.dirname(os.path.realpath(__file__))
 SOURCE_PATH = os.path.join(ROOT_PATH, 'source')
 README_PATH = os.path.join(ROOT_PATH, 'README.rst')
 
-RESOURCE_PATH = os.path.join(
-    ROOT_PATH, 'resource'
-)
+RESOURCE_PATH = os.path.join(ROOT_PATH, 'resource')
 
-HOOK_PATH = os.path.join(
-    ROOT_PATH, 'hook'
-)
+HOOK_PATH = os.path.join(ROOT_PATH, 'hook')
 
-BUILD_PATH = os.path.join(
-    ROOT_PATH, 'build'
-)
-
-
+BUILD_PATH = os.path.join(ROOT_PATH, 'build')
 
 
 class BuildPlugin(setuptools.Command):
@@ -49,6 +40,7 @@ class BuildPlugin(setuptools.Command):
     def run(self):
         '''Run the build step.'''
         import setuptools_scm
+
         release = setuptools_scm.get_version(version_scheme='post-release')
         VERSION = '.'.join(release.split('.')[:3])
         global STAGING_PATH
@@ -61,31 +53,30 @@ class BuildPlugin(setuptools.Command):
         shutil.rmtree(STAGING_PATH, ignore_errors=True)
 
         # Copy resource files
-        shutil.copytree(
-            RESOURCE_PATH,
-            os.path.join(STAGING_PATH, 'resource')
-        )
+        shutil.copytree(RESOURCE_PATH, os.path.join(STAGING_PATH, 'resource'))
 
         # Copy plugin files
-        shutil.copytree(
-            HOOK_PATH,
-            os.path.join(STAGING_PATH, 'hook')
-        )
+        shutil.copytree(HOOK_PATH, os.path.join(STAGING_PATH, 'hook'))
 
         subprocess.check_call(
             [
-                sys.executable, '-m', 'pip', 'install','.','--target',
-                os.path.join(STAGING_PATH, 'dependencies')
+                sys.executable,
+                '-m',
+                'pip',
+                'install',
+                '.',
+                '--target',
+                os.path.join(STAGING_PATH, 'dependencies'),
             ]
         )
 
         result_path = shutil.make_archive(
             os.path.join(
                 BUILD_PATH,
-                'ftrack-connect-pipeline-3dsmax-{0}'.format(VERSION)
+                'ftrack-connect-pipeline-3dsmax-{0}'.format(VERSION),
             ),
             'zip',
-            STAGING_PATH
+            STAGING_PATH,
         )
 
 
@@ -101,8 +92,10 @@ class PyTest(TestCommand):
     def run_tests(self):
         '''Import pytest and run.'''
         import pytest
+
         errno = pytest.main(self.test_args)
         raise SystemExit(errno)
+
 
 version_template = '''
 # :coding: utf-8
@@ -123,27 +116,20 @@ setup(
     author_email='support@ftrack.com',
     license='Apache License (2.0)',
     packages=find_packages(SOURCE_PATH),
-    package_dir={
-        '': 'source'
-    },
+    package_dir={'': 'source'},
     use_scm_version={
         'write_to': 'source/ftrack_connect_pipeline_3dsmax/_version.py',
         'write_to_template': version_template,
-        'version_scheme': 'post-release'
+        'version_scheme': 'post-release',
     },
     setup_requires=[
         'sphinx >= 1.8.5, < 4',
         'sphinx_rtd_theme >= 0.1.6, < 2',
         'lowdown >= 0.1.0, < 2',
         'setuptools>=45.0.0',
-        'setuptools_scm'
+        'setuptools_scm',
     ],
-    tests_require=[
-        'pytest >= 2.3.5, < 3'
-    ],
-    cmdclass={
-        'test': PyTest,
-        'build_plugin': BuildPlugin
-    },
-    zip_safe=False
+    tests_require=['pytest >= 2.3.5, < 3'],
+    cmdclass={'test': PyTest, 'build_plugin': BuildPlugin},
+    zip_safe=False,
 )
