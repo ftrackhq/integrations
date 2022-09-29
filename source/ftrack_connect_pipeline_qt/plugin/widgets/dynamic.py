@@ -57,6 +57,10 @@ class DynamicWidget(BaseOptionsWidget):
         widget_layout.addWidget(widget)
         self.layout().addLayout(widget_layout)
 
+    def get_parent_layout(self, name):
+        '''Return the layout to add a widget to, can be overidden'''
+        return self.layout()
+
     def _build_str_widget(self, key, value):
         '''build a string widget out of options *key* and *value*'''
         widget = QtWidgets.QLineEdit(str(value))
@@ -103,7 +107,7 @@ class DynamicWidget(BaseOptionsWidget):
         selected_value = None
         for index, item in enumerate(values):
             if isinstance(item, dict):
-                widget.addItem(item['label'], item['value'])
+                widget.addItem(item.get('label', item['value']), item['value'])
                 if item.get('default') is True:
                     selected_index = index
                 if index == selected_index:
