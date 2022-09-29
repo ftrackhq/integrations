@@ -123,6 +123,53 @@ class DynamicWidget(BaseOptionsWidget):
             self.set_option_result(selected_value, key)
 
     def update(self, options):
+        '''Combine supplied options from definition, with UI defined options'''
+        # Preprocess, the list values supplied in definitions must override UI defined options
+        for key, value in self.options.items():
+            new_value = value
+            if isinstance(value, list):
+                # Combine, use UI defined option values where we can. Add if not exist.
+                new_value = []
+                for list_value in value:
+                    found_item = None
+                    for item in options[key]:
+                        if item['value'] == list_value:
+                            found_item = item
+                            break
+                    if found_item:
+                        new_value.append(found_item)
+                    else:
+                        # Add it
+                        new_value.append(
+                            {
+                                'label': str(list_value),
+                                'value': str(list_value),
+                            }
+                        )
+                options[key] = new_value
+            else:
+                # Is it defined as a combobox?
+                new_value = []
+                if key in options and isinstance(options[key], list):
+                    # Make it present as a combobox and not a string input
+                    found = False
+                    for item in options[key]:
+                        new_value.append(item)
+                        if item['value'] == value:
+                            found = True
+                        elif 'default' in item:
+                            del item['default']
+                    if not found:
+                        # Add it
+                        new_value.insert(
+                            0,
+                            {
+                                'label': str(value),
+                                'value': str(value),
+                                'default': True,
+                            },
+                        )
+            options[key] = new_value
         for key, value in options.items():
             if isinstance(value, list):
                 # List/combobox definition, parse
@@ -147,8 +194,8 @@ class DynamicWidget(BaseOptionsWidget):
             else:
                 if key in self.options:
                     options[key] = self.options[key]
-
-        self._options = options
+        # Use the options with UI definitions temporarily until we build
+        self.options = options
 
     def build(self):
         '''build function widgets based on the type of the vaule of every
