@@ -72,8 +72,7 @@ class ContextSelector(QtWidgets.QFrame):
         Initialise ContextSelector widget
 
         :param session: :class:`ftrack_api.session.Session`
-        :param enble_context_change:  If set to to True, this contest selection is allowed to
-        spawn the entity browser and change global context.
+        :param enble_context_change:  If set to to True, this contest selection is allowed to spawn the entity browser and change global context.
         :param parent: The parent dialog or frame
         '''
 
