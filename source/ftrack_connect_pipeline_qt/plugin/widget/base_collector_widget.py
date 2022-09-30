@@ -5,7 +5,7 @@ from functools import partial
 
 from Qt import QtWidgets, QtGui
 
-from ftrack_connect_pipeline_qt.plugin.widgets import BaseOptionsWidget
+from ftrack_connect_pipeline_qt.plugin.widget import BaseOptionsWidget
 
 from ftrack_connect_pipeline_qt.ui.utility.widget import icon
 

@@ -5,7 +5,7 @@ from functools import partial
 
 from Qt import QtWidgets, QtCore
 
-from ftrack_connect_pipeline_qt.plugin.widgets import BaseOptionsWidget
+from ftrack_connect_pipeline_qt.plugin.widget import BaseOptionsWidget
 
 
 class DynamicWidget(BaseOptionsWidget):

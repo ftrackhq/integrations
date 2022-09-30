@@ -11,14 +11,14 @@ from ftrack_connect_pipeline_qt.ui.utility.widget.base.accordion_base import (
 from ftrack_connect_pipeline_qt.ui.factory.default.step_widget import (
     DefaultStepWidgetObject,
 )
-from ftrack_connect_pipeline_qt.plugin.widgets.load_widget import (
+from ftrack_connect_pipeline_qt.plugin.widget.load_widget import (
     LoadBaseWidget,
 )
 from ftrack_connect_pipeline_qt.ui.utility.widget import line
 from ftrack_connect_pipeline_qt.ui.utility.widget import overlay
 from ftrack_connect_pipeline_qt import utils
 from ftrack_connect_pipeline_qt.ui.utility.widget import icon
-from ftrack_connect_pipeline_qt.plugin.widgets import BaseOptionsWidget
+from ftrack_connect_pipeline_qt.plugin.widget import BaseOptionsWidget
 from ftrack_connect_pipeline_qt.ui.utility.widget.accordion import (
     AccordionWidget,
 )
