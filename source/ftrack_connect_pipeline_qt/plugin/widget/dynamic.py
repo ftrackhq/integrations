@@ -6,6 +6,7 @@ from functools import partial
 from Qt import QtWidgets, QtCore
 
 from ftrack_connect_pipeline_qt.plugin.widget import BaseOptionsWidget
+from ftrack_connect_pipeline_qt.ui.utility.widget import group_box
 
 
 class DynamicWidget(BaseOptionsWidget):
@@ -48,18 +49,19 @@ class DynamicWidget(BaseOptionsWidget):
 
     def _register_widget(self, name, widget):
         '''Register *widget* with *name* and add it to main layout.'''
-        widget_layout = QtWidgets.QHBoxLayout()
-        widget_layout.setContentsMargins(1, 2, 1, 2)
-        widget_layout.setAlignment(QtCore.Qt.AlignTop)
-        label = QtWidgets.QLabel(name)
+        if not isinstance(widget, QtWidgets.QCheckBox):
+            # Add title label to widget
+            widget_layout = QtWidgets.QHBoxLayout()
+            widget_layout.setContentsMargins(1, 2, 1, 2)
+            widget_layout.setAlignment(QtCore.Qt.AlignTop)
+            label = QtWidgets.QLabel(name)
 
-        widget_layout.addWidget(label)
-        widget_layout.addWidget(widget)
-        self.layout().addLayout(widget_layout)
-
-    def get_parent_layout(self, name):
-        '''Return the layout to add a widget to, can be overidden'''
-        return self.layout()
+            widget_layout.addWidget(label)
+            widget_layout.addWidget(widget)
+            self.option_layout.addLayout(widget_layout)
+        else:
+            # Add widget directly
+            self.option_layout.addWidget(widget)
 
     def _build_str_widget(self, key, value):
         '''build a string widget out of options *key* and *value*'''
@@ -89,7 +91,7 @@ class DynamicWidget(BaseOptionsWidget):
 
     def _build_bool_widget(self, key, value):
         '''build a bool widget out of options *key* and *value*'''
-        widget = QtWidgets.QCheckBox()
+        widget = QtWidgets.QCheckBox(key)
         widget.setChecked(value)
         self._register_widget(key, widget)
         update_fn = partial(self.set_option_result, key=key, cast_type=bool)
@@ -126,10 +128,13 @@ class DynamicWidget(BaseOptionsWidget):
         if selected_value:
             self.set_option_result(selected_value, key)
 
-    def update(self, options):
-        '''Combine supplied options from definition, with UI defined options'''
+    def update(self, options, ignore=None):
+        '''Combine supplied options from definition, with UI defined options. Ignore the options keys
+        provided in *ignore* list, managed by the the child options widget.'''
         # Preprocess, the list values supplied in definitions must override UI defined options
         for key, value in self.options.items():
+            if key in (ignore or []):
+                continue
             new_value = value
             if isinstance(value, list):
                 # Combine, use UI defined option values where we can. Add if not exist.
@@ -153,8 +158,8 @@ class DynamicWidget(BaseOptionsWidget):
                 options[key] = new_value
             else:
                 # Is it defined as a combobox?
-                new_value = []
                 if key in options and isinstance(options[key], list):
+                    new_value = []
                     # Make it present as a combobox and not a string input
                     found = False
                     for item in options[key]:
@@ -202,11 +207,18 @@ class DynamicWidget(BaseOptionsWidget):
         self.options = options
 
     def build(self):
-        '''build function widgets based on the type of the vaule of every
+        '''build function widgets based on the type of the value of every
         element in the options dictionary'''
-        super(DynamicWidget, self).build()
+        # Create a options group for widgets with a well defined title instead of the default
+        self.option_group = group_box.GroupBox(self.get_options_group_name())
+        self.option_group.setToolTip(self.description)
 
-        for key, value in list(self.options.items()):
+        self.option_layout = QtWidgets.QVBoxLayout()
+        self.option_group.setLayout(self.option_layout)
+
+        self.layout().addWidget(self.option_group)
+
+        for key, value in list(sorted(self.options.items())):
             # Make sure it is not a hidden/internal framework option, we do not
             # want to expose these within the UI
             if key.find('_') == 0:
@@ -216,3 +228,6 @@ class DynamicWidget(BaseOptionsWidget):
                 value_type, self._build_str_widget
             )
             widget_fn(key, value)
+
+    def get_options_group_name(self):
+        return self.name.title()

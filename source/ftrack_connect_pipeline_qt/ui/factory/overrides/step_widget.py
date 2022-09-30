@@ -72,10 +72,14 @@ class PublisherOptionsButton(OptionsButton):
         self.main_widget = QtWidgets.QFrame()
         self.main_widget.setLayout(QtWidgets.QVBoxLayout())
         self.main_widget.layout().setAlignment(QtCore.Qt.AlignTop)
-        self._component_widget = AccordionWidget(
-            title=self._name, checkable=False, collapsed=False
-        )
-        self.main_widget.layout().addWidget(self._component_widget)
+
+        self._component_options_widget = QtWidgets.QWidget()
+        self._component_options_widget.setLayout(QtWidgets.QVBoxLayout())
+        title_label = QtWidgets.QLabel(self._name)
+        title_label.setObjectName('h2')
+        self._component_options_widget.layout().addWidget(title_label)
+        self._component_options_widget.layout().addWidget(QtWidgets.QLabel(''))
+        self.main_widget.layout().addWidget(self._component_options_widget)
         self.overlay_container = overlay.Overlay(
             self.main_widget,
             height_percentage=0.8,
@@ -95,23 +99,23 @@ class PublisherOptionsButton(OptionsButton):
 
     def add_validator_widget(self, widget):
         '''Add validator plugin container widget to overlay'''
-        self._component_widget.add_widget(QtWidgets.QLabel(''))
-        self._component_widget.add_widget(line.Line())
-        self._component_widget.add_widget(QtWidgets.QLabel(''))
-        self._component_widget.add_widget(
-            QtWidgets.QLabel('<html><strong>Validators:<strong><html>')
-        )
-        self._component_widget.add_widget(widget)
+        self._component_options_widget.layout().addWidget(QtWidgets.QLabel(''))
+        self._component_options_widget.layout().addWidget(line.Line())
+        self._component_options_widget.layout().addWidget(QtWidgets.QLabel(''))
+        label = QtWidgets.QLabel('Validators:')
+        label.setObjectName('gray')
+        self._component_options_widget.layout().addWidget(label)
+        self._component_options_widget.layout().addWidget(widget)
 
     def add_exporter_widget(self, widget):
         '''Add exporter plugin container widget to overlay'''
-        self._component_widget.add_widget(QtWidgets.QLabel(''))
-        self._component_widget.add_widget(line.Line())
-        self._component_widget.add_widget(QtWidgets.QLabel(''))
-        self._component_widget.add_widget(
-            QtWidgets.QLabel('<html><strong>Exporter:<strong><html>')
-        )
-        self._component_widget.add_widget(widget)
+        self._component_options_widget.layout().addWidget(QtWidgets.QLabel(''))
+        self._component_options_widget.layout().addWidget(line.Line())
+        self._component_options_widget.layout().addWidget(QtWidgets.QLabel(''))
+        label = QtWidgets.QLabel('Exporter:')
+        label.setObjectName('gray')
+        self._component_options_widget.layout().addWidget(label)
+        self._component_options_widget.layout().addWidget(widget)
 
 
 class PublisherAccordionWidget(AccordionBaseWidget):
