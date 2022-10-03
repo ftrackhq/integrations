@@ -16,4 +16,4 @@ class {{cookiecutter.host_type_capitalized}}QtChangeContextClientWidget(
 
     def show(self):
         if super({{cookiecutter.host_type_capitalized}}QtChangeContextClientWidget, self).show():
-            init_cookiecutter.host_type}(self.context_id, self.session)
+            {{init_cookiecutter.host_type}}(self.context_id, self.session)
