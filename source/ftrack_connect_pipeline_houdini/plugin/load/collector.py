@@ -9,7 +9,7 @@ from ftrack_connect_pipeline_houdini.plugin import (
 )
 
 
-class LoaderCollectorHoudiniPlugin(
+class HoudiniLoaderCollectorHoudiniPlugin(
     plugin.LoaderCollectorPlugin, HoudiniBasePlugin
 ):
     '''Class representing a Collector Plugin
@@ -20,7 +20,7 @@ class LoaderCollectorHoudiniPlugin(
     '''
 
 
-class LoaderCollectorHoudiniWidget(
+class HoudiniLoaderCollectorHoudiniWidget(
     pluginWidget.LoaderCollectorPluginWidget, HoudiniBasePluginWidget
 ):
     '''Class representing a Collector Widget
