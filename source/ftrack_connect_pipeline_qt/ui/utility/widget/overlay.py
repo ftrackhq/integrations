@@ -135,7 +135,9 @@ class Overlay(QtWidgets.QFrame):
         while this overlay is active.
 
         '''
-        if not isinstance(event, QtCore.QEvent):
+        if not isinstance(obj, QtCore.QObject) or not isinstance(
+            event, QtCore.QEvent
+        ):
             return False
 
         # Match sizing of parent.

@@ -11,14 +11,14 @@ from ftrack_connect_pipeline_qt.ui.utility.widget.base.accordion_base import (
 from ftrack_connect_pipeline_qt.ui.factory.default.step_widget import (
     DefaultStepWidgetObject,
 )
-from ftrack_connect_pipeline_qt.plugin.widgets.load_widget import (
+from ftrack_connect_pipeline_qt.plugin.widget.load_widget import (
     LoadBaseWidget,
 )
 from ftrack_connect_pipeline_qt.ui.utility.widget import line
 from ftrack_connect_pipeline_qt.ui.utility.widget import overlay
 from ftrack_connect_pipeline_qt import utils
 from ftrack_connect_pipeline_qt.ui.utility.widget import icon
-from ftrack_connect_pipeline_qt.plugin.widgets import BaseOptionsWidget
+from ftrack_connect_pipeline_qt.plugin.widget import BaseOptionsWidget
 from ftrack_connect_pipeline_qt.ui.utility.widget.accordion import (
     AccordionWidget,
 )
@@ -72,10 +72,14 @@ class PublisherOptionsButton(OptionsButton):
         self.main_widget = QtWidgets.QFrame()
         self.main_widget.setLayout(QtWidgets.QVBoxLayout())
         self.main_widget.layout().setAlignment(QtCore.Qt.AlignTop)
-        self._component_widget = AccordionWidget(
-            title=self._name, checkable=False, collapsed=False
-        )
-        self.main_widget.layout().addWidget(self._component_widget)
+
+        self._component_options_widget = QtWidgets.QWidget()
+        self._component_options_widget.setLayout(QtWidgets.QVBoxLayout())
+        title_label = QtWidgets.QLabel(self._name)
+        title_label.setObjectName('h2')
+        self._component_options_widget.layout().addWidget(title_label)
+        self._component_options_widget.layout().addWidget(QtWidgets.QLabel(''))
+        self.main_widget.layout().addWidget(self._component_options_widget)
         self.overlay_container = overlay.Overlay(
             self.main_widget,
             height_percentage=0.8,
@@ -95,23 +99,23 @@ class PublisherOptionsButton(OptionsButton):
 
     def add_validator_widget(self, widget):
         '''Add validator plugin container widget to overlay'''
-        self._component_widget.add_widget(QtWidgets.QLabel(''))
-        self._component_widget.add_widget(line.Line())
-        self._component_widget.add_widget(QtWidgets.QLabel(''))
-        self._component_widget.add_widget(
-            QtWidgets.QLabel('<html><strong>Validators:<strong><html>')
-        )
-        self._component_widget.add_widget(widget)
+        self._component_options_widget.layout().addWidget(QtWidgets.QLabel(''))
+        self._component_options_widget.layout().addWidget(line.Line())
+        self._component_options_widget.layout().addWidget(QtWidgets.QLabel(''))
+        label = QtWidgets.QLabel('Validators:')
+        label.setObjectName('gray')
+        self._component_options_widget.layout().addWidget(label)
+        self._component_options_widget.layout().addWidget(widget)
 
     def add_exporter_widget(self, widget):
         '''Add exporter plugin container widget to overlay'''
-        self._component_widget.add_widget(QtWidgets.QLabel(''))
-        self._component_widget.add_widget(line.Line())
-        self._component_widget.add_widget(QtWidgets.QLabel(''))
-        self._component_widget.add_widget(
-            QtWidgets.QLabel('<html><strong>Exporter:<strong><html>')
-        )
-        self._component_widget.add_widget(widget)
+        self._component_options_widget.layout().addWidget(QtWidgets.QLabel(''))
+        self._component_options_widget.layout().addWidget(line.Line())
+        self._component_options_widget.layout().addWidget(QtWidgets.QLabel(''))
+        label = QtWidgets.QLabel('Exporter:')
+        label.setObjectName('gray')
+        self._component_options_widget.layout().addWidget(label)
+        self._component_options_widget.layout().addWidget(widget)
 
 
 class PublisherAccordionWidget(AccordionBaseWidget):
@@ -321,6 +325,26 @@ class PublisherAccordionStepWidgetObject(BaseUIWidgetObject):
         out = {}
         out['enabled'] = self.enabled
         return out
+
+
+class LoaderStepWidgetObject(BaseUIWidgetObject):
+    '''Widget representation of a loader options schema step (component)'''
+
+    def __init__(self, name, fragment_data, parent=None):
+        '''Initialise LoaderStepWidgetObject with *name*,
+        *fragment_data* and *parent*'''
+
+        super(LoaderStepWidgetObject, self).__init__(
+            name, fragment_data, parent=parent
+        )
+
+    def build(self):
+        self._widget = QtWidgets.QWidget()
+        self._widget.setLayout(QtWidgets.QVBoxLayout())
+        title_label = QtWidgets.QLabel(self._name)
+        title_label.setObjectName('h2')
+        self._widget.layout().addWidget(title_label)
+        self._widget.layout().addWidget(QtWidgets.QLabel(''))
 
 
 class RadioButtonStepWidgetObject(BaseUIWidgetObject):

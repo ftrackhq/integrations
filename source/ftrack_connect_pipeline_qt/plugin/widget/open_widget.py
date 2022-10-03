@@ -3,7 +3,7 @@
 
 from Qt import QtWidgets
 
-from ftrack_connect_pipeline_qt.plugin.widgets import BaseOptionsWidget
+from ftrack_connect_pipeline_qt.plugin.widget import BaseOptionsWidget
 
 
 class OpenBaseWidget(BaseOptionsWidget):
