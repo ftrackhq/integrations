@@ -206,9 +206,7 @@ class HostConnection(object):
     def change_host_context_id(self, context_id):
         event = ftrack_api.event.base.Event(
             topic=constants.PIPELINE_CLIENT_CONTEXT_CHANGE,
-            data={
-                'pipeline': {'host_id': self.id, 'context_id': context_id}
-            },
+            data={'pipeline': {'host_id': self.id, 'context_id': context_id}},
         )
         self.event_manager.publish(
             event,

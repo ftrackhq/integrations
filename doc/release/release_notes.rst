@@ -10,9 +10,14 @@ Release Notes
 .. release:: upcoming
 
     .. change:: changed
+        :tags: context
+
+        Rewired the context event flow to support standalone delayed context set
+
+    .. change:: changed
         :tags: doc
 
-        Added initial release notes
+        Added release notes and API documentation
 
     .. change:: changed
         :tags: utils

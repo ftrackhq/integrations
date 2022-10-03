@@ -329,12 +329,14 @@ class Host(object):
         if context_id != self.context_id:
             self.context_id = context_id
 
-
     def _ftrack_context_id_changed(self):
         event = ftrack_api.event.base.Event(
             topic=constants.PIPELINE_HOST_CONTEXT_CHANGE,
             data={
-                'pipeline': {'host_id': self.host_id, 'context_id': self.context_id}
+                'pipeline': {
+                    'host_id': self.host_id,
+                    'context_id': self.context_id,
+                }
             },
         )
         self._event_manager.publish(
