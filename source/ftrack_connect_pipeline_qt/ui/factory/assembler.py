@@ -48,16 +48,16 @@ class AssemblerWidgetFactory(OpenerAssemblerWidgetFactoryBase):
             self.definition, core_constants.COMPONENTS
         )
 
-        # Create the finalizers widget based on the definition
-        self.finalizers_obj = self.create_step_container_widget(
-            self.definition, core_constants.FINALIZERS
-        )
-
         main_widget.layout().addWidget(self.components_obj.widget)
 
+        # Create the finalizers widget based on the definition
         finalizers_label = QtWidgets.QLabel('Finalizers')
         main_widget.layout().addWidget(finalizers_label)
         finalizers_label.setObjectName('h4')
+
+        self.finalizers_obj = self.create_step_container_widget(
+            self.definition, core_constants.FINALIZERS
+        )
 
         main_widget.layout().addWidget(self.finalizers_obj.widget)
 

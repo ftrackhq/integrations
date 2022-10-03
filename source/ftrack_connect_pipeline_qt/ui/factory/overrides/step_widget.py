@@ -327,6 +327,26 @@ class PublisherAccordionStepWidgetObject(BaseUIWidgetObject):
         return out
 
 
+class LoaderStepWidgetObject(BaseUIWidgetObject):
+    '''Widget representation of a loader options schema step (component)'''
+
+    def __init__(self, name, fragment_data, parent=None):
+        '''Initialise LoaderStepWidgetObject with *name*,
+        *fragment_data* and *parent*'''
+
+        super(LoaderStepWidgetObject, self).__init__(
+            name, fragment_data, parent=parent
+        )
+
+    def build(self):
+        self._widget = QtWidgets.QWidget()
+        self._widget.setLayout(QtWidgets.QVBoxLayout())
+        title_label = QtWidgets.QLabel(self._name)
+        title_label.setObjectName('h2')
+        self._widget.layout().addWidget(title_label)
+        self._widget.layout().addWidget(QtWidgets.QLabel(''))
+
+
 class RadioButtonStepWidgetObject(BaseUIWidgetObject):
     '''Radio button widget representation of a schema step (component)'''
 

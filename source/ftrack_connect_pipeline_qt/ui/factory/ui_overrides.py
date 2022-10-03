@@ -21,7 +21,7 @@ UI_OVERRIDES = {
         'step_container': default_widgets.DefaultStepContainerWidgetObject,
         'step_container.opener': override_widgets.RadioButtonStepContainerWidgetObject,
         'step_widget.opener': override_widgets.RadioButtonStepWidgetObject,
-        'step_widget.loader': override_widgets.AccordionStepWidgetObject,
+        'step_widget.loader': override_widgets.LoaderStepWidgetObject,
         'step_widget.publisher': override_widgets.PublisherAccordionStepWidgetObject,
         'stage_widget': default_widgets.DefaultStageWidgetObject,
         # Example to override specific stage widget

@@ -9,6 +9,30 @@ Release Notes
 
 .. release:: upcoming
 
+    .. change:: change
+        :tags: dynamicwidget
+
+        Finalised Dynamic widget . list / combobox handling.
+
+
+    .. change:: change
+        :tags: dynamicwidget
+
+        Dynamic widget renders widgets within a group box instead of using the default redundant plugin widget label.
+
+
+    .. change:: change
+        :tags: overlay
+
+        Updated the visual appearance of options overlay, removed accordion use.
+
+
+    .. change:: fixed
+        :tags: overlay
+
+        Fixed further overlay event filter warnings
+
+
     .. change:: fixed
         :tags: context
 
