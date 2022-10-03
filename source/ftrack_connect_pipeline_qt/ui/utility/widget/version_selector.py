@@ -137,7 +137,8 @@ class VersionComboBox(QtWidgets.QComboBox):
         '''Process user version selection, propagate to widget'''
         self._version_id = self._version_nr = None
         if index > -1:
-            version, is_compatible = self.itemData(index)
+            version_and_compatible_tuple = self.itemData(index)
+            (version, is_compatible) = version_and_compatible_tuple
             version_id = version['id']
             if version_id is not None and version_id != self._version_id:
                 if is_compatible:

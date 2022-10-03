@@ -11,6 +11,7 @@ Welcome to ftrack-connect-pipeline-qt's documentation!
    :caption: Contents:
 
    developing/index
+   release/index
 
 Indices and tables
 ==================
