@@ -546,7 +546,7 @@ class QtAssetManagerClientWidget(QtAssetManagerClient, QtWidgets.QFrame):
         super(QtAssetManagerClientWidget, self).closeEvent(e)
         self.logger.debug('closing qt client')
         # Unsubscribe to context change events
-        self.unsubscribe_client_context_change()
+        self.unsubscribe_host_context_change()
         # Have asset manager widget unsubscribe to events
         if self.asset_manager_widget.client_notification_subscribe_id:
             self.session.unsubscribe(

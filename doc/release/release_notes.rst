@@ -10,8 +10,9 @@ Release Notes
 .. release:: upcoming
 
     .. change:: fixed
+        :tags: context
 
-        Opener not preselecting latest version
+        Align with changes in pipeline context workflow
 
 
     .. change:: fixed

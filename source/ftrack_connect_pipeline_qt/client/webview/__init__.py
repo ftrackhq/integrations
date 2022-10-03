@@ -112,7 +112,7 @@ class QtWebViewClientWidget(Client, dialog.Dialog):
         super(QtWebViewClientWidget, self).closeEvent(e)
         self.logger.debug('closing qt client')
         # Unsubscribe to context change events
-        self.unsubscribe_client_context_change()
+        self.unsubscribe_host_context_change()
 
 
 class QtInfoWebViewClientWidget(QtWebViewClientWidget):
