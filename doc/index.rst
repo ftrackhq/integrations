@@ -11,6 +11,7 @@ Welcome to ftrack-connect-pipeline's documentation!
    :caption: Contents:
 
    developing/index
+   release/index
 
 Indices and tables
 ==================

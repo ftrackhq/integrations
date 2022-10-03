@@ -15,6 +15,30 @@ ftrack\_connect\_pipeline.client.asset\_manager
     :undoc-members:
     :show-inheritance:
 
+ftrack\_connect\_pipeline.client.loader\_loader
+---------------------------------------------------
+
+.. automodule:: ftrack_connect_pipeline.client.loader
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+ftrack\_connect\_pipeline.client.opener\_opener
+---------------------------------------------------
+
+.. automodule:: ftrack_connect_pipeline.client.opener
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+ftrack\_connect\_pipeline.client.publisher\_publisher
+--------------------------------------------------------
+
+.. automodule:: ftrack_connect_pipeline.client.publisher
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 ftrack\_connect\_pipeline.client.log\_viewer
 ---------------------------------------------------
 

@@ -15,10 +15,10 @@ ftrack\_connect\_pipeline.host.engine.asset\_manager
     :undoc-members:
     :show-inheritance:
 
-ftrack\_connect\_pipeline.host.engine.base\_load\_publish
-----------------------------------------------------------------
+ftrack\_connect\_pipeline.host.engine.open
+-------------------------------------------------
 
-.. automodule:: ftrack_connect_pipeline.host.engine.base_load_publish
+.. automodule:: ftrack_connect_pipeline.host.engine.open
     :members:
     :undoc-members:
     :show-inheritance:
