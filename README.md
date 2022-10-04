@@ -1,6 +1,5 @@
-################################## 
 
-ftrack cookiecutter connect plugin \##################################
+# ftrack cookiecutter connect plugin
 
 Cookiecutter template for a ftrack Connect plugin.
 
