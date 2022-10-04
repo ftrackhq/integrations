@@ -70,8 +70,9 @@ class QtAssemblerClientWidget(QtLoaderClient, dialog.Dialog):
     )
 
     # Assembler modes
-    ASSEMBLE_MODE_DEPENDENCIES = 0  # (Default)
+    ASSEMBLE_MODE_DEPENDENCIES = 0
     ASSEMBLE_MODE_BROWSE = 1
+    MODE_DEFAULT = ASSEMBLE_MODE_BROWSE
 
     contextChanged = QtCore.Signal(object)  # Context has changed
 
@@ -95,7 +96,7 @@ class QtAssemblerClientWidget(QtLoaderClient, dialog.Dialog):
         self.assemble_mode = (
             -1
         )  # The mode assembler is in - resolve dependencies or manual browse
-
+        self._assembler_widget = None
         self.hard_refresh = True  # Flag telling assembler that next refresh should be a complete rebuild
 
         set_theme(self, get_theme())
@@ -186,10 +187,11 @@ class QtAssemblerClientWidget(QtLoaderClient, dialog.Dialog):
 
         self._left_widget.layout().addWidget(self._tab_widget)
 
-        # Set initial import mode, do not rebuild it as AM will trig it when it
-        # has fetched assets
-        self._tab_widget.setCurrentIndex(self.ASSEMBLE_MODE_DEPENDENCIES)
-        self.set_assemble_mode(self.ASSEMBLE_MODE_DEPENDENCIES)
+        if self.MODE_DEFAULT == self.ASSEMBLE_MODE_DEPENDENCIES:
+            # Set initial import mode, do not rebuild it as AM will trig it when it
+            # has fetched assets
+            self._tab_widget.setCurrentIndex(self.ASSEMBLE_MODE_DEPENDENCIES)
+            self.set_assemble_mode(self.ASSEMBLE_MODE_DEPENDENCIES)
 
         button_widget = QtWidgets.QWidget()
         button_widget.setLayout(QtWidgets.QHBoxLayout())
@@ -295,7 +297,12 @@ class QtAssemblerClientWidget(QtLoaderClient, dialog.Dialog):
         # Reset definition selector and clear client
         self.definition_selector.clear_definitions()
         self.definition_selector.populate_definitions()
-
+        if self.MODE_DEFAULT == self.ASSEMBLE_MODE_BROWSE:
+            # Set initial import mode, do not rebuild it as AM will trig it when it
+            # has fetched assets
+            self._tab_widget.setCurrentIndex(self.ASSEMBLE_MODE_BROWSE)
+            self.set_assemble_mode(self.ASSEMBLE_MODE_BROWSE)
+            
     # Use
 
     def _on_assets_discovered(self):
@@ -341,20 +348,21 @@ class QtAssemblerClientWidget(QtLoaderClient, dialog.Dialog):
         self._asset_selection_updated()
 
     def _asset_selection_updated(self, asset_selection=None):
-        loadable_count = self._assembler_widget.loadable_count
-        s = ''
-        if loadable_count > 0:
-            if len(asset_selection or []) > 0:
-                s = ' {} ASSET{}'.format(
-                    len(asset_selection),
-                    'S' if len(asset_selection) > 1 else '',
-                )
-            else:
-                s = ' ALL ASSETS'
-        self.run_button_no_load.setText('ADD{} TO SCENE'.format(s))
-        self.run_button_no_load.setEnabled(loadable_count > 0)
-        self.run_button.setText('LOAD{} INTO SCENE'.format(s))
-        self.run_button.setEnabled(loadable_count > 0)
+        if self._assembler_widget is not None:
+            loadable_count = self._assembler_widget.loadable_count
+            s = ''
+            if loadable_count > 0:
+                if len(asset_selection or []) > 0:
+                    s = ' {} ASSET{}'.format(
+                        len(asset_selection),
+                        'S' if len(asset_selection) > 1 else '',
+                    )
+                else:
+                    s = ' ALL ASSETS'
+            self.run_button_no_load.setText('ADD{} TO SCENE'.format(s))
+            self.run_button_no_load.setEnabled(loadable_count > 0)
+            self.run_button.setText('LOAD{} INTO SCENE'.format(s))
+            self.run_button.setEnabled(loadable_count > 0)
 
     # Run
 
