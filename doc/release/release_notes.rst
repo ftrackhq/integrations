@@ -10,6 +10,12 @@ Release Notes
 .. release:: upcoming
 
     .. change:: change
+        :tags: assembler
+
+        Have assembler start in browse mode instead of suggestions.
+
+
+    .. change:: change
         :tags: dynamicwidget
 
         Finalised Dynamic widget . list / combobox handling.
