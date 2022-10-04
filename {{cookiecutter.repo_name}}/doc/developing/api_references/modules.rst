@@ -8,7 +8,7 @@ API Reference
 *************
 
 {{cookiecutter.package_name}}
-============================
+======================================
 
 .. toctree::
     :maxdepth: 1

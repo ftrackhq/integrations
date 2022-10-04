@@ -1,5 +1,5 @@
 ftrack\_connect\_pipeline\_{{cookiecutter.host_type}} package
-=======================================
+=================================================
 
 .. automodule:: {{cookiecutter.package_name}}
    :members:
@@ -23,7 +23,7 @@ Submodules
 ----------
 
 ftrack\_connect\_pipeline\_{{cookiecutter.host_type}}._version module
------------------------------------------------
+---------------------------------------------------------
 
 .. automodule:: {{cookiecutter.package_name}}._version
    :members:
