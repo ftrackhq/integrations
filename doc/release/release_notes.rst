@@ -11,5 +11,10 @@ Release Notes
 
     .. change:: new
 
+        Added API reference and release notes.
+
+
+    .. change:: new
+
         Initial release
 
