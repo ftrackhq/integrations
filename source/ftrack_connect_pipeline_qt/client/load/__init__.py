@@ -302,7 +302,7 @@ class QtAssemblerClientWidget(QtLoaderClient, dialog.Dialog):
             # has fetched assets
             self._tab_widget.setCurrentIndex(self.ASSEMBLE_MODE_BROWSE)
             self.set_assemble_mode(self.ASSEMBLE_MODE_BROWSE)
-            
+
     # Use
 
     def _on_assets_discovered(self):
