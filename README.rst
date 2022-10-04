@@ -1,2 +1,0 @@
-ftrack-connect-pipeline
-=======================
