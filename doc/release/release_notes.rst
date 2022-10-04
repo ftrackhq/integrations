@@ -12,22 +12,22 @@ Release Notes
 
     .. change:: fixed
 
-        Nuke log viewer and documentation not working
+        Fixed bug were Nuke log viewer and documentation was not working.
 
 
     .. change:: fixed
 
-        Prevented multiple docked publishers and asset managers
+        Prevented multiple docked publishers and asset managers.
 
 
     .. change:: fixed
 
-        Frame range not updating on launch
+        Frame range not updating on launch.
 
 
     .. change:: fixed
 
-        Remove event hub disconnect, aligned menu and reordered asset manager engine functions
+        Remove event hub disconnect, aligned menu and reordered asset manager engine functions.
 
 
 .. release:: 1.0.1
