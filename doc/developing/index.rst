@@ -13,4 +13,6 @@ integration and more customisation options.
 .. toctree::
     :maxdepth: 1
 
+    environment
     api_references/modules
+    connect
