@@ -51,7 +51,7 @@ STAGING_PATH = os.path.join(
     BUILD_PATH, PLUGIN_NAME
 )
 
-README_PATH = os.path.join(ROOT_PATH, 'README.rst')
+README_PATH = os.path.join(ROOT_PATH, 'README.md')
 
 # Update staging path with the plugin version
 STAGING_PATH = STAGING_PATH.format(VERSION)
