@@ -19,7 +19,7 @@ RESOURCE_PATH = os.path.join(ROOT_PATH, 'resource')
 
 SOURCE_PATH = os.path.join(ROOT_PATH, 'source')
 
-README_PATH = os.path.join(ROOT_PATH, 'README.rst')
+README_PATH = os.path.join(ROOT_PATH, 'README.md')
 
 BUILD_PATH = os.path.join(ROOT_PATH, 'build')
 
