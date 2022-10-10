@@ -18,7 +18,7 @@ import fileinput
 import setuptools_scm
 ROOT_PATH = os.path.dirname(os.path.realpath(__file__))
 SOURCE_PATH = os.path.join(ROOT_PATH, 'source')
-README_PATH = os.path.join(ROOT_PATH, 'README.rst')
+README_PATH = os.path.join(ROOT_PATH, 'README.md')
 RESOURCE_PATH = os.path.join(ROOT_PATH, 'resource')
 RESOURCE_TARGET_PATH = os.path.join(
     SOURCE_PATH, 'ftrack_connect_nuke_studio', 'resource.py'
