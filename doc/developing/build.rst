@@ -17,9 +17,20 @@ Building and deploying Connect centrally
 To minimise IT administrative tasks, one could build Connect and launch it from
 a central location within an new or existing Python environment.
 
-Simply checkout Connect 2 from Bitbucket repository, and run::
+Simply checkout Connect 2 from Bitbucket repository and build it:
 
-    pip install ftrack-connect
+ * Clone the code
+ * Create a venv
+ * Change folder to ftrack-connect
+ * Install the requirements
+
+Run::
+
+    pip install .
+
+or::
+
+    python setup.py install
 
 A Connect executable is then compiled, which can be set to run a login time on
 workstations and be wrapped with a proper launcher having an icon.
