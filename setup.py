@@ -50,7 +50,7 @@ from setuptools import Distribution, find_packages, setup as setup
 ROOT_PATH = os.path.dirname(os.path.realpath(__file__))
 SOURCE_PATH = os.path.join(ROOT_PATH, 'source')
 RESOURCE_PATH = os.path.join(ROOT_PATH, 'resource')
-README_PATH = os.path.join(ROOT_PATH, 'README.rst')
+README_PATH = os.path.join(ROOT_PATH, 'README.md')
 BUILD_PATH = os.path.join(ROOT_PATH, 'build')
 DOWNLOAD_PLUGIN_PATH = os.path.join(
     BUILD_PATH, 'plugin-downloads-{0}'.format(
