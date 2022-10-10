@@ -1,7 +1,7 @@
 ..
     :copyright: Copyright (c) 2022 ftrack
 
-.. _introduction/load:
+.. _introduction/how/load:
 
 *************
 Asset loading

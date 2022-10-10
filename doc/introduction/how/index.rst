@@ -22,11 +22,17 @@ this by introducing “definitions” which basically are JSON schemas that conf
 which framework plugins (loaders and publishers) to run for a certain ftrack asset type.
 
 
-Flow
-####
+Let’s see
+what happens step by step within the DCC application during launch, load, asset
+management and publish.
 
-Before we dive into the definition schemas and the plugin structure, let’s see
-what happens step by step within the DCC application during launch, load, and
-publish.
 
+.. toctree::
+    :maxdepth: 2
+    :caption: Contents:
+
+    launch
+    load
+    asset
+    publish
 

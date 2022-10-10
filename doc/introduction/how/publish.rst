@@ -1,7 +1,7 @@
 ..
     :copyright: Copyright (c) 2022 ftrack
 
-.. _introduction/publish:
+.. _introduction/how/publish:
 
 *************
 Asset publish

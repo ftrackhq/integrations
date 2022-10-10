@@ -29,21 +29,17 @@ the new Connect 2 framework and the second part is where we customise it to fit 
 
 
 .. toctree::
-    :maxdepth: 2
+    :maxdepth: 4
     :caption: Contents:
 
     introduction/index
     installing
     developing/index
+    tutorial/index
+    api_references/modules
     release/index
     glossary
     troubleshooting
-
-.. toctree::
-    :maxdepth: 2
-    :caption: Tutorial:
-
-    tutorial/index
 
 
 Help and support

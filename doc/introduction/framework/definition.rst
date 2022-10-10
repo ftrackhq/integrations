@@ -1,7 +1,7 @@
 ..
     :copyright: Copyright (c) 2022 ftrack
 
-.. _introduction/definition:
+.. _introduction/framework/definition:
 
 ****************
 Definition layer

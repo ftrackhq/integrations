@@ -24,21 +24,13 @@ components.
 
 
 .. toctree::
-    :maxdepth: 1
+    :maxdepth: 2
     :caption: Contents:
 
-    prerequisites
     overview
     connect
-    core
-    definition
-    ui
-    dcc
-    how
-    launch
-    load
-    asset
-    publish
+    framework/index
+    how/index
 
 
 

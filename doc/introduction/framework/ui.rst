@@ -1,7 +1,7 @@
 ..
     :copyright: Copyright (c) 2022 ftrack
 
-.. _introduction/ui:
+.. _introduction/framework/ui:
 
 ********
 UI layer

@@ -1,7 +1,7 @@
 ..
     :copyright: Copyright (c) 2022 ftrack
 
-.. _introduction/launch:
+.. _introduction/how/launch:
 
 **********
 DCC launch

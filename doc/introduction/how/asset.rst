@@ -1,7 +1,7 @@
 ..
     :copyright: Copyright (c) 2022 ftrack
 
-.. _introduction/asset:
+.. _introduction/how/asset:
 
 ****************
 Asset management

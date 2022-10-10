@@ -7,12 +7,20 @@
 Overview
 ********
 
-TBC
+Prerequisites
+=============
+
+To be able to get the most out of this document, we assume you have basic knowledge of:
+
+ * What ftrack are and what it does.
+ * Python, specifically the ftrack Python API.
+ * Source code management, specifically Git.
+ * A DCC application, i.e. Maya, Nuke or other Digital Content Creation applications.
+ * ftrack Connect 2 Package, installation - app launch - publish and load.
 
 
-*********************************
 Key design elements and tradeoffs
-*********************************
+=================================
 
 Connect 2 comes with a new framework, designed to be a starting point for developers
 who seek to further extend it and use it as a base for a complete studio toolset.
@@ -30,3 +38,7 @@ configurability, yet being easy to understand and adopt.
 One main design decision was to build a central definition repository, containing
 schemas and plugins. The main reason is that all DCC apps usually share a lot of functionality within a medium-large pipeline, keeping this inside each integration plugin would cause a lot of duplicate code needing to be maintained.
 
+Architecture
+============
+
+TBC

@@ -1,7 +1,7 @@
 ..
     :copyright: Copyright (c) 2022 ftrack
 
-.. _introduction/dcc:
+.. _introduction/framework/dcc:
 
 *********************
 DCC integration layer
@@ -19,6 +19,5 @@ The integration achieves this by:
 
  * Bootstrapping the DCC app.
  * Launching the pipeline host.
- * Adding menu items to the “ftrack” menu within the DCC app, enabling launch of
-the features described above.
+ * Adding menu items to the “ftrack” menu within the DCC app, enabling launch of the features described above.
 

@@ -10,9 +10,13 @@ Developing
 Discover how to extend and modify ftrack connect pipeline for a tighter
 integration and more customisation options.
 
+Refer to the :ref:`api_reference` for detailed information on the pipeline core API,
+find examples on how to develop your own customisations within the :ref:`tutorial`.
+
 .. toctree::
-    :maxdepth: 1
+    :maxdepth: 2
 
     environment
-    api_references/modules
-    connect
+    download
+    build
+
