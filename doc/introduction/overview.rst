@@ -41,4 +41,28 @@ schemas and plugins. The main reason is that all DCC apps usually share a lot of
 Architecture
 ============
 
-TBC
+.. image:: image/architecture.svg
+
+
+
+ftrack
+------
+
+ftrack acts as the database from which the Framework retrieves and stores information.
+Specifically these entities are involved in the process:
+
+ * Context; The task entity that the DCC work session is bound to, and comes from the task launched within ftrack or Connect.
+ * AssetVersion; Created during publish, resolved by assembler during load.
+ * Component; Created during publish, loaded and managed as an asset.
+
+
+Python API
+----------
+
+The :term:`ftrack Python api` is the core dependency of Connect and the Framework,
+enabling communication with the ftrack workspace.
+
+
+
+
+

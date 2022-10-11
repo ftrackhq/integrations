@@ -1,7 +1,7 @@
 ..
     :copyright: Copyright (c) 2022 ftrack
 
-.. _tutorial/open:
+.. _tutorial/load:
 
 *******************************
 Load camera image plane in Maya

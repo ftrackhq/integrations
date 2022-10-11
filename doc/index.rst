@@ -29,7 +29,7 @@ the new Connect 2 framework and the second part is where we customise it to fit 
 
 
 .. toctree::
-    :maxdepth: 4
+    :maxdepth: 3
     :caption: Contents:
 
     introduction/index
