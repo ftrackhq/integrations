@@ -9,7 +9,7 @@ Core Pipeline layer
 
 .. highlight:: bash
 
-Repository: **https://github.com/ftrackhq/ftrack-connect-pipeline.git**
+Repository: https://github.com/ftrackhq/ftrack-connect-pipeline.git
 
 The core pipeline Framework module is the backbone of the pipeline, on which all
 other modules rely.
@@ -35,9 +35,9 @@ To use the framework, a :term:`host` must be instantiated with an :term:`Event m
 The host:
 
  * Loads the supplied context(task) from the FTRACK_CONTEXTID environment variable.
- * Discovers and validates the definitions against :term:`schema`s.
- * Serves :term:`Client`s with data, handles context change.
- * Runs definitions by instantiating an :term:`Engine``
+ * Discovers and validates each definition against its :term:`schema`.
+ * Serves each :term:`Client` with data, handles context change.
+ * Runs definitions by instantiating an :term:`Engine`.
  * Manages logging by listening to client notifications.
 
 
@@ -52,16 +52,23 @@ Clients are categorized into the engine types, see below.
 Clients reads the definition and context from the host, and then commands the host
 to run the augmented definition and its plugins with options collected from the user.
 
+
 Engine
 ------
 
-:term:`Engine`s are modules within the core that define a function and require
+An Framework :term:`Engine` are a module within the core that define a function and require
 an associated :term:`schema`. The current defined engine types are:
 
  * Publisher
  * Loader
  * Asset manager
  * Opener
+
+Logs
+----
+
+Clients sends notifications to host which is stored in an internal SQLite database
+valid during the session.
 
 
 Customisation notes

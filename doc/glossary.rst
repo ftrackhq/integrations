@@ -71,7 +71,7 @@ Glossary
     Host
         The central part of the core framework that discovers and executes definitions
         through engines, handle the context and much more. The host is designed to
-        be able to operate in remote mode through the :term:`ftrack Event system`.
+        be able to operate in remote mode through the ftrack event system.
 
     Host type
         The host type is the actual DCC type and is used to identify a DCC module
@@ -82,6 +82,13 @@ Glossary
         JSON is a lightweight format for storing and transporting data, and stands
         for JavaScript Object Notation. For more information
         https://www.json.org/
+
+    Plugin
+        A module designed to be discovered by the :term:`ftrack Python API`. Plugins
+        designed to be discovered by Connect is called Connect plugins and are main
+        components of the :term:`Framework`. Framework plugins resides within the
+        definition module and are referenced from the with the :term:`definition` JSON
+        configurations.
 
     Python
         A programming language that lets you work more quickly and integrate
@@ -98,6 +105,9 @@ Glossary
          * Qt; https://www.qt.io/
          * PySide2; https://pypi.org/project/PySide2/
          * Qt.py; https://github.com/mottosso/Qt.py
+
+    UI
+        User Interface of the Framework, built with :term:`Qt`.
 
     Schema
         A :term:`JSON` configuration defining the strict structure and syntax of
