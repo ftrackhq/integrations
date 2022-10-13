@@ -12,8 +12,13 @@ Repository: https://github.com/ftrackhq/ftrack-connect-pipeline-definition.git
 The definition pipeline module is were the each :term:`definition`, :term:`schema` and
 framework :term:`plugin` are stored.
 
+As mentioned previously, the new framework is designed to make it easy to write
+custom code that takes care of asset load and publishing, the new framework achieves
+this by introducing “definitions” which basically are JSON schemas that configures
+which framework plugins (loaders and publishers) to run for a certain ftrack asset type.
 This module is were you most likely do customisations in order to tailor the framework
 to the studio needs.
+
 
 Definitions module are divided into two parts:
 

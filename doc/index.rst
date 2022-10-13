@@ -36,6 +36,7 @@ the new Connect 2 framework and the second part is where we customise it to fit 
     installing
     developing/index
     tutorial/index
+    standalone
     api_references/modules
     release/index
     glossary

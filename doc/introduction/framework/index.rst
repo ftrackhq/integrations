@@ -10,7 +10,7 @@ Framework
 The Connect pipeline :term:`Framework` is divided into two four layers:
 
 .. toctree::
-    :maxdepth: 2
+    :maxdepth: 1
     :caption: Layers:
 
     core

@@ -7,10 +7,10 @@
 DCC launch
 **********
 
-The following schema describes the DCC bootstrap process and how it interacts with
+The following flowchart describes the DCC bootstrap process and how it interacts with
 the framework:
 
-TBC
+.. image:: ../image/launch.svg
 
 Standalone
 ##########

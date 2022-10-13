@@ -8,7 +8,7 @@ Connect
 *******
 
 :term:`Connect` is the ftrack desktop GUI application enabling DCC application launch
-and publishing. Connect locates the Framework plugins, and together with the
+and publishing. Connect locates the framework plugins, and together with the
 :term:`Application launcher` plugin, enables discover and launch of DCC applications.
 
 The framework modules are connect plugins, which means that need to implement a launch
@@ -62,8 +62,8 @@ Example of a application launcher config:
         "console": true
     }
 
-The tutorial part of this documentation shows an example on how to modify the arguments
-passed on.
+The tutorial part of this documentation shows an example on how to modify the
+configuration.
 
 
 Connect Package

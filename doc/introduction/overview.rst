@@ -12,11 +12,11 @@ Prerequisites
 
 To be able to get the most out of this document, we assume you have basic knowledge of:
 
- * What ftrack are and what it does.
- * Python, specifically the ftrack Python API.
+ * What ftrack(https://ftrack.com) are and what it does.
+ * :term:`Python`, specifically the ftrack Python API.
  * Source code management, specifically Git.
- * A DCC application, i.e. Maya, Nuke or other Digital Content Creation applications.
- * ftrack Connect 2 Package, installation - app launch - publish and load.
+ * :term:`DCC` applications, i.e. Maya, Nuke.
+ * ftrack :term:`Connect` 2 Package, installation - app launch - publish and load.
 
 
 Key design elements and tradeoffs
@@ -49,11 +49,12 @@ ftrack
 ------
 
 ftrack acts as the database from which the Framework retrieves and stores information.
-Specifically these entities are involved in the process:
+These are the key entities involved with the Framework:
 
- * Context; The task entity that the DCC work session is bound to, and comes from the task launched within ftrack or Connect.
- * AssetVersion; Created during publish, resolved by assembler during load.
- * Component; Created during publish, loaded and managed as an asset.
+ * **Context**; The task entity that the DCC work session is bound to, and comes from the task launched within ftrack or Connect.
+ * **AssetVersion**; Created during publish, resolved by assembler during load.
+ * **Component**; Created during publish, loaded and managed as an asset.
+
 
 
 Python API
@@ -61,6 +62,9 @@ Python API
 
 The :term:`ftrack Python api` is the core dependency of Connect and the Framework,
 enabling communication with the ftrack workspace.
+
+The API also comes with the ftrack location system, allowing storage and resource
+identifier(file path) aware implementations.
 
 
 

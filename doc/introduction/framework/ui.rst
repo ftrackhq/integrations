@@ -39,6 +39,11 @@ Description of main submodules:
  * **log_viewer**; The log viewer widget.
  * **utility**; Utility widgets such as the entity browser, context selectors and so on.
 
+resource
+========
+
+The resource folder contains associated fonts, images and stylesheets.
+
 
 
 

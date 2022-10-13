@@ -17,9 +17,9 @@ other modules rely.
 It is in the core were all the interaction with the underlaying :term:`host type` is
 performed, except when it comes to bootstrap of the DCC.
 
-The core us depending on the :term:`definition` module to be present.
+The core is depending on the :term:`definition` module to be present.
 
-The module composes X major components:
+The module composes four major components:
 
  * The Host
  * The Client
@@ -30,7 +30,7 @@ The module composes X major components:
 Host
 ----
 
-To use the framework, a :term:`host` must be instantiated with an :term:`Event manager`.
+To use the framework, a :term:`host` must be instantiated with an :term:`event manager`.
 
 The host:
 
@@ -56,8 +56,8 @@ to run the augmented definition and its plugins with options collected from the 
 Engine
 ------
 
-An Framework :term:`Engine` are a module within the core that define a function and require
-an associated :term:`schema`. The current defined engine types are:
+An framework :term:`Engine` is a module within the core that defines a function
+and require an associated :term:`schema`. The current defined engine types are:
 
  * Publisher
  * Loader
@@ -67,7 +67,7 @@ an associated :term:`schema`. The current defined engine types are:
 Logs
 ----
 
-Clients sends notifications to host which is stored in an internal SQLite database
+Clients sends notifications to the host which is stored in an internal SQLite database
 valid during the session.
 
 

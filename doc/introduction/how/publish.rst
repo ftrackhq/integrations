@@ -7,9 +7,9 @@
 Asset publish
 *************
 
-The following schema describes the asset publish process and how it interacts with
+The following flowchart describes the asset publish process and how it interacts with
 the framework:
 
-TBC
+.. image:: ../image/publish.svg
 
 
