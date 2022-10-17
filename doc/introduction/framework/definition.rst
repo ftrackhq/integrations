@@ -345,7 +345,11 @@ but you can add your own attributes to definitions here, that can be picked up b
 plugin
 ------
 
-The plugins are were the code lives, that are referenced within the definitions:
+The plugins are were the code lives, that are referenced within the definitions. The
+plugins for each :term:`host type` is depending on both the :term:`framework` core,
+:term:`Qt` and the corresponding DCC plugin.
+
+Plugin structure:
 
 .. code-block:: bash
 

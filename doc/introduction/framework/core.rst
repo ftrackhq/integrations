@@ -19,11 +19,12 @@ The core is depending on the :term:`definition` module to be present.
 
 The module composes four major components:
 
- * The Host
- * The Client
- * The Engines
- * Notification and log management
+ * :ref:`The Host <host>`
+ * :ref:`The Client <client>`
+ * :ref:`The Engines <engine>`
+ * :ref:`Notification and log management <log>`
 
+.. _host:
 
 Host
 ----
@@ -38,6 +39,7 @@ The host:
  * Runs definitions by instantiating an :term:`Engine`.
  * Manages logging by listening to client notifications.
 
+.. _client:
 
 Client
 ------
@@ -50,6 +52,7 @@ Clients are categorized into the engine types, see below.
 Clients reads the definition and context from the host, and then commands the host
 to run the augmented definition and its plugins with options collected from the user.
 
+.. _engine:
 
 Engine
 ------
@@ -62,23 +65,14 @@ and require an associated :term:`schema`. The current defined engine types are:
  * Asset manager
  * Opener
 
+.. _log:
+
 Logs
 ----
 
 Clients sends notifications to the host which is stored in an internal SQLite database
 valid during the session.
 
-
-Customisation notes
--------------------
-
-Generally you will never need to touch the core module in order to customize your
-pipeline, the most common addon would in case be a custom engine providing new
-functionality to the Framework.
-
-The core would be the place shared integration code that will be used
-across all DCC applications and definition plugins, for example functions that
-apply statuses or provide common validation and other shared pipeline functionality.
 
 
 
