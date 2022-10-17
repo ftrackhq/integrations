@@ -7,16 +7,14 @@
 Definition layer
 ****************
 
-Repository: https://github.com/ftrackhq/ftrack-connect-pipeline-definition.git
-
 The definition pipeline module is were the each :term:`definition`, :term:`schema` and
-framework :term:`plugin` are stored.
+Framework :term:`plugin` are stored.
 
-As mentioned previously, the new framework is designed to make it easy to write
-custom code that takes care of asset load and publishing, the new framework achieves
+As mentioned previously, the new Framework is designed to make it easy to write
+custom code that takes care of asset load and publishing, the new Framework achieves
 this by introducing “definitions” which basically are JSON schemas that configures
-which framework plugins (loaders and publishers) to run for a certain ftrack asset type.
-This module is were you most likely do customisations in order to tailor the framework
+which Framework plugins (loaders and publishers) to run for a certain ftrack asset type.
+This module is were you most likely do customisations in order to tailor the Framework
 to the studio needs.
 
 
@@ -66,7 +64,7 @@ Maya loader definitions.
 
 **loader/maya/geometry-maya-loader.json**
 
-The framework definition for loading geometry asset versions into Maya:
+The Framework definition for loading geometry asset versions into Maya:
 
 .. code-block:: json
 
@@ -403,7 +401,7 @@ Directory that should harbor Python plugins responsible for collecting options a
 
 This Qt widget plugin defines the UI elements presented to the user, so the user
 can set the load options. These load options are then read by the loader plugin below.
-The name of the plugin has to be unique within framework but can be shared with the loader
+The name of the plugin has to be unique within Framework but can be shared with the loader
 plugin:
 
 .. code-block:: python
@@ -422,7 +420,7 @@ plugin:
     maya/python/loader/importers/maya_native_loader_importer.py
 
 This is the actual required DCC app plugin that reads the data from disk, as
-collected by the framework, and loads it into the current open project.
+collected by the Framework, and loads it into the current open project.
 
 
 .. code-block:: bash
@@ -503,7 +501,7 @@ correct within the definition.
 
 Search the DCC log for validation errors, for example Maya log is located here:
 
- * Windows; **%LOCALAPPDATA%\ftrack\ftrack-connect\log\ftrack_connect_pipeline_maya.log**
+ * Windows; **%LOCALAPPDATA%\\ftrack\\ftrack-connect\\log\\ftrack_connect_pipeline_maya.log**
  * Mac OSX; **~/Library/Application Support/ftrack-connect/log/ftrack_connect_pipeline_maya.log**
  * Linux; **~/.local/share/ftrack-connect/log/ftrack_connect_pipeline_maya.log**
 

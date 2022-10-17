@@ -7,7 +7,7 @@
 How it works
 ************
 
-Here we will outline how the new framework works, within the DCC application.
+Here we will outline how the new Framework works, within the DCC application.
 
 
 .. important::

@@ -9,9 +9,7 @@ Core Pipeline layer
 
 .. highlight:: bash
 
-Repository: https://github.com/ftrackhq/ftrack-connect-pipeline.git
-
-The core pipeline Framework module is the backbone of the pipeline, on which all
+The core pipeline :term:`Framework` module is the backbone of the pipeline, on which all
 other modules rely.
 
 It is in the core were all the interaction with the underlaying :term:`host type` is
@@ -30,7 +28,7 @@ The module composes four major components:
 Host
 ----
 
-To use the framework, a :term:`host` must be instantiated with an :term:`event manager`.
+To use the Framework, a :term:`host` must be instantiated with an :term:`event manager`.
 
 The host:
 
@@ -56,7 +54,7 @@ to run the augmented definition and its plugins with options collected from the 
 Engine
 ------
 
-An framework :term:`Engine` is a module within the core that defines a function
+An Framework :term:`Engine` is a module within the core that defines a function
 and require an associated :term:`schema`. The current defined engine types are:
 
  * Publisher
@@ -76,7 +74,7 @@ Customisation notes
 
 Generally you will never need to touch the core module in order to customize your
 pipeline, the most common addon would in case be a custom engine providing new
-functionality to the framework.
+functionality to the Framework.
 
 The core would be the place shared integration code that will be used
 across all DCC applications and definition plugins, for example functions that

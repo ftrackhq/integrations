@@ -8,7 +8,7 @@ DCC launch
 **********
 
 The following flowchart describes the DCC bootstrap process and how it interacts with
-the framework:
+the Framework:
 
 .. image:: ../image/launch.svg
 

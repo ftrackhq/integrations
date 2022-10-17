@@ -7,13 +7,12 @@
 DCC integration layer
 *********************
 
-Repository: https://github.com/ftrackhq/ftrack-connect-pipeline-<host_type>.git
+The plugin for a specific :term:`DCC` application (maya, nuke and so on) and is
+identified by the :term:`host type`. Depends on the core Framework plugins above
+for bootstrapping and providing the three main Framework features:
 
-The plugin for a specific DCC app (maya, nuke and so on), depends on the plugins
-above for bootstrapping and providing the three main framework features:
-
- * Load files/components.
  * Publish files/components.
+ * Load files/components.
  * Asset management.
 
 The integration achieves this by:

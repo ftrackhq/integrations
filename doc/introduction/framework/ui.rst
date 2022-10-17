@@ -7,11 +7,10 @@
 UI layer
 ********
 
-Repository: https://github.com/ftrackhq/ftrack-connect-pipeline-qt.git
-
 The :term:`UI` abstraction layer takes care of rendering widgets inside the DCC
 application, with the ftrack default style applied. The UI sits on top of the
-pipeline Framework core layer in the stack.
+pipeline Framework core layer in the stack and is backed by the :term: `Qt`
+framework plugin.
 
 Each :term:`Client` is represented in the UI layer, which in turn is inherited by
 the DCC layer (Maya and so on).

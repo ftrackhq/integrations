@@ -238,9 +238,58 @@ def autodoc_skip(app, what, name, obj, skip, options):
 # -- Options for intersphinx extension ---------------------------------------
 
 # Example configuration for intersphinx: refer to the Python standard library.
+
 intersphinx_mapping = {
     'python': ('http://docs.python.org/', None),
-    'ftrack_api': ('http://ftrack-python-api.rtd.ftrack.com/en/stable/', None),
+    'ftrack-python-api': (
+        'https://ftrack-python-api.readthedocs.io/en/latest/',
+        None,
+    ),
+    'ftrack-connect': (
+        'https://ftrack-connect.readthedocs.io/en/latest/',
+        None,
+    ),
+    'ftrack-application-launcher': (
+        'https://ftrack-application-launcher.readthedocs.io/en/latest/',
+        None,
+    ),
+    'ftrack-connect-action-launcher-widget': (
+        'https://ftrack-connect-action-launcher-widget.readthedocs.io/en/latest/',
+        None,
+    ),
+    'ftrack-connect-publisher-widget': (
+        'https://ftrack-connect-publisher-widget.readthedocs.io/en/latest/',
+        None,
+    ),
+    'ftrack-connect-plugin-manager': (
+        'https://ftrack-connect-plugin-manager.readthedocs.io/en/latest/',
+        None,
+    ),
+    'ftrack-connect-package': (
+        'https://ftrack-connect-package.readthedocs.io/en/latest/',
+        None,
+    ),
+    # TODO: Enable these when published
+    #'ftrack-connect-pipeline-definition': (
+    #    'https://ftrack-connect-pipeline-definition.readthedocs.io/en/latest/',
+    #    None,
+    #),
+    # 'ftrack-connect-pipeline-qt': (
+    #    'https://ftrack-connect-pipeline-qt.readthedocs.io/en/latest/',
+    #    None,
+    # ),
+    # 'ftrack-connect-pipeline-maya': (
+    #    'https://ftrack-connect-pipeline-maya.readthedocs.io/en/latest/',
+    #    None,
+    # ),
+    # 'ftrack-connect-pipeline-nuke': (
+    #    'https://ftrack-connect-pipeline-nuke.readthedocs.io/en/latest/',
+    #    None,
+    # ),
+    # 'ftrack-connect-pipeline-houdini': (
+    #    'https://ftrack-connect-pipeline-houdini.readthedocs.io/en/latest/',
+    #    None,
+    # ),
 }
 
 # -- Options for todo extension ----------------------------------------------

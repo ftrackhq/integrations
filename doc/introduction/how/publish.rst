@@ -8,7 +8,7 @@ Asset publish
 *************
 
 The following flowchart describes the asset publish process and how it interacts with
-the framework:
+the Framework:
 
 .. image:: ../image/publish.svg
 

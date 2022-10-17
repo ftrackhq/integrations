@@ -12,7 +12,7 @@ usually is hidden from the user or by other means are hard to alter. This is obj
 also referred to as the *ftrack node*.
 
 The following flowchart describes the asset management process and how it interacts with
-the framework:
+the Framework:
 
 .. image:: ../image/asset_management.svg
 
