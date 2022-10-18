@@ -39,7 +39,6 @@ def get_darwin_options(event, data):
     link_path = os.path.realpath(os.path.join(
         app_path, '..', 'Frameworks/Python.framework/Versions/Current'
     ))
-    logger.info('@@@: {}'.format(link_path))
     python_version = None
     if sys.version_info.major > 2:
         python_version = os.path.basename(link_path)
