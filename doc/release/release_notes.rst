@@ -9,6 +9,11 @@ Release Notes
 
 .. release:: upcoming
 
+    .. change:: fixed
+
+        Fix unsubscribe_client_context_change exception
+
+
 .. release:: 1.0.1
     :date: 2022-08-01
 
