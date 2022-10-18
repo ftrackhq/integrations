@@ -9,6 +9,11 @@ Release Notes
 
 .. release:: upcoming
 
+    .. change:: fix
+        :tags: dependencies
+
+        Fix markdown error on pipeline
+
     .. change:: changed
         :tags: context
 
