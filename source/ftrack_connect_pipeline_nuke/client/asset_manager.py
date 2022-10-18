@@ -32,4 +32,4 @@ class NukeQtAssetManagerClientWidget(QtAssetManagerClientWidget):
         super(NukeQtAssetManagerClientWidget, self).hideEvent(*args, **kwargs)
         self.logger.debug('closing qt client')
         # Unsubscribe to context change events
-        self.unsubscribe_client_context_change()
+        self.unsubscribe_host_context_change()

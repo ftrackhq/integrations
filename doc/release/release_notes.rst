@@ -12,6 +12,11 @@ Release Notes
 
     .. change:: fixed
 
+        Fix unsubscribe_client_context_change exception.
+
+
+    .. change:: fixed
+
         Fixed bug were Nuke log viewer and documentation was not working.
 
 
