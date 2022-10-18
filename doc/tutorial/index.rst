@@ -15,6 +15,7 @@ integration and more customisation options.
     :caption: Contents:
 
     introduction
+    setup
     structure
     open
     load
