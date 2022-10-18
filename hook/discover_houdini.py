@@ -36,17 +36,25 @@ def get_windows_options(event, data):
 def get_darwin_options(event, data):
     # Check Python framework link points to a certain target
     app_path = event['data']['application']['path']
-    link_path = os.path.join(
+    link_path = os.path.realpath(os.path.join(
         app_path, '..', 'Frameworks/Python.framework/Versions/Current'
-    )
-    value = os.readlink(link_path)
-    if value.split('.')[0] != '3':
-        logger.debug(
-            'Not discovering non-py3k Houdini build ("{0}",'
-            ' linked interpreter: {1}).'.format(app_path, value)
-        )
+    ))
+    logger.info('@@@: {}'.format(link_path))
+    python_version = None
+    if sys.version_info.major > 2:
+        python_version = os.path.basename(link_path)
+    elif os.path.exists(link_path):
+        python_version = os.readlink(link_path)
+    if python_version:
+        if python_version.split('.')[0] != '3':
+            logger.debug(
+                'Not discovering non-py3k Houdini build ("{0}",'
+                ' linked interpreter: {1}).'.format(app_path, python_version)
+            )
 
-        data['integration']['disable'] = True
+            data['integration']['disable'] = True
+    else:
+        logger.warning('Cannot detect Python framework version for executable {}'.format(app_path))
 
 
 def get_linux_options(event, data):

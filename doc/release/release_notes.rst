@@ -9,6 +9,11 @@ Release Notes
 
 .. release:: upcoming
 
+    .. change:: fix
+
+        Fix apprentice discovery bug on Mac.
+
+
     .. change:: new
 
         Added API reference and release notes.
