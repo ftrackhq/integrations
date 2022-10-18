@@ -11,7 +11,7 @@ The ftrack pipeline Framework allows you to publish, load and manage assets from
 a consistent set of api and interface to streamline the production process.
 
 
-This section describes the new Framework, how it is structured its different
+This section describes the new Framework, how it is structured and its different
 components.
 
 .. important::
