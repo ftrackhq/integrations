@@ -9,7 +9,12 @@ Release Notes
 
 .. release:: upcoming
 
-    .. change:: fix
+    .. change:: fixed
+
+        Same version of Houdini detected twice on Linux because of symlink.
+
+
+    .. change:: fixed
 
         Fix apprentice discovery bug on Mac.
 

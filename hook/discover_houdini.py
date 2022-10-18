@@ -35,38 +35,47 @@ def get_windows_options(event, data):
 
 def get_darwin_options(event, data):
     # Check Python framework link points to a certain target
-    app_path = event['data']['application']['path']
+    app_path = event['data']['application']['path'] # Path to .app
+    app_dir = os.path.dirname(app_path)
     link_path = os.path.realpath(os.path.join(
-        app_path, '..', 'Frameworks/Python.framework/Versions/Current'
+        app_dir, 'Frameworks/Python.framework/Versions/Current'
     ))
     python_version = None
-    if sys.version_info.major > 2:
+    if os.path.exists(link_path):
         python_version = os.path.basename(link_path)
-    elif os.path.exists(link_path):
-        python_version = os.readlink(link_path)
     if python_version:
         if python_version.split('.')[0] != '3':
             logger.debug(
                 'Not discovering non-py3k Houdini build ("{0}",'
                 ' linked interpreter: {1}).'.format(app_path, python_version)
             )
-
             data['integration']['disable'] = True
     else:
-        logger.warning('Cannot detect Python framework version for executable {}'.format(app_path))
+        logger.warning('Cannot detect Mac Python framework version for executable {}'.format(app_path))
 
 
 def get_linux_options(event, data):
     # Check if python 3.7 library exists
     app_path = event['data']['application']['path']
-    app_dir = os.path.dirname(os.path.dirname(app_path))
-    lib_path = os.path.join(app_dir, 'python/lib/python3.7')
-    if not os.path.exists(lib_path):
-        logger.debug(
-            'Not discovering non-py3k Houdini build ("{0}").'.format(app_dir)
-        )
+    bin_dir = os.path.dirname(app_path)
+    base_dir = os.path.dirname(bin_dir)
+    if os.path.islink(base_dir):
+        # Do not resolve launcher
         data['integration']['disable'] = True
-
+    else:
+        lib_path = os.path.realpath(os.path.join(base_dir, 'python/lib'))
+        if os.path.exists(lib_path):
+            has_python2_interpreter = False
+            for filename in os.listdir():
+                if filename.startswith('python2'):
+                    has_python2_interpreter = True
+            if has_python2_interpreter:
+                logger.debug(
+                    'Not discovering non-py3k Houdini build ("{0}").'.format(app_path)
+                )
+                data['integration']['disable'] = True
+        else:
+           logger.warning('Cannot detect linux Python framework version for executable {}'.format(app_path))
 
 platform_options = {
     'windows': get_windows_options,
