@@ -3,50 +3,62 @@
 
 .. _developing/build:
 
-****************
-Build and deploy
-****************
+*****
+Build
+*****
 
 .. highlight:: bash
 
-TBC
+Create a virtual environment
+============================
 
-Building and deploying Connect centrally
-========================================
-
-To minimise IT administrative tasks, one could build Connect and launch it from
-a central location within an new or existing Python environment.
-
-Simply checkout Connect 2 from Bitbucket repository and build it:
-
- * Clone the code
- * Create a venv
- * Change folder to ftrack-connect
- * Install the requirements
+ #. Download and install/build latest Python 3.7, see below for reasoning on which Python version to use.
+ #. Install virtualenv.
+ #. Create a virtual env.
+ #. Change folder to ftrack-connect-pipeline
 
 Run::
 
     pip install .
 
-or::
-
-    python setup.py install
-
-A Connect executable is then compiled, which can be set to run a login time on
-workstations and be wrapped with a proper launcher having an icon.
+This will setup your virtual environment with the dependencies needed.
 
 
-Deploying Framework centrally
-=============================
+Choosing Python base version
+----------------------------
 
-To have Connect pickup your custom built framework plugins, build and deploy them
-to a central network location, for example::
+To take into consideration here is the target set of DCC applications the
+Framework is supposed to work with, from that set you need to evaluate which
+is the lowest common denominator built in Python interpreter version. As of 2022,
+this is Python 3.7 but will be subject to change as DCC:s move forward according
+to the VFX reference platform.
 
-    \\filesrv\nas\pipeline\connect
 
-Then on workstations set the environment varible to point at this locatoin::
+Building the Framework
+======================
 
-    set|export FTRACK_CONNECT_PLUGIN_PATH=\\filesrv\nas\pipeline\connect
+The process of building a Framework plugin is the same:
 
-Finally install and launch Connect, remember to remove any locally installed
-framework plugins to prevent conflict.
+ #. Activate the virtual env created above.
+ #. Change folder to ftrack-connect-pipeline
+
+Run::
+
+    python setup.py build_plugin
+
+This will produce output into the /build subfolder, repeat this step for each
+Framework plugin (ftrack-connect-pipeline-definition, ftrack-connect-pipeline-qt
+and so on)
+
+
+Building the documentation
+==========================
+
+Install the doc build dependencies into your virtual env, you will find these
+in setup.py beneat the **setup_requires** section.
+
+After that, you should be ready to build the documentation::
+
+    python setup.py build_sphinx
+
+

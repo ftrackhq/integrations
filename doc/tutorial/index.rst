@@ -7,6 +7,8 @@
 Tutorial
 ********
 
+Discover how to extend and modify the ftrack Connect pipeline Framework for a tighter
+integration and more customisation options.
 
 .. toctree::
     :maxdepth: 1

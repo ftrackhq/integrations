@@ -7,9 +7,10 @@
 Asset loading
 *************
 
-The following schema describes the asset load process and how it interacts with
-the framework:
+The following flowchart describes the asset load process and how it interacts with
+the Framework:
 
-TBC
+.. image:: ../image/load.svg
+
 
 

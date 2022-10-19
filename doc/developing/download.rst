@@ -9,17 +9,17 @@ Download
 
 .. highlight:: bash
 
-The framework is 100% open source and accessible on GitHub.
+The Framework is 100% open source and accessible on GitHub.
 
 Git clone base repositories::
 
-    gh repo clone ftrackhq/ftrack-connect-pipeline
-    gh repo clone ftrackhq/ftrack-connect-pipeline-definition
-    gh repo clone ftrackhq/ftrack-connect-pipeline-qt
-    gh repo clone ftrackhq/ftrack-connect-pipeline-
+    git clone ftrackhq/ftrack-connect-pipeline
+    git clone ftrackhq/ftrack-connect-pipeline-definition
+    git clone ftrackhq/ftrack-connect-pipeline-qt
+
 
 Clone a DCC repository::
 
-    gh repo clone ftrackhq/ftrack-connect-pipeline-maya
+    git clone ftrackhq/ftrack-connect-pipeline-maya
 
 
