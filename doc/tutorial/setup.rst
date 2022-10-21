@@ -7,13 +7,14 @@
 Setup
 *****
 
+.. highlight:: bash
 
 Prerequisites
 *************
 
 For this exercise we require to following:
 
- * A workstation, in our example a PC running Windows 10.
+ * A workstation, in our example a PC running Windows 11.
  * A text editor for syntax highlighted editing of Python code, for example PyCharm or Visual Code.
  * Git command line tools installed, including Git bash.
  * A licensed version of Maya 2022 or later.
@@ -26,13 +27,68 @@ For this exercise we require to following:
 Git repositories
 ****************
 
-We assume you start fresh and do not wish to use an existing pipeline Git repository.
+The best approach is to create your own set of repositories and then pull from the
+ftrack Framework repositories as an remote upstream.
 
 ..  important::
 
-    If you have an existing repository, you can incorporate the new framework by
-    checking out separately and building it to a branch which you later update and
-    merge upon new Connect/framework releases.
+    You are not forced to create repositories, the simplest approach is to just pull
+    the code and start working on it. Recall that it will be difficult to work on
+    the code internally as a team without proper SCM in place.
+
+
+We will extend two Framework plugins:
+
+ * ftrack-connect-pipeline-definition
+ * ftrack-connect-pipeline-maya
+
+The rest of the plugins we will use are shipped with Connect.
+
+As a first step, create the repositories within your SCM (GitHub, Bitbucket,..). We
+recommend you create them by the same name to minimise confusion.
+
+
+Next create folders, clone the remote repositories with Git bash and merge from ftrack::
+
+    $ mkdir mypipeline && cd mypipeline
+    $ git clone <my SCM service base url>/ftrack-connect-pipeline-definition
+    $ git remote add upstream https://github.com/ftrackhq/ftrack-connect-pipeline-definition.git
+    $ git fetch upstream
+    $ git merge upstream/main
+    $ git rebase upstream/main
+
+
+Repeat the steps above for ftrack-connect-pipeline-maya repository.
+
+At any new release done by ftrack, you can simply pull these and then merge into your repository::
+
+    $ git pull upstream main
+
+
+Branching
+*********
+
+We are not going into full detail on how to manage your source code, a good
+general practice to always develop on stories, e.g. backlog/bigfeature/story with
+sub branches. For more guidelines on Git: https://nvie.com/posts/a-successful-git-branching-model
+
+
+Pipeline deploy
+***************
+
+Towards the end of this chapter, we will continue building the integration plugins
+and put them centrally on a server for everyone to use. We assume there is a space
+for pipeline to reside on a network share::
+
+    \\server\share\PIPELINE
+
+This will be the physical location of our custom pipeline, and will be named
+"**PIPELINE**" hereafter.
+
+
+
+
+
 
 
 
