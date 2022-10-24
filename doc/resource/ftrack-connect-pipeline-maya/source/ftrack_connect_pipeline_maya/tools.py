@@ -68,7 +68,7 @@ def scene_open(session, logger):
             )
         )
         shutil.copy(path_snapshot_open, path_snapshot)
-        path_snapshot_load = path_snapshot_open
+        path_snapshot_load = path_snapshot
 
     if path_snapshot_load:
         # Load the scene

@@ -7,8 +7,225 @@
 Post Slack message on publish
 *****************************
 
-Next, we implement a custom finaliser within Maya
+Next, we implement a custom finaliser within Maya - a small function that posts a
+Slack message containing the version ident, the comment and a thumbnail
+(can be replaced with the full Quicktime reviewable movie if desired), with each
+publish made.
 
-TBC
+Functions that run after load and import are called "finalisers" and they are
+fed all the data from the previous steps and stages.
 
+Save copy of thumbnail image
+****************************
+
+As a preparation, we need to have the thumbnail publisher to save a copy to be
+used with the Slack post:
+
+**plugins/maya/python/publisher/exporters/maya_thumbnail_publisher_exporter.py**
+
+..  code-block:: python
+
+    import shutil
+    import os
+    ..
+
+    def run(self, context_data=None, data=None, options=None):
+        ..
+        # Make a copy of the thumbnail to be used with Slack post
+        path_slack_thumbnail = os.path.join(os.path.dirname(path), 'slack-{}'.format(os.path.basename(path)))
+        shutil.copy(path, path_slack_thumbnail)
+
+        return [path]
+
+The Slack finaliser plugin
+**************************
+
+**plugins/common/python/publisher/finalisers/common_slack_post_publisher_finalizer.py**
+
+..  code-block:: python
+
+    import os
+
+    from slack import WebClient
+
+    import ftrack_api
+
+    from ftrack_connect_pipeline import plugin
+
+
+    class CommonSlackPublisherFinalizerPlugin(plugin.PublisherPostFinalizerPlugin):
+
+        plugin_name = 'common_slack_publisher_finalizer'
+
+        SLACK_CHANNEL = 'test'
+
+        def run(self, context_data=None, data=None, options=None):
+
+            # Harvest publish data
+            reviewable_path = asset_version_id = None
+            for component_data in data:
+                if component_data['name'] == 'thumbnail':
+                    for output in component_data['result']:
+                        if output['name'] == 'exporter':
+                            reviewable_path = output['result'][0]['result'][0]
+                elif component_data['name'] == 'main':
+                    for step in component_data['result']:
+                        if step['name'] == 'finalizer':
+                            asset_version_id = step['result'][0]['result'][
+                                'asset_version_id'
+                            ]
+                            component_names = step['result'][0]['result'][
+                                'component_names'
+                            ]
+
+            # Fetch version
+            version = self.session.query(
+                'AssetVersion where id={}'.format(asset_version_id)
+            ).one()
+
+            # Fetch path to thumbnail
+            if reviewable_path:
+                # Assume it is on the form /tmp/tmp7vlg8kv5.jpg.0000.jpg, locate our copy
+                reviewable_path = os.path.join(
+                    os.path.dirname(reviewable_path),
+                    'slack-{}'.format(os.path.basename(reviewable_path)),
+                )
+
+            client = WebClient(
+                "xoxp-748383045924-737397864931-2651169155216-8789226b1359938424d6edb46933b5f9"
+            )
+
+            ident = '|'.join(
+                [cl['name'] for cl in version['asset']['parent']['link']]
+                + [version['asset']['name'], 'v%03d' % (version['version'])]
+            )
+
+            if reviewable_path:
+                self.logger.info(
+                    'Posting Slack message "{}" to channel {}, attaching reviewable "{}"'.format(
+                        ident, self.SLACK_CHANNEL, reviewable_path
+                    )
+                )
+                try:
+                    response = client.files_upload(
+                        channels=self.SLACK_CHANNEL,
+                        file=reviewable_path,
+                        title=ident,
+                        initial_comment=version['comment'],
+                    )
+                finally:
+                    os.remove(reviewable_path)  # Not needed anymore
+            else:
+                # Just post a message
+                self.logger.info(
+                    'Posting Slack message "{}" to channel {}, without reviewable'.format(
+                        ident, self.SLACK_CHANNEL
+                    )
+                )
+                client.chat_postMessage(channel=self.SLACK_CHANNEL, text=ident)
+            if response.get('ok') is False:
+                raise Exception(
+                    'Slack file upload failed! Details: {}'.format(response)
+                )
+
+            return {}
+
+
+    def register(api_object, **kw):
+        if not isinstance(api_object, ftrack_api.Session):
+            # Exit to avoid registering this plugin again.
+            return
+        plugin = CommonSlackPublisherFinalizerPlugin(api_object)
+        plugin.register()
+
+
+Breakdown of plugin:
+
+ * With the *data* argument, the finaliser gets passed on the result from the entire publish process. From this data we harvest the temporary path to thumbnail and asset version id.
+ * We transcode the path so we locate the thumbnail copy.
+ * A Slack client API session is created
+ * An human readable asset version identifier is compiled
+ * If a thumbnail were found, it is uploaded to Slack. A standard chat message is posted otherwise.
+
+Add to publishers
+*****************
+
+
+Finally we augment the publishers that we wish to use it.
+
+**definitions/publisher/maya/geometry-maya-publish.json**
+
+..  code-block:: json
+
+    {
+      "type": "publisher",
+      "name": "Geometry Publisher",
+      "contexts": [],
+      "components": [],
+      "finalizers": [
+        {
+          "name": "main",
+          "stages": [
+            {
+              "name": "pre_finalizer",
+              "visible": false,
+              "plugins":[
+                {
+                  "name": "Pre publish to ftrack server",
+                  "plugin": "common_passthrough_publisher_pre_finalizer"
+                }
+              ]
+            },
+            {
+              "name": "finalizer",
+              "visible": false,
+              "plugins":[
+                {
+                  "name": "Publish to ftrack server",
+                  "plugin": "common_passthrough_publisher_finalizer"
+                }
+              ]
+            },
+            {
+              "name": "post_finalizer",
+              "visible": true,
+              "plugins":[
+                {
+                  "name": "Post slack message",
+                  "plugin": "common_slack_publisher_finalizer"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+
+
+Add Slack library
+*****************
+
+To be able to use the Slack Python API, we need to add it to our Framework build.
+We do that by adding the dependency to setup.py:
+
+**ftrack-connect-pipeline-definition/setup.py**
+
+
+
+..  code-block:: python
+
+
+    ..
+
+    # Configuration.
+    setup(
+    ..
+        setup_requires=[
+            ..
+            'slackclient'
+        ],
+        install_requires=[
+            'slackclient'
+        ],
+    ..
 

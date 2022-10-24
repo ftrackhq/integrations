@@ -82,7 +82,7 @@ All DCC tools will go into its own file ``tools.py``::
             logger.info('Copying most recent snapshot {} to {}'.format(
                 path_snapshot_open, path_snapshot))
             shutil.copy(path_snapshot_open, path_snapshot)
-            path_snapshot_load = path_snapshot_open
+            path_snapshot_load = path_snapshot
 
         if path_snapshot_load:
             # Load the scene
