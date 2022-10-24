@@ -95,9 +95,9 @@ We are not going into detail what the ``scene_init`` function does, but it tries
 to locate a previous published snapshot and if not found - a new one is copied from a template
 and saved to temp folder and opened.
 
-Finally, to have this run during Maya startup, we add it to ``userSetup.py``::
+Finally, to have this run during Maya startup, we add it to ``userSetup.py``:
 
-    mypipeline/ftrack-connect-pipeline-maya/resources/scripts/userSetup.py:
+**mypipeline/ftrack-connect-pipeline-maya/resources/scripts/userSetup.py**
 
 .. code-block:: python
 
@@ -108,5 +108,6 @@ Finally, to have this run during Maya startup, we add it to ``userSetup.py``::
 
         maya_utils.init_maya()
         tools.scene_open(session, logger)
+
 
 

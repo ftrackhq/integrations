@@ -19,7 +19,6 @@ integration and more customisation options.
     structure
     open
     load
-    publish
     finalise
     tool
     launch

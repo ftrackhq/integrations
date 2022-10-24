@@ -273,7 +273,7 @@ intersphinx_mapping = {
     #'ftrack-connect-pipeline-definition': (
     #    'https://ftrack-connect-pipeline-definition.readthedocs.io/en/latest/',
     #    None,
-    #),
+    # ),
     # 'ftrack-connect-pipeline-qt': (
     #    'https://ftrack-connect-pipeline-qt.readthedocs.io/en/latest/',
     #    None,

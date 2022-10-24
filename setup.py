@@ -139,7 +139,7 @@ setup(
         'markdown<=3.2.2',
         # Keep importlib-metadata it low, otherwise python_jsonschema_objects
         # build on python 3.7.12 will not work on maya 2022
-        'importlib-metadata<5.0'
+        'importlib-metadata<5.0',
     ],
     tests_require=['mock', 'pytest >= 2.3.5, < 3'],
     cmdclass={'test': PyTest, 'build_plugin': BuildPlugin},
