@@ -74,3 +74,16 @@ def scene_open(session, logger):
         # Load the scene
         logger.info('Loading scene: {}'.format(path_snapshot_load))
         cmds.file(path_snapshot_load, open=True, force=True)
+
+
+def set_task_status(status_name, session, logger, unused_arg=None):
+    '''Change the status of the launched task to *status*'''
+    task = session.query(
+        'Task where id={}'.format(os.environ['FTRACK_CONTEXTID'])
+    ).one()
+    status = session.query('Status where name="{}"'.format(status_name)).one()
+    logger.info(
+        'Changing status of task {} to {}'.format(task['name'], status_name)
+    )
+    task['status'] = status
+    session.commit()

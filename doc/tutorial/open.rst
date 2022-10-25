@@ -22,9 +22,9 @@ Prerequisites
 Implementation
 **************
 
-All DCC tools will go into its own file ``tools.py``::
+All DCC tools will go into its own file ``tools.py``:
 
-    mypipeline/ftrack-connect-pipeline-maya/source/ftrack_connect_pipeline_maya/tools.py
+**mypipeline/ftrack-connect-pipeline-maya/source/ftrack_connect_pipeline_maya/tools.py**
 
 
 .. code-block:: python
@@ -107,7 +107,8 @@ Finally, to have this run during Maya startup, we add it to ``userSetup.py``:
         ..
 
         maya_utils.init_maya()
-        tools.scene_open(session, logger)
+
+        tools.scene_open(session, logger)  # <---
 
 
 

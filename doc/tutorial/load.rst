@@ -10,14 +10,15 @@ Load camera image plane in Maya
 .. highlight:: bash
 
 Next, we implement a custom camera loader within Maya that loads a reviewable Quicktime
-(.mov) as an image plane, to aid animation and lighting.
+(.mov) as an image plane, to aid animation and lighting framing.
+
 
 Constrain camera loader
 ***********************
 
 As a preparation, we constrain the camera loader to only bee seen when on animation
 and lighting tasks, hiding it during modeling. We do this by modifying the loader
-definition json:
+definition json and adding the **discoverable** key:
 
 **definitions/loader/maya/camera-maya-loader.json**
 
@@ -30,6 +31,7 @@ definition json:
         "host_type": "maya",
         "ui_type": "qt",
         "discoverable": ["animation","lighting"]
+
     }
 
 Here we have added the additional *discoverable* key with associate task type names.
@@ -41,8 +43,6 @@ Render loader
 This serves as an example on how to implement your own loader that is not part of
 the framework but required in production.
 
-Loading a plate onto an existing camera image plane is great to have when framing
-the animation.
 
 Definition
 ----------
@@ -50,7 +50,7 @@ Definition
 Reviewable Quicktimes are most likely published with render (asset type), from Nuke
 Studio or similar tool. This is why we implement an new *render loader* definition:
 
-**definitions/loader/maya/render-maya-loader.json**
+**ftrack-connect-pipeline-definition/resource/definitions/loader/maya/render-maya-loader.json**
 
 
 .. code-block:: json
@@ -167,7 +167,7 @@ Render importer plugin
 
 Finally we implement a new importer plugin:
 
-**plugins/maya/loader/importers/maya_render_loader_importer.py**
+**ftrack-connect-pipeline-definition/resource/plugins/maya/loader/importers/maya_render_loader_importer.py**
 
 ..  code-block:: python
 

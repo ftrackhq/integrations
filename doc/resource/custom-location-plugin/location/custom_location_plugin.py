@@ -22,7 +22,7 @@ def configure_location(session, event):
     )
 
     location = session.pick_location()
-    if location['name'] == 'ftrack.unmanaged':
+    if location['name'] in ['ftrack.unmanaged', 'ftrack.server']:
         location.accessor = ftrack_api.accessor.disk.DiskAccessor(
             prefix=DEFAULT_USER_DISK_PREFIX
         )

@@ -37,8 +37,8 @@ used with the Slack post:
 
         return [path]
 
-The Slack finaliser plugin
-**************************
+Finaliser
+*********
 
 **plugins/common/python/publisher/finalisers/common_slack_post_publisher_finalizer.py**
 
@@ -147,8 +147,8 @@ Breakdown of plugin:
  * An human readable asset version identifier is compiled
  * If a thumbnail were found, it is uploaded to Slack. A standard chat message is posted otherwise.
 
-Add to publishers
-*****************
+Add Slack finaliser to publishers
+*********************************
 
 
 Finally we augment the publishers that we wish to use it.
@@ -202,6 +202,9 @@ Finally we augment the publishers that we wish to use it.
     }
 
 
+Repeat this for all publishers that should have the finaliser.
+
+
 Add Slack library
 *****************
 
@@ -229,3 +232,8 @@ We do that by adding the dependency to setup.py:
         ],
     ..
 
+
+..  important::
+
+    A better approach is to add the dependency to the ``ftrack-connect-pipeline``
+    module were the other pipeline dependencies are defined and built.

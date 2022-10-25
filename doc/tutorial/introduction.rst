@@ -15,9 +15,9 @@ build a VFX studio pipeline that aids the artists to working the right
 way, with correct file naming convention, minimising tedious and error prone tasks.
 
 
-.. important::
+..  important::
 
-    There is currently no GUI approach to configuring the Framework, and no way of
+    There is currently no GUI approach to configuring the Framework, and no way to
     provide separate builds and configurations per project or context in general.
     This is subject to be improved with the next major release of the Framework and
     Connect.
@@ -33,26 +33,25 @@ The tool we are about to build
 ******************************
 
 In this tutorial, we will first show how to apply a custom file structure that
-will apply to all API location based file operations.
+will apply to all API location based file operations - Connect and DCC integrations.
 
 Next we target Maya and extend the Framework integration with a set of tools:
 
  * DCC bootstrap extension - have the latest snapshot opened, or a new one generated from template and saved.
  * Custom loader - load a previewable (Quicktime) onto a camera image plane in Maya.
- * Custom publisher - publish the Maya node graph as XML, with options, into the studio custom folder structure.
- * Post a message on Slack with an animation playable for review.
+ * Post a message on Slack upon publish, with a thumbnail attached.
  * Add a custom tool to the ftrack menu.
 
 We also walk you through the process of customising the launch of DCC applications -
 how to constrain application launch to a certain department (e.g. task type) and how
-to set environment variables and add additional arguments.
+to set environment variables plus add additional arguments.
 
 At the end we go more in depth on how to build, deploy and maintain the customised
 Framework pipeline within the studio.
 
 
 Disclaimer
-----------
+**********
 
 All code has been tested and provided as is, use it at your own risk as ftrack
 cannot be held responsible for any damage caused by adopting code and instructions
