@@ -9,6 +9,12 @@ Release Notes
 
 .. release:: upcoming
 
+    .. change:: fixed
+        :tags: dynamicwidget
+
+        Fixed bug where default plugin option list item were not selected.
+
+
     .. change:: change
         :tags: assembler
 
