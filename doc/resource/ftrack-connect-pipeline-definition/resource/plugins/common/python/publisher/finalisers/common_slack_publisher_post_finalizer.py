@@ -47,9 +47,7 @@ class CommonSlackPublisherFinalizerPlugin(plugin.PublisherPostFinalizerPlugin):
                 'slack-{}'.format(os.path.basename(reviewable_path)),
             )
 
-        client = WebClient(
-            "xoxp-748383045924-737397864931-2651169155216-8789226b1359938424d6edb46933b5f9"
-        )
+        client = WebClient("<slack-api-key>")
 
         ident = '|'.join(
             [cl['name'] for cl in version['asset']['parent']['link']]

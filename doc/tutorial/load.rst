@@ -20,9 +20,11 @@ As a preparation, we constrain the camera loader to only bee seen when on animat
 and lighting tasks, hiding it during modeling. We do this by modifying the loader
 definition json and adding the **discoverable** key:
 
-**definitions/loader/maya/camera-maya-loader.json**
+**mypipeline/ftrack-connect-pipeline-definitions/resource/definitions/loader/maya/camera-maya-loader.json**
 
-.. code-block:: json
+..  code-block:: json
+    :linenos:
+    :emphasize-lines: 7
 
     {
         "type": "loader",
@@ -50,115 +52,20 @@ Definition
 Reviewable Quicktimes are most likely published with render (asset type), from Nuke
 Studio or similar tool. This is why we implement an new *render loader* definition:
 
-**ftrack-connect-pipeline-definition/resource/definitions/loader/maya/render-maya-loader.json**
+**mypipeline/ftrack-connect-pipeline-definitions/resource/definitions/loader/maya/render-maya-loader.json**
 
+.. literalinclude:: /resource/ftrack-connect-pipeline-definition/resource/definitions/loader/maya/render-maya-loader.json
+    :language: json
+    :linenos:
+    :emphasize-lines: 3,4,26-27,43-46
 
-.. code-block:: json
-
-    {
-      "type": "loader",
-      "name": "Render Loader",
-      "asset_type": "render",
-      "host_type": "maya",
-      "ui_type": "qt",
-      "contexts": [
-        {
-          "name": "main",
-          "stages": [
-            {
-              "name": "context",
-              "plugins":[
-                {
-                  "name": "context selector",
-                  "plugin": "common_passthrough_loader_context",
-                  "widget": "common_default_loader_context"
-                }
-              ]
-            }
-          ]
-        }
-      ],
-      "components": [
-        {
-          "name": "movie",
-          "file_formats": [".mov", ".r3d", ".mxf", ".avi"],
-          "stages": [
-            {
-              "name": "collector",
-              "plugins":[
-                {
-                  "name": "Collect components from context",
-                  "plugin": "common_context_loader_collector"
-                }
-              ]
-            },
-            {
-              "name": "importer",
-              "plugins":[
-                {
-                  "name": "Import reviewable to Maya",
-                  "plugin": "maya_render_loader_importer",
-                  "options": {
-                    "camera_name": "persp"
-                  }
-                }
-              ]
-            },
-            {
-              "name": "post_importer",
-              "plugins":[
-                {
-                  "name": "maya",
-                  "plugin": "common_passthrough_loader_post_importer"
-                }
-              ]
-            }
-          ]
-        }
-      ],
-      "finalizers": [
-        {
-          "name": "main",
-          "stages": [
-            {
-              "name": "pre_finalizer",
-              "visible": false,
-              "plugins":[
-                {
-                  "name": "Pre finalizer",
-                  "plugin": "common_passthrough_loader_pre_finalizer"
-                }
-              ]
-            },
-            {
-              "name": "finalizer",
-              "visible": false,
-              "plugins":[
-                {
-                  "name": "Finalizer",
-                  "plugin": "common_passthrough_loader_finalizer"
-                }
-              ]
-            },
-            {
-              "name": "post_finalizer",
-              "visible": false,
-              "plugins":[
-                {
-                  "name": "Post finalizer",
-                  "plugin": "common_passthrough_loader_post_finalizer"
-                }
-              ]
-            }
-          ]
-        }
-      ]
-    }
 
 Definition breakdown:
 
  * *name*; We follow the Framework naming convention here.
  * *asset_type*: Change here if quicktimes are published onto a different custom asset type than *render*.
+ * *component name*; The name of loadable components on an asset version.
+ * *component file formats/types*; List of file format extensions supported by the loader plugin.
  * *importer plugin*; Here we reference the new **maya_render_loader_importer** that we are about to write.
  * *importer plugin options*; In the options we expose a **camera_name** attribute, which will be an option that user can change.
 
@@ -167,53 +74,12 @@ Render importer plugin
 
 Finally we implement a new importer plugin:
 
-**ftrack-connect-pipeline-definition/resource/plugins/maya/loader/importers/maya_render_loader_importer.py**
+**mypipeline/ftrack-connect-pipeline-definitions/ftrack-connect-pipeline-definition/resource/plugins/maya/python/loader/importers/maya_render_loader_importer.py**
 
-..  code-block:: python
-
-    import maya.cmds as cmds
-
-    from ftrack_connect_pipeline_maya import plugin
-    import ftrack_api
-
-
-    class MayaRenderLoaderImporterPlugin(plugin.MayaLoaderImporterPlugin):
-        '''Maya Quicktime importer plugin'''
-
-        plugin_name = 'maya_render_loader_importer'
-
-
-        def run(self, context_data=None, data=None, options=None):
-            '''Load alembic files pointed out by collected paths supplied in *data*'''
-
-            results = {}
-
-            camera_name = options.get('camera_name', 'persp')
-            paths_to_import = []
-            for collector in data:
-                paths_to_import.extend(collector['result'])
-
-            for component_path in paths_to_import:
-                self.logger.debug('Importing path "{}" as image plane to camera "{}"'.format(
-                    component_path, camera_name))
-                imagePlane = cmds.imagePlane( camera=camera_name, fileName=component_path)
-                cmds.setAttr('{}.type'.format(imagePlane[0]), 2)
-                cmds.setAttr('{}.useFrameExtension'.format(imagePlane[0]), True)
-
-                self.logger.info('Imported "{}" to {}.'.format(component_path, imagePlane[0]))
-
-                results[component_path] = imagePlane[0]
-
-            return results
-
-
-    def register(api_object, **kw):
-        if not isinstance(api_object, ftrack_api.Session):
-            # Exit to avoid registering this plugin again.
-            return
-        plugin = MayaRenderLoaderImporterPlugin(api_object)
-        plugin.register()
-
+.. literalinclude:: /resource/ftrack-connect-pipeline-definition/resource/plugins/maya/python/loader/importers/maya_render_loader_importer.py
+    :language: python
+    :linenos:
+    :emphasize-lines: 13,15-43
 
 Plugin breakdown:
 

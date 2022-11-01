@@ -7,7 +7,7 @@
 Deploy the customised pipeline within studio
 ********************************************
 
-.. highlight:: bash
+.. highlight:: bat
 
 Before we can start using our custom pipeline, we want to make sure
 Maya can be launched using our customised framework through Connect.
@@ -18,16 +18,16 @@ Create and activate an virtual environment
 To be able to build the framework integrations, we need to create a Python 3.7.12 virtual environment:
 
  #. Download Python 3.7.12 (https://www.python.org/downloads/release/python-3712/)
- #. Open a shell/DOS box and install virtual env: pip install virtualenv
- #. Create the virtual environment: virtualenv venv_3712
- #. Activate it: venv_py3712\Scripts\activate
+ #. Open a shell/DOS box and install virtual env: ``pip install virtualenv``
+ #. Create the virtual environment: ``virtualenv venv_3712``
+ #. Activate it: ``venv_py3712\Scripts\activate``
 
 Build the integrations
 **********************
 
 We build each integration using this virtual env::
 
-    $ cd mypipeline/ftrack-connect-pipeline-definition
+    $ cd mypipeline\ftrack-connect-pipeline-definition
     $ python setup.py build_plugin
 
 We repeat this for the ``ftrack-connect-pipeline-maya`` repository.
@@ -36,11 +36,11 @@ We repeat this for the ``ftrack-connect-pipeline-maya`` repository.
 The built plugin will end up in the ``build/`` folder.
 
 
-Install the integrations locally
-********************************
+Install the integrations on another machine
+*******************************************
 
-Before we deploy centrally, we advise testing integrations locally, and iron out
-eventual bugs with rigorous testing.
+Before we deploy centrally, we advise testing integrations on a separate machine,
+and iron out eventual bugs with rigorous testing.
 
 Copy the integrations from each build/ folder to the Connect default plug-in search path,
 overwriting the existing plugins:

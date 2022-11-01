@@ -25,7 +25,7 @@ publishes in a "PUBLISH" folder:
 We are achieving this by defining our own structure plugin that we apply to the
 storage scenario location. This API/Connect plugin needs to reside server side:
 
-**PIPELINE/custom-location-plugin**::
+**mypipeline/custom-location-plugin**::
 
     hook/plugin_hook.py                 #  Enable structure within Connect
     location/custom_location_plugin.py  #  Initialise the location - apply structure
@@ -37,30 +37,12 @@ Structure
 
 Within the structure plugin we define an asset resolver:
 
-**PIPELINE/custom-location-plugin/location/structure.py**
+**mypipeline/custom-location-plugin/location/structure.py**
 
-.. code-block:: python
-
-    ..
-    STUDIO_PUBLISH_FOLDER = "PUBLISH"
-    ..
-        def __init__(
-            ..
-            self.resolvers = OrderedDict({
-                ..
-                'Task': self._resolve_task,
-    ..
-        def _resolve_asset(self, asset, context=None):
-            '''Build resource identifier for *asset*.'''
-            # Resolve parent context
-            parts = self._resolve_context_entity(asset['parent'], context=context)
-            # Framework guide customisation - publish to shot/asset "publish" subfolder
-            parts.append(STUDIO_PUBLISH_FOLDER)
-            # Base on its name
-            parts.append(self.sanitise_for_filesystem(asset['name']))
-            return parts
-    ..
-
+.. literalinclude:: /resource/custom-location-plugin/location/structure.py
+    :language: python
+    :linenos:
+    :emphasize-lines: 39,133-141
 
 
 Location
@@ -70,34 +52,16 @@ The structure are then registered and used with the default location, if it is a
 unmanaged/server location, a default location at disk is used so publishes
 not are lost in system temp directory:
 
-.. code-block:: python
+**mypipeline/custom-location-plugin/location/custom_location_plugin.py**
 
-    ..
+.. literalinclude:: /resource/custom-location-plugin/location/custom_location_plugin.py
+    :language: python
+    :linenos:
+    :emphasize-lines: 16-36
 
-    def configure_location(session, event):
-        '''Apply our custom structure to default storage scenario location.'''
-        import structure
-
-        DEFAULT_USER_DISK_PREFIX = os.path.join(
-            os.path.expanduser('~'),
-            'Documents',
-            'ftrack_tutorial'
-        )
-
-        location = session.pick_location()
-        if location['name'] in ['ftrack.unmanaged', 'ftrack.server']:
-            location.accessor = ftrack_api.accessor.disk.DiskAccessor(
-                prefix=DEFAULT_USER_DISK_PREFIX
-            )
-        location.structure = structure.Structure()
-
-        logger.info(
-            u'Registered custom file structure at location "{0}", path: {1}.'.format(
-                location['name'], DEFAULT_USER_DISK_PREFIX)
-        )
 
 Source code
-***********
+-----------
 
 
 The complete source code for the API location structure plugin can be found here::

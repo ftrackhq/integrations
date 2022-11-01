@@ -7,7 +7,7 @@
 Setup
 *****
 
-.. highlight:: bash
+.. highlight:: bat
 
 Prerequisites
 *************
@@ -42,15 +42,17 @@ We will extend two Framework plugins:
  * ftrack-connect-pipeline-definition
  * ftrack-connect-pipeline-maya
 
-The rest of the plugins we will use are shipped with Connect.
+The rest of the plugins we will use are shipped with Connect and installable through
+the plugin manager.
 
-As a first step, create the repositories within your SCM (GitHub, Bitbucket,..). We
+As a first step, create the repositories within your SCM environment (GitHub, Bitbucket, locally..). We
 recommend you create them by the same name to minimise confusion.
 
 
 Next create folders, clone the remote repositories with Git bash and merge from ftrack::
 
-    $ mkdir mypipeline && cd mypipeline
+    $ mkdir mypipeline
+    $ cd mypipeline
     $ git clone <my SCM service base url>/ftrack-connect-pipeline-definition
     $ git remote add upstream https://github.com/ftrackhq/ftrack-connect-pipeline-definition.git
     $ git fetch upstream
@@ -58,7 +60,9 @@ Next create folders, clone the remote repositories with Git bash and merge from 
     $ git rebase upstream/main
 
 
-Repeat the steps above for ftrack-connect-pipeline-maya repository.
+Repeat the steps above for ftrack-connect-pipeline-maya repository. Throughout this
+tutorial, the folder **mypipeline** will refer to this location were you checkout
+and store your local source code repository.
 
 At any new release done by ftrack, you can simply pull these and then merge into your repository::
 
@@ -73,10 +77,25 @@ general practice to always develop on stories, e.g. backlog/bigfeature/story wit
 sub branches. For more guidelines on Git: https://nvie.com/posts/a-successful-git-branching-model
 
 
+Testing
+*******
+
+During the test phase you would want to test your tools locally before deploying
+centrally. As first step, :ref:`create a virtual environment <_developing/build>`,
+then follow the instructions on how to build and deploy locally::
+
+    $ <activate virtual environment>
+    $ cd mypipeline\ftrack-connect-pipeline-definition
+    $ python setup.py build_plugin
+    $ rmdir /s "%HOMEPATH%\AppData\Local\ftrack\ftrack-connect-plugins\ftrack-connect-pipeline-definition-<version>"
+    $ move build\ftrack-connect-pipeline-definition-<version> "%HOMEPATH%\AppData\Local\ftrack\ftrack-connect-plugins"
+
+The same process applies to the Maya DCC plugin and all other Connect framework plugins.
+
 Pipeline deploy
 ***************
 
-Towards the end of this chapter, we will continue building the integration plugins
+Towards the end of this chapter, we will build the integration plugins
 and put them centrally on a server for everyone to use. We assume there is a space
 for pipeline to reside on a network share::
 

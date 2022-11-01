@@ -21,12 +21,15 @@ Save copy of thumbnail image
 As a preparation, we need to have the thumbnail publisher to save a copy to be
 used with the Slack post:
 
-**plugins/maya/python/publisher/exporters/maya_thumbnail_publisher_exporter.py**
+**PIPELINE/ftrack-connect-pipeline-definitions/resource/plugins/maya/python/publisher/exporters/maya_thumbnail_publisher_exporter.py**
 
 ..  code-block:: python
+    :linenos:
+    :emphasize-lines: 2,10
 
-    import shutil
     import os
+    import shutil
+
     ..
 
     def run(self, context_data=None, data=None, options=None):
@@ -40,103 +43,12 @@ used with the Slack post:
 Finaliser
 *********
 
-**plugins/common/python/publisher/finalisers/common_slack_post_publisher_finalizer.py**
+**PIPELINE/ftrack-connect-pipeline-definitions/resource/plugins/common/python/publisher/finalisers/common_slack_post_publisher_finalizer.py**
 
-..  code-block:: python
-
-    import os
-
-    from slack import WebClient
-
-    import ftrack_api
-
-    from ftrack_connect_pipeline import plugin
-
-
-    class CommonSlackPublisherFinalizerPlugin(plugin.PublisherPostFinalizerPlugin):
-
-        plugin_name = 'common_slack_publisher_finalizer'
-
-        SLACK_CHANNEL = 'test'
-
-        def run(self, context_data=None, data=None, options=None):
-
-            # Harvest publish data
-            reviewable_path = asset_version_id = None
-            for component_data in data:
-                if component_data['name'] == 'thumbnail':
-                    for output in component_data['result']:
-                        if output['name'] == 'exporter':
-                            reviewable_path = output['result'][0]['result'][0]
-                elif component_data['name'] == 'main':
-                    for step in component_data['result']:
-                        if step['name'] == 'finalizer':
-                            asset_version_id = step['result'][0]['result'][
-                                'asset_version_id'
-                            ]
-                            component_names = step['result'][0]['result'][
-                                'component_names'
-                            ]
-
-            # Fetch version
-            version = self.session.query(
-                'AssetVersion where id={}'.format(asset_version_id)
-            ).one()
-
-            # Fetch path to thumbnail
-            if reviewable_path:
-                # Assume it is on the form /tmp/tmp7vlg8kv5.jpg.0000.jpg, locate our copy
-                reviewable_path = os.path.join(
-                    os.path.dirname(reviewable_path),
-                    'slack-{}'.format(os.path.basename(reviewable_path)),
-                )
-
-            client = WebClient(
-                "xoxp-748383045924-737397864931-2651169155216-8789226b1359938424d6edb46933b5f9"
-            )
-
-            ident = '|'.join(
-                [cl['name'] for cl in version['asset']['parent']['link']]
-                + [version['asset']['name'], 'v%03d' % (version['version'])]
-            )
-
-            if reviewable_path:
-                self.logger.info(
-                    'Posting Slack message "{}" to channel {}, attaching reviewable "{}"'.format(
-                        ident, self.SLACK_CHANNEL, reviewable_path
-                    )
-                )
-                try:
-                    response = client.files_upload(
-                        channels=self.SLACK_CHANNEL,
-                        file=reviewable_path,
-                        title=ident,
-                        initial_comment=version['comment'],
-                    )
-                finally:
-                    os.remove(reviewable_path)  # Not needed anymore
-            else:
-                # Just post a message
-                self.logger.info(
-                    'Posting Slack message "{}" to channel {}, without reviewable'.format(
-                        ident, self.SLACK_CHANNEL
-                    )
-                )
-                client.chat_postMessage(channel=self.SLACK_CHANNEL, text=ident)
-            if response.get('ok') is False:
-                raise Exception(
-                    'Slack file upload failed! Details: {}'.format(response)
-                )
-
-            return {}
-
-
-    def register(api_object, **kw):
-        if not isinstance(api_object, ftrack_api.Session):
-            # Exit to avoid registering this plugin again.
-            return
-        plugin = CommonSlackPublisherFinalizerPlugin(api_object)
-        plugin.register()
+.. literalinclude:: /resource/ftrack-connect-pipeline-definition/resource/plugins/common/python/publisher/finalisers/common_slack_publisher_post_finalizer.py
+    :language: python
+    :linenos:
+    :emphasize-lines: 18,45-48,54-57,66-71
 
 
 Breakdown of plugin:
@@ -153,10 +65,12 @@ Add Slack finaliser to publishers
 
 Finally we augment the publishers that we wish to use it.
 
-**definitions/publisher/maya/geometry-maya-publish.json**
+**PIPELINE/ftrack-connect-pipeline-definition/resource/definitions/publisher/maya/geometry-maya-publish.json**
 
 ..  code-block:: json
 
+    :linenos:
+    :emphasize-lines: 32,36
     {
       "type": "publisher",
       "name": "Geometry Publisher",
@@ -216,21 +130,45 @@ We do that by adding the dependency to setup.py:
 
 
 ..  code-block:: python
-
+    :linenos:
+    :emphasize-lines: 27,29-31
 
     ..
 
     # Configuration.
     setup(
-    ..
+        name='ftrack-connect-pipeline-definition',
+        description='Collection of definitions of package and packages.',
+        long_description=open(README_PATH).read(),
+        keywords='ftrack',
+        url='https://bitbucket.org/ftrack/ftrack-connect-pipeline-definition',
+        author='ftrack',
+        author_email='support@ftrack.com',
+        license='Apache License (2.0)',
+        packages=find_packages(SOURCE_PATH),
+        package_dir={'': 'source'},
+        python_requires='<3.10',
+        use_scm_version={
+            'write_to': 'source/ftrack_connect_pipeline_definition/_version.py',
+            'write_to_template': version_template,
+            'version_scheme': 'post-release',
+        },
         setup_requires=[
-            ..
+            'sphinx >= 1.8.5, < 4',
+            'sphinx_rtd_theme >= 0.1.6, < 2',
+            'lowdown >= 0.1.0, < 2',
+            'setuptools>=44.0.0',
+            'setuptools_scm',
             'slackclient'
         ],
         install_requires=[
             'slackclient'
         ],
-    ..
+        tests_require=['pytest >= 2.3.5, < 3'],
+        cmdclass={'test': PyTest, 'build_plugin': BuildPlugin},
+        zip_safe=False,
+    )
+
 
 
 ..  important::

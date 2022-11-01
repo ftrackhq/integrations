@@ -11,9 +11,11 @@ Here we are going to demonstrate how to disable Maya launcher for the compositin
 department, we do this by modifying the Maya launcher hook:
 
 
-**ftrack-connect-pipeline-maya/hook/discover_maya.py**
+**mypipeline/ftrack-connect-pipeline-maya/hook/discover_maya.py**
 
 ..  code-block:: python
+    :linenos:
+    :emphasize-lines: 16-18
 
     ..
 
@@ -54,7 +56,9 @@ In this example we are going to change the Windows location of Maya and add an a
 
 **ftrack-application-launcher/resource/config/maya-pipeline.json**
 
-..  code-block:: python
+..  code-block:: json
+    :linenos:
+    :emphasize-lines: 24,26
 
     {
         "priority":100,
@@ -98,6 +102,10 @@ The changes we have done:
  * Added the arguments "-pythonver 2" to Maya.
 
 
+References
+----------
+
+Find full documentation on how to create a launcher here: :doc:`ftrack Application Launcher developer documentation <ftrack-application-launcher:developing>`
 
 
 
