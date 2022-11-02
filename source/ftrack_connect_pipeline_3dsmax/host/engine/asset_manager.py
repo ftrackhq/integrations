@@ -2,9 +2,6 @@
 # :copyright: Copyright (c) 2014-2022 ftrack
 
 import time
-import max
-
-#import maya.cmds as cmds
 
 from ftrack_connect_pipeline import constants as core_constants
 from ftrack_connect_pipeline.host.engine import AssetManagerEngine
@@ -171,10 +168,10 @@ class MaxAssetManagerEngine(AssetManagerEngine):
 
         # Get reference Node
         reference_node = None
-        #for obj in unload_result:
-            #if cmds.nodeType(obj) == 'reference':
-            #    reference_node = unload_result[0]
-            #    break
+        # for obj in unload_result:
+        # if cmds.nodeType(obj) == 'reference':
+        #    reference_node = unload_result[0]
+        #    break
         if not reference_node:
             return super(MaxAssetManagerEngine, self).change_version(
                 asset_info=asset_info, options=options, plugin=plugin
@@ -386,7 +383,7 @@ class MaxAssetManagerEngine(AssetManagerEngine):
         # )
         for node in nodes:
             try:
-                #.select(node, add=True)
+                # .select(node, add=True)
                 result.append(str(node))
                 status = core_constants.SUCCESS_STATUS
             except Exception as error:
@@ -687,10 +684,10 @@ class MaxAssetManagerEngine(AssetManagerEngine):
             # or []
         )
         for node in nodes:
-            #if cmds.nodeType(node) == 'reference':
-                reference_node = max_utils.getReferenceNode(node)
-                if reference_node:
-                    break
+            # if cmds.nodeType(node) == 'reference':
+            reference_node = max_utils.getReferenceNode(node)
+            if reference_node:
+                break
 
         if reference_node:
             self.logger.debug("Removing reference: {}".format(reference_node))

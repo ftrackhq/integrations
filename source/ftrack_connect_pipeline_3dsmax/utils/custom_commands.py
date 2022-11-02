@@ -3,6 +3,13 @@
 import threading
 from functools import wraps
 
+import shiboken2
+
+from pymxs import runtime as rt
+
+from Qt import QtWidgets
+
+
 def init_max(context_id=None, session=None):
     '''
     Initialise timeline in Max based on shot/asset build settings.
@@ -14,9 +21,15 @@ def init_max(context_id=None, session=None):
     '''
     pass
 
+
 def get_main_window():
     """Return the QMainWindow for the main Max window."""
-    return None
+    main_window_qwdgt = QtWidgets.QWidget.find(rt.windows.getMAXHWND())
+    main_window = shiboken2.wrapInstance(
+        shiboken2.getCppPointer(main_window_qwdgt)[0], QtWidgets.QMainWindow
+    )
+    return main_window
+
 
 def run_in_main_thread(f):
     '''Make sure a function runs in the main Max thread.'''
@@ -24,21 +37,24 @@ def run_in_main_thread(f):
     @wraps(f)
     def decorated(*args, **kwargs):
         if threading.currentThread().name != 'MainThread':
-            #return maya_utils.executeInMainThreadWithResult(f, *args, **kwargs)
+            # return maya_utils.executeInMainThreadWithResult(f, *args, **kwargs)
             pass
         else:
             return f(*args, **kwargs)
 
     return decorated
 
+
 def open_file(path, options):
-    '''Native open file function '''
+    '''Native open file function'''
     # return cmds.file(path, o=True, f=True)
+
 
 def import_file(path, options):
-    '''Native import file function '''
+    '''Native import file function'''
     # return cmds.file(path, o=True, f=True)
 
+
 def reference_file(path, options):
-    '''Native reference file function '''
+    '''Native reference file function'''
     # return cmds.file(path, o=True, f=True)
