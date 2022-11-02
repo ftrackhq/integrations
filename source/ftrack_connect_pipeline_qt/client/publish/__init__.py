@@ -46,7 +46,7 @@ class QtPublisherClientWidget(QtPublisherClient, QtWidgets.QFrame):
     contextChanged = QtCore.Signal(object)  # Context has changed
 
     def __init__(self, event_manager, parent=None):
-        QtWidgets.QFrame.__init__(self)
+        QtWidgets.QFrame.__init__(self, parent=parent)
         QtPublisherClient.__init__(self, event_manager)
 
         self.logger.debug('start qt publisher widget')
@@ -61,7 +61,7 @@ class QtPublisherClientWidget(QtPublisherClient, QtWidgets.QFrame):
         elif test_location['name'] == 'ftrack.unmanaged':
             location_message = 'No ftrack storage scenario have been setup!'
             if not dialog.ModalDialog(
-                self.parent(),
+                parent,
                 title='ftrack Publisher',
                 question='{} Continue anyway and have published files stay in your temp folder?'.format(
                     location_message

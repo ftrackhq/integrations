@@ -76,7 +76,7 @@ class QtAssetManagerClientWidget(QtAssetManagerClient, QtWidgets.QFrame):
         '''
         self._asset_list_model = asset_list_model
 
-        QtWidgets.QFrame.__init__(self)
+        QtWidgets.QFrame.__init__(self, parent=parent)
         QtAssetManagerClient.__init__(self, event_manager)
 
         self.is_assembler = is_assembler
