@@ -15,12 +15,11 @@ build a fragment of a VFX studio pipeline that aids the artists to working the r
 way, with correct file naming convention, minimising tedious and error prone tasks.
 
 
-..  important::
+.. warning::
 
-    There is currently no GUI approach to configuring the Framework, and no way to
-    provide separate builds and configurations per project or context in general.
-    This is subject to be improved with the next major release of the Framework and
-    Connect.
+    The ftrack framework are subject to change with the next major version release,
+    when config driven pipeline environments will be introduced. Appropriate
+    guidelines on how to migrate existing customisations will be provided by ftrack.
 
 Checkout documentation code
 ***************************
@@ -49,8 +48,13 @@ to set environment variables plus add additional arguments.
 At the end we go more in depth on how to **build, deploy and maintain** the customised
 Framework pipeline within the studio.
 
+..  important::
 
-
+    In this tutorial configurations are made within the source code, at present time
+    there is currently no GUI approach to configuring the Framework, and no way to
+    provide separate builds and configurations per project or context in general.
+    This is subject to be improved with the next major release of the Framework and
+    Connect.
 
 
 
