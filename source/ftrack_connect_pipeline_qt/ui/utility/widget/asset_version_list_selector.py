@@ -273,6 +273,7 @@ class AssetListSelector(QtWidgets.QFrame):
 
     def _on_current_asset_changed(self, asset_widget):
         '''An existing asset has been selected.'''
+        asset_name = asset_entity = None
         if asset_widget:
             # A proper asset were selected
             asset_entity = asset_widget.asset
