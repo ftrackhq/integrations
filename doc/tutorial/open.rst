@@ -24,18 +24,18 @@ Prerequisites
 Implementation
 **************
 
-All DCC tools will go into its own file ``tools.py``:
+All DCC tools goes into the file ``custom_commands.py``:
 
-**mypipeline/ftrack-connect-pipeline-maya/source/ftrack_connect_pipeline_maya/tools.py**
+**mypipeline/ftrack-connect-pipeline-maya/source/ftrack_connect_pipeline_maya/utils/custom_commands.py**
 
 
-.. literalinclude:: /resource/ftrack-connect-pipeline-maya/source/ftrack_connect_pipeline_maya/tools.py
+.. literalinclude:: /resource/ftrack-connect-pipeline-maya/source/ftrack_connect_pipeline_maya/utils/custom_commands.py
     :language: python
     :linenos:
-    :lines: 16-76
+    :lines: 1-12,232-292
+    :emphasize-lines: 7,11
 
-
-We are not going into detail what the ``scene_init`` function does, but it tries
+We are not going into detail what the ``scene_open`` function does, but it tries
 to locate a previous published snapshot and if not found - a new one is copied from a template
 and saved to temp folder and opened.
 
@@ -47,16 +47,12 @@ Finally, to have this run during Maya startup, we add it to ``userSetup.py``:
     :linenos:
     :emphasize-lines: 1,10
 
-    from ftrack_connect_pipeline_maya import tools
-
-    ..
-
     def initialise():
         ..
 
         maya_utils.init_maya()
 
-        tools.scene_open(session, logger)
+        maya_utils.scene_open(session, logger)
 
 
 

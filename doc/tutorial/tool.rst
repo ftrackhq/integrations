@@ -28,18 +28,18 @@ We add its menu item to the ftrack menu in **userSetup.py**:
         cmds.menuItem(
             parent=ftrack_menu,
             label='In Progress',
-            command=(functools.partial(tools.set_task_status, 'in progress', session, logger))
+            command=(functools.partial(maya_utils.set_task_status, 'in progress', session, logger))
         )
 
-        tools.scene_open(session, logger)
+        maya_utils.scene_open(session, logger)
 
 
-In our existing **tools.py**, we add the corresponding function:
+In DCC **custom_commands.py**, we add the corresponding ``set_task_status`` function:
 
-**mypipeline/ftrack-connect-pipeline-maya/source/ftrack_connect_pipeline_maya/tools.py**
+**mypipeline/ftrack-connect-pipeline-maya/source/ftrack_connect_pipeline_maya/utils/custom_commands.py**
 
-.. literalinclude:: /resource/ftrack-connect-pipeline-maya/source/ftrack_connect_pipeline_maya/tools.py
+.. literalinclude:: /resource/ftrack-connect-pipeline-maya/source/ftrack_connect_pipeline_maya/utils/custom_commands.py
     :language: python
     :linenos:
-    :lines: 79-
+    :lines: 295-
 
