@@ -55,23 +55,6 @@ class MaterialIcon(QtGui.QIcon):
                 logger.warning(
                     'Unknown material icon resource: {}!'.format(resource_path)
                 )
-        # if color is not None:
-        #     # Colorize it
-        #     mask = pixmap.scaled(
-        #         QtCore.QSize(512, 512),
-        #         QtCore.Qt.KeepAspectRatio,
-        #         QtCore.Qt.SmoothTransformation,
-        #     ).createMaskFromColor(
-        #         QtGui.QColor(0, 0, 0), QtCore.Qt.MaskOutColor
-        #     )
-        #     pixmap = QtGui.QPixmap(QtCore.QSize(512, 512))
-        #     pixmap.fill(QtCore.Qt.transparent)
-        #     painter = QtGui.QPainter(pixmap)
-        #     painter.setPen(QtGui.QColor(color))
-        #     painter.drawPixmap(pixmap.rect(), mask, mask.rect())
-        #     painter.end()
-        #     # pixmap.setMask(mask)
-        # engine = MaterialIconEngine(pixmap)
         super(MaterialIcon, self).__init__(pixmap, parent=parent)
 
 
