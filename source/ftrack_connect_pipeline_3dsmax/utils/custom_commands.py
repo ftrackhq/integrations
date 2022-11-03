@@ -9,6 +9,10 @@ from pymxs import runtime as rt
 
 from Qt import QtWidgets
 
+from ftrack_connect_pipeline.utils import (
+    get_save_path,
+)
+
 
 def init_max(context_id=None, session=None):
     '''
@@ -58,3 +62,36 @@ def import_file(path, options):
 def reference_file(path, options):
     '''Native reference file function'''
     # return cmds.file(path, o=True, f=True)
+
+
+def save_file(save_path, context_id=None, session=None, temp=True, save=True):
+    '''Save scene locally in temp or with the next version number based on latest version
+    in ftrack.'''
+
+    # Max has no concept of renaming a scene, always save
+    save = True
+
+    if save_path is None:
+        if context_id is not None and session is not None:
+            # Attempt to find out based on context
+            save_path, message = get_save_path(
+                context_id, session, extension='.max', temp=temp
+            )
+
+            if save_path is None:
+                return (False, message)
+        else:
+            return (
+                False,
+                'No context and/or session provided to generate save path',
+            )
+
+    if save:
+        rt.savemaxFile(save_path, useNewFile=False)
+        message = 'Saved Max scene @ "{}"'.format(save_path)
+    else:
+        raise Exception('Max scene rename not supported')
+
+    result = save_path
+
+    return result, message

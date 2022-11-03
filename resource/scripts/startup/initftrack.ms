@@ -1,8 +1,6 @@
 startup_dir = pathConfig.removePathLeaf (getSourceFileName())
 
 sysinfo.currentdir = systemTools.getEnvVariable "3DSMAX_PLUG_IN_PATH"
--- Loading from
-sysinfo.currentdir
 
 -- Load the FtrackAssetHelperPlugin
 python.ExecuteFile(sysinfo.currentdir+"\ftrackMaxPlugin.py")

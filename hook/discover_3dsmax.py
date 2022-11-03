@@ -55,24 +55,12 @@ def on_launch_3dsmax_pipeline(session, event):
     definitions_plugin_hook = os.getenv("FTRACK_DEFINITION_PLUGIN_PATH")
     plugin_hook = os.path.join(definitions_plugin_hook, '3dsmax', 'python')
 
-    # This is not needed, but we make sure to remove PySide to not override
-    # the one in 3dmax.
-    # modules_to_remove = ['PySide', 'PySide2']
-    # paths_to_remove = ''
-    # for m in modules_to_remove:
-    #     try:
-    #         module_path = importlib.find_module(m)[1]
-    #         paths_to_remove = module_path
-    #     except ImportError:
-    #         pass
-
     pipeline_max_base_data['integration']['env'] = {
         '3DSMAX_PLUG_IN_PATH.set': max_plugins_path,
         'FTRACK_EVENT_PLUGIN_PATH.prepend': plugin_hook,
         'PYTHONPATH.prepend': os.path.pathsep.join(
             [python_dependencies, max_startup_script]
         ),
-        #'PATH.remove': os.path.pathsep.join([paths_to_remove]),
     }
     pipeline_max_base_data['integration']['launch_arguments'] = [
         '-U',

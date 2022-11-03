@@ -180,7 +180,6 @@ def initialise():
     )
 
     menu_name = 'ftrack'
-    # submenu_name = 'pipeline'
 
     if rt.menuMan.findMenu(menu_name):
         menu = rt.menuMan.findMenu(menu_name)
@@ -209,25 +208,8 @@ def initialise():
                 "launch_dialog_class.launch_dialog('{}')".format(widget_name),
             ]
         )
-        # MAXSCRIPT="""
-        #     macroScript "{macro_name}"
-        #     category: "{category}"
-        #     (
-        #         on execute do
-        #         (
-        #             python.execute "{p_code}"
-        #         )
-        #     )
-        # """.format(
-        #         macro_name=macro_name, category=category, p_code=python_code
-        #     )
-        # print('@@@ Executing: {}'.format(MAXSCRIPT))
-        # rt.execute(MAXSCRIPT)
-
         MAXSCRIPT = 'python.execute "{}"'.format(python_code)
-        unused_macro_id = rt.macros.new(
-            category, macro_name, "", label, MAXSCRIPT
-        )
+        rt.macros.new(category, macro_name, "", label, MAXSCRIPT)
 
         ftrack_menu.addItem(
             rt.menuMan.createActionItem(macro_name, category), -1
