@@ -1,15 +1,13 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2014-2020 ftrack
+# :copyright: Copyright (c) 2014-2022 ftrack
 
 from ftrack_connect_pipeline import plugin
-from ftrack_connect_pipeline_3dsmax.plugin import BaseMaxPlugin
-from ftrack_connect_pipeline_3dsmax.asset import FtrackAssetNode
+from ftrack_connect_pipeline_3dsmax.plugin import MaxBasePlugin
 
 
-class AssetManagerActionMaxPlugin(
-    plugin.AssetManagerActionPlugin, BaseMaxPlugin
+class MaxAssetManagerActionPlugin(
+    plugin.AssetManagerActionPlugin, MaxBasePlugin
 ):
     '''
     Class representing a Asset Manager Action Max Plugin
     '''
-    ftrack_asset_class = FtrackAssetNode

@@ -1,30 +1,34 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2014-2020 ftrack
+# :copyright: Copyright (c) 2014-2022 ftrack
 
-from Qt import QtCore, QtWidgets
+from Qt import QtWidgets, QtCore
 
-from ftrack_connect_pipeline_qt.client.load import QtLoaderClient
+from ftrack_connect_pipeline_3dsmax.constants.asset import modes as load_const
+
+from ftrack_connect_pipeline_qt.client import load
 import ftrack_connect_pipeline.constants as constants
 import ftrack_connect_pipeline_qt.constants as qt_constants
 import ftrack_connect_pipeline_3dsmax.constants as max_constants
+from ftrack_connect_pipeline_3dsmax.utils.custom_commands import (
+    get_main_window,
+)
 
 
-class MaxLoaderClient(QtLoaderClient):
-    ui_types = [constants.UI_TYPE, qt_constants.UI_TYPE, max_constants.UI_TYPE]
+class MaxQtAssemblerClientWidget(load.QtAssemblerClientWidget):
+    '''Max assembler dialog'''
 
-    '''Dockable maya load widget'''
-    def __init__(self, event_manager, parent=None):
-        super(MaxLoaderClient, self).__init__(
-            event_manager=event_manager, parent=parent
+    ui_types = [
+        constants.UI_TYPE,
+        qt_constants.UI_TYPE,
+        max_constants.UI_TYPE,
+    ]
+
+    def __init__(self, event_manager, asset_list_model, parent=None):
+        super(MaxQtAssemblerClientWidget, self).__init__(
+            event_manager,
+            load_const.LOAD_MODES,
+            asset_list_model,
         )
-        self.dock_widget = QtWidgets.QDockWidget(parent=parent)
-        self.setWindowTitle('Max Pipeline Loader')
-        self.setObjectName('Max Pipeline Loader')
-        self.dock_widget.setWidget(self)
-        parent.addDockWidget(QtCore.Qt.RightDockWidgetArea, self.dock_widget)
-        self.dock_widget.setFloating(True)
 
-    def show(self):
-        self.dock_widget.show()
-        super(MaxLoaderClient, self).show()
-
+        # Make sure we stays on top of Max
+        self.setWindowFlags(QtCore.Qt.Tool)
