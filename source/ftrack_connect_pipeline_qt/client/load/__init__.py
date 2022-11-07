@@ -8,7 +8,6 @@ from Qt import QtCore, QtWidgets
 
 from ftrack_connect_pipeline.utils import str_version
 from ftrack_connect_pipeline import constants as core_constants
-from ftrack_connect_pipeline.constants import plugin
 from ftrack_connect_pipeline.client.loader import LoaderClient
 from ftrack_connect_pipeline_qt.ui.utility.widget.button import (
     AddRunButton,
@@ -446,21 +445,11 @@ class QtAssemblerClientWidget(QtLoaderClient, dialog.Dialog):
                 try:
                     # Set method to importer plugins
                     if method:
-                        for component in definition['components']:
-                            for stage in component['stages']:
-                                if (
-                                    stage['type']
-                                    != plugin._PLUGIN_IMPORTER_TYPE
-                                ):
-                                    continue
-                                for _plugin in stage['plugins']:
-                                    if (
-                                        _plugin['type']
-                                        != plugin._PLUGIN_IMPORTER_TYPE
-                                    ):
-                                        continue
-                                    _plugin['default_method'] = method
-
+                        for plugin in definition.get_all(
+                            category=core_constants.PLUGIN,
+                            type=core_constants.plugin._PLUGIN_IMPORTER_TYPE,
+                        ):
+                            plugin['default_method'] = method
                     self.run_definition(definition, engine_type)
                     # Did it go well?
                     if factory.has_error:

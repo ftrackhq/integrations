@@ -222,7 +222,7 @@ class QtPublisherClientWidget(QtPublisherClient, QtWidgets.QFrame):
 
     # Definition
 
-    def change_definition(self, schema, definition, component_names_filter):
+    def change_definition(self, definition, schema, component_names_filter):
         '''
         Triggered when definition_changed is called from the host_selector.
         Generates the widgets interface from the given *schema* and *definition*
@@ -235,7 +235,7 @@ class QtPublisherClientWidget(QtPublisherClient, QtWidgets.QFrame):
             return
 
         super(QtPublisherClientWidget, self).change_definition(
-            schema, definition
+            definition, schema
         )
 
         asset_type_name = definition['asset_type']

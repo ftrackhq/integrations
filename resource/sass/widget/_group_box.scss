@@ -1,6 +1,13 @@
 QGroupBox {
     color: $text-color;
     background: transparent !important;
+    border: 1px solid $border-color;
+    padding-top: 7px;
+}
+
+QGroupBox::title {
+    color: $text-color;
+    font-size: 0.7em;
 }
 
 QGroupBox::indicator {

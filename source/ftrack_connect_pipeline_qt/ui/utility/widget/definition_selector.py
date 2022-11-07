@@ -1,12 +1,11 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2015-2022 ftrack
 import logging
-import json
-
 
 from Qt import QtWidgets, QtCore
 
 from ftrack_connect_pipeline.utils import str_version
+from ftrack_connect_pipeline import constants as core_constants
 
 from ftrack_connect_pipeline_qt.ui.utility.widget.circular_button import (
     CircularButton,
@@ -135,7 +134,7 @@ class DefinitionSelectorBase(QtWidgets.QWidget):
                     self.schema = schema
                     break
             self.definitionChanged.emit(
-                self.schema, self.definition, self.component_names_filter
+                self.definition, self.schema, self.component_names_filter
             )
         else:
             self.logger.debug('No data for selected definition')
@@ -227,7 +226,9 @@ class OpenerDefinitionSelector(DefinitionSelectorBase):
                 # can load the file extensions. Peek into versions and pre-select
                 # the one loader having the latest version
                 is_compatible = False
-                for component_step in item['components']:
+                for component_step in item.get_all(
+                    type=core_constants.COMPONENT
+                ):
                     can_open_component = False
                     file_formats = component_step['file_formats']
                     if set(file_formats).intersection(
