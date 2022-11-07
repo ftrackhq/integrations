@@ -9,6 +9,11 @@ Release Notes
 
 .. release:: upcoming
 
+    .. change:: new
+        :tags: definition
+
+        Definition_object module implemented on client.
+
     .. change:: fix
         :tags: dependencies
 
