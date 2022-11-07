@@ -9,6 +9,18 @@ Release Notes
 
 .. release:: upcoming
 
+    .. change:: fix
+        :tags: publisher,assembler,opener
+
+        Updated progress widget style and appearance of finalizer section.
+
+
+    .. change:: change
+        :tags: publisher,assembler,opener
+
+        Use core pipeline DefinitionObject API instead of raw definition dictionary operations.
+
+
     .. change:: fixed
         :tags: dynamicwidget
 

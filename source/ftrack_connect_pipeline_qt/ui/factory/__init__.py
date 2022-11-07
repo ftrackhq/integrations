@@ -126,24 +126,27 @@ class WidgetFactoryBase(QtWidgets.QWidget):
         '''Set :obj:`definition_type` with the given *definition_type*'''
         self.definition_type = definition_type
 
-    def get_override(self, type_name, widget_type, name, data, client_type):
+    def get_override(
+        self, step_override_name, widget_type, name, data, client_type
+    ):
         '''
-        From the given *step_type_name* and *widget_type* find the widget override
-        in the client_ui_overrides.py file
+        From the given *step_override_name* and *widget_type* find the widget override
         '''
-        obj_override = UI_OVERRIDES.get(type_name).get(
+        obj_override = UI_OVERRIDES.get(step_override_name).get(
             '{}.{}'.format(widget_type, name), qt_constants.NOT_SET
         )
         if obj_override == qt_constants.NOT_SET:
-            obj_override = UI_OVERRIDES.get(type_name).get(
+            obj_override = UI_OVERRIDES.get(step_override_name).get(
                 '{}.{}'.format(widget_type, data['type']), qt_constants.NOT_SET
             )
         if obj_override == qt_constants.NOT_SET:
-            obj_override = UI_OVERRIDES.get(type_name).get(
+            obj_override = UI_OVERRIDES.get(step_override_name).get(
                 '{}.{}'.format(widget_type, client_type), qt_constants.NOT_SET
             )
         if obj_override == qt_constants.NOT_SET:
-            obj_override = UI_OVERRIDES.get(type_name).get(widget_type)
+            obj_override = UI_OVERRIDES.get(step_override_name).get(
+                widget_type
+            )
         if obj_override and obj_override != qt_constants.NOT_SET:
             return obj_override(name, data)
         return obj_override
@@ -181,7 +184,7 @@ class WidgetFactoryBase(QtWidgets.QWidget):
     ):
         '''
         Main loop to create the widgets UI overrides from schema *definition*
-        based on *step_step_type_name* and optional *stage_name_filters*. Pass
+        based on *step_type_name* and optional *stage_name_filters*. Pass
         on *component_names_filter* and *extensions_filter* as options to the
         widget to enable filtering on context.
         '''
@@ -199,7 +202,7 @@ class WidgetFactoryBase(QtWidgets.QWidget):
             step_name = step.get('name')
             if (
                 self.progress_widget
-                and step_type != 'finalizer'
+                and step_type != core_constants.FINALIZER
                 and step.get('visible', True) is True
             ):
                 self.progress_widget.add_step(step_type, step_name)
@@ -212,7 +215,7 @@ class WidgetFactoryBase(QtWidgets.QWidget):
             )
             if step_obj:
                 self.register_object(step, step_obj, step_category)
-            for stage in step['stages']:
+            for stage in step.get_all(category=core_constants.STAGE):
                 # create widget for the stages (collector, validator, exporter/importer)
                 stage_category = stage['category']
                 stage_type = stage['type']
@@ -221,10 +224,20 @@ class WidgetFactoryBase(QtWidgets.QWidget):
                     continue
                 if (
                     self.progress_widget
-                    and step_type == 'finalizer'
-                    and stage.get('visible', True) is True
+                    and step_type == core_constants.FINALIZER
+                    and (
+                        stage_name == core_constants.FINALIZER
+                        or stage.get('visible', True) is True
+                    )
                 ):
-                    self.progress_widget.add_step(step_type, stage_name)
+                    # Add stage as a progress step for finalisers
+                    self.progress_widget.add_step(
+                        step_type,
+                        stage_name,
+                        label=UI_OVERRIDES.get(core_constants.FINALIZERS).get(
+                            'progress.label.{}'.format(self.client_type())
+                        ),
+                    )
                 stage_obj = self.get_override(
                     step_type_name,
                     '{}_widget'.format(stage_category),
@@ -235,7 +248,7 @@ class WidgetFactoryBase(QtWidgets.QWidget):
                 if stage_obj:
                     self.register_object(stage, stage_obj, stage_category)
 
-                for plugin in stage['plugins']:
+                for plugin in stage.get_all(category=core_constants.PLUGIN):
                     # create widget for the plugins, usually just one
                     plugin_type = plugin['type']
                     plugin_category = plugin['category']
@@ -419,7 +432,7 @@ class WidgetFactoryBase(QtWidgets.QWidget):
         *stage_name* with the optional *extra_options*.
         '''
 
-        plugin_name = plugin_data.get('plugin')
+        plugin_name = plugin_data.get(core_constants.PLUGIN)
         widget_name = plugin_data.get('widget')
 
         if not widget_name:
@@ -559,7 +572,7 @@ class WidgetFactoryBase(QtWidgets.QWidget):
         results = event['data']['pipeline']['results']
 
         step_name_effective = (
-            step_name if step_type != 'finalizer' else stage_name
+            step_name if step_type != core_constants.FINALIZER else stage_name
         )
 
         if status == core_constants.RUNNING_STATUS:
@@ -679,9 +692,9 @@ class WidgetFactoryBase(QtWidgets.QWidget):
 
     def register_object(self, data, obj, type):
         '''Register base UI widgget object *obj* based on *type* and also store in JSON *data*'''
-        if type == 'stage':
+        if type == core_constants.STAGE:
             self._stage_objs_ref[obj.widget_id] = obj
-        if type == 'step':
+        if type == core_constants.STEP:
             self._step_objs_ref[obj.widget_id] = obj
         data['widget_ref'] = obj.widget_id
         return obj.widget_id
@@ -694,9 +707,9 @@ class WidgetFactoryBase(QtWidgets.QWidget):
     def get_registered_object(self, data, category):
         '''Return the widget registered for the given *plugin_data*'''
         if data.get('widget_ref'):
-            if category == 'stage':
+            if category == core_constants.STAGE:
                 return self._stage_objs_ref[data['widget_ref']]
-            if category == 'step':
+            if category == core_constants.STEP:
                 return self._step_objs_ref[data['widget_ref']]
 
     def query_asset_version_from_version_id(self, version_id):
@@ -743,28 +756,20 @@ class WidgetFactoryBase(QtWidgets.QWidget):
     def to_json_object(self):
         '''Serialize factorized UI back into a JSON object, taking user options into account'''
         out = self.definition
-        types = [
-            core_constants.CONTEXTS,
-            core_constants.COMPONENTS,
-            core_constants.FINALIZERS,
-        ]
-        for type_name in types:
-            for step in out[type_name]:
-                step_obj = self.get_registered_object(step, step['category'])
-                for stage in step['stages']:
-                    stage_obj = self.get_registered_object(
-                        stage, stage['category']
-                    )
-                    for plugin in stage['plugins']:
-                        plugin_widget = self.get_registered_widget_plugin(
-                            plugin
-                        )
-                        if plugin_widget:
-                            plugin.update(plugin_widget.to_json_object())
-                    if stage_obj:
-                        stage.update(stage_obj.to_json_object())
-                if step_obj:
-                    step.update(step_obj.to_json_object())
+        for step in out.get_all(category=core_constants.STEP):
+            step_obj = self.get_registered_object(step, step['category'])
+            for stage in step.get_all(category=core_constants.STAGE):
+                stage_obj = self.get_registered_object(
+                    stage, stage['category']
+                )
+                for plugin in stage.get_all(category=core_constants.PLUGIN):
+                    plugin_widget = self.get_registered_widget_plugin(plugin)
+                    if plugin_widget:
+                        plugin.update(plugin_widget.to_json_object())
+                if stage_obj:
+                    stage.update(stage_obj.to_json_object())
+            if step_obj:
+                step.update(step_obj.to_json_object())
 
         return out
 

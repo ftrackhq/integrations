@@ -231,13 +231,14 @@ class ProgressWidgetObject(BaseUIWidgetObject):
         )
         self.content_widget.layout().addWidget(self.status_banner)
 
-    def add_step(self, step_type, step_name, version_id=None):
+    def add_step(self, step_type, step_name, version_id=None, label=None):
         id_name = "{}.{}.{}".format(version_id or '-', step_type, step_name)
-        step_button = PhaseButton(step_name, "Not started")
+        step_button = PhaseButton(label or step_name, "Not started")
         self._step_widgets[id_name] = step_button
         if step_type not in self.step_types:
             self.step_types.append(step_type)
-            step_title = QtWidgets.QLabel(step_type.title())
+            step_title = QtWidgets.QLabel(step_type.upper())
+            step_title.setObjectName("gray")
             self.content_widget.layout().addWidget(step_title)
         self.content_widget.layout().addWidget(step_button)
 
@@ -270,7 +271,12 @@ class ProgressWidgetObject(BaseUIWidgetObject):
                 status, status_message, results
             )
             if status != self.widget.get_status():
-                main_status_message = '{}: {}'.format(id_name, status_message)
+                main_status_message = '{}{}.{}: {}'.format(
+                    ('{}.'.format(version_id)) if version_id else '',
+                    step_type,
+                    step_name,
+                    status_message,
+                )
                 self.widget.set_status(status, message=main_status_message)
                 if self.status_banner:
                     self.status_banner.set_status(

@@ -5,6 +5,8 @@ from functools import partial
 
 from Qt import QtWidgets, QtCore
 
+from ftrack_connect_pipeline.definition.definition_object import DefinitionList
+
 from ftrack_connect_pipeline_qt.plugin.widget import BaseOptionsWidget
 from ftrack_connect_pipeline_qt.ui.utility.widget import group_box
 
@@ -232,6 +234,8 @@ class DynamicWidget(BaseOptionsWidget):
             # want to expose these within the UI
             if key.find('_') == 0:
                 continue
+            if isinstance(value, DefinitionList):
+                value = value.to_list()
             value_type = type(value)
             widget_fn = self._type_mapping.get(
                 value_type, self._build_str_widget

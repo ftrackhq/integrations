@@ -73,34 +73,22 @@ class AssemblerWidgetFactory(OpenerAssemblerWidgetFactoryBase):
 
     def build_progress_ui(self, component):
         '''Build only progress widget components, prepare to run.'''
-
-        types = [
-            core_constants.CONTEXTS,
-            core_constants.COMPONENTS,
-            core_constants.FINALIZERS,
-        ]
-
-        for type_name in types:
-            for step in self.definition[type_name]:
-                step_type = step['type']
-                step_name = step.get('name')
-                if (
-                    self.progress_widget
-                    and step_type != 'finalizer'
-                    and step.get('visible', True) is True
-                ):
+        if not self.progress_widget:
+            return
+        for step in self.definition.get_all(category=core_constants.STEP):
+            step_type = step['type']
+            step_name = step.get('name')
+            if step_type != core_constants.FINALIZER:
+                if step.get('visible', True) is True:
                     self.progress_widget.add_step(
                         step_type,
                         step_name,
                         version_id=component['version']['id'],
                     )
-                for stage in step['stages']:
+            else:
+                for stage in step.get_all(category=core_constants.STAGE):
                     stage_name = stage.get('name')
-                    if (
-                        self.progress_widget
-                        and step_type == 'finalizer'
-                        and stage.get('visible', True) is True
-                    ):
+                    if stage.get('visible', True) is True:
                         self.progress_widget.add_step(
                             step_type,
                             stage_name,
