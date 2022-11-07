@@ -215,7 +215,7 @@ class QtOpenerClientWidget(QtOpenerClient, dialog.Dialog):
 
     # Definition
 
-    def change_definition(self, schema, definition, component_names_filter):
+    def change_definition(self, definition, schema, component_names_filter):
         '''
         Triggered when _on_change_definition is called within the definition selector.
         Generates the widgets interface from the given *schema* and *definition*
@@ -230,7 +230,7 @@ class QtOpenerClientWidget(QtOpenerClient, dialog.Dialog):
             self.refresh()
             return
 
-        super(QtOpenerClientWidget, self).change_definition(schema, definition)
+        super(QtOpenerClientWidget, self).change_definition(definition, schema)
 
         asset_type_name = definition['asset_type']
 

@@ -12,7 +12,31 @@ Release Notes
     .. change:: new
         :tags: houdini
 
-        Added basic Houdini integration.
+        Houdini integration.
+
+
+    .. change:: fix
+        :tags: publisher,assembler,opener
+
+        Updated progress widget style and appearance of finalizer section.
+
+
+    .. change:: change
+        :tags: publisher,assembler,opener
+
+        Use core pipeline DefinitionObject API instead of raw definition dictionary operations.
+
+
+    .. change:: fixed
+        :tags: dynamicwidget
+
+        Fixed bug where default plugin option list item were not selected.
+
+
+    .. change:: change
+        :tags: assembler
+
+        Have assembler start in browse mode instead of suggestions.
 
 
     .. change:: change

@@ -9,6 +9,10 @@ from Qt import QtCore, QtWidgets
 from ftrack_connect_pipeline import constants as core_constants
 from ftrack_connect_pipeline.client import constants
 from ftrack_connect_pipeline.constants import plugin
+from ftrack_connect_pipeline.definition.definition_object import (
+    DefinitionObject,
+    DefinitionList,
+)
 from ftrack_connect_pipeline_qt.ui.asset_manager.model import AssetListModel
 from ftrack_connect_pipeline_qt.ui.asset_manager.base import (
     AssetListWidget,
@@ -44,7 +48,6 @@ from ftrack_connect_pipeline_qt.ui.utility.widget import (
     icon,
     overlay,
     scroll_area,
-    line,
 )
 
 
@@ -53,6 +56,9 @@ class AssemblerBaseWidget(QtWidgets.QWidget):
 
     stopBusyIndicator = QtCore.Signal()
     listWidgetCreated = QtCore.Signal(object)
+    loadError = QtCore.Signal(
+        object
+    )  # Emitted if a critical error occurs during load
 
     @property
     def component_list(self):
@@ -235,6 +241,7 @@ class AssemblerBaseWidget(QtWidgets.QWidget):
         self._rb_match_component_name.clicked.connect(self.rebuild)
         self._rb_match_extension.clicked.connect(self.rebuild)
         self.stopBusyIndicator.connect(self._stop_busy_indicator)
+        self.loadError.connect(self._on_load_error)
 
     def update(self):
         '''Update widget inputs'''
@@ -251,6 +258,11 @@ class AssemblerBaseWidget(QtWidgets.QWidget):
         self._busy_widget.setVisible(False)
         self._rebuild_button.setVisible(True)
 
+    def _on_load_error(self, error_message):
+        self.client.progress_widget.set_status(
+            constants.WARNING_STATUS, error_message
+        )
+
     def mousePressEvent(self, event):
         if event.button() != QtCore.Qt.RightButton and self._component_list:
             self._component_list.clear_selection()
@@ -266,10 +278,7 @@ class AssemblerBaseWidget(QtWidgets.QWidget):
         self.client.logger.debug(
             'Available loader definitions: {}'.format(
                 '\n'.join(
-                    [
-                        json.dumps(loader, indent=4)
-                        for loader in loader_definitions
-                    ]
+                    [loader.to_json(indent=4) for loader in loader_definitions]
                 )
             )
         )
@@ -344,7 +353,9 @@ class AssemblerBaseWidget(QtWidgets.QWidget):
                         )
                         continue
                     definition_fragment = None
-                    for d_component in definition.get('components', []):
+                    for d_component in definition.get_all(
+                        type=core_constants.COMPONENT
+                    ):
                         component_name_effective = d_component['name']
                         if (
                             component_name_effective.lower()
@@ -363,41 +374,50 @@ class AssemblerBaseWidget(QtWidgets.QWidget):
                         if set(file_formats).intersection(
                             set([component_extension])
                         ):
-                            # Construct fragment
-                            definition_fragment = {
-                                'components': [copy.deepcopy(d_component)]
-                            }
-                            definition_fragment['components'][0][
-                                'name'
-                            ] = component_name_effective
+                            # Construct definition fragment
+                            definition_fragment = DefinitionObject({})
                             for key in definition:
-                                if key not in [
-                                    'components',
-                                ]:
+                                if key == core_constants.COMPONENTS:
+                                    definition_fragment[key] = DefinitionList(
+                                        [
+                                            DefinitionObject(
+                                                d_component.to_dict()
+                                            )
+                                        ]
+                                    )
+                                    definition_fragment.get_first(
+                                        type=core_constants.COMPONENT
+                                    )['name'] = component_name_effective
+                                else:
+                                    # Copy the category
                                     definition_fragment[key] = copy.deepcopy(
                                         definition[key]
                                     )
-                                    if key == core_constants.CONTEXTS:
-                                        # Remove open context
-                                        for stage in definition_fragment[key][
-                                            0
-                                        ]['stages']:
-                                            for plugin in stage['plugins']:
-                                                if not 'options' in plugin:
-                                                    plugin['options'] = {}
-                                                # Store version
-                                                plugin['options'][
-                                                    'asset_name'
-                                                ] = version['asset']['name']
-                                                plugin['options'][
-                                                    'asset_id'
-                                                ] = version['asset']['id']
-                                                plugin['options'][
-                                                    'version_number'
-                                                ] = version['version']
-                                                plugin['options'][
-                                                    'version_id'
-                                                ] = version['id']
+                                    if key != core_constants.CONTEXTS:
+                                        continue
+                                    # Inject context ident
+                                    for plugin in (
+                                        definition_fragment[key]
+                                        .get_all(
+                                            type=core_constants.CONTEXT,
+                                            category=core_constants.PLUGIN
+                                        )
+                                    ):
+                                        if not 'options' in plugin:
+                                            plugin['options'] = {}
+                                        # Store version
+                                        plugin['options'][
+                                            'asset_name'
+                                        ] = version['asset']['name']
+                                        plugin['options'][
+                                            'asset_id'
+                                        ] = version['asset']['id']
+                                        plugin['options'][
+                                            'version_number'
+                                        ] = version['version']
+                                        plugin['options'][
+                                            'version_id'
+                                        ] = version['id']
                         else:
                             self.client.logger.debug(
                                 '        File formats {} does not intersect with {}!'.format(
@@ -667,26 +687,26 @@ class ComponentBaseWidget(AccordionBaseWidget):
         self._set_default_mode()
 
     def _set_default_mode(self):
-        '''Find out from definition which is the default load mode and set it'''
+        '''Find out from which is the default load mode and set it'''
         mode = self._modes[0]
-        for stage in self.definition['components'][0]['stages']:
-            if stage['name'] == plugin._PLUGIN_IMPORTER_TYPE:
-                if not 'options' in stage['plugins'][0]:
-                    stage['plugins'][0]['options'] = {}
-                mode = stage['plugins'][0]['options'].get(
-                    'load_mode', 'import'
-                )
-                break
+        plugin = self.definition.get_first(
+            category=core_constants.PLUGIN,
+            type=core_constants.plugin._PLUGIN_IMPORTER_TYPE,
+        )
+        if not 'options' in plugin:
+            plugin['options'] = {}
+        mode = plugin['options'].get('load_mode', mode)
         self._mode_selector.setCurrentIndex(self._modes.index(mode))
 
     def _mode_selected(self, index):
         '''Load mode has been selected, store in definition'''
         mode = self._mode_selector.itemData(index)
         # Store mode in working definition
-        for stage in self.definition['components'][0]['stages']:
-            if stage['name'] == plugin._PLUGIN_IMPORTER_TYPE:
-                stage['plugins'][0]['options']['load_mode'] = mode
-                break
+        plugin = self.definition.get_first(
+            category=core_constants.PLUGIN,
+            type=core_constants.plugin._PLUGIN_IMPORTER_TYPE,
+        )
+        plugin['options']['load_mode'] = mode
 
     def _build_options(self):
         '''Build options overlay with factory'''

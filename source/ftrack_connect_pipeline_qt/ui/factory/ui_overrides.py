@@ -35,6 +35,7 @@ UI_OVERRIDES = {
     },
     core_constants.FINALIZERS: {
         'show': True,
+        'progress.label.publisher': 'to ftrack',
         'step_container': default_widgets.DefaultStepContainerWidgetObject,
         'step_widget': default_widgets.DefaultStepWidgetObject,
         'stage_widget': default_widgets.DefaultStageWidgetObject,

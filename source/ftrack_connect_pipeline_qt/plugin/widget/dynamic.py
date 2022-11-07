@@ -5,6 +5,8 @@ from functools import partial
 
 from Qt import QtWidgets, QtCore
 
+from ftrack_connect_pipeline.definition.definition_object import DefinitionList
+
 from ftrack_connect_pipeline_qt.plugin.widget import BaseOptionsWidget
 from ftrack_connect_pipeline_qt.ui.utility.widget import group_box
 
@@ -184,6 +186,7 @@ class DynamicWidget(BaseOptionsWidget):
                 # List/combobox definition, parse
                 new_value = []
                 supplied_value = self.options.get(key)
+                default_item = None
                 for item in value:
                     if item is None:
                         item = ''
@@ -195,10 +198,18 @@ class DynamicWidget(BaseOptionsWidget):
                         supplied_value is not None
                         and item['value'] == supplied_value
                     ):
-                        item['default'] = True  # Make sure is is selected
-                    elif supplied_value is None and 'default' in item:
+                        default_item = item
+                    elif 'default' in item:
+                        if default_item is None:
+                            default_item = item
                         del item['default']
                     new_value.append(item)
+                # Set the final default item
+                if default_item:
+                    for item in new_value:
+                        if item == default_item:
+                            item['default'] = True
+                            break
                 options[key] = new_value
             else:
                 if key in self.options:
@@ -223,6 +234,8 @@ class DynamicWidget(BaseOptionsWidget):
             # want to expose these within the UI
             if key.find('_') == 0:
                 continue
+            if isinstance(value, DefinitionList):
+                value = value.to_list()
             value_type = type(value)
             widget_fn = self._type_mapping.get(
                 value_type, self._build_str_widget
