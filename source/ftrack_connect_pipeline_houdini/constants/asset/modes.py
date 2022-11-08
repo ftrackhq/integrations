@@ -6,12 +6,12 @@ from ftrack_connect_pipeline_houdini.utils import (
 )
 
 # Load Modes
-IMPORT_MODE = 'import'
 MERGE_MODE = 'merge'
+IMPORT_MODE = 'import'
 OPEN_MODE = 'open'
 
 LOAD_MODES = {
-    IMPORT_MODE: houdini_utils.import_scene,
     MERGE_MODE: houdini_utils.merge_scene,
+    IMPORT_MODE: houdini_utils.import_scene,
     OPEN_MODE: houdini_utils.open_scene,
 }
