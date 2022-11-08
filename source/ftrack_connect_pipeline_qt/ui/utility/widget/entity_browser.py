@@ -162,10 +162,10 @@ class EntityBrowser(dialog.ModalDialog):
 
     def get_content_widget(self):
         '''(Override)'''
-        widget = InputEventBlockingWidget(lambda: self.working)
-        widget.setLayout(QtWidgets.QVBoxLayout())
-        widget.layout().setContentsMargins(1, 1, 1, 1)
-        widget.layout().setSpacing(5)
+        self._content_widget = InputEventBlockingWidget(lambda: self.working)
+        self._content_widget.setLayout(QtWidgets.QVBoxLayout())
+        self._content_widget.layout().setContentsMargins(1, 1, 1, 1)
+        self._content_widget.layout().setSpacing(5)
 
         toolbar = QtWidgets.QWidget()
         toolbar.setLayout(QtWidgets.QHBoxLayout())
@@ -177,19 +177,19 @@ class EntityBrowser(dialog.ModalDialog):
         self._rebuild_button = CircularButton('sync')
         toolbar.layout().addWidget(self._rebuild_button)
 
-        widget.layout().addWidget(toolbar)
+        self._content_widget.layout().addWidget(toolbar)
 
         self._search = Search(collapsed=False, collapsable=False)
         self._search.inputUpdated.connect(self._on_search)
-        widget.layout().addWidget(self._search)
+        self._content_widget.layout().addWidget(self._search)
 
         self._scroll = scroll_area.ScrollArea()
         self._scroll.setWidgetResizable(True)
         self._scroll.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
 
-        widget.layout().addWidget(self._scroll, 100)
+        self._content_widget.layout().addWidget(self._scroll, 100)
 
-        return widget
+        return self._content_widget
 
     def get_approve_button(self):
         '''(Override)'''
@@ -259,9 +259,14 @@ class EntityBrowser(dialog.ModalDialog):
 
     def exec_(self):
         '''(Override)'''
-        self._navigator.refreshNavigator.emit()
-        self.rebuildEntityBrowser.emit()
-        return super(EntityBrowser, self).exec_()
+        try:
+            self._navigator.refreshNavigator.emit()
+            self.rebuildEntityBrowser.emit()
+            return super(EntityBrowser, self).exec_()
+        finally:
+            # Make sure event filters are removed
+            self._content_widget.stop()
+            self._navigator.stop()
 
     def _set_parent_intermediate_entity(self, entity):
         '''Set the current intermediate entity to the parent of *entity*'''

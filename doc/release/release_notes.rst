@@ -9,6 +9,24 @@ Release Notes
 
 .. release:: upcoming
 
+    .. change:: new
+        :tags: houdini
+
+        Houdini integration.
+
+
+    .. change:: fix
+        :tags: publisher,assembler,opener
+
+        Updated progress widget style and appearance of finalizer section.
+
+
+    .. change:: change
+        :tags: publisher,assembler,opener
+
+        Use core pipeline DefinitionObject API instead of raw definition dictionary operations.
+
+
     .. change:: fixed
         :tags: dynamicwidget
 
@@ -42,29 +60,29 @@ Release Notes
     .. change:: fixed
         :tags: overlay
 
-        Fixed further overlay event filter warnings
+        Fixed further overlay event filter warnings.
 
 
     .. change:: fixed
         :tags: context
 
-        Align with changes in pipeline context workflow
+        Align with changes in pipeline context workflow.
 
 
     .. change:: fixed
 
-        Event filter warnings in Nuke and Maya
+        Removed event filter warnings in Nuke and Maya.
 
 
     .. change:: fixed
 
-        Fixed assembler version selector bug caused by previous opener changes
+        Fixed assembler version selector bug caused by previous opener changes.
 
 
     .. change:: fixed
         :tags: doc
 
-        Fixed bug where opener definition selector could not spot an openable version
+        Fixed bug where opener definition selector could not spot an openable version.
 
 
     .. change:: change

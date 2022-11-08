@@ -57,24 +57,22 @@ class QtOpenerClientWidget(QtOpenerClient, dialog.Dialog):
 
         if not definition_extensions_filter is None:
             self.definition_extensions_filter = definition_extensions_filter
-        self.widget_factory = OpenerWidgetFactory(
-            self.event_manager, self.ui_types
-        )
+
         self.open_assembler_button = None
         self.scroll = None  # Main content scroll pane
         self._available_components_count = 0
         self._openable_version = None
 
+        self.setWindowFlags(QtCore.Qt.Tool)
         set_theme(self, get_theme())
         if self.get_theme_background_style():
             self.setProperty('background', self.get_theme_background_style())
         self.setProperty('docked', 'true' if self.is_docked() else 'false')
-        self.setObjectName(
-            '{}_{}'.format(
-                qt_constants.MAIN_FRAMEWORK_WIDGET, self.__class__.__name__
-            )
-        )
         self.setAttribute(QtCore.Qt.WA_DeleteOnClose, True)
+
+        self.widget_factory = OpenerWidgetFactory(
+            self.event_manager, self.ui_types
+        )
 
         self.pre_build()
         self.build()
@@ -217,7 +215,7 @@ class QtOpenerClientWidget(QtOpenerClient, dialog.Dialog):
 
     # Definition
 
-    def change_definition(self, schema, definition, component_names_filter):
+    def change_definition(self, definition, schema, component_names_filter):
         '''
         Triggered when _on_change_definition is called within the definition selector.
         Generates the widgets interface from the given *schema* and *definition*
@@ -232,7 +230,7 @@ class QtOpenerClientWidget(QtOpenerClient, dialog.Dialog):
             self.refresh()
             return
 
-        super(QtOpenerClientWidget, self).change_definition(schema, definition)
+        super(QtOpenerClientWidget, self).change_definition(definition, schema)
 
         asset_type_name = definition['asset_type']
 

@@ -9,6 +9,7 @@ from functools import partial
 
 from Qt import QtCore, QtWidgets
 
+import ftrack_connect_pipeline.constants as core_constants
 from ftrack_connect_pipeline.client import constants
 from ftrack_connect_pipeline_qt.ui.utility.widget.thumbnail import (
     Context,
@@ -181,15 +182,17 @@ class AssemblerDependenciesWidget(AssemblerBaseWidget):
                 self.stopBusyIndicator.emit()
         except RuntimeError as re:
             if str(re).find('Internal C++ object') == -1:
+                self.loadError.emit('An internal error occurred')
                 raise
             # Ignore exception caused by a resolve that is not valid anymore
+        except:
+            self.loadError.emit('An internal exception occurred')
+            raise
 
     def _on_dependency_resolve_warning(self, is_error, message, info_message):
         '''Display error/warning message from resolve process'''
         if is_error:
-            self.client.progress_widget.set_status(
-                constants.WARNING_STATUS, message
-            )
+            self.loadError.emit(message)
         else:
             widget = QtWidgets.QWidget()
             widget.setLayout(QtWidgets.QVBoxLayout())
@@ -443,8 +446,12 @@ class AssemblerBrowserWidget(AssemblerBaseWidget):
 
         except RuntimeError as re:
             if str(re).find('Internal C++ object') == -1:
+                self.loadError.emit('An internal error occurred')
                 raise
             # Ignore exception caused by a browse operation that is not valid anymore
+        except:
+            self.loadError.emit('An internal exception occurred')
+            raise
 
     def _on_components_fetched(self, components, version_count):
         '''A chunk of versions has been obtained'''
@@ -518,18 +525,19 @@ class AssemblerBrowserWidget(AssemblerBaseWidget):
             matching_definitions = self.model.data(widget.index)[1]
             # Replace version ID for importer
             for definition in matching_definitions:
-                for context in definition['contexts']:
-                    for stage in context['stages']:
-                        if stage['name'] == 'context':
-                            for plugin in stage['plugins']:
-                                if 'options' in plugin:
-                                    options = plugin['options']
-                                    options['version_id'] = version_entity[
-                                        'id'
-                                    ]
-                                    options['version_number'] = version_entity[
-                                        'version'
-                                    ]
+                for context in definition.get_all(type=core_constants.CONTEXT):
+                    for stage in context.get_all(
+                        category=core_constants.STAGE
+                    ):
+                        for plugin in stage.get_all(
+                            category=core_constants.PLUGIN
+                        ):
+                            if 'options' in plugin:
+                                options = plugin['options']
+                                options['version_id'] = version_entity['id']
+                                options['version_number'] = version_entity[
+                                    'version'
+                                ]
             location = self.session.pick_location()
             self.model.setData(
                 widget.index,
