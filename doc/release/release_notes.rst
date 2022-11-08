@@ -7,7 +7,8 @@
 Release Notes
 *************
 
-.. release:: upcoming
+.. release:: 1.0.0
+    :date: 2022-11-08
 
     .. change:: changed
         :tags: Load
