@@ -104,7 +104,8 @@ setup(
         'sphinx_rtd_theme >= 0.1.6, < 2',
         'lowdown >= 0.1.0, < 2',
         'setuptools>=45.0.0',
-        'setuptools_scm'
+        'setuptools_scm',
+        'packaging'
     ],
     tests_require=['pytest >= 2.3.5, < 3'],
     use_scm_version={

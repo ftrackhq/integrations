@@ -8,7 +8,7 @@ import zipfile
 import tempfile
 import urllib
 from urllib.request import urlopen
-from distutils.version import LooseVersion
+from packaging.version import parse as parse_version
 import appdirs
 import json
 
@@ -197,7 +197,7 @@ class DndPluginList(QtWidgets.QFrame):
         plugin_item.setText('{} | {}'.format(data['name'], data['version']))
         plugin_item.setData(status, ROLES.PLUGIN_STATUS)
         plugin_item.setData(str(data['name']), ROLES.PLUGIN_NAME)
-        new_plugin_version = LooseVersion(data['version'])
+        new_plugin_version = parse_version(data['version'])
         plugin_item.setData(new_plugin_version, ROLES.PLUGIN_VERSION)
         plugin_item.setData(plugin_id, ROLES.PLUGIN_ID)
         plugin_item.setIcon(STATUS_ICONS[status])
