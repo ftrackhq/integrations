@@ -9,6 +9,11 @@ Release Notes
 
 .. release:: upcoming
 
+    .. change:: fix
+        :tags: opener
+
+        Error on changing opener asset version to/from a non compatible.
+
     .. change:: new
         :tags: houdini
 

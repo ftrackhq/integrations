@@ -396,12 +396,11 @@ class AssemblerBaseWidget(QtWidgets.QWidget):
                                     if key != core_constants.CONTEXTS:
                                         continue
                                     # Inject context ident
-                                    for plugin in (
-                                        definition_fragment[key]
-                                        .get_all(
-                                            type=core_constants.CONTEXT,
-                                            category=core_constants.PLUGIN
-                                        )
+                                    for plugin in definition_fragment[
+                                        key
+                                    ].get_all(
+                                        type=core_constants.CONTEXT,
+                                        category=core_constants.PLUGIN,
                                     ):
                                         if not 'options' in plugin:
                                             plugin['options'] = {}

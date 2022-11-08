@@ -239,11 +239,12 @@ class LoadContextWidget(BaseOptionsWidget):
     ):
         '''Updates the option dicctionary with provided *asset_name* when
         asset_changed of asset_selector event is triggered'''
-        self.set_option_result(asset_name, key='asset_name')
-        self.set_option_result(asset_entity['id'], key='asset_id')
-        self.set_option_result(version_num, key='version_number')
-        self.set_option_result(asset_version_id, key='version_id')
-        self.assetChanged.emit(asset_name, asset_entity['id'], True)
+        if asset_name:
+            self.set_option_result(asset_name, key='asset_name')
+            self.set_option_result(asset_entity['id'], key='asset_id')
+            self.set_option_result(version_num, key='version_number')
+            self.set_option_result(asset_version_id, key='version_id')
+            self.assetChanged.emit(asset_name, asset_entity['id'], True)
         self.assetVersionChanged.emit(asset_version_id)
 
     def _build_asset_selector(self):
@@ -335,12 +336,15 @@ class OpenContextWidget(BaseOptionsWidget):
     ):
         '''Updates the option dictionary with provided *asset_name* when
         asset_changed of asset_selector event is triggered'''
-        self.set_option_result(asset_name, key='asset_name')
-        self.set_option_result(asset_entity['id'], key='asset_id')
-        self.set_option_result(version_num, key='version_number')
-        self.set_option_result(asset_version_id, key='version_id')
+        if asset_name:
+            self.set_option_result(asset_name, key='asset_name')
+            self.set_option_result(asset_entity['id'], key='asset_id')
+            self.set_option_result(version_num, key='version_number')
+            self.set_option_result(asset_version_id, key='version_id')
 
-        self.assetChanged.emit(asset_name, asset_entity['id'], True)
+        self.assetChanged.emit(
+            asset_name, asset_entity['id'] if asset_entity else None, True
+        )
         self.assetVersionChanged.emit(asset_version_id)
 
 
