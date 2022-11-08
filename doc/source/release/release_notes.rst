@@ -8,7 +8,8 @@
 Release Notes
 *************
 
-.. release:: upcoming
+.. release:: 0.1.5
+    :date: 2022-11-08
 
     .. change:: added
 
