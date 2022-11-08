@@ -8,6 +8,12 @@
 Release Notes
 *************
 
+.. release:: upcoming
+
+    .. change:: added
+
+        Support semantic versioning precedence.
+
 .. release:: 0.1.4
     :date: 2022-05-18
 
