@@ -17,7 +17,7 @@ class MaxQtOpenerClientWidget(open.QtOpenerClientWidget):
         qt_constants.UI_TYPE,
         max_constants.UI_TYPE,
     ]
-    definition_extensions_filter = ['.3dsmax']
+    definition_extensions_filter = ['.max']
 
     def __init__(self, event_manager, parent=None):
         super(MaxQtOpenerClientWidget, self).__init__(event_manager)

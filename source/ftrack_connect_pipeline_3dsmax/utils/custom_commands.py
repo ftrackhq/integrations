@@ -49,9 +49,9 @@ def run_in_main_thread(f):
     return decorated
 
 
-def open_file(path, options):
+def open_file(path, options=None):
     '''Native open file function'''
-    # return cmds.file(path, o=True, f=True)
+    return rt.loadMaxFile(path)
 
 
 def import_file(path, options):
@@ -87,7 +87,7 @@ def save_file(save_path, context_id=None, session=None, temp=True, save=True):
             )
 
     if save:
-        rt.savemaxFile(save_path, useNewFile=False)
+        rt.savemaxFile(save_path, useNewFile=True)
         message = 'Saved Max scene @ "{}"'.format(save_path)
     else:
         raise Exception('Max scene rename not supported')
@@ -95,3 +95,25 @@ def save_file(save_path, context_id=None, session=None, temp=True, save=True):
     result = save_path
 
     return result, message
+
+
+def select_all():
+    return rt.select(rt.objects)
+
+
+def deselect_all():
+    rt.clearSelection()
+
+
+def save_selection():
+    return rt.GetCurrentSelection()
+
+
+def get_current_scene_objects():
+    deselect_all()
+    select_all()
+    scene_objects = []
+    for obj in save_selection():
+        scene_objects.append(obj)
+    deselect_all()
+    return set(scene_objects)
