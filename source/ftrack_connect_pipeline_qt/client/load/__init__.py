@@ -102,11 +102,6 @@ class QtAssemblerClientWidget(QtLoaderClient, dialog.Dialog):
         if self.get_theme_background_style():
             self.setProperty('background', self.get_theme_background_style())
         self.setProperty('docked', 'true' if self.is_docked() else 'false')
-        self.setObjectName(
-            '{}_{}'.format(
-                qt_constants.MAIN_FRAMEWORK_WIDGET, self.__class__.__name__
-            )
-        )
         self.setAttribute(QtCore.Qt.WA_DeleteOnClose, True)
 
         self.pre_build()

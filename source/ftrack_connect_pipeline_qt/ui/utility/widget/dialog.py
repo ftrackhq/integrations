@@ -12,7 +12,6 @@ from ftrack_connect_pipeline_qt.ui.utility.widget.button import (
 )
 from ftrack_connect_pipeline_qt.utils import get_theme, set_theme
 from ftrack_connect_pipeline_qt.utils import center_widget
-from ftrack_connect_pipeline_qt.ui import theme
 
 
 class Dialog(QtWidgets.QDialog):

@@ -51,6 +51,12 @@ class QtPublisherClientWidget(QtPublisherClient, QtWidgets.QFrame):
 
         self.logger.debug('start qt publisher widget')
 
+        set_theme(self, get_theme())
+        if self.get_theme_background_style():
+            self.setProperty('background', self.get_theme_background_style())
+        self.setProperty('docked', 'true' if self.is_docked() else 'false')
+        self.setAttribute(QtCore.Qt.WA_DeleteOnClose, True)
+
         # Check if a proper storage scenario is setup or not
         location_message = None
         test_location = self.session.pick_location()
@@ -78,22 +84,9 @@ class QtPublisherClientWidget(QtPublisherClient, QtWidgets.QFrame):
         self.open_assembler_button = None
         self.scroll = None  # Main content scroll pane
 
-        set_theme(self, get_theme())
-        if self.get_theme_background_style():
-            self.setProperty('background', self.get_theme_background_style())
-        self.setProperty('docked', 'true' if self.is_docked() else 'false')
-        self.setObjectName(
-            '{}_{}'.format(
-                qt_constants.MAIN_FRAMEWORK_WIDGET, self.__class__.__name__
-            )
-        )
-        self.setAttribute(QtCore.Qt.WA_DeleteOnClose, True)
-
         self.pre_build()
         self.build()
         self.post_build()
-
-        self.setWindowTitle('ftrack Publisher')
 
         self.discover_hosts()
 

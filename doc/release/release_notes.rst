@@ -7,7 +7,19 @@
 Release Notes
 *************
 
-.. release:: upcoming
+.. release:: 1.1.0
+    :date: 2022-11-08
+
+    .. change:: fix
+        :tags: opener
+
+        Error on changing opener asset version to/from a non compatible.
+
+    .. change:: new
+        :tags: houdini
+
+        Houdini integration.
+
 
     .. change:: fix
         :tags: publisher,assembler,opener
@@ -54,29 +66,29 @@ Release Notes
     .. change:: fixed
         :tags: overlay
 
-        Fixed further overlay event filter warnings
+        Fixed further overlay event filter warnings.
 
 
     .. change:: fixed
         :tags: context
 
-        Align with changes in pipeline context workflow
+        Align with changes in pipeline context workflow.
 
 
     .. change:: fixed
 
-        Event filter warnings in Nuke and Maya
+        Removed event filter warnings in Nuke and Maya.
 
 
     .. change:: fixed
 
-        Fixed assembler version selector bug caused by previous opener changes
+        Fixed assembler version selector bug caused by previous opener changes.
 
 
     .. change:: fixed
         :tags: doc
 
-        Fixed bug where opener definition selector could not spot an openable version
+        Fixed bug where opener definition selector could not spot an openable version.
 
 
     .. change:: change

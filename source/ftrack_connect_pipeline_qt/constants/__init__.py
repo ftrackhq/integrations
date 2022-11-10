@@ -13,8 +13,6 @@ NOT_SET = 'widget_not_set'
 #: Base name for events
 _BASE_ = 'ftrack.pipeline'
 
-MAIN_FRAMEWORK_WIDGET = 'main_framework_widget'
-
 # Assembler widget
 ASSEMBLER_WIDGET = 'assembler'
 # Change context widget
@@ -27,3 +25,6 @@ INFO_WIDGET = 'info'
 TASKS_WIDGET = 'tasks'
 # Documentation widget
 DOCUMENTATION_WIDGET = 'documentation'
+
+# Client widget class name suffix
+CLIENT_WIDGET = 'ClientWidget'
