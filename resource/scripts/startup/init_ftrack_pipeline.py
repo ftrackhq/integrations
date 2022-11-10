@@ -149,7 +149,7 @@ def initialise():
     widgets.append(
         (
             core_constants.PUBLISHER,
-            publish.MaxQtPublisherClientWidgetTEST,
+            publish.MaxQtPublisherClientWidget,
             'Publisher',
             '',
         )

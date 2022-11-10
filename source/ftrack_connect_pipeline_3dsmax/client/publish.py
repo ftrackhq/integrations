@@ -37,22 +37,3 @@ class MaxQtPublisherClientWidget(QtPublisherClientWidget):
 
     def get_theme_background_style(self):
         return 'max'
-
-
-class MaxQtPublisherClientWidgetTEST(QtWidgets.QFrame):
-    def __init__(self, event_manager, parent=None):
-        self.dock_widget = QtWidgets.QDockWidget(parent=parent)
-        super(MaxQtPublisherClientWidgetTEST, self).__init__(
-            parent=self.dock_widget
-        )
-        self.setWindowTitle('Max Pipeline Publisher')
-        self.setObjectName('Max Pipeline Publisher')
-        self.dock_widget.setWidget(self)
-        parent.addDockWidget(QtCore.Qt.RightDockWidgetArea, self.dock_widget)
-        self.dock_widget.setFloating(True)
-        self.setLayout(QtWidgets.QVBoxLayout())
-        self.layout().addWidget(QtWidgets.QLabel('My mock publisher content'))
-
-    def show(self):
-        self.dock_widget.show()
-        super(MaxQtPublisherClientWidgetTEST, self).show()
