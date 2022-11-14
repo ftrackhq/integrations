@@ -128,7 +128,7 @@ class MaxAssetManagerEngine(AssetManagerEngine):
         # It's an import, so change version with the main method
         if (
             self.dcc_object.get(asset_const.LOAD_MODE)
-            != modes_const.REFERENCE_MODE
+            != modes_const.OBJECT_XREF_MODE
         ):
             return super(MaxAssetManagerEngine, self).change_version(
                 asset_info=asset_info, options=options, plugin=plugin
@@ -469,7 +469,7 @@ class MaxAssetManagerEngine(AssetManagerEngine):
         # It's an import, so load asset with the main method
         if (
             self.dcc_object.get(asset_const.LOAD_MODE)
-            != modes_const.REFERENCE_MODE
+            != modes_const.OBJECT_XREF_MODE
         ):
             return super(MaxAssetManagerEngine, self).load_asset(
                 asset_info=asset_info, options=options, plugin=plugin
