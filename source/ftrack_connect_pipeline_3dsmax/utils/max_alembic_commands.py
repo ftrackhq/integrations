@@ -18,7 +18,7 @@ abc_default_import_options = {
     "Visibility": True,
     "CustomAttributes": True,
     "ShapeSuffix": True,
-    "ObjectAttributes": True
+    "ObjectAttributes": True,
 }
 
 
@@ -45,4 +45,3 @@ def import_abc(file_path, options):
         eval(cmd)
 
     rt.importFile(file_path, rt.name("noPrompt"), using="AlembicImport")
-

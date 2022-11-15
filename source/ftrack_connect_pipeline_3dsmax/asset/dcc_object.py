@@ -44,7 +44,8 @@ class MaxDccObject(DccObject):
             rt.unfreeze(dcc_object)
         except:
             self.logger.debug(
-                "Could not unfreeze object {0}".format(dcc_object.Name))
+                "Could not unfreeze object {0}".format(dcc_object.Name)
+            )
 
         if str(k) == asset_const.REFERENCE_OBJECT:
             rt.setProperty(dcc_object, k, str(self.name))
@@ -104,9 +105,7 @@ class MaxDccObject(DccObject):
             rt.setTransformLockFlags(dcc_object, rt.name("all"))
         except Exception as e:
             self.logger.debug(
-                "Could not freeze object {0}, Error: {1}".format(
-                    name, e
-                )
+                "Could not freeze object {0}, Error: {1}".format(name, e)
             )
 
         self.logger.debug('Creating new dcc object {}'.format(dcc_object))
@@ -189,7 +188,7 @@ class MaxDccObject(DccObject):
         *objects* List of Max DAG objects
         '''
 
-        #Get DCC object
+        # Get DCC object
         dcc_object = rt.getNodeByName(self.name, exact=True)
 
         max_utils.deselect_all()
@@ -203,7 +202,5 @@ class MaxDccObject(DccObject):
             if node.Parent == root_node or not node.Parent:
                 node.Parent = dcc_object
                 self.logger.debug(
-                    'Node {} added to dcc_object {}'.format(
-                        node, dcc_object
-                    )
+                    'Node {} added to dcc_object {}'.format(node, dcc_object)
                 )

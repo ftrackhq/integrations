@@ -20,6 +20,7 @@ logger = logging.getLogger(__name__)
 
 ### COMMON UTILS ###
 
+
 def run_in_main_thread(f):
     '''Make sure a function runs in the main Max thread.'''
 
@@ -57,6 +58,7 @@ def get_main_window():
 
 
 ### OBJECT OPERATIONS ###
+
 
 def get_ftrack_nodes():
     '''Returns all DCC objects in the scene'''
@@ -112,11 +114,12 @@ def node_exists(node_name):
 
 
 def delete_node(node):
-    ''' Delete the given *node*'''
+    '''Delete the given *node*'''
     rt.delete(node)
 
 
 ### SELECTION ###
+
 
 def select_all():
     '''Select all objects from the scene'''
@@ -166,7 +169,7 @@ def create_selection_set(set_name):
 
 
 def select_only_cameras():
-    ''' Select all cameras from the scene'''
+    '''Select all cameras from the scene'''
     selected_cameras = []
     for obj in rt.selection:
         if rt.SuperClassOf(obj) == 'camera':
@@ -175,6 +178,7 @@ def select_only_cameras():
 
 
 ### FILE OPERATIONS ###
+
 
 def open_file(path, options=None):
     '''Native open file function'''
@@ -207,7 +211,7 @@ def import_obj_XRefs(file_path, options=None):
 
 
 def scene_XRef_imported(node):
-    '''Check if a Scene XRef exists under the given *node* '''
+    '''Check if a Scene XRef exists under the given *node*'''
     result = False
     num_scene_refs = rt.xrefs.getXRefFileCount()
     for idx in range(1, num_scene_refs):
@@ -223,7 +227,7 @@ def merge_max_file(file_path, options=None):
         file_path,
         rt.name("autoRenameDups"),
         rt.name("neverReparent"),
-        rt.name("select")
+        rt.name("select"),
     )
 
 
@@ -262,6 +266,7 @@ def save_file(save_path, context_id=None, session=None, temp=True, save=True):
 
 ### REFERENCES ###
 
+
 def remove_reference_node(referenceNode):
     # return cmds.file(rfn=referenceNode, rr=True)
     # TODO: To be implemented
@@ -288,9 +293,9 @@ def getReferenceNode(assetLink):
 
 ### TIME OPERATIONS ###
 
+
 def get_time_range():
-    ''' Return the start and end frame of the current scene'''
+    '''Return the start and end frame of the current scene'''
     start = rt.animationRange.start
     end = rt.animationRange.end
     return (start, end)
-
