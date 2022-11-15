@@ -239,5 +239,7 @@ def initialise():
     # build.
     QtCore.QCoreApplication.instance().installEventFilter(EventFilterWidget())
 
+    max_utils.init_max()
+
 
 initialise()
