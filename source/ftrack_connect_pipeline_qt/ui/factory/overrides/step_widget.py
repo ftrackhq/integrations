@@ -17,7 +17,7 @@ from ftrack_connect_pipeline_qt.plugin.widget.load_widget import (
 from ftrack_connect_pipeline_qt.ui.utility.widget import line
 from ftrack_connect_pipeline_qt.ui.utility.widget import overlay
 from ftrack_connect_pipeline_qt import utils
-from ftrack_connect_pipeline_qt.ui.utility.widget import icon
+from ftrack_connect_pipeline_qt.ui.utility.widget import icon, scroll_area
 from ftrack_connect_pipeline_qt.plugin.widget import BaseOptionsWidget
 from ftrack_connect_pipeline_qt.ui.utility.widget.accordion import (
     AccordionWidget,
@@ -73,16 +73,23 @@ class PublisherOptionsButton(OptionsButton):
         self.main_widget.setLayout(QtWidgets.QVBoxLayout())
         self.main_widget.layout().setAlignment(QtCore.Qt.AlignTop)
 
-        self._component_options_widget = QtWidgets.QWidget()
-        self._component_options_widget.setLayout(QtWidgets.QVBoxLayout())
         title_label = QtWidgets.QLabel(self._name)
         title_label.setObjectName('h2')
-        self._component_options_widget.layout().addWidget(title_label)
-        self._component_options_widget.layout().addWidget(QtWidgets.QLabel(''))
-        self.main_widget.layout().addWidget(self._component_options_widget)
+        self.main_widget.layout().addWidget(title_label)
+        self.main_widget.layout().addWidget(QtWidgets.QLabel(''))
+
+        self._component_options_widget = QtWidgets.QWidget()
+        self._component_options_widget.setLayout(QtWidgets.QVBoxLayout())
+
+        scroll = scroll_area.ScrollArea()
+        scroll.setWidget(self._component_options_widget)
+        scroll.setWidgetResizable(True)
+        scroll.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
+
+        self.main_widget.layout().addWidget(scroll)
         self.overlay_container = overlay.Overlay(
             self.main_widget,
-            height_percentage=0.8,
+            height_percentage=0.9,
             transparent_background=False,
         )
         self.overlay_container.setVisible(False)
@@ -99,7 +106,6 @@ class PublisherOptionsButton(OptionsButton):
 
     def add_validator_widget(self, widget):
         '''Add validator plugin container widget to overlay'''
-        self._component_options_widget.layout().addWidget(QtWidgets.QLabel(''))
         self._component_options_widget.layout().addWidget(line.Line())
         self._component_options_widget.layout().addWidget(QtWidgets.QLabel(''))
         label = QtWidgets.QLabel('Validators:')
