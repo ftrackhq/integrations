@@ -22,7 +22,10 @@ class MaxQtAssetManagerClientWidget(QtAssetManagerClientWidget):
     def __init__(self, event_manager, asset_list_model, parent=None):
         self.dock_widget = QtWidgets.QDockWidget(parent=parent)
         super(MaxQtAssetManagerClientWidget, self).__init__(
-            event_manager, asset_list_model, parent=parent
+            event_manager,
+            asset_list_model,
+            multithreading_enabled=False,
+            parent=parent,
         )
         self.setWindowTitle('Max Pipeline Asset Manager')
         self.setObjectName('Max Pipeline Asset Manager')

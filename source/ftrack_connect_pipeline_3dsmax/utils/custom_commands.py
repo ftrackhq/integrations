@@ -27,8 +27,9 @@ def run_in_main_thread(f):
     @wraps(f)
     def decorated(*args, **kwargs):
         if threading.currentThread().name != 'MainThread':
-            # return maya_utils.executeInMainThreadWithResult(f, *args, **kwargs)
-            pass
+            raise Exception(
+                '3DS Max does not support multithreading, please revisit DCC implementation!'
+            )
         else:
             return f(*args, **kwargs)
 
@@ -112,11 +113,11 @@ def get_main_window():
 
 
 def get_ftrack_nodes():
-    '''Returns all DCC objects in the scene'''
+    '''Returns all DCC nodes in the scene'''
     dcc_objects = []
     for obj in rt.rootScene.world.children:
         if rt.SuperClassOf(obj) == rt.helper:
-            if obj.ClassID == asset_const.FTRACK_PLUGIN_ID:
+            if tuple(obj.ClassID) == asset_const.FTRACK_PLUGIN_ID:
                 dcc_objects.append(obj)
     return dcc_objects
 
@@ -164,9 +165,28 @@ def node_exists(node_name):
     return True
 
 
+def get_node(node_name):
+    '''Return the Max node identified by name'''
+    return rt.getNodeByName(node_name, exact=True)
+
+
 def delete_node(node):
     '''Delete the given *node*'''
     rt.delete(node)
+
+
+def get_connected_objects_from_dcc_object(dcc_object_name):
+    '''Return all objects connected to the given *dcc_object_name*'''
+    objects = []
+    dcc_object_node = rt.getNodeByName(dcc_object_name, exact=True)
+    if not dcc_object_node:
+        return
+    id_value = rt.getProperty(dcc_object_node, asset_const.ASSET_INFO_ID)
+    for obj in rt.rootScene.world.children:
+        if rt.isProperty(obj, "ftrack"):
+            if id_value == rt.getProperty(obj, "ftrack"):
+                objects.append(obj)
+    return objects
 
 
 ### SELECTION ###
@@ -236,43 +256,7 @@ def open_file(path, options=None):
     return rt.loadMaxFile(path)
 
 
-def import_scene_XRef(file_path, options=None):
-    '''Import a Max scene file as a Scene XRef asset.'''
-    scene_node = rt.xrefs.addNewXRefFile(file_path)
-    return scene_node
-
-
-def re_import_scene_XRef(file_path, parent_helper_node_name):
-    '''Import a Max scene file as a Scene XRef asset and parent it
-    under the given *parent_helper_node_name*.'''
-    node = rt.getNodeByName(parent_helper_node_name, exact=True)
-    scene_node = rt.xrefs.addNewXRefFile(file_path)
-    scene_node.parent = node
-    return scene_node
-
-
-def import_obj_XRefs(file_path, options=None):
-    '''Import all the objects in a Max scene file as Object XRefs'''
-    x_ref_objs = rt.getMAXFileObjectNames(file_path)
-    newObjs = rt.xrefs.addNewXRefObject(
-        file_path, x_ref_objs, dupMtlNameAction=rt.name("autoRename")
-    )
-    rt.select(newObjs)
-    return newObjs
-
-
-def scene_XRef_imported(node):
-    '''Check if a Scene XRef exists under the given *node*'''
-    result = False
-    num_scene_refs = rt.xrefs.getXRefFileCount()
-    for idx in range(1, num_scene_refs):
-        scene_ref = rt.xrefs.getXrefFile(idx)
-        if scene_ref.parent.Name == node.Name:
-            result = True
-    return result
-
-
-def merge_max_file(file_path, options=None):
+def import_file(file_path, options=None):
     '''Import a Max scene into the current scene.'''
     return rt.mergemaxfile(
         file_path,
@@ -297,7 +281,7 @@ def save_file(save_path, context_id=None, session=None, temp=True, save=True):
             )
 
             if save_path is None:
-                return (False, message)
+                return False, message
         else:
             return (
                 False,
@@ -316,30 +300,58 @@ def save_file(save_path, context_id=None, session=None, temp=True, save=True):
 
 
 ### REFERENCES ###
+# Follow this link for more reference commands in max:
+# https://help.autodesk.com/view/3DSMAX/2016/ENU/?guid=__files_GUID_090B28AB_5710_45BB_B324_8B6FD131A3C8_htm
 
 
-def remove_reference_node(referenceNode):
-    # return cmds.file(rfn=referenceNode, rr=True)
-    # TODO: To be implemented
-    pass
+def reference_file(path, options=None):
+    '''reference a Max scene file as a Scene XRef asset.'''
+    # TODO: feature implement options: XRefObject true to use the object xref
+    #  reference mode wich will be something along the following lines:
+    #  x_ref_objs = rt.getMAXFileObjectNames(file_path)
+    #     newObjs = rt.xrefs.addNewXRefObject(
+    #         file_path, x_ref_objs, dupMtlNameAction=rt.name("autoRename")
+    #     )
+    #     rt.select(newObjs)
+    #     return newObjs
+    scene_node = rt.xrefs.addNewXRefFile(path)
+    return scene_node
 
 
-def unload_reference_node(referenceNode):
-    # return cmds.file(unloadReference=referenceNode)
-    # TODO: To be implemented
-    pass
+def get_reference_node(dcc_object_name):
+    '''
+    Return the scene reference_node associated to the given
+    *dcc_object_name*
+    '''
+    dcc_object_node = rt.getNodeByName(dcc_object_name, exact=True)
+    if not dcc_object_node:
+        return
+    component_path = asset_const.COMPONENT_PATH
+    for idx in range(1, rt.xrefs.getXRefFileCount()):
+        reference_node = rt.xrefs.getXrefFile(idx)
+        if reference_node.filename == component_path:
+            return reference_node
 
 
-def load_reference_node(referenceNode):
-    # return cmds.file(loadReference=referenceNode)
-    # TODO: To be implemented
-    pass
+def remove_reference_node(reference_node):
+    '''Remove reference'''
+    rt.delete(reference_node)
 
 
-def getReferenceNode(assetLink):
-    '''Return the references dcc_objects for the given *assetLink*'''
-    # TODO: To be implemented
-    pass
+def unload_reference_node(reference_node):
+    '''Disable reference'''
+    reference_node.disabled = True
+
+
+def load_reference_node(reference_node):
+    '''Disable reference'''
+    reference_node.disabled = False
+
+
+def update_reference_path(reference_node, component_path):
+    '''Update the path of the given *reference_node* with the given
+    *component_path*'''
+    reference_node.filename = component_path
 
 
 ### TIME OPERATIONS ###

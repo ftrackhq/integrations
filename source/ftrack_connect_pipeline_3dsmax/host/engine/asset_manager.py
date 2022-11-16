@@ -30,7 +30,6 @@ class MaxAssetManagerEngine(AssetManagerEngine):
             event_manager, host_types, host_id, asset_type_name=asset_type_name
         )
 
-    @max_utils.run_in_main_thread
     def discover_assets(self, assets=None, options=None, plugin=None):
         '''
         Discover all the assets in the scene:
@@ -53,10 +52,11 @@ class MaxAssetManagerEngine(AssetManagerEngine):
 
         ftrack_asset_nodes = max_utils.get_ftrack_nodes()
         ftrack_asset_info_list = []
-
         if ftrack_asset_nodes:
-            for node_name in ftrack_asset_nodes:
-                param_dict = self.DccObject.dictionary_from_object(node_name)
+            for dcc_object_node in ftrack_asset_nodes:
+                param_dict = self.DccObject.dictionary_from_object(
+                    dcc_object_node.Name
+                )
                 node_asset_info = FtrackAssetInfo(param_dict)
                 ftrack_asset_info_list.append(node_asset_info)
 
@@ -167,11 +167,8 @@ class MaxAssetManagerEngine(AssetManagerEngine):
             return unload_status, unload_result
 
         # Get reference Node
-        reference_node = None
-        # for obj in unload_result:
-        # if cmds.nodeType(obj) == 'reference':
-        #    reference_node = unload_result[0]
-        #    break
+        reference_node = max_utils.get_reference_node(self.dcc_object.name)
+
         if not reference_node:
             return super(MaxAssetManagerEngine, self).change_version(
                 asset_info=asset_info, options=options, plugin=plugin
@@ -237,8 +234,7 @@ class MaxAssetManagerEngine(AssetManagerEngine):
 
         update_status = None
         try:
-            # update reference
-            # cmds.file(component_path, loadReference=reference_node)
+            max_utils.update_reference_path(reference_node, component_path)
             update_status = core_constants.SUCCESS_STATUS
         except Exception as e:
             update_status = core_constants.ERROR_STATUS
@@ -376,14 +372,14 @@ class MaxAssetManagerEngine(AssetManagerEngine):
         self.dcc_object = dcc_object
 
         if options.get('clear_selection'):
-            # cmds.select(cl=True)
-            pass
-        # nodes = cmds.listConnections(
-        #    '{}.{}'.format(self.dcc_object.name, asset_const.ASSET_LINK)
-        # )
+            max_utils.deselect_all()
+
+        nodes = max_utils.get_connected_objects_from_dcc_object(
+            self.dcc_object.name
+        )
         for node in nodes:
             try:
-                # .select(node, add=True)
+                max_utils.add_node_to_selection(node)
                 result.append(str(node))
                 status = core_constants.SUCCESS_STATUS
             except Exception as error:
@@ -475,20 +471,8 @@ class MaxAssetManagerEngine(AssetManagerEngine):
                 asset_info=asset_info, options=options, plugin=plugin
             )
 
-        # Find the reference node if the reference has been unloaded
-        reference_node = False
-        nodes = (
-            # cmds.listConnections(
-            #     '{}.{}'.format(self.dcc_object.name, asset_const.ASSET_LINK)
-            # )
-            # or []
-        )
-
-        for node in nodes:
-            if cmds.nodeType(node) == 'reference':
-                reference_node = max_utils.getReferenceNode(node)
-                if reference_node:
-                    break
+        # Get reference Node
+        reference_node = max_utils.get_reference_node(self.dcc_object.name)
 
         # Load asset with the main method, the reference has not been created yet.
         if not reference_node:
@@ -557,21 +541,16 @@ class MaxAssetManagerEngine(AssetManagerEngine):
         )
         self.dcc_object = dcc_object
 
-        reference_node = False
         nodes = (
-            # cmds.listConnections(
-            #     '{}.{}'.format(self.dcc_object.name, asset_const.ASSET_LINK)
-            # )
-            # or []
+            max_utils.get_connected_objects_from_dcc_object(
+                self.dcc_object.name
+            )
+            or []
         )
         if self.dcc_object.name in nodes:
             nodes.remove(self.dcc_object.name)
 
-        for node in nodes:
-            if cmds.nodeType(node) == 'reference':
-                reference_node = max_utils.getReferenceNode(node)
-                if reference_node:
-                    break
+        reference_node = max_utils.get_reference_node(self.dcc_object.name)
 
         if reference_node:
             self.logger.debug("Removing reference: {}".format(reference_node))
@@ -604,13 +583,14 @@ class MaxAssetManagerEngine(AssetManagerEngine):
             for node in nodes:
                 self.logger.debug("Removing object: {}".format(node))
                 try:
-                    if max_utils.obj_exists(node):
-                        max_utils.delete_object(node)
-                        result.append(str(node))
+                    if max_utils.node_exists(node.Name):
+                        result.append(str(node.Name))
+                        max_utils.delete_node(node)
                         status = core_constants.SUCCESS_STATUS
                 except Exception as error:
+                    self.logger.exception(error)
                     message = str(
-                        'Node: {0} could not be deleted, error: {1}'.format(
+                        'Node: {0} could not be deleted, details: {1}'.format(
                             node, error
                         )
                     )
@@ -676,18 +656,14 @@ class MaxAssetManagerEngine(AssetManagerEngine):
         )
         self.dcc_object = dcc_object
 
-        reference_node = False
         nodes = (
-            # cmds.listConnections(
-            #     '{}.{}'.format(self.dcc_object.name, asset_const.ASSET_LINK)
-            # )
-            # or []
+            max_utils.get_connected_objects_from_dcc_object(
+                self.dcc_object.name
+            )
+            or []
         )
-        for node in nodes:
-            # if cmds.nodeType(node) == 'reference':
-            reference_node = max_utils.getReferenceNode(node)
-            if reference_node:
-                break
+        # Get reference Node
+        reference_node = max_utils.get_reference_node(self.dcc_object.name)
 
         if reference_node:
             self.logger.debug("Removing reference: {}".format(reference_node))
@@ -696,6 +672,7 @@ class MaxAssetManagerEngine(AssetManagerEngine):
                 result.append(str(reference_node))
                 status = core_constants.SUCCESS_STATUS
             except Exception as error:
+                self.logger.exception(error)
                 message = str(
                     'Could not remove the reference node {}, error: {}'.format(
                         str(reference_node), error
@@ -720,11 +697,12 @@ class MaxAssetManagerEngine(AssetManagerEngine):
             for node in nodes:
                 self.logger.debug("Removing object: {}".format(node))
                 try:
-                    if max_utils.obj_exists(node):
-                        max_utils.delete_object(node)
-                        result.append(str(node))
+                    if max_utils.node_exists(node.Name):
+                        result.append(str(node.Name))
+                        max_utils.delete_node(node)
                         status = core_constants.SUCCESS_STATUS
                 except Exception as error:
+                    self.logger.exception(error)
                     message = str(
                         'Node: {0} could not be deleted, error: {1}'.format(
                             node, error
@@ -746,12 +724,14 @@ class MaxAssetManagerEngine(AssetManagerEngine):
                     self._notify_client(plugin, result_data)
                     return status, result
 
-        if max_utils.obj_exists(self.dcc_object.name):
+        if max_utils.node_exists(self.dcc_object.name):
             try:
-                max_utils.delete_object(self.dcc_object.name)
+                node = max_utils.get_node(self.dcc_object.name)
+                max_utils.delete_node(node)
                 result.append(str(self.dcc_object.name))
                 status = core_constants.SUCCESS_STATUS
             except Exception as error:
+                self.logger.exception(error)
                 message = str(
                     'Could not delete the dcc_object, error: {}'.format(error)
                 )
