@@ -14,11 +14,13 @@ class AssetManagerClient(Client):
     definition_filters = [core_constants.ASSET_MANAGER]
     '''Use only definitions that matches the definition_filters'''
 
-    def __init__(self, event_manager):
+    def __init__(self, event_manager, multithreading_enabled=True):
         '''Initialise AssetManagerClient with instance of
         :class:`~ftrack_connect_pipeline.event.EventManager`
         '''
-        super(AssetManagerClient, self).__init__(event_manager)
+        super(AssetManagerClient, self).__init__(
+            event_manager, multithreading_enabled=multithreading_enabled
+        )
         self._reset_asset_list()
 
     def on_host_changed(self, host_connection):

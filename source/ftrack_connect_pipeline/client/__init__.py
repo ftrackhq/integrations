@@ -375,7 +375,12 @@ class Client(object):
                 else uuid.uuid4().hex
             )
 
-    def __init__(self, event_manager):
+    @property
+    def multithreading_enabled(self):
+        '''Return True if DCC supports multithreading (write operations)'''
+        return self._multithreading_enabled
+
+    def __init__(self, event_manager, multithreading_enabled=True):
         '''
         Initialise Client with instance of
         :class:`~ftrack_connect_pipeline.event.EventManager`
@@ -393,6 +398,7 @@ class Client(object):
         )
         self._event_manager = event_manager
         self.logger.debug('Initialising {}'.format(self))
+        self.__multithreading_enabled = multithreading_enabled
 
     # Host
 

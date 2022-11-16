@@ -12,9 +12,11 @@ class LoaderClient(client.Client):
 
     definition_filters = [constants.LOADER]
 
-    def __init__(self, event_manager):
+    def __init__(self, event_manager, multithreading_enabled=True):
         '''
         Initialise OpenerClient with instance of
         :class:`~ftrack_connect_pipeline.event.EventManager`
         '''
-        super(LoaderClient, self).__init__(event_manager)
+        super(LoaderClient, self).__init__(
+            event_manager, multithreading_enabled=multithreading_enabled
+        )
