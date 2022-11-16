@@ -44,7 +44,6 @@ def init_max(context_id=None, session=None):
     :param session: The session required to query from *context_id*.
     :return:
     '''
-    # TODO: To be implemented
     fstart = fend = fps = None
     if context_id:
         assert session is not None, 'Session not provided'
