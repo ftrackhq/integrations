@@ -398,7 +398,7 @@ class Client(object):
         )
         self._event_manager = event_manager
         self.logger.debug('Initialising {}'.format(self))
-        self.__multithreading_enabled = multithreading_enabled
+        self._multithreading_enabled = multithreading_enabled
 
     # Host
 
