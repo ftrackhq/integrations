@@ -182,10 +182,12 @@ def get_connected_objects_from_dcc_object(dcc_object_name):
     if not dcc_object_node:
         return
     id_value = rt.getProperty(dcc_object_node, asset_const.ASSET_INFO_ID)
-    for obj in rt.rootScene.world.children:
-        if rt.isProperty(obj, "ftrack"):
-            if id_value == rt.getProperty(obj, "ftrack"):
-                objects.append(obj)
+    for parent in rt.rootScene.world.children:
+        children = [parent] + collect_children_nodes(parent)
+        for obj in children:
+            if rt.isProperty(obj, "ftrack"):
+                if id_value == rt.getProperty(obj, "ftrack"):
+                    objects.append(obj)
     return objects
 
 
