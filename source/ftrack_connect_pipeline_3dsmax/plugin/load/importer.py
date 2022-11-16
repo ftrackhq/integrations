@@ -23,7 +23,7 @@ class MaxLoaderImporterPlugin(plugin.LoaderImporterPlugin, MaxBasePlugin):
 
     load_modes = load_const.LOAD_MODES
 
-    dependency_load_mode = load_const.OBJECT_XREF_MODE
+    dependency_load_mode = load_const.REFERENCE_MODE
 
     @max_utils.run_in_main_thread
     def get_current_objects(self):
