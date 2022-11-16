@@ -511,7 +511,8 @@ class QtAssemblerClientWidget(QtLoaderClient, dialog.Dialog):
         if force_hard_refresh:
             self.hard_refresh = True
         if self.hard_refresh:
-            self._assembler_widget.rebuild()
+            if self._assembler_widget:
+                self._assembler_widget.rebuild()
             self.hard_refresh = False
 
     def _launch_assembler(self):
