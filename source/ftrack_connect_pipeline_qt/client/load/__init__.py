@@ -49,7 +49,13 @@ class QtLoaderClient(LoaderClient):
 
     ui_types = [core_constants.UI_TYPE, qt_constants.UI_TYPE]
 
-    def __init__(self, event_manager):
+    @property
+    def multithreading_enabled(self):
+        '''Return True if DCC supports multithreading (write operations)'''
+        return self._multithreading_enabled
+
+    def __init__(self, event_manager, multithreading_enabled=True):
+        self._multithreading_enabled = multithreading_enabled
         super(QtLoaderClient, self).__init__(event_manager)
         self.logger.debug('start qt loader')
 
@@ -75,7 +81,14 @@ class QtAssemblerClientWidget(QtLoaderClient, dialog.Dialog):
 
     contextChanged = QtCore.Signal(object)  # Context has changed
 
-    def __init__(self, event_manager, modes, asset_list_model, parent=None):
+    def __init__(
+        self,
+        event_manager,
+        modes,
+        asset_list_model,
+        multithreading_enabled=True,
+        parent=None,
+    ):
         '''
         Initialize the assembler client
 
@@ -86,7 +99,9 @@ class QtAssemblerClientWidget(QtLoaderClient, dialog.Dialog):
         :param parent:
         '''
         dialog.Dialog.__init__(self, parent=parent)
-        QtLoaderClient.__init__(self, event_manager)
+        QtLoaderClient.__init__(
+            self, event_manager, multithreading_enabled=multithreading_enabled
+        )
 
         self.logger.debug('start qt assembler')
 
@@ -131,7 +146,10 @@ class QtAssemblerClientWidget(QtLoaderClient, dialog.Dialog):
         self.header.setMinimumHeight(50)
         # Create and add the asset manager client
         self.asset_manager = QtAssetManagerClientWidget(
-            self.event_manager, self._asset_list_model, is_assembler=True
+            self.event_manager,
+            self._asset_list_model,
+            is_assembler=True,
+            multithreading_enabled=self.multithreading_enabled,
         )
 
     def build_left_widget(self):

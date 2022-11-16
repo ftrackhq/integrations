@@ -8,6 +8,7 @@ from ftrack_connect_pipeline import constants as core_constants
 
 logger = logging.getLogger(__name__)
 
+
 class MaterialIcon(QtGui.QIcon):
     '''Material icon, displaying SVG material icon images'''
 

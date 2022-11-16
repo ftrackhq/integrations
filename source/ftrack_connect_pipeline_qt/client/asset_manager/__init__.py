@@ -35,7 +35,13 @@ class QtAssetManagerClient(AssetManagerClient):
 
     ui_types = [core_constants.UI_TYPE, qt_constants.UI_TYPE]
 
-    def __init__(self, event_manager):
+    @property
+    def multithreading_enabled(self):
+        '''Return True if DCC supports multithreading (write operations)'''
+        return self._multithreading_enabled
+
+    def __init__(self, event_manager, multithreading_enabled=True):
+        self._multithreading_enabled = multithreading_enabled
         super(QtAssetManagerClient, self).__init__(event_manager)
 
         self.logger.debug('start qt asset manager')
@@ -58,6 +64,7 @@ class QtAssetManagerClientWidget(QtAssetManagerClient, QtWidgets.QFrame):
         event_manager,
         asset_list_model,
         is_assembler=False,
+        multithreading_enabled=True,
         parent=None,
     ):
         '''Initialise QtAssetManagerClientWidget
@@ -74,9 +81,12 @@ class QtAssetManagerClientWidget(QtAssetManagerClient, QtWidgets.QFrame):
         self._asset_list_model = asset_list_model
 
         QtWidgets.QFrame.__init__(self, parent=parent)
-        QtAssetManagerClient.__init__(self, event_manager)
+        QtAssetManagerClient.__init__(
+            self, event_manager, multithreading_enabled=multithreading_enabled
+        )
 
         self.is_assembler = is_assembler
+
         ''' Flag telling if widget has been shown before and needs refresh '''
 
         set_theme(self, get_theme())
@@ -238,16 +248,20 @@ class QtAssetManagerClientWidget(QtAssetManagerClient, QtWidgets.QFrame):
 
     def rebuild(self):
         '''
-        Do a deep refresh of the ui - running the discover_assets() to locate all asset within the DCC
+        Do a deep async refresh of the ui - running the discover_assets() to locate all asset within the DCC. Allow this
+        to execute in a separate thread as it does not alter the DCC internal state (read only)
         '''
         if not self.host_connection:
             return
         self.asset_manager_widget.set_busy(True)
-        BaseThread(
-            name='discover_assets_thread',
-            target=self.discover_assets,
-            target_args=(),
-        ).start()
+        if self.multithreading_enabled:
+            BaseThread(
+                name='discover_assets_thread',
+                target=self.discover_assets,
+                target_args=(),
+            ).start()
+        else:
+            self.discover_assets()
 
     def _asset_discovered_callback(self, event):
         '''
@@ -276,12 +290,15 @@ class QtAssetManagerClientWidget(QtAssetManagerClient, QtWidgets.QFrame):
         Triggered when select action is clicked on the ui.
         '''
         self.asset_manager_widget.set_busy(True)
-        BaseThread(
-            name='select_assets_thread',
-            target=self.select_assets,
-            callback=self._assets_selected,
-            target_args=[asset_info_list],
-        ).start()
+        if self.multithreading_enabled:
+            BaseThread(
+                name='select_assets_thread',
+                target=self.select_assets,
+                callback=self._assets_selected,
+                target_args=[asset_info_list],
+            ).start()
+        else:
+            self._assets_selected(self.select_assets(asset_info_list))
 
     def _assets_selected(self, *args):
         '''Called when asset(s) have been selected'''
@@ -311,11 +328,14 @@ class QtAssetManagerClientWidget(QtAssetManagerClient, QtWidgets.QFrame):
         Triggered when load action is clicked on the ui.
         '''
         self.asset_manager_widget.set_busy(True)
-        BaseThread(
-            name='load_assets_thread',
-            target=self.load_assets,
-            target_args=[asset_info_list],
-        ).start()
+        if self.multithreading_enabled:
+            BaseThread(
+                name='load_assets_thread',
+                target=self.load_assets,
+                target_args=[asset_info_list],
+            ).start()
+        else:
+            self.load_assets(asset_info_list)
 
     def _load_assets_callback(self, event):
         '''
@@ -352,11 +372,14 @@ class QtAssetManagerClientWidget(QtAssetManagerClient, QtWidgets.QFrame):
         Triggered when update action is clicked on the ui.
         '''
         self.asset_manager_widget.set_busy(True)
-        BaseThread(
-            name='update_assets_thread',
-            target=self.update_assets,
-            target_args=[asset_info_list, plugin],
-        ).start()
+        if self.multithreading_enabled:
+            BaseThread(
+                name='update_assets_thread',
+                target=self.update_assets,
+                target_args=[asset_info_list, plugin],
+            ).start()
+        else:
+            self.update_assets(asset_info_list, plugin)
 
     def _update_assets_callback(self, event):
         '''
@@ -392,11 +415,14 @@ class QtAssetManagerClientWidget(QtAssetManagerClient, QtWidgets.QFrame):
         Triggered when a version of the asset has changed on the ui.
         '''
         self.asset_manager_widget.set_busy(True)
-        BaseThread(
-            name='change_asset_version_thread',
-            target=self.change_version,
-            target_args=[asset_info, new_version_id],
-        ).start()
+        if self.multithreading_enabled:
+            BaseThread(
+                name='change_asset_version_thread',
+                target=self.change_version,
+                target_args=[asset_info, new_version_id],
+            ).start()
+        else:
+            self.change_version(asset_info, new_version_id)
 
     def _change_version_callback(self, event):
         '''
@@ -435,11 +461,14 @@ class QtAssetManagerClientWidget(QtAssetManagerClient, QtWidgets.QFrame):
         Triggered when unload action is clicked on the ui.
         '''
         self.asset_manager_widget.set_busy(True)
-        BaseThread(
-            name='unload_assets_thread',
-            target=self.unload_assets,
-            target_args=[asset_info_list],
-        ).start()
+        if self.multithreading_enabled:
+            BaseThread(
+                name='unload_assets_thread',
+                target=self.unload_assets,
+                target_args=[asset_info_list],
+            ).start()
+        else:
+            self.unload_assets(asset_info_list)
 
     def _unload_assets_callback(self, event):
         '''
@@ -495,11 +524,14 @@ class QtAssetManagerClientWidget(QtAssetManagerClient, QtWidgets.QFrame):
         Triggered when remove action is clicked on the ui.
         '''
         self.asset_manager_widget.set_busy(True)
-        BaseThread(
-            name='remove_assets_thread',
-            target=self.remove_assets,
-            target_args=[asset_info_list],
-        ).start()
+        if self.multithreading_enabled:
+            BaseThread(
+                name='remove_assets_thread',
+                target=self.remove_assets,
+                target_args=[asset_info_list],
+            ).start()
+        else:
+            self.remove_assets(asset_info_list)
 
     def _remove_assets_callback(self, event):
         '''
