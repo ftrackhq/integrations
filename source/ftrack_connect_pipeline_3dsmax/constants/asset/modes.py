@@ -4,11 +4,11 @@
 from ftrack_connect_pipeline_3dsmax.utils import custom_commands as max_utils
 
 # Load Modes
-IMPORT_MODE = 'Import'
+IMPORT_MODE = 'import'
 # TODO: to be implemented
-# OBJECT_XREF_MODE = 'Object XRef'
-REFERENCE_MODE = 'Scene XRef'
-OPEN_MODE = 'Open'
+# OBJECT_XREF_MODE = 'object XRef'
+REFERENCE_MODE = 'scene XRef'
+OPEN_MODE = 'open'
 
 LOAD_MODES = {
     OPEN_MODE: max_utils.open_file,
