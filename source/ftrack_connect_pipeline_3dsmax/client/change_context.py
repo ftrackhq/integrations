@@ -7,6 +7,7 @@ from ftrack_connect_pipeline_3dsmax.utils.custom_commands import (
     get_main_window,
 )
 
+
 class MaxQtChangeContextClientWidget(
     change_context.QtChangeContextClientWidget
 ):
