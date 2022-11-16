@@ -24,7 +24,7 @@ class MaxQtOpenerClientWidget(open.QtOpenerClientWidget):
 
     def __init__(self, event_manager, parent=None):
         super(MaxQtOpenerClientWidget, self).__init__(
-            event_manager, parent=get_main_window()
+            event_manager, parent=parent or get_main_window()
         )
 
         # Make sure we stays on top of Max

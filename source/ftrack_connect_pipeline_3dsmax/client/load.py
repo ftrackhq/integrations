@@ -28,7 +28,7 @@ class MaxQtAssemblerClientWidget(load.QtAssemblerClientWidget):
             event_manager,
             load_const.LOAD_MODES,
             asset_list_model,
-            parent=get_main_window(),
+            parent=parent or get_main_window(),
         )
 
         # Make sure we stays on top of Max
