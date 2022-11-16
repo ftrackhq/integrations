@@ -49,14 +49,10 @@ class QtLoaderClient(LoaderClient):
 
     ui_types = [core_constants.UI_TYPE, qt_constants.UI_TYPE]
 
-    @property
-    def multithreading_enabled(self):
-        '''Return True if DCC supports multithreading (write operations)'''
-        return self._multithreading_enabled
-
     def __init__(self, event_manager, multithreading_enabled=True):
-        self._multithreading_enabled = multithreading_enabled
-        super(QtLoaderClient, self).__init__(event_manager)
+        super(QtLoaderClient, self).__init__(
+            event_manager, multithreading_enabled=multithreading_enabled
+        )
         self.logger.debug('start qt loader')
 
 
