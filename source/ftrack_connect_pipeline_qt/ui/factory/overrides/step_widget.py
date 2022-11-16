@@ -85,6 +85,7 @@ class PublisherOptionsButton(OptionsButton):
         scroll.setWidget(self._component_options_widget)
         scroll.setWidgetResizable(True)
         scroll.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
+        scroll.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAsNeeded)
 
         self.main_widget.layout().addWidget(scroll)
         self.overlay_container = overlay.Overlay(
