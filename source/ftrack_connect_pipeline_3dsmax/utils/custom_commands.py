@@ -177,15 +177,20 @@ def delete_node(node):
 
 def get_connected_objects_from_dcc_object(dcc_object_name):
     '''Return all objects connected to the given *dcc_object_name*'''
+    # Get Unique id for a node using rt.getHandleByAnim(obj) and get the node
+    # from the unique id using rt.getAnimByHandler(id) please see the following
+    # link for more info: https://help.autodesk.com/view/MAXDEV/2023/ENU/?guid=GUID-25211F97-E81A-4D49-AFB6-50B30894FBEB
     objects = []
     dcc_object_node = rt.getNodeByName(dcc_object_name, exact=True)
     if not dcc_object_node:
         return
     id_value = rt.getProperty(dcc_object_node, asset_const.ASSET_INFO_ID)
-    for obj in rt.rootScene.world.children:
-        if rt.isProperty(obj, "ftrack"):
-            if id_value == rt.getProperty(obj, "ftrack"):
-                objects.append(obj)
+    for parent in rt.rootScene.world.children:
+        children = [parent] + collect_children_nodes(parent)
+        for obj in children:
+            if rt.isProperty(obj, "ftrack"):
+                if id_value == rt.getProperty(obj, "ftrack"):
+                    objects.append(obj)
     return objects
 
 
