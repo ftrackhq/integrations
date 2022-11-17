@@ -167,7 +167,9 @@ class MaxAssetManagerEngine(AssetManagerEngine):
             return unload_status, unload_result
 
         # Get reference Node
-        reference_node = max_utils.get_reference_node(self.dcc_object.name)
+        reference_node = max_utils.get_reference_node(
+            self.dcc_object.name, dcc_object[asset_const.COMPONENT_PATH]
+        )
 
         if not reference_node:
             return super(MaxAssetManagerEngine, self).change_version(
@@ -476,7 +478,9 @@ class MaxAssetManagerEngine(AssetManagerEngine):
             )
 
         # Get reference Node
-        reference_node = max_utils.get_reference_node(self.dcc_object.name)
+        reference_node = max_utils.get_reference_node(
+            self.dcc_object.name, dcc_object[asset_const.COMPONENT_PATH]
+        )
 
         # Load asset with the main method, the reference has not been created yet.
         if not reference_node:
@@ -518,6 +522,7 @@ class MaxAssetManagerEngine(AssetManagerEngine):
         Removes the given *asset_info* from the scene.
         Returns status and result
         '''
+
         start_time = time.time()
         status = core_constants.UNKNOWN_STATUS
         result = []
@@ -555,15 +560,18 @@ class MaxAssetManagerEngine(AssetManagerEngine):
         # Filter out the dcc object
         nodes = list(filter(lambda x: x.name != self.dcc_object.name, nodes))
 
-        reference_node = max_utils.get_reference_node(self.dcc_object.name)
+        reference_node = max_utils.get_reference_node(
+            self.dcc_object.name, dcc_object[asset_const.COMPONENT_PATH]
+        )
 
         if reference_node:
             self.logger.debug("Removing reference: {}".format(reference_node))
             try:
                 max_utils.unload_reference_node(reference_node)
-                result.append(str(reference_node))
+                result.append(str(reference_node.Name))
                 status = core_constants.SUCCESS_STATUS
             except Exception as error:
+                self.logger.exception(error)
                 message = str(
                     'Could not remove the reference node {}, error: {}'.format(
                         str(reference_node), error
@@ -672,7 +680,9 @@ class MaxAssetManagerEngine(AssetManagerEngine):
         nodes = list(filter(lambda x: x.name != self.dcc_object.name, nodes))
 
         # Get reference Node
-        reference_node = max_utils.get_reference_node(self.dcc_object.name)
+        reference_node = max_utils.get_reference_node(
+            self.dcc_object.name, dcc_object[asset_const.COMPONENT_PATH]
+        )
 
         if reference_node:
             self.logger.debug("Removing reference: {}".format(reference_node))

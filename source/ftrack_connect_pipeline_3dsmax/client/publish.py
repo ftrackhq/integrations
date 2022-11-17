@@ -22,11 +22,11 @@ class MaxQtPublisherClientWidget(QtPublisherClientWidget):
 
     def __init__(self, event_manager, parent=None):
         self.dock_widget = QtWidgets.QDockWidget(parent=parent)
+        self.dock_widget.setWindowTitle('ftrack Pipeline Publisher')
+        self.dock_widget.setObjectName('ftrack Pipeline Publisher')
         super(MaxQtPublisherClientWidget, self).__init__(
             event_manager, parent=self.dock_widget
         )
-        self.setWindowTitle('Max Pipeline Publisher')
-        self.setObjectName('Max Pipeline Publisher')
         self.dock_widget.setWidget(self)
         parent.addDockWidget(QtCore.Qt.RightDockWidgetArea, self.dock_widget)
         self.dock_widget.setFloating(False)

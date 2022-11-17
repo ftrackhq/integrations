@@ -166,7 +166,7 @@ def initialise():
         (
             core_constants.LOG_VIEWER,
             log_viewer.MaxQtLogViewerClientWidget,
-            'LogViewer',
+            'Log Viewer',
             '',
         )
     )
@@ -209,7 +209,13 @@ def initialise():
             ]
         )
         MAXSCRIPT = 'python.execute "{}"'.format(python_code)
-        rt.macros.new(category, macro_name, "", label, MAXSCRIPT)
+        rt.macros.new(
+            category,
+            macro_name,
+            "Launch ftrack {}".format(label),
+            label,
+            MAXSCRIPT,
+        )
 
         ftrack_menu.addItem(
             rt.menuMan.createActionItem(macro_name, category), -1
