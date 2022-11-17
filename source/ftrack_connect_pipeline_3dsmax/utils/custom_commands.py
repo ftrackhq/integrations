@@ -323,7 +323,7 @@ def reference_file(path, options=None):
     return scene_node
 
 
-def get_reference_node(dcc_object_name, component_path):
+def get_reference_node(dcc_object_name):
     '''
     Return the scene reference_node associated to the given
     *dcc_object_name*
@@ -331,13 +331,11 @@ def get_reference_node(dcc_object_name, component_path):
     dcc_object_node = rt.getNodeByName(dcc_object_name, exact=True)
     if not dcc_object_node:
         return None
+    component_path = rt.getProperty(
+        dcc_object_node, asset_const.COMPONENT_PATH
+    )
     for idx in range(1, rt.xrefs.getXRefFileCount() + 1):
         reference_node = rt.xrefs.getXrefFile(idx)
-        print(
-            '@@@ reference_node: {}, filename: {}, component path: {}'.format(
-                reference_node, reference_node.filename, component_path
-            )
-        )
         if reference_node.filename == component_path:
             return reference_node
     return None

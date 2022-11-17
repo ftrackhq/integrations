@@ -167,9 +167,7 @@ class MaxAssetManagerEngine(AssetManagerEngine):
             return unload_status, unload_result
 
         # Get reference Node
-        reference_node = max_utils.get_reference_node(
-            self.dcc_object.name, dcc_object[asset_const.COMPONENT_PATH]
-        )
+        reference_node = max_utils.get_reference_node(self.dcc_object.name)
 
         if not reference_node:
             return super(MaxAssetManagerEngine, self).change_version(
@@ -478,9 +476,7 @@ class MaxAssetManagerEngine(AssetManagerEngine):
             )
 
         # Get reference Node
-        reference_node = max_utils.get_reference_node(
-            self.dcc_object.name, dcc_object[asset_const.COMPONENT_PATH]
-        )
+        reference_node = max_utils.get_reference_node(self.dcc_object.name)
 
         # Load asset with the main method, the reference has not been created yet.
         if not reference_node:
@@ -560,9 +556,7 @@ class MaxAssetManagerEngine(AssetManagerEngine):
         # Filter out the dcc object
         nodes = list(filter(lambda x: x.name != self.dcc_object.name, nodes))
 
-        reference_node = max_utils.get_reference_node(
-            self.dcc_object.name, dcc_object[asset_const.COMPONENT_PATH]
-        )
+        reference_node = max_utils.get_reference_node(self.dcc_object.name)
 
         if reference_node:
             self.logger.debug("Removing reference: {}".format(reference_node))
@@ -680,9 +674,7 @@ class MaxAssetManagerEngine(AssetManagerEngine):
         nodes = list(filter(lambda x: x.name != self.dcc_object.name, nodes))
 
         # Get reference Node
-        reference_node = max_utils.get_reference_node(
-            self.dcc_object.name, dcc_object[asset_const.COMPONENT_PATH]
-        )
+        reference_node = max_utils.get_reference_node(self.dcc_object.name)
 
         if reference_node:
             self.logger.debug("Removing reference: {}".format(reference_node))
