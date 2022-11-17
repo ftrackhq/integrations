@@ -891,7 +891,7 @@ class AssetManagerEngine(BaseEngine):
                             method,
                             (
                                 ': {}'.format(result['message'])
-                                if 'message' in result
+                                if result is not None and 'message' in result
                                 else ''
                             ),
                         )
