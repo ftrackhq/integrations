@@ -378,8 +378,8 @@ class MaxAssetManagerEngine(AssetManagerEngine):
             self.dcc_object.name
         )
 
-        if self.dcc_object.name in nodes:
-            nodes.remove(self.dcc_object.name)
+        # Filter out the dcc object
+        nodes = list(filter(lambda x: x.name != self.dcc_object.name, nodes))
 
         for node in nodes:
             try:
@@ -551,9 +551,9 @@ class MaxAssetManagerEngine(AssetManagerEngine):
             )
             or []
         )
-        
-        if self.dcc_object.name in nodes:
-            nodes.remove(self.dcc_object.name)
+
+        # Filter out the dcc object
+        nodes = list(filter(lambda x: x.name != self.dcc_object.name, nodes))
 
         reference_node = max_utils.get_reference_node(self.dcc_object.name)
 
@@ -668,8 +668,8 @@ class MaxAssetManagerEngine(AssetManagerEngine):
             or []
         )
 
-        if self.dcc_object.name in nodes:
-            nodes.remove(self.dcc_object.name)
+        # Filter out the dcc object
+        nodes = list(filter(lambda x: x.name != self.dcc_object.name, nodes))
 
         # Get reference Node
         reference_node = max_utils.get_reference_node(self.dcc_object.name)
