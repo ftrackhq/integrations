@@ -68,10 +68,10 @@ class {{cookiecutter.host_type_capitalized}}DccObject(DccObject):
             self.logger.error(error_message)
             raise RuntimeError(error_message)
 
-        #dcc_object = cmds.createNode(asset_const.FTRACK_PLUGIN_TYPE, name=name)
+        #dcc_object_node = cmds.createNode(asset_const.FTRACK_PLUGIN_TYPE, name=name)
 
-        self.logger.debug('Creating new dcc object {}'.format(dcc_object))
-        self.name = dcc_object
+        self.logger.debug('Creating new dcc object {}'.format(dcc_object_node))
+        self.name = dcc_object_node
         return self.name
 
     def _name_exists(self, name):
