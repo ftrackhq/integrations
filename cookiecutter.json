@@ -1,10 +1,11 @@
 {
-    "project_name": "ftrack <Pluginname> Connect framework integration",
-    "package_name": "ftrack_connect_pipeline_pluginname",
-    "repo_name": "ftrack-connect-pipeline-pluginname",
-    "host_type": "pluginname",
-    "host_type_capitalized": "Pluginname",
-    "description": "<DCC> plugin enabling publish, open, load and asset management with ftrack eco system.",
+    "plugin_name": "pluginname",
+    "project_name": "ftrack {{ cookiecutter.plugin_name.capitalize() }} Connect framework integration",
+    "package_name": "ftrack_connect_pipeline_{{ cookiecutter.plugin_name }}",
+    "repo_name": "ftrack-connect-pipeline-{{ cookiecutter.plugin_name }}",
+    "host_type": "{{ cookiecutter.plugin_name }}",
+    "host_type_capitalized": "{{ cookiecutter.plugin_name.capitalize() }}",
+    "description": "{{ cookiecutter.plugin_name.capitalize() }} plugin enabling publish, open, load and asset management with ftrack eco system.",
     "year": "2022",
     "version": "1.0.0",
     "keywords": "ftrack"
