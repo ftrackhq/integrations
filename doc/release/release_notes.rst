@@ -7,6 +7,13 @@
 Release Notes
 *************
 
+.. release:: upcoming
+
+    .. change:: new
+        :tags: doc
+
+        Finalised documentation.
+
 .. release:: 1.1.0
     :date: 2022-11-08
 
