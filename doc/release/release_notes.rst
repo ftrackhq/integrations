@@ -7,6 +7,12 @@
 Release Notes
 *************
 
+.. release:: upcoming
+    .. change:: new
+
+        3ds Max integration - Disable multithreading for certain DCCs, Added scroll widget to publisher overlay for large option sets.
+
+
 .. release:: 1.1.0
     :date: 2022-11-08
 
