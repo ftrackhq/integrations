@@ -4,25 +4,44 @@ Cookiecutter template for a ftrack Connect plugin.
 
 ## Usage
 
-First make sure you have cookiecutter installed:
+First make sure you have cookiecutter installed on your python environment:
 
     pip install cookiecutter
 
-Then generate your project from this template (in your current
-directory):
+### Generate new plugin:
 
-    cookiecutter https://bitbucket.org/ftrack-integrations/ftrack-cookiecutter-connect-plugin.git
+     cookiecutter -f -o <path-to-your-ropo-folder> <path-to-coockiecutter-template-git-or-local-path> 
+Example:
+
+    cookiecutter -f -o /Users/ftrack/repos https://github.com/ftrackhq/ftrack-cookiecutter-connect-framework-plugin.git
+
+* Fill up all the new plugin name input field when asked (All the other fields are automatically fill out by default).
 
 Once the project is create you should initialise a local git repo with:
 
     git init
 
-Check the output - you may need to fix documentation underlining, add
-dependencies etc.
+### Extend definitions repository with the new plugin definitions:
+
+Clone definitions repository to your repository folder:
+
+    cd <path-to-your-ropo-folder>
+    git clone https://github.com/ftrackhq/ftrack-connect-pipeline-definition.git
+
+Apply new plugin template to definitions repository:
+
+    cookiecutter -f -c definition -o <path-to-your-ropo-folder> <path-to-coockiecutter-template-git-or-local-path>
+Example:
+
+    cookiecutter -f -c definition -o /Users/ftrack/repos https://github.com/ftrackhq/ftrack-cookiecutter-connect-framework-plugin.git
+
+* Fill up all the new plugin name input field when asked (All the other fields are automatically fill out by default).
+
+#### Note: Check the output - you may need to fix documentation underlining, add dependencies etc.
 
 ## Copyright and license
 
-Copyright (c) 2014 ftrack
+Copyright (c) 2022 ftrack
 
 Licensed under the Apache License, Version 2.0 (the \"License\"); you
 may not use this work except in compliance with the License. You may
