@@ -45,7 +45,6 @@ Finally, to have this run during Maya startup, we add it to ``userSetup.py``:
 
 .. code-block:: python
     :linenos:
-    :emphasize-lines: 1,10
 
     def initialise():
         ..

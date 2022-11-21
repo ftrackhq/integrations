@@ -18,7 +18,7 @@ Troubleshooting
    * - The ftrack menu is not showing within DCC.
      - Make sure you are running a Python 3 enabled DCC application, or a Python 2 enabled if you have built the Framework for Python 2.
    * - My DCC is running a newer incompatible Python 3 interpreter.
-     - You will need to rebuild the framework plugins (ftrack-connect-pipeline-*) with that Python version and launch Connect with FTRACK_CONNECT_PLUGIN_PATH pointing to the collected builds folder.
+     - You will need to rebuild the framework plugins with that Python version and launch Connect with FTRACK_CONNECT_PLUGIN_PATH pointing to the collected builds folder.
    * - I am getting a traceback/exception with the DCC that I cannot interpret.
      - If the exception happens within the ftrack Framework and not within your custom code, feel free to reach out to support@ftrack.com and describe the issue together with supplied logs and other useful information.
 

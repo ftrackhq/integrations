@@ -16,24 +16,7 @@ Create a virtual environment
  #. Install virtualenv.
  #. Create a virtual env.
  #. Change folder to ftrack-connect-pipeline
-..
-    :copyright: Copyright (c) 2022 ftrack
 
-.. _developing/build:
-
-*****
-Build
-*****
-
-.. highlight:: bash
-
-Create a virtual environment
-============================
-
- #. Download and install/build latest Python 3.7, see below for reasoning on which Python version to use.
- #. Install virtualenv.
- #. Create a virtual env.
- #. Change folder to ftrack-connect-pipeline
 
 Run::
 
