@@ -8,9 +8,8 @@ Release Notes
 *************
 
 .. release:: upcoming
-    :date: 2022-11-17
 
     .. change:: new
 
-        Initial release
+        Initial beta release of 3ds Max integration
 
