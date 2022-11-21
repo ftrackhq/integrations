@@ -8,6 +8,8 @@ import logging
 import copy
 from jsonref import JsonRef
 
+from ftrack_connect_pipeline import constants
+
 logger = logging.getLogger(__name__)
 
 
@@ -24,19 +26,19 @@ def resolve_schemas(data):
     return data
 
 
-def filter_definitions_by_host(data, host_type):
+def filter_definitions_by_host(data, host_types):
     '''
     Filter the definitions in the given *data* by the given *host*
 
     *data* : Dictionary of json definitions and schemas generated at
     :func:`collect_definitions`
-    *host* : Type of definition host to be filtered by.
+    *host_types* : List of definition host to be filtered by.
     '''
     copy_data = copy.deepcopy(data)
-    logger.debug('filtering definition for host_type: {}'.format(host_type))
-    for entry in ['loader', 'opener', 'publisher', 'asset_manager']:
+    logger.debug('filtering definition for host_type: {}'.format(host_types))
+    for entry in constants.DEFINITION_TYPES:
         for definition in data[entry]:
-            if str(definition.get('host_type')) != str(host_type):
+            if str(definition.get('host_type')) not in host_types:
                 logger.debug(
                     'Removing definition for host_type: {}'.format(
                         definition.get('host_type')

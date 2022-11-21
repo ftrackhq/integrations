@@ -7,7 +7,13 @@
 Release Notes
 *************
 
-.. release:: upcoming
+.. release:: 1.1.0
+    :date: 2022-11-08
+
+    .. change:: new
+        :tags: definition
+
+        Definition_object module implemented on client.
 
     .. change:: fix
         :tags: dependencies

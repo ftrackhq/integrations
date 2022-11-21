@@ -37,7 +37,7 @@ class AssetManagerClient(Client):
         definitions = self.host_connection.definitions.get(schema_title)
         if len(definitions) > 0:
             # Only one definition for now, we don't have a definition schema on the AM
-            self.change_definition(schema, definitions[0])
+            self.change_definition(definitions[0], schema)
 
             self.menu_action_plugins = self.definition.get('actions')
             self.discover_plugins = self.definition.get('discover')

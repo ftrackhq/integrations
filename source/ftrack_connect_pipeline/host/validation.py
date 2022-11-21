@@ -81,6 +81,12 @@ class PluginDiscoverValidation(object):
                     schema_type,
                 ):
                     valid_definition = False
+                    self.logger.debug(
+                        'Could not validate plugins of definition: {} step: {} '
+                        'of schema type: {}'.format(
+                            definition['name'], constants.CONTEXTS, schema_type
+                        )
+                    )
             except Exception as e:
                 self.logger.error(
                     'Could not validate {} contexts steps: {}'.format(
@@ -96,6 +102,12 @@ class PluginDiscoverValidation(object):
                     schema_type,
                 ):
                     valid_definition = False
+                    self.logger.debug(
+                        'Could not validate plugins of definition: {} step: {} '
+                        'of schema type: {}'.format(
+                            definition['name'], constants.COMPONENTS, schema_type
+                        )
+                    )
             except Exception as e:
                 self.logger.error(
                     'Could not validate {} components steps: {}'.format(
@@ -111,6 +123,12 @@ class PluginDiscoverValidation(object):
                     schema_type,
                 ):
                     valid_definition = False
+                    self.logger.debug(
+                        'Could not validate plugins of definition: {} step: {} '
+                        'of schema type: {}'.format(
+                            definition['name'], constants.FINALIZERS, schema_type
+                        )
+                    )
             except Exception as e:
                 self.logger.error(
                     'Could not validate {} finalizers steps: {}'.format(
@@ -151,7 +169,7 @@ class PluginDiscoverValidation(object):
                 for plugin in stage['plugins']:
                     if not self._discover_plugin(plugin, plugin_type):
                         is_valid = False
-                        self.logger.debug(
+                        self.logger.warning(
                             'Could not discover plugin {} of type {} for stage {}'
                             ' of the step {} in {}'.format(
                                 plugin['plugin'],
