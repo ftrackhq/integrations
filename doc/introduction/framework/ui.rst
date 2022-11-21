@@ -34,7 +34,7 @@ Description of main submodules:
  * **plugin**; Contain bases for definition plugin widgets
  * **assembler**; The assembler/loader widget.
  * **asset_manager**; The asset manager widget.
- * **factory**; Contains widgets and logic for generating the publisher and parts of the loader, factorized from the definition.
+ * **factory**; Contains widgets and logic for generating the publisher and parts of the loader, factorised from the definition.
  * **log_viewer**; The log viewer widget.
  * **utility**; Utility widgets such as the entity browser, context selectors and so on.
 

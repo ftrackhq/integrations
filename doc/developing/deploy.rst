@@ -31,7 +31,7 @@ Building and deploying Connect centrally
 ========================================
 
 To minimise IT administrative tasks, one could build Connect and launch it from
-a central location within an new or existing Python environment.
+a central location within a new or existing Python environment.
 
 The process is documented in the :ref:`ftrack Connect documentation <ftrack-connect:developing>`,
 a short summary:

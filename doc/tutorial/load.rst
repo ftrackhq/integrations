@@ -16,8 +16,8 @@ Next, we implement a custom camera loader within Maya that loads a reviewable Qu
 Constrain camera loader
 ***********************
 
-As a preparation, we constrain the camera loader to only bee seen when on animation
-and lighting tasks, hiding it during modeling. We do this by modifying the loader
+As a preparation, we constrain the camera loader to only be seen when on animation
+and lighting tasks, hiding it during modelling. We do this by modifying the loader
 definition json and adding the **discoverable** key:
 
 **mypipeline/ftrack-connect-pipeline-definitions/resource/definitions/loader/maya/camera-maya-loader.json**
@@ -67,7 +67,7 @@ Definition breakdown:
  * *component name*; The name of loadable components on an asset version.
  * *component file formats/types*; List of file format extensions supported by the loader plugin.
  * *importer plugin*; Here we reference the new **maya_render_loader_importer** that we are about to write.
- * *importer plugin options*; In the options we expose a **camera_name** attribute, which will be an option that user can change.
+ * *importer plugin options*; In the options we expose a **camera_name** attribute, which will be an option that the user can change.
 
 Render importer plugin
 ----------------------
@@ -95,4 +95,4 @@ that you also will have to write a *publisher collector* that collects which obj
 the DCC to publish, and also decide on component name and file format extension.
 
 In this tutorial, we will not provide any example publisher code. Instead we refer to
-the extensive set of built-in publisher for inspiration.
+the extensive set of built-in publishers for inspiration.

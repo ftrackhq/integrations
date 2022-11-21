@@ -37,7 +37,7 @@ All DCC tools goes into the file ``custom_commands.py``:
 
 We are not going into detail what the ``scene_open`` function does, but it tries
 to locate a previous published snapshot and if not found - a new one is copied from a template
-and saved to temp folder and opened.
+and saved to the temp folder and opened.
 
 Finally, to have this run during Maya startup, we add it to ``userSetup.py``:
 

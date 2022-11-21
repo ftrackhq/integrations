@@ -105,7 +105,9 @@ class PluginDiscoverValidation(object):
                     self.logger.debug(
                         'Could not validate plugins of definition: {} step: {} '
                         'of schema type: {}'.format(
-                            definition['name'], constants.COMPONENTS, schema_type
+                            definition['name'],
+                            constants.COMPONENTS,
+                            schema_type,
                         )
                     )
             except Exception as e:
@@ -126,7 +128,9 @@ class PluginDiscoverValidation(object):
                     self.logger.debug(
                         'Could not validate plugins of definition: {} step: {} '
                         'of schema type: {}'.format(
-                            definition['name'], constants.FINALIZERS, schema_type
+                            definition['name'],
+                            constants.FINALIZERS,
+                            schema_type,
                         )
                     )
             except Exception as e:

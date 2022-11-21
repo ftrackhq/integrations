@@ -7,7 +7,7 @@
 Asset management
 ****************
 
-Assets inside the DCC are tracked using specialized ftrack **tracking object** that
+Assets inside the DCC are tracked using specialised ftrack **tracking object** that
 usually is hidden from the user or by other means are hard to alter. This is object
 also referred to as the *ftrack node*.
 

@@ -28,7 +28,7 @@ Git repositories
 ****************
 
 The best approach is to create your own set of repositories and then pull from the
-ftrack Framework repositories as an remote upstream.
+ftrack Framework repositories as a remote upstream.
 
 ..  important::
 
@@ -81,7 +81,7 @@ Testing
 *******
 
 During the test phase you would want to test your tools locally before deploying
-centrally. As first step, :ref:`create a virtual environment <_developing/build>`,
+centrally. As first step, :ref:`create a virtual environment <developing/build>`,
 then follow the instructions on how to build and deploy locally::
 
     $ <activate virtual environment>

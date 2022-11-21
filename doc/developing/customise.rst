@@ -7,35 +7,12 @@
 Customise
 *********
 
-IDE
-***
-
-Internally at ftrack we successfully use PyCharm as our bespoked main developement
-tool. Visual Studio would be our second editor of choice, which enables additional
-free remote debugging against DCC:s/Maya.
-
-
-Source Code Management
-**********************
-
-It is possible to edit the code and configurations directly without and SCM, but
-that will make it very complicated to download and merge in new Framework releases
-as they are announced.
-
-The recommended way of doing this is to create your own repositories and then
-sync in changes from ftrack by setting adding a remote pointer to our GitHub
-repositories. This process is described in detail within the :ref:`tutorial`.
-
-
-Customisation notes
-*******************
-
 Here follows some general customisations guidelines on each Framework module.
 
 ftrack-connect-pipeline
 -----------------------
 
-Generally you will never need to touch the core module in order to customize your
+Generally you will never need to touch the core module in order to customise your
 pipeline, the most common addon would in case be a custom engine providing new
 functionality to the Framework. Another case would be providing shared integration
 utility code that can be used across all DCC applications and definition plugins.
@@ -44,7 +21,7 @@ utility code that can be used across all DCC applications and definition plugins
 ftrack-connect-pipeline-definition
 ----------------------------------
 
-This module repository is designed to be the place were main customisations will happen
+This module repository is designed to be the place where main customisations will happen
 within the resource directory.
 
 

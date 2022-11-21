@@ -67,7 +67,7 @@ Glossary
         for example publishing or asset management.
 
     Event manager
-        A module responsible sendimg and receiving ftrack events, through the
+        A module responsible sending and receiving ftrack events, through the
         :term:`ftrack Python API`.
 
     Framework
@@ -116,7 +116,7 @@ Glossary
 
     Qt
         The default UI Framework utilised by the Framework, through PySide and
-        the Qt.py Python binding module. The corresonding Framework module containing
+        the Qt.py Python binding module. The correponding Framework module containing
         UI bindings is named ftrack-connect-pipeline-qt, resources:
 
          * :doc:`ftrack Connect Plugin QT documentation <ftrack-connect-pipeline-qt:index>`

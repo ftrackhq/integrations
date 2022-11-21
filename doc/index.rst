@@ -18,7 +18,7 @@ Welcome to ftrack-connect-pipeline's documentation!
 
 
 This document is intended to bring a deeper understanding of how the new
-:term:`Framework` works under the hood, enabling developers to customize it to their
+:term:`Framework` works under the hood, enabling developers to customise it to their
 particular needs.
 
 For a general introduction on how to install and use ftrack Connect 2 out of the box,

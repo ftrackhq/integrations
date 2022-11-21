@@ -308,8 +308,8 @@ Attributes:
  * **type**; Definition type, binds to the host engine names.
  * **name**; The name of the definition should be kept unique within the pipeline.
  * **host_type**; The type of host this definition should  be available to, basically the name of the DCC application.
- * **context**; Section that defines the the plugin to use when selecting context (Task) and the asset version to load.
- * **components**; Section that define each loadable component (step) - which definition plugin and options to use for collect and load into the DCC app. See plugin and their widgets directories below.
+ * **context**; Section that defines the plugin to use when selecting context (Task) and the asset version to load.
+ * **components**; Section that defines each loadable component (step) - which definition plugin and options to use for collect and load into the DCC app. See plugin and their widgets directories below.
  * **finalizers**; Section that defines plugins that should be run after load has finished.
 
 
@@ -396,7 +396,7 @@ Plugins for Maya hosts.
 
     maya/python/loader/importers/
 
-Directory that should harbor Python plugins responsible for collecting options and do the actual loading into the DCC app.
+Directory that should harbour Python plugins responsible for collecting options and do the actual loading into the DCC app.
 
 .. code-block:: bash
 

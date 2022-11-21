@@ -12,7 +12,7 @@ Slack message containing the version ident, the comment and a thumbnail
 (can be replaced with the full Quicktime reviewable movie if desired), with each
 publish made.
 
-Functions that run after load and import are called "finalisers" and they are
+Functions that run after load and import are called "finalizers" and they are
 fed all the data from the previous steps and stages.
 
 Save copy of thumbnail image
@@ -63,14 +63,14 @@ Add Slack finaliser to publishers
 *********************************
 
 
-Finally we augment the publishers that we wish to use it.
+Finally we augment the publishers that we wish to use.
 
 **PIPELINE/ftrack-connect-pipeline-definition/resource/definitions/publisher/maya/geometry-maya-publish.json**
 
 ..  code-block:: json
-
     :linenos:
     :emphasize-lines: 32,36
+
     {
       "type": "publisher",
       "name": "Geometry Publisher",
@@ -174,4 +174,4 @@ We do that by adding the dependency to setup.py:
 ..  important::
 
     A better approach is to add the dependency to the ``ftrack-connect-pipeline``
-    module were the other pipeline dependencies are defined and built.
+    module where the other pipeline dependencies are defined and built.
