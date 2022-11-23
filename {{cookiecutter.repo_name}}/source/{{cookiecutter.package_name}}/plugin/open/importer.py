@@ -1,8 +1,6 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-{{cookiecutter.year}} ftrack
 
-import {{cookiecutter.host_type}}
-
 from ftrack_connect_pipeline import plugin
 from ftrack_connect_pipeline_qt import plugin as pluginWidget
 from {{cookiecutter.package_name}}.plugin import (
