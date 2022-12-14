@@ -77,7 +77,7 @@ modindex_common_prefix = ['ftrack_connect_pipeline.']
 #
 # This is also used if you do content translation via gettext catalogs.
 # Usually you set "language" from the command line for these cases.
-language = None
+language = 'en'
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
@@ -269,25 +269,33 @@ intersphinx_mapping = {
         'https://ftrack-connect-package.readthedocs.io/en/latest/',
         None,
     ),
-    # TODO: Enable these when published
-    #'ftrack-connect-pipeline-definition': (
-    #    'https://ftrack-connect-pipeline-definition.readthedocs.io/en/latest/',
+    # TODO: Make intersphinx work with Github hosted docs.
+    # 'ftrack-connect-pipeline-definition': (
+    #     'https://ftrackhq.github.io/ftrack-connect-pipeline-definition/',
     #    None,
     # ),
     # 'ftrack-connect-pipeline-qt': (
-    #    'https://ftrack-connect-pipeline-qt.readthedocs.io/en/latest/',
+    #    'https://ftrackhq.github.io/ftrack-connect-pipeline-qt/',
     #    None,
     # ),
     # 'ftrack-connect-pipeline-maya': (
-    #    'https://ftrack-connect-pipeline-maya.readthedocs.io/en/latest/',
+    #    'https://ftrackhq.github.io/ftrack-connect-pipeline-maya/',
     #    None,
     # ),
     # 'ftrack-connect-pipeline-nuke': (
-    #    'https://ftrack-connect-pipeline-nuke.readthedocs.io/en/latest/',
+    #    'https://ftrackhq.github.io/ftrack-connect-pipeline-nuke/',
     #    None,
     # ),
     # 'ftrack-connect-pipeline-houdini': (
-    #    'https://ftrack-connect-pipeline-houdini.readthedocs.io/en/latest/',
+    #    'https://ftrackhq.github.io/ftrack-connect-pipeline-houdini/',
+    #    None,
+    # ),
+    # 'ftrack-connect-pipeline-3dsmax': (
+    #     'https://ftrackhq.github.io/ftrack-connect-pipeline-3dsmax/',
+    #     None,
+    # ),
+    #'ftrack-connect-pipeline-unreal': (
+    #    'https://ftrackhq.github.io/ftrack-connect-pipeline-unreal/',
     #    None,
     # ),
 }

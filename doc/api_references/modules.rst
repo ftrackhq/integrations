@@ -13,8 +13,9 @@ API Reference
 
     ftrack_connect_pipeline
 
-    :ref:`ftrack_connect_pipeline_definition <ftrack-connect-pipeline-definition:developing/api_references/modules>`
-    :ref:`ftrack_connect_pipeline_qt <ftrack-connect-pipeline-qt:developing/api_references/modules>`
-    :ref:`ftrack_connect_pipeline_maya <ftrack-connect-pipeline-maya:developing/api_references/modules>`
-    :ref:`ftrack_connect_pipeline_nuke <ftrack-connect-pipeline-nuke:developing/api_references/modules>`
-    :ref:`ftrack_connect_pipeline_houdini <ftrack-connect-pipeline-houdini:developing/api_references/modules>`
+* `ftrack_connect_pipeline_definition <https://ftrackhq.github.io/ftrack-connect-pipeline-definition/>`_
+* `ftrack_connect_pipeline_qt <https://ftrackhq.github.io/ftrack-connect-pipeline-qt/>`_
+* `ftrack_connect_pipeline_maya <https://ftrackhq.github.io/ftrack-connect-pipeline-maya/>`_
+* `ftrack_connect_pipeline_nuke <https://ftrackhq.github.io/ftrack-connect-pipeline-nuke/>`_
+* `ftrack_connect_pipeline_houdini <https://ftrackhq.github.io/ftrack-connect-pipeline-3dsmax/>`_
+* `ftrack_connect_pipeline_unreal <https://ftrackhq.github.io/ftrack-connect-pipeline-unreal/>`_

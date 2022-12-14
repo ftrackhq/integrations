@@ -36,7 +36,7 @@ the new Framework and the second part is where we customise it to fit our needs.
     installing
     developing/index
     tutorial/index
-    standalone
+    standalone/index
     api_references/modules
     release/index
     glossary

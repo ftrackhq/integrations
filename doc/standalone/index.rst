@@ -12,9 +12,9 @@ Standalone
 This section describes how to use the pipeline Framework in standalone mode, from within
 the DCC application or outside.
 
-***************
+
 Python Example
-***************
+--------------
 
 This is an example on how to run the framework in a python console without
 Connect or any DCC running on the background, this way the framework is able to
@@ -27,9 +27,8 @@ discover any definition where the host type is python.
     :linenos:
 
 
-*****************
 DCC Maya Example
-*****************
+----------------
 
 This is an example on how to run the framework inside the maya console.
 All the definitions with host_type maya and python will be discovered.
@@ -51,9 +50,8 @@ All the definitions with host_type maya and python will be discovered.
     :linenos:
 
 
-***************************************
 Discover Framework from Standalone DCC
-***************************************
+--------------------------------------
 
 These are the necessary environment variables that has to be setup for the
 framework to be discovered in a DCC application without launching from connect.
