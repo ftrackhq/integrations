@@ -17,14 +17,15 @@
 import os
 from pkg_resources import get_distribution, DistributionNotFound
 import sys
-from Qt import QtWidgets
+
+# from Qt import QtWidgets
 
 # sys.path.insert(0, os.path.abspath('.'))
 
 sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'source'))
 
 
-_app = QtWidgets.QApplication()
+# _app = QtWidgets.QApplication()
 
 # -- Project information -----------------------------------------------------
 

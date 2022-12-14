@@ -16,4 +16,4 @@ Subpackages
    ftrack_connect_pipeline_qt.plugin.load
    ftrack_connect_pipeline_qt.plugin.open
    ftrack_connect_pipeline_qt.plugin.publish
-   ftrack_connect_pipeline_qt.plugin.widgets
+   ftrack_connect_pipeline_qt.plugin.widget
