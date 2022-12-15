@@ -7,7 +7,8 @@
 Release Notes
 *************
 
-.. release:: upcoming
+.. release:: 1.0.0
+    :date: 2022-12-15
 
     .. change:: new
 
