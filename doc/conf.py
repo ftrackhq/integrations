@@ -77,7 +77,7 @@ modindex_common_prefix = ['ftrack_connect_pipeline.']
 #
 # This is also used if you do content translation via gettext catalogs.
 # Usually you set "language" from the command line for these cases.
-language = None
+language = 'en'
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
@@ -238,9 +238,66 @@ def autodoc_skip(app, what, name, obj, skip, options):
 # -- Options for intersphinx extension ---------------------------------------
 
 # Example configuration for intersphinx: refer to the Python standard library.
+
 intersphinx_mapping = {
     'python': ('http://docs.python.org/', None),
-    'ftrack_api': ('http://ftrack-python-api.rtd.ftrack.com/en/stable/', None),
+    'ftrack-python-api': (
+        'https://ftrack-python-api.readthedocs.io/en/latest/',
+        None,
+    ),
+    'ftrack-connect': (
+        'https://ftrack-connect.readthedocs.io/en/latest/',
+        None,
+    ),
+    'ftrack-application-launcher': (
+        'https://ftrack-application-launcher.readthedocs.io/en/latest/',
+        None,
+    ),
+    'ftrack-connect-action-launcher-widget': (
+        'https://ftrack-connect-action-launcher-widget.readthedocs.io/en/latest/',
+        None,
+    ),
+    'ftrack-connect-publisher-widget': (
+        'https://ftrack-connect-publisher-widget.readthedocs.io/en/latest/',
+        None,
+    ),
+    'ftrack-connect-plugin-manager': (
+        'https://ftrack-connect-plugin-manager.readthedocs.io/en/latest/',
+        None,
+    ),
+    'ftrack-connect-package': (
+        'https://ftrack-connect-package.readthedocs.io/en/latest/',
+        None,
+    ),
+    # TODO: Make intersphinx work with Github hosted docs.
+    # 'ftrack-connect-pipeline-definition': (
+    #     'https://ftrackhq.github.io/ftrack-connect-pipeline-definition/',
+    #    None,
+    # ),
+    # 'ftrack-connect-pipeline-qt': (
+    #    'https://ftrackhq.github.io/ftrack-connect-pipeline-qt/',
+    #    None,
+    # ),
+    # 'ftrack-connect-pipeline-maya': (
+    #    'https://ftrackhq.github.io/ftrack-connect-pipeline-maya/',
+    #    None,
+    # ),
+    # 'ftrack-connect-pipeline-nuke': (
+    #    'https://ftrackhq.github.io/ftrack-connect-pipeline-nuke/',
+    #    None,
+    # ),
+    # 'ftrack-connect-pipeline-houdini': (
+    #    'https://ftrackhq.github.io/ftrack-connect-pipeline-houdini/',
+    #    None,
+    # ),
+    # 'ftrack-connect-pipeline-3dsmax': (
+    #     'https://ftrackhq.github.io/ftrack-connect-pipeline-3dsmax/',
+    #     None,
+    # ),
+    #'ftrack-connect-pipeline-unreal': (
+    #    'https://ftrackhq.github.io/ftrack-connect-pipeline-unreal/',
+    #    None,
+    # ),
 }
 
 # -- Options for todo extension ----------------------------------------------
