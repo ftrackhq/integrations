@@ -7,8 +7,8 @@
 Release Notes
 *************
 
-.. release:: upcoming
-    .. change:: new
+.. release:: 1.2.0
+    .. change:: 2022-12-15
 
         Client multithreaded property, as part of 3ds Max integration.
 
