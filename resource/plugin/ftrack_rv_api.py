@@ -375,6 +375,12 @@ def _translateEntityType(entityType):
     )
 
 
+def _get_temp_data(temp_data_id):
+    action = {'action': '_get_tempdata', 'id': temp_data_id}
+    logger.info('tempdata Action {}'.format(action))
+    return session.call([action])
+
+
 def _generateURL(params=None, panelName=None):
     '''Return URL to panel in ftrack based on *params* or *panel*.'''
     url = ''
@@ -391,9 +397,14 @@ def _generateURL(params=None, panelName=None):
             except Exception:
                 entityId, entityType = _getEntityFromEnvironment()
 
-            if entityId and entityType:
-                new_entity_type = _translateEntityType(entityType)
-                new_entity = session.get(new_entity_type, entityId)
+            if (entityId and entityType):
+                if (entityType != 'tempdata') :   
+                    new_entity_type = _translateEntityType(entityType)
+                    new_entity = session.get(new_entity_type, entityId)
+                else: 
+                    temp_data = _get_temp_data(entityId)[0][0]
+                    new_entity_type = _translateEntityType(temp_data['type'])
+                    new_entity = session.get(new_entity_type, temp_data['id'])
             else:
                 new_entity = None
             try:

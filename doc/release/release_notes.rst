@@ -10,6 +10,17 @@ Release Notes
 .. release:: Upcoming
 
     .. change:: fixed
+        :tags: Logging
+
+        Log initialization breaks due to utf8 conversion.
+
+    .. change:: fixed
+        :tags: Api
+
+        Rv breaks not being able to parse tempdata.
+        
+    .. change:: fixed
+        :tags: UX
 
         Panel size too small at startup.
 
