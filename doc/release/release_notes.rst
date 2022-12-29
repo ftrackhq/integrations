@@ -7,6 +7,11 @@
 Release Notes
 *************
 
+.. release:: Upcoming
+
+    .. change:: fixed
+
+        Panel size too small at startup.
 
 .. release:: 5.0
     :date: 2021-09-07

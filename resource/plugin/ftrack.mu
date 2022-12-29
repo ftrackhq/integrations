@@ -100,7 +100,7 @@ class: FtrackMode : MinorMode
         view.setMaximumWidth(16777215);
         view.setMinimumWidth(0);
         view.setMaximumHeight(16777215);
-        view.setMinimumHeight(0);
+        view.setMinimumHeight(250);
     }
 
     \: makeit (QObject;)
