@@ -92,9 +92,15 @@ class LoaderImporterPlugin(base.BaseImporterPlugin):
             if not isinstance(collector['result'], dict):
                 continue
             else:
-                component_name = collector['result'].get(asset_const.COMPONENT_NAME)
-                component_path = collector['result'].get(asset_const.COMPONENT_PATH)
-                component_id = collector['result'].get(asset_const.COMPONENT_ID)
+                component_name = collector['result'].get(
+                    asset_const.COMPONENT_NAME
+                )
+                component_path = collector['result'].get(
+                    asset_const.COMPONENT_PATH
+                )
+                component_id = collector['result'].get(
+                    asset_const.COMPONENT_ID
+                )
                 break
 
         asset_info = FtrackAssetInfo.create(
