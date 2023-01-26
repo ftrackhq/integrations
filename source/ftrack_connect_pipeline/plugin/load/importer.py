@@ -7,7 +7,7 @@ import base64
 
 from ftrack_connect_pipeline import constants
 from ftrack_connect_pipeline.plugin import base
-from ftrack_connect_pipeline.asset import asset_info as ainfo
+from ftrack_connect_pipeline.asset.asset_info import FtrackAssetInfo
 from ftrack_connect_pipeline.constants import asset as asset_const
 
 
@@ -77,11 +77,33 @@ class LoaderImporterPlugin(base.BaseImporterPlugin):
                 input_bytes
             ).decode('ascii')
 
-        arguments_dict = ainfo.generate_asset_info_dict_from_args(
-            context_data, data, options, self.session
-        )
+        # Get Asset version entity to generate asset info
+        asset_version_entity = self.session.query(
+            'select version from AssetVersion where id is "{}"'.format(
+                context_data[asset_const.VERSION_ID]
+            )
+        ).one()
 
-        asset_info = ainfo.FtrackAssetInfo(arguments_dict)
+        # Get Component name from collector data.
+        component_name = None
+        component_path = None
+        component_id = None
+        for collector in data:
+            for result in collector['result']:
+                if not isinstance(result, dict):
+                    continue
+                else:
+                    component_name = result.get('name')
+                    component_path = result.get('path')
+                    component_id = result.get('id')
+                    break
+
+        asset_info = FtrackAssetInfo.create(
+            asset_version_entity,
+            component_name=component_name,
+            component_path=component_path,
+            component_id=component_id,
+        )
 
         self.asset_info = asset_info
         self.ftrack_object_manager.create_new_dcc_object()

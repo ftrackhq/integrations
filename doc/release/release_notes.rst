@@ -8,6 +8,11 @@ Release Notes
 *************
 
 .. release:: upcoming
+    .. change:: changed
+        :tags: asset_info
+
+        Asset info has now a create method.
+
     .. change:: new
 
         Client multithreaded property, as part of 3ds Max integration.
