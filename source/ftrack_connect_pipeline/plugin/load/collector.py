@@ -11,7 +11,7 @@ class LoaderCollectorPlugin(base.BaseCollectorPlugin):
     :class:`~ftrack_connect_pipeline.plugin.base.BaseCollectorPlugin`
     '''
 
-    return_type = list
+    return_type = dict
     '''Required return type'''
     plugin_type = constants.PLUGIN_LOADER_COLLECTOR_TYPE
     '''Type of the plugin'''
