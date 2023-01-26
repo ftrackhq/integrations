@@ -6,96 +6,8 @@ import json
 import uuid
 import base64
 import six
-import ftrack_api
+import os
 from ftrack_connect_pipeline.constants import asset as constants
-
-
-def generate_asset_info_dict_from_args(context_data, data, options, session):
-    '''
-    Returns a dictionary constructed from the needed values of the given
-    *context_data*, *data* and *options*
-
-    *context_data* : Context dictionary of the current asset. Should contain the keys
-    asset_type_name, asset_name, asset_id, version_number, version_id, context_id.
-
-    *data* : Data of the current operation or plugin. Should contain the
-    component_path from the asset that we are working on.
-
-    *options* : Options of the current widget or operation, should contain the
-    load_mode that we want to/or had apply to the current asset.
-
-    *session* : should be instance of :class:`ftrack_api.session.Session`
-    to use for communication with the server.
-    '''
-
-    arguments_dict = {}
-
-    arguments_dict[constants.ASSET_NAME] = context_data.get(
-        'asset_name', 'No name found'
-    )
-    arguments_dict[constants.ASSET_TYPE_NAME] = context_data.get(
-        constants.ASSET_TYPE_NAME, ''
-    )
-    arguments_dict[constants.ASSET_ID] = context_data.get(
-        constants.ASSET_ID, ''
-    )
-    arguments_dict[constants.VERSION_NUMBER] = int(
-        context_data.get(constants.VERSION_NUMBER, 0)
-    )
-    arguments_dict[constants.VERSION_ID] = context_data.get(
-        constants.VERSION_ID, ''
-    )
-
-    arguments_dict[constants.LOAD_MODE] = options.get(
-        constants.LOAD_MODE, 'Not Set'
-    )
-
-    arguments_dict[constants.ASSET_INFO_OPTIONS] = options.get(
-        constants.ASSET_INFO_OPTIONS, ''
-    )
-
-    arguments_dict[constants.ASSET_INFO_ID] = uuid.uuid4().hex
-
-    asset_version_entity = session.query(
-        'select version from AssetVersion where id is "{}"'.format(
-            arguments_dict[constants.VERSION_ID]
-        )
-    ).one()
-
-    asset_entity = asset_version_entity['asset']
-    ancestors = asset_entity['ancestors']
-    project_name = asset_entity['parent']['project']['name']
-    context_path = "{}:{}:{}".format(
-        project_name,
-        ":".join(x['name'] for x in ancestors),
-        asset_entity['name'],
-    )
-    arguments_dict[constants.CONTEXT_PATH] = context_path
-
-    arguments_dict[constants.IS_LATEST_VERSION] = asset_version_entity[
-        constants.IS_LATEST_VERSION
-    ]
-
-    dependencies = asset_version_entity['uses_versions']
-    arguments_dict[constants.DEPENDENCY_IDS] = [
-        dependency['id'] for dependency in dependencies
-    ]
-
-    location = session.pick_location()
-
-    for component in asset_version_entity['components']:
-        if location.get_component_availability(component) < 100.0:
-            continue
-        component_path = location.get_filesystem_path(component)
-        for collector in data:
-            if component_path in collector['result'][0]:
-                arguments_dict[constants.COMPONENT_NAME] = component['name']
-                arguments_dict[constants.COMPONENT_ID] = component['id']
-                arguments_dict[constants.COMPONENT_PATH] = component_path
-
-    arguments_dict[constants.OBJECTS_LOADED] = False
-
-    return arguments_dict
 
 
 class FtrackAssetInfo(dict):
@@ -229,32 +141,44 @@ class FtrackAssetInfo(dict):
         return value
 
     @classmethod
-    def from_version_entity(cls, version_entity, component_name):
+    def create(
+        cls,
+        asset_version_entity,
+        component_name,
+        component_path=None,
+        component_id=None,
+        load_mode=None,
+        asset_info_options=None,
+        objects_loaded=False,
+        is_snapshot=False,
+        reference_object=None,
+    ):
         '''
         Returns an :class:`~ftrack_connect_pipeline.asset.FtrackAssetInfo` object
-        generated from the given *ftrack_version* and the given *component_name*
+        generated from the given *asset_version_entity*, and *component_name*.
 
-        *ftrack_version* : :class:`ftrack_api.entity.asset_version.AssetVersion`
+        *asset_version_entity* : :class:`ftrack_api.entity.asset_version.AssetVersion`
 
         *component_name* : Component name
 
+        *component_path* : Component path
+
+        *component_id* : Component id
+
+        *load_mode* : Load mode
+
+        *asset_info_options* : Asset info options
+
+        *objects_loaded* : Objects loaded
+
+        *is_snapshot* : Is snapshot
+
+        *reference_object* : Reference object
+
         '''
-        asset_info_data = {}
-        asset_entity = version_entity['asset']
 
-        asset_info_data[constants.ASSET_NAME] = asset_entity['name']
-        asset_info_data[constants.ASSET_TYPE_NAME] = asset_entity['type'][
-            'name'
-        ]
-        asset_info_data[constants.ASSET_ID] = asset_entity['id']
-        asset_info_data[constants.VERSION_NUMBER] = int(
-            version_entity['version']
-        )
-        asset_info_data[constants.VERSION_ID] = version_entity['id']
-        asset_info_data[constants.IS_LATEST_VERSION] = version_entity[
-            constants.IS_LATEST_VERSION
-        ]
-
+        # Pick context path
+        asset_entity = asset_version_entity['asset']
         ancestors = asset_entity['ancestors']
         project_name = asset_entity['parent']['project']['name']
         context_path = "{}:{}:{}".format(
@@ -262,36 +186,51 @@ class FtrackAssetInfo(dict):
             ":".join(x['name'] for x in ancestors),
             asset_entity['name'],
         )
-        asset_info_data[constants.CONTEXT_PATH] = context_path
 
-        location = version_entity.session.pick_location()
+        # Pick location
+        location = asset_version_entity.session.pick_location()
 
-        # Get dependencies
-        dependencies = version_entity['uses_versions']
-        asset_info_data[constants.DEPENDENCY_IDS] = [
-            dependency['id'] for dependency in dependencies
-        ]
+        # Pick component
+        if not component_path or not component_id:
+            for component in asset_version_entity['components']:
+                if component['name'] == component_name:
+                    if location.get_component_availability(component) == 100.0:
+                        component_path = location.get_filesystem_path(
+                            component
+                        )
+                        if component_path:
+                            component_id = component['id']
+                            break
 
-        asset_info_data[constants.ASSET_INFO_ID] = uuid.uuid4().hex
-
-        for component in version_entity['components']:
-            if component['name'] == component_name:
-                if location.get_component_availability(component) == 100.0:
-                    component_path = location.get_filesystem_path(component)
-                    if component_path:
-
-                        asset_info_data[constants.COMPONENT_NAME] = component[
-                            'name'
-                        ]
-
-                        asset_info_data[constants.COMPONENT_ID] = component[
-                            'id'
-                        ]
-
-                        asset_info_data[
-                            constants.COMPONENT_PATH
-                        ] = component_path
-
-        asset_info_data[constants.OBJECTS_LOADED] = False
+        asset_info_data = {
+            constants.ASSET_INFO_ID: uuid.uuid4().hex,
+            constants.ASSET_NAME: asset_version_entity['asset']['name'],
+            constants.ASSET_TYPE_NAME: asset_version_entity['type']['name'],
+            constants.VERSION_ID: asset_version_entity['id'],
+            constants.ASSET_ID: asset_version_entity['asset']['id'],
+            constants.VERSION_NUMBER: int(asset_version_entity['version']),
+            constants.IS_LATEST_VERSION: asset_version_entity[
+                constants.IS_LATEST_VERSION
+            ],
+            constants.DEPENDENCY_IDS: [
+                dependency['id']
+                for dependency in asset_version_entity['uses_versions']
+            ],
+            constants.LOAD_MODE: load_mode or 'Not Set',
+            constants.ASSET_INFO_OPTIONS: asset_info_options or '',
+            constants.OBJECTS_LOADED: objects_loaded,
+            constants.IS_SNAPSHOT: is_snapshot,
+            constants.REFERENCE_OBJECT: reference_object or '',
+            constants.CONTEXT_PATH: context_path,
+            constants.COMPONENT_NAME: component_name,
+            constants.COMPONENT_ID: component_id,
+            constants.COMPONENT_PATH: component_path,
+            constants.MOD_DATE: os.path.getmtime(component_path)
+            if component_path
+            else None,
+            constants.FILE_SIZE: os.path.getsize(component_path)
+            if component_path
+            else None,
+        }
 
         return cls(asset_info_data)

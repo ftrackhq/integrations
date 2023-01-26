@@ -93,9 +93,7 @@ class AssetManagerEngine(BaseEngine):
 
         if asset_versions_entities:
             for version in asset_versions_entities:
-                asset_info = FtrackAssetInfo.from_version_entity(
-                    version, component_name
-                )
+                asset_info = FtrackAssetInfo.create(version, component_name)
                 ftrack_asset_info_list.append(asset_info)
 
             if not ftrack_asset_info_list:
