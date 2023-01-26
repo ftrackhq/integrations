@@ -11,7 +11,7 @@ Release Notes
     .. change:: changed
         :tags: collector
 
-        Common loader and opener return value changed
+        Common loader and opener collector return value changed from list to dictionary
 
     .. change:: changed
         :tags: asset_info
