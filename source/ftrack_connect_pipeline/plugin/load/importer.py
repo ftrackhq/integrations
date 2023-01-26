@@ -89,14 +89,13 @@ class LoaderImporterPlugin(base.BaseImporterPlugin):
         component_path = None
         component_id = None
         for collector in data:
-            for result in collector['result']:
-                if not isinstance(result, dict):
-                    continue
-                else:
-                    component_name = result.get('name')
-                    component_path = result.get('path')
-                    component_id = result.get('id')
-                    break
+            if not isinstance(collector['result'], dict):
+                continue
+            else:
+                component_name = collector['result'].get(asset_const.COMPONENT_NAME)
+                component_path = collector['result'].get(asset_const.COMPONENT_PATH)
+                component_id = collector['result'].get(asset_const.COMPONENT_ID)
+                break
 
         asset_info = FtrackAssetInfo.create(
             asset_version_entity,
