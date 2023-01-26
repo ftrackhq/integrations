@@ -9,6 +9,11 @@ Release Notes
 
 .. release:: upcoming
     .. change:: changed
+        :tags: collector
+
+        Common loader and opener return value changed
+
+    .. change:: changed
         :tags: asset_info
 
         Asset info has now a create method.
