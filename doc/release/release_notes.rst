@@ -9,6 +9,11 @@ Release Notes
 
 .. release:: upcoming
     .. change:: changed
+        :tags: load_asset
+
+        Init nodes returning dictionary with result key and not run_method key.
+
+    .. change:: changed
         :tags: collector
 
         Common loader and opener collector return value changed from list to dictionary

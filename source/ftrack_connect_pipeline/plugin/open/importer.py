@@ -108,6 +108,8 @@ class OpenerImporterPlugin(base.BaseImporterPlugin):
             component_name=component_name,
             component_path=component_path,
             component_id=component_id,
+            load_mode=options.get(asset_const.LOAD_MODE),
+            asset_info_options=options.get(asset_const.ASSET_INFO_OPTIONS)
         )
 
         self.asset_info = asset_info
@@ -145,7 +147,7 @@ class OpenerImporterPlugin(base.BaseImporterPlugin):
         result = {
             'asset_info': self.asset_info,
             'dcc_object': self.dcc_object,
-            'run_method': run_result,
+            'result': run_result,
         }
 
         return result
