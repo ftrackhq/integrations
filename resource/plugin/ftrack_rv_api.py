@@ -374,15 +374,21 @@ def _translateEntityType(entityType):
         'Unable to translate entity type: {0}.'.format(entity_type)
     )
 
+def _get_temp_data_url(name, temp_data_id):
+    operation = {
+        'action': 'get_widget_url',
+        'name': name,
+        'theme': None,
+    }
 
-def _get_temp_data(temp_data_id):
-    action = {'action': '_get_tempdata', 'id': temp_data_id}
-    logger.info('tempdata Action {}'.format(action))
-    return session.call([action])
-
+    result = session.call([operation])
+    url = result[0]['widget_url']
+    full_url = '{}&entityType=tempdata&entityId={}'.format(url, temp_data_id)
+    return full_url
 
 def _generateURL(params=None, panelName=None):
     '''Return URL to panel in ftrack based on *params* or *panel*.'''
+    logger.info('_generateURL with params: {}'.format(params))
     url = ''
     try:
         entityId = None
@@ -401,16 +407,15 @@ def _generateURL(params=None, panelName=None):
                 if (entityType != 'tempdata') :   
                     new_entity_type = _translateEntityType(entityType)
                     new_entity = session.get(new_entity_type, entityId)
+                    try:
+                        url = session.get_widget_url(panelName, entity=new_entity)
+                    except Exception as exception:
+                        logger.error(str(exception))
                 else: 
-                    temp_data = _get_temp_data(entityId)[0][0]
-                    new_entity_type = _translateEntityType(temp_data['type'])
-                    new_entity = session.get(new_entity_type, temp_data['id'])
-            else:
-                new_entity = None
-            try:
-                url = session.get_widget_url(panelName, entity=new_entity)
-            except Exception as exception:
-                logger.error(str(exception))
+                    try:
+                        url = _get_temp_data_url(panelName, entityId)
+                    except Exception as exception:
+                        logger.error(str(exception))
 
         logger.info('Returning url "{0}"'.format(url))
     except Exception as error:

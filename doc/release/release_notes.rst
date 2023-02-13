@@ -10,6 +10,11 @@ Release Notes
 .. release:: Upcoming
 
     .. change:: fixed
+        :tags: Api
+
+        Rv does not play Entity selections.
+
+    .. change:: fixed
         :tags: Logging
 
         Log initialization breaks due to utf8 conversion.
@@ -23,6 +28,7 @@ Release Notes
         :tags: UX
 
         Panel size too small at startup.
+
 
 .. release:: 5.0
     :date: 2021-09-07
