@@ -1,0 +1,225 @@
+{
+  "type": "publisher",
+  "name": "Image Sequence Publisher",
+  "asset_type": "img",
+  "host_type": "nuke",
+  "ui_type": "qt",
+  "contexts": [
+    {
+      "name": "main",
+      "stages": [
+        {
+          "name": "context",
+          "plugins":[
+            {
+              "name": "context selector",
+              "plugin": "common_passthrough_publisher_context",
+              "widget": "common_default_publisher_context"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "components": [
+    {
+      "name": "snapshot",
+      "stages": [
+        {
+          "name": "collector",
+          "plugins":[
+            {
+              "name": "collect scene",
+              "plugin": "nuke_scene_publisher_collector",
+              "options": {
+                "export": ["scene"]
+              }
+            }
+          ]
+        },
+        {
+          "name": "validator",
+          "plugins":[
+            {
+              "name": "Check file saved",
+              "plugin": "nuke_file_saved_publisher_validator"
+            },
+            {
+              "name": "validate file exists",
+              "plugin": "nuke_file_exists_publisher_validator"
+            }
+          ]
+        },
+        {
+          "name": "exporter",
+          "plugins":[
+            {
+              "name": "write nuke scene",
+              "plugin": "nuke_native_publisher_exporter"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "sequence",
+      "optional": true,
+      "stages": [
+        {
+          "name": "collector",
+          "plugins":[
+            {
+              "name": "Collect node",
+              "plugin": "nuke_node_publisher_collector"
+            }
+          ]
+        },
+        {
+          "name": "validator",
+          "plugins":[
+            {
+              "name": "Validate selection",
+              "plugin": "common_non_empty_publisher_validator",
+              "options": {
+                "amount": 1
+              }
+            },
+            {
+              "name": "Can connect to write node",
+              "plugin": "nuke_writable_node_publisher_validator"
+            }
+          ]
+        },
+        {
+          "name": "exporter",
+          "plugins":[
+            {
+              "name": "render or pickup sequence",
+              "plugin": "nuke_sequence_publisher_exporter",
+              "options": {
+                "mode": "render",
+                "file_format": "exr",
+                "file_format_options": {
+                  "exr": {
+                    "datatype": 1,
+                    "compression": 1
+                  }
+                }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "thumbnail",
+      "stages": [
+        {
+          "name": "collector",
+          "plugins":[
+            {
+              "name": "Collect node",
+              "plugin": "nuke_node_publisher_collector"
+            }
+          ]
+        },
+        {
+          "name": "validator",
+          "plugins":[
+            {
+              "name": "validate selection",
+              "plugin": "nuke_writable_node_publisher_validator"
+            }
+          ]
+        },
+        {
+          "name": "exporter",
+          "plugins":[
+            {
+              "name": "write thumbnail",
+              "plugin": "nuke_thumbnail_publisher_exporter"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "reviewable",
+      "stages": [
+        {
+          "name": "collector",
+          "plugins":[
+            {
+              "name": "Collect node",
+              "plugin": "nuke_node_publisher_collector"
+            }
+          ]
+        },
+        {
+          "name": "validator",
+          "plugins":[
+            {
+              "name": "validate selection",
+              "plugin": "common_non_empty_publisher_validator"
+            },
+            {
+              "name": "Can connect to write node",
+              "plugin": "nuke_writable_node_publisher_validator"
+            }
+          ]
+        },
+        {
+          "name": "exporter",
+          "plugins":[
+            {
+              "name": "write reviewable",
+              "plugin": "nuke_reviewable_publisher_exporter",
+              "options": {
+                  "mode": "render",
+                  "file_type" : "mov",
+                  "codec": "mp4v"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "finalizers": [
+    {
+      "name": "main",
+      "stages": [
+        {
+          "name": "pre_finalizer",
+          "visible": false,
+          "plugins":[
+            {
+              "name": "Pre publish to ftrack server",
+              "plugin": "common_passthrough_publisher_pre_finalizer"
+            }
+          ]
+        },
+        {
+          "name": "finalizer",
+          "visible": false,
+          "plugins":[
+            {
+              "name": "Publish to ftrack server",
+              "plugin": "common_passthrough_publisher_finalizer"
+            }
+          ]
+        },
+        {
+          "name": "post_finalizer",
+          "visible": false,
+          "plugins":[
+            {
+              "name": "Post process publish",
+              "plugin": "common_passthrough_publisher_post_finalizer"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

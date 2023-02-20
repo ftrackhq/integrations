@@ -34,17 +34,29 @@ def on_discover_nuke_pipeline(session, event):
 def on_launch_nuke_pipeline(session, event):
     pipeline_nuke_base_data = on_discover_nuke_pipeline(session, event)
 
-    nuke_script_path = os.path.join(plugin_base_dir, 'resource', 'scripts')
+    nuke_plugins_path = os.path.join(
+        plugin_base_dir, 'resource', 'plugins', 'python'
+    )
 
-    definitions_plugin_hook = os.getenv("FTRACK_DEFINITION_PLUGIN_PATH")
-    plugin_hook = os.path.join(definitions_plugin_hook, 'nuke', 'python')
+    nuke_bootstrap_path = os.path.join(
+        plugin_base_dir, 'resource', 'bootstrap'
+    )
+
+    nuke_bootstrap_plugin_path = os.path.join(nuke_bootstrap_path, 'plugins')
+
+    nuke_definitions_path = os.path.join(
+        plugin_base_dir, 'resource', 'definitions'
+    )
 
     pipeline_nuke_base_data['integration']['env'] = {
-        'FTRACK_EVENT_PLUGIN_PATH.prepend': plugin_hook,
-        'PYTHONPATH.prepend': os.path.pathsep.join(
-            [python_dependencies, nuke_script_path]
+        'FTRACK_EVENT_PLUGIN_PATH.prepend': os.path.pathsep.join(
+            [nuke_plugins_path, nuke_definitions_path]
         ),
-        'NUKE_PATH': nuke_script_path,
+        'FTRACK_DEFINITION_PATH.prepend': nuke_definitions_path,
+        'PYTHONPATH.prepend': os.path.pathsep.join(
+            [python_dependencies, nuke_bootstrap_path]
+        ),
+        'NUKE_PATH': nuke_bootstrap_path,
     }
 
     selection = event['data'].get('context', {}).get('selection', [])
