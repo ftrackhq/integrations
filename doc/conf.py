@@ -142,7 +142,7 @@ autodoc_mock_imports = [
     'ftrack_connect_pipeline',
     'hou',
     'hdefereval',
-    'ftrack_connect_pipeline_qt'
+    'ftrack_connect_pipeline_qt',
 ]
 
 # -- Options for LaTeX output ------------------------------------------------

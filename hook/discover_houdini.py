@@ -35,11 +35,11 @@ def get_windows_options(event, data):
 
 def get_darwin_options(event, data):
     # Check Python framework link points to a certain target
-    app_path = event['data']['application']['path'] # Path to .app
+    app_path = event['data']['application']['path']  # Path to .app
     app_dir = os.path.dirname(app_path)
-    link_path = os.path.realpath(os.path.join(
-        app_dir, 'Frameworks/Python.framework/Versions/Current'
-    ))
+    link_path = os.path.realpath(
+        os.path.join(app_dir, 'Frameworks/Python.framework/Versions/Current')
+    )
     python_version = None
     if os.path.exists(link_path):
         python_version = os.path.basename(link_path)
@@ -51,7 +51,11 @@ def get_darwin_options(event, data):
             )
             data['integration']['disable'] = True
     else:
-        logger.warning('Cannot detect Mac Python framework version for executable {}'.format(app_path))
+        logger.warning(
+            'Cannot detect Mac Python framework version for executable {}'.format(
+                app_path
+            )
+        )
 
 
 def get_linux_options(event, data):
@@ -71,11 +75,18 @@ def get_linux_options(event, data):
                     has_python2_interpreter = True
             if has_python2_interpreter:
                 logger.debug(
-                    'Not discovering non-py3k Houdini build ("{0}").'.format(app_path)
+                    'Not discovering non-py3k Houdini build ("{0}").'.format(
+                        app_path
+                    )
                 )
                 data['integration']['disable'] = True
         else:
-           logger.warning('Cannot detect linux Python framework version for executable {}'.format(app_path))
+            logger.warning(
+                'Cannot detect linux Python framework version for executable {}'.format(
+                    app_path
+                )
+            )
+
 
 platform_options = {
     'windows': get_windows_options,
@@ -106,21 +117,39 @@ def on_discover_pipeline_houdini(session, event):
 def on_launch_pipeline_houdini(session, event):
     pipeline_houdini_base_data = on_discover_pipeline_houdini(session, event)
 
-    houdini_path = os.path.join(plugin_base_dir, 'resource', 'houdini_path')
-
-    houdini_path_append = (
-        os.path.pathsep.join([houdini_path, '&'])
-        if os.environ.get('HOUDINI_PATH', '').find('&') == -1
-        else houdini_path
+    houdini_plugins_path = os.path.join(
+        plugin_base_dir, 'resource', 'plugins', 'python'
     )
 
-    definitions_plugin_hook = os.getenv('FTRACK_DEFINITION_PLUGIN_PATH')
-    plugin_hook = os.path.join(definitions_plugin_hook, 'houdini', 'python')
+    houdini_bootstrap_path = os.path.join(
+        plugin_base_dir, 'resource', 'bootstrap'
+    )
+
+    houdini_bootstrap_plugin_path = os.path.join(
+        houdini_bootstrap_path, 'plugins'
+    )
+
+    current_houdini_path = os.environ.get('HOUDINI_PATH')
+
+    houdini_path_append = (
+        os.path.pathsep.join(['&', houdini_bootstrap_path])
+        if current_houdini_path and not current_houdini_path.endswith('&')
+        else houdini_bootstrap_path
+    )
+
+    houdini_definitions_path = os.path.join(
+        plugin_base_dir, 'resource', 'definitions'
+    )
 
     pipeline_houdini_base_data['integration']['env'] = {
-        'FTRACK_EVENT_PLUGIN_PATH.prepend': plugin_hook,
+        'FTRACK_EVENT_PLUGIN_PATH.prepend': os.path.pathsep.join(
+            [houdini_plugins_path, houdini_definitions_path]
+        ),
+        'FTRACK_DEFINITION_PATH.prepend': houdini_definitions_path,
         'PYTHONPATH.prepend': python_dependencies,
-        'HOUDINI_PATH.append': houdini_path_append,
+        'HOUDINI_PATH.append': os.path.pathsep.join(
+            [houdini_path_append, '&', houdini_bootstrap_plugin_path]
+        ),
     }
 
     selection = event['data'].get('context', {}).get('selection', [])

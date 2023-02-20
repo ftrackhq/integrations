@@ -1,0 +1,234 @@
+{
+  "type": "publisher",
+  "name": "Camera Publisher",
+  "asset_type": "cam",
+  "host_type": "houdini",
+  "ui_type": "qt",
+  "contexts": [
+    {
+      "name": "main",
+      "stages": [
+        {
+          "name": "context",
+          "plugins":[
+            {
+              "name": "context selector",
+              "plugin": "common_passthrough_publisher_context",
+              "widget": "common_default_publisher_context"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "components": [
+    {
+      "name": "snapshot",
+      "stages": [
+        {
+          "name": "collector",
+          "plugins":[
+            {
+              "name": "collect_scene_selection",
+              "plugin": "houdini_scene_publisher_collector",
+              "options": {
+                "export": ["scene"]
+              }
+            }
+          ]
+        },
+        {
+          "name": "validator",
+          "plugins":[
+            {
+              "name": "validate selection",
+              "plugin": "common_non_empty_publisher_validator"
+            }
+          ]
+        },
+        {
+          "name": "exporter",
+          "plugins":[
+            {
+              "name": "houdini",
+              "plugin": "houdini_native_publisher_exporter"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "camera",
+      "stages": [
+        {
+          "name": "collector",
+          "plugins":[
+            {
+              "name": "Camera collector",
+              "plugin": "houdini_camera_publisher_collector"
+            }
+          ]
+        },
+        {
+          "name": "validator",
+          "plugins":[
+            {
+              "name": "validate selection",
+              "plugin": "houdini_camera_publisher_validator"
+            }
+          ]
+        },
+        {
+          "name": "exporter",
+          "plugins":[
+            {
+              "name": "exporter_houdini",
+              "plugin": "houdini_native_publisher_exporter"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "cache",
+      "optional": true,
+      "selected": false,
+      "stages": [
+        {
+          "name": "collector",
+          "plugins":[
+            {
+              "name": "Camera Collector",
+              "plugin": "houdini_camera_publisher_collector"
+            }
+          ]
+        },
+        {
+          "name": "validator",
+          "plugins":[
+            {
+              "name": "validate selection",
+              "plugin": "houdini_camera_publisher_validator"
+            }
+          ]
+        },
+        {
+          "name": "exporter",
+          "plugins":[
+            {
+              "name": "Alembic exporter options:",
+              "plugin": "houdini_abc_publisher_exporter",
+              "options": {
+                "ABCAnimation": true,
+                "ABCFormat": ["Default","HDF5","Ogawa"]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "game",
+      "optional": true,
+      "selected": false,
+      "stages": [
+        {
+          "name": "collector",
+          "plugins":[
+            {
+              "name": "Camera Collector",
+              "plugin": "houdini_camera_publisher_collector"
+            }
+          ]
+        },
+        {
+          "name": "validator",
+          "plugins":[
+            {
+              "name": "validate selection",
+              "plugin": "houdini_camera_publisher_validator"
+            }
+          ]
+        },
+        {
+          "name": "exporter",
+          "plugins":[
+            {
+              "name": "FBX exporter options:",
+              "plugin": "houdini_fbx_publisher_exporter"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "thumbnail",
+      "stages": [
+        {
+          "name": "collector",
+          "plugins":[
+            {
+              "name": "empty collector",
+              "plugin": "common_test_publisher_collector"
+            }
+          ]
+        },
+        {
+          "name": "validator",
+          "plugins":[
+            {
+              "name": "validate selection",
+              "plugin": "common_test_publisher_validator"
+            }
+          ]
+        },
+        {
+          "name": "exporter",
+          "plugins":[
+            {
+              "name": "write thumbnail",
+              "plugin": "houdini_thumbnail_publisher_exporter"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "finalizers": [
+    {
+      "name": "main",
+      "stages": [
+        {
+          "name": "pre_finalizer",
+          "visible": false,
+          "plugins":[
+            {
+              "name": "Pre publish to ftrack server",
+              "plugin": "common_passthrough_publisher_pre_finalizer"
+            }
+          ]
+        },
+        {
+          "name": "finalizer",
+          "visible": false,
+          "plugins":[
+            {
+              "name": "Publish to ftrack server",
+              "plugin": "common_passthrough_publisher_finalizer"
+            }
+          ]
+        },
+        {
+          "name": "post_finalizer",
+          "visible": false,
+          "plugins":[
+            {
+              "name": "Post process publish",
+              "plugin": "common_passthrough_publisher_post_finalizer"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
