@@ -21,6 +21,7 @@ SOURCE_PATH = os.path.join(ROOT_PATH, 'source')
 README_PATH = os.path.join(ROOT_PATH, 'README.md')
 
 RESOURCE_PATH = os.path.join(ROOT_PATH, 'resource')
+STYLE_PATH = os.path.join(RESOURCE_PATH, 'style')
 RESOURCE_TARGET_PATH = os.path.join(
     SOURCE_PATH, 'ftrack_connect_pipeline_qt', 'ui', 'resource.py'
 )
@@ -40,9 +41,9 @@ class BuildResources(setuptools.Command):
 
     def finalize_options(self):
         '''Finalize options to be used.'''
-        self.sass_path = os.path.join(RESOURCE_PATH, 'sass')
-        self.css_path = RESOURCE_PATH
-        self.resource_source_path = os.path.join(RESOURCE_PATH, 'resource.qrc')
+        self.sass_path = os.path.join(STYLE_PATH, 'sass')
+        self.css_path = STYLE_PATH
+        self.resource_source_path = os.path.join(STYLE_PATH, 'resource.qrc')
         self.resource_target_path = RESOURCE_TARGET_PATH
 
     def _replace_imports_(self):
