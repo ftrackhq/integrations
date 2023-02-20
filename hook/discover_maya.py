@@ -34,23 +34,30 @@ def on_launch_pipeline_maya(session, event):
 
     pipeline_maya_base_data = on_discover_pipeline_maya(session, event)
 
-    maya_plugins_path = os.path.join(plugin_base_dir, 'resource', 'plug_ins')
+    maya_plugins_path = os.path.join(
+        plugin_base_dir, 'resource', 'plugins', 'python'
+    )
 
-    maya_script_path = os.path.join(plugin_base_dir, 'resource', 'scripts')
+    maya_definitions_path = os.path.join(
+        plugin_base_dir, 'resource', 'definitions'
+    )
 
-    # Discover plugins from definitions
-    definitions_plugin_hook = os.getenv("FTRACK_DEFINITION_PLUGIN_PATH")
-    plugin_hook = os.path.join(definitions_plugin_hook, 'maya', 'python')
+    maya_bootstrap_path = os.path.join(
+        plugin_base_dir, 'resource', 'bootstrap'
+    )
 
-    # from ftrack_connect_pipeline_maya import _version as integration_version
+    maya_bootstrap_plugin_path = os.path.join(maya_bootstrap_path, 'plugins')
 
     pipeline_maya_base_data['integration']['env'] = {
-        'FTRACK_EVENT_PLUGIN_PATH.prepend': plugin_hook,
-        'PYTHONPATH.prepend': os.path.pathsep.join(
-            [python_dependencies, maya_script_path]
+        'FTRACK_EVENT_PLUGIN_PATH.prepend': os.path.pathsep.join(
+            [maya_plugins_path, maya_definitions_path]
         ),
-        'MAYA_SCRIPT_PATH': maya_script_path,
-        'MAYA_PLUG_IN_PATH.prepend': maya_plugins_path,
+        'FTRACK_DEFINITION_PATH.prepend': maya_definitions_path,
+        'PYTHONPATH.prepend': os.path.pathsep.join(
+            [python_dependencies, maya_bootstrap_path]
+        ),
+        'MAYA_SCRIPT_PATH': maya_bootstrap_path,
+        'MAYA_PLUG_IN_PATH.prepend': maya_bootstrap_plugin_path,
     }
 
     selection = event['data'].get('context', {}).get('selection', [])
