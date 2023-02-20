@@ -1,0 +1,214 @@
+{
+    "type": "asset_manager",
+    "name": "default",
+    "host_type": "python",
+    "ui_type": "qt",
+    "actions":{
+        "update":[
+            {
+                "name": "Update to latest",
+                "plugin": "common_update_latest_am_action",
+                "options": {"clear_selection":  false}
+            }
+        ]
+    },
+    "resolvers":{
+        "resolve_dependencies":[
+            {
+                "name": "Resolve python context asset dependencies",
+                "plugin": "common_default_am_resolver",
+                "options": {
+                    "task_types":{
+                        "rendering":{
+                        },
+                        "animation": {
+                            "asset_types": [
+                                {
+                                    "asset_type": "rig"
+                                }
+                            ]
+                        },
+                        "modeling": {
+                            "asset_types": [
+                                {
+                                    "asset_type": "geometry",
+                                    "filters": {
+                                        "task_names_include": [".*"],
+                                        "task_names_exclude": [".^"],
+                                        "asset_names_include": [".*"],
+                                        "asset_names_exclude": [".^"]
+                                    }
+                                }
+                            ]
+                        },
+                        "fx": {
+                            "asset_types": [
+                                {
+                                    "asset_type": "camera",
+                                    "filters": {
+                                        "task_names_include": [".*"],
+                                        "task_names_exclude": [".^"],
+                                        "asset_names_include": [".*"],
+                                        "asset_names_exclude": [".^"]
+                                    }
+                                },{
+                                    "asset_type": "geometry",
+                                    "filters": {
+                                        "task_names_include": [".*"],
+                                        "task_names_exclude": [".^"],
+                                        "asset_names_include": [".*"],
+                                        "asset_names_exclude": [".^"]
+                                    }
+                                }
+                            ]
+                        },
+                        "lighting": {
+                            "asset_types": [
+                                {
+                                    "asset_type": "geometry",
+                                    "filters": {
+                                        "task_names_include": [".*"],
+                                        "task_names_exclude": [".^"],
+                                        "asset_names_include": [".*"],
+                                        "asset_names_exclude": [".^"]
+                                    }
+                                },{
+                                    "asset_type": "animation",
+                                    "filters": {
+                                        "task_names_include": [".*"],
+                                        "task_names_exclude": [".^"],
+                                        "asset_names_include": [".*"],
+                                        "asset_names_exclude": [".^"]
+                                    }
+                                },{
+                                    "asset_type": "camera",
+                                    "filters": {
+                                        "task_names_include": [".*"],
+                                        "task_names_exclude": [".^"],
+                                        "asset_names_include": [".*"],
+                                        "asset_names_exclude": [".^"]
+                                    }
+                                }
+                            ]
+                        },
+                        "compositing": {
+                            "asset_types": [
+                                {
+                                    "asset_type": "edit",
+                                    "filters": {
+                                        "task_names_include": [".*"],
+                                        "task_names_exclude": [".^"],
+                                        "asset_names_include": [".*"],
+                                        "asset_names_exclude": [".^"]
+                                    }
+                                },{
+                                    "asset_type": "render",
+                                    "filters": {
+                                        "task_names_include": [".*"],
+                                        "task_names_exclude": [".^"],
+                                        "asset_names_include": [".*"],
+                                        "asset_names_exclude": [".^"]
+                                    }
+                                }
+                            ]
+                        },
+                        "tracking": {
+                            "asset_types": [
+                                {
+                                    "asset_type": "edit",
+                                    "filters": {
+                                        "task_names_include": [".*"],
+                                        "task_names_exclude": [".^"],
+                                        "asset_names_include": [".*"],
+                                        "asset_names_exclude": [".^"]
+                                    }
+                                }
+                            ]
+                        },
+                        "rigging": {
+                            "asset_types": [
+                                {
+                                    "asset_type": "geometry",
+                                    "filters": {
+                                        "task_names_include": [".*"],
+                                        "task_names_exclude": [".^"],
+                                        "asset_names_include": [".*"],
+                                        "asset_names_exclude": [".^"]
+                                    }
+                                }
+                            ]
+                        },
+                        "concept art": {
+                        },
+                        "conform": {
+                        },
+                        "texture": {
+                        },
+                        "production": {
+                        },
+                        "rotoscoping": {
+                            "asset_types": [
+                                {
+                                    "asset_type": "edit",
+                                    "filters": {
+                                        "task_names_include": [".*"],
+                                        "task_names_exclude": [".^"],
+                                        "asset_names_include": [".*"],
+                                        "asset_names_exclude": [".^"]
+                                    }
+                                }
+                            ]
+                        },
+                        "editing": {
+                            "asset_types": [
+                                {
+                                    "asset_type": "render",
+                                    "filters": {
+                                        "task_names_include": [".*"],
+                                        "task_names_exclude": [".^"],
+                                        "asset_names_include": [".*"],
+                                        "asset_names_exclude": [".^"]
+                                    }
+                                }
+                            ]
+                        },
+                        "layout": {
+                            "asset_types": [
+                                {
+                                    "asset_type": "geometry",
+                                    "filters": {
+                                        "task_names_include": [".*"],
+                                        "task_names_exclude": [".^"],
+                                        "asset_names_include": [".*"],
+                                        "asset_names_exclude": [".^"]
+                                    }
+                                },{
+                                    "asset_type": "camera",
+                                    "filters": {
+                                        "task_names_include": [".*"],
+                                        "task_names_exclude": [".^"],
+                                        "asset_names_include": [".*"],
+                                        "asset_names_exclude": [".^"]
+                                    }
+                                }
+                            ]
+                        },
+                        "*": {
+                            "asset_types": [
+                                {
+                                    "asset_type": "*",
+                                    "filters": {
+                                        "task_names_include": [".*"],
+                                        "task_names_exclude": [".^"],
+                                        "asset_names_include": [".*"],
+                                        "asset_names_exclude": [".^"]
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        ]
+    }
+}

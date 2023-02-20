@@ -1,5 +1,5 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2014-2020 ftrack
+# :copyright: Copyright (c) 2014-2023 ftrack
 
 import json
 import fnmatch
@@ -49,30 +49,37 @@ def filter_definitions_by_host(data, host_types):
     return copy_data
 
 
-def collect_definitions(lookup_dir):
+def collect_definitions(definition_paths):
     '''
     Collect all the schemas and definitions from the given
-    *lookup_dir*
+    *definition_paths*
 
-    *lookup_dir* : Directory path to look for the definitions.
+    *definition_paths* : Directory path to look for the definitions.
     '''
-    schemas = _collect_json(os.path.join(lookup_dir, 'schema'))
-
-    loaders = _collect_json(os.path.join(lookup_dir, 'loader'))
-
-    openers = _collect_json(os.path.join(lookup_dir, 'opener'))
-
-    publishers = _collect_json(os.path.join(lookup_dir, 'publisher'))
-
-    asset_managers = _collect_json(os.path.join(lookup_dir, 'asset_manager'))
-
     data = {
-        'schema': schemas or [],
-        'publisher': publishers or [],
-        'loader': loaders or [],
-        'opener': openers or [],
-        'asset_manager': asset_managers or [],
+        'schema': [],
+        'publisher': [],
+        'loader': [],
+        'opener': [],
+        'asset_manager': [],
     }
+    for lookup_dir in definition_paths:
+        for file_type in [
+            'schema',
+            'loader',
+            'opener',
+            'publisher',
+            'asset_manager',
+        ]:
+            collected_files = _collect_json(
+                os.path.join(lookup_dir, file_type)
+            )
+            data[file_type].extend(collected_files)
+            logger.debug(
+                'Found {} definitions in path: {}'.format(
+                    len(collected_files), lookup_dir
+                )
+            )
 
     return data
 

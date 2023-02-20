@@ -109,7 +109,7 @@ class LoaderImporterPlugin(base.BaseImporterPlugin):
             component_path=component_path,
             component_id=component_id,
             load_mode=options.get(asset_const.LOAD_MODE),
-            asset_info_options=options.get(asset_const.ASSET_INFO_OPTIONS)
+            asset_info_options=options.get(asset_const.ASSET_INFO_OPTIONS),
         )
 
         self.asset_info = asset_info

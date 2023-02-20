@@ -1,12 +1,14 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2014-2020 ftrack
+# :copyright: Copyright (c) 2014-2023 ftrack
 
 import uuid
 import ftrack_api
 import logging
 import socket
 import os
+import time
 
+from ftrack_connect_pipeline.definition import collect, validate
 from ftrack_connect_pipeline.host import engine as host_engine
 from ftrack_connect_pipeline.host import validation
 from ftrack_connect_pipeline import constants, utils
@@ -175,12 +177,13 @@ class Host(object):
         if not raw_result:
             return
 
-        validated_result = self.validate(raw_result)
+        # Raw data should contain host_types and definition_paths
+        host_types = list(set(raw_result.get("host_types")))
+        definition_paths = list(set(raw_result.get("definition_paths")))
 
-        for key, value in list(validated_result.items()):
-            logger.warning(
-                'Valid definitions : {} : {}'.format(key, len(value))
-            )
+        validated_result = self.collect_and_validate_definitions(
+            definition_paths, host_types
+        )
 
         self.__registry = validated_result
 
@@ -204,7 +207,47 @@ class Host(object):
         )
         self.logger.debug('host {} ready.'.format(self.host_id))
 
-    def validate(self, data):
+    def collect_and_validate_definitions(self, definition_paths, host_types):
+        '''
+        Collects all json files from the given *definition_paths* that match
+        the given *host_types*
+        '''
+        start = time.time()
+
+        # collect definitions
+        discovered_definitions = collect.collect_definitions(definition_paths)
+
+        # filter definitions
+        discovered_definitions = collect.filter_definitions_by_host(
+            discovered_definitions, host_types
+        )
+
+        # validate schemas
+        discovered_definitions = validate.validate_schema(
+            discovered_definitions, self.session
+        )
+
+        # resolve schemas
+        discovered_definitions = collect.resolve_schemas(
+            discovered_definitions
+        )
+
+        # validate_plugins
+        validated_result = self.validate_definition_plugins(
+            discovered_definitions
+        )
+
+        end = time.time()
+        logger.debug('Discover definitions run in: {}s'.format((end - start)))
+
+        for key, value in list(validated_result.items()):
+            logger.warning(
+                'Valid definitions : {} : {}'.format(key, len(value))
+            )
+
+        return validated_result
+
+    def validate_definition_plugins(self, data):
         '''
         Validates the given *data* against the correspondant plugin validator.
         Returns a validated data.

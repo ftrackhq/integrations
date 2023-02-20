@@ -1,0 +1,142 @@
+{
+  "type": "publisher",
+  "name": "File Publisher",
+  "asset_type": "scene",
+  "task_type": "animation",
+  "host_type": "python",
+  "contexts": [
+    {
+      "name": "main",
+      "stages": [
+        {
+          "name": "context",
+          "plugins": [
+            {
+              "name": "context selector",
+              "plugin": "common_passthrough_publisher_context",
+              "widget": "common_default_publisher_context",
+              "options": {
+                "context_id": "690afd58-06d0-11ea-bbbb-ee594985c7e2",
+                "asset_name": "testFromPythonConsole",
+                "comment": "Nothing to comment",
+                "status_id": "44dd9fb2-4164-11df-9218-0019bb4983d8"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "components": [
+    {
+      "name": "main",
+      "stages": [
+        {
+          "name": "collector",
+          "plugins":[
+            {
+              "name": "collect from given path",
+              "plugin": "common_path_publisher_collector",
+              "widget": "common_path_publisher_collector",
+              "options": {
+                "path": "/Users/lluisftrack/Desktop/Screenshot.png"
+              }
+            }
+          ]
+        },
+        {
+          "name":"validator",
+          "plugins": [
+            {
+              "name": "file exists",
+              "plugin": "common_file_exists_publisher_validator"
+            }
+          ]
+        },
+        {
+          "name":"exporter",
+          "plugins": [
+            {
+              "name": "passthrough exporter",
+              "plugin": "common_passthrough_publisher_exporter"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "thumbnail",
+      "optional": true,
+      "stages": [
+        {
+          "name": "collector",
+          "plugins":[
+            {
+              "name": "collect from given path",
+              "plugin": "common_path_publisher_collector",
+              "widget": "common_path_publisher_collector",
+              "options": {
+                "path": "/Users/lluisftrack/Desktop/Screenshot.png"
+              }
+            }
+          ]
+        },
+        {
+          "name":"validator",
+          "plugins": [
+            {
+              "name": "file exists",
+              "plugin": "common_file_exists_publisher_validator"
+            }
+          ]
+        },
+        {
+          "name":"exporter",
+          "plugins": [
+            {
+              "name": "passthrough exporter",
+              "plugin": "common_passthrough_publisher_exporter"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "finalizers": [
+    {
+      "name": "main",
+      "stages": [
+        {
+          "name": "pre_finalizer",
+          "visible": false,
+          "plugins":[
+            {
+              "name": "Pre publish to ftrack server",
+              "plugin": "common_passthrough_publisher_pre_finalizer"
+            }
+          ]
+        },
+        {
+          "name": "finalizer",
+          "visible": false,
+          "plugins":[
+            {
+              "name": "Publish to ftrack server",
+              "plugin": "common_passthrough_publisher_finalizer"
+            }
+          ]
+        },
+        {
+          "name": "post_finalizer",
+              "visible": false,
+          "plugins":[
+            {
+              "name": "Post process publish",
+              "plugin": "common_passthrough_publisher_post_finalizer"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

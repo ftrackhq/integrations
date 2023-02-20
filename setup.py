@@ -17,6 +17,7 @@ ROOT_PATH = os.path.dirname(os.path.realpath(__file__))
 SOURCE_PATH = os.path.join(ROOT_PATH, 'source')
 README_PATH = os.path.join(ROOT_PATH, 'README.md')
 
+RESOURCE_PATH = os.path.join(ROOT_PATH, 'resource')
 
 HOOK_PATH = os.path.join(ROOT_PATH, 'hook')
 
@@ -50,6 +51,9 @@ class BuildPlugin(setuptools.Command):
         '''Run the build step.'''
         # Clean staging path
         shutil.rmtree(STAGING_PATH, ignore_errors=True)
+
+        # Copy resource files
+        shutil.copytree(RESOURCE_PATH, os.path.join(STAGING_PATH, 'resource'))
 
         # Copy plugin files
         shutil.copytree(HOOK_PATH, os.path.join(STAGING_PATH, 'hook'))

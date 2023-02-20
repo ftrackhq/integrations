@@ -1,0 +1,632 @@
+{
+  "title": "Publisher",
+  "type": "object",
+  "additionalProperties": false,
+  "definitions": {
+    "Config": {
+      "title": "Config",
+      "type": "object",
+      "required": [
+        "engine_type",
+        "type"
+      ],
+      "order":["type", "engine_type"],
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "type": "string",
+          "pattern": "^config$",
+          "default": "config"
+        },
+        "engine_type": {
+          "type": "string",
+          "default": "publisher"
+        }
+      }
+    },
+    "Stage": {
+      "title": "Stage",
+      "type": "object",
+      "required": [
+        "name",
+        "plugins",
+        "category",
+        "type"
+      ],
+      "order":["category", "type", "name", "plugins"],
+      "additionalProperties": false,
+      "properties": {
+        "category": {
+          "type": "string",
+          "pattern": "^stage$",
+          "default": "stage"
+        },
+        "type": {
+          "type": "string"
+        },
+        "visible": {
+          "type": "boolean",
+          "default": true
+        },
+        "widget_ref": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string",
+          "enum": [
+            "collector",
+            "validator",
+            "exporter",
+            "context",
+            "finalizer",
+            "pre_finalizer",
+            "post_finalizer"
+          ]
+        },
+        "plugins": {
+          "type": "array",
+          "items": {"$ref": "#/definitions/Plugin"},
+          "default": [],
+          "minItems": 1,
+          "uniqueItems": true
+        }
+      }
+    },
+    "Step": {
+      "title": "Step",
+      "type": "object",
+      "required": [
+        "name",
+        "stages",
+        "category",
+        "type",
+        "stage_order"
+      ],
+      "order":["category", "type", "name", "stages", "stage_order" ],
+      "additionalProperties": false,
+      "properties": {
+        "category": {
+          "type": "string",
+          "pattern": "^step$",
+          "default": "step"
+        },
+        "type": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "widget_ref": {
+          "type": "string"
+        },
+        "optional": {
+          "type": "boolean",
+          "default": false
+        },
+        "enabled": {
+          "type": "boolean",
+          "default": true
+        },
+        "selected": {
+          "type": "boolean",
+          "default": true
+        },
+        "stages": {
+          "type": "array",
+          "maxItems": 3,
+          "uniqueItems": true,
+          "items": {}
+        },
+        "stage_order": {
+          "type": "array",
+          "items": {"type": "string"},
+          "default": []
+        }
+      }
+    },
+    "CollectorStage": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/Stage"
+        }
+      ],
+      "properties": {
+        "name": {
+          "pattern": "^collector$",
+          "default": "collector"
+        },
+        "plugins": {
+          "items": {
+            "allOf": [
+              {
+                "$ref": "#/definitions/Plugin"
+              }
+            ],
+            "properties": {
+              "type": {
+                "pattern": "^collector$",
+                "default": "collector"
+              }
+            }
+          },
+          "type": "array",
+          "default": [],
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "type": {
+          "type": "string",
+          "pattern": "^collector$",
+          "default": "collector"
+        }
+      }
+    },
+    "ValidatorStage": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/Stage"
+        }
+      ],
+      "properties": {
+        "name": {
+          "pattern": "^validator$",
+          "default": "validator"
+        },
+        "plugins": {
+          "items": {
+            "allOf": [
+              {
+                "$ref": "#/definitions/Plugin"
+              }
+            ],
+            "properties": {
+              "type": {
+                "pattern": "^validator$",
+                "default": "validator"
+              }
+            }
+          },
+          "type": "array",
+          "default": [],
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "type": {
+          "type": "string",
+          "pattern": "^validator$",
+          "default": "validator"
+        }
+      }
+    },
+    "ExporterStage": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/Stage"
+        }
+      ],
+      "properties": {
+        "name": {
+          "pattern": "^exporter$",
+          "default": "exporter"
+        },
+        "plugins": {
+          "items": {
+            "allOf": [
+              {
+                "$ref": "#/definitions/Plugin"
+              }
+            ],
+            "properties": {
+              "type": {
+                "pattern": "^exporter$",
+                "default": "exporter"
+              }
+            }
+          },
+          "type": "array",
+          "default": [],
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "type": {
+          "type": "string",
+          "pattern": "^exporter$",
+          "default": "exporter"
+        }
+      }
+    },
+    "ContextStage": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/Stage"
+        }],
+      "properties": {
+          "name": {
+            "pattern": "^context$",
+            "default": "context"
+          },
+          "plugins": {
+            "type": "array",
+            "items": {
+            "allOf": [
+              {
+                "$ref": "#/definitions/Plugin"
+              }
+            ],
+            "properties": {
+              "type": {
+                "pattern": "^context$",
+                "default": "context"
+              }
+            }
+          },
+            "default": [],
+            "minItems": 1,
+            "uniqueItems": true
+        },
+          "type": {
+            "type": "string",
+            "pattern": "^context$",
+            "default": "context"
+          }
+        }
+    },
+    "FinalizerStage": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/Stage"
+        }
+      ],
+      "properties": {
+        "name": {
+          "pattern": "^finalizer$",
+          "default": "finalizer"
+        },
+        "plugins": {
+          "type": "array",
+          "items": {
+            "allOf": [
+              {
+                "$ref": "#/definitions/Plugin"
+              }
+            ],
+            "properties": {
+              "type": {
+                "pattern": "^finalizer$",
+                "default": "finalizer"
+              }
+            }
+          },
+          "default": [],
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "type": {
+          "type": "string",
+          "pattern": "^finalizer$",
+          "default": "finalizer"
+        }
+      }
+    },
+    "PreFinalizerStage": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/Stage"
+        }
+      ],
+      "properties": {
+        "name": {
+          "pattern": "^pre_finalizer$",
+          "default": "pre_finalizer"
+        },
+        "plugins": {
+          "type": "array",
+          "items": {
+            "allOf": [
+              {
+                "$ref": "#/definitions/Plugin"
+              }
+            ],
+            "properties": {
+              "type": {
+                "pattern": "^pre_finalizer$",
+                "default": "pre_finalizer"
+              }
+            }
+          },
+          "default": [],
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "type": {
+          "type": "string",
+          "pattern": "^pre_finalizer$",
+          "default": "pre_finalizer"
+        }
+      }
+    },
+    "PostFinalizerStage": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/Stage"
+        }
+      ],
+      "properties": {
+        "name": {
+          "pattern": "^post_finalizer$",
+          "default": "post_finalizer"
+        },
+        "plugins": {
+          "type": "array",
+          "items": {
+            "allOf": [
+              {
+                "$ref": "#/definitions/Plugin"
+              }
+            ],
+            "properties": {
+              "type": {
+                "pattern": "^post_finalizer$",
+                "default": "post_finalizer"
+              }
+            }
+          },
+          "default": [],
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "type": {
+          "type": "string",
+          "pattern": "^post_finalizer$",
+          "default": "post_finalizer"
+        }
+      }
+    },
+    "Plugin": {
+      "title": "Plugin",
+      "type": "object",
+      "required": [
+        "name",
+        "plugin",
+        "category",
+        "type",
+        "default_method"
+      ],
+      "order":["type", "category", "name", "description", "plugin", "widget", "options", "default_method"],
+      "additionalProperties": false,
+      "properties": {
+        "category": {
+          "type": "string",
+          "pattern": "^plugin$",
+          "default": "plugin"
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "collector",
+            "validator",
+            "exporter",
+            "context",
+            "finalizer",
+            "pre_finalizer",
+            "post_finalizer"
+          ]
+        },
+        "name": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "plugin": {
+          "type": "string"
+        },
+        "widget": {
+          "type": "string"
+        },
+        "widget_ref": {
+          "type": "string"
+        },
+        "visible": {
+          "type": "boolean",
+          "default": true
+        },
+        "editable": {
+          "type": "boolean",
+          "default": true
+        },
+        "options": {
+          "type": "object",
+          "default": {}
+        },
+        "default_method": {
+          "type": "string",
+          "default": "run"
+        }
+      }
+    },
+    "ComponentStep": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/Step"
+        }
+      ],
+      "properties": {
+        "stages": {
+          "type": "array",
+          "maxItems": 3,
+          "uniqueItems": true,
+          "items": {
+            "oneOf":[
+                      {"$ref": "#/definitions/CollectorStage"},
+                      {"$ref": "#/definitions/ValidatorStage"},
+                    {"$ref": "#/definitions/ExporterStage"}
+                  ]
+          }
+        },
+        "stage_order": {
+          "type": "array",
+          "items": {"type": "string"},
+          "default": [
+            "collector",
+            "validator",
+            "exporter"
+          ]
+        },
+        "type": {
+          "type": "string",
+          "pattern": "^component$",
+          "default": "component"
+        }
+      }
+    },
+    "FinalizerStep": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/Step"
+        }
+      ],
+      "properties": {
+        "stages": {
+          "type": "array",
+          "maxItems": 3,
+          "uniqueItems": true,
+          "items": {
+            "oneOf":[
+                      {"$ref": "#/definitions/PreFinalizerStage"},
+                      {"$ref": "#/definitions/FinalizerStage"},
+                    {"$ref": "#/definitions/PostFinalizerStage"}
+                  ]
+          }
+        },
+        "stage_order": {
+          "type": "array",
+          "items": {"type": "string"},
+          "default": [
+            "pre_finalizer",
+            "finalizer",
+            "post_finalizer"
+          ]
+        },
+        "type": {
+          "type": "string",
+          "pattern": "^finalizer$",
+          "default": "finalizer"
+        }
+      }
+    },
+    "ContextStep": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/Step"
+        }
+      ],
+      "properties": {
+        "stages": {
+          "type": "array",
+          "maxItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "oneOf":[
+                      {"$ref": "#/definitions/ContextStage"}
+                  ]
+          }
+        },
+        "stage_order": {
+          "type": "array",
+          "items": {"type": "string"},
+          "default": [
+            "context"
+          ]
+        },
+        "type": {
+          "type": "string",
+          "pattern": "^context$",
+          "default": "context"
+        }
+      }
+    }
+
+  },
+  "required": [
+    "name",
+    "asset_type",
+    "host_type",
+    "contexts",
+    "components",
+    "finalizers",
+    "type",
+    "_config"
+  ],
+  "order":[
+    "type", "name", "asset_type", "task_type", "host_type", "ui_type", "discoverable" ,"contexts", "components", "finalizers"
+  ],
+  "properties": {
+    "type": {
+      "type": "string",
+      "pattern": "^publisher$",
+      "default": "publisher"
+    },
+    "name": {
+      "type": "string",
+      "default": null
+    },
+    "asset_type": {
+      "type": "string",
+      "default": null
+    },
+    "task_type": {
+      "type": "string",
+      "default": null
+    },
+    "host_type": {
+      "type": "string",
+      "default": null
+    },
+    "ui_type": {
+      "type": "string",
+      "default": ""
+    },
+    "discoverable": {
+      "type": "array",
+      "items": {"type": "string"},
+      "default": [
+        "Task"
+      ]
+    },
+    "contexts": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/ContextStep"
+      },
+      "default": [],
+      "minItems": 1,
+      "maxItems": 1,
+      "uniqueItems": true
+    },
+    "components": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/ComponentStep"
+      },
+      "default": [],
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "finalizers": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/FinalizerStep"
+      },
+      "default": [],
+      "minItems": 1,
+      "maxItems": 1,
+      "uniqueItems": true
+    },
+    "_config": {
+      "$ref": "#/definitions/Config",
+      "default": {}
+    }
+  }
+}
+

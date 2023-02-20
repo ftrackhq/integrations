@@ -1,0 +1,142 @@
+{
+  "type": "opener",
+  "name": "File Opener",
+  "asset_type": "scene",
+  "host_type": "python",
+  "contexts": [
+    {
+      "name": "main",
+      "stages": [
+        {
+          "name": "context",
+          "plugins":[
+            {
+              "name": "context selector",
+              "plugin": "common_passthrough_opener_context",
+              "widget": "common_default_opener_context"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "components": [
+    {
+      "name": "main",
+      "file_formats": [".zip"],
+      "stages": [
+        {
+          "name": "collector",
+          "plugins":[
+            {
+              "name": "Pick objects with suffix",
+              "plugin": "common_test_opener_collector"
+            },
+            {
+              "name": "Collect component paths from context",
+              "plugin": "common_context_opener_collector"
+            }
+          ]
+        },
+        {
+          "name": "importer",
+          "plugins":[
+            {
+              "name": "importer",
+              "plugin": "common_passthrough_opener_importer",
+              "options": {
+                "load_mode": "import"
+              }
+            }
+          ]
+        },
+        {
+          "name": "post_importer",
+          "plugins":[
+            {
+              "name": "post import plugin",
+              "plugin": "common_passthrough_opener_post_importer"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "animation",
+      "file_formats": [".ma",".mb"],
+      "stages": [
+        {
+          "name": "collector",
+          "plugins":[
+            {
+              "name": "Pick objects with suffix",
+              "plugin": "common_test_opener_collector"
+            },
+            {
+              "name": "Collect component paths from context",
+              "plugin": "common_context_opener_collector"
+            }
+          ]
+        },
+        {
+          "name": "importer",
+          "plugins":[
+            {
+              "name": "importer",
+              "plugin": "common_passthrough_opener_importer",
+              "options": {
+                "load_mode": "import"
+              }
+            }
+          ]
+        },
+        {
+          "name": "post_importer",
+          "visible": false,
+          "plugins":[
+            {
+              "name": "post import plugin",
+              "plugin": "common_passthrough_opener_post_importer"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "finalizers": [
+    {
+      "name": "main",
+      "visible": false,
+      "stages": [
+        {
+          "name": "pre_finalizer",
+          "plugins":[
+            {
+              "name": "Pre finalizer",
+              "plugin": "common_passthrough_opener_pre_finalizer"
+            }
+          ]
+        },
+        {
+          "name": "finalizer",
+          "plugins":[
+            {
+              "name": "Finalizer",
+              "plugin": "common_passthrough_opener_finalizer"
+            }
+          ]
+        },
+        {
+          "name": "post_finalizer",
+          "plugins":[
+            {
+              "name": "Post finalizer",
+              "plugin": "common_passthrough_opener_post_finalizer"
+            }
+          ],
+          "visible": false
+        }
+      ]
+    }
+  ]
+}

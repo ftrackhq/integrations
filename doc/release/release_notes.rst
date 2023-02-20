@@ -9,6 +9,12 @@ Release Notes
 
 .. release:: upcoming
     .. change:: changed
+        :tags: definitions
+
+        Remove ftrack-connect-pipeline-definitions repository.
+        Add plugins and definitions on each integration.
+
+    .. change:: changed
         :tags: load_asset
 
         Init nodes returning dictionary with result key and not run_method key.
