@@ -19,6 +19,7 @@ class UnrealHost(Host):
     # Define the Unreal engines to be run during the run function
     engines = {
         'loader': host_engine.UnrealLoaderEngine,
+        'publisher': host_engine.UnrealPublisherEngine,
     }
 
     def __init__(self, event_manager):

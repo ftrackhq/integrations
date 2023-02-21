@@ -181,18 +181,24 @@ def get_asset_info(node_name, snapshot=False):
     )
 
     for dcc_object_node in get_ftrack_nodes():
-        path_dcc_object_node = '{}{}{}.json'.format(
-            asset_const.FTRACK_ROOT_PATH, os.sep, dcc_object_node
-        )
-        with open(
-            path_dcc_object_node,
-            'r',
-        ) as openfile:
-            param_dict = json.load(openfile)
+        param_dict = read_asset_node(dcc_object_node)
         id_value = param_dict.get(asset_const.ASSET_INFO_ID)
         if id_value == ftrack_value:
             return dcc_object_node, param_dict
     return None, None
+
+
+def read_asset_node(dcc_object_node):
+    path_dcc_object_node = '{}{}{}.json'.format(
+        asset_const.FTRACK_ROOT_PATH, os.sep, dcc_object_node
+    )
+    if os.path.exists(path_dcc_object_node):
+        with open(
+            path_dcc_object_node,
+            'r',
+        ) as openfile:
+            return json.load(openfile)
+    raise Exception('No dcc object "{}" exists in Unreal project')
 
 
 def connect_object(node_name, asset_info, logger):

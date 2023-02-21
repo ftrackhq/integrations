@@ -70,7 +70,7 @@ def load_integration():
         # open,
         load,
         # asset_manager,
-        # publish,
+        publish,
         change_context,
         log_viewer,
     )
@@ -200,6 +200,15 @@ def load_integration():
                 qt_constants.ASSEMBLER_WIDGET,
                 load.UnrealQtAssemblerClientWidget,
                 'Assembler',
+                '',
+                True,
+            )
+        )
+        widgets.append(
+            (
+                core_constants.PUBLISHER,
+                publish.UnrealQtPublisherClientWidget,
+                'Publisher',
                 '',
                 True,
             )
