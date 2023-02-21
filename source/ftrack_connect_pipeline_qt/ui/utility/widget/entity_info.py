@@ -67,7 +67,6 @@ class EntityInfo(QtWidgets.QWidget):
 
         self._path_field = QtWidgets.QLabel()
         self._path_field.setObjectName('gray')
-        # self._path_field.setProperty('color', 'gray')
         self.layout().addWidget(self._path_field)
 
         self.layout().addStretch()
@@ -77,7 +76,11 @@ class EntityInfo(QtWidgets.QWidget):
 
     def _on_path_ready(self, parents):
         '''Set current path to *names*.'''
-        self._name_field.setText('{} '.format(parents[-1]['name']))
-        self._path_field.setText(
-            os.sep.join([p['name'] for p in parents[:-1]])
-        )
+        self.set_name_field(parents[-1]['name'])
+        self.set_path_field(os.sep.join([p['name'] for p in parents[:-1]]))
+
+    def set_name_field(self, name):
+        self._name_field.setText(name)
+
+    def set_path_field(self, path):
+        self._path_field.setText(path)

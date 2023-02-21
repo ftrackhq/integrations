@@ -1,24 +1,20 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2014-2022 ftrack
+# :copyright: Copyright (c) 2014-2023 ftrack
 import shiboken2
 
-import ftrack_connect_pipeline_qt.ui.utility.widget.button
 from Qt import QtWidgets, QtCore, QtGui
 
 from ftrack_connect_pipeline import constants as core_constants
+from ftrack_connect_pipeline.utils import str_version
 
+import ftrack_connect_pipeline_qt.ui.utility.widget.button
 from ftrack_connect_pipeline_qt.ui.factory.base import BaseUIWidgetObject
-from ftrack_connect_pipeline_qt.ui.utility.widget import (
-    overlay,
-    scroll_area,
-    dialog,
-)
+from ftrack_connect_pipeline_qt.ui.utility.widget import overlay, scroll_area
 from ftrack_connect_pipeline_qt import utils
 from ftrack_connect_pipeline_qt.ui.utility.widget.icon import (
     MaterialIconWidget,
 )
 from ftrack_connect_pipeline_qt.utils import set_property
-from ftrack_connect_pipeline.utils import str_version
 
 
 class PhaseButton(QtWidgets.QPushButton):
@@ -65,6 +61,7 @@ class PhaseButton(QtWidgets.QPushButton):
         self.log_widget.layout().addSpacing(10)
 
         self.log_text_edit = QtWidgets.QTextEdit()
+        self.log_text_edit.setReadOnly(True)
         self.log_widget.layout().addWidget(self.log_text_edit, 10)
         self._close_button = (
             ftrack_connect_pipeline_qt.ui.utility.widget.button.ApproveButton(
@@ -94,16 +91,21 @@ class PhaseButton(QtWidgets.QPushButton):
         message = None
         self.logged_errors = []
         if results:
-            for stage_result in results:
-                if stage_result.get('status') == False:
-                    for plugin_result in stage_result.get('result'):
-                        plug_error = (
-                            'Plugin {} failed with message: {}'.format(
-                                plugin_result.get('name'),
-                                plugin_result.get('message'),
+            if isinstance(results, dict):
+                for stage_result in results:
+                    if stage_result.get('status') is False:
+                        for plugin_result in stage_result.get('result'):
+                            plug_error = (
+                                'Plugin {} failed with message: {}'.format(
+                                    plugin_result.get('name'),
+                                    plugin_result.get('message'),
+                                )
                             )
-                        )
-                        self.logged_errors.append(plug_error)
+                            self.logged_errors.append(plug_error)
+            else:
+                self.logged_errors.append(
+                    'Operation failed with error: {}'.format(str(results))
+                )
         if self.logged_errors:
             message = "\n".join(self.logged_errors)
 
@@ -174,6 +176,8 @@ class StatusButtonWidget(QtWidgets.QPushButton):
 class ProgressWidgetObject(BaseUIWidgetObject):
     '''Widget representation of the progress widget used during schema run'''
 
+    MARGINS = 15
+
     _step_widgets = {}
 
     def __init__(
@@ -200,7 +204,9 @@ class ProgressWidgetObject(BaseUIWidgetObject):
         self.content_widget = QtWidgets.QFrame()
         self.content_widget.setObjectName('overlay')
         self.content_widget.setLayout(QtWidgets.QVBoxLayout())
-        self.content_widget.layout().setContentsMargins(15, 15, 15, 15)
+        self.content_widget.layout().setContentsMargins(
+            self.MARGINS, self.MARGINS, self.MARGINS, self.MARGINS
+        )
 
         self.scroll.setWidget(self.content_widget)
 
@@ -224,17 +230,29 @@ class ProgressWidgetObject(BaseUIWidgetObject):
     def hide_widget(self):
         self.widget.setVisible(False)
 
+    # Thread safe entry points
+
     def prepare_add_steps(self):
+        '''Prepare the progress widget to add steps(components)'''
         self.clear_components()
         self.status_banner = StatusButtonWidget(
             StatusButtonWidget.VIEW_EXPANDED_BANNER
         )
         self.content_widget.layout().addWidget(self.status_banner)
 
-    def add_step(self, step_type, step_name, version_id=None, label=None):
-        id_name = "{}.{}.{}".format(version_id or '-', step_type, step_name)
+    def add_step(
+        self, step_type, step_name, batch_id=None, label=None, indent=0
+    ):
+        '''Add a step(component) to the progress widget'''
+        id_name = "{}.{}.{}".format(batch_id or '-', step_type, step_name)
         step_button = PhaseButton(label or step_name, "Not started")
         self._step_widgets[id_name] = step_button
+        self.content_widget.layout().setContentsMargins(
+            self.MARGINS + indent * 10,
+            self.MARGINS,
+            self.MARGINS,
+            self.MARGINS,
+        )
         if step_type not in self.step_types:
             self.step_types.append(step_type)
             step_title = QtWidgets.QLabel(step_type.upper())
@@ -242,8 +260,11 @@ class ProgressWidgetObject(BaseUIWidgetObject):
             self.content_widget.layout().addWidget(step_title)
         self.content_widget.layout().addWidget(step_button)
 
-    def components_added(self):
+    def widgets_added(self, button=None):
+        '''All widgets have been added to the progress widget'''
         self.content_widget.layout().addWidget(QtWidgets.QLabel(), 10)
+        if button:
+            self.content_widget.layout().addWidget(button)
 
     def clear_components(self):
         for i in reversed(range(self.content_widget.layout().count())):
@@ -262,17 +283,17 @@ class ProgressWidgetObject(BaseUIWidgetObject):
         self.widget.setVisible(visibility)
 
     def update_step_status(
-        self, step_type, step_name, status, status_message, results, version_id
+        self, step_type, step_name, status, status_message, results, batch_id
     ):
         '''Update the status of the progress of a step/component'''
-        id_name = "{}.{}.{}".format(version_id or '-', step_type, step_name)
+        id_name = "{}.{}.{}".format(batch_id or '-', step_type, step_name)
         if id_name in self._step_widgets:
             self._step_widgets[id_name].update_status(
                 status, status_message, results
             )
             if status != self.widget.get_status():
                 main_status_message = '{}{}.{}: {}'.format(
-                    ('{}.'.format(version_id)) if version_id else '',
+                    ('{}.'.format(batch_id)) if batch_id else '',
                     step_type,
                     step_name,
                     status_message,
@@ -311,3 +332,8 @@ class BatchProgressWidget(ProgressWidgetObject):
         )
         version_widget.setObjectName('h2')
         self.content_widget.layout().addWidget(version_widget)
+
+    def add_item(self, item):
+        item_widget = QtWidgets.QLabel(item)
+        item_widget.setObjectName('h2')
+        self.content_widget.layout().addWidget(item_widget)

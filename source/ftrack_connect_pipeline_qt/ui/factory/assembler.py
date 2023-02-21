@@ -6,7 +6,6 @@ from Qt import QtCore, QtWidgets
 
 from ftrack_connect_pipeline import constants as core_constants
 
-from ftrack_connect_pipeline_qt import constants as qt_constants
 from ftrack_connect_pipeline_qt.ui.factory.ui_overrides import (
     UI_OVERRIDES,
 )
@@ -28,6 +27,7 @@ class AssemblerWidgetFactory(OpenerAssemblerWidgetFactoryBase):
 
     @staticmethod
     def client_type():
+        '''Return the type of client'''
         return core_constants.LOADER
 
     @staticmethod
@@ -83,7 +83,7 @@ class AssemblerWidgetFactory(OpenerAssemblerWidgetFactoryBase):
                     self.progress_widget.add_step(
                         step_type,
                         step_name,
-                        version_id=component['version']['id'],
+                        batch_id=component['version']['id'],
                     )
             else:
                 for stage in step.get_all(category=core_constants.STAGE):
@@ -92,7 +92,7 @@ class AssemblerWidgetFactory(OpenerAssemblerWidgetFactoryBase):
                         self.progress_widget.add_step(
                             step_type,
                             stage_name,
-                            version_id=component['version']['id'],
+                            batch_id=component['version']['id'],
                         )
 
     def check_components(self, asset_version_entity):

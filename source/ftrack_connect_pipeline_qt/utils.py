@@ -116,6 +116,14 @@ class BaseThread(threading.Thread):
             self.callback(result)
 
 
+def is_main_thread():
+    '''Return True if running in main thread.'''
+    return (
+        QtCore.QThread.currentThread()
+        == QtCore.QCoreApplication.instance().thread()
+    )
+
+
 def get_theme():
     '''Return the theme, return None to disable themes. Can be overridden by child.'''
     return 'dark'

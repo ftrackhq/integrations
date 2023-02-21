@@ -183,7 +183,7 @@ class QtOpenerClientWidget(QtOpenerClient, dialog.Dialog):
         '''Triggered when client has set host connection'''
 
         if self.definition_filters:
-            self.definition_selector.definition_title_filters = (
+            self.definition_selector.definition_filters = (
                 self.definition_filters
             )
         if self.definition_extensions_filter:
@@ -196,7 +196,7 @@ class QtOpenerClientWidget(QtOpenerClient, dialog.Dialog):
 
     def _on_context_selector_context_changed(self, context):
         '''Context has been set in context selector, change working context.'''
-        if self.host_connection:
+        if self.host_connection and context is not None:
             # Send context id to host and other listening clients
             self.host_connection.context_id = context['id']
 
@@ -307,12 +307,6 @@ class QtOpenerClientWidget(QtOpenerClient, dialog.Dialog):
     def _clear_widget(self):
         if self.scroll and self.scroll.widget():
             self.scroll.widget().deleteLater()
-
-    def _launch_context_selector(self):
-        '''Close client (if not docked) and open entity browser.'''
-        if not self.is_docked():
-            self.hide()
-        self.host_connection.launch_client(qt_constants.CHANGE_CONTEXT_WIDGET)
 
     def _launch_assembler(self):
         '''Open the assembler and close client if dialog'''

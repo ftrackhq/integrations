@@ -26,7 +26,7 @@ from ftrack_connect_pipeline_qt.ui.factory.assembler import (
 from ftrack_connect_pipeline_qt.ui.utility.widget.base.accordion_base import (
     AccordionBaseWidget,
 )
-from ftrack_connect_pipeline_qt.ui.asset_manager.asset_manager import (
+from ftrack_connect_pipeline_qt.ui.asset_manager import (
     AssetVersionStatusWidget,
 )
 from ftrack_connect_pipeline.utils import str_version
@@ -67,18 +67,22 @@ class AssemblerBaseWidget(QtWidgets.QWidget):
 
     @property
     def loadable_count(self):
+        '''Return the number of loadable components'''
         return self._loadable_count
 
     @property
     def match_component_names(self):
+        '''Return True if component should be matched by name'''
         return self._rb_match_component_name.isChecked()
 
     @property
     def show_non_compatible_assets(self):
+        '''Return True if non compatible assets should be shown'''
         return self._cb_show_non_compatible.isChecked()
 
     @property
     def client(self):
+        '''Return the client'''
         return self._client
 
     @property
@@ -104,6 +108,7 @@ class AssemblerBaseWidget(QtWidgets.QWidget):
         self.post_build()
 
     def pre_build(self):
+        '''Create the model'''
         self.setLayout(QtWidgets.QVBoxLayout())
         self.layout().setContentsMargins(1, 0, 1, 0)
         self.layout().setSpacing(0)
@@ -118,7 +123,7 @@ class AssemblerBaseWidget(QtWidgets.QWidget):
 
         top_toolbar_widget = QtWidgets.QWidget()
         top_toolbar_widget.setLayout(QtWidgets.QHBoxLayout())
-        top_toolbar_widget.layout().setContentsMargins(4, 2, 4, 0)
+        top_toolbar_widget.layout().setContentsMargins(4, 4, 4, 2)
         top_toolbar_widget.layout().setSpacing(4)
 
         top_widget = self._get_header_widget()
@@ -259,11 +264,13 @@ class AssemblerBaseWidget(QtWidgets.QWidget):
         self._rebuild_button.setVisible(True)
 
     def _on_load_error(self, error_message):
+        '''Act upon a load error - set progress widget status and display *error_message*'''
         self.client.progress_widget.set_status(
             constants.WARNING_STATUS, error_message
         )
 
     def mousePressEvent(self, event):
+        '''Make sure to clear selection when not right clicking an item'''
         if event.button() != QtCore.Qt.RightButton and self._component_list:
             self._component_list.clear_selection()
         return super(AssemblerBaseWidget, self).mousePressEvent(event)
@@ -318,22 +325,12 @@ class AssemblerBaseWidget(QtWidgets.QWidget):
                     )
                     continue
                 elif not self.show_non_compatible_assets:
-                    if (
-                        component['name']
-                        == core_constants.SNAPSHOT_COMPONENT_NAME
-                    ):
+                    if not self.client.accept_component(component):
                         self.logger.warning(
-                            'Not assembling version {} snapshot component {}!'.format(
-                                version['id'], component['id']
-                            )
-                        )
-                        continue
-                    elif component['name'].startswith(
-                        core_constants.SNAPSHOT_FTRACKREVIEW_NAME
-                    ):
-                        self.logger.warning(
-                            'Not assembling version {} ftrackreview component {}!'.format(
-                                version['id'], component['id']
+                            'Not assembling version {} component {}({})!'.format(
+                                str_version(version),
+                                component['name'],
+                                component['id'],
                             )
                         )
                         continue
@@ -378,6 +375,7 @@ class AssemblerBaseWidget(QtWidgets.QWidget):
                             definition_fragment = DefinitionObject({})
                             for key in definition:
                                 if key == core_constants.COMPONENTS:
+                                    # Have that as the only component
                                     definition_fragment[key] = DefinitionList(
                                         [
                                             DefinitionObject(
@@ -385,9 +383,17 @@ class AssemblerBaseWidget(QtWidgets.QWidget):
                                             )
                                         ]
                                     )
-                                    definition_fragment.get_first(
-                                        type=core_constants.COMPONENT
-                                    )['name'] = component_name_effective
+                                    component_fragment = (
+                                        definition_fragment.get_first(
+                                            type=core_constants.COMPONENT
+                                        )
+                                    )
+                                    # Make sure component name align
+                                    component_fragment[
+                                        'name'
+                                    ] = component_name_effective
+                                    # It can be disabled, enable it
+                                    component_fragment['enabled'] = True
                                 else:
                                     # Copy the category
                                     definition_fragment[key] = copy.deepcopy(
@@ -463,6 +469,7 @@ class AssemblerListBaseWidget(AssetListWidget):
         )
 
     def rebuild(self):
+        '''Rebuild the list widget, must be implemented by child'''
         raise NotImplementedError()
 
     def get_loadable(self):
@@ -563,6 +570,7 @@ class ComponentBaseWidget(AccordionBaseWidget):
         return self._status_widget
 
     def init_options_button(self):
+        '''Create the options button and connect it to option build function'''
         self._options_button = ImporterOptionsButton(
             'O', icon.MaterialIcon('settings', color='gray')
         )
@@ -571,26 +579,27 @@ class ComponentBaseWidget(AccordionBaseWidget):
         return self._options_button
 
     def get_thumbnail_height(self):
+        '''Return the height of the thumbnail, must be implemented by child'''
         raise NotImplementedError()
 
     def get_ident_widget(self):
-        '''Widget containing name identification of asset'''
+        '''Widget containing name identification of asset, must be implemented by child'''
         raise NotImplementedError()
 
     def get_version_widget(self):
-        '''Widget containing version label or combobox.'''
+        '''Widget containing version label or combobox, must be implemented by child'''
         raise NotImplementedError()
 
     def set_version(self, version_entity):
-        '''Set the current *version_entity*, must be overridden by child'''
+        '''Set the current *version_entity*, must be implemented by child'''
         raise NotImplementedError()
 
     def set_latest_version(self, is_latest_version):
-        '''Set the current *is_latest_version*, must be overridden by child'''
+        '''Set the current *is_latest_version*, must be implemented by child'''
         raise NotImplementedError()
 
     def init_header_content(self, header_widget, collapsed):
-        '''Build all widgets'''
+        '''Build all widgets to put in the accordion header'''
         header_layout = QtWidgets.QVBoxLayout()
         header_layout.setContentsMargins(0, 0, 0, 0)
         header_layout.setSpacing(0)
@@ -739,7 +748,7 @@ class ComponentBaseWidget(AccordionBaseWidget):
         self._component_id = component['id']
         self._component_name = component['name']
         self.thumbnail_widget.load(version_entity['id'])
-        self._widget_factory.version_id = version_entity['id']
+        self._widget_factory.batch_id = version_entity['id']
 
         self._status_widget.set_status(version_entity['status'])
 

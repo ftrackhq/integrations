@@ -18,12 +18,13 @@ class PluginAccordion(AccordionBaseWidget):
         '''Return the options widget'''
         return self._options_button
 
-    def __init__(self, title=None, checkable=False, parent=None):
+    def __init__(self, title=None, checkable=False, checked=True, parent=None):
         '''
         Initialize the plugin accordion
 
         :param title: The name of the plugin
         :param checkable: True if user can check and uncheck it or not
+        :param checked: True if the plugin is checked by default
         :param parent: the parent dialog or frame
         '''
         super(PluginAccordion, self).__init__(
@@ -31,6 +32,7 @@ class PluginAccordion(AccordionBaseWidget):
             AccordionBaseWidget.CHECK_MODE_CHECKBOX
             if checkable
             else AccordionBaseWidget.CHECK_MODE_CHECKBOX_DISABLED,
+            checked=checked,
             title=title,
             parent=parent,
         )
@@ -49,7 +51,7 @@ class PluginAccordion(AccordionBaseWidget):
 
 
 class AccordionPluginContainerWidgetObject(BaseUIWidgetObject):
-    '''Widget representation of a accordion plugin container'''
+    '''Widget representation of an accordion plugin container'''
 
     def __init__(self, name, fragment_data, parent=None):
         '''Initialise AccordionPluginContainerWidgetObject with *name*,
@@ -59,7 +61,10 @@ class AccordionPluginContainerWidgetObject(BaseUIWidgetObject):
         )
 
     def build(self):
-        self._widget = PluginAccordion(title=self.name, checkable=True)
+        '''(Override) Build the widget'''
+        self._widget = PluginAccordion(
+            title=self.name, checkable=self.optional, checked=self.enabled
+        )
 
     def parent_widget(self, widget):
         '''(Override)'''

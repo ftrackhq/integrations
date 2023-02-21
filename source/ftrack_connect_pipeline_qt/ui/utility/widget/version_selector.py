@@ -9,7 +9,9 @@ class VersionComboBox(QtWidgets.QComboBox):
     '''The version selector combobox within VersionSelector widget'''
 
     versionsQueryDone = QtCore.Signal()
-    versionChanged = QtCore.Signal(object)  # User has selected the version
+    versionChanged = QtCore.Signal(
+        object
+    )  # User has selected the version, version id as the argument
     filterMessage = QtCore.Signal(
         object
     )  # Version could not be chosen due to filter

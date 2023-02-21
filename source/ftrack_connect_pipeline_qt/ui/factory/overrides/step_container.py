@@ -42,6 +42,7 @@ class AccordionStepContainerWidgetObject(BaseUIWidgetObject):
         self._widget = AccordionWidget(
             title="{}: 0 components selected".format(self._name),
             checkable=False,
+            checked=self.enabled,
             collapsed=False,
         )
 

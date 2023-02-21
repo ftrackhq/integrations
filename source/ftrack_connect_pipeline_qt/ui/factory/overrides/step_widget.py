@@ -8,9 +8,6 @@ from ftrack_connect_pipeline_qt.ui.factory.base import BaseUIWidgetObject
 from ftrack_connect_pipeline_qt.ui.utility.widget.base.accordion_base import (
     AccordionBaseWidget,
 )
-from ftrack_connect_pipeline_qt.ui.factory.default.step_widget import (
-    DefaultStepWidgetObject,
-)
 from ftrack_connect_pipeline_qt.plugin.widget.load_widget import (
     LoadBaseWidget,
 )
@@ -80,6 +77,9 @@ class PublisherOptionsButton(OptionsButton):
 
         self._component_options_widget = QtWidgets.QWidget()
         self._component_options_widget.setLayout(QtWidgets.QVBoxLayout())
+        self._component_options_widget.layout().addWidget(
+            QtWidgets.QLabel(''), 100
+        )  # spacer
 
         scroll = scroll_area.ScrollArea()
         scroll.setWidget(self._component_options_widget)
@@ -107,22 +107,43 @@ class PublisherOptionsButton(OptionsButton):
 
     def add_validator_widget(self, widget):
         '''Add validator plugin container widget to overlay'''
-        self._component_options_widget.layout().addWidget(line.Line())
-        self._component_options_widget.layout().addWidget(QtWidgets.QLabel(''))
+        self._component_options_widget.layout().insertWidget(
+            self._component_options_widget.layout().count() - 1, line.Line()
+        )
+        self._component_options_widget.layout().insertWidget(
+            self._component_options_widget.layout().count() - 1,
+            QtWidgets.QLabel(''),
+        )
         label = QtWidgets.QLabel('Validators:')
         label.setObjectName('gray')
-        self._component_options_widget.layout().addWidget(label)
-        self._component_options_widget.layout().addWidget(widget)
+        self._component_options_widget.layout().insertWidget(
+            self._component_options_widget.layout().count() - 1, label
+        )
+        self._component_options_widget.layout().insertWidget(
+            self._component_options_widget.layout().count() - 1, widget
+        )
 
     def add_exporter_widget(self, widget):
         '''Add exporter plugin container widget to overlay'''
-        self._component_options_widget.layout().addWidget(QtWidgets.QLabel(''))
-        self._component_options_widget.layout().addWidget(line.Line())
-        self._component_options_widget.layout().addWidget(QtWidgets.QLabel(''))
+        self._component_options_widget.layout().insertWidget(
+            self._component_options_widget.layout().count() - 1,
+            QtWidgets.QLabel(''),
+        )
+        self._component_options_widget.layout().insertWidget(
+            self._component_options_widget.layout().count() - 1, line.Line()
+        )
+        self._component_options_widget.layout().insertWidget(
+            self._component_options_widget.layout().count() - 1,
+            QtWidgets.QLabel(''),
+        )
         label = QtWidgets.QLabel('Exporter:')
         label.setObjectName('gray')
-        self._component_options_widget.layout().addWidget(label)
-        self._component_options_widget.layout().addWidget(widget)
+        self._component_options_widget.layout().insertWidget(
+            self._component_options_widget.layout().count() - 1, label
+        )
+        self._component_options_widget.layout().insertWidget(
+            self._component_options_widget.layout().count() - 1, widget
+        )
 
 
 class PublisherAccordionWidget(AccordionBaseWidget):
@@ -193,6 +214,7 @@ class PublisherAccordionWidget(AccordionBaseWidget):
     def post_build(self):
         self.update_input(self._input_message, self._input_status)
         super(PublisherAccordionWidget, self).post_build()
+        self.header.title_label.setObjectName('h3')
 
     def _connect_inner_widgets(self, widget):
         if issubclass(widget.__class__, BaseOptionsWidget):
@@ -238,7 +260,10 @@ class AccordionStepWidgetObject(BaseUIWidgetObject):
 
     def build(self):
         self._widget = AccordionWidget(
-            title="{}".format(self._name), checkable=False, collapsable=False
+            title="{}".format(self._name),
+            checkable=self.optional,
+            checked=self.enabled,
+            collapsable=False,
         )
         self._widget.content.layout().setContentsMargins(0, 10, 0, 0)
 
@@ -278,12 +303,9 @@ class PublisherAccordionStepWidgetObject(BaseUIWidgetObject):
             name, fragment_data, parent=parent
         )
 
-    def pre_build(self):
-        self._is_optional = self.fragment_data.get('optional')
-
     def build(self):
         self._widget = PublisherAccordionWidget(
-            title=self.name, checkable=self.optional, checked=self._is_selected
+            title=self.name, checkable=self.optional, checked=self.enabled
         )
 
     def parent_validator(self, step_widget):

@@ -12,10 +12,15 @@ from ftrack_connect_pipeline_qt.utils import set_property
 
 
 class AccordionBaseWidget(QtWidgets.QFrame):
-    '''An utility accordion widget providing a header which can be expanded to show content'''
+    '''A utility accordion widget providing a header which can be expanded to show content'''
 
-    clicked = QtCore.Signal(object)
-    doubleClicked = QtCore.Signal(object)
+    clicked = QtCore.Signal(object)  # Emitted when accordion is clicked
+    doubleClicked = QtCore.Signal(
+        object
+    )  # Emitted when accordion is double clicked
+    checkedStateChanged = QtCore.Signal(
+        object
+    )  # Emitted when checked state changed
 
     SELECT_MODE_NONE = -1  # Not selectable
     SELECT_MODE_LIST = 0  # Only list selection mode
@@ -60,6 +65,19 @@ class AccordionBaseWidget(QtWidgets.QFrame):
         '''Return True if accordion is checkable with a checkbox'''
         return self._check_mode == self.CHECK_MODE_CHECKBOX
 
+    @checkable.setter
+    def checkable(self, value):
+        '''Set the checkable property'''
+        self._check_mode = (
+            self.CHECK_MODE_CHECKBOX
+            if value
+            else self.CHECK_MODE_CHECKBOX_DISABLED
+        )
+        if self.header and self.header.checkbox:
+            self.header.checkbox.setEnabled(
+                self._check_mode == self.CHECK_MODE_CHECKBOX
+            )
+
     @property
     def collapsed(self):
         '''Return True if accordion is collapsed - content hidden (default)'''
@@ -87,10 +105,17 @@ class AccordionBaseWidget(QtWidgets.QFrame):
 
     @checked.setter
     def checked(self, value):
-        '''Set the checkd property'''
-        self._checked = value
-        if self.check_mode == self.CHECK_MODE_CHECKBOX:
-            self.header.checkbox.setChecked(value)
+        '''Set the checked property'''
+        if self.isEnabled():
+            prev_checked = self._checked
+            self._checked = value
+            if self.header:
+                if self.check_mode == self.CHECK_MODE_CHECKBOX:
+                    self.header.checkbox.setChecked(value)
+                self.header.title_label.setEnabled(self._checked)
+            self.enable_content()
+            if self._checked != prev_checked:
+                self.checkedStateChanged.emit(self)
 
     @property
     def header(self):
@@ -208,12 +233,12 @@ class AccordionBaseWidget(QtWidgets.QFrame):
     def _init_content(self):
         '''Initialize the content'''
         self._content = QtWidgets.QFrame()
-        self._content.setLayout(QtWidgets.QVBoxLayout())
+        self.content.setLayout(QtWidgets.QVBoxLayout())
 
-        self._content.layout().setContentsMargins(2, 2, 2, 2)
-        self._content.layout().setSpacing(0)
+        self.content.layout().setContentsMargins(2, 2, 2, 2)
+        self.content.layout().setSpacing(0)
 
-        self.init_content(self._content.layout())
+        self.init_content(self.content.layout())
 
         return self._content
 
@@ -241,27 +266,26 @@ class AccordionBaseWidget(QtWidgets.QFrame):
 
     def enable_content(self):
         '''Enable content widget depending on if accordion is checked or not'''
-        self._content.setEnabled(self.checked)
+        if self._content:
+            self._content.setEnabled(self.checked)
 
     def paint_title(self, color):
         '''Put a foreground *color* on header title label'''
         self._header._title_label.setStyleSheet("color: {}".format(color))
 
-    def set_indicator(self, indication):
-        '''Set the left indicator visibility depending on *indication*'''
+    def set_indicator_color(self, color):
+        '''Set the left indicator visibility depending on *color*'''
         set_property(
             self._indicator_widget,
             'indicator',
-            ('on' if indication else 'off'),
+            color or 'green',
         )
         if not self._indicator_widget.isVisible():
             self._indicator_widget.setVisible(True)
 
     def _on_header_checkbox_checked(self):
         '''Callback on enable checkbox user interaction'''
-        self._checked = self.header.checkbox.isChecked()
-        self.header.title_label.setEnabled(self._checked)
-        self.enable_content()
+        self.checked = self.header.checkbox.isChecked()
 
     def _on_header_clicked(self, event):
         '''Callback on header user click'''

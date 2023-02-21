@@ -33,7 +33,7 @@ from ftrack_connect_pipeline_qt.utils import clear_layout
 from ftrack_connect_pipeline_qt.client.asset_manager import (
     QtAssetManagerClientWidget,
 )
-from ftrack_connect_pipeline_qt.ui.assembler.assembler import (
+from ftrack_connect_pipeline_qt.ui.assembler import (
     AssemblerDependenciesWidget,
     AssemblerBrowserWidget,
 )
@@ -135,11 +135,9 @@ class QtAssemblerClientWidget(QtLoaderClient, dialog.Dialog):
     def pre_build(self):
         self.setLayout(QtWidgets.QVBoxLayout())
         self.layout().setAlignment(QtCore.Qt.AlignTop)
-        self.layout().setContentsMargins(16, 16, 16, 16)
         self.layout().setSpacing(0)
         self.layout().setContentsMargins(16, 16, 16, 16)
         self.header = header.Header(self.session)
-        self.header.setMinimumHeight(50)
         # Create and add the asset manager client
         self.asset_manager = QtAssetManagerClientWidget(
             self.event_manager,
@@ -156,6 +154,8 @@ class QtAssemblerClientWidget(QtLoaderClient, dialog.Dialog):
         self._left_widget.layout().setContentsMargins(0, 0, 0, 0)
         self._left_widget.layout().setSpacing(0)
 
+        self.header.setMinimumHeight(45)
+        self.header.setMaximumHeight(45)
         self._left_widget.layout().addWidget(self.header)
 
         self._left_widget.layout().addWidget(line.Line(style='solid'))
@@ -169,8 +169,11 @@ class QtAssemblerClientWidget(QtLoaderClient, dialog.Dialog):
         self.definition_selector = (
             definition_selector.AssemblerDefinitionSelector()
         )
+        self.definition_selector.definition_widget.setVisible(False)
+        self.definition_selector.label_widget.setVisible(False)
         self.definition_selector.refreshed.connect(partial(self.refresh, True))
         self._left_widget.layout().addWidget(self.definition_selector)
+        self.definition_selector.setVisible(False)
 
         # Have a tabbed widget for the different import modes
 
@@ -193,6 +196,7 @@ class QtAssemblerClientWidget(QtLoaderClient, dialog.Dialog):
 
         self._tab_widget.addTab(self._browse_widget, 'Browse')
 
+        self._left_widget.layout().setSpacing(5)
         self._left_widget.layout().addWidget(self._tab_widget)
 
         if self.MODE_DEFAULT == self.ASSEMBLE_MODE_DEPENDENCIES:
@@ -205,6 +209,7 @@ class QtAssemblerClientWidget(QtLoaderClient, dialog.Dialog):
         button_widget.setLayout(QtWidgets.QHBoxLayout())
         button_widget.layout().setContentsMargins(2, 4, 8, 0)
         button_widget.layout().addStretch()
+        button_widget.layout().setSpacing(2)
         self.run_button_no_load = AddRunButton('ADD TO SCENE')
         button_widget.layout().addWidget(self.run_button_no_load)
         self.run_button = LoadRunButton('LOAD INTO SCENE')
@@ -278,7 +283,7 @@ class QtAssemblerClientWidget(QtLoaderClient, dialog.Dialog):
     def on_host_changed(self, host_connection):
         '''Triggered when client has set host connection'''
         if self.definition_filters:
-            self.definition_selector.definition_title_filters = (
+            self.definition_selector.definition_filters = (
                 self.definition_filters
             )
         if self.definition_extensions_filter:
@@ -431,7 +436,7 @@ class QtAssemblerClientWidget(QtLoaderClient, dialog.Dialog):
                 )  # Have factory update main progress widget
                 self.progress_widget.add_version(component)
                 factory.build_progress_ui(component)
-            self.progress_widget.components_added()
+            self.progress_widget.widgets_added()
 
             self.progress_widget.show_widget()
             failed = 0
@@ -510,6 +515,17 @@ class QtAssemblerClientWidget(QtLoaderClient, dialog.Dialog):
             if self._assembler_widget:
                 self._assembler_widget.rebuild()
             self.hard_refresh = False
+
+    def accept_component(self, component):
+        '''Return True if the component should be accepted for resolve, can
+        be overidden by subclasses'''
+        return not (
+            component['name'] == core_constants.SNAPSHOT_COMPONENT_NAME
+        ) or (
+            component['name'].startswith(
+                core_constants.FTRACKREVIEW_COMPONENT_NAME
+            )
+        )
 
     def _launch_assembler(self):
         '''Open the assembler and close client if dialog'''

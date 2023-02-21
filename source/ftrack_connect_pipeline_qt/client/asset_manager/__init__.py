@@ -18,7 +18,7 @@ from ftrack_connect_pipeline_qt.ui.utility.widget import (
     line,
     scroll_area,
 )
-from ftrack_connect_pipeline_qt.ui.asset_manager.asset_manager import (
+from ftrack_connect_pipeline_qt.ui.asset_manager import (
     AssetManagerWidget,
 )
 from ftrack_connect_pipeline_qt.ui.utility.widget.context_selector import (

@@ -17,7 +17,7 @@ _BASE_ = 'ftrack.pipeline'
 ASSEMBLER_WIDGET = 'assembler'
 # Change context widget
 CHANGE_CONTEXT_WIDGET = 'change_context'
-# Savet widget
+# Save widget
 SAVE_WIDGET = 'save'
 # Info widget
 INFO_WIDGET = 'info'

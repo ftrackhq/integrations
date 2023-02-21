@@ -39,6 +39,11 @@ NewAssetInput[status='unfocused'] QLabel {
     color: $gray;
 }
 
+QCheckBox {
+    color: $text-color;
+    border: none;
+}
+
 QCheckBox::indicator {
     image: theme-image('checkbox_unchecked');
 }

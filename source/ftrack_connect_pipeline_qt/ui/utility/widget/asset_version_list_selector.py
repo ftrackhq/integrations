@@ -9,6 +9,9 @@ from ftrack_connect_pipeline_qt.ui.utility.widget import thumbnail
 from ftrack_connect_pipeline_qt.ui.utility.widget.version_selector import (
     VersionComboBox,
 )
+from ftrack_connect_pipeline_qt.ui.utility.widget.busy_indicator import (
+    BusyIndicator,
+)
 
 
 class AssetVersionListItem(QtWidgets.QFrame):
@@ -130,12 +133,18 @@ class AssetList(QtWidgets.QListWidget):
         self.session = session
         self._filters = filters
         self.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
+        self.horizontalScrollBar().setEnabled(False)
+        self.verticalScrollBar().setEnabled(False)
         self.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
         self.setSpacing(1)
         self.assets = []
 
-    def _query_assets_from_context(self, context_id, asset_type_name):
+    def wheelEvent(self, event):
+        event.ignore()
+
+    def _query_assets_from_context_async(self, context_id, asset_type_name):
         '''(Run in background thread) Fetch assets from current context'''
+        # TODO: Move this to plugin call so this can be customized
         self._context_id = context_id
         self._asset_type_name = asset_type_name
         asset_type_entity = self.session.query(
@@ -146,19 +155,20 @@ class AssetList(QtWidgets.QListWidget):
         assets = self.session.query(
             'select name, versions.task.id, type.id, id, latest_version,'
             'latest_version.version, latest_version.date '
-            'from Asset where versions.task.id is {} and type.id is {}'.format(
+            'from Asset where (versions.task.id is {0} or versions.asset.parent.id is {0}) and type.id is {1}'.format(
                 context_id, asset_type_entity['id']
             )
         ).all()
+
         return assets
 
-    def _store_assets(self, assets):
+    def _store_assets_async(self, assets):
         '''(Called from background thread) store assets and add through signal'''
         self.assets = assets
         # Add data placeholder for new asset input
         self.assetsQueryDone.emit()
 
-    def refresh(self):
+    def rebuild(self):
         '''Add fetched assets to list'''
         self.clear()
         for asset_entity in self.assets:
@@ -182,11 +192,10 @@ class AssetList(QtWidgets.QListWidget):
 
     def on_context_changed(self, context_id, asset_type_name):
         self.clear()
-
         thread = BaseThread(
             name='get_assets_thread',
-            target=self._query_assets_from_context,
-            callback=self._store_assets,
+            target=self._query_assets_from_context_async,
+            callback=self._store_assets_async,
             target_args=(context_id, asset_type_name),
         )
         thread.start()
@@ -194,14 +203,10 @@ class AssetList(QtWidgets.QListWidget):
     def _on_version_changed(self, asset_item):
         self.versionChanged.emit(asset_item)
 
-    def resizeEvent(self, event):
-        self._size_changed()
-
     def _size_changed(self):
-        self.setFixedSize(
-            self.size().width() - 1,
-            self.sizeHintForRow(0) * self.count() + 2 * self.frameWidth(),
-        )
+        self.setFixedHeight(
+            self.sizeHintForRow(0) * self.count() + 20
+        )  # Add some extra space to prevent unwanted scrolling
 
 
 class AssetListSelector(QtWidgets.QFrame):
@@ -213,6 +218,7 @@ class AssetListSelector(QtWidgets.QFrame):
 
     def __init__(self, session, filters=None, parent=None):
         super(AssetListSelector, self).__init__(parent=parent)
+        self._busy_widget = None
         self.logger = logging.getLogger(
             __name__ + '.' + self.__class__.__name__
         )
@@ -235,16 +241,23 @@ class AssetListSelector(QtWidgets.QFrame):
             filters=self._filters,
         )
         self.layout().addWidget(self.asset_list)
+        self._busy_widget = BusyIndicator(start=False)
+        self._busy_widget.setMinimumSize(QtCore.QSize(24, 24))
+        self.layout().addWidget(self._busy_widget)
+        self._busy_widget.setVisible(False)
 
     def post_build(self):
         self.asset_list.itemSelectionChanged.connect(self._list_item_changed)
         self.asset_list.versionChanged.connect(self._on_current_asset_changed)
-        self.asset_list.assetsQueryDone.connect(self._refresh)
+        self.asset_list.assetsQueryDone.connect(self._rebuild)
         self.asset_list.assetsAdded.connect(self._pre_select_asset)
 
-    def _refresh(self):
+    def _rebuild(self):
         '''Add assets queried in separate thread to list'''
-        self.asset_list.refresh()
+        self.asset_list.rebuild()
+        self._busy_widget.stop()
+        self._busy_widget.setVisible(False)
+        self.asset_list.setVisible(True)
 
     def _pre_select_asset(self):
         '''Assets have been loaded, select most suitable asset to start with
@@ -277,20 +290,27 @@ class AssetListSelector(QtWidgets.QFrame):
         if asset_widget:
             # A proper asset were selected
             asset_entity = asset_widget.asset
-            asset_name = asset_entity
             if asset_widget.current_version_id:
                 version_num = asset_widget.current_version_number
                 self.assetChanged.emit(
-                    asset_name,
+                    asset_entity['name'] if asset_entity else None,
                     asset_entity,
                     asset_widget.current_version_id,
                     version_num,
                 )
                 return
-        self.assetChanged.emit(asset_name, asset_entity, None, None)
+        self.assetChanged.emit(
+            asset_entity['name'] if asset_entity else None,
+            asset_entity,
+            None,
+            None,
+        )
 
     def set_context(self, context_id, asset_type_name):
         self.logger.debug('setting context to :{}'.format(context_id))
+        self.asset_list.setVisible(False)
+        self._busy_widget.start()
+        self._busy_widget.setVisible(True)
         self.asset_list.on_context_changed(context_id, asset_type_name)
 
     def _get_context_entity(self, context_id):

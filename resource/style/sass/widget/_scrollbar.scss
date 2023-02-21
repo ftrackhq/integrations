@@ -1,18 +1,19 @@
 /** Scroll bar */
 QScrollBar {
     border: 0;
-    background: transparent;
+    background: $background;
+    background-color: $background;
     margin: 0;
 }
 
 QScrollBar:vertical {
     width: 12px;
-    background: transparent;
+    background: $background;
 }
 
 QScrollBar:horizontal {
     height: 12px;
-    background: transparent;
+    background: $background;
 }
 
 QScrollBar::handle:vertical, QScrollBar::handle:horizontal {
@@ -22,6 +23,18 @@ QScrollBar::handle:vertical, QScrollBar::handle:horizontal {
     margin: 2px;
     min-width: 2px;
     min-height: 2px;
+}
+
+QFrame[docked='true'] QScrollBar {
+    background: $background-docked;
+}
+
+QFrame[docked='true'] QScrollBar:vertical {
+    background: $background-docked;
+}
+
+QFrame[docked='true'] QScrollBar:horizontal {
+    background: $background-docked;
 }
 
 QFrame[docked='true'] QScrollBar::handle {

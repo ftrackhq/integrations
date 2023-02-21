@@ -243,4 +243,5 @@ class DynamicWidget(BaseOptionsWidget):
             widget_fn(key, value)
 
     def get_options_group_name(self):
+        '''Return the name of the options group, by default this is the name of the plugin. Can be overridden'''
         return self.name.title()

@@ -1,5 +1,5 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2014-2020 ftrack
+# :copyright: Copyright (c) 2014-2023 ftrack
 
 from functools import partial
 
@@ -30,6 +30,9 @@ class BaseCollectorWidget(BaseOptionsWidget):
         asset_type_name=None,
     ):
         self._collected_objects = []
+        if len(options.get('collected_objects') or []) > 0:
+            # Transfer preset object
+            self._collected_objects = options['collected_objects']
         super(BaseCollectorWidget, self).__init__(
             parent=parent,
             session=session,
@@ -49,7 +52,7 @@ class BaseCollectorWidget(BaseOptionsWidget):
         self.layout().addWidget(self._summary_widget)
 
         self.list_widget = QtWidgets.QListWidget()
-        self.list_widget.setAlternatingRowColors(True)
+
         self.list_widget.setSelectionMode(
             QtWidgets.QAbstractItemView.ExtendedSelection
         )
@@ -92,6 +95,9 @@ class BaseCollectorWidget(BaseOptionsWidget):
 
     def post_build(self):
         super(BaseCollectorWidget, self).post_build()
+        if len(self.collected_objects):
+            for obj in self.collected_objects:
+                self.add_object(obj)
         self.list_widget.itemChanged.connect(self._on_item_changed)
         self.add_button.clicked.connect(partial(self.on_run_plugin, 'add'))
         self.set_option_result(self.collected_objects, key='collected_objects')

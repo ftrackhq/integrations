@@ -72,22 +72,22 @@ class BaseUIWidgetObject(object):
         self._is_optional = False
         self._is_enabled = True
         self.description = None
-        self._is_selected = True
         if self.fragment_data:
             self.description = self.fragment_data.get(
                 'description', 'No description provided'
             )
-            self._is_selected = self.fragment_data.get('selected', True)
+            self._is_optional = self.fragment_data.get('optional', False)
+            self._is_enabled = self.fragment_data.get('enabled', True)
         self.pre_build()
         self.build()
         self.post_build()
 
     def pre_build(self):
-        '''pre build function, mostly used setup the widget's layout. To be overridden by child'''
+        '''Pre-build function, mostly used to setup the widget's layout. To be overridden by child'''
         pass
 
     def build(self):
-        '''build function, mostly used to create the widgets. To be overridden by child'''
+        '''Build function, mostly used to create the widgets. To be overridden by child'''
         pass
 
     def post_build(self):

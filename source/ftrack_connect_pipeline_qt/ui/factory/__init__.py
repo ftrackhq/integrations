@@ -63,13 +63,14 @@ class WidgetFactoryBase(QtWidgets.QWidget):
         self._host_connection = host_connection
 
     @property
-    def version_id(self):
-        return self._version_id
+    def batch_id(self):
+        '''Return the id of the current batch item/version'''
+        return self._batch_id
 
-    @version_id.setter
-    def version_id(self, value):
-        '''(Batch) Set the current ID of the running version'''
-        self._version_id = value
+    @batch_id.setter
+    def batch_id(self, value):
+        '''(Batch) Set the current ID of the current batch item/version'''
+        self._batch_id = value
 
     @property
     def definition(self):
@@ -106,7 +107,7 @@ class WidgetFactoryBase(QtWidgets.QWidget):
         self._definition = None
         self.components_obj = None
         self.progress_widget = None
-        self._version_id = None
+        self._batch_id = None
         self._subscriber_id = None
         self.has_error = False
 
@@ -362,9 +363,7 @@ class WidgetFactoryBase(QtWidgets.QWidget):
         if definition['type'] == core_constants.PUBLISHER:
             l_header = QtWidgets.QLabel('Components')
         else:
-            l_header = QtWidgets.QLabel(
-                'Choose which asset and version to open'
-            )
+            l_header = QtWidgets.QLabel('Choose which component to open')
             l_header.setObjectName('gray')
         self.components_section.layout().addWidget(l_header)
         self.components_section.layout().addWidget(self.components_obj.widget)
@@ -386,7 +385,7 @@ class WidgetFactoryBase(QtWidgets.QWidget):
 
         main_obj.widget.layout().addStretch()
 
-        self.progress_widget.components_added()
+        self.progress_widget.widgets_added()
 
         # Check all components status of the current UI
         self.post_build()
@@ -585,7 +584,7 @@ class WidgetFactoryBase(QtWidgets.QWidget):
                 status,
                 status_message,
                 results,
-                self._version_id,
+                self._batch_id,
             )
         elif status == core_constants.ERROR_STATUS:
             status_message = "Failed"
@@ -595,7 +594,7 @@ class WidgetFactoryBase(QtWidgets.QWidget):
                 status,
                 status_message,
                 results,
-                self._version_id,
+                self._batch_id,
             )
             self.has_error = True
         elif status == core_constants.SUCCESS_STATUS:
@@ -606,7 +605,7 @@ class WidgetFactoryBase(QtWidgets.QWidget):
                 status,
                 status_message,
                 results,
-                self._version_id,
+                self._batch_id,
             )
 
     def update_widget(self, log_item):
