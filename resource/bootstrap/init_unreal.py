@@ -68,7 +68,7 @@ def load_integration():
     from ftrack_connect_pipeline_unreal import host as unreal_host
     from ftrack_connect_pipeline_unreal.client import (
         # open,
-        # load,
+        load,
         # asset_manager,
         # publish,
         change_context,
@@ -195,6 +195,15 @@ def load_integration():
         snapshot_asset_list_model = AssetListModel(event_manager)
 
         widgets = list()
+        widgets.append(
+            (
+                qt_constants.ASSEMBLER_WIDGET,
+                load.UnrealQtAssemblerClientWidget,
+                'Assembler',
+                '',
+                True,
+            )
+        )
         widgets.append(
             (
                 qt_constants.CHANGE_CONTEXT_WIDGET,

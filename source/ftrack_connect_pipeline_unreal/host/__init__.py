@@ -17,7 +17,9 @@ class UnrealHost(Host):
 
     host_types = [qt_constants.HOST_TYPE, unreal_constants.HOST_TYPE]
     # Define the Unreal engines to be run during the run function
-    engines = {}
+    engines = {
+        'loader': host_engine.UnrealLoaderEngine,
+    }
 
     def __init__(self, event_manager):
         '''
