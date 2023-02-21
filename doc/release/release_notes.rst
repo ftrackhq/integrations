@@ -11,7 +11,24 @@ Release Notes
 
     .. change:: fix
 
+        Align assembler UI, consolidated assembler widget module.
+        Consolidated asset manager widget module.
+        Added docstrings.
+        Updated progress widget UI, consolidated batch progress widget.
+        Updated accordion base checked and checkable attributes.
+        Improved asset and version selector.
+        Updated definition selector to support adding an empty definition or not.
+
+    .. change:: changed
+        :tags: definitions
+
+        Remove ftrack-connect-pipeline-definitions repository.
+        Add plugins and definitions on each integration.
+
+    .. change:: fix
+
         Added spacer to option widget overlays.
+        (Base collector widget) Make sure initial collected objects are picked up.
 
     .. change:: fix
 
@@ -19,13 +36,8 @@ Release Notes
 
     .. change:: fix
 
-        Have context selector support not only tasks.
-
-    .. change:: changed
-        :tags: definitions
-
-        Remove ftrack-connect-pipeline-definitions repository.
-        Add plugins and definitions on each integration.
+        Have context selector support not only tasks, and start on browsing on a given context.
+        Have context selector disable thumbnail load.
 
 .. release:: 1.2.0
     :date: 2022-12-15
