@@ -366,20 +366,13 @@ class AssemblerDefinitionSelector(DefinitionSelectorBase):
     def __init__(self, parent=None):
         super(AssemblerDefinitionSelector, self).__init__(parent=parent)
 
-    def pre_build(self):
-        super(AssemblerDefinitionSelector, self).pre_build()
-        self.label_widget = QtWidgets.QLabel("Choose publisher:")
-
     def build_definition_widget(self):
         '''Not used in assembler, build dummy.'''
         self._definition_widget = QtWidgets.QWidget()
         self._definition_widget.setLayout(QtWidgets.QHBoxLayout())
-        self._definition_widget.layout().addWidget(self.label_widget)
         self._definition_selector = DefinitionSelectorComboBox()
         self._definition_selector.setToolTip('Please select a loader')
-        self._definition_widget.layout().addWidget(
-            self._definition_selector, 100
-        )
+        self._definition_widget.layout().addWidget(self._definition_selector)
         return self._definition_widget
 
     def post_build(self):
@@ -387,10 +380,8 @@ class AssemblerDefinitionSelector(DefinitionSelectorBase):
         self._definition_selector.currentIndexChanged.connect(
             self._on_change_definition
         )
-
-    def do_add_empty_definition(self):
-        '''(Override)'''
-        return False
+        self.label_widget.setVisible(False)
+        self._definition_widget.setVisible(False)
 
     def populate_definitions(self):
         '''(Override) Simply extract and store loader definitions from schemas'''
@@ -401,39 +392,11 @@ class AssemblerDefinitionSelector(DefinitionSelectorBase):
             return
         for schema in self.schemas:
             schema_title = schema.get('title').lower()
-            if self._definition_filters:
-                if not schema_title in self._definition_filters:
+            if self._definition_title_filters:
+                if not schema_title in self._definition_title_filters:
                     continue
             items = self._host_connection.definitions.get(schema_title)
-            if self._definition_title_filter_expression is not None:
-                self.definitions = [
-                    item
-                    for item in items
-                    if re.match(
-                        self._definition_title_filter_expression, item['name']
-                    )
-                ]
-            else:
-                self.definitions = items
-
-            index = 0
-            if self.do_add_empty_definition():
-                self._definition_selector.addItem("", None)
-                index += 1
-
-            for item in self.definitions:
-                # Remove ' Publisher/Loader'
-                text = '{}'.format(' '.join(item.get('name').split(' ')[:-1]))
-                component_names_filter = None
-
-                if not self._definition_filters:
-                    text = '{} - {}'.format(
-                        schema.get('title'), item.get('name')
-                    )
-                self._definition_selector.addItem(
-                    text.upper(), (item, component_names_filter)
-                )
-                index += 1
+            self.definitions = items
 
 
 class PublisherDefinitionSelector(DefinitionSelectorBase):
