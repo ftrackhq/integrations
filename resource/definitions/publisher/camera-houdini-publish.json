@@ -92,7 +92,7 @@
     {
       "name": "cache",
       "optional": true,
-      "selected": false,
+      "enabled": false,
       "stages": [
         {
           "name": "collector",
@@ -130,7 +130,7 @@
     {
       "name": "game",
       "optional": true,
-      "selected": false,
+      "enabled": false,
       "stages": [
         {
           "name": "collector",
