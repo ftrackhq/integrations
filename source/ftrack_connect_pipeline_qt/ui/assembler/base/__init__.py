@@ -329,7 +329,7 @@ class AssemblerBaseWidget(QtWidgets.QWidget):
                         )
                         continue
                     elif component['name'].startswith(
-                        core_constants.SNAPSHOT_FTRACKREVIEW_NAME
+                        core_constants.FTRACKREVIEW_COMPONENT_NAME
                     ):
                         self.logger.warning(
                             'Not assembling version {} ftrackreview component {}!'.format(
