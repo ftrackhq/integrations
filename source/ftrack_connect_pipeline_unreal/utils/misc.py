@@ -1,12 +1,24 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2023 ftrack
 import os
+from functools import wraps
 
 import unreal
 
 from ftrack_connect_pipeline_unreal.constants import asset as asset_const
 
 #### MISC ####
+
+
+def run_in_main_thread(f):
+    '''Make sure a function runs in the main Unreal thread.'''
+
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        # Multithreading is disabled for Unreal integration
+        return f(*args, **kwargs)
+
+    return decorated
 
 
 def prepare_load_task(session, context_data, data, options):
