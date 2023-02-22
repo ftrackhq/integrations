@@ -18,6 +18,7 @@ class UnrealHost(Host):
     host_types = [qt_constants.HOST_TYPE, unreal_constants.HOST_TYPE]
     # Define the Unreal engines to be run during the run function
     engines = {
+        'asset_manager': host_engine.UnrealAssetManagerEngine,
         'loader': host_engine.UnrealLoaderEngine,
     }
 

@@ -69,7 +69,7 @@ def load_integration():
     from ftrack_connect_pipeline_unreal.client import (
         # open,
         load,
-        # asset_manager,
+        asset_manager,
         # publish,
         change_context,
         log_viewer,
@@ -200,6 +200,15 @@ def load_integration():
                 qt_constants.ASSEMBLER_WIDGET,
                 load.UnrealQtAssemblerClientWidget,
                 'Assembler',
+                '',
+                True,
+            )
+        )
+        widgets.append(
+            (
+                core_constants.ASSET_MANAGER,
+                asset_manager.UnrealQtAssetManagerClientWidget,
+                'Asset Manager',
                 '',
                 True,
             )

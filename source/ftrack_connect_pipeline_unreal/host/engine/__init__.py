@@ -3,5 +3,4 @@
 
 # from ftrack_connect_pipeline_unreal.host.engine.publish import *
 from ftrack_connect_pipeline_unreal.host.engine.load import *
-
-# from ftrack_connect_pipeline_unreal.host.engine.asset_manager import *
+from ftrack_connect_pipeline_unreal.host.engine.asset_manager import *
