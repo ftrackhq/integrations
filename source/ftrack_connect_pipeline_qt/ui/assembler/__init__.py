@@ -38,7 +38,7 @@ class AssemblerDependenciesWidget(AssemblerBaseWidget):
 
     dependencyResolveWarning = QtCore.Signal(
         object, object, object
-    )  # Emitted when a error/warning message needs to be displayed
+    )  # Emitted when an error/warning message needs to be displayed
     dependenciesResolved = QtCore.Signal(
         object
     )  # Emitted from background thread when components has been extracted
@@ -491,9 +491,12 @@ class AssemblerBrowserWidget(AssemblerBaseWidget):
         if self._component_list:
             self._component_list.on_search(text)
 
-    def _on_version_changed(self, widget, version_entity):
+    def _on_version_changed(self, widget, version_id):
         '''User request a change of version, check that the new version
         has the component and it matches.'''
+        version_entity = self.client.session.query(
+            'AssetVersion where id={}'.format(version_id)
+        ).one()
         current_component = self.client.session.query(
             'Component where id={}'.format(widget.component_id)
         ).one()
@@ -522,19 +525,14 @@ class AssemblerBrowserWidget(AssemblerBaseWidget):
             matching_definitions = self.model.data(widget.index)[1]
             # Replace version ID for importer
             for definition in matching_definitions:
-                for context in definition.get_all(type=core_constants.CONTEXT):
-                    for stage in context.get_all(
-                        category=core_constants.STAGE
-                    ):
-                        for plugin in stage.get_all(
-                            category=core_constants.PLUGIN
-                        ):
-                            if 'options' in plugin:
-                                options = plugin['options']
-                                options['version_id'] = version_entity['id']
-                                options['version_number'] = version_entity[
-                                    'version'
-                                ]
+                for plugin in definition.get_all(
+                    type=core_constants.CONTEXT,
+                    category=core_constants.PLUGIN,
+                ):
+                    if 'options' in plugin:
+                        options = plugin['options']
+                        options['version_id'] = version_entity['id']
+                        options['version_number'] = version_entity['version']
             location = self.session.pick_location()
             self.model.setData(
                 widget.index,
@@ -749,9 +747,9 @@ class BrowserListWidget(AssemblerListBaseWidget):
             self.refresh(text.lower())
             self.prev_search_text = text
 
-    def _on_version_change(self, widget, version_entity):
-        '''Another version has been selected by user, emit event'''
-        self.versionChanged.emit(widget, version_entity)
+    def _on_version_change(self, widget, version_id):
+        '''Another version has been selected by user, relay event passing on *version_id*'''
+        self.versionChanged.emit(widget, version_id)
 
 
 class DependencyComponentWidget(ComponentBaseWidget):
@@ -925,9 +923,9 @@ class BrowsedComponentWidget(ComponentBaseWidget):
         self._path_widget.setText(' / '.join(sub_path))
         self._path_widget.setVisible(len(sub_path) > 0)
 
-    def _on_version_changed(self, entity_version):
-        '''Another version has been selected by user, emit event'''
-        self.versionChanged.emit(entity_version)
+    def _on_version_changed(self, version_id):
+        '''Another version has been selected by user, relay event passing on *version_id*'''
+        self.versionChanged.emit(version_id)
 
     def matches(self, search_text):
         '''Do a simple match if this search text matches my attributes'''

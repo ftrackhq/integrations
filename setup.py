@@ -153,11 +153,18 @@ class BuildPlugin(setuptools.Command):
 
         # Copy resource files except style
         # bootstrap
-        shutil.copytree(BOOTSTRAP_PATH, os.path.join(STAGING_PATH, 'resource', 'bootstrap'))
+        shutil.copytree(
+            BOOTSTRAP_PATH, os.path.join(STAGING_PATH, 'resource', 'bootstrap')
+        )
         # plugins
-        shutil.copytree(PLUGINS_PATH, os.path.join(STAGING_PATH, 'resource', 'plugins'))
+        shutil.copytree(
+            PLUGINS_PATH, os.path.join(STAGING_PATH, 'resource', 'plugins')
+        )
         # definitions
-        shutil.copytree(DEFINITIONS_PATH, os.path.join(STAGING_PATH, 'resource', 'definitions'))
+        shutil.copytree(
+            DEFINITIONS_PATH,
+            os.path.join(STAGING_PATH, 'resource', 'definitions'),
+        )
 
         # Copy plugin files
         shutil.copytree(HOOK_PATH, os.path.join(STAGING_PATH, 'hook'))

@@ -95,8 +95,30 @@ class DefinitionSelectorBase(QtWidgets.QWidget):
         self.layout().addWidget(self.no_definitions_label)
 
     def build_definition_widget(self):
-        '''Must be implemented by the child'''
-        raise NotImplementedError()
+        '''Build the main widget'''
+        self._definition_widget = QtWidgets.QWidget()
+
+        self._definition_widget.setLayout(QtWidgets.QVBoxLayout())
+        self._definition_widget.layout().setContentsMargins(0, 0, 0, 0)
+
+        definition_select_widget = QtWidgets.QWidget()
+        definition_select_widget.setLayout(QtWidgets.QHBoxLayout())
+        definition_select_widget.layout().setContentsMargins(0, 0, 0, 0)
+        definition_select_widget.layout().setSpacing(10)
+
+        definition_select_widget.layout().addWidget(self.label_widget)
+        self._definition_selector = DefinitionSelectorComboBox()
+        self._definition_selector.setToolTip(self.label_widget.text())
+
+        definition_select_widget.layout().addWidget(
+            self._definition_selector, 10
+        )
+
+        self._refresh_button = CircularButton('sync')
+        definition_select_widget.layout().addWidget(self._refresh_button)
+
+        self._definition_widget.layout().addWidget(definition_select_widget)
+        return self._definition_widget
 
     def post_build(self):
         '''Connect the widget signals'''
@@ -165,31 +187,6 @@ class OpenerDefinitionSelector(DefinitionSelectorBase):
     def pre_build(self):
         super(OpenerDefinitionSelector, self).pre_build()
         self.label_widget = QtWidgets.QLabel("Choose what to open")
-
-    def build_definition_widget(self):
-        self._definition_widget = QtWidgets.QWidget()
-
-        self._definition_widget.setLayout(QtWidgets.QVBoxLayout())
-        self._definition_widget.layout().setContentsMargins(0, 0, 0, 0)
-
-        definition_select_widget = QtWidgets.QWidget()
-        definition_select_widget.setLayout(QtWidgets.QHBoxLayout())
-        definition_select_widget.layout().setContentsMargins(0, 0, 0, 0)
-        definition_select_widget.layout().setSpacing(10)
-
-        definition_select_widget.layout().addWidget(self.label_widget)
-        self._definition_selector = DefinitionSelectorComboBox()
-        self._definition_selector.setToolTip('Please select an opener')
-
-        definition_select_widget.layout().addWidget(
-            self._definition_selector, 10
-        )
-
-        self._refresh_button = CircularButton('sync')
-        definition_select_widget.layout().addWidget(self._refresh_button)
-
-        self._definition_widget.layout().addWidget(definition_select_widget)
-        return self._definition_widget
 
     def post_build(self):
         super(OpenerDefinitionSelector, self).post_build()
@@ -366,15 +363,6 @@ class AssemblerDefinitionSelector(DefinitionSelectorBase):
     def __init__(self, parent=None):
         super(AssemblerDefinitionSelector, self).__init__(parent=parent)
 
-    def build_definition_widget(self):
-        '''Not used in assembler, build dummy.'''
-        self._definition_widget = QtWidgets.QWidget()
-        self._definition_widget.setLayout(QtWidgets.QHBoxLayout())
-        self._definition_selector = DefinitionSelectorComboBox()
-        self._definition_selector.setToolTip('Please select a loader')
-        self._definition_widget.layout().addWidget(self._definition_selector)
-        return self._definition_widget
-
     def post_build(self):
         super(AssemblerDefinitionSelector, self).post_build()
         self._definition_selector.currentIndexChanged.connect(
@@ -408,31 +396,6 @@ class PublisherDefinitionSelector(DefinitionSelectorBase):
     def pre_build(self):
         super(PublisherDefinitionSelector, self).pre_build()
         self.label_widget = QtWidgets.QLabel("Choose what to publish")
-
-    def build_definition_widget(self):
-        self._definition_widget = QtWidgets.QWidget()
-
-        self._definition_widget.setLayout(QtWidgets.QVBoxLayout())
-        self._definition_widget.layout().setContentsMargins(0, 0, 0, 0)
-
-        definition_select_widget = QtWidgets.QWidget()
-        definition_select_widget.setLayout(QtWidgets.QHBoxLayout())
-        definition_select_widget.layout().setContentsMargins(0, 0, 0, 0)
-        definition_select_widget.layout().setSpacing(10)
-
-        definition_select_widget.layout().addWidget(self.label_widget)
-        self._definition_selector = DefinitionSelectorComboBox()
-        self._definition_selector.setToolTip('Please select a publisher')
-
-        definition_select_widget.layout().addWidget(
-            self._definition_selector, 10
-        )
-
-        self._refresh_button = CircularButton('sync')
-        definition_select_widget.layout().addWidget(self._refresh_button)
-
-        self._definition_widget.layout().addWidget(definition_select_widget)
-        return self._definition_widget
 
     def post_build(self):
         super(PublisherDefinitionSelector, self).post_build()
