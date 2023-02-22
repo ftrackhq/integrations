@@ -150,7 +150,6 @@ class FtrackAssetInfo(dict):
         load_mode=None,
         asset_info_options=None,
         objects_loaded=False,
-        is_snapshot=False,
         reference_object=None,
     ):
         '''
@@ -170,8 +169,6 @@ class FtrackAssetInfo(dict):
         *asset_info_options* : Asset info options
 
         *objects_loaded* : Objects loaded
-
-        *is_snapshot* : Is snapshot
 
         *reference_object* : Reference object
 
@@ -221,18 +218,11 @@ class FtrackAssetInfo(dict):
             constants.LOAD_MODE: load_mode or 'Not Set',
             constants.ASSET_INFO_OPTIONS: asset_info_options or '',
             constants.OBJECTS_LOADED: objects_loaded,
-            constants.IS_SNAPSHOT: is_snapshot,
             constants.REFERENCE_OBJECT: reference_object or '',
             constants.CONTEXT_PATH: context_path,
             constants.COMPONENT_NAME: component_name,
             constants.COMPONENT_ID: component_id,
             constants.COMPONENT_PATH: component_path,
-            constants.MOD_DATE: os.path.getmtime(component_path)
-            if component_path
-            else None,
-            constants.FILE_SIZE: os.path.getsize(component_path)
-            if component_path
-            else None,
         }
 
         return cls(asset_info_data)
