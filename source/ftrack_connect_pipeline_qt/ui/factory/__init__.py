@@ -470,6 +470,10 @@ class WidgetFactoryBase(QtWidgets.QWidget):
                 widget_name,
                 extra_options=extra_options,
             )
+        if not data:
+            raise Exception(
+                "common_default_shared widget is not reachable"
+            )
         data = data[0]
 
         message = data['message']

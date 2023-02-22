@@ -25,6 +25,9 @@ STYLE_PATH = os.path.join(RESOURCE_PATH, 'style')
 RESOURCE_TARGET_PATH = os.path.join(
     SOURCE_PATH, 'ftrack_connect_pipeline_qt', 'ui', 'resource.py'
 )
+BOOTSTRAP_PATH = os.path.join(RESOURCE_PATH, 'bootstrap')
+PLUGINS_PATH = os.path.join(RESOURCE_PATH, 'plugins')
+DEFINITIONS_PATH = os.path.join(RESOURCE_PATH, 'definitions')
 
 HOOK_PATH = os.path.join(ROOT_PATH, 'hook')
 
@@ -147,6 +150,14 @@ class BuildPlugin(setuptools.Command):
         '''Run the build step.'''
         # Clean staging path
         shutil.rmtree(STAGING_PATH, ignore_errors=True)
+
+        # Copy resource files except style
+        # bootstrap
+        shutil.copytree(BOOTSTRAP_PATH, os.path.join(STAGING_PATH, 'resource', 'bootstrap'))
+        # plugins
+        shutil.copytree(PLUGINS_PATH, os.path.join(STAGING_PATH, 'resource', 'plugins'))
+        # definitions
+        shutil.copytree(DEFINITIONS_PATH, os.path.join(STAGING_PATH, 'resource', 'definitions'))
 
         # Copy plugin files
         shutil.copytree(HOOK_PATH, os.path.join(STAGING_PATH, 'hook'))
