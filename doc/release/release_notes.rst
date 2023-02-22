@@ -29,6 +29,10 @@ Release Notes
 
         Asset info has now a create method.
 
+    .. change:: fix
+
+       Avility to disable stages and plugins.
+
 .. release:: 1.2.0
     .. change:: 2022-12-15
     .. change:: new

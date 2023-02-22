@@ -186,7 +186,6 @@ class LoaderImporterPlugin(base.BaseImporterPlugin):
         self.json_data = json.dumps(
             event['data'], default=lambda o: '<not serializable>'
         )
-
         # If method == init_and_load will init the nodes and load the objects,
         # if method == init_nodes will only load the nodes,
         # if method == load_objects will only load the objects using the current

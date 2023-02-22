@@ -33,7 +33,7 @@ class PublisherFinalizerPlugin(base.BaseFinalizerPlugin):
         self, asset_version_entity, component_name, component_path
     ):
         '''
-        Creates an ftrack component on the given *asset_version_entity* with the given
+        Creates a ftrack component on the given *asset_version_entity* with the given
         *component_name* pointing to the given *component_path*
 
         *asset_version_entity* : instance of
@@ -144,6 +144,9 @@ class PublisherFinalizerPlugin(base.BaseFinalizerPlugin):
                     'parent': asset_parent_object,
                 },
             )
+            self.logger.debug(
+                'Successfully created asset: {}'.format(asset_name)
+            )
 
         rollback = False
         try:
@@ -162,6 +165,12 @@ class PublisherFinalizerPlugin(base.BaseFinalizerPlugin):
                     asset_version_entity['uses_versions'].append(dependency)
 
             self.session.commit()
+
+            self.logger.debug(
+                'Successfully created assetversion: {}'.format(
+                    asset_version_entity['version']
+                )
+            )
 
             rollback = True  # Undo version creation from this point
 

@@ -115,7 +115,7 @@ class FtrackObjectManager(object):
         self._dcc_object = None
         self._event_manager = event_manager
 
-    def _generate_dcc_object_name(self):
+    def generate_dcc_object_name(self):
         '''
         Returns a name for the current self :obj:`dcc_object` based on
         the first 2 and last 2 characters of the
@@ -180,7 +180,7 @@ class FtrackObjectManager(object):
         '''
         Creates a new dcc_object with a unique name.
         '''
-        name = self._generate_dcc_object_name()
+        name = self.generate_dcc_object_name()
         dcc_object = self.DccObject(name)
 
         self.dcc_object = dcc_object

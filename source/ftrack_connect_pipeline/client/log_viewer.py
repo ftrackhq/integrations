@@ -3,7 +3,6 @@
 
 from ftrack_connect_pipeline import client
 from ftrack_connect_pipeline import constants as core_constants
-from ftrack_connect_pipeline.constants import asset as asset_const
 
 
 class LogViewerClient(client.Client):

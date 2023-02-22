@@ -352,6 +352,18 @@ class BaseEngine(object):
 
         i = 1
         for plugin in plugins:
+
+            plugin_name = plugin['plugin']
+            plugin_enabled = plugin['enabled']
+
+            if not plugin_enabled:
+                self.logger.debug(
+                    'Skipping plugin {} as it has been disabled'.format(
+                        plugin_name
+                    )
+                )
+                continue
+
             self._notify_progress_client(
                 step_type=step_type,
                 step_name=step_name,
@@ -363,7 +375,6 @@ class BaseEngine(object):
             )
 
             result = None
-            plugin_name = plugin['plugin']
             plugin_options = plugin['options']
             # Update the plugin_options with the stage_options.
             plugin_options.update(stage_options)
@@ -466,11 +477,20 @@ class BaseEngine(object):
                 if stage_name != stage['name']:
                     continue
 
+                stage_enabled = stage['enabled']
                 stage_plugins = stage['plugins']
                 category = stage['category']
                 type = stage['type']
 
                 if not stage_plugins:
+                    continue
+
+                if not stage_enabled:
+                    self.logger.debug(
+                        'Skipping stage {} as it has been disabled'.format(
+                            stage_name
+                        )
+                    )
                     continue
 
                 stage_status, stage_result = self.run_stage(
@@ -667,11 +687,9 @@ class BaseEngine(object):
             if step_group == constants.CONTEXTS:
                 context_latest_step = group_results[-1]
                 context_latest_stage = context_latest_step.get('result')[-1]
-                context_latest_plugin = context_latest_stage.get('result')[-1]
-                context_latest_plugin_result = context_latest_plugin.get(
-                    'result'
-                )
-                context_data = context_latest_plugin_result
+                context_data = {}
+                for context_plugin in context_latest_stage.get('result'):
+                    context_data.update(context_plugin.get('result'))
 
             elif step_group == constants.COMPONENTS:
                 components_output = copy.deepcopy(group_results)

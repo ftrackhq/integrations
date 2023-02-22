@@ -44,7 +44,7 @@ class DccObject(dict):
     def __init__(self, name=None, from_id=None, **kwargs):
         '''
         If the *from_id* is provided find an object in the dcc with the given
-        *from_id* as assset_info_id.
+        *from_id* as asset_info_id.
         If a *name* is provided create a new object in the dcc.
         '''
         self.logger = logging.getLogger(

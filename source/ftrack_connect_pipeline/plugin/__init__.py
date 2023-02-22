@@ -581,7 +581,7 @@ class BasePlugin(object):
             plugin.
 
         '''
-        raise NotImplementedError('Missing run method.')
+        raise NotImplementedError('Missing fetch method.')
 
 
 from ftrack_connect_pipeline.plugin.load import *

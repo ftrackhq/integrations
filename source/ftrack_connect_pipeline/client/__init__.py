@@ -593,6 +593,9 @@ class Client(object):
         if not self.host_connection:
             self.logger.error("please set the host connection first")
             return
+        if not definition:
+            self.logger.error("please provide a definition")
+            return
 
         if not schema:
             schema = self.get_schema_from_definition(definition)

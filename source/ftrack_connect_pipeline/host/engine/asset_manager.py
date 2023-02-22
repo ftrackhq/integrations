@@ -622,13 +622,25 @@ class AssetManagerEngine(BaseEngine):
             version_id = asset_version_entity['id']
             location = asset_version_entity.session.pick_location()
             component_path = None
+            component_id = None
             for component in asset_version_entity['components']:
                 if component['name'] == component_name:
+                    component_id = component['id']
                     if location.get_component_availability(component) == 100.0:
                         component_path = location.get_filesystem_path(
                             component
                         )
-
+            if component_path is None:
+                raise Exception(
+                    'Component {}({}) @ version {}({}) is not available in your current location {}({})'.format(
+                        component_name,
+                        component_id,
+                        version_number,
+                        version_id,
+                        location['name'],
+                        location['id'],
+                    )
+                )
             # Use the original asset_info options to reload the new version
             # Collect asset_context_data and asset data
             asset_context_data = asset_info_options['settings']['context_data']
@@ -639,9 +651,11 @@ class AssetManagerEngine(BaseEngine):
             asset_context_data[asset_const.VERSION_ID] = version_id
 
             # Update asset_info_options
-            asset_info_options['settings']['data'][0]['result'] = [
-                component_path
-            ]
+            asset_info_options['settings']['data'][0]['result'] = {
+                asset_const.COMPONENT_NAME: component_name,
+                asset_const.COMPONENT_ID: component_id,
+                asset_const.COMPONENT_PATH: component_path,
+            }
             asset_info_options['settings']['context_data'].update(
                 asset_context_data
             )

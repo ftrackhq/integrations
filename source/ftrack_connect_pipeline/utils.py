@@ -1,5 +1,5 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2014-2022 ftrack
+# :copyright: Copyright (c) 2014-2023 ftrack
 import os
 import appdirs
 import tempfile
@@ -8,32 +8,53 @@ import six
 from ftrack_connect_pipeline import constants as core_constants
 
 
-def str_context(context, with_id=False, force_version_nr=None, delimiter='/'):
-    '''Utility function to produce a human readable string out or a context.'''
-    if not 'project' in context:
+def str_context(context, delimiter='/'):
+    '''Utility function to produce a human-readable describing *context*.'''
+    if context is None:
+        return None
+    suffix = ''
+    if context.entity_type == 'Asset':
+        # Not really a context but attempt to support it anyway.
+        suffix = '/{}'.format(context['name'])
+        context = context['parent']
+    elif not 'project' in context or not 'link' in context:
+        # Do not know how to stringify this context
         return str(context)
-    return '{}/{}'.format(
+    # Concatenate project, entity names down to context
+    return '{}/{}{}'.format(
         context['project']['name'],
         '/'.join(['{}'.format(link['name']) for link in context['link'][1:]]),
+        suffix,
     ).replace('/', delimiter)
 
 
-def str_version(v, with_id=False, force_version_nr=None, delimiter='/'):
-    '''Utility function to produce a human readable string out or an asset version.'''
-    return '{}/{}/v{}{}'.format(
-        str_context(v['task']),
-        v['asset']['name'],
-        force_version_nr or v['version'],
-        ('({})'.format(v['id']) if with_id else ''),
+def str_version(
+    assetversion,
+    with_id=False,
+    force_version_nr=None,
+    by_task=True,
+    delimiter='/',
+):
+    '''Utility function to produce a human-readable string out of *asset_version*.'''
+    return '{}/{}/{}{}'.format(
+        str_context(
+            assetversion['task']
+            if by_task
+            else assetversion['asset']['parent']
+        ),
+        assetversion['asset']['name'],
+        'v%d' % (force_version_nr or assetversion['version']),
+        ('({})'.format(assetversion['id']) if with_id else ''),
     ).replace('/', delimiter)
 
 
-def safe_string(string):
-    if six.PY2 and isinstance(string, unicode):
-        return string.encode('utf-8')
-    if isinstance(string, bytes):
-        return string.decode("utf-8")
-    return str(string)
+def safe_string(object):
+    '''Make a string out of *object*, by first decoding if byte or unicode string'''
+    if six.PY2 and isinstance(object, unicode):
+        return object.encode('utf-8')
+    if isinstance(object, bytes):
+        return object.decode("utf-8")
+    return str(object)
 
 
 def get_save_path(context_id, session, extension=None, temp=True):

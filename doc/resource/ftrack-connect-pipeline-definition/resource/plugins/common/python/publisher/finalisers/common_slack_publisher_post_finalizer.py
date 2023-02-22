@@ -18,13 +18,13 @@ class CommonSlackPublisherFinalizerPlugin(plugin.PublisherPostFinalizerPlugin):
     def run(self, context_data=None, data=None, options=None):
 
         # Harvest publish data
-        reviewable_path = asset_version_id = None
+        reviewable_path = asset_version_id = component_names = None
         for component_data in data:
             if component_data['name'] == 'thumbnail':
                 for output in component_data['result']:
                     if output['name'] == 'exporter':
                         reviewable_path = output['result'][0]['result'][0]
-            elif component_data['name'] == 'main':
+            elif component_data['type'] == 'finalizer':
                 for step in component_data['result']:
                     if step['name'] == 'finalizer':
                         asset_version_id = step['result'][0]['result'][
@@ -33,6 +33,7 @@ class CommonSlackPublisherFinalizerPlugin(plugin.PublisherPostFinalizerPlugin):
                         component_names = step['result'][0]['result'][
                             'component_names'
                         ]
+                        break
 
         # Fetch version
         version = self.session.query(
