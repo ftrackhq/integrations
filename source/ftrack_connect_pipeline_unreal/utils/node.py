@@ -152,10 +152,7 @@ def get_connected_nodes_from_dcc_object(dcc_object_name):
     id_value = param_dict.get(asset_const.ASSET_INFO_ID)
     for node_name in get_current_scene_objects():
         asset = get_asset_by_path(node_name)
-        for metadata_tag in [
-            asset_const.NODE_METADATA_TAG,
-            asset_const.NODE_SNAPSHOT_METADATA_TAG,
-        ]:
+        for metadata_tag in [asset_const.NODE_METADATA_TAG]:
             ftrack_value = unreal.EditorAssetLibrary.get_metadata_tag(
                 asset, metadata_tag
             )
@@ -174,10 +171,7 @@ def get_asset_info(node_name, snapshot=False):
         )
         return None, None
     ftrack_value = unreal.EditorAssetLibrary.get_metadata_tag(
-        asset,
-        asset_const.NODE_METADATA_TAG
-        if not snapshot
-        else asset_const.NODE_SNAPSHOT_METADATA_TAG,
+        asset, asset_const.NODE_METADATA_TAG
     )
 
     for dcc_object_node in get_ftrack_nodes():
@@ -206,37 +200,13 @@ def connect_object(node_name, asset_info, logger):
     asset = get_asset_by_path(node_name)
     unreal.EditorAssetLibrary.set_metadata_tag(
         asset,
-        asset_const.NODE_SNAPSHOT_METADATA_TAG
-        if asset_info.get(asset_const.IS_SNAPSHOT)
-        else asset_const.NODE_METADATA_TAG,
+        asset_const.NODE_METADATA_TAG,
         str(asset_info.get(asset_const.ASSET_INFO_ID)),
     )
 
     # Have Unreal save the asset as it has been modified
     logger.debug('Saving asset: {}'.format(node_name))
     unreal.EditorAssetLibrary.save_asset(node_name)
-
-    # As it has been saved, restore modification date to be the same as the imported component.
-    # Otherwise asset will appear out of sync in ftrack.
-    if asset_info.get(asset_const.IS_SNAPSHOT):
-        component_path = asset_info.get(asset_const.COMPONENT_PATH)
-        asset_filesystem_path = (
-            unreal_file_utils.asset_path_to_filesystem_path(node_name)
-        )
-        file_size_remote = os.path.getsize(component_path)
-        file_size_local = os.path.getsize(asset_filesystem_path)
-        mod_date_remote = os.path.getmtime(component_path)
-
-        stat = os.stat(asset_filesystem_path)
-        os.utime(asset_filesystem_path, times=(stat.st_atime, mod_date_remote))
-        logger.debug(
-            'Restored file modification time: {} on asset: {} (size: {}, local size: {})'.format(
-                mod_date_remote,
-                asset_filesystem_path,
-                file_size_remote,
-                file_size_local,
-            )
-        )
 
 
 def conditional_remove_metadata_tag(node_name, metadata_tag):

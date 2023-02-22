@@ -5,7 +5,7 @@ from Qt import QtWidgets, QtCore
 
 from ftrack_connect_pipeline_qt.client import change_context
 from ftrack_connect_pipeline_unreal.utils import (
-    custom_commands as unreal_utils,
+    bootstrap as unreal_boostrap_utils,
 )
 
 
@@ -23,4 +23,4 @@ class UnrealQtChangeContextClientWidget(
 
     def show(self):
         if super(UnrealQtChangeContextClientWidget, self).show():
-            unreal_utils.init_unreal(self.context_id, self.session)
+            unreal_boostrap_utils.init_unreal(self.context_id, self.session)

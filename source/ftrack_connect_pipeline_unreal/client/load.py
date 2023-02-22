@@ -12,9 +12,6 @@ import ftrack_connect_pipeline_qt.constants as qt_constants
 
 from ftrack_connect_pipeline_unreal.constants.asset import modes as load_const
 import ftrack_connect_pipeline_unreal.constants as unreal_constants
-from ftrack_connect_pipeline_unreal.client.asset_manager import (
-    UnrealQtAssetManagerClientWidget,
-)
 
 
 class UnrealQtAssemblerClientWidget(load.QtAssemblerClientWidget):

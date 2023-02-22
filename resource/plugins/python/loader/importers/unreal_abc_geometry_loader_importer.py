@@ -1,5 +1,6 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2022 ftrack
+
 import unreal
 
 from ftrack_connect_pipeline_unreal import plugin
