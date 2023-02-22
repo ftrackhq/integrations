@@ -224,8 +224,8 @@ class OpenerDefinitionSelector(DefinitionSelectorBase):
 
         for schema in self.schemas:
             schema_title = schema.get('title').lower()
-            if self._definition_filters:
-                if not schema_title in self._definition_filters:
+            if self.definition_filters:
+                if not schema_title in self.definition_filters:
                     continue
             items = self._host_connection.definitions.get(schema_title)
             self.definitions = items
@@ -321,7 +321,7 @@ class OpenerDefinitionSelector(DefinitionSelectorBase):
                                 latest_version = asset_version
                                 index_latest_version = index
                             break
-                if not self._definition_filters:
+                if not self.definition_filters:
                     text = '{} - {}'.format(
                         schema.get('title'), item.get('name')
                     )
@@ -392,8 +392,8 @@ class AssemblerDefinitionSelector(DefinitionSelectorBase):
             return
         for schema in self.schemas:
             schema_title = schema.get('title').lower()
-            if self._definition_title_filters:
-                if not schema_title in self._definition_title_filters:
+            if self.definition_filters:
+                if not schema_title in self.definition_filters:
                     continue
             items = self._host_connection.definitions.get(schema_title)
             self.definitions = items
@@ -464,8 +464,8 @@ class PublisherDefinitionSelector(DefinitionSelectorBase):
 
         for schema in self.schemas:
             schema_title = schema.get('title').lower()
-            if self._definition_filters:
-                if not schema_title in self._definition_filters:
+            if self.definition_filters:
+                if not schema_title in self.definition_filters:
                     continue
             items = self._host_connection.definitions.get(schema_title)
             self.definitions = items
@@ -475,7 +475,7 @@ class PublisherDefinitionSelector(DefinitionSelectorBase):
                 text = '{}'.format(' '.join(item.get('name').split(' ')[:-1]))
                 component_names_filter = None
 
-                if not self._definition_filters:
+                if not self.definition_filters:
                     text = '{} - {}'.format(
                         schema.get('title'), item.get('name')
                     )
