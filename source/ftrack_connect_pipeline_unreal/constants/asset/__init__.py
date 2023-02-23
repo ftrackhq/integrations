@@ -3,7 +3,6 @@
 import os
 import unreal
 
-# FTRACK_PLUGIN_ID = 0x190319
 FTRACK_PLUGIN_TYPE = 'ftrackAssetNode'
 ASSET_LINK = 'asset_link'
 NODE_METADATA_TAG = "ftrack"
