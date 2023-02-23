@@ -107,7 +107,6 @@ def load_integration():
     def _open_widget(
         event_manager,
         asset_list_model,
-        snapshot_asset_list_model,
         widgets,
         event,
     ):
@@ -157,7 +156,6 @@ def load_integration():
                     widget = ftrack_client(
                         event_manager,
                         asset_list_model,
-                        snapshot_asset_list_model,
                     )
                 else:
                     # Create without asset model
@@ -192,7 +190,6 @@ def load_integration():
 
         # Shared asset manager models
         asset_list_model = AssetListModel(event_manager)
-        snapshot_asset_list_model = AssetListModel(event_manager)
 
         widgets = list()
         widgets.append(
@@ -276,7 +273,6 @@ def load_integration():
                 _open_widget,
                 event_manager,
                 asset_list_model,
-                snapshot_asset_list_model,
                 widgets,
             ),
         )
