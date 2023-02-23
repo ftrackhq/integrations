@@ -219,7 +219,7 @@
           "plugins":[
             {
               "name": "write reviewable",
-              "plugin": "max_thumbnail_publisher_exporter"
+              "plugin": "max_reviewable_publisher_exporter"
             }
           ]
         }

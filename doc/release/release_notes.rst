@@ -8,6 +8,12 @@ Release Notes
 *************
 
 .. release:: upcoming
+
+    .. change:: fix
+        :tags: definitions
+
+        Fix reviewable exporter plugin for publishers.
+
     .. change:: changed
         :tags: definitions
 
