@@ -24,6 +24,10 @@ def run_in_main_thread(f):
 def prepare_load_task(session, context_data, data, options):
     '''Prepare loader import task based on *data* and *context_data* supplied, based on *options*.'''
 
+    from ftrack_connect_pipeline_unreal.utils import (
+        asset as custom_asset_utils,
+    )
+
     paths_to_import = []
     for collector in data:
         paths_to_import.append(
@@ -52,7 +56,22 @@ def prepare_load_task(session, context_data, data, options):
         import_path = '/Game'
 
     task.destination_path = import_path.replace(' ', '_')
-    task.destination_name = context_data['asset_name'].replace(' ', '_')
+    destination_name_base = context_data['asset_name'].replace(' ', '_')
+
+    # Make sure we do not everwrite any existing asset
+    n = 1
+    while True:
+        destination_name = '{}{}'.format(
+            destination_name_base, '_{}'.format(n) if n > 1 else ''
+        )
+        path = custom_asset_utils.asset_path_to_filesystem_path(
+            '{}/{}'.format(task.destination_path, destination_name),
+            throw_on_error=False,
+        )
+        if path is None:
+            break
+        n += 1
+    task.destination_name = destination_name
 
     task.replace_existing = options.get('ReplaceExisting', True)
     task.automated = options.get('Automated', True)
