@@ -110,7 +110,7 @@ class RadioButtonStepContainerWidgetObject(BaseUIWidgetObject):
         self.widget.setLayout(QtWidgets.QVBoxLayout())
         self.button_group = QtWidgets.QButtonGroup(self._widget)
 
-    def parent_widget(self, widget):
+    def parent_widget(self, widget, add_line=False):
         '''(Override)'''
         super(RadioButtonStepContainerWidgetObject, self).parent_widget(widget)
         self.button_group.addButton(widget.button)

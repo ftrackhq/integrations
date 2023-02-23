@@ -55,11 +55,6 @@ class DefinitionSelectorBase(QtWidgets.QWidget):
         else:
             self._on_change_definition(value)
 
-    @property
-    def definition_widget(self):
-        '''Return the definition widget'''
-        return self._definition_widget
-
     def __init__(self, parent=None):
         '''
         Initialize DefinitionSelector widget

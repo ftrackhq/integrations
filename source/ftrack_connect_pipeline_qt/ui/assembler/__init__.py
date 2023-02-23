@@ -26,9 +26,8 @@ from ftrack_connect_pipeline_qt.ui.assembler.base import (
     AssemblerBaseWidget,
     AssemblerListBaseWidget,
     ComponentBaseWidget,
-)
-from ftrack_connect_pipeline_qt.ui.utility.widget.version_selector import (
-    VersionComboBox,
+    AssemblerEntityInfo,
+    AssemblerVersionComboBox,
 )
 from ftrack_connect_pipeline_qt.ui.utility.widget import dialog
 
@@ -76,7 +75,7 @@ class AssemblerDependenciesWidget(AssemblerBaseWidget):
         self._cb_linked_only.setChecked(True)
         return self._cb_linked_only
 
-    def rebuild(self):
+    def rebuild(self, reset=True):
         '''(Override) Resolve dependencies in separate thread'''
         if super(AssemblerDependenciesWidget, self).rebuild():
 
@@ -287,9 +286,9 @@ class AssemblerBrowserWidget(AssemblerBaseWidget):
         self.allVersionsFetched.connect(self._on_all_versions_fetched)
         self._search.inputUpdated.connect(self._on_search)
 
-    def rebuild(self):
+    def rebuild(self, reset=True):
         '''(Override) Fetch assets beneath the current context, start on new query'''
-        if super(AssemblerBrowserWidget, self).rebuild():
+        if super(AssemblerBrowserWidget, self).rebuild(reset=reset):
 
             if self._entity_browser.entity is None:
                 # First time set
@@ -553,6 +552,8 @@ class AssemblerBrowserWidget(AssemblerBaseWidget):
 
 
 class DependenciesListWidget(AssemblerListBaseWidget):
+    """List of assets evaluated as dependencies on the current context"""
+
     def __init__(self, assembler_widget, parent=None):
         '''
         Instantiate the dependency list widget
@@ -602,7 +603,7 @@ class DependenciesListWidget(AssemblerListBaseWidget):
                     'is "{}"'.format(context_id)
                 ).one()
 
-                widget = AssemblerDependencyContextLabel()
+                widget = QtWidgets.QFrame()
                 widget.setLayout(QtWidgets.QHBoxLayout())
                 widget.layout().setContentsMargins(8, 10, 8, 0)
                 widget.layout().setSpacing(2)
@@ -653,7 +654,7 @@ class DependenciesListWidget(AssemblerListBaseWidget):
 
 
 class BrowserListWidget(AssemblerListBaseWidget):
-    '''Custom asset manager list view'''
+    """List of assets beneath the browsed context"""
 
     versionChanged = QtCore.Signal(object, object)
 
@@ -664,7 +665,7 @@ class BrowserListWidget(AssemblerListBaseWidget):
         :param assembler_widget: :class:`~ftrack_connect_pipeline_qt.ui.assembler.base.AssemblerBaseWidget` instance
         :param parent: The parent dialog or frame
         '''
-        self._asset_widget_class = BrowsedComponentWidget
+        self._asset_widget_class = BrowserComponentWidget
         self.prev_search_text = None
         super(BrowserListWidget, self).__init__(
             assembler_widget, parent=parent
@@ -682,6 +683,9 @@ class BrowserListWidget(AssemblerListBaseWidget):
         self.model.dataChanged.connect(
             self._on_component_set
         )  # Support change version > change component
+
+    def rebuild(self):
+        pass
 
     def _on_component_set(self, index_first, unused_index_last):
         '''Replace an asset with another (version)'''
@@ -816,7 +820,7 @@ class DependencyComponentWidget(ComponentBaseWidget):
         )
 
 
-class BrowsedComponentWidget(ComponentBaseWidget):
+class BrowserComponentWidget(ComponentBaseWidget):
     '''Widget representation of a browsed asset (component)'''
 
     versionChanged = QtCore.Signal(object)  # Emitted when user changes version
@@ -830,7 +834,7 @@ class BrowsedComponentWidget(ComponentBaseWidget):
         :param event_manager: :class:`~ftrack_connect_pipeline.event.EventManager` instance
         :param parent: the parent dialog or frame
         '''
-        super(BrowsedComponentWidget, self).__init__(
+        super(BrowserComponentWidget, self).__init__(
             index, assembler_widget, event_manager, parent=parent
         )
 
@@ -906,7 +910,7 @@ class BrowsedComponentWidget(ComponentBaseWidget):
 
     def set_component_and_definitions(self, component, definitions):
         '''(Override)'''
-        super(BrowsedComponentWidget, self).set_component_and_definitions(
+        super(BrowserComponentWidget, self).set_component_and_definitions(
             component, definitions
         )
         # Calculate path
@@ -940,76 +944,3 @@ class BrowsedComponentWidget(ComponentBaseWidget):
         if self._path_widget.text().lower().find(search_text) > -1:
             return True
         return False
-
-
-class AssemblerEntityInfo(QtWidgets.QWidget):
-    '''Entity info widget for the assembler.'''
-
-    pathReady = QtCore.Signal(object)
-
-    @property
-    def entity(self):
-        return self._entity
-
-    @entity.setter
-    def entity(self, value):
-        '''Set the entity for this widget to *value*'''
-        if not value:
-            return
-        self._entity = value
-        parent = value['parent']
-        parents = [value]
-        while parent is not None:
-            parents.append(parent)
-            parent = parent['parent']
-        parents.reverse()
-        self.pathReady.emit(parents)
-
-    def __init__(self, parent=None):
-        '''Instantiate the entity path widget.'''
-        super(AssemblerEntityInfo, self).__init__(parent=parent)
-
-        self._entity = None
-
-        self.pre_build()
-        self.build()
-        self.post_build()
-
-    def pre_build(self):
-        self.setLayout(QtWidgets.QHBoxLayout())
-        self.layout().setContentsMargins(5, 2, 2, 2)
-        self.layout().setSpacing(2)
-
-    def build(self):
-        self._from_field = QtWidgets.QLabel('Dependency from')
-        self._from_field.setObjectName('gray-dark')
-        self.layout().addWidget(self._from_field)
-
-        self._path_field = QtWidgets.QLabel()
-        self.layout().addWidget(self._path_field)
-
-        self.layout().addStretch()
-
-    def post_build(self):
-        self.pathReady.connect(self.on_path_ready)
-
-    def on_path_ready(self, parents):
-        '''Set current path to *names*.'''
-        self._path_field.setText(os.sep.join([p['name'] for p in parents[:]]))
-
-
-class AssemblerVersionComboBox(VersionComboBox):
-    def __init__(self, session, parent=None):
-        super(AssemblerVersionComboBox, self).__init__(session, parent=parent)
-
-    def _add_version(self, version_and_compatible_tuple):
-        '''Override'''
-        version, is_compatible = version_and_compatible_tuple
-        self.addItem(
-            str("v{}".format(version['version'])), version_and_compatible_tuple
-        )
-
-
-class AssemblerDependencyContextLabel(QtWidgets.QFrame):
-    def __init__(self, parent=None):
-        super(AssemblerDependencyContextLabel, self).__init__(parent=parent)

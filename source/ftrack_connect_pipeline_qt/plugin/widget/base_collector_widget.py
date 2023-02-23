@@ -52,6 +52,7 @@ class BaseCollectorWidget(BaseOptionsWidget):
         self.layout().addWidget(self._summary_widget)
 
         self.list_widget = QtWidgets.QListWidget()
+        self.list_widget.setAlternatingRowColors(True)
 
         self.list_widget.setSelectionMode(
             QtWidgets.QAbstractItemView.ExtendedSelection

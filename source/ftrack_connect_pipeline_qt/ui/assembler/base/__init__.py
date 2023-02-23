@@ -1,8 +1,8 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2022 ftrack
-import json
 import logging
 import copy
+import os
 
 from Qt import QtCore, QtWidgets
 
@@ -35,7 +35,9 @@ from ftrack_connect_pipeline_qt.utils import (
     clear_layout,
     get_main_framework_window_from_widget,
 )
-
+from ftrack_connect_pipeline_qt.ui.utility.widget.version_selector import (
+    VersionComboBox,
+)
 from ftrack_connect_pipeline_qt.ui.utility.widget.busy_indicator import (
     BusyIndicator,
 )
@@ -881,6 +883,74 @@ class ImporterOptionsButton(OptionsButton):
         if main_window:
             self.overlay_container.setParent(main_window)
         self.overlay_container.setVisible(True)
+
+
+class AssemblerEntityInfo(QtWidgets.QWidget):
+    '''Entity info widget for the assembler.'''
+
+    pathReady = QtCore.Signal(object)
+
+    @property
+    def entity(self):
+        return self._entity
+
+    @entity.setter
+    def entity(self, value):
+        '''Set the entity for this widget to *value*'''
+        if not value:
+            return
+        self._entity = value
+        parent = value['parent']
+        parents = [value]
+        while parent is not None:
+            parents.append(parent)
+            parent = parent['parent']
+        parents.reverse()
+        self.pathReady.emit(parents)
+
+    def __init__(self, parent=None):
+        '''Instantiate the entity path widget.'''
+        super(AssemblerEntityInfo, self).__init__(parent=parent)
+
+        self._entity = None
+
+        self.pre_build()
+        self.build()
+        self.post_build()
+
+    def pre_build(self):
+        self.setLayout(QtWidgets.QHBoxLayout())
+        self.layout().setContentsMargins(5, 2, 2, 2)
+        self.layout().setSpacing(2)
+
+    def build(self):
+        self._from_field = QtWidgets.QLabel('Dependency from')
+        self._from_field.setObjectName('gray-dark')
+        self.layout().addWidget(self._from_field)
+
+        self._path_field = QtWidgets.QLabel()
+        self.layout().addWidget(self._path_field)
+
+        self.layout().addStretch()
+
+    def post_build(self):
+        self.pathReady.connect(self.on_path_ready)
+
+    def on_path_ready(self, parents):
+        '''Set current path to *names*.'''
+        self._path_field.setText(os.sep.join([p['name'] for p in parents[:]]))
+
+
+class AssemblerVersionComboBox(VersionComboBox):
+    def __init__(self, session, parent=None):
+        super(AssemblerVersionComboBox, self).__init__(session, parent=parent)
+
+    def _add_version(self, version_and_compatible_tuple):
+        '''Override'''
+        version, is_compatible = version_and_compatible_tuple
+        self.addItem(
+            str("v{}".format(version['version'])), version_and_compatible_tuple
+        )
 
 
 class WarningLabel(QtWidgets.QLabel):

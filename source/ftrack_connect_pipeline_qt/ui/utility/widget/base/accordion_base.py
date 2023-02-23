@@ -273,12 +273,12 @@ class AccordionBaseWidget(QtWidgets.QFrame):
         '''Put a foreground *color* on header title label'''
         self._header._title_label.setStyleSheet("color: {}".format(color))
 
-    def set_indicator_color(self, color):
-        '''Set the left indicator visibility depending on *color*'''
+    def set_indicator(self, indication):
+        '''Set the left indicator visibility depending on *indication*'''
         set_property(
             self._indicator_widget,
             'indicator',
-            color or 'green',
+            ('on' if indication else 'off'),
         )
         if not self._indicator_widget.isVisible():
             self._indicator_widget.setVisible(True)

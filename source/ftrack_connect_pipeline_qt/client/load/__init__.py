@@ -169,8 +169,6 @@ class QtAssemblerClientWidget(QtLoaderClient, dialog.Dialog):
         self.definition_selector = (
             definition_selector.AssemblerDefinitionSelector()
         )
-        self.definition_selector.definition_widget.setVisible(False)
-        self.definition_selector.label_widget.setVisible(False)
         self.definition_selector.refreshed.connect(partial(self.refresh, True))
         self._left_widget.layout().addWidget(self.definition_selector)
         self.definition_selector.setVisible(False)
