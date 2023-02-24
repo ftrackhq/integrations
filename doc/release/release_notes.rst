@@ -9,7 +9,11 @@ Release Notes
 
 .. release:: upcoming
 
-    .. change:: fix
+   .. change:: fix
+
+        Optimised Opener query projections
+
+   .. change:: fix
 
         Align assembler UI, consolidated assembler widget module.
         Consolidated asset manager widget module.

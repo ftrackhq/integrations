@@ -43,13 +43,11 @@ class VersionComboBox(QtWidgets.QComboBox):
             component_names_filter = self._filters.get('component_names')
             file_types_filter = self._filters.get('file_types')
             for version in self.session.query(
-                'AssetVersion where asset.id is {}'.format(
+                'select components.name,components.file_type,version from AssetVersion where asset.id is {}'.format(
                     self.asset_entity['id']
                 )
             ):
-                components = self.session.query(
-                    'Component where version.id is {}'.format(version['id'])
-                ).all()
+                components = version['components']
 
                 has_compatible_component = False
                 if components:

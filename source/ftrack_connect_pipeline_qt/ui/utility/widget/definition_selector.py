@@ -205,6 +205,12 @@ class OpenerDefinitionSelector(DefinitionSelectorBase):
             )
             return
 
+        if self._host_connection.context_id is None:
+            self.logger.warning(
+                'Not able to populate definitions - no context set!'
+            )
+            return
+
         latest_version = None  # The current latest openable version
         index_latest_version = -1
         compatible_definition_count = 0
@@ -259,60 +265,42 @@ class OpenerDefinitionSelector(DefinitionSelectorBase):
                     )
                     continue
 
+                component_names_filter_low = list(map(str.lower, component_names_filter))
                 # Check if any versions at all, find out asset type name from package
                 asset_type_short = item['asset_type']
-                asset_version = None
-                # Package is referring to asset type code, find out name
-                asset_type_name = None
-                asset_type = self._host_connection.session.query(
-                    'AssetType where short={}'.format(asset_type_short)
-                ).first()
-                if asset_type:
-                    asset_type_name = asset_type['name']
-                else:
-                    self.logger.warning(
-                        'Cannot identify asset type name from short: {}'.format(
-                            asset_type_short
-                        )
-                    )
-                if asset_type_name and self._host_connection.context_id:
-                    for asset_version in self._host_connection.session.query(
-                        'AssetVersion where '
-                        'task.id={} and asset.type.name="{}" order by date descending'.format(
+                for asset_version in self._host_connection.session.query(
+                        'select components.name,components.file_type,date,version,asset.id,asset.name,task.context_type,task.id,task.name from AssetVersion where '
+                        'task.id={} and asset.type.short="{}" order by date descending'.format(
                             self._host_connection.context_id,
-                            asset_type_name,
+                            asset_type_short,
                         )
-                    ):
-                        version_has_openable_component = False
-                        for component in asset_version['components']:
-                            for component_name in component_names_filter:
-                                if (
-                                    component['name'].lower()
-                                    == component_name.lower()
-                                ):
-                                    # Check if file extension matches
-                                    if (
-                                        component['file_type']
-                                        in self._definition_extensions_filter
-                                    ):
-                                        version_has_openable_component = True
-                                        break
-                            if version_has_openable_component:
-                                break
-                        if version_has_openable_component:
-                            self.logger.info(
-                                'Version {} can be opened'.format(
-                                    str_version(asset_version)
-                                )
-                            )
+                ):
+                    version_has_openable_component = False
+                    for component in asset_version['components']:
+                        if (
+                                component['name'].lower() in component_names_filter_low
+                        ):
+                            # Check if file extension matches
                             if (
-                                latest_version is None
-                                or latest_version['date']
-                                < asset_version['date']
+                                    component['file_type']
+                                    in self._definition_extensions_filter
                             ):
-                                latest_version = asset_version
-                                index_latest_version = index
-                            break
+                                version_has_openable_component = True
+                                break
+
+                    if version_has_openable_component:
+                        self.logger.info(
+                            'Version {} can be opened'.format(
+                                str_version(asset_version)
+                            )
+                        )
+                        if (
+                                latest_version is None
+                                or latest_version['date'] < asset_version['date']
+                        ):
+                            latest_version = asset_version
+                            index_latest_version = index
+                        break
                 if not self.definition_filters:
                     text = '{} - {}'.format(
                         schema.get('title'), item.get('name')
