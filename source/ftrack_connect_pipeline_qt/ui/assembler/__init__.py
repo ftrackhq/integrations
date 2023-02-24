@@ -322,7 +322,6 @@ class AssemblerBrowserWidget(AssemblerBaseWidget):
             # Find version beneath browsed entity, in chunks
             self._limit = self.client.asset_fetch_chunk_size
             self._tail = 0  # The current fetch position
-            self.parent_ids = None
             self.fetched_version_ids = []
             self._recent_context_browsed = context
 
@@ -350,58 +349,28 @@ class AssemblerBrowserWidget(AssemblerBaseWidget):
             )
             thread.start()
 
-    def _recursive_get_descendant_ids(self, context):
-        '''Build and return a list of all context ids beneath *context*'''
-        result = []
-        if context.entity_type != 'Task':
-            result.append(context['id'])
-        if 'children' in context:
-            self.session.populate(
-                context, 'children'
-            )  # Make sure we fetch fresh data
-            for child in context['children']:
-                if child.entity_type != "Task":
-                    for context_id in self._recursive_get_descendant_ids(
-                        child
-                    ):
-                        if not context_id in result:
-                            result.append(context_id)
-        return result
-
     def _fetch_versions_async(self, context):
         '''(Background thread) Search ftrack for versions beneath the given *context_id*'''
         try:
-            if self.parent_ids is None:
-                # First run, build list of children ID's (non tasks)
-                self.parent_ids = self._recursive_get_descendant_ids(context)
 
             self.logger.info(
                 'Fetching versions beneath context: {0} [{1}-{2}]'.format(
                     context, self._tail, self._tail + self._limit - 1
                 )
             )
-            task_sub_query = ''
-            if context.entity_type == 'Task':
-                task_sub_query = 'task.id is "{0}"'.format(context['id'])
-            if len(self.parent_ids) > 0:
-                if len(task_sub_query) > 0:
-                    task_sub_query = '{} or '.format(task_sub_query)
-                task_sub_query = '{0}task.parent.id in ({1})'.format(
-                    task_sub_query,
-                    ','.join(
-                        [
-                            '"{}"'.format(context_id)
-                            for context_id in self.parent_ids
-                        ]
-                    ),
-                )
             versions = []
             for version in self.session.query(
-                'select id,task,version from AssetVersion where '
-                ' is_latest_version=true and ({0}) offset {1} limit {2}'.format(
-                    task_sub_query,
-                    self._tail,
-                    self._limit,
+                'select components.name,components.file_type,id,version,date,comment,is_latest_version,thumbnail_url,'
+                'asset.id,asset.name,asset.type.id,task.link,task.name,status.id,status.name,user.id '
+                'from AssetVersion where is_latest_version=true and ('
+                'asset.context_id in ('
+                'select id from TypedContext where ancestors.id is "{0}"'
+                ') or '
+                'asset.context_id is "{0}" or '
+                'asset.project_id is "{0}" or '
+                'task_id is "{0}"'
+                ') offset {1} limit {2}'.format(
+                    context['id'], self._tail, self._limit
                 )
             ):
                 if not version['id'] in self.fetched_version_ids:
