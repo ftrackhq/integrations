@@ -341,7 +341,7 @@ class QtAssetManagerClientWidget(QtAssetManagerClient, QtWidgets.QFrame):
             if not event['data']:
                 return
             data = event['data']
-            do_refresh = None
+            do_refresh = False
             for key, value in data.items():
                 if key == 'message':
                     if len(value or '') > 0:
@@ -384,7 +384,7 @@ class QtAssetManagerClientWidget(QtAssetManagerClient, QtWidgets.QFrame):
         '''
         try:
             data = event['data']
-            do_refresh = None
+            do_refresh = False
             for key, value in data.items():
                 if key == 'message':
                     if len(value or '') > 0:
@@ -428,7 +428,7 @@ class QtAssetManagerClientWidget(QtAssetManagerClient, QtWidgets.QFrame):
             if not event['data']:
                 return
             data = event['data']
-            do_refresh = None
+            do_refresh = False
             for key, value in data.items():
                 if key == 'message':
                     if len(value or '') > 0:
@@ -474,6 +474,7 @@ class QtAssetManagerClientWidget(QtAssetManagerClient, QtWidgets.QFrame):
             if not event['data']:
                 return
             data = event['data']
+            do_refresh = False
             for key, value in data.items():
                 if key == 'message':
                     if len(value or '') > 0:
@@ -490,7 +491,7 @@ class QtAssetManagerClientWidget(QtAssetManagerClient, QtWidgets.QFrame):
                 self.logger.debug(
                     'Updating id {} with loaded status'.format(key)
                 )
-                # Set to loaded
+                # Set to unloaded
                 asset_info[asset_const.OBJECTS_LOADED] = False
                 do_refresh = True
             if do_refresh:
