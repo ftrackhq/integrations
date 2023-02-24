@@ -9,7 +9,11 @@ Release Notes
 
 .. release:: upcoming
 
-   .. change:: fix
+    .. change:: changed
+
+        Optimised Assembler/loader with optimised query projections
+
+    .. change:: fix
 
         Optimised Opener query projections
 
