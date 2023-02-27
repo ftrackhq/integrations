@@ -135,7 +135,7 @@ class UnrealRigLoaderImporterPlugin(UnrealLoaderImporterPlugin):
                 )
 
         import_result = utils.import_file(task)
-        self.logger.info('Imported FBX rig: {}'.format(import_result))
+        self.logger.info('Imported rig: {}'.format(import_result))
         loaded_skeletal_mesh = unreal.EditorAssetLibrary.load_asset(
             import_result
         )
@@ -203,7 +203,7 @@ class UnrealAnimationLoaderImporterPlugin(UnrealLoaderImporterPlugin):
                 )
 
         import_result = utils.import_file(task)
-        self.logger.info('Imported FBX animation: {}'.format(import_result))
+        self.logger.info('Imported animation: {}'.format(import_result))
 
         results = {}
 
