@@ -18,7 +18,7 @@ class UnrealAbcAnimationLoaderImporterPlugin(
     plugin_name = 'unreal_abc_animation_loader_importer'
 
     def run(self, context_data=None, data=None, options=None):
-        """Load Alembic animation file pointed out by collected *data*, with *options*."""
+        '''Load Alembic animation file pointed out by collected *data*, with *options*.'''
 
         # Build Unreal import task
         task, component_path = super(

@@ -18,7 +18,7 @@ class UnrealFbxGeometryLoaderImporterPlugin(
     plugin_name = 'unreal_fbx_geometry_loader_importer'
 
     def run(self, context_data=None, data=None, options=None):
-        """Load FBX geometry file pointed out by collected *data*, with *options*."""
+        '''Load FBX geometry file pointed out by collected *data*, with *options*.'''
 
         # Build Unreal import task
         task, component_path = super(

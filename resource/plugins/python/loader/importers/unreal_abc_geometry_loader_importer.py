@@ -17,7 +17,7 @@ class UnrealAbcGeometryLoaderImporterPlugin(
     plugin_name = 'unreal_abc_geometry_loader_importer'
 
     def run(self, context_data=None, data=None, options=None):
-        """Load Alembic geometry file pointed out by collected *data*, with *options*."""
+        '''Load Alembic geometry file pointed out by collected *data*, with *options*.'''
 
         # Build import task
         task, component_path = super(
