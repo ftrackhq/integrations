@@ -2,8 +2,6 @@
 # :copyright: Copyright (c) 2014-2023 ftrack
 from functools import wraps
 
-import unreal
-
 #### MISC ####
 
 

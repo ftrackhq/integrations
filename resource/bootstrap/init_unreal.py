@@ -1,5 +1,5 @@
 # :coding: utf-8
-# :Copyright 2019 ftrack. All Rights Reserved.
+# :copyright: Copyright (c) 2014-2023 ftrack
 '''
 Unreal Python entry point
 
