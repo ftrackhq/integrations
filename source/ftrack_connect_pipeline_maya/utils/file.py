@@ -32,7 +32,7 @@ def save_file(context_id, session, temp=True, save=True):
     )
 
     if save_path is None:
-        return (False, message)
+        return False, message
 
     # Save Maya scene to this path
     cmds.file(rename=save_path)
