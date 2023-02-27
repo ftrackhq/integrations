@@ -25,12 +25,10 @@ class UnrealQtAssetManagerClientWidget(QtAssetManagerClientWidget):
         self,
         event_manager,
         asset_list_model,
-        snapshot_list_model,
         is_assembler=False,
         multithreading_enabled=False,
         parent=None,
     ):
-        self._snapshot_list_model = snapshot_list_model
         super(UnrealQtAssetManagerClientWidget, self).__init__(
             event_manager,
             asset_list_model,
