@@ -9,7 +9,6 @@ import unreal
 import ftrack_api
 
 from ftrack_connect_pipeline_qt.plugin.widget.dynamic import DynamicWidget
-from ftrack_connect_pipeline_qt.ui.utility.widget import dialog
 
 from ftrack_connect_pipeline_unreal import plugin
 
@@ -68,9 +67,9 @@ class UnrealReviewablePublisherExporterOptionsWidget(DynamicWidget):
 
         bg = QtWidgets.QButtonGroup(self)
 
-        self.pickup_rb = QtWidgets.QRadioButton('Pick up rendered sequence')
-        bg.addButton(self.pickup_rb)
-        self.layout().addWidget(self.pickup_rb)
+        self._pickup_rb = QtWidgets.QRadioButton('Pick up rendered sequence')
+        bg.addButton(self._pickup_rb)
+        self.layout().addWidget(self._pickup_rb)
 
         # TODO: Store video capture output folder in Unreal project
         self._choose_folder_widget = QtWidgets.QWidget()
@@ -99,17 +98,17 @@ class UnrealReviewablePublisherExporterOptionsWidget(DynamicWidget):
         self._choose_folder_widget.layout().addWidget(self._browser_button)
         self.layout().addWidget(self._choose_folder_widget)
 
-        self.render_rb = QtWidgets.QRadioButton('Render from sequence')
-        bg.addButton(self.render_rb)
-        self.layout().addWidget(self.render_rb)
+        self._render_rb = QtWidgets.QRadioButton('Render from sequence')
+        bg.addButton(self._render_rb)
+        self.layout().addWidget(self._render_rb)
 
         if not 'mode' in self.options:
             self.set_option_result('pickup', 'mode')  # Set default mode
         mode = self.options['mode'].lower()
         if mode == 'pickup':
-            self.pickup_rb.setChecked(True)
+            self._pickup_rb.setChecked(True)
         else:
-            self.render_rb.setChecked(True)
+            self._render_rb.setChecked(True)
 
         # Call the super build to automatically generate the options
         super(UnrealReviewablePublisherExporterOptionsWidget, self).build()
@@ -119,8 +118,8 @@ class UnrealReviewablePublisherExporterOptionsWidget(DynamicWidget):
             UnrealReviewablePublisherExporterOptionsWidget, self
         ).post_build()
 
-        self.render_rb.clicked.connect(self._update_render_mode)
-        self.pickup_rb.clicked.connect(self._update_render_mode)
+        self._render_rb.clicked.connect(self._update_render_mode)
+        self._pickup_rb.clicked.connect(self._update_render_mode)
 
         self._update_render_mode()
 
@@ -128,7 +127,7 @@ class UnrealReviewablePublisherExporterOptionsWidget(DynamicWidget):
 
     def _update_render_mode(self):
         mode = 'render'
-        if self.pickup_rb.isChecked():
+        if self._pickup_rb.isChecked():
             mode = 'pickup'
         self.set_option_result(mode, 'mode')
 

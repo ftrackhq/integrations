@@ -11,7 +11,7 @@ from ftrack_connect_pipeline_qt.plugin.widget import BaseOptionsWidget
 
 
 class UnrealSequencePublisherCollectorOptionsWidget(BaseOptionsWidget):
-    """Unreal sequence collector widget plugin"""
+    '''Unreal sequence collector widget plugin'''
 
     # Run fetch function on widget initialization
     auto_fetch_on_init = True
@@ -53,13 +53,13 @@ class UnrealSequencePublisherCollectorOptionsWidget(BaseOptionsWidget):
                     self.sequences_cb.setCurrentIndex(index)
 
     def on_fetch_callback(self, result):
-        """This function is called by the _set_internal_run_result function of
-        the BaseOptionsWidget"""
+        '''This function is called by the _set_internal_run_result function of
+        the BaseOptionsWidget'''
         self.unreal_sequences = result
         self.add_sequences()
 
     def build(self):
-        """build function , mostly used to create the widgets."""
+        '''build function , mostly used to create the widgets.'''
         super(UnrealSequencePublisherCollectorOptionsWidget, self).build()
         self.sequences_cb = QtWidgets.QComboBox()
         self.sequences_cb.setToolTip(self.description)
@@ -85,7 +85,7 @@ class UnrealSequencePublisherCollectorOptionsWidget(BaseOptionsWidget):
             )
 
     def report_input(self):
-        """(Override) Amount of collected objects has changed, notify parent(s)"""
+        '''(Override) Amount of collected objects has changed, notify parent(s)'''
         status = False
         num_objects = 1 if self.sequences_cb.isEnabled() else 0
         if num_objects > 0:

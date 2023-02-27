@@ -9,24 +9,22 @@ import unreal
 
 import ftrack_api
 
-from ftrack_connect_pipeline_unreal.utils import (
-    sequencer as unreal_sequencer_utils,
-)
+from ftrack_connect_pipeline_unreal import utils
 from ftrack_connect_pipeline_unreal import plugin
 
 
 class UnrealSequencePublisherExporterPlugin(
     plugin.UnrealPublisherExporterPlugin
 ):
-    """Unreal file sequence exporter plugin"""
+    '''Unreal file sequence exporter plugin'''
 
     plugin_name = 'unreal_sequence_publisher_exporter'
 
     _standard_structure = ftrack_api.structure.standard.StandardStructure()
 
     def run(self, context_data=None, data=None, options=None):
-        """Render and export an image file sequence from the selected sequence given
-        in *data* and options given with *options*."""
+        '''Render and export an image file sequence from the selected sequence given
+        in *data* and options given with *options*.'''
 
         if options.get('mode') == 'pickup':
 
@@ -70,9 +68,7 @@ class UnrealSequencePublisherExporterPlugin(
             master_sequence = None
 
             seq_name = None
-            all_sequences = unreal_sequencer_utils.get_all_sequences(
-                as_names=False
-            )
+            all_sequences = utils.get_all_sequences(as_names=False)
             for _seq_name in collected_objects:
                 seq_name = _seq_name
                 for seq in all_sequences:
@@ -130,13 +126,13 @@ class UnrealSequencePublisherExporterPlugin(
             )
 
             file_format = options.get('file_format', 'exr')
-            result = unreal_sequencer_utils.render(
+            result = utils.render(
                 unreal_asset_path,
                 unreal_map_path,
                 asset_name,
                 destination_path,
                 master_sequence.get_display_rate().numerator,
-                unreal_sequencer_utils.compile_capture_args(options),
+                utils.compile_capture_args(options),
                 self.logger,
                 image_format=file_format,
             )

@@ -9,23 +9,21 @@ import unreal
 import ftrack_api
 
 from ftrack_connect_pipeline_unreal import plugin
-from ftrack_connect_pipeline_unreal.utils import (
-    sequencer as unreal_sequencer_utils,
-)
+from ftrack_connect_pipeline_unreal import utils
 
 
 class UnrealReviewablePublisherExporterPlugin(
     plugin.UnrealPublisherExporterPlugin
 ):
-    """Unreal reviewable exporter plugin"""
+    '''Unreal reviewable exporter plugin'''
 
     plugin_name = 'unreal_reviewable_publisher_exporter'
 
     _standard_structure = ftrack_api.structure.standard.StandardStructure()
 
     def run(self, context_data=None, data=None, options=None):
-        """Export a Unreal reviewable from the selected sequence given
-        in *data* and options given with *options*."""
+        '''Export a Unreal reviewable from the selected sequence given
+        in *data* and options given with *options*.'''
 
         if options.get('mode') == 'pickup':
 
@@ -51,9 +49,7 @@ class UnrealReviewablePublisherExporterPlugin(
             master_sequence = None
 
             seq_name = None
-            all_sequences = unreal_sequencer_utils.get_all_sequences(
-                as_names=False
-            )
+            all_sequences = utils.get_all_sequences(as_names=False)
             for _seq_name in collected_objects:
                 seq_name = _seq_name
                 for seq in all_sequences:
@@ -111,13 +107,13 @@ class UnrealReviewablePublisherExporterPlugin(
             )
 
             movie_name = '{}_reviewable'.format(asset_name)
-            result = unreal_sequencer_utils.render(
+            result = utils.render(
                 unreal_asset_path,
                 unreal_map_path,
                 movie_name,
                 destination_path,
                 master_sequence.get_display_rate().numerator,
-                unreal_sequencer_utils.compile_capture_args(options),
+                utils.compile_capture_args(options),
                 self.logger,
             )
 

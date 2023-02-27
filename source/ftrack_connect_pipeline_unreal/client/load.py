@@ -27,10 +27,8 @@ class UnrealQtAssemblerClientWidget(load.QtAssemblerClientWidget):
         self,
         event_manager,
         asset_list_model,
-        snapshot_asset_list_model,
         parent=None,
     ):
-        self._snapshot_asset_list_model = snapshot_asset_list_model
         super(UnrealQtAssemblerClientWidget, self).__init__(
             event_manager,
             load_const.LOAD_MODES,

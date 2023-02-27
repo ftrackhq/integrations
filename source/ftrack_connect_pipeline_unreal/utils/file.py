@@ -5,20 +5,6 @@ import unreal
 
 ### FILE OPERATIONS ###
 
-# TODO: Find a better name for this function. This is not a relative path.
-def get_context_relative_path(session, ftrack_task):
-    # location.
-    links_for_task = session.query(
-        'select link from Task where id is "{}"'.format(ftrack_task['id'])
-    ).first()['link']
-    relative_path = ""
-    # remove the project
-    links_for_task.pop(0)
-    for link in links_for_task:
-        relative_path += link['name'].replace(' ', '_')
-        relative_path += '/'
-    return relative_path
-
 
 def import_file(asset_import_task):
     '''Native import file function using the object unreal.AssetImportTask() given as *asset_import_task*'''

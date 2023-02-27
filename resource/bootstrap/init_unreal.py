@@ -76,9 +76,7 @@ def load_integration():
     )
     from ftrack_connect_pipeline_qt.client import documentation
 
-    from ftrack_connect_pipeline_unreal.utils import (
-        bootstrap as unreal_bootstrap_utils,
-    )
+    from ftrack_connect_pipeline_unreal import utils
     from ftrack_connect_pipeline_unreal import menu as unreal_menu
 
     configure_logging(
@@ -107,7 +105,6 @@ def load_integration():
     def _open_widget(
         event_manager,
         asset_list_model,
-        snapshot_asset_list_model,
         widgets,
         event,
     ):
@@ -157,7 +154,6 @@ def load_integration():
                     widget = ftrack_client(
                         event_manager,
                         asset_list_model,
-                        snapshot_asset_list_model,
                     )
                 else:
                     # Create without asset model
@@ -192,7 +188,6 @@ def load_integration():
 
         # Shared asset manager models
         asset_list_model = AssetListModel(event_manager)
-        snapshot_asset_list_model = AssetListModel(event_manager)
 
         widgets = list()
         widgets.append(
@@ -276,12 +271,11 @@ def load_integration():
                 _open_widget,
                 event_manager,
                 asset_list_model,
-                snapshot_asset_list_model,
                 widgets,
             ),
         )
 
-        unreal_bootstrap_utils.init_unreal()
+        utils.init_unreal()
 
     initialise()
 
