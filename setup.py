@@ -131,7 +131,7 @@ setup(
         'setuptools>=44.0.0',
         'setuptools_scm',
     ],
-    install_requires=['PySide2', 'Qt.py'],
+    install_requires=['PySide2'],
     tests_require=['pytest >= 2.3.5, < 3'],
     cmdclass={'test': PyTest, 'build_plugin': BuildPlugin},
     zip_safe=False,
