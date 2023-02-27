@@ -11,7 +11,7 @@ from ftrack_connect_pipeline_unreal.plugin import (
     UnrealBasePlugin,
     UnrealBasePluginWidget,
 )
-from ftrack_connect_pipeline_unreal import utils
+from ftrack_connect_pipeline_unreal import utils as unreal_utils
 from ftrack_connect_pipeline_unreal.constants.asset import modes as load_const
 from ftrack_connect_pipeline_unreal.constants import asset as asset_const
 
@@ -30,9 +30,9 @@ class UnrealLoaderImporterPlugin(
 
     dependency_load_mode = load_const.IMPORT_MODE
 
-    @utils.run_in_main_thread
+    @unreal_utils.run_in_main_thread
     def get_current_objects(self):
-        return utils.get_current_scene_objects()
+        return unreal_utils.get_current_scene_objects()
 
     def prepare_load_task(self, context_data, data, options):
         '''Prepare loader import task based on *data* and *context_data*, using *options*.'''
@@ -75,7 +75,7 @@ class UnrealLoaderImporterPlugin(
             destination_name = '{}{}'.format(
                 destination_name_base, '_{}'.format(n) if n > 1 else ''
             )
-            path = utils.asset_path_to_filesystem_path(
+            path = unreal_utils.asset_path_to_filesystem_path(
                 '{}/{}'.format(self.task.destination_path, destination_name),
                 throw_on_error=False,
             )
@@ -92,13 +92,13 @@ class UnrealLoaderImporterPlugin(
         '''
         Geometry import from prepared *task*, *component_path* with *options*.
         '''
-        import_result = utils.import_file(self.task)
+        import_result = unreal_utils.import_file(self.task)
         if import_result is None:
             raise Exception('Geometry import failed!')
         self.logger.info('Imported geometry: {}'.format(import_result))
 
         if rename_mesh:
-            result = utils.rename_node_with_prefix(
+            result = unreal_utils.rename_node_with_prefix(
                 import_result, rename_mesh_prefix
             )
         else:
@@ -121,7 +121,7 @@ class UnrealLoaderImporterPlugin(
         '''
         # Rig specific options
         if skeleton_name:
-            skeletons = utils.get_assets_by_class('Skeleton')
+            skeletons = unreal_utils.get_assets_by_class('Skeleton')
             skeleton_ad = None
             for skeleton in skeletons:
                 if skeleton.asset_name == skeleton_name:
@@ -134,7 +134,7 @@ class UnrealLoaderImporterPlugin(
 
         result = []
 
-        import_result = utils.import_file(self.task)
+        import_result = unreal_utils.import_file(self.task)
         if import_result is None:
             raise Exception('Rig import failed!')
         self.logger.info('Imported rig: {}'.format(import_result))
@@ -145,7 +145,7 @@ class UnrealLoaderImporterPlugin(
 
         if rename_skeleton_mesh:
             result.append(
-                utils.rename_node_with_prefix(
+                unreal_utils.rename_node_with_prefix(
                     result, rename_skeleton_mesh_prefix
                 )
             )
@@ -156,7 +156,7 @@ class UnrealLoaderImporterPlugin(
         if mesh_skeleton:
             if rename_skeleton:
                 result.append(
-                    utils.rename_node_with_prefix(
+                    unreal_utils.rename_node_with_prefix(
                         mesh_skeleton.get_path_name(),
                         rename_skeleton_prefix,
                     )
@@ -168,7 +168,7 @@ class UnrealLoaderImporterPlugin(
         if mesh_physics_asset:
             if rename_physics_asset:
                 result.append(
-                    utils.rename_node_with_prefix(
+                    unreal_utils.rename_node_with_prefix(
                         mesh_physics_asset.get_path_name(),
                         rename_physics_asset_prefix,
                     )
@@ -189,7 +189,7 @@ class UnrealLoaderImporterPlugin(
         '''
         skeleton_name = skeleton_name
         if skeleton_name:
-            skeletons = utils.get_assets_by_class('Skeleton')
+            skeletons = unreal_utils.get_assets_by_class('Skeleton')
             skeleton_ad = None
             for skeleton in skeletons:
                 if skeleton.asset_name == skeleton_name:
@@ -202,14 +202,14 @@ class UnrealLoaderImporterPlugin(
 
         result = []
 
-        import_result = utils.import_file(self.task)
+        import_result = unreal_utils.import_file(self.task)
         if import_result is None:
             raise Exception('Animation import failed!')
         self.logger.info('Imported animation: {}'.format(import_result))
 
         if rename_animation:
             result.append(
-                utils.rename_node_with_prefix(
+                unreal_utils.rename_node_with_prefix(
                     import_result, rename_animation_prefix
                 )
             )
