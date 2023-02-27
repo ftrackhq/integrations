@@ -11,7 +11,7 @@ from ftrack_connect_pipeline_unreal import utils
 
 
 class UnrealAbcAnimationLoaderImporterPlugin(
-    plugin.UnrealAnimationLoaderImporterPlugin
+    plugin.UnrealLoaderImporterPlugin
 ):
     load_modes = load_const.LOAD_MODES
 
@@ -21,24 +21,22 @@ class UnrealAbcAnimationLoaderImporterPlugin(
         '''Load Alembic animation file pointed out by collected *data*, with *options*.'''
 
         # Build Unreal import task
-        task, component_path = super(
-            UnrealAbcAnimationLoaderImporterPlugin, self
-        ).run(context_data, data, options)
+        self.prepare_load_task(context_data, data, options)
 
         # Alembic animation specific options
-        task.options = unreal.AbcImportSettings()
-        task.options.import_type = unreal.AlembicImportType.GEOMETRY_CACHE
-        task.options.material_settings.set_editor_property(
+        self.task.options = unreal.AbcImportSettings()
+        self.task.options.import_type = unreal.AlembicImportType.GEOMETRY_CACHE
+        self.task.options.material_settings.set_editor_property(
             'find_materials', options.get('ImportMaterials', False)
         )
 
         if options.get('UseCustomRange'):
-            task.options.sampling_settings.frame_start = options[
+            self.task.options.sampling_settings.frame_start = options[
                 'AnimRangeMin'
             ]
-            task.options.sampling_settings.frame_end = options['AnimRangeMax']
+            self.task.options.sampling_settings.frame_end = options['AnimRangeMax']
 
-        return self.import_animation(task, component_path, options)
+        return self.import_animation(options)
 
 
 def register(api_object, **kw):

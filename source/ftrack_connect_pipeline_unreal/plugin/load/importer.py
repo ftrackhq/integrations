@@ -34,7 +34,7 @@ class UnrealLoaderImporterPlugin(
     def get_current_objects(self):
         return utils.get_current_scene_objects()
 
-    def run(session, context_data, data, options):
+    def prepare_load_task(self, context_data, data, options):
         '''Prepare loader import task based on *data* and *context_data*, using *options*.'''
 
         paths_to_import = []
@@ -43,17 +43,17 @@ class UnrealLoaderImporterPlugin(
                 collector['result'].get(asset_const.COMPONENT_PATH)
             )
 
-        component_path = paths_to_import[0]
+        self.component_path = paths_to_import[0]
 
         # Check if it exists
-        if not os.path.exists(component_path):
+        if not os.path.exists(self.component_path):
             raise Exception(
-                'The asset file does not exist: "{}"'.format(component_path)
+                'The asset file does not exist: "{}"'.format(self.component_path)
             )
 
-        task = unreal.AssetImportTask()
+        self.task = unreal.AssetImportTask()
 
-        task.filename = component_path
+        self.task.filename = self.component_path
 
         # Determine the folder to import to
         selected_context_browser_path = (
@@ -64,7 +64,7 @@ class UnrealLoaderImporterPlugin(
         else:
             import_path = '/Game'
 
-        task.destination_path = import_path.replace(' ', '_')
+        self.task.destination_path = import_path.replace(' ', '_')
         destination_name_base = context_data['asset_name'].replace(' ', '_')
 
         # Make sure we do not everwrite any existing asset
@@ -74,23 +74,17 @@ class UnrealLoaderImporterPlugin(
                 destination_name_base, '_{}'.format(n) if n > 1 else ''
             )
             path = utils.asset_path_to_filesystem_path(
-                '{}/{}'.format(task.destination_path, destination_name),
+                '{}/{}'.format(self.task.destination_path, destination_name),
                 throw_on_error=False,
             )
             if path is None:
                 break
             n += 1
-        task.destination_name = destination_name
+        self.task.destination_name = destination_name
 
-        task.replace_existing = options.get('ReplaceExisting', True)
-        task.automated = options.get('Automated', True)
-        task.save = options.get('Save', True)
-
-        return task, component_path
-
-
-class UnrealGeometryLoaderImporterPlugin(UnrealLoaderImporterPlugin):
-    '''Geeometry loader importer plugin.'''
+        self.task.replace_existing = options.get('ReplaceExisting', True)
+        self.task.automated = options.get('Automated', True)
+        self.task.save = options.get('Save', True)
 
     def import_geometry(self, task, component_path, options):
         '''
@@ -101,22 +95,19 @@ class UnrealGeometryLoaderImporterPlugin(UnrealLoaderImporterPlugin):
             raise Exception('Geometry import failed!')
         self.logger.info('Imported geometry: {}'.format(import_result))
 
-        results = {}
+        import_result = None
 
         if options.get('RenameMesh', False):
-            results[component_path] = utils.rename_node_with_prefix(
+            import_result = utils.rename_node_with_prefix(
                 import_result, options.get('RenameMeshPrefix', 'S_')
             )
         else:
-            results[component_path] = import_result
+            import_result = import_result
 
-        return results
+        return import_result
 
 
-class UnrealRigLoaderImporterPlugin(UnrealLoaderImporterPlugin):
-    '''Rig loader importer plugin.'''
-
-    def import_rig(self, task, component_path, options):
+    def import_rig(self, options):
         '''
         Rig import from prepared *task*, *component_path* with *options*.
         '''
@@ -130,62 +121,61 @@ class UnrealRigLoaderImporterPlugin(UnrealLoaderImporterPlugin):
                     skeleton_ad = skeleton
 
             if skeleton_ad is not None:
-                task.options.set_editor_property(
+                self.task.options.set_editor_property(
                     'skeleton', skeleton_ad.get_asset()
                 )
 
-        import_result = utils.import_file(task)
+        import_result = utils.import_file(self.task)
         self.logger.info('Imported rig: {}'.format(import_result))
         loaded_skeletal_mesh = unreal.EditorAssetLibrary.load_asset(
             import_result
         )
 
-        results = {component_path: []}
+        import_result = []
+
+        results = {self.component_path: []}
 
         if options.get('RenameSkelMesh', False):
-            results[component_path].append(
+            results[self.component_path].append(
                 utils.rename_node_with_prefix(
                     import_result, options.get('RenameSkelMeshPrefix', 'SK_')
                 )
             )
         else:
-            results[component_path].append(
+            results[self.component_path].append(
                 loaded_skeletal_mesh.get_path_name()
             )
 
         mesh_skeleton = loaded_skeletal_mesh.skeleton
         if mesh_skeleton:
             if options.get('RenameSkeleton', False):
-                results[component_path].append(
+                results[self.component_path].append(
                     utils.rename_node_with_prefix(
                         mesh_skeleton.get_path_name(),
                         options.get('RenameSkeletonPrefix', 'SKEL_'),
                     )
                 )
             else:
-                results[component_path].append(mesh_skeleton.get_path_name())
+                results[self.component_path].append(mesh_skeleton.get_path_name())
 
         mesh_physics_asset = loaded_skeletal_mesh.physics_asset
         if mesh_physics_asset:
             if options.get('RenamePhysAsset', False):
-                results[component_path].append(
+                results[self.component_path].append(
                     utils.rename_node_with_prefix(
                         mesh_physics_asset.get_path_name(),
                         options.get('RenamePhysAssetPrefix', 'PHAT_'),
                     )
                 )
             else:
-                results[component_path].append(
+                results[self.component_path].append(
                     mesh_physics_asset.get_path_name()
                 )
 
         return results
 
 
-class UnrealAnimationLoaderImporterPlugin(UnrealLoaderImporterPlugin):
-    '''Animation loader importer plugin.'''
-
-    def import_animation(self, task, component_path, options):
+    def import_animation(self, options):
         '''
         Animation import from prepared *task*, *component_path* with *options*.
         '''
@@ -198,23 +188,24 @@ class UnrealAnimationLoaderImporterPlugin(UnrealLoaderImporterPlugin):
                     skeleton_ad = skeleton
 
             if skeleton_ad is not None:
-                task.options.set_editor_property(
+                self.task.options.set_editor_property(
                     'skeleton', skeleton_ad.get_asset()
                 )
 
-        import_result = utils.import_file(task)
+        import_result = utils.import_file(self.task)
         self.logger.info('Imported animation: {}'.format(import_result))
 
         results = {}
 
         if options.get('RenameAnim', False):
-            results[component_path] = utils.rename_node_with_prefix(
+            results[self.component_path] = utils.rename_node_with_prefix(
                 import_result, options.get('RenameAnimPrefix', 'A_')
             )
         else:
-            results[component_path] = import_result
+            results[self.component_path] = import_result
 
         return results
+
 
 
 class UnrealLoaderImporterPluginWidget(

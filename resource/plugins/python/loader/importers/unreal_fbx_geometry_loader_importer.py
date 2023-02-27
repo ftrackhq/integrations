@@ -46,7 +46,11 @@ class UnrealFbxGeometryLoaderImporterPlugin(
             'combine_meshes', options.get('CombineMeshes', True)
         )
 
-        return self.import_geometry(task, component_path, options)
+        results = {
+            'component_path': self.import_geometry(options)
+        }
+
+        return results
 
 
 def register(api_object, **kw):
