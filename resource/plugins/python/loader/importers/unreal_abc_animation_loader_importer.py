@@ -7,7 +7,6 @@ import ftrack_api
 
 from ftrack_connect_pipeline_unreal import plugin
 from ftrack_connect_pipeline_unreal.constants.asset import modes as load_const
-from ftrack_connect_pipeline_unreal import utils
 
 
 class UnrealAbcAnimationLoaderImporterPlugin(
@@ -34,9 +33,21 @@ class UnrealAbcAnimationLoaderImporterPlugin(
             self.task.options.sampling_settings.frame_start = options[
                 'AnimRangeMin'
             ]
-            self.task.options.sampling_settings.frame_end = options['AnimRangeMax']
+            self.task.options.sampling_settings.frame_end = options[
+                'AnimRangeMax'
+            ]
 
-        return self.import_animation(options)
+        results = {
+            self.component_path: self.import_animation(
+                skeleton_name=options.get('Skeleton'),
+                rename_animation=options.get('RenameAnimation', False),
+                rename_animation_prefix=options.get(
+                    'RenameAnimationPrefix', 'A_'
+                ),
+            )
+        }
+
+        return results
 
 
 def register(api_object, **kw):

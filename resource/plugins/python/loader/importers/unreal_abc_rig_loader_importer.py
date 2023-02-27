@@ -7,10 +7,9 @@ import ftrack_api
 
 from ftrack_connect_pipeline_unreal import plugin
 from ftrack_connect_pipeline_unreal.constants.asset import modes as load_const
-from ftrack_connect_pipeline_unreal import utils
 
 
-class UnrealAbcRigLoaderImporterPlugin(plugin.UnrealRigLoaderImporterPlugin):
+class UnrealAbcRigLoaderImporterPlugin(plugin.UnrealLoaderImporterPlugin):
     load_modes = load_const.LOAD_MODES
 
     plugin_name = 'unreal_abc_rig_loader_importer'
@@ -19,18 +18,26 @@ class UnrealAbcRigLoaderImporterPlugin(plugin.UnrealRigLoaderImporterPlugin):
         '''Load Alembic rig file pointed out by collected *data*, with *options*.'''
 
         # Build Unreal import task
-        task, component_path = super(
-            UnrealAbcRigLoaderImporterPlugin, self
-        ).run(context_data, data, options)
+        self.prepare_load_task(context_data, data, options)
 
         # Alembic rig specific options
-        task.options = unreal.AbcImportSettings()
-        task.options.import_type = unreal.AlembicImportType.SKELETAL
-        task.options.material_settings.set_editor_property(
+        self.task.options = unreal.AbcImportSettings()
+        self.task.options.import_type = unreal.AlembicImportType.SKELETAL
+        self.task.options.material_settings.set_editor_property(
             'find_materials', options.get('ImportMaterials', False)
         )
 
-        return self.import_rig(task, component_path, options)
+        results = {
+            self.component_path: self.import_animation(
+                skeleton_name=options.get('Skeleton'),
+                rename_animation=options.get('RenameAnimation', False),
+                rename_animation_prefix=options.get(
+                    'RenameAnimationPrefix', 'A_'
+                ),
+            )
+        }
+
+        return results
 
 
 def register(api_object, **kw):

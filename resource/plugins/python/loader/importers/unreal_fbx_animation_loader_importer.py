@@ -6,11 +6,10 @@ import ftrack_api
 
 from ftrack_connect_pipeline_unreal import plugin
 from ftrack_connect_pipeline_unreal.constants.asset import modes as load_const
-from ftrack_connect_pipeline_unreal import utils
 
 
 class UnrealFbxAnimationLoaderImporterPlugin(
-    plugin.UnrealAnimationLoaderImporterPlugin
+    plugin.UnrealLoaderImporterPlugin
 ):
     load_modes = load_const.LOAD_MODES
 
