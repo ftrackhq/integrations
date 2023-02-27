@@ -3,8 +3,6 @@
 
 import unreal
 
-### FILE OPERATIONS ###
-
 
 def import_file(asset_import_task):
     '''Native import file function using the object unreal.AssetImportTask() given as *asset_import_task*'''

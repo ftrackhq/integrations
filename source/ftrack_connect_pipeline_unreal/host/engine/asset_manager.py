@@ -8,7 +8,7 @@ from ftrack_connect_pipeline import constants as core_constants
 from ftrack_connect_pipeline.host.engine import AssetManagerEngine
 from ftrack_connect_pipeline.asset.asset_info import FtrackAssetInfo
 
-from ftrack_connect_pipeline_unreal import utils
+from ftrack_connect_pipeline_unreal import utils as unreal_utils
 from ftrack_connect_pipeline_unreal.constants import asset as asset_const
 from ftrack_connect_pipeline_unreal.asset import UnrealFtrackObjectManager
 from ftrack_connect_pipeline_unreal.asset.dcc_object import UnrealDccObject
@@ -31,7 +31,7 @@ class UnrealAssetManagerEngine(AssetManagerEngine):
             event_manager, host_types, host_id, asset_type_name=asset_type_name
         )
 
-    @utils.run_in_main_thread
+    @unreal_utils.run_in_main_thread
     def load_asset(self, asset_info, options=None, plugin=None):
         '''
         Override load_asset method to deal with unloaded assets.
@@ -49,7 +49,7 @@ class UnrealAssetManagerEngine(AssetManagerEngine):
             asset_info=asset_info, options=options, plugin=plugin
         )
 
-    @utils.run_in_main_thread
+    @unreal_utils.run_in_main_thread
     def discover_assets(self, assets=None, options=None, plugin=None):
         '''
         Discover all the assets in the scene:
@@ -70,7 +70,7 @@ class UnrealAssetManagerEngine(AssetManagerEngine):
             'message': message,
         }
 
-        ftrack_asset_nodes = utils.get_ftrack_nodes()
+        ftrack_asset_nodes = unreal_utils.get_ftrack_nodes()
         ftrack_asset_info_list = []
 
         if ftrack_asset_nodes:
@@ -100,7 +100,7 @@ class UnrealAssetManagerEngine(AssetManagerEngine):
 
         return status, result
 
-    @utils.run_in_main_thread
+    @unreal_utils.run_in_main_thread
     def select_asset(self, asset_info, options=None, plugin=None):
         '''
         Selects the given *asset_info* from the scene.
@@ -137,7 +137,7 @@ class UnrealAssetManagerEngine(AssetManagerEngine):
 
         asset_paths = []
         try:
-            asset_paths = utils.get_connected_nodes_from_dcc_object(
+            asset_paths = unreal_utils.get_connected_nodes_from_dcc_object(
                 dcc_object.name
             )
             if not asset_paths:
@@ -179,7 +179,7 @@ class UnrealAssetManagerEngine(AssetManagerEngine):
 
         return status, result
 
-    @utils.run_in_main_thread
+    @unreal_utils.run_in_main_thread
     def select_assets(self, assets, options=None, plugin=None):
         '''
         Returns status dictionary and results dictionary keyed by the id for
@@ -193,7 +193,7 @@ class UnrealAssetManagerEngine(AssetManagerEngine):
             assets=assets, options=options, plugin=plugin
         )
 
-    @utils.run_in_main_thread
+    @unreal_utils.run_in_main_thread
     def change_version(self, asset_info, options, plugin=None):
         '''
         Returns the :const:`~ftrack_connnect_pipeline.constants.status` and the
@@ -214,7 +214,7 @@ class UnrealAssetManagerEngine(AssetManagerEngine):
             asset_info=asset_info, options=options, plugin=plugin
         )
 
-    @utils.run_in_main_thread
+    @unreal_utils.run_in_main_thread
     def unload_asset(self, asset_info, options=None, plugin=None):
         '''
         Removes the given *asset_info* from the scene.
@@ -248,15 +248,17 @@ class UnrealAssetManagerEngine(AssetManagerEngine):
         self.dcc_object = dcc_object
 
         nodes = (
-            utils.get_connected_nodes_from_dcc_object(self.dcc_object.name)
+            unreal_utils.get_connected_nodes_from_dcc_object(
+                self.dcc_object.name
+            )
             or []
         )
 
         for node in nodes:
             self.logger.debug("Removing object: {}".format(node))
             try:
-                if utils.node_exists(node):
-                    if not utils.delete_node(node):
+                if unreal_utils.node_exists(node):
+                    if not unreal_utils.delete_node(node):
                         raise Exception(
                             'Unreal asset could not be deleted from library.'
                         )
@@ -297,7 +299,7 @@ class UnrealAssetManagerEngine(AssetManagerEngine):
 
         return status, result
 
-    @utils.run_in_main_thread
+    @unreal_utils.run_in_main_thread
     def remove_asset(self, asset_info, options=None, plugin=None):
         '''
         Removes the given *asset_info* from the scene.
@@ -331,15 +333,17 @@ class UnrealAssetManagerEngine(AssetManagerEngine):
         self.dcc_object = dcc_object
 
         nodes = (
-            utils.get_connected_nodes_from_dcc_object(self.dcc_object.name)
+            unreal_utils.get_connected_nodes_from_dcc_object(
+                self.dcc_object.name
+            )
             or []
         )
 
         for node in nodes:
             self.logger.debug("Removing object: {}".format(node))
             try:
-                if utils.node_exists(node):
-                    if not utils.delete_node(node):
+                if unreal_utils.node_exists(node):
+                    if not unreal_utils.delete_node(node):
                         raise Exception(
                             'Unreal asset could not be deleted from library.'
                         )
@@ -367,9 +371,9 @@ class UnrealAssetManagerEngine(AssetManagerEngine):
                 self._notify_client(plugin, result_data)
                 return status, result
 
-        if utils.ftrack_node_exists(self.dcc_object.name):
+        if unreal_utils.ftrack_node_exists(self.dcc_object.name):
             try:
-                utils.delete_ftrack_node(self.dcc_object.name)
+                unreal_utils.delete_ftrack_node(self.dcc_object.name)
                 result.append(str(self.dcc_object.name))
                 status = core_constants.SUCCESS_STATUS
             except Exception as error:
