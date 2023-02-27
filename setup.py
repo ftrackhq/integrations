@@ -101,7 +101,7 @@ class PyTest(TestCommand):
 
 version_template = '''
 # :coding: utf-8
-# :copyright: Copyright (c) 2014-2022 ftrack
+# :copyright: Copyright (c) 2014-2023 ftrack
 
 __version__ = {version!r}
 '''
@@ -112,7 +112,7 @@ setup(
     description='Unreal plugin enabling publish, open, load and asset management with ftrack eco system.',
     long_description=open(README_PATH).read(),
     keywords='ftrack',
-    url='https://bitbucket.org/ftrack/ftrack-connect-pipeline-unreal',
+    url='https://github.com/ftrackhq/ftrack-connect-pipeline-unreal/',
     author='ftrack',
     author_email='support@ftrack.com',
     license='Apache License (2.0)',
