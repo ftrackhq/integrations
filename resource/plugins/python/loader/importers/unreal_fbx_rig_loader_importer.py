@@ -55,11 +55,11 @@ class UnrealFbxRigLoaderImporterPlugin(plugin.UnrealLoaderImporterPlugin):
                 ),
                 rename_skeleton=options.get('RenameSkeleton', False),
                 rename_skeleton_prefix=options.get(
-                    'RenameSkeletonPrefix', 'SK_'
+                    'RenameSkeletonPrefix', 'SKEL_'
                 ),
                 rename_physics_asset=options.get('RenamePhysicsAsset', False),
                 rename_physics_asset_prefix=options.get(
-                    'RenamePhysicsAssetPrefix', 'SK_'
+                    'RenamePhysicsAssetPrefix', 'PHAT_'
                 ),
             )
         }

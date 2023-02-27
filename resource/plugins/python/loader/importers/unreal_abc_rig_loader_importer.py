@@ -28,11 +28,19 @@ class UnrealAbcRigLoaderImporterPlugin(plugin.UnrealLoaderImporterPlugin):
         )
 
         results = {
-            self.component_path: self.import_animation(
+            self.component_path: self.import_rig(
                 skeleton_name=options.get('Skeleton'),
-                rename_animation=options.get('RenameAnimation', False),
-                rename_animation_prefix=options.get(
-                    'RenameAnimationPrefix', 'A_'
+                rename_skeleton_mesh=options.get('RenameSkeletonMesh', False),
+                rename_skeleton_mesh_prefix=options.get(
+                    'RenameSkeletonMeshPrefix', 'SK_'
+                ),
+                rename_skeleton=options.get('RenameSkeleton', False),
+                rename_skeleton_prefix=options.get(
+                    'RenameSkeletonPrefix', 'SKEL_'
+                ),
+                rename_physics_asset=options.get('RenamePhysicsAsset', False),
+                rename_physics_asset_prefix=options.get(
+                    'RenamePhysicsAssetPrefix', 'PHAT_'
                 ),
             )
         }

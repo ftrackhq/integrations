@@ -19,49 +19,61 @@ class UnrealFbxAnimationLoaderImporterPlugin(
         '''Load FBX animation file pointed out by collected *data*, with *options*.'''
 
         # Build Unreal import task
-        task, component_path = super(
-            UnrealFbxAnimationLoaderImporterPlugin, self
-        ).run(context_data, data, options)
+        self.prepare_load_task(context_data, data, options)
 
         # Fbx animation specific options
-        task.options = unreal.FbxImportUI()
-        task.options.import_mesh = False
-        task.options.import_as_skeletal = False
-        task.options.import_animations = True
-        task.options.import_materials = options.get('ImportMaterials', False)
-        task.options.create_physics_asset = False
-        task.options.automated_import_should_detect_type = False
-        task.options.mesh_type_to_import = unreal.FBXImportType.FBXIT_ANIMATION
-        task.options.anim_sequence_import_data = (
+        self.task.options = unreal.FbxImportUI()
+        self.task.options.import_mesh = False
+        self.task.options.import_as_skeletal = False
+        self.task.options.import_animations = True
+        self.task.options.import_materials = options.get(
+            'ImportMaterials', False
+        )
+        self.task.options.create_physics_asset = False
+        self.task.options.automated_import_should_detect_type = False
+        self.task.options.mesh_type_to_import = (
+            unreal.FBXImportType.FBXIT_ANIMATION
+        )
+        self.task.options.anim_sequence_import_data = (
             unreal.FbxAnimSequenceImportData()
         )
 
-        task.options.anim_sequence_import_data.set_editor_property(
+        self.task.options.anim_sequence_import_data.set_editor_property(
             'import_bone_tracks', options.get('ImportBoneTracks', True)
         )
-        task.options.anim_sequence_import_data.set_editor_property(
+        self.task.options.anim_sequence_import_data.set_editor_property(
             'import_custom_attribute',
             options.get('ImportCustomAttribute', True),
         )
 
         if options.get('UseCustomRange', True):
-            task.options.anim_sequence_import_data.set_editor_property(
+            self.task.options.anim_sequence_import_data.set_editor_property(
                 'animation_length',
                 unreal.FBXAnimationLengthImportType.FBXALIT_SET_RANGE,
             )
             range_interval = unreal.Int32Interval()
             range_interval.set_editor_property('min', options['AnimRangeMin'])
             range_interval.set_editor_property('max', options['AnimRangeMax'])
-            task.options.anim_sequence_import_data.set_editor_property(
+            self.task.options.anim_sequence_import_data.set_editor_property(
                 'frame_import_range', range_interval
             )
         else:
-            task.options.anim_sequence_import_data.set_editor_property(
+            self.task.options.anim_sequence_import_data.set_editor_property(
                 'animation_length',
                 unreal.FBXAnimationLengthImportType.FBXALIT_EXPORTED_TIME,
             )
 
-        return self.import_animation(task, component_path, options)
+        results = {
+            self.component_path: self.import_animation(
+                skeleton_name=options.get('Skeleton'),
+                rename_animation=options.get('RenameAnimation', False),
+                rename_animation_prefix=options.get(
+                    'RenameAnimationPrefix', 'A_'
+                ),
+            )
+        }
+
+        return results
 
 
 def register(api_object, **kw):
