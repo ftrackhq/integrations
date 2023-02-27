@@ -7,9 +7,7 @@ import json
 
 from ftrack_connect_pipeline.asset.dcc_object import DccObject
 from ftrack_connect_pipeline_unreal.constants import asset as asset_const
-from ftrack_connect_pipeline_unreal.utils import (
-    node as unreal_node_utils,
-)
+from ftrack_connect_pipeline_unreal import utils
 
 import unreal
 
@@ -98,7 +96,7 @@ class UnrealDccObject(DccObject):
         Checks unreal project to get all the ftrackAssetNode objects. Compares them
         with the given *asset_info_id* and returns them if matches.
         '''
-        ftrack_asset_nodes = unreal_node_utils.get_ftrack_nodes()
+        ftrack_asset_nodes = utils.get_ftrack_nodes()
         for dcc_object_name in ftrack_asset_nodes:
             ftrack_file_path = os.path.join(
                 asset_const.FTRACK_ROOT_PATH, "{}.json".format(dcc_object_name)
@@ -156,4 +154,4 @@ class UnrealDccObject(DccObject):
         '''
 
         for node_name in objects:
-            unreal_node_utils.connect_object(node_name, self, self.logger)
+            utils.connect_object(node_name, self, self.logger)

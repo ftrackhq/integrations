@@ -8,9 +8,7 @@ from ftrack_connect_pipeline_unreal import plugin
 from ftrack_connect_pipeline_qt.plugin.widget.dynamic import DynamicWidget
 from ftrack_connect_pipeline_unreal.constants.asset import modes as load_const
 
-from ftrack_connect_pipeline_unreal.utils import (
-    node as unreal_node_utils,
-)
+from ftrack_connect_pipeline_unreal import utils
 
 
 class UnrealAbcAnimationLoaderImporterOptionsWidget(DynamicWidget):
@@ -45,6 +43,8 @@ class UnrealAbcAnimationLoaderImporterOptionsWidget(DynamicWidget):
         result = {
             'Skeleton': [],
             'ImportMaterials': False,
+            'ImportBoneTracks': True,
+            'ImportCustomAttribute': True,
             'UseCustomRange': False,
             'AnimRangeMin': 1,
             'AnimRangeMax': 100,
@@ -55,7 +55,7 @@ class UnrealAbcAnimationLoaderImporterOptionsWidget(DynamicWidget):
             'Save': True,
         }
         # Load existing skeletons
-        skeletons = unreal_node_utils.get_asset_by_class('Skeleton')
+        skeletons = utils.get_assets_by_class('Skeleton')
         result['Skeleton'].append({'value': None})
         for skeleton in skeletons:
             result['Skeleton'].append({'value': str(skeleton.asset_name)})
