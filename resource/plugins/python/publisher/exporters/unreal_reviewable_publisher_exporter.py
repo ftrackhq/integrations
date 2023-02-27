@@ -9,7 +9,7 @@ import unreal
 import ftrack_api
 
 from ftrack_connect_pipeline_unreal import plugin
-from ftrack_connect_pipeline_unreal import utils
+from ftrack_connect_pipeline_unreal import utils as unreal_utils
 
 
 class UnrealReviewablePublisherExporterPlugin(
@@ -55,7 +55,7 @@ class UnrealReviewablePublisherExporterPlugin(
             level_sequence = None
 
             seq_name = None
-            all_sequences = utils.get_all_sequences(as_names=False)
+            all_sequences = unreal_utils.get_all_sequences(as_names=False)
             for _seq_name in collected_objects:
                 seq_name = _seq_name
                 for seq in all_sequences:
@@ -113,13 +113,13 @@ class UnrealReviewablePublisherExporterPlugin(
             )
 
             movie_name = '{}_reviewable'.format(asset_name)
-            result = utils.render(
+            result = unreal_utils.render(
                 unreal_asset_path,
                 unreal_map_path,
                 movie_name,
                 destination_path,
                 level_sequence.get_display_rate().numerator,
-                utils.compile_capture_args(options),
+                unreal_utils.compile_capture_args(options),
                 self.logger,
             )
 

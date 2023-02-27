@@ -5,7 +5,7 @@ import unreal
 import ftrack_api
 
 from ftrack_connect_pipeline_unreal import plugin
-from ftrack_connect_pipeline_unreal import utils
+from ftrack_connect_pipeline_unreal import utils as unreal_utils
 
 
 class UnrealSequencePublisherCollectorPlugin(
@@ -23,7 +23,7 @@ class UnrealSequencePublisherCollectorPlugin(
     def fetch(self, context_data=None, data=None, options=None):
         '''Fetch all level sequences from the level/map'''
         result = []
-        collected_objects = utils.get_all_sequences()
+        collected_objects = unreal_utils.get_all_sequences()
 
         # Find the selected sequence
         seq_name_sel = None

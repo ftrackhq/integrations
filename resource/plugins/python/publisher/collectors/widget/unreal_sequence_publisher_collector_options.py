@@ -12,7 +12,7 @@ import ftrack_api
 from ftrack_connect_pipeline_qt.plugin.widget import BaseOptionsWidget
 from ftrack_connect_pipeline_qt.ui.utility.widget import dialog
 from ftrack_connect_pipeline_unreal import plugin
-from ftrack_connect_pipeline_unreal import utils
+from ftrack_connect_pipeline_unreal import utils as unreal_utils
 
 
 class UnrealSequencePublisherCollectorOptionsWidget(BaseOptionsWidget):
@@ -42,7 +42,7 @@ class UnrealSequencePublisherCollectorOptionsWidget(BaseOptionsWidget):
             key = '{}_path'.format(
                 'image_sequence' if self.image_sequence else 'movie'
             )
-            utils.update_project_settings({key: media_path})
+            unreal_utils.update_project_settings({key: media_path})
         else:
             media_path = '<please choose a {}>'.format(
                 'image sequence' if self.image_sequence else 'movie'
@@ -125,7 +125,7 @@ class UnrealSequencePublisherCollectorOptionsWidget(BaseOptionsWidget):
             key = '{}_path'.format(
                 'image_sequence' if self.image_sequence else 'movie'
             )
-            path = utils.get_project_settings().get(key)
+            path = unreal_utils.get_project_settings().get(key)
         self.media_path = path
 
         self._render_rb = QtWidgets.QRadioButton('Render from level sequence:')
@@ -254,7 +254,7 @@ class UnrealSequencePublisherCollectorOptionsWidget(BaseOptionsWidget):
             image_sequence_path,
             unused_first,
             unused_last,
-        ) = utils.find_image_sequence(path)
+        ) = unreal_utils.find_image_sequence(path)
 
         if not image_sequence_path:
             dialog.ModalDialog(
