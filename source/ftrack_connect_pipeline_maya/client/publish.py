@@ -8,8 +8,6 @@ import ftrack_connect_pipeline_maya.constants as maya_constants
 
 from maya.app.general.mayaMixin import MayaQWidgetDockableMixin
 
-from ftrack_connect_pipeline_maya.utils.custom_commands import get_main_window
-
 
 class MayaQtPublisherClientWidget(QtPublisherClientWidget):
     def __init__(self, event_manager, parent=None):

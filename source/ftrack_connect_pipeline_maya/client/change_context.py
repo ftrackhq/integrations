@@ -2,7 +2,6 @@
 # :copyright: Copyright (c) 2014-2022 ftrack
 
 from ftrack_connect_pipeline_qt.client import change_context
-from ftrack_connect_pipeline_maya.utils.custom_commands import init_maya
 
 
 class MayaQtChangeContextClientWidget(
@@ -17,4 +16,4 @@ class MayaQtChangeContextClientWidget(
 
     def show(self):
         if super(MayaQtChangeContextClientWidget, self).show():
-            init_maya(self.context_id, self.session)
+            utils.init_maya(self.context_id, self.session)

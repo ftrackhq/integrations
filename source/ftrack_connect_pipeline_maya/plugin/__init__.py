@@ -5,7 +5,7 @@ import maya
 from ftrack_connect_pipeline import plugin
 from ftrack_connect_pipeline_qt import plugin as pluginWidget
 from ftrack_connect_pipeline_maya import constants as maya_constants
-from ftrack_connect_pipeline_maya.utils import custom_commands as maya_utils
+from ftrack_connect_pipeline_maya import utils as maya_utils
 from ftrack_connect_pipeline_maya.asset import MayaFtrackObjectManager
 from ftrack_connect_pipeline_maya.asset.dcc_object import MayaDccObject
 

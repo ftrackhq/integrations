@@ -2,7 +2,7 @@
 # :copyright: Copyright (c) 2014-2022 ftrack
 
 import maya.cmds as cmds
-from ftrack_connect_pipeline_maya.utils import custom_commands as maya_utils
+from ftrack_connect_pipeline_maya import utils as maya_utils
 
 from ftrack_connect_pipeline_maya import plugin
 import ftrack_api
@@ -23,7 +23,7 @@ class MayaScenePublisherCollectorPlugin(plugin.MayaPublisherCollectorPlugin):
             if len(scene_name or '') == 0:
                 # Scene is not saved, save it first.
                 self.logger.warning('Maya not saved, saving locally')
-                save_path, message = maya_utils.save(
+                save_path, message = maya_utils.save_file(
                     context_data['context_id'], self.session
                 )
                 if not message is None:

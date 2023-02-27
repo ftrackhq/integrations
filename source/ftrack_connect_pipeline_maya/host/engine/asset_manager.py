@@ -8,7 +8,8 @@ import maya.cmds as cmds
 from ftrack_connect_pipeline import constants as core_constants
 from ftrack_connect_pipeline.host.engine import AssetManagerEngine
 from ftrack_connect_pipeline.asset.asset_info import FtrackAssetInfo
-from ftrack_connect_pipeline_maya.utils import custom_commands as maya_utils
+
+from ftrack_connect_pipeline_maya import utils as maya_utils
 from ftrack_connect_pipeline_maya.constants import asset as asset_const
 from ftrack_connect_pipeline_maya.constants.asset import modes as modes_const
 from ftrack_connect_pipeline_maya.asset import MayaFtrackObjectManager
@@ -488,7 +489,7 @@ class MayaAssetManagerEngine(AssetManagerEngine):
 
         for node in nodes:
             if cmds.nodeType(node) == 'reference':
-                reference_node = maya_utils.getReferenceNode(node)
+                reference_node = maya_utils.get_reference_node(node)
                 if reference_node:
                     break
 
@@ -571,7 +572,7 @@ class MayaAssetManagerEngine(AssetManagerEngine):
 
         for node in nodes:
             if cmds.nodeType(node) == 'reference':
-                reference_node = maya_utils.getReferenceNode(node)
+                reference_node = maya_utils.get_reference_node(node)
                 if reference_node:
                     break
 
@@ -687,7 +688,7 @@ class MayaAssetManagerEngine(AssetManagerEngine):
         )
         for node in nodes:
             if cmds.nodeType(node) == 'reference':
-                reference_node = maya_utils.getReferenceNode(node)
+                reference_node = maya_utils.get_reference_node(node)
                 if reference_node:
                     break
 

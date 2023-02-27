@@ -1,7 +1,7 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2019 ftrack
 
-from ftrack_connect_pipeline_maya.utils import custom_commands as maya_utils
+from ftrack_connect_pipeline_maya import utils as maya_utils
 
 # Load Modes
 IMPORT_MODE = 'import'

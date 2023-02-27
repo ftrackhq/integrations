@@ -4,7 +4,7 @@
 import ftrack_api
 
 from ftrack_connect_pipeline_maya import plugin
-from ftrack_connect_pipeline_maya.utils import custom_commands as maya_utils
+from ftrack_connect_pipeline_maya import utils as maya_utils
 
 
 class MayaNativeOpenerFinalizerPlugin(plugin.MayaOpenerFinalizerPlugin):
@@ -18,7 +18,7 @@ class MayaNativeOpenerFinalizerPlugin(plugin.MayaOpenerFinalizerPlugin):
         result = {}
 
         self.logger.debug('Rename Maya scene on open')
-        save_path, message = maya_utils.save(
+        save_path, message = maya_utils.save_file(
             context_data['context_id'], self.session, save=False
         )
         if save_path:

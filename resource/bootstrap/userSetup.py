@@ -4,7 +4,6 @@
 import logging
 import functools
 
-import maya.utils
 import maya.cmds as cmds
 import maya.mel as mm
 
@@ -16,6 +15,7 @@ from ftrack_connect_pipeline.configure_logging import configure_logging
 from ftrack_connect_pipeline_qt import event
 from ftrack_connect_pipeline_qt import constants as qt_constants
 from ftrack_connect_pipeline_qt.ui.asset_manager.model import AssetListModel
+from ftrack_connect_pipeline_qt.client import documentation
 
 from ftrack_connect_pipeline_maya import host as maya_host
 from ftrack_connect_pipeline_maya.client import (
@@ -26,9 +26,8 @@ from ftrack_connect_pipeline_maya.client import (
     change_context,
     log_viewer,
 )
-from ftrack_connect_pipeline_qt.client import documentation
 
-from ftrack_connect_pipeline_maya.utils import custom_commands as maya_utils
+from ftrack_connect_pipeline_maya import utils as maya_utils
 
 
 extra_handlers = {

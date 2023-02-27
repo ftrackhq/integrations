@@ -8,7 +8,6 @@ from ftrack_connect_pipeline_qt.client import load
 import ftrack_connect_pipeline.constants as constants
 import ftrack_connect_pipeline_qt.constants as qt_constants
 import ftrack_connect_pipeline_maya.constants as maya_constants
-from ftrack_connect_pipeline_maya.utils.custom_commands import get_main_window
 
 
 class MayaQtAssemblerClientWidget(load.QtAssemblerClientWidget):
