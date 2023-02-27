@@ -2,10 +2,6 @@
 # :copyright: Copyright (c) 2014-2023 ftrack
 from functools import wraps
 
-import unreal
-
-#### MISC ####
-
 
 def run_in_main_thread(f):
     '''Make sure a function runs in the main Unreal thread.'''

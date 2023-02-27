@@ -8,7 +8,7 @@ from ftrack_connect_pipeline_unreal import plugin
 from ftrack_connect_pipeline_qt.plugin.widget.dynamic import DynamicWidget
 from ftrack_connect_pipeline_unreal.constants.asset import modes as load_const
 
-from ftrack_connect_pipeline_unreal import utils
+from ftrack_connect_pipeline_unreal import utils as unreal_utils
 
 
 class UnrealAbcRigLoaderImporterOptionsWidget(DynamicWidget):
@@ -54,7 +54,7 @@ class UnrealAbcRigLoaderImporterOptionsWidget(DynamicWidget):
             'Save': True,
         }
         # Load existing skeletons
-        skeletons = utils.get_assets_by_class('Skeleton')
+        skeletons = unreal_utils.get_assets_by_class('Skeleton')
         result['Skeleton'].append({'value': None})
         for skeleton in skeletons:
             result['Skeleton'].append({'value': str(skeleton.asset_name)})

@@ -5,3 +5,14 @@ ftrack\_connect\_pipeline\_unreal.utils package
    :members:
    :undoc-members:
    :show-inheritance:
+
+Subpackages
+-----------
+
+.. toctree::
+   :maxdepth: 1
+
+   ftrack_connect_pipeline_unreal.plugin.asset
+   ftrack_connect_pipeline_unreal.plugin.bootstrap
+   ftrack_connect_pipeline_unreal.plugin.file
+   ftrack_connect_pipeline_unreal.plugin.node

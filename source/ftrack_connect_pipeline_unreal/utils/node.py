@@ -10,10 +10,9 @@ from ftrack_connect_pipeline_unreal.constants import asset as asset_const
 
 logger = logging.getLogger(__name__)
 
-### NODE/OBJECT OPERATIONS ###
-
 
 def get_ftrack_nodes():
+    '''Returns all the ftrack nodes in the scene'''
     ftrack_nodes = []
     if not os.path.exists(asset_const.FTRACK_ROOT_PATH):
         return ftrack_nodes
@@ -36,9 +35,9 @@ def get_current_scene_objects():
 def connect_object(node_name, asset_info, logger):
     '''Store metadata and save the Unreal asset given by *node_name*, based on *asset_info*'''
 
-    from ftrack_connect_pipeline_unreal import utils
+    from ftrack_connect_pipeline_unreal import utils as unreal_utils
 
-    asset = utils.get_asset_by_path(node_name)
+    asset = unreal_utils.get_asset_by_path(node_name)
     unreal.EditorAssetLibrary.set_metadata_tag(
         asset,
         asset_const.NODE_METADATA_TAG,
