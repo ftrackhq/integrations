@@ -76,9 +76,7 @@ def load_integration():
     )
     from ftrack_connect_pipeline_qt.client import documentation
 
-    from ftrack_connect_pipeline_unreal.utils import (
-        bootstrap as unreal_bootstrap_utils,
-    )
+    from ftrack_connect_pipeline_unreal import utils
     from ftrack_connect_pipeline_unreal import menu as unreal_menu
 
     configure_logging(
@@ -268,7 +266,7 @@ def load_integration():
             ),
         )
 
-        unreal_bootstrap_utils.init_unreal()
+        utils.init_unreal()
 
     initialise()
 
