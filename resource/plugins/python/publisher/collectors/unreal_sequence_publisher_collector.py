@@ -21,7 +21,7 @@ class UnrealSequencePublisherCollectorPlugin(
         return selected_items
 
     def fetch(self, context_data=None, data=None, options=None):
-        '''Fetch all sequences from the level/map'''
+        '''Fetch all level sequences from the level/map'''
         result = []
         collected_objects = utils.get_all_sequences()
 
@@ -44,11 +44,18 @@ class UnrealSequencePublisherCollectorPlugin(
         return result
 
     def run(self, context_data=None, data=None, options=None):
-        '''Return the name of sequence from plugin *options*'''
-        sequence_name = options.get('sequence_name')
-        if not sequence_name:
-            return False, {'message': 'No sequence chosen.'}
-        return [sequence_name]
+        '''Return the name of file path or sequence from plugin *options*'''
+
+        if options.get('mode') == 'pickup':
+            file_path = options.get('media_path')
+            if not file_path:
+                return False, {'message': 'No render media file path chosen.'}
+            return [{'media_path': file_path}]
+        else:
+            level_sequence_name = options.get('level_sequence_name')
+            if not level_sequence_name:
+                return False, {'message': 'No level sequence chosen.'}
+            return [{'level_sequence_name': level_sequence_name}]
 
 
 def register(api_object, **kw):

@@ -67,7 +67,7 @@ class UnrealSequencePublisherExporterOptionsWidget(DynamicWidget):
 
     def get_options_group_name(self):
         '''Override'''
-        return 'Unreal sequence exporter Options'
+        return 'Unreal level sequence render options'
 
     def build(self):
         '''build function , mostly used to create the widgets.'''
@@ -75,115 +75,8 @@ class UnrealSequencePublisherExporterOptionsWidget(DynamicWidget):
         # Update current options with the given ones from definitions and store
         self.update(self.define_options())
 
-        bg = QtWidgets.QButtonGroup(self)
-
-        self._pickup_rb = QtWidgets.QRadioButton('Pick up rendered sequence')
-        bg.addButton(self._pickup_rb)
-        self.layout().addWidget(self._pickup_rb)
-
-        # TODO: Store video capture output folder in Unreal project
-        self._choose_folder_widget = QtWidgets.QWidget()
-        self._choose_folder_widget.setLayout(QtWidgets.QHBoxLayout())
-        self._choose_folder_widget.layout().setContentsMargins(0, 0, 0, 0)
-        self._choose_folder_widget.layout().setSpacing(0)
-
-        self._choose_folder_widget.layout().addWidget(
-            QtWidgets.QLabel('Capture folder:')
-        )
-
-        self._render_folder_input = QtWidgets.QLineEdit(
-            '<please choose a folder>'
-            if 'file_path' not in self.options
-            else self.options['file_path']
-        )
-        self._render_folder_input.setReadOnly(True)
-
-        self._choose_folder_widget.layout().addWidget(
-            self._render_folder_input, 20
-        )
-
-        self._browser_button = QtWidgets.QPushButton('BROWSE')
-        self._browser_button.setObjectName('borderless')
-
-        self._choose_folder_widget.layout().addWidget(self._browser_button)
-        self.layout().addWidget(self._choose_folder_widget)
-
-        self._render_rb = QtWidgets.QRadioButton('Render from sequence')
-        bg.addButton(self._render_rb)
-        self.layout().addWidget(self._render_rb)
-
-        if not 'mode' in self.options:
-            self.set_option_result('pickup', 'mode')  # Set default mode
-        mode = self.options['mode'].lower()
-        if mode == 'pickup':
-            self._pickup_rb.setChecked(True)
-        else:
-            self._render_rb.setChecked(True)
-
         # Call the super build to automatically generate the options
         super(UnrealSequencePublisherExporterOptionsWidget, self).build()
-
-    def post_build(self):
-        super(UnrealSequencePublisherExporterOptionsWidget, self).post_build()
-
-        self._render_rb.clicked.connect(self._update_render_mode)
-        self._pickup_rb.clicked.connect(self._update_render_mode)
-
-        self._update_render_mode()
-
-        self._browser_button.clicked.connect(self._show_file_dialog)
-
-    def _update_render_mode(self):
-        mode = 'render'
-        if self._pickup_rb.isChecked():
-            mode = 'pickup'
-        self.set_option_result(mode, 'mode')
-
-        self._choose_folder_widget.setVisible(mode == 'pickup')
-        self.option_group.setVisible(mode == 'render')
-
-    def _show_file_dialog(self):
-        '''Shows the file dialog'''
-
-        if self._render_folder_input.text() == '<please choose a folder>':
-            start_dir = os.path.realpath(
-                os.path.join(
-                    unreal.SystemLibrary.get_project_saved_directory(),
-                    "VideoCaptures",
-                )
-            )
-        else:
-            start_dir = os.path.dirname(self._render_folder_input.text())
-
-        path = QtWidgets.QFileDialog.getExistingDirectory(
-            caption='Choose directory containing rendered image sequence',
-            dir=start_dir,
-            options=QtWidgets.QFileDialog.ShowDirsOnly,
-        )
-
-        if not path:
-            return
-
-        (
-            sequence_path,
-            first,
-            last,
-        ) = utils.find_image_sequence(path)
-
-        if sequence_path:
-            self._render_folder_input.setText(sequence_path)
-            self._render_folder_input.setToolTip(sequence_path)
-            self.set_option_result(sequence_path, 'file_path')
-            self.set_option_result(first, 'first')
-            self.set_option_result(last, 'last')
-        else:
-            dialog.ModalDialog(
-                None,
-                title='Locate rendered image sequence',
-                message='An image sequence on the form "prefix.NNNN.ext" were not found in: {}!'.format(
-                    path
-                ),
-            )
 
 
 class UnrealSequencePublisherExporterOptionsPluginWidget(

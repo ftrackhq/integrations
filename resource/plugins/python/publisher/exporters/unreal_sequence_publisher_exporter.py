@@ -26,15 +26,24 @@ class UnrealSequencePublisherExporterPlugin(
         '''Render and export an image file sequence from the selected sequence given
         in *data* and options given with *options*.'''
 
-        if options.get('mode') == 'pickup':
+        collected_objects = []
+        have_media_path = False
+        for collector in data:
+            for result in collector['result']:
+                for key, value in result.items():
+                    if key == 'media_path':
+                        have_media_path = True
+                    collected_objects.append(value)
 
-            file_path = options.get('file_path')
+        if have_media_path:
 
-            collections = clique.parse(file_path)
+            media_path = collected_objects[0]
+
+            collections = clique.parse(media_path)
 
             self.logger.debug(
                 'Using pre-rendered file sequence path: "{}", copying to temp.'.format(
-                    file_path
+                    media_path
                 )
             )
 
@@ -56,16 +65,13 @@ class UnrealSequencePublisherExporterPlugin(
             new_file_path = '{}'.format(
                 os.path.join(
                     temp_sequence_dir,
-                    os.path.basename(file_path),
+                    os.path.basename(media_path),
                 )
             )
 
         else:
-            collected_objects = []
-            for collector in data:
-                collected_objects.extend(collector['result'])
-
-            master_sequence = None
+            # Find level sequence
+            level_sequence = None
 
             seq_name = None
             all_sequences = utils.get_all_sequences(as_names=False)
@@ -75,14 +81,14 @@ class UnrealSequencePublisherExporterPlugin(
                     if seq.get_name() == _seq_name or _seq_name.startswith(
                         '{}_'.format(seq.get_name())
                     ):
-                        master_sequence = seq
+                        level_sequence = seq
                         break
-                if master_sequence:
+                if level_sequence:
                     break
 
-            if master_sequence is None:
+            if level_sequence is None:
                 return False, {
-                    'message': 'Sequence {} not found, please refresh publisher!'.format(
+                    'message': 'Level sequence "{}" not found, please refresh publisher!'.format(
                         seq_name
                     )
                 }
@@ -119,7 +125,7 @@ class UnrealSequencePublisherExporterPlugin(
 
             unreal_map = unreal.EditorLevelLibrary.get_editor_world()
             unreal_map_path = unreal_map.get_path_name()
-            unreal_asset_path = master_sequence.get_path_name()
+            unreal_asset_path = level_sequence.get_path_name()
 
             asset_name = self._standard_structure.sanitise_for_filesystem(
                 context_data['asset_name']
@@ -131,7 +137,7 @@ class UnrealSequencePublisherExporterPlugin(
                 unreal_map_path,
                 asset_name,
                 destination_path,
-                master_sequence.get_display_rate().numerator,
+                level_sequence.get_display_rate().numerator,
                 utils.compile_capture_args(options),
                 self.logger,
                 image_format=file_format,
@@ -144,8 +150,8 @@ class UnrealSequencePublisherExporterPlugin(
 
             # try to get start and end frames from sequence
             # control for test publish(subset of sequence)
-            frame_start = master_sequence.get_playback_start()
-            frame_end = master_sequence.get_playback_end() - 1
+            frame_start = level_sequence.get_playback_start()
+            frame_end = level_sequence.get_playback_end() - 1
             base_file_path = (
                 path[:-12]
                 if path.endswith('.{frame}.%s' % file_format)

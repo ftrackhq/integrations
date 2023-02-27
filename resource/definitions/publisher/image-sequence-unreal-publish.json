@@ -32,7 +32,10 @@
             {
               "name": "select level sequence",
               "plugin": "unreal_sequence_publisher_collector",
-              "widget": "unreal_sequence_publisher_collector"
+              "widget": "unreal_sequence_publisher_collector",
+              "options": {
+                "image_sequence": true
+              }
             }
           ]
         },
@@ -67,7 +70,10 @@
             {
               "name": "select level sequence",
               "plugin": "unreal_sequence_publisher_collector",
-              "widget": "unreal_sequence_publisher_collector"
+              "widget": "unreal_sequence_publisher_collector",
+              "options": {
+                "image_sequence": false
+              }
             }
           ]
         },
