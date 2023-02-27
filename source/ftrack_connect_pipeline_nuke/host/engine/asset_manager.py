@@ -6,7 +6,7 @@ import nuke
 from ftrack_connect_pipeline import constants as core_constants
 from ftrack_connect_pipeline.host.engine import AssetManagerEngine
 from ftrack_connect_pipeline.asset.asset_info import FtrackAssetInfo
-from ftrack_connect_pipeline_nuke.utils import custom_commands as nuke_utils
+from ftrack_connect_pipeline_nuke import utils as nuke_utils
 from ftrack_connect_pipeline_nuke.constants import asset as asset_const
 from ftrack_connect_pipeline_nuke.asset import NukeFtrackObjectManager
 from ftrack_connect_pipeline_nuke.asset.dcc_object import NukeDccObject
@@ -122,7 +122,7 @@ class NukeAssetManagerEngine(AssetManagerEngine):
         self.dcc_object = dcc_object
 
         if options.get('clear_selection'):
-            nuke_utils.cleanSelection()
+            nuke_utils.clean_selection()
 
         ftrack_node = nuke.toNode(self.dcc_object.name)
 

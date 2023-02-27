@@ -32,7 +32,7 @@ from ftrack_connect_pipeline_nuke.client import (
 from ftrack_connect_pipeline_qt.client import documentation
 
 from ftrack_connect_pipeline_nuke.menu import build_menu_widgets
-from ftrack_connect_pipeline_nuke.utils import custom_commands as nuke_utils
+from ftrack_connect_pipeline_nuke import utils as nuke_utils
 from ftrack_connect_pipeline_nuke import host as nuke_host
 
 configure_logging(

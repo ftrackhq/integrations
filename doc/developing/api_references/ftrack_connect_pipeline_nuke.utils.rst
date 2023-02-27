@@ -5,3 +5,13 @@ ftrack\_connect\_pipeline\_nuke.utils package
    :members:
    :undoc-members:
    :show-inheritance:
+
+Subpackages
+-----------
+
+.. toctree::
+   :maxdepth: 1
+
+   ftrack_connect_pipeline_nuke.plugin.bootstrap
+   ftrack_connect_pipeline_nuke.plugin.file
+   ftrack_connect_pipeline_nuke.plugin.node

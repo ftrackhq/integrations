@@ -4,7 +4,7 @@
 import ftrack_api
 
 from ftrack_connect_pipeline_nuke import plugin
-from ftrack_connect_pipeline_nuke.utils import custom_commands as nuke_utils
+from ftrack_connect_pipeline_nuke import utils as nuke_utils
 
 
 class NukeNativeOpenerFinalizerPlugin(plugin.NukeOpenerFinalizerPlugin):
@@ -18,7 +18,7 @@ class NukeNativeOpenerFinalizerPlugin(plugin.NukeOpenerFinalizerPlugin):
         result = {}
 
         self.logger.debug('Saving Nuke on open')
-        save_path, message = nuke_utils.save(
+        save_path, message = nuke_utils.save_file(
             context_data['context_id'], self.session
         )
         if save_path:

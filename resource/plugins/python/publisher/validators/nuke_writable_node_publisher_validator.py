@@ -5,7 +5,7 @@ import ftrack_api
 import os
 
 from ftrack_connect_pipeline_nuke import plugin
-from ftrack_connect_pipeline_nuke.utils import custom_commands as nuke_utils
+from ftrack_connect_pipeline_nuke import utils as nuke_utils
 
 import nuke
 
@@ -29,7 +29,7 @@ class NukeWritableNodePublisherValidatorPlugin(
             return (False, {'message': msg})
         scene_node = nuke.toNode(collected_objects[0])
         selected_nodes = nuke.selectedNodes()
-        nuke_utils.cleanSelection()
+        nuke_utils.clean_selection()
 
         write_node = nuke.createNode('Write')
         if not write_node.setInput(0, scene_node):
@@ -39,7 +39,7 @@ class NukeWritableNodePublisherValidatorPlugin(
         # delete temporal write node
         nuke.delete(write_node)
         # restore selection
-        nuke_utils.cleanSelection()
+        nuke_utils.clean_selection()
         for node in selected_nodes:
             node['selected'].setValue(True)
         return True

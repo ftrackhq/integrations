@@ -6,7 +6,7 @@ import ftrack_api
 import nuke
 
 from ftrack_connect_pipeline_nuke import plugin
-from ftrack_connect_pipeline_nuke.utils import custom_commands as nuke_utils
+from ftrack_connect_pipeline_nuke import utils as nuke_utils
 
 
 class NukeScriptPublisherCollectorPlugin(plugin.NukePublisherCollectorPlugin):
@@ -20,7 +20,7 @@ class NukeScriptPublisherCollectorPlugin(plugin.NukePublisherCollectorPlugin):
         if scene_name == 'Root':
             # scene is not saved, save it first.
             self.logger.warning('Nuke not saved, saving locally..')
-            save_path, message = nuke_utils.save(
+            save_path, message = nuke_utils.save_file(
                 context_data['context_id'], self.session
             )
             if not message is None:

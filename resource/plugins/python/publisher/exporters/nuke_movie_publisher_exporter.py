@@ -8,7 +8,7 @@ import tempfile
 import shutil
 
 from ftrack_connect_pipeline_nuke import plugin
-from ftrack_connect_pipeline_nuke.utils import custom_commands as nuke_utils
+from ftrack_connect_pipeline_nuke import utils as nuke_utils
 
 import nuke
 
@@ -28,7 +28,7 @@ class NukeMoviePublisherExporterPlugin(plugin.NukePublisherExporterPlugin):
         node_name = collected_objects[0]
         input_node = nuke.toNode(node_name)
         selected_nodes = nuke.selectedNodes()
-        nuke_utils.cleanSelection()
+        nuke_utils.clean_selection()
 
         try:
             mode = (options.get('mode') or 'render').lower()
@@ -208,7 +208,7 @@ class NukeMoviePublisherExporterPlugin(plugin.NukePublisherExporterPlugin):
 
         finally:
             # restore selection
-            nuke_utils.cleanSelection()
+            nuke_utils.clean_selection()
             for node in selected_nodes:
                 node['selected'].setValue(True)
 
