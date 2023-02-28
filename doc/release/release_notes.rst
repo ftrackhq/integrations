@@ -10,6 +10,11 @@ Release Notes
 .. release:: upcoming
 
     .. change:: new
+            :tags: asset manager
+
+            Base asset manager allowing list, unload, load, version up, update to latest.
+
+    .. change:: new
             :tags: loader
 
             Base geometry, rig and animations loaders through the assembler, supporting FBX and Alembic.
