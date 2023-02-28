@@ -4,6 +4,8 @@ import os
 
 import unreal
 
+from ftrack_connect_pipeline_unreal.constants import asset as asset_const
+
 
 def asset_path_to_filesystem_path(
     asset_path, root_content_dir=None, throw_on_error=True
@@ -15,8 +17,10 @@ def asset_path_to_filesystem_path(
                 '/', os.sep
             )
         )
-    if asset_path.lower().startswith('/game/'):
-        asset_path = asset_path[6:]  # Remove /Game/ prefix
+    if asset_path.lower().startswith(asset_const.GAME_ROOT_PATH.lower()):
+        asset_path = asset_path[
+            len(asset_const.GAME_ROOT_PATH) + 1 :
+        ]  # Remove /Game/ prefix
     asset_path = asset_path.replace('/', os.sep)  # Align to platform
     content_folder, asset_filename = os.path.split(asset_path)
     asset_filename = os.path.splitext(asset_filename)[0]  # Remove extension

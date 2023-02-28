@@ -29,15 +29,19 @@ def get_current_scene_objects():
     '''Returns all the objects in the scene'''
     # Return the list of all the assets found in the DirectoryPath.
     # https://docs.unrealengine.com/5.1/en-US/PythonAPI/class/EditorAssetLibrary.html?highlight=editorassetlibrary#unreal.EditorAssetLibrary
-    return set(unreal.EditorAssetLibrary.list_assets("/Game", recursive=True))
+    return set(
+        unreal.EditorAssetLibrary.list_assets(
+            asset_const.GAME_ROOT_PATH, recursive=True
+        )
+    )
 
 
 def connect_object(node_name, asset_info, logger):
     '''Store metadata and save the Unreal asset given by *node_name*, based on *asset_info*'''
 
-    from ftrack_connect_pipeline_unreal import utils as unreal_utils
+    from ftrack_connect_pipeline_unreal.utils import get_asset_by_path
 
-    asset = unreal_utils.get_asset_by_path(node_name)
+    asset = get_asset_by_path(node_name)
     unreal.EditorAssetLibrary.set_metadata_tag(
         asset,
         asset_const.NODE_METADATA_TAG,
@@ -52,7 +56,7 @@ def connect_object(node_name, asset_info, logger):
 def node_exists(node_name):
     '''Check if node_name exist in the project'''
     for content in unreal.EditorAssetLibrary.list_assets(
-        "/Game", recursive=True
+        asset_const.GAME_ROOT_PATH, recursive=True
     ):
         if node_name in content:
             return True
@@ -91,7 +95,7 @@ def rename_node_with_prefix(node_name, prefix):
 def get_connected_nodes_from_dcc_object(dcc_object_name):
     '''Return all objects connected to the given *dcc_object_name*'''
 
-    from ftrack_connect_pipeline_unreal import utils as unreal_utils
+    from ftrack_connect_pipeline_unreal.utils import get_asset_by_path
 
     objects = []
     dcc_object_node = None
@@ -112,7 +116,7 @@ def get_connected_nodes_from_dcc_object(dcc_object_name):
         param_dict = json.load(openfile)
     id_value = param_dict.get(asset_const.ASSET_INFO_ID)
     for node_name in get_current_scene_objects():
-        asset = unreal_utils.get_asset_by_path(node_name)
+        asset = get_asset_by_path(node_name)
         for metadata_tag in [asset_const.NODE_METADATA_TAG]:
             ftrack_value = unreal.EditorAssetLibrary.get_metadata_tag(
                 asset, metadata_tag

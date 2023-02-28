@@ -43,4 +43,4 @@ class UnrealQtAssetManagerClientWidget(QtAssetManagerClientWidget):
         return 'ftrack' if not self.is_assembler else 'transparent'
 
     def is_docked(self):
-        False
+        return False

@@ -32,24 +32,6 @@ class UnrealAssetManagerEngine(AssetManagerEngine):
         )
 
     @unreal_utils.run_in_main_thread
-    def load_asset(self, asset_info, options=None, plugin=None):
-        '''
-        Override load_asset method to deal with unloaded assets.
-        '''
-
-        # TODO: Check if necessary or can be moved to core
-        self.asset_info = asset_info
-        dcc_object = self.DccObject(
-            from_id=asset_info[asset_const.ASSET_INFO_ID]
-        )
-        self.dcc_object = dcc_object
-
-        # It's an import, so load asset with the main method
-        return super(UnrealAssetManagerEngine, self).load_asset(
-            asset_info=asset_info, options=options, plugin=plugin
-        )
-
-    @unreal_utils.run_in_main_thread
     def discover_assets(self, assets=None, options=None, plugin=None):
         '''
         Discover all the assets in the scene:
@@ -99,6 +81,27 @@ class UnrealAssetManagerEngine(AssetManagerEngine):
         self._notify_client(plugin, result_data)
 
         return status, result
+
+    @unreal_utils.run_in_main_thread
+    def change_version(self, asset_info, options, plugin=None):
+        '''
+        Returns the :const:`~ftrack_connnect_pipeline.constants.status` and the
+        result of changing the version of the given *asset_info* to the new
+        version id passed in the given *options*
+
+        *asset_info* : :class:`~ftrack_connect_pipeline.asset.FtrackAssetInfo`
+
+        *options* : Options should contain the new_version_id key with the id
+        value
+
+        *plugin* : Default None. Plugin definition, a dictionary with the
+        plugin information.
+        '''
+
+        # It's an import, so change version with the main method
+        return super(UnrealAssetManagerEngine, self).change_version(
+            asset_info=asset_info, options=options, plugin=plugin
+        )
 
     @unreal_utils.run_in_main_thread
     def select_asset(self, asset_info, options=None, plugin=None):
@@ -194,23 +197,13 @@ class UnrealAssetManagerEngine(AssetManagerEngine):
         )
 
     @unreal_utils.run_in_main_thread
-    def change_version(self, asset_info, options, plugin=None):
+    def load_asset(self, asset_info, options=None, plugin=None):
         '''
-        Returns the :const:`~ftrack_connnect_pipeline.constants.status` and the
-        result of changing the version of the given *asset_info* to the new
-        version id passed in the given *options*
-
-        *asset_info* : :class:`~ftrack_connect_pipeline.asset.FtrackAssetInfo`
-
-        *options* : Options should contain the new_version_id key with the id
-        value
-
-        *plugin* : Default None. Plugin definition, a dictionary with the
-        plugin information.
+        Override load_asset method to deal with unloaded assets.
         '''
 
-        # It's an import, so change version with the main method
-        return super(UnrealAssetManagerEngine, self).change_version(
+        # It's an import, so load asset with the main method
+        return super(UnrealAssetManagerEngine, self).load_asset(
             asset_info=asset_info, options=options, plugin=plugin
         )
 
