@@ -32,6 +32,36 @@ def get_current_scene_objects():
     return set(unreal.EditorAssetLibrary.list_assets("/Game", recursive=True))
 
 
+def get_asset_info(node_name, snapshot=False):
+    '''Return the asset info from dcc object linked to asset path identified by *node_name*'''
+
+    from ftrack_connect_pipeline_unreal import utils as unreal_utils
+
+    asset = unreal_utils.get_asset_by_path(node_name)
+    if asset is None:
+        logger.warning(
+            '(get_asset_info) Cannot find asset by path: {}'.format(node_name)
+        )
+        return None, None
+    ftrack_value = unreal.EditorAssetLibrary.get_metadata_tag(
+        asset, asset_const.NODE_METADATA_TAG
+    )
+
+    for dcc_object_node in get_ftrack_nodes():
+        path_dcc_object_node = '{}{}{}.json'.format(
+            asset_const.FTRACK_ROOT_PATH, os.sep, dcc_object_node
+        )
+        with open(
+            path_dcc_object_node,
+            'r',
+        ) as openfile:
+            param_dict = json.load(openfile)
+        id_value = param_dict.get(asset_const.ASSET_INFO_ID)
+        if id_value == ftrack_value:
+            return dcc_object_node, param_dict
+    return None, None
+
+
 def connect_object(node_name, asset_info, logger):
     '''Store metadata and save the Unreal asset given by *node_name*, based on *asset_info*'''
 

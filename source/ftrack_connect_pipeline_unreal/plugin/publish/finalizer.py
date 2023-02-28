@@ -12,9 +12,7 @@ from ftrack_connect_pipeline_unreal.plugin import (
     UnrealBasePluginWidget,
 )
 
-from ftrack_connect_pipeline_unreal.utils import (
-    node as unreal_node_utils,
-)
+from ftrack_connect_pipeline_unreal import utils as unreal_utils
 from ftrack_connect_pipeline_unreal.constants import asset as asset_const
 
 
@@ -40,9 +38,11 @@ class UnrealPublisherFinalizerPlugin(
            publishing the dependencies if the plugin fails.
         '''
         self.version_dependencies = []
-        ftrack_asset_nodes = unreal_node_utils.get_ftrack_nodes()
-        for dcc_object_node in ftrack_asset_nodes:
-            param_dict = unreal_node_utils.read_asset_node(dcc_object_node)
+        ftrack_asset_nodes = unreal_utils.get_ftrack_nodes()
+        for dcc_object_node_name in ftrack_asset_nodes:
+            unused_dcc_object_node, param_dict = unreal_utils.get_asset_info(
+                dcc_object_node_name
+            )
             dependency_version_id = param_dict.get(asset_const.VERSION_ID)
             self.logger.debug(
                 'Adding dependency_asset_version_id: {}'.format(

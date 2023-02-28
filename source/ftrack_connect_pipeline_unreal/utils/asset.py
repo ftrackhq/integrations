@@ -50,6 +50,7 @@ def get_asset_by_path(node_name):
 
 
 def get_assets_by_class(class_name):
+    '''Get Unreal assets by class name'''
     return [
         asset
         for asset in unreal.AssetRegistryHelpers.get_asset_registry().get_all_assets()
