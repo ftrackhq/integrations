@@ -1,7 +1,7 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2022 ftrack
 
-# import maya.cmds as cmds
+from pymxs import runtime as rt
 
 from ftrack_connect_pipeline import plugin
 from ftrack_connect_pipeline_qt import plugin as pluginWidget
@@ -10,8 +10,8 @@ from ftrack_connect_pipeline_3dsmax.plugin import (
     MaxBasePluginWidget,
 )
 
-from ftrack_connect_pipeline_3dsmax.utils import custom_commands as max_utils
 from ftrack_connect_pipeline_3dsmax.constants import asset as asset_const
+from ftrack_connect_pipeline_3dsmax import utils as max_utils
 
 
 class MaxPublisherFinalizerPlugin(
@@ -38,9 +38,9 @@ class MaxPublisherFinalizerPlugin(
         self.version_dependencies = []
         ftrack_asset_nodes = max_utils.get_ftrack_nodes()
         for dependency in ftrack_asset_nodes:
-            # dependency_version_id = cmds.getAttr(
-            #     '{}.{}'.format(dependency, asset_const.VERSION_ID)
-            # )
+            dependency_version_id = rt.getProperty(
+                dependency, asset_const.VERSION_ID
+            )
             self.logger.debug(
                 'Adding dependency_asset_version_id: {}'.format(
                     dependency_version_id

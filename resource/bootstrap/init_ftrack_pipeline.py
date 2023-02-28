@@ -30,7 +30,7 @@ from ftrack_connect_pipeline_3dsmax.client import (
     log_viewer,
     change_context,
 )
-from ftrack_connect_pipeline_3dsmax.utils import custom_commands as max_utils
+from ftrack_connect_pipeline_3dsmax import utils as max_utils
 
 configure_logging(
     'ftrack_connect_pipeline_3dsmax',

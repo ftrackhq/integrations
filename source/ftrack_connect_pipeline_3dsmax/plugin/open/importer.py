@@ -8,9 +8,8 @@ from ftrack_connect_pipeline_3dsmax.plugin import (
     MaxBasePluginWidget,
 )
 
-from ftrack_connect_pipeline_3dsmax.utils import custom_commands as max_utils
+from ftrack_connect_pipeline_3dsmax import utils as max_utils
 from ftrack_connect_pipeline_3dsmax.constants.asset import modes as load_const
-from ftrack_connect_pipeline_3dsmax.constants import asset as asset_const
 
 
 class MaxOpenerImporterPlugin(plugin.OpenerImporterPlugin, MaxBasePlugin):

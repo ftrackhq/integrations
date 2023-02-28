@@ -4,7 +4,7 @@
 import ftrack_api
 
 from ftrack_connect_pipeline_3dsmax import plugin
-from ftrack_connect_pipeline_3dsmax.utils import custom_commands as max_utils
+from ftrack_connect_pipeline_3dsmax import utils as max_utils
 
 
 class MaxNativeOpenerFinalizerPlugin(plugin.MaxOpenerFinalizerPlugin):

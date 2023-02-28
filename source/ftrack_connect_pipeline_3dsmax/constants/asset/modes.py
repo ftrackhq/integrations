@@ -1,7 +1,7 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2022 ftrack
 
-from ftrack_connect_pipeline_3dsmax.utils import custom_commands as max_utils
+from ftrack_connect_pipeline_3dsmax import utils as max_utils
 
 # Load Modes
 IMPORT_MODE = 'import'

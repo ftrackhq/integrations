@@ -5,3 +5,13 @@ ftrack\_connect\_pipeline\_max.utils package
    :members:
    :undoc-members:
    :show-inheritance:
+
+Subpackages
+-----------
+
+.. toctree::
+   :maxdepth: 1
+
+   ftrack_connect_pipeline_3dsmax.plugin.bootstrap
+   ftrack_connect_pipeline_3dsmax.plugin.file
+   ftrack_connect_pipeline_3dsmax.plugin.node

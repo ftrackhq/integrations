@@ -1,12 +1,11 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2022 ftrack
-
 import time
 
 from ftrack_connect_pipeline import constants as core_constants
 from ftrack_connect_pipeline.host.engine import AssetManagerEngine
 from ftrack_connect_pipeline.asset.asset_info import FtrackAssetInfo
-from ftrack_connect_pipeline_3dsmax.utils import custom_commands as max_utils
+from ftrack_connect_pipeline_3dsmax import utils as max_utils
 from ftrack_connect_pipeline_3dsmax.constants import asset as asset_const
 from ftrack_connect_pipeline_3dsmax.constants.asset import modes as modes_const
 from ftrack_connect_pipeline_3dsmax.asset import MaxFtrackObjectManager

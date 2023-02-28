@@ -6,7 +6,7 @@ import logging
 from ftrack_connect_pipeline.asset.dcc_object import DccObject
 from ftrack_connect_pipeline import utils as core_utils
 from ftrack_connect_pipeline_3dsmax.constants import asset as asset_const
-from ftrack_connect_pipeline_3dsmax.utils import custom_commands as max_utils
+from ftrack_connect_pipeline_3dsmax import utils as max_utils
 
 from pymxs import runtime as rt
 
@@ -159,9 +159,10 @@ class MaxDccObject(DccObject):
         for attr in rt.getPropNames(dcc_object_node):
             value = rt.getProperty(dcc_object_node, attr)
             if attr == asset_const.DEPENDENCY_IDS:
-                value = []
                 if len(value) > 0:
                     value = value.split(',')
+                else:
+                    value = []
             param_dict[str(attr)] = value
         return param_dict
 

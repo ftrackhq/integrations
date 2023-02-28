@@ -4,7 +4,7 @@
 from ftrack_connect_pipeline import plugin
 from ftrack_connect_pipeline_qt import plugin as pluginWidget
 from ftrack_connect_pipeline_3dsmax import constants as max_constants
-from ftrack_connect_pipeline_3dsmax.utils import custom_commands as max_utils
+from ftrack_connect_pipeline_3dsmax import utils as max_utils
 from ftrack_connect_pipeline_3dsmax.asset import MaxFtrackObjectManager
 from ftrack_connect_pipeline_3dsmax.asset.dcc_object import MaxDccObject
 
