@@ -1,5 +1,5 @@
 # :coding: utf-8
-# :Copyright 2019 ftrack. All Rights Reserved.
+# :copyright: Copyright (c) 2014-2023 ftrack
 '''
 Unreal Python entry point
 
@@ -69,8 +69,8 @@ def load_integration():
     from ftrack_connect_pipeline_unreal.client import (
         # open,
         load,
-        # asset_manager,
         publish,
+        asset_manager,
         change_context,
         log_viewer,
     )
@@ -195,6 +195,15 @@ def load_integration():
                 qt_constants.ASSEMBLER_WIDGET,
                 load.UnrealQtAssemblerClientWidget,
                 'Assembler',
+                '',
+                True,
+            )
+        )
+        widgets.append(
+            (
+                core_constants.ASSET_MANAGER,
+                asset_manager.UnrealQtAssetManagerClientWidget,
+                'Asset Manager',
                 '',
                 True,
             )

@@ -15,6 +15,11 @@ Release Notes
             Image sequence/reviewable publisher from level sequence, supporting pick up of already rendered media or rendering live from the selected level sequence.
 
     .. change:: new
+            :tags: asset manager
+
+            Base asset manager allowing list, unload, load, version up, update to latest.
+
+    .. change:: new
             :tags: loader
 
             Base geometry, rig and animations loaders through the assembler, supporting FBX and Alembic.
