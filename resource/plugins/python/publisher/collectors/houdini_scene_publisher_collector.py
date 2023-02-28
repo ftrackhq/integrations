@@ -3,12 +3,9 @@
 
 import hou
 
-from ftrack_connect_pipeline_houdini.utils import (
-    custom_commands as houdini_utils,
-)
+import ftrack_api
 
 from ftrack_connect_pipeline_houdini import plugin
-import ftrack_api
 
 
 class HoudiniScenePublisherCollectorPlugin(

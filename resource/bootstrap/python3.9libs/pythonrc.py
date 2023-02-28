@@ -29,9 +29,7 @@ from ftrack_connect_pipeline_houdini.client import (
     log_viewer,
 )
 from ftrack_connect_pipeline_qt.client import documentation
-from ftrack_connect_pipeline_houdini.utils import (
-    custom_commands as houdini_utils,
-)
+from ftrack_connect_pipeline_houdini import utils as houdini_utils
 
 configure_logging(
     'ftrack_connect_pipeline_houdini',

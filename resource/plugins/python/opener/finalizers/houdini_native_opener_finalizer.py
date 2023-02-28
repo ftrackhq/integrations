@@ -4,9 +4,7 @@
 import ftrack_api
 
 from ftrack_connect_pipeline_houdini import plugin
-from ftrack_connect_pipeline_houdini.utils import (
-    custom_commands as houdini_utils,
-)
+from ftrack_connect_pipeline_houdini import utils as houdini_utils
 
 
 class HoudiniNativeOpenerFinalizerPlugin(plugin.HoudiniOpenerFinalizerPlugin):
@@ -17,7 +15,7 @@ class HoudiniNativeOpenerFinalizerPlugin(plugin.HoudiniOpenerFinalizerPlugin):
         result = {}
 
         self.logger.debug('Rename Houdini scene on open')
-        save_path, message = houdini_utils.save(
+        save_path, message = houdini_utils.save_scene(
             context_data['context_id'], self.session, save=False
         )
         if save_path:

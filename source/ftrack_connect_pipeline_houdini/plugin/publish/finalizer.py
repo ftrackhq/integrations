@@ -1,7 +1,6 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2022 ftrack
 
-
 from ftrack_connect_pipeline import plugin
 from ftrack_connect_pipeline_qt import plugin as pluginWidget
 from ftrack_connect_pipeline_houdini.plugin import (
@@ -9,9 +8,7 @@ from ftrack_connect_pipeline_houdini.plugin import (
     HoudiniBasePluginWidget,
 )
 from ftrack_connect_pipeline_houdini.constants import asset as asset_const
-from ftrack_connect_pipeline_houdini.utils import (
-    custom_commands as houdini_utils,
-)
+from ftrack_connect_pipeline_houdini import utils as houdini_utils
 
 
 class HoudiniPublisherFinalizerPlugin(

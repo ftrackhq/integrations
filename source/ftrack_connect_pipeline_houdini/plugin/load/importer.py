@@ -9,9 +9,7 @@ from ftrack_connect_pipeline_houdini.plugin import (
 )
 
 from ftrack_connect_pipeline_houdini.constants.asset import modes as load_const
-from ftrack_connect_pipeline_houdini.utils import (
-    custom_commands as houdini_utils,
-)
+from ftrack_connect_pipeline_houdini import utils as houdini_utils
 
 
 class HoudiniLoaderImporterPlugin(

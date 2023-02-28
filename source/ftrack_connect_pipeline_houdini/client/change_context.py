@@ -2,7 +2,7 @@
 # :copyright: Copyright (c) 2014-2022 ftrack
 
 from ftrack_connect_pipeline_qt.client import change_context
-from ftrack_connect_pipeline_houdini.utils.custom_commands import init_houdini
+from ftrack_connect_pipeline_houdini import utils as houdini_utils
 
 
 class HoudiniQtChangeContextClientWidget(
@@ -17,4 +17,4 @@ class HoudiniQtChangeContextClientWidget(
 
     def show(self):
         if super(HoudiniQtChangeContextClientWidget, self).show():
-            init_houdini(self.context_id, self.session)
+            houdini_utils.init_houdini(self.context_id, self.session)

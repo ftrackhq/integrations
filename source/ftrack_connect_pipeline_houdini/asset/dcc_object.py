@@ -7,9 +7,7 @@ import logging
 from ftrack_connect_pipeline.asset.dcc_object import DccObject
 from ftrack_connect_pipeline import utils as core_utils
 from ftrack_connect_pipeline_houdini.constants import asset as asset_const
-from ftrack_connect_pipeline_houdini.utils import (
-    custom_commands as houdini_utils,
-)
+from ftrack_connect_pipeline_houdini import utils as houdini_utils
 
 import hou
 

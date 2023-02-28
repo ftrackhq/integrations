@@ -6,9 +6,8 @@ import hou
 from ftrack_connect_pipeline import constants as core_constants
 from ftrack_connect_pipeline.host.engine import AssetManagerEngine
 from ftrack_connect_pipeline.asset.asset_info import FtrackAssetInfo
-from ftrack_connect_pipeline_houdini.utils import (
-    custom_commands as houdini_utils,
-)
+
+from ftrack_connect_pipeline_houdini import utils as houdini_utils
 from ftrack_connect_pipeline_houdini.constants import asset as asset_const
 from ftrack_connect_pipeline_houdini.asset import HoudiniFtrackObjectManager
 from ftrack_connect_pipeline_houdini.asset.dcc_object import HoudiniDccObject
