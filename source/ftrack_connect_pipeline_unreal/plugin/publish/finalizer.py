@@ -1,8 +1,6 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2023 ftrack
 
-# import maya.cmds as cmds
-
 from ftrack_connect_pipeline import plugin
 
 from ftrack_connect_pipeline_qt import plugin as pluginWidget
