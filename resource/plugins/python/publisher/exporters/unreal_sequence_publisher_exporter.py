@@ -1,5 +1,5 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2014-2022 ftrack
+# :copyright: Copyright (c) 2014-2023 ftrack
 import os
 import clique
 import tempfile
@@ -16,24 +16,29 @@ from ftrack_connect_pipeline_unreal import plugin
 class UnrealSequencePublisherExporterPlugin(
     plugin.UnrealPublisherExporterPlugin
 ):
-    '''Unreal file sequence exporter plugin'''
+    '''Unreal image sequence exporter plugin'''
 
     plugin_name = 'unreal_sequence_publisher_exporter'
 
     _standard_structure = ftrack_api.structure.standard.StandardStructure()
 
     def run(self, context_data=None, data=None, options=None):
-        '''Render and export an image file sequence from the selected sequence given
-        in *data* and options given with *options*.'''
+        '''Pick up an existing file image sequence, or render images from level sequence, given
+        in *data* with the given *options*.'''
 
         collected_objects = []
         have_media_path = False
+        render_path = None
         for collector in data:
             for result in collector['result']:
                 for key, value in result.items():
                     if key == 'media_path':
                         have_media_path = True
-                    collected_objects.append(value)
+                        collected_objects.append(value)
+                    elif key == 'render_path':
+                        render_path = value
+                    elif key == 'level_sequence_name':
+                        collected_objects.append(value)
 
         if have_media_path:
 
@@ -93,52 +98,41 @@ class UnrealSequencePublisherExporterPlugin(
                     )
                 }
 
-            # Determine next expected version on context
-            next_version = 1
-            task = self.session.query(
-                'Task where id={}'.format(context_data['context_id'])
-            ).one()
-            asset = self.session.query(
-                'Asset where parent.id={} and name={}'.format(
-                    task['parent']['id'], context_data['asset_name']
+            # Determine render destination path
+            if render_path is None or not os.path.exists(render_path):
+                render_path_base = os.path.join(
+                    unreal.SystemLibrary.get_project_saved_directory(),
+                    'VideoCaptures',
+                    seq_name,
                 )
-            ).first()
-            if asset:
-                latest_version = self.session.query(
-                    'AssetVersion where asset.id={} and is_latest_version is "True"'.format(
-                        asset['id']
+                next_version = 0
+                while True:
+                    render_path = os.path.join(
+                        render_path_base, 'v{}'.format(next_version)
                     )
-                ).first()
-                if latest_version:
-                    next_version = latest_version['version'] + 1
-            destination_path = os.path.join(
-                unreal.SystemLibrary.get_project_saved_directory(),
-                'VideoCaptures',
-                seq_name,
-                'v{}'.format(next_version),
-            )
+                    if not os.path.exists(render_path):
+                        break
+                    next_version += 1
             self.logger.info(
-                'Rendering sequence to next expected version folder: {}'.format(
-                    destination_path
-                )
+                'Rendering image sequence to folder: {}'.format(render_path)
             )
 
             unreal_map = unreal.EditorLevelLibrary.get_editor_world()
             unreal_map_path = unreal_map.get_path_name()
-            unreal_asset_path = level_sequence.get_path_name()
+            unreal_sequence_path = level_sequence.get_path_name()
 
             asset_name = self._standard_structure.sanitise_for_filesystem(
                 context_data['asset_name']
             )
 
             file_format = options.get('file_format', 'exr')
-            result = unreal_utils.render(
-                unreal_asset_path,
+            result = self.render(
+                unreal_sequence_path,
                 unreal_map_path,
                 asset_name,
-                destination_path,
+                render_path,
                 level_sequence.get_display_rate().numerator,
-                unreal_utils.compile_capture_args(options),
+                self.compile_capture_args(options),
                 self.logger,
                 image_format=file_format,
             )

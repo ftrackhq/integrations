@@ -4,7 +4,7 @@ import os
 
 import unreal
 
-from ftrack_connect_pipeline_unreal.constants import asset as asset_const
+import ftrack_connect_pipeline_unreal.constants as unreal_constants
 
 
 def asset_path_to_filesystem_path(
@@ -17,9 +17,9 @@ def asset_path_to_filesystem_path(
                 '/', os.sep
             )
         )
-    if asset_path.lower().startswith(asset_const.GAME_ROOT_PATH.lower()):
+    if asset_path.lower().startswith(unreal_constants.GAME_ROOT_PATH.lower()):
         asset_path = asset_path[
-            len(asset_const.GAME_ROOT_PATH) + 1 :
+            len(unreal_constants.GAME_ROOT_PATH) + 1 :
         ]  # Remove /Game/ prefix
     asset_path = asset_path.replace('/', os.sep)  # Align to platform
     content_folder, asset_filename = os.path.split(asset_path)
@@ -44,8 +44,8 @@ def get_asset_by_path(node_name):
     '''Get Unreal asset object by path'''
     if not node_name:
         return None
-    assetRegistry = unreal.AssetRegistryHelpers.get_asset_registry()
-    asset_data = assetRegistry.get_assets_by_package_name(
+    asset_registry = unreal.AssetRegistryHelpers.get_asset_registry()
+    asset_data = asset_registry.get_assets_by_package_name(
         os.path.splitext(node_name)[0]
     )
     if asset_data:

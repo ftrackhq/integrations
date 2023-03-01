@@ -26,18 +26,18 @@ class UnrealSequencePublisherCollectorPlugin(
         collected_objects = unreal_utils.get_all_sequences()
 
         # Find the selected sequence
-        seq_name_sel = None
+        sequence_name_sel = None
         for actor in unreal.EditorLevelLibrary.get_selected_level_actors():
             if (
                 actor.static_class()
                 == unreal.LevelSequenceActor.static_class()
             ):
-                seq_name_sel = actor.get_name()
+                sequence_name_sel = actor.get_name()
                 break
 
-        for object in collected_objects:
-            fetch_data = {'value': object}
-            if object == seq_name_sel:
+        for sequence_name in collected_objects:
+            fetch_data = {'value': sequence_name}
+            if sequence_name == sequence_name_sel:
                 fetch_data['default'] = True
             result.append(fetch_data)
 
@@ -46,16 +46,26 @@ class UnrealSequencePublisherCollectorPlugin(
     def run(self, context_data=None, data=None, options=None):
         '''Return the name of file path or sequence from plugin *options*'''
 
-        if options.get('mode') == 'pickup':
+        mode = options.get('mode', 'pickup')
+        if mode == 'pickup':
             file_path = options.get('media_path')
             if not file_path:
                 return False, {'message': 'No render media file path chosen.'}
             return [{'media_path': file_path}]
-        else:
+        elif mode == 'render':
             level_sequence_name = options.get('level_sequence_name')
             if not level_sequence_name:
                 return False, {'message': 'No level sequence chosen.'}
-            return [{'level_sequence_name': level_sequence_name}]
+            return [
+                {
+                    'level_sequence_name': level_sequence_name,
+                    'render_path': options.get('render_path'),
+                }
+            ]
+        else:
+            return False, {
+                'message': 'Unsupported collect mode: {0}'.format(mode)
+            }
 
 
 def register(api_object, **kw):

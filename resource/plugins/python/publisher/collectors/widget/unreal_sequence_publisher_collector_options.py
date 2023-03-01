@@ -39,7 +39,7 @@ class UnrealSequencePublisherCollectorOptionsWidget(BaseOptionsWidget):
         if media_path is not None and len(media_path) > 0:
             self.set_option_result(media_path, 'media_path')
             # Remember last used path
-            key = '{}_path'.format(
+            key = '{}_media_path'.format(
                 'image_sequence' if self.image_sequence else 'movie'
             )
             unreal_utils.update_project_settings({key: media_path})
@@ -50,8 +50,34 @@ class UnrealSequencePublisherCollectorOptionsWidget(BaseOptionsWidget):
             self.set_option_result(None, 'media_path')
 
         # Update UI
-        self._media_file_le.setText(media_path)
-        self._media_file_le.setToolTip(media_path)
+        self._media_path_le.setText(media_path)
+        self._media_path_le.setToolTip(media_path)
+
+    @property
+    def render_path(self):
+        result = self.options.get('render_path')
+        if result:
+            result = result.strip()
+            if len(result) == 0:
+                result = None
+        return result
+
+    @render_path.setter
+    def render_path(self, render_path):
+        if render_path is not None and len(render_path) > 0:
+            self.set_option_result(render_path, 'render_path')
+            # Remember last used path
+            key = '{}_render_path'.format(
+                'image_sequence' if self.image_sequence else 'movie'
+            )
+            unreal_utils.update_project_settings({key: render_path})
+        else:
+            render_path = '<please choose>'
+            self.set_option_result(None, 'render_path')
+
+        # Update UI
+        self._render_path_le.setText(render_path)
+        self._render_path_le.setToolTip(render_path)
 
     def __init__(
         self,
@@ -81,7 +107,9 @@ class UnrealSequencePublisherCollectorOptionsWidget(BaseOptionsWidget):
         self._sequences_cb.clear()
         if not self.unreal_sequences:
             self._sequences_cb.setDisabled(True)
-            self._sequences_cb.addItem('No suitable level sequences found.')
+            self._sequences_cb.addItem(
+                'No suitable level sequences found, please add to level.'
+            )
         else:
             self._sequences_cb.setDisabled(False)
             for index, data in enumerate(self.unreal_sequences):
@@ -103,26 +131,30 @@ class UnrealSequencePublisherCollectorOptionsWidget(BaseOptionsWidget):
         bg.addButton(self._pickup_rb)
         self.layout().addWidget(self._pickup_rb)
 
-        self._browse_widget = QtWidgets.QWidget()
-        self._browse_widget.setLayout(QtWidgets.QHBoxLayout())
-        self._browse_widget.layout().setContentsMargins(0, 0, 0, 0)
-        self._browse_widget.layout().setSpacing(0)
+        self._browse_media_path_widget = QtWidgets.QWidget()
+        self._browse_media_path_widget.setLayout(QtWidgets.QHBoxLayout())
+        self._browse_media_path_widget.layout().setContentsMargins(0, 0, 0, 0)
+        self._browse_media_path_widget.layout().setSpacing(0)
 
-        self._media_file_le = QtWidgets.QLineEdit()
-        self._media_file_le.setReadOnly(True)
+        self._media_path_le = QtWidgets.QLineEdit()
+        self._media_path_le.setReadOnly(True)
 
-        self._browse_widget.layout().addWidget(self._media_file_le, 20)
+        self._browse_media_path_widget.layout().addWidget(
+            self._media_path_le, 20
+        )
 
-        self._browse_btn = QtWidgets.QPushButton('BROWSE')
-        self._browse_btn.setObjectName('borderless')
+        self._browse_media_path_btn = QtWidgets.QPushButton('BROWSE')
+        self._browse_media_path_btn.setObjectName('borderless')
 
-        self._browse_widget.layout().addWidget(self._browse_btn)
-        self.layout().addWidget(self._browse_widget)
+        self._browse_media_path_widget.layout().addWidget(
+            self._browse_media_path_btn
+        )
+        self.layout().addWidget(self._browse_media_path_widget)
 
         # Use previous value if available
         path = self.media_path
         if path is None or len(path) == 0:
-            key = '{}_path'.format(
+            key = '{}_media_path'.format(
                 'image_sequence' if self.image_sequence else 'movie'
             )
             path = unreal_utils.get_project_settings().get(key)
@@ -141,30 +173,70 @@ class UnrealSequencePublisherCollectorOptionsWidget(BaseOptionsWidget):
         self._sequences_cb.setToolTip(self.description)
         self._render_widget.layout().addWidget(self._sequences_cb)
 
-        self.layout().addWidget(self._render_widget)
+        self._browse_render_path_widget = QtWidgets.QWidget()
+        self._browse_render_path_widget.setLayout(QtWidgets.QHBoxLayout())
+        self._browse_render_path_widget.layout().setContentsMargins(0, 0, 0, 0)
+        self._browse_render_path_widget.layout().setSpacing(0)
 
-        self.add_sequences()
+        self._browse_render_path_widget.layout().addWidget(
+            QtWidgets.QLabel('Render folder:')
+        )
+
+        self._render_path_le = QtWidgets.QLineEdit()
+        self._render_path_le.setReadOnly(True)
+
+        self._browse_render_path_widget.layout().addWidget(
+            self._render_path_le, 20
+        )
+
+        self._browse_render_path_btn = QtWidgets.QPushButton('BROWSE')
+        self._browse_render_path_btn.setObjectName('borderless')
+
+        self._browse_render_path_widget.layout().addWidget(
+            self._browse_render_path_btn
+        )
+        self._render_widget.layout().addWidget(self._browse_render_path_widget)
+
+        # Use previous value if available
+        path = self.render_path
+        if path is None or len(path) == 0:
+            key = '{}_render_path'.format(
+                'image_sequence' if self.image_sequence else 'movie'
+            )
+            path = unreal_utils.get_project_settings().get(key)
+        self.render_path = path
+
+        self.layout().addWidget(self._render_widget)
 
         if self.options.get('level_sequence_name'):
             self.unreal_sequences.append(
                 {'value': self.options.get('level_sequence_name')}
             )
 
-        if not 'mode' in self.options:
+        self.add_sequences()
+
+        if 'mode' not in self.options:
             self.set_option_result('pickup', 'mode')  # Set default mode
         mode = self.options['mode'].lower()
-        if mode == 'pickup':
+        if mode == 'render':
+            self._render_rb.setChecked(True)
+        elif mode == 'pickup':
             self._pickup_rb.setChecked(True)
         else:
-            self._render_rb.setChecked(True)
-
+            # Fallback to pickup mode
+            self._pickup_rb.setChecked(True)
         self.report_input()
 
     def post_build(self):
         super(UnrealSequencePublisherCollectorOptionsWidget, self).post_build()
 
-        self._browse_btn.clicked.connect(self._show_file_dialog)
+        self._browse_media_path_btn.clicked.connect(
+            self._show_media_path_dialog
+        )
 
+        self._browse_render_path_btn.clicked.connect(
+            self._show_render_path_dialog
+        )
         update_fn = partial(self.set_option_result, key='level_sequence_name')
         self._sequences_cb.currentTextChanged.connect(update_fn)
         if self.unreal_sequences:
@@ -177,13 +249,123 @@ class UnrealSequencePublisherCollectorOptionsWidget(BaseOptionsWidget):
         self._update_render_mode()
 
     def _update_render_mode(self):
-        mode = 'render'
-        if self._pickup_rb.isChecked():
-            mode = 'pickup'
+        mode = 'pickup'
+        if self._render_rb.isChecked():
+            mode = 'render'
         self.set_option_result(mode, 'mode')
 
-        self._browse_widget.setVisible(mode == 'pickup')
+        self._browse_media_path_widget.setVisible(mode == 'pickup')
         self._render_widget.setVisible(mode == 'render')
+
+        self.report_input()
+
+    def on_fetch_callback(self, result):
+        '''This function is called by the _set_internal_run_result function of
+        the BaseOptionsWidget'''
+        self.unreal_sequences = result
+        self.add_sequences()
+
+    def _show_media_path_dialog(self):
+        '''Shows the file dialog'''
+
+        if self.image_sequence:
+            self._show_image_sequence_dialog()
+        else:
+            self._show_movie_dialog()
+
+    def _show_image_sequence_dialog(self):
+        '''Shows the file dialog for image sequences'''
+        if self.media_path is None:
+            start_dir = os.path.realpath(
+                os.path.join(
+                    unreal.SystemLibrary.get_project_saved_directory(),
+                    "VideoCaptures",
+                )
+            )
+        else:
+            start_dir = os.path.dirname(
+                os.path.dirname(self._media_path_le.text())
+            )
+
+        media_path = QtWidgets.QFileDialog.getExistingDirectory(
+            caption='Choose directory containing rendered image sequence',
+            dir=start_dir,
+            options=QtWidgets.QFileDialog.ShowDirsOnly,
+        )
+
+        if not media_path:
+            return
+
+        media_path = os.path.normpath(media_path)
+
+        image_sequence_path = unreal_utils.find_image_sequence(media_path)
+
+        if not image_sequence_path:
+            dialog.ModalDialog(
+                None,
+                title='Locate rendered image sequence',
+                message='An image sequence on the form "prefix.NNNN.ext" were not found in: {}!'.format(
+                    media_path
+                ),
+            )
+
+        self.media_path = image_sequence_path
+
+        self.report_input()
+
+    def _show_movie_dialog(self):
+        '''Shows the file dialog to select a movie'''
+
+        if self.media_path is None:
+            start_dir = os.path.realpath(
+                os.path.join(
+                    unreal.SystemLibrary.get_project_saved_directory(),
+                    "VideoCaptures",
+                )
+            )
+        else:
+            start_dir = os.path.dirname(self._media_path_le.text())
+
+        (
+            movie_path,
+            unused_selected_filter,
+        ) = QtWidgets.QFileDialog.getOpenFileName(
+            caption='Choose rendered movie file',
+            dir=start_dir,
+            filter='Avi files (*.avi);;Movies (*.mov);;All files (*)',
+        )
+
+        if not movie_path:
+            return
+
+        self.media_path = os.path.normpath(movie_path)
+
+        self.report_input()
+
+    def _show_render_path_dialog(self):
+        '''Show the file dialog to select a render path'''
+        if self.render_path is None:
+            start_dir = os.path.realpath(
+                os.path.join(
+                    unreal.SystemLibrary.get_project_saved_directory(),
+                    "VideoCaptures",
+                )
+            )
+        else:
+            start_dir = os.path.dirname(
+                os.path.dirname(self._render_path_le.text())
+            )
+
+        render_path = QtWidgets.QFileDialog.getExistingDirectory(
+            caption='Choose render output directory',
+            dir=start_dir,
+            options=QtWidgets.QFileDialog.ShowDirsOnly,
+        )
+
+        if not render_path:
+            return
+
+        self.render_path = os.path.normpath(render_path)
 
     def report_input(self):
         '''(Override) Amount of collected objects has changed, notify parent(s)'''
@@ -214,89 +396,6 @@ class UnrealSequencePublisherCollectorOptionsWidget(BaseOptionsWidget):
                 'message': message,
             }
         )
-
-    def on_fetch_callback(self, result):
-        '''This function is called by the _set_internal_run_result function of
-        the BaseOptionsWidget'''
-        self.unreal_sequences = result
-        self.add_sequences()
-
-    def _show_file_dialog(self):
-        '''Shows the file dialog'''
-
-        if self.image_sequence:
-            self._show_image_sequence_dialog()
-        else:
-            self._show_movie_dialog()
-
-    def _show_image_sequence_dialog(self):
-        '''Shows the file dialog for image sequences'''
-        if self.media_path is None:
-            start_dir = os.path.realpath(
-                os.path.join(
-                    unreal.SystemLibrary.get_project_saved_directory(),
-                    "VideoCaptures",
-                )
-            )
-        else:
-            start_dir = os.path.dirname(self.self._media_file_le.text())
-
-        path = QtWidgets.QFileDialog.getExistingDirectory(
-            caption='Choose directory containing rendered image sequence',
-            dir=start_dir,
-            options=QtWidgets.QFileDialog.ShowDirsOnly,
-        )
-
-        if not path:
-            return
-
-        (
-            image_sequence_path,
-            unused_first,
-            unused_last,
-        ) = unreal_utils.find_image_sequence(path)
-
-        if not image_sequence_path:
-            dialog.ModalDialog(
-                None,
-                title='Locate rendered image sequence',
-                message='An image sequence on the form "prefix.NNNN.ext" were not found in: {}!'.format(
-                    path
-                ),
-            )
-
-        self.media_path = image_sequence_path
-
-        self.report_input()
-
-    def _show_movie_dialog(self):
-        '''Shows the file dialog to select a movie'''
-
-        if self.media_path is None:
-            start_dir = os.path.realpath(
-                os.path.join(
-                    unreal.SystemLibrary.get_project_saved_directory(),
-                    "VideoCaptures",
-                )
-            )
-        else:
-            start_dir = os.path.dirname(self.self._media_file_le.text())
-
-        (
-            movie_path,
-            unused_selected_filter,
-        ) = QtWidgets.QFileDialog.getOpenFileName(
-            caption='Choose rendered movie file',
-            dir=start_dir,
-            filter='Avi file (*.avi)',
-        )
-
-        if not movie_path:
-            return
-
-        self.media_path = movie_path
-
-        self.report_input()
 
 
 class UnrealSequencePublisherCollectorPluginWidget(

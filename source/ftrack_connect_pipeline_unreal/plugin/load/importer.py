@@ -12,6 +12,7 @@ from ftrack_connect_pipeline_unreal.plugin import (
     UnrealBasePluginWidget,
 )
 from ftrack_connect_pipeline_unreal import utils as unreal_utils
+import ftrack_connect_pipeline_unreal.constants as unreal_constants
 from ftrack_connect_pipeline_unreal.constants.asset import modes as load_const
 from ftrack_connect_pipeline_unreal.constants import asset as asset_const
 
@@ -64,7 +65,7 @@ class UnrealLoaderImporterPlugin(
         if selected_context_browser_path is not None:
             import_path = selected_context_browser_path
         else:
-            import_path = asset_const.GAME_ROOT_PATH
+            import_path = unreal_constants.PROJECT_SETTINGS_FILE_NAME
 
         self.task.destination_path = import_path.replace(' ', '_')
         destination_name_base = context_data['asset_name'].replace(' ', '_')

@@ -6,6 +6,7 @@ import json
 
 import unreal
 
+import ftrack_connect_pipeline_unreal.constants as unreal_constants
 from ftrack_connect_pipeline_unreal.constants import asset as asset_const
 
 logger = logging.getLogger(__name__)
@@ -14,11 +15,11 @@ logger = logging.getLogger(__name__)
 def get_ftrack_nodes():
     '''Returns all the ftrack nodes in the scene'''
     ftrack_nodes = []
-    if not os.path.exists(asset_const.FTRACK_ROOT_PATH):
+    if not os.path.exists(unreal_constants.FTRACK_ROOT_PATH):
         return ftrack_nodes
-    content = os.listdir(asset_const.FTRACK_ROOT_PATH)
+    content = os.listdir(unreal_constants.FTRACK_ROOT_PATH)
     for item_name in content:
-        if not "ftrackdata" in item_name:
+        if 'ftrackdata' not in item_name:
             continue
         if item_name.endswith(".json"):
             ftrack_nodes.append(os.path.splitext(item_name)[0])
@@ -31,42 +32,12 @@ def get_current_scene_objects():
     # https://docs.unrealengine.com/5.1/en-US/PythonAPI/class/EditorAssetLibrary.html?highlight=editorassetlibrary#unreal.EditorAssetLibrary
     return set(
         unreal.EditorAssetLibrary.list_assets(
-            asset_const.GAME_ROOT_PATH, recursive=True
+            unreal_constants.PROJECT_SETTINGS_FILE_NAME, recursive=True
         )
     )
 
 
-def get_asset_info(node_name, snapshot=False):
-    '''Return the asset info from dcc object linked to asset path identified by *node_name*'''
-
-    from ftrack_connect_pipeline_unreal import utils as unreal_utils
-
-    asset = unreal_utils.get_asset_by_path(node_name)
-    if asset is None:
-        logger.warning(
-            '(get_asset_info) Cannot find asset by path: {}'.format(node_name)
-        )
-        return None, None
-    ftrack_value = unreal.EditorAssetLibrary.get_metadata_tag(
-        asset, asset_const.NODE_METADATA_TAG
-    )
-
-    for dcc_object_node in get_ftrack_nodes():
-        path_dcc_object_node = '{}{}{}.json'.format(
-            asset_const.FTRACK_ROOT_PATH, os.sep, dcc_object_node
-        )
-        with open(
-            path_dcc_object_node,
-            'r',
-        ) as openfile:
-            param_dict = json.load(openfile)
-        id_value = param_dict.get(asset_const.ASSET_INFO_ID)
-        if id_value == ftrack_value:
-            return dcc_object_node, param_dict
-    return None, None
-
-
-def connect_object(node_name, asset_info, logger):
+def connect_object(node_name, asset_info, supplied_logger=None):
     '''Store metadata and save the Unreal asset given by *node_name*, based on *asset_info*'''
 
     from ftrack_connect_pipeline_unreal.utils import get_asset_by_path
@@ -79,14 +50,15 @@ def connect_object(node_name, asset_info, logger):
     )
 
     # Have Unreal save the asset as it has been modified
-    logger.debug('Saving asset: {}'.format(node_name))
+    logger_effective = supplied_logger or logger
+    logger_effective.debug('Saving asset: {}'.format(node_name))
     unreal.EditorAssetLibrary.save_asset(node_name)
 
 
 def node_exists(node_name):
     '''Check if node_name exist in the project'''
     for content in unreal.EditorAssetLibrary.list_assets(
-        asset_const.GAME_ROOT_PATH, recursive=True
+        unreal_constants.PROJECT_SETTINGS_FILE_NAME, recursive=True
     ):
         if node_name in content:
             return True
@@ -137,7 +109,7 @@ def get_connected_nodes_from_dcc_object(dcc_object_name):
     if not dcc_object_node:
         return
     path_dcc_object_node = '{}{}{}.json'.format(
-        asset_const.FTRACK_ROOT_PATH, os.sep, dcc_object_node
+        unreal_constants.FTRACK_ROOT_PATH, os.sep, dcc_object_node
     )
     with open(
         path_dcc_object_node,
@@ -171,7 +143,7 @@ def delete_ftrack_node(dcc_object_name):
     if not dcc_object_node:
         return False
     path_dcc_object_node = '{}{}{}.json'.format(
-        asset_const.FTRACK_ROOT_PATH, os.sep, dcc_object_node
+        unreal_constants.FTRACK_ROOT_PATH, os.sep, dcc_object_node
     )
     if os.path.exists(path_dcc_object_node):
         return os.remove(path_dcc_object_node)

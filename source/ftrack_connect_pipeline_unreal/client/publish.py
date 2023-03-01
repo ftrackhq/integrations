@@ -1,5 +1,5 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2014-2022 ftrack
+# :copyright: Copyright (c) 2014-2023 ftrack
 
 from ftrack_connect_pipeline import constants as core_constants
 
@@ -29,4 +29,4 @@ class UnrealQtPublisherClientWidget(QtPublisherClientWidget):
         return 'ftrack'
 
     def is_docked(self):
-        False
+        return False

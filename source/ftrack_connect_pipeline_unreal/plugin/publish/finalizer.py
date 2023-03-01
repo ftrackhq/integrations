@@ -1,6 +1,7 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2023 ftrack
-
+import os
+import json
 from ftrack_connect_pipeline import plugin
 
 from ftrack_connect_pipeline_qt import plugin as pluginWidget
@@ -11,6 +12,7 @@ from ftrack_connect_pipeline_unreal.plugin import (
 )
 
 from ftrack_connect_pipeline_unreal import utils as unreal_utils
+import ftrack_connect_pipeline_unreal.constants as unreal_constants
 from ftrack_connect_pipeline_unreal.constants import asset as asset_const
 
 
@@ -38,9 +40,12 @@ class UnrealPublisherFinalizerPlugin(
         self.version_dependencies = []
         ftrack_asset_nodes = unreal_utils.get_ftrack_nodes()
         for dcc_object_node_name in ftrack_asset_nodes:
-            unused_dcc_object_node, param_dict = unreal_utils.get_asset_info(
-                dcc_object_node_name
+            ftrack_file_path = os.path.join(
+                unreal_constants.FTRACK_ROOT_PATH,
+                "{}.json".format(dcc_object_node_name),
             )
+            with open(ftrack_file_path, 'r') as openfile:
+                param_dict = json.load(openfile)
             dependency_version_id = param_dict.get(asset_const.VERSION_ID)
             self.logger.debug(
                 'Adding dependency_asset_version_id: {}'.format(
