@@ -26,51 +26,23 @@ class UnrealSequencePublisherExporterPlugin(
         '''Pick up an existing file image sequence, or render images from level sequence, given
         in *data* with the given *options*.'''
 
-        collected_objects = []
-        have_media_path = False
+        media_path = None
         render_path = None
+        level_sequence_name = None
         for collector in data:
             for result in collector['result']:
                 for key, value in result.items():
                     if key == 'media_path':
-                        have_media_path = True
-                        collected_objects.append(value)
+                        media_path = value
                     elif key == 'render_path':
                         render_path = value
                     elif key == 'level_sequence_name':
-                        collected_objects.append(value)
-
-        if have_media_path:
-
-            media_path = collected_objects[0]
-
-            collections = clique.parse(media_path)
+                        level_sequence_name = value
+        if media_path:
 
             self.logger.debug(
                 'Using pre-rendered file sequence path: "{}", copying to temp.'.format(
                     media_path
-                )
-            )
-
-            temp_sequence_dir = tempfile.mkdtemp()
-            if not os.path.exists(temp_sequence_dir):
-                os.makedirs(temp_sequence_dir)
-
-            # Copy sequence
-            for collection in collections:
-                source_path = str(collection)
-                destination_path = os.path.join(
-                    temp_sequence_dir, os.path.basename(source_path)
-                )
-                self.logger.debug(
-                    'Copying "{}" > "{}"'.format(source_path, destination_path)
-                )
-                shutil.copy(source_path, destination_path)
-
-            new_file_path = '{}'.format(
-                os.path.join(
-                    temp_sequence_dir,
-                    os.path.basename(media_path),
                 )
             )
 
@@ -80,21 +52,21 @@ class UnrealSequencePublisherExporterPlugin(
 
             seq_name = None
             all_sequences = unreal_utils.get_all_sequences(as_names=False)
-            for _seq_name in collected_objects:
-                seq_name = _seq_name
-                for seq in all_sequences:
-                    if seq.get_name() == _seq_name or _seq_name.startswith(
+
+            for seq in all_sequences:
+                if (
+                    seq.get_name() == level_sequence_name
+                    or level_sequence_name.startswith(
                         '{}_'.format(seq.get_name())
-                    ):
-                        level_sequence = seq
-                        break
-                if level_sequence:
+                    )
+                ):
+                    level_sequence = seq
                     break
 
             if level_sequence is None:
                 return False, {
                     'message': 'Level sequence "{}" not found, please refresh publisher!'.format(
-                        seq_name
+                        level_sequence_name
                     )
                 }
 
@@ -152,11 +124,11 @@ class UnrealSequencePublisherExporterPlugin(
                 else path
             )
 
-            new_file_path = '{0}.%04d.{1} [{2}-{3}]'.format(
+            media_path = '{0}.%04d.{1} [{2}-{3}]'.format(
                 base_file_path, file_format, frame_start, frame_end
             )
 
-        return [new_file_path]
+        return [media_path]
 
 
 def register(api_object, **kw):

@@ -23,10 +23,12 @@ class UnrealSequencePublisherCollectorOptionsWidget(BaseOptionsWidget):
 
     @property
     def image_sequence(self):
+        '''Return True if the collector should collect image sequences, False if it should collect reviewable/movie.'''
         return self.options.get('image_sequence', True) is True
 
     @property
     def media_path(self):
+        '''Return the media path from options'''
         result = self.options.get('media_path')
         if result:
             result = result.strip()
@@ -36,6 +38,7 @@ class UnrealSequencePublisherCollectorOptionsWidget(BaseOptionsWidget):
 
     @media_path.setter
     def media_path(self, media_path):
+        '''Store *media_path* in options and update widgets'''
         if media_path is not None and len(media_path) > 0:
             self.set_option_result(media_path, 'media_path')
             # Remember last used path
@@ -55,6 +58,7 @@ class UnrealSequencePublisherCollectorOptionsWidget(BaseOptionsWidget):
 
     @property
     def render_path(self):
+        '''Return the render path from options'''
         result = self.options.get('render_path')
         if result:
             result = result.strip()
@@ -64,6 +68,7 @@ class UnrealSequencePublisherCollectorOptionsWidget(BaseOptionsWidget):
 
     @render_path.setter
     def render_path(self, render_path):
+        '''Store *render_path* in options and update widgets'''
         if render_path is not None and len(render_path) > 0:
             self.set_option_result(render_path, 'render_path')
             # Remember last used path
@@ -90,7 +95,6 @@ class UnrealSequencePublisherCollectorOptionsWidget(BaseOptionsWidget):
         context_id=None,
         asset_type_name=None,
     ):
-
         self.unreal_sequences = []
         super(UnrealSequencePublisherCollectorOptionsWidget, self).__init__(
             parent=parent,
@@ -104,6 +108,7 @@ class UnrealSequencePublisherCollectorOptionsWidget(BaseOptionsWidget):
         )
 
     def add_sequences(self):
+        '''Add Unreal level sequence names to the widget.'''
         self._sequences_cb.clear()
         if not self.unreal_sequences:
             self._sequences_cb.setDisabled(True)
@@ -118,7 +123,7 @@ class UnrealSequencePublisherCollectorOptionsWidget(BaseOptionsWidget):
                     self._sequences_cb.setCurrentIndex(index)
 
     def build(self):
-        '''build function , mostly used to create the widgets.'''
+        '''Build the options widget'''
         super(UnrealSequencePublisherCollectorOptionsWidget, self).build()
 
         bg = QtWidgets.QButtonGroup(self)
@@ -249,6 +254,7 @@ class UnrealSequencePublisherCollectorOptionsWidget(BaseOptionsWidget):
         self._update_render_mode()
 
     def _update_render_mode(self):
+        '''Update widget based on selected render mode'''
         mode = 'pickup'
         if self._render_rb.isChecked():
             mode = 'render'
@@ -266,8 +272,7 @@ class UnrealSequencePublisherCollectorOptionsWidget(BaseOptionsWidget):
         self.add_sequences()
 
     def _show_media_path_dialog(self):
-        '''Shows the file dialog'''
-
+        '''Shows the file dialog for choosing media path'''
         if self.image_sequence:
             self._show_image_sequence_dialog()
         else:
@@ -283,9 +288,7 @@ class UnrealSequencePublisherCollectorOptionsWidget(BaseOptionsWidget):
                 )
             )
         else:
-            start_dir = os.path.dirname(
-                os.path.dirname(self._media_path_le.text())
-            )
+            start_dir = os.path.dirname(self._media_path_le.text())
 
         media_path = QtWidgets.QFileDialog.getExistingDirectory(
             caption='Choose directory containing rendered image sequence',
@@ -352,9 +355,7 @@ class UnrealSequencePublisherCollectorOptionsWidget(BaseOptionsWidget):
                 )
             )
         else:
-            start_dir = os.path.dirname(
-                os.path.dirname(self._render_path_le.text())
-            )
+            start_dir = os.path.dirname(self._render_path_le.text())
 
         render_path = QtWidgets.QFileDialog.getExistingDirectory(
             caption='Choose render output directory',

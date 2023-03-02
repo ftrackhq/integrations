@@ -25,23 +25,20 @@ class UnrealReviewablePublisherExporterPlugin(
         '''Pick up an existing movie, or render a movie from level sequence, given
         in *data* with the given *options*.'''
 
-        collected_objects = []
-        have_media_path = False
+        media_path = None
         render_path = None
+        level_sequence_name = None
         for collector in data:
             for result in collector['result']:
                 for key, value in result.items():
                     if key == 'media_path':
-                        have_media_path = True
-                        collected_objects.append(value)
+                        media_path = value
                     elif key == 'render_path':
                         render_path = value
                     elif key == 'level_sequence_name':
-                        collected_objects.append(value)
+                        level_sequence_name = value
 
-        if have_media_path:
-
-            media_path = collected_objects[0]
+        if media_path:
 
             self.logger.debug(
                 'Using pre-rendered movie path: "{}", copying to temp.'.format(
@@ -49,11 +46,11 @@ class UnrealReviewablePublisherExporterPlugin(
                 )
             )
 
-            movie_path = tempfile.NamedTemporaryFile(
+            temp_movie_path = tempfile.NamedTemporaryFile(
                 delete=False, suffix='.mov'
             ).name
 
-            shutil.copy(media_path, movie_path)
+            shutil.copy(media_path, temp_movie_path)
 
         else:
 
@@ -61,21 +58,21 @@ class UnrealReviewablePublisherExporterPlugin(
 
             seq_name = None
             all_sequences = unreal_utils.get_all_sequences(as_names=False)
-            for _seq_name in collected_objects:
-                seq_name = _seq_name
-                for seq in all_sequences:
-                    if seq.get_name() == _seq_name or _seq_name.startswith(
+
+            for seq in all_sequences:
+                if (
+                    seq.get_name() == level_sequence_name
+                    or level_sequence_name.startswith(
                         '{}_'.format(seq.get_name())
-                    ):
-                        level_sequence = seq
-                        break
-                if level_sequence:
+                    )
+                ):
+                    level_sequence = seq
                     break
 
             if level_sequence is None:
                 return False, {
                     'message': 'Level sequence "{}" not found, please refresh publisher!'.format(
-                        seq_name
+                        level_sequence_name
                     )
                 }
 
@@ -121,9 +118,9 @@ class UnrealReviewablePublisherExporterPlugin(
             if isinstance(result, tuple):
                 return result
 
-            movie_path = result
+            temp_movie_path = result
 
-        return [movie_path]
+        return [temp_movie_path]
 
 
 def register(api_object, **kw):

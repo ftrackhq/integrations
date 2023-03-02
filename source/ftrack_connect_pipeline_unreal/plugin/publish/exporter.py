@@ -49,6 +49,7 @@ class UnrealPublisherExporterPlugin(
         return output_filepath
 
     def compile_capture_args(self, options):
+        '''Compile capture Unreal capture arguments from *options*.'''
         capture_args = []
         if 'resolution' in options:
             resolution = options['resolution']  # On the form 320x240(4:3)
@@ -125,7 +126,7 @@ class UnrealPublisherExporterPlugin(
             cmdline_args.append("-MovieFormat={}".format(image_format.upper()))
         else:
             cmdline_args.append("-MovieFormat=Video")
-        cmdline_args.append("-MovieFrameRate=" + str(fps))
+        cmdline_args.append("-MovieFrameRate={}".format(fps))
         if frame is not None:
             cmdline_args.append("-MovieStartFrame={}".format(frame))
             cmdline_args.append("-MovieEndFrame={}".format(frame))
@@ -161,7 +162,7 @@ class UnrealPublisherExporterPlugin(
         :param image_format: (Optional) The image sequence file format, if None a video (.avi) will be rendered.
         :param frame: (Optional) The target frame to render within sequence.
         :param movie_format: (Optional) The movie format to render to, Unreal currently supports AVI only
-        :return:
+        :return: Returns the rendered file path.
         '''
 
         try:
@@ -180,7 +181,7 @@ class UnrealPublisherExporterPlugin(
                 )
             )
             logger.error(msg)
-            return False, {'message': msg}
+            return [], {'message': msg}
 
         output_filepath = self._generate_target_file_path(
             destination_path, content_name, image_format, frame, movie_format

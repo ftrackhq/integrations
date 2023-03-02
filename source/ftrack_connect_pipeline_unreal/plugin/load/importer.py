@@ -65,7 +65,7 @@ class UnrealLoaderImporterPlugin(
         if selected_context_browser_path is not None:
             import_path = selected_context_browser_path
         else:
-            import_path = unreal_constants.PROJECT_SETTINGS_FILE_NAME
+            import_path = unreal_constants.GAME_ROOT_PATH
 
         self.task.destination_path = import_path.replace(' ', '_')
         destination_name_base = context_data['asset_name'].replace(' ', '_')
