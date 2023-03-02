@@ -36,6 +36,4 @@ class UnrealBasePluginWidget(UnrealBasePlugin, pluginWidget.BasePluginWidget):
 
 from ftrack_connect_pipeline_unreal.plugin.load import *
 from ftrack_connect_pipeline_unreal.plugin.publish import *
-
-# from ftrack_connect_pipeline_unreal.plugin.open import *
-# from ftrack_connect_pipeline_unreal.plugin.asset_manager import *
+from ftrack_connect_pipeline_unreal.plugin.asset_manager import *
