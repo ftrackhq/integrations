@@ -1,8 +1,10 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2014-2022 ftrack
+# :copyright: Copyright (c) 2014-2023 ftrack
 import logging
 
 from Qt import QtWidgets, QtCore, QtGui
+
+from ftrack_connect_pipeline import utils as core_utils
 
 from ftrack_connect_pipeline_qt.utils import BaseThread
 from ftrack_connect_pipeline_qt.ui.utility.widget import thumbnail
@@ -15,7 +17,7 @@ from ftrack_connect_pipeline_qt.ui.utility.widget.busy_indicator import (
 
 
 class AssetVersionListItem(QtWidgets.QFrame):
-    '''Widget representing an asset within the asset list, for selecting'''
+    '''Widget representing an asset and version selector within the asset list, for selecting'''
 
     versionChanged = QtCore.Signal(object)
 
@@ -41,7 +43,6 @@ class AssetVersionListItem(QtWidgets.QFrame):
         self.layout().setSpacing(3)
 
     def build(self):
-
         self.thumbnail_widget = thumbnail.AssetVersion(self.session)
         self.thumbnail_widget.setScaledContents(True)
         self.thumbnail_widget.setMinimumSize(46, 32)
@@ -71,6 +72,7 @@ class AssetVersionListItem(QtWidgets.QFrame):
             self.current_version_id = self._latest_version['id']
             self.current_version_number = self._latest_version['version']
             self._update_publisher_info(self._latest_version)
+        self.setToolTip(core_utils.str_context(self.asset['parent']))
 
     def post_build(self):
         self.version_combobox.versionChanged.connect(
@@ -79,6 +81,7 @@ class AssetVersionListItem(QtWidgets.QFrame):
         self.version_combobox.filterMessage.connect(self._on_filter_message)
 
     def _on_current_version_changed(self, version_id):
+        '''User has selected new version *version_id*, update the thumbnail and emit event'''
         if version_id:
             version = self.session.query(
                 'AssetVersion where id={}'.format(version_id)
@@ -94,14 +97,16 @@ class AssetVersionListItem(QtWidgets.QFrame):
             self.versionChanged.emit(None)
 
     def _on_filter_message(self, message):
+        '''Update the widget with the *message* telling the reason for the version not be available'''
         self._version_info_widget.setText(message)
 
-    def _update_publisher_info(self, asset_version):
+    def _update_publisher_info(self, version_entity):
+        '''Update the publisher info widget with the *version_entity*'''
         self._version_info_widget.setText(
             '{} {} @ {}'.format(
-                asset_version['user']['first_name'],
-                asset_version['user']['last_name'],
-                asset_version['date'].strftime('%y-%m-%d %H:%M'),
+                version_entity['user']['first_name'],
+                version_entity['user']['last_name'],
+                version_entity['date'].strftime('%y-%m-%d %H:%M'),
             )
         )
 
@@ -115,6 +120,7 @@ class AssetList(QtWidgets.QListWidget):
 
     @property
     def widgets(self):
+        '''Return list of widgets in list'''
         result = []
         for row in range(0, self.count()):
             result.append(self.itemWidget(self.item(row)))
@@ -140,6 +146,7 @@ class AssetList(QtWidgets.QListWidget):
         self.assets = []
 
     def wheelEvent(self, event):
+        '''(Override)'''
         event.ignore()
 
     def _query_assets_from_context_async(self, context_id, asset_type_name):
@@ -191,6 +198,7 @@ class AssetList(QtWidgets.QListWidget):
         self.assetsAdded.emit()
 
     def on_context_changed(self, context_id, asset_type_name):
+        '''The current context has changed to *context_id*, with *asset_type_name*. Rebuild the list accordingly.'''
         self.clear()
         thread = BaseThread(
             name='get_assets_thread',
@@ -201,9 +209,11 @@ class AssetList(QtWidgets.QListWidget):
         thread.start()
 
     def _on_version_changed(self, asset_item):
+        '''User has selected a new version for *asset_item*, emit event'''
         self.versionChanged.emit(asset_item)
 
     def _size_changed(self):
+        '''The size of list widget has changed, make sure to set fixed height to prevent unwanted padding'''
         self.setFixedHeight(
             self.sizeHintForRow(0) * self.count() + 20
         )  # Add some extra space to prevent unwanted scrolling
@@ -277,6 +287,7 @@ class AssetListSelector(QtWidgets.QFrame):
         self.asset_list._size_changed()
 
     def _list_item_changed(self):
+        '''List row selection has changed, emit asset change event'''
         selected_index = self.asset_list.currentRow()
         if selected_index > -1:
             asset_widget = self.asset_list.itemWidget(
@@ -285,8 +296,8 @@ class AssetListSelector(QtWidgets.QFrame):
             self._on_current_asset_changed(asset_widget)
 
     def _on_current_asset_changed(self, asset_widget):
-        '''An existing asset has been selected.'''
-        asset_name = asset_entity = None
+        '''Asset identified by *asset_widget* has been selected.'''
+        asset_entity = None
         if asset_widget:
             # A proper asset were selected
             asset_entity = asset_widget.asset
@@ -307,6 +318,7 @@ class AssetListSelector(QtWidgets.QFrame):
         )
 
     def set_context(self, context_id, asset_type_name):
+        '''Set the new context to *context_id* with *asset_type_name*'''
         self.logger.debug('setting context to :{}'.format(context_id))
         self.asset_list.setVisible(False)
         self._busy_widget.start()
@@ -314,6 +326,7 @@ class AssetListSelector(QtWidgets.QFrame):
         self.asset_list.on_context_changed(context_id, asset_type_name)
 
     def _get_context_entity(self, context_id):
+        '''Get the context entity for *context_id*'''
         context_entity = self.session.query(
             'select name from Context where id is "{}"'.format(context_id)
         ).first()

@@ -4,8 +4,10 @@ import datetime
 import logging
 
 from Qt import QtWidgets, QtCore, QtGui
-from ftrack_connect_pipeline_qt.ui.utility.widget.button import NewAssetButton
 
+from ftrack_connect_pipeline import utils as core_utils
+
+from ftrack_connect_pipeline_qt.ui.utility.widget.button import NewAssetButton
 from ftrack_connect_pipeline_qt.utils import BaseThread
 from ftrack_connect_pipeline_qt.ui.utility.widget.thumbnail import AssetVersion
 from ftrack_connect_pipeline_qt.utils import set_property
@@ -50,6 +52,8 @@ class AssetListItem(QtWidgets.QFrame):
 
         self.layout().addStretch()
 
+        self.setToolTip(core_utils.str_context(self.asset['parent']))
+
 
 class AssetList(QtWidgets.QListWidget):
     '''Widget presenting list of existing assets'''
@@ -82,7 +86,7 @@ class AssetList(QtWidgets.QListWidget):
         thread.start()
 
     def _query_assets_from_context_async(self, context_id, asset_type_name):
-        '''(Run async) Fetch assets from current context'''
+        '''Fetch assets from current context'''
         asset_type_entity = self.session.query(
             'select name from AssetType where short is "{}"'.format(
                 asset_type_name
@@ -112,7 +116,7 @@ class AssetList(QtWidgets.QListWidget):
         return assets
 
     def _store_assets_async(self, assets):
-        '''Async, store assets and emit signal to have assets added to list'''
+        '''Store assets and emit signal to have assets added to list'''
         self.assets = assets
         # Add data placeholder for new asset input
         self.assetsQueryDone.emit()
@@ -212,6 +216,7 @@ class AssetListAndInput(QtWidgets.QWidget):
         self.layout().setSpacing(0)
 
     def add_asset_list(self, asset_list):
+        '''Add *asset_list* widget to widget'''
         self.asset_list = asset_list
         self.layout().addWidget(asset_list)
 
@@ -220,6 +225,7 @@ class AssetListAndInput(QtWidgets.QWidget):
         self._size_changed()
 
     def _size_changed(self):
+        '''Resize asset list to fit widget, to prevent unnecessary scrolling'''
         self.asset_list.setFixedSize(
             self.size().width() - 1,
             self.asset_list.sizeHintForRow(0) * self.asset_list.count()
@@ -318,7 +324,7 @@ class AssetSelector(QtWidgets.QWidget):
             self._current_asset_changed(self.asset_list.assets[selected_index])
 
     def _current_asset_changed(self, item=None):
-        '''An existing asset has been selected.'''
+        '''An existing asset *item* has been selected, or None if current is de-selected.'''
         asset_entity = None
         if not item is None:
             selected_index = self.asset_list.currentRow()
@@ -336,7 +342,7 @@ class AssetSelector(QtWidgets.QWidget):
             self.updateWidget.emit(None)
 
     def _update_widget(self, selected_asset=None):
-        '''Synchronize state of list with new asset input.'''
+        '''Synchronize state of list with new asset input if *selected_asset* is None, otherwise bring focus to list.'''
         self.asset_list.ensurePolished()
         if selected_asset is not None:
             # Bring focus to list, remove focus from new asset input
@@ -351,11 +357,13 @@ class AssetSelector(QtWidgets.QWidget):
         self.new_asset_input.button.setEnabled(True)
 
     def set_context(self, context_id, asset_type_name):
+        '''Set context to *context_id* and asset type to *asset_type_name*'''
         self.logger.debug('setting context to :{}'.format(context_id))
         self.asset_list.on_context_changed(context_id, asset_type_name)
         self.set_asset_name(asset_type_name)
 
     def set_asset_name(self, asset_name):
+        '''Update the asset input widget with *asset_name*'''
         self.logger.debug('setting asset name to :{}'.format(asset_name))
         self.new_asset_input.name.setText(asset_name)
 
@@ -366,7 +374,7 @@ class AssetSelector(QtWidgets.QWidget):
         self.assetChanged.emit(asset_name, None, is_valid_name)
 
     def validate_name(self, asset_name):
-        '''Return True if the asset name is valid, also reflect this on input style'''
+        '''Return True if *asset_name* is valid, also reflect this on input style'''
         is_valid_bool = True
         # Already an asset by that name
         if self.asset_list.assets:
