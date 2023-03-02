@@ -20,7 +20,8 @@ def import_file(asset_import_task):
 
 def find_image_sequence(render_folder):
     '''Try to find a continous image sequence in the *render_folder*, Unreal always names frames "Image.0001.png".
-    Will return the clique parsable expression together with first and last frame number.'''
+    Will return the clique parsable expression together with first and last frame number.
+    '''
 
     if not render_folder or not os.path.exists(render_folder):
         return None

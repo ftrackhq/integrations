@@ -41,7 +41,6 @@ if do_load_integration:
 
 
 def load_integration():
-
     from Qt import QtCore, QtWidgets, QtGui
 
     import unreal
@@ -168,7 +167,6 @@ def load_integration():
             )
 
     def initialise():
-
         # TODO : later we need to bring back here all the unreal initialisations
         #  from ftrack-connect-unreal
         # such as frame start / end etc....

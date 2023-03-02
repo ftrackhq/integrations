@@ -39,7 +39,6 @@ class UnrealReviewablePublisherExporterPlugin(
                         level_sequence_name = value
 
         if media_path:
-
             self.logger.debug(
                 'Using pre-rendered movie path: "{}", copying to temp.'.format(
                     media_path
@@ -53,10 +52,8 @@ class UnrealReviewablePublisherExporterPlugin(
             shutil.copy(media_path, temp_movie_path)
 
         else:
-
             level_sequence = None
 
-            seq_name = None
             all_sequences = unreal_utils.get_all_sequences(as_names=False)
 
             for seq in all_sequences:
@@ -69,7 +66,7 @@ class UnrealReviewablePublisherExporterPlugin(
                     level_sequence = seq
                     break
 
-            if level_sequence is None:
+            if not level_sequence:
                 return False, {
                     'message': 'Level sequence "{}" not found, please refresh publisher!'.format(
                         level_sequence_name
@@ -81,7 +78,7 @@ class UnrealReviewablePublisherExporterPlugin(
                 render_path_base = os.path.join(
                     unreal.SystemLibrary.get_project_saved_directory(),
                     'VideoCaptures',
-                    seq_name,
+                    level_sequence_name,
                 )
                 next_version = 0
                 while True:

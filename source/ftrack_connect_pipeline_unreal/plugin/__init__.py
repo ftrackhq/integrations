@@ -12,7 +12,6 @@ from ftrack_connect_pipeline_unreal.asset.dcc_object import UnrealDccObject
 
 
 class UnrealBasePlugin(plugin.BasePlugin):
-
     host_type = unreal_constants.HOST_TYPE
 
     FtrackObjectManager = UnrealFtrackObjectManager
