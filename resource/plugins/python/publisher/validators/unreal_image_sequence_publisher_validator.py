@@ -33,7 +33,8 @@ class UnrealImageSequencePublisherValidatorPlugin(plugin.UnrealPublisherValidato
                     "Unsupported media path: {} \n "
                     "With error message: {}".format (media_path, e)
                 )
-        return False
+                return False
+        return True
 
 
 def register(api_object, **kw):
