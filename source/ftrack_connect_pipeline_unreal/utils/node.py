@@ -32,7 +32,7 @@ def get_current_scene_objects():
     # https://docs.unrealengine.com/5.1/en-US/PythonAPI/class/EditorAssetLibrary.html?highlight=editorassetlibrary#unreal.EditorAssetLibrary
     return set(
         unreal.EditorAssetLibrary.list_assets(
-            unreal_constants.PROJECT_SETTINGS_FILE_NAME, recursive=True
+            unreal_constants.GAME_ROOT_PATH, recursive=True
         )
     )
 
