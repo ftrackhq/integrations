@@ -2,7 +2,7 @@
 # :copyright: Copyright (c) 2014-2023 ftrack
 
 from ftrack_connect_pipeline_unreal import plugin
-import os
+import clique
 
 import ftrack_api
 
@@ -13,24 +13,27 @@ class UnrealImageSequencePublisherValidatorPlugin(plugin.UnrealPublisherValidato
     plugin_name = 'unreal_image_sequence_publisher_validator'
 
     def run(self, context_data=None, data=None, options=None):
-        '''Return True if all collected objects supplied in *data* has a
-        supported file format'''
-
-        collected_objects = []
-        for collector in data:
-            collected_objects.extend(collector['result'])
+        '''Return True if all collected objects supplied in *data* is an image
+        sequence and has a supported file format'''
 
         supported_file_formats = options.get('supported_file_formats')
 
-        for obj in collected_objects:
-            # Get file extension
-            file_extension = os.path.splitext(obj)[1].replace('.', '')
-            # Make sure clean clique stuff
-            if "[" in file_extension:
-                file_extension = file_extension.split("[")[0].strip()
-            if file_extension not in supported_file_formats:
-                return False
-        return True
+        media_path = None
+        for collector in data:
+            # We are only interested on the media_path
+            media_path = collector['result'].get('media_path')
+
+        if media_path:
+            try:
+                collection = clique.parse(media_path)
+                if collection.tail in supported_file_formats:
+                    return True
+            except Exception as e:
+                self.logger.error(
+                    "Unsupported media path: {} \n "
+                    "With error message: {}".format (media_path, e)
+                )
+        return False
 
 
 def register(api_object, **kw):
