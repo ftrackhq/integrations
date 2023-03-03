@@ -20,8 +20,9 @@ class UnrealImageSequencePublisherValidatorPlugin(plugin.UnrealPublisherValidato
 
         media_path = None
         for collector in data:
-            # We are only interested on the media_path
-            media_path = collector['result'].get('media_path')
+            for result in collector['result']:
+                # We are only interested on the media_path
+                media_path = result.get('media_path')
 
         if media_path:
             try:
