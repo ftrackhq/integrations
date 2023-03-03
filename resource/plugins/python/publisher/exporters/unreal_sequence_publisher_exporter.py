@@ -38,14 +38,8 @@ class UnrealSequencePublisherExporterPlugin(
                         render_path = value
                     elif key == 'level_sequence_name':
                         level_sequence_name = value
-        if media_path:
-            self.logger.debug(
-                'Using pre-rendered file sequence path: "{}", copying to temp.'.format(
-                    media_path
-                )
-            )
 
-        else:
+        if not media_path:
             # Find level sequence
             level_sequence = None
 
@@ -69,7 +63,7 @@ class UnrealSequencePublisherExporterPlugin(
                 }
 
             # Determine render destination path
-            if render_path is None or not os.path.exists(render_path):
+            if not render_path or not os.path.exists(render_path):
                 render_path_base = os.path.join(
                     unreal.SystemLibrary.get_project_saved_directory(),
                     'VideoCaptures',

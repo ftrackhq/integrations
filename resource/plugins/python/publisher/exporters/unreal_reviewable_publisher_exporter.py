@@ -74,7 +74,7 @@ class UnrealReviewablePublisherExporterPlugin(
                 }
 
             # Determine render destination path
-            if render_path is None or not os.path.exists(render_path):
+            if not render_path or not os.path.exists(render_path):
                 render_path_base = os.path.join(
                     unreal.SystemLibrary.get_project_saved_directory(),
                     'VideoCaptures',
