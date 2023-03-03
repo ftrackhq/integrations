@@ -43,8 +43,11 @@
           "name": "validator",
           "plugins":[
             {
-              "name": "validate selection",
-              "plugin": "common_non_empty_publisher_validator"
+              "name": "validate collected sequence",
+              "plugin": "unreal_image_sequence_publisher_validator",
+              "options": {
+                "supported_file_formats": ["exr", "jpg", "bmp", "png"]
+              }
             }
           ]
         },
