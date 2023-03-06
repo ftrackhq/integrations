@@ -8,8 +8,8 @@ import ftrack_connect_pipeline_unreal.constants as unreal_constants
 
 def get_all_sequences(as_names=True):
     '''
-    Returns a list of all sequence assets used in level. If *as_names* is True, the asset name
-    will be returned instead of the asset itself.
+    Returns a list of all sequence assets in the project If *as_names* is True,
+    the asset name will be returned instead of the asset itself.
     '''
     result = []
     top_level_asset_path = {
@@ -22,7 +22,7 @@ def get_all_sequences(as_names=True):
         )
     )
     for _seq in all_seq_asset_data:
-        if str(_seq.package_path) == unreal_constants.GAME_ROOT_PATH:
+        if str(_seq.package_path).startswith(unreal_constants.GAME_ROOT_PATH):
             if as_names:
                 result.append(str(_seq.asset_name))
                 continue
