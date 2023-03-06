@@ -27,7 +27,6 @@ class NukeReviewablePublisherExporterOptionsWidget(BaseOptionsWidget):
         context_id=None,
         asset_type_name=None,
     ):
-
         super(NukeReviewablePublisherExporterOptionsWidget, self).__init__(
             parent=parent,
             session=session,
@@ -40,7 +39,6 @@ class NukeReviewablePublisherExporterOptionsWidget(BaseOptionsWidget):
         )
 
     def build(self):
-
         super(NukeReviewablePublisherExporterOptionsWidget, self).build()
 
         bg = QtWidgets.QButtonGroup(self)

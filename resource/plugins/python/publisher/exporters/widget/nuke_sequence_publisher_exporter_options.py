@@ -28,7 +28,6 @@ class NukeSequencePublisherExporterOptionsWidget(BaseOptionsWidget):
         context_id=None,
         asset_type_name=None,
     ):
-
         super(NukeSequencePublisherExporterOptionsWidget, self).__init__(
             parent=parent,
             session=session,
@@ -41,7 +40,6 @@ class NukeSequencePublisherExporterOptionsWidget(BaseOptionsWidget):
         )
 
     def build(self):
-
         super(NukeSequencePublisherExporterOptionsWidget, self).build()
 
         bg = QtWidgets.QButtonGroup(self)

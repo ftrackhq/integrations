@@ -107,8 +107,8 @@ class NukeMoviePublisherExporterPlugin(plugin.NukePublisherExporterPlugin):
                 # Generate exporters file name for mov.
                 temp_name = tempfile.NamedTemporaryFile()
 
-                first = str(int(write_node['first'].getValue()))
-                last = str(int(write_node['last'].getValue()))
+                first = int(write_node['first'].getValue())
+                last = int(write_node['last'].getValue())
 
                 movie_path = '{}.{}'.format(
                     temp_name.name, selected_file_format
@@ -124,13 +124,12 @@ class NukeMoviePublisherExporterPlugin(plugin.NukePublisherExporterPlugin):
                         if k not in ['codecs', 'codec_knob_name']:
                             write_node[k].setValue(v)
 
-                ranges = nuke.FrameRanges('{}-{}'.format(first, last))
                 self.logger.debug(
                     'Rendering movie [{}-{}] to "{}"'.format(
                         first, last, movie_path
                     )
                 )
-                nuke.render(write_node, ranges, continueOnError=True)
+                nuke.render(write_node, first, last, continueOnError=True)
 
                 if delete_write_node:
                     # delete temporal write node
@@ -158,10 +157,9 @@ class NukeMoviePublisherExporterPlugin(plugin.NukePublisherExporterPlugin):
                         False,
                         {'message': 'No movie write/read node selected!'},
                     )
-                first = str(int(write_node['first'].getValue()))
-                last = str(int(write_node['last'].getValue()))
+                first = int(write_node['first'].getValue())
+                last = int(write_node['last'].getValue())
 
-                ranges = nuke.FrameRanges('{}-{}'.format(first, last))
                 movie_path = write_node['file'].value()
 
                 self.logger.debug(
@@ -169,7 +167,7 @@ class NukeMoviePublisherExporterPlugin(plugin.NukePublisherExporterPlugin):
                         first, last, movie_path
                     )
                 )
-                nuke.render(write_node, ranges, continueOnError=True)
+                nuke.render(write_node, first, last, continueOnError=True)
 
             else:
                 # Find movie write/read node among selected nodes

@@ -28,7 +28,6 @@ class NukeNodePublisherCollectorOptionsWidget(BaseOptionsWidget):
         context_id=None,
         asset_type_name=None,
     ):
-
         self.node_names = []
 
         super(NukeNodePublisherCollectorOptionsWidget, self).__init__(

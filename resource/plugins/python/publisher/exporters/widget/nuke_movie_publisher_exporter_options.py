@@ -28,7 +28,6 @@ class NukeMoviePublisherExporterOptionsWidget(BaseOptionsWidget):
         context_id=None,
         asset_type_name=None,
     ):
-
         super(NukeMoviePublisherExporterOptionsWidget, self).__init__(
             parent=parent,
             session=session,
@@ -41,7 +40,6 @@ class NukeMoviePublisherExporterOptionsWidget(BaseOptionsWidget):
         )
 
     def build(self):
-
         super(NukeMoviePublisherExporterOptionsWidget, self).build()
 
         bg = QtWidgets.QButtonGroup(self)

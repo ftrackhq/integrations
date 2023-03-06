@@ -8,6 +8,11 @@ Release Notes
 *************
 
 .. release:: upcoming
+    .. change:: fix
+        :tags: publisher
+
+         Fixed Nuke 14 publish render bug.
+
     .. change:: changed
         :tags: definitions
 
