@@ -31,6 +31,7 @@ class UnrealImageSequencePublisherValidatorPlugin(
                 collection = clique.parse(media_path)
                 if collection.tail in supported_file_formats:
                     return True
+                return False
             except Exception as e:
                 self.logger.error(
                     "Unsupported media path: {} \n "
