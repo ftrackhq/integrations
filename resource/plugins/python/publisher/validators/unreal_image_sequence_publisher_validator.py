@@ -7,7 +7,9 @@ import clique
 import ftrack_api
 
 
-class UnrealImageSequencePublisherValidatorPlugin(plugin.UnrealPublisherValidatorPlugin):
+class UnrealImageSequencePublisherValidatorPlugin(
+    plugin.UnrealPublisherValidatorPlugin
+):
     '''Maya name publisher validator plugin'''
 
     plugin_name = 'unreal_image_sequence_publisher_validator'
@@ -32,7 +34,7 @@ class UnrealImageSequencePublisherValidatorPlugin(plugin.UnrealPublisherValidato
             except Exception as e:
                 self.logger.error(
                     "Unsupported media path: {} \n "
-                    "With error message: {}".format (media_path, e)
+                    "With error message: {}".format(media_path, e)
                 )
                 return False
         return True
