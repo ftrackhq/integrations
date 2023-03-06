@@ -34,7 +34,7 @@ class UnrealSequencePublisherCollectorPlugin(
             ):
                 sequence_name_sel = actor.get_name()
                 break
-        if sequence_name_sel is None:
+        if not sequence_name_sel:
             for asset in unreal.EditorUtilityLibrary.get_selected_assets():
                 if asset.static_class() == unreal.LevelSequence.static_class():
                     sequence_name_sel = asset.get_name()
