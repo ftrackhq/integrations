@@ -25,7 +25,7 @@ class UnrealSequencePublisherCollectorPlugin(
         result = []
         collected_objects = unreal_utils.get_all_sequences()
 
-        # Find the selected sequence
+        # Find the selected sequence in level edit or in content browser
         sequence_name_sel = None
         for actor in unreal.EditorLevelLibrary.get_selected_level_actors():
             if (
@@ -34,6 +34,11 @@ class UnrealSequencePublisherCollectorPlugin(
             ):
                 sequence_name_sel = actor.get_name()
                 break
+        if sequence_name_sel is None:
+            for asset in unreal.EditorUtilityLibrary.get_selected_assets():
+                if asset.static_class() == unreal.LevelSequence.static_class():
+                    sequence_name_sel = asset.get_name()
+                    break
 
         for sequence_name in collected_objects:
             fetch_data = {'value': sequence_name}
