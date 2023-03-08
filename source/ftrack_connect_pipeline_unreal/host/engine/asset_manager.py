@@ -2,6 +2,10 @@
 # :copyright: Copyright (c) 2014-2023 ftrack
 
 import time
+import random
+import string
+import os
+
 import unreal
 
 from ftrack_connect_pipeline import constants as core_constants
@@ -81,27 +85,6 @@ class UnrealAssetManagerEngine(AssetManagerEngine):
         self._notify_client(plugin, result_data)
 
         return status, result
-
-    @unreal_utils.run_in_main_thread
-    def change_version(self, asset_info, options, plugin=None):
-        '''
-        Returns the :const:`~ftrack_connnect_pipeline.constants.status` and the
-        result of changing the version of the given *asset_info* to the new
-        version id passed in the given *options*
-
-        *asset_info* : :class:`~ftrack_connect_pipeline.asset.FtrackAssetInfo`
-
-        *options* : Options should contain the new_version_id key with the id
-        value
-
-        *plugin* : Default None. Plugin definition, a dictionary with the
-        plugin information.
-        '''
-
-        # It's an import, so change version with the main method
-        return super(UnrealAssetManagerEngine, self).change_version(
-            asset_info=asset_info, options=options, plugin=plugin
-        )
 
     @unreal_utils.run_in_main_thread
     def select_asset(self, asset_info, options=None, plugin=None):
@@ -206,6 +189,209 @@ class UnrealAssetManagerEngine(AssetManagerEngine):
         return super(UnrealAssetManagerEngine, self).load_asset(
             asset_info=asset_info, options=options, plugin=plugin
         )
+
+    @unreal_utils.run_in_main_thread
+    def change_version(self, asset_info, options, plugin=None):
+        '''
+        (Override) Support Unreal asset version change preserving in memory references.
+        '''
+        start_time = time.time()
+        status = core_constants.UNKNOWN_STATUS
+        result = {}
+        message = None
+
+        plugin_type = core_constants.PLUGIN_AM_ACTION_TYPE
+        plugin_name = None
+        if plugin:
+            plugin_type = '{}.{}'.format('asset_manager', plugin['type'])
+            plugin_name = plugin.get('name')
+
+        result_data = {
+            'plugin_name': plugin_name,
+            'plugin_type': plugin_type,
+            'method': 'change_version',
+            'status': status,
+            'result': result,
+            'execution_time': 0,
+            'message': message,
+        }
+
+        self.asset_info = asset_info
+        dcc_object = self.DccObject(
+            from_id=asset_info[asset_const.ASSET_INFO_ID]
+        )
+        self.dcc_object = dcc_object
+
+        nodes = (
+                unreal_utils.get_connected_nodes_from_dcc_object(
+                    self.dcc_object.name
+                )
+                or []
+        )
+        temporary_assets = {}
+        # Rename
+        for node in nodes:
+            # Generate temp name and map it to class
+            try:
+                if unreal_utils.node_exists(node):
+                    asset = unreal.EditorAssetLibrary.load_asset(node)
+                    asset_class_name = asset.__class__.__name__
+                    suffix = '_{}'.format(
+                        ''.join(
+                            random.choice(
+                                string.ascii_uppercase + string.digits
+                            )
+                            for _ in range(16)
+                        )
+                    )
+                    asset_name = os.path.splitext(node)[0]
+                    new_name = '{}{}'.format(asset_name, suffix)
+                    self.logger.debug(
+                        'Renaming object: {} > temp: {}'.format(
+                            asset_name, new_name
+                        )
+                    )
+                    if not unreal_utils.rename_node_with_suffix(
+                            asset_name, suffix
+                    ):
+                        raise Exception(
+                            'Unreal asset {} could not be renamed.'.format(node)
+                        )
+                    # Supply the new name to the result together with Unreal class name so newly loaded assets can be mapped
+                    # during consolidate
+                    # TODO: if this isn't properly working,
+                    #  temporary_assets[node] = str(new_name) and try to match
+                    #  the new imported nodes with the old name.
+                    temporary_assets[str(new_name)] = asset_class_name
+                    # Remove dcc metadata tag.
+                    unreal.EditorAssetLibrary.remove_metadata_tag(
+                        asset, asset_const.NODE_METADATA_TAG
+                    )
+                    status = core_constants.SUCCESS_STATUS
+                else:
+                    self.logger.warning(
+                        'Could not rename none existing object: {}'.format(
+                            node
+                        )
+                    )
+            except Exception as error:
+                message = str(
+                    'Node: {0} could not be renamed, error: {1}'.format(
+                        node, error
+                    )
+                )
+                self.logger.error(message)
+                status = core_constants.ERROR_STATUS
+
+        bool_status = core_constants.status_bool_mapping[status]
+        if not bool_status:
+            end_time = time.time()
+            total_time = end_time - start_time
+
+            result_data['status'] = status
+            result_data['result'] = result
+            result_data['execution_time'] = total_time
+            result_data['message'] = message
+
+            self._notify_client(plugin, result_data)
+            return status, result
+
+        # Change version
+        super_status, super_result = super(UnrealAssetManagerEngine, self).change_version(
+            asset_info=asset_info, options=options, plugin=plugin
+        )
+
+        bool_status = core_constants.status_bool_mapping[super_status]
+        if not bool_status:
+            end_time = time.time()
+            total_time = end_time - start_time
+
+            result_data['status'] = super_status
+            result_data['result'] = super_result
+            result_data['execution_time'] = total_time
+            result_data['message'] = message
+
+            self._notify_client(plugin, result_data)
+            return status, result
+
+        # Consolidate new nodes and remove temp ones
+        new_nodes = (
+                unreal_utils.get_connected_nodes_from_dcc_object(
+                    self.dcc_object.name
+                )
+                or []
+        )
+
+        # Consolidate nodes
+        unprocessed_nodes = []
+        for node in new_nodes:
+            temp_node = None
+            try:
+                asset = unreal.EditorAssetLibrary.load_asset(node)
+                asset_class_name = asset.__class__.__name__
+                temp_nodes = list(
+                    filter(
+                        lambda x: temporary_assets[x] == asset_class_name, temporary_assets
+                    )
+                )
+                if not temp_nodes:
+                    unprocessed_nodes.append(node)
+                    self.logger.debug(
+                        "Can't find a matching asset "
+                        "for node {} in list {}".format(
+                            node, list(temporary_assets.keys())
+                        )
+                    )
+                    continue
+                temp_node = temp_nodes[0]
+                temp_asset = unreal.EditorAssetLibrary.load_asset(temp_node)
+                self.logger.info(
+                    'Consolidating from previous asset: {}'.format(
+                        temp_node
+                    )
+                )
+                # TODO: This command produces residual redirect nodes.
+                #  Can't currently be removed as their creation is delayed and
+                #  can't be detected here.
+                unreal.EditorAssetLibrary.consolidate_assets(
+                    asset, [temp_asset]
+                )
+            except Exception as error:
+                message = str(
+                    'Error ocurred during the asset consolidation of {} with {} '
+                    '\n Error: {}'.format( node, temp_node, error)
+                )
+                self.logger.error(message)
+                status = core_constants.ERROR_STATUS
+
+        # Clean up not consolidated nodes
+        for temp_node in list(temporary_assets.keys()):
+            if unreal_utils.node_exists(temp_node):
+                self.logger.debug("Removing temp node {}".format(temp_node))
+                unreal_utils.delete_node(temp_node)
+
+        if unprocessed_nodes:
+            self.logger.warning(
+                "Following nodes couldn't be consolidated.\n"
+                "List of unprocessed nodes: {} \n"
+                "Dictionary of old nodes: {}".format(
+                    unprocessed_nodes, temporary_assets
+                )
+            )
+        else:
+            self.logger.debug("All nodes consolidation done.")
+
+        end_time = time.time()
+        total_time = end_time - start_time
+
+        result_data['status'] = status
+        result_data['result'] = super_result
+        result_data['execution_time'] = total_time
+        result_data['message'] = message
+
+        self._notify_client(plugin, result_data)
+
+        return status, result
 
     @unreal_utils.run_in_main_thread
     def unload_asset(self, asset_info, options=None, plugin=None):
