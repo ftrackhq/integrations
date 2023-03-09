@@ -44,10 +44,7 @@
           "plugins":[
             {
               "name": "validate collected sequence",
-              "plugin": "unreal_image_sequence_publisher_validator",
-              "options": {
-                "supported_file_formats": ["exr", "jpg", "bmp", "png"]
-              }
+              "plugin": "unreal_image_sequence_publisher_validator"
             }
           ]
         },

@@ -18,7 +18,7 @@ class UnrealImageSequencePublisherValidatorPlugin(
         '''Return True if all collected objects supplied in *data* is an image
         sequence and has a supported file format'''
 
-        supported_file_formats = options.get('supported_file_formats')
+        supported_file_formats = ["exr", "jpg", "bmp", "png"]
 
         media_path = None
         for collector in data:
@@ -29,7 +29,7 @@ class UnrealImageSequencePublisherValidatorPlugin(
         if media_path:
             try:
                 collection = clique.parse(media_path)
-                if collection.tail in supported_file_formats:
+                if str(collection.tail).lower().split(".")[-1] in supported_file_formats:
                     return True
                 return False
             except Exception as e:
