@@ -1,0 +1,103 @@
+/** Combo Box. */
+
+QComboBox {
+    border: 1px solid $border-color;
+    border-radius: 2px;
+    padding: $input-padding;
+    padding-left: 10px;
+    background: transparent;
+    selection-background-color: $background-selected;
+    color: $text-color;
+    text-align: center;
+
+    &:hover {
+        border-color: darken($border-color, 5%);
+    }
+
+    &:focus {
+        border: 1px solid lighten($border-color, 5%);
+    }
+}
+
+
+QComboBox::drop-down {
+    subcontrol-origin: padding;
+    subcontrol-position: top right;
+    padding: $input-padding;
+    border: 0;
+    text-align: center;
+}
+
+QComboBox::down-arrow {
+    image: theme-image('combobox_down_arrow');
+    width: 8px;
+    height: 8px;
+}
+
+QComboBox QAbstractItemView {
+    color: $text-color;
+    outline: 0;
+    border-radius: 2px;
+    background: $background;
+    selection-background-color: $background-selected;
+    text-align: center;
+}
+
+QFrame[docked='true'] QComboBox QAbstractItemView {
+    background: $background-docked;
+}
+
+QFrame[docked='true'] QComboBox QAbstractItemView {
+    background: $background-docked;
+}
+
+QComboBox QAbstractItemView::item {
+    padding: $input-padding 0;
+}
+
+QComboBox QAbstractItemView::item:selected {
+    color: $text-color;
+    background-color: $background-selected;
+}
+
+QComboBox[ftrackCurrentIndexIsDefault="true"] {
+    color: $text-color-light;
+}
+
+QComboBox[chip='true'] {
+    border-radius: 11px;
+}
+
+AssetVersionSelector, VersionComboBox {
+    border-radius: 11px;
+    color: $text-color;
+}
+
+AssemblerVersionComboBox {
+    border: 1px solid $border-color;
+    border-radius: 11px;
+    background: transparent;
+    selection-background-color: $border-color;
+    color: $text-color !important;
+    text-align: center;
+
+    &:hover {
+        border-color: lighten($border-color, 5%);
+    }
+
+    &:focus {
+        border: 1px solid lighten($border-color, 5%);
+    }
+
+    &:disabled {
+        border: 1px solid darken($border-color, 5%);
+        color: $gray;
+    }
+}
+
+DefinitionSelectorComboBox {
+    padding-top: 7px;
+    padding-bottom: 5px;
+    padding-right: 7px;
+}
+
