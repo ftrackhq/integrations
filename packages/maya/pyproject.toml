@@ -1,0 +1,5 @@
+[tool.poetry]
+name = "ftrack-pipeline-maya"
+description = "Maya DCC plugin, was: ftrack-connect-pipeline-maya"
+
+# TBC
