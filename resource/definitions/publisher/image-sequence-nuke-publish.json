@@ -115,6 +115,77 @@
       ]
     },
     {
+      "name": "movie",
+      "optional": true,
+      "enabled": false,
+      "stages": [
+        {
+          "name": "collector",
+          "plugins":[
+            {
+              "name": "Collect movie",
+              "plugin": "nuke_sequence_publisher_collector",
+              "widget": "nuke_sequence_publisher_collector",
+              "options": {
+                  "image_sequence": false
+              }
+            }
+          ]
+        },
+        {
+          "name": "validator",
+          "plugins":[
+            {
+              "name": "validate selection",
+              "plugin": "common_non_empty_publisher_validator",
+              "options": {
+                "amount": 1
+              }
+            },
+            {
+              "name": "Can connect to write node",
+              "plugin": "nuke_writable_node_publisher_validator"
+            }
+          ]
+        },
+        {
+          "name": "exporter",
+          "plugins":[
+            {
+              "name": "write movie",
+              "plugin": "nuke_movie_publisher_exporter",
+              "options": {
+                "supported_file_formats": ["mov", "mxf"],
+                "file_format": "mov",
+                "mov": {
+                  "codecs" : [
+                    "rle |Animation",
+                    "appr|Apple ProRes",
+                    "AVdn|Avid DNxHD",
+                    "AVdh|Avid DNxHR",
+                    "h264|H.264",
+                    "mjpa|Motion JPEG A",
+                    "mjpb|Motion JPEG B",
+                    "mp4v|MPEG-4",
+                    "jpeg|Photo JPEG",
+                    "png |PNG",
+                    "v210|Uncompressed"
+                  ],
+                  "codec_knob_name": "mov64_codec",
+                  "mov64_codec": "mp4v"
+                },
+                "mxf" : {
+                  "codecs" : ["Avid DNxHR"],
+                  "codec_knob_name": "mxf_video_codec_knob",
+                  "mxf_video_codec_knob": "Avid DNxHR"
+                }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
       "name": "reviewable",
       "optional": true,
       "stages": [
