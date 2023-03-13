@@ -57,9 +57,9 @@ class NukeSequencePublisherExporterPlugin(plugin.NukePublisherExporterPlugin):
                 # Generate exporters file name for mov.
                 temp_name = tempfile.NamedTemporaryFile()
 
-                first = str(int(write_node['first'].getValue()))
-                last = str(int(write_node['last'].getValue()))
-                digit_len = int(len(last) + 1)
+                first = int(write_node['first'].getValue())
+                last = int(write_node['last'].getValue())
+                digit_len = int(len(str(last)) + 1)
 
                 temp_sequence_path = '{}.%0{}d.{}'.format(
                     temp_name.name, digit_len, selected_file_format
@@ -82,19 +82,17 @@ class NukeSequencePublisherExporterPlugin(plugin.NukePublisherExporterPlugin):
                     ].items():
                         write_node[k].setValue(v)
 
-                ranges = nuke.FrameRanges('{}-{}'.format(first, last))
                 self.logger.debug(
                     'Rendering sequence [{}-{}] to "{}"'.format(
                         first, last, temp_sequence_path
                     )
                 )
-                nuke.render(write_node, ranges)
+                nuke.render(write_node, first, last)
 
                 # delete temporal write node
                 nuke.delete(write_node)
 
             elif mode == 'render_write':
-
                 # Find sequence write node among selected nodes
                 write_node = None
                 for node in selected_nodes:
@@ -120,15 +118,14 @@ class NukeSequencePublisherExporterPlugin(plugin.NukePublisherExporterPlugin):
                         write_node.name(), write_node['file'].value()
                     )
                 )
-                first = str(int(write_node['first'].getValue()))
-                last = str(int(write_node['last'].getValue()))
-                ranges = nuke.FrameRanges('{}-{}'.format(first, last))
+                first = int(write_node['first'].getValue())
+                last = int(write_node['last'].getValue())
                 self.logger.debug(
                     'Rendering sequence [{}-{}] to "{}"'.format(
                         first, last, write_node['file'].value()
                     )
                 )
-                nuke.render(write_node, ranges)
+                nuke.render(write_node, first, last)
 
                 sequence_path = clique.parse(
                     '{} [{}-{}]'.format(

@@ -49,9 +49,9 @@ class NukeThumbnailPublisherExporterPlugin(plugin.NukePublisherExporterPlugin):
         new_write_node['file'].setValue(file_name.replace('\\', '/'))
         new_write_node['file_type'].setValue('png')
         # render thumbnail
-        curFrame = int(nuke.knob("frame"))
+        frame = int(nuke.knob("frame"))
 
-        nuke.execute(new_write_node, curFrame, curFrame)
+        nuke.execute(new_write_node, frame, frame)
 
         # delete thumbnail network after render
         nuke.delete(reformat_node)

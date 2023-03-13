@@ -29,7 +29,6 @@ class NukeNodePublisherCollectorOptionsWidget(BaseCollectorWidget):
         context_id=None,
         asset_type_name=None,
     ):
-
         self.node_names = []
         self.last_selected_node = []
 

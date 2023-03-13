@@ -88,8 +88,8 @@ class NukeReviewablePublisherExporterPlugin(
                     delete=False, suffix='.mov'
                 ).name
 
-                first = str(int(nuke.root().knob('first_frame').value()))
-                last = str(int(nuke.root().knob('last_frame').value()))
+                first = int(nuke.root().knob('first_frame').value())
+                last = int(nuke.root().knob('last_frame').value())
 
                 # Create a new write_node.
                 review_node = nuke.createNode('Write')
@@ -109,17 +109,16 @@ class NukeReviewablePublisherExporterPlugin(
                 if input_node['use_limit'].getValue():
                     review_node['use_limit'].setValue(True)
 
-                    first = str(int(input_node['first'].getValue()))
-                    last = str(int(input_node['last'].getValue()))
+                    first = int(input_node['first'].getValue())
+                    last = int(input_node['last'].getValue())
 
-                    review_node['first'].setValue(int(first))
-                    review_node['last'].setValue(int(last))
+                    review_node['first'].setValue(first)
+                    review_node['last'].setValue(last)
 
                 self.logger.debug(
                     'Rendering reviewable movie {}-{}'.format(first, last)
                 )
-                ranges = nuke.FrameRanges('{}-{}'.format(first, last))
-                nuke.render(review_node, ranges, continueOnError=True)
+                nuke.render(review_node, first, last, continueOnError=True)
 
                 # delete thumbnail network after render
                 nuke.delete(review_node)
