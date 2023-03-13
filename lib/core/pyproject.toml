@@ -1,0 +1,5 @@
+[tool.poetry]
+name = "ftrack-pipeline-core"
+description = "Was: ftrack-connect-pipeline"
+
+# TBC

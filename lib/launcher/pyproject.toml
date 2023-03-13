@@ -1,0 +1,5 @@
+[tool.poetry]
+name = "ftrack-pipeline-launcher"
+description = "DCC launcher plugin serving both standalone mode and Connect launch, was: application-launcher"
+
+# TBC
