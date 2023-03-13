@@ -60,16 +60,16 @@ def load_integration():
 
     from ftrack_connect_pipeline_qt import event
     from ftrack_connect_pipeline_qt import constants as qt_constants
-    from ftrack_connect_pipeline_qt.ui.asset_manager.model import (
-        AssetListModel,
-    )
+    # from ftrack_connect_pipeline_qt.ui.asset_manager.model import (
+    #     AssetListModel,
+    # )
 
     from ftrack_connect_pipeline_unreal import host as unreal_host
     from ftrack_connect_pipeline_unreal.client import (
         # open,
         load,
         publish,
-        asset_manager,
+        # asset_manager,
         change_context,
         log_viewer,
     )
@@ -103,7 +103,7 @@ def load_integration():
 
     def _open_widget(
         event_manager,
-        asset_list_model,
+        # asset_list_model,
         widgets,
         event,
     ):
@@ -147,12 +147,12 @@ def load_integration():
                 # Need to create
                 if widget_name in [
                     qt_constants.ASSEMBLER_WIDGET,
-                    core_constants.ASSET_MANAGER,
+                    #core_constants.ASSET_MANAGER,
                 ]:
                     # Create with asset model
                     widget = ftrack_client(
                         event_manager,
-                        asset_list_model,
+                        # asset_list_model,
                     )
                 else:
                     # Create without asset model
@@ -185,7 +185,7 @@ def load_integration():
         logger.debug('Setting up the menu')
 
         # Shared asset manager models
-        asset_list_model = AssetListModel(event_manager)
+        # asset_list_model = AssetListModel(event_manager)
 
         widgets = list()
         widgets.append(
@@ -197,15 +197,15 @@ def load_integration():
                 True,
             )
         )
-        widgets.append(
-            (
-                core_constants.ASSET_MANAGER,
-                asset_manager.UnrealQtAssetManagerClientWidget,
-                'Asset Manager',
-                '',
-                True,
-            )
-        )
+        # widgets.append(
+        #     (
+        #         core_constants.ASSET_MANAGER,
+        #         asset_manager.UnrealQtAssetManagerClientWidget,
+        #         'Asset Manager',
+        #         '',
+        #         True,
+        #     )
+        # )
         widgets.append(
             (
                 core_constants.PUBLISHER,
@@ -277,7 +277,7 @@ def load_integration():
             functools.partial(
                 _open_widget,
                 event_manager,
-                asset_list_model,
+                # asset_list_model,
                 widgets,
             ),
         )
