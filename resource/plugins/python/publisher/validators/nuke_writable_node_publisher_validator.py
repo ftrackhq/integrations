@@ -19,29 +19,33 @@ class NukeWritableNodePublisherValidatorPlugin(
 
     def run(self, context_data=None, data=None, options=None):
         '''Return true if the collected Nuke node supplied with *data* can have a write node attached to it'''
-        collected_objects = []
+        node_name = None
         for collector in data:
-            collected_objects.extend(collector['result'])
+            for result in collector['result']:
+                if 'node_name' in result:
+                    node_name = result['node_name']
+                    break
+            if node_name:
+                break
 
-        if len(collected_objects) != 1:
-            msg = 'No single node selected!'
-            self.logger.error(msg)
-            return (False, {'message': msg})
-        scene_node = nuke.toNode(collected_objects[0])
-        selected_nodes = nuke.selectedNodes()
-        nuke_utils.clean_selection()
+        if node_name:
+            scene_node = nuke.toNode(node_name)
+            selected_nodes = nuke.selectedNodes()
+            nuke_utils.clean_selection()
 
-        write_node = nuke.createNode('Write')
-        if not write_node.setInput(0, scene_node):
-            msg = "The selected node can't be connected to a write node"
-            self.logger.error(msg)
-            return (False, {'message': msg})
-        # delete temporal write node
-        nuke.delete(write_node)
-        # restore selection
-        nuke_utils.clean_selection()
-        for node in selected_nodes:
-            node['selected'].setValue(True)
+            write_node = nuke.createNode('Write')
+            if not write_node.setInput(0, scene_node):
+                msg = "The selected node can't be connected to a write node"
+                self.logger.error(msg)
+                return (False, {'message': msg})
+            # delete temporal write node
+            nuke.delete(write_node)
+            # restore selection
+            nuke_utils.clean_selection()
+            for node in selected_nodes:
+                node['selected'].setValue(True)
+        else:
+            self.logger.info('No collected script node to validate')
         return True
 
 

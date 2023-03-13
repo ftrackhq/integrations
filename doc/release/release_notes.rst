@@ -8,6 +8,12 @@ Release Notes
 *************
 
 .. release:: upcoming
+
+    .. change:: change
+        :tags: publisher
+
+         Enhanced image sequence and movie publisher UI - migrated options from exporter to collector.
+
     .. change:: fix
         :tags: publisher
 

@@ -42,23 +42,14 @@ class NukeMoviePublisherExporterOptionsWidget(BaseOptionsWidget):
     def build(self):
         super(NukeMoviePublisherExporterOptionsWidget, self).build()
 
-        bg = QtWidgets.QButtonGroup(self)
-        self.render_rb = QtWidgets.QRadioButton(
-            'Render movie from script - create write'
-        )
-        bg.addButton(self.render_rb)
-        self.layout().addWidget(self.render_rb)
-
         frames_option = {
             'start_frame': nuke.root()['first_frame'].value(),
             'end_frame': nuke.root()['last_frame'].value(),
         }
-        self.file_formats = self.options.get(
-            'supported_file_formats', ['mov', 'mxf']
-        )
+        self.file_formats = self.options.get('supported_file_formats', ['mov'])
         self.default_file_format = self.options.get('file_format')
 
-        self.option_group = group_box.GroupBox('Movie options')
+        self.option_group = group_box.GroupBox('Movie render options')
         self.option_group.setToolTip(self.description)
         options_v_lay = QtWidgets.QVBoxLayout()
         self.option_group.setLayout(options_v_lay)
@@ -107,54 +98,6 @@ class NukeMoviePublisherExporterOptionsWidget(BaseOptionsWidget):
         options_v_lay.addLayout(range_v_lay)
         self.layout().addWidget(self.option_group)
 
-        self.render_write_rb = QtWidgets.QRadioButton(
-            'Render movie from selected write node'
-        )
-        bg.addButton(self.render_write_rb)
-        self.layout().addWidget(self.render_write_rb)
-
-        self.render_write_note = QtWidgets.QLabel(
-            '<html><i>Make sure you selected a write node that is setup to render a movie.</i></html>'
-        )
-        self.layout().addWidget(self.render_write_note)
-        self.render_write_note.setVisible(False)
-
-        self.render_from_sequence_rb = QtWidgets.QRadioButton(
-            'Render movie from existing rendered sequence write/read node'
-        )
-        bg.addButton(self.render_from_sequence_rb)
-        self.layout().addWidget(self.render_from_sequence_rb)
-
-        self.render_from_sequence_note = QtWidgets.QLabel(
-            '<html><i>Make sure you select a write/read node pointing to a rendered sequence.</i></html>'
-        )
-        self.layout().addWidget(self.render_from_sequence_note)
-        self.render_from_sequence_note.setVisible(False)
-
-        self.pickup_rb = QtWidgets.QRadioButton(
-            'Pick up existing movie from selected write/read node'
-        )
-        bg.addButton(self.pickup_rb)
-        self.layout().addWidget(self.pickup_rb)
-
-        self.pickup_note = QtWidgets.QLabel(
-            '<html><i>Make sure you select a write/read node pointing to a rendered movie.</i></html>'
-        )
-        self.pickup_note.setVisible(False)
-        self.layout().addWidget(self.pickup_note)
-
-        if not 'mode' in self.options:
-            self.set_option_result('render', 'mode')
-        mode = self.options['mode'].lower()
-        if mode == 'render_write':
-            self.render_write_rb.setChecked(True)
-        elif mode == 'render_from_sequence':
-            self.pickup_rb.setChecked(True)
-        elif mode == 'pickup':
-            self.render_from_sequence_rb.setChecked(True)
-        else:
-            self.render_rb.setChecked(True)
-
     def on_file_format_update(self, file_format):
         '''File format *file_format* has been chosen by user'''
         self.set_option_result(file_format, key='file_format')
@@ -168,7 +111,11 @@ class NukeMoviePublisherExporterOptionsWidget(BaseOptionsWidget):
             )
         self.codec_cb.clear()
         index = 0
-        for codec in self.options.get(file_format, {}).get('codecs'):
+        default_codec = self.options.get('codec', 'mp4v')
+        codecs = self.options.get(file_format, {}).get('codecs')
+        if not codecs:
+            codecs = [default_codec]
+        for codec in codecs:
             self.codec_cb.addItem(codec)
             if (
                 default_codec
@@ -192,11 +139,6 @@ class NukeMoviePublisherExporterOptionsWidget(BaseOptionsWidget):
     def post_build(self):
         super(NukeMoviePublisherExporterOptionsWidget, self).post_build()
 
-        self.render_rb.clicked.connect(self._update_render_mode)
-        self.render_write_rb.clicked.connect(self._update_render_mode)
-        self.render_from_sequence_rb.clicked.connect(self._update_render_mode)
-        self.pickup_rb.clicked.connect(self._update_render_mode)
-
         self.file_format_cb.currentTextChanged.connect(
             self.on_file_format_update
         )
@@ -217,21 +159,6 @@ class NukeMoviePublisherExporterOptionsWidget(BaseOptionsWidget):
         update_fn = partial(self.set_option_result, key='end_frame')
         self.enf_text_edit.textChanged.connect(update_fn)
         self.set_option_result(self.enf_text_edit.text(), 'end_frame')
-
-    def _update_render_mode(self):
-        value = 'render'
-        if self.render_write_rb.isChecked():
-            value = 'render_write'
-        elif self.render_from_sequence_rb.isChecked():
-            value = 'render_from_sequence'
-        elif self.pickup_rb.isChecked():
-            value = 'pickup'
-        self.set_option_result(value, 'mode')
-        self.render_from_sequence_note.setVisible(
-            self.render_from_sequence_rb.isChecked()
-        )
-        self.render_write_note.setVisible(self.render_write_rb.isChecked())
-        self.pickup_note.setVisible(self.pickup_rb.isChecked())
 
 
 class NukeMoviePublisherExporterOptionsPluginWidget(
