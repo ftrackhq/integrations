@@ -32,10 +32,7 @@
             {
               "name": "select level sequence",
               "plugin": "unreal_sequence_publisher_collector",
-              "widget": "unreal_sequence_publisher_collector",
-              "options": {
-                "image_sequence": true
-              }
+              "widget": "unreal_sequence_publisher_collector"
             }
           ]
         },
@@ -53,8 +50,7 @@
           "plugins":[
             {
               "name": "write reviewable",
-              "plugin": "unreal_sequence_publisher_exporter",
-              "widget": "unreal_sequence_publisher_exporter"
+              "plugin": "unreal_sequence_publisher_exporter"
             }
           ]
         }
@@ -69,11 +65,8 @@
           "plugins":[
             {
               "name": "select level sequence",
-              "plugin": "unreal_sequence_publisher_collector",
-              "widget": "unreal_sequence_publisher_collector",
-              "options": {
-                "image_sequence": false
-              }
+              "plugin": "unreal_reviewable_publisher_collector",
+              "widget": "unreal_reviewable_publisher_collector"
             }
           ]
         },
@@ -91,8 +84,7 @@
           "plugins":[
             {
               "name": "write reviewable",
-              "plugin": "unreal_reviewable_publisher_exporter",
-              "widget": "unreal_reviewable_publisher_exporter"
+              "plugin": "unreal_reviewable_publisher_exporter"
             }
           ]
         }

@@ -18,22 +18,32 @@ def import_file(asset_import_task):
     )
 
 
-def find_image_sequence(render_folder):
+# TODO: move this util to pipeline utils
+def find_image_sequence(file_path):
     '''Try to find a continous image sequence in the *render_folder*, Unreal always names frames "Image.0001.png".
     Will return the clique parsable expression together with first and last frame number.
     '''
 
-    if not render_folder or not os.path.exists(render_folder):
+    is_dir = False
+    if not file_path or not os.path.exists(os.path.dirname(file_path)):
         return None
 
+    if os.path.isdir(file_path):
+        is_dir = True
+        folder_path = file_path
+    else:
+        folder_path = os.path.dirname(file_path)
     # Search folder for images sequence
     collections, remainder = clique.assemble(
-        os.listdir(render_folder), minimum_items=1
+        os.listdir(folder_path), minimum_items=1
     )
+    if not collections:
+        return None
 
-    # Pick first collection, ignore if there are multiple image sequences in the folder for now
-    if collections:
-        collection = collections[0]
-        return os.path.join(render_folder, collection.format())
+    if is_dir:
+        return os.path.join(folder_path, collections[0].format())
+    for collection in collections:
+        if collection.match(os.path.basename(file_path)):
+            return os.path.join(folder_path, collection.format())
 
     return None
