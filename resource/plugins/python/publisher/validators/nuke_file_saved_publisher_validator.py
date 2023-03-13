@@ -6,7 +6,7 @@ import ftrack_api
 import nuke
 
 from ftrack_connect_pipeline_nuke import plugin
-from ftrack_connect_pipeline_nuke.utils import custom_commands as nuke_utils
+from ftrack_connect_pipeline_nuke import utils as nuke_utils
 
 
 class NukeFileSavedPublisherValidatorPlugin(
@@ -26,7 +26,7 @@ class NukeFileSavedPublisherValidatorPlugin(
             if nuke.Root().name() == 'Root':
                 # Save snapshot
                 self.logger.debug("Nuke Scene is not saved, saving locally")
-                nuke_utils.save(context_data['context_id'], self.session)
+                nuke_utils.save_file(context_data['context_id'], self.session)
             else:
                 self.logger.debug("Nuke Scene is not saved, saving scene")
                 nuke.scriptSave()

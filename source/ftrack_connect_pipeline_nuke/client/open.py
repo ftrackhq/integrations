@@ -7,7 +7,6 @@ from ftrack_connect_pipeline_qt.client import open
 import ftrack_connect_pipeline.constants as constants
 import ftrack_connect_pipeline_qt.constants as qt_constants
 import ftrack_connect_pipeline_nuke.constants as nuke_constants
-from ftrack_connect_pipeline_nuke.utils.custom_commands import get_main_window
 
 
 class NukeQtOpenerClientWidget(open.QtOpenerClientWidget):

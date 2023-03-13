@@ -4,7 +4,6 @@
 from Qt import QtCore
 
 from ftrack_connect_pipeline_qt.client import log_viewer
-from ftrack_connect_pipeline_nuke.utils.custom_commands import get_main_window
 
 
 class NukeQtLogViewerClientWidget(log_viewer.QtLogViewerClientWidget):

@@ -3,7 +3,7 @@
 import logging
 
 from ftrack_connect_pipeline_qt.client.save import QtSaveClientWidget
-from ftrack_connect_pipeline_nuke.utils import custom_commands as nuke_utils
+from ftrack_connect_pipeline_nuke import utils as nuke_utils
 
 
 class NukeQtSaveClientWidget(QtSaveClientWidget):

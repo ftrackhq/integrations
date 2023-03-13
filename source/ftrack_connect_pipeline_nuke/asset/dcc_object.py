@@ -4,7 +4,7 @@
 import logging
 from ftrack_connect_pipeline.asset.dcc_object import DccObject
 from ftrack_connect_pipeline_nuke.constants import asset as asset_const
-from ftrack_connect_pipeline_nuke.utils import custom_commands as nuke_utils
+from ftrack_connect_pipeline_nuke import utils as nuke_utils
 
 import nuke
 
@@ -160,7 +160,7 @@ class NukeDccObject(DccObject):
         ftrack_node = nuke.toNode(self.name)
         if ftrack_node.Class() != 'BackdropNode':
             return
-        nuke_utils.cleanSelection()
+        nuke_utils.clean_selection()
         for node in objects:
             if node == ftrack_node:
                 continue

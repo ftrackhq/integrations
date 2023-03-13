@@ -2,7 +2,7 @@
 # :copyright: Copyright (c) 2014-2022 ftrack
 
 from ftrack_connect_pipeline_qt.client import change_context
-from ftrack_connect_pipeline_nuke.utils.custom_commands import init_nuke
+from ftrack_connect_pipeline_nuke import utils as nuke_utils
 
 
 class NukeQtChangeContextClientWidget(
@@ -17,4 +17,4 @@ class NukeQtChangeContextClientWidget(
 
     def show(self):
         if super(NukeQtChangeContextClientWidget, self).show():
-            init_nuke(self.context_id, self.session)
+            nuke_utils.init_nuke(self.context_id, self.session)

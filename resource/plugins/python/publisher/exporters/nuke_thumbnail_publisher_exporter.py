@@ -7,7 +7,7 @@ import tempfile
 import nuke
 
 from ftrack_connect_pipeline_nuke import plugin
-from ftrack_connect_pipeline_nuke.utils import custom_commands as nuke_utils
+from ftrack_connect_pipeline_nuke import utils as nuke_utils
 
 
 class NukeThumbnailPublisherExporterPlugin(plugin.NukePublisherExporterPlugin):
@@ -25,7 +25,7 @@ class NukeThumbnailPublisherExporterPlugin(plugin.NukePublisherExporterPlugin):
         node_name = collected_objects[0]
         input_node = nuke.toNode(node_name)
         selected_nodes = nuke.selectedNodes()
-        nuke_utils.cleanSelection()
+        nuke_utils.clean_selection()
 
         write_node = nuke.createNode('Write')
         write_node.setInput(0, input_node)
@@ -60,7 +60,7 @@ class NukeThumbnailPublisherExporterPlugin(plugin.NukePublisherExporterPlugin):
         # delete temporal write node
         nuke.delete(write_node)
         # restore selection
-        nuke_utils.cleanSelection()
+        nuke_utils.clean_selection()
         for node in selected_nodes:
             node['selected'].setValue(True)
 
