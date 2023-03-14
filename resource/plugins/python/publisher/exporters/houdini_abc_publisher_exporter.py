@@ -10,7 +10,6 @@ import ftrack_api
 
 
 class HoudiniAbcPublisherExporterPlugin(plugin.HoudiniPublisherExporterPlugin):
-
     plugin_name = 'houdini_abc_publisher_exporter'
 
     def fetch(self, context_data=None, data=None, options=None):
@@ -30,17 +29,17 @@ class HoudiniAbcPublisherExporterPlugin(plugin.HoudiniPublisherExporterPlugin):
             'ABCFrameRangeBy': float(options.get('ABCFrameRangeBy', '1.0')),
         }
 
-    def bake_camera_animation(self, node, frameRange):
+    def bake_camera_animation(self, node, frame_range):
         '''Bake camera to World Space'''
-        if 'cam' in node.type().name():
-            bake_node = hou.node('/obj').createNode(
-                'cam', '%s_bake' % node.name()
-            )
+        self.logger.debug(
+            'Baking camera "{}" animation, range: {}'.format(node, frame_range)
+        )
+        bake_node = hou.node('/obj').createNode('cam', '%s_bake' % node.name())
 
-            for x in ['resx', 'resy']:
-                bake_node.parm(x).set(node.parm(x).eval())
+        for x in ['resx', 'resy']:
+            bake_node.parm(x).set(node.parm(x).eval())
 
-        for frame in range(int(frameRange[0]), (int(frameRange[1]) + 1)):
+        for frame in range(int(frame_range[0]), (int(frame_range[1]) + 1)):
             time = (frame - 1) / hou.fps()
             matrix = node.worldTransformAtTime(time).explode()
 
@@ -61,24 +60,33 @@ class HoudiniAbcPublisherExporterPlugin(plugin.HoudiniPublisherExporterPlugin):
 
         houdini_root_object = hou.node('/obj')
 
-        collected_objects = []
-        for collector in data:
-            collected_objects.extend(collector['result'])
-        if context_data['asset_type_name'] == 'cam':
-            obj_path = collected_objects[0]
-            bcam = self.bake_camera_animation(
-                hou.node(obj_path),
-                [options['ABCFrameRangeStart'], options['ABCFrameRangeEnd']],
-            )
-            objects = [bcam]
-            object_paths = bcam.path()
-        else:
-            objects = [hou.node(obj_path) for obj_path in collected_objects]
-            object_paths = ' '.join(collected_objects)
-
-        # Create Rop Net
         rop_net = None
+        baked_cameras = []
         try:
+            collected_objects = []
+            object_paths = []
+            for collector in data:
+                collected_objects.extend(collector['result'])
+            if context_data['asset_type_name'] == 'cam':
+                objects = []
+                for obj_path in collected_objects:
+                    bcam = self.bake_camera_animation(
+                        hou.node(obj_path),
+                        [
+                            options['ABCFrameRangeStart'],
+                            options['ABCFrameRangeEnd'],
+                        ],
+                    )
+                    objects.append(bcam)
+                    object_paths.append(bcam.path())
+                    baked_cameras.append(bcam)
+            else:
+                objects = [
+                    hou.node(obj_path) for obj_path in collected_objects
+                ]
+                object_paths = collected_objects
+
+            # Create Rop Net
             rop_net = houdini_root_object.createNode('ropnet')
             abc_ropnet = rop_net.createNode('alembic')
 
@@ -101,7 +109,7 @@ class HoudiniAbcPublisherExporterPlugin(plugin.HoudiniPublisherExporterPlugin):
 
             root_object = objects[0]
             abc_ropnet.parm('root').set(root_object.parent().path())
-            abc_ropnet.parm('objects').set(object_paths)
+            abc_ropnet.parm('objects').set(' '.join(object_paths))
             if options.get('ABCFormat') == 'HDF5':
                 abc_ropnet.parm('format').set('hdf5')
             elif options.get('ABCFormat') == 'Ogawa':
@@ -115,9 +123,11 @@ class HoudiniAbcPublisherExporterPlugin(plugin.HoudiniPublisherExporterPlugin):
 
             abc_ropnet.render()
         finally:
+            # Clean up after us
             if rop_net:
                 rop_net.destroy()
-
+            for bcam in baked_cameras:
+                bcam.destroy()
         return [new_file_path]
 
 

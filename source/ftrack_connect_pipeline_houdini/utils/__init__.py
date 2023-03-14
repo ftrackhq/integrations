@@ -5,6 +5,7 @@ from functools import wraps
 
 import hdefereval
 
+
 def run_in_main_thread(f):
     '''Make sure a function runs in the main Maya thread.'''
 
@@ -16,6 +17,7 @@ def run_in_main_thread(f):
             return f(*args, **kwargs)
 
     return decorated
+
 
 from ftrack_connect_pipeline_houdini.utils.bootstrap import *
 from ftrack_connect_pipeline_houdini.utils.file import *

@@ -5,6 +5,7 @@ import hou, hdefereval
 
 from ftrack_connect_pipeline_houdini.constants import asset as asset_const
 
+
 def get_current_scene_objects():
     '''Return all objects within the houdini scene'''
     return set(hou.node('/obj').glob('*'))
@@ -39,4 +40,3 @@ def get_connected_objects(name):
                 if linked_ftrack_node_name == name:
                     result.append(node)
     return result
-

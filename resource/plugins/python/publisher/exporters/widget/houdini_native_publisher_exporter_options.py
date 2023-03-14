@@ -24,7 +24,6 @@ class HoudiniDefaultPublisherExporterOptionsWidget(DynamicWidget):
         context_id=None,
         asset_type_name=None,
     ):
-
         self.options_cb = {}
 
         super(HoudiniDefaultPublisherExporterOptionsWidget, self).__init__(

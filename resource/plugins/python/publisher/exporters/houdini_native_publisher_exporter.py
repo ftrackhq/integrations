@@ -14,7 +14,6 @@ import ftrack_api
 class HoudiniNativePublisherExporterPlugin(
     plugin.HoudiniPublisherExporterPlugin
 ):
-
     plugin_name = 'houdini_native_publisher_exporter'
 
     extension = '.hip'

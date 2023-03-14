@@ -6,6 +6,8 @@ import logging
 import hou
 
 logger = logging.getLogger(__name__)
+
+
 def init_houdini(context_id=None, session=None):
     '''
     Initialise timeline in Houdini based on shot/asset build metadata.
@@ -73,5 +75,3 @@ def init_houdini(context_id=None, session=None):
     if fps is not None:
         logger.info('Setting FPS : {}'.format(fps))
         hou.setFps(fps)
-
-

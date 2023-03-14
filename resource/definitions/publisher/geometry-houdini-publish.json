@@ -66,7 +66,8 @@
           "plugins":[
             {
               "name": "Geometry Collector",
-              "plugin": "houdini_geometry_publisher_collector"
+              "plugin": "houdini_geometry_publisher_collector",
+              "widget": "houdini_geometry_publisher_collector"
             }
           ]
         },
@@ -100,7 +101,8 @@
           "plugins":[
             {
               "name": "Geometry Collector",
-              "plugin": "houdini_geometry_publisher_collector"
+              "plugin": "houdini_geometry_publisher_collector",
+              "widget": "houdini_geometry_publisher_collector"
             }
           ]
         },
@@ -118,11 +120,7 @@
           "plugins":[
             {
               "name": "Alembic exporter options:",
-              "plugin": "houdini_abc_publisher_exporter",
-              "options": {
-                "ABCAnimation": true,
-                "ABCFormat": ["Default","HDF5","Ogawa"]
-              }
+              "plugin": "houdini_abc_publisher_exporter"
             }
           ]
         }
@@ -138,7 +136,8 @@
           "plugins":[
             {
               "name": "Geometry Collector",
-              "plugin": "houdini_geometry_publisher_collector"
+              "plugin": "houdini_geometry_publisher_collector",
+              "widget": "houdini_geometry_publisher_collector"
             }
           ]
         },

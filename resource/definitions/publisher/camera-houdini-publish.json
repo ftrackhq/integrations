@@ -65,7 +65,8 @@
           "plugins":[
             {
               "name": "Camera collector",
-              "plugin": "houdini_camera_publisher_collector"
+              "plugin": "houdini_camera_publisher_collector",
+              "widget": "houdini_camera_publisher_collector"
             }
           ]
         },
@@ -99,7 +100,8 @@
           "plugins":[
             {
               "name": "Camera Collector",
-              "plugin": "houdini_camera_publisher_collector"
+              "plugin": "houdini_camera_publisher_collector",
+              "widget": "houdini_camera_publisher_collector"
             }
           ]
         },
@@ -119,8 +121,7 @@
               "name": "Alembic exporter options:",
               "plugin": "houdini_abc_publisher_exporter",
               "options": {
-                "ABCAnimation": true,
-                "ABCFormat": ["Default","HDF5","Ogawa"]
+                "ABCAnimation": true
               }
             }
           ]
@@ -137,7 +138,8 @@
           "plugins":[
             {
               "name": "Camera Collector",
-              "plugin": "houdini_camera_publisher_collector"
+              "plugin": "houdini_camera_publisher_collector",
+              "widget": "houdini_camera_publisher_collector"
             }
           ]
         },

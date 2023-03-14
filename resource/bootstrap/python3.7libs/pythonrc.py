@@ -142,7 +142,7 @@ def _open_widget(event_manager, asset_list_model, event):
     widget_name = None
     widget_class = None
     widget_label = None
-    for (_widget_name, _widget_class, _widget_label) in widgets:
+    for _widget_name, _widget_class, _widget_label in widgets:
         if _widget_name == event['data']['pipeline']['name']:
             widget_name = _widget_name
             widget_class = _widget_class

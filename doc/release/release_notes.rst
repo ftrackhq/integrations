@@ -8,6 +8,12 @@ Release Notes
 *************
 
 .. release:: upcoming
+    .. change:: fix
+
+        Fixed UI bugs in Alembic and FBX exporter.
+        Added frame range and take options to FBX exporter, enabling export of animations.
+        Displays collected camera in exporters.
+
     .. change:: changed
         :tags: definitions
 

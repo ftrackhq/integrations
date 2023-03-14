@@ -10,15 +10,27 @@ import ftrack_api
 
 
 class HoudiniFbxPublisherExporterPlugin(plugin.HoudiniPublisherExporterPlugin):
-
     plugin_name = 'houdini_fbx_publisher_exporter'
 
-    def extract_options(self, options):
+    def fetch(self, context_data=None, data=None, options=None):
+        '''Fetch start and end frames from the scene'''
+        r = hou.playbar.frameRange()
+        frame_info = {'frameStart': r[0], 'frameEnd': r[1]}
+        return frame_info
 
+    def extract_options(self, options):
+        r = hou.playbar.frameRange()
         return {
             'FBXASCII': bool(options.get('FBXASCII', True)),
+            'FBXValidFrameRange': float(options.get('FBXCValidFrameRange', 0)),
+            'FBXFrameRangeStart': float(
+                options.get('FBXFrameRangeStart', r[0])
+            ),
+            'FBXFrameRangeEnd': float(options.get('FBXFrameRangeEnd', r[1])),
+            'FBXFrameRangeBy': float(options.get('FBXFrameRangeBy', '1.0')),
+            'FBXTake': str(options.get('FBXTake', '_current_')),
             'FBXSDKVersion': str(
-                options.get('FBXExportScaleFactor', 'FBX | FBX201600')
+                options.get('FBXExportScaleFactor', 'FBX | FBX202000')
             ),
             'FBXVertexCacheFormat': str(
                 options.get('FBXVertexCacheFormat', 'mayaformat')
@@ -78,6 +90,12 @@ class HoudiniFbxPublisherExporterPlugin(plugin.HoudiniPublisherExporterPlugin):
         ropNet = root_obj.createNode('ropnet')
         fbxRopnet = ropNet.createNode('filmboxfbx')
 
+        fbxRopnet.parm('trange').set(options['FBXValidFrameRange'])
+        fbxRopnet.parm('f1').set(options['FBXFrameRangeStart'])
+        fbxRopnet.parm('f2').set(options['FBXFrameRangeEnd'])
+        fbxRopnet.parm('f3').set(options['FBXFrameRangeBy'])
+        fbxRopnet.parm('take').set(options['FBXTake'])
+        fbxRopnet.parm('trange').set(options['FBXValidFrameRange'])
         fbxRopnet.parm('sopoutput').set(new_file_path)
         fbxRopnet.parm('startnode').set(objects[0].parent().path())
         fbxRopnet.parm('exportkind').set(options['FBXASCII'])
@@ -106,7 +124,7 @@ class HoudiniFbxPublisherExporterPlugin(plugin.HoudiniPublisherExporterPlugin):
                 options['FBXExportEndEffectors']
             )
         except:
-            pass  # No supported in older versions
+            pass  # Not supported in older versions
         try:
             fbxRopnet.render()
         finally:

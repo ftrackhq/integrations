@@ -5,6 +5,7 @@ import hou
 
 from ftrack_connect_pipeline import utils as core_utils
 
+
 def import_scene(path, context_data=None, options=None):
     '''
     Import the scene from the given *path*, *context_data* and *options*.
@@ -16,6 +17,7 @@ def import_scene(path, context_data=None, options=None):
     node.moveToGoodPosition()
 
     return node
+
 
 def merge_scene(path, context_data=None, options=None):
     '''

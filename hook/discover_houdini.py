@@ -96,7 +96,6 @@ platform_options = {
 
 
 def on_discover_pipeline_houdini(session, event):
-
     from ftrack_connect_pipeline_houdini import (
         __version__ as integration_version,
     )
