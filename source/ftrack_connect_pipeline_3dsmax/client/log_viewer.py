@@ -13,8 +13,8 @@ class MaxQtLogViewerClientWidget(log_viewer.QtLogViewerClientWidget):
 
     def __init__(self, event_manager, parent=None):
         super(MaxQtLogViewerClientWidget, self).__init__(
-            event_manager, parent=max_utils.get_main_window
+            event_manager, parent=max_utils.get_main_window()
         )
 
-        # Make sure we stays on top of Max
+        # Make sure we stay on top of Max
         self.setWindowFlags(QtCore.Qt.Tool)
