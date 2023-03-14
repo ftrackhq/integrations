@@ -31,7 +31,7 @@ class NukeSequencePublisherCollectorPlugin(
         return node_names
 
     def run(self, context_data=None, data=None, options=None):
-        '''Return the node name passed on the plugin *options*'''
+        '''Build collected objects based on *options*'''
         mode = options['mode']
         if mode in ['render_selected', 'render_create_write']:
             node_name = options.get('node_name')

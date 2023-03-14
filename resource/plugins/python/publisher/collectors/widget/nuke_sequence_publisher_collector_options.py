@@ -54,7 +54,7 @@ class NukeSequencePublisherCollectorOptionsWidget(BaseOptionsWidget):
 
     @property
     def image_sequence_path(self):
-        '''Return the image sequence path to render from options'''
+        '''Return the image sequence path for movie render from options'''
         result = self.options.get('image_sequence_path')
         if result:
             result = result.strip()
@@ -275,9 +275,11 @@ class NukeSequencePublisherCollectorOptionsWidget(BaseOptionsWidget):
         self.report_input()
 
     def _on_node_selected(self, node_name):
+        '''Callback when node is selected in the combo box.'''
         self._render_warning.setVisible(False)
         if len(node_name or '') > 0:
             self.set_option_result(node_name, 'node_name')
+            # Validate node selection against current mode, display warning
             if (
                 self._render_rb.isChecked()
                 and self._render_selected_rb.isChecked()
@@ -386,16 +388,21 @@ class NukeSequencePublisherCollectorOptionsWidget(BaseOptionsWidget):
                 start_dir = os.path.dirname(
                     self._image_sequence_path_le.text()
                 )
-        render_path = QtWidgets.QFileDialog.getExistingDirectory(
-            caption='Choose directory containing rendered image sequence',
+        (
+            file_path,
+            unused_selected_filter,
+        ) = QtWidgets.QFileDialog.getOpenFileName(
+            caption='Choose image sequence',
             dir=start_dir,
-            options=QtWidgets.QFileDialog.ShowDirsOnly,
+            filter='All files (*)',
         )
 
-        if not render_path:
+        if not file_path:
             return
 
-        render_path = os.path.normpath(render_path)
+        file_path = os.path.normpath(file_path)
+
+        render_path = os.path.dirname(file_path)
 
         # Search folder for images sequence
         collections, remainder = clique.assemble(
@@ -404,16 +411,16 @@ class NukeSequencePublisherCollectorOptionsWidget(BaseOptionsWidget):
 
         # Pick first collection, ignore if there are multiple image sequences in the folder for now
         media_path = None
-        if collections:
-            collection = collections[0]
-            media_path = os.path.join(render_path, collection.format())
+        for collection in collections:
+            if collection.match(os.path.basename(file_path)):
+                media_path = os.path.join(render_path, collection.format())
 
         if not media_path:
             dialog.ModalDialog(
                 None,
-                title='Locate rendered image sequence',
+                title='Locate image sequence',
                 message='An image sequence on the form "prefix.NNNN.ext" were not found in: {}!'.format(
-                    media_path
+                    render_path
                 ),
             )
 
@@ -457,6 +464,21 @@ class NukeSequencePublisherCollectorOptionsWidget(BaseOptionsWidget):
                 status = True
             else:
                 message = 'No script node selected!'
+        elif (
+            not self.image_sequence
+            and self._render_from_sequence_rb.isChecked()
+        ):
+            num_objects = (
+                1
+                if self.image_sequence_path is not None
+                and len(self.image_sequence_path) > 0
+                else 0
+            )
+            if num_objects > 0:
+                message = '1 image sequence selected'
+                status = True
+            else:
+                message = 'No image sequence selected!'
         else:
             num_objects = (
                 1
@@ -469,7 +491,9 @@ class NukeSequencePublisherCollectorOptionsWidget(BaseOptionsWidget):
                 )
                 status = True
             else:
-                message = 'No media selected!'
+                message = 'No {} selected'.format(
+                    'image sequence' if self.image_sequence else 'movie'
+                )
 
         self.inputChanged.emit(
             {

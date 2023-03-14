@@ -19,7 +19,7 @@ class NukeMoviePublisherExporterPlugin(plugin.NukePublisherExporterPlugin):
     plugin_name = 'nuke_movie_publisher_exporter'
 
     def run(self, context_data=None, data=None, options=None):
-        '''Export a video file from Nuke from collected node with *data* based on *options*'''
+        '''Export a video file from Nuke from collected node or supplied media with supplied *data* based on *options*'''
 
         node_name = None
         media_path = image_sequence_path = None
@@ -142,6 +142,7 @@ class NukeMoviePublisherExporterPlugin(plugin.NukePublisherExporterPlugin):
                     restore_file_path = False
                     try:
                         if options.get('to_temp'):
+                            # A reviewable movie needs to be rendered to temp location, as it is removed by framework
                             restore_file_path = write_node['file'].getValue()
 
                             temp_name = tempfile.NamedTemporaryFile()
@@ -240,6 +241,7 @@ class NukeMoviePublisherExporterPlugin(plugin.NukePublisherExporterPlugin):
 
             else:
                 if options.get('to_temp'):
+                    # A reviewable movie needs to be copied to temp location, as it is removed by framework
                     self.logger.debug(
                         'Picking up rendered file movie and copying to temp for publish: "{}"'.format(
                             media_path
