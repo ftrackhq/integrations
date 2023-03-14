@@ -13,10 +13,11 @@ import ftrack_api
 from ftrack_connect_pipeline_qt.plugin.widget import BaseOptionsWidget
 from ftrack_connect_pipeline_qt.ui.utility.widget import dialog
 from ftrack_connect_pipeline_nuke import plugin
+from ftrack_connect_pipeline_nuke import utils as nuke_utils
 
 
-class NukeSequencePublisherCollectorOptionsWidget(BaseOptionsWidget):
-    '''Nuke image sequence collector widget plugin'''
+class NukeMoviePublisherCollectorOptionsWidget(BaseOptionsWidget):
+    '''Nuke sequence collector widget plugin'''
 
     # Run fetch nodes function on widget initialization
     auto_fetch_on_init = True
@@ -37,12 +38,34 @@ class NukeSequencePublisherCollectorOptionsWidget(BaseOptionsWidget):
         if media_path is not None and len(media_path) > 0:
             self.set_option_result(media_path, 'media_path')
         else:
-            media_path = '<please choose a image sequence>'
+            media_path = '<please choose a movie>'
             self.set_option_result(None, 'media_path')
 
         # Update UI
         self._media_path_le.setText(media_path)
         self._media_path_le.setToolTip(media_path)
+
+    @property
+    def image_sequence_path(self):
+        '''Return the image sequence path for movie render from options'''
+        result = self.options.get('image_sequence_path')
+        if result:
+            result = result.strip()
+            if len(result) == 0:
+                result = None
+        return result
+
+    @image_sequence_path.setter
+    def image_sequence_path(self, image_sequence_path):
+        '''Store *image_sequence_path* for movie render in options and update widgets'''
+        if image_sequence_path is not None and len(image_sequence_path) > 0:
+            self.set_option_result(image_sequence_path, 'image_sequence_path')
+        else:
+            image_sequence_path = '<please choose a image sequence>'
+            self.set_option_result(None, 'image_sequence_path')
+
+        self._image_sequence_path_le.setText(image_sequence_path)
+        self._image_sequence_path_le.setToolTip(image_sequence_path)
 
     @property
     def node_names(self):
@@ -74,9 +97,14 @@ class NukeSequencePublisherCollectorOptionsWidget(BaseOptionsWidget):
                 first = node.knob('first').value()
                 last = node.knob('last').value()
                 break
-        if node_file_path and not is_movie:
-            full_path = '{} [{}-{}]'.format(node_file_path, first, last)
-            self.media_path = full_path
+        if node_file_path:
+            if not is_movie:
+                full_path = '{} [{}-{}]'.format(node_file_path, first, last)
+                # Suggest to render this to a movie
+                self.image_sequence_path = full_path
+            else:
+                # Suggest this movie
+                self.media_path = node_file_path
 
     def __init__(
         self,
@@ -89,7 +117,7 @@ class NukeSequencePublisherCollectorOptionsWidget(BaseOptionsWidget):
         context_id=None,
         asset_type_name=None,
     ):
-        super(NukeSequencePublisherCollectorOptionsWidget, self).__init__(
+        super(NukeMoviePublisherCollectorOptionsWidget, self).__init__(
             parent=parent,
             session=session,
             data=data,
@@ -102,15 +130,13 @@ class NukeSequencePublisherCollectorOptionsWidget(BaseOptionsWidget):
 
     def build(self):
         '''Build the collector widget'''
-        super(NukeSequencePublisherCollectorOptionsWidget, self).build()
+        super(NukeMoviePublisherCollectorOptionsWidget, self).build()
 
         bg = QtWidgets.QButtonGroup(self)
 
         # Render section
 
-        self._render_rb = QtWidgets.QRadioButton(
-            'Render image sequence from script'
-        )
+        self._render_rb = QtWidgets.QRadioButton('Render movie from script')
         bg.addButton(self._render_rb)
         self.layout().addWidget(self._render_rb)
 
@@ -142,10 +168,36 @@ class NukeSequencePublisherCollectorOptionsWidget(BaseOptionsWidget):
 
         self.layout().addWidget(self._render_widget)
 
-        # Pick up already rendered media
-        self._pickup_rb = QtWidgets.QRadioButton(
-            'Pick up rendered image sequence:'
+        # Render from image sequence
+        self._render_from_sequence_rb = QtWidgets.QRadioButton(
+            'Render movie from existing image sequence:'
         )
+        bg.addButton(self._render_from_sequence_rb)
+        self.layout().addWidget(self._render_from_sequence_rb)
+
+        self._browse_image_sequence_widget = QtWidgets.QWidget()
+        self._browse_image_sequence_widget.setLayout(QtWidgets.QHBoxLayout())
+        self._browse_image_sequence_widget.layout().setContentsMargins(
+            15, 0, 0, 0
+        )
+        self._browse_image_sequence_widget.layout().setSpacing(0)
+
+        self._image_sequence_path_le = QtWidgets.QLineEdit()
+
+        self._browse_image_sequence_widget.layout().addWidget(
+            self._image_sequence_path_le, 20
+        )
+
+        self._browse_image_sequence_path_btn = QtWidgets.QPushButton('BROWSE')
+        self._browse_image_sequence_path_btn.setObjectName('borderless')
+
+        self._browse_image_sequence_widget.layout().addWidget(
+            self._browse_image_sequence_path_btn
+        )
+        self.layout().addWidget(self._browse_image_sequence_widget)
+
+        # Pick up already rendered media
+        self._pickup_rb = QtWidgets.QRadioButton('Pick up rendered movie:')
         bg.addButton(self._pickup_rb)
         self.layout().addWidget(self._pickup_rb)
 
@@ -179,6 +231,9 @@ class NukeSequencePublisherCollectorOptionsWidget(BaseOptionsWidget):
         mode = self.options['mode'].lower()
         if mode == 'pickup':
             self._pickup_rb.setChecked(True)
+            self._render_create_write_rb.setChecked(True)
+        elif mode == 'render_from_sequence':
+            self._render_from_sequence_rb.setChecked(True)
             self._render_create_write_rb.setChecked(True)
         else:
             self._render_rb.setChecked(True)
@@ -214,10 +269,11 @@ class NukeSequencePublisherCollectorOptionsWidget(BaseOptionsWidget):
                     writing_movie = file_path.lower().endswith(
                         '.mov'
                     ) or file_path.lower().endswith('.mxf')
-                    if writing_movie:
+                    if not writing_movie:
                         self._render_warning.setVisible(True)
                         self._render_warning.setText(
-                            '<html><i>The selected write node is writing a movie!</i></html>'
+                            '<html><i>The selected write node is writing an image '
+                            'sequence!</i></html>'
                         )
         elif 'node_name' in self.options:
             del self.options['node_name']
@@ -226,6 +282,8 @@ class NukeSequencePublisherCollectorOptionsWidget(BaseOptionsWidget):
         '''Update widget based on selected render mode'''
         if self._pickup_rb.isChecked():
             mode = 'pickup'
+        elif self._render_from_sequence_rb.isChecked():
+            mode = 'render_from_sequence'
         else:
             if self._render_create_write_rb.isChecked():
                 mode = 'render_create_write'
@@ -237,12 +295,15 @@ class NukeSequencePublisherCollectorOptionsWidget(BaseOptionsWidget):
             mode in ['render_create_write', 'render_selected']
         )
         self._browse_media_path_widget.setVisible(mode == 'pickup')
+        self._browse_image_sequence_widget.setVisible(
+            mode == 'render_from_sequence'
+        )
         self._on_node_selected(self.options.get('node_name'))
 
         self.report_input()
 
     def post_build(self):
-        super(NukeSequencePublisherCollectorOptionsWidget, self).post_build()
+        super(NukeMoviePublisherCollectorOptionsWidget, self).post_build()
 
         self.node_names = self.options.get('node_names', [])
 
@@ -254,11 +315,14 @@ class NukeSequencePublisherCollectorOptionsWidget(BaseOptionsWidget):
         self._render_create_write_rb.clicked.connect(self._update_render_mode)
         self._render_selected_rb.clicked.connect(self._update_render_mode)
 
-        self._pickup_rb.clicked.connect(self._update_render_mode)
-
-        self._browse_media_path_btn.clicked.connect(
+        self._render_from_sequence_rb.clicked.connect(self._update_render_mode)
+        self._browse_image_sequence_path_btn.clicked.connect(
             self._show_image_sequence_dialog
         )
+
+        self._pickup_rb.clicked.connect(self._update_render_mode)
+
+        self._browse_media_path_btn.clicked.connect(self._show_movie_dialog)
 
         self._update_render_mode()
 
@@ -270,8 +334,8 @@ class NukeSequencePublisherCollectorOptionsWidget(BaseOptionsWidget):
     def _show_image_sequence_dialog(self):
         '''Shows the file dialog for image sequences'''
         start_dir = None
-        if self.media_path:
-            start_dir = os.path.dirname(self._media_path_le.text())
+        if self.image_sequence_path:
+            start_dir = os.path.dirname(self._image_sequence_path_le.text())
         (
             file_path,
             unused_selected_filter,
@@ -293,7 +357,8 @@ class NukeSequencePublisherCollectorOptionsWidget(BaseOptionsWidget):
             os.listdir(render_path), minimum_items=1
         )
 
-        # Pick first collection, ignore if there are multiple image sequences in the folder for now
+        # Pick first collection, ignore if there are multiple image sequences in
+        # the folder for now
         media_path = None
         for collection in collections:
             if collection.match(os.path.basename(file_path)):
@@ -307,7 +372,31 @@ class NukeSequencePublisherCollectorOptionsWidget(BaseOptionsWidget):
                 'found in: {}!'.format(render_path),
             )
 
-        self.media_path = media_path
+        self.image_sequence_path = media_path
+
+        self.report_input()
+
+    def _show_movie_dialog(self):
+        '''Shows the file dialog to select a movie'''
+
+        start_dir = None
+        if self.media_path:
+            start_dir = os.path.dirname(self._media_path_le.text())
+
+        (
+            movie_path,
+            unused_selected_filter,
+        ) = QtWidgets.QFileDialog.getOpenFileName(
+            caption='Choose rendered movie file',
+            dir=start_dir,
+            filter='All files (*)',
+        )
+
+        if not movie_path:
+            return
+
+        self.media_path = os.path.normpath(movie_path)
+
         self.report_input()
 
     def report_input(self):
@@ -320,6 +409,18 @@ class NukeSequencePublisherCollectorOptionsWidget(BaseOptionsWidget):
                 status = True
             else:
                 message = 'No script node selected!'
+        elif self._render_from_sequence_rb.isChecked():
+            num_objects = (
+                1
+                if self.image_sequence_path is not None
+                and len(self.image_sequence_path) > 0
+                else 0
+            )
+            if num_objects > 0:
+                message = '1 image sequence selected'
+                status = True
+            else:
+                message = 'No image sequence selected!'
         else:
             num_objects = (
                 1
@@ -327,10 +428,10 @@ class NukeSequencePublisherCollectorOptionsWidget(BaseOptionsWidget):
                 else 0
             )
             if num_objects > 0:
-                message = '1 image sequence selected'
+                message = '1 movie selected'
                 status = True
             else:
-                message = 'No image sequence selected'
+                message = 'No movie selected'
 
         self.inputChanged.emit(
             {
@@ -340,16 +441,16 @@ class NukeSequencePublisherCollectorOptionsWidget(BaseOptionsWidget):
         )
 
 
-class NukeSequencePublisherCollectorPluginWidget(
+class NukeMoviePublisherCollectorPluginWidget(
     plugin.NukePublisherCollectorPluginWidget
 ):
-    plugin_name = 'nuke_sequence_publisher_collector'
-    widget = NukeSequencePublisherCollectorOptionsWidget
+    plugin_name = 'nuke_movie_publisher_collector'
+    widget = NukeMoviePublisherCollectorOptionsWidget
 
 
 def register(api_object, **kw):
     if not isinstance(api_object, ftrack_api.Session):
         # Exit to avoid registering this plugin again.
         return
-    plugin = NukeSequencePublisherCollectorPluginWidget(api_object)
+    plugin = NukeMoviePublisherCollectorPluginWidget(api_object)
     plugin.register()

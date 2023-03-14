@@ -63,18 +63,14 @@
     },
     {
       "name": "movie",
-      "optional": true,
       "stages": [
         {
           "name": "collector",
           "plugins":[
             {
               "name": "Collect movie",
-              "plugin": "nuke_sequence_publisher_collector",
-              "widget": "nuke_sequence_publisher_collector",
-              "options": {
-                  "image_sequence": false
-              }
+              "plugin": "nuke_movie_publisher_collector",
+              "widget": "nuke_movie_publisher_collector"
             }
           ]
         },
@@ -140,11 +136,8 @@
           "plugins":[
             {
               "name": "Collect movie",
-              "plugin": "nuke_sequence_publisher_collector",
-              "widget": "nuke_sequence_publisher_collector",
-              "options": {
-                  "image_sequence": false
-              }
+              "plugin": "nuke_movie_publisher_collector",
+              "widget": "nuke_movie_publisher_collector"
             }
           ]
         },
