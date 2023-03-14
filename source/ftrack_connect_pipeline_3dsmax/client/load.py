@@ -9,9 +9,7 @@ from ftrack_connect_pipeline_qt.client import load
 import ftrack_connect_pipeline.constants as constants
 import ftrack_connect_pipeline_qt.constants as qt_constants
 import ftrack_connect_pipeline_3dsmax.constants as max_constants
-from ftrack_connect_pipeline_3dsmax.utils.custom_commands import (
-    get_main_window,
-)
+from ftrack_connect_pipeline_3dsmax import utils as max_utils
 
 
 class MaxQtAssemblerClientWidget(load.QtAssemblerClientWidget):
@@ -29,7 +27,7 @@ class MaxQtAssemblerClientWidget(load.QtAssemblerClientWidget):
             load_const.LOAD_MODES,
             asset_list_model,
             multithreading_enabled=False,
-            parent=parent or get_main_window(),
+            parent=parent or max_utils.get_main_window(),
         )
 
         # Make sure we stays on top of Max

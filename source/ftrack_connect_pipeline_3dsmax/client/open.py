@@ -7,9 +7,7 @@ from ftrack_connect_pipeline_qt.client import open
 import ftrack_connect_pipeline.constants as constants
 import ftrack_connect_pipeline_3dsmax.constants as max_constants
 from ftrack_connect_pipeline_qt import constants as qt_constants
-from ftrack_connect_pipeline_3dsmax.utils.custom_commands import (
-    get_main_window,
-)
+from ftrack_connect_pipeline_3dsmax import utils as max_utils
 
 
 class MaxQtOpenerClientWidget(open.QtOpenerClientWidget):
@@ -24,7 +22,7 @@ class MaxQtOpenerClientWidget(open.QtOpenerClientWidget):
 
     def __init__(self, event_manager, parent=None):
         super(MaxQtOpenerClientWidget, self).__init__(
-            event_manager, parent=parent or get_main_window()
+            event_manager, parent=parent or max_utils.get_main_window()
         )
 
         # Make sure we stays on top of Max
