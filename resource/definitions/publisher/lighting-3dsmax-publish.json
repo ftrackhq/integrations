@@ -110,7 +110,7 @@
           "plugins":[
             {
               "name": "validate selection",
-              "plugin": "max_geometry_publisher_validator"
+              "plugin": "common_non_empty_publisher_validator"
             }
           ]
         },
@@ -144,7 +144,7 @@
           "plugins":[
             {
               "name": "validate selection",
-              "plugin": "max_geometry_publisher_validator"
+              "plugin": "common_non_empty_publisher_validator"
             }
           ]
         },
