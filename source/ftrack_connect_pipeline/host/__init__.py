@@ -59,9 +59,6 @@ class Host(object):
     def __repr__(self):
         return '<Host:{0}>'.format(self.host_id)
 
-    def __del__(self):
-        self.logger.debug('Closing {}'.format(self))
-
     @property
     def context_id(self):
         '''Return the the default context id set at host launch'''

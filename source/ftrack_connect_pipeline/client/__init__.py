@@ -244,9 +244,6 @@ class Client(object):
     def __repr__(self):
         return '<Client:{0}>'.format(self.ui_types)
 
-    def __del__(self):
-        self.logger.debug('Closing {}'.format(self))
-
     @property
     def session(self):
         '''
