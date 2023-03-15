@@ -118,11 +118,9 @@ class NukeSequencePublisherExporterPlugin(plugin.NukePublisherExporterPlugin):
                         )
 
                     file_path = write_node['file'].value()
-                    if (
-                        file_path is None
-                        or file_path.lower().endswith('.mov')
-                        or file_path.lower().endswith('.mxf')
-                    ):
+                    if file_path is None or os.path.splitext(
+                        file_path.lower()
+                    )[-1] in ['.mov', '.mxf', '.avi', '.r3d']:
                         return (
                             False,
                             {

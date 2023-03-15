@@ -33,7 +33,7 @@ class NukeSequencePublisherCollectorOptionsWidget(BaseOptionsWidget):
     @image_sequence_path.setter
     def image_sequence_path(self, image_sequence_path):
         '''Store *image_sequence_path* in options and update widgets'''
-        if image_sequence_path and len(image_sequence_path) > 0:
+        if image_sequence_path:
             self.set_option_result(image_sequence_path, 'image_sequence_path')
         else:
             image_sequence_path = '<please choose a image sequence>'
@@ -64,9 +64,12 @@ class NukeSequencePublisherCollectorOptionsWidget(BaseOptionsWidget):
             node = nuke.toNode(node_name)
             if node.knob('file') and node.knob('first') and node.knob('last'):
                 node_file_path = node.knob('file').value()
-                if node_file_path.lower().endswith(
-                    '.mov'
-                ) or node_file_path.lower().endswith('.mxf'):
+                if os.path.splitext(node_file_path.lower())[-1] in [
+                    '.mov',
+                    '.mxf',
+                    '.avi',
+                    '.r3d',
+                ]:
                     is_movie = True
                 else:
                     is_movie = False
@@ -173,7 +176,7 @@ class NukeSequencePublisherCollectorOptionsWidget(BaseOptionsWidget):
         self.layout().addWidget(self._browse_image_sequence_path_widget)
 
         # Use supplied value from definition if available
-        if len(self.options.get('image_sequence_path') or '') > 0:
+        if self.options.get('image_sequence_path'):
             self.image_sequence_path = self.options['image_sequence_path']
 
         if 'mode' not in self.options:
@@ -199,7 +202,7 @@ class NukeSequencePublisherCollectorOptionsWidget(BaseOptionsWidget):
     def _on_node_selected(self, node_name):
         '''Callback when node is selected in the combo box.'''
         self._render_warning.setVisible(False)
-        if len(node_name or '') == 0:
+        if not node_name:
             if 'node_name' in self.options:
                 del self.options['node_name']
             return
@@ -218,9 +221,12 @@ class NukeSequencePublisherCollectorOptionsWidget(BaseOptionsWidget):
             else:
                 # Check file format
                 file_path = input_node['file'].value()
-                writing_movie = file_path.lower().endswith(
-                    '.mov'
-                ) or file_path.lower().endswith('.mxf')
+                writing_movie = os.path.splitext(file_path.lower())[-1] in [
+                    '.mov',
+                    '.mxf',
+                    '.avi',
+                    '.r3d',
+                ]
                 if writing_movie:
                     self._render_warning.setVisible(True)
                     self._render_warning.setText(
@@ -230,12 +236,12 @@ class NukeSequencePublisherCollectorOptionsWidget(BaseOptionsWidget):
     def _update_render_mode(self):
         '''Update widget based on selected render mode'''
         mode = None
-        if self._render_create_write_rb.isChecked():
+        if self._pickup_rb.isChecked():
+            mode = 'pickup'
+        elif self._render_create_write_rb.isChecked():
             mode = 'render_create_write'
         elif self._render_selected_rb.isChecked():
             mode = 'render_selected'
-        elif self._pickup_rb.isChecked():
-            mode = 'pickup'
         self.set_option_result(mode, 'mode')
 
         self._render_widget.setVisible(
@@ -281,7 +287,9 @@ class NukeSequencePublisherCollectorOptionsWidget(BaseOptionsWidget):
         ) = QtWidgets.QFileDialog.getOpenFileName(
             caption='Choose image sequence',
             dir=start_dir,
-            filter='All files (*)',
+            filter='Images (*.cin *.dng *.dpx *.dtex *.gif *.bmp *.float *.pcx '
+            '*.png *.psd *.tga *.jpeg *.jpg *.exr *.dds *.hdr *.hdri *.cgi '
+            '*.tif *.tiff *.tga *.targa *.yuv);;All files (*)',
         )
 
         if not file_path:

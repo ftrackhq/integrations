@@ -12,7 +12,6 @@ import ftrack_api
 from ftrack_connect_pipeline_qt.plugin.widget import BaseOptionsWidget
 from ftrack_connect_pipeline_qt.ui.utility.widget import dialog
 from ftrack_connect_pipeline_nuke import plugin
-from ftrack_connect_pipeline_nuke import utils as nuke_utils
 
 
 class NukeMoviePublisherCollectorOptionsWidget(BaseOptionsWidget):
@@ -57,7 +56,7 @@ class NukeMoviePublisherCollectorOptionsWidget(BaseOptionsWidget):
     @image_sequence_path.setter
     def image_sequence_path(self, image_sequence_path):
         '''Store *image_sequence_path* for movie render in options and update widgets'''
-        if image_sequence_path and len(image_sequence_path) > 0:
+        if image_sequence_path:
             self.set_option_result(image_sequence_path, 'image_sequence_path')
         else:
             image_sequence_path = '<please choose a image sequence>'
@@ -87,9 +86,12 @@ class NukeMoviePublisherCollectorOptionsWidget(BaseOptionsWidget):
             node = nuke.toNode(node_name)
             if node.knob('file') and node.knob('first') and node.knob('last'):
                 node_file_path = node.knob('file').value()
-                if node_file_path.lower().endswith(
-                    '.mov'
-                ) or node_file_path.lower().endswith('.mxf'):
+                if os.path.splitext(node_file_path.lower())[-1] in [
+                    '.mov',
+                    '.mxf',
+                    '.avi',
+                    '.r3d',
+                ]:
                     is_movie = True
                 else:
                     is_movie = False
@@ -201,24 +203,22 @@ class NukeMoviePublisherCollectorOptionsWidget(BaseOptionsWidget):
         bg.addButton(self._pickup_rb)
         self.layout().addWidget(self._pickup_rb)
 
-        self._browse_movie_path_widget = QtWidgets.QWidget()
-        self._browse_movie_path_widget.setLayout(QtWidgets.QHBoxLayout())
-        self._browse_movie_path_widget.layout().setContentsMargins(15, 0, 0, 0)
-        self._browse_movie_path_widget.layout().setSpacing(0)
+        self._browse_movie_widget = QtWidgets.QWidget()
+        self._browse_movie_widget.setLayout(QtWidgets.QHBoxLayout())
+        self._browse_movie_widget.layout().setContentsMargins(15, 0, 0, 0)
+        self._browse_movie_widget.layout().setSpacing(0)
 
         self._movie_path_le = QtWidgets.QLineEdit()
 
-        self._browse_movie_path_widget.layout().addWidget(
-            self._movie_path_le, 20
-        )
+        self._browse_movie_widget.layout().addWidget(self._movie_path_le, 20)
 
         self._browse_movie_path_btn = QtWidgets.QPushButton('BROWSE')
         self._browse_movie_path_btn.setObjectName('borderless')
 
-        self._browse_movie_path_widget.layout().addWidget(
+        self._browse_movie_widget.layout().addWidget(
             self._browse_movie_path_btn
         )
-        self.layout().addWidget(self._browse_movie_path_widget)
+        self.layout().addWidget(self._browse_movie_widget)
 
         # Use supplied value from definition if available
         if len(self.options.get('movie_path') or '') > 0:
@@ -250,7 +250,7 @@ class NukeMoviePublisherCollectorOptionsWidget(BaseOptionsWidget):
     def _on_node_selected(self, node_name):
         '''Callback when node is selected in the combo box.'''
         self._render_warning.setVisible(False)
-        if len(node_name or '') == 0:
+        if not node_name:
             if 'node_name' in self.options:
                 del self.options['node_name']
             return
@@ -269,9 +269,12 @@ class NukeMoviePublisherCollectorOptionsWidget(BaseOptionsWidget):
             else:
                 # Check file format
                 file_path = input_node['file'].value()
-                writing_movie = file_path.lower().endswith(
-                    '.mov'
-                ) or file_path.lower().endswith('.mxf')
+                writing_movie = os.path.splitext(file_path.lower())[-1] in [
+                    '.mov',
+                    '.mxf',
+                    '.avi',
+                    '.r3d',
+                ]
                 if not writing_movie:
                     self._render_warning.setVisible(True)
                     self._render_warning.setText(
@@ -281,20 +284,20 @@ class NukeMoviePublisherCollectorOptionsWidget(BaseOptionsWidget):
     def _update_render_mode(self):
         '''Update widget based on selected render mode'''
         mode = None
-        if self._render_from_sequence_rb.isChecked():
+        if self._pickup_rb.isChecked():
+            mode = 'pickup'
+        elif self._render_from_sequence_rb.isChecked():
             mode = 'render_from_sequence'
         elif self._render_create_write_rb.isChecked():
             mode = 'render_create_write'
         elif self._render_selected_rb.isChecked():
             mode = 'render_selected'
-        elif self._pickup_rb.isChecked():
-            mode = 'pickup'
         self.set_option_result(mode, 'mode')
 
         self._render_widget.setVisible(
             mode in ['render_create_write', 'render_selected']
         )
-        self._browse_movie_path_widget.setVisible(mode == 'pickup')
+        self._browse_movie_widget.setVisible(mode == 'pickup')
         self._browse_image_sequence_widget.setVisible(
             mode == 'render_from_sequence'
         )
@@ -340,7 +343,9 @@ class NukeMoviePublisherCollectorOptionsWidget(BaseOptionsWidget):
         ) = QtWidgets.QFileDialog.getOpenFileName(
             caption='Choose image sequence',
             dir=start_dir,
-            filter='All files (*)',
+            filter='Images (*.cin *.dng *.dpx *.dtex *.gif *.bmp *.float *.pcx '
+            '*.png *.psd *.tga *.jpeg *.jpg *.exr *.dds *.hdr *.hdri *.cgi '
+            '*.tif *.tiff *.tga *.targa *.yuv);;All files (*)',
         )
 
         if not file_path:
@@ -375,7 +380,7 @@ class NukeMoviePublisherCollectorOptionsWidget(BaseOptionsWidget):
         ) = QtWidgets.QFileDialog.getOpenFileName(
             caption='Choose rendered movie file',
             dir=start_dir,
-            filter='All files (*)',
+            filter='Movies (*.mov *.r3d *.mxf *.avi);;All files (*)',
         )
 
         if not movie_path:
@@ -396,21 +401,14 @@ class NukeMoviePublisherCollectorOptionsWidget(BaseOptionsWidget):
             else:
                 message = 'No script node selected!'
         elif self._render_from_sequence_rb.isChecked():
-            num_objects = (
-                1
-                if self.image_sequence_path
-                and len(self.image_sequence_path) > 0
-                else 0
-            )
+            num_objects = 1 if self.image_sequence_path else 0
             if num_objects > 0:
                 message = '1 image sequence selected'
                 status = True
             else:
                 message = 'No image sequence selected!'
         else:
-            num_objects = (
-                1 if self.movie_path and len(self.movie_path) > 0 else 0
-            )
+            num_objects = 1 if self.movie_path else 0
             if num_objects > 0:
                 message = '1 movie selected'
                 status = True
