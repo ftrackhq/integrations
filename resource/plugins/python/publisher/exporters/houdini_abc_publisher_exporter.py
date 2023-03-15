@@ -21,6 +21,7 @@ class HoudiniAbcPublisherExporterPlugin(plugin.HoudiniPublisherExporterPlugin):
     def extract_options(self, options):
         r = hou.playbar.frameRange()
         return {
+            'ABCFormat': str(options.get('ABCFormat', 'Default')),
             'ABCAnimation': bool(options.get('ABCAnimation', True)),
             'ABCFrameRangeStart': float(
                 options.get('ABCFrameRangeStart', r[0])
@@ -122,6 +123,9 @@ class HoudiniAbcPublisherExporterPlugin(plugin.HoudiniPublisherExporterPlugin):
             )
 
             abc_ropnet.render()
+        except Exception as e:
+            self.logger.exception(e)
+            return False, {'message': 'Failed to export Alembic: {}'.format(e)}
         finally:
             # Clean up after us
             if rop_net:

@@ -85,50 +85,55 @@ class HoudiniFbxPublisherExporterPlugin(plugin.HoudiniPublisherExporterPlugin):
 
         object_paths = ' '.join(collected_objects)
         objects = [hou.node(obj_path) for obj_path in collected_objects]
-
-        # Create Rop Net
-        ropNet = root_obj.createNode('ropnet')
-        fbxRopnet = ropNet.createNode('filmboxfbx')
-
-        fbxRopnet.parm('trange').set(options['FBXValidFrameRange'])
-        fbxRopnet.parm('f1').set(options['FBXFrameRangeStart'])
-        fbxRopnet.parm('f2').set(options['FBXFrameRangeEnd'])
-        fbxRopnet.parm('f3').set(options['FBXFrameRangeBy'])
-        fbxRopnet.parm('take').set(options['FBXTake'])
-        fbxRopnet.parm('trange').set(options['FBXValidFrameRange'])
-        fbxRopnet.parm('sopoutput').set(new_file_path)
-        fbxRopnet.parm('startnode').set(objects[0].parent().path())
-        fbxRopnet.parm('exportkind').set(options['FBXASCII'])
-        fbxRopnet.parm('sdkversion').set(options['FBXSDKVersion'])
-        fbxRopnet.parm('vcformat').set(options['FBXVertexCacheFormat'])
-        fbxRopnet.parm('invisobj').set(options['FBXExportInvisibleObjects'])
-        fbxRopnet.parm('polylod').set(options['FBXConversionLevelOfDetail'])
-        fbxRopnet.parm('detectconstpointobjs').set(
-            options['FBXDetectConstantPointCountDynamicObjects']
-        )
-        fbxRopnet.parm('convertsurfaces').set(
-            options['FBXConvertNURBSAndBeizerSurfaceToPolygons']
-        )
-        fbxRopnet.parm('conservemem').set(
-            options['FBXConserveMemoryAtTheExpenseOfExportTime']
-        )
-        fbxRopnet.parm('forceblendshape').set(
-            options['FBXForceBlendShapeExport']
-        )
-        fbxRopnet.parm('forceskindeform').set(
-            options['FBXForceSkinDeformExport']
-        )
+        ropNet = None
         try:
+            # Create Rop Net
+            ropNet = root_obj.createNode('ropnet')
+            fbxRopnet = ropNet.createNode('filmboxfbx')
+
+            fbxRopnet.parm('trange').set(options['FBXValidFrameRange'])
+            fbxRopnet.parm('f1').set(options['FBXFrameRangeStart'])
+            fbxRopnet.parm('f2').set(options['FBXFrameRangeEnd'])
+            fbxRopnet.parm('f3').set(options['FBXFrameRangeBy'])
+            fbxRopnet.parm('take').set(options['FBXTake'])
+            fbxRopnet.parm('trange').set(options['FBXValidFrameRange'])
+            fbxRopnet.parm('sopoutput').set(new_file_path)
+            fbxRopnet.parm('startnode').set(objects[0].parent().path())
+            fbxRopnet.parm('exportkind').set(options['FBXASCII'])
+            fbxRopnet.parm('sdkversion').set(options['FBXSDKVersion'])
+            fbxRopnet.parm('vcformat').set(options['FBXVertexCacheFormat'])
+            fbxRopnet.parm('invisobj').set(
+                options['FBXExportInvisibleObjects']
+            )
+            fbxRopnet.parm('polylod').set(
+                options['FBXConversionLevelOfDetail']
+            )
+            fbxRopnet.parm('detectconstpointobjs').set(
+                options['FBXDetectConstantPointCountDynamicObjects']
+            )
+            fbxRopnet.parm('convertsurfaces').set(
+                options['FBXConvertNURBSAndBeizerSurfaceToPolygons']
+            )
+            fbxRopnet.parm('conservemem').set(
+                options['FBXConserveMemoryAtTheExpenseOfExportTime']
+            )
+            fbxRopnet.parm('forceblendshape').set(
+                options['FBXForceBlendShapeExport']
+            )
+            fbxRopnet.parm('forceskindeform').set(
+                options['FBXForceSkinDeformExport']
+            )
             fbxRopnet.parm('axissystem').set(options['FBXAxisSystem'])
             fbxRopnet.parm('exportendeffectors').set(
                 options['FBXExportEndEffectors']
             )
-        except:
-            pass  # Not supported in older versions
-        try:
             fbxRopnet.render()
+        except Exception as e:
+            self.logger.exception(e)
+            return False, {'message': 'Failed to export Alembic: {}'.format(e)}
         finally:
-            ropNet.destroy()
+            if ropNet:
+                ropNet.destroy()
 
         return [new_file_path]
 
