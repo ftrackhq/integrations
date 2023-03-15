@@ -22,7 +22,7 @@ class NukeSequencePublisherExporterPlugin(plugin.NukePublisherExporterPlugin):
         '''Export an image sequence from Nuke from collected node or supplied media with *data* based on *options*'''
 
         node_name = None
-        media_path = None
+        image_sequence_path = None
         create_write = False
         for collector in data:
             result = collector['result'][0]
@@ -30,7 +30,7 @@ class NukeSequencePublisherExporterPlugin(plugin.NukePublisherExporterPlugin):
                 node_name = result['node_name']
                 create_write = result.get('create_write', False)
             else:
-                media_path = result['media_path']
+                image_sequence_path = result['image_sequence_path']
 
         if node_name:
             input_node = nuke.toNode(node_name)
@@ -73,7 +73,7 @@ class NukeSequencePublisherExporterPlugin(plugin.NukePublisherExporterPlugin):
                     temp_sequence_path = '{}.%0{}d.{}'.format(
                         temp_name.name, digit_len, selected_file_format
                     )
-                    sequence_path = clique.parse(
+                    image_sequence_path = clique.parse(
                         '{} [{}-{}]'.format(temp_sequence_path, first, last)
                     )
 
@@ -161,7 +161,7 @@ class NukeSequencePublisherExporterPlugin(plugin.NukePublisherExporterPlugin):
                     )
                     nuke.render(write_node, first, last)
 
-                    sequence_path = clique.parse(
+                    image_sequence_path = clique.parse(
                         '{} [{}-{}]'.format(
                             write_node['file'].value(), first, last
                         )
@@ -174,13 +174,11 @@ class NukeSequencePublisherExporterPlugin(plugin.NukePublisherExporterPlugin):
         else:
             self.logger.debug(
                 'Picking up rendered file sequence path for publish: "{}"'.format(
-                    media_path
+                    image_sequence_path
                 )
             )
 
-            sequence_path = media_path
-
-        return [str(sequence_path)]
+        return [str(image_sequence_path)]
 
 
 def register(api_object, **kw):

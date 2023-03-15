@@ -28,24 +28,26 @@ class NukeWritableNodePublisherValidatorPlugin(
             if node_name:
                 break
 
-        if node_name:
-            scene_node = nuke.toNode(node_name)
-            selected_nodes = nuke.selectedNodes()
-            nuke_utils.clean_selection()
-
-            write_node = nuke.createNode('Write')
-            if not write_node.setInput(0, scene_node):
-                msg = "The selected node can't be connected to a write node"
-                self.logger.error(msg)
-                return (False, {'message': msg})
-            # delete temporal write node
-            nuke.delete(write_node)
-            # restore selection
-            nuke_utils.clean_selection()
-            for node in selected_nodes:
-                node['selected'].setValue(True)
-        else:
+        if not node_name:
             self.logger.info('No collected script node to validate')
+            return True
+
+        scene_node = nuke.toNode(node_name)
+        selected_nodes = nuke.selectedNodes()
+        nuke_utils.clean_selection()
+
+        write_node = nuke.createNode('Write')
+        if not write_node.setInput(0, scene_node):
+            msg = "The selected node can't be connected to a write node"
+            self.logger.error(msg)
+            return (False, {'message': msg})
+        # delete temporal write node
+        nuke.delete(write_node)
+        # restore selection
+        nuke_utils.clean_selection()
+        for node in selected_nodes:
+            node['selected'].setValue(True)
+
         return True
 
 

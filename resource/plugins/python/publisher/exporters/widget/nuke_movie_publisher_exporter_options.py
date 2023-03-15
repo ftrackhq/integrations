@@ -102,13 +102,6 @@ class NukeMoviePublisherExporterOptionsWidget(BaseOptionsWidget):
         '''File format *file_format* has been chosen by user'''
         self.set_option_result(file_format, key='file_format')
         # Rebuild codecs
-        codec_knob_name = self.options.get(
-            self.file_format_cb.currentText(), {}
-        ).get('codec_knob_name')
-        if codec_knob_name:
-            default_codec = self.options.get(file_format, {}).get(
-                codec_knob_name
-            )
         self.codec_cb.clear()
         index = 0
         default_codec = self.options.get('codec', 'mp4v')

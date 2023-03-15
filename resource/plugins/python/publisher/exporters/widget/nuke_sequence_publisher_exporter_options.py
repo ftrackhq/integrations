@@ -101,11 +101,8 @@ class NukeSequencePublisherExporterOptionsWidget(BaseOptionsWidget):
     def post_build(self):
         super(NukeSequencePublisherExporterOptionsWidget, self).post_build()
 
-        def update_fn(index):
-            text = self.img_format_cb.itemText(index)
-            self.set_option_result(text, 'image_format')
-
-        self.img_format_cb.currentIndexChanged.connect(update_fn)
+        update_fn = partial(self.set_option_result, key='image_format')
+        self.img_format_cb.currentTextChanged.connect(update_fn)
         if self.default_file_format:
             index = self.img_format_cb.findText(self.default_file_format)
             if index:

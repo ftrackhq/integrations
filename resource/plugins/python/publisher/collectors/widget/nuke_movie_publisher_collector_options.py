@@ -1,8 +1,7 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2023 ftrack
 import os
-import clique
-from functools import partial
+from ftrack_connect_pipeline import utils as core_utils
 
 import nuke
 
@@ -23,27 +22,27 @@ class NukeMoviePublisherCollectorOptionsWidget(BaseOptionsWidget):
     auto_fetch_on_init = True
 
     @property
-    def media_path(self):
+    def movie_path(self):
         '''Return the media path from options'''
-        result = self.options.get('media_path')
+        result = self.options.get('movie_path')
         if result:
             result = result.strip()
             if len(result) == 0:
                 result = None
         return result
 
-    @media_path.setter
-    def media_path(self, media_path):
-        '''Store *media_path* in options and update widgets'''
-        if media_path is not None and len(media_path) > 0:
-            self.set_option_result(media_path, 'media_path')
+    @movie_path.setter
+    def movie_path(self, movie_path):
+        '''Store *movie_path* in options and update widgets'''
+        if movie_path and len(movie_path) > 0:
+            self.set_option_result(movie_path, 'movie_path')
         else:
-            media_path = '<please choose a movie>'
-            self.set_option_result(None, 'media_path')
+            movie_path = '<please choose a movie>'
+            self.set_option_result(None, 'movie_path')
 
         # Update UI
-        self._media_path_le.setText(media_path)
-        self._media_path_le.setToolTip(media_path)
+        self._movie_path_le.setText(movie_path)
+        self._movie_path_le.setToolTip(movie_path)
 
     @property
     def image_sequence_path(self):
@@ -58,7 +57,7 @@ class NukeMoviePublisherCollectorOptionsWidget(BaseOptionsWidget):
     @image_sequence_path.setter
     def image_sequence_path(self, image_sequence_path):
         '''Store *image_sequence_path* for movie render in options and update widgets'''
-        if image_sequence_path is not None and len(image_sequence_path) > 0:
+        if image_sequence_path and len(image_sequence_path) > 0:
             self.set_option_result(image_sequence_path, 'image_sequence_path')
         else:
             image_sequence_path = '<please choose a image sequence>'
@@ -104,7 +103,7 @@ class NukeMoviePublisherCollectorOptionsWidget(BaseOptionsWidget):
                 self.image_sequence_path = full_path
             else:
                 # Suggest this movie
-                self.media_path = node_file_path
+                self.movie_path = node_file_path
 
     def __init__(
         self,
@@ -117,6 +116,7 @@ class NukeMoviePublisherCollectorOptionsWidget(BaseOptionsWidget):
         context_id=None,
         asset_type_name=None,
     ):
+        self._node_names = []
         super(NukeMoviePublisherCollectorOptionsWidget, self).__init__(
             parent=parent,
             session=session,
@@ -201,28 +201,28 @@ class NukeMoviePublisherCollectorOptionsWidget(BaseOptionsWidget):
         bg.addButton(self._pickup_rb)
         self.layout().addWidget(self._pickup_rb)
 
-        self._browse_media_path_widget = QtWidgets.QWidget()
-        self._browse_media_path_widget.setLayout(QtWidgets.QHBoxLayout())
-        self._browse_media_path_widget.layout().setContentsMargins(15, 0, 0, 0)
-        self._browse_media_path_widget.layout().setSpacing(0)
+        self._browse_movie_path_widget = QtWidgets.QWidget()
+        self._browse_movie_path_widget.setLayout(QtWidgets.QHBoxLayout())
+        self._browse_movie_path_widget.layout().setContentsMargins(15, 0, 0, 0)
+        self._browse_movie_path_widget.layout().setSpacing(0)
 
-        self._media_path_le = QtWidgets.QLineEdit()
+        self._movie_path_le = QtWidgets.QLineEdit()
 
-        self._browse_media_path_widget.layout().addWidget(
-            self._media_path_le, 20
+        self._browse_movie_path_widget.layout().addWidget(
+            self._movie_path_le, 20
         )
 
-        self._browse_media_path_btn = QtWidgets.QPushButton('BROWSE')
-        self._browse_media_path_btn.setObjectName('borderless')
+        self._browse_movie_path_btn = QtWidgets.QPushButton('BROWSE')
+        self._browse_movie_path_btn.setObjectName('borderless')
 
-        self._browse_media_path_widget.layout().addWidget(
-            self._browse_media_path_btn
+        self._browse_movie_path_widget.layout().addWidget(
+            self._browse_movie_path_btn
         )
-        self.layout().addWidget(self._browse_media_path_widget)
+        self.layout().addWidget(self._browse_movie_path_widget)
 
         # Use supplied value from definition if available
-        if len(self.options.get('media_path') or '') > 0:
-            self.media_path = self.options['media_path']
+        if len(self.options.get('movie_path') or '') > 0:
+            self.movie_path = self.options['movie_path']
 
         if 'mode' not in self.options:
             self.set_option_result(
@@ -250,51 +250,51 @@ class NukeMoviePublisherCollectorOptionsWidget(BaseOptionsWidget):
     def _on_node_selected(self, node_name):
         '''Callback when node is selected in the combo box.'''
         self._render_warning.setVisible(False)
-        if len(node_name or '') > 0:
-            self.set_option_result(node_name, 'node_name')
-            # Validate node selection against current mode, display warning
-            if (
-                self._render_rb.isChecked()
-                and self._render_selected_rb.isChecked()
-            ):
-                input_node = nuke.toNode(node_name)
-                if input_node.Class() != 'Write':
+        if len(node_name or '') == 0:
+            if 'node_name' in self.options:
+                del self.options['node_name']
+            return
+        self.set_option_result(node_name, 'node_name')
+        # Validate node selection against current mode, display warning
+        if (
+            self._render_rb.isChecked()
+            and self._render_selected_rb.isChecked()
+        ):
+            input_node = nuke.toNode(node_name)
+            if input_node.Class() != 'Write':
+                self._render_warning.setVisible(True)
+                self._render_warning.setText(
+                    '<html><i>The selected node is not a write node!</i></html>'
+                )
+            else:
+                # Check file format
+                file_path = input_node['file'].value()
+                writing_movie = file_path.lower().endswith(
+                    '.mov'
+                ) or file_path.lower().endswith('.mxf')
+                if not writing_movie:
                     self._render_warning.setVisible(True)
                     self._render_warning.setText(
-                        '<html><i>The selected node is not a write node!</i></html>'
+                        '<html><i>The selected write node is not writing a movie!</i></html>'
                     )
-                else:
-                    # Check file format
-                    file_path = input_node['file'].value()
-                    writing_movie = file_path.lower().endswith(
-                        '.mov'
-                    ) or file_path.lower().endswith('.mxf')
-                    if not writing_movie:
-                        self._render_warning.setVisible(True)
-                        self._render_warning.setText(
-                            '<html><i>The selected write node is writing an image '
-                            'sequence!</i></html>'
-                        )
-        elif 'node_name' in self.options:
-            del self.options['node_name']
 
     def _update_render_mode(self):
         '''Update widget based on selected render mode'''
-        if self._pickup_rb.isChecked():
-            mode = 'pickup'
-        elif self._render_from_sequence_rb.isChecked():
+        mode = None
+        if self._render_from_sequence_rb.isChecked():
             mode = 'render_from_sequence'
-        else:
-            if self._render_create_write_rb.isChecked():
-                mode = 'render_create_write'
-            else:
-                mode = 'render_selected'
+        elif self._render_create_write_rb.isChecked():
+            mode = 'render_create_write'
+        elif self._render_selected_rb.isChecked():
+            mode = 'render_selected'
+        elif self._pickup_rb.isChecked():
+            mode = 'pickup'
         self.set_option_result(mode, 'mode')
 
         self._render_widget.setVisible(
             mode in ['render_create_write', 'render_selected']
         )
-        self._browse_media_path_widget.setVisible(mode == 'pickup')
+        self._browse_movie_path_widget.setVisible(mode == 'pickup')
         self._browse_image_sequence_widget.setVisible(
             mode == 'render_from_sequence'
         )
@@ -304,8 +304,6 @@ class NukeMoviePublisherCollectorOptionsWidget(BaseOptionsWidget):
 
     def post_build(self):
         super(NukeMoviePublisherCollectorOptionsWidget, self).post_build()
-
-        self.node_names = self.options.get('node_names', [])
 
         self._nodes_cb.currentTextChanged.connect(self._on_node_selected)
         if self.node_names:
@@ -322,7 +320,7 @@ class NukeMoviePublisherCollectorOptionsWidget(BaseOptionsWidget):
 
         self._pickup_rb.clicked.connect(self._update_render_mode)
 
-        self._browse_media_path_btn.clicked.connect(self._show_movie_dialog)
+        self._browse_movie_path_btn.clicked.connect(self._show_movie_dialog)
 
         self._update_render_mode()
 
@@ -350,29 +348,17 @@ class NukeMoviePublisherCollectorOptionsWidget(BaseOptionsWidget):
 
         file_path = os.path.normpath(file_path)
 
-        render_path = os.path.dirname(file_path)
+        image_sequence_path = core_utils.find_image_sequence(file_path)
 
-        # Search folder for images sequence
-        collections, remainder = clique.assemble(
-            os.listdir(render_path), minimum_items=1
-        )
-
-        # Pick first collection, ignore if there are multiple image sequences in
-        # the folder for now
-        media_path = None
-        for collection in collections:
-            if collection.match(os.path.basename(file_path)):
-                media_path = os.path.join(render_path, collection.format())
-
-        if not media_path:
+        if not image_sequence_path:
             dialog.ModalDialog(
                 None,
                 title='Locate image sequence',
                 message='An image sequence on the form "prefix.NNNN.ext" were not '
-                'found in: {}!'.format(render_path),
+                'found at {}!'.format(file_path),
             )
 
-        self.image_sequence_path = media_path
+        self.image_sequence_path = image_sequence_path
 
         self.report_input()
 
@@ -380,8 +366,8 @@ class NukeMoviePublisherCollectorOptionsWidget(BaseOptionsWidget):
         '''Shows the file dialog to select a movie'''
 
         start_dir = None
-        if self.media_path:
-            start_dir = os.path.dirname(self._media_path_le.text())
+        if self.movie_path:
+            start_dir = os.path.dirname(self._movie_path_le.text())
 
         (
             movie_path,
@@ -395,7 +381,7 @@ class NukeMoviePublisherCollectorOptionsWidget(BaseOptionsWidget):
         if not movie_path:
             return
 
-        self.media_path = os.path.normpath(movie_path)
+        self.movie_path = os.path.normpath(movie_path)
 
         self.report_input()
 
@@ -412,7 +398,7 @@ class NukeMoviePublisherCollectorOptionsWidget(BaseOptionsWidget):
         elif self._render_from_sequence_rb.isChecked():
             num_objects = (
                 1
-                if self.image_sequence_path is not None
+                if self.image_sequence_path
                 and len(self.image_sequence_path) > 0
                 else 0
             )
@@ -423,9 +409,7 @@ class NukeMoviePublisherCollectorOptionsWidget(BaseOptionsWidget):
                 message = 'No image sequence selected!'
         else:
             num_objects = (
-                1
-                if self.media_path is not None and len(self.media_path) > 0
-                else 0
+                1 if self.movie_path and len(self.movie_path) > 0 else 0
             )
             if num_objects > 0:
                 message = '1 movie selected'

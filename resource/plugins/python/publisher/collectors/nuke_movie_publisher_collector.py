@@ -31,6 +31,7 @@ class NukeMoviePublisherCollectorPlugin(plugin.NukePublisherCollectorPlugin):
     def run(self, context_data=None, data=None, options=None):
         '''Build collected objects based on *options*'''
         mode = options['mode']
+        result = None
         if mode in ['render_selected', 'render_create_write']:
             node_name = options.get('node_name')
             result = {
@@ -42,8 +43,8 @@ class NukeMoviePublisherCollectorPlugin(plugin.NukePublisherCollectorPlugin):
             image_sequence_path = options.get('image_sequence_path')
             result = {'image_sequence_path': image_sequence_path}
         elif mode == 'pickup':
-            media_path = options.get('media_path')
-            result = {'media_path': media_path}
+            movie_path = options.get('movie_path')
+            result = {'movie_path': movie_path}
         return [result]
 
 

@@ -19,10 +19,11 @@ class NukeMoviePublisherExporterPlugin(plugin.NukePublisherExporterPlugin):
     plugin_name = 'nuke_movie_publisher_exporter'
 
     def run(self, context_data=None, data=None, options=None):
-        '''Export a video file from Nuke from collected node or supplied media with supplied *data* based on *options*'''
+        '''Export a video file from Nuke from collected node or supplied media
+        with supplied *data* based on *options*'''
 
         node_name = None
-        media_path = image_sequence_path = None
+        movie_path = image_sequence_path = None
         create_write = False
         for collector in data:
             result = collector['result'][0]
@@ -32,8 +33,7 @@ class NukeMoviePublisherExporterPlugin(plugin.NukePublisherExporterPlugin):
             elif 'image_sequence_path' in result:
                 image_sequence_path = result['image_sequence_path']
             else:
-                media_path = result['media_path']
-                render_from_image_sequence = result.get('render', False)
+                movie_path = result['movie_path']
 
         if node_name:
             input_node = nuke.toNode(node_name)
@@ -78,13 +78,7 @@ class NukeMoviePublisherExporterPlugin(plugin.NukePublisherExporterPlugin):
 
                     write_node['file'].setValue(movie_path.replace('\\', '/'))
 
-                    write_node['file_type'].setValue(selected_file_format)
-                    # Set additional file format options
-                    # TODO: Document macOs crash and how to choose mp4v codec if mov file format as a work around
-                    if len(options.get(selected_file_format) or {}) > 0:
-                        for k, v in options[selected_file_format].items():
-                            if k not in ['codecs', 'codec_knob_name']:
-                                write_node[k].setValue(v)
+                    self._apply_movie_file_format_options(write_node, options)
 
                     self.logger.debug(
                         'Rendering movie [{}-{}] to "{}"'.format(
@@ -157,13 +151,9 @@ class NukeMoviePublisherExporterPlugin(plugin.NukePublisherExporterPlugin):
                         else:
                             movie_path = file_path
 
-                        write_node['file_type'].setValue(selected_file_format)
-                        # Set additional file format options
-                        # TODO: Document macOs crash and how to choose mp4v codec if mov file format as a work around
-                        if len(options.get(selected_file_format) or {}) > 0:
-                            for k, v in options[selected_file_format].items():
-                                if k not in ['codecs', 'codec_knob_name']:
-                                    write_node[k].setValue(v)
+                        self._apply_movie_file_format_options(
+                            write_node, options
+                        )
 
                         self.logger.debug(
                             'Rendering movie [{}-{}] from selected write node "{}" to "{}"'.format(
@@ -185,7 +175,6 @@ class NukeMoviePublisherExporterPlugin(plugin.NukePublisherExporterPlugin):
         else:
             if image_sequence_path:
                 # Expected an image sequence supplied, render movie from it
-                delete_read_node = False
                 # Read the sequence
                 collection = clique.parse(image_sequence_path)
 
@@ -217,13 +206,7 @@ class NukeMoviePublisherExporterPlugin(plugin.NukePublisherExporterPlugin):
 
                 write_node['file'].setValue(movie_path.replace('\\', '/'))
 
-                write_node['file_type'].setValue(selected_file_format)
-                # Set additional file format options
-                # TODO: Document macOs crash and how to choose mp4v codec if mov file format as a work around
-                if len(options.get(selected_file_format) or {}) > 0:
-                    for k, v in options[selected_file_format].items():
-                        if k not in ['codecs', 'codec_knob_name']:
-                            write_node[k].setValue(v)
+                self._apply_movie_file_format_options(write_node, options)
 
                 self.logger.debug(
                     'Rendering movie [{}-{}] from image sequence "{}" to "{}"'.format(
@@ -244,21 +227,20 @@ class NukeMoviePublisherExporterPlugin(plugin.NukePublisherExporterPlugin):
                     # A reviewable movie needs to be copied to temp location, as it is removed by framework
                     self.logger.debug(
                         'Picking up rendered file movie and copying to temp for publish: "{}"'.format(
-                            media_path
+                            movie_path
                         )
                     )
                     temp_name = tempfile.NamedTemporaryFile(
-                        suffix=os.path.splitext(media_path)[-1]
+                        suffix=os.path.splitext(movie_path)[-1]
                     ).name
-                    shutil.copy(media_path, temp_name)
-                    media_path = temp_name
+                    shutil.copy(movie_path, temp_name)
+                    movie_path = temp_name
                 else:
                     self.logger.debug(
                         'Picking up rendered file movie for publish: "{}"'.format(
-                            media_path
+                            movie_path
                         )
                     )
-                movie_path = media_path
 
         return [str(movie_path)]
 

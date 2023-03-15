@@ -34,6 +34,7 @@ class NukeSequencePublisherCollectorPlugin(
     def run(self, context_data=None, data=None, options=None):
         '''Build collected objects based on *options*'''
         mode = options['mode']
+        result = None
         if mode in ['render_selected', 'render_create_write']:
             node_name = options.get('node_name')
             result = {
@@ -41,9 +42,9 @@ class NukeSequencePublisherCollectorPlugin(
             }
             if mode == 'render_create_write':
                 result['create_write'] = True
-        else:
-            media_path = options.get('media_path')
-            result = {'media_path': media_path}
+        elif mode == 'pickup':
+            image_sequence_path = options.get('image_sequence_path')
+            result = {'image_sequence_path': image_sequence_path}
         return [result]
 
 
