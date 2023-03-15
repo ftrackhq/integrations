@@ -16,14 +16,14 @@ import ftrack_connect_pipeline_unreal.constants as unreal_constants
 
 from ftrack_connect_pipeline_qt.ui.utility.widget.button import (
     LoadRunButton,
-    AddRunButton
+    AddRunButton,
 )
 from ftrack_connect_pipeline_qt.ui.utility.widget.dialog import ModalDialog
 from ftrack_connect_pipeline_qt.ui.utility.widget import (
     header,
     host_selector,
     definition_selector,
-    line
+    line,
 )
 from ftrack_connect_pipeline_qt.ui.utility.widget.context_selector import (
     ContextSelector,
@@ -42,6 +42,7 @@ Suggestions are also deactivated as they also depend on the asset manager.
 (This should be cleaned up)
 '''
 
+
 class UnrealQtAssemblerClientWidget(load.QtAssemblerClientWidget):
     '''Unreal assembler dialog'''
 
@@ -54,7 +55,7 @@ class UnrealQtAssemblerClientWidget(load.QtAssemblerClientWidget):
     def __init__(
         self,
         event_manager,
-        asset_list_model=None,# Set asset_list_model as Non to deactivate AM
+        asset_list_model=None,  # Set asset_list_model as Non to deactivate AM
         parent=None,
     ):
         super(UnrealQtAssemblerClientWidget, self).__init__(

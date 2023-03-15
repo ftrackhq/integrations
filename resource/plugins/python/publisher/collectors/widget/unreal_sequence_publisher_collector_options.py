@@ -8,6 +8,7 @@ from Qt import QtWidgets
 
 import ftrack_api
 
+from ftrack_connect_pipeline import utils as core_utils
 from ftrack_connect_pipeline_qt.plugin.widget import BaseOptionsWidget
 from ftrack_connect_pipeline_qt.ui.utility.widget import dialog
 from ftrack_connect_pipeline_unreal import plugin
@@ -36,7 +37,9 @@ class UnrealSequencePublisherCollectorOptionsWidget(BaseOptionsWidget):
         if image_sequence_path and len(image_sequence_path) > 0:
             self.set_option_result(image_sequence_path, 'image_sequence_path')
             # Remember last used path
-            unreal_utils.update_project_settings({'image_sequence_path': image_sequence_path})
+            unreal_utils.update_project_settings(
+                {'image_sequence_path': image_sequence_path}
+            )
         else:
             image_sequence_path = '<please choose am image sequence>'
             self.set_option_result(None, 'image_sequence_path')
@@ -84,9 +87,7 @@ class UnrealSequencePublisherCollectorOptionsWidget(BaseOptionsWidget):
         self._img_seq_le = QtWidgets.QLineEdit()
         self._img_seq_le.setReadOnly(True)
 
-        self._browse_img_seq_widget.layout().addWidget(
-            self._img_seq_le, 20
-        )
+        self._browse_img_seq_widget.layout().addWidget(self._img_seq_le, 20)
 
         self._browse_img_seq_btn = QtWidgets.QPushButton('BROWSE')
         self._browse_img_seq_btn.setObjectName('borderless')
@@ -99,7 +100,9 @@ class UnrealSequencePublisherCollectorOptionsWidget(BaseOptionsWidget):
         # Use previous value if available
         path = self.image_sequence_path
         if not path or len(path) == 0:
-            path = unreal_utils.get_project_settings().get('image_sequence_path')
+            path = unreal_utils.get_project_settings().get(
+                'image_sequence_path'
+            )
         self.image_sequence_path = path
 
         self.report_input()
@@ -128,7 +131,7 @@ class UnrealSequencePublisherCollectorOptionsWidget(BaseOptionsWidget):
         image_sequence_path = QtWidgets.QFileDialog.getOpenFileName(
             caption='Choose directory containing rendered image sequence',
             dir=start_dir,
-            filter="Images (*.png *.xpm *.jpg)"
+            filter="Images (*.png *.xpm *.jpg)",
         )
 
         if not image_sequence_path:
@@ -136,7 +139,9 @@ class UnrealSequencePublisherCollectorOptionsWidget(BaseOptionsWidget):
 
         image_sequence_path = os.path.normpath(image_sequence_path[0])
 
-        image_sequence_path = unreal_utils.find_image_sequence(image_sequence_path)
+        image_sequence_path = core_utils.find_image_sequence(
+            image_sequence_path
+        )
 
         if not image_sequence_path:
             dialog.ModalDialog(
