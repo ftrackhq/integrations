@@ -46,10 +46,10 @@ class HoudiniAbcPublisherExporterOptionsWidget(DynamicWidget):
     def on_fetch_callback(self, result):
         '''This function is called by the _set_internal_run_result function of
         the BaseOptionsWidget'''
-        self._get_widget('ABCFrameRangeStart').setText(
-            str(result['frameStart'])
-        )
-        self._get_widget('ABCFrameRangeEnd').setText(str(result['frameEnd']))
+        #self._get_widget('ABCFrameRangeStart').setText(
+        #    str(result['frameStart'])
+        #)
+        #self._get_widget('ABCFrameRangeEnd').setText(str(result['frameEnd']))
 
     def get_options_group_name(self):
         '''Override'''
