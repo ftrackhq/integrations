@@ -29,7 +29,10 @@ class UnrealImageSequencePublisherValidatorPlugin(
         if media_path:
             try:
                 collection = clique.parse(media_path)
-                if str(collection.tail).lower().split(".")[-1] in supported_file_formats:
+                if (
+                    str(collection.tail).lower().split(".")[-1]
+                    in supported_file_formats
+                ):
                     return True
                 return False
             except Exception as e:
