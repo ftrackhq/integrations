@@ -8,6 +8,7 @@ from Qt import QtWidgets
 
 import ftrack_api
 
+from ftrack_connect_pipeline import utils as core_utils
 from ftrack_connect_pipeline_qt.plugin.widget import BaseOptionsWidget
 from ftrack_connect_pipeline_qt.ui.utility.widget import dialog
 from ftrack_connect_pipeline_unreal import plugin
@@ -125,12 +126,10 @@ class UnrealSequencePublisherCollectorOptionsWidget(BaseOptionsWidget):
         else:
             start_dir = os.path.dirname(self._img_seq_le.text())
 
-        # TODO: add all supported file formats
-        # supported_file_formats = [".bmp","float",".pcx",".png",".psd",".tga",".jpg",".exr",".dds", ".hdr"]
         image_sequence_path = QtWidgets.QFileDialog.getOpenFileName(
             caption='Choose directory containing rendered image sequence',
             dir=start_dir,
-            filter="Images (*.png *.xpm *.jpg)",
+            filter="Images (*.bmp *.float *.pcx *.png *.psd *.tga *.jpg *.exr *.dds *.hdr);;All files (*)"
         )
 
         if not image_sequence_path:
@@ -138,7 +137,7 @@ class UnrealSequencePublisherCollectorOptionsWidget(BaseOptionsWidget):
 
         image_sequence_path = os.path.normpath(image_sequence_path[0])
 
-        image_sequence_path = unreal_utils.find_image_sequence(
+        image_sequence_path = core_utils.find_image_sequence(
             image_sequence_path
         )
 
