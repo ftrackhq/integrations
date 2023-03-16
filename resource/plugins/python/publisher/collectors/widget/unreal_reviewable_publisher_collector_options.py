@@ -91,16 +91,13 @@ class UnrealReviewablePublisherCollectorOptionsWidget(BaseOptionsWidget):
             asset_type_name=asset_type_name,
         )
 
-
     def build(self):
         '''Build the options widget'''
         super(UnrealReviewablePublisherCollectorOptionsWidget, self).build()
 
         bg = QtWidgets.QButtonGroup(self)
 
-        self._pickup_rb = QtWidgets.QRadioButton(
-            'Pick up rendered movie:'
-        )
+        self._pickup_rb = QtWidgets.QRadioButton('Pick up rendered movie:')
         bg.addButton(self._pickup_rb)
         self.layout().addWidget(self._pickup_rb)
 
@@ -130,7 +127,9 @@ class UnrealReviewablePublisherCollectorOptionsWidget(BaseOptionsWidget):
             path = unreal_utils.get_project_settings().get('movie_path')
         self.movie_path = path
 
-        self._render_rb = QtWidgets.QRadioButton('Generate from Image sequence')
+        self._render_rb = QtWidgets.QRadioButton(
+            'Generate from Image sequence'
+        )
         bg.addButton(self._render_rb)
         # Deactivating render for now
         # self.layout().addWidget(self._render_rb)
@@ -145,7 +144,9 @@ class UnrealReviewablePublisherCollectorOptionsWidget(BaseOptionsWidget):
 
         self._render_widget.layout().addWidget(self._render_path_le)
 
-        self.render_path = unreal_utils.get_project_settings().get('image_sequence_path')
+        self.render_path = unreal_utils.get_project_settings().get(
+            'image_sequence_path'
+        )
 
         # Deactivating render for now
         # self.layout().addWidget(self._render_widget)
@@ -163,7 +164,9 @@ class UnrealReviewablePublisherCollectorOptionsWidget(BaseOptionsWidget):
         self.report_input()
 
     def post_build(self):
-        super(UnrealReviewablePublisherCollectorOptionsWidget, self).post_build()
+        super(
+            UnrealReviewablePublisherCollectorOptionsWidget, self
+        ).post_build()
 
         self._browse_movie_path_btn.clicked.connect(
             self._show_movie_path_dialog
@@ -179,7 +182,9 @@ class UnrealReviewablePublisherCollectorOptionsWidget(BaseOptionsWidget):
         if self._render_rb.isChecked():
             mode = 'render'
             self.set_option_result(None, 'movie_path')
-            self.render_path = unreal_utils.get_project_settings().get('image_sequence_path')
+            self.render_path = unreal_utils.get_project_settings().get(
+                'image_sequence_path'
+            )
         self.set_option_result(mode, 'mode')
 
         self._browse_movie_path_widget.setVisible(mode == 'pickup')
@@ -225,9 +230,7 @@ class UnrealReviewablePublisherCollectorOptionsWidget(BaseOptionsWidget):
         status = False
         if self._pickup_rb.isChecked():
             num_objects = (
-                1
-                if self.movie_path and len(self.movie_path) > 0
-                else 0
+                1 if self.movie_path and len(self.movie_path) > 0 else 0
             )
             if num_objects > 0:
                 message = '1 movie selected'

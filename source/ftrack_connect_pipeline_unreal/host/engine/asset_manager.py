@@ -223,10 +223,10 @@ class UnrealAssetManagerEngine(AssetManagerEngine):
         self.dcc_object = dcc_object
 
         nodes = (
-                unreal_utils.get_connected_nodes_from_dcc_object(
-                    self.dcc_object.name
-                )
-                or []
+            unreal_utils.get_connected_nodes_from_dcc_object(
+                self.dcc_object.name
+            )
+            or []
         )
         temporary_assets = {}
         # Rename
@@ -252,10 +252,12 @@ class UnrealAssetManagerEngine(AssetManagerEngine):
                         )
                     )
                     if not unreal_utils.rename_node_with_suffix(
-                            asset_name, suffix
+                        asset_name, suffix
                     ):
                         raise Exception(
-                            'Unreal asset {} could not be renamed.'.format(node)
+                            'Unreal asset {} could not be renamed.'.format(
+                                node
+                            )
                         )
                     # Supply the new name to the result together with Unreal class name so newly loaded assets can be mapped
                     # during consolidate
@@ -297,9 +299,9 @@ class UnrealAssetManagerEngine(AssetManagerEngine):
             return status, result
 
         # Change version
-        super_status, super_result = super(UnrealAssetManagerEngine, self).change_version(
-            asset_info=asset_info, options=options, plugin=plugin
-        )
+        super_status, super_result = super(
+            UnrealAssetManagerEngine, self
+        ).change_version(asset_info=asset_info, options=options, plugin=plugin)
 
         bool_status = core_constants.status_bool_mapping[super_status]
         if not bool_status:
@@ -316,10 +318,10 @@ class UnrealAssetManagerEngine(AssetManagerEngine):
 
         # Consolidate new nodes and remove temp ones
         new_nodes = (
-                unreal_utils.get_connected_nodes_from_dcc_object(
-                    self.dcc_object.name
-                )
-                or []
+            unreal_utils.get_connected_nodes_from_dcc_object(
+                self.dcc_object.name
+            )
+            or []
         )
 
         # Consolidate nodes
@@ -331,7 +333,8 @@ class UnrealAssetManagerEngine(AssetManagerEngine):
                 asset_class_name = asset.__class__.__name__
                 temp_nodes = list(
                     filter(
-                        lambda x: temporary_assets[x] == asset_class_name, temporary_assets
+                        lambda x: temporary_assets[x] == asset_class_name,
+                        temporary_assets,
                     )
                 )
                 if not temp_nodes:
@@ -346,9 +349,7 @@ class UnrealAssetManagerEngine(AssetManagerEngine):
                 temp_node = temp_nodes[0]
                 temp_asset = unreal.EditorAssetLibrary.load_asset(temp_node)
                 self.logger.info(
-                    'Consolidating from previous asset: {}'.format(
-                        temp_node
-                    )
+                    'Consolidating from previous asset: {}'.format(temp_node)
                 )
                 # TODO: This command produces residual redirect nodes.
                 #  Can't currently be removed as their creation is delayed and
@@ -359,7 +360,7 @@ class UnrealAssetManagerEngine(AssetManagerEngine):
             except Exception as error:
                 message = str(
                     'Error ocurred during the asset consolidation of {} with {} '
-                    '\n Error: {}'.format( node, temp_node, error)
+                    '\n Error: {}'.format(node, temp_node, error)
                 )
                 self.logger.error(message)
                 status = core_constants.ERROR_STATUS

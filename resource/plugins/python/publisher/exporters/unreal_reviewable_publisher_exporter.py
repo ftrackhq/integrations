@@ -41,11 +41,11 @@ class UnrealReviewablePublisherExporterPlugin(
         if mode == 'pickup' and not movie_path:
             mode = 'render'
         if mode == 'render' and not render_path:
-            render_path = unreal_utils.get_project_settings().get('image_sequence_path')
+            render_path = unreal_utils.get_project_settings().get(
+                'image_sequence_path'
+            )
             if not render_path:
-                self.logger.debug(
-                    'Can not find selected image sequence'
-                )
+                self.logger.debug('Can not find selected image sequence')
                 return False
 
         if render_path:

@@ -60,6 +60,7 @@ def load_integration():
 
     from ftrack_connect_pipeline_qt import event
     from ftrack_connect_pipeline_qt import constants as qt_constants
+
     # from ftrack_connect_pipeline_qt.ui.asset_manager.model import (
     #     AssetListModel,
     # )
@@ -147,7 +148,7 @@ def load_integration():
                 # Need to create
                 if widget_name in [
                     qt_constants.ASSEMBLER_WIDGET,
-                    #core_constants.ASSET_MANAGER,
+                    # core_constants.ASSET_MANAGER,
                 ]:
                     # Create with asset model
                     widget = ftrack_client(
