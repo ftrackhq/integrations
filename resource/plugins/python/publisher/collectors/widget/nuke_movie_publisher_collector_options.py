@@ -33,7 +33,7 @@ class NukeMoviePublisherCollectorOptionsWidget(BaseOptionsWidget):
     @movie_path.setter
     def movie_path(self, movie_path):
         '''Store *movie_path* in options and update widgets'''
-        if movie_path and len(movie_path) > 0:
+        if movie_path:
             self.set_option_result(movie_path, 'movie_path')
         else:
             movie_path = '<please choose a movie>'

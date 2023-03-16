@@ -101,7 +101,7 @@ class NukeMoviePublisherExporterPlugin(plugin.NukePublisherExporterPlugin):
                         )
 
                     file_path = write_node['file'].value()
-                    if file_path is None or not os.path.splitext(
+                    if not file_path or not os.path.splitext(
                         file_path.lower()
                     )[-1] in ['.mov', '.mxf', '.avi', '.r3d']:
                         return (
@@ -133,39 +133,38 @@ class NukeMoviePublisherExporterPlugin(plugin.NukePublisherExporterPlugin):
                     selected_file_format = str(options.get('file_format'))
 
                     restore_file_path = False
-                    try:
-                        if options.get('to_temp'):
-                            # A reviewable movie needs to be rendered to temp location, as it is removed by framework
-                            restore_file_path = write_node['file'].getValue()
 
-                            temp_name = tempfile.NamedTemporaryFile()
+                    if options.get('to_temp'):
+                        # A reviewable movie needs to be rendered to temp location, as it is removed by framework
+                        restore_file_path = write_node['file'].getValue()
 
-                            movie_path = '{}.{}'.format(
-                                temp_name.name, selected_file_format
-                            )
-                            write_node['file'].setValue(
-                                movie_path.replace('\\', '/')
-                            )
+                        temp_name = tempfile.NamedTemporaryFile()
 
-                        else:
-                            movie_path = file_path
-
-                        self._apply_movie_file_format_options(
-                            write_node, options
+                        movie_path = '{}.{}'.format(
+                            temp_name.name, selected_file_format
+                        )
+                        write_node['file'].setValue(
+                            movie_path.replace('\\', '/')
                         )
 
-                        self.logger.debug(
-                            'Rendering movie [{}-{}] from selected write node "{}" to "{}"'.format(
-                                first, last, write_node['name'], movie_path
-                            )
+                    else:
+                        movie_path = file_path
+
+                    self._apply_movie_file_format_options(write_node, options)
+
+                    self.logger.debug(
+                        'Rendering movie [{}-{}] from selected write node "{}" to "{}"'.format(
+                            first, last, write_node['name'], movie_path
                         )
-                        nuke.render(
-                            write_node, first, last, continueOnError=True
-                        )
-                    finally:
-                        # Restore temp render path if needed
-                        if restore_file_path:
-                            write_node['file'].setValue(restore_file_path)
+                    )
+                    nuke.render(write_node, first, last, continueOnError=True)
+
+                    # Restore temp render path if needed
+                    if restore_file_path:
+                        write_node['file'].setValue(restore_file_path)
+            except Exception as e:
+                self.logger.error(e)
+                return False, {'message': 'Movie render failed: '.format(e)}
             finally:
                 # restore selection
                 nuke_utils.clean_selection()

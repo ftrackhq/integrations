@@ -118,9 +118,9 @@ class NukeSequencePublisherExporterPlugin(plugin.NukePublisherExporterPlugin):
                         )
 
                     file_path = write_node['file'].value()
-                    if file_path is None or os.path.splitext(
-                        file_path.lower()
-                    )[-1] in ['.mov', '.mxf', '.avi', '.r3d']:
+                    if not file_path or os.path.splitext(file_path.lower())[
+                        -1
+                    ] in ['.mov', '.mxf', '.avi', '.r3d']:
                         return (
                             False,
                             {
@@ -164,6 +164,11 @@ class NukeSequencePublisherExporterPlugin(plugin.NukePublisherExporterPlugin):
                             write_node['file'].value(), first, last
                         )
                     )
+            except Exception as e:
+                self.logger.error(e)
+                return False, {
+                    'message': 'Image sequence render failed: '.format(e)
+                }
             finally:
                 # restore selection
                 nuke_utils.clean_selection()
