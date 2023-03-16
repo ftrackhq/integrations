@@ -1,6 +1,7 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2022 ftrack
 import logging
+import os.path
 import subprocess
 import platform
 
@@ -10,6 +11,9 @@ from Qt import QtWidgets
 class QtDocumentationClientWidget(QtWidgets.QWidget):
     '''Client for opening Connect documentation URL'''
 
+    documentation_path = None
+    # The path to local user documentation, if available. Should be set by DCC
+
     def __init__(self, event_manager, parent=None):
         QtWidgets.QWidget.__init__(self, parent=parent)
 
@@ -17,21 +21,63 @@ class QtDocumentationClientWidget(QtWidgets.QWidget):
             __name__ + '.' + self.__class__.__name__
         )
 
-    def show(self):
-        '''Open the URL in operating system'''
-        DOC_URL = 'https://www.ftrack.com/en/portfolio/connect'
+    @staticmethod
+    def _get_user_documentation_path(source_path, dcc_name):
+        '''Calculcate the path to the user documentation based on *source_path*.
+        Expect source path to be on the form:
+
+        /Users/henriknorin/Library/Application Support/ftrack-connect-plugins/ftrack-connect-pipeline-nuke-1.1.0/
+            dependencies/ftrack_connect_pipeline_nuke'''
+
+        plugin_path = os.path.dirname(os.path.dirname(source_path))
+
+        return os.path.join(
+            plugin_path,
+            'resource',
+            'doc',
+            '{} user documentation.pdf'.format(dcc_name.title()),
+        )
+
+    def _get_open_command(self, target):
+        '''Generate operating system specific command to open *target*'''
+        is_link = target.startswith('http')
         if platform.system() == "Windows":
             # Windows / PC
-            commands = ['CMD', '/C', 'START {}'.format(DOC_URL)]
+            if is_link:
+                return ['CMD', '/C', 'START {}'.format(target)]
+            else:
+                return [target]
         elif platform.system() == "Darwin":
             # Mac OS
-            commands = ['open', DOC_URL]
+            return ['open', target]
         else:
             # Assume we are on linux
-            commands = ['xdg-open', DOC_URL]
-        self.logger.debug(
-            'Launching documentation through system command: {}'.format(
-                commands
+            return ['xdg-open', target]
+
+    def show(self):
+        '''Open the documentation in a browser or PDF viewer'''
+        commands = None
+        if self.documentation_path:
+            if not os.path.exists(self.documentation_path):
+                self.logger.error(
+                    'User documentation path does not exist: {}'.format(
+                        self.documentation_path
+                    )
+                )
+                return
+            commands = self._get_open_command(self.documentation_path)
+            self.logger.debug(
+                'Launching local user documentation through system command: {}'.format(
+                    commands
+                )
             )
-        )
-        subprocess.Popen(commands)
+        else:
+            # Fall back on Connect online documentation
+            DOC_URL = 'https://www.ftrack.com/en/portfolio/connect'
+            commands = self._get_open_command(DOC_URL)
+            self.logger.debug(
+                'Launching online documentation through system command: {}'.format(
+                    commands
+                )
+            )
+        subprocess.Popen(commands, shell=True)

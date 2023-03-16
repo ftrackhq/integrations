@@ -9,6 +9,11 @@ Release Notes
 
 .. release:: upcoming
 
+    .. change:: new
+        :tags: doc
+
+        Enabled PDF user documentation provided by DCC.
+
     .. change:: changed
 
         Optimised Assembler/loader with optimised query projections
