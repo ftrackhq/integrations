@@ -314,15 +314,13 @@ class NukeSequencePublisherCollectorOptionsWidget(BaseOptionsWidget):
         '''(Override) Amount of collected objects has changed, notify parent(s)'''
         status = False
         if self._render_rb.isChecked():
-            num_objects = 1 if self._nodes_cb.isEnabled() else 0
-            if num_objects > 0:
+            if self._nodes_cb.isEnabled() and self._nodes_cb.count() > 0:
                 message = '1 script node selected'
                 status = True
             else:
                 message = 'No script node selected!'
         else:
-            num_objects = 1 if self.image_sequence_path else 0
-            if num_objects > 0:
+            if self.image_sequence_path:
                 message = '1 image sequence selected'
                 status = True
             else:
