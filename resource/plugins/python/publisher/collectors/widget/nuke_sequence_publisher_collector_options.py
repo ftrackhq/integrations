@@ -216,7 +216,7 @@ class NukeSequencePublisherCollectorOptionsWidget(BaseOptionsWidget):
             if input_node.Class() != 'Write':
                 self._render_warning.setVisible(True)
                 self._render_warning.setText(
-                    '<html><i>The selected node is not a write node!</i></html>'
+                    '<html><i style="color:red">The selected node is not a write node!</i></html>'
                 )
             else:
                 # Check file format
@@ -230,7 +230,7 @@ class NukeSequencePublisherCollectorOptionsWidget(BaseOptionsWidget):
                 if writing_movie:
                     self._render_warning.setVisible(True)
                     self._render_warning.setText(
-                        '<html><i>The selected write node is writing a movie!</i></html>'
+                        '<html><i style="color:red">The selected write node is writing a movie!</i></html>'
                     )
 
     def _update_render_mode(self):
