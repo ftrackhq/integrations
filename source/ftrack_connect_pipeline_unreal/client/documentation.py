@@ -16,4 +16,3 @@ class UnrealQtDocumentationClientWidget(
             os.path.dirname(ftrack_connect_pipeline_unreal.__file__), 'unreal'
         )
     )
-    documentation_path = None
