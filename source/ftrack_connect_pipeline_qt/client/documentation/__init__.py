@@ -71,6 +71,7 @@ class QtDocumentationClientWidget(QtWidgets.QWidget):
                     commands
                 )
             )
+            subprocess.Popen(commands, shell=True)
         else:
             # Fall back on Connect online documentation
             DOC_URL = 'https://www.ftrack.com/en/portfolio/connect'
@@ -80,4 +81,4 @@ class QtDocumentationClientWidget(QtWidgets.QWidget):
                     commands
                 )
             )
-        subprocess.Popen(commands, shell=True)
+            subprocess.Popen(commands)
