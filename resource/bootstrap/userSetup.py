@@ -15,7 +15,6 @@ from ftrack_connect_pipeline.configure_logging import configure_logging
 from ftrack_connect_pipeline_qt import event
 from ftrack_connect_pipeline_qt import constants as qt_constants
 from ftrack_connect_pipeline_qt.ui.asset_manager.model import AssetListModel
-from ftrack_connect_pipeline_qt.client import documentation
 
 from ftrack_connect_pipeline_maya import host as maya_host
 from ftrack_connect_pipeline_maya.client import (
@@ -25,6 +24,7 @@ from ftrack_connect_pipeline_maya.client import (
     publish,
     change_context,
     log_viewer,
+    documentation,
 )
 
 from ftrack_connect_pipeline_maya import utils as maya_utils
@@ -200,7 +200,7 @@ def initialise():
     widgets.append(
         (
             qt_constants.DOCUMENTATION_WIDGET,
-            documentation.QtDocumentationClientWidget,
+            documentation.MayaQtDocumentationClientWidget,
             'Documentation',
             'SP_FileIcon',
         )
