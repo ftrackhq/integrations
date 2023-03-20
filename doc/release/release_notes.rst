@@ -8,6 +8,12 @@ Release Notes
 *************
 
 .. release:: upcoming
+
+    .. change:: new
+        :tags: doc
+
+        Added user documentation as PDF, available from ftrack menu.
+
     .. change:: fix
 
         Fixed UI bugs in Alembic and FBX exporter.

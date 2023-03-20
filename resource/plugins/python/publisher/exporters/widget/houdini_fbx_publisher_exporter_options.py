@@ -98,10 +98,10 @@ class HoudiniFbxPublisherExporterOptionsWidget(DynamicWidget):
     def on_fetch_callback(self, result):
         '''This function is called by the _set_internal_run_result function of
         the BaseOptionsWidget'''
-        #self._get_widget('FBXFrameRangeStart').setText(
+        # self._get_widget('FBXFrameRangeStart').setText(
         #    str(result['frameStart'])
-        #)
-        #self._get_widget('FBXFrameRangeEnd').setText(str(result['frameEnd']))
+        # )
+        # self._get_widget('FBXFrameRangeEnd').setText(str(result['frameEnd']))
 
 
 class HoudiniFbxPublisherExporterOptionsPluginWidget(

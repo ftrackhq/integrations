@@ -27,8 +27,8 @@ from ftrack_connect_pipeline_houdini.client import (
     publish,
     change_context,
     log_viewer,
+    documentation,
 )
-from ftrack_connect_pipeline_qt.client import documentation
 from ftrack_connect_pipeline_houdini import utils as houdini_utils
 
 configure_logging(
@@ -85,7 +85,7 @@ widgets.append(
 widgets.append(
     (
         qt_constants.DOCUMENTATION_WIDGET,
-        documentation.QtDocumentationClientWidget,
+        documentation.HoudiniQtDocumentationClientWidget,
         'Documentation',
     )
 )
