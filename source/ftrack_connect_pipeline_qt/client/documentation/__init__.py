@@ -49,10 +49,16 @@ class QtDocumentationClientWidget(QtWidgets.QWidget):
                 return [target]
         elif platform.system() == "Darwin":
             # Mac OS
-            return ['open', target]
+            if is_link:
+                return ['open', target]
+            else:
+                return ['open "{}"'.format(target)]
         else:
             # Assume we are on linux
-            return ['xdg-open', target]
+            if is_link:
+                return ['xdg-open', target]
+            else:
+                return ['xdg-open "{}"'.format(target)]
 
     def show(self):
         '''Open the documentation in a browser or PDF viewer'''
