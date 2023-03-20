@@ -28,8 +28,8 @@ from ftrack_connect_pipeline_nuke.client import (
     publish,
     change_context,
     log_viewer,
+    documentation,
 )
-from ftrack_connect_pipeline_qt.client import documentation
 
 from ftrack_connect_pipeline_nuke.menu import build_menu_widgets
 from ftrack_connect_pipeline_nuke import utils as nuke_utils
@@ -211,7 +211,7 @@ def initialise():
     widgets.append(
         (
             qt_constants.DOCUMENTATION_WIDGET,
-            documentation.QtDocumentationClientWidget,
+            documentation.NukeQtDocumentationClientWidget,
             'Documentation',
             '',
         )
