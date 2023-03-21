@@ -44,7 +44,10 @@ class AssemblerWidgetFactory(OpenerAssemblerWidgetFactoryBase):
         '''(Override)'''
 
         # Create the components widget based on the definition
-        self.components_obj = self.create_step_container_widget(
+        (
+            self.components_obj,
+            unused_has_visible_plugins,
+        ) = self.create_step_container_widget(
             self.definition, core_constants.COMPONENTS
         )
 
@@ -55,13 +58,19 @@ class AssemblerWidgetFactory(OpenerAssemblerWidgetFactoryBase):
         main_widget.layout().addWidget(finalizers_label)
         finalizers_label.setObjectName('h4')
 
-        self.finalizers_obj = self.create_step_container_widget(
+        (
+            self.finalizers_obj,
+            has_visible_plugins,
+        ) = self.create_step_container_widget(
             self.definition, core_constants.FINALIZERS
         )
 
         main_widget.layout().addWidget(self.finalizers_obj.widget)
 
-        if not UI_OVERRIDES.get(core_constants.FINALIZERS).get('show', True):
+        if (
+            not UI_OVERRIDES.get(core_constants.FINALIZERS).get('show', True)
+            or not has_visible_plugins
+        ):
             self.finalizers_obj.hide()
 
         main_widget.layout().addStretch()

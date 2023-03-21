@@ -9,6 +9,11 @@ Release Notes
 
 .. release:: upcoming
 
+    .. change:: fix
+        :tags: publisher
+
+        Hide finalizers on publisher if there is no useful information for the user.
+
     .. change:: new
         :tags: doc
 
