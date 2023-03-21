@@ -9,6 +9,11 @@ Release Notes
 
 .. release:: upcoming
 
+    .. change:: fix
+        :tags: asset manager
+
+        Fixed bug selecting a version in the asset manager, choosing not to change version, having version selector go back to the initial state.
+
     .. change:: new
         :tags: doc
 
