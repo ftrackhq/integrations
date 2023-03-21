@@ -481,13 +481,6 @@ class AssemblerBrowserWidget(AssemblerBaseWidget):
                     current_component['name'], version_entity['version']
                 )
             )
-        # Check file extension
-        elif component['file_type'] != current_component['file_type']:
-            error_message = (
-                'The version {} component file type "{}" differs!'.format(
-                    version_entity['version'], component['file_type']
-                )
-            )
         if not error_message:
             # Set the new component
             matching_definitions = self.model.data(widget.index)[1]
@@ -662,7 +655,7 @@ class BrowserListWidget(AssemblerListBaseWidget):
         updated_widget = self._build_widget(index_first)
         updated_widget.selected = current_widget.selected
         self.layout().replaceWidget(current_widget, updated_widget)
-
+        current_widget.deleteLater()
         self.refresh()
         selection = self.selection()
         if selection is not None:

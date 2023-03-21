@@ -9,6 +9,12 @@ Release Notes
 
 .. release:: upcoming
 
+    .. change:: fix
+        :tags: assembler
+
+        Fixed bug were version not could be changed due to different file extension.
+        Fixed graphics bug with asset widget on changing version.
+
     .. change:: new
         :tags: doc
 
