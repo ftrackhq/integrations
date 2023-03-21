@@ -46,7 +46,7 @@ class AssemblerWidgetFactory(OpenerAssemblerWidgetFactoryBase):
         # Create the components widget based on the definition
         (
             self.components_obj,
-            unused_has_visible_plugins,
+            unused_has_visible_component_plugins,
         ) = self.create_step_container_widget(
             self.definition, core_constants.COMPONENTS
         )
@@ -56,11 +56,11 @@ class AssemblerWidgetFactory(OpenerAssemblerWidgetFactoryBase):
         # Create the finalizers widget based on the definition
         finalizers_label = QtWidgets.QLabel('Finalizers')
         main_widget.layout().addWidget(finalizers_label)
-        finalizers_label.setObjectName('h4')
+        finalizers_label.setObjectName('gray')
 
         (
             self.finalizers_obj,
-            has_visible_plugins,
+            has_visible_finalizer_plugins,
         ) = self.create_step_container_widget(
             self.definition, core_constants.FINALIZERS
         )
@@ -69,9 +69,10 @@ class AssemblerWidgetFactory(OpenerAssemblerWidgetFactoryBase):
 
         if (
             not UI_OVERRIDES.get(core_constants.FINALIZERS).get('show', True)
-            or not has_visible_plugins
+            or not has_visible_finalizer_plugins
         ):
-            self.finalizers_obj.hide()
+            self.finalizers_obj.widget.hide()
+            finalizers_label.hide()
 
         main_widget.layout().addStretch()
 
