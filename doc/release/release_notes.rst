@@ -9,6 +9,11 @@ Release Notes
 
 .. release:: upcoming
 
+    .. change:: changed
+        :tags: publisher
+
+        Auto select publisher if only one.
+
     .. change:: new
         :tags: doc
 
@@ -16,11 +21,11 @@ Release Notes
 
     .. change:: changed
 
-        Optimised Assembler/loader with optimised query projections
+        Optimised Assembler/loader with optimised query projections.
 
     .. change:: fix
 
-        Optimised Opener query projections
+        Optimised Opener query projections.
 
    .. change:: fix
 
