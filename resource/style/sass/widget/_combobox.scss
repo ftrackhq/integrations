@@ -34,6 +34,7 @@ QComboBox::down-arrow {
     height: 8px;
 }
 
+/** Note: Styling of dropdown list does not fully apply within DCCs */
 QComboBox QAbstractItemView {
     color: $text-color;
     outline: 0;
@@ -41,10 +42,6 @@ QComboBox QAbstractItemView {
     background: $background;
     selection-background-color: $background-selected;
     text-align: center;
-}
-
-QFrame[docked='true'] QComboBox QAbstractItemView {
-    background: $background-docked;
 }
 
 QFrame[docked='true'] QComboBox QAbstractItemView {
@@ -69,6 +66,7 @@ QComboBox[chip='true'] {
 }
 
 AssetVersionSelector, VersionComboBox {
+    border: 1px solid $border-color;
     border-radius: 11px;
     color: $text-color;
 }

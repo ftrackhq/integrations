@@ -446,21 +446,7 @@ class AssetManagerWidget(AssetManagerBaseWidget):
         Triggered when a version of the asset has changed on the
         :obj:`version_cb_delegate`. Prompt user.
         '''
-        current_version = self.session.query(
-            'AssetVersion where id={}'.format(
-                asset_info[asset_constants.VERSION_ID]
-            )
-        ).first()
-        if ModalDialog(
-            self._client.parent(),
-            title='ftrack Asset manager',
-            question='Change version of {} to v{}?'.format(
-                str_version(current_version), version_entity['version']
-            ),
-        ).exec_():
-            self.changeAssetVersion.emit(
-                asset_info.copy(), version_entity['id']
-            )
+        self.changeAssetVersion.emit(asset_info.copy(), version_entity['id'])
 
 
 class AssetManagerListWidget(AssetListWidget):
@@ -868,7 +854,22 @@ class AssetWidget(AccordionBaseWidget):
             )
         ).first()
         if version['id'] != self._version_id:
-            self.changeAssetVersion.emit(self.index, version)
+            current_version = self.session.query(
+                'AssetVersion where id={}'.format(self._version_id)
+            ).first()
+            if ModalDialog(
+                None,
+                title='ftrack Asset manager',
+                question='Change version of {} to v{}?'.format(
+                    str_version(current_version), version['version']
+                ),
+            ).exec_():
+                self.changeAssetVersion.emit(self.index, version)
+            else:
+                # Revert back
+                self._component_and_version_widget.set_version(
+                    current_version['version']
+                )
 
 
 class AssetVersionStatusWidget(QtWidgets.QFrame):
@@ -979,15 +980,23 @@ class ComponentAndVersionWidget(QtWidgets.QWidget):
         )
 
     def set_version(self, version_nr, versions=None):
-        '''Set the current version number from *version_nr*. *versions* is required if it is within collapsed view'''
+        '''Set the current version number from *version_nr*. *versions* should
+        be provided if about to expand, otherwise the version will be selected'''
         if self._collapsed:
             self._version_nr_widget.setText('v{}'.format(str(version_nr)))
         else:
-            self.version_selector.clear()
-            for index, asset_version in enumerate(reversed(versions)):
-                self.version_selector.addItem(
-                    'v{}'.format(asset_version['version']),
-                    asset_version['id'],
-                )
-                if asset_version['version'] == version_nr:
-                    self.version_selector.setCurrentIndex(index)
+            if versions:
+                self.version_selector.clear()
+                for index, asset_version in enumerate(reversed(versions)):
+                    self.version_selector.addItem(
+                        'v{}'.format(asset_version['version']),
+                        asset_version['id'],
+                    )
+                    if asset_version['version'] == version_nr:
+                        self.version_selector.setCurrentIndex(index)
+            else:
+                label = 'v{}'.format(version_nr)
+                for index in range(self.version_selector.count()):
+                    if self.version_selector.itemText(index) == label:
+                        self.version_selector.setCurrentIndex(index)
+                        break

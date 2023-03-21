@@ -104,40 +104,38 @@ QComboBox::drop-down {
       QFrame[docked='true'] QComboBox QAbstractItemView {
         background: #373737; }
 
-        QFrame[docked='true'] QComboBox QAbstractItemView {
-          background: #373737; }
+        QComboBox QAbstractItemView::item {
+          padding: 4px 0; }
 
-          QComboBox QAbstractItemView::item {
-            padding: 4px 0; }
+          QComboBox QAbstractItemView::item:selected {
+            color: #D3d4D6;
+            background-color: rgba(255, 255, 255, 0.05); }
 
-            QComboBox QAbstractItemView::item:selected {
-              color: #D3d4D6;
-              background-color: rgba(255, 255, 255, 0.05); }
+            QComboBox[ftrackCurrentIndexIsDefault="true"] {
+              color: white; }
 
-              QComboBox[ftrackCurrentIndexIsDefault="true"] {
-                color: white; }
+              QComboBox[chip='true'] {
+                border-radius: 11px; }
 
-                QComboBox[chip='true'] {
-                  border-radius: 11px; }
+                AssetVersionSelector, VersionComboBox {
+                  border: 1px solid rgba(255, 255, 255, 0.1);
+                  border-radius: 11px;
+                  color: #D3d4D6; }
 
-                  AssetVersionSelector, VersionComboBox {
+                  AssemblerVersionComboBox {
+                    border: 1px solid rgba(255, 255, 255, 0.1);
                     border-radius: 11px;
-                    color: #D3d4D6; }
-
-                    AssemblerVersionComboBox {
-                      border: 1px solid rgba(255, 255, 255, 0.1);
-                      border-radius: 11px;
-                      background: transparent;
-                      selection-background-color: rgba(255, 255, 255, 0.1);
-                      color: #D3d4D6 !important;
-                      text-align: center; }
-                      AssemblerVersionComboBox:hover {
-                        border-color: rgba(255, 255, 255, 0.1); }
-                        AssemblerVersionComboBox:focus {
-                          border: 1px solid rgba(255, 255, 255, 0.1); }
-                          AssemblerVersionComboBox:disabled {
-                            border: 1px solid rgba(242, 242, 242, 0.1);
-                            color: rgba(255, 255, 255, 0.6); }
+                    background: transparent;
+                    selection-background-color: rgba(255, 255, 255, 0.1);
+                    color: #D3d4D6 !important;
+                    text-align: center; }
+                    AssemblerVersionComboBox:hover {
+                      border-color: rgba(255, 255, 255, 0.1); }
+                      AssemblerVersionComboBox:focus {
+                        border: 1px solid rgba(255, 255, 255, 0.1); }
+                        AssemblerVersionComboBox:disabled {
+                          border: 1px solid rgba(242, 242, 242, 0.1);
+                          color: rgba(255, 255, 255, 0.6); }
 
 DefinitionSelectorComboBox {
   padding-top: 7px;
