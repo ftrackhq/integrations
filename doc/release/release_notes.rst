@@ -9,6 +9,11 @@ Release Notes
 
 .. release:: upcoming
 
+    .. change:: fix
+        :tags: asset manager
+
+        Proper orange indicator on assets in asset manager that have newer version.
+
     .. change:: new
         :tags: doc
 
