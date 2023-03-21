@@ -381,7 +381,7 @@ class PublisherDefinitionSelector(DefinitionSelectorBase):
 
     def pre_build(self):
         super(PublisherDefinitionSelector, self).pre_build()
-        self.label_widget = QtWidgets.QLabel("Choose what to publish")
+        self.label_widget = QtWidgets.QLabel("Select publisher")
 
     def post_build(self):
         super(PublisherDefinitionSelector, self).post_build()
@@ -404,9 +404,6 @@ class PublisherDefinitionSelector(DefinitionSelectorBase):
                 'Not able to populate definitions - no schemas available!'
             )
             return
-
-        latest_version = None  # The current latest openable version
-        index_latest_version = -1
 
         self._definition_selector.addItem("", None)
         index = 1
@@ -441,16 +438,11 @@ class PublisherDefinitionSelector(DefinitionSelectorBase):
         if index == 1:
             # No compatible definitions
             self.no_definitions_label.setText(
-                '<html><i>No pipeline publisher definitions are available!</i></html>'
+                '<html><i style="color:red;">No pipeline publisher definitions are available!</i></html>'
             )
 
             self.no_definitions_label.setVisible(True)
             self._definition_selector.setCurrentIndex(0)
-        elif index_latest_version == -1:
-            # No version were detected
-            pass
-        else:
-            self._definition_selector.setCurrentIndex(index_latest_version)
 
         self._definition_widget.show()
 
