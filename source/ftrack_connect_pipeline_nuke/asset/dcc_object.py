@@ -144,6 +144,11 @@ class NukeDccObject(DccObject):
                     for dep_id in (knob.getValue() or '').split(','):
                         if len(dep_id) > 0:
                             param_dict[knob.name()].append(dep_id)
+                elif knob.name() in [
+                    asset_const.OBJECTS_LOADED,
+                    asset_const.IS_LATEST_VERSION,
+                ]:
+                    param_dict[knob.name()] = bool(knob.getValue())
                 else:
                     param_dict[knob.name()] = knob.getValue()
 

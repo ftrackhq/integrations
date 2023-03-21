@@ -395,7 +395,7 @@ class NukeMoviePublisherCollectorOptionsWidget(BaseOptionsWidget):
         '''(Override) Amount of collected objects has changed, notify parent(s)'''
         status = False
         if self._render_rb.isChecked():
-            if self._nodes_cb.isEnabled() :
+            if self._nodes_cb.isEnabled():
                 message = '1 script node selected'
                 status = True
             else:
