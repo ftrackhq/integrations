@@ -672,15 +672,6 @@ class AssetWidget(AccordionBaseWidget):
         indicator_color = 'gray'
         self._is_loaded = asset_info.get(asset_constants.OBJECTS_LOADED)
         self._is_latest_version = version['is_latest_version']
-        import nuke
-
-        nuke.tprint(
-            '@@@ _is_loaded ',
-            self._is_loaded,
-            ' _is_latest_version ',
-            (self._is_latest_version is True),
-            self._is_latest_version.__class__,
-        )
         if self._is_loaded:
             if self._is_latest_version:
                 indicator_color = 'green'

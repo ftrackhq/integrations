@@ -275,9 +275,6 @@ class AccordionBaseWidget(QtWidgets.QFrame):
 
     def set_indicator_color(self, color):
         '''Set the left indicator visibility depending on *color*'''
-        import nuke
-
-        nuke.tprint('@@@ set_indicator_color ', color)
         set_property(
             self._indicator_widget,
             'indicator',
