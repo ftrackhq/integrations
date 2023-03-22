@@ -2,7 +2,7 @@
 # :copyright: Copyright (c) 2014-2023 ftrack
 import os
 
-import ftrack_connect_pipeline_maya
+import ftrack_connect_pipeline_3dsmax
 from ftrack_connect_pipeline_qt.client import documentation
 
 
@@ -13,6 +13,6 @@ class MaxQtDocumentationClientWidget(
 
     documentation_path = (
         documentation.QtDocumentationClientWidget._get_user_documentation_path(
-            os.path.dirname(ftrack_connect_pipeline_maya.__file__), '3DSMax'
+            os.path.dirname(ftrack_connect_pipeline_3dsmax.__file__), '3DSMax'
         )
     )
