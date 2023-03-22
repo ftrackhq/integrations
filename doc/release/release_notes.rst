@@ -14,6 +14,11 @@ Release Notes
 
         Hide finalizers on publisher if there is no useful information for the user.
 
+    .. change:: fix
+        :tags: asset manager
+
+        Proper orange indicator on assets in asset manager that have newer version.
+
     .. change:: new
         :tags: doc
 
