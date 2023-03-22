@@ -19,7 +19,6 @@ from ftrack_connect_pipeline.configure_logging import configure_logging
 
 from ftrack_connect_pipeline_qt import constants as qt_constants
 from ftrack_connect_pipeline_qt.ui.asset_manager.model import AssetListModel
-from ftrack_connect_pipeline_qt.client import documentation
 
 from ftrack_connect_pipeline_3dsmax import menu as ftrack_menu_module
 from ftrack_connect_pipeline_3dsmax.client import (
@@ -29,6 +28,7 @@ from ftrack_connect_pipeline_3dsmax.client import (
     asset_manager,
     log_viewer,
     change_context,
+    documentation,
 )
 from ftrack_connect_pipeline_3dsmax import utils as max_utils
 
@@ -173,7 +173,7 @@ def initialise():
     widgets.append(
         (
             qt_constants.DOCUMENTATION_WIDGET,
-            documentation.QtDocumentationClientWidget,
+            documentation.MaxQtDocumentationClientWidget,
             'Documentation',
             '',
         )

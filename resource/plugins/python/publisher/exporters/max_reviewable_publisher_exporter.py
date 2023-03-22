@@ -26,7 +26,9 @@ class MaxReviewablePublisherExporterPlugin(plugin.MaxPublisherExporterPlugin):
         path = os.path.join(rt.pathConfig.GetDir(rt.name("temp")), filename)
         view_size = rt.getViewSize()
         anim_bmp = rt.bitmap(view_size.x, view_size.y, filename=path)
-        for t in range(int(rt.animationRange.start), int(rt.animationRange.end)):
+        for t in range(
+            int(rt.animationRange.start), int(rt.animationRange.end)
+        ):
             rt.sliderTime = t
             dib = rt.viewport.getViewportDib(index=viewport_index)
             rt.copy(dib, anim_bmp)
