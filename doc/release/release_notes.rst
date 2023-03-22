@@ -14,7 +14,12 @@ Release Notes
 
          Fixed bug when a version could not be changed on an unloaded asset.
 
-    .. change:: changed
+    .. change:: new
+        :tags: doc
+
+        Added user documentation as PDF, available from ftrack menu.
+
+    .. change:: change
         :tags: publisher
 
          Enhanced image sequence and movie publisher UI - migrated options from exporter to collector.
