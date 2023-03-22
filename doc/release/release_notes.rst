@@ -7,12 +7,12 @@
 Release Notes
 *************
 
-.. change:: new
+.. release:: upcoming
+    .. change:: new
         :tags: doc
 
         Added user documentation as PDF, available from ftrack menu.
 
-.. release:: upcoming
     .. change:: changed
         :tags: definitions
 
