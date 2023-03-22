@@ -8,6 +8,12 @@ Release Notes
 *************
 
 .. release:: upcoming
+
+    .. change:: fix
+        :tags: asset manager
+
+        Aligned load method on changing version, fixing bug where and tracked and then loaded asset could not have its version changed and stay loaded.
+
     .. change:: changed
         :tags: definitions
 

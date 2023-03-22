@@ -592,6 +592,7 @@ class AssetManagerEngine(BaseEngine):
             self.logger.error(message)
 
         bool_status = constants.status_bool_mapping[remove_status]
+
         if not bool_status:
             end_time = time.time()
             total_time = end_time - start_time
@@ -660,9 +661,26 @@ class AssetManagerEngine(BaseEngine):
                 asset_context_data
             )
 
+            # Align track/load mode
+            run_method = asset_info_options['pipeline']['method']
+            if asset_info[asset_const.OBJECTS_LOADED]:
+                run_method_effective = 'init_and_load'
+            else:
+                run_method_effective = 'init_nodes'
+            if run_method != run_method_effective:
+                asset_info_options['pipeline']['method'] = run_method_effective
+                self.logger.debug(
+                    'Changing run method from {} to {} to align with track/load mode'.format(
+                        run_method, run_method_effective
+                    )
+                )
             # make a copy to new asset_info_options to avoid having encoded
             # options after running the plugin.
             new_asset_info_options = copy.deepcopy(asset_info_options)
+
+            import nuke
+
+            nuke.tprint('@@@ running ', asset_info_options)
 
             # Run the plugin with the asset info options
             run_event = ftrack_api.event.base.Event(
