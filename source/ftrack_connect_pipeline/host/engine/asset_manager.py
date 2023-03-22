@@ -678,10 +678,6 @@ class AssetManagerEngine(BaseEngine):
             # options after running the plugin.
             new_asset_info_options = copy.deepcopy(asset_info_options)
 
-            import nuke
-
-            nuke.tprint('@@@ running ', asset_info_options)
-
             # Run the plugin with the asset info options
             run_event = ftrack_api.event.base.Event(
                 topic=constants.PIPELINE_RUN_PLUGIN_TOPIC,
