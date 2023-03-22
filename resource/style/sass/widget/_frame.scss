@@ -30,11 +30,23 @@ QtAssetManagerClientWidget[assembler='true'] {
     background-color: #1A2027;
 }
 
-QFrame[indicator='on'] {
+QFrame[indicator='green'] {
     background: #79DFB6;
 }
 
-QFrame[indicator='off'] {
+QFrame[indicator='blue'] {
+    background: #0C8ADF;
+}
+
+QFrame[indicator='orange'] {
+    background: #FFBA5C;
+}
+
+QFrame[indicator='red'] {
+    background: #FF5C5C;
+}
+
+QFrame[indicator='grey'] {
     background: #404040;
 }
 

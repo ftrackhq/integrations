@@ -628,7 +628,9 @@ class AssetWidget(AccordionBaseWidget):
         '''Update widget from asset data provided in *asset_info*'''
         self._version_id = asset_info[asset_constants.VERSION_ID]
         version = self.session.query(
-            'AssetVersion where id={}'.format(self._version_id)
+            'select is_latest_version from AssetVersion where id={}'.format(
+                self._version_id
+            )
         ).one()
         # Calculate path
         parent_path = [link['name'] for link in version['task']['link']]
@@ -653,9 +655,18 @@ class AssetWidget(AccordionBaseWidget):
         self._status_widget.set_status(version['status'])
         self._load_mode = asset_info[asset_constants.LOAD_MODE]
 
-        self.set_indicator(
-            asset_info.get(asset_constants.OBJECTS_LOADED) in [True, 'True']
-        )
+        indicator_color = 'gray'
+        self._is_loaded = asset_info.get(asset_constants.OBJECTS_LOADED)
+        self._is_latest_version = version['is_latest_version']
+        if self._is_loaded:
+            if self._is_latest_version:
+                indicator_color = 'green'
+            else:
+                indicator_color = 'orange'
+                self.setToolTip(
+                    'There is a newer version available for this asset, right click and run "Update" to update it.'
+                )
+        self.set_indicator_color(indicator_color)
         self._component_path = (
             asset_info[asset_constants.COMPONENT_NAME] or '?.?'
         )
@@ -665,7 +676,6 @@ class AssetWidget(AccordionBaseWidget):
         self._component_and_version_header_widget.set_version(
             asset_info[asset_constants.VERSION_NUMBER]
         )
-        self._is_latest_version = asset_info[asset_constants.IS_LATEST_VERSION]
         self._component_and_version_header_widget.set_latest_version(
             self._is_latest_version
         )

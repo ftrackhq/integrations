@@ -30,6 +30,7 @@ class VersionComboBox(QtWidgets.QComboBox):
         self.asset_entity = None
         self._version_id = None
 
+        self._mute_index_change_signal = False
         self.currentIndexChanged.connect(self._on_current_index_changed)
 
         self.setMaximumHeight(24)
@@ -110,8 +111,10 @@ class VersionComboBox(QtWidgets.QComboBox):
         '''Override'''
         versions = self.get_versions()
         if len(versions) != self.count():
+            self._mute_index_change_signal = True
             self.clear()
             self.add_versions(sorted(versions, key=lambda t: -t[0]['version']))
+            self._mute_index_change_signal = False
         super(VersionComboBox, self).showPopup()
 
     def set_context_id(self, context_id):
@@ -135,6 +138,8 @@ class VersionComboBox(QtWidgets.QComboBox):
 
     def _on_current_index_changed(self, index):
         '''Process user version selection, propagate to widget'''
+        if self._mute_index_change_signal:
+            return
         self._version_id = self._version_nr = None
         if index > -1:
             version_and_compatible_tuple = self.itemData(index)
