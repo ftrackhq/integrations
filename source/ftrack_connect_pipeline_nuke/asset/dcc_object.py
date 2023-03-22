@@ -148,7 +148,9 @@ class NukeDccObject(DccObject):
                     asset_const.OBJECTS_LOADED,
                     asset_const.IS_LATEST_VERSION,
                 ]:
-                    param_dict[knob.name()] = (knob.getValue() or '').lower() in ['true','1']
+                    param_dict[knob.name()] = (
+                        knob.getValue() or ''
+                    ).lower() in ['true', '1']
                 else:
                     param_dict[knob.name()] = knob.getValue()
 
