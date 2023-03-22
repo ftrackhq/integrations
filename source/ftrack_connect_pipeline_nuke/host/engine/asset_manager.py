@@ -398,6 +398,11 @@ class NukeAssetManagerEngine(AssetManagerEngine):
                 )
             for node_name in node_names_to_delete:
                 node_to_delete = nuke.toNode(node_name)
+                if not node_to_delete:
+                    self.logger.warning(
+                        "Can't remove non existing node: {}".format(node_name)
+                    )
+                    continue
                 self.logger.debug(
                     "removing : {}".format(node_to_delete.Class())
                 )

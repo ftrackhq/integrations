@@ -9,7 +9,12 @@ Release Notes
 
 .. release:: upcoming
 
-    .. change:: change
+    .. change:: fix
+        :tags: asset manager
+
+         Fixed bug when a version could not be changed on an unloaded asset.
+
+    .. change:: changed
         :tags: publisher
 
          Enhanced image sequence and movie publisher UI - migrated options from exporter to collector.
