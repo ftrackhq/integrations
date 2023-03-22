@@ -213,6 +213,10 @@ class QtPublisherClientWidget(QtPublisherClient, QtWidgets.QFrame):
         self._clear_widget()
         self.definition_selector.populate_definitions()
 
+        # If only one publisher, select it
+        if len(self.definition_selector.definitions) == 1:
+            self.definition_selector.current_definition_index = 1
+
     # Definition
 
     def change_definition(self, definition, schema, component_names_filter):

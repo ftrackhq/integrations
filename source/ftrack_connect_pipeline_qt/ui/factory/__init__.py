@@ -172,7 +172,8 @@ class WidgetFactoryBase(QtWidgets.QWidget):
 
     @staticmethod
     def client_type():
-        '''Return the client type (opener, loader, publisher) for this factory. Must be implemented by child factory'''
+        '''Return the client type (opener, loader, publisher) for this factory.
+        Must be implemented by child factory'''
         raise NotImplementedError()
 
     def create_step_container_widget(
@@ -196,15 +197,17 @@ class WidgetFactoryBase(QtWidgets.QWidget):
             definition,
             self.client_type(),
         )
+        has_visible_plugins = False
         for step in definition[step_type_name]:
             # Create widget for the step (a component, a finaliser...)
             step_category = step['category']
             step_type = step['type']
             step_name = step.get('name')
+            step_visible = step.get('visible', True) is True
             if (
                 self.progress_widget
                 and step_type != core_constants.FINALIZER
-                and step.get('visible', True) is True
+                and step_visible
             ):
                 self.progress_widget.add_step(step_type, step_name)
             step_obj = self.get_override(
@@ -216,6 +219,7 @@ class WidgetFactoryBase(QtWidgets.QWidget):
             )
             if step_obj:
                 self.register_object(step, step_obj, step_category)
+            has_visible_stage = False
             for stage in step.get_all(category=core_constants.STAGE):
                 # create widget for the stages (collector, validator, exporter/importer)
                 stage_category = stage['category']
@@ -223,12 +227,12 @@ class WidgetFactoryBase(QtWidgets.QWidget):
                 stage_name = stage.get('name')
                 if stage_name_filters and stage_name not in stage_name_filters:
                     continue
+                stage_visible = stage.get('visible', True) is True
                 if (
                     self.progress_widget
                     and step_type == core_constants.FINALIZER
                     and (
-                        stage_name == core_constants.FINALIZER
-                        or stage.get('visible', True) is True
+                        stage_name == core_constants.FINALIZER or stage_visible
                     )
                 ):
                     # Add stage as a progress step for finalisers
@@ -249,11 +253,17 @@ class WidgetFactoryBase(QtWidgets.QWidget):
                 if stage_obj:
                     self.register_object(stage, stage_obj, stage_category)
 
+                has_visible_plugin = False
                 for plugin in stage.get_all(category=core_constants.PLUGIN):
                     # create widget for the plugins, usually just one
                     plugin_type = plugin['type']
                     plugin_category = plugin['category']
                     plugin_name = plugin.get('name')
+
+                    plugin_visible = plugin.get('visible', True) is True
+                    if plugin_visible:
+                        has_visible_plugin = True
+
                     plugin_container_obj = self.get_override(
                         step_type_name,
                         '{}_container'.format(plugin_category),
@@ -297,7 +307,8 @@ class WidgetFactoryBase(QtWidgets.QWidget):
                             plugin_widget.inputChanged.connect(
                                 step_obj.collector_input_changed
                             )
-                            # Eventual initial summary is lost prior to the signal connect, have widget do it again
+                            # Eventual initial summary is lost prior to the signal
+                            # connect, have widget do it again
                             plugin_widget.report_input()
                         elif stage_type == core_constants.EXPORTER:
                             step_obj.set_output_plugin_name(plugin_name)
@@ -317,9 +328,13 @@ class WidgetFactoryBase(QtWidgets.QWidget):
                     step_obj.parent_widget(stage_obj)
                 elif step_container_obj:
                     step_container_obj.parent_widget(stage_obj)
+                if stage_visible and has_visible_plugin:
+                    has_visible_stage = True
             if step_container_obj and step_obj:
                 step_container_obj.parent_widget(step_obj)
-        return step_container_obj
+            if step_visible and has_visible_stage:
+                has_visible_plugins = True
+        return step_container_obj, has_visible_plugins
 
     def build(
         self, definition, component_names_filter, component_extensions_filter
@@ -335,7 +350,10 @@ class WidgetFactoryBase(QtWidgets.QWidget):
         main_obj = self.create_main_widget()
 
         # Create the context widget based on the definition and user overrides
-        self.context_obj = self.create_step_container_widget(
+        (
+            self.context_obj,
+            unused_has_visible_context_plugins,
+        ) = self.create_step_container_widget(
             definition,
             core_constants.CONTEXTS,
             component_names_filter=component_names_filter,
@@ -343,14 +361,20 @@ class WidgetFactoryBase(QtWidgets.QWidget):
         )
 
         # Create the components widget based on the definition
-        self.components_obj = self.create_step_container_widget(
+        (
+            self.components_obj,
+            unused_has_visible_component_plugins,
+        ) = self.create_step_container_widget(
             definition,
             core_constants.COMPONENTS,
             stage_name_filters=component_names_filter,
         )
 
         # Create the finalizers widget based on the definition
-        self.finalizers_obj = self.create_step_container_widget(
+        (
+            self.finalizers_obj,
+            has_visible_finalizer_plugins,
+        ) = self.create_step_container_widget(
             definition, core_constants.FINALIZERS
         )
 
@@ -361,11 +385,13 @@ class WidgetFactoryBase(QtWidgets.QWidget):
         self.components_section = QtWidgets.QWidget()
         self.components_section.setLayout(QtWidgets.QVBoxLayout())
         if definition['type'] == core_constants.PUBLISHER:
-            l_header = QtWidgets.QLabel('Components')
+            l_components_header = QtWidgets.QLabel('Components')
         else:
-            l_header = QtWidgets.QLabel('Choose which component to open')
-            l_header.setObjectName('gray')
-        self.components_section.layout().addWidget(l_header)
+            l_components_header = QtWidgets.QLabel(
+                'Choose which component to open'
+            )
+            l_components_header.setObjectName('gray')
+        self.components_section.layout().addWidget(l_components_header)
         self.components_section.layout().addWidget(self.components_obj.widget)
         if definition['type'] == core_constants.LOADER:
             self.components_section.hide()
@@ -373,14 +399,22 @@ class WidgetFactoryBase(QtWidgets.QWidget):
 
         self.finalizers_section = QtWidgets.QWidget()
         self.finalizers_section.setLayout(QtWidgets.QVBoxLayout())
-        self.finalizers_section.layout().addWidget(
-            QtWidgets.QLabel('Finalizers')
-        )
+        l_finalizers_header = QtWidgets.QLabel('Finalizers')
+        self.finalizers_section.layout().addWidget(l_finalizers_header)
         self.finalizers_section.layout().addWidget(self.finalizers_obj.widget)
-        if definition['type'] == core_constants.LOADER or not UI_OVERRIDES.get(
-            core_constants.FINALIZERS
-        ).get('show', True):
+        show_finalisers = has_visible_finalizer_plugins
+        if (
+            show_finalisers
+            and definition['type'] == core_constants.LOADER
+            or not UI_OVERRIDES.get(core_constants.FINALIZERS).get(
+                'show', True
+            )
+        ):
+            show_finalisers = False
+
+        if not show_finalisers:
             self.finalizers_section.hide()
+
         main_obj.widget.layout().addWidget(self.finalizers_section)
 
         main_obj.widget.layout().addStretch()

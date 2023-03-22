@@ -12,8 +12,23 @@ Release Notes
     .. change:: fix
         :tags: assembler
 
-        Fixed bug were version not could be changed due to different file extension.
+        Fixed bug were version could not be changed due to different file extension.
         Fixed graphics bug with asset widget on changing version.
+
+    .. change:: changed
+        :tags: publisher
+
+        Auto select publisher if only one.
+
+    .. change:: fix
+        :tags: publisher
+
+        Hide finalizers on publisher if there is no useful information for the user.
+
+    .. change:: fix
+        :tags: asset manager
+
+        Proper orange indicator on assets in asset manager that have newer version.
 
     .. change:: new
         :tags: doc
@@ -22,11 +37,11 @@ Release Notes
 
     .. change:: changed
 
-        Optimised Assembler/loader with optimised query projections
+        Optimised Assembler/loader with optimised query projections.
 
     .. change:: fix
 
-        Optimised Opener query projections
+        Optimised Opener query projections.
 
    .. change:: fix
 
@@ -83,7 +98,7 @@ Release Notes
 
         Updated progress widget style and appearance of finalizer section.
 
-    .. change:: change
+    .. change:: changed
         :tags: publisher,assembler,opener
 
         Use core pipeline DefinitionObject API instead of raw definition dictionary operations.
@@ -93,22 +108,22 @@ Release Notes
 
         Fixed bug where default plugin option list item were not selected.
 
-    .. change:: change
+    .. change:: changed
         :tags: assembler
 
         Have assembler start in browse mode instead of suggestions.
 
-    .. change:: change
+    .. change:: changed
         :tags: dynamicwidget
 
         Finalised Dynamic widget . list / combobox handling.
 
-    .. change:: change
+    .. change:: changed
         :tags: dynamicwidget
 
         Dynamic widget renders widgets within a group box instead of using the default redundant plugin widget label.
 
-    .. change:: change
+    .. change:: changed
         :tags: overlay
 
         Updated the visual appearance of options overlay, removed accordion use.
@@ -136,15 +151,15 @@ Release Notes
 
         Fixed bug where opener definition selector could not spot an openable version.
 
-    .. change:: change
+    .. change:: changed
 
          Removed version id from asset list event.
 
-    .. change:: change
+    .. change:: changed
 
         Passing version ID from version selection instead of Version API object
 
-    .. change:: change
+    .. change:: changed
 
         Prevent opener from listing and opening incompatible snapshots
 
