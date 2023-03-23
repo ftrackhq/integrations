@@ -11,8 +11,4 @@ class UnrealQtDocumentationClientWidget(
 ):
     '''Unreal documentation client'''
 
-    documentation_path = (
-        documentation.QtDocumentationClientWidget._get_user_documentation_path(
-            os.path.dirname(ftrack_connect_pipeline_unreal.__file__), 'unreal'
-        )
-    )
+    documentation_url = "https://help.ftrack.com/en/articles/3998053-ftrack-unreal-engine-integration"
