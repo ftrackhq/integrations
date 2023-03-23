@@ -11,8 +11,6 @@ class NukeQtDocumentationClientWidget(
 ):
     '''Nuke documentation client'''
 
-    documentation_path = (
-        documentation.QtDocumentationClientWidget._get_user_documentation_path(
-            os.path.dirname(ftrack_connect_pipeline_nuke.__file__), 'nuke'
-        )
+    documentation_url = (
+        "https://help.ftrack.com/en/articles/443247-ftrack-nuke-integration"
     )
