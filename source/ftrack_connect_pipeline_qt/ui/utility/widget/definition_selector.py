@@ -405,7 +405,7 @@ class PublisherDefinitionSelector(DefinitionSelectorBase):
             )
             return
 
-        self._definition_selector.addItem("", None)
+        self._definition_selector.addItem("- please choose -", None)
         index = 1
 
         for schema in self.schemas:
