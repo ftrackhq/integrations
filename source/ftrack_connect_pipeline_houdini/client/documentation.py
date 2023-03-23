@@ -11,9 +11,4 @@ class HoudiniQtDocumentationClientWidget(
 ):
     '''Houdini documentation client'''
 
-    documentation_path = (
-        documentation.QtDocumentationClientWidget._get_user_documentation_path(
-            os.path.dirname(ftrack_connect_pipeline_houdini.__file__),
-            'houdini',
-        )
-    )
+    documentation_url = "https://help.ftrack.com/en/articles/7177603-ftrack-houdini-integration"
