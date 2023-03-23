@@ -375,6 +375,7 @@ class {{cookiecutter.host_type_capitalized}}AssetManagerEngine(AssetManagerEngin
 
         if options.get('clear_selection'):
             # cmds.select(cl=True)
+            pass
 
         # nodes = cmds.listConnections(
         #    '{}.{}'.format(self.dcc_object.name, asset_const.ASSET_LINK)

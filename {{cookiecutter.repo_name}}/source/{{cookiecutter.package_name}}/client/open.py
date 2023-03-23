@@ -17,7 +17,7 @@ class {{cookiecutter.host_type_capitalized}}QtOpenerClientWidget(open.QtOpenerCl
         qt_constants.UI_TYPE,
         {{cookiecutter.host_type}}_constants.UI_TYPE,
     ]
-    definition_extensions_filter = ['.mb',  .. ]
+    definition_extensions_filter = ['.mb']
 
     def __init__(self, event_manager, parent=None):
         super({{cookiecutter.host_type_capitalized}}QtOpenerClientWidget, self).__init__(event_manager)

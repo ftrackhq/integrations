@@ -13,7 +13,7 @@ from {{cookiecutter.package_name}}.utils import custom_commands as {{cookiecutte
 class {{cookiecutter.host_type_capitalized}}DccObject(DccObject):
     '''{{cookiecutter.host_type_capitalized}}DccObject class.'''
 
-    ftrack_plugin_id = asset_const.FTRACK_PLUGIN_ID
+    ftrack_plugin_id = 1234 #asset_const.FTRACK_PLUGIN_ID
     '''Plugin id used on some DCC applications '''
 
     def __init__(self, name=None, from_id=None, **kwargs):
@@ -154,3 +154,4 @@ class {{cookiecutter.host_type_capitalized}}DccObject(DccObject):
             #         '{}.{}'.format(self.name, asset_const.ASSET_LINK),
             #         '{}.ftrack'.format(obj),
             #     )
+            pass

@@ -2,6 +2,7 @@
 # :copyright: Copyright (c) 2014-{{cookiecutter.year}} ftrack
 import threading
 from functools import wraps
+import logging
 
 from ftrack_connect_pipeline.utils import (
     get_save_path,
