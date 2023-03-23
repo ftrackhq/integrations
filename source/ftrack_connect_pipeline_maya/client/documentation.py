@@ -11,8 +11,6 @@ class MayaQtDocumentationClientWidget(
 ):
     '''Maya documentation client'''
 
-    documentation_path = (
-        documentation.QtDocumentationClientWidget._get_user_documentation_path(
-            os.path.dirname(ftrack_connect_pipeline_maya.__file__), 'maya'
-        )
+    documentation_url = (
+        "https://help.ftrack.com/en/articles/441848-ftrack-maya-integration"
     )
