@@ -11,6 +11,9 @@ from Qt import QtWidgets
 class QtDocumentationClientWidget(QtWidgets.QWidget):
     '''Client for opening Connect documentation URL'''
 
+    documentation_url = None
+    # The URL to documentation, if available. Should be set by DCC
+
     documentation_path = None
     # The path to local user documentation, if available. Should be set by DCC
 
@@ -80,8 +83,11 @@ class QtDocumentationClientWidget(QtWidgets.QWidget):
             subprocess.Popen(commands, shell=True)
         else:
             # Fall back on Connect online documentation
-            DOC_URL = 'https://www.ftrack.com/en/portfolio/connect'
-            commands = self._get_open_command(DOC_URL)
+            documentation_url_effective = (
+                self.documentation_url
+                or 'https://www.ftrack.com/en/portfolio/connect'
+            )
+            commands = self._get_open_command(documentation_url_effective)
             self.logger.debug(
                 'Launching online documentation through system command: {}'.format(
                     commands
