@@ -172,7 +172,7 @@
           "name": "collector",
           "plugins":[
             {
-              "name": "select camera to playblast",
+              "name": "select camera",
               "plugin": "maya_camera_publisher_collector",
               "options": {
                 "camera_name": "persp"
