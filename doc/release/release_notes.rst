@@ -11,7 +11,7 @@ Release Notes
     .. change:: new
         :tags: doc
 
-        Added user documentation as PDF, available from ftrack menu.
+        Added user documentation, available from ftrack menu.
 
     .. change:: changed
         :tags: definitions
