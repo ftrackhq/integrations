@@ -127,6 +127,11 @@ class MayaDccObject(DccObject):
             if cmds.attributeQuery(attr, node=object_name, msg=True):
                 continue
             attr_value = cmds.getAttr('{}.{}'.format(object_name, attr))
+            if attr in [
+                asset_const.OBJECTS_LOADED,
+                asset_const.IS_LATEST_VERSION,
+            ]:
+                attr_value = str(attr_value) == 'True'
             param_dict[attr] = attr_value
         return param_dict
 
