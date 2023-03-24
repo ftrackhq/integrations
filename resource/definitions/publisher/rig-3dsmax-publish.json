@@ -30,7 +30,7 @@
           "name": "collector",
           "plugins":[
             {
-              "name": "collect_scene_selection",
+              "name": "scene collector",
               "plugin": "max_scene_publisher_collector",
               "options": {
                 "export": ["scene"]
@@ -66,7 +66,7 @@
           "name": "collector",
           "plugins":[
             {
-              "name": "camera",
+              "name": "generic collector",
               "plugin": "max_generic_publisher_collector"
             }
           ]
@@ -100,7 +100,7 @@
           "name": "collector",
           "plugins":[
             {
-              "name": "Geometry Collector",
+              "name": "generic collector",
               "plugin": "max_generic_publisher_collector"
             }
           ]
@@ -134,7 +134,7 @@
           "name": "collector",
           "plugins":[
             {
-              "name": "Geometry Collector",
+              "name": "generic collector",
               "plugin": "max_generic_publisher_collector"
             }
           ]

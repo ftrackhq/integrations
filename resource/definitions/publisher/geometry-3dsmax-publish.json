@@ -30,7 +30,7 @@
           "name": "collector",
           "plugins":[
             {
-              "name": "collect_scene_selection",
+              "name": "scene collector",
               "plugin": "max_scene_publisher_collector",
               "options": {
                 "export": ["scene"]
