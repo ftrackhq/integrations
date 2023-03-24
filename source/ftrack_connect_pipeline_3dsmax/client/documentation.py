@@ -11,8 +11,6 @@ class MaxQtDocumentationClientWidget(
 ):
     '''Max documentation client'''
 
-    documentation_path = (
-        documentation.QtDocumentationClientWidget._get_user_documentation_path(
-            os.path.dirname(ftrack_connect_pipeline_3dsmax.__file__), '3DSMax'
-        )
+    documentation_url = (
+        "https://help.ftrack.com/en/articles/443239-ftrack-3ds-max-integration"
     )
