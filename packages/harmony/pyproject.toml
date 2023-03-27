@@ -1,21 +1,20 @@
 [tool.poetry]
-name = "ftrack-pipeline-qt"
+name = "ftrack-connect-pipeline-harmony"
 version = "0.0.0"
-description='Qt driven ftrack Connect pipeline framework UI layer'
+description='ftrack Connect pipeline framework Toon Boom Harmony integration'
 authors = ["ftrack Integrations Team <integrations@backlight.co>"]
 readme = "README.md"
-packages = [{include = "ftrack_pipeline_qt"}]
+packages = [{include = "ftrack_connect_pipeline_harmony"}]
 license = "Apache-2.0"
 maintainers = [
     "LLuis Casals <lluis.casals@backlight.co>",
     "Henrik Norin <henrik.norin@backlight.co>",
 ]
 homepage = "https://ftrack.com"
-repository = "https://github.com/ftrackhq/pipeline-integration"
+repository = "https://github.com/ftrackhq/pipeline-integrations"
 
 [tool.poetry.dependencies]
 python = ">= 3.7, < 3.10"
-"Qt.py" = "^1.0.0"
 
 [build-system]
 requires = ["poetry-core>=1.0.0", "poetry-dynamic-versioning"]
@@ -25,7 +24,6 @@ build-backend = "poetry_dynamic_versioning.backend"
 optional = true
 
 [tool.poetry.group.development.dependencies]
-PySide2 = "^5.0.0"
 pyScss = "^1.2.0"
 Jinja2 = "<3.1"
 sphinx = ">= 1.8.5, < 4"
@@ -46,4 +44,4 @@ style = "pep440"
 latest-tag = true
 
 [tool.poetry-dynamic-versioning.substitution]
-files=["ftrack_pipeline_qt/_version.py"]
+files=["ftrack_connect_pipeline_harmony/_version.py"]

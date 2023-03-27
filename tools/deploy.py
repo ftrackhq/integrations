@@ -29,7 +29,12 @@ BUILD_PATH = os.path.join(ROOT_PATH, 'dist')
 RESOURCE_PATH = os.path.join(ROOT_PATH, 'resource')
 STYLE_PATH = os.path.join(RESOURCE_PATH, 'style')
 
-PROJECT_NAME = os.path.basename(ROOT_PATH)
+PROJECT_NAME = None
+with open(os.path.join(ROOT_PATH, 'pyproject.toml')) as f:
+    for line in f:
+        if line.startswith('name = '):
+            PROJECT_NAME = line.split('=')[1].strip().strip('"')
+            break
 
 SOURCE_PATH = os.path.join(ROOT_PATH, PROJECT_NAME.replace('-', '_'))
 
