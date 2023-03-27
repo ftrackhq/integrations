@@ -109,7 +109,7 @@ class NukeMoviePublisherCollectorOptionsWidget(BaseOptionsWidget):
         if len(self.write_node_names) == 0:
             self._render_warning.setVisible(True)
             self._render_warning.setText(
-                '<html><i style="color:red">No image sequence write node selected!</i></html>'
+                '<html><i style="color:red">No movie write node selected!</i></html>'
             )
 
         # Extract a path from the write node
