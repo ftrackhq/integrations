@@ -1,9 +1,10 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2023 ftrack
-
-import ftrack_api
+import os
 
 import nuke
+
+import ftrack_api
 
 from ftrack_connect_pipeline_nuke import plugin
 
@@ -25,7 +26,23 @@ class NukeMoviePublisherCollectorPlugin(plugin.NukePublisherCollectorPlugin):
                 and node.Class().find(options['classname']) == -1
             ):
                 continue
-            node_names.append(node.name())
+            # Determine if is a compatible write node
+            is_compatible_write_node = False
+            if (
+                node.Class() == 'Write'
+                and node.knob('file')
+                and node.knob('first')
+                and node.knob('last')
+            ):
+                node_file_path = node.knob('file').value()
+                if os.path.splitext(node_file_path.lower())[-1] in [
+                    '.mov',
+                    '.mxf',
+                    '.avi',
+                    '.r3d',
+                ]:
+                    is_compatible_write_node = True
+            node_names.append((node.name(), is_compatible_write_node))
         return node_names
 
     def run(self, context_data=None, data=None, options=None):

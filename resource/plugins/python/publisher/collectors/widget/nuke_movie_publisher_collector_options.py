@@ -78,34 +78,49 @@ class NukeMoviePublisherCollectorOptionsWidget(BaseOptionsWidget):
             self._nodes_cb.setDisabled(False)
         else:
             self._nodes_cb.setDisabled(True)
+
         self._nodes_cb.clear()
-        self._nodes_cb.addItems(self.node_names)
-        # Check for file path on nodes
-        node_file_path = first = last = is_movie = None
-        for node_name in self.node_names:
+        for (index, node_name) in enumerate(self.node_names):
+            self._nodes_cb.addItem(node_name)
+            if node_name == self._node_name:
+                self._nodes_cb.setCurrentIndex(index)
+
+    @property
+    def write_node_names(self):
+        '''Return the list renderable write node names'''
+        return self._write_node_names
+
+    @write_node_names.setter
+    def write_node_names(self, node_names):
+        '''Store list of renderable write node *node_names* and update widgets'''
+        self._write_node_names = node_names
+        if self.write_node_names:
+            self._write_nodes_cb.setDisabled(False)
+        else:
+            self._write_nodes_cb.setDisabled(True)
+
+        self._write_nodes_cb.clear()
+        for (index, node_name) in enumerate(self.write_node_names):
+            self._write_nodes_cb.addItem(node_name)
+            if node_name == self._node_name:
+                self._write_nodes_cb.setCurrentIndex(index)
+
+        self._render_warning.setVisible(False)
+        if len(self.write_node_names) == 0:
+            self._render_warning.setVisible(True)
+            self._render_warning.setText(
+                '<html><i style="color:red">No image sequence write node selected!</i></html>'
+            )
+
+        # Extract a path from the write node
+        node_name = self._node_name
+        if not node_name and len(self.write_node_names) > 0:
+            node_name = self.write_node_names[0]
+
+        if node_name:
             node = nuke.toNode(node_name)
-            if node.knob('file') and node.knob('first') and node.knob('last'):
-                node_file_path = node.knob('file').value()
-                if os.path.splitext(node_file_path.lower())[-1] in [
-                    '.mov',
-                    '.mxf',
-                    '.avi',
-                    '.r3d',
-                ]:
-                    is_movie = True
-                else:
-                    is_movie = False
-                first = node.knob('first').value()
-                last = node.knob('last').value()
-                break
-        if node_file_path:
-            if not is_movie:
-                full_path = '{} [{}-{}]'.format(node_file_path, first, last)
-                # Suggest to render this to a movie
-                self.image_sequence_path = full_path
-            else:
-                # Suggest this movie
-                self.movie_path = node_file_path
+            node_file_path = node.knob('file').value()
+            self.movie_path = node_file_path
 
     def __init__(
         self,
@@ -119,6 +134,8 @@ class NukeMoviePublisherCollectorOptionsWidget(BaseOptionsWidget):
         asset_type_name=None,
     ):
         self._node_names = []
+        self._write_node_names = []
+        self._node_name = options.get('node_name')
         super(NukeMoviePublisherCollectorOptionsWidget, self).__init__(
             parent=parent,
             session=session,
@@ -155,14 +172,17 @@ class NukeMoviePublisherCollectorOptionsWidget(BaseOptionsWidget):
         bg2.addButton(self._render_create_write_rb)
         self._render_widget.layout().addWidget(self._render_create_write_rb)
 
+        self._nodes_cb = QtWidgets.QComboBox()
+        self._render_widget.layout().addWidget(self._nodes_cb)
+
         self._render_selected_rb = QtWidgets.QRadioButton(
             'Render selected node:'
         )
         bg2.addButton(self._render_selected_rb)
         self._render_widget.layout().addWidget(self._render_selected_rb)
 
-        self._nodes_cb = QtWidgets.QComboBox()
-        self._render_widget.layout().addWidget(self._nodes_cb)
+        self._write_nodes_cb = QtWidgets.QComboBox()
+        self._render_widget.layout().addWidget(self._write_nodes_cb)
 
         self._render_warning = QtWidgets.QLabel()
 
@@ -256,31 +276,6 @@ class NukeMoviePublisherCollectorOptionsWidget(BaseOptionsWidget):
                 del self.options['node_name']
             return
         self.set_option_result(node_name, 'node_name')
-        # Validate node selection against current mode, display warning
-        if (
-            self._render_rb.isChecked()
-            and self._render_selected_rb.isChecked()
-        ):
-            input_node = nuke.toNode(node_name)
-            if input_node.Class() != 'Write':
-                self._render_warning.setVisible(True)
-                self._render_warning.setText(
-                    '<html><i style="color:red">The selected node is not a write node!</i></html>'
-                )
-            else:
-                # Check file format
-                file_path = input_node['file'].value()
-                writing_movie = os.path.splitext(file_path.lower())[-1] in [
-                    '.mov',
-                    '.mxf',
-                    '.avi',
-                    '.r3d',
-                ]
-                if not writing_movie:
-                    self._render_warning.setVisible(True)
-                    self._render_warning.setText(
-                        '<html><i style="color:red">The selected write node is not writing a movie!</i></html>'
-                    )
 
     def _update_render_mode(self):
         '''Update widget based on selected render mode'''
@@ -295,6 +290,8 @@ class NukeMoviePublisherCollectorOptionsWidget(BaseOptionsWidget):
             mode = 'render_selected'
         self.set_option_result(mode, 'mode')
 
+        self._nodes_cb.setVisible(mode == 'render_create_write')
+        self._write_nodes_cb.setVisible(mode == 'render_selected')
         self._render_widget.setVisible(
             mode in ['render_create_write', 'render_selected']
         )
@@ -310,8 +307,7 @@ class NukeMoviePublisherCollectorOptionsWidget(BaseOptionsWidget):
         super(NukeMoviePublisherCollectorOptionsWidget, self).post_build()
 
         self._nodes_cb.currentTextChanged.connect(self._on_node_selected)
-        if self.node_names:
-            self._on_node_selected(self._nodes_cb.currentText())
+        self._write_nodes_cb.currentTextChanged.connect(self._on_node_selected)
 
         self._render_rb.clicked.connect(self._update_render_mode)
         self._render_create_write_rb.clicked.connect(self._update_render_mode)
@@ -331,7 +327,15 @@ class NukeMoviePublisherCollectorOptionsWidget(BaseOptionsWidget):
     def on_fetch_callback(self, result):
         '''This function is called by the _set_internal_run_result function of
         the BaseOptionsWidget'''
-        self.node_names = result
+        self.node_names = [
+            node_name for (node_name, unused_is_write_node) in result
+        ]
+        # Evaluate which nodes writes an image sequence
+        write_nodes = []
+        for (node_name, is_compatible_write_node) in result:
+            if is_compatible_write_node:
+                write_nodes.append(node_name)
+        self.write_node_names = write_nodes
 
     def _show_image_sequence_dialog(self):
         '''Shows the file dialog for image sequences'''
@@ -394,12 +398,21 @@ class NukeMoviePublisherCollectorOptionsWidget(BaseOptionsWidget):
     def report_input(self):
         '''(Override) Amount of collected objects has changed, notify parent(s)'''
         status = False
-        if self._render_rb.isChecked():
+        if self._render_create_write_rb.isChecked():
             if self._nodes_cb.isEnabled():
                 message = '1 script node selected'
                 status = True
             else:
                 message = 'No script node selected!'
+        elif self._render_selected_rb.isChecked():
+            if (
+                self._write_nodes_cb.isEnabled()
+                and self._write_nodes_cb.count() > 0
+            ):
+                message = '1 write node selected'
+                status = True
+            else:
+                message = 'No write node selected!'
         elif self._render_from_sequence_rb.isChecked():
             if self.image_sequence_path:
                 message = '1 image sequence selected'

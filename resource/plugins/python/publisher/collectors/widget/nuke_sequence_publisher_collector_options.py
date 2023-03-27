@@ -70,7 +70,7 @@ class NukeSequencePublisherCollectorOptionsWidget(BaseOptionsWidget):
 
     @write_node_names.setter
     def write_node_names(self, node_names):
-        '''Store *node_names* in options and update widgets'''
+        '''Store list of renderable write node *node_names* and update widgets'''
         self._write_node_names = node_names
         if self.write_node_names:
             self._write_nodes_cb.setDisabled(False)
@@ -269,8 +269,6 @@ class NukeSequencePublisherCollectorOptionsWidget(BaseOptionsWidget):
 
         self._nodes_cb.currentTextChanged.connect(self._on_node_selected)
         self._write_nodes_cb.currentTextChanged.connect(self._on_node_selected)
-        # if self.node_names:
-        #    self._on_node_selected(self._nodes_cb.currentText())
 
         self._render_rb.clicked.connect(self._update_render_mode)
         self._render_create_write_rb.clicked.connect(self._update_render_mode)
@@ -287,25 +285,14 @@ class NukeSequencePublisherCollectorOptionsWidget(BaseOptionsWidget):
     def on_fetch_callback(self, result):
         '''This function is called by the _set_internal_run_result function of
         the BaseOptionsWidget'''
-        self.node_names = result
+        self.node_names = [
+            node_name for (node_name, unused_is_write_node) in result
+        ]
         # Evaluate which nodes writes an image sequence
         write_nodes = []
-        for node_name in self.node_names:
-            node = nuke.toNode(node_name)
-            if (
-                node.Class() == 'Write'
-                and node.knob('file')
-                and node.knob('first')
-                and node.knob('last')
-            ):
-                node_file_path = node.knob('file').value()
-                if not os.path.splitext(node_file_path.lower())[-1] in [
-                    '.mov',
-                    '.mxf',
-                    '.avi',
-                    '.r3d',
-                ]:
-                    write_nodes.append(node_name)
+        for (node_name, is_compatible_write_node) in result:
+            if is_compatible_write_node:
+                write_nodes.append(node_name)
         self.write_node_names = write_nodes
 
     def _show_image_sequence_dialog(self):
