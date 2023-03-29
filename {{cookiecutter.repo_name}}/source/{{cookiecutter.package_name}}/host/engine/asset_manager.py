@@ -4,7 +4,7 @@
 from ftrack_connect_pipeline import constants as core_constants
 from ftrack_connect_pipeline.host.engine import AssetManagerEngine
 from ftrack_connect_pipeline.asset.asset_info import FtrackAssetInfo
-from {{cookiecutter.package_name}}.utils import custom_commands as {{cookiecutter.host_type}}_utils
+from {{cookiecutter.package_name}} import utils as {{cookiecutter.host_type}}_utils
 from {{cookiecutter.package_name}}.constants import asset as asset_const
 from {{cookiecutter.package_name}}.constants.asset import modes as modes_const
 from {{cookiecutter.package_name}}.asset import {{cookiecutter.host_type_capitalized}}FtrackObjectManager

@@ -4,7 +4,7 @@
 from ftrack_connect_pipeline import plugin
 from ftrack_connect_pipeline_qt import plugin as pluginWidget
 from {{cookiecutter.package_name}} import constants as {{cookiecutter.host_type}}_constants
-from {{cookiecutter.package_name}}.utils import custom_commands as {{cookiecutter.host_type}}_utils
+from {{cookiecutter.package_name}} import utils as {{cookiecutter.host_type}}_utils
 from {{cookiecutter.package_name}}.asset import {{cookiecutter.host_type_capitalized}}FtrackObjectManager
 from {{cookiecutter.package_name}}.asset.dcc_object import {{cookiecutter.host_type_capitalized}}DccObject
 

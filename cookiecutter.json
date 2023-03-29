@@ -6,7 +6,7 @@
     "host_type": "{{ cookiecutter.plugin_name }}",
     "host_type_capitalized": "{{ cookiecutter.plugin_name.capitalize() }}",
     "description": "{{ cookiecutter.plugin_name.capitalize() }} plugin enabling publish, open, load and asset management with ftrack eco system.",
-    "year": "2022",
+    "year": "2023",
     "version": "1.0.0",
     "keywords": "ftrack"
 }

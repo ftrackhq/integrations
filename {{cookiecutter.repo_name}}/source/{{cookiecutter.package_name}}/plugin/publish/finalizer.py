@@ -10,7 +10,7 @@ from {{cookiecutter.package_name}}.plugin import (
     {{cookiecutter.host_type_capitalized}}BasePluginWidget,
 )
 
-from {{cookiecutter.package_name}}.utils import custom_commands as {{cookiecutter.host_type}}_utils
+from {{cookiecutter.package_name}} import utils as {{cookiecutter.host_type}}_utils
 from {{cookiecutter.package_name}}.constants import asset as asset_const
 
 

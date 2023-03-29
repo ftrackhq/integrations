@@ -12,51 +12,15 @@ from {{cookiecutter.package_name}}.constants import asset as asset_const
 logger = logging.getLogger(__name__)
 
 
-### COMMON UTILS ###
-
-
-def run_in_main_thread(f):
-    '''Make sure a function runs in the main {{cookiecutter.host_type_capitalized}} thread.'''
-
-    @wraps(f)
-    def decorated(*args, **kwargs):
-        if threading.currentThread().name != 'MainThread':
-            # return maya_utils.executeInMainThreadWithResult(f, *args, **kwargs)
-            pass
-        else:
-            return f(*args, **kwargs)
-
-    return decorated
-
-
-def init_{{cookiecutter.host_type}}(context_id=None, session=None):
-    '''
-    Initialise timeline in {{cookiecutter.host_type_capitalized}} based on shot/asset build settings.
-
-    :param session:
-    :param context_id: If provided, the timeline data should be fetched this context instead of environment variables.
-    :param session: The session required to query from *context_id*.
-    :return:
-    '''
-    pass
-
-
-def get_main_window():
-    """Return the QMainWindow for the main {{cookiecutter.host_type_capitalized}} window."""
-    return None
-
-
 ### OBJECT OPERATIONS ###
 
 
 def get_ftrack_nodes():
-    # return cmds.ls(type=asset_const.FTRACK_PLUGIN_TYPE)
     pass
 
 
 def get_current_scene_objects():
     '''Returns all the objects in the scene'''
-    # return set(cmds.ls(l=True))
     pass
 
 
@@ -168,67 +132,6 @@ def select_only_type(obj_type):
     # return selected_cameras
     pass
 
-
-### FILE OPERATIONS ###
-
-
-def open_file(path, options=None):
-    '''Native open file function '''
-    # return cmds.file(path, o=True, f=True)
-    pass
-
-
-def import_file(path, options=None):
-    '''Native import file function '''
-    # return cmds.file(path, o=True, f=True)
-    pass
-
-
-def save_file(save_path, context_id=None, session=None, temp=True, save=True):
-    '''Save scene locally in temp or with the next version number based on latest version
-    in ftrack.'''
-
-    # # Max has no concept of renaming a scene, always save
-    # save = True
-    #
-    # if save_path is None:
-    #     if context_id is not None and session is not None:
-    #         # Attempt to find out based on context
-    #         save_path, message = get_save_path(
-    #             context_id, session, extension='.max', temp=temp
-    #         )
-    #
-    #         if save_path is None:
-    #             return False, message
-    #     else:
-    #         return (
-    #             False,
-    #             'No context and/or session provided to generate save path',
-    #         )
-    #
-    # if save:
-    #     rt.savemaxFile(save_path, useNewFile=True)
-    #     message = 'Saved Max scene @ "{}"'.format(save_path)
-    # else:
-    #     raise Exception('Max scene rename not supported')
-    #
-    # result = save_path
-    #
-    # return result, message
-    pass
-
-
-### REFERENCES ###
-# Follow this link for more reference commands in max:
-# https://help.autodesk.com/view/3DSMAX/2016/ENU/?guid=__files_GUID_090B28AB_5710_45BB_B324_8B6FD131A3C8_htm
-
-
-def reference_file(path, options=None):
-    '''Native reference file function '''
-    # return cmds.file(path, o=True, f=True)
-    pass
-
-
 def get_reference_node(dcc_object_name):
     '''
     Return the scene reference_node associated to the given
@@ -267,16 +170,5 @@ def update_reference_path(reference_node, component_path):
     '''Update the path of the given *reference_node* with the given
     *component_path*'''
     #reference_node.filename = component_path
-    pass
-
-
-### TIME OPERATIONS ###
-
-
-def get_time_range():
-    '''Return the start and end frame of the current scene'''
-    # start = rt.animationRange.start
-    # end = rt.animationRange.end
-    # return (start, end)
     pass
 

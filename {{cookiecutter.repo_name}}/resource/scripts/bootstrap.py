@@ -26,10 +26,10 @@ from {{cookiecutter.package_name}}.client import (
     publish,
     change_context,
     log_viewer,
+    documentation
 )
-from ftrack_connect_pipeline_qt.client import documentation
 
-from {{cookiecutter.package_name}}.utils import custom_commands as {{cookiecutter.host_type}}_utils
+from {{cookiecutter.package_name}} import utils as {{cookiecutter.host_type}}_utils
 
 
 extra_handlers = {

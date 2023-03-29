@@ -5,7 +5,7 @@ import logging
 
 from ftrack_connect_pipeline.asset.dcc_object import DccObject
 from {{cookiecutter.package_name}}.constants import asset as asset_const
-from {{cookiecutter.package_name}}.utils import custom_commands as {{cookiecutter.host_type}}_utils
+from {{cookiecutter.package_name}} import utils as {{cookiecutter.host_type}}_utils
 
 #import maya.cmds as cmds
 

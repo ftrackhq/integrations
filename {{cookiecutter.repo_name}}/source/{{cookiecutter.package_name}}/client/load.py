@@ -9,7 +9,7 @@ from ftrack_connect_pipeline_qt.client import load
 import ftrack_connect_pipeline.constants as constants
 import ftrack_connect_pipeline_qt.constants as qt_constants
 import {{cookiecutter.package_name}}.constants as {{cookiecutter.host_type}}_constants
-from {{cookiecutter.package_name}}.utils.custom_commands import get_main_window
+from {{cookiecutter.package_name}} import utils as {{cookiecutter.host_type}}_utils
 
 
 class {{cookiecutter.host_type_capitalized}}QtAssemblerClientWidget(load.QtAssemblerClientWidget):
