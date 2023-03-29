@@ -9,6 +9,9 @@ const TOPIC_PING = "ftrack.pipeline.ping";
 const TOPIC_RENDER_DO = "ftrack.pipeline.render.do";
 const TOPIC_RENDER_FINISHED = "ftrack.pipeline.render.finished";
 
+const TOPIC_SHUTDOWN = "ftrack.pipeline.shutdown";
+
+
 // Misc
 
 const INT32_SIZE = 4;
@@ -45,7 +48,7 @@ function uuidv4() {
     });
 }
 
-function EventHub(host, port, integration) {
+function TCPEventHubServer(host, port, integration) {
     // ftrack event hub implementation
     // Spawns an scaled down event hub listener listening on local TCP port.
 
@@ -101,7 +104,6 @@ function EventHub(host, port, integration) {
 
                 this.connected = true; 
 
-                // Send a ping to know comms are working
                 this.send(TOPIC_PING, {})
             }
             else
@@ -125,10 +127,10 @@ function EventHub(host, port, integration) {
         }
     }
 
-    this.send = function(topic, event, in_reply_to_event) {
+    this.send = function(topic, event_data, in_reply_to_event) {
         try
         {
-            event = this.prepareEvent(topic, event, "harmony", in_reply_to_event);
+            event = this.prepareEvent(topic, event_data, "harmony", in_reply_to_event);
             debug("Sending event: "+JSON.stringify(event));
             if (this.connected) {
                 raw_event = JSON.stringify(event);
@@ -249,6 +251,8 @@ function HarmonyIntegration() {
     this.bootstrap = function() {
         this.createLauncher();
         this.spawnIntegration();
+        var app = QCoreApplication.instance();
+        app.aboutToQuit.connect(app, this.shutdown);
     }
 
     this.createLauncher = function() {
@@ -299,16 +303,26 @@ function HarmonyIntegration() {
 
         // Spawn event hub and start listening to events
 
-        this.event_hub = new EventHub("localhost", System.getenv("FTRACK_INTEGRATION_LISTEN_PORT"), this);
+        var port = 51711;
+        if (System.getenv("FTRACK_INTEGRATION_LISTEN_PORT"))
+            port = parseInt(System.getenv("FTRACK_INTEGRATION_LISTEN_PORT"));
+        this.event_hub = new TCPEventHubServer("localhost", port, this);
         
         this.event_hub.start();
 
-        /*session = new ftrack.Session(
-            'https://ftrack-integrations.ftrackapp.com',
-            'henrik.norin@ftrack.com',
-            'YWNkMTJjY2ItMmYzYy00ZmJjLWI3NWMtNDdiMWFiZWFkMmQxOjo0ZTQ1MDEyNy1hM2QzLTRkMDEtYWQ5NS02ZGNjN2E4MWE0ZWU', 
-            { autoConnectEventHub: true }
-        );*/
+        // Spawn standalone framework running in separate process
+
+        if (true) {
+
+            var python_exec = System.getenv('FTRACK_PYTHON_INTERPRETER');
+
+            this.integration_process = new Process2(python_exec, "--run-framework-standalone",  "ftrack_connect_pipeline_harmony.bootstrap");  
+            info('Executing: '+this.integration_process.commandLine());
+
+            var retval = this.integration_process.launchAndDetach();
+            MessageLog.trace('Launch result: ' + retval + ', PID: '+this.integration_process.pid());
+
+        }
 
         this.initialized = true;
     }
@@ -361,7 +375,7 @@ function HarmonyIntegration() {
         info("Processing incoming '"+topic+"' event: "+JSON.stringify(event_data));
         pipeline_data = event_data["pipeline"]
         if (topic === TOPIC_PING) {
-            info("Ignoring incoming ping event from standalone integration");
+            info("Got ping event from standalone integration");
         } else if (topic === TOPIC_RENDER_DO) {
             if (pipeline_data === undefined) {
                 warning("Cannot render, no pipeline event data supplied!");
@@ -399,6 +413,19 @@ function HarmonyIntegration() {
 
             this.event_hub.send(TOPIC_RENDER_FINISHED, {}, id)
         }
+    }
+
+    this.shutdown = function() {
+        warning("SHUTDOWN")
+        this.event_hub.send(TOPIC_SHUTDOWN, {})
+        // terminate process just in case
+        if (this.integration_process) {
+            warning("Failsafe terminating PID "+this.integration_process.pid())
+            p = new Process2 (this.integration_process.pid());
+            p.terminate();
+        }
+        this.event_hub.close();
+
     }
 }
 

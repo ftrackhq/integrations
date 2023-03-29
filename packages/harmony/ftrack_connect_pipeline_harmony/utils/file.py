@@ -14,6 +14,18 @@ logger = logging.getLogger(__name__)
 
 ### FILE OPERATIONS ###
 
+image_sequence_path = None
+extension = None
+
+def store_image_sequence_path(_image_sequence_path, _extension):
+    global image_sequence_path, extension
+
+    image_sequence_path = _image_sequence_path
+    extension = _extension
+
+def get_image_sequence_path():
+    return image_sequence_path, extension
+
 
 def open_file(path, options=None):
     '''Native open file function '''

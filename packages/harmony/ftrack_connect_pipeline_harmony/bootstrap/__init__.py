@@ -44,14 +44,14 @@ configure_logging(
 )
 
 
-logger = logging.getLogger('ftrack_connect_pipeline_harmony')
+logger = logging.getLogger('ftrack_connect_pipeline_harmony.bootstrap')
 
 logger.info('Initializing Harmony Framework POC')
 
-class HarmonyStandaloneApplication(QtWidgets.QApplication):
+with open('/tmp/debug.txt', 'w') as f:
+    f.write('\n'.join(['{}={}'.format(k, os.environ[k]) for k in list(os.environ.keys())]))
 
-    TOPIC_PING = "ftrack.pipeline.ping"
-    TOPIC_CLIENT_LAUNCH = "ftrack.pipeline.client.launch"
+class HarmonyStandaloneApplication(QtWidgets.QApplication):
 
     openClient = QtCore.Signal(object)
 
@@ -87,15 +87,18 @@ class HarmonyStandaloneApplication(QtWidgets.QApplication):
     def handle_event(self, topic, event_data, id):
         logger.info('Processing incoming event: {} ({}), data: {}'.format(topic, id, event_data))
 
-        if topic == self.TOPIC_PING:
+        if topic == harmony_utils.TCPEventHubClient.TOPIC_PING:
             logger.info('Ping received')
             return
-        elif topic == self.TOPIC_CLIENT_LAUNCH:
+        elif topic == harmony_utils.TCPEventHubClient.TOPIC_CLIENT_LAUNCH:
             self.openClient.emit(event_data)
+        elif topic == harmony_utils.TCPEventHubClient.TOPIC_SHUTDOWN:
+            logger.warning('Harmony is shutting down, so will we')
+            sys.exit(0)
 
 
-    def send_event(self, topic, data):
-        self.client.send(topic, data)
+    def send_event(self, topic, data, synchronous=False):
+        return self.client.send(topic, data, synchronous=synchronous)
 
     def initialise(self, harmony_session_id):
 
@@ -208,7 +211,7 @@ class HarmonyStandaloneApplication(QtWidgets.QApplication):
         self.client = harmony_utils.TCPEventHubClient(
             "localhost",
             int(os.environ.get('FTRACK_INTEGRATION_LISTEN_PORT') or 56031),
-            harmony_session_id,
+            app,
             self.handle_event)
 
         self.client.connect()
@@ -216,7 +219,7 @@ class HarmonyStandaloneApplication(QtWidgets.QApplication):
         harmony_utils.store_client(self.client)
 
         # Send a ping event to Harmony to let it know we are ready
-        self.send_event(self.TOPIC_PING, {})
+        self.send_event(harmony_utils.TCPEventHubClient.TOPIC_PING, {})
 
         def on_exit():
             logger.info('Harmony pipeline exit')
@@ -283,6 +286,15 @@ class HarmonyStandaloneApplication(QtWidgets.QApplication):
     def _open_widget_async(self, event):
         self.openClient.emit(event['data'])
 
+    def checkAlive(self):
+        '''Check if the client is alive'''
+        if self.client.connection.state() in (
+                QtNetwork.QAbstractSocket.SocketState.UnconnectedState,
+        ):
+            logger.warning("My Harmony is gone, shutting down")
+            sys.exit(0)
+        else:
+            logger.info("Harmony is alive")
 
 # Init QApplication
 app = HarmonyStandaloneApplication()
@@ -302,8 +314,13 @@ except:
 #timer.start(100)
 
 # Run until it's closed, or CTRL+C
+active_time = 0
+
 while True:
     app.processEvents()
     time.sleep(0.01)
+    active_time += 10
+    if active_time % 5000 == 0:
+        app.checkAlive()
 
 sys.exit(0)

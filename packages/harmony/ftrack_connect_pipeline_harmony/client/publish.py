@@ -1,5 +1,6 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2023 ftrack
+from Qt import QtCore
 
 from ftrack_connect_pipeline_qt.client.publish import QtPublisherClientWidget
 import ftrack_connect_pipeline.constants as constants
@@ -21,6 +22,9 @@ class HarmonyQtPublisherClientWidget(QtPublisherClientWidget):
             event_manager, parent=parent
         )
         self.setWindowTitle('Harmony Pipeline Publisher')
+        self.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint)
+
+        self.resize(400, 800)
 
     def get_theme_background_style(self):
         return 'ftrack'

@@ -39,9 +39,17 @@ def get_event_hub_client():
 
 
 class TCPEventHubClient(QtCore.QObject):
+
+    TOPIC_PING = "ftrack.pipeline.ping"
+    TOPIC_CLIENT_LAUNCH = "ftrack.pipeline.client.launch"
+    TOPIC_RENDER_DO = "ftrack.pipeline.render.do";
+    TOPIC_RENDER_FINISHED = "ftrack.pipeline.render.finished";
+
+    TOPIC_SHUTDOWN = "ftrack.pipeline.shutdown";
+
     MAX_WRITE_RESPONSE_TIME = 10000
     INT32_SIZE = 4
-    REPLY_WAIT_TIMEOUT_S = 60
+    REPLY_WAIT_TIMEOUT = 5*60*1000 # Wait 5 minutes tops
 
     @property
     def host(self):
@@ -53,15 +61,15 @@ class TCPEventHubClient(QtCore.QObject):
 
     @property
     def session_id(self):
-        return self._session_id
+        return self._app.session_id
 
-    def __init__(self, host, port, _integration_session_id, handle_event_callback, parent=None):
+    def __init__(self, host, port, app, handle_event_callback, parent=None):
         super(TCPEventHubClient, self).__init__(parent=parent)
 
         self._parent = parent
         self._host = host
         self._port = port
-        self._session_id = _integration_session_id
+        self._app = app
         self._handle_event_callback = handle_event_callback
         self._handle_reply_event_callback = None
         self._blocksize = 0
@@ -128,10 +136,8 @@ class TCPEventHubClient(QtCore.QObject):
         logger.debug("stateChanged: %s" % state)
 
     def _on_connected(self):
-        logger.debug("On connected to event hub called.")
-        logger.debug("Connection: %s" % self.connection)
 
-        logger.debug("Setting up connection options...")
+        logger.info("Setting up connection options...")
         self.connection.setSocketOption(self.connection.LowDelayOption, 1)
         self.connection.setSocketOption(self.connection.KeepAliveOption, 1)
 
@@ -244,20 +250,24 @@ class TCPEventHubClient(QtCore.QObject):
             self._reply_id = event['id']
             self._handle_reply_event_callback = handle_reply_event
 
-            timeout = self.REPLY_WAIT_TIMEOUT_S
+            timeout = self.REPLY_WAIT_TIMEOUT
+            waited = 0
             try:
                 logger.info("Waiting to receive reply for {}...".format(event['id']))
+                while True:
+                    self._app.processEvents()
+                    time.sleep(0.1)
+                    waited += 100
 
-                time.sleep(0.1)
-                timeout -= 0.1
+                    if timeout <= waited:
+                        raise Exception("Timeout waiting for reply for event: {}".format(event['id']))
+                    elif waited % 2000 == 0:
+                        logger.info("Waited {}s for reply...".format(int(waited/1000)))
 
-                if timeout <= 0:
-                    raise Exception("Timeout waiting for reply for event: {}".format(event['id']))
+                    if self.reply_event:
+                        return self.reply_event
 
-                if self.reply_event:
-                    return self.reply_event
-
-                QtGui.QApplication.processEvents()
+                #QtGui.QApplication.processEvents()
             finally:
                 # Deregister collback handler
                 self._handle_reply_event_callback = None
@@ -276,7 +286,6 @@ class TCPEventHubClient(QtCore.QObject):
 
     def close(self):
         self.connection.abort()
-
 
 
 from ftrack_connect_pipeline_harmony.utils.file import *

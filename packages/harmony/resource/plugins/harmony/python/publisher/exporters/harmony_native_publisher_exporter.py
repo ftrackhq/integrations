@@ -6,7 +6,7 @@ import os
 
 # import maya.cmds as cmds
 
-from ftrack_connect_pipeline_harmony.utils import custom_commands as harmony_utils
+from ftrack_connect_pipeline_harmony import utils as harmony_utils
 from ftrack_connect_pipeline_harmony import plugin
 import ftrack_api
 

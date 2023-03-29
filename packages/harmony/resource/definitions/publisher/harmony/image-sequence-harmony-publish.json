@@ -30,7 +30,7 @@
           "name": "collector",
           "plugins":[
             {
-             "name": "empty collector",
+             "name": "collect and render scene",
               "plugin": "common_test_publisher_collector"
             }
           ]
@@ -58,13 +58,13 @@
     {
       "name": "reviewable",
       "optional": true,
-      "enabled": false,
+      "enabled": true,
       "stages": [
         {
           "name": "collector",
           "plugins":[
             {
-             "name": "empty collector",
+             "name": "Collect rendered sequence",
               "plugin": "common_test_publisher_collector"
             }
           ]

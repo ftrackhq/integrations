@@ -6,6 +6,7 @@ import os
 import ftrack_api
 
 from ftrack_connect_pipeline import utils as core_utils
+
 from ftrack_connect_pipeline_harmony import utils as harmony_utils
 from ftrack_connect_pipeline_harmony import plugin
 
@@ -17,20 +18,23 @@ class HarmonySequencePublisherExporterPlugin(plugin.HarmonyPublisherExporterPlug
         '''Tell Harmony to render image sequence to a temp directory'''
 
         destination_path = tempfile.mkdtemp()
-        prefix = context_data["component_name"]
+        prefix = "image"
         extension = ".png"
 
         client = harmony_utils.get_event_hub_client()
 
         self.logger.info("Telling Harmony to render the current scene to {}.".format(destination_path))
 
-        reply_event = client.send(harmony_utils.TCPEventHubClient.TOPIC_RENDER_SEQUENCE, {
+        reply_event = client.send(harmony_utils.TCPEventHubClient.TOPIC_RENDER_DO, {
             "pipeline":{
                 "destination_path": "{}{}".format(destination_path, os.sep),
-                "prefix" : prefix,
-                "extension" : extension,
+                "prefix": prefix,
+                "extension": extension,
             }
         }, synchronous=True)
+
+        # Store image sequence path so reviewable can pick it up later
+        harmony_utils.store_image_sequence_path(destination_path, extension)
 
         new_file_path = core_utils.find_image_sequence(destination_path)
 
