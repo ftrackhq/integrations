@@ -33,6 +33,7 @@ HOOK_PATH = os.path.join(ROOT_PATH, 'hook')
 
 BUILD_PATH = os.path.join(ROOT_PATH, 'build')
 
+
 # Custom commands.
 class BuildResources(setuptools.Command):
     '''Build additional resources.'''

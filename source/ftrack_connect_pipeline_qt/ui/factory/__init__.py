@@ -561,7 +561,6 @@ class WidgetFactoryBase(QtWidgets.QWidget):
         result = None
         for host_type in reversed(self.host_connection.host_types):
             for _ui_type in reversed(self.ui_types):
-
                 data = {
                     'pipeline': {
                         'plugin_name': plugin_name,

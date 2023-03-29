@@ -110,7 +110,6 @@ class LogTableModel(QtCore.QAbstractTableModel):
 
 
 class FilterProxyModel(QtCore.QSortFilterProxyModel):
-
     DATA_ROLE = LogTableModel.DATA_ROLE
 
     def __init__(self, parent=None):

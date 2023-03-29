@@ -78,7 +78,6 @@ class AssemblerDependenciesWidget(AssemblerBaseWidget):
     def rebuild(self, reset=True):
         '''(Override) Resolve dependencies in separate thread'''
         if super(AssemblerDependenciesWidget, self).rebuild():
-
             self.scroll.setWidget(QtWidgets.QLabel(''))
 
             # Resolve version this context is depending on in separate thread
@@ -110,7 +109,6 @@ class AssemblerDependenciesWidget(AssemblerBaseWidget):
         '''(Background thread) Process the resolved dependencies based on what we can load'''
         try:
             try:
-
                 if (
                     self.client.assemble_mode
                     != self.client.ASSEMBLE_MODE_DEPENDENCIES
@@ -289,7 +287,6 @@ class AssemblerBrowserWidget(AssemblerBaseWidget):
     def rebuild(self, reset=True):
         '''(Override) Fetch assets beneath the current context, start on new query'''
         if super(AssemblerBrowserWidget, self).rebuild(reset=reset):
-
             if self._entity_browser.entity is None:
                 # First time set
                 self._entity_browser.entity = self.client.context
@@ -352,7 +349,6 @@ class AssemblerBrowserWidget(AssemblerBaseWidget):
     def _fetch_versions_async(self, context):
         '''(Background thread) Search ftrack for versions beneath the given *context_id*'''
         try:
-
             self.logger.info(
                 'Fetching versions beneath context: {0} [{1}-{2}]'.format(
                     context, self._tail, self._tail + self._limit - 1
@@ -393,7 +389,6 @@ class AssemblerBrowserWidget(AssemblerBaseWidget):
                 return
 
             if len(versions) > 0:
-
                 components = self.extract_components(versions)
 
                 if (
@@ -559,7 +554,6 @@ class DependenciesListWidget(AssemblerListBaseWidget):
             # Add a grouping element?
 
             if prev_context_id is None or context_id != prev_context_id:
-
                 context_entity = self.model.session.query(
                     'select link, name, parent, parent.name from Context where id '
                     'is "{}"'.format(context_id)

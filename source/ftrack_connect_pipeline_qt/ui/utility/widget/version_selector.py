@@ -87,7 +87,7 @@ class VersionComboBox(QtWidgets.QComboBox):
         if self._filters is None:
             latest_version = self.asset_entity['latest_version']
         else:
-            for (version, is_compatible) in self.get_versions():
+            for version, is_compatible in self.get_versions():
                 if is_compatible:
                     if (
                         latest_version is None

@@ -344,7 +344,8 @@ class OpenerDefinitionSelector(DefinitionSelectorBase):
 
 class AssemblerDefinitionSelector(DefinitionSelectorBase):
     '''Definition selector tailored for assembler(loader) client.
-    Selection of definitions are disabled, widget is only used for extraction of definitions'''
+    Selection of definitions are disabled, widget is only used for extraction of definitions
+    '''
 
     def __init__(self, parent=None):
         super(AssemblerDefinitionSelector, self).__init__(parent=parent)

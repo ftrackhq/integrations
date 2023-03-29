@@ -991,7 +991,8 @@ class ComponentAndVersionWidget(QtWidgets.QWidget):
 
     def set_version(self, version_nr, versions=None):
         '''Set the current version number from *version_nr*. *versions* should
-        be provided if about to expand, otherwise the version will be selected'''
+        be provided if about to expand, otherwise the version will be selected
+        '''
         if self._collapsed:
             self._version_nr_widget.setText('v{}'.format(str(version_nr)))
         else:

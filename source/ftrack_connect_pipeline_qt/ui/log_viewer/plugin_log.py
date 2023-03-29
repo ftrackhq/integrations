@@ -177,7 +177,6 @@ class LogDetailDialog(ModalDialog):
     """
 
     def __init__(self, parent, data):
-
         self._data = data
         formatted_text = self.TEMPLATE.format(
             date=data.date,
