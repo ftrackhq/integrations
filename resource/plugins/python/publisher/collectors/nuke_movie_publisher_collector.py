@@ -14,35 +14,27 @@ class NukeMoviePublisherCollectorPlugin(plugin.NukePublisherCollectorPlugin):
 
     plugin_name = 'nuke_movie_publisher_collector'
 
+    supported_file_formats = [".mov", ".mxf", ".avi", ".r3d"]
+
     def fetch(self, context_data=None, data=None, options=None):
         '''Fetch all selected nodes in nuke, match against class name if supplied in *options*'''
         selected_nodes = nuke.selectedNodes()
         if len(selected_nodes) == 0:
             selected_nodes = nuke.allNodes()
-        node_names = []
-        for node in selected_nodes:
-            if (
-                len(options.get('classname') or "") > 0
-                and node.Class().find(options['classname']) == -1
-            ):
-                continue
-            # Determine if is a compatible write node
-            is_compatible_write_node = False
-            if (
-                node.Class() == 'Write'
-                and node.knob('file')
-                and node.knob('first')
-                and node.knob('last')
-            ):
-                node_file_path = node.knob('file').value()
-                if os.path.splitext(node_file_path.lower())[-1] in [
-                    '.mov',
-                    '.mxf',
-                    '.avi',
-                    '.r3d',
-                ]:
-                    is_compatible_write_node = True
-            node_names.append((node.name(), is_compatible_write_node))
+
+        self.supported_file_formats = (
+            options.get("supported_file_formats")
+            or self.supported_file_formats
+        )
+
+        # filter selected_nodes to match classname given by options
+        if options.get('classname'):
+            selected_nodes = self.filter_by_class_name(
+                selected_nodes, options.get('classname')
+            )
+
+        node_names = self.classify_supported_write_nodes(selected_nodes)
+
         return node_names
 
     def run(self, context_data=None, data=None, options=None):

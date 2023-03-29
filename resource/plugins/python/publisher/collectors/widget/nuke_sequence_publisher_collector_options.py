@@ -1,17 +1,18 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2023 ftrack
 import os
-from ftrack_connect_pipeline import utils as core_utils
-
-import nuke
-
-from Qt import QtWidgets
 
 import ftrack_api
 
 from ftrack_connect_pipeline_qt.plugin.widget import BaseOptionsWidget
-from ftrack_connect_pipeline_qt.ui.utility.widget import dialog
+from ftrack_connect_pipeline_qt.ui.utility.widget import (
+    radio_button_group,
+    browse_widget,
+    node_combo_box,
+    file_dialog,
+)
 from ftrack_connect_pipeline_nuke import plugin
+from ftrack_connect_pipeline_nuke import utils as nuke_utils
 
 
 class NukeSequencePublisherCollectorOptionsWidget(BaseOptionsWidget):
@@ -35,13 +36,24 @@ class NukeSequencePublisherCollectorOptionsWidget(BaseOptionsWidget):
         '''Store *image_sequence_path* in options and update widgets'''
         if image_sequence_path:
             self.set_option_result(image_sequence_path, 'image_sequence_path')
+            report_status = True
+            report_message = '1 image sequence selected'
         else:
             image_sequence_path = '<please choose a image sequence>'
             self.set_option_result(None, 'image_sequence_path')
+            report_status = False
+            report_message = 'No image sequence selected'
 
         # Update UI
-        self._image_sequence_path_le.setText(image_sequence_path)
-        self._image_sequence_path_le.setToolTip(image_sequence_path)
+        self._browse_widget.set_path(image_sequence_path)
+        self._browse_widget.set_tool_tip(image_sequence_path)
+
+        self.inputChanged.emit(
+            {
+                'status': report_status,
+                'message': report_message,
+            }
+        )
 
     @property
     def node_names(self):
@@ -52,16 +64,10 @@ class NukeSequencePublisherCollectorOptionsWidget(BaseOptionsWidget):
     def node_names(self, node_names):
         '''Store *node_names* in options and update widgets'''
         self._node_names = node_names
-        if self.node_names:
-            self._nodes_cb.setDisabled(False)
-        else:
-            self._nodes_cb.setDisabled(True)
-
-        self._nodes_cb.clear()
-        for (index, node_name) in enumerate(self.node_names):
-            self._nodes_cb.addItem(node_name)
-            if node_name == self._node_name:
-                self._nodes_cb.setCurrentIndex(index)
+        self._nodes_cb.add_items(node_names, self._node_name)
+        self._nodes_cb.hide_warning()
+        if not node_names:
+            self._nodes_cb.show_warning("No selected nodes!")
 
     @property
     def write_node_names(self):
@@ -72,40 +78,20 @@ class NukeSequencePublisherCollectorOptionsWidget(BaseOptionsWidget):
     def write_node_names(self, node_names):
         '''Store list of renderable write node *node_names* and update widgets'''
         self._write_node_names = node_names
-        if self.write_node_names:
-            self._write_nodes_cb.setDisabled(False)
-        else:
-            self._write_nodes_cb.setDisabled(True)
+        self._write_nodes_cb.add_items(node_names, self._node_name)
 
-        self._write_nodes_cb.clear()
-        for (index, node_name) in enumerate(self.write_node_names):
-            self._write_nodes_cb.addItem(node_name)
-            if node_name == self._node_name:
-                self._write_nodes_cb.setCurrentIndex(index)
-
-        self._render_warning.setVisible(False)
-        if len(self.write_node_names) == 0:
-            self._render_warning.setVisible(True)
-            self._render_warning.setText(
-                '<html><i style="color:red">No image sequence write node selected!</i></html>'
+        self._write_nodes_cb.hide_warning()
+        if not node_names:
+            self._write_nodes_cb.show_warning(
+                "No image sequence write node selected!"
             )
 
-        # Extract a path from the write node
-        node_name = self._node_name
-        if not node_name and len(self.write_node_names) > 0:
+        node_name = None
+        if not self._node_name and self.write_node_names:
             node_name = self.write_node_names[0]
-
-        if node_name:
-            node = nuke.toNode(node_name)
-            node_file_path = node.knob('file').value()
-            if node.knob('use_limit').value():
-                first = int(node.knob('first').value())
-                last = int(node.knob('last').value())
-            else:
-                first = int(nuke.root()["first_frame"].getValue())
-                last = int(nuke.root()["last_frame"].getValue())
-            full_path = '{} [{}-{}]'.format(node_file_path, first, last)
-            self.image_sequence_path = full_path
+        self.image_sequence_path = (
+            nuke_utils.get_path_from_image_sequence_write_node(node_name)
+        )
 
     def __init__(
         self,
@@ -136,76 +122,23 @@ class NukeSequencePublisherCollectorOptionsWidget(BaseOptionsWidget):
         '''Build the collector widget'''
         super(NukeSequencePublisherCollectorOptionsWidget, self).build()
 
-        bg = QtWidgets.QButtonGroup(self)
-
-        # Render section
-
-        self._render_rb = QtWidgets.QRadioButton(
-            'Render image sequence from script'
+        self.rbg = radio_button_group.RadioButtonGroup()
+        self._nodes_cb = node_combo_box.NodeComboBox()
+        self.rbg.add_button(
+            'render_create_write',
+            'Create write node at selected node:',
+            self._nodes_cb,
         )
-        bg.addButton(self._render_rb)
-        self.layout().addWidget(self._render_rb)
-
-        self._render_widget = QtWidgets.QWidget()
-        self._render_widget.setLayout(QtWidgets.QVBoxLayout())
-        self._render_widget.layout().setContentsMargins(15, 0, 0, 0)
-        self._render_widget.layout().setSpacing(2)
-
-        bg2 = QtWidgets.QButtonGroup(self)
-
-        self._render_create_write_rb = QtWidgets.QRadioButton(
-            'Create write node at selected node:'
+        self._write_nodes_cb = node_combo_box.NodeComboBox()
+        self.rbg.add_button(
+            'render_selected', 'Render selected node:', self._write_nodes_cb
         )
-        bg2.addButton(self._render_create_write_rb)
-        self._render_widget.layout().addWidget(self._render_create_write_rb)
-
-        self._nodes_cb = QtWidgets.QComboBox()
-        self._render_widget.layout().addWidget(self._nodes_cb)
-
-        self._render_selected_rb = QtWidgets.QRadioButton(
-            'Render selected node:'
-        )
-        bg2.addButton(self._render_selected_rb)
-        self._render_widget.layout().addWidget(self._render_selected_rb)
-
-        self._write_nodes_cb = QtWidgets.QComboBox()
-        self._render_widget.layout().addWidget(self._write_nodes_cb)
-
-        self._render_warning = QtWidgets.QLabel()
-        self._render_warning.setVisible(False)
-        self._render_widget.layout().addWidget(self._render_warning)
-
-        self.layout().addWidget(self._render_widget)
-
-        # Pick up already rendered media
-        self._pickup_rb = QtWidgets.QRadioButton(
-            'Pick up rendered image sequence:'
-        )
-        bg.addButton(self._pickup_rb)
-        self.layout().addWidget(self._pickup_rb)
-
-        self._browse_image_sequence_path_widget = QtWidgets.QWidget()
-        self._browse_image_sequence_path_widget.setLayout(
-            QtWidgets.QHBoxLayout()
-        )
-        self._browse_image_sequence_path_widget.layout().setContentsMargins(
-            15, 0, 0, 0
-        )
-        self._browse_image_sequence_path_widget.layout().setSpacing(0)
-
-        self._image_sequence_path_le = QtWidgets.QLineEdit()
-
-        self._browse_image_sequence_path_widget.layout().addWidget(
-            self._image_sequence_path_le, 20
+        self._browse_widget = browse_widget.BrowseWidget()
+        self.rbg.add_button(
+            'pickup', 'Pick up rendered image sequence:', self._browse_widget
         )
 
-        self._browse_image_sequence_path_btn = QtWidgets.QPushButton('BROWSE')
-        self._browse_image_sequence_path_btn.setObjectName('borderless')
-
-        self._browse_image_sequence_path_widget.layout().addWidget(
-            self._browse_image_sequence_path_btn
-        )
-        self.layout().addWidget(self._browse_image_sequence_path_widget)
+        self.layout().addWidget(self.rbg)
 
         # Use supplied value from definition if available
         if self.options.get('image_sequence_path'):
@@ -215,151 +148,93 @@ class NukeSequencePublisherCollectorOptionsWidget(BaseOptionsWidget):
             self.set_option_result(
                 'render_create_write', 'mode'
             )  # Set default mode
-        mode = self.options['mode'].lower()
-        if mode == 'pickup':
-            self._pickup_rb.setChecked(True)
-            self._render_create_write_rb.setChecked(True)
-        else:
-            self._render_rb.setChecked(True)
-            if mode == 'render_create_write':
-                self._render_create_write_rb.setChecked(True)
-            elif mode == 'render_selected':
-                self._render_selected_rb.setChecked(True)
-            else:
-                # Fall back to create write
-                self._render_create_write_rb.setChecked(True)
 
-        self.report_input()
+    def post_build(self):
+        ''' Connect signals'''
+        super(NukeSequencePublisherCollectorOptionsWidget, self).post_build()
+
+        self._nodes_cb.text_changed.connect(self._on_node_selected)
+        self._write_nodes_cb.text_changed.connect(self._on_node_selected)
+
+        self._nodes_cb.refresh_clicked.connect(self.refresh_nodes)
+        self._write_nodes_cb.refresh_clicked.connect(self.refresh_nodes)
+
+        self.rbg.option_changed.connect(self.set_mode)
+
+        self._browse_widget.browse_button_clicked.connect(
+            self._show_image_sequence_dialog
+        )
+
+        self.rbg.set_default(self.options['mode'].lower())
+
+    def refresh_nodes(self):
+        ''' Run fetch function '''
+        self.on_run_plugin(method="fetch")
+        name, widget, inner_widget = self.rbg.get_checked_button()
+        if name:
+            self.set_mode(name, widget, inner_widget)
+
+    def set_mode(self, mode_name, widget, inner_widget):
+        ''' Set up the mode of the widget '''
+        self.set_option_result(mode_name, 'mode')
+        if inner_widget in [self._nodes_cb, self._write_nodes_cb]:
+            self._on_node_selected(inner_widget.get_text())
+        else:
+            if not self.image_sequence_path:
+                report_status = False
+                report_message = 'No image sequence selected'
+                self.inputChanged.emit(
+                    {
+                        'status': report_status,
+                        'message': report_message,
+                    }
+                )
 
     def _on_node_selected(self, node_name):
         '''Callback when node is selected in either on of the combo boxes.'''
         if not node_name:
             if 'node_name' in self.options:
                 del self.options['node_name']
+                report_message = 'No script node selected!'
+                report_status = False
+                self.inputChanged.emit(
+                    {
+                        'status': report_status,
+                        'message': report_message,
+                    }
+                )
             return
         self.set_option_result(node_name, 'node_name')
-
-    def _update_render_mode(self):
-        '''Update widget based on selected render mode'''
-        mode = None
-        node_name = None
-        if self._pickup_rb.isChecked():
-            mode = 'pickup'
-        elif self._render_create_write_rb.isChecked():
-            mode = 'render_create_write'
-            node_name = self._nodes_cb.currentText()
-        elif self._render_selected_rb.isChecked():
-            mode = 'render_selected'
-            node_name = self._write_nodes_cb.currentText()
-
-        self.set_option_result(mode, 'mode')
-
-        self._nodes_cb.setVisible(mode == 'render_create_write')
-        self._write_nodes_cb.setVisible(mode == 'render_selected')
-        self._render_widget.setVisible(
-            mode in ['render_create_write', 'render_selected']
+        report_status = True
+        report_message = '1 node selected'
+        self.inputChanged.emit(
+            {
+                'status': report_status,
+                'message': report_message,
+            }
         )
-        self._browse_image_sequence_path_widget.setVisible(mode == 'pickup')
-        self._on_node_selected(node_name)
-
-        self.report_input()
-
-    def post_build(self):
-        super(NukeSequencePublisherCollectorOptionsWidget, self).post_build()
-
-        self._nodes_cb.currentTextChanged.connect(self._on_node_selected)
-        self._write_nodes_cb.currentTextChanged.connect(self._on_node_selected)
-
-        self._render_rb.clicked.connect(self._update_render_mode)
-        self._render_create_write_rb.clicked.connect(self._update_render_mode)
-        self._render_selected_rb.clicked.connect(self._update_render_mode)
-
-        self._pickup_rb.clicked.connect(self._update_render_mode)
-
-        self._browse_image_sequence_path_btn.clicked.connect(
-            self._show_image_sequence_dialog
-        )
-
-        self._update_render_mode()
 
     def on_fetch_callback(self, result):
         '''This function is called by the _set_internal_run_result function of
         the BaseOptionsWidget'''
-        self.node_names = [
-            node_name for (node_name, unused_is_write_node) in result
-        ]
-        # Evaluate which nodes writes an image sequence
-        write_nodes = []
-        for (node_name, is_compatible_write_node) in result:
-            if is_compatible_write_node:
-                write_nodes.append(node_name)
-        self.write_node_names = write_nodes
+        self.node_names = result.get('all_nodes', [])
+        self.write_node_names = result.get('write_nodes', [])
 
     def _show_image_sequence_dialog(self):
         '''Shows the file dialog for image sequences'''
         start_dir = None
         if self.image_sequence_path:
-            start_dir = os.path.dirname(self._image_sequence_path_le.text())
-        (
-            file_path,
-            unused_selected_filter,
-        ) = QtWidgets.QFileDialog.getOpenFileName(
-            caption='Choose image sequence',
-            dir=start_dir,
-            filter='Images (*.cin *.dng *.dpx *.dtex *.gif *.bmp *.float *.pcx '
+            start_dir = os.path.dirname(self._browse_widget.get_path())
+
+        dialog_filter = (
+            'Images (*.cin *.dng *.dpx *.dtex *.gif *.bmp *.float *.pcx '
             '*.png *.psd *.tga *.jpeg *.jpg *.exr *.dds *.hdr *.hdri *.cgi '
-            '*.tif *.tiff *.tga *.targa *.yuv);;All files (*)',
+            '*.tif *.tiff *.tga *.targa *.yuv);;All files (*)'
         )
-
-        if not file_path:
-            return
-
-        file_path = os.path.normpath(file_path)
-
-        image_sequence_path = core_utils.find_image_sequence(file_path)
-
-        if not image_sequence_path:
-            dialog.ModalDialog(
-                None,
-                title='Locate image sequence',
-                message='An image sequence on the form "prefix.NNNN.ext" were not '
-                'found at {}!'.format(file_path),
-            )
-
-        self.image_sequence_path = image_sequence_path
-        self.report_input()
-
-    def report_input(self):
-        '''(Override) Amount of collected objects has changed, notify parent(s)'''
-        status = False
-        if self._render_create_write_rb.isChecked():
-            if self._nodes_cb.isEnabled() and self._nodes_cb.count() > 0:
-                message = '1 script node selected'
-                status = True
-            else:
-                message = 'No script node selected!'
-        elif self._render_selected_rb.isChecked():
-            if (
-                self._write_nodes_cb.isEnabled()
-                and self._write_nodes_cb.count() > 0
-            ):
-                message = '1 write node selected'
-                status = True
-            else:
-                message = 'No write node selected!'
-        else:
-            if self.image_sequence_path:
-                message = '1 image sequence selected'
-                status = True
-            else:
-                message = 'No image sequence selected'
-
-        self.inputChanged.emit(
-            {
-                'status': status,
-                'message': message,
-            }
+        dialog_result = file_dialog.ImageSequenceFileDialog(
+            start_dir, dialog_filter
         )
+        self.image_sequence_path = dialog_result.path
 
 
 class NukeSequencePublisherCollectorPluginWidget(

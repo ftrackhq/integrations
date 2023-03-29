@@ -52,3 +52,29 @@ def clean_selection():
     '''Clean the current selection in Nuke.'''
     for node in nuke.selectedNodes():
         node['selected'].setValue(False)
+
+
+def get_path_from_image_sequence_write_node(node_name):
+    '''Extract path from the write node'''
+    full_path = None
+    if not node_name:
+        return full_path
+    node = nuke.toNode(node_name)
+
+    if (
+        not node.Class() == 'Write'
+        and node.knob('file')
+        and node.knob('first')
+        and node.knob('last')
+    ):
+        return full_path
+
+    node_file_path = node.knob('file').value()
+    if node.knob('use_limit').value():
+        first = int(node.knob('first').value())
+        last = int(node.knob('last').value())
+    else:
+        first = int(nuke.root()["first_frame"].getValue())
+        last = int(nuke.root()["last_frame"].getValue())
+    full_path = '{} [{}-{}]'.format(node_file_path, first, last)
+    return full_path
