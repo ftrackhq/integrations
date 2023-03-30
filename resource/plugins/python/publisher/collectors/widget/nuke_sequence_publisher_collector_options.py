@@ -150,7 +150,7 @@ class NukeSequencePublisherCollectorOptionsWidget(BaseOptionsWidget):
             )  # Set default mode
 
     def post_build(self):
-        ''' Connect signals'''
+        '''Connect signals'''
         super(NukeSequencePublisherCollectorOptionsWidget, self).post_build()
 
         self._nodes_cb.text_changed.connect(self._on_node_selected)
@@ -168,14 +168,14 @@ class NukeSequencePublisherCollectorOptionsWidget(BaseOptionsWidget):
         self.rbg.set_default(self.options['mode'].lower())
 
     def refresh_nodes(self):
-        ''' Run fetch function '''
+        '''Run fetch function'''
         self.on_run_plugin(method="fetch")
         name, widget, inner_widget = self.rbg.get_checked_button()
         if name:
             self.set_mode(name, widget, inner_widget)
 
     def set_mode(self, mode_name, widget, inner_widget):
-        ''' Set up the mode of the widget '''
+        '''Set up the mode of the widget'''
         self.set_option_result(mode_name, 'mode')
         if inner_widget in [self._nodes_cb, self._write_nodes_cb]:
             self._on_node_selected(inner_widget.get_text())

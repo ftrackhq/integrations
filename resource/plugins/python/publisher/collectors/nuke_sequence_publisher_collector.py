@@ -17,9 +17,29 @@ class NukeSequencePublisherCollectorPlugin(
     plugin_name = 'nuke_sequence_publisher_collector'
 
     supported_file_formats = [
-        ".cin", ".dng", ".dpx", ".dtex", ".gif", ".bmp", ".float", ".pcx",
-        ".png", ".psd", ".tga", ".jpeg", ".jpg", ".exr", ".dds", ".hdr",
-        ".hdri", ".cgi", ".tif", ".tiff", ".tga", ".targa", ".yuv",
+        ".cin",
+        ".dng",
+        ".dpx",
+        ".dtex",
+        ".gif",
+        ".bmp",
+        ".float",
+        ".pcx",
+        ".png",
+        ".psd",
+        ".tga",
+        ".jpeg",
+        ".jpg",
+        ".exr",
+        ".dds",
+        ".hdr",
+        ".hdri",
+        ".cgi",
+        ".tif",
+        ".tiff",
+        ".tga",
+        ".targa",
+        ".yuv",
     ]
 
     def fetch(self, context_data=None, data=None, options=None):

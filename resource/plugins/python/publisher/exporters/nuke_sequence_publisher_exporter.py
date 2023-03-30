@@ -20,7 +20,6 @@ class NukeSequencePublisherExporterPlugin(plugin.NukePublisherExporterPlugin):
 
     def run(self, context_data=None, data=None, options=None):
         '''Export an image sequence from Nuke from collected node or supplied media with *data* based on *options*'''
-
         node_name = None
         image_sequence_path = None
         create_write = False
