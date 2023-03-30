@@ -7,6 +7,7 @@ from functools import partial
 
 from ftrack_connect_pipeline_nuke import plugin
 from ftrack_connect_pipeline_qt.plugin.widget import BaseOptionsWidget
+from ftrack_connect_pipeline_qt.ui.utility.widget import node_combo_box
 
 from Qt import QtWidgets
 
@@ -45,27 +46,27 @@ class NukeNodePublisherCollectorOptionsWidget(BaseOptionsWidget):
         '''This function is called by the _set_internal_run_result function of
         the BaseOptionsWidget'''
         self.node_names = result
-        if self.node_names:
-            self.nodes_cb.setDisabled(False)
-        else:
-            self.nodes_cb.setDisabled(True)
-        self.nodes_cb.clear()
-        self.nodes_cb.addItems(self.node_names)
+        self.nodes_cb.add_items(self.node_names)
 
     def build(self):
         super(NukeNodePublisherCollectorOptionsWidget, self).build()
-        self.nodes_cb = QtWidgets.QComboBox()
+        self.nodes_cb = node_combo_box.NodeComboBox()
+        self.nodes_cb.hide_warning()
         self.layout().addWidget(self.nodes_cb)
 
         if self.options.get('node_name'):
             self.node_names.append(self.options.get('node_name'))
 
         if not self.node_names:
-            self.nodes_cb.addItem('No Node found.')
-            self.nodes_cb.setDisabled(True)
+            self.nodes_cb.add_items('No Node found.')
+            self.nodes_cb._combo_box.setDisabled(True)
         else:
-            self.nodes_cb.addItems(self.node_names)
+            self.nodes_cb.add_items(self.node_names)
         self.report_input()
+
+    def refresh_nodes(self):
+        ''' Run fetch function '''
+        self.on_run_plugin(method="fetch")
 
     def _on_node_selected(self, node_name):
         if len(node_name) > 0:
@@ -76,9 +77,11 @@ class NukeNodePublisherCollectorOptionsWidget(BaseOptionsWidget):
     def post_build(self):
         super(NukeNodePublisherCollectorOptionsWidget, self).post_build()
 
-        self.nodes_cb.currentTextChanged.connect(self._on_node_selected)
+        self.nodes_cb.text_changed.connect(self._on_node_selected)
         if self.node_names:
-            self._on_node_selected(self.nodes_cb.currentText())
+            self._on_node_selected(self.nodes_cb.get_text())
+
+        self.nodes_cb.refresh_clicked.connect(self.refresh_nodes)
 
     def report_input(self):
         '''(Override) Amount of collected objects has changed, notify parent(s)'''
