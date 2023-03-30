@@ -2,7 +2,8 @@ from Qt import QtWidgets, QtCore
 
 
 class BrowseWidget(QtWidgets.QWidget):
-    ''' Browse Widget is a line edit with a browse button'''
+    '''Browse Widget is a line edit with a browse button'''
+
     browse_button_clicked = QtCore.Signal()
 
     def __init__(self, parent=None):
@@ -34,17 +35,17 @@ class BrowseWidget(QtWidgets.QWidget):
         self._browse_btn.clicked.connect(self._browse_button_clicked)
 
     def get_path(self):
-        ''' Get path from the line edit'''
+        '''Get path from the line edit'''
         return self._path_le.text()
 
     def set_path(self, path_text):
-        ''' Set path to the line edit '''
+        '''Set path to the line edit'''
         self._path_le.setText(path_text)
 
     def set_tool_tip(self, tooltip_text):
-        ''' Set tooltip '''
+        '''Set tooltip'''
         self._path_le.setToolTip(tooltip_text)
 
     def _browse_button_clicked(self):
-        ''' Browse button clicked signal'''
+        '''Browse button clicked signal'''
         self.browse_button_clicked.emit()

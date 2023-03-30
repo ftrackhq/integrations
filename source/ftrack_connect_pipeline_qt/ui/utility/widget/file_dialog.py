@@ -6,7 +6,8 @@ from ftrack_connect_pipeline_qt.ui.utility.widget import dialog
 
 
 class FileDialog(QtWidgets.QFileDialog):
-    ''' File dialog Widget'''
+    '''File dialog Widget'''
+
     caption = 'Choose file'
 
     @property
