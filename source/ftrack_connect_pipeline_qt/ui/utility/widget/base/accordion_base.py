@@ -224,7 +224,8 @@ class AccordionBaseWidget(QtWidgets.QFrame):
         self.header.clicked.connect(self._on_header_clicked)
         self.header.arrow.clicked.connect(self._on_header_arrow_clicked)
         self._content.setVisible(not self._collapsed)
-        self.enable_content()
+        if self.check_mode != self.CHECK_MODE_NONE:
+            self.enable_content()
 
     def init_header(self, title):
         '''Initialize the header widget'''
