@@ -4,9 +4,9 @@ import os
 import traceback
 import clique
 
-import ftrack_api
-
 import nuke
+
+import ftrack_api
 
 from ftrack_connect_pipeline_nuke import plugin
 from ftrack_connect_pipeline_nuke import utils as nuke_utils
@@ -37,7 +37,7 @@ class NukeSequenceLoaderImporterPlugin(plugin.NukeLoaderImporterPlugin):
 
             resulting_node['file'].fromUserText(component_path)
             # Detect frame range based on files on disk (safe)
-            if component_path.find('%0') > 0:
+            if component_path.find('%') > 0:
                 try:
                     directory, filename = os.path.split(component_path)
                     self.logger.debug(
@@ -46,7 +46,7 @@ class NukeSequenceLoaderImporterPlugin(plugin.NukeLoaderImporterPlugin):
                         )
                     )
                     if os.path.exists(directory):
-                        split_pos = filename.find('%')
+                        split_pos = filename.rfind('%')
                         prefix = filename[:split_pos]
                         suffix = filename[filename.find('d', split_pos) + 1 :]
                         files = []
