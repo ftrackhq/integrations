@@ -1,0 +1,25 @@
+name: Main
+
+on:
+  push:
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Install
+        run: |
+          npm ci
+
+      - name: Build artifact
+        run: |
+          npx nx build2 maya
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: maya
+          path: packages/maya/dist/*.zip
