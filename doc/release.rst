@@ -5,6 +5,13 @@
 Releases
 ########
 
+.. release:: 2.0.2
+    :date: 2023-04-05
+
+   .. change:: None
+
+        Release connect 2.0.2.
+
 .. release:: 2.0.1
     :date: 2022-09-01
 
