@@ -695,8 +695,8 @@ def codesign_osx(create_dmg=True, notarize=True):
                             exit_loop = True
                             raise Exception(
                                 "Could not read the input minutes, please check "
-                                "the notarize manually and staple the code after. \n"
-                                "Response: {}".format(response)
+                                "the notarize manually and staple the code after using this command:\n\n{}\n\n"
+                                "Response: {}".format(notarize_query, response)
                             )
                         exit_loop = False
                         time.sleep(sleep_min*60)
