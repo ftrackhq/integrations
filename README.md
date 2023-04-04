@@ -92,6 +92,14 @@ installed and available.
 
 ### To codesign
 
+#### Preparation
+
+- Install signtool.exe from
+  <https://docs.microsoft.com/en-us/dotnet/framework/tools/signtool-exe>
+- If you download the Windows 10 SDK, the signtools is located here (version number may vary):
+  "C:\Program Files (x86)\Windows Kits\10\bin\10.0.22621.0\x64\signtool.exe"
+- Download and install the certificate .p12 certificate.
+
 Once the msi is built, run the following commands to codesign it:
 
     $ signtool sign /tr http://timestamp.sectigo.com /td sha256 /fd sha256 /a <path to msi file>
@@ -100,6 +108,9 @@ At the end of the process you'll then asked to provide your token
 password, once done, the package should get codesigned.
 
 ## MacOs
+
+
+### Preparation
 
 Install appdmg to be able to create the dmg:
 
@@ -125,7 +136,7 @@ Set your certificate id to **CODESIGN_IDENTITY**:
 
     $ export CODESIGN_IDENTITY="<your_certificate_id_here>"
 
-Set your Apple user name to **APPLE_USER_NAME**:
+Set your Apple username to **APPLE_USER_NAME**:
 
     $ export APPLE_USER_NAME="<your_apple_user>"
 
@@ -139,14 +150,14 @@ Execute the following build command and follow the instructions:
 
 #### Docker
 
-As part of this repository, 3 Dockerfile are available to sendbox the
+As part of this repository, 3 Dockerfiles are available to sendbox the
 build of ftrack-connect-package.
 
 -   C7.Dockerfile \[centos 7\]
 -   C8.Dockerfile \[centos 8\]
 -   Win10.Dockerfile \[windows 10\]
 
-For further informations, please use the README file contained in the
+For further information, please use the README file contained in the
 **docker** folder.
 
 Note
