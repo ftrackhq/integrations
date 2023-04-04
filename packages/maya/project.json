@@ -30,6 +30,16 @@
       "executor": "@nxlv/python:remove",
       "options": {}
     },
+    "build2": {
+      "executor": "nx:run-commands",
+      "dependsOn": [
+        "build"
+      ],
+      "options": {
+        "command": "python ../../tools/deploy.py build_plugin",
+        "cwd": "packages/maya"
+      }
+    },
     "build": {
       "executor": "@nxlv/python:build",
       "outputs": [
