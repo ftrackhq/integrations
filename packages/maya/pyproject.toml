@@ -1,5 +1,30 @@
-[tool.poetry]
-name = "ftrack-pipeline-maya"
-description = "Maya DCC plugin, was: ftrack-connect-pipeline-maya"
+[tool.coverage.run]
+branch = true
+source = [ "maya" ]
 
-# TBC
+[tool.coverage.report]
+exclude_lines = ['if TYPE_CHECKING:']
+show_missing = true
+
+[tool.pytest.ini_options]
+addopts = "--cov --cov-fail-under=100 --cov-report html:'../../coverage/packages/maya/html' --cov-report xml:'../../coverage/packages/maya/coverage.xml' --junitxml='../../reports/packages/maya/unittests/junit.xml' --html='../../reports/packages/maya/unittests/html/index.html'"
+
+[tool.poetry]
+name = "maya"
+version = "1.0.0"
+description = ""
+authors = [ ]
+license = 'Proprietary'
+readme = 'README.md'
+
+  [[tool.poetry.packages]]
+  include = "maya"
+
+  [tool.poetry.dependencies]
+  python = ">=3.8,<3.11"
+
+  
+
+[build-system]
+requires = ["poetry-core==1.1.0"]
+build-backend = "poetry.core.masonry.api"

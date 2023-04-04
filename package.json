@@ -1,0 +1,14 @@
+{
+  "name": "pipeline-integration",
+  "version": "0.0.0",
+  "license": "MIT",
+  "scripts": {},
+  "private": true,
+  "devDependencies": {
+    "@nxlv/python": "^15.7.0",
+    "nx": "15.9.2"
+  },
+  "workspaces": [
+    "packages/*"
+  ]
+}

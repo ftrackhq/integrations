@@ -1,0 +1,88 @@
+{
+  "name": "maya",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "projectType": "application",
+  "sourceRoot": "packages/maya/maya",
+  "targets": {
+    "docs": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "pydoc-markdown -p maya --render-toc > docs/source/api.md",
+        "cwd": "packages/maya"
+      }
+    },
+    "lock": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "poetry lock --no-update",
+        "cwd": "packages/maya"
+      }
+    },
+    "add": {
+      "executor": "@nxlv/python:add",
+      "options": {}
+    },
+    "update": {
+      "executor": "@nxlv/python:update",
+      "options": {}
+    },
+    "remove": {
+      "executor": "@nxlv/python:remove",
+      "options": {}
+    },
+    "build": {
+      "executor": "@nxlv/python:build",
+      "outputs": [
+        "{projectRoot}/dist"
+      ],
+      "options": {
+        "outputPath": "packages/maya/dist",
+        "publish": true,
+        "lockedVersions": true,
+        "bundleLocalDependencies": true
+      }
+    },
+    "install": {
+      "executor": "@nxlv/python:install",
+      "options": {
+        "silent": false,
+        "args": "",
+        "cacheDir": ".cache/pypoetry",
+        "verbose": false,
+        "debug": false
+      }
+    },
+    "lint": {
+      "executor": "@nxlv/python:flake8",
+      "outputs": [
+        "{workspaceRoot}/reports/packages/maya/pylint.txt"
+      ],
+      "options": {
+        "outputFile": "reports/packages/maya/pylint.txt"
+      }
+    },
+    "test": {
+      "executor": "nx:run-commands",
+      "outputs": [
+        "{workspaceRoot}/reports/packages/maya/unittests",
+        "{workspaceRoot}/coverage/packages/maya"
+      ],
+      "options": {
+        "command": "poetry run pytest tests/",
+        "cwd": "packages/maya"
+      }
+    },
+    "tox": {
+      "executor": "@nxlv/python:tox",
+      "outputs": [
+        "{workspaceRoot}/reports/packages/maya/unittests",
+        "{workspaceRoot}/coverage/packages/maya"
+      ],
+      "options": {
+        "silent": false,
+        "args": ""
+      }
+    }
+  },
+  "tags": []
+}
