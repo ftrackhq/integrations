@@ -9,6 +9,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+      - name: Install Poetry
+        uses: snok/install-poetry@v1
 
       - name: Install
         run: |
@@ -19,7 +21,7 @@ jobs:
           npx nx build2 maya
 
       - name: Upload artifact
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: maya
           path: packages/maya/dist/*.zip
