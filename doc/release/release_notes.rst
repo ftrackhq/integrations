@@ -7,7 +7,8 @@
 Release Notes
 *************
 
-.. release:: upcoming
+.. release:: 1.1.0
+    :date: 2023-04-05
 
     .. change:: new
         :tags: doc
@@ -24,6 +25,7 @@ Release Notes
 
         Remove ftrack-connect-pipeline-definitions repository.
         Add plugins and definitions on each integration.
+
 
 .. release:: 1.0.0
     :date: 2022-12-15
