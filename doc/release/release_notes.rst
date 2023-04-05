@@ -7,7 +7,8 @@
 Release Notes
 *************
 
-.. release:: upcoming
+.. release:: 1.2.0
+    :date:: 2023-04-05
 
     .. change:: fix
         :tags: asset manager
