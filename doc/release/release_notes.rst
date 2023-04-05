@@ -8,7 +8,7 @@ Release Notes
 *************
 
 .. release:: 1.3.0
-    .. change:: 2023-04-05
+    .. date:: 2023-04-05
 
     .. change:: fix
         :tags: asset manager
@@ -38,10 +38,11 @@ Release Notes
 
     .. change:: fix
 
-       Avility to disable stages and plugins.
+       Ability to disable stages and plugins.
 
 .. release:: 1.2.0
-    .. change:: 2022-12-15
+    .. date:: 2022-12-15
+
     .. change:: new
 
         Client multithreaded property, as part of 3ds Max integration.
