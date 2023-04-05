@@ -7,7 +7,9 @@
 Release Notes
 *************
 
-.. release:: upcoming
+.. release:: 1.3.0
+    .. date:: 2023-04-05
+
     .. change:: new
         :tags: doc
 
