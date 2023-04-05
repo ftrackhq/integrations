@@ -1,5 +1,6 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2023 ftrack
+import datetime
 import os
 import random
 import uuid
@@ -20,7 +21,7 @@ python_dependencies = os.path.join(plugin_base_dir, 'dependencies')
 sys.path.append(python_dependencies)
 
 def on_discover_pipeline_harmony(session, event):
-    logger.warning("Discovering harmony")
+    logger.info("Discovering harmony")
     try:
 
         from ftrack_connect_pipeline_harmony import __version__ as integration_version
@@ -46,10 +47,15 @@ def deploy_scripts(app_path):
                 version_nr = s
                 variant = part.split(' ')[-1]
                 break
-            break
+            if variant:
+                break
+    logger.info("Deploying scripts, variant: "+ str(variant) + "version: " + str(version_nr) + ", app_path: " + str(app_path))
+
+    assert variant, "Could not determine Harmony variant from executable path: {}".format(app_path)
+    assert version_nr, "Could not determine Harmony version from executable path: {}".format(app_path)
 
     path_scripts = None
-    if sys.platform == "windows":
+    if sys.platform == "win32":
         path_scripts = os.path.expandvars("%APPDATA%")
     elif sys.platform == "linux":
         path_scripts = os.path.expandvars("$HOME")
@@ -141,7 +147,7 @@ def on_launch_pipeline_harmony(session, event):
         #    plugin_base_dir, 'resource', 'bootstrap'
         #)
 
-       #harmony_bootstrap_plugin_path = os.path.join(harmony_bootstrap_path, 'plugins')
+        #harmony_bootstrap_plugin_path = os.path.join(harmony_bootstrap_path, 'plugins')
 
         harmony_definitions_path = os.path.join(
             plugin_base_dir, 'resource', 'definitions'
@@ -192,7 +198,7 @@ def on_launch_pipeline_harmony(session, event):
         deploy_scripts(event['data']['application']['path'])
 
     except:
-        print(traceback.format_exc())
+        logger.warning(traceback.format_exc())
         raise
     return pipeline_harmony_base_data
 

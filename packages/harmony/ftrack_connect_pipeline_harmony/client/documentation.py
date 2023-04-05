@@ -6,7 +6,7 @@ import ftrack_connect_pipeline_harmony
 from ftrack_connect_pipeline_qt.client import documentation
 
 
-class NukeQtDocumentationClientWidget(
+class HarmonyQtDocumentationClientWidget(
     documentation.QtDocumentationClientWidget
 ):
     '''Harmony documentation client'''

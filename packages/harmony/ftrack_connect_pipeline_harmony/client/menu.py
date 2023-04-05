@@ -28,16 +28,20 @@ class HarmonyQtMenuClientWidget(dialog.ModalDialog):
             self.setProperty('background', self.get_theme_background_style())
         self.setProperty('docked', 'false')
 
-        self.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint)
-        self.setWindowFlags(QtCore.Qt.FramelessWindowHint)
-
-        self.layout().addStretch()
         self.resize(170, 180)
+
         if 'x' in self._event_pipeline_data and 'y' in self._event_pipeline_data:
             self.move(
                 self._event_pipeline_data['x'],
                 self._event_pipeline_data['y']
             )
+
+        self.setWindowFlags(QtCore.Qt.FramelessWindowHint | QtCore.Qt.WindowStaysOnTopHint)
+        #self.setWindowFlags(QtCore.Qt.Tool)
+        self.setWindowState((self.windowState() & ~QtCore.Qt.WindowMinimized) | QtCore.Qt.WindowActive)
+        # this will activate the window
+        self.activateWindow()
+        self.show()
 
     def pre_build(self):
         '''(Override)'''
@@ -73,6 +77,8 @@ class HarmonyQtMenuClientWidget(dialog.ModalDialog):
             btn.clicked.connect(partial(self._open_widget, widget_name))
             btn.setMinimumHeight(40)
             self.layout().addWidget(btn)
+
+        self.layout().addStretch()
 
     def post_build(self):
         '''(Override)'''

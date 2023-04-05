@@ -15,11 +15,11 @@ class HarmonySequencePublisherExporterPlugin(plugin.HarmonyPublisherExporterPlug
     plugin_name = 'harmony_sequence_publisher_exporter'
 
     def run(self, context_data=None, data=None, options=None):
-        '''Tell Harmony to render image sequence to a temp directory'''
+        '''Have Harmony render image sequence to a temp directory'''
 
         destination_path = tempfile.mkdtemp()
         prefix = "image"
-        extension = ".png"
+        extension = ".{}".format(options.get("image_format", "png"))
 
         client = harmony_utils.get_event_hub_client()
 

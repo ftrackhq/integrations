@@ -57,7 +57,6 @@ class HarmonyStandaloneApplication(QtWidgets.QApplication):
 
     created_widgets = dict()
 
-
     @property
     def session_id(self):
         return self._session_id
@@ -65,6 +64,7 @@ class HarmonyStandaloneApplication(QtWidgets.QApplication):
     def __init__(self, *args, **kwargs):
         super(HarmonyStandaloneApplication, self).__init__(*args, **kwargs)
         self.openClient.connect(self._open_widget)
+        self.client = None
 
     # def process_remote_event(host, event):
     #     logger.info('process_remote_event({})'.format(event))
@@ -180,22 +180,6 @@ class HarmonyStandaloneApplication(QtWidgets.QApplication):
             )
         )
 
-        #ftrack_menu = get_ftrack_menu()
-        # Register and hook the dialog in ftrack menu
-        # for item in widgets:
-            # if item == 'divider':
-            #     cmds.menuItem(divider=True)
-            #     continue
-            #
-            # widget_name, unused_widget_class, label, image = item
-
-            # cmds.menuItem(
-            #     parent=ftrack_menu,
-            #     label=label,
-            #     command=(functools.partial(host.launch_client, widget_name)),
-            #     image=":/{}.png".format(image),
-            # )
-
         # Listen to widget launch events
         self.session.event_hub.subscribe(
             'topic={} and data.pipeline.host_id={}'.format(
@@ -288,6 +272,9 @@ class HarmonyStandaloneApplication(QtWidgets.QApplication):
 
     def checkAlive(self):
         '''Check if the client is alive'''
+        if not self.client:
+            logger.warning("TCP client not initialised yet")
+            return
         if self.client.connection.state() in (
                 QtNetwork.QAbstractSocket.SocketState.UnconnectedState,
         ):

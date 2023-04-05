@@ -94,7 +94,7 @@ class TCPEventHubClient(QtCore.QObject):
         )
 
     def connect(self):
-        logger.info("Connecting to event hub @ %s:%s " % (self.host, self.port))
+        logger.info("Connecting to event hub @ {}:{} ".format(self.host, self.port))
 
         if self.is_connected():
             logger.warning(
@@ -105,16 +105,16 @@ class TCPEventHubClient(QtCore.QObject):
         st2 = time.time()
         self.connection.connectToHost(self.host, self.port)
 
-        if not self.connection.waitForConnected(1500):
+        if not self.connection.waitForConnected(10000):
             et2 = time.time()
-            logger.error("Error connecting to the event hub (%s s)" % (et2 - st2))
+            logger.error("Error connecting to the event hub (waited: {}s) Details: {}".format(et2 - st2, self.connection.error()))
             return self.connection_status()
         else:
             et2 = time.time()
-            logger.debug("Connected (%s s)" % (et2 - st2))
+            logger.debug("Connected ({} s)".format(et2 - st2))
 
         result = self.connection_status()
-        logger.debug("Connect status: %s", result)
+        logger.debug("Connect status: {}".format(result))
 
         logger.info("Connected to event hub @ {}:{}".format(self.host, self.port))
 
@@ -127,13 +127,13 @@ class TCPEventHubClient(QtCore.QObject):
         logger.warning("Ready to read")
 
     def _on_error(self):
-        logger.debug("Error occurred: %s" % self.connection.errorString())
+        logger.debug("Error occurred: {}".format(self.connection.errorString()))
 
     def _on_bytes_written(self, bytes):
-        logger.debug("Bytes written: %s" % bytes)
+        logger.debug("Bytes written: {}".format(bytes))
 
     def _on_state_changed(self, state):
-        logger.debug("stateChanged: %s" % state)
+        logger.debug("stateChanged: {}".format(state))
 
     def _on_connected(self):
 

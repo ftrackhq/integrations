@@ -99,12 +99,10 @@ function TCPEventHubServer(host, port, integration) {
  
                 this.connection.disconnected.connect(this, this.onDisconnect);
 
-                debug("Connection state: " + state);
                 info("Client connected: " + this.connection.toString()+ " (state: "+state+")");
 
                 this.connected = true; 
 
-                this.send(TOPIC_PING, {})
             }
             else
             {
@@ -249,13 +247,13 @@ function HarmonyIntegration() {
     this.session = null;
 
     this.bootstrap = function() {
-        this.createLauncher();
+        this.createLaunchers();
         this.spawnIntegration();
         var app = QCoreApplication.instance();
         app.aboutToQuit.connect(app, this.shutdown);
     }
 
-    this.createLauncher = function() {
+    this.createLaunchers = function() {
         // Create integration menu launcher
 
         //---------------------------
@@ -370,12 +368,12 @@ function HarmonyIntegration() {
         return end_frame;
     }
 
-
     this.processEvent = function(topic, event_data, id) {
         info("Processing incoming '"+topic+"' event: "+JSON.stringify(event_data));
         pipeline_data = event_data["pipeline"]
         if (topic === TOPIC_PING) {
-            info("Got ping event from standalone integration");
+            info("Got ping event from standalone integration, returning answer.");
+            this.event_hub.send(TOPIC_PING, {}, id);
         } else if (topic === TOPIC_RENDER_DO) {
             if (pipeline_data === undefined) {
                 warning("Cannot render, no pipeline event data supplied!");
@@ -435,6 +433,12 @@ function configure(packageFolder, packageName)
 {
     if (about.isPaintMode())
         return;
+
+    // Check if launched from Connect
+    if (System.getenv("FTRACK_CONNECT_EVENT") == undefined) {
+        warning("Not initializing ftrack integration - Harmony not launched from Connect!");
+        return;
+    }
 
     var app = QCoreApplication.instance();
 
