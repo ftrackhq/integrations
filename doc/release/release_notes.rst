@@ -7,7 +7,8 @@
 Release Notes
 *************
 
-.. release:: upcoming
+.. release:: 1.1.0
+    :date: 2023-04-05
 
     .. change:: new
         :tags: doc
@@ -26,6 +27,7 @@ Release Notes
         Remove ftrack-connect-pipeline-definitions repository.
         Add plugins and definitions on each integration.
 
+
 .. release:: 1.0.0
     :date: 2022-11-08
 
@@ -34,24 +36,20 @@ Release Notes
 
         Changed default/first load mode to be merge.
 
-
     .. change:: fixed
         :tags: hook
 
         Same version of Houdini detected twice on Linux because of symlink.
-
 
     .. change:: fixed
         :tags: hook
 
         Fix apprentice discovery bug on Mac.
 
-
     .. change:: new
         :tags: doc
 
         Added API reference and release notes.
-
 
     .. change:: new
 
