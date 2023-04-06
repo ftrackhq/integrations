@@ -1,16 +1,16 @@
 ..
-    :copyright: Copyright (c) 2014 ftrack
+    :copyright: Copyright (c) 2014-2023 ftrack
 
 ########
 Releases
 ########
 
-.. release:: 2.0.2
+.. release:: 2.1.0
     :date: 2023-04-05
 
    .. change:: None
 
-        Release connect 2.0.2.
+        Release connect 2.1.0
 
 .. release:: 2.0.1
     :date: 2022-09-01
