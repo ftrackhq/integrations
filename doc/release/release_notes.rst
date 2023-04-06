@@ -1,5 +1,5 @@
 ..
-    :copyright: Copyright (c) 2023 ftrack
+    :copyright: Copyright (c) 2014-2023 ftrack
 
 .. _release/release_notes:
 
