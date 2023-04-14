@@ -12,6 +12,6 @@ Subpackages
 .. toctree::
    :maxdepth: 1
 
-   ftrack_connect_pipeline_houdini.plugin.bootstrap
-   ftrack_connect_pipeline_houdini.plugin.file
-   ftrack_connect_pipeline_houdini.plugin.node
+   ftrack_connect_pipeline_houdini.utils.bootstrap
+   ftrack_connect_pipeline_houdini.utils.file
+   ftrack_connect_pipeline_houdini.utils.node
