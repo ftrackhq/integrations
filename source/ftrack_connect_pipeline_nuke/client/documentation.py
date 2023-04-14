@@ -12,5 +12,5 @@ class NukeQtDocumentationClientWidget(
     '''Nuke documentation client'''
 
     documentation_url = (
-        "https://help.ftrack.com/en/articles/443247-ftrack-nuke-integration"
+        "https://help.ftrack-studio.backlight.co/hc/en-us/articles/13130001744151"
     )
