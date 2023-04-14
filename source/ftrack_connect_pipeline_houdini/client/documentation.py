@@ -11,4 +11,4 @@ class HoudiniQtDocumentationClientWidget(
 ):
     '''Houdini documentation client'''
 
-    documentation_url = "https://help.ftrack.com/en/articles/7177603-ftrack-houdini-integration"
+    documentation_url = "https://help.ftrack-studio.backlight.co/hc/en-us/articles/13129964555543"
