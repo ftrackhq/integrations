@@ -12,6 +12,6 @@ Subpackages
 .. toctree::
    :maxdepth: 1
 
-   ftrack_connect_pipeline_nuke.plugin.bootstrap
-   ftrack_connect_pipeline_nuke.plugin.file
-   ftrack_connect_pipeline_nuke.plugin.node
+   ftrack_connect_pipeline_nuke.utils.bootstrap
+   ftrack_connect_pipeline_nuke.utils.file
+   ftrack_connect_pipeline_nuke.utils.node
