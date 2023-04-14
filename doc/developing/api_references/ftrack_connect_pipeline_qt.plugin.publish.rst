@@ -34,7 +34,7 @@ ftrack\_connect\_pipeline\_qt.plugin.publish.finalizer module
    :show-inheritance:
 
 ftrack\_connect\_pipeline\_qt.plugin.publish.exporter module
-----------------------------------------------------------
+------------------------------------------------------------
 
 .. automodule:: ftrack_connect_pipeline_qt.plugin.publish.exporter
    :members:

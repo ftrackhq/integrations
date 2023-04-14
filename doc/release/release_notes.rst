@@ -1,5 +1,5 @@
 ..
-    :copyright: Copyright (c) 2022 ftrack
+    :copyright: Copyright (c) 2014-2023 ftrack
 
 .. _release/release_notes:
 
@@ -8,7 +8,7 @@ Release Notes
 *************
 
 .. release:: 1.3.0
-    .. date:: 2023-04-05
+    :date: 2022-04-05
 
     .. change:: fix
         :tags: asset manager
@@ -49,7 +49,7 @@ Release Notes
 
         Optimised Opener query projections.
 
-   .. change:: fix
+    .. change:: fix
 
         Align assembler UI, consolidated assembler widget module.
         Consolidated asset manager widget module.
@@ -79,12 +79,14 @@ Release Notes
         Have context selector support not only tasks, and start on browsing on a given context.
         Have context selector disable thumbnail load.
 
+
 .. release:: 1.2.0
     :date: 2022-12-15
 
     .. change:: new
 
         3ds Max integration - Disable multithreading for certain DCCs, Added scroll widget to publisher overlay for large option sets.
+
 
 .. release:: 1.1.0
     :date: 2022-11-08

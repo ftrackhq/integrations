@@ -10,7 +10,8 @@ from ftrack_connect_pipeline_qt.ui.utility.widget import line
 
 class BaseUIWidgetObject(object):
     '''
-    Base class of a widget representation from json schema types, wrapping a QT widget. Instantiated from the widget factory.
+    Base class of a widget representation from json schema types, wrapping a QT widget.
+    Instantiated from the widget factory.
     '''
 
     @property
@@ -53,8 +54,7 @@ class BaseUIWidgetObject(object):
         Initialise BaseUIWidgetObject
 
         :param name: The name of the widget as evaluated from schema
-        :param fragment_data: JSON fragment of the data from the definition to fill
-        the current widget.
+        :param fragment_data: JSON fragment of the data from the definition to fill the current widget.
         :param parent: the parent dialog or frame
         '''
         super(BaseUIWidgetObject, self).__init__()

@@ -1,11 +1,5 @@
-#! /usr/bin/env python
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2020 ftrack
-
-from functools import partial
-import os
-import sys
-import subprocess
 
 from Qt import QtGui, QtCore, QtWidgets
 
@@ -54,7 +48,7 @@ class QtLogViewerClientWidget(QtLogViewerClient, dialog.Dialog):
         '''Initialise QtLogViewerClientWidget with *event_manager*
 
         *event_manager* should be the
-        :class:`ftrack_connect_pipeline.event.EventManager`instance to
+        :class:`ftrack_connect_pipeline.event.EventManager` instance to
         communicate to the event server.
         '''
 

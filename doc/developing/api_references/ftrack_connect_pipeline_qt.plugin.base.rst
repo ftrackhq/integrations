@@ -42,7 +42,7 @@ ftrack\_connect\_pipeline\_qt.plugin.base.importer module
    :show-inheritance:
 
 ftrack\_connect\_pipeline\_qt.plugin.base.exporter module
--------------------------------------------------------
+---------------------------------------------------------
 
 .. automodule:: ftrack_connect_pipeline_qt.plugin.base.exporter
    :members:
