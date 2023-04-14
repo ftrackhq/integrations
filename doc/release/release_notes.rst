@@ -8,7 +8,7 @@ Release Notes
 *************
 
 .. release:: 1.3.0
-    .. date:: 2023-04-05
+    :date: 2023-04-05
 
     .. change:: fix
         :tags: asset manager
@@ -41,7 +41,7 @@ Release Notes
        Ability to disable stages and plugins.
 
 .. release:: 1.2.0
-    .. date:: 2022-12-15
+    :date: 2022-12-15
 
     .. change:: new
 
