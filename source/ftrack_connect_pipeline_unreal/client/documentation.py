@@ -11,4 +11,4 @@ class UnrealQtDocumentationClientWidget(
 ):
     '''Unreal documentation client'''
 
-    documentation_url = "https://help.ftrack.com/en/articles/3998053-ftrack-unreal-engine-integration"
+    documentation_url = "https://help.ftrack-studio.backlight.co/hc/en-us/articles/13130003888023"
