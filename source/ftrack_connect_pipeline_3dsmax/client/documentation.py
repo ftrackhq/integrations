@@ -12,5 +12,5 @@ class MaxQtDocumentationClientWidget(
     '''Max documentation client'''
 
     documentation_url = (
-        "https://help.ftrack.com/en/articles/443239-ftrack-3ds-max-integration"
+        "https://help.ftrack-studio.backlight.co/hc/en-us/articles/13130003686423"
     )
