@@ -12,6 +12,6 @@ Subpackages
 .. toctree::
    :maxdepth: 1
 
-   ftrack_connect_pipeline_3dsmax.plugin.bootstrap
-   ftrack_connect_pipeline_3dsmax.plugin.file
-   ftrack_connect_pipeline_3dsmax.plugin.node
+   ftrack_connect_pipeline_3dsmax.utils.bootstrap
+   ftrack_connect_pipeline_3dsmax.utils.file
+   ftrack_connect_pipeline_3dsmax.utils.node
