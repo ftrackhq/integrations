@@ -139,6 +139,7 @@ autodoc_mock_imports = [
     'jsonschema',
     'jsonref',
     'python_jsonschema_objects',
+    'unreal',
     'ftrack_connect_pipeline',
     'ftrack-connect-pipeline-unreal',
     'ftrack_connect_pipeline_qt',

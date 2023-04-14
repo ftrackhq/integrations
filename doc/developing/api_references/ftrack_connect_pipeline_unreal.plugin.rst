@@ -14,5 +14,4 @@ Subpackages
 
    ftrack_connect_pipeline_unreal.plugin.asset_manager
    ftrack_connect_pipeline_unreal.plugin.load
-   ftrack_connect_pipeline_unreal.plugin.open
    ftrack_connect_pipeline_unreal.plugin.publish

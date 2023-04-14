@@ -78,8 +78,7 @@ def ftrack_node_exists(dcc_object_name):
 
 def rename_node_with_prefix(node_name, prefix):
     '''This method allow renaming a UObject to put a prefix to work along
-    with UE4 naming convention.
-      https://github.com/Allar/ue4-style-guide'''
+    with UE4 naming convention. https://github.com/Allar/ue4-style-guide'''
 
     from ftrack_connect_pipeline_unreal.utils.asset import (
         asset_path_to_filesystem_path,
