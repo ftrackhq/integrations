@@ -9,6 +9,7 @@ Designed to be shared across a Monorepo
 Version history:
 
 0.1.0, Henrik Norin, 23.03.08; Initial version
+0.2.0, Henrik Norin, 23.04.17; Supply resource folder on plugin build
 
 '''
 
@@ -22,7 +23,7 @@ import subprocess
 from distutils.spawn import find_executable
 import fileinput
 
-__version__ = '0.1.0'
+__version__ = '0.2.0'
 
 ROOT_PATH = os.path.realpath(os.getcwd())
 BUILD_PATH = os.path.join(ROOT_PATH, 'dist')
@@ -86,7 +87,11 @@ def build_plugin(args):
     HOOK_PATH = os.path.join(ROOT_PATH, 'hook')
     shutil.copytree(HOOK_PATH, os.path.join(STAGING_PATH, 'hook'))
 
-    #
+    # Copy resources
+    logging.info('Copying resources')
+    shutil.copytree(RESOURCE_PATH, os.path.join(STAGING_PATH, 'resource'))
+
+    # Build dependencies
     dependencies_path = os.path.join(STAGING_PATH, 'dependencies')
 
     os.makedirs(dependencies_path)
