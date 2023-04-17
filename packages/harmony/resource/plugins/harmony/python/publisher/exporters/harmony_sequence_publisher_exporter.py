@@ -11,7 +11,9 @@ from ftrack_connect_pipeline_harmony import utils as harmony_utils
 from ftrack_connect_pipeline_harmony import plugin
 
 
-class HarmonySequencePublisherExporterPlugin(plugin.HarmonyPublisherExporterPlugin):
+class HarmonySequencePublisherExporterPlugin(
+    plugin.HarmonyPublisherExporterPlugin
+):
     plugin_name = 'harmony_sequence_publisher_exporter'
 
     def run(self, context_data=None, data=None, options=None):
@@ -23,22 +25,36 @@ class HarmonySequencePublisherExporterPlugin(plugin.HarmonyPublisherExporterPlug
 
         client = harmony_utils.get_event_hub_client()
 
-        self.logger.info("Telling Harmony to render the current scene to {}.".format(destination_path))
+        self.logger.info(
+            "Telling Harmony to render the current scene to {}.".format(
+                destination_path
+            )
+        )
 
-        reply_event = client.send(harmony_utils.TCPEventHubClient.TOPIC_RENDER_DO, {
-            "pipeline":{
-                "destination_path": "{}{}".format(destination_path, os.sep),
-                "prefix": prefix,
-                "extension": extension,
-            }
-        }, synchronous=True)
+        reply_event = client.send(
+            harmony_utils.TCPEventHubClient.TOPIC_RENDER_DO,
+            {
+                "pipeline": {
+                    "destination_path": "{}{}".format(
+                        destination_path, os.sep
+                    ),
+                    "prefix": prefix,
+                    "extension": extension,
+                }
+            },
+            synchronous=True,
+        )
 
         # Store image sequence path so reviewable can pick it up later
         harmony_utils.store_image_sequence_path(destination_path, extension)
 
         new_file_path = core_utils.find_image_sequence(destination_path)
 
-        self.logger.info("Render done, result: {} (reply: {})".format(new_file_path, reply_event))
+        self.logger.info(
+            "Render done, result: {} (reply: {})".format(
+                new_file_path, reply_event
+            )
+        )
 
         return [new_file_path]
 

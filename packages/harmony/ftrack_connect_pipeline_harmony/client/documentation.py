@@ -13,6 +13,7 @@ class HarmonyQtDocumentationClientWidget(
 
     documentation_path = (
         documentation.QtDocumentationClientWidget._get_user_documentation_path(
-            os.path.dirname(ftrack_connect_pipeline_harmony.__file__), 'harmony'
+            os.path.dirname(ftrack_connect_pipeline_harmony.__file__),
+            'harmony',
         )
     )

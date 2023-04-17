@@ -4,6 +4,7 @@
 from ftrack_connect_pipeline_qt.client import change_context
 from ftrack_connect_pipeline_harmony import utils as harmony_utils
 
+
 class HarmonyQtChangeContextClientWidget(
     change_context.QtChangeContextClientWidget
 ):

@@ -11,7 +11,9 @@ from ftrack_connect_pipeline_harmony import plugin
 import ftrack_api
 
 
-class HarmonyNativePublisherExporterPlugin(plugin.HarmonyPublisherExporterPlugin):
+class HarmonyNativePublisherExporterPlugin(
+    plugin.HarmonyPublisherExporterPlugin
+):
     plugin_name = 'harmony_native_publisher_exporter'
 
     def run(self, context_data=None, data=None, options=None):

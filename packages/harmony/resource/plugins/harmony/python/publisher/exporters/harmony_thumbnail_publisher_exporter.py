@@ -7,7 +7,9 @@ import ftrack_api
 from ftrack_connect_pipeline_harmony import plugin
 
 
-class HarmonyThumbnailPublisherExporterPlugin(plugin.HarmonyPublisherExporterPlugin):
+class HarmonyThumbnailPublisherExporterPlugin(
+    plugin.HarmonyPublisherExporterPlugin
+):
     plugin_name = 'harmony_thumbnail_publisher_exporter'
 
     def run(self, context_data=None, data=None, options=None):

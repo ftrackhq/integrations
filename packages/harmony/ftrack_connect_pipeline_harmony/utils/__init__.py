@@ -17,6 +17,7 @@ logger = logging.getLogger(__name__)
 
 event_hub_client = None
 
+
 def run_in_main_thread(f):
     '''Make sure a function runs in the main Harmony thread.'''
 
@@ -29,27 +30,28 @@ def run_in_main_thread(f):
 
     return decorated
 
+
 def store_client(_event_hub_client):
     global event_hub_client
 
     event_hub_client = _event_hub_client
+
 
 def get_event_hub_client():
     return event_hub_client
 
 
 class TCPEventHubClient(QtCore.QObject):
-
     TOPIC_PING = "ftrack.pipeline.ping"
     TOPIC_CLIENT_LAUNCH = "ftrack.pipeline.client.launch"
-    TOPIC_RENDER_DO = "ftrack.pipeline.render.do";
-    TOPIC_RENDER_FINISHED = "ftrack.pipeline.render.finished";
+    TOPIC_RENDER_DO = "ftrack.pipeline.render.do"
+    TOPIC_RENDER_FINISHED = "ftrack.pipeline.render.finished"
 
-    TOPIC_SHUTDOWN = "ftrack.pipeline.shutdown";
+    TOPIC_SHUTDOWN = "ftrack.pipeline.shutdown"
 
     MAX_WRITE_RESPONSE_TIME = 10000
     INT32_SIZE = 4
-    REPLY_WAIT_TIMEOUT = 5*60*1000 # Wait 5 minutes tops
+    REPLY_WAIT_TIMEOUT = 5 * 60 * 1000  # Wait 5 minutes tops
 
     @property
     def host(self):
@@ -83,22 +85,26 @@ class TCPEventHubClient(QtCore.QObject):
         self._buffer = None
         self._receiving = False
 
-        logger.info("Initialized event hub client");
+        logger.info("Initialized event hub client")
 
     def connection_status(self):
         return self.connection.state()
 
     def is_connected(self):
         return self.connection and (
-                self.connection_status() == QtNetwork.QAbstractSocket.ConnectedState
+            self.connection_status()
+            == QtNetwork.QAbstractSocket.ConnectedState
         )
 
     def connect(self):
-        logger.info("Connecting to event hub @ {}:{} ".format(self.host, self.port))
+        logger.info(
+            "Connecting to event hub @ {}:{} ".format(self.host, self.port)
+        )
 
         if self.is_connected():
             logger.warning(
-                "Connection already existed , removing connection to %s %s " % (self.host, self.port)
+                "Connection already existed , removing connection to %s %s "
+                % (self.host, self.port)
             )
             self.connection.abort()
 
@@ -107,7 +113,11 @@ class TCPEventHubClient(QtCore.QObject):
 
         if not self.connection.waitForConnected(10000):
             et2 = time.time()
-            logger.error("Error connecting to the event hub (waited: {}s) Details: {}".format(et2 - st2, self.connection.error()))
+            logger.error(
+                "Error connecting to the event hub (waited: {}s) Details: {}".format(
+                    et2 - st2, self.connection.error()
+                )
+            )
             return self.connection_status()
         else:
             et2 = time.time()
@@ -116,7 +126,9 @@ class TCPEventHubClient(QtCore.QObject):
         result = self.connection_status()
         logger.debug("Connect status: {}".format(result))
 
-        logger.info("Connected to event hub @ {}:{}".format(self.host, self.port))
+        logger.info(
+            "Connected to event hub @ {}:{}".format(self.host, self.port)
+        )
 
         # commands = self.send_and_receive_command("DIR")
         # logger.debug("commands: %s" % commands)
@@ -127,7 +139,9 @@ class TCPEventHubClient(QtCore.QObject):
         logger.warning("Ready to read")
 
     def _on_error(self):
-        logger.debug("Error occurred: {}".format(self.connection.errorString()))
+        logger.debug(
+            "Error occurred: {}".format(self.connection.errorString())
+        )
 
     def _on_bytes_written(self, bytes):
         logger.debug("Bytes written: {}".format(bytes))
@@ -136,7 +150,6 @@ class TCPEventHubClient(QtCore.QObject):
         logger.debug("stateChanged: {}".format(state))
 
     def _on_connected(self):
-
         logger.info("Setting up connection options...")
         self.connection.setSocketOption(self.connection.LowDelayOption, 1)
         self.connection.setSocketOption(self.connection.KeepAliveOption, 1)
@@ -149,7 +162,7 @@ class TCPEventHubClient(QtCore.QObject):
     def _send(self, data):
         # make sure we are connected
         if self.connection.state() in (
-                QtNetwork.QAbstractSocket.SocketState.UnconnectedState,
+            QtNetwork.QAbstractSocket.SocketState.UnconnectedState,
         ):
             self.connect()
 
@@ -162,8 +175,12 @@ class TCPEventHubClient(QtCore.QObject):
 
         self.connection.write(block)
 
-        if not self.connection.waitForBytesWritten(self.MAX_WRITE_RESPONSE_TIME):
-            logger.error("Could not write to socket: %s" % self.connection.errorString())
+        if not self.connection.waitForBytesWritten(
+            self.MAX_WRITE_RESPONSE_TIME
+        ):
+            logger.error(
+                "Could not write to socket: %s" % self.connection.errorString()
+            )
         else:
             logger.debug("Sent data ok. %s" % self.connection.state())
 
@@ -179,8 +196,12 @@ class TCPEventHubClient(QtCore.QObject):
 
         i = 0
         while self.connection.bytesAvailable() > 0:
-            if (self._blocksize == 0 and self.connection.bytesAvailable() >= self.INT32_SIZE) or (
-                    self._blocksize > 0 and self.connection.bytesAvailable() >= self._blocksize
+            if (
+                self._blocksize == 0
+                and self.connection.bytesAvailable() >= self.INT32_SIZE
+            ) or (
+                self._blocksize > 0
+                and self.connection.bytesAvailable() >= self._blocksize
             ):
                 self._blocksize = stream.readInt32()
                 # logger.debug(
@@ -188,7 +209,10 @@ class TCPEventHubClient(QtCore.QObject):
                 #     % (i, self._blocksize)
                 # )
 
-            if self._blocksize > 0 and self.connection.bytesAvailable() >= self._blocksize:
+            if (
+                self._blocksize > 0
+                and self.connection.bytesAvailable() >= self._blocksize
+            ):
                 data = stream.readRawData(self._blocksize)
                 raw_event = QtCore.QTextCodec.codecForMib(106).toUnicode(data)
                 # logger.debug("About to process request %s in queue: %s" % (i, request))
@@ -204,7 +228,9 @@ class TCPEventHubClient(QtCore.QObject):
         try:
             event = json.loads(raw_event)
         except Exception as e:
-            logger.warning("Ignoring request, not well formed! Details: {}".format(e))
+            logger.warning(
+                "Ignoring request, not well formed! Details: {}".format(e)
+            )
             return None
 
         # Is this event for us?
@@ -223,7 +249,9 @@ class TCPEventHubClient(QtCore.QObject):
         if self._handle_reply_event_callback:
             if event.get('in_reply_to_event') == self._reply_id:
                 logger.info("Got reply for event: {}".format(self._reply_id))
-                self._handle_reply_event_callback(event['topic'], event_data, event['id'])
+                self._handle_reply_event_callback(
+                    event['topic'], event_data, event['id']
+                )
                 return None
 
         self._handle_event_callback(event['topic'], event_data, event['id'])
@@ -237,14 +265,19 @@ class TCPEventHubClient(QtCore.QObject):
         st = time.time()
         self._send(json.dumps(event))
         et = time.time()
-        logger.info("Sent {} event (took: {} secs): {}".format(topic, (et - st), event))
+        logger.info(
+            "Sent {} event (took: {} secs): {}".format(topic, (et - st), event)
+        )
 
         if synchronous:
-
             self.reply_event = None
 
             def handle_reply_event(topic, event_data, id):
-                logger.info('Registering incoming reply event: {} ({}), data: {}'.format(topic, id, event_data))
+                logger.info(
+                    'Registering incoming reply event: {} ({}), data: {}'.format(
+                        topic, id, event_data
+                    )
+                )
                 self.reply_event = event
 
             self._reply_id = event['id']
@@ -253,36 +286,51 @@ class TCPEventHubClient(QtCore.QObject):
             timeout = self.REPLY_WAIT_TIMEOUT
             waited = 0
             try:
-                logger.info("Waiting to receive reply for {}...".format(event['id']))
+                logger.info(
+                    "Waiting to receive reply for {}...".format(event['id'])
+                )
                 while True:
                     self._app.processEvents()
                     time.sleep(0.1)
                     waited += 100
 
                     if timeout <= waited:
-                        raise Exception("Timeout waiting for reply for event: {}".format(event['id']))
+                        raise Exception(
+                            "Timeout waiting for reply for event: {}".format(
+                                event['id']
+                            )
+                        )
                     elif waited % 2000 == 0:
-                        logger.info("Waited {}s for reply...".format(int(waited/1000)))
+                        logger.info(
+                            "Waited {}s for reply...".format(
+                                int(waited / 1000)
+                            )
+                        )
 
                     if self.reply_event:
                         return self.reply_event
 
-                #QtGui.QApplication.processEvents()
+                # QtGui.QApplication.processEvents()
             finally:
                 # Deregister collback handler
                 self._handle_reply_event_callback = None
                 self._reply_id = None
+
     def error(self, socketError):
         if socketError == QtNetwork.QAbstractSocket.RemoteHostClosedError:
             logger.error("Host closed the connection...")
         elif socketError == QtNetwork.QAbstractSocket.HostNotFoundError:
             logger.error(
-                "The host was not found. Please check the host name and " "port settings."
+                "The host was not found. Please check the host name and "
+                "port settings."
             )
         elif socketError == QtNetwork.QAbstractSocket.ConnectionRefusedError:
             logger.error("The server is not up and running yet.")
         else:
-            logger.error("The following error occurred: %s." % self.connection.errorString())
+            logger.error(
+                "The following error occurred: %s."
+                % self.connection.errorString()
+            )
 
     def close(self):
         self.connection.abort()

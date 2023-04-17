@@ -9,7 +9,9 @@ from ftrack_connect_pipeline_harmony.plugin import (
 )
 
 
-class HarmonyOpenerFinalizerPlugin(plugin.OpenerFinalizerPlugin, HarmonyBasePlugin):
+class HarmonyOpenerFinalizerPlugin(
+    plugin.OpenerFinalizerPlugin, HarmonyBasePlugin
+):
     '''Class representing a Finalizer Plugin
 
     .. note::

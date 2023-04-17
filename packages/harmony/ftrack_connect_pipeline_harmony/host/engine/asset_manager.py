@@ -6,7 +6,9 @@ from ftrack_connect_pipeline.host.engine import AssetManagerEngine
 from ftrack_connect_pipeline.asset.asset_info import FtrackAssetInfo
 from ftrack_connect_pipeline_harmony import utils as harmony_utils
 from ftrack_connect_pipeline_harmony.constants import asset as asset_const
-from ftrack_connect_pipeline_harmony.constants.asset import modes as modes_const
+from ftrack_connect_pipeline_harmony.constants.asset import (
+    modes as modes_const,
+)
 from ftrack_connect_pipeline_harmony.asset import HarmonyFtrackObjectManager
 from ftrack_connect_pipeline_harmony.asset.dcc_object import HarmonyDccObject
 
@@ -382,7 +384,7 @@ class HarmonyAssetManagerEngine(AssetManagerEngine):
         # )
         for node in nodes:
             try:
-                #.select(node, add=True)
+                # .select(node, add=True)
                 result.append(str(node))
                 status = core_constants.SUCCESS_STATUS
             except Exception as error:
@@ -683,10 +685,10 @@ class HarmonyAssetManagerEngine(AssetManagerEngine):
             # or []
         )
         for node in nodes:
-            #if cmds.nodeType(node) == 'reference':
-                reference_node = harmony_utils.getReferenceNode(node)
-                if reference_node:
-                    break
+            # if cmds.nodeType(node) == 'reference':
+            reference_node = harmony_utils.getReferenceNode(node)
+            if reference_node:
+                break
 
         if reference_node:
             self.logger.debug("Removing reference: {}".format(reference_node))

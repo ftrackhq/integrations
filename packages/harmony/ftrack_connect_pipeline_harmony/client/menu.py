@@ -5,10 +5,7 @@ from functools import partial
 from Qt import QtWidgets, QtCore, QtGui
 
 from ftrack_connect_pipeline_qt.utils import get_theme, set_theme
-from ftrack_connect_pipeline_qt.ui.utility.widget import (
-    dialog,
-    icon
-)
+from ftrack_connect_pipeline_qt.ui.utility.widget import dialog, icon
 
 from ftrack_connect_pipeline_harmony import utils as harmony_utils
 
@@ -30,15 +27,22 @@ class HarmonyQtMenuClientWidget(dialog.ModalDialog):
 
         self.resize(170, 180)
 
-        if 'x' in self._event_pipeline_data and 'y' in self._event_pipeline_data:
+        if (
+            'x' in self._event_pipeline_data
+            and 'y' in self._event_pipeline_data
+        ):
             self.move(
-                self._event_pipeline_data['x'],
-                self._event_pipeline_data['y']
+                self._event_pipeline_data['x'], self._event_pipeline_data['y']
             )
 
-        self.setWindowFlags(QtCore.Qt.FramelessWindowHint | QtCore.Qt.WindowStaysOnTopHint)
-        #self.setWindowFlags(QtCore.Qt.Tool)
-        self.setWindowState((self.windowState() & ~QtCore.Qt.WindowMinimized) | QtCore.Qt.WindowActive)
+        self.setWindowFlags(
+            QtCore.Qt.FramelessWindowHint | QtCore.Qt.WindowStaysOnTopHint
+        )
+        # self.setWindowFlags(QtCore.Qt.Tool)
+        self.setWindowState(
+            (self.windowState() & ~QtCore.Qt.WindowMinimized)
+            | QtCore.Qt.WindowActive
+        )
         # this will activate the window
         self.activateWindow()
         self.show()
@@ -69,7 +73,12 @@ class HarmonyQtMenuClientWidget(dialog.ModalDialog):
 
         self.layout().addLayout(title_layout)
 
-        for (widget_name, unused_widget_class, label, visible_in_menu) in self._widgets:
+        for (
+            widget_name,
+            unused_widget_class,
+            label,
+            visible_in_menu,
+        ) in self._widgets:
             if not visible_in_menu:
                 continue
 
@@ -91,14 +100,4 @@ class HarmonyQtMenuClientWidget(dialog.ModalDialog):
     def _open_widget(self, widget_name):
         '''Open widget with *widget_name*.'''
         self.hide()
-        self._app._open_widget({
-            'pipeline':{
-                'name': widget_name
-            }
-        })
-
-
-
-
-
-
+        self._app._open_widget({'pipeline': {'name': widget_name}})

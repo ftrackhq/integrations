@@ -9,7 +9,9 @@ from ftrack_connect_pipeline_harmony.plugin import (
 )
 
 
-class HarmonyLoaderFinalizerPlugin(plugin.LoaderFinalizerPlugin, HarmonyBasePlugin):
+class HarmonyLoaderFinalizerPlugin(
+    plugin.LoaderFinalizerPlugin, HarmonyBasePlugin
+):
     '''Class representing a Finalizer Plugin
 
     .. note::

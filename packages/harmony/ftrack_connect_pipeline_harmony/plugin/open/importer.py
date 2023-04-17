@@ -13,7 +13,9 @@ from ftrack_connect_pipeline_harmony.constants.asset import modes as load_const
 from ftrack_connect_pipeline_harmony.constants import asset as asset_const
 
 
-class HarmonyOpenerImporterPlugin(plugin.OpenerImporterPlugin, HarmonyBasePlugin):
+class HarmonyOpenerImporterPlugin(
+    plugin.OpenerImporterPlugin, HarmonyBasePlugin
+):
     '''Class representing a Collector Plugin
 
     .. note::

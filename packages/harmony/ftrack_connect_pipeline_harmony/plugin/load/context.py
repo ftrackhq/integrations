@@ -9,7 +9,9 @@ from ftrack_connect_pipeline_harmony.plugin import (
 )
 
 
-class HarmonyLoaderContextPlugin(plugin.LoaderContextPlugin, HarmonyBasePlugin):
+class HarmonyLoaderContextPlugin(
+    plugin.LoaderContextPlugin, HarmonyBasePlugin
+):
     '''Class representing a Context Plugin
     .. note::
 

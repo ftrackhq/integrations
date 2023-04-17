@@ -10,7 +10,6 @@ from ftrack_connect_pipeline_harmony.asset.dcc_object import HarmonyDccObject
 
 
 class HarmonyBasePlugin(plugin.BasePlugin):
-
     host_type = harmony_constants.HOST_TYPE
 
     FtrackObjectManager = HarmonyFtrackObjectManager
@@ -23,7 +22,9 @@ class HarmonyBasePlugin(plugin.BasePlugin):
         return super(HarmonyBasePlugin, self)._run(event)
 
 
-class HarmonyBasePluginWidget(HarmonyBasePlugin, pluginWidget.BasePluginWidget):
+class HarmonyBasePluginWidget(
+    HarmonyBasePlugin, pluginWidget.BasePluginWidget
+):
     category = 'plugin.widget'
     ui_type = harmony_constants.UI_TYPE
 

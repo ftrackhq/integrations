@@ -8,7 +8,6 @@ import ftrack_api
 
 
 class HarmonySequencePublisherExporterOptionsWidget(DynamicWidget):
-
     auto_fetch_on_init = False
 
     def __init__(

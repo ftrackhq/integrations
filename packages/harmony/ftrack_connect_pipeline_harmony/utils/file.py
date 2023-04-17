@@ -17,24 +17,26 @@ logger = logging.getLogger(__name__)
 image_sequence_path = None
 extension = None
 
+
 def store_image_sequence_path(_image_sequence_path, _extension):
     global image_sequence_path, extension
 
     image_sequence_path = _image_sequence_path
     extension = _extension
 
+
 def get_image_sequence_path():
     return image_sequence_path, extension
 
 
 def open_file(path, options=None):
-    '''Native open file function '''
+    '''Native open file function'''
     # return cmds.file(path, o=True, f=True)
     pass
 
 
 def import_file(path, options=None):
-    '''Native import file function '''
+    '''Native import file function'''
     # return cmds.file(path, o=True, f=True)
     pass
 
@@ -79,6 +81,6 @@ def save_file(save_path, context_id=None, session=None, temp=True, save=True):
 
 
 def reference_file(path, options=None):
-    '''Native reference file function '''
+    '''Native reference file function'''
     # return cmds.file(path, o=True, f=True)
     pass

@@ -10,7 +10,9 @@ from ftrack_connect_pipeline_harmony import utils as harmony_utils
 from ftrack_connect_pipeline_harmony import plugin
 
 
-class HarmonyScenePublisherCollectorPlugin(plugin.HarmonyPublisherCollectorPlugin):
+class HarmonyScenePublisherCollectorPlugin(
+    plugin.HarmonyPublisherCollectorPlugin
+):
     plugin_name = 'harmony_scene_publisher_collector'
 
     def run(self, context_data=None, data=None, options=None):

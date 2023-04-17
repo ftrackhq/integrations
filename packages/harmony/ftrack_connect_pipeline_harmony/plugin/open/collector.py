@@ -9,7 +9,9 @@ from ftrack_connect_pipeline_harmony.plugin import (
 )
 
 
-class HarmonyOpenerCollectorPlugin(plugin.OpenerCollectorPlugin, HarmonyBasePlugin):
+class HarmonyOpenerCollectorPlugin(
+    plugin.OpenerCollectorPlugin, HarmonyBasePlugin
+):
     '''Class representing a Collector Plugin
 
     .. note::

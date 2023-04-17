@@ -20,11 +20,13 @@ plugin_base_dir = os.path.normpath(
 python_dependencies = os.path.join(plugin_base_dir, 'dependencies')
 sys.path.append(python_dependencies)
 
+
 def on_discover_pipeline_harmony(session, event):
     logger.info("Discovering harmony")
     try:
-
-        from ftrack_connect_pipeline_harmony import __version__ as integration_version
+        from ftrack_connect_pipeline_harmony import (
+            __version__ as integration_version,
+        )
 
         data = {
             'integration': {
@@ -38,6 +40,7 @@ def on_discover_pipeline_harmony(session, event):
         print(traceback.format_exc())
         raise
 
+
 def deploy_scripts(app_path):
     version_nr = None
     variant = None
@@ -49,10 +52,25 @@ def deploy_scripts(app_path):
                 break
             if variant:
                 break
-    logger.info("Deploying scripts, variant: "+ str(variant) + "version: " + str(version_nr) + ", app_path: " + str(app_path))
+    logger.info(
+        "Deploying scripts, variant: "
+        + str(variant)
+        + "version: "
+        + str(version_nr)
+        + ", app_path: "
+        + str(app_path)
+    )
 
-    assert variant, "Could not determine Harmony variant from executable path: {}".format(app_path)
-    assert version_nr, "Could not determine Harmony version from executable path: {}".format(app_path)
+    assert (
+        variant
+    ), "Could not determine Harmony variant from executable path: {}".format(
+        app_path
+    )
+    assert (
+        version_nr
+    ), "Could not determine Harmony version from executable path: {}".format(
+        app_path
+    )
 
     path_scripts = None
     if sys.platform == "win32":
@@ -67,23 +85,27 @@ def deploy_scripts(app_path):
 
     path_scripts = os.path.realpath(path_scripts)
 
-    path_scripts = os.path.join(path_scripts, 'Toon Boom Animation', 'Toon Boom Harmony {}'.format(variant))
+    path_scripts = os.path.join(
+        path_scripts,
+        'Toon Boom Animation',
+        'Toon Boom Harmony {}'.format(variant),
+    )
 
     if not path_scripts:
         raise Exception('Could not determine Harmony prefs folder!')
 
-    path_scripts = os.path.join(path_scripts, '{}00-scripts'.format(version_nr), 'packages')
+    path_scripts = os.path.join(
+        path_scripts, '{}00-scripts'.format(version_nr), 'packages'
+    )
 
     if not os.path.exists(path_scripts):
         logger.warning('Creating: {}'.format(path_scripts))
         os.makedirs(path_scripts)
 
     def recursive_copy_dir(src, dst):
-
         logger.info('Syncing {} > {}'.format(src, dst))
 
         for filename in os.listdir(src):
-
             path_src = os.path.join(src, filename)
             path_dst = os.path.join(dst, filename)
 
@@ -108,7 +130,11 @@ def deploy_scripts(app_path):
                         modtime_source = os.path.getmtime(path_src)
                         modtime_destination = os.path.getmtime(path_dst)
                         if modtime_destination != modtime_source:
-                            logger.warning('Modification date differs on: {}'.format(path_dst))
+                            logger.warning(
+                                'Modification date differs on: {}'.format(
+                                    path_dst
+                                )
+                            )
                             copy = True
                 else:
                     copy = True
@@ -117,18 +143,26 @@ def deploy_scripts(app_path):
                         logger.warning('Removing: {}'.format(path_dst))
                         os.remove(path_dst)
                     elif not os.path.exists(os.path.dirname(path_dst)):
-                        logger.warning('Creating: {}'.format(os.path.dirname(path_dst)))
+                        logger.warning(
+                            'Creating: {}'.format(os.path.dirname(path_dst))
+                        )
                         os.makedirs(os.path.dirname(path_dst))
-                    logger.warning('Copying {} > {}'.format(path_src, path_dst))
+                    logger.warning(
+                        'Copying {} > {}'.format(path_src, path_dst)
+                    )
                     shutil.copy(path_src, path_dst)
                     # Set modification time
-                    os.utime(path_dst, (os.path.getmtime(path_src), os.path.getmtime(path_src)))
+                    os.utime(
+                        path_dst,
+                        (
+                            os.path.getmtime(path_src),
+                            os.path.getmtime(path_src),
+                        ),
+                    )
 
     path_src = os.path.join(plugin_base_dir, 'resource', 'bootstrap', 'ftrack')
 
-    recursive_copy_dir(
-        path_src,
-        os.path.join(path_scripts, 'ftrack'))
+    recursive_copy_dir(path_src, os.path.join(path_scripts, 'ftrack'))
 
 
 def on_launch_pipeline_harmony(session, event):
@@ -136,18 +170,19 @@ def on_launch_pipeline_harmony(session, event):
     logger.info("Launching harmony")
 
     try:
-
-        pipeline_harmony_base_data = on_discover_pipeline_harmony(session, event)
+        pipeline_harmony_base_data = on_discover_pipeline_harmony(
+            session, event
+        )
 
         harmony_plugins_path = os.path.join(
             plugin_base_dir, 'resource', 'plugins', 'harmony'
         )
 
-        #harmony_bootstrap_path = os.path.join(
+        # harmony_bootstrap_path = os.path.join(
         #    plugin_base_dir, 'resource', 'bootstrap'
-        #)
+        # )
 
-        #harmony_bootstrap_plugin_path = os.path.join(harmony_bootstrap_path, 'plugins')
+        # harmony_bootstrap_plugin_path = os.path.join(harmony_bootstrap_path, 'plugins')
 
         harmony_definitions_path = os.path.join(
             plugin_base_dir, 'resource', 'definitions'
@@ -165,7 +200,7 @@ def on_launch_pipeline_harmony(session, event):
             ),
             'FTRACK_DEFINITION_PATH.prepend': harmony_definitions_path,
             'PYTHONPATH.prepend': os.path.pathsep.join(
-                [python_dependencies] #, harmony_bootstrap_path]
+                [python_dependencies]  # , harmony_bootstrap_path]
             ),
             'FTRACK_INTEGRATION_SESSION_ID': str(uuid.uuid4()),
             'FTRACK_PYTHON_INTERPRETER.prepend': standalone_python_interpreter_path,
@@ -184,15 +219,15 @@ def on_launch_pipeline_harmony(session, event):
                     task['parent']['id']
                 )
             ).first()  # Make sure updated custom attributes are fetched
-            pipeline_harmony_base_data['integration']['env']['FS.set'] = parent[
-                'custom_attributes'
-            ].get('fstart', '1.0')
-            pipeline_harmony_base_data['integration']['env']['FE.set'] = parent[
-                'custom_attributes'
-            ].get('fend', '100.0')
-            pipeline_harmony_base_data['integration']['env']['FPS.set'] = parent[
-                'custom_attributes'
-            ].get('fps', '24.0')
+            pipeline_harmony_base_data['integration']['env'][
+                'FS.set'
+            ] = parent['custom_attributes'].get('fstart', '1.0')
+            pipeline_harmony_base_data['integration']['env'][
+                'FE.set'
+            ] = parent['custom_attributes'].get('fend', '100.0')
+            pipeline_harmony_base_data['integration']['env'][
+                'FPS.set'
+            ] = parent['custom_attributes'].get('fps', '24.0')
 
         # Copy bootstrap JS scripts to Harmony scripts folder
         deploy_scripts(event['data']['application']['path'])
@@ -201,6 +236,7 @@ def on_launch_pipeline_harmony(session, event):
         logger.warning(traceback.format_exc())
         raise
     return pipeline_harmony_base_data
+
 
 def register(session):
     '''Subscribe to application launch events on *registry*.'''
@@ -220,7 +256,9 @@ def register(session):
         priority=40,
     )
 
-    handle_launch_event = functools.partial(on_launch_pipeline_harmony, session)
+    handle_launch_event = functools.partial(
+        on_launch_pipeline_harmony, session
+    )
 
     session.event_hub.subscribe(
         'topic=ftrack.connect.application.launch and '

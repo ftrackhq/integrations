@@ -23,16 +23,28 @@ class HarmonyReviewablePublisherExporterPlugin(
             delete=False, suffix='.mp4'
         ).name
 
-        destination_path,extension = harmony_utils.get_image_sequence_path()
+        destination_path, extension = harmony_utils.get_image_sequence_path()
 
         os.chdir(destination_path)
 
         ff = FFmpeg()
 
-        self.logger.info('Transcoding {}*{} > {} using ffmpeg...'.format(destination_path, extension, full_path))
+        self.logger.info(
+            'Transcoding {}*{} > {} using ffmpeg...'.format(
+                destination_path, extension, full_path
+            )
+        )
 
-        if not ff.options("-framerate 24 -pattern_type glob -i '*{}' -c:v libx264 -pix_fmt yuv420p {}".format(extension, full_path)):
-            return False, {'message': 'Failed to transcode {} > {} using ffmpeg!'.format(destination_path, full_path)}
+        if not ff.options(
+            "-framerate 24 -pattern_type glob -i '*{}' -c:v libx264 -pix_fmt yuv420p {}".format(
+                extension, full_path
+            )
+        ):
+            return False, {
+                'message': 'Failed to transcode {} > {} using ffmpeg!'.format(
+                    destination_path, full_path
+                )
+            }
 
         return [full_path]
 
