@@ -330,7 +330,6 @@ class EntityBrowser(dialog.ModalDialog):
     def _on_entities_fetched(self, entities):
         '''Entities has been fetch, rebuild widget'''
         try:
-
             entities_widget = QtWidgets.QWidget()
             entities_widget.setLayout(QtWidgets.QVBoxLayout())
             entities_widget.layout().setContentsMargins(0, 0, 0, 0)
@@ -557,7 +556,6 @@ class EntityBrowserNavigator(InputEventBlockingWidget):
     def rebuild(self):
         '''Rebuild the navigator'''
         try:
-
             # Rebuild widget
 
             if self._is_browser:

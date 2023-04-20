@@ -2,6 +2,7 @@
 # :copyright: Copyright (c) 2014-2023 ftrack
 import tempfile
 import os
+import clique
 
 from pyffmpeg import FFmpeg
 
@@ -29,15 +30,27 @@ class HarmonyReviewablePublisherExporterPlugin(
 
         ff = FFmpeg()
 
+        if ff._ffmpeg_file.find(' ') > -1:
+            # Escape whitespace in ffmpeg executable path
+            ff._ffmpeg_file = '"{}"'.format(ff._ffmpeg_file)
+
+        files = []
+        for filename in os.listdir():
+            if filename.endswith(extension):
+                files.append(filename)
+
+        collections = clique.assemble(files)[0]
+        filename = collections[0].format().split(" ")[0]
+
         self.logger.info(
-            'Transcoding {}*{} > {} using ffmpeg...'.format(
-                destination_path, extension, full_path
+            'Transcoding {}{}*{} > {} using ffmpeg...'.format(
+                destination_path, os.sep, extension, full_path
             )
         )
 
         if not ff.options(
-            "-framerate 24 -pattern_type glob -i '*{}' -c:v libx264 -pix_fmt yuv420p {}".format(
-                extension, full_path
+            "-framerate 24 -i {} -c:v libx264 -pix_fmt yuv420p {}".format(
+                filename, full_path
             )
         ):
             return False, {

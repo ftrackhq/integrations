@@ -41,7 +41,6 @@ class AssetVersionListItem(QtWidgets.QFrame):
         self.layout().setSpacing(3)
 
     def build(self):
-
         self.thumbnail_widget = thumbnail.AssetVersion(self.session)
         self.thumbnail_widget.setScaledContents(True)
         self.thumbnail_widget.setMinimumSize(46, 32)

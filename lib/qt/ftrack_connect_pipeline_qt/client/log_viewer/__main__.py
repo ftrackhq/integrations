@@ -12,7 +12,6 @@ for path in deps_paths:
 
 
 if __name__ == '__main__':
-
     app = QtWidgets.QApplication.instance()
     if not app:
         app = QtWidgets.QApplication(sys.argv)
