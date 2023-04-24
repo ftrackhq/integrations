@@ -1,39 +1,48 @@
-# See http://help.github.com/ignore-files/ for more about ignoring files.
+# General
+*.py[cod]
 
-# compiled output
+# Packages
+*.egg
+*.egg-info
+*.eggs/*
 dist
-tmp
-/out-tsc
+build
+eggs
+parts
+bin
+var
+sdist
+develop-eggs
+.installed.cfg
+lib
+lib64
+__pycache__
 
-# dependencies
-node_modules
+# Installer logs
+pip-log.txt
 
-# IDEs and editors
-/.idea
-.project
-.classpath
-.c9/
-*.launch
-.settings/
-*.sublime-workspace
+# Unit test / coverage reports
+.coverage
+.tox
 
-# IDE - VSCode
-.vscode/*
-!.vscode/settings.json
-!.vscode/tasks.json
-!.vscode/launch.json
-!.vscode/extensions.json
+# Build files
+/resource/*.css
 
-# misc
-/.sass-cache
-/connect.lock
-/coverage
-/libpeerconnection.log
-npm-debug.log
-yarn-error.log
-testem.log
-/typings
-
-# System Files
-.DS_Store
+# Caches
+.sass-cache/
 Thumbs.db
+
+# Development
+.project
+.pydevproject
+.settings
+.idea/
+*.orig
+# SCM
+source/ftrack_connect_pipeline_qt/ui/resource.py
+source/ftrack_connect_pipeline_qt/_version.py
+
+# Pants workspace files
+/.pants.*
+/dist/
+/.pids
