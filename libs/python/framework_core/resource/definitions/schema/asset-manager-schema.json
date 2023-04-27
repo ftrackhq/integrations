@@ -1,0 +1,292 @@
+{
+  "title": "Asset_manager",
+  "type": "object",
+  "additionalProperties": false,
+  "definitions": {
+    "Config": {
+      "title": "Config",
+      "type": "object",
+      "required": [
+        "engine_type",
+        "type"
+      ],
+      "order":["type", "engine_type"],
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "type": "string",
+          "pattern": "^config$",
+          "default": "config"
+        },
+        "engine_type": {
+          "type": "string",
+          "default": "asset_manager"
+        }
+      }
+    },
+    "Plugin": {
+      "title": "Plugin",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "name",
+        "plugin",
+        "category",
+        "type",
+        "default_method"
+      ],
+      "order":["type", "category", "name", "description", "plugin", "widget", "options", "default_method"],
+      "properties": {
+        "category": {
+          "type": "string",
+          "pattern": "^plugin$",
+          "default": "plugin"
+        },
+        "type": {
+          "type": "string",
+          "pattern": "^base$",
+          "default": "base"
+        },
+        "name": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "plugin": {
+          "type": "string"
+        },
+        "widget": {
+          "type": "string"
+        },
+        "widget_ref": {
+          "type": "string"
+        },
+        "visible": {
+          "type": "boolean",
+          "default": true
+        },
+        "editable": {
+          "type": "boolean",
+          "default": true
+        },
+        "options": {
+          "type": "object",
+          "default": {}
+        },
+        "default_method": {
+          "type": "string",
+          "default": "run"
+        }
+      }
+    },
+    "ActionPlugin": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/Plugin"
+        }
+      ],
+      "properties": {
+        "type": {
+          "pattern": "^action$",
+          "default": "action"
+        }
+      }
+    },
+    "Action": {
+      "title": "Action",
+      "type": "object",
+      "required": [
+        "update",
+        "select",
+        "remove",
+        "load",
+        "unload"
+      ],
+      "order":[
+        "update",
+        "select",
+        "remove",
+        "load",
+        "unload"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "update": {
+          "type": "array",
+          "items": {
+            "allOf": [{"$ref": "#/definitions/ActionPlugin"}],
+            "properties": {
+                "type": {
+                  "pattern": "^action$",
+                  "default": "action"
+                },
+                "ui_callback": {
+                  "type": "string",
+                  "default": "ctx_update"
+                }
+              }
+          },
+          "minItems": 1
+        },
+        "select": {
+          "type": "array",
+          "default": [],
+          "items": {
+            "allOf": [{"$ref": "#/definitions/ActionPlugin"}],
+            "properties": {
+              "type": {
+                "pattern": "^action$",
+                "default": "action"
+              },
+              "ui_callback": {
+                "type": "string",
+                "default": "ctx_select"
+              }
+            }
+          }
+        },
+        "remove": {
+          "type": "array",
+          "default": [],
+          "items": {
+            "allOf": [{"$ref": "#/definitions/ActionPlugin"}],
+            "properties": {
+                "type": {
+                  "pattern": "^action$",
+                  "default": "action"
+                },
+                "ui_callback": {
+                  "type": "string",
+                  "default": "ctx_remove"
+                }
+              }
+          }
+        },
+        "load": {
+          "type": "array",
+          "default": [],
+          "items": {
+            "allOf": [{"$ref": "#/definitions/ActionPlugin"}],
+            "properties": {
+              "type": {
+                "pattern": "^action$",
+                "default": "action"
+              },
+              "ui_callback": {
+                "type": "string",
+                "default": "ctx_load"
+              }
+            }
+          }
+        },
+        "unload": {
+          "type": "array",
+          "default": [],
+          "items": {
+            "allOf": [{"$ref": "#/definitions/ActionPlugin"}],
+            "properties": {
+              "type": {
+                "pattern": "^action$",
+                "default": "action"
+              },
+              "ui_callback": {
+                "type": "string",
+                "default": "ctx_unload"
+              }
+            }
+          }
+        }
+      }
+    },
+    "ResolverPlugin": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/Plugin"
+        }
+      ],
+      "properties": {
+        "type": {
+          "pattern": "^resolver$",
+          "default": "resolver$"
+        }
+      }
+    },
+    "Resolver": {
+      "title": "Resolver",
+      "type": "object",
+      "required": [
+        "resolve_dependencies"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "resolve_dependencies": {
+          "type": "array",
+          "items": {
+            "allOf": [{"$ref": "#/definitions/ResolverPlugin"}],
+            "properties": {
+                "type": {
+                  "pattern": "^resolver$",
+                  "default": "resolver"
+                }
+              }
+          },
+          "minItems": 1
+        }
+      }
+    }
+  },
+  "required": [
+    "name",
+    "host_type",
+    "type",
+    "actions",
+    "resolvers",
+    "_config"
+  ],
+  "order":[
+    "type", "name", "host_type", "actions", "resolvers"
+  ],
+  "properties": {
+    "type": {
+      "type": "string",
+      "pattern": "^asset_manager$",
+      "default": "asset_manager$"
+    },
+    "name": {
+      "type": "string"
+    },
+    "host_type": {
+      "type": "string",
+      "default": null
+    },
+    "ui_type": {
+      "type": "string",
+      "default": null
+    },
+    "discover": {
+      "type": "array",
+      "items": {
+        "allOf": [{"$ref": "#/definitions/Plugin"}],
+        "properties": {
+            "type": {
+              "pattern": "^discover$",
+              "default": "discover"
+            }
+          }
+      },
+      "minItems": 0,
+      "maxItems": 1
+    },
+    "actions": {
+      "$ref": "#/definitions/Action"
+    },
+    "resolvers": {
+      "$ref": "#/definitions/Resolver"
+    },
+    "_config": {
+      "$ref": "#/definitions/Config",
+      "default": {}
+    }
+  }
+}

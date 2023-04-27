@@ -1,0 +1,28 @@
+name: Docs
+on:
+  push:
+    branches:
+      - main # Set a branch name to trigger deployment
+  pull_request:
+
+jobs:
+  docs:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
+      - name: Install dependencies
+        run: |
+          pip install sphinx sphinx_rtd_theme lowdown
+      - name: Sphinx build
+        run: |
+          sphinx-build doc public
+      - name: Deploy
+        uses: peaceiris/actions-gh-pages@v3
+        # Todo: uncheck this when you are ready to only deploy from main
+        if: ${{ github.ref == 'refs/heads/main' }}
+        with:
+          publish_branch: gh-pages
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: public
+          force_orphan: true
