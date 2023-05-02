@@ -1,14 +1,14 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2020 ftrack
 
-from ftrack_connect_pipeline.plugin import BasePlugin, BasePluginValidation
-from ftrack_connect_pipeline.constants import plugin
+from framework_core.plugin import BasePlugin, BasePluginValidation
+from framework_core.constants import plugin
 
 
 class BaseFinalizerPluginValidation(BasePluginValidation):
     '''
     Finalizer Plugin Validation class inherits from
-    :class:`~ftrack_connect_pipeline.plugin.BasePluginValidation`
+    :class:`~framework_core.plugin.BasePluginValidation`
     '''
 
     def __init__(
@@ -22,7 +22,7 @@ class BaseFinalizerPluginValidation(BasePluginValidation):
 class BaseFinalizerPlugin(BasePlugin):
     '''
     Base Finalizer Plugin Class inherits from
-    :class:`~ftrack_connect_pipeline.plugin.BasePlugin`
+    :class:`~framework_core.plugin.BasePlugin`
     '''
 
     return_type = dict

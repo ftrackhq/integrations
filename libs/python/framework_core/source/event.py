@@ -5,7 +5,7 @@ import threading
 
 import logging
 import ftrack_api
-from ftrack_connect_pipeline import constants
+from framework_core import constants
 import uuid
 
 logger = logging.getLogger(__name__)

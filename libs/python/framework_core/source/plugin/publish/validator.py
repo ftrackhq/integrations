@@ -1,14 +1,14 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2020 ftrack
 
-from ftrack_connect_pipeline import constants
-from ftrack_connect_pipeline.plugin import base
+from framework_core import constants
+from framework_core.plugin import base
 
 
 class PublisherValidatorPlugin(base.BaseValidatorPlugin):
     '''
     Base Publisher Validator Plugin Class inherits from
-    :class:`~ftrack_connect_pipeline.plugin.base.BaseValidatorPlugin`
+    :class:`~framework_core.plugin.base.BaseValidatorPlugin`
     '''
 
     return_type = bool

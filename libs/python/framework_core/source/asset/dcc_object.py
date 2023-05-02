@@ -2,7 +2,7 @@
 # :copyright: Copyright (c) 2014-2022 ftrack
 
 import logging
-from ftrack_connect_pipeline.constants import asset as asset_const
+from framework_core.constants import asset as asset_const
 
 
 class DccObject(dict):

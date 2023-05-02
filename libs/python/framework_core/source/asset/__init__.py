@@ -4,9 +4,9 @@
 import logging
 import unicodedata
 import re
-from ftrack_connect_pipeline.asset.asset_info import FtrackAssetInfo
-from ftrack_connect_pipeline.asset.dcc_object import DccObject
-from ftrack_connect_pipeline.constants import asset as asset_const
+from framework_core.asset.asset_info import FtrackAssetInfo
+from framework_core.asset.dcc_object import DccObject
+from framework_core.constants import asset as asset_const
 
 
 class FtrackObjectManager(object):
@@ -22,7 +22,7 @@ class FtrackObjectManager(object):
     def asset_info(self):
         '''
         Returns instance of
-        :class:`~ftrack_connect_pipeline.asset.FtrackAssetInfo`
+        :class:`~framework_core.asset.FtrackAssetInfo`
         '''
         return self._asset_info
 
@@ -30,7 +30,7 @@ class FtrackObjectManager(object):
     def asset_info(self, value):
         '''
         Sets the self :obj:`asset_info`,
-        *value* :class:`~ftrack_connect_pipeline.asset.FtrackAssetInfo`
+        *value* :class:`~framework_core.asset.FtrackAssetInfo`
         '''
         if not isinstance(value, FtrackAssetInfo):
             try:
@@ -46,7 +46,7 @@ class FtrackObjectManager(object):
     def dcc_object(self):
         '''
         Returns instance of
-        :class:`~ftrack_connect_pipeline.asset.DccObject`
+        :class:`~framework_core.asset.DccObject`
         '''
         return self._dcc_object
 
@@ -54,12 +54,12 @@ class FtrackObjectManager(object):
     def dcc_object(self, value):
         '''
         Sets the self :obj:`dcc_object`,
-        *value* :class:`~ftrack_connect_pipeline.asset.DccObject`
+        *value* :class:`~framework_core.asset.DccObject`
         '''
         if not isinstance(value, self.DccObject):
             raise ValueError(
                 'DccObject {} should be instance of '
-                ':class:`~ftrack_connect_pipeline.asset.DccObject`'
+                ':class:`~framework_core.asset.DccObject`'
             )
         if not self._check_sync(value):
             self._sync(value)
@@ -75,7 +75,7 @@ class FtrackObjectManager(object):
     @property
     def event_manager(self):
         '''Returns instance of
-        :class:`~ftrack_connect_pipeline.event.EventManager`'''
+        :class:`~framework_core.event.EventManager`'''
         return self._event_manager
 
     @property
@@ -103,7 +103,7 @@ class FtrackObjectManager(object):
     def __init__(self, event_manager):
         '''
         Initialize FtrackObjectManager with instance of
-        :class:`~ftrack_connect_pipeline.event.EventManager`
+        :class:`~framework_core.event.EventManager`
         '''
         super(FtrackObjectManager, self).__init__()
 
@@ -147,7 +147,7 @@ class FtrackObjectManager(object):
         if not isinstance(dcc_object, self.DccObject):
             raise ValueError(
                 'DccObject {} should be instance of '
-                ':class:`~ftrack_connect_pipeline.asset.DccObject`'
+                ':class:`~framework_core.asset.DccObject`'
             )
 
         synced = False

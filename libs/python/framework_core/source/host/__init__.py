@@ -8,14 +8,14 @@ import socket
 import os
 import time
 
-from ftrack_connect_pipeline.definition import collect, validate
-from ftrack_connect_pipeline.host import engine as host_engine
-from ftrack_connect_pipeline.host import validation
-from ftrack_connect_pipeline import constants, utils
+from framework_core.definition import collect, validate
+from framework_core.host import engine as host_engine
+from framework_core.host import validation
+from framework_core import constants, utils
 
 from functools import partial
-from ftrack_connect_pipeline.log.log_item import LogItem
-from ftrack_connect_pipeline.log import LogDB
+from framework_core.log.log_item import LogItem
+from framework_core.log import LogDB
 
 logger = logging.getLogger(__name__)
 
@@ -102,7 +102,7 @@ class Host(object):
     def __init__(self, event_manager):
         '''
         Initialise Host with instance of
-        :class:`~ftrack_connect_pipeline.event.EventManager`
+        :class:`~framework_core.event.EventManager`
         '''
         super(Host, self).__init__()
 
@@ -126,7 +126,7 @@ class Host(object):
         Returns result of the engine run.
 
         *event* : Published from the client host connection at
-        :meth:`~ftrack_connect_pipeline.client.HostConnection.run`
+        :meth:`~framework_core.client.HostConnection.run`
         '''
 
         data = event['data']['pipeline']['data']
@@ -166,7 +166,7 @@ class Host(object):
 
         *event* : Should be a validated and complete definitions, schema and
         packages dictionary coming from
-        :func:`ftrack_connect_pipeline_definition.resource.definitions.register.register_definitions`
+        :func:`framework_core_definition.resource.definitions.register.register_definitions`
         '''
 
         raw_result = event['data']
@@ -250,7 +250,7 @@ class Host(object):
         Returns a validated data.
 
         *data* : Should be a validated and complete definitions and schemas coming from
-        :func:`ftrack_connect_pipeline_definition.resource.definitions.register.register_definitions`
+        :func:`framework_core_definition.resource.definitions.register.register_definitions`
         '''
         plugin_validator = validation.PluginDiscoverValidation(
             self.session, self.host_types
@@ -287,7 +287,7 @@ class Host(object):
     def _on_client_notification(self, event):
         '''
         Callback of the
-        :const:`~ftrack_connect_pipeline.constants.PIPELINE_CLIENT_NOTIFICATION`
+        :const:`~framework_core.constants.PIPELINE_CLIENT_NOTIFICATION`
          event. Stores a log item in host pipeline log DB.
 
         *event*: :class:`ftrack_api.event.base.Event`
@@ -320,7 +320,7 @@ class Host(object):
 
         '''
         Subscribe to topic
-        :const:`~ftrack_connect_pipeline.constants.PIPELINE_CLIENT_NOTIFICATION`
+        :const:`~framework_core.constants.PIPELINE_CLIENT_NOTIFICATION`
         to receive client notifications from the host in :meth:`_notify_client`
         '''
         self.session.event_hub.subscribe(

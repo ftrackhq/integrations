@@ -1,21 +1,21 @@
 ftrack\_connect\_pipeline.constants
 ===========================================
 
-.. automodule:: ftrack_connect_pipeline.constants
+.. automodule:: framework_core.constants
     :members:
     :undoc-members:
     :show-inheritance:
 
 .. toctree::
 
-    ftrack_connect_pipeline.constants.asset
-    ftrack_connect_pipeline.constants.plugin
+    framework_core.constants.asset
+    framework_core.constants.plugin
 
 
 ftrack\_connect\_pipeline.constants.event
 ------------------------------------------------
 
-.. automodule:: ftrack_connect_pipeline.constants.event
+.. automodule:: framework_core.constants.event
     :members:
     :undoc-members:
     :show-inheritance:
@@ -23,7 +23,7 @@ ftrack\_connect\_pipeline.constants.event
 ftrack\_connect\_pipeline.constants.status
 -------------------------------------------------
 
-.. automodule:: ftrack_connect_pipeline.constants.status
+.. automodule:: framework_core.constants.status
     :members:
     :undoc-members:
     :show-inheritance:

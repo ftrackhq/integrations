@@ -8,7 +8,7 @@ import logging
 import copy
 from jsonref import JsonRef
 
-from ftrack_connect_pipeline import constants
+from framework_core import constants
 
 logger = logging.getLogger(__name__)
 

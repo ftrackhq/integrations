@@ -5,7 +5,7 @@ from collections.abc import MutableMapping, MutableSequence
 import copy
 import json
 
-from ftrack_connect_pipeline import constants
+from framework_core import constants
 
 
 class DefinitionObject(MutableMapping):

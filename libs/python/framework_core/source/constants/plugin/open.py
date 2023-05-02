@@ -1,7 +1,7 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2022 ftrack
 
-from ftrack_connect_pipeline.constants import plugin
+from framework_core.constants import plugin
 
 #: Opener plugin type for finalizer plugins
 PLUGIN_OPENER_FINALIZER_TYPE = 'opener.{}'.format(

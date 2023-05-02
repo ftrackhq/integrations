@@ -1,13 +1,13 @@
 # :copyright: Copyright (c) 2014-2020 ftrack
 
-from ftrack_connect_pipeline import constants
-from ftrack_connect_pipeline.plugin import base
+from framework_core import constants
+from framework_core.plugin import base
 
 
 class LoaderPostFinalizerPlugin(base.BasePostFinalizerPlugin):
     '''
     Base Loader Post Finalizer Plugin Class inherits from
-    :class:`~ftrack_connect_pipeline.plugin.base.BasePostFinalizerPlugin`
+    :class:`~framework_core.plugin.base.BasePostFinalizerPlugin`
     '''
 
     return_type = dict

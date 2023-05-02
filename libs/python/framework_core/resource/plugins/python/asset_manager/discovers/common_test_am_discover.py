@@ -2,7 +2,7 @@
 # :copyright: Copyright (c) 2014-2022 ftrack
 
 import ftrack_api
-from ftrack_connect_pipeline import plugin
+from framework_core import plugin
 
 
 class CommonTestAssetManagerDiscoverPlugin(plugin.AssetManagerDiscoverPlugin):

@@ -5,16 +5,16 @@ import json
 import six
 import base64
 
-from ftrack_connect_pipeline import constants
-from ftrack_connect_pipeline.plugin import base
-from ftrack_connect_pipeline.asset.asset_info import FtrackAssetInfo
-from ftrack_connect_pipeline.constants import asset as asset_const
+from framework_core import constants
+from framework_core.plugin import base
+from framework_core.asset.asset_info import FtrackAssetInfo
+from framework_core.constants import asset as asset_const
 
 
 class OpenerImporterPlugin(base.BaseImporterPlugin):
     '''
     Base Opener Importer Plugin Class inherits from
-    :class:`~ftrack_connect_pipeline.plugin.base.BaseImporterPlugin`
+    :class:`~framework_core.plugin.base.BaseImporterPlugin`
     '''
 
     return_type = dict

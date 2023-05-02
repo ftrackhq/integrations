@@ -23,7 +23,7 @@ sys.path.append(python_dependencies)
 
 def on_discover_pipeline(session, event):
 
-    from ftrack_connect_pipeline import __version__ as integration_version
+    from framework_core import __version__ as integration_version
 
     data = {
         'integration': {

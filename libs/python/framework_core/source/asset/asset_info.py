@@ -7,7 +7,7 @@ import uuid
 import base64
 import six
 import os
-from ftrack_connect_pipeline.constants import asset as constants
+from framework_core.constants import asset as constants
 
 
 class FtrackAssetInfo(dict):
@@ -153,7 +153,7 @@ class FtrackAssetInfo(dict):
         reference_object=None,
     ):
         '''
-        Returns an :class:`~ftrack_connect_pipeline.asset.FtrackAssetInfo` object
+        Returns an :class:`~framework_core.asset.FtrackAssetInfo` object
         generated from the given *asset_version_entity*, and *component_name*.
 
         *asset_version_entity* : :class:`ftrack_api.entity.asset_version.AssetVersion`

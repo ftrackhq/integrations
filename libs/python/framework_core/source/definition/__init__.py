@@ -5,9 +5,9 @@ import os
 import uuid
 import logging
 import ftrack_api
-from ftrack_connect_pipeline import event
-from ftrack_connect_pipeline import constants
-from ftrack_connect_pipeline.definition import collect, validate
+from framework_core import event
+from framework_core import constants
+from framework_core.definition import collect, validate
 
 logger = logging.getLogger(__name__)
 
@@ -26,7 +26,7 @@ class BaseDefinition(object):
     def event_manager(self):
         '''
         Returns instance of
-        :class:`~ftrack_connect_pipeline.event.EventManager`
+        :class:`~framework_core.event.EventManager`
         '''
         return self._event_manager
 

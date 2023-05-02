@@ -5,7 +5,7 @@ import logging
 import ftrack_api
 
 from jsonschema import validate as _validate_jsonschema
-from ftrack_connect_pipeline import constants
+from framework_core import constants
 
 logger = logging.getLogger(__name__)
 
@@ -188,7 +188,7 @@ class PluginDiscoverValidation(object):
     def _discover_plugin(self, plugin, plugin_type):
         '''
         Publish an event with the topic
-        :py:const:`~ftrack_connect_pipeline.constants.PIPELINE_DISCOVER_PLUGIN_TOPIC`
+        :py:const:`~framework_core.constants.PIPELINE_DISCOVER_PLUGIN_TOPIC`
         with the given *plugin* name and *plugin_type* as data to check that the
         pluging can be discovered with no issues.
 

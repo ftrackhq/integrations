@@ -6,7 +6,7 @@ import appdirs
 import tempfile
 import six
 
-from ftrack_connect_pipeline import constants as core_constants
+from framework_core import constants as core_constants
 
 
 def str_context(context, delimiter='/'):

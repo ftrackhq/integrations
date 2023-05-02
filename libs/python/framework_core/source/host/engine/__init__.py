@@ -5,10 +5,10 @@ import logging
 import ftrack_api
 import copy
 
-from ftrack_connect_pipeline import constants
-from ftrack_connect_pipeline.log.log_item import LogItem
-from ftrack_connect_pipeline.asset import FtrackObjectManager
-from ftrack_connect_pipeline.asset.dcc_object import DccObject
+from framework_core import constants
+from framework_core.log.log_item import LogItem
+from framework_core.asset import FtrackObjectManager
+from framework_core.asset.dcc_object import DccObject
 
 
 def getEngine(baseClass, engineType):
@@ -41,7 +41,7 @@ class BaseEngine(object):
     def ftrack_object_manager(self):
         '''
         Initializes and returns an instance of
-        :class:`~ftrack_connect_pipeline.asset.FtrackObjectManager`
+        :class:`~framework_core.asset.FtrackObjectManager`
         '''
         if not isinstance(
             self._ftrack_object_manager, self.FtrackObjectManager
@@ -55,7 +55,7 @@ class BaseEngine(object):
     def dcc_object(self):
         '''
         Returns the :obj:`dcc_object` from the
-        :class:`~ftrack_connect_pipeline.asset.FtrackObjectManager`
+        :class:`~framework_core.asset.FtrackObjectManager`
         '''
         return self.ftrack_object_manager.dcc_object
 
@@ -63,7 +63,7 @@ class BaseEngine(object):
     def dcc_object(self, value):
         '''
         Sets the :obj:`dcc_object` to the
-        :class:`~ftrack_connect_pipeline.asset.FtrackObjectManager`
+        :class:`~framework_core.asset.FtrackObjectManager`
         '''
         self.ftrack_object_manager.dcc_object = value
 
@@ -71,7 +71,7 @@ class BaseEngine(object):
     def asset_info(self):
         '''
         Returns the :obj:`asset_info` from the
-        :class:`~ftrack_connect_pipeline.asset.FtrackObjectManager`
+        :class:`~framework_core.asset.FtrackObjectManager`
         '''
         return self.ftrack_object_manager.asset_info
 
@@ -79,7 +79,7 @@ class BaseEngine(object):
     def asset_info(self, value):
         '''
         Sets the :obj:`asset_info` to the
-        :class:`~ftrack_connect_pipeline.asset.FtrackObjectManager`
+        :class:`~framework_core.asset.FtrackObjectManager`
         '''
         self.ftrack_object_manager.asset_info = value
 
@@ -96,7 +96,7 @@ class BaseEngine(object):
     def __init__(self, event_manager, host_types, host_id, asset_type_name):
         '''
         Initialise HostConnection with instance of
-        :class:`~ftrack_connect_pipeline.event.EventManager` , and *host*,
+        :class:`~framework_core.event.EventManager` , and *host*,
         *host_id* and *asset_type_name*
 
         *host* : Host type.. (ex: python, maya, nuke....)
@@ -276,7 +276,7 @@ class BaseEngine(object):
         Returns the result of the mentioned method.
 
         *data* : pipeline['data'] provided from the client host connection at
-        :meth:`~ftrack_connect_pipeline.client.HostConnection.run`
+        :meth:`~framework_core.client.HostConnection.run`
         '''
 
         method = data.get('method', 'run')
@@ -603,7 +603,7 @@ class BaseEngine(object):
         finalizer steps.
 
         *data* : pipeline['data'] provided from the client host connection at
-        :meth:`~ftrack_connect_pipeline.client.HostConnection.run` Should be a
+        :meth:`~framework_core.client.HostConnection.run` Should be a
         valid definition.
         '''
 
@@ -723,7 +723,7 @@ class BaseEngine(object):
         return finalizers_output
 
 
-from ftrack_connect_pipeline.host.engine.publish import *
-from ftrack_connect_pipeline.host.engine.load import *
-from ftrack_connect_pipeline.host.engine.open import *
-from ftrack_connect_pipeline.host.engine.asset_manager import *
+from framework_core.host.engine.publish import *
+from framework_core.host.engine.load import *
+from framework_core.host.engine.open import *
+from framework_core.host.engine.asset_manager import *

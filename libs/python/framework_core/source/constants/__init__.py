@@ -1,9 +1,9 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2020 ftrack
 
-#: Default ui type for ftrack_connect_pipeline
+#: Default ui type for framework_core
 UI_TYPE = None
-#: Default host type for ftrack_connect_pipeline
+#: Default host type for framework_core
 HOST_TYPE = 'python'
 
 #: Base name for events
@@ -65,45 +65,45 @@ DEFINITION_TYPES = [OPENER, LOADER, PUBLISHER, ASSET_MANAGER]
 
 # External events.
 #: Pipeline register topic event. Published by the
-#: :class:`~ftrack_connect_pipeline.host.Host` and used to register
+#: :class:`~framework_core.host.Host` and used to register
 #: the definitions module.
 #: `Definitions Docs <http://packages.python.org/an_example_pypi_project/>`_
 PIPELINE_REGISTER_TOPIC = '{}.register'.format(_BASE_)
 #: Pipeline run plugin topic event. Used to run the plugins. Published in
-#: :meth:`~ftrack_connect_pipeline.asset.FtrackAssetBase.change_version` and
-#: :meth:`~ftrack_connect_pipeline.host.engine.BaseEngine._run_plugin`.
+#: :meth:`~framework_core.asset.FtrackAssetBase.change_version` and
+#: :meth:`~framework_core.host.engine.BaseEngine._run_plugin`.
 #: Subscribed to run the plugins in
-#: :meth:`~ftrack_connect_pipeline.plugin.BasePlugin.register`
+#: :meth:`~framework_core.plugin.BasePlugin.register`
 PIPELINE_RUN_PLUGIN_TOPIC = '{}.run'.format(_BASE_)
 #: Pipeline discover plugin topic event. Used to discover the plugins. Published
-#: in :meth:`~ftrack_connect_pipeline.host.validation.PluginDiscoverValidation._discover_plugin`,
+#: in :meth:`~framework_core.host.validation.PluginDiscoverValidation._discover_plugin`,
 #: Subscribed to discover the plugins in
-#: :meth:`~ftrack_connect_pipeline.plugin.BasePlugin.register`
+#: :meth:`~framework_core.plugin.BasePlugin.register`
 PIPELINE_DISCOVER_PLUGIN_TOPIC = '{}.discover'.format(_BASE_)
 #: Pipeline host run plugin topic event. Used to communicate between client and
 #: host, by the host connection to make the host run the plugin. the plugins.
-#: Published in :meth:`~ftrack_connect_pipeline.client.HostConnection.run`,
+#: Published in :meth:`~framework_core.client.HostConnection.run`,
 #: and Subscribed in
-#: :meth:`~ftrack_connect_pipeline.host.on_register_definition`
+#: :meth:`~framework_core.host.on_register_definition`
 PIPELINE_HOST_RUN = '{}.host.run'.format(_BASE_)
 #: Pipeline client notification topic event. Used to communicate the result of
 #: the plugin execution from host to the client.
-#: Published in :meth:`~ftrack_connect_pipeline.host.engine.BaseEngine._notify_client`,
+#: Published in :meth:`~framework_core.host.engine.BaseEngine._notify_client`,
 #: and Subscribed in
-#: :meth:`~ftrack_connect_pipeline.client.on_client_notification`
+#: :meth:`~framework_core.client.on_client_notification`
 PIPELINE_CLIENT_NOTIFICATION = '{}.client.notification'.format(_BASE_)
 #: Pipeline client progress notification topic event. Used to communicate the result of
 #: the steps execution from host to the client.
-#: Published in :meth:`~ftrack_connect_pipeline.host.engine.BaseLoaderPublisherEngine._notify_progress_client`,
+#: Published in :meth:`~framework_core.host.engine.BaseLoaderPublisherEngine._notify_progress_client`,
 #: and Subscribed in
-#: :meth:`~ftrack_connect_pipeline.client.on_client_progress_notification`
+#: :meth:`~framework_core.client.on_client_progress_notification`
 PIPELINE_CLIENT_PROGRESS_NOTIFICATION = (
     '{}.client.progress.notification'.format(_BASE_)
 )
 #: Pipeline Discover host topic event. Used to discover available hosts.
-#: Published in :meth:`~ftrack_connect_pipeline.client._discover_hosts`,
+#: Published in :meth:`~framework_core.client._discover_hosts`,
 #: and Subscribed in
-#: :meth:`~ftrack_connect_pipeline.host.on_register_definition`
+#: :meth:`~framework_core.host.on_register_definition`
 PIPELINE_DISCOVER_HOST = '{}.host.discover'.format(_BASE_)
 
 # Launch a widget within a client
@@ -121,9 +121,9 @@ SNAPSHOT_COMPONENT_NAME = 'snapshot'
 FTRACKREVIEW_COMPONENT_NAME = 'ftrackreview'
 
 # Avoid circular dependencies.
-from ftrack_connect_pipeline.constants.plugin.load import *
-from ftrack_connect_pipeline.constants.plugin.open import *
-from ftrack_connect_pipeline.constants.plugin.publish import *
-from ftrack_connect_pipeline.constants.plugin.asset_manager import *
-from ftrack_connect_pipeline.constants.event import *
-from ftrack_connect_pipeline.constants.status import *
+from framework_core.constants.plugin.load import *
+from framework_core.constants.plugin.open import *
+from framework_core.constants.plugin.publish import *
+from framework_core.constants.plugin.asset_manager import *
+from framework_core.constants.event import *
+from framework_core.constants.status import *

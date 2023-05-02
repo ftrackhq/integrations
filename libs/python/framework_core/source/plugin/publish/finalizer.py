@@ -3,14 +3,14 @@
 import os
 import traceback
 
-from ftrack_connect_pipeline import constants
-from ftrack_connect_pipeline.plugin import base
+from framework_core import constants
+from framework_core.plugin import base
 
 
 class PublisherFinalizerPlugin(base.BaseFinalizerPlugin):
     '''
     Base Publisher Finalizer Plugin Class inherits from
-    :class:`~ftrack_connect_pipeline.plugin.base.BaseFinalizerPlugin`
+    :class:`~framework_core.plugin.base.BaseFinalizerPlugin`
     '''
 
     return_type = dict
@@ -83,8 +83,8 @@ class PublisherFinalizerPlugin(base.BaseFinalizerPlugin):
     def _run(self, event):
         '''
         Overrides the Callback function of the event
-        :const:`~ftrack_connect_pipeline.constants.PIPELINE_RUN_PLUGIN_TOPIC`
-        :meth:`ftrack_connect_pipeline.plugin._run`.
+        :const:`~framework_core.constants.PIPELINE_RUN_PLUGIN_TOPIC`
+        :meth:`framework_core.plugin._run`.
         Which runs the method passed in the given
         *event* ['data']['pipeline']['method'].
 
@@ -96,7 +96,7 @@ class PublisherFinalizerPlugin(base.BaseFinalizerPlugin):
         Returns a dictionary with the result information of the called method.
 
         *event* : Dictionary returned when the event topic
-        :const:`~ftrack_connect_pipeline.constants.PIPELINE_RUN_PLUGIN_TOPIC` is
+        :const:`~framework_core.constants.PIPELINE_RUN_PLUGIN_TOPIC` is
         called.
 
         '''

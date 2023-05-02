@@ -8,10 +8,10 @@ import uuid
 
 from six import string_types
 import ftrack_api
-from ftrack_connect_pipeline import constants
-from ftrack_connect_pipeline.log import LogDB
-from ftrack_connect_pipeline.log.log_item import LogItem
-from ftrack_connect_pipeline.definition import definition_object
+from framework_core import constants
+from framework_core.log import LogDB
+from framework_core.log.log_item import LogItem
+from framework_core.definition import definition_object
 
 
 class HostConnection(object):
@@ -36,7 +36,7 @@ class HostConnection(object):
     @property
     def event_manager(self):
         '''Returns instance of
-        :class:`~ftrack_connect_pipeline.event.EventManager`'''
+        :class:`~framework_core.event.EventManager`'''
         return self._event_manager
 
     @property
@@ -149,10 +149,10 @@ class HostConnection(object):
 
     def __init__(self, event_manager, host_data):
         '''Initialise HostConnection with instance of
-        :class:`~ftrack_connect_pipeline.event.EventManager` , and *host_data*
+        :class:`~framework_core.event.EventManager` , and *host_data*
 
         *host_data* : Dictionary containing the host information.
-        :py:func:`~ftrack_connect_pipeline.host.provide_host_information`
+        :py:func:`~framework_core.host.provide_host_information`
 
         '''
         self.logger = logging.getLogger(
@@ -169,7 +169,7 @@ class HostConnection(object):
     def run(self, data, engine, callback=None):
         '''
         Publish an event with the topic
-        :py:const:`~ftrack_connect_pipeline.constants.PIPELINE_HOST_RUN`
+        :py:const:`~framework_core.constants.PIPELINE_HOST_RUN`
         with the given *data* and *engine*.
         '''
         event = ftrack_api.event.base.Event(
@@ -254,14 +254,14 @@ class Client(object):
     @property
     def event_manager(self):
         '''Returns instance of
-        :class:`~ftrack_connect_pipeline.event.EventManager`'''
+        :class:`~framework_core.event.EventManager`'''
         return self._event_manager
 
     @property
     def connected(self):
         '''
         Returns True if client is connected to a
-        :class:`~ftrack_connect_pipeline.host.HOST`'''
+        :class:`~framework_core.host.HOST`'''
         return self._connected
 
     @property
@@ -306,7 +306,7 @@ class Client(object):
     def host_connection(self):
         '''
         Return instance of
-        :class:`~ftrack_connect_pipeline.client.HostConnection`
+        :class:`~framework_core.client.HostConnection`
         '''
         return Client._host_connection
 
@@ -316,7 +316,7 @@ class Client(object):
         Assign the host_connection to the given *value*
 
         *value* : should be instance of
-        :class:`~ftrack_connect_pipeline.client.HostConnection`
+        :class:`~framework_core.client.HostConnection`
         '''
         if value is None or (
             self.host_connection and value.id == self.host_connection.id
@@ -380,7 +380,7 @@ class Client(object):
     def __init__(self, event_manager, multithreading_enabled=True):
         '''
         Initialise Client with instance of
-        :class:`~ftrack_connect_pipeline.event.EventManager`
+        :class:`~framework_core.event.EventManager`
         '''
         self._current = {}
         self.context_change_subscribe_id = None
@@ -402,7 +402,7 @@ class Client(object):
     def discover_hosts(self, force_rediscover=False, time_out=3):
         '''
         Find for available hosts during the optional *time_out* and Returns
-        a list of discovered :class:`~ftrack_connect_pipeline.client.HostConnection`.
+        a list of discovered :class:`~framework_core.client.HostConnection`.
 
         Skip this and use existing singleton host connection if previously detected,
         unless *force_rediscover* is True.
@@ -444,9 +444,9 @@ class Client(object):
     def _discover_hosts(self):
         '''
         Publish an event with the topic
-        :py:data:`~ftrack_connect_pipeline.constants.PIPELINE_DISCOVER_HOST`
+        :py:data:`~framework_core.constants.PIPELINE_DISCOVER_HOST`
         with the callback
-        py:meth:`~ftrack_connect_pipeline.client._host_discovered`
+        py:meth:`~framework_core.client._host_discovered`
         '''
         self.host_connections = []  # Start over
         discover_event = ftrack_api.event.base.Event(
@@ -459,8 +459,8 @@ class Client(object):
 
     def _host_discovered(self, event):
         '''
-        Callback, add the :class:`~ftrack_connect_pipeline.client.HostConnection`
-        of the new discovered :class:`~ftrack_connect_pipeline.host.HOST` from
+        Callback, add the :class:`~framework_core.client.HostConnection`
+        of the new discovered :class:`~framework_core.host.HOST` from
         the given *event*.
 
         *event*: :class:`ftrack_api.event.base.Event`
@@ -480,7 +480,7 @@ class Client(object):
     def filter_host(self, host_connection):
         '''Return True if the *host_connection* should be considered
 
-        *host_connection*: :class:`ftrack_connect_pipeline.client.HostConnection`
+        *host_connection*: :class:`framework_core.client.HostConnection`
         '''
         # On the discovery time context id could be None, so we have to consider
         # hosts with non context id. This method could be useful later on to
@@ -538,7 +538,7 @@ class Client(object):
 
     def run_definition(self, definition=None, engine_type=None):
         '''
-        Calls the :meth:`~ftrack_connect_pipeline.client.HostConnection.run`
+        Calls the :meth:`~framework_core.client.HostConnection.run`
         to run the entire given *definition* with the given *engine_type*.
 
         Callback received at :meth:`_run_callback`
@@ -604,7 +604,7 @@ class Client(object):
 
     def run_plugin(self, plugin_data, method, engine_type):
         '''
-        Calls the :meth:`~ftrack_connect_pipeline.client.HostConnection.run`
+        Calls the :meth:`~framework_core.client.HostConnection.run`
         to run one single plugin.
 
         Callback received at :meth:`_run_callback`
@@ -629,7 +629,7 @@ class Client(object):
         )
 
     def _run_callback(self, event):
-        '''Callback of the :meth:`~ftrack_connect_pipeline.client.run_plugin'''
+        '''Callback of the :meth:`~framework_core.client.run_plugin'''
         self.logger.debug("_run_callback event: {}".format(event))
 
     def on_ready(self, callback, time_out=3):
@@ -653,7 +653,7 @@ class Client(object):
     def on_client_notification(self):
         '''
         Subscribe to topic
-        :const:`~ftrack_connect_pipeline.constants.PIPELINE_CLIENT_NOTIFICATION`
+        :const:`~framework_core.constants.PIPELINE_CLIENT_NOTIFICATION`
         to receive client notifications from the host in :meth:`_notify_client`
         '''
         self.session.event_hub.subscribe(
@@ -666,7 +666,7 @@ class Client(object):
     def _notify_client(self, event):
         '''
         Callback of the
-        :const:`~ftrack_connect_pipeline.constants.PIPELINE_CLIENT_NOTIFICATION`
+        :const:`~framework_core.constants.PIPELINE_CLIENT_NOTIFICATION`
          event.
 
         *event*: :class:`ftrack_api.event.base.Event`

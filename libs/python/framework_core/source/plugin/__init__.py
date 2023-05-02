@@ -8,11 +8,11 @@ import time
 import traceback
 import copy
 import uuid
-from ftrack_connect_pipeline import constants
-from ftrack_connect_pipeline import exception
-from ftrack_connect_pipeline import event
-from ftrack_connect_pipeline.asset import FtrackObjectManager
-from ftrack_connect_pipeline.asset.dcc_object import DccObject
+from framework_core import constants
+from framework_core import exception
+from framework_core import event
+from framework_core.asset import FtrackObjectManager
+from framework_core.asset.dcc_object import DccObject
 
 
 class BasePluginValidation(object):
@@ -163,7 +163,7 @@ class BasePlugin(object):
     def ftrack_object_manager(self):
         '''
         Initializes and returns an instance of
-        :class:`~ftrack_connect_pipeline.asset.FtrackObjectManager`
+        :class:`~framework_core.asset.FtrackObjectManager`
         '''
         if not isinstance(
             self._ftrack_object_manager, self.FtrackObjectManager
@@ -177,7 +177,7 @@ class BasePlugin(object):
     def dcc_object(self):
         '''
         Returns the :obj:`dcc_object` from the
-        :class:`~ftrack_connect_pipeline.asset.FtrackObjectManager`
+        :class:`~framework_core.asset.FtrackObjectManager`
         '''
         return self.ftrack_object_manager.dcc_object
 
@@ -185,7 +185,7 @@ class BasePlugin(object):
     def dcc_object(self, value):
         '''
         Sets the :obj:`dcc_object` to the
-        :class:`~ftrack_connect_pipeline.asset.FtrackObjectManager`
+        :class:`~framework_core.asset.FtrackObjectManager`
         '''
         self.ftrack_object_manager.dcc_object = value
 
@@ -193,7 +193,7 @@ class BasePlugin(object):
     def asset_info(self):
         '''
         Returns the :obj:`asset_info` from the
-        :class:`~ftrack_connect_pipeline.asset.FtrackObjectManager`
+        :class:`~framework_core.asset.FtrackObjectManager`
         '''
         return self.ftrack_object_manager.asset_info
 
@@ -201,7 +201,7 @@ class BasePlugin(object):
     def asset_info(self, value):
         '''
         Sets the :obj:`asset_info` to the
-        :class:`~ftrack_connect_pipeline.asset.FtrackObjectManager`
+        :class:`~framework_core.asset.FtrackObjectManager`
         '''
         self.ftrack_object_manager.asset_info = value
 
@@ -231,7 +231,7 @@ class BasePlugin(object):
     def event_manager(self):
         '''
         Returns instance of
-        :class:`~ftrack_connect_pipeline.event.EventManager`
+        :class:`~framework_core.event.EventManager`
         '''
         return self._event_manager
 
@@ -283,7 +283,7 @@ class BasePlugin(object):
 
         *topic* topic base value
 
-        Raise :exc:`ftrack_connect_pipeline.exception.PluginError` if some
+        Raise :exc:`framework_core.exception.PluginError` if some
         information is missed.
         '''
 
@@ -319,10 +319,10 @@ class BasePlugin(object):
             This function subscribes the plugin to two
             :class:`ftrack_api.event.base.Event` topics:
 
-            :const:`~ftrack_connect_pipeline.constants.PIPELINE_DISCOVER_PLUGIN_TOPIC`:
+            :const:`~framework_core.constants.PIPELINE_DISCOVER_PLUGIN_TOPIC`:
             Topic to make the plugin discoverable for the host.
 
-            :const:`~ftrack_connect_pipeline.constants.PIPELINE_RUN_PLUGIN_TOPIC`:
+            :const:`~framework_core.constants.PIPELINE_RUN_PLUGIN_TOPIC`:
             Topic to execute the plugin
         '''
         if not isinstance(self.session, ftrack_api.Session):
@@ -341,7 +341,7 @@ class BasePlugin(object):
     def _discover(self, event):
         '''
         Callback of
-        :const:`~ftrack_connect_pipeline.constants.PIPELINE_DISCOVER_PLUGIN_TOPIC`
+        :const:`~framework_core.constants.PIPELINE_DISCOVER_PLUGIN_TOPIC`
         Makes sure the plugin is discoverable for the host.
 
         '''
@@ -445,14 +445,14 @@ class BasePlugin(object):
     def _run(self, event):
         '''
         Callback function of the event
-        :const:`~ftrack_connect_pipeline.constants.PIPELINE_RUN_PLUGIN_TOPIC`
+        :const:`~framework_core.constants.PIPELINE_RUN_PLUGIN_TOPIC`
         Runs the method passed in the given
         *event* ['data']['pipeline']['method'].
 
         Returns a dictionary with the result information of the called method.
 
         *event* : Dictionary returned when the event topic
-        :const:`~ftrack_connect_pipeline.constants.PIPELINE_RUN_PLUGIN_TOPIC` is
+        :const:`~framework_core.constants.PIPELINE_RUN_PLUGIN_TOPIC` is
         called.
 
         '''
@@ -584,7 +584,7 @@ class BasePlugin(object):
         raise NotImplementedError('Missing fetch method.')
 
 
-from ftrack_connect_pipeline.plugin.load import *
-from ftrack_connect_pipeline.plugin.open import *
-from ftrack_connect_pipeline.plugin.publish import *
-from ftrack_connect_pipeline.plugin.asset_manager import *
+from framework_core.plugin.load import *
+from framework_core.plugin.open import *
+from framework_core.plugin.publish import *
+from framework_core.plugin.asset_manager import *

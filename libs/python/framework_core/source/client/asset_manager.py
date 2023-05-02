@@ -2,8 +2,8 @@
 # :copyright: Copyright (c) 2014-2020 ftrack
 from functools import partial
 
-from ftrack_connect_pipeline.client import Client
-from ftrack_connect_pipeline import constants as core_constants
+from framework_core.client import Client
+from framework_core import constants as core_constants
 
 
 class AssetManagerClient(Client):
@@ -16,7 +16,7 @@ class AssetManagerClient(Client):
 
     def __init__(self, event_manager, multithreading_enabled=True):
         '''Initialise AssetManagerClient with instance of
-        :class:`~ftrack_connect_pipeline.event.EventManager`
+        :class:`~framework_core.event.EventManager`
         '''
         super(AssetManagerClient, self).__init__(
             event_manager, multithreading_enabled=multithreading_enabled
@@ -54,9 +54,9 @@ class AssetManagerClient(Client):
         self, context_id, resolve_dependencies_callback, options=None
     ):
         '''
-        Calls the :meth:`~ftrack_connect_pipeline.client.HostConnection.run`
+        Calls the :meth:`~framework_core.client.HostConnection.run`
         to run the method
-        :meth:`~ftrack_connect_pipeline.host.engine.AssetManagerEngine.resolve_dependencies`
+        :meth:`~framework_core.host.engine.AssetManagerEngine.resolve_dependencies`
         To fetch list of version dependencies on the given *context_id*.
 
         Callback received *resolve_dependencies_callback*
@@ -104,9 +104,9 @@ class AssetManagerClient(Client):
 
     def discover_assets(self, plugin=None):
         '''
-        Calls the :meth:`ftrack_connect_pipeline.client.HostConnection.run`
+        Calls the :meth:`framework_core.client.HostConnection.run`
         to run the method
-        :meth:`ftrack_connect_pipeline.host.engine.AssetManagerEngine.discover_assets`
+        :meth:`framework_core.host.engine.AssetManagerEngine.discover_assets`
 
         Callback received at :meth:`_asset_discovered_callback`
 
@@ -134,15 +134,15 @@ class AssetManagerClient(Client):
 
     def load_assets(self, asset_info_list):
         '''
-        Calls the :meth:`~ftrack_connect_pipeline.client.HostConnection.run`
+        Calls the :meth:`~framework_core.client.HostConnection.run`
         to run the method
-        :meth:`~ftrack_connect_pipeline.host.engine.AssetManagerEngine.load_assets`
+        :meth:`~framework_core.host.engine.AssetManagerEngine.load_assets`
         To load the assets of the given *asset_info_list*.
 
         Callback received at :meth:`_load_assets_callback`
 
         *asset_info_list* : Should a list pf be instances of
-        :class:`~ftrack_connect_pipeline.asset.FtrackAssetInfo`
+        :class:`~framework_core.asset.FtrackAssetInfo`
         '''
 
         data = {
@@ -165,13 +165,13 @@ class AssetManagerClient(Client):
 
     def select_assets(self, asset_info_list):
         '''
-        Calls the :meth:`~ftrack_connect_pipeline.client.HostConnection.run`
+        Calls the :meth:`~framework_core.client.HostConnection.run`
         to run the method
-        :meth:`~ftrack_connect_pipeline.host.engine.AssetManagerEngine.select_assets`
+        :meth:`~framework_core.host.engine.AssetManagerEngine.select_assets`
         To select the assets of the given *asset_info_list*
 
         *asset_info_list* : Should a list pf be instances of
-        :class:`~ftrack_connect_pipeline.asset.FtrackAssetInfo`
+        :class:`~framework_core.asset.FtrackAssetInfo`
         '''
         data = {
             'method': 'select_assets',
@@ -184,15 +184,15 @@ class AssetManagerClient(Client):
 
     def update_assets(self, asset_info_list, plugin):
         '''
-        Calls the :meth:`~ftrack_connect_pipeline.client.HostConnection.run`
+        Calls the :meth:`~framework_core.client.HostConnection.run`
         to run the method
-        :meth:`~ftrack_connect_pipeline.host.engine.AssetManagerEngine.update_assets`
+        :meth:`~framework_core.host.engine.AssetManagerEngine.update_assets`
         To update to the last version the assets of the given *asset_info_list*.
 
         Callback received at :meth:`_update_assets_callback`
 
         *asset_info_list* : Should a list pf be instances of
-        :class:`~ftrack_connect_pipeline.asset.FtrackAssetInfo`
+        :class:`~framework_core.asset.FtrackAssetInfo`
 
         *plugin* : The plugin definition of the plugin to run during the update_assets
         method
@@ -221,15 +221,15 @@ class AssetManagerClient(Client):
 
     def change_version(self, asset_info, new_version_id):
         '''
-        Calls the :meth:`ftrack_connect_pipeline.client.HostConnection.run`
+        Calls the :meth:`framework_core.client.HostConnection.run`
         to run the method
-        :meth:`ftrack_connect_pipeline.host.engine.AssetManagerEngine.change_version`
+        :meth:`framework_core.host.engine.AssetManagerEngine.change_version`
         To change the version of the given *asset_info*.
 
         Callback received at :meth:`_change_version_callback`
 
         *asset_info* : Should be instance of
-        :class:`ftrack_connect_pipeline.asset.FtrackAssetInfo`
+        :class:`framework_core.asset.FtrackAssetInfo`
 
         *new_version_id* : Should be an AssetVersion id.
         '''
@@ -255,15 +255,15 @@ class AssetManagerClient(Client):
 
     def unload_assets(self, asset_info_list):
         '''
-        Calls the :meth:`~ftrack_connect_pipeline.client.HostConnection.run`
+        Calls the :meth:`~framework_core.client.HostConnection.run`
         to run the method
-        :meth:`~ftrack_connect_pipeline.host.engine.AssetManagerEngine.unload_assets`
+        :meth:`~framework_core.host.engine.AssetManagerEngine.unload_assets`
         To unload the assets of the given *asset_info_list*.
 
         Callback received at :meth:`_unload_assets_callback`
 
         *asset_info_list* : Should a list pf be instances of
-        :class:`~ftrack_connect_pipeline.asset.FtrackAssetInfo`
+        :class:`~framework_core.asset.FtrackAssetInfo`
         '''
 
         data = {
@@ -286,15 +286,15 @@ class AssetManagerClient(Client):
 
     def remove_assets(self, asset_info_list):
         '''
-        Calls the :meth:`~ftrack_connect_pipeline.client.HostConnection.run`
+        Calls the :meth:`~framework_core.client.HostConnection.run`
         to run the method
-        :meth:`~ftrack_connect_pipeline.host.engine.AssetManagerEngine.remove_assets`
+        :meth:`~framework_core.host.engine.AssetManagerEngine.remove_assets`
         To remove the assets of the given *asset_info_list*.
 
         Callback received at :meth:`_remove_assets_callback`
 
         *asset_info_list* : Should a list pf be instances of
-        :class:`~ftrack_connect_pipeline.asset.FtrackAssetInfo`
+        :class:`~framework_core.asset.FtrackAssetInfo`
         '''
 
         data = {

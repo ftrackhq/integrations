@@ -3,14 +3,14 @@
 
 import os
 
-from ftrack_connect_pipeline import constants
-from ftrack_connect_pipeline.plugin import base
+from framework_core import constants
+from framework_core.plugin import base
 
 
 class PublisherPreFinalizerPlugin(base.BasePreFinalizerPlugin):
     '''
     Base Publisher Pre Finalizer Plugin Class inherits from
-    :class:`~ftrack_connect_pipeline.plugin.base.BasePreFinalizerPlugin`
+    :class:`~framework_core.plugin.base.BasePreFinalizerPlugin`
     '''
 
     return_type = dict

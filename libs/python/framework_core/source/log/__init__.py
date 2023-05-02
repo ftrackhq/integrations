@@ -13,7 +13,7 @@ import traceback
 import datetime
 import time
 
-from ftrack_connect_pipeline.log.log_item import LogItem
+from framework_core.log.log_item import LogItem
 
 
 class ResultEncoder(JSONEncoder):
@@ -147,7 +147,7 @@ class LogDB(object):
 
     def add_log_item(self, log_item):
         '''
-        Stores a :class:`~ftrack_connect_pipeline.log.log_item.LogItem` in
+        Stores a :class:`~framework_core.log.log_item.LogItem` in
         persistent log database.
         '''
         try:
@@ -187,7 +187,7 @@ class LogDB(object):
 
     def get_log_items(self, host_id):
         '''
-        Stores a :class:`~ftrack_connect_pipeline.log.log_item.LogItem` in
+        Stores a :class:`~framework_core.log.log_item.LogItem` in
         persistent log database.
         '''
 
@@ -226,7 +226,7 @@ class LogDB(object):
 
     def get_log_items_by_plugin_id(self, host_id, plugin_id):
         '''
-        Stores a :class:`~ftrack_connect_pipeline.log.log_item.LogItem` in
+        Stores a :class:`~framework_core.log.log_item.LogItem` in
         persistent log database.
         '''
 

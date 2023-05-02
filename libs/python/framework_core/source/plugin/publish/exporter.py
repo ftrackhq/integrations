@@ -1,14 +1,14 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2020 ftrack
 
-from ftrack_connect_pipeline import constants
-from ftrack_connect_pipeline.plugin import base
+from framework_core import constants
+from framework_core.plugin import base
 
 
 class PublisherExporterPlugin(base.BaseExporterPlugin):
     '''
     Base Publisher Output Plugin Class inherits from
-    :class:`~ftrack_connect_pipeline.plugin.base.BaseExporterPlugin`
+    :class:`~framework_core.plugin.base.BaseExporterPlugin`
     '''
 
     return_type = list
