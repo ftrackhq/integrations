@@ -23,7 +23,7 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'source'))
 
 # -- Project information -----------------------------------------------------
 
-project = u'ftrack-connect-pipeline'
+project = u'framework-core'
 copyright = u'2020, ftrack'
 author = u'ftrack'
 
@@ -134,7 +134,7 @@ html_copy_source = True
 # -- Options for HTMLHelp output ---------------------------------------------
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'ftrack-connect-pipelinedoc'
+htmlhelp_basename = 'framework-coredoc'
 autodoc_mock_imports = ['jsonschema', 'jsonref', 'python_jsonschema_objects']
 
 # -- Options for LaTeX output ------------------------------------------------
@@ -160,8 +160,8 @@ latex_elements = {
 latex_documents = [
     (
         master_doc,
-        'ftrack-connect-pipeline.tex',
-        u'ftrack-connect-pipeline Documentation',
+        'framework-core.tex',
+        u'framework-core Documentation',
         u'ftrack',
         'manual',
     ),
@@ -175,8 +175,8 @@ latex_documents = [
 man_pages = [
     (
         master_doc,
-        'ftrack-connect-pipeline',
-        u'ftrack-connect-pipeline Documentation',
+        'framework-core',
+        u'framework-core Documentation',
         [author],
         1,
     )
@@ -191,10 +191,10 @@ man_pages = [
 texinfo_documents = [
     (
         master_doc,
-        'ftrack-connect-pipeline',
-        u'ftrack-connect-pipeline Documentation',
+        'framework-core',
+        u'framework-core Documentation',
         author,
-        'ftrack-connect-pipeline',
+        'framework-core',
         'One line description of project.',
         'Miscellaneous',
     ),

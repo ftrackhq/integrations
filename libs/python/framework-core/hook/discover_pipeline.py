@@ -7,7 +7,7 @@ import ftrack_api
 import logging
 import functools
 
-NAME = 'ftrack-connect-pipeline'
+NAME = 'framework-core'
 VERSION = '0.1.0'
 
 logger = logging.getLogger('{}.hook'.format(NAME.replace('-', '_')))
@@ -27,7 +27,7 @@ def on_discover_pipeline(session, event):
 
     data = {
         'integration': {
-            'name': 'ftrack-connect-pipeline',
+            'name': 'framework-core',
             'version': integration_version,
         }
     }

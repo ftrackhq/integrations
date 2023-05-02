@@ -9,7 +9,7 @@ Customise
 
 Here follows some general customisations guidelines on each Framework module.
 
-ftrack-connect-pipeline
+framework-core
 -----------------------
 
 Generally you will never need to touch the core module in order to customise your
@@ -34,7 +34,7 @@ augment the look and feel of the integrations, or if you seek to supply new widg
 that is to be used across DCC integrations.
 
 
-ftrack-connect-pipeline-host_type
+framework-core-host_type
 ---------------------------------
 
 The module repository were you would make changes to each individual DCC

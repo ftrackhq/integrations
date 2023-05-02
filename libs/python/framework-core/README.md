@@ -1,1 +1,1 @@
-# ftrack-connect-pipeline
+# framework-core
