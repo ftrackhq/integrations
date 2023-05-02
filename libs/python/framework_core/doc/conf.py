@@ -23,7 +23,7 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'source'))
 
 # -- Project information -----------------------------------------------------
 
-project = u'framework-core'
+project = u'framework_core'
 copyright = u'2020, ftrack'
 author = u'ftrack'
 
@@ -134,7 +134,7 @@ html_copy_source = True
 # -- Options for HTMLHelp output ---------------------------------------------
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'framework-coredoc'
+htmlhelp_basename = 'framework_coredoc'
 autodoc_mock_imports = ['jsonschema', 'jsonref', 'python_jsonschema_objects']
 
 # -- Options for LaTeX output ------------------------------------------------
@@ -160,8 +160,8 @@ latex_elements = {
 latex_documents = [
     (
         master_doc,
-        'framework-core.tex',
-        u'framework-core Documentation',
+        'framework_core.tex',
+        u'framework_core Documentation',
         u'ftrack',
         'manual',
     ),
@@ -175,8 +175,8 @@ latex_documents = [
 man_pages = [
     (
         master_doc,
-        'framework-core',
-        u'framework-core Documentation',
+        'framework_core',
+        u'framework_core Documentation',
         [author],
         1,
     )
@@ -191,10 +191,10 @@ man_pages = [
 texinfo_documents = [
     (
         master_doc,
-        'framework-core',
-        u'framework-core Documentation',
+        'framework_core',
+        u'framework_core Documentation',
         author,
-        'framework-core',
+        'framework_core',
         'One line description of project.',
         'Miscellaneous',
     ),

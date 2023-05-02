@@ -45,7 +45,7 @@ class BuildPlugin(setuptools.Command):
         VERSION = '.'.join(release.split('.')[:3])
         global STAGING_PATH
         STAGING_PATH = os.path.join(
-            BUILD_PATH, 'framework-core-{}'.format(VERSION)
+            BUILD_PATH, 'framework_core-{}'.format(VERSION)
         )
 
         '''Run the build step.'''
@@ -75,7 +75,7 @@ class BuildPlugin(setuptools.Command):
 
         result_path = shutil.make_archive(
             os.path.join(
-                BUILD_PATH, 'framework-core-{0}'.format(VERSION)
+                BUILD_PATH, 'framework_core-{0}'.format(VERSION)
             ),
             'zip',
             STAGING_PATH,
@@ -109,11 +109,11 @@ __version__ = {version!r}
 
 # Configuration.
 setup(
-    name='framework-core',
+    name='framework_core',
     description='Ftrack core pipeline integration framework library.',
     long_description=open(README_PATH).read(),
     keywords='ftrack',
-    url='https://github.com/ftrackhq/integrations/libs/python/framework-core',
+    url='https://github.com/ftrackhq/integrations/libs/python/framework_core',
     author='ftrack',
     author_email='support@ftrack.com',
     license='Apache License (2.0)',

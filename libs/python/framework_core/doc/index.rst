@@ -1,4 +1,4 @@
-.. framework-core documentation master file, created by
+.. framework_core documentation master file, created by
    sphinx-quickstart on Tue Dec  1 12:12:15 2020.
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
@@ -8,7 +8,7 @@ ftrack Connect Pipeline Framework
 #################################
 
 
-Welcome to framework-core's documentation!
+Welcome to framework_core's documentation!
 
 .. important::
 

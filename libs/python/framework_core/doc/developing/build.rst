@@ -15,7 +15,7 @@ Create a virtual environment
  #. Download and install/build latest Python 3.7, see below for reasoning on which Python version to use.
  #. Install virtualenv.
  #. Create a virtual env.
- #. Change folder to framework-core
+ #. Change folder to framework_core
 
 
 Run::
@@ -41,7 +41,7 @@ Building the Framework
 The process of building a Framework plugin is the same:
 
  #. Activate the virtual env created above.
- #. Change folder to framework-core
+ #. Change folder to framework_core
 
 Run::
 
@@ -87,7 +87,7 @@ Building the Framework
 The process of building a Framework plugin is the same:
 
  #. Activate the virtual env created above.
- #. Change folder to framework-core
+ #. Change folder to framework_core
 
 Run::
 

@@ -9,7 +9,7 @@ Customise
 
 Here follows some general customisations guidelines on each Framework module.
 
-framework-core
+framework_core
 -----------------------
 
 Generally you will never need to touch the core module in order to customise your
@@ -34,7 +34,7 @@ augment the look and feel of the integrations, or if you seek to supply new widg
 that is to be used across DCC integrations.
 
 
-framework-core-host_type
+framework_core-host_type
 ---------------------------------
 
 The module repository were you would make changes to each individual DCC
