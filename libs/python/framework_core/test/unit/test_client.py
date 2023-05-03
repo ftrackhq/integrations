@@ -1,6 +1,6 @@
 import functools
-from ftrack_connect_pipeline import client
-from ftrack_connect_pipeline import constants
+from framework_core import client
+from framework_core import constants
 
 
 def test_initialise(event_manager):

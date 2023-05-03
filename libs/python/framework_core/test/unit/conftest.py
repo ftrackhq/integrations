@@ -7,9 +7,9 @@ import ftrack_api
 import json
 import functools
 
-from ftrack_connect_pipeline import event
-from ftrack_connect_pipeline import constants
-from ftrack_connect_pipeline import host as test_host
+from framework_core import event
+from framework_core import constants
+from framework_core import host as test_host
 from ftrack_connect_pipeline.definition import collect_and_validate
 
 
