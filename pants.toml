@@ -10,9 +10,9 @@ backend_packages = [
 [source]
 #marker_filenames = ["setup.py"]
 root_patterns = [
-  '/apps/python/',
-  '/libs/python/',
-  '/packages/python',
+  '/apps/',
+  '/libs/',
+  '/projects/',
 ]
 
 [python-bootstrap]
