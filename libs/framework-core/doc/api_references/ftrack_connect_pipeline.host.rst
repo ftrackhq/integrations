@@ -1,20 +1,20 @@
 ftrack\_connect\_pipeline.host
 ======================================
 
-.. automodule:: ftrack_connect_pipeline.host
+.. automodule:: framework_core.host
     :members:
     :undoc-members:
     :show-inheritance:
 
 .. toctree::
 
-    ftrack_connect_pipeline.host.engine
+    framework_core.host.engine
 
 
 ftrack\_connect\_pipeline.host.validation
 ------------------------------------------------
 
-.. automodule:: ftrack_connect_pipeline.host.validation
+.. automodule:: framework_core.host.validation
     :members:
     :undoc-members:
     :show-inheritance:

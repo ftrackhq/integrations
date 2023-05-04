@@ -4,7 +4,7 @@ import re
 import sys
 
 import ftrack_api
-from ftrack_connect_pipeline import plugin
+from framework_core import plugin
 
 
 class CommonDefaultAssetManagerResolverPlugin(

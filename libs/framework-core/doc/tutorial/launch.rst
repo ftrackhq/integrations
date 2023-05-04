@@ -68,7 +68,7 @@ In this example we are going to change the Windows location of Maya and add an a
         "integrations": {
             "pipeline":[
                 "ftrack-connect-pipeline-definition",
-                "ftrack-connect-pipeline",
+                "framework-core",
                 "ftrack-connect-pipeline-qt",
                 "ftrack-connect-pipeline-maya"
             ]

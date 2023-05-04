@@ -1,7 +1,7 @@
 ftrack\_connect\_pipeline
 =================================
 
-.. automodule:: ftrack_connect_pipeline
+.. automodule:: framework_core
     :members:
     :undoc-members:
     :show-inheritance:
@@ -9,19 +9,19 @@ ftrack\_connect\_pipeline
 .. toctree::
     :maxdepth: 1
 
-    ftrack_connect_pipeline.asset
-    ftrack_connect_pipeline.client
-    ftrack_connect_pipeline.constants
-    ftrack_connect_pipeline.definition
-    ftrack_connect_pipeline.host
-    ftrack_connect_pipeline.log
-    ftrack_connect_pipeline.plugin
+    framework_core.asset
+    framework_core.client
+    framework_core.constants
+    framework_core.definition
+    framework_core.host
+    framework_core.log
+    framework_core.plugin
 
 
 ftrack\_connect\_pipeline.configure\_logging
 --------------------------------------------
 
-.. automodule:: ftrack_connect_pipeline.configure_logging
+.. automodule:: framework_core.configure_logging
     :members:
     :undoc-members:
     :show-inheritance:
@@ -29,7 +29,7 @@ ftrack\_connect\_pipeline.configure\_logging
 ftrack\_connect\_pipeline.event
 -------------------------------
 
-.. automodule:: ftrack_connect_pipeline.event
+.. automodule:: framework_core.event
     :members:
     :undoc-members:
     :show-inheritance:
@@ -37,7 +37,7 @@ ftrack\_connect\_pipeline.event
 ftrack\_connect\_pipeline.exception
 -----------------------------------
 
-.. automodule:: ftrack_connect_pipeline.exception
+.. automodule:: framework_core.exception
     :members:
     :undoc-members:
     :show-inheritance:
@@ -45,7 +45,7 @@ ftrack\_connect\_pipeline.exception
 ftrack\_connect\_pipeline.utils
 -------------------------------
 
-.. automodule:: ftrack_connect_pipeline.utils
+.. automodule:: framework_core.utils
     :members:
     :undoc-members:
     :show-inheritance:

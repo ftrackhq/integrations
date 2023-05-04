@@ -173,5 +173,5 @@ We do that by adding the dependency to setup.py:
 
 ..  important::
 
-    A better approach is to add the dependency to the ``ftrack-connect-pipeline``
+    A better approach is to add the dependency to the ``framework-core``
     module where the other pipeline dependencies are defined and built.
