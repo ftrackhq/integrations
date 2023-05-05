@@ -6,7 +6,6 @@
 *.egg-info
 *.eggs/*
 dist
-build
 eggs
 parts
 bin
