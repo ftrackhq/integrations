@@ -8,7 +8,7 @@ import sys
 import subprocess
 import shutil
 
-from setuptools import setup, find_packages
+from setuptools import setup, find_packages, find_namespace_packages
 from setuptools.command.test import test as TestCommand
 import setuptools
 
@@ -111,14 +111,14 @@ __version__ = {version!r}
 setup(
     name='framework-core',
     description='Ftrack core pipeline integration framework.',
-    long_description=open(README_PATH).read(),
+    #long_description=open(README_PATH).read(),
     keywords='ftrack',
     url='https://github.com/ftrackhq/integrations/libs/framework-core',
     author='ftrack',
     author_email='support@ftrack.com',
     license='Apache License (2.0)',
-    packages=find_packages(SOURCE_PATH),
-    package_dir={'': 'source'},
+    packages=find_namespace_packages(ROOT_PATH),#[find_packages(SOURCE_PATH), 'hook'],#find_packages(SOURCE_PATH),
+    #package_dir={'framework_core': 'source', 'hook':'hook'},
     use_scm_version={
         'write_to': 'source/framework_core/_version.py',
         'write_to_template': version_template,
