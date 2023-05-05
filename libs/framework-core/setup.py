@@ -117,8 +117,9 @@ setup(
     author='ftrack',
     author_email='support@ftrack.com',
     license='Apache License (2.0)',
-    packages=find_namespace_packages(ROOT_PATH),#[find_packages(SOURCE_PATH), 'hook'],#find_packages(SOURCE_PATH),
+    packages=find_namespace_packages(ROOT_PATH, exclude=['doc','test']),#[find_packages(SOURCE_PATH), 'hook'],#find_packages(SOURCE_PATH),
     #package_dir={'framework_core': 'source', 'hook':'hook'},
+    package_data={"": ["*.json"]},
     use_scm_version={
         'write_to': 'source/framework_core/_version.py',
         'write_to_template': version_template,
