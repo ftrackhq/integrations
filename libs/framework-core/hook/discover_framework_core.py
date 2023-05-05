@@ -21,7 +21,7 @@ python_dependencies = os.path.join(plugin_base_dir, 'dependencies')
 sys.path.append(python_dependencies)
 
 
-def on_discover_pipeline(session, event):
+def on_discover_framework_core(session, event):
 
     from framework_core import __version__ as integration_version
 
@@ -35,36 +35,36 @@ def on_discover_pipeline(session, event):
     return data
 
 
-def on_launch_pipeline(session, event):
+def on_launch_framework_core(session, event):
     '''Handle application launch and add environment to *event*.'''
 
-    pipeline_base_data = on_discover_pipeline(session, event)
+    core_base_data = on_discover_framework_core(session, event)
 
-    pipeline_plugins_path = os.path.join(
+    core_plugins_path = os.path.join(
         plugin_base_dir, 'resource', 'plugins', 'python'
     )
 
-    pipeline_bootstrap_path = os.path.join(
+    core_bootstrap_path = os.path.join(
         plugin_base_dir, 'resource', 'bootstrap'
     )
 
-    pipeline_bootstrap_plugin_path = os.path.join(
-        pipeline_bootstrap_path, 'plugins'
+    core_bootstrap_plugin_path = os.path.join(
+        core_bootstrap_path, 'plugins'
     )
 
     core_definitions_path = os.path.join(
         plugin_base_dir, 'resource', 'definitions'
     )
 
-    pipeline_base_data['integration']['env'] = {
+    core_base_data['integration']['env'] = {
         'PYTHONPATH.prepend': python_dependencies,
         'FTRACK_EVENT_PLUGIN_PATH.prepend': os.path.pathsep.join(
-            [pipeline_plugins_path, core_definitions_path]
+            [core_plugins_path, core_definitions_path]
         ),
         'FTRACK_DEFINITION_PATH.prepend': core_definitions_path,
     }
 
-    return pipeline_base_data
+    return core_base_data
 
 
 def register(session):
@@ -72,7 +72,7 @@ def register(session):
     if not isinstance(session, ftrack_api.session.Session):
         return
 
-    handle_discovery_event = functools.partial(on_discover_pipeline, session)
+    handle_discovery_event = functools.partial(on_discover_framework_core, session)
 
     session.event_hub.subscribe(
         'topic=ftrack.connect.application.discover '
@@ -81,7 +81,7 @@ def register(session):
         priority=20,
     )
 
-    handle_launch_event = functools.partial(on_launch_pipeline, session)
+    handle_launch_event = functools.partial(on_launch_framework_core, session)
 
     session.event_hub.subscribe(
         'topic=ftrack.connect.application.launch '
