@@ -1,16 +1,16 @@
 ftrack\_connect\_pipeline.plugin
 ========================================
 
-.. automodule:: ftrack_connect_pipeline.plugin
+.. automodule:: framework_core.plugin
     :members:
     :undoc-members:
     :show-inheritance:
 
 .. toctree::
 
-    ftrack_connect_pipeline.plugin.asset_manager
-    ftrack_connect_pipeline.plugin.base
-    ftrack_connect_pipeline.plugin.open
-    ftrack_connect_pipeline.plugin.load
-    ftrack_connect_pipeline.plugin.publish
+    framework_core.plugin.asset_manager
+    framework_core.plugin.base
+    framework_core.plugin.open
+    framework_core.plugin.load
+    framework_core.plugin.publish
 

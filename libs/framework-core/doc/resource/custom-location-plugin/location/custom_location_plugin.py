@@ -9,7 +9,7 @@ import ftrack_api
 import ftrack_api.accessor.disk
 
 logger = logging.getLogger(
-    'com.ftrack.ftrack-connect-pipeline.tutorial.custom-location-plugin.location.custom_location_plugin'
+    'com.ftrack.framework-core.tutorial.custom-location-plugin.location.custom_location_plugin'
 )
 
 

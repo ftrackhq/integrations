@@ -11,7 +11,7 @@ API Reference
 ..  toctree::
     :maxdepth: 2
 
-    ftrack_connect_pipeline
+    framework_core
 
 * `ftrack_connect_pipeline_definition <https://ftrackhq.github.io/ftrack-connect-pipeline-definition/>`_
 * `ftrack_connect_pipeline_qt <https://ftrackhq.github.io/ftrack-connect-pipeline-qt/>`_

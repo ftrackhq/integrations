@@ -22,4 +22,4 @@ search_path = [
 ]
 
 [setup-py-generation]
-    generate_setup_default = false
+generate_setup_default = false

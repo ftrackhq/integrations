@@ -2,9 +2,9 @@
 # :copyright: Copyright (c) 2014-2022 ftrack
 
 import ftrack_api
-from ftrack_connect_pipeline import plugin
-from ftrack_connect_pipeline.asset.asset_info import FtrackAssetInfo
-from ftrack_connect_pipeline.constants import asset as constants
+from framework_core import plugin
+from framework_core.asset.asset_info import FtrackAssetInfo
+from framework_core.constants import asset as constants
 
 
 class CommonUpdateLatestAssetManagerActionPlugin(

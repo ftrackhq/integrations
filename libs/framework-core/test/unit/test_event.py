@@ -1,6 +1,6 @@
 import pytest
-from ftrack_connect_pipeline import constants
-from ftrack_connect_pipeline import event
+from framework_core import constants
+from framework_core import event
 
 
 @pytest.mark.parametrize(

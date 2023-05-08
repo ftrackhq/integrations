@@ -1,6 +1,6 @@
 import functools
-from ftrack_connect_pipeline import host
-from ftrack_connect_pipeline import constants
+from framework_core import host
+from framework_core import constants
 
 
 def test_initialise_host(event_manager):

@@ -76,9 +76,9 @@ Glossary
         with a specific programming language and are suited to different types of tasks.
         The ftrack pipeline Framework is a set of modules/layers enabling asset publish,
         load, management and other core functionality within an :term:`DCC` application
-        or standalone. The core Framework module is called ftrack-connect-pipeline which
+        or standalone. The core Framework module is called framework-core which
         this documentation is part of, source code to be found here:
-        `<https://github.com/ftrackhq/ftrack-connect-pipeline.git>`_
+        `<https://github.com/ftrackhq/framework-core.git>`_
 
     Host
         The central part of the core Framework that discovers and executes definitions

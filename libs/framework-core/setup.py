@@ -45,7 +45,7 @@ class BuildPlugin(setuptools.Command):
         VERSION = '.'.join(release.split('.')[:3])
         global STAGING_PATH
         STAGING_PATH = os.path.join(
-            BUILD_PATH, 'ftrack-connect-pipeline-{}'.format(VERSION)
+            BUILD_PATH, 'framework-core-{}'.format(VERSION)
         )
 
         '''Run the build step.'''
@@ -75,7 +75,7 @@ class BuildPlugin(setuptools.Command):
 
         result_path = shutil.make_archive(
             os.path.join(
-                BUILD_PATH, 'ftrack-connect-pipeline-{0}'.format(VERSION)
+                BUILD_PATH, 'framework-core-{0}'.format(VERSION)
             ),
             'zip',
             STAGING_PATH,
@@ -106,24 +106,20 @@ version_template = '''
 __version__ = {version!r}
 '''
 
-
 # Configuration.
 setup(
-    name='ftrack-connect-pipeline',
+    name='framework-core',
     description='Ftrack core pipeline integration framework.',
     long_description=open(README_PATH).read(),
     keywords='ftrack',
-    url='https://bitbucket.org/ftrack/ftrack-connect-pipeline',
+    url='https://github.com/ftrackhq/integrations/libs/framework-core',
     author='ftrack',
     author_email='support@ftrack.com',
     license='Apache License (2.0)',
     packages=find_packages(SOURCE_PATH),
     package_dir={'': 'source'},
-    use_scm_version={
-        'write_to': 'source/ftrack_connect_pipeline/_version.py',
-        'write_to_template': version_template,
-        'version_scheme': 'post-release',
-    },
+    package_data={"": ["{}/**/*.*".format(RESOURCE_PATH), "{}/**/*.py".format(HOOK_PATH)]},
+    version="1.4.0",
     python_requires='<3.10',
     setup_requires=[
         'sphinx >= 1.8.5, < 4',

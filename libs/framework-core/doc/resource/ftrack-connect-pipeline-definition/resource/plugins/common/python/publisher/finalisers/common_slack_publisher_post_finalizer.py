@@ -6,7 +6,7 @@ from slack import WebClient
 
 import ftrack_api
 
-from ftrack_connect_pipeline import plugin
+from framework_core import plugin
 
 
 class CommonSlackPublisherFinalizerPlugin(plugin.PublisherPostFinalizerPlugin):

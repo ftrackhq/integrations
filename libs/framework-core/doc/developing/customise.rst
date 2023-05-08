@@ -9,7 +9,7 @@ Customise
 
 Here follows some general customisations guidelines on each Framework module.
 
-ftrack-connect-pipeline
+framework-core
 -----------------------
 
 Generally you will never need to touch the core module in order to customise your

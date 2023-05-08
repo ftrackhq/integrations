@@ -13,7 +13,7 @@ The Framework is 100% open source and accessible on GitHub.
 
 Git clone base repositories::
 
-    git clone ftrackhq/ftrack-connect-pipeline
+    git clone ftrackhq/framework-core
     git clone ftrackhq/ftrack-connect-pipeline-definition
     git clone ftrackhq/ftrack-connect-pipeline-qt
 

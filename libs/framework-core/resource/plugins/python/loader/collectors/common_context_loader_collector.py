@@ -2,8 +2,8 @@
 # :copyright: Copyright (c) 2014-2022 ftrack
 
 import os
-from ftrack_connect_pipeline import plugin
-from ftrack_connect_pipeline.constants import asset as asset_const
+from framework_core import plugin
+from framework_core.constants import asset as asset_const
 
 import ftrack_api
 

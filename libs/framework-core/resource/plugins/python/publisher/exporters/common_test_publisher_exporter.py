@@ -3,7 +3,7 @@
 
 import shutil
 import tempfile
-from ftrack_connect_pipeline import plugin
+from framework_core import plugin
 import ftrack_api
 
 
