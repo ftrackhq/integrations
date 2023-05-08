@@ -15,11 +15,11 @@ root_patterns = [
   '/projects/',
 ]
 
-[python-bootstrap]
-search_path = [
+#[python-bootstrap]
+#search_path = [
     # This will use all interpreters in `$(pyenv root)/versions`.
-    "<PYENV>",
-]
+#    "<PYENV>",
+#]
 
 [setup-py-generation]
 generate_setup_default = false
