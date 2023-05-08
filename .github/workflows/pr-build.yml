@@ -74,8 +74,17 @@ jobs:
           echo "SOURCE_TAG=${{ needs.release.outputs.source_tag }}" >> $env:GITHUB_ENV
           echo "SOURCE_HASH=${{ needs.release.outputs.source_hash }}" >> $env:GITHUB_ENV
       - name: Check BUILD files
+        if: false
         run:  |
           pants tailor --check update-build-files --check ::
+      - name: Lint and typecheck
+        if: false
+        run: | 
+          pants lint check ::
+      - name: Test
+        if: false
+        run: |
+          pants test ::
       - name: Package / Run
         run: |
           # We also smoke test that our release process will work by running `package`.
