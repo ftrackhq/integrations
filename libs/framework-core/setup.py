@@ -106,7 +106,6 @@ version_template = '''
 __version__ = {version!r}
 '''
 
-
 # Configuration.
 setup(
     name='framework-core',
@@ -119,11 +118,8 @@ setup(
     license='Apache License (2.0)',
     packages=find_packages(SOURCE_PATH),
     package_dir={'': 'source'},
-    use_scm_version={
-        'write_to': 'source/framework_core/_version.py',
-        'write_to_template': version_template,
-        'version_scheme': 'post-release',
-    },
+    package_data={"": ["{}/**/*.*".format(RESOURCE_PATH), "{}/**/*.py".format(HOOK_PATH)]},
+    version="1.4.0",
     python_requires='<3.10',
     setup_requires=[
         'sphinx >= 1.8.5, < 4',
