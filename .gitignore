@@ -6,7 +6,6 @@
 *.egg-info
 *.eggs/*
 dist
-build
 eggs
 parts
 bin
@@ -24,6 +23,7 @@ pip-log.txt
 # Unit test / coverage reports
 .coverage
 .tox
+test-reports/*
 
 # Build files
 /resource/*.css
@@ -39,8 +39,7 @@ Thumbs.db
 .idea/
 *.orig
 # SCM
-source/ftrack_connect_pipeline_qt/ui/resource.py
-source/ftrack_connect_pipeline_qt/_version.py
+#source/ftrack_connect_pipeline_qt/ui/resource.py
 
 # Pants workspace files
 /.pants.*
