@@ -1,15 +1,18 @@
 python_sources(
     name="lib",
-    sources=["**/*.py", "!doc/*", "!test/*"],
+    sources=["**/*.py"],#, "!doc/*", "!test/*"],
     dependencies=["libs/framework-core/resource/definitions:definitions"]
 )
-
+resource(
+    name="README",
+    source="README.md"
+)
 
 python_distribution(
     name="framework_core",
     dependencies=[
          ":lib",
-         #"libs/framework-core/resource/definitions:definitions",
+         ":README",
         # Dependencies on code to be packaged into the distribution.
     ],
     provides=python_artifact(

@@ -8,7 +8,7 @@ import sys
 import subprocess
 import shutil
 
-from setuptools import setup, find_packages, find_namespace_packages
+from setuptools import setup, find_packages
 from setuptools.command.test import test as TestCommand
 import setuptools
 
@@ -106,25 +106,20 @@ version_template = '''
 __version__ = {version!r}
 '''
 
-
 # Configuration.
 setup(
     name='framework-core',
     description='Ftrack core pipeline integration framework.',
-    #long_description=open(README_PATH).read(),
+    long_description=open(README_PATH).read(),
     keywords='ftrack',
     url='https://github.com/ftrackhq/integrations/libs/framework-core',
     author='ftrack',
     author_email='support@ftrack.com',
     license='Apache License (2.0)',
-    packages=find_namespace_packages(ROOT_PATH, exclude=['doc','test']),#[find_packages(SOURCE_PATH), 'hook'],#find_packages(SOURCE_PATH),
-    #package_dir={'framework_core': 'source', 'hook':'hook'},
-    package_data={"": ["*.json"]},
-    use_scm_version={
-        'write_to': 'source/framework_core/_version.py',
-        'write_to_template': version_template,
-        'version_scheme': 'post-release',
-    },
+    packages=find_packages(SOURCE_PATH),
+    package_dir={'': 'source'},
+    package_data={"": ["{}/**/*.*".format(RESOURCE_PATH), "{}/**/*.py".format(HOOK_PATH)]},
+    version="1.4.0",
     python_requires='<3.10',
     setup_requires=[
         'sphinx >= 1.8.5, < 4',
