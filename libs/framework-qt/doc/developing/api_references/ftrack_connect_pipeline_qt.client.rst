@@ -1,7 +1,7 @@
 ftrack\_connect\_pipeline\_qt.client package
 ============================================
 
-.. automodule:: ftrack_connect_pipeline_qt.client
+.. automodule:: framework_qt.client
    :members:
    :undoc-members:
    :show-inheritance:
@@ -12,12 +12,12 @@ Subpackages
 .. toctree::
    :maxdepth: 1
 
-   ftrack_connect_pipeline_qt.client.asset_manager
-   ftrack_connect_pipeline_qt.client.change_context
-   ftrack_connect_pipeline_qt.client.documentation
-   ftrack_connect_pipeline_qt.client.load
-   ftrack_connect_pipeline_qt.client.log_viewer
-   ftrack_connect_pipeline_qt.client.open
-   ftrack_connect_pipeline_qt.client.publish
-   ftrack_connect_pipeline_qt.client.save
-   ftrack_connect_pipeline_qt.client.webview
+   framework_qt.client.asset_manager
+   framework_qt.client.change_context
+   framework_qt.client.documentation
+   framework_qt.client.load
+   framework_qt.client.log_viewer
+   framework_qt.client.open
+   framework_qt.client.publish
+   framework_qt.client.save
+   framework_qt.client.webview

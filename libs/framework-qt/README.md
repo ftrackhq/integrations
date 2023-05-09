@@ -1,1 +1,1 @@
-# ftrack-connect-pipeline-qt
+# framework-qt

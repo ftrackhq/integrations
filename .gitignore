@@ -39,7 +39,7 @@ Thumbs.db
 .idea/
 *.orig
 # SCM
-#source/ftrack_connect_pipeline_qt/ui/resource.py
+#source/framework_qt/ui/resource.py
 
 # Pants workspace files
 /.pants.*

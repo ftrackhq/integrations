@@ -3,8 +3,8 @@
 
 from functools import partial
 
-from ftrack_connect_pipeline_qt import plugin
-from ftrack_connect_pipeline_qt.plugin.widget import BaseOptionsWidget
+from framework_qt import plugin
+from framework_qt.plugin.widget import BaseOptionsWidget
 
 from Qt import QtWidgets, QtCore
 
