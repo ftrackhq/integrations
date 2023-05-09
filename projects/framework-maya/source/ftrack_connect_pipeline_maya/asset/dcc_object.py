@@ -2,9 +2,9 @@
 # :copyright: Copyright (c) 2014-2022 ftrack
 
 import logging
-from ftrack_connect_pipeline.asset.dcc_object import DccObject
-from ftrack_connect_pipeline_maya.constants import asset as asset_const
-from ftrack_connect_pipeline_maya import utils as maya_utils
+from framework_core.asset.dcc_object import DccObject
+from framework_maya.constants import asset as asset_const
+from framework_maya import utils as maya_utils
 
 import maya.cmds as cmds
 

@@ -121,7 +121,7 @@ setup(
     packages=find_packages(SOURCE_PATH),
     package_dir={'': 'source'},
     use_scm_version={
-        'write_to': 'source/ftrack_connect_pipeline_maya/_version.py',
+        'write_to': 'source/framework_maya/_version.py',
         'write_to_template': version_template,
         'version_scheme': 'post-release',
     },

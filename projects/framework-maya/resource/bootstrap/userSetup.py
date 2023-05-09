@@ -9,15 +9,15 @@ import maya.mel as mm
 
 import ftrack_api
 
-from ftrack_connect_pipeline import constants as core_constants
-from ftrack_connect_pipeline.configure_logging import configure_logging
+from framework_core import constants as core_constants
+from framework_core.configure_logging import configure_logging
 
-from ftrack_connect_pipeline_qt import event
-from ftrack_connect_pipeline_qt import constants as qt_constants
-from ftrack_connect_pipeline_qt.ui.asset_manager.model import AssetListModel
+from framework_qt import event
+from framework_qt import constants as qt_constants
+from framework_qt.ui.asset_manager.model import AssetListModel
 
-from ftrack_connect_pipeline_maya import host as maya_host
-from ftrack_connect_pipeline_maya.client import (
+from framework_maya import host as maya_host
+from framework_maya.client import (
     open,
     load,
     asset_manager,
@@ -27,7 +27,7 @@ from ftrack_connect_pipeline_maya.client import (
     documentation,
 )
 
-from ftrack_connect_pipeline_maya import utils as maya_utils
+from framework_maya import utils as maya_utils
 
 
 extra_handlers = {
@@ -38,14 +38,14 @@ extra_handlers = {
     }
 }
 configure_logging(
-    'ftrack_connect_pipeline_maya',
-    extra_modules=['ftrack_connect_pipeline', 'ftrack_connect_pipeline_qt'],
+    'framework_maya',
+    extra_modules=['framework_core', 'framework_qt'],
     extra_handlers=extra_handlers,
     propagate=False,
 )
 
 
-logger = logging.getLogger('ftrack_connect_pipeline_maya')
+logger = logging.getLogger('framework_maya')
 
 
 created_widgets = dict()

@@ -3,7 +3,7 @@
 
 from Qt import QtWidgets, QtCore
 
-from ftrack_connect_pipeline_qt.client import log_viewer
+from framework_qt.client import log_viewer
 
 
 class MayaQtLogViewerClientWidget(log_viewer.QtLogViewerClientWidget):

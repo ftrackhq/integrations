@@ -3,10 +3,10 @@
 
 from Qt import QtWidgets, QtCore
 
-from ftrack_connect_pipeline_qt.client import open
-import ftrack_connect_pipeline.constants as core_constants
-from ftrack_connect_pipeline_qt import constants as qt_constants
-import ftrack_connect_pipeline_maya.constants as maya_constants
+from framework_qt.client import open
+import framework_core.constants as core_constants
+from framework_qt import constants as qt_constants
+import framework_maya.constants as maya_constants
 
 
 class MayaQtOpenerClientWidget(open.QtOpenerClientWidget):

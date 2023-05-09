@@ -3,7 +3,7 @@
 import maya.cmds as cmds
 import maya.mel as mm
 
-from ftrack_connect_pipeline.utils import (
+from framework_core.utils import (
     get_save_path,
 )
 

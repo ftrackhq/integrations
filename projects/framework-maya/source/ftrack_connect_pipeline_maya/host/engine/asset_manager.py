@@ -5,15 +5,15 @@ import time
 import maya
 import maya.cmds as cmds
 
-from ftrack_connect_pipeline import constants as core_constants
-from ftrack_connect_pipeline.host.engine import AssetManagerEngine
-from ftrack_connect_pipeline.asset.asset_info import FtrackAssetInfo
+from framework_core import constants as core_constants
+from framework_core.host.engine import AssetManagerEngine
+from framework_core.asset.asset_info import FtrackAssetInfo
 
-from ftrack_connect_pipeline_maya import utils as maya_utils
-from ftrack_connect_pipeline_maya.constants import asset as asset_const
-from ftrack_connect_pipeline_maya.constants.asset import modes as modes_const
-from ftrack_connect_pipeline_maya.asset import MayaFtrackObjectManager
-from ftrack_connect_pipeline_maya.asset.dcc_object import MayaDccObject
+from framework_maya import utils as maya_utils
+from framework_maya.constants import asset as asset_const
+from framework_maya.constants.asset import modes as modes_const
+from framework_maya.asset import MayaFtrackObjectManager
+from framework_maya.asset.dcc_object import MayaDccObject
 
 
 class MayaAssetManagerEngine(AssetManagerEngine):
@@ -91,7 +91,7 @@ class MayaAssetManagerEngine(AssetManagerEngine):
         result of changing the version of the given *asset_info* to the new
         version id passed in the given *options*
 
-        *asset_info* : :class:`~ftrack_connect_pipeline.asset.FtrackAssetInfo`
+        *asset_info* : :class:`~framework_core.asset.FtrackAssetInfo`
 
         *options* : Options should contain the new_version_id key with the id
         value
@@ -427,10 +427,10 @@ class MayaAssetManagerEngine(AssetManagerEngine):
         '''
         Returns status dictionary and results dictionary keyed by the id for
         executing the :meth:`select_asset` for all the
-        :class:`~ftrack_connect_pipeline.asset.FtrackAssetInfo` in the given
+        :class:`~framework_core.asset.FtrackAssetInfo` in the given
         *assets* list.
 
-        *assets*: List of :class:`~ftrack_connect_pipeline.asset.FtrackAssetInfo`
+        *assets*: List of :class:`~framework_core.asset.FtrackAssetInfo`
         '''
         return super(MayaAssetManagerEngine, self).select_assets(
             assets=assets, options=options, plugin=plugin

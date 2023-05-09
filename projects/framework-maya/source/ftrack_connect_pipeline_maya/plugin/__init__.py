@@ -2,12 +2,12 @@
 # :copyright: Copyright (c) 2019 ftrack
 import maya
 
-from ftrack_connect_pipeline import plugin
-from ftrack_connect_pipeline_qt import plugin as pluginWidget
-from ftrack_connect_pipeline_maya import constants as maya_constants
-from ftrack_connect_pipeline_maya import utils as maya_utils
-from ftrack_connect_pipeline_maya.asset import MayaFtrackObjectManager
-from ftrack_connect_pipeline_maya.asset.dcc_object import MayaDccObject
+from framework_core import plugin
+from framework_qt import plugin as pluginWidget
+from framework_maya import constants as maya_constants
+from framework_maya import utils as maya_utils
+from framework_maya.asset import MayaFtrackObjectManager
+from framework_maya.asset.dcc_object import MayaDccObject
 
 
 class MayaBasePlugin(plugin.BasePlugin):
@@ -32,7 +32,7 @@ class MayaBasePluginWidget(MayaBasePlugin, pluginWidget.BasePluginWidget):
         return super(MayaBasePluginWidget, self)._run(event)
 
 
-from ftrack_connect_pipeline_maya.plugin.load import *
-from ftrack_connect_pipeline_maya.plugin.open import *
-from ftrack_connect_pipeline_maya.plugin.publish import *
-from ftrack_connect_pipeline_maya.plugin.asset_manager import *
+from framework_maya.plugin.load import *
+from framework_maya.plugin.open import *
+from framework_maya.plugin.publish import *
+from framework_maya.plugin.asset_manager import *

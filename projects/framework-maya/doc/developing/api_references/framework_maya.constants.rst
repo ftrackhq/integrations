@@ -1,7 +1,7 @@
 ftrack\_connect\_pipeline\_maya.constants package
 =================================================
 
-.. automodule:: ftrack_connect_pipeline_maya.constants
+.. automodule:: framework_maya.constants
    :members:
    :undoc-members:
    :show-inheritance:
@@ -12,4 +12,4 @@ Subpackages
 .. toctree::
    :maxdepth: 1
 
-   ftrack_connect_pipeline_maya.constants.asset
+   framework_maya.constants.asset

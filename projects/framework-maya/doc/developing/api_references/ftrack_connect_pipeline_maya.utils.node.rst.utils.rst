@@ -1,7 +1,7 @@
 ftrack\_connect\_pipeline\_maya.utils package
 =============================================
 
-.. automodule:: ftrack_connect_pipeline_maya.utils
+.. automodule:: framework_maya.utils
    :members:
    :undoc-members:
    :show-inheritance:
@@ -12,6 +12,6 @@ Subpackages
 .. toctree::
    :maxdepth: 1
 
-   ftrack_connect_pipeline_maya.utils.bootstrap
-   ftrack_connect_pipeline_maya.utils.file
-   ftrack_connect_pipeline_maya.utils.node
+   framework_maya.utils.bootstrap
+   framework_maya.utils.file
+   framework_maya.utils.node

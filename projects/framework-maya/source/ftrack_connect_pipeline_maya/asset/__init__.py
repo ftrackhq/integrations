@@ -1,8 +1,8 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2020 ftrack
 
-from ftrack_connect_pipeline.asset import FtrackObjectManager
-from ftrack_connect_pipeline_maya.asset.dcc_object import MayaDccObject
+from framework_core.asset import FtrackObjectManager
+from framework_maya.asset.dcc_object import MayaDccObject
 
 
 class MayaFtrackObjectManager(FtrackObjectManager):
@@ -19,6 +19,6 @@ class MayaFtrackObjectManager(FtrackObjectManager):
         Initialize MayaFtrackObjectManager with *event_manager*.
 
         *event_manager* instance of
-        :class:`ftrack_connect_pipeline.event.EventManager`
+        :class:`framework_core.event.EventManager`
         '''
         super(MayaFtrackObjectManager, self).__init__(event_manager)

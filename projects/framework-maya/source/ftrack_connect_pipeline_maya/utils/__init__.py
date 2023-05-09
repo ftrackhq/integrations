@@ -32,6 +32,6 @@ def get_main_window():
     return window
 
 
-from ftrack_connect_pipeline_maya.utils.file import *
-from ftrack_connect_pipeline_maya.utils.node import *
-from ftrack_connect_pipeline_maya.utils.bootstrap import *
+from framework_maya.utils.file import *
+from framework_maya.utils.node import *
+from framework_maya.utils.bootstrap import *

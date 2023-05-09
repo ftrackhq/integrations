@@ -5,7 +5,7 @@ import re
 
 import maya.cmds as cmds
 
-from ftrack_connect_pipeline_maya import plugin
+from framework_maya import plugin
 import ftrack_api
 
 

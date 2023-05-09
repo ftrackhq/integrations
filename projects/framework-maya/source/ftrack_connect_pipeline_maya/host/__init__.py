@@ -2,10 +2,10 @@
 # :copyright: Copyright (c) 2014-2020 ftrack
 
 import logging
-from ftrack_connect_pipeline.host import Host
-from ftrack_connect_pipeline_qt import constants as qt_constants
-from ftrack_connect_pipeline_maya import constants as maya_constants
-from ftrack_connect_pipeline_maya.host import engine as host_engine
+from framework_core.host import Host
+from framework_qt import constants as qt_constants
+from framework_maya import constants as maya_constants
+from framework_maya.host import engine as host_engine
 
 logger = logging.getLogger(__name__)
 
@@ -29,7 +29,7 @@ class MayaHost(Host):
         Initialize MayaHost with *event_manager*.
 
         *event_manager* instance of
-        :class:`ftrack_connect_pipeline.event.EventManager`
+        :class:`framework_core.event.EventManager`
         '''
         super(MayaHost, self).__init__(event_manager)
 

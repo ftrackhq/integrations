@@ -6,4 +6,4 @@ FTRACK_PLUGIN_TYPE = 'ftrackAssetNode'
 LOCKED = 'locked'
 ASSET_LINK = 'asset_link'
 
-from ftrack_connect_pipeline.constants.asset import *
+from framework_core.constants.asset import *

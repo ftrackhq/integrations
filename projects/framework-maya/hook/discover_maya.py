@@ -7,7 +7,7 @@ import ftrack_api
 import logging
 import functools
 
-logger = logging.getLogger('ftrack_connect_pipeline_maya.discover')
+logger = logging.getLogger('framework_maya.discover')
 
 plugin_base_dir = os.path.normpath(
     os.path.join(os.path.abspath(os.path.dirname(__file__)), '..')
@@ -17,7 +17,7 @@ sys.path.append(python_dependencies)
 
 
 def on_discover_pipeline_maya(session, event):
-    from ftrack_connect_pipeline_maya import __version__ as integration_version
+    from framework_maya import __version__ as integration_version
 
     data = {
         'integration': {

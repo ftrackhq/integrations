@@ -1,7 +1,7 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2020 ftrack
 
-from ftrack_connect_pipeline.host.engine import OpenerEngine
+from framework_core.host.engine import OpenerEngine
 
 
 class MayaOpenerEngine(OpenerEngine):

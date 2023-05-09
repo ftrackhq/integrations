@@ -3,15 +3,15 @@
 
 import maya
 
-from ftrack_connect_pipeline import plugin
-from ftrack_connect_pipeline_qt import plugin as pluginWidget
-from ftrack_connect_pipeline_maya.plugin import (
+from framework_core import plugin
+from framework_qt import plugin as pluginWidget
+from framework_maya.plugin import (
     MayaBasePlugin,
     MayaBasePluginWidget,
 )
 
-from ftrack_connect_pipeline_maya import utils as maya_utils
-from ftrack_connect_pipeline_maya.constants.asset import modes as load_const
+from framework_maya import utils as maya_utils
+from framework_maya.constants.asset import modes as load_const
 
 
 class MayaLoaderImporterPlugin(plugin.LoaderImporterPlugin, MayaBasePlugin):

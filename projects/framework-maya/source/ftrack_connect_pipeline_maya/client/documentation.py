@@ -2,8 +2,8 @@
 # :copyright: Copyright (c) 2014-2023 ftrack
 import os
 
-import ftrack_connect_pipeline_maya
-from ftrack_connect_pipeline_qt.client import documentation
+import framework_maya
+from framework_qt.client import documentation
 
 
 class MayaQtDocumentationClientWidget(

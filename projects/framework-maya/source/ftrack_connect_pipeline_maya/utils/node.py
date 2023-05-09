@@ -3,7 +3,7 @@
 
 import maya.cmds as cmds
 
-from ftrack_connect_pipeline_maya.constants import asset as asset_const
+from framework_maya.constants import asset as asset_const
 
 
 def get_current_scene_objects():

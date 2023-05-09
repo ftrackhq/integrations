@@ -5,7 +5,7 @@ import sys
 import maya.OpenMaya as OpenMaya
 import maya.OpenMayaMPx as OpenMayaMPx
 import maya.OpenMayaRender as OpenMayaRender
-from ftrack_connect_pipeline_maya.constants import asset as asset_const
+from framework_maya.constants import asset as asset_const
 
 version = asset_const.VERSION
 kPluginNodeTypeName = asset_const.FTRACK_PLUGIN_TYPE
