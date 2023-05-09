@@ -1,0 +1,8 @@
+/** Dialog */
+QDialog {
+    background-color: $background;
+}
+
+Dialog, ModalDialog {
+    background-color: $alt-background;
+}
