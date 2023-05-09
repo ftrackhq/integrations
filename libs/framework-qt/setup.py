@@ -23,7 +23,7 @@ README_PATH = os.path.join(ROOT_PATH, 'README.md')
 RESOURCE_PATH = os.path.join(ROOT_PATH, 'resource')
 STYLE_PATH = os.path.join(RESOURCE_PATH, 'style')
 RESOURCE_TARGET_PATH = os.path.join(
-    SOURCE_PATH, 'ftrack_connect_pipeline_qt', 'ui', 'resource.py'
+    SOURCE_PATH, 'framework_qt', 'ui', 'resource.py'
 )
 BOOTSTRAP_PATH = os.path.join(RESOURCE_PATH, 'bootstrap')
 PLUGINS_PATH = os.path.join(RESOURCE_PATH, 'plugins')
@@ -145,7 +145,7 @@ class BuildPlugin(setuptools.Command):
         VERSION = '.'.join(release.split('.')[:3])
         global STAGING_PATH
         STAGING_PATH = os.path.join(
-            BUILD_PATH, 'ftrack-connect-pipeline-qt-{}'.format(VERSION)
+            BUILD_PATH, 'framework-qt-{}'.format(VERSION)
         )
 
         '''Run the build step.'''
@@ -187,7 +187,7 @@ class BuildPlugin(setuptools.Command):
 
         shutil.make_archive(
             os.path.join(
-                BUILD_PATH, 'ftrack-connect-pipeline-qt-{0}'.format(VERSION)
+                BUILD_PATH, 'framework-qt-{0}'.format(VERSION)
             ),
             'zip',
             STAGING_PATH,
@@ -221,18 +221,18 @@ __version__ = {version!r}
 
 # Configuration.
 setup(
-    name='ftrack-connect-pipeline-qt',
+    name='framework-qt',
     description='Ftrack qt pipeline integration framework.',
     long_description=open(README_PATH).read(),
     keywords='ftrack',
-    url='https://bitbucket.org/ftrack/ftrack-connect-pipeline-qt',
+    url='https://github.com/ftrackhq/integrations/libs/framework-qt',
     author='ftrack',
     author_email='support@ftrack.com',
     license='Apache License (2.0)',
     packages=find_packages(SOURCE_PATH),
     package_dir={'': 'source'},
     use_scm_version={
-        'write_to': 'source/ftrack_connect_pipeline_qt/_version.py',
+        'write_to': 'source/framework_qt/_version.py',
         'write_to_template': version_template,
         'version_scheme': 'post-release',
     },
@@ -253,7 +253,6 @@ setup(
         'test': PyTest,
         'build_plugin': BuildPlugin,
         'build_resources': BuildResources,
-        'test': PyTest,
     },
     zip_safe=False,
 )

@@ -5,11 +5,11 @@ from Qt import QtWidgets
 
 import ftrack_api
 
-from ftrack_connect_pipeline_qt import plugin as pluginWidget
-from ftrack_connect_pipeline_qt.plugin.widget.open_widget import (
+from framework_qt import plugin as pluginWidget
+from framework_qt.plugin.widget.open_widget import (
     OpenBaseWidget,
 )
-from ftrack_connect_pipeline_qt.ui.utility.widget import group_box
+from framework_qt.ui.utility.widget import group_box
 
 
 class CommonTestOpenerImporterOptionsWidget(OpenBaseWidget):

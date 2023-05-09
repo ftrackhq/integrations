@@ -7,7 +7,7 @@ import ftrack_api
 import functools
 import logging
 
-NAME = 'ftrack-connect-pipeline-qt'
+NAME = 'framework-qt'
 
 logger = logging.getLogger('{}.hook'.format(NAME.replace('-', '_')))
 
@@ -21,11 +21,11 @@ sys.path.append(python_dependencies)
 
 
 def on_discover_pipeline_qt(session, event):
-    from ftrack_connect_pipeline_qt import __version__ as integration_version
+    from framework_qt import __version__ as integration_version
 
     data = {
         'integration': {
-            'name': 'ftrack-connect-pipeline-qt',
+            'name': 'framework-qt',
             'version': integration_version,
         }
     }
