@@ -1,5 +1,6 @@
 # General
 *.py[cod]
+.DS_Store
 
 # Packages
 *.egg
