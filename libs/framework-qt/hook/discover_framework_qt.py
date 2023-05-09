@@ -20,7 +20,7 @@ python_dependencies = os.path.join(plugin_base_dir, 'dependencies')
 sys.path.append(python_dependencies)
 
 
-def on_discover_pipeline_qt(session, event):
+def on_discover_framework_qt(session, event):
     from framework_qt import __version__ as integration_version
 
     data = {
@@ -33,10 +33,10 @@ def on_discover_pipeline_qt(session, event):
     return data
 
 
-def on_launch_pipeline_qt(session, event):
+def on_launch_framework_qt(session, event):
     '''Handle application launch and add environment to *event*.'''
     logger.debug('launching: {}'.format(NAME))
-    qt_base_data = on_discover_pipeline_qt(session, event)
+    qt_base_data = on_discover_framework_qt(session, event)
 
     qt_plugins_path = os.path.join(
         plugin_base_dir, 'resource', 'plugins', 'python'
@@ -67,7 +67,7 @@ def register(session):
         return
 
     handle_discovery_event = functools.partial(
-        on_discover_pipeline_qt, session
+        on_discover_framework_qt, session
     )
 
     session.event_hub.subscribe(
@@ -77,7 +77,7 @@ def register(session):
         priority=30,
     )
 
-    handle_launch_event = functools.partial(on_launch_pipeline_qt, session)
+    handle_launch_event = functools.partial(on_launch_framework_qt, session)
 
     session.event_hub.subscribe(
         'topic=ftrack.connect.application.launch '
