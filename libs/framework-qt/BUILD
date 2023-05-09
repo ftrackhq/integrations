@@ -1,18 +1,20 @@
+
 python_sources(
     name="qt_lib",
-    sources=["**/*.py"],
-    #dependencies=["libs/framework-qt/resource/definitions:definitions"]
+    sources=["**/*.py"]
 )
 resource(
     name="README",
     source="README.md"
 )
 
+
 python_distribution(
     name="framework_qt",
     dependencies=[
          ":qt_lib",
          ":README",
+         "libs/framework-qt/resource/style:qt_style"
     ],
     provides=python_artifact(
         name="framework_qt",
