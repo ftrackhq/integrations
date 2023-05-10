@@ -1,4 +1,4 @@
-ftrack\_connect\_pipeline\_maya.client package
+framework\_maya.client package
 ==============================================
 
 .. automodule:: framework_maya.client

@@ -1,4 +1,4 @@
-ftrack\_connect\_pipeline\_maya.constants package
+framework\_maya.constants package
 =================================================
 
 .. automodule:: framework_maya.constants

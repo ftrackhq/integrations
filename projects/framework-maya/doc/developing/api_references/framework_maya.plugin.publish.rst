@@ -1,4 +1,4 @@
-ftrack\_connect\_pipeline\_maya.plugin.publish package
+framework\_maya.plugin.publish package
 ======================================================
 
 .. automodule:: framework_maya.plugin.publish

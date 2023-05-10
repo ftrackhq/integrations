@@ -1,4 +1,4 @@
-ftrack\_connect\_pipeline\_maya.utils.node package
+framework\_maya.utils.node package
 ==================================================
 
 .. automodule:: framework_maya.utils.node

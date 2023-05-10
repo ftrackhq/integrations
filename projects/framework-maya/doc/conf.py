@@ -182,8 +182,8 @@ latex_documents = [
 man_pages = [
     (
         master_doc,
-        'ftrack-connect-pipeline-maya',
-        u'ftrack-connect-pipeline-maya Documentation',
+        'framework-maya',
+        u'framework-maya Documentation',
         [author],
         1,
     )
@@ -198,10 +198,10 @@ man_pages = [
 texinfo_documents = [
     (
         master_doc,
-        'ftrack-connect-pipeline-maya',
-        u'ftrack-connect-pipeline-maya Documentation',
+        'framework-maya',
+        u'framework-maya Documentation',
         author,
-        'ftrack-connect-pipeline-maya',
+        'framework-maya',
         'One line description of project.',
         'Miscellaneous',
     ),

@@ -16,12 +16,12 @@ python_dependencies = os.path.join(plugin_base_dir, 'dependencies')
 sys.path.append(python_dependencies)
 
 
-def on_discover_pipeline_maya(session, event):
+def on_discover_framework_maya(session, event):
     from framework_maya import __version__ as integration_version
 
     data = {
         'integration': {
-            "name": 'ftrack-connect-pipeline-maya',
+            "name": 'framework-maya',
             'version': integration_version,
         }
     }
@@ -29,10 +29,10 @@ def on_discover_pipeline_maya(session, event):
     return data
 
 
-def on_launch_pipeline_maya(session, event):
+def on_launch_framework_maya(session, event):
     '''Handle application launch and add environment to *event*.'''
 
-    pipeline_maya_base_data = on_discover_pipeline_maya(session, event)
+    framework_maya_base_data = on_discover_framework_maya(session, event)
 
     maya_plugins_path = os.path.join(
         plugin_base_dir, 'resource', 'plugins', 'python'
@@ -48,7 +48,7 @@ def on_launch_pipeline_maya(session, event):
 
     maya_bootstrap_plugin_path = os.path.join(maya_bootstrap_path, 'plugins')
 
-    pipeline_maya_base_data['integration']['env'] = {
+    framework_maya_base_data['integration']['env'] = {
         'FTRACK_EVENT_PLUGIN_PATH.prepend': os.path.pathsep.join(
             [maya_plugins_path, maya_definitions_path]
         ),
@@ -64,7 +64,7 @@ def on_launch_pipeline_maya(session, event):
 
     if selection:
         task = session.get('Context', selection[0]['entityId'])
-        pipeline_maya_base_data['integration']['env'][
+        framework_maya_base_data['integration']['env'][
             'FTRACK_CONTEXTID.set'
         ] = task['id']
         parent = session.query(
@@ -72,17 +72,17 @@ def on_launch_pipeline_maya(session, event):
                 task['parent']['id']
             )
         ).first()  # Make sure updated custom attributes are fetched
-        pipeline_maya_base_data['integration']['env']['FS.set'] = parent[
+        framework_maya_base_data['integration']['env']['FS.set'] = parent[
             'custom_attributes'
         ].get('fstart', '1.0')
-        pipeline_maya_base_data['integration']['env']['FE.set'] = parent[
+        framework_maya_base_data['integration']['env']['FE.set'] = parent[
             'custom_attributes'
         ].get('fend', '100.0')
-        pipeline_maya_base_data['integration']['env']['FPS.set'] = parent[
+        framework_maya_base_data['integration']['env']['FPS.set'] = parent[
             'custom_attributes'
         ].get('fps', '24.0')
 
-    return pipeline_maya_base_data
+    return framework_maya_base_data
 
 
 def register(session):
@@ -91,7 +91,7 @@ def register(session):
         return
 
     handle_discovery_event = functools.partial(
-        on_discover_pipeline_maya, session
+        on_discover_framework_maya, session
     )
 
     session.event_hub.subscribe(
@@ -102,7 +102,7 @@ def register(session):
         priority=40,
     )
 
-    handle_launch_event = functools.partial(on_launch_pipeline_maya, session)
+    handle_launch_event = functools.partial(on_launch_framework_maya, session)
 
     session.event_hub.subscribe(
         'topic=ftrack.connect.application.launch and '

@@ -1,4 +1,4 @@
-ftrack\_connect\_pipeline\_maya.plugin.open package
+framework\_maya.plugin.open package
 ===================================================
 
 .. automodule:: framework_maya.plugin.open

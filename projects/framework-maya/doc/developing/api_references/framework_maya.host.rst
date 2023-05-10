@@ -1,4 +1,4 @@
-ftrack\_connect\_pipeline\_maya.host package
+framework\_maya.host package
 ============================================
 
 .. automodule:: framework_maya.host

@@ -1,4 +1,4 @@
-ftrack\_connect\_pipeline\_maya package
+framework\_maya package
 =======================================
 
 .. automodule:: framework_maya
@@ -22,7 +22,7 @@ Subpackages
 Submodules
 ----------
 
-ftrack\_connect\_pipeline\_maya._version module
+framework\_maya._version module
 -----------------------------------------------
 
 .. automodule:: framework_maya._version

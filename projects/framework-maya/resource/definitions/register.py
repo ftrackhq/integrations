@@ -8,8 +8,6 @@ import functools
 from framework_core import constants, configure_logging
 from framework_core.definition import BaseDefinition
 
-logger = logging.getLogger('framework_maya_definitions.register')
-
 
 def register(api_object, **kw):
     '''Register plugin to api_object.'''
