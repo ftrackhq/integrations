@@ -1,5 +1,5 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2019 ftrack
+# :copyright: Copyright (c) 2015-2023 ftrack
 
 
 import os
@@ -101,7 +101,7 @@ class PyTest(TestCommand):
 
 version_template = '''
 # :coding: utf-8
-# :copyright: Copyright (c) 2017-2020 ftrack
+# :copyright: Copyright (c) 2015-2023 ftrack
 
 __version__ = {version!r}
 '''
@@ -112,17 +112,14 @@ setup(
     description='A dialog to publish package from nuke to ftrack',
     long_description=open(README_PATH).read(),
     keywords='ftrack',
-    url='https://bitbucket.org/ftrack/framework-nuke',
+    url='https://github.com/ftrackhq/integrations/project/framework-nuke',
     author='ftrack',
     author_email='support@ftrack.com',
     license='Apache License (2.0)',
     packages=find_packages(SOURCE_PATH),
     package_dir={'': 'source'},
-    use_scm_version={
-        'write_to': 'source/framework_nuke/_version.py',
-        'write_to_template': version_template,
-        'version_scheme': 'post-release',
-    },
+    package_data={"": ["{}/**/*.*".format(RESOURCE_PATH), "{}/**/*.py".format(HOOK_PATH)]},
+    version="1.3.0",
     setup_requires=[
         'sphinx >= 1.8.5, < 4',
         'sphinx_rtd_theme >= 0.1.6, < 2',
