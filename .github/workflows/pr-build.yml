@@ -1,6 +1,9 @@
 name: CI
 
 on:
+  push:
+    branches:
+      - * # All branches, during DEV only
   pull_request:
     types:
       - opened
@@ -36,7 +39,7 @@ jobs:
           draft: false
           prerelease: true
   build-framework:
-    name: Build framework for Connect
+    name: Build framework plugins for Connect
     needs: release
     runs-on: ubuntu-latest
     steps:
@@ -86,11 +89,25 @@ jobs:
         run: |
           # We also smoke test that our release process will work by running `package`.
           pants package ::
-      - name: Build framework core
+      - name: Build framework core Connect plugin
         run: |
           cd dist
-          tar -xzvf *.tar.gz
-          cd $(ls -d */|head -n 1)
+          tar -xzvf framework-core*.tar.gz
+          cd $(ls -d framework-core/|head -n 1)
+          python setup.py build_plugin
+          mv build/*.zip ../
+      - name: Build framework QT Connect plugin
+        run: |
+          cd dist
+          tar -xzvf framework-core*.tar.gz
+          cd $(ls -d framework-core/|head -n 1)
+          python setup.py build_plugin
+          mv build/*.zip ../
+      - name: Build framework Maya Connect plugin
+        run: |
+          cd dist
+          tar -xzvf framework-maya*.tar.gz
+          cd $(ls -d framework-maya/|head -n 1)
           python setup.py build_plugin
           mv build/*.zip ../
       - uses: xresloader/upload-to-github-release@main
