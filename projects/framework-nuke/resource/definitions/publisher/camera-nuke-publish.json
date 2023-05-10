@@ -1,0 +1,243 @@
+{
+  "type": "publisher",
+  "name": "Camera Publisher",
+  "asset_type": "cam",
+  "host_type": "nuke",
+  "ui_type": "qt",
+  "contexts": [
+    {
+      "name": "main",
+      "stages": [
+        {
+          "name": "context",
+          "plugins":[
+            {
+              "name": "context selector",
+              "plugin": "common_passthrough_publisher_context",
+              "widget": "common_default_publisher_context"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "components": [
+    {
+      "name": "snapshot",
+      "stages": [
+        {
+          "name": "collector",
+          "plugins":[
+            {
+              "name": "collect scene",
+              "plugin": "nuke_scene_publisher_collector",
+              "options": {
+                "export": ["scene"]
+              }
+            }
+          ]
+        },
+        {
+          "name": "validator",
+          "plugins":[
+            {
+              "name": "Check file saved",
+              "plugin": "nuke_file_saved_publisher_validator"
+            },
+            {
+              "name": "validate file exists",
+              "plugin": "nuke_file_exists_publisher_validator"
+            }
+          ]
+        },
+        {
+          "name": "exporter",
+          "plugins":[
+            {
+              "name": "write nuke scene",
+              "plugin": "nuke_native_publisher_exporter"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "cache",
+      "optional": true,
+      "stages": [
+        {
+          "name": "collector",
+          "plugins":[
+            {
+              "name": "Collect camera node",
+              "plugin": "nuke_camera_publisher_collector",
+              "widget": "nuke_node_publisher_collector"
+            }
+          ]
+        },
+        {
+          "name": "validator",
+          "plugins":[
+            {
+              "name": "validate selection",
+              "plugin": "common_non_empty_publisher_validator",
+              "options": {
+                "amount": 1
+              }
+            },
+            {
+              "name": "validate type",
+              "plugin": "nuke_node_type_publisher_validator",
+              "options" : {
+                "node_type": "Camera3"
+              }
+            }
+          ]
+        },
+        {
+          "name": "exporter",
+          "plugins":[
+            {
+              "name": "Export camera",
+              "plugin": "nuke_camera_publisher_exporter",
+              "options": {
+                  "file_type": "abc"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "game",
+      "optional": true,
+      "stages": [
+        {
+          "name": "collector",
+          "plugins":[
+            {
+              "name": "Collect camera node",
+              "plugin": "nuke_camera_publisher_collector",
+              "widget": "nuke_node_publisher_collector"
+            }
+          ]
+        },
+        {
+          "name": "validator",
+          "plugins":[
+            {
+              "name": "Validate selection",
+              "plugin": "common_non_empty_publisher_validator",
+              "options": {
+                "amount": 1
+              }
+            },
+            {
+              "name": "Validate type",
+              "plugin": "nuke_node_type_publisher_validator",
+              "options" : {
+                "node_type": "Camera3"
+              }
+            }
+          ]
+        },
+        {
+          "name": "exporter",
+          "plugins":[
+            {
+              "name": "Export camera",
+              "plugin": "nuke_camera_publisher_exporter",
+              "options": {
+                  "file_type": "fbx"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "geo",
+      "optional": true,
+      "stages": [
+        {
+          "name": "collector",
+          "plugins":[
+            {
+              "name": "Collect camera node",
+              "plugin": "nuke_camera_publisher_collector",
+              "widget": "nuke_node_publisher_collector"
+            }
+          ]
+        },
+        {
+          "name": "validator",
+          "plugins":[
+            {
+              "name": "Validate selection",
+              "plugin": "common_non_empty_publisher_validator",
+              "options": {
+                "amount": 1
+              }
+            },
+            {
+              "name": "Validate type",
+              "plugin": "nuke_node_type_publisher_validator",
+              "options" : {
+                "node_type": "Camera3"
+              }
+            }
+          ]
+        },
+        {
+          "name": "exporter",
+          "plugins":[
+            {
+              "name": "Export camera",
+              "plugin": "nuke_camera_publisher_exporter",
+              "options": {
+                  "file_type": "obj"
+              }
+            }
+          ]
+        }
+      ]
+    }
+    ],
+  "finalizers": [
+    {
+      "name": "main",
+      "stages": [
+        {
+          "name": "pre_finalizer",
+          "visible": false,
+          "plugins":[
+            {
+              "name": "Pre publish to ftrack server",
+              "plugin": "common_passthrough_publisher_pre_finalizer"
+            }
+          ]
+        },
+        {
+          "name": "finalizer",
+          "visible": false,
+          "plugins":[
+            {
+              "name": "Publish to ftrack server",
+              "plugin": "common_passthrough_publisher_finalizer"
+            }
+          ]
+        },
+        {
+          "name": "post_finalizer",
+          "visible": false,
+          "plugins":[
+            {
+              "name": "Post process publish",
+              "plugin": "common_passthrough_publisher_post_finalizer"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
