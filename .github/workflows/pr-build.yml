@@ -90,21 +90,21 @@ jobs:
         run: |
           cd dist
           tar -xzvf framework-core*.tar.gz
-          cd $(ls -d framework-core/|head -n 1)
+          cd $(ls -d framework-core*/|head -n 1)
           python setup.py build_plugin
           mv build/*.zip ../
       - name: Build framework QT Connect plugin
         run: |
           cd dist
-          tar -xzvf framework-core*.tar.gz
-          cd $(ls -d framework-core/|head -n 1)
+          tar -xzvf framework-qt*.tar.gz
+          cd $(ls -d framework-qt*/|head -n 1)
           python setup.py build_plugin
           mv build/*.zip ../
       - name: Build framework Maya Connect plugin
         run: |
           cd dist
           tar -xzvf framework-maya*.tar.gz
-          cd $(ls -d framework-maya/|head -n 1)
+          cd $(ls -d framework-maya*/|head -n 1)
           python setup.py build_plugin
           mv build/*.zip ../
       - uses: xresloader/upload-to-github-release@main
