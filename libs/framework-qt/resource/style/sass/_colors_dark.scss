@@ -1,0 +1,60 @@
+// TODO: Test and tweak the dark theme.
+
+// Primary brand colors
+$color-primary: #FFDD86;
+$color-primary-dark: #695B37;
+
+// Dark shades, from dark to lighter
+$color-dark-1: #232A2F; //
+$color-dark-2: #131920;
+$color-dark-3: #131920; //
+
+
+// Grays
+$gray-darker:           rgba(255, 255, 255, 0.1); // #6D7075 #222
+$gray-dark:             rgba(255, 255, 255, 0.38); // #303030;
+$gray:                  rgba(255, 255, 255, 0.6);
+$gray-light:            #D3d4D6;
+$gray-lighter:          #1F242B; // #1F252B;
+$background:            #131920; // ftrack background color
+$background-modal:      #0F141A; // ftrack background color, modals
+$background-docked:     rgb(55,55,55); // DCC dependent
+$alt-background:        #191d22;
+$alt-background-docked: rgb(44,44,44);
+$background-selected:   rgba(255, 255, 255, 0.05);
+$white:                 $color-dark-2;
+
+
+$color-green: #5EAA8D;
+$color-blue: #3498DB;
+$color-orange: #E67E22;
+//$color-primary: #F1C500;
+$color-red: #E74C3C;
+$color-white: white;
+$color-cyan: #86E0EA;
+
+$brand-primary:         $color-primary;
+$brand-success:         $color-green;
+$brand-info:            $color-blue;
+$brand-warning:         $color-primary;
+$brand-danger:          $color-red;
+
+$body-bg:                       $color-dark-2;
+$text-color:                    $gray-light;
+$text-color-default:            $gray-light;
+$text-color-default-hover:      darken($text-color-default, 5%);
+$text-color-default-pressed:    darken($text-color-default, 5%);
+$text-color-light:              white;
+$text-color-primary:            #548cd7;
+$text-color-drop-zone:          lighten($gray-light, 15%);
+$border-color:                  rgba(255, 255, 255, 0.1);
+
+$overlay-bg:            $gray-darker;
+
+$inset-bg:              $gray-lighter;
+$inset-border-color:    $gray-light;
+
+$input-border-color:    $gray-dark;
+
+$scrollbar-handle:          #2F363F;
+$scrollbar-handle-docked:   #777777;
