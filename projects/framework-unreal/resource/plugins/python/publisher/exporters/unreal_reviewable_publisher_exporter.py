@@ -8,8 +8,8 @@ import unreal
 
 import ftrack_api
 
-from ftrack_connect_pipeline_unreal import plugin
-from ftrack_connect_pipeline_unreal import utils as unreal_utils
+from framework_unreal import plugin
+from framework_unreal import utils as unreal_utils
 
 
 class UnrealReviewablePublisherExporterPlugin(

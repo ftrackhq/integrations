@@ -3,11 +3,11 @@
 
 import ftrack_api
 
-from ftrack_connect_pipeline_unreal import plugin
-from ftrack_connect_pipeline_qt.plugin.widget.dynamic import DynamicWidget
+from framework_unreal import plugin
+from framework_qt.plugin.widget.dynamic import DynamicWidget
 
-from ftrack_connect_pipeline_unreal.constants.asset import modes as load_const
-from ftrack_connect_pipeline_unreal import utils as unreal_utils
+from framework_unreal.constants.asset import modes as load_const
+from framework_unreal import utils as unreal_utils
 
 
 class UnrealFbxRigLoaderImporterOptionsWidget(DynamicWidget):

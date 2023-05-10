@@ -8,9 +8,9 @@ from Qt import QtWidgets
 
 import ftrack_api
 
-from ftrack_connect_pipeline_qt.plugin.widget import BaseOptionsWidget
-from ftrack_connect_pipeline_unreal import plugin
-from ftrack_connect_pipeline_unreal import utils as unreal_utils
+from framework_qt.plugin.widget import BaseOptionsWidget
+from framework_unreal import plugin
+from framework_unreal import utils as unreal_utils
 
 
 class UnrealReviewablePublisherCollectorOptionsWidget(BaseOptionsWidget):

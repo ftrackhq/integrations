@@ -1,7 +1,7 @@
 ftrack\_connect\_pipeline\_unreal package
 =================================================
 
-.. automodule:: ftrack_connect_pipeline_unreal
+.. automodule:: framework_unreal
    :members:
    :undoc-members:
    :show-inheritance:
@@ -12,12 +12,12 @@ Subpackages
 .. toctree::
     :maxdepth: 1
 
-    ftrack_connect_pipeline_unreal.asset
-    ftrack_connect_pipeline_unreal.client
-    ftrack_connect_pipeline_unreal.constants
-    ftrack_connect_pipeline_unreal.host
-    ftrack_connect_pipeline_unreal.plugin
-    ftrack_connect_pipeline_unreal.utils
+    framework_unreal.asset
+    framework_unreal.client
+    framework_unreal.constants
+    framework_unreal.host
+    framework_unreal.plugin
+    framework_unreal.utils
 
 Submodules
 ----------
@@ -25,7 +25,7 @@ Submodules
 ftrack\_connect\_pipeline\_unreal._version module
 ---------------------------------------------------------
 
-.. automodule:: ftrack_connect_pipeline_unreal._version
+.. automodule:: framework_unreal._version
    :members:
    :undoc-members:
    :show-inheritance:

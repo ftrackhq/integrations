@@ -45,7 +45,7 @@ class BuildPlugin(setuptools.Command):
         VERSION = '.'.join(release.split('.')[:3])
         global STAGING_PATH
         STAGING_PATH = os.path.join(
-            BUILD_PATH, 'ftrack-connect-pipeline-unreal-{}'.format(VERSION)
+            BUILD_PATH, 'framework-unreal-{}'.format(VERSION)
         )
 
         '''Run the build step.'''
@@ -73,7 +73,7 @@ class BuildPlugin(setuptools.Command):
         result_path = shutil.make_archive(
             os.path.join(
                 BUILD_PATH,
-                'ftrack-connect-pipeline-unreal-{0}'.format(VERSION),
+                'framework-unreal-{0}'.format(VERSION),
             ),
             'zip',
             STAGING_PATH,
@@ -108,18 +108,18 @@ __version__ = {version!r}
 
 # Configuration.
 setup(
-    name='ftrack-connect-pipeline-unreal',
+    name='framework-unreal',
     description='Unreal plugin enabling publish, open, load and asset management with ftrack eco system.',
     long_description=open(README_PATH).read(),
     keywords='ftrack',
-    url='https://github.com/ftrackhq/ftrack-connect-pipeline-unreal/',
+    url='https://github.com/ftrackhq/integrations/projects/framework-unreal/',
     author='ftrack',
     author_email='support@ftrack.com',
     license='Apache License (2.0)',
     packages=find_packages(SOURCE_PATH),
     package_dir={'': 'source'},
     use_scm_version={
-        'write_to': 'source/ftrack_connect_pipeline_unreal/_version.py',
+        'write_to': 'source/framework_unreal/_version.py',
         'write_to_template': version_template,
         'version_scheme': 'post-release',
     },
