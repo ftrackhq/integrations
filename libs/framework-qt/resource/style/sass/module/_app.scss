@@ -1,0 +1,81 @@
+/** Application window **/
+
+* {
+    font-family: $font-family-base;
+    font-size: 11px;
+}
+
+QLabel#lead-label {
+    font-size: 13px;
+    color: $text-color-drop-zone;
+    font-weight: light;
+}
+
+QPixmap{
+    image: theme-image('ftrackLogoLabelDark');
+}
+
+QScrollArea {
+    border: none;
+    background-color: transparent;
+    padding: 0px;
+}
+
+QScrollArea QWidget {
+    background-color: transparent;
+}
+
+QMessageBox {
+    background-color: $gray-darker;
+}
+
+/* Shared styles */
+
+#h1 {
+    color: $color-white;
+    font-weight: bold;
+    font-size: 20px;
+}
+
+#h2 {
+    color: $color-white;
+    font-weight: bold;
+    font-size: 14px;
+}
+
+#h3 {
+    color: $color-white;
+    font-weight: bold;
+    font-size: larger;
+}
+
+#h4 {
+    color: $color-white;
+    font-weight: bold;
+}
+
+#gray {
+    color: $gray;
+}
+
+#gray-dark {
+    color: $gray-dark;
+}
+
+#gray-darker {
+    color: $gray-darker;
+}
+
+#red {
+    color: red;
+}
+
+#color-primary {
+    color: $color-primary;
+}
+
+#borderless {
+    border: none;
+}
+
+
