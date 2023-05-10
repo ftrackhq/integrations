@@ -8,7 +8,7 @@ import tempfile
 import nuke
 import nukescripts
 
-from ftrack_connect_pipeline_nuke import plugin
+from framework_nuke import plugin
 
 
 class NukeNativePublisherExporterPlugin(plugin.NukePublisherExporterPlugin):

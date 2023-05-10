@@ -5,8 +5,8 @@ import ftrack_api
 
 import nuke
 
-from ftrack_connect_pipeline_nuke import plugin
-from ftrack_connect_pipeline_nuke.constants import asset as asset_const
+from framework_nuke import plugin
+from framework_nuke.constants import asset as asset_const
 
 
 class NukeCameraLoaderImporterPlugin(plugin.NukeLoaderImporterPlugin):

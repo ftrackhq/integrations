@@ -8,9 +8,9 @@ import nuke
 
 import ftrack_api
 
-from ftrack_connect_pipeline_nuke import plugin
-from ftrack_connect_pipeline_nuke import utils as nuke_utils
-from ftrack_connect_pipeline_nuke.constants import asset as asset_const
+from framework_nuke import plugin
+from framework_nuke import utils as nuke_utils
+from framework_nuke.constants import asset as asset_const
 
 
 class NukeSequenceLoaderImporterPlugin(plugin.NukeLoaderImporterPlugin):

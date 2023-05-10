@@ -3,7 +3,7 @@
 
 import ftrack_api
 
-from ftrack_connect_pipeline_nuke import plugin
+from framework_nuke import plugin
 
 import nuke
 

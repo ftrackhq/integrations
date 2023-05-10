@@ -3,9 +3,9 @@
 
 import ftrack_api
 
-from ftrack_connect_pipeline_nuke import plugin
-from ftrack_connect_pipeline_nuke.constants.asset import modes as load_const
-from ftrack_connect_pipeline_nuke.constants import asset as asset_const
+from framework_nuke import plugin
+from framework_nuke.constants.asset import modes as load_const
+from framework_nuke.constants import asset as asset_const
 
 
 class NukeNativeOpenerImporterPlugin(plugin.NukeOpenerImporterPlugin):
