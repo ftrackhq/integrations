@@ -33,6 +33,16 @@ HOOK_PATH = os.path.join(ROOT_PATH, 'hook')
 
 BUILD_PATH = os.path.join(ROOT_PATH, 'build')
 
+SETUP_REQUIRES = [
+    'PySide2 == 5.12.6',
+    'Qt.py >=1.0.0, < 2',
+    'pyScss >= 1.2.0, < 2',
+    'sphinx >= 1.8.5, < 4',
+    'sphinx_rtd_theme >= 0.1.6, < 2',
+    'lowdown >= 0.1.0, < 2',
+    'setuptools >= 44.0.0',
+    'setuptools_scm',
+]
 
 # Custom commands.
 class BuildResources(setuptools.Command):
@@ -69,6 +79,17 @@ class BuildResources(setuptools.Command):
 
     def run(self):
         '''Run build.'''
+
+        # Make sure requirements are installed on GH Actions
+        subprocess.check_call(
+            [
+                sys.executable,
+                '-m',
+                'pip',
+                'install',
+            ]+[entry.replace(" ","") for entry in SETUP_REQUIRES]
+        )
+
         try:
             import scss
         except ImportError:
@@ -224,16 +245,7 @@ setup(
     package_data={"": ["{}/**/*.*".format(RESOURCE_PATH), "{}/**/*.py".format(HOOK_PATH)]},
     version="1.4.0",
     python_requires='<3.10',
-    setup_requires=[
-        'PySide2 == 5.12.6',
-        'Qt.py >=1.0.0, < 2',
-        'pyScss >= 1.2.0, < 2',
-        'sphinx >= 1.8.5, < 4',
-        'sphinx_rtd_theme >= 0.1.6, < 2',
-        'lowdown >= 0.1.0, < 2',
-        'setuptools >= 44.0.0',
-        'setuptools_scm',
-    ],
+    setup_requires=SETUP_REQUIRES,
     install_requires=['Qt.py >=1.0.0, < 2'],
     tests_require=['pytest >= 2.3.5, < 3'],
     cmdclass={
