@@ -1,1 +1,1 @@
-# ftrack-connect-pipeline_maya
+# framework_maya

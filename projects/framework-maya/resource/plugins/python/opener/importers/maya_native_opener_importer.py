@@ -5,9 +5,9 @@ import os
 
 import maya.cmds as cmds
 
-from ftrack_connect_pipeline_maya import plugin
-from ftrack_connect_pipeline_maya.constants.asset import modes as load_const
-from ftrack_connect_pipeline_maya.constants import asset as asset_const
+from framework_maya import plugin
+from framework_maya.constants.asset import modes as load_const
+from framework_maya.constants import asset as asset_const
 import ftrack_api
 
 

@@ -6,7 +6,7 @@ import tempfile
 import maya.cmds as cmds
 import maya.mel as mel
 
-from ftrack_connect_pipeline_maya import plugin
+from framework_maya import plugin
 import ftrack_api
 
 

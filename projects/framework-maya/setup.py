@@ -45,7 +45,7 @@ class BuildPlugin(setuptools.Command):
         VERSION = '.'.join(release.split('.')[:3])
         global STAGING_PATH
         STAGING_PATH = os.path.join(
-            BUILD_PATH, 'ftrack-connect-pipeline-maya-{}'.format(VERSION)
+            BUILD_PATH, 'framework-maya-{}'.format(VERSION)
         )
 
         '''Run the build step.'''
@@ -76,7 +76,7 @@ class BuildPlugin(setuptools.Command):
 
         shutil.make_archive(
             os.path.join(
-                BUILD_PATH, 'ftrack-connect-pipeline-maya-{0}'.format(VERSION)
+                BUILD_PATH, 'framework-maya-{0}'.format(VERSION)
             ),
             'zip',
             STAGING_PATH,
@@ -110,18 +110,18 @@ __version__ = {version!r}
 
 # Configuration.
 setup(
-    name='ftrack-connect-pipeline-maya',
+    name='framework-maya',
     description='A dialog to publish package from Maya to ftrack',
     long_description=open(README_PATH).read(),
     keywords='ftrack',
-    url='https://bitbucket.org/ftrack/ftrack-connect-pipeline-maya',
+    url='https://bitbucket.org/ftrack/framework-maya',
     author='ftrack',
     author_email='support@ftrack.com',
     license='Apache License (2.0)',
     packages=find_packages(SOURCE_PATH),
     package_dir={'': 'source'},
     use_scm_version={
-        'write_to': 'source/ftrack_connect_pipeline_maya/_version.py',
+        'write_to': 'source/framework_maya/_version.py',
         'write_to_template': version_template,
         'version_scheme': 'post-release',
     },
