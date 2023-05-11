@@ -118,11 +118,8 @@ setup(
     license='Apache License (2.0)',
     packages=find_packages(SOURCE_PATH),
     package_dir={'': 'source'},
-    use_scm_version={
-        'write_to': 'source/framework_houdini/_version.py',
-        'write_to_template': version_template,
-        'version_scheme': 'post-release',
-    },
+    package_data={"": ["{}/**/*.*".format(RESOURCE_PATH), "{}/**/*.py".format(HOOK_PATH)]},
+    version="1.2.0",
     python_requires='<3.8',
     setup_requires=[
         'sphinx >= 1.8.5, < 4',
