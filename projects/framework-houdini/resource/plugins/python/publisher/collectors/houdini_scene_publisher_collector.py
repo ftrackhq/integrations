@@ -5,7 +5,7 @@ import hou
 
 import ftrack_api
 
-from ftrack_connect_pipeline_houdini import plugin
+from framework_houdini import plugin
 
 
 class HoudiniScenePublisherCollectorPlugin(

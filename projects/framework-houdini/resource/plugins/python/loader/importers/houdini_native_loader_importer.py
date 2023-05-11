@@ -3,9 +3,9 @@
 
 import six
 
-from ftrack_connect_pipeline_houdini import plugin
-from ftrack_connect_pipeline_houdini.constants.asset import modes as load_const
-from ftrack_connect_pipeline_houdini.constants import asset as asset_const
+from framework_houdini import plugin
+from framework_houdini.constants.asset import modes as load_const
+from framework_houdini.constants import asset as asset_const
 import ftrack_api
 
 

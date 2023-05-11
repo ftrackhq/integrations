@@ -3,11 +3,11 @@
 
 from functools import partial
 
-from ftrack_connect_pipeline_houdini import plugin
-from ftrack_connect_pipeline_qt.plugin.widget.load_widget import (
+from framework_houdini import plugin
+from framework_qt.plugin.widget.load_widget import (
     LoadBaseWidget,
 )
-from ftrack_connect_pipeline_houdini.constants.asset import modes as load_const
+from framework_houdini.constants.asset import modes as load_const
 
 from Qt import QtWidgets
 

@@ -45,7 +45,7 @@ class BuildPlugin(setuptools.Command):
         VERSION = '.'.join(release.split('.')[:3])
         global STAGING_PATH
         STAGING_PATH = os.path.join(
-            BUILD_PATH, 'ftrack-connect-pipeline-houdini-{}'.format(VERSION)
+            BUILD_PATH, 'framework-houdini-{}'.format(VERSION)
         )
 
         '''Run the build step.'''
@@ -73,7 +73,7 @@ class BuildPlugin(setuptools.Command):
         result_path = shutil.make_archive(
             os.path.join(
                 BUILD_PATH,
-                'ftrack-connect-pipeline-houdini-{0}'.format(VERSION),
+                'framework-houdini-{0}'.format(VERSION),
             ),
             'zip',
             STAGING_PATH,
@@ -108,18 +108,18 @@ __version__ = {version!r}
 
 # Configuration.
 setup(
-    name='ftrack-connect-pipeline-houdini',
+    name='framework-houdini',
     description='A dialog to publish package from houdini to ftrack',
     long_description=open(README_PATH).read(),
     keywords='ftrack',
-    url='https://bitbucket.org/ftrack/ftrack-connect-pipeline-houdini',
+    url='https://bitbucket.org/ftrack/framework-houdini',
     author='ftrack',
     author_email='support@ftrack.com',
     license='Apache License (2.0)',
     packages=find_packages(SOURCE_PATH),
     package_dir={'': 'source'},
     use_scm_version={
-        'write_to': 'source/ftrack_connect_pipeline_houdini/_version.py',
+        'write_to': 'source/framework_houdini/_version.py',
         'write_to_template': version_template,
         'version_scheme': 'post-release',
     },

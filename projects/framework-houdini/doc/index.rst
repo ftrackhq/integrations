@@ -1,4 +1,4 @@
-Welcome to ftrack-connect-pipeline-houdini's documentation!
+Welcome to framework-houdini's documentation!
 ===========================================================
 
 .. toctree::

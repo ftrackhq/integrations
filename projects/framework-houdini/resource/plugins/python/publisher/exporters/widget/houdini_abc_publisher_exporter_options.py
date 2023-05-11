@@ -3,8 +3,8 @@
 
 import ftrack_api
 
-from ftrack_connect_pipeline_houdini import plugin
-from ftrack_connect_pipeline_qt.plugin.widget.dynamic import DynamicWidget
+from framework_houdini import plugin
+from framework_qt.plugin.widget.dynamic import DynamicWidget
 
 
 class HoudiniAbcPublisherExporterOptionsWidget(DynamicWidget):

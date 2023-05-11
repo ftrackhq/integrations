@@ -1,8 +1,8 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2023 ftrack
 
-from ftrack_connect_pipeline_houdini import plugin
-from ftrack_connect_pipeline_qt.plugin.widget.dynamic import DynamicWidget
+from framework_houdini import plugin
+from framework_qt.plugin.widget.dynamic import DynamicWidget
 
 import ftrack_api
 

@@ -6,9 +6,9 @@ import logging
 import hou
 
 import ftrack_api
-from ftrack_connect_pipeline_houdini import plugin
+from framework_houdini import plugin
 
-logger = logging.getLogger('ftrack_connect_pipeline_houdini')
+logger = logging.getLogger('framework_houdini')
 
 
 class HoudiniCameraPublisherValidatorPlugin(

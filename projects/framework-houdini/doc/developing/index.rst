@@ -7,7 +7,7 @@
 Developing
 **********
 
-Discover how to extend and modify ftrack connect pipeline definitions for a tighter
+Discover how to extend and modify ftrack connect Houdini framework for a tighter
 integration and more customisation options.
 
 .. toctree::
