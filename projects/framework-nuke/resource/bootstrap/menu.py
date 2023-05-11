@@ -13,15 +13,15 @@ from Qt import QtWidgets
 
 import ftrack_api
 
-import ftrack_connect_pipeline_nuke
-from ftrack_connect_pipeline import constants as core_constants
-from ftrack_connect_pipeline.configure_logging import configure_logging
+import framework_nuke
+from framework_core import constants as core_constants
+from framework_core.configure_logging import configure_logging
 
-from ftrack_connect_pipeline_qt import event
-from ftrack_connect_pipeline_qt import constants as qt_constants
-from ftrack_connect_pipeline_qt.ui.asset_manager.model import AssetListModel
+from framework_qt import event
+from framework_qt import constants as qt_constants
+from framework_qt.ui.asset_manager.model import AssetListModel
 
-from ftrack_connect_pipeline_nuke.client import (
+from framework_nuke.client import (
     open,
     load,
     asset_manager,
@@ -31,16 +31,16 @@ from ftrack_connect_pipeline_nuke.client import (
     documentation,
 )
 
-from ftrack_connect_pipeline_nuke.menu import build_menu_widgets
-from ftrack_connect_pipeline_nuke import utils as nuke_utils
-from ftrack_connect_pipeline_nuke import host as nuke_host
+from framework_nuke.menu import build_menu_widgets
+from framework_nuke import utils as nuke_utils
+from framework_nuke import host as nuke_host
 
 configure_logging(
-    'ftrack_connect_pipeline_nuke',
-    extra_modules=['ftrack_connect_pipeline', 'ftrack_connect_pipeline_qt'],
+    'framework_nuke',
+    extra_modules=['framework_core', 'framework_qt'],
 )
 
-logger = logging.getLogger('ftrack_connect_pipeline_nuke')
+logger = logging.getLogger('framework_nuke')
 
 
 def get_ftrack_menu(menu_name='ftrack', submenu_name='pipeline'):

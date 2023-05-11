@@ -7,8 +7,8 @@ import clique
 import tempfile
 import shutil
 
-from ftrack_connect_pipeline_nuke import plugin
-from ftrack_connect_pipeline_nuke import utils as nuke_utils
+from framework_nuke import plugin
+from framework_nuke import utils as nuke_utils
 
 import nuke
 

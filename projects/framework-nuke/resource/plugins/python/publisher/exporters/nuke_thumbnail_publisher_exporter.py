@@ -6,8 +6,8 @@ import ftrack_api
 import tempfile
 import nuke
 
-from ftrack_connect_pipeline_nuke import plugin
-from ftrack_connect_pipeline_nuke import utils as nuke_utils
+from framework_nuke import plugin
+from framework_nuke import utils as nuke_utils
 
 
 class NukeThumbnailPublisherExporterPlugin(plugin.NukePublisherExporterPlugin):

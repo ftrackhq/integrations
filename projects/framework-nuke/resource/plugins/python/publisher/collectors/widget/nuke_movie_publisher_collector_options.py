@@ -6,14 +6,14 @@ import nuke
 
 import ftrack_api
 
-from ftrack_connect_pipeline_qt.plugin.widget import BaseOptionsWidget
-from ftrack_connect_pipeline_qt.ui.utility.widget import (
+from framework_qt.plugin.widget import BaseOptionsWidget
+from framework_qt.ui.utility.widget import (
     radio_button_group,
     browse_widget,
     node_combo_box,
     file_dialog,
 )
-from ftrack_connect_pipeline_nuke import plugin
+from framework_nuke import plugin
 
 
 class NukeMoviePublisherCollectorOptionsWidget(BaseOptionsWidget):

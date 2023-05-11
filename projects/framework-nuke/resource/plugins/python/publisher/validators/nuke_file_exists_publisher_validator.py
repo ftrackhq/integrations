@@ -4,7 +4,7 @@
 import ftrack_api
 import os
 
-from ftrack_connect_pipeline_nuke import plugin
+from framework_nuke import plugin
 
 
 class NukeFileExistsPublisherValidatorPlugin(
