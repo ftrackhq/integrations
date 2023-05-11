@@ -1,0 +1,224 @@
+{
+  "type": "loader",
+  "name": "Animation Loader",
+  "asset_type": "anim",
+  "host_type": "maya",
+  "ui_type": "qt",
+  "contexts": [
+    {
+      "name": "main",
+      "stages": [
+        {
+          "name": "context",
+          "plugins":[
+            {
+              "name": "context selector",
+              "plugin": "common_passthrough_loader_context",
+              "widget": "common_default_loader_context"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "components": [
+    {
+      "name": "snapshot",
+      "file_formats": [".mb", ".ma"],
+      "stages": [
+        {
+          "name": "collector",
+          "plugins":[
+            {
+              "name": "Collect component paths from context",
+              "plugin": "common_context_loader_collector"
+            }
+          ]
+        },
+        {
+          "name": "importer",
+          "plugins":[
+            {
+              "name": "Import paths to Maya",
+              "plugin": "maya_native_loader_importer",
+              "options": {
+                "load_mode": "import",
+                "load_options": {
+                  "preserve_references": true,
+                  "add_namespace": true,
+                  "namespace_option": "file_name"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "post_importer",
+          "plugins":[
+            {
+              "name": "maya",
+              "plugin": "common_passthrough_loader_post_importer"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "animation",
+      "file_formats": [".mb", ".ma"],
+      "optional": true,
+      "stages": [
+        {
+          "name": "collector",
+          "plugins":[
+            {
+              "name": "Collect component paths from context",
+              "plugin": "common_context_loader_collector"
+            }
+          ]
+        },
+        {
+          "name": "importer",
+          "plugins":[
+            {
+              "name": "Import paths to Maya",
+              "plugin": "maya_native_loader_importer",
+              "options": {
+                "load_mode": "import",
+                "load_options": {
+                  "preserve_references": true,
+                  "add_namespace": true,
+                  "namespace_option": "file_name"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "post_importer",
+          "plugins":[
+            {
+              "name": "maya",
+              "plugin": "common_passthrough_loader_post_importer"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "cache",
+      "file_formats": [".abc"],
+      "optional": true,
+      "enabled": false,
+      "stages": [
+        {
+          "name": "collector",
+          "plugins":[
+            {
+              "name": "Collect component paths from context",
+              "plugin": "common_context_loader_collector"
+            }
+          ]
+        },
+        {
+          "name": "importer",
+          "plugins":[
+            {
+              "name": "Import paths to Maya",
+              "plugin": "maya_abc_loader_importer"
+            }
+          ]
+        },
+        {
+          "name": "post_importer",
+          "plugins":[
+            {
+              "name": "maya",
+              "plugin": "common_passthrough_loader_post_importer"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "game",
+      "file_formats": [".fbx"],
+      "optional": true,
+      "enabled": false,
+      "stages": [
+        {
+          "name": "collector",
+          "plugins":[
+            {
+              "name": "Collect component paths from context",
+              "plugin": "common_context_loader_collector"
+            }
+          ]
+        },
+        {
+          "name": "importer",
+          "plugins":[
+            {
+              "name": "Import paths to Maya",
+              "plugin": "maya_native_loader_importer",
+              "options": {
+                "load_mode": "import",
+                "load_options": {
+                  "preserve_references": true,
+                  "add_namespace": true,
+                  "namespace_option": "file_name"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "post_importer",
+          "plugins":[
+            {
+              "name": "maya",
+              "plugin": "common_passthrough_loader_post_importer"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "finalizers": [
+    {
+      "name": "main",
+      "stages": [
+        {
+          "name": "pre_finalizer",
+          "visible": false,
+          "plugins":[
+            {
+              "name": "Pre finalizer",
+              "plugin": "common_passthrough_loader_pre_finalizer"
+            }
+          ]
+        },
+        {
+          "name": "finalizer",
+          "visible": false,
+          "plugins":[
+            {
+              "name": "Finalizer",
+              "plugin": "common_passthrough_loader_finalizer"
+            }
+          ]
+        },
+        {
+          "name": "post_finalizer",
+          "visible": false,
+          "plugins":[
+            {
+              "name": "Post finalizer",
+              "plugin": "common_passthrough_loader_post_finalizer"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

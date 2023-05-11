@@ -1,0 +1,287 @@
+{
+  "type": "publisher",
+  "name": "Rig Publisher",
+  "asset_type": "rig",
+  "task_type": "rigging",
+  "host_type": "maya",
+  "ui_type": "qt",
+  "contexts": [
+    {
+      "name": "main",
+      "stages": [
+        {
+          "name": "context",
+          "plugins":[
+            {
+              "name": "context selector",
+              "plugin": "common_passthrough_publisher_context",
+              "widget": "common_default_publisher_context"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "components": [
+    {
+      "name": "snapshot",
+      "stages": [
+        {
+          "name": "collector",
+          "plugins":[
+            {
+              "name": "collect scene",
+              "plugin": "maya_scene_publisher_collector",
+              "options": {
+                "export": ["scene"]
+              }
+            }
+          ]
+        },
+        {
+          "name": "validator",
+          "plugins":[
+            {
+              "name": "validate scene",
+              "plugin": "common_non_empty_publisher_validator"
+            }
+          ]
+        },
+        {
+          "name": "exporter",
+          "plugins":[
+            {
+              "name": "maya",
+              "plugin": "maya_native_publisher_exporter",
+              "widget": "maya_native_publisher_exporter"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "rig",
+      "optional": true,
+      "stages": [
+        {
+          "name": "collector",
+          "plugins":[
+            {
+              "name": "generic_collector",
+              "plugin": "maya_generic_publisher_collector"
+            }
+          ]
+        },
+        {
+          "name": "validator",
+          "plugins":[
+            {
+              "name": "validate selection",
+              "plugin": "common_non_empty_publisher_validator"
+            }
+          ]
+        },
+        {
+          "name": "exporter",
+          "plugins":[
+            {
+              "name": "maya",
+              "plugin": "maya_native_publisher_exporter",
+              "widget": "maya_native_publisher_exporter",
+              "options":{
+                "constructionHistory": true,
+                "channels": true,
+                "preserveReferences": true,
+                "shader": true,
+                "constraints": true,
+                "expressions": true
+              }
+            }
+          ]
+        }
+      ]
+    },
+     {
+      "name": "cache",
+      "optional": true,
+      "enabled": false,
+      "stages": [
+        {
+          "name": "collector",
+          "plugins":[
+            {
+              "name": "generic_collector",
+              "plugin": "maya_generic_publisher_collector"
+            }
+          ]
+        },
+        {
+          "name": "validator",
+          "plugins":[
+            {
+              "name": "validate selection",
+              "plugin": "common_non_empty_publisher_validator"
+            }
+          ]
+        },
+        {
+          "name": "exporter",
+          "plugins":[
+            {
+              "name": "maya_abc_publisher_exporter",
+              "plugin": "maya_abc_publisher_exporter",
+              "widget": "maya_abc_publisher_exporter",
+              "options": {
+                "alembicAnimation": true
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "game",
+      "optional": true,
+      "enabled": false,
+      "enabled": false,
+      "stages": [
+        {
+          "name": "collector",
+          "plugins":[
+            {
+              "name": "generic_collector",
+              "plugin": "maya_generic_publisher_collector"
+            }
+          ]
+        },
+        {
+          "name": "validator",
+          "plugins":[
+            {
+              "name": "validate selection",
+              "plugin": "common_non_empty_publisher_validator"
+            }
+          ]
+        },
+        {
+          "name": "exporter",
+          "plugins":[
+            {
+              "name": "maya_fbx_publisher_exporter",
+              "plugin": "maya_fbx_publisher_exporter",
+              "widget": "maya_fbx_publisher_exporter"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "thumbnail",
+      "stages": [
+        {
+          "name": "collector",
+          "plugins":[
+            {
+              "name": "select camera",
+              "plugin": "maya_camera_publisher_collector",
+              "options": {
+                "camera_name": "persp"
+              },
+              "widget": "maya_camera_publisher_collector"
+            }
+          ]
+        },
+        {
+          "name": "validator",
+          "plugins":[
+            {
+              "name": "validate selection",
+              "plugin": "common_non_empty_publisher_validator"
+            }
+          ]
+        },
+        {
+          "name": "exporter",
+          "plugins":[
+            {
+              "name": "write thumbnail",
+              "plugin": "maya_thumbnail_publisher_exporter"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "reviewable",
+      "stages": [
+        {
+          "name": "collector",
+          "plugins":[
+            {
+              "name": "select camera to playblast",
+              "plugin": "maya_camera_publisher_collector",
+              "options": {
+                "camera_name": "persp"
+              }
+            }
+          ]
+        },
+        {
+          "name": "validator",
+          "plugins":[
+            {
+              "name": "validate selection",
+              "plugin": "common_non_empty_publisher_validator"
+            }
+          ]
+        },
+        {
+          "name": "exporter",
+          "plugins":[
+            {
+              "name": "write reviewable",
+              "plugin": "maya_reviewable_publisher_exporter"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "finalizers": [
+    {
+      "name": "main",
+      "stages": [
+        {
+          "name": "pre_finalizer",
+          "visible": false,
+          "plugins":[
+            {
+              "name": "Pre publish to ftrack server",
+              "plugin": "common_passthrough_publisher_pre_finalizer"
+            }
+          ]
+        },
+        {
+          "name": "finalizer",
+          "visible": false,
+          "plugins":[
+            {
+              "name": "Publish to ftrack server",
+              "plugin": "common_passthrough_publisher_finalizer"
+            }
+          ]
+        },
+        {
+          "name": "post_finalizer",
+          "visible": false,
+          "plugins":[
+            {
+              "name": "Post process publish",
+              "plugin": "common_passthrough_publisher_post_finalizer"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
