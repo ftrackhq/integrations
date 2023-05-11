@@ -7,6 +7,7 @@ on:
 
 jobs:
   docs:
+    if: false # Disable for now
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
