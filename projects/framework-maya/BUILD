@@ -1,4 +1,3 @@
-
 python_sources(
     name="maya_project",
     sources=["**/*.py"],
