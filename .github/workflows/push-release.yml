@@ -40,7 +40,7 @@ jobs:
       - name: Identify source tag and hash
         run: |
           echo "Fetch:"
-          git fetch -a
+          git fetch -a -t
           echo "Status:"
           git status
           echo "Existing tags:"
