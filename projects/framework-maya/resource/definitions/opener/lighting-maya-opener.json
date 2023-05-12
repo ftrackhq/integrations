@@ -1,0 +1,134 @@
+{
+  "type": "opener",
+  "name": "Lighting Opener",
+  "asset_type": "lgt",
+  "host_type": "maya",
+  "ui_type": "qt",
+  "contexts": [
+    {
+      "name": "main",
+      "stages": [
+        {
+          "name": "context",
+          "plugins":[
+            {
+              "name": "context selector",
+              "plugin": "common_passthrough_opener_context",
+              "widget": "common_default_opener_context"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "components": [
+    {
+      "name": "snapshot",
+      "file_formats": [".mb", ".ma"],
+      "stages": [
+        {
+          "name": "collector",
+          "plugins":[
+            {
+              "name": "Collect component paths from context",
+              "plugin": "common_context_opener_collector"
+            }
+          ]
+        },
+        {
+          "name": "importer",
+          "plugins":[
+            {
+              "name": "Open Maya Scene",
+              "plugin": "maya_native_opener_importer",
+              "options": {
+              }
+            }
+          ]
+        },
+        {
+          "name": "post_importer",
+          "plugins":[
+            {
+              "name": "maya",
+              "plugin": "common_passthrough_opener_post_importer"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "lighting",
+      "file_formats": [".mb", ".ma"],
+      "optional": true,
+      "stages": [
+        {
+          "name": "collector",
+          "plugins":[
+            {
+              "name": "Collect component paths from context",
+              "plugin": "common_context_opener_collector"
+            }
+          ]
+        },
+        {
+          "name": "importer",
+          "plugins":[
+            {
+              "name": "Open Maya Scene",
+              "plugin": "maya_native_opener_importer",
+              "options": {
+              }
+            }
+          ]
+        },
+        {
+          "name": "post_importer",
+          "plugins":[
+            {
+              "name": "maya",
+              "plugin": "common_passthrough_opener_post_importer"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "finalizers": [
+    {
+      "name": "main",
+      "stages": [
+        {
+          "name": "pre_finalizer",
+          "visible": false,
+          "plugins":[
+            {
+              "name": "Pre finalizer",
+              "plugin": "common_passthrough_opener_pre_finalizer"
+            }
+          ]
+        },
+        {
+          "name": "finalizer",
+          "plugins":[
+            {
+              "name": "Rename scene",
+              "description" : "Upon open, rename Maya scene to local temp directory",
+              "plugin": "maya_native_opener_finalizer"
+            }
+          ]
+        },
+        {
+          "name": "post_finalizer",
+          "visible": false,
+          "plugins":[
+            {
+              "name": "Post finalizer",
+              "plugin": "common_passthrough_opener_post_finalizer"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
