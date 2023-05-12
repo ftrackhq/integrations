@@ -1,0 +1,288 @@
+{
+    "type": "asset_manager",
+    "name": "default",
+    "host_type": "maya",
+    "ui_type": "qt",
+    "actions":{
+        "update":[
+            {
+                "name": "Update to latest",
+                "plugin": "common_update_latest_am_action",
+                "options": {"clear_selection":  false}
+            }
+        ]
+    },
+    "resolvers":{
+        "resolve_dependencies":[
+            {
+                "name": "Resolve Maya context asset dependencies",
+                "plugin": "common_default_am_resolver",
+                "options": {
+                    "task_types":{
+                        "rendering":{
+                            "asset_types": [
+                                {
+                                    "asset_type": "lgt",
+                                    "filters": {
+                                        "task_names_include": [".*"],
+                                        "task_names_exclude": [".^"],
+                                        "asset_names_include": [".*"],
+                                        "asset_names_exclude": [".^"]
+                                    }
+                                }
+                            ]
+                        },
+                        "animation": {
+                            "asset_types": [
+                                {
+                                    "asset_type": "rig",
+                                    "filters": {
+                                        "task_names_include": [".*"],
+                                        "task_names_exclude": [".^"],
+                                        "asset_names_include": [".*"],
+                                        "asset_names_exclude": [".^"]
+                                    }
+                                },{
+                                    "asset_type": "geo",
+                                    "filters": {
+                                        "task_names_include": [".*"],
+                                        "task_names_exclude": [".^"],
+                                        "asset_names_include": [".*"],
+                                        "asset_names_exclude": [".^"]
+                                    }
+                                },{
+                                    "asset_type": "lgt",
+                                    "filters": {
+                                        "task_names_include": [".*"],
+                                        "task_names_exclude": [".^"],
+                                        "asset_names_include": [".*"],
+                                        "asset_names_exclude": [".^"]
+                                    }
+                                },{
+                                    "asset_type": "cam",
+                                    "filters": {
+                                        "task_names_include": [".*"],
+                                        "task_names_exclude": [".^"],
+                                        "asset_names_include": [".*"],
+                                        "asset_names_exclude": [".^"]
+                                    }
+                                }
+                            ]
+                        },
+                        "modeling": {
+                            "asset_types": [
+                                {
+                                    "asset_type": "geo",
+                                    "filters": {
+                                        "task_names_include": [".*"],
+                                        "task_names_exclude": [".^"],
+                                        "asset_names_include": [".*"],
+                                        "asset_names_exclude": [".^"]
+                                    }
+                                },
+                                {
+                                    "asset_type": "rig",
+                                    "filters": {
+                                        "task_names_include": [".*"],
+                                        "task_names_exclude": [".^"],
+                                        "asset_names_include": [".*"],
+                                        "asset_names_exclude": [".^"]
+                                    }
+                                }
+                            ]
+                        },
+                        "fx": {
+                            "asset_types": [
+                                {
+                                    "asset_type": "cam",
+                                    "filters": {
+                                        "task_names_include": [".*"],
+                                        "task_names_exclude": [".^"],
+                                        "asset_names_include": [".*"],
+                                        "asset_names_exclude": [".^"]
+                                    }
+                                },{
+                                    "asset_type": "geo",
+                                    "filters": {
+                                        "task_names_include": [".*"],
+                                        "task_names_exclude": [".^"],
+                                        "asset_names_include": [".*"],
+                                        "asset_names_exclude": [".^"]
+                                    }
+                                }
+                            ]
+                        },
+                        "lighting": {
+                            "asset_types": [
+                                {
+                                    "asset_type": "geo",
+                                    "filters": {
+                                        "task_names_include": [".*"],
+                                        "task_names_exclude": [".^"],
+                                        "asset_names_include": [".*"],
+                                        "asset_names_exclude": [".^"]
+                                    }
+                                },{
+                                    "asset_type": "animation",
+                                    "filters": {
+                                        "task_names_include": [".*"],
+                                        "task_names_exclude": [".^"],
+                                        "asset_names_include": [".*"],
+                                        "asset_names_exclude": [".^"]
+                                    }
+                                },{
+                                    "asset_type": "cam",
+                                    "filters": {
+                                        "task_names_include": [".*"],
+                                        "task_names_exclude": [".^"],
+                                        "asset_names_include": [".*"],
+                                        "asset_names_exclude": [".^"]
+                                    }
+                                },{
+                                    "asset_type": "fx",
+                                    "filters": {
+                                        "task_names_include": [".*"],
+                                        "task_names_exclude": [".^"],
+                                        "asset_names_include": [".*"],
+                                        "asset_names_exclude": [".^"]
+                                    }
+                                },{
+                                    "asset_type": "lgt",
+                                    "filters": {
+                                        "task_names_include": [".*"],
+                                        "task_names_exclude": [".^"],
+                                        "asset_names_include": [".*"],
+                                        "asset_names_exclude": [".^"]
+                                    }
+                                }
+                            ]
+                        },
+                        "compositing": {
+                        },
+                        "tracking": {
+                            "asset_types": [
+                                {
+                                    "asset_type": "edit",
+                                    "filters": {
+                                        "task_names_include": [".*"],
+                                        "task_names_exclude": [".^"],
+                                        "asset_names_include": [".*"],
+                                        "asset_names_exclude": [".^"]
+                                    }
+                                }
+                            ]
+                        },
+                        "rigging": {
+                            "asset_types": [
+                                {
+                                    "asset_type": "geo",
+                                    "filters": {
+                                        "task_names_include": [".*"],
+                                        "task_names_exclude": [".^"],
+                                        "asset_names_include": [".*"],
+                                        "asset_names_exclude": [".^"]
+                                    }
+                                },
+                                {
+                                    "asset_type": "rig",
+                                    "filters": {
+                                        "task_names_include": [".*"],
+                                        "task_names_exclude": [".^"],
+                                        "asset_names_include": [".*"],
+                                        "asset_names_exclude": [".^"]
+                                    }
+                                }
+                            ]
+                        },
+                        "concept art": {
+                        },
+                        "conform": {
+                            "asset_types": [
+                                {
+                                    "asset_type": "geo",
+                                    "filters": {
+                                        "task_names_include": [".*"],
+                                        "task_names_exclude": [".^"],
+                                        "asset_names_include": [".*"],
+                                        "asset_names_exclude": [".^"]
+                                    }
+                                },{
+                                    "asset_type": "rig",
+                                    "filters": {
+                                        "task_names_include": [".*"],
+                                        "task_names_exclude": [".^"],
+                                        "asset_names_include": [".*"],
+                                        "asset_names_exclude": [".^"]
+                                    }
+                                }
+                            ]
+                        },
+                        "texture": {
+                        },
+                        "production": {
+                        },
+                        "rotoscoping": {
+                        },
+                        "editing": {
+                        },
+                        "layout": {
+                            "asset_types": [
+                                {
+                                    "asset_type": "geo",
+                                    "filters": {
+                                        "task_names_include": [".*"],
+                                        "task_names_exclude": [".^"],
+                                        "asset_names_include": [".*"],
+                                        "asset_names_exclude": [".^"]
+                                    }
+                                },
+                                {
+                                    "asset_type": "rig",
+                                    "filters": {
+                                        "task_names_include": [".*"],
+                                        "task_names_exclude": [".^"],
+                                        "asset_names_include": [".*"],
+                                        "asset_names_exclude": [".^"]
+                                    }
+                                },{
+                                    "asset_type": "cam",
+                                    "filters": {
+                                        "task_names_include": [".*"],
+                                        "task_names_exclude": [".^"],
+                                        "asset_names_include": [".*"],
+                                        "asset_names_exclude": [".^"]
+                                    }
+                                },{
+                                    "asset_type": "lgt",
+                                    "filters": {
+                                        "task_names_include": [".*"],
+                                        "task_names_exclude": [".^"],
+                                        "asset_names_include": [".*"],
+                                        "asset_names_exclude": [".^"]
+                                    }
+                                }
+                            ]
+                        },
+                        "*": {
+                            "asset_types": [
+                                {
+                                    "asset_type": "*",
+                                    "filters": {
+                                        "task_names_include": [".*"],
+                                        "task_names_exclude": [".^"],
+                                        "asset_names_include": [".*"],
+                                        "asset_names_exclude": [".^"]
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "status_names_include": [".*"],
+                    "status_names_exclude": ["(?i)(\\W|^)(Omitted)(\\W|$)"],
+                    "linked_only": true,
+                    "max_link_depth": 1
+                }
+            }
+        ]
+    }
+}
