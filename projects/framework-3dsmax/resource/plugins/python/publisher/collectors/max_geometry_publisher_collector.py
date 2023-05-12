@@ -5,7 +5,7 @@ from pymxs import runtime as rt
 
 import ftrack_api
 
-from ftrack_connect_pipeline_3dsmax import plugin
+from framework_3dsmax import plugin
 
 
 class MaxGeometryPublisherCollectorPlugin(plugin.MaxPublisherCollectorPlugin):

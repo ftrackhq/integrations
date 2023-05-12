@@ -1,7 +1,7 @@
 ftrack\_connect\_pipeline\_max package
 =======================================
 
-.. automodule:: ftrack_connect_pipeline_3dsmax
+.. automodule:: framework_3dsmax
    :members:
    :undoc-members:
    :show-inheritance:
@@ -12,12 +12,12 @@ Subpackages
 .. toctree::
     :maxdepth: 1
 
-    ftrack_connect_pipeline_3dsmax.asset
-    ftrack_connect_pipeline_3dsmax.client
-    ftrack_connect_pipeline_3dsmax.constants
-    ftrack_connect_pipeline_3dsmax.host
-    ftrack_connect_pipeline_3dsmax.plugin
-    ftrack_connect_pipeline_3dsmax.utils
+    framework_3dsmax.asset
+    framework_3dsmax.client
+    framework_3dsmax.constants
+    framework_3dsmax.host
+    framework_3dsmax.plugin
+    framework_3dsmax.utils
 
 Submodules
 ----------
@@ -25,7 +25,7 @@ Submodules
 ftrack\_connect\_pipeline\_max._version module
 -----------------------------------------------
 
-.. automodule:: ftrack_connect_pipeline_3dsmax._version
+.. automodule:: framework_3dsmax._version
    :members:
    :undoc-members:
    :show-inheritance:

@@ -1,12 +1,12 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2020 ftrack
 
-from ftrack_connect_pipeline_3dsmax import plugin
-from ftrack_connect_pipeline_qt.plugin.widget.load_widget import (
+from framework_3dsmax import plugin
+from framework_qt.plugin.widget.load_widget import (
     LoadBaseWidget,
 )
-from ftrack_connect_pipeline_3dsmax.constants.asset import modes as load_const
-from ftrack_connect_pipeline_qt.ui.utility.widget import group_box
+from framework_3dsmax.constants.asset import modes as load_const
+from framework_qt.ui.utility.widget import group_box
 
 from Qt import QtWidgets
 import ftrack_api

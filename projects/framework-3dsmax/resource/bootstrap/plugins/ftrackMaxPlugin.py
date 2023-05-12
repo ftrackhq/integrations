@@ -2,7 +2,7 @@
 
 import pymxs
 
-from ftrack_connect_pipeline_3dsmax.constants import asset as asset_const
+from framework_3dsmax.constants import asset as asset_const
 
 
 def register_ftrack_asset_helper():
