@@ -1,1 +1,1 @@
-python_sources()
+resources(sources=["**/*.json"])
