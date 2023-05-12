@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mainMenu>
+  <menuBar>
+    <subMenu>
+    <insertBefore>help_menu</insertBefore>
+      <label>ftrack</label>
+      <scriptItem id="hou_PipelineOpenAsset">
+        <label>Open</label>
+        <scriptCode><![CDATA[__import__('__main__').launchWidget('opener')]]></scriptCode>
+      </scriptItem>
+      <scriptItem id="hou_PipelineImportAsset">
+        <label>Assembler</label>
+        <scriptCode><![CDATA[__import__('__main__').launchWidget('assembler')]]></scriptCode>
+      </scriptItem>
+      <scriptItem id="hou_PipelinePublishAsset">
+        <label>Publish</label>
+        <scriptCode><![CDATA[__import__('__main__').launchWidget('publisher')]]></scriptCode>
+      </scriptItem>
+      <separatorItem />
+      <scriptItem id="hou_PipelineAssetManager">
+        <label>Asset Manager</label>
+        <scriptCode><![CDATA[__import__('__main__').launchWidget('asset_manager')]]></scriptCode>
+      </scriptItem>
+      <separatorItem />
+      <scriptItem id="hou_PipelineChangeContext">
+        <label>Change context</label>
+        <scriptCode><![CDATA[__import__('__main__').launchWidget('change_context')]]></scriptCode>
+      </scriptItem>
+      <separatorItem />
+      <scriptItem id="hou_PipelineLog">
+        <label>Log Viewer</label>
+        <scriptCode><![CDATA[__import__('__main__').launchWidget('log_viewer')]]></scriptCode>
+      </scriptItem>
+      <scriptItem id="hou_PipelineDoc">
+        <label>Documentation</label>
+        <scriptCode><![CDATA[__import__('__main__').launchWidget('documentation')]]></scriptCode>
+      </scriptItem>
+    </subMenu>
+  </menuBar>
+</mainMenu>   
