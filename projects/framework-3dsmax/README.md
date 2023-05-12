@@ -1,1 +1,1 @@
-# ftrack-connect-pipeline-3dsmax
+# framework-3dsmax

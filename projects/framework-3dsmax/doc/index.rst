@@ -1,4 +1,4 @@
-Welcome to ftrack-connect-pipeline-maya's documentation!
+Welcome to framework_3dsmax's documentation!
 ========================================================
 
 .. toctree::

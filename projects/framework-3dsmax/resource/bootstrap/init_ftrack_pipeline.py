@@ -10,18 +10,18 @@ from Qt import QtCore, QtWidgets
 
 import ftrack_api
 
-from ftrack_connect_pipeline_3dsmax import host as max_host
-from ftrack_connect_pipeline_qt import event
-from ftrack_connect_pipeline import constants
+from framework_3dsmax import host as max_host
+from framework_qt import event
+from framework_core import constants
 
-from ftrack_connect_pipeline import constants as core_constants
-from ftrack_connect_pipeline.configure_logging import configure_logging
+from framework_core import constants as core_constants
+from framework_core.configure_logging import configure_logging
 
-from ftrack_connect_pipeline_qt import constants as qt_constants
-from ftrack_connect_pipeline_qt.ui.asset_manager.model import AssetListModel
+from framework_qt import constants as qt_constants
+from framework_qt.ui.asset_manager.model import AssetListModel
 
-from ftrack_connect_pipeline_3dsmax import menu as ftrack_menu_module
-from ftrack_connect_pipeline_3dsmax.client import (
+from framework_3dsmax import menu as ftrack_menu_module
+from framework_3dsmax.client import (
     open,
     load,
     publish,
@@ -30,14 +30,14 @@ from ftrack_connect_pipeline_3dsmax.client import (
     change_context,
     documentation,
 )
-from ftrack_connect_pipeline_3dsmax import utils as max_utils
+from framework_3dsmax import utils as max_utils
 
 configure_logging(
-    'ftrack_connect_pipeline_3dsmax',
-    extra_modules=['ftrack_connect_pipeline', 'ftrack_connect_pipeline_qt'],
+    'framework_3dsmax',
+    extra_modules=['framework_core', 'framework_qt'],
 )
 
-logger = logging.getLogger('ftrack_connect_pipeline_3dsmax')
+logger = logging.getLogger('framework_3dsmax')
 
 created_widgets = dict()
 
@@ -203,7 +203,7 @@ def initialise():
         # The createActionItem expects a macro and not an script.
         python_code = ";".join(
             [
-                "from ftrack_connect_pipeline_3dsmax.menu import LaunchDialog",
+                "from framework_3dsmax.menu import LaunchDialog",
                 "launch_dialog_class = LaunchDialog()",
                 "launch_dialog_class.launch_dialog('{}')".format(widget_name),
             ]

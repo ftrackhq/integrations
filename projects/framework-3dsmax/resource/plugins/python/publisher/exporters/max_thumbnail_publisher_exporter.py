@@ -5,7 +5,7 @@ import os
 
 from pymxs import runtime as rt
 
-from ftrack_connect_pipeline_3dsmax import plugin
+from framework_3dsmax import plugin
 import ftrack_api
 
 

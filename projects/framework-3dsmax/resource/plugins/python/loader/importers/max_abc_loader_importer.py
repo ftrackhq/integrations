@@ -4,9 +4,9 @@ from pymxs import runtime as rt
 
 import ftrack_api
 
-from ftrack_connect_pipeline_3dsmax import plugin
-from ftrack_connect_pipeline_3dsmax.constants.asset import modes as load_const
-from ftrack_connect_pipeline_3dsmax.constants import asset as asset_const
+from framework_3dsmax import plugin
+from framework_3dsmax.constants.asset import modes as load_const
+from framework_3dsmax.constants import asset as asset_const
 
 
 class MaxAbcLoaderImporterPlugin(plugin.MaxLoaderImporterPlugin):

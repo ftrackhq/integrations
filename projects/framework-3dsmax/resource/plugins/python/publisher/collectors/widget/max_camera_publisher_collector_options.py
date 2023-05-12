@@ -2,8 +2,8 @@
 # :copyright: Copyright (c) 2014-2022 ftrack
 from functools import partial
 
-from ftrack_connect_pipeline_3dsmax import plugin
-from ftrack_connect_pipeline_qt.plugin.widget import BaseOptionsWidget
+from framework_3dsmax import plugin
+from framework_qt.plugin.widget import BaseOptionsWidget
 
 from Qt import QtWidgets
 
