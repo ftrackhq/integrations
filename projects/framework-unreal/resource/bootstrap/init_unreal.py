@@ -28,7 +28,7 @@ if do_load_integration:
         # Check if our integration is in present
         has_unreal_integration = False
         for p in os.environ['PYTHONPATH'].split(os.pathsep):
-            if 'ftrack-connect-pipeline-unreal' in p:
+            if 'framework-unreal' in p:
                 has_unreal_integration = True
                 break
         if not has_unreal_integration:
@@ -47,10 +47,10 @@ def load_integration():
 
     import ftrack_api
 
-    from ftrack_connect_pipeline import constants as core_constants
-    from ftrack_connect_pipeline.configure_logging import configure_logging
+    from framework_core import constants as core_constants
+    from framework_core.configure_logging import configure_logging
 
-    # Create a qapplication, needs to be done before using ftrack_connect_pipeline_qt
+    # Create a qapplication, needs to be done before using framework_qt
     qapp = QtWidgets.QApplication.instance()
     if qapp is None:
         qapp = QtWidgets.QApplication([])
@@ -58,15 +58,15 @@ def load_integration():
             QtGui.QIcon(os.path.dirname(__file__) + '/UEFtrack.ico')
         )
 
-    from ftrack_connect_pipeline_qt import event
-    from ftrack_connect_pipeline_qt import constants as qt_constants
+    from framework_qt import event
+    from framework_qt import constants as qt_constants
 
-    # from ftrack_connect_pipeline_qt.ui.asset_manager.model import (
+    # from framework_qt.ui.asset_manager.model import (
     #     AssetListModel,
     # )
 
-    from ftrack_connect_pipeline_unreal import host as unreal_host
-    from ftrack_connect_pipeline_unreal.client import (
+    from framework_unreal import host as unreal_host
+    from framework_unreal.client import (
         # open,
         load,
         publish,
@@ -76,19 +76,19 @@ def load_integration():
         documentation,
     )
 
-    from ftrack_connect_pipeline_unreal import utils as unreal_utils
-    from ftrack_connect_pipeline_unreal import menu as unreal_menu
+    from framework_unreal import utils as unreal_utils
+    from framework_unreal import menu as unreal_menu
 
     configure_logging(
-        'ftrack_connect_pipeline_unreal',
+        'framework_unreal',
         extra_modules=[
-            'ftrack_connect_pipeline',
-            'ftrack_connect_pipeline_qt',
+            'framework_core',
+            'framework_qt',
         ],
         propagate=False,
     )
 
-    logger = logging.getLogger('ftrack_connect_pipeline_unreal')
+    logger = logging.getLogger('framework_unreal')
 
     created_widgets = dict()
 
@@ -263,7 +263,7 @@ def load_integration():
                 unreal.ToolMenuStringCommandType.PYTHON,
                 widget_name,
                 string=(
-                    "from ftrack_connect_pipeline_unreal.menu import launch_dialog;launch_dialog('{}')".format(
+                    "from framework_unreal.menu import launch_dialog;launch_dialog('{}')".format(
                         widget_name
                     )
                 ),

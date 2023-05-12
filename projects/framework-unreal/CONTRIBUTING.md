@@ -1,5 +1,5 @@
 
-# Contributing to @ftrackhq/ftrack-connect-pipeline-unreal-engine
+# Contributing to @ftrackhq/integrations/framework-unreal
 
 Welcome and thank you for wanting to help improving our repository!
 Whether you are here to fix a bug or provide a new feature, you are welcome to contribute!

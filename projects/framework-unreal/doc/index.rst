@@ -1,4 +1,4 @@
-Welcome to ftrack-connect-pipeline-unreal's documentation!
+Welcome to framework-unreal's documentation!
 ==================================================================
 
 .. toctree::

@@ -4,8 +4,8 @@ import unreal
 
 import ftrack_api
 
-from ftrack_connect_pipeline_unreal import plugin
-from ftrack_connect_pipeline_unreal.constants.asset import modes as load_const
+from framework_unreal import plugin
+from framework_unreal.constants.asset import modes as load_const
 
 
 class UnrealFbxAnimationLoaderImporterPlugin(

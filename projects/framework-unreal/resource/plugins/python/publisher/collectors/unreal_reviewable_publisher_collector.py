@@ -3,7 +3,7 @@
 
 import ftrack_api
 
-from ftrack_connect_pipeline_unreal import plugin
+from framework_unreal import plugin
 
 
 class UnrealSequencePublisherCollectorPlugin(
