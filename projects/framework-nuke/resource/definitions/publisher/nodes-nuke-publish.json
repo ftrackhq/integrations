@@ -1,0 +1,206 @@
+{
+  "type": "publisher",
+  "name": "Nodes Publisher",
+  "asset_type": "script",
+  "host_type": "nuke",
+  "ui_type": "qt",
+  "contexts": [
+    {
+      "name": "main",
+      "stages": [
+        {
+          "name": "context",
+          "plugins":[
+            {
+              "name": "context selector",
+              "plugin": "common_passthrough_publisher_context",
+              "widget": "common_default_publisher_context"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "components": [
+    {
+      "name": "snapshot",
+      "stages": [
+        {
+          "name": "collector",
+          "plugins":[
+            {
+              "name": "collect scene",
+              "plugin": "nuke_scene_publisher_collector",
+              "options": {
+                "export": ["scene"]
+              }
+            }
+          ]
+        },
+        {
+          "name": "validator",
+          "plugins":[
+            {
+              "name": "Check file saved",
+              "plugin": "nuke_file_saved_publisher_validator"
+            },
+            {
+              "name": "validate file exists",
+              "plugin": "nuke_file_exists_publisher_validator"
+            }
+          ]
+        },
+        {
+          "name": "exporter",
+          "plugins":[
+            {
+              "name": "write nuke scene",
+              "plugin": "nuke_native_publisher_exporter"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "nodes",
+      "stages": [
+        {
+          "name": "collector",
+          "plugins":[
+            {
+              "name": "collect nodes",
+              "plugin": "nuke_nodes_publisher_collector"
+            }
+          ]
+        },
+        {
+          "name": "validator",
+          "plugins":[
+            {
+              "name": "Validate selection",
+              "plugin": "common_non_empty_publisher_validator"
+            }
+          ]
+        },
+        {
+          "name": "exporter",
+          "plugins":[
+            {
+              "name": "write nuke scene",
+              "plugin": "nuke_native_publisher_exporter"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "thumbnail",
+      "optional": true,
+      "stages": [
+        {
+          "name": "collector",
+          "plugins":[
+            {
+              "name": "Node graph",
+              "plugin": "common_passthrough_publisher_collector"
+            }
+          ]
+        },
+        {
+          "name": "validator",
+          "plugins":[
+            {
+              "name": "Unused validator",
+              "plugin": "common_passthrough_publisher_validator"
+            }
+          ]
+        },
+        {
+          "name": "exporter",
+          "plugins":[
+            {
+              "name": "write thumbnail",
+              "plugin": "nuke_thumbnail_publisher_exporter",
+              "options": {
+                "target" : "node_graph"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "reviewable",
+      "optional": true,
+      "stages": [
+        {
+          "name": "collector",
+          "plugins":[
+            {
+              "name": "Node graph",
+              "plugin": "common_passthrough_publisher_collector"
+            }
+          ]
+        },
+        {
+          "name": "validator",
+          "plugins":[
+            {
+              "name": "Unused validator",
+              "plugin": "common_passthrough_publisher_validator"
+            }
+          ]
+        },
+        {
+          "name": "exporter",
+          "plugins":[
+            {
+              "name": "Grab screen shot from node graph",
+              "plugin": "nuke_thumbnail_publisher_exporter",
+              "options": {
+                "target" : "node_graph"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "finalizers": [
+    {
+      "name": "main",
+      "stages": [
+        {
+          "name": "pre_finalizer",
+          "visible": false,
+          "plugins":[
+            {
+              "name": "Pre publish to ftrack server",
+              "plugin": "common_passthrough_publisher_pre_finalizer"
+            }
+          ]
+        },
+        {
+          "name": "finalizer",
+          "visible": false,
+          "plugins":[
+            {
+              "name": "Publish to ftrack server",
+              "plugin": "common_passthrough_publisher_finalizer"
+            }
+          ]
+        },
+        {
+          "name": "post_finalizer",
+          "visible": false,
+          "plugins":[
+            {
+              "name": "Post process publish",
+              "plugin": "common_passthrough_publisher_post_finalizer"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
