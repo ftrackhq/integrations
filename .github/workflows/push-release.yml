@@ -41,6 +41,8 @@ jobs:
         run: |
           echo "Fetch:"
           git fetch -a
+          echo "Status:"
+          git status
           echo "Existing tags:"
           git tag | sort
           echo "TAG=$(git tag | grep 'framework-core' | sort | tail -n 1)" >> $GITHUB_ENV
