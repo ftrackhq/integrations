@@ -45,6 +45,8 @@ jobs:
           echo "TAG=$(git tag | grep 'framework-core' | sort | tail -n 1)" >> $GITHUB_ENV
           echo "VERSION=$(git tag | grep 'framework-core' | sort | tail -n 1 | cut -d/ -f 2-)" >> $GITHUB_ENV
           echo "HASH=$(echo ${{github.sha}} | cut -b -7)" >> $GITHUB_ENV
+      # TODO: Check if release already exists, if so create release with commit
+      # hash appended to protect original release.
       - name: Create pre release
         id: create_pre_release
         uses: actions/create-release@v1
@@ -52,9 +54,12 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
         with:
           tag_name: ${{ env.TAG }}
-          release_name: Auto-generated pre-release on merge to main with tag ${{ env.TAG }}
+          release_name: ${{ env.TAG }}
           body: |
+            Auto-generated pre-release on merge to main with tag ${{ env.TAG }}
+            
             Commit: ${{ env.HASH }}
+            
             Ref: **${{ github.ref }}**
             
             Please check PR for details/release notes.
@@ -67,7 +72,7 @@ jobs:
       - name: Write version to setup.py
         run: |
           cd libs/framework-core/
-           sed -i "s/v0.0.0/${{ env.VERSION }}/g" setup.py
+          sed -i "s/v0.0.0/${{ env.VERSION }}/g" setup.py
       - name: Check BUILD files
         if: false # TODO enable linting with a later task
         run:  |
@@ -91,6 +96,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           file: "dist/*.zip"
-          release_id: ${{ steps.create_pre_release.outputs.release_id }}
+          release_id: ${{ steps.create_pre_release.outputs.id }}
           overwrite: true
           verbose: true
