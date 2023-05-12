@@ -39,7 +39,9 @@ jobs:
           # Alternatively you change gha-cache-key to ignore old caches.
       - name: Identify source tag and hash
         run: |
+          echo "Fetch:"
           git fetch -a
+          echo "Existing tags:"
           git tag | sort
           echo "TAG=$(git tag | grep 'framework-core' | sort | tail -n 1)" >> $GITHUB_ENV
           echo "VERSION=$(git tag | grep 'framework-core' | sort | tail -n 1 | cut -d/ -f 2-)" >> $GITHUB_ENV
