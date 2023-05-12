@@ -1,5 +1,5 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2019 ftrack
+# :copyright: Copyright (c) 2014-2022 ftrack
 
 
 import os
@@ -45,7 +45,7 @@ class BuildPlugin(setuptools.Command):
         VERSION = '.'.join(release.split('.')[:3])
         global STAGING_PATH
         STAGING_PATH = os.path.join(
-            BUILD_PATH, 'framework-maya-{}'.format(VERSION)
+            BUILD_PATH, 'framework-unreal-{}'.format(VERSION)
         )
 
         '''Run the build step.'''
@@ -58,10 +58,6 @@ class BuildPlugin(setuptools.Command):
         # Copy plugin files
         shutil.copytree(HOOK_PATH, os.path.join(STAGING_PATH, 'hook'))
 
-        dependencies_path = os.path.join(STAGING_PATH, 'dependencies')
-
-        os.makedirs(dependencies_path)
-
         subprocess.check_call(
             [
                 sys.executable,
@@ -70,17 +66,20 @@ class BuildPlugin(setuptools.Command):
                 'install',
                 '.',
                 '--target',
-                dependencies_path,
+                os.path.join(STAGING_PATH, 'dependencies'),
             ]
         )
 
-        shutil.make_archive(
+        result_path = shutil.make_archive(
             os.path.join(
-                BUILD_PATH, 'framework-maya-{0}'.format(VERSION)
+                BUILD_PATH,
+                'framework-unreal-{0}'.format(VERSION),
             ),
             'zip',
             STAGING_PATH,
         )
+
+        print('Result: ' + result_path)
 
 
 # Custom commands.
@@ -102,26 +101,26 @@ class PyTest(TestCommand):
 
 version_template = '''
 # :coding: utf-8
-# :copyright: Copyright (c) 2017-2020 ftrack
+# :copyright: Copyright (c) 2014-2023 ftrack
 
 __version__ = {version!r}
 '''
 
-
 # Configuration.
 setup(
-    name='framework-maya',
-    description='A dialog to publish package from Maya to ftrack',
+    name='framework-unreal',
+    description='Unreal plugin enabling publish, open, load and asset management with ftrack eco system.',
     long_description=open(README_PATH).read(),
     keywords='ftrack',
-    url='https://bitbucket.org/ftrack/framework-maya',
+    url='https://github.com/ftrackhq/integrations/projects/framework-unreal/',
     author='ftrack',
     author_email='support@ftrack.com',
     license='Apache License (2.0)',
     packages=find_packages(SOURCE_PATH),
     package_dir={'': 'source'},
     package_data={"": ["{}/**/*.*".format(RESOURCE_PATH), "{}/**/*.py".format(HOOK_PATH)]},
-    version="1.2.0",
+    version="1.1.0b1",
+    python_requires='<3.10',
     setup_requires=[
         'sphinx >= 1.8.5, < 4',
         'sphinx_rtd_theme >= 0.1.6, < 2',
@@ -129,6 +128,7 @@ setup(
         'setuptools>=44.0.0',
         'setuptools_scm',
     ],
+    install_requires=['PySide2'],
     tests_require=['pytest >= 2.3.5, < 3'],
     cmdclass={'test': PyTest, 'build_plugin': BuildPlugin},
     zip_safe=False,
