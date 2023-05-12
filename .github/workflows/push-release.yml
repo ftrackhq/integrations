@@ -39,10 +39,7 @@ jobs:
           # Alternatively you change gha-cache-key to ignore old caches.
       - name: Identify source tag and hash
         run: |
-          echo "Fetch:"
           git fetch -a -t
-          echo "Status:"
-          git status
           echo "Existing tags:"
           git tag | sort
           echo "TAG=$(git tag | grep 'framework-core' | sort | tail -n 1)" >> $GITHUB_ENV
@@ -58,7 +55,8 @@ jobs:
           release_name: Auto-generated pre-release on merge to main with tag ${{ env.TAG }}
           body: |
             Commit: ${{ env.HASH }}
-            Ref: ${{ github.ref }}
+            Ref: **${{ github.ref }}**
+            
             Please check PR for details/release notes.
           draft: false
           prerelease: true
@@ -71,15 +69,15 @@ jobs:
           cd libs/framework-core/
            sed -i "s/v0.0.0/${{ env.VERSION }}/g" setup.py
       - name: Check BUILD files
+        if: false # TODO enable linting with a later task
         run:  |
           pants tailor --check update-build-files --check ::
       - name: Lint and typecheck
-        if: false
+        if: false # TODO enable linting with a later task
         run: | 
           pants lint check ::
-      - name: Package / Run
+      - name: Package
         run: |
-          # We also smoke test that our release process will work by running `package`.
           pants package libs/framework-core::
       - name: Build framework core Connect plugin
         run: |
