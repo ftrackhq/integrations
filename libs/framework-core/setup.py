@@ -119,7 +119,7 @@ setup(
     packages=find_packages(SOURCE_PATH),
     package_dir={'': 'source'},
     package_data={"": ["{}/**/*.*".format(RESOURCE_PATH), "{}/**/*.py".format(HOOK_PATH)]},
-    version="1.4.0",
+    version="v0.0.0",
     python_requires='<3.10',
     setup_requires=[
         'sphinx >= 1.8.5, < 4',
