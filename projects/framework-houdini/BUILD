@@ -1,4 +1,3 @@
-
 python_sources(
     name="houdini_project",
     sources=["**/*.py"],
@@ -8,7 +7,6 @@ resource(
     name="README",
     source="README.md"
 )
-
 
 python_distribution(
     name="framework_houdini",

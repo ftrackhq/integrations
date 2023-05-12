@@ -1,4 +1,3 @@
-
 python_sources(
     name="qt_lib",
     sources=["**/*.py"]
