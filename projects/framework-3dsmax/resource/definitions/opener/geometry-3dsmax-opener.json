@@ -1,0 +1,129 @@
+{
+  "type": "opener",
+  "name": "Geometry Opener",
+  "asset_type": "geo",
+  "host_type": "3dsmax",
+  "ui_type": "qt",
+  "contexts": [
+    {
+      "name": "main",
+      "stages": [
+        {
+          "name": "context",
+          "plugins":[
+            {
+              "name": "context selector",
+              "plugin": "common_passthrough_opener_context",
+              "widget": "common_default_opener_context"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "components": [
+    {
+      "name": "snapshot",
+      "file_formats": [".max"],
+      "stages": [
+        {
+          "name": "collector",
+          "plugins":[
+            {
+              "name": "Collect component paths from context",
+              "plugin": "common_context_opener_collector"
+            }
+          ]
+        },
+        {
+          "name": "importer",
+          "plugins":[
+            {
+              "name": "Open Max Scene",
+              "plugin": "max_native_opener_importer"
+            }
+          ]
+        },
+        {
+          "name": "post_importer",
+          "plugins":[
+            {
+              "name": "max",
+              "plugin": "common_passthrough_opener_post_importer"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "model",
+      "file_formats": [".max"],
+      "stages": [
+        {
+          "name": "collector",
+          "plugins":[
+            {
+              "name": "Collect component paths from context",
+              "plugin": "common_context_opener_collector"
+            }
+          ]
+        },
+        {
+          "name": "importer",
+          "plugins":[
+            {
+              "name": "Open Max Scene",
+              "plugin": "max_native_opener_importer"
+            }
+          ]
+        },
+        {
+          "name": "post_importer",
+          "plugins":[
+            {
+              "name": "max",
+              "plugin": "common_passthrough_opener_post_importer"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "finalizers": [
+    {
+      "name": "main",
+      "stages": [
+        {
+          "name": "pre_finalizer",
+          "visible": false,
+          "plugins":[
+            {
+              "name": "Pre finalizer",
+              "plugin": "common_passthrough_opener_pre_finalizer"
+            }
+          ]
+        },
+        {
+          "name": "finalizer",
+          "plugins":[
+            {
+              "name": "Save scene to temp",
+              "description" : "Upon open, save Max scene to local temp directory",
+              "plugin": "max_native_opener_finalizer"
+            }
+          ]
+        },
+        {
+          "name": "post_finalizer",
+          "visible": false,
+          "plugins":[
+            {
+              "name": "Post finalizer",
+              "plugin": "common_passthrough_opener_post_finalizer"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
