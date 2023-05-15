@@ -106,7 +106,7 @@ jobs:
         uses: actions/cache/restore@v3
         with:
           path: |
-            dist/framework-core*.tar.gz
+            dist
           key: pants-dist-${{github.sha}}
       - name: Build framework core Connect plugin
         run: |
