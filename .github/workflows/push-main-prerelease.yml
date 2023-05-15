@@ -43,11 +43,27 @@ jobs:
       - name: Determine which packages has changed
         run: |
           echo "CHANGED=$(pants list --changed-since=origin/main | cut -d'/' -f 1-2 | grep -v :)" >> $GITHUB_ENV
-      - name: Update framework core version # Will be picked up by setup.py
+      # Store dummy version number, will be picked up by setup.py
+      - name: Update framework core version
+        if: contains(['framework-core'],${{ ${{ env.CHANGED }} }})
         run:  | 
           cd libs/framework-core/source/framework_core
            echo "__version__ = '${{ env.VERSION }}'" > _version.py
-      # TODO: Do the same for all packages
+      - name: Update framework qt version
+        if: contains(['framework-qt'],${{ ${{ env.CHANGED }} }})
+        run:  | 
+          cd libs/framework-qt/source/framework_qt
+           echo "__version__ = '${{ env.VERSION }}'" > _version.py
+      - name: Update framework maya version
+        if: contains(['framework-maya'],${{ ${{ env.CHANGED }} }})
+        run:  | 
+          cd projects/framework-maya/source/framework_maya
+           echo "__version__ = '${{ env.VERSION }}'" > _version.py
+      - name: Update framework houdini version
+        if: contains(['framework-houdini'],${{ ${{ env.CHANGED }} }})
+        run:  | 
+          cd projects/framework-houdini/source/framework_houdini
+           echo "__version__ = '${{ env.VERSION }}'" > _version.py
       - name: Check BUILD files
         if: false # TODO enable linting with a later task
         run:  |
@@ -59,18 +75,20 @@ jobs:
       - name: Package all
         run: |
           pants package ::
-      - name: Save build to cache
+      - name: Save pants build results to cache
         uses: actions/cache/save@v3
         with:
           path: dist
           key: pants-dist-${{github.sha}}
 
-  framework-core:
-    name: Conditional build and pre-release of framework core library
+  connect-build:
+    strategy:
+      matrix:
+        package: [ "framework-core", "framework-qt", "framework-maya", "framework-houdini" ]
+    name: Build & release ${{ matrix.package }}
     needs: pants-build
-    if: contains(['framework-core'],${{ needs.pants-build.outputs.changed }})
+    if: contains(['${{ matrix.package }}'],${{ needs.pants-build.outputs.changed }})
     env:
-        PACKAGE_NAME: "framework-core"
         VERSION: "${{ needs.pants-build.outputs.version }}"
     runs-on: ubuntu-latest
     steps:
@@ -81,7 +99,7 @@ jobs:
       - name: Delete previous latest release and tag
         uses: dev-drprasad/delete-tag-and-release@v1.0 # PRERELEASE is v1.0 and can also be used to test and give us feedback
         with:
-          tag_name: ${{ env.PACKAGE_NAME }}/${{ env.VERSION }}-latest #(required) tag name to delete
+          tag_name: ${{ matrix.package }}/${{ env.VERSION }}-latest #(required) tag name to delete
           github_token: ${{ secrets.GITHUB_TOKEN }} # (required) a GitHub token with write access to the repo that needs to be modified
           delete_release: true #(optional) default: true
       # TODO: Also delete PR pre-release
@@ -91,8 +109,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
         with:
-          tag_name: ${{ env.PACKAGE_NAME }}/${{ env.VERSION }}-latest
-          release_name: ${{ env.PACKAGE_NAME }}/${{ env.VERSION }}-latest
+          tag_name: ${{ matrix.package }}/${{ env.VERSION }}-latest
+          release_name: ${{ matrix.package }}/${{ env.VERSION }}-latest
           body: |
             Auto-generated pre-release on push to main
             
@@ -101,7 +119,7 @@ jobs:
             Commit: **${{ github.sha }}**
             
             Please check release notes for more information.
-          draft: false
+          draft: true
           prerelease: true
       - name: Restore pants build from cache
         uses: actions/cache/restore@v3
@@ -112,136 +130,16 @@ jobs:
       - name: Build Connect plugin
         run: |
           cd dist
-          tar -xzvf ${{ env.PACKAGE_NAME }}*.tar.gz
-          cd $(ls -d ${{ env.PACKAGE_NAME }}*/|head -n 1)
+          tar -xzvf ${{ matrix.package }}*.tar.gz
+          cd $(ls -d ${{ matrix.package }}*/|head -n 1)
           python setup.py build_plugin
           mv build/*.zip ../
       - uses: xresloader/upload-to-github-release@main
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          file: "dist/${{ env.PACKAGE_NAME }}-*.zip"
+          file: "dist/${{ matrix.package }}-*.zip"
           release_id: ${{ steps.create_pre_release.outputs.id }}
           overwrite: true
           verbose: true
-
-  framework-qt:
-    name: Conditional build and pre-release of framework qt library
-    needs: pants-build
-    if: contains(['framework-qt'],${{ needs.pants-build.outputs.changed }})
-    env:
-        PACKAGE_NAME: "framework-qt"
-        VERSION: "${{ needs.pants-build.outputs.version }}"
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-python@v4
-        with:
-          python-version: '3.7'
-      - name: Delete previous latest release and tag
-        uses: dev-drprasad/delete-tag-and-release@v1.0 # PRERELEASE is v1.0 and can also be used to test and give us feedback
-        with:
-          tag_name: ${{ env.PACKAGE_NAME }}/${{ env.VERSION }}-latest #(required) tag name to delete
-          github_token: ${{ secrets.GITHUB_TOKEN }} # (required) a GitHub token with write access to the repo that needs to be modified
-          delete_release: true #(optional) default: true
-      # TODO: Also delete PR pre-release
-      - name: Create pre-release
-        id: create_pre_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
-        with:
-          tag_name: ${{ env.PACKAGE_NAME }}/${{ env.VERSION }}-latest
-          release_name: ${{ env.PACKAGE_NAME }}/${{ env.VERSION }}-latest
-          body: |
-            Auto-generated pre-release on push to main
-            
-            User: **${{ github.actor }}**
-            Ref: **${{ github.ref }}**
-            Commit: **${{ github.sha }}**
-            
-            Please check release notes for more information.
           draft: false
-          prerelease: true
-      - name: Restore pants build from cache
-        uses: actions/cache/restore@v3
-        with:
-          path: dist
-          key: pants-dist-${{github.sha}}
-          fail-on-cache-miss: true
-      - name: Build Connect plugin
-        run: |
-          cd dist
-          tar -xzvf ${{ env.PACKAGE_NAME }}*.tar.gz
-          cd $(ls -d ${{ env.PACKAGE_NAME }}*/|head -n 1)
-          python setup.py build_plugin
-          mv build/*.zip ../
-      - uses: xresloader/upload-to-github-release@main
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          file: "dist/${{ env.PACKAGE_NAME }}-*.zip"
-          release_id: ${{ steps.create_pre_release.outputs.id }}
-          overwrite: true
-          verbose: true
-
-
-  framework-maya:
-    name: Conditional build and pre-release of framework maya project
-    needs: pants-build
-    if: contains(['framework-maya'],${{ needs.pants-build.outputs.changed }})
-    env:
-        PACKAGE_NAME: "framework-maya"
-        VERSION: "${{ needs.pants-build.outputs.version }}"
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-python@v4
-        with:
-          python-version: '3.7'
-      - name: Delete previous latest release and tag
-        uses: dev-drprasad/delete-tag-and-release@v1.0 # PRERELEASE is v1.0 and can also be used to test and give us feedback
-        with:
-          tag_name: ${{ env.PACKAGE_NAME }}/${{ env.VERSION }}-latest #(required) tag name to delete
-          github_token: ${{ secrets.GITHUB_TOKEN }} # (required) a GitHub token with write access to the repo that needs to be modified
-          delete_release: true #(optional) default: true
-      # TODO: Also delete PR pre-release
-      - name: Create pre-release
-        id: create_pre_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
-        with:
-          tag_name: ${{ env.PACKAGE_NAME }}/${{ env.VERSION }}-latest
-          release_name: ${{ env.PACKAGE_NAME }}/${{ env.VERSION }}-latest
-          body: |
-            Auto-generated pre-release on push to main
-            
-            User: **${{ github.actor }}**
-            Ref: **${{ github.ref }}**
-            Commit: **${{ github.sha }}**
-            
-            Please check release notes for more information.
-          draft: false
-          prerelease: true
-      - name: Restore pants build from cache
-        uses: actions/cache/restore@v3
-        with:
-          path: dist
-          key: pants-dist-${{github.sha}}
-          fail-on-cache-miss: true
-      - name: Build Connect plugin
-        run: |
-          cd dist
-          tar -xzvf ${{ env.PACKAGE_NAME }}*.tar.gz
-          cd $(ls -d ${{ env.PACKAGE_NAME }}*/|head -n 1)
-          python setup.py build_plugin
-          mv build/*.zip ../
-      - uses: xresloader/upload-to-github-release@main
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          file: "dist/${{ env.PACKAGE_NAME }}-*.zip"
-          release_id: ${{ steps.create_pre_release.outputs.id }}
-          overwrite: true
-          verbose: true
