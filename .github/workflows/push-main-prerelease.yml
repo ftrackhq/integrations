@@ -107,7 +107,7 @@ jobs:
         with:
           path: |
             dist/framework-core*.tar.gz
-          key: ${{ runner.os }}-primes
+          key: pants-dist-${{github.sha}}
       - name: Build framework core Connect plugin
         run: |
           cd dist
