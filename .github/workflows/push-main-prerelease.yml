@@ -45,7 +45,7 @@ jobs:
       - name: Update framework core version # Will be picked up by setup.py
         run:  | 
           cd libs/framework-core/source/framework_core
-          echo "__version__ = '${{ env.FRAMEWORK_CORE_RELEASE_TAG }}'" > _version.txt
+          echo "__version__ = '${{ env.FRAMEWORK_CORE_RELEASE_TAG }}'" > _version.py
       # TODO: Do the same for all packages
       - name: Check BUILD files
         if: false # TODO enable linting with a later task
