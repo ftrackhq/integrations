@@ -61,8 +61,7 @@ jobs:
       - name: Save build to cache
         uses: actions/cache/save@v3
         with:
-          path: |
-            dist/*.tar.gz
+          path: dist
           key: pants-dist-${{github.sha}}
 
   framework-core:
@@ -101,13 +100,12 @@ jobs:
             Please check PR for details/release notes.
           draft: false
           prerelease: true
-      - name: Restore build dist cache
-        id: cache-primes-restore
+      - name: Restore pants build from cache
         uses: actions/cache/restore@v3
         with:
-          path: |
-            dist
+          path: dist
           key: pants-dist-${{github.sha}}
+          fail-on-cache-miss: true
       - name: Build framework core Connect plugin
         run: |
           cd dist
