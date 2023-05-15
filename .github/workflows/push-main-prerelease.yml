@@ -13,7 +13,7 @@ jobs:
     name: Build with Pants and probe which packages has changed
     runs-on: ubuntu-latest
     env:
-      FRAMEWORK_CORE_RELEASE_TAG: "v0.0.0-latest"
+      FRAMEWORK_CORE_RELEASE_TAG: "framework-core/v0.0.0-latest"
     outputs:
       changed: ${{ env.CHANGED }}
       framework_core_release_tag: ${{ env.FRAMEWORK_CORE_RELEASE_TAG }}
@@ -45,7 +45,7 @@ jobs:
       - name: Update framework core version # Will be picked up by setup.py
         run:  | 
           cd libs/framework-core/source/framework_core
-          echo "__version__ = '${{ env.FRAMEWORK_CORE_RELEASE_TAG }}'" > _version.py
+           echo "__version__ = '$(echo ${{ env.FRAMEWORK_CORE_RELEASE_TAG }} | cut -d/ -f 2-2 | cut -d- -f 1-1)'" > _version.py
       # TODO: Do the same for all packages
       - name: Check BUILD files
         if: false # TODO enable linting with a later task
@@ -80,7 +80,7 @@ jobs:
       - name: Delete previous latest release and tag
         uses: dev-drprasad/delete-tag-and-release@v1.0 # PRERELEASE is v1.0 and can also be used to test and give us feedback
         with:
-          tag_name: framework-core/${{ env.FRAMEWORK_CORE_RELEASE_TAG }} #(required) tag name to delete
+          tag_name: ${{ env.FRAMEWORK_CORE_RELEASE_TAG }} #(required) tag name to delete
           github_token: ${{ secrets.GITHUB_TOKEN }} # (required) a GitHub token with write access to the repo that needs to be modified
           delete_release: true #(optional) default: true
       # TODO: Also delete PR pre-release
@@ -90,8 +90,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
         with:
-          tag_name: framework-core/${{ env.FRAMEWORK_CORE_RELEASE_TAG }}
-          release_name: framework-core/${{ env.FRAMEWORK_CORE_RELEASE_TAG }}
+          tag_name: ${{ env.FRAMEWORK_CORE_RELEASE_TAG }}
+          release_name: ${{ env.FRAMEWORK_CORE_RELEASE_TAG }}
           body: |
             Auto-generated pre-release on push to main
             
