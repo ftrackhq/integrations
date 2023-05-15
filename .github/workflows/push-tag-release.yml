@@ -1,0 +1,137 @@
+# Create public release on tag push.
+
+name: CI
+
+on:
+  push:
+    tags:
+      - "**"
+
+jobs:
+  pants-build:
+    if: false # Disable for now
+    name: Build with Pants and probe which packages has changed
+    runs-on: ubuntu-latest
+    outputs:
+      tag: ${{ env.TAG }}
+      version: ${{ env.VERSION }}
+      hash: ${{ env.HASH }}
+      changed: ${{ env.CHANGED }}
+    steps:
+      - uses: actions/checkout@v3
+      - uses: pantsbuild/actions/init-pants@v4-scie-pants
+        # This action bootstraps pants and manages 2-3 GHA caches.
+        # See: github.com/pantsbuild/actions/tree/main/init-pants/
+        with:
+          # v0 makes it easy to bust the cache if needed
+          # just increase the integer to start with a fresh cache
+          gha-cache-key: v0
+          # The Python backend uses named_caches for Pip/PEX state,
+          # so it is appropriate to invalidate on lockfile changes.
+          named-caches-hash: ${{ hashFiles('python-default.lock') }}
+          # If you're not using a fine-grained remote caching service (see https://www.pantsbuild.org/docs/remote-caching),
+          # then you may also want to preserve the local Pants cache (lmdb_store). However this must invalidate for
+          # changes to any file that can affect the build, so may not be practical in larger repos.
+          # A remote cache service integrates with Pants's fine-grained invalidation and avoids these problems.
+          cache-lmdb-store: 'true'  # defaults to 'false'
+          # Note that named_caches and lmdb_store falls back to partial restore keys which
+          # may give a useful partial result that will save time over completely clean state,
+          # but will cause the cache entry to grow without bound over time.
+          # See https://pants.readme.io/docs/using-pants-in-ci for tips on how to periodically clean it up.
+          # Alternatively you change gha-cache-key to ignore old caches.
+      - name: Identify source tag and hash
+        run: |
+          git fetch -a -t
+          echo "Existing tags:"
+          git tag | sort
+          echo "TAG=$(git tag | grep 'framework-core' | sort | tail -n 1)" >> $GITHUB_ENV
+          echo "VERSION=$(git tag | grep 'framework-core' | sort | tail -n 1 | cut -d/ -f 2-)" >> $GITHUB_ENV
+          echo "HASH=$(echo ${{github.sha}} | cut -b -7)" >> $GITHUB_ENV
+      - name: Determine what packages has changed
+        run: |
+          echo "CHANGED=$(pants list --changed-since=origin/main | cut -d'/' -f 1-2 | grep -v :)" >> $GITHUB_ENV
+      - name: Update framework core version # Will be picked up by setup.py
+        run:  | 
+          cd libs/framework-core/source/framework_core
+          echo "__version__ = '${{ env.FRAMEWORK_CORE_RELEASE_TAG }}'" > _version.txt
+      - name: Check BUILD files
+        if: false # TODO enable linting with a later task
+        run:  |
+          pants tailor --check update-build-files --check ::
+      - name: Lint and typecheck
+        if: false # TODO enable linting with a later task
+        run: | 
+          pants lint check ::
+      - name: Package all
+        run: |
+          pants package ::
+      - name: Save build to cache
+        uses: actions/cache/save@v3
+        with:
+          path: |
+            dist/*.tar.gz
+          key: pants-dist-${{github.sha}}
+
+  framework-core:
+    name: Conditional build and pre-release or framework core
+    needs: pants-build
+    if: contains(['framework-core'],${{ needs.pants-build.outputs.changed }})
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.7'
+      - name: Set envs
+        run: |
+          
+          echo "TAG=${{ needs.pants-build.outputs.tag }}" >> $GITHUB_ENV
+          echo "VERSION=${{ needs.pants-build.outputs.version }}" >> $GITHUB_ENV
+          echo "HASH=${{ needs.pants-build.outputs.hash }}" >> $GITHUB_ENV
+      - name: Delete previous latest release and tag
+        uses: dev-drprasad/delete-tag-and-release@v1.0 # PRERELEASE is v1.0 and can also be used to test and give us feedback
+        with:
+          tag_name: ${{ env.RELEASE_TAG }} #(required) tag name to delete
+          github_token: ${{ secrets.GITHUB_TOKEN }} # (required) a GitHub token with write access to the repo that needs to be modified
+          delete_release: true #(optional) default: true
+      # TODO: Also delete PR pre-release
+      - name: Create pre-release
+        id: create_pre_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
+        with:
+          tag_name: ${{ env.RELEASE_TAG }}
+          release_name: ${{ env.RELEASE_TAG }}
+          body: |
+            Auto-generated pre-release on merge to main, current tag: ${{ env.TAG }}
+            
+            Commit: ${{ env.HASH }}
+            
+            Ref: **${{ github.ref }}**
+            
+            Please check PR for details/release notes.
+          draft: false
+          prerelease: true
+      - name: Restore build dist cache
+        id: cache-primes-restore
+        uses: actions/cache/restore@v3
+        with:
+          path: |
+            dist/framework-core*.tar.gz
+          key: ${{ runner.os }}-primes
+      - name: Build framework core Connect plugin
+        run: |
+          cd dist
+          tar -xzvf framework-core*.tar.gz
+          cd $(ls -d framework-core*/|head -n 1)
+          python setup.py build_plugin
+          mv build/*.zip ../
+      - uses: xresloader/upload-to-github-release@main
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          file: "dist/*.zip"
+          release_id: ${{ steps.create_pre_release.outputs.id }}
+          overwrite: true
+          verbose: true
