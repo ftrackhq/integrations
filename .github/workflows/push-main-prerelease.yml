@@ -130,7 +130,7 @@ jobs:
       - name: Fetch tags
         run: git fetch -a -t
       - uses: ClementTsang/delete-tag-and-release@v0.3.1
-        if: ${{ contains('${{ env.CHANGED }}', '${{ env.PACKAGE }}') == true }}
+        if: contains('${{ env.CHANGED }}', '${{ env.PACKAGE }}') == true
         with:
           delete_release: true # default: false
           tag_name: ${{ env.PACKAGE }}/${{ env.VERSION }}-latest # tag name to delete
@@ -139,7 +139,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Create pre-release
         id: create_pre_release
-        if: ${{ contains('${{ env.CHANGED }}', '${{ env.PACKAGE }}') == true }}
+        if: contains('${{ env.CHANGED }}', '${{ env.PACKAGE }}') == true
         uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
@@ -157,7 +157,7 @@ jobs:
           draft: true
           prerelease: true
       - name: Restore pants build from cache
-        if: ${{ contains('${{ env.CHANGED }}', '${{ env.PACKAGE }}') == true }}
+        if: contains('${{ env.CHANGED }}', '${{ env.PACKAGE }}') == true
         uses: actions/cache/restore@v3
         with:
           path: dist
@@ -165,7 +165,7 @@ jobs:
           fail-on-cache-miss: true
           enableCrossOsArchive: true
       - name: Build Connect plugin on Linux
-        if: ${{ contains('${{ env.CHANGED }}', '${{ env.PACKAGE }}') == true && contains('${{ matrix.os }}','ubuntu') == true }}
+        if: contains('${{ env.CHANGED }}', '${{ env.PACKAGE }}') == true && contains('${{ matrix.os }}','ubuntu') == true
         run: |
           cd dist
           tar -xzvf ${{ env.PACKAGE }}*.tar.gz
@@ -173,7 +173,7 @@ jobs:
           python setup.py build_plugin
           mv build/*.zip ../
       - name: Build Connect plugin on Windows
-        if: ${{ contains('${{ env.CHANGED }}', '${{ env.PACKAGE }}') == true && contains('${{ matrix.os }}','windows') == true }}
+        if: contains('${{ env.CHANGED }}', '${{ env.PACKAGE }}') == true && contains('${{ matrix.os }}','windows') == true
         run: |
           cd dist
           tar -xzvf $(gci ${{ env.PACKAGE }}*.tar.gz -Name)
@@ -181,7 +181,7 @@ jobs:
           python setup.py build_plugin
           mv build/*.zip ../
       - uses: xresloader/upload-to-github-release@main
-        if: ${{ contains('${{ env.CHANGED }}', '${{ env.PACKAGE }}') == true }}
+        if: contains('${{ env.CHANGED }}', '${{ env.PACKAGE }}') == true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
