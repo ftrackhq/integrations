@@ -93,6 +93,7 @@ jobs:
         with:
           path: dist
           key: pants-dist-${{github.sha}}
+          enableCrossOsArchive: true
 
   connect-plugin-build:
     strategy:
@@ -161,6 +162,7 @@ jobs:
           path: dist
           key: pants-dist-${{github.sha}}
           fail-on-cache-miss: true
+          enableCrossOsArchive: true
       - name: Build Connect plugin
         if: contains('${{ env.PACKAGE }}','${{ env.CHANGED }}') == true
         run: |
