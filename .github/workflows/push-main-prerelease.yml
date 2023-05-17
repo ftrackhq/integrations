@@ -101,11 +101,12 @@ jobs:
     env:
         VERSION: "${{ needs.pants-build.outputs.version }}"
         PACKAGE: ${{ matrix.package }}
+        CHANGED: ${{ needs.pants-build.outputs.changed }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
       - name: Skip if package has not changed
-        if: not contains(['${{ env.PACKAGE }}'],${{ needs.pants-build.outputs.changed }})
+        if: contains('${{ env.PACKAGE }}','${{ env.CHANGED }}') == false
         run: |
           gh run cancel ${{ github.run_id }}
           gh run watch ${{ github.run_id }}
