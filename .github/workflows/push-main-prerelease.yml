@@ -107,6 +107,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
       - uses: actions/setup-python@v4
         with:
           python-version: '3.7'
@@ -118,6 +120,7 @@ jobs:
           tag_name: $${{ env.PACKAGE }}/${{ env.VERSION }}-latest #(required) tag name to delete
           github_token: ${{ secrets.GITHUB_TOKEN }} # (required) a GitHub token with write access to the repo that needs to be modified
           delete_release: true #(optional) default: true
+          delete_tag: true #(optional) default: true
       - name: Create pre-release
         id: create_pre_release
         if: contains('${{ env.PACKAGE }}','${{ env.CHANGED }}') == true
