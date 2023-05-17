@@ -163,12 +163,20 @@ jobs:
           key: pants-dist-${{github.sha}}
           fail-on-cache-miss: true
           enableCrossOsArchive: true
-      - name: Build Connect plugin
-        if: contains('${{ env.PACKAGE }}','${{ env.CHANGED }}') == true
+      - name: Build Connect plugin on Linux
+        if: contains('${{ env.PACKAGE }}','${{ env.CHANGED }}') == true && contains('${{ matrix.os }}','ubuntu') == true
         run: |
           cd dist
           tar -xzvf ${{ env.PACKAGE }}*.tar.gz
           cd $(ls -d ${{ env.PACKAGE }}*/|head -n 1)
+          python setup.py build_plugin
+          mv build/*.zip ../
+      - name: Build Connect plugin on Windows
+        if: contains('${{ env.PACKAGE }}','${{ env.CHANGED }}') == true && contains('${{ matrix.os }}','windows') == true
+        run: |
+          cd dist
+          tar -xzvf $(gci ${{ env.PACKAGE }}*.tar.gz -Name)
+          cd $(gci ${{ env.PACKAGE }}* -Directory -Name)
           python setup.py build_plugin
           mv build/*.zip ../
       - uses: xresloader/upload-to-github-release@main
