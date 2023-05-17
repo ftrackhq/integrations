@@ -103,7 +103,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Skip if package has not changed
-        if: !contains(['${{ env.PACKAGE }}'],${{ needs.pants-build.outputs.changed }})
+        if: not contains(['${{ env.PACKAGE }}'],${{ needs.pants-build.outputs.changed }})
         run: |
           gh run cancel ${{ github.run_id }}
           gh run watch ${{ github.run_id }}
