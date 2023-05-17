@@ -42,6 +42,7 @@ jobs:
           # Alternatively you change gha-cache-key to ignore old caches.
       - name: Determine which packages has changed
         run: |
+          git fetch -a -t
           echo "CHANGED=$(pants list --changed-since=origin/main | cut -d'/' -f 1-2 | grep -v :)" >> $GITHUB_ENV
       # Store dummy version number, will be picked up by setup.py
       - name: Update framework core version
