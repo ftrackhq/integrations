@@ -90,6 +90,7 @@ jobs:
     if: contains(['${{ matrix.package }}'],${{ needs.pants-build.outputs.changed }})
     env:
         VERSION: "${{ needs.pants-build.outputs.version }}"
+        PACKAGE: ${{ matrix.package }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -109,8 +110,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
         with:
-          tag_name: ${{ matrix.package }}/${{ env.VERSION }}-latest
-          release_name: ${{ matrix.package }}/${{ env.VERSION }}-latest
+          tag_name: ${{ env.PACKAGE }}/${{ env.VERSION }}-latest
+          release_name: ${{ env.PACKAGE }}/${{ env.VERSION }}-latest
           body: |
             Auto-generated pre-release on push to main
             
@@ -130,15 +131,15 @@ jobs:
       - name: Build Connect plugin
         run: |
           cd dist
-          tar -xzvf ${{ matrix.package }}*.tar.gz
-          cd $(ls -d ${{ matrix.package }}*/|head -n 1)
+          tar -xzvf ${{ env.PACKAGE }}*.tar.gz
+          cd $(ls -d ${{ env.PACKAGE }}*/|head -n 1)
           python setup.py build_plugin
           mv build/*.zip ../
       - uses: xresloader/upload-to-github-release@main
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          file: "dist/${{ matrix.package }}-*.zip"
+          file: "dist/${{ env.PACKAGE }}-*.zip"
           release_id: ${{ steps.create_pre_release.outputs.id }}
           overwrite: true
           verbose: true
