@@ -114,13 +114,15 @@ jobs:
           python-version: '3.7'
       - name: Fetch tags
         run: git fetch -a -t
-      - name: Delete previous latest release and tag
-        uses: dev-drprasad/delete-tag-and-release@v1.0 # PRERELEASE is v1.0 and can also be used to test and give us feedback
+      - name: Delete previous latest release
+        uses: liudonghua123/delete-release-action@v1
         with:
-          tag_name: $${{ env.PACKAGE }}/${{ env.VERSION }}-latest #(required) tag name to delete
-          github_token: ${{ secrets.GITHUB_TOKEN }} # (required) a GitHub token with write access to the repo that needs to be modified
-          delete_release: true #(optional) default: true
-          delete_tag: true #(optional) default: true
+          release_name: ${{ env.PACKAGE }}/${{ env.VERSION }}-latest
+      - name: Delete previous tag
+        uses: cb80/delrel@latest
+        with:
+          tag: ${{ env.PACKAGE }}/${{ env.VERSION }}-latest
+          token: ${{ secrets.GITHUB_TOKEN }}
       - name: Create pre-release
         id: create_pre_release
         if: contains('${{ env.PACKAGE }}','${{ env.CHANGED }}') == true
