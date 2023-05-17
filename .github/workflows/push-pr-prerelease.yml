@@ -1,12 +1,15 @@
-# Create the v0.0.0-latest pre-release on push to main, be it on a PR merge,
-# direct push or a release tag push.
+# Create the v0.0.0-pr<number>-latest pre-release on PR update.
 # Cleans up old tags and releases.
 
-name: CI-MERGE
+name: CI-PR
 
 on:
-  push:
-    branches: ["main", "backlog/gh-ci-with-setuptools2"]
+  pull_request:
+    types:
+      - opened
+      - edited
+      - synchronize
+      - closed
 
 jobs:
   pants-build:
@@ -122,19 +125,21 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v3
+        if: ${{ contains(env.CHANGED, env.PACKAGE) }}
         with:
           fetch-depth: 0
       - uses: actions/setup-python@v4
+        if: ${{ contains(env.CHANGED, env.PACKAGE) }}
         with:
           python-version: '3.7'
       - name: Fetch tags
+        if: ${{ contains(env.CHANGED, env.PACKAGE) }}
         run: git fetch -a -t
       - uses: ClementTsang/delete-tag-and-release@v0.3.1
         if: ${{ contains(env.CHANGED, env.PACKAGE) }}
         with:
           delete_release: true # default: false
-          tag_name: ${{ env.PACKAGE }}/${{ env.VERSION }}-latest # tag name to delete
-          #repo: <owner>/<repoName> # target repo (optional). defaults to repo running this action
+          tag_name: ${{ env.PACKAGE }}/${{ env.VERSION }}-pr${{ github.event.number }}-latest # tag name to delete
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Create pre-release
@@ -144,8 +149,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
         with:
-          tag_name: ${{ env.PACKAGE }}/${{ env.VERSION }}-latest
-          release_name: ${{ env.PACKAGE }}/${{ env.VERSION }}-latest
+          tag_name: ${{ env.PACKAGE }}/${{ env.VERSION }}-pr${{ github.event.number }}-latest
+          release_name: ${{ env.PACKAGE }}/${{ env.VERSION }}-pr${{ github.event.number }}-latest
           body: |
             Auto-generated pre-release on push to main
             

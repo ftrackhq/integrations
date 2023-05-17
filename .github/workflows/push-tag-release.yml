@@ -1,24 +1,24 @@
 # Create public release on tag push.
 
-name: CI
+name: CI-TAG
 
 on:
   push:
     tags:
-      - "**"
+      - '(.*\/.*)' # Only trigger on tags having a slash within, ignore other tags
 
 jobs:
   pants-build:
-    if: false # Disable for now
     name: Build with Pants and probe which packages has changed
     runs-on: ubuntu-latest
     outputs:
-      tag: ${{ env.TAG }}
-      version: ${{ env.VERSION }}
-      hash: ${{ env.HASH }}
       changed: ${{ env.CHANGED }}
+      framework_core_tag: ${{ env.FRAMEWORK_CORE_TAG }}
+      framework_core_version: ${{ env.FRAMEWORK_CORE_VERSION }}
     steps:
       - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0 # Fetch all commits so we can calculate diff properly
       - uses: pantsbuild/actions/init-pants@v4-scie-pants
         # This action bootstraps pants and manages 2-3 GHA caches.
         # See: github.com/pantsbuild/actions/tree/main/init-pants/
@@ -39,21 +39,18 @@ jobs:
           # but will cause the cache entry to grow without bound over time.
           # See https://pants.readme.io/docs/using-pants-in-ci for tips on how to periodically clean it up.
           # Alternatively you change gha-cache-key to ignore old caches.
-      - name: Identify source tag and hash
+      - name: Determine which packages has changed using Pants
         run: |
           git fetch -a -t
-          echo "Existing tags:"
-          git tag | sort
-          echo "TAG=$(git tag | grep 'framework-core' | sort | tail -n 1)" >> $GITHUB_ENV
-          echo "VERSION=$(git tag | grep 'framework-core' | sort | tail -n 1 | cut -d/ -f 2-)" >> $GITHUB_ENV
-          echo "HASH=$(echo ${{github.sha}} | cut -b -7)" >> $GITHUB_ENV
-      - name: Determine what packages has changed
-        run: |
-          echo "CHANGED=$(pants list --changed-since=origin/main | cut -d'/' -f 1-2 | grep -v :)" >> $GITHUB_ENV
-      - name: Update framework core version # Will be picked up by setup.py
+          echo "CHANGED=$(pants list --changed-since=stabletest | cut -d'/' -f 1-2 | grep -v : | tr '\n' ',')" >> $GITHUB_ENV
+      - name: Get framework core tag and store version
+        if: contains(['framework-core'],${{ env.CHANGED }})
         run:  | 
+          echo "FRAMEWORK_CORE_TAG=$(git tag | grep 'framework-core' | sort | tail -n 1)" >> $GITHUB_ENV
+          echo "FRAMEWORK_CORE_VERSION=$(git tag | grep 'framework-core' | sort | tail -n 1 | cut -d/ -f 2-)" >> $GITHUB_ENV
           cd libs/framework-core/source/framework_core
-          echo "__version__ = '${{ env.FRAMEWORK_CORE_RELEASE_TAG }}'" > _version.txt
+          echo "__version__ = '${{ env.FRAMEWORK_CORE_VERSION }}'" > _version.py
+      # TODO: do same thing for other packages
       - name: Check BUILD files
         if: false # TODO enable linting with a later task
         run:  |
@@ -65,73 +62,104 @@ jobs:
       - name: Package all
         run: |
           pants package ::
-      - name: Save build to cache
+      - name: Save pants build results to cache
         uses: actions/cache/save@v3
         with:
-          path: |
-            dist/*.tar.gz
+          path: dist
           key: pants-dist-${{github.sha}}
+          enableCrossOsArchive: true
 
-  framework-core:
-    name: Conditional build and pre-release or framework core
+# TODO: Retag stable from this point on
+
+  connect-plugin-build:
+    strategy:
+      matrix:
+        include:
+          - package: framework-core
+            os: ubuntu-latest
+            tag: ${{ needs.pants-build.outputs.framework_core_tag }}
+            version: ${{ needs.pants-build.outputs.framework_core_version }}
+          #- package: framework-qt
+          #  os: ubuntu-latest
+          #- package: framework-maya
+          #  os: ubuntu-latest
+          #- package: framework-nuke
+          #  os: ubuntu-latest
+          #- package: framework-houdini
+          #  os: ubuntu-latest
+          #- package: framework-3dsmax
+          #  os: ubuntu-latest
+          #- package: framework-unreal
+          #  os: windows-latest
+    name: ${{ matrix.package }}
     needs: pants-build
-    if: contains(['framework-core'],${{ needs.pants-build.outputs.changed }})
-    runs-on: ubuntu-latest
+    env:
+        PACKAGE: ${{ matrix.package }}
+        TAG: ${{ matrix.tag }}
+        CHANGED: ${{ needs.pants-build.outputs.changed }}
+    runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v3
+        if: ${{ contains(env.CHANGED, env.PACKAGE) }}
+        with:
+          fetch-depth: 0
       - uses: actions/setup-python@v4
+        if: ${{ contains(env.CHANGED, env.PACKAGE) }}
         with:
           python-version: '3.7'
-      - name: Set envs
-        run: |
-          
-          echo "TAG=${{ needs.pants-build.outputs.tag }}" >> $GITHUB_ENV
-          echo "VERSION=${{ needs.pants-build.outputs.version }}" >> $GITHUB_ENV
-          echo "HASH=${{ needs.pants-build.outputs.hash }}" >> $GITHUB_ENV
-      - name: Delete previous latest release and tag
-        uses: dev-drprasad/delete-tag-and-release@v1.0 # PRERELEASE is v1.0 and can also be used to test and give us feedback
-        with:
-          tag_name: ${{ env.RELEASE_TAG }} #(required) tag name to delete
-          github_token: ${{ secrets.GITHUB_TOKEN }} # (required) a GitHub token with write access to the repo that needs to be modified
-          delete_release: true #(optional) default: true
-      # TODO: Also delete PR pre-release
-      - name: Create pre-release
-        id: create_pre_release
+      - name: Fetch tags
+        if: ${{ contains(env.CHANGED, env.PACKAGE) }}
+        run: git fetch -a -t
+      - name: Create release
+        id: create_release
+        if: ${{ contains(env.CHANGED, env.PACKAGE) }}
         uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
         with:
-          tag_name: ${{ env.RELEASE_TAG }}
-          release_name: ${{ env.RELEASE_TAG }}
+          tag_name: ${{ env.TAG }}
+          release_name: ${{ env.TAG }}
           body: |
-            Auto-generated pre-release on merge to main, current tag: ${{ env.TAG }}
+            Auto-generated pre-release on push to main
             
-            Commit: ${{ env.HASH }}
-            
+            User: **${{ github.actor }}**
             Ref: **${{ github.ref }}**
+            Commit: **${{ github.sha }}**
             
-            Please check PR for details/release notes.
-          draft: false
-          prerelease: true
-      - name: Restore build dist cache
-        id: cache-primes-restore
+            Please check release notes for more information.
+          draft: true
+          prerelease: false
+      - name: Restore pants build from cache
+        if: ${{ contains(env.CHANGED, env.PACKAGE) }}
         uses: actions/cache/restore@v3
         with:
-          path: |
-            dist/framework-core*.tar.gz
-          key: ${{ runner.os }}-primes
-      - name: Build framework core Connect plugin
+          path: dist
+          key: pants-dist-${{github.sha}}
+          fail-on-cache-miss: true
+          enableCrossOsArchive: true
+      - name: Build Connect plugin on Linux
+        if: ${{ contains(env.CHANGED, env.PACKAGE) && contains(matrix.os,'ubuntu') }}
         run: |
           cd dist
-          tar -xzvf framework-core*.tar.gz
-          cd $(ls -d framework-core*/|head -n 1)
+          tar -xzvf ${{ env.PACKAGE }}*.tar.gz
+          cd $(ls -d ${{ env.PACKAGE }}*/|head -n 1)
+          python setup.py build_plugin
+          mv build/*.zip ../
+      - name: Build Connect plugin on Windows
+        if: ${{ contains(env.CHANGED, env.PACKAGE) && contains(matrix.os,'windows') }}
+        run: |
+          cd dist
+          tar -xzvf $(gci ${{ env.PACKAGE }}*.tar.gz -Name)
+          cd $(gci ${{ env.PACKAGE }}* -Directory -Name)
           python setup.py build_plugin
           mv build/*.zip ../
       - uses: xresloader/upload-to-github-release@main
+        if: ${{ contains(env.CHANGED, env.PACKAGE) }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          file: "dist/*.zip"
-          release_id: ${{ steps.create_pre_release.outputs.id }}
+          file: "dist/${{ env.PACKAGE }}-*.zip"
+          release_id: ${{ steps.create_release.outputs.id }}
           overwrite: true
           verbose: true
+          draft: false
