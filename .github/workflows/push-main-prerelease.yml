@@ -97,14 +97,28 @@ jobs:
   connect-plugin-build:
     strategy:
       matrix:
-        package: [framework-core,framework-qt,framework-maya,framework-houdini,framework-3dsmax,framework-unreal]
+        include:
+          - package: framework-core
+            os: ubuntu-latest
+          - package: framework-qt
+            os: ubuntu-latest
+          - package: framework-maya
+            os: ubuntu-latest
+          - package: framework-nuke
+            os: ubuntu-latest
+          - package: framework-houdini
+            os: ubuntu-latest
+          - package: framework-3dsmax
+            os: ubuntu-latest
+          - package: framework-unreal
+            os: windows-latest
     name: ${{ matrix.package }}
     needs: pants-build
     env:
         VERSION: "${{ needs.pants-build.outputs.version }}"
         PACKAGE: ${{ matrix.package }}
         CHANGED: ${{ needs.pants-build.outputs.changed }}
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v3
         with:
