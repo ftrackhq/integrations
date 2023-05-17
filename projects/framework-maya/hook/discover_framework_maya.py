@@ -16,7 +16,7 @@ python_dependencies = os.path.join(plugin_base_dir, 'dependencies')
 sys.path.append(python_dependencies)
 
 
-def on_discover_maya_framework(session, event):
+def on_discover_framework_maya(session, event):
     from framework_maya import __version__ as integration_version
 
     data = {
@@ -29,10 +29,10 @@ def on_discover_maya_framework(session, event):
     return data
 
 
-def on_launch_maya_framework(session, event):
+def on_launch_framework_maya(session, event):
     '''Handle application launch and add environment to *event*.'''
 
-    framework_maya_base_data = on_discover_maya_framework(session, event)
+    framework_maya_base_data = on_discover_framework_maya(session, event)
 
     maya_plugins_path = os.path.join(
         plugin_base_dir, 'resource', 'plugins', 'python'
@@ -91,7 +91,7 @@ def register(session):
         return
 
     handle_discovery_event = functools.partial(
-        on_discover_maya_framework, session
+        on_discover_framework_maya, session
     )
 
     session.event_hub.subscribe(
@@ -102,7 +102,7 @@ def register(session):
         priority=40,
     )
 
-    handle_launch_event = functools.partial(on_launch_maya_framework, session)
+    handle_launch_event = functools.partial(on_launch_framework_maya, session)
 
     session.event_hub.subscribe(
         'topic=ftrack.connect.application.launch and '

@@ -1,5 +1,5 @@
 python_sources(
-    name="lib",
+    name="core_lib",
     sources=["**/*.py"],#, "!doc/*", "!test/*"],
     dependencies=["libs/framework-core/resource/definitions:definitions"]
 )
@@ -11,7 +11,7 @@ resource(
 python_distribution(
     name="framework_core",
     dependencies=[
-         ":lib",
+         ":core_lib",
          ":README",
         # Dependencies on code to be packaged into the distribution.
     ],

@@ -1,4 +1,3 @@
-
 python_sources(
     name="nuke_project",
     sources=["**/*.py"],
