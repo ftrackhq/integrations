@@ -114,15 +114,13 @@ jobs:
           python-version: '3.7'
       - name: Fetch tags
         run: git fetch -a -t
-      - name: Delete previous latest release
-        uses: liudonghua123/delete-release-action@v1
+      - uses: ClementTsang/delete-tag-and-release@v0.3.1
         with:
-          release_name: ${{ env.PACKAGE }}/${{ env.VERSION }}-latest
-      - name: Delete previous tag
-        uses: cb80/delrel@latest
-        with:
-          tag: ${{ env.PACKAGE }}/${{ env.VERSION }}-latest
-          token: ${{ secrets.GITHUB_TOKEN }}
+          delete_release: true # default: false
+          tag_name: ${{ env.PACKAGE }}/${{ env.VERSION }}-latest # tag name to delete
+          #repo: <owner>/<repoName> # target repo (optional). defaults to repo running this action
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Create pre-release
         id: create_pre_release
         if: contains('${{ env.PACKAGE }}','${{ env.CHANGED }}') == true
