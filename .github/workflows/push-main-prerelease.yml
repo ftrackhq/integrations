@@ -110,6 +110,7 @@ jobs:
       - uses: actions/setup-python@v4
         with:
           python-version: '3.7'
+      - name: Fetch tags
         run: git fetch -a -t
       - name: Delete previous latest release and tag
         uses: dev-drprasad/delete-tag-and-release@v1.0 # PRERELEASE is v1.0 and can also be used to test and give us feedback
