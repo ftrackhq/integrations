@@ -44,7 +44,7 @@ jobs:
         run: |
           git fetch -a -t
           echo "CHANGED=$(pants list --changed-since=origin/main | cut -d'/' -f 1-2 | grep -v :)" >> $GITHUB_ENV
-      # Store dummy version number, will be picked up by setup.py
+      # Store dummy version number into projects, will be picked up by setup.py
       - name: Update framework core version
         if: contains(['framework-core'],${{ env.CHANGED }})
         run:  | 
@@ -103,6 +103,7 @@ jobs:
         PACKAGE: ${{ matrix.package }}
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v3
       - name: Skip if package has not changed
         if: not contains(['${{ env.PACKAGE }}'],${{ needs.pants-build.outputs.changed }})
         run: |
@@ -110,7 +111,6 @@ jobs:
           gh run watch ${{ github.run_id }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - uses: actions/checkout@v3
       - uses: actions/setup-python@v4
         with:
           python-version: '3.7'
