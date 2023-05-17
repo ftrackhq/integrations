@@ -20,6 +20,8 @@ jobs:
       version: ${{ env.VERSION }}
     steps:
       - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0 # Fetch all commits so we can calculate diff properly
       - uses: pantsbuild/actions/init-pants@v4-scie-pants
         # This action bootstraps pants and manages 2-3 GHA caches.
         # See: github.com/pantsbuild/actions/tree/main/init-pants/
@@ -40,7 +42,7 @@ jobs:
           # but will cause the cache entry to grow without bound over time.
           # See https://pants.readme.io/docs/using-pants-in-ci for tips on how to periodically clean it up.
           # Alternatively you change gha-cache-key to ignore old caches.
-      - name: Determine which packages has changed
+      - name: Determine which packages has changed using Pants
         run: |
           git fetch -a -t
           echo "CHANGED=$(pants list --changed-since=stable | cut -d'/' -f 1-2 | grep -v :)" >> $GITHUB_ENV
@@ -108,8 +110,8 @@ jobs:
       - name: Skip if package has not changed
         if: contains('${{ env.PACKAGE }}','${{ env.CHANGED }}') == false
         run: |
-          gh run cancel ${{ github.run_id }}
-          gh run watch ${{ github.run_id }}
+          gh run cancel ${{ github.job }}
+          gh run watch ${{ github.job }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - uses: actions/setup-python@v4
