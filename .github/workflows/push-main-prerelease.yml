@@ -107,13 +107,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - name: Skip if package has not changed
-        if: contains('${{ env.PACKAGE }}','${{ env.CHANGED }}') == false
-        run: |
-          gh run cancel ${{ github.job }}
-          gh run watch ${{ github.job }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - uses: actions/setup-python@v4
         with:
           python-version: '3.7'
@@ -125,6 +118,7 @@ jobs:
           delete_release: true #(optional) default: true
       - name: Create pre-release
         id: create_pre_release
+        if: contains('${{ env.PACKAGE }}','${{ env.CHANGED }}') == true
         uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
@@ -142,12 +136,14 @@ jobs:
           draft: true
           prerelease: true
       - name: Restore pants build from cache
+        if: contains('${{ env.PACKAGE }}','${{ env.CHANGED }}') == true
         uses: actions/cache/restore@v3
         with:
           path: dist
           key: pants-dist-${{github.sha}}
           fail-on-cache-miss: true
       - name: Build Connect plugin
+        if: contains('${{ env.PACKAGE }}','${{ env.CHANGED }}') == true
         run: |
           cd dist
           tar -xzvf ${{ env.PACKAGE }}*.tar.gz
@@ -155,6 +151,7 @@ jobs:
           python setup.py build_plugin
           mv build/*.zip ../
       - uses: xresloader/upload-to-github-release@main
+        if: contains('${{ env.PACKAGE }}','${{ env.CHANGED }}') == true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
