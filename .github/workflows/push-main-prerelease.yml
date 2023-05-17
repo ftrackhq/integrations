@@ -43,7 +43,7 @@ jobs:
       - name: Determine which packages has changed
         run: |
           git fetch -a -t
-          echo "CHANGED=$(pants list --changed-since=origin/main | cut -d'/' -f 1-2 | grep -v :)" >> $GITHUB_ENV
+          echo "CHANGED=$(pants list --changed-since=stable | cut -d'/' -f 1-2 | grep -v :)" >> $GITHUB_ENV
       # Store dummy version number into projects, will be picked up by setup.py
       - name: Update framework core version
         if: contains(['framework-core'],${{ env.CHANGED }})

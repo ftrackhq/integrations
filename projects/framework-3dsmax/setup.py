@@ -97,13 +97,14 @@ class PyTest(TestCommand):
         raise SystemExit(errno)
 
 
-version_template = '''
-# :coding: utf-8
-# :copyright: Copyright (c) 2017-2020 ftrack
-
-__version__ = {version!r}
-'''
-
+def get_version():
+    '''Expect version written to source/framework_core/_version.py'''
+    version_path = os.path.join(SOURCE_PATH, 'framework_3dsmax', '_version.py')
+    with open(version_path, 'r') as file_handle:
+        for line in file_handle.readlines():
+            if line.find('__version__') > -1:
+                return re.findall(r'\'(.*)\'', line)[0].strip()
+    raise ValueError('Could not find version in {0}'.format(version_path))
 
 # Configuration.
 setup(
@@ -118,7 +119,7 @@ setup(
     packages=find_packages(SOURCE_PATH),
     package_dir={'': 'source'},
     package_data={"": ["{}/**/*.*".format(RESOURCE_PATH), "{}/**/*.py".format(HOOK_PATH)]},
-    version="1.2.0",
+    version=get_version(),
     setup_requires=[
         'sphinx >= 1.8.5, < 4',
         'sphinx_rtd_theme >= 0.1.6, < 2',
