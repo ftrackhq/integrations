@@ -84,7 +84,7 @@ jobs:
   connect-build:
     strategy:
       matrix:
-        package: [ "framework-core", "framework-qt", "framework-maya", "framework-houdini" ]
+        package: [framework-core,framework-qt,framework-maya,framework-houdini]
     name: Build & release ${{ matrix.package }}
     needs: pants-build
     if: contains(['${{ matrix.package }}'],${{ needs.pants-build.outputs.changed }})
