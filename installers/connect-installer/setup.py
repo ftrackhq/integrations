@@ -95,14 +95,14 @@ __version__ = {version!r}
 configuration = dict(
     name='ftrack Connect',
     use_scm_version={
-        'write_to': 'source/ftrack_connect_package/_version.py',
+        'write_to': 'source/ftrack_connect_installer/_version.py',
         'write_to_template': version_template,
         'version_scheme': 'post-release'
     },
     description='Meta package for ftrack connect.',
     long_description=open(README_PATH).read(),
     keywords='ftrack, connect, package',
-    url='https://bitbucket.org/ftrack/ftrack-connect-package',
+    url='https://github.com/ftrackhq/integrations/installers/connect-installer',
     author='ftrack',
     include_package_data=True,
     author_email='support@ftrack.com',
@@ -196,8 +196,8 @@ if sys.platform in ('darwin', 'win32', 'linux'):
         (os.path.join(RESOURCE_PATH, 'hook'), 'resource/hook'),
         (requests.certs.where(), 'resource/cacert.pem'),
         (
-            os.path.join(SOURCE_PATH, 'ftrack_connect_package', '_version.py'),
-            'resource/ftrack_connect_package_version.py'
+            os.path.join(SOURCE_PATH, 'ftrack_connect_installer', '_version.py'),
+            'resource/ftrack_connect_installer_version.py'
         ),
         ('qt.conf', 'qt.conf'),
         ('logo.svg', 'logo.svg'),
@@ -268,7 +268,7 @@ if sys.platform in ('darwin', 'win32', 'linux'):
 
         executables.append(
             Executable(
-                script='source/ftrack_connect_package/__main__.py',
+                script='source/ftrack_connect_installer/__main__.py',
                 base='Win32GUI',
                 target_name='ftrack_connect.exe',
                 icon='./logo.ico',
@@ -335,7 +335,7 @@ if sys.platform in ('darwin', 'win32', 'linux'):
 
         executables.append(
             Executable(
-                script='source/ftrack_connect_package/__main__.py',
+                script='source/ftrack_connect_installer/__main__.py',
                 base=None,
                 target_name='ftrack_connect',
                 icon='./logo.icns',
@@ -402,7 +402,7 @@ if sys.platform in ('darwin', 'win32', 'linux'):
 
         executables.append(
             Executable(
-                script='source/ftrack_connect_package/__main__.py',
+                script='source/ftrack_connect_installer/__main__.py',
                 base=None,
                 target_name='ftrack_connect',
                 icon='./logo.icns',

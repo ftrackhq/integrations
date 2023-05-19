@@ -143,7 +143,7 @@ os.environ['FTRACK_EVENT_PLUGIN_PATH'] = os.path.pathsep.join(
 )
 
 set_environ_default(
-    'FTRACK_CONNECT_PACKAGE_RESOURCE_PATH',
+    'FTRACK_CONNECT_INSTALLER_RESOURCE_PATH',
     resource_path
 )
 

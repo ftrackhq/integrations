@@ -53,8 +53,8 @@ RUN python setup.py install
 
 # install connect package
 WORKDIR /usr/src/app
-RUN git clone -b master https://bitbucket.org/ftrack/ftrack-connect-package.git
-WORKDIR /usr/src/app/ftrack-connect-package
+RUN git clone -b master https://bitbucket.org/ftrack/ftrack-connect-installer.git
+WORKDIR /usr/src/app/ftrack-connect-installer
 RUN git fetch 
 RUN git fetch --tag
 

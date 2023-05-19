@@ -8,8 +8,8 @@ import re
 import ftrack_api
 
 
-FTRACK_CONNECT_PACKAGE_RESOURCE_PATH = os.environ.get(
-    'FTRACK_CONNECT_PACKAGE_RESOURCE_PATH',
+FTRACK_CONNECT_INSTALLER_RESOURCE_PATH = os.environ.get(
+    'FTRACK_CONNECT_INSTALLER_RESOURCE_PATH',
     os.path.abspath(
         os.path.join(
             os.path.dirname(__file__), '..'
@@ -19,7 +19,7 @@ FTRACK_CONNECT_PACKAGE_RESOURCE_PATH = os.environ.get(
 
 VERSION = 'Unknown'
 with open(os.path.join(
-    FTRACK_CONNECT_PACKAGE_RESOURCE_PATH, 'ftrack_connect_package_version.py'
+    FTRACK_CONNECT_INSTALLER_RESOURCE_PATH, 'ftrack_connect_installer_version.py'
 )) as _version_file:
     VERSION = re.match(
         r'.*__version__ = \'(.*?)\'', _version_file.read(), re.DOTALL
@@ -27,7 +27,7 @@ with open(os.path.join(
 
 
 def get_version_information(event):
-    '''Return version information for ftrack connect package.'''
+    '''Return version information for ftrack connect installer.'''
     return [
         dict(
             name='Package',
@@ -41,7 +41,7 @@ def register(api_object, **kw):
     '''Register version information hook.'''
 
     logger = logging.getLogger(
-        'ftrack_connect_package_version_information:register'
+        'ftrack_connect_installer_version_information:register'
     )
 
     # Validate that api_object is an instance of ftrack_api.Session. If not,
