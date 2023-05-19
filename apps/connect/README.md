@@ -1,4 +1,4 @@
-# ftrack connect
+# ftrack-connect
 
 Core for ftrack connect providing main service that enhances
 functionality of the ftrack web server and also provides standalone
