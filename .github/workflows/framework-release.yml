@@ -1,23 +1,27 @@
 on:
   workflow_call:
-    secrets:
+    inputs:
       os:
         required: true
+        type: string
       package:
         required: true
+        type: string
       tag:
         required: true
+        type: string
       prerelease:
         required: true
+        type: boolean
 
 jobs:
   connect-plugin-build:
-    name: ${{ secrets.package }}
+    name: ${{ inputs.package }}
     env:
-        PACKAGE: ${{ secrets.package }}
-        TAG: ${{ secrets.tag }}
-        PRERELEASE: ${{ secrets.prerelease }}
-    runs-on: ${{ secrets.os }}
+        PACKAGE: ${{ inputs.package }}
+        TAG: ${{ inputs.tag }}
+        PRERELEASE: ${{ inputs.prerelease }}
+    runs-on: ${{ inputs.os }}
     steps:
       - uses: actions/checkout@v3
         with:
