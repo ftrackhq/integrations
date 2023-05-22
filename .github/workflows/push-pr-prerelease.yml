@@ -77,7 +77,7 @@ jobs:
         uses: actions/checkout@v3
       - name: Trigger release
         if: contains( ${{ needs.pants-build.outputs.changed }} , ${{ matrix.package }})
-        uses: ./.github/actions/action.yml
+        uses: ./.github/actions/framework-release
         with:
           package: ${{ matrix.package }}
           tag: ${{ matrix.package }}/v0.0.0-pr${{ github.event.number }}
