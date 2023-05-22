@@ -17,7 +17,6 @@ jobs:
       framework_core_version: ${{ env.FRAMEWORK_CORE_VERSION }}
     steps:
       - uses: actions/checkout@v3
-        if: contains(['framework-core'],${{ env.CHANGED }})
         with:
           fetch-depth: 0 # Fetch all commits so we can calculate diff properly
       - uses: pantsbuild/actions/init-pants@v4-scie-pants
@@ -75,95 +74,24 @@ jobs:
 
 # TODO: Retag stable from this point on
 
-  connect-plugin-build:
+  call-framework-release:
+    needs: pants-build
     strategy:
       matrix:
         include:
           - package: framework-core
-            os: ubuntu-latest
             tag: ${{ needs.pants-build.outputs.framework_core_tag }}
-            version: ${{ needs.pants-build.outputs.framework_core_version }}
-          #- package: framework-qt
-          #  os: ubuntu-latest
-          #- package: framework-maya
-          #  os: ubuntu-latest
-          #- package: framework-nuke
-          #  os: ubuntu-latest
-          #- package: framework-houdini
-          #  os: ubuntu-latest
-          #- package: framework-3dsmax
-          #  os: ubuntu-latest
-          #- package: framework-unreal
-          #  os: windows-latest
-    name: ${{ matrix.package }}
-    needs: pants-build
-    env:
-        PACKAGE: ${{ matrix.package }}
-        TAG: ${{ matrix.tag }}
-        CHANGED: ${{ needs.pants-build.outputs.changed }}
+            os: ubuntu-latest
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v3
-        #if: ${{ contains(env.CHANGED, env.PACKAGE) }}
+      - name: Check out repository
+        if: contains( ${{ needs.pants-build.outputs.changed }} , ${{ matrix.package }})
+        uses: actions/checkout@v3
+      - name: Run release action
+        if: contains( ${{ needs.pants-build.outputs.changed }} , ${{ matrix.package }})
+        uses: ./.github/actions/framework-release
         with:
-          fetch-depth: 0
-      - uses: actions/setup-python@v4
-        if: ${{ contains(env.CHANGED, env.PACKAGE) }}
-        with:
-          python-version: '3.7'
-      - name: Fetch tags
-        if: ${{ contains(env.CHANGED, env.PACKAGE) }}
-        run: git fetch -a -t --force
-      - name: Create release
-        id: create_release
-        if: ${{ contains(env.CHANGED, env.PACKAGE) }}
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
-        with:
-          tag_name: ${{ env.TAG }}
-          release_name: ${{ env.TAG }}
-          body: |
-            Auto-generated pre-release on push to main
-            
-            User: **${{ github.actor }}**
-            Ref: **${{ github.ref }}**
-            Commit: **${{ github.sha }}**
-            
-            Please check release notes for more information.
-          draft: true
+          package: ${{ matrix.package }}
+          tag: ${{ matrix.tag }}
           prerelease: false
-      - name: Restore pants build from cache
-        if: ${{ contains(env.CHANGED, env.PACKAGE) }}
-        uses: actions/cache/restore@v3
-        with:
-          path: dist
-          key: pants-dist-${{github.sha}}
-          fail-on-cache-miss: true
-          enableCrossOsArchive: true
-      - name: Build Connect plugin on Linux
-        if: ${{ contains(env.CHANGED, env.PACKAGE) && contains(matrix.os,'ubuntu') }}
-        run: |
-          cd dist
-          tar -xzvf ${{ env.PACKAGE }}*.tar.gz
-          cd $(ls -d ${{ env.PACKAGE }}*/|head -n 1)
-          python setup.py build_plugin
-          mv build/*.zip ../
-      - name: Build Connect plugin on Windows
-        if: ${{ contains(env.CHANGED, env.PACKAGE) && contains(matrix.os,'windows') }}
-        run: |
-          cd dist
-          tar -xzvf $(gci ${{ env.PACKAGE }}*.tar.gz -Name)
-          cd $(gci ${{ env.PACKAGE }}* -Directory -Name)
-          python setup.py build_plugin
-          mv build/*.zip ../
-      - uses: xresloader/upload-to-github-release@main
-        if: ${{ contains(env.CHANGED, env.PACKAGE) }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          file: "dist/${{ env.PACKAGE }}-*.zip"
-          release_id: ${{ steps.create_release.outputs.id }}
-          overwrite: true
-          verbose: true
-          draft: false
+          token: ${{ secrets.GITHUB_TOKEN }}
