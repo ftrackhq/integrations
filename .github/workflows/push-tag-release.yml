@@ -191,5 +191,6 @@ jobs:
         with:
           package: ${{ matrix.package }}
           tag: ${{ matrix.tag }}
+          deleteprevious: false
           prerelease: false
           token: ${{ secrets.GITHUB_TOKEN }}

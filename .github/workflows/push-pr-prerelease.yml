@@ -45,7 +45,8 @@ jobs:
       - name: Determine which packages has changed using Pants
         run: |
           git fetch -a -t --force
-          echo "CHANGED=$(pants list --changed-since=stable | cut -d'/' -f 1-2 | grep -v : | tr '\n' ',')" >> $GITHUB_ENV
+          #echo "CHANGED=$(pants list --changed-since=stable | cut -d'/' -f 1-2 | grep -v : | tr '\n' ',')" >> $GITHUB_ENV
+          echo "CHANGED=framework-nuke" >> $GITHUB_ENV
       - name: Check BUILD files
         if: false # TODO enable linting with a later task
         run:  |
@@ -94,6 +95,7 @@ jobs:
         with:
           package: ${{ matrix.package }}
           tag: ${{ matrix.package }}/v0.0.0-pr${{ github.event.number }}
+          deleteprevious: true
           prerelease: true
           token: ${{ secrets.GITHUB_TOKEN }}
 

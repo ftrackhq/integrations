@@ -6,12 +6,11 @@ name: CI-MERGE
 
 on:
   push:
-    #branches: ["main"]
-    branches: ["main", "backlog/gh-ci-with-setuptools2"] # TEST
+    branches: ["main"]
+    #branches: ["main", "backlog/gh-ci-with-setuptools2"] # TEST
 
 jobs:
   pants-build:
-    if: false
     name: Build with Pants and probe which packages has changed
     runs-on: ubuntu-latest
     outputs:
@@ -93,5 +92,6 @@ jobs:
         with:
           package: ${{ matrix.package }}
           tag: ${{ matrix.package }}/v0.0.0-latest
+          deleteprevious: true
           prerelease: true
           token: ${{ secrets.GITHUB_TOKEN }}
