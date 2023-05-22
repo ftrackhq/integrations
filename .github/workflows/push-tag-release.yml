@@ -100,7 +100,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v3
-        if: ${{ contains(env.CHANGED, env.PACKAGE) }}
+        #if: ${{ contains(env.CHANGED, env.PACKAGE) }}
         with:
           fetch-depth: 0
       - uses: actions/setup-python@v4
