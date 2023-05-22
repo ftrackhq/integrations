@@ -6,7 +6,6 @@ on:
   create:
     tags:
       - '(.*\/.*)' # Only trigger on tags having a slash within, ignore other tags
-      #- '*'
 
 jobs:
   pants-build:
@@ -42,7 +41,7 @@ jobs:
           # Alternatively you change gha-cache-key to ignore old caches.
       - name: Determine which packages has changed using Pants
         run: |
-          git fetch -a -t
+          git fetch -a -t --force
           echo "CHANGED=$(pants list --changed-since=stabletest | cut -d'/' -f 1-2 | grep -v : | tr '\n' ',')" >> $GITHUB_ENV
       - name: Get framework core tag and store version
         if: contains(['framework-core'],${{ env.CHANGED }})
