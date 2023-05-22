@@ -5,8 +5,8 @@ name: CI-TAG
 on:
   create:
     tags:
-      #- '(.*\/.*)' # Only trigger on tags having a slash within, ignore other tags
-      - '*'
+      - '(.*\/.*)' # Only trigger on tags having a slash within, ignore other tags
+      #- '*'
 
 jobs:
   pants-build:
@@ -14,7 +14,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       changed: ${{ env.CHANGED }}
-      framework_core_tag: ${{ env.FRAME#ORK_CORE_TAG }}
+      framework_core_tag: ${{ env.FRAMEWORK_CORE_TAG }}
       framework_core_version: ${{ env.FRAMEWORK_CORE_VERSION }}
     steps:
       - uses: actions/checkout@v3
