@@ -63,7 +63,7 @@ jobs:
           fail-on-cache-miss: true
           enableCrossOsArchive: true
       - name: Build Connect plugin on Linux
-        if: ${{ contains(matrix.os,'ubuntu') }}
+        if: ${{ contains(inputs.os,'ubuntu') }}
         run: |
           cd dist
           tar -xzvf ${{ env.PACKAGE }}*.tar.gz
@@ -71,7 +71,7 @@ jobs:
           python setup.py build_plugin
           mv build/*.zip ../
       - name: Build Connect plugin on Windows
-        if: ${{ contains(matrix.os,'windows') }}
+        if: ${{ contains(inputs.os,'windows') }}
         run: |
           cd dist
           tar -xzvf $(gci ${{ env.PACKAGE }}*.tar.gz -Name)
