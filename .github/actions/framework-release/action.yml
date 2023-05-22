@@ -10,9 +10,6 @@ inputs:
   prerelease:
     required: true
     description: Whether or not this is a pre-release
-  os:
-    required: true
-    description: The OS action is running on
   token:
     required: true
     description: The GitHub token to use
@@ -28,7 +25,6 @@ runs:
     - name: Fetch tags
       run: |
         git fetch -a -t --force
-        echo @@@ Runner.os: ${{ runner.os }}
       shell: bash
     - uses: ClementTsang/delete-tag-and-release@v0.3.1
       with:
@@ -62,7 +58,7 @@ runs:
         fail-on-cache-miss: true
         enableCrossOsArchive: true
     - name: Build Connect plugin on Linux
-      if: ${{ contains(inputs.os,'ubuntu') }}
+      if: ${{ runner.os == 'Linux' }}
       run: |
         cd dist
         tar -xzvf ${{ inputs.package }}*.tar.gz
@@ -71,7 +67,7 @@ runs:
         mv build/*.zip ../
       shell: bash
     - name: Build Connect plugin on Windows
-      if: ${{ contains(inputs.os,'windows') }}
+      if: ${{ runner.os == 'Windows' }}
       run: |
         cd dist
         tar -xzvf $(gci ${{ inputs.package }}*.tar.gz -Name)
