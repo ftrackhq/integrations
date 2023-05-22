@@ -10,6 +10,9 @@ inputs:
   prerelease:
     required: true
     description: Whether or not this is a pre-release
+  token:
+    required: true
+    description: The GitHub token to use
 runs:
   using: "composite"
   steps:
@@ -21,17 +24,18 @@ runs:
         python-version: '3.7'
     - name: Fetch tags
       run: git fetch -a -t
+      shell: bash
     - uses: ClementTsang/delete-tag-and-release@v0.3.1
       with:
         delete_release: true # default: false
         tag_name: ${{ env.TAG }} # tag name to delete
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GITHUB_TOKEN: ${{ inputs.token }}
     - name: Create pre-release
       id: create_release
       uses: actions/create-release@v1
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
+        GITHUB_TOKEN: ${{ inputs.token }} # This token is provided by Actions, you do not need to create your own token
       with:
         tag_name: ${{ env.TAG }}
         release_name: ${{ env.TAG }}
@@ -60,6 +64,7 @@ runs:
         cd $(ls -d ${{ env.PACKAGE }}*/|head -n 1)
         python setup.py build_plugin
         mv build/*.zip ../
+      shell: bash
     - name: Build Connect plugin on Windows
       if: ${{ contains(inputs.os,'windows') }}
       run: |
@@ -68,9 +73,10 @@ runs:
         cd $(gci ${{ env.PACKAGE }}* -Directory -Name)
         python setup.py build_plugin
         mv build/*.zip ../
+      shell: bash
     - uses: xresloader/upload-to-github-release@main
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GITHUB_TOKEN: ${{ inputs.token }}
       with:
         file: "dist/${{ env.PACKAGE }}-*.zip"
         release_id: ${{ steps.create_release.outputs.id }}

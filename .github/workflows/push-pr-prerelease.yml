@@ -75,11 +75,12 @@ jobs:
       - name: Check out repository
         if: contains( ${{ needs.pants-build.outputs.changed }} , ${{ matrix.package }})
         uses: actions/checkout@v3
-      - name: Trigger release
+      - name: Run release action
         if: contains( ${{ needs.pants-build.outputs.changed }} , ${{ matrix.package }})
         uses: ./.github/actions/framework-release
         with:
           package: ${{ matrix.package }}
           tag: ${{ matrix.package }}/v0.0.0-pr${{ github.event.number }}
           prerelease: true
+          token: ${{ secrets.GITHUB_TOKEN }}
 
