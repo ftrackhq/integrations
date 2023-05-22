@@ -69,7 +69,7 @@ jobs:
 
   call-framework-core-release:
     needs: pants-build
-    if: ${{ contains(needs.pants-build.outputs.changed , "framework-core") }}
+    if: ${{ contains(needs.pants-build.outputs.changed , framework-core) }}
     uses: ./.github/workflows/framework-release.yml
     secrets:
       os: ubuntu-latest
