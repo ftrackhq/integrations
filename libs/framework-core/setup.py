@@ -99,14 +99,22 @@ class PyTest(TestCommand):
         raise SystemExit(errno)
 
 
+version_template = '''
+# :coding: utf-8
+# :copyright: Copyright (c) 2014-2023 ftrack
+
+__version__ = "0.0.0"
+'''
+
+
 def get_version():
-    '''Expect version written to source/framework_core/_version.py'''
+    '''Define version, pick up from env (GH CI) and write to
+    source/framework_core/_version.py'''
+    version = os.environ.get("FRAMEWORK_CORE_VERSION", "0.0.0")
     version_path = os.path.join(SOURCE_PATH, 'framework_core', '_version.py')
-    with open(version_path, 'r') as file_handle:
-        for line in file_handle.readlines():
-            if line.find('__version__') > -1:
-                return re.findall(r'\'(.*)\'', line)[0].strip()
-    raise ValueError('Could not find version in {0}'.format(version_path))
+    with open(version_path, 'w') as file_handle:
+        file_handle.write(version_template.replace("0.0.0", version))
+    return version
 
 # Configuration.
 setup(

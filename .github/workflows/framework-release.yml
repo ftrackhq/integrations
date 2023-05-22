@@ -1,0 +1,87 @@
+on:
+  workflow_call:
+    secrets:
+      os:
+        required: true
+      package:
+        required: true
+      tag:
+        required: true
+      prerelease:
+        required: true
+
+jobs:
+  connect-plugin-build:
+    name: ${{ secrets.package }}
+    env:
+        PACKAGE: ${{ secrets.package }}
+        TAG: ${{ secrets.tag }}
+        PRERELEASE: ${{ secrets.prerelease }}
+    runs-on: ${{ secrets.os }}
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.7'
+      - name: Fetch tags
+        run: git fetch -a -t
+      - uses: ClementTsang/delete-tag-and-release@v0.3.1
+        with:
+          delete_release: true # default: false
+          tag_name: ${{ env.TAG }} # tag name to delete
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Create pre-release
+        id: create_pre_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
+        with:
+          tag_name: ${{ env.TAG }}
+          release_name: ${{ env.TAG }}
+          body: |
+            Auto-generated pre-release on push to main
+            
+            User: **${{ github.actor }}**
+            Ref: **${{ github.ref }}**
+            Commit: **${{ github.sha }}**
+            
+            Please check release notes for more information.
+          draft: true
+          prerelease: ${{ env.PRERELEASE }}
+      - name: Restore pants build from cache
+        uses: actions/cache/restore@v3
+        with:
+          path: dist
+          key: pants-dist-${{github.sha}}
+          fail-on-cache-miss: true
+          enableCrossOsArchive: true
+      - name: Build Connect plugin on Linux
+        if: ${{ contains(matrix.os,'ubuntu') }}
+        run: |
+          cd dist
+          tar -xzvf ${{ env.PACKAGE }}*.tar.gz
+          cd $(ls -d ${{ env.PACKAGE }}*/|head -n 1)
+          python setup.py build_plugin
+          mv build/*.zip ../
+      - name: Build Connect plugin on Windows
+        if: ${{ contains(matrix.os,'windows') }}
+        run: |
+          cd dist
+          tar -xzvf $(gci ${{ env.PACKAGE }}*.tar.gz -Name)
+          cd $(gci ${{ env.PACKAGE }}* -Directory -Name)
+          python setup.py build_plugin
+          mv build/*.zip ../
+      - uses: xresloader/upload-to-github-release@main
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          file: "dist/${{ env.PACKAGE }}-*.zip"
+          release_id: ${{ steps.create_pre_release.outputs.id }}
+          overwrite: true
+          verbose: true
+          draft: false
+
+
