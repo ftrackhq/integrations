@@ -26,7 +26,9 @@ runs:
       with:
         python-version: '3.7'
     - name: Fetch tags
-      run: git fetch -a -t --force
+      run: |
+        git fetch -a -t --force
+        echo @@@ Runner.os: ${{ runner.os }}
       shell: bash
     - uses: ClementTsang/delete-tag-and-release@v0.3.1
       with:
