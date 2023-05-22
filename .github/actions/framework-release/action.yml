@@ -1,5 +1,5 @@
-name: 'Framework Connect plugin build'
-description: "Builds a Connect plugin for the framework"
+name: 'Connect plugin build'
+description: "Action that builds and releases a Connect plugin"
 inputs:
   package:
     required: true
@@ -10,6 +10,9 @@ inputs:
   prerelease:
     required: true
     description: Whether or not this is a pre-release
+  os:
+    required: true
+    description: The OS action is running on
   token:
     required: true
     description: The GitHub token to use
@@ -57,7 +60,7 @@ runs:
         fail-on-cache-miss: true
         enableCrossOsArchive: true
     - name: Build Connect plugin on Linux
-      if: ${{ contains(runner.os,'ubuntu') }}
+      if: ${{ contains(inputs.os,'ubuntu') }}
       run: |
         cd dist
         tar -xzvf ${{ inputs.package }}*.tar.gz
@@ -66,7 +69,7 @@ runs:
         mv build/*.zip ../
       shell: bash
     - name: Build Connect plugin on Windows
-      if: ${{ contains(runner.os,'windows') }}
+      if: ${{ contains(inputs.os,'windows') }}
       run: |
         cd dist
         tar -xzvf $(gci ${{ inputs.package }}*.tar.gz -Name)

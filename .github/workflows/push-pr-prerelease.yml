@@ -82,5 +82,6 @@ jobs:
           package: ${{ matrix.package }}
           tag: ${{ matrix.package }}/v0.0.0-pr${{ github.event.number }}
           prerelease: true
+          os: ${{ matrix.os }}
           token: ${{ secrets.GITHUB_TOKEN }}
 
