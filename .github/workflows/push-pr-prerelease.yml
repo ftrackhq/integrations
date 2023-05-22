@@ -85,6 +85,10 @@ jobs:
             os: windows-latest
     runs-on: ${{ matrix.os }}
     steps:
+      - name: Debug
+        run: |
+          echo "CHANGED='${{ needs.pants-build.outputs.changed }}'"
+          echo "PACKAGE='${{ matrix.package }}'"
       - name: Check out repository
         if: contains( '${{ needs.pants-build.outputs.changed }}' , '${{ matrix.package }}')
         uses: actions/checkout@v3
