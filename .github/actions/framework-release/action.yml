@@ -57,21 +57,11 @@ runs:
         key: pants-dist-${{github.sha}}
         fail-on-cache-miss: true
         enableCrossOsArchive: true
-    - name: Build Connect plugin on Linux
-      if: ${{ runner.os == 'Linux' }}
+    - name: Build Connect plugin
       run: |
         cd dist
         tar -xzvf ${{ inputs.package }}*.tar.gz
         cd $(ls -d ${{ inputs.package }}*/|head -n 1)
-        python setup.py build_plugin
-        mv build/*.zip ../
-      shell: bash
-    - name: Build Connect plugin on Windows
-      if: ${{ runner.os == 'Windows' }}
-      run: |
-        cd dist
-        tar -xzvf $(gci ${{ inputs.package }}*.tar.gz -Name)
-        cd $(gci ${{ inputs.package }}* -Directory -Name)
         python setup.py build_plugin
         mv build/*.zip ../
       shell: bash

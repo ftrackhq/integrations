@@ -6,8 +6,8 @@ name: CI-MERGE
 
 on:
   push:
-    #branches: ["main"]
-    branches: ["main", "backlog/gh-ci-with-setuptools2"] # TEST
+    branches: ["main"]
+    #branches: ["main", "backlog/gh-ci-with-setuptools2"] # TEST
 
 jobs:
   pants-build:
