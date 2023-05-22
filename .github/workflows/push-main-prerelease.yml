@@ -10,8 +10,8 @@ on:
     branches: ["main", "backlog/gh-ci-with-setuptools2"] # TEST
 
 jobs:
-  if: false
   pants-build:
+    if: false
     name: Build with Pants and probe which packages has changed
     runs-on: ubuntu-latest
     outputs:
