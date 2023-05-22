@@ -64,21 +64,21 @@ jobs:
           enableCrossOsArchive: true
 
   call-framework-release:
-    runs-on: ubuntu-latest
+    needs: pants-build
     strategy:
       matrix:
         include:
           - package: framework-core
             os: ubuntu-latest
+    runs-on: ${{ matrix.os }}
     steps:
       - name: Check out repository
         if: contains( ${{ needs.pants-build.outputs.changed }} , ${{ matrix.package }})
         uses: actions/checkout@v3
       - name: Trigger release
         if: contains( ${{ needs.pants-build.outputs.changed }} , ${{ matrix.package }})
-        uses: ./.github/actions/framework-release.yml
+        uses: ./.github/actions/action.yml
         with:
-          os: ${{ matrix.os }}
           package: ${{ matrix.package }}
           tag: ${{ matrix.package }}/v0.0.0-pr${{ github.event.number }}
           prerelease: true
