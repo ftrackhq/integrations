@@ -17,8 +17,6 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       changed: ${{ env.CHANGED }}
-    env:
-      FRAMEWORK_CORE_VERSION: "1.2.3" # TEST
     steps:
       - uses: actions/checkout@v3
         with:
@@ -45,7 +43,7 @@ jobs:
           # Alternatively you change gha-cache-key to ignore old caches.
       - name: Determine which packages has changed using Pants
         run: |
-          git fetch -a -t
+          git fetch -a -t --force
           echo "CHANGED=$(pants list --changed-since=stable | cut -d'/' -f 1-2 | grep -v : | tr '\n' ',')" >> $GITHUB_ENV
       - name: Check BUILD files
         if: false # TODO enable linting with a later task
@@ -65,14 +63,23 @@ jobs:
           key: pants-dist-${{github.sha}}
           enableCrossOsArchive: true
 
-
-  call-framework-core-release:
-    needs: pants-build
-    if: contains( ${{ needs.pants-build.outputs.changed }} , "framework-core")
-    uses: ./.github/workflows/framework-release.yml
-    with:
-      os: ubuntu-latest
-      package: framework-core
-      tag: framework-core/v0.0.0-pr${{ github.event.number }}
-      prerelease: true
+  call-framework-release:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - package: framework-core
+            os: ubuntu-latest
+    steps:
+      - name: Check out repository
+        if: contains( ${{ needs.pants-build.outputs.changed }} , ${{ matrix.package }})
+        uses: actions/checkout@v3
+      - name: Create release
+        if: contains( ${{ needs.pants-build.outputs.changed }} , ${{ matrix.package }})
+        uses: ./.github/workflows/framework-release.yml
+        with:
+          os: ${{ matrix.os }}
+          package: ${{ matrix.package }}
+          tag: ${{ matrix.package }}/v0.0.0-pr${{ github.event.number }}
+          prerelease: true
 

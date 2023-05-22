@@ -46,7 +46,7 @@ jobs:
           tag_name: ${{ env.TAG }}
           release_name: ${{ env.TAG }}
           body: |
-            Auto-generated pre-release on push to main
+            Auto-generated pre-release on PR
             
             User: **${{ github.actor }}**
             Ref: **${{ github.ref }}**
