@@ -3,10 +3,10 @@
 name: CI-TAG
 
 on:
-  push:
+  create:
     tags:
       #- '(.*\/.*)' # Only trigger on tags having a slash within, ignore other tags
-      - *
+      - '*'
 
 jobs:
   pants-build:
