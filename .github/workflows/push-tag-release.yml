@@ -52,84 +52,84 @@ jobs:
 
       # Core version mgmt
       - name: Get framework core tag
-        if: contains( github.ref, 'framework-core') && contains(${{ env.CHANGED }}, 'framework-core')
+        if: ${{ contains(github.ref,'framework-core') && contains(env.CHANGED,'framework-core')  }}
         run:  | 
           echo "FRAMEWORK_CORE_TAG=$(git tag | grep 'framework-core' | sort | tail -n 1)" >> $GITHUB_ENV
           echo "FRAMEWORK_CORE_VERSION=$(git tag | grep 'framework-core' | sort | tail -n 1 | cut -d/ -f 2-)" >> $GITHUB_ENV
       - name: Store framework core version
-        if: contains( github.ref, 'framework-core') && contains(${{ env.CHANGED }}, 'framework-core')
+        if: ${{ contains(github.ref,'framework-core') && contains(env.CHANGED,'framework-core')  }}
         run:  | 
           cd libs/framework-core/source/framework_core
           echo "__version__ = '${{ env.FRAMEWORK_CORE_VERSION }}'" > _version.py
 
       # QT version mgmt
       - name: Get framework qt tag
-        if: contains( github.ref, 'framework-qt') && contains(${{ env.CHANGED }}, 'framework-qt')
+        if: ${{ contains(github.ref,'framework-qt') && contains(env.CHANGED,'framework-qt') }}
         run:  | 
           echo "FRAMEWORK_QT_TAG=$(git tag | grep 'framework-qt' | sort | tail -n 1)" >> $GITHUB_ENV
           echo "FRAMEWORK_QT_VERSION=$(git tag | grep 'framework-qt' | sort | tail -n 1 | cut -d/ -f 2-)" >> $GITHUB_ENV
       - name: Store framework qt version
-        if: contains( github.ref, 'framework-qt') && contains(${{ env.CHANGED }}, 'framework-qt')
+        if: ${{ contains(github.ref,'framework-qt') && contains(env.CHANGED,'framework-qt') }}
         run:  | 
           cd libs/framework-qt/source/framework_qt
           echo "__version__ = '${{ env.FRAMEWORK_QT_VERSION }}'" > _version.py
 
       # Maya version mgmt
       - name: Get framework maya tag
-        if: contains( github.ref, 'framework-maya') && contains(${{ env.CHANGED }}, 'framework-maya')
+        if: ${{ contains(github.ref,'framework-maya') && contains(env.CHANGED,'framework-maya') }}
         run:  | 
           echo "FRAMEWORK_MAYA_TAG=$(git tag | grep 'framework-maya' | sort | tail -n 1)" >> $GITHUB_ENV
           echo "FRAMEWORK_MAYA_VERSION=$(git tag | grep 'framework-maya' | sort | tail -n 1 | cut -d/ -f 2-)" >> $GITHUB_ENV
       - name: Store framework maya version
-        if: contains( github.ref, 'framework-maya') && contains(${{ env.CHANGED }}, 'framework-maya')
+        if: ${{ contains(github.ref,'framework-maya') && contains(env.CHANGED,'framework-maya') }}
         run:  | 
           cd projects/framework-maya/source/framework_maya
           echo "__version__ = '${{ env.FRAMEWORK_MAYA_VERSION }}'" > _version.py
 
       # Nuke version mgmt
       - name: Get framework nuke tag
-        if: contains( github.ref, 'framework-nuke') && contains(${{ env.CHANGED }}, 'framework-nuke')
+        if: ${{ contains(github.ref,'framework-nuke') && contains(env.CHANGED,'framework-nuke') }}
         run:  | 
           echo "FRAMEWORK_NUKE_TAG=$(git tag | grep 'framework-nuke' | sort | tail -n 1)" >> $GITHUB_ENV
           echo "FRAMEWORK_NUKE_VERSION=$(git tag | grep 'framework-nuke' | sort | tail -n 1 | cut -d/ -f 2-)" >> $GITHUB_ENV
       - name: Store framework nuke version
-        if: contains( github.ref, 'framework-nuke') && contains(${{ env.CHANGED }}, 'framework-nuke')
+        if: ${{ contains(github.ref,'framework-nuke') && contains(env.CHANGED,'framework-nuke') }}
         run:  | 
           cd projects/framework-nuke/source/framework_nuke
           echo "__version__ = '${{ env.FRAMEWORK_NUKE_VERSION }}'" > _version.py
 
       # Houdini version mgmt
       - name: Get framework houdini tag
-        if: contains( github.ref, 'framework-houdini') && contains(${{ env.CHANGED }}, 'framework-houdini')
+        if: ${{ contains(github.ref,'framework-houdini') && contains(env.CHANGED,'framework-houdini') }}
         run:  | 
           echo "FRAMEWORK_HOUDINI_TAG=$(git tag | grep 'framework-houdini' | sort | tail -n 1)" >> $GITHUB_ENV
           echo "FRAMEWORK_HOUDINI_VERSION=$(git tag | grep 'framework-houdini' | sort | tail -n 1 | cut -d/ -f 2-)" >> $GITHUB_ENV
       - name: Store framework houdini version
-        if: contains( github.ref, 'framework-houdini') && contains(${{ env.CHANGED }}, 'framework-houdini')
+        if: ${{ contains(github.ref,'framework-houdini') && contains(env.CHANGED,'framework-houdini') }}
         run:  | 
           cd projects/framework-houdini/source/framework_houdini
           echo "__version__ = '${{ env.FRAMEWORK_HOUDINI_VERSION }}'" > _version.py
 
       # 3dsmax version mgmt
       - name: Get framework 3dsmax tag
-        if: contains( github.ref, 'framework-3dsmax') && contains(${{ env.CHANGED }}, 'framework-3dsmax')
+        if: ${{ contains(github.ref,'framework-3dsmax') && contains(env.CHANGED,'framework-3dsmax') }}
         run:  | 
           echo "FRAMEWORK_3DSMAX_TAG=$(git tag | grep 'framework-3dsmax' | sort | tail -n 1)" >> $GITHUB_ENV
           echo "FRAMEWORK_3DSMAX_VERSION=$(git tag | grep 'framework-3dsmax' | sort | tail -n 1 | cut -d/ -f 2-)" >> $GITHUB_ENV
       - name: Store framework 3dsmax version
-        if: contains( github.ref, 'framework-3dsmax') && contains(${{ env.CHANGED }}, 'framework-3dsmax')
+        if: ${{ contains(github.ref,'framework-3dsmax') && contains(env.CHANGED,'framework-3dsmax') }}
         run:  | 
           cd projects/framework-3dsmax/source/framework_3dsmax
           echo "__version__ = '${{ env.FRAMEWORK_3DSMAX_VERSION }}'" > _version.py
 
       # Unreal version mgmt
       - name: Get framework unreal tag
-        if: contains( github.ref, 'framework-unreal') && contains(${{ env.CHANGED }}, 'framework-unreal')
+        if: ${{ contains(github.ref,'framework-unreal') && contains(env.CHANGED,'framework-unreal') }}
         run:  | 
           echo "FRAMEWORK_UNREAL_TAG=$(git tag | grep 'framework-unreal' | sort | tail -n 1)" >> $GITHUB_ENV
           echo "FRAMEWORK_UNREAL_VERSION=$(git tag | grep 'framework-unreal' | sort | tail -n 1 | cut -d/ -f 2-)" >> $GITHUB_ENV
       - name: Store framework unreal version
-        if: contains( github.ref, 'framework-unreal') && contains(${{ env.CHANGED }}, 'framework-unreal')
+        if: ${{ contains(github.ref,'framework-unreal') && contains(env.CHANGED,'framework-unreal') }}
         run:  | 
           cd projects/framework-unreal/source/framework_unreal
           echo "__version__ = '${{ env.FRAMEWORK_UNREAL_VERSION }}'" > _version.py
@@ -183,10 +183,10 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - name: Check out repository
-        if: contains( github.ref, ${{ matrix.package }}) && contains( ${{ needs.pants-build.outputs.changed }} , ${{ matrix.package }})
+        if: ${{ contains(github.ref,matrix.package) && contains(needs.pants-build.outputs.changed,matrix.package) }}
         uses: actions/checkout@v3
       - name: Run release action
-        if: contains( github.ref, ${{ matrix.package }}) && contains( ${{ needs.pants-build.outputs.changed }} , ${{ matrix.package }})
+        if: ${{ contains(github.ref,matrix.package) && contains(needs.pants-build.outputs.changed,matrix.package) }}
         uses: ./.github/actions/framework-release
         with:
           package: ${{ matrix.package }}
