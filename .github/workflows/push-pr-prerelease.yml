@@ -74,9 +74,9 @@ jobs:
       - name: Check out repository
         if: contains( ${{ needs.pants-build.outputs.changed }} , ${{ matrix.package }})
         uses: actions/checkout@v3
-      - name: Create release
+      - name: Trigger release
         if: contains( ${{ needs.pants-build.outputs.changed }} , ${{ matrix.package }})
-        uses: ./.github/workflows/framework-release.yml
+        uses: ./.github/actions/framework-release.yml
         with:
           os: ${{ matrix.os }}
           package: ${{ matrix.package }}
