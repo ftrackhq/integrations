@@ -182,10 +182,10 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - name: Check out repository
-        if: contains( ${{ needs.pants-build.outputs.changed }} , ${{ matrix.package }})
+        if: contains( ${{ matrix.package }} , '0.0.0') == false && contains( ${{ needs.pants-build.outputs.changed }} , ${{ matrix.package }})
         uses: actions/checkout@v3
       - name: Run release action
-        if: contains( ${{ needs.pants-build.outputs.changed }} , ${{ matrix.package }})
+        if: contains( ${{ matrix.package }} , '0.0.0') == false && contains( ${{ needs.pants-build.outputs.changed }} , ${{ matrix.package }})
         uses: ./.github/actions/framework-release
         with:
           package: ${{ matrix.package }}
