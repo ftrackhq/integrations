@@ -148,7 +148,7 @@ jobs:
 
 # TODO: Re-tag stable from this point on
 
-  call-framework-release:
+  release:
     needs: pants-build
     strategy:
       matrix:

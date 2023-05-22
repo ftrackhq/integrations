@@ -63,7 +63,7 @@ jobs:
           key: pants-dist-${{github.sha}}
           enableCrossOsArchive: true
 
-  call-framework-release:
+  release:
     needs: pants-build
     strategy:
       matrix:
