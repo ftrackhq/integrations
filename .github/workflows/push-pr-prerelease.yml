@@ -140,7 +140,7 @@ jobs:
         if: ${{ contains(env.CHANGED, env.PACKAGE) }}
         with:
           delete_release: true # default: false
-          tag_name: ${{ env.PACKAGE }}/${{ env.VERSION }}-pr${{ github.event.number }}-latest # tag name to delete
+          tag_name: ${{ env.PACKAGE }}/${{ env.VERSION }}-pr${{ github.event.number }} # tag name to delete
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Create pre-release
@@ -150,8 +150,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
         with:
-          tag_name: ${{ env.PACKAGE }}/${{ env.VERSION }}-pr${{ github.event.number }}-latest
-          release_name: ${{ env.PACKAGE }}/${{ env.VERSION }}-pr${{ github.event.number }}-latest
+          tag_name: ${{ env.PACKAGE }}/${{ env.VERSION }}-pr${{ github.event.number }}
+          release_name: ${{ env.PACKAGE }}/${{ env.VERSION }}-pr${{ github.event.number }}
           body: |
             Auto-generated pre-release on push to main
             

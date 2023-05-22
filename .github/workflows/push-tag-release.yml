@@ -17,6 +17,7 @@ jobs:
       framework_core_version: ${{ env.FRAMEWORK_CORE_VERSION }}
     steps:
       - uses: actions/checkout@v3
+        if: contains(['framework-core'],${{ env.CHANGED }})
         with:
           fetch-depth: 0 # Fetch all commits so we can calculate diff properly
       - uses: pantsbuild/actions/init-pants@v4-scie-pants
@@ -43,11 +44,14 @@ jobs:
         run: |
           git fetch -a -t --force
           echo "CHANGED=$(pants list --changed-since=stabletest | cut -d'/' -f 1-2 | grep -v : | tr '\n' ',')" >> $GITHUB_ENV
-      - name: Get framework core tag and store version
+      - name: Get framework core tag
         if: contains(['framework-core'],${{ env.CHANGED }})
         run:  | 
           echo "FRAMEWORK_CORE_TAG=$(git tag | grep 'framework-core' | sort | tail -n 1)" >> $GITHUB_ENV
           echo "FRAMEWORK_CORE_VERSION=$(git tag | grep 'framework-core' | sort | tail -n 1 | cut -d/ -f 2-)" >> $GITHUB_ENV
+      - name: Store framework core version
+        if: contains(['framework-core'],${{ env.CHANGED }})
+        run:  | 
           cd libs/framework-core/source/framework_core
           echo "__version__ = '${{ env.FRAMEWORK_CORE_VERSION }}'" > _version.py
       # TODO: do same thing for other packages
