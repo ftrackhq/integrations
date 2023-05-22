@@ -71,7 +71,7 @@ jobs:
     needs: pants-build
     if: contains( ${{ needs.pants-build.outputs.changed }} , "framework-core")
     uses: ./.github/workflows/framework-release.yml
-    inputs:
+    with:
       os: ubuntu-latest
       package: framework-core
       tag: framework-core/v0.0.0-pr${{ github.event.number }}
