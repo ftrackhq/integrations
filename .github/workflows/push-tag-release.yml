@@ -109,7 +109,7 @@ jobs:
           python-version: '3.7'
       - name: Fetch tags
         if: ${{ contains(env.CHANGED, env.PACKAGE) }}
-        run: git fetch -a -t
+        run: git fetch -a -t --force
       - name: Create release
         id: create_release
         if: ${{ contains(env.CHANGED, env.PACKAGE) }}
