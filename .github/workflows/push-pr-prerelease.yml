@@ -70,6 +70,18 @@ jobs:
         include:
           - package: framework-core
             os: ubuntu-latest
+          - package: framework-qt
+            os: ubuntu-latest
+          - package: framework-maya
+            os: ubuntu-latest
+          - package: framework-nuke
+            os: ubuntu-latest
+          - package: framework-houdini
+            os: ubuntu-latest
+          - package: framework-3dsmax
+            os: ubuntu-latest
+          - package: framework-unreal
+            os: windows-latest
     runs-on: ${{ matrix.os }}
     steps:
       - name: Check out repository

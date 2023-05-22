@@ -72,7 +72,7 @@ jobs:
           key: pants-dist-${{github.sha}}
           enableCrossOsArchive: true
 
-# TODO: Retag stable from this point on
+# TODO: Re-tag stable from this point on
 
   call-framework-release:
     needs: pants-build
@@ -82,6 +82,24 @@ jobs:
           - package: framework-core
             tag: ${{ needs.pants-build.outputs.framework_core_tag }}
             os: ubuntu-latest
+          - package: framework-qt
+            tag: ${{ needs.pants-build.outputs.framework_qt_tag }}
+            os: ubuntu-latest
+          - package: framework-maya
+            tag: ${{ needs.pants-build.outputs.framework_maya_tag }}
+            os: ubuntu-latest
+          - package: framework-nuke
+            tag: ${{ needs.pants-build.outputs.framework_nuke_tag }}
+            os: ubuntu-latest
+          - package: framework-houdini
+            tag: ${{ needs.pants-build.outputs.framework_houdini_tag }}
+            os: ubuntu-latest
+          - package: framework-3dsmax
+            tag: ${{ needs.pants-build.outputs.framework_3dsmax_tag }}
+            os: ubuntu-latest
+          - package: framework-unreal
+            tag: ${{ needs.pants-build.outputs.framework_unreal_tag }}
+            os: windows-latest
     runs-on: ${{ matrix.os }}
     steps:
       - name: Check out repository
