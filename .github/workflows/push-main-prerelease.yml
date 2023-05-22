@@ -7,14 +7,12 @@ name: CI-MERGE
 on:
   push:
     branches: ["main"]
+    #branches: ["main", "backlog/gh-ci-with-setuptools2"] # TEST
 
 jobs:
   pants-build:
     name: Build with Pants and probe which packages has changed
     runs-on: ubuntu-latest
-    env:
-      # Constants
-      VERSION: "v0.0.0"
     outputs:
       changed: ${{ env.CHANGED }}
       version: ${{ env.VERSION }}
@@ -46,37 +44,6 @@ jobs:
         run: |
           git fetch -a -t
           echo "CHANGED=$(pants list --changed-since=stable | cut -d'/' -f 1-2 | grep -v : | tr '\n' ',')" >> $GITHUB_ENV
-      # Store dummy version number into projects, will be picked up by setup.py
-      - name: Update framework core version
-        if: contains(['framework-core'],${{ env.CHANGED }})
-        run:  | 
-          cd libs/framework-core/source/framework_core
-          echo "__version__ = '${{ env.VERSION }}'" > _version.py
-      - name: Update framework qt version
-        if: contains(['framework-qt'],${{ env.CHANGED }})
-        run:  | 
-          cd libs/framework-qt/source/framework_qt
-          echo "__version__ = '${{ env.VERSION }}'" > _version.py
-      - name: Update framework maya version
-        if: contains(['framework-maya'],${{ env.CHANGED }})
-        run:  | 
-          cd projects/framework-maya/source/framework_maya
-          echo "__version__ = '${{ env.VERSION }}'" > _version.py
-      - name: Update framework houdini version
-        if: contains(['framework-houdini'],${{ env.CHANGED }})
-        run:  | 
-          cd projects/framework-houdini/source/framework_houdini
-          echo "__version__ = '${{ env.VERSION }}'" > _version.py
-      - name: Update framework 3ds max version
-        if: contains(['framework-3dsmax'],${{ env.CHANGED }})
-        run:  | 
-          cd projects/framework-3dsmax/source/framework_3dsmax
-          echo "__version__ = '${{ env.VERSION }}'" > _version.py
-      - name: Update framework Unreal version
-        if: contains(['framework-unreal'],${{ env.CHANGED }})
-        run:  | 
-          cd projects/framework-unreal/source/framework_unreal
-          echo "__version__ = '${{ env.VERSION }}'" > _version.py
       - name: Check BUILD files
         if: false # TODO enable linting with a later task
         run:  |
@@ -95,98 +62,23 @@ jobs:
           key: pants-dist-${{github.sha}}
           enableCrossOsArchive: true
 
-  connect-plugin-build:
+  call-framework-release:
+    needs: pants-build
     strategy:
       matrix:
         include:
           - package: framework-core
             os: ubuntu-latest
-          - package: framework-qt
-            os: ubuntu-latest
-          - package: framework-maya
-            os: ubuntu-latest
-          - package: framework-nuke
-            os: ubuntu-latest
-          - package: framework-houdini
-            os: ubuntu-latest
-          - package: framework-3dsmax
-            os: ubuntu-latest
-          - package: framework-unreal
-            os: windows-latest
-    name: ${{ matrix.package }}
-    needs: pants-build
-    env:
-        VERSION: "${{ needs.pants-build.outputs.version }}"
-        PACKAGE: ${{ matrix.package }}
-        CHANGED: ${{ needs.pants-build.outputs.changed }}
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v3
+      - name: Check out repository
+        if: contains( ${{ needs.pants-build.outputs.changed }} , ${{ matrix.package }})
+        uses: actions/checkout@v3
+      - name: Run release action
+        if: contains( ${{ needs.pants-build.outputs.changed }} , ${{ matrix.package }})
+        uses: ./.github/actions/framework-release
         with:
-          fetch-depth: 0
-      - uses: actions/setup-python@v4
-        with:
-          python-version: '3.7'
-      - name: Fetch tags
-        run: git fetch -a -t
-      - uses: ClementTsang/delete-tag-and-release@v0.3.1
-        if: ${{ contains(env.CHANGED, env.PACKAGE) }}
-        with:
-          delete_release: true # default: false
-          tag_name: ${{ env.PACKAGE }}/${{ env.VERSION }}-latest # tag name to delete
-          #repo: <owner>/<repoName> # target repo (optional). defaults to repo running this action
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - name: Create pre-release
-        id: create_pre_release
-        if: ${{ contains(env.CHANGED, env.PACKAGE) }}
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
-        with:
-          tag_name: ${{ env.PACKAGE }}/${{ env.VERSION }}-latest
-          release_name: ${{ env.PACKAGE }}/${{ env.VERSION }}-latest
-          body: |
-            Auto-generated pre-release on push to main
-            
-            User: **${{ github.actor }}**
-            Ref: **${{ github.ref }}**
-            Commit: **${{ github.sha }}**
-            
-            Please check release notes for more information.
-          draft: true
+          package: ${{ matrix.package }}
+          tag: ${{ matrix.package }}/v0.0.0-latest
           prerelease: true
-      - name: Restore pants build from cache
-        if: ${{ contains(env.CHANGED, env.PACKAGE) }}
-        uses: actions/cache/restore@v3
-        with:
-          path: dist
-          key: pants-dist-${{github.sha}}
-          fail-on-cache-miss: true
-          enableCrossOsArchive: true
-      - name: Build Connect plugin on Linux
-        if: ${{ contains(env.CHANGED, env.PACKAGE) && contains(matrix.os,'ubuntu') }}
-        run: |
-          cd dist
-          tar -xzvf ${{ env.PACKAGE }}*.tar.gz
-          cd $(ls -d ${{ env.PACKAGE }}*/|head -n 1)
-          python setup.py build_plugin
-          mv build/*.zip ../
-      - name: Build Connect plugin on Windows
-        if: ${{ contains(env.CHANGED, env.PACKAGE) && contains(matrix.os,'windows') }}
-        run: |
-          cd dist
-          tar -xzvf $(gci ${{ env.PACKAGE }}*.tar.gz -Name)
-          cd $(gci ${{ env.PACKAGE }}* -Directory -Name)
-          python setup.py build_plugin
-          mv build/*.zip ../
-      - uses: xresloader/upload-to-github-release@main
-        if: ${{ contains(env.CHANGED, env.PACKAGE) }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          file: "dist/${{ env.PACKAGE }}-*.zip"
-          release_id: ${{ steps.create_pre_release.outputs.id }}
-          overwrite: true
-          verbose: true
-          draft: false
+          token: ${{ secrets.GITHUB_TOKEN }}

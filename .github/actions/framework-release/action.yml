@@ -23,12 +23,12 @@ runs:
       with:
         python-version: '3.7'
     - name: Fetch tags
-      run: git fetch -a -t
+      run: git fetch -a -t --force
       shell: bash
     - uses: ClementTsang/delete-tag-and-release@v0.3.1
       with:
         delete_release: true # default: false
-        tag_name: ${{ env.TAG }} # tag name to delete
+        tag_name: ${{ inputs.TAG }} # tag name to delete
       env:
         GITHUB_TOKEN: ${{ inputs.token }}
     - name: Create pre-release
@@ -37,8 +37,8 @@ runs:
       env:
         GITHUB_TOKEN: ${{ inputs.token }} # This token is provided by Actions, you do not need to create your own token
       with:
-        tag_name: ${{ env.TAG }}
-        release_name: ${{ env.TAG }}
+        tag_name: ${{ inputs.tag }}
+        release_name: ${{ inputs.tag }}
         body: |
           Auto-generated pre-release on PR
           
@@ -48,7 +48,7 @@ runs:
           
           Please check release notes for more information.
         draft: true
-        prerelease: ${{ env.PRERELEASE }}
+        prerelease: ${{ inputs.prelease }}
     - name: Restore pants build from cache
       uses: actions/cache/restore@v3
       with:
@@ -60,8 +60,8 @@ runs:
       if: ${{ contains(inputs.os,'ubuntu') }}
       run: |
         cd dist
-        tar -xzvf ${{ env.PACKAGE }}*.tar.gz
-        cd $(ls -d ${{ env.PACKAGE }}*/|head -n 1)
+        tar -xzvf ${{ inputs.package }}*.tar.gz
+        cd $(ls -d ${{ inputs.package }}*/|head -n 1)
         python setup.py build_plugin
         mv build/*.zip ../
       shell: bash
@@ -69,8 +69,8 @@ runs:
       if: ${{ contains(inputs.os,'windows') }}
       run: |
         cd dist
-        tar -xzvf $(gci ${{ env.PACKAGE }}*.tar.gz -Name)
-        cd $(gci ${{ env.PACKAGE }}* -Directory -Name)
+        tar -xzvf $(gci ${{ inputs.package }}*.tar.gz -Name)
+        cd $(gci ${{ inputs.package }}* -Directory -Name)
         python setup.py build_plugin
         mv build/*.zip ../
       shell: bash
@@ -78,7 +78,7 @@ runs:
       env:
         GITHUB_TOKEN: ${{ inputs.token }}
       with:
-        file: "dist/${{ env.PACKAGE }}-*.zip"
+        file: "dist/${{ inputs.package }}-*.zip"
         release_id: ${{ steps.create_release.outputs.id }}
         overwrite: true
         verbose: true
