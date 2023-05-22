@@ -14,7 +14,12 @@ jobs:
     outputs:
       changed: ${{ env.CHANGED }}
       framework_core_tag: ${{ env.FRAMEWORK_CORE_TAG }}
-      framework_core_version: ${{ env.FRAMEWORK_CORE_VERSION }}
+      framework_qt_tag: ${{ env.FRAMEWORK_QT_TAG }}
+      framework_maya_tag: ${{ env.FRAMEWORK_MAYA_TAG }}
+      framework_nuke_tag: ${{ env.FRAMEWORK_NUKE_TAG }}
+      framework_houdini_tag: ${{ env.FRAMEWORK_HOUDINI_TAG }}
+      framework_3dsmax_tag: ${{ env.FRAMEWORK_3DSMAX_TAG }}
+      framework_unreal_tag: ${{ env.FRAMEWORK_UNREAL_TAG }}
     steps:
       - uses: actions/checkout@v3
         with:
