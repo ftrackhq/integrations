@@ -9,9 +9,9 @@ import nuke
 import ftrack_api
 
 
-from framework_nuke import plugin
-from framework_qt.plugin.widget import BaseOptionsWidget
-from framework_qt.ui.utility.widget import group_box
+from ftrack_framework_nuke import plugin
+from ftrack_framework_qt.plugin.widget import BaseOptionsWidget
+from ftrack_framework_qt.ui.utility.widget import group_box
 
 
 class NukeMoviePublisherExporterOptionsWidget(BaseOptionsWidget):

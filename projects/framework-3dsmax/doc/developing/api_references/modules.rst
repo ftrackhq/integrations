@@ -7,10 +7,10 @@
 API Reference
 *************
 
-framework_3dsmax
+ftrack_framework_3dsmax
 ==============================
 
 .. toctree::
     :maxdepth: 1
 
-    framework_3dsmax
+    ftrack_framework_3dsmax

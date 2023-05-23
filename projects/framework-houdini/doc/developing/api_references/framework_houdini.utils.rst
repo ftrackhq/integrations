@@ -1,7 +1,7 @@
 framework\_houdini.utils package
 ================================================
 
-.. automodule:: framework_houdini.utils
+.. automodule:: ftrack_framework_houdini.utils
    :members:
    :undoc-members:
    :show-inheritance:
@@ -12,6 +12,6 @@ Subpackages
 .. toctree::
    :maxdepth: 1
 
-   framework_houdini.utils.bootstrap
-   framework_houdini.utils.file
-   framework_houdini.utils.node
+   ftrack_framework_houdini.utils.bootstrap
+   ftrack_framework_houdini.utils.file
+   ftrack_framework_houdini.utils.node

@@ -5,10 +5,10 @@ import os
 import logging
 import ftrack_api
 import functools
-from framework_core import constants, configure_logging
-from framework_core.definition import BaseDefinition
+from ftrack_framework_core import constants, configure_logging
+from ftrack_framework_core.definition import BaseDefinition
 
-logger = logging.getLogger('framework_3dsmax_definition.register')
+logger = logging.getLogger('ftrack_framework_3dsmax_definition.register')
 
 
 def register(api_object, **kw):

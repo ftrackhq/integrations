@@ -3,8 +3,8 @@
 
 import hou
 
-from framework_houdini import plugin
-from framework_houdini.constants import asset as asset_const
+from ftrack_framework_houdini import plugin
+from ftrack_framework_houdini.constants import asset as asset_const
 import ftrack_api
 
 

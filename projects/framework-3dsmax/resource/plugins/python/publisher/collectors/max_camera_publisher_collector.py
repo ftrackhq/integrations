@@ -3,7 +3,7 @@
 
 from pymxs import runtime as rt
 
-from framework_3dsmax import plugin
+from ftrack_framework_3dsmax import plugin
 import ftrack_api
 
 

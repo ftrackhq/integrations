@@ -1,7 +1,7 @@
 framework\_maya.host package
 ============================================
 
-.. automodule:: framework_maya.host
+.. automodule:: ftrack_framework_maya.host
    :members:
    :undoc-members:
    :show-inheritance:
@@ -12,4 +12,4 @@ Subpackages
 .. toctree::
    :maxdepth: 1
 
-   framework_maya.host.engine
+   ftrack_framework_maya.host.engine

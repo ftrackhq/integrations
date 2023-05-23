@@ -7,10 +7,10 @@
 API Reference
 *************
 
-framework_maya
+ftrack_framework_maya
 ============================
 
 .. toctree::
     :maxdepth: 1
 
-    framework_maya
+    ftrack_framework_maya

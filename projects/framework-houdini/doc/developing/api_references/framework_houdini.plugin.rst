@@ -1,7 +1,7 @@
 framework\_houdini.plugin package
 =================================================
 
-.. automodule:: framework_houdini.plugin
+.. automodule:: ftrack_framework_houdini.plugin
    :members:
    :undoc-members:
    :show-inheritance:
@@ -12,7 +12,7 @@ Subpackages
 .. toctree::
    :maxdepth: 1
 
-   framework_houdini.plugin.asset_manager
-   framework_houdini.plugin.load
-   framework_houdini.plugin.open
-   framework_houdini.plugin.publish
+   ftrack_framework_houdini.plugin.asset_manager
+   ftrack_framework_houdini.plugin.load
+   ftrack_framework_houdini.plugin.open
+   ftrack_framework_houdini.plugin.publish

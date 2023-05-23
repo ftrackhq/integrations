@@ -45,7 +45,7 @@ class BuildPlugin(setuptools.Command):
         VERSION = '.'.join(release.split('.')[:3])
         global STAGING_PATH
         STAGING_PATH = os.path.join(
-            BUILD_PATH, 'framework-nuke-{}'.format(VERSION)
+            BUILD_PATH, 'ftrack-framework-nuke-{}'.format(VERSION)
         )
 
         '''Run the build step.'''
@@ -75,7 +75,7 @@ class BuildPlugin(setuptools.Command):
 
         result_path = shutil.make_archive(
             os.path.join(
-                BUILD_PATH, 'framework-nuke-{0}'.format(VERSION)
+                BUILD_PATH, 'ftrack-framework-nuke-{0}'.format(VERSION)
             ),
             'zip',
             STAGING_PATH,
@@ -108,11 +108,11 @@ __version__ = {version!r}
 
 # Configuration.
 setup(
-    name='framework-nuke',
+    name='ftrack-framework-nuke',
     description='A dialog to publish package from nuke to ftrack',
     long_description=open(README_PATH).read(),
     keywords='ftrack',
-    url='https://bitbucket.org/ftrack/framework-nuke',
+    url='https://github.com/ftrackhq/integrations/projects/framework-nuke',
     author='ftrack',
     author_email='support@ftrack.com',
     license='Apache License (2.0)',

@@ -8,8 +8,8 @@ import ftrack_api
 
 import nuke
 
-from framework_nuke import plugin
-from framework_nuke.constants import asset as asset_const
+from ftrack_framework_nuke import plugin
+from ftrack_framework_nuke.constants import asset as asset_const
 
 
 class NukeRenderLoaderImporterPlugin(plugin.NukeLoaderImporterPlugin):

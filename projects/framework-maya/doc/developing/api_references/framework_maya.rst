@@ -1,7 +1,7 @@
 framework\_maya package
 =======================================
 
-.. automodule:: framework_maya
+.. automodule:: ftrack_framework_maya
    :members:
    :undoc-members:
    :show-inheritance:
@@ -12,12 +12,12 @@ Subpackages
 .. toctree::
     :maxdepth: 1
 
-    framework_maya.asset
-    framework_maya.client
-    framework_maya.constants
-    framework_maya.host
-    framework_maya.plugin
-    framework_maya.utils
+    ftrack_framework_maya.asset
+    ftrack_framework_maya.client
+    ftrack_framework_maya.constants
+    ftrack_framework_maya.host
+    ftrack_framework_maya.plugin
+    ftrack_framework_maya.utils
 
 Submodules
 ----------
@@ -25,7 +25,7 @@ Submodules
 framework\_maya._version module
 -----------------------------------------------
 
-.. automodule:: framework_maya._version
+.. automodule:: ftrack_framework_maya._version
    :members:
    :undoc-members:
    :show-inheritance:

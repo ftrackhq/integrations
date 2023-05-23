@@ -1,7 +1,7 @@
 framework\_nuke package
 =======================================
 
-.. automodule:: framework_nuke
+.. automodule:: ftrack_framework_nuke
    :members:
    :undoc-members:
    :show-inheritance:
@@ -12,12 +12,12 @@ Subpackages
 .. toctree::
     :maxdepth: 1
 
-    framework_nuke.asset
-    framework_nuke.client
-    framework_nuke.constants
-    framework_nuke.host
-    framework_nuke.plugin
-    framework_nuke.utils
+    ftrack_framework_nuke.asset
+    ftrack_framework_nuke.client
+    ftrack_framework_nuke.constants
+    ftrack_framework_nuke.host
+    ftrack_framework_nuke.plugin
+    ftrack_framework_nuke.utils
 
 Submodules
 ----------
@@ -25,7 +25,7 @@ Submodules
 framework\_nuke._version module
 -----------------------------------------------
 
-.. automodule:: framework_nuke._version
+.. automodule:: ftrack_framework_nuke._version
    :members:
    :undoc-members:
    :show-inheritance:

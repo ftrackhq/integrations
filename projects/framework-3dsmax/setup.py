@@ -45,7 +45,7 @@ class BuildPlugin(setuptools.Command):
         VERSION = '.'.join(release.split('.')[:3])
         global STAGING_PATH
         STAGING_PATH = os.path.join(
-            BUILD_PATH, 'framework-3dsmax-{}'.format(VERSION)
+            BUILD_PATH, 'ftrack-framework-3dsmax-{}'.format(VERSION)
         )
 
         '''Run the build step.'''
@@ -73,7 +73,7 @@ class BuildPlugin(setuptools.Command):
         result_path = shutil.make_archive(
             os.path.join(
                 BUILD_PATH,
-                'framework-3dsmax-{0}'.format(VERSION),
+                'ftrack-framework-3dsmax-{0}'.format(VERSION),
             ),
             'zip',
             STAGING_PATH,
@@ -107,11 +107,11 @@ __version__ = {version!r}
 
 # Configuration.
 setup(
-    name='framework-3dsmax',
+    name='ftrack-framework-3dsmax',
     description='A dialog to publish package from 3ds Max to ftrack',
     long_description=open(README_PATH).read(),
     keywords='ftrack',
-    url='https://bitbucket.org/ftrack/framework-3dsmax',
+    url='https://github.com/ftrackhq/integrations/projects/framework-3dsmax',
     author='ftrack',
     author_email='support@ftrack.com',
     license='Apache License (2.0)',

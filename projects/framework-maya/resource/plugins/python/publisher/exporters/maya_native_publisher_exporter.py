@@ -6,8 +6,8 @@ import os
 
 import maya.cmds as cmds
 
-from framework_maya import utils as maya_utils
-from framework_maya import plugin
+from ftrack_framework_maya import utils as maya_utils
+from ftrack_framework_maya import plugin
 import ftrack_api
 
 
