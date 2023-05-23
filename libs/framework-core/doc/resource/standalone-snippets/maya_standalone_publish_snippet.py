@@ -1,5 +1,5 @@
 import os
-from framework_core import constants, event
+from ftrack_framework_core import constants, event
 from ftrack_connect_pipeline_maya import host
 import ftrack_api
 
@@ -19,7 +19,7 @@ event_manager = event.EventManager(
 host_class = host.MayaHost(event_manager)
 
 # Init Client
-from framework_core import client
+from ftrack_framework_core import client
 
 client_connection = client.Client(event_manager)
 
