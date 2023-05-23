@@ -2,7 +2,7 @@
 # :copyright: Copyright (c) 2014-2022 ftrack
 
 import os
-from framework_core import plugin
+from ftrack_framework_core import plugin
 import ftrack_api
 
 

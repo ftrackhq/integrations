@@ -1,5 +1,5 @@
 import os
-from framework_core import host, constants, event
+from ftrack_framework_core import host, constants, event
 import ftrack_api
 
 # Set the minimum required Environment variables.
@@ -18,7 +18,7 @@ event_manager = event.EventManager(
 host_class = host.Host(event_manager)
 
 # Init Client
-from framework_core import client
+from ftrack_framework_core import client
 
 client_connection = client.Client(event_manager)
 

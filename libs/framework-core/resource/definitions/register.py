@@ -5,8 +5,8 @@ import os
 import logging
 import ftrack_api
 import functools
-from framework_core import constants, configure_logging
-from framework_core.definition import BaseDefinition
+from ftrack_framework_core import constants, configure_logging
+from ftrack_framework_core.definition import BaseDefinition
 
 logger = logging.getLogger('ftrack_connect_pipeline_definition.register')
 
