@@ -8,7 +8,7 @@ import functools
 from ftrack_framework_core import constants, configure_logging
 from ftrack_framework_core.definition import BaseDefinition
 
-logger = logging.getLogger('ftrack_framework_core_definition.register')
+logger = logging.getLogger('ftrack_framework_maya_definition.register')
 
 
 def register(api_object, **kw):
