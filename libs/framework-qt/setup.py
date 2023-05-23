@@ -23,7 +23,7 @@ README_PATH = os.path.join(ROOT_PATH, 'README.md')
 RESOURCE_PATH = os.path.join(ROOT_PATH, 'resource')
 STYLE_PATH = os.path.join(RESOURCE_PATH, 'style')
 RESOURCE_TARGET_PATH = os.path.join(
-    SOURCE_PATH, 'framework_qt', 'ui', 'resource.py'
+    SOURCE_PATH, 'ftrack_framework_qt', 'ui', 'resource.py'
 )
 BOOTSTRAP_PATH = os.path.join(RESOURCE_PATH, 'bootstrap')
 PLUGINS_PATH = os.path.join(RESOURCE_PATH, 'plugins')
@@ -145,7 +145,7 @@ class BuildPlugin(setuptools.Command):
         VERSION = '.'.join(release.split('.')[:3])
         global STAGING_PATH
         STAGING_PATH = os.path.join(
-            BUILD_PATH, 'framework-qt-{}'.format(VERSION)
+            BUILD_PATH, 'ftrack-framework-qt-{}'.format(VERSION)
         )
 
         '''Run the build step.'''
@@ -177,7 +177,7 @@ class BuildPlugin(setuptools.Command):
 
         shutil.make_archive(
             os.path.join(
-                BUILD_PATH, 'framework-qt-{0}'.format(VERSION)
+                BUILD_PATH, 'ftrack-framework-qt-{0}'.format(VERSION)
             ),
             'zip',
             STAGING_PATH,
@@ -211,7 +211,7 @@ __version__ = {version!r}
 
 # Configuration.
 setup(
-    name='framework-qt',
+    name='ftrack-framework-qt',
     description='Ftrack qt pipeline integration framework.',
     long_description=open(README_PATH).read(),
     keywords='ftrack',

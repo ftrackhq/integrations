@@ -1,5 +1,5 @@
 import os
-from framework_core import host, constants, event
+from ftrack_framework_core import host, constants, event
 import ftrack_api
 
 from Qt import QtWidgets
@@ -32,7 +32,7 @@ event_manager = event.EventManager(
 host.Host(event_manager)
 
 # Init Client
-from framework_qt.client import (
+from ftrack_framework_qt.client import (
     publish,
     load,
     asset_manager,

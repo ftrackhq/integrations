@@ -1,7 +1,7 @@
 ftrack\_connect\_pipeline\_qt.ui.utility.widget package
 =======================================================
 
-.. automodule:: framework_qt.ui.utility.widget
+.. automodule:: ftrack_framework_qt.ui.utility.widget
    :members:
    :undoc-members:
    :show-inheritance:
@@ -12,7 +12,7 @@ Subpackages
 .. toctree::
    :maxdepth: 1
 
-   framework_qt.ui.utility.widget.base
+   ftrack_framework_qt.ui.utility.widget.base
 
 Submodules
 ----------
@@ -20,7 +20,7 @@ Submodules
 ftrack\_connect\_pipeline\_qt.ui.utility.widget.accordion module
 ----------------------------------------------------------------
 
-.. automodule:: framework_qt.ui.utility.widget.accordion
+.. automodule:: ftrack_framework_qt.ui.utility.widget.accordion
    :members:
    :undoc-members:
    :show-inheritance:
@@ -28,7 +28,7 @@ ftrack\_connect\_pipeline\_qt.ui.utility.widget.accordion module
 ftrack\_connect\_pipeline\_qt.ui.utility.widget.asset\_grid_selector module
 ---------------------------------------------------------------------------
 
-.. automodule:: framework_qt.ui.utility.widget.asset_grid_selector
+.. automodule:: ftrack_framework_qt.ui.utility.widget.asset_grid_selector
    :members:
    :undoc-members:
    :show-inheritance:
@@ -36,7 +36,7 @@ ftrack\_connect\_pipeline\_qt.ui.utility.widget.asset\_grid_selector module
 ftrack\_connect\_pipeline\_qt.ui.utility.widget.asset\_selector module
 ----------------------------------------------------------------------
 
-.. automodule:: framework_qt.ui.utility.widget.asset_selector
+.. automodule:: ftrack_framework_qt.ui.utility.widget.asset_selector
    :members:
    :undoc-members:
    :show-inheritance:
@@ -44,7 +44,7 @@ ftrack\_connect\_pipeline\_qt.ui.utility.widget.asset\_selector module
 ftrack\_connect\_pipeline\_qt.ui.utility.widget.asset\_version_list_selector module
 -----------------------------------------------------------------------------------
 
-.. automodule:: framework_qt.ui.utility.widget.asset_version_list_selector
+.. automodule:: ftrack_framework_qt.ui.utility.widget.asset_version_list_selector
    :members:
    :undoc-members:
    :show-inheritance:
@@ -52,7 +52,7 @@ ftrack\_connect\_pipeline\_qt.ui.utility.widget.asset\_version_list_selector mod
 ftrack\_connect\_pipeline\_qt.ui.utility.widget.busy_indicator\_busy_indicator module
 -------------------------------------------------------------------------------------
 
-.. automodule:: framework_qt.ui.utility.widget.busy_indicator
+.. automodule:: ftrack_framework_qt.ui.utility.widget.busy_indicator
    :members:
    :undoc-members:
    :show-inheritance:
@@ -60,7 +60,7 @@ ftrack\_connect\_pipeline\_qt.ui.utility.widget.busy_indicator\_busy_indicator m
 ftrack\_connect\_pipeline\_qt.ui.utility.widget.button\_button module
 ---------------------------------------------------------------------
 
-.. automodule:: framework_qt.ui.utility.widget.button
+.. automodule:: ftrack_framework_qt.ui.utility.widget.button
    :members:
    :undoc-members:
    :show-inheritance:
@@ -68,7 +68,7 @@ ftrack\_connect\_pipeline\_qt.ui.utility.widget.button\_button module
 ftrack\_connect\_pipeline\_qt.ui.utility.widget.button\_circular_button module
 ------------------------------------------------------------------------------
 
-.. automodule:: framework_qt.ui.utility.widget.circular_button
+.. automodule:: ftrack_framework_qt.ui.utility.widget.circular_button
    :members:
    :undoc-members:
    :show-inheritance:
@@ -76,7 +76,7 @@ ftrack\_connect\_pipeline\_qt.ui.utility.widget.button\_circular_button module
 ftrack\_connect\_pipeline\_qt.ui.utility.widget.context\_selector module
 ------------------------------------------------------------------------
 
-.. automodule:: framework_qt.ui.utility.widget.context_selector
+.. automodule:: ftrack_framework_qt.ui.utility.widget.context_selector
    :members:
    :undoc-members:
    :show-inheritance:
@@ -84,7 +84,7 @@ ftrack\_connect\_pipeline\_qt.ui.utility.widget.context\_selector module
 ftrack\_connect\_pipeline\_qt.ui.utility.widget.definition\_selector module
 ---------------------------------------------------------------------------
 
-.. automodule:: framework_qt.ui.utility.widget.definition_selector
+.. automodule:: ftrack_framework_qt.ui.utility.widget.definition_selector
    :members:
    :undoc-members:
    :show-inheritance:
@@ -92,7 +92,7 @@ ftrack\_connect\_pipeline\_qt.ui.utility.widget.definition\_selector module
 ftrack\_connect\_pipeline\_qt.ui.utility.widget.dialog\_dialog module
 ---------------------------------------------------------------------
 
-.. automodule:: framework_qt.ui.utility.widget.dialog
+.. automodule:: ftrack_framework_qt.ui.utility.widget.dialog
    :members:
    :undoc-members:
    :show-inheritance:
@@ -100,7 +100,7 @@ ftrack\_connect\_pipeline\_qt.ui.utility.widget.dialog\_dialog module
 ftrack\_connect\_pipeline\_qt.ui.utility.widget.entity\_browser module
 ----------------------------------------------------------------------
 
-.. automodule:: framework_qt.ui.utility.widget.entity_browser
+.. automodule:: ftrack_framework_qt.ui.utility.widget.entity_browser
    :members:
    :undoc-members:
    :show-inheritance:
@@ -108,7 +108,7 @@ ftrack\_connect\_pipeline\_qt.ui.utility.widget.entity\_browser module
 ftrack\_connect\_pipeline\_qt.ui.utility.widget.entity\_info module
 -------------------------------------------------------------------
 
-.. automodule:: framework_qt.ui.utility.widget.entity_info
+.. automodule:: ftrack_framework_qt.ui.utility.widget.entity_info
    :members:
    :undoc-members:
    :show-inheritance:
@@ -116,7 +116,7 @@ ftrack\_connect\_pipeline\_qt.ui.utility.widget.entity\_info module
 ftrack\_connect\_pipeline\_qt.ui.utility.widget.footer module
 -------------------------------------------------------------
 
-.. automodule:: framework_qt.ui.utility.widget.footer
+.. automodule:: ftrack_framework_qt.ui.utility.widget.footer
    :members:
    :undoc-members:
    :show-inheritance:
@@ -124,7 +124,7 @@ ftrack\_connect\_pipeline\_qt.ui.utility.widget.footer module
 ftrack\_connect\_pipeline\_qt.ui.utility.widget.group_box module
 ----------------------------------------------------------------
 
-.. automodule:: framework_qt.ui.utility.widget.group_box
+.. automodule:: ftrack_framework_qt.ui.utility.widget.group_box
    :members:
    :undoc-members:
    :show-inheritance:
@@ -132,7 +132,7 @@ ftrack\_connect\_pipeline\_qt.ui.utility.widget.group_box module
 ftrack\_connect\_pipeline\_qt.ui.utility.widget.header module
 -------------------------------------------------------------
 
-.. automodule:: framework_qt.ui.utility.widget.header
+.. automodule:: ftrack_framework_qt.ui.utility.widget.header
    :members:
    :undoc-members:
    :show-inheritance:
@@ -140,7 +140,7 @@ ftrack\_connect\_pipeline\_qt.ui.utility.widget.header module
 ftrack\_connect\_pipeline\_qt.ui.utility.widget.host\_selector module
 ---------------------------------------------------------------------
 
-.. automodule:: framework_qt.ui.utility.widget.host_selector
+.. automodule:: ftrack_framework_qt.ui.utility.widget.host_selector
    :members:
    :undoc-members:
    :show-inheritance:
@@ -148,7 +148,7 @@ ftrack\_connect\_pipeline\_qt.ui.utility.widget.host\_selector module
 ftrack\_connect\_pipeline\_qt.ui.utility.widget.icon module
 -----------------------------------------------------------
 
-.. automodule:: framework_qt.ui.utility.widget.icon
+.. automodule:: ftrack_framework_qt.ui.utility.widget.icon
    :members:
    :undoc-members:
    :show-inheritance:
@@ -156,7 +156,7 @@ ftrack\_connect\_pipeline\_qt.ui.utility.widget.icon module
 ftrack\_connect\_pipeline\_qt.ui.utility.widget.line module
 -----------------------------------------------------------
 
-.. automodule:: framework_qt.ui.utility.widget.line
+.. automodule:: ftrack_framework_qt.ui.utility.widget.line
    :members:
    :undoc-members:
    :show-inheritance:
@@ -164,7 +164,7 @@ ftrack\_connect\_pipeline\_qt.ui.utility.widget.line module
 ftrack\_connect\_pipeline\_qt.ui.utility.widget.overlay module
 --------------------------------------------------------------
 
-.. automodule:: framework_qt.ui.utility.widget.overlay
+.. automodule:: ftrack_framework_qt.ui.utility.widget.overlay
    :members:
    :undoc-members:
    :show-inheritance:
@@ -172,7 +172,7 @@ ftrack\_connect\_pipeline\_qt.ui.utility.widget.overlay module
 ftrack\_connect\_pipeline\_qt.ui.utility.widget.scroll_area module
 ------------------------------------------------------------------
 
-.. automodule:: framework_qt.ui.utility.widget.scroll_area
+.. automodule:: ftrack_framework_qt.ui.utility.widget.scroll_area
    :members:
    :undoc-members:
    :show-inheritance:
@@ -180,7 +180,7 @@ ftrack\_connect\_pipeline\_qt.ui.utility.widget.scroll_area module
 ftrack\_connect\_pipeline\_qt.ui.utility.widget.search module
 -------------------------------------------------------------
 
-.. automodule:: framework_qt.ui.utility.widget.search
+.. automodule:: ftrack_framework_qt.ui.utility.widget.search
    :members:
    :undoc-members:
    :show-inheritance:
@@ -188,7 +188,7 @@ ftrack\_connect\_pipeline\_qt.ui.utility.widget.search module
 ftrack\_connect\_pipeline\_qt.ui.utility.widget.tab module
 ----------------------------------------------------------
 
-.. automodule:: framework_qt.ui.utility.widget.tab
+.. automodule:: ftrack_framework_qt.ui.utility.widget.tab
    :members:
    :undoc-members:
    :show-inheritance:
@@ -196,7 +196,7 @@ ftrack\_connect\_pipeline\_qt.ui.utility.widget.tab module
 ftrack\_connect\_pipeline\_qt.ui.utility.widget.thumbnail module
 ----------------------------------------------------------------
 
-.. automodule:: framework_qt.ui.utility.widget.thumbnail
+.. automodule:: ftrack_framework_qt.ui.utility.widget.thumbnail
    :members:
    :undoc-members:
    :show-inheritance:
@@ -204,7 +204,7 @@ ftrack\_connect\_pipeline\_qt.ui.utility.widget.thumbnail module
 ftrack\_connect\_pipeline\_qt.ui.utility.widget.version\_selector module
 ------------------------------------------------------------------------
 
-.. automodule:: framework_qt.ui.utility.widget.version_selector
+.. automodule:: ftrack_framework_qt.ui.utility.widget.version_selector
    :members:
    :undoc-members:
    :show-inheritance:

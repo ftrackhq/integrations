@@ -7,10 +7,10 @@
 API Reference
 *************
 
-framework_qt
+ftrack_framework_qt
 ==========================
 
 .. toctree::
    :maxdepth: 1
 
-   framework_qt
+   ftrack_framework_qt
