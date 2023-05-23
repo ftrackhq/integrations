@@ -1,5 +1,5 @@
-name: 'Connect plugin build'
-description: "Action that builds and releases a Connect plugin"
+name: 'Connect plugin build and release'
+description: "Action that builds and releases a Connect plugin based on setuptools"
 inputs:
   package:
     required: true
