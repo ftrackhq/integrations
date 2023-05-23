@@ -16,7 +16,7 @@ import maya.utils as maya_utils
 import maya.cmds as cmds
 import maya.mel as mm
 
-from framework_core.utils import (
+from ftrack_framework_core.utils import (
     get_save_path,
 )
 from ftrack_connect_pipeline_maya.constants import asset as asset_const

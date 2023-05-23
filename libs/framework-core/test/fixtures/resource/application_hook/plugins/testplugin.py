@@ -1,7 +1,7 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2019 ftrack
 import tempfile
-from framework_core import plugin
+from ftrack_framework_core import plugin
 
 
 class TestContext(plugin.ContextPlugin):
