@@ -8,7 +8,7 @@ import uuid
 import hou
 import toolutils
 
-from framework_houdini import plugin
+from ftrack_framework_houdini import plugin
 import ftrack_api
 
 

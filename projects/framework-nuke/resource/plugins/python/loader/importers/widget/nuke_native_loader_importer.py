@@ -3,11 +3,11 @@
 
 import ftrack_api
 
-from framework_nuke import plugin
-from framework_qt.plugin.widget.load_widget import (
+from ftrack_framework_nuke import plugin
+from ftrack_framework_qt.plugin.widget.load_widget import (
     LoadBaseWidget,
 )
-from framework_nuke.constants.asset import modes as load_const
+from ftrack_framework_nuke.constants.asset import modes as load_const
 
 
 class NukeNativeLoaderImporterOptionsWidget(LoadBaseWidget):

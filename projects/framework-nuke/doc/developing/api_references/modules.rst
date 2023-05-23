@@ -7,10 +7,10 @@
 API Reference
 *************
 
-framework_nuke
+ftrack_framework_nuke
 ============================
 
 .. toctree::
     :maxdepth: 1
 
-    framework_nuke
+    ftrack_framework_nuke

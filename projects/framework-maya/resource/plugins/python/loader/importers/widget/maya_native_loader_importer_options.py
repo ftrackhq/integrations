@@ -1,12 +1,12 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2022 ftrack
 
-from framework_maya import plugin
-from framework_qt.plugin.widget.load_widget import (
+from ftrack_framework_maya import plugin
+from ftrack_framework_qt.plugin.widget.load_widget import (
     LoadBaseWidget,
 )
-from framework_maya.constants.asset import modes as load_const
-from framework_qt.ui.utility.widget import group_box
+from ftrack_framework_maya.constants.asset import modes as load_const
+from ftrack_framework_qt.ui.utility.widget import group_box
 
 from Qt import QtWidgets
 import ftrack_api

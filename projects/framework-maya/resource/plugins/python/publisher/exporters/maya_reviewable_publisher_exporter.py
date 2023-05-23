@@ -7,7 +7,7 @@ import platform
 
 import maya.cmds as cmds
 
-from framework_maya import plugin
+from ftrack_framework_maya import plugin
 import ftrack_api
 
 

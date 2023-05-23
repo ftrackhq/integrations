@@ -6,8 +6,8 @@ import unreal
 
 import ftrack_api
 
-from framework_unreal import utils as unreal_utils
-from framework_unreal import plugin
+from ftrack_framework_unreal import utils as unreal_utils
+from ftrack_framework_unreal import plugin
 
 
 class UnrealSequencePublisherExporterPlugin(

@@ -1,7 +1,7 @@
 framework\_nuke.plugin.open package
 ===================================================
 
-.. automodule:: framework_nuke.plugin.open
+.. automodule:: ftrack_framework_nuke.plugin.open
    :members:
    :undoc-members:
    :show-inheritance:

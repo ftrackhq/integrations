@@ -1,7 +1,7 @@
 ftrack\_connect\_pipeline\_3dsmax.utils.node package
 ====================================================
 
-.. automodule:: framework_3dsmax.utils.node
+.. automodule:: ftrack_framework_3dsmax.utils.node
    :members:
    :undoc-members:
    :show-inheritance:

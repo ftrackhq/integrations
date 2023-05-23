@@ -1,7 +1,7 @@
 framework\_maya.asset\_asset package
 ===========================================================
 
-.. automodule:: framework_maya.asset
+.. automodule:: ftrack_framework_maya.asset
    :members:
    :undoc-members:
    :show-inheritance:

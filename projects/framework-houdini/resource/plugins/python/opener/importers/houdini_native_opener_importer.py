@@ -1,9 +1,9 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2022 ftrack
 
-from framework_houdini import plugin
-from framework_houdini.constants.asset import modes as load_const
-from framework_houdini.constants import asset as asset_const
+from ftrack_framework_houdini import plugin
+from ftrack_framework_houdini.constants.asset import modes as load_const
+from ftrack_framework_houdini.constants import asset as asset_const
 import ftrack_api
 
 

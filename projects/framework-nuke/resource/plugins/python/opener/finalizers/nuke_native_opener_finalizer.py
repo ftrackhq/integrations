@@ -3,8 +3,8 @@
 
 import ftrack_api
 
-from framework_nuke import plugin
-from framework_nuke import utils as nuke_utils
+from ftrack_framework_nuke import plugin
+from ftrack_framework_nuke import utils as nuke_utils
 
 
 class NukeNativeOpenerFinalizerPlugin(plugin.NukeOpenerFinalizerPlugin):

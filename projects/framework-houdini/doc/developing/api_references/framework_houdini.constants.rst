@@ -1,7 +1,7 @@
 framework\_houdini.constants package
 ====================================================
 
-.. automodule:: framework_houdini.constants
+.. automodule:: ftrack_framework_houdini.constants
    :members:
    :undoc-members:
    :show-inheritance:
@@ -12,4 +12,4 @@ Subpackages
 .. toctree::
    :maxdepth: 1
 
-   framework_houdini.constants.asset
+   ftrack_framework_houdini.constants.asset
