@@ -10,13 +10,13 @@ resource(
 
 
 python_distribution(
-    name="framework_nuke",
+    name="ftrack_framework_nuke",
     dependencies=[
          ":nuke_project",
          ":README"
     ],
     provides=python_artifact(
-        name="framework_nuke",
+        name="ftrack_framework_nuke",
     ),
     wheel_config_settings={"--global-option": ["--python-tag", "py37.py38.py39"]},
     generate_setup = False,

@@ -45,7 +45,7 @@ class BuildPlugin(setuptools.Command):
         VERSION = '.'.join(release.split('.')[:3])
         global STAGING_PATH
         STAGING_PATH = os.path.join(
-            BUILD_PATH, 'framework-core-{}'.format(VERSION)
+            BUILD_PATH, 'ftrack-framework-core-{}'.format(VERSION)
         )
 
         '''Run the build step.'''
@@ -75,7 +75,7 @@ class BuildPlugin(setuptools.Command):
 
         result_path = shutil.make_archive(
             os.path.join(
-                BUILD_PATH, 'framework-core-{0}'.format(VERSION)
+                BUILD_PATH, 'ftrack-framework-core-{0}'.format(VERSION)
             ),
             'zip',
             STAGING_PATH,
@@ -108,7 +108,7 @@ __version__ = {version!r}
 
 # Configuration.
 setup(
-    name='framework-core',
+    name='ftrack-framework-core',
     description='Ftrack core pipeline integration framework.',
     long_description=open(README_PATH).read(),
     keywords='ftrack',

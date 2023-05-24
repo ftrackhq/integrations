@@ -1,6 +1,6 @@
 import functools
-from framework_core import client
-from framework_core import constants
+from ftrack_framework_core import client
+from ftrack_framework_core import constants
 
 
 def test_initialise(event_manager):

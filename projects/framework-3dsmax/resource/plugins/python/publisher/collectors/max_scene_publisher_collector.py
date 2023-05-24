@@ -5,9 +5,9 @@ from pymxs import runtime as rt
 
 import ftrack_api
 
-from framework_3dsmax import utils as max_utils
+from ftrack_framework_3dsmax import utils as max_utils
 
-from framework_3dsmax import plugin
+from ftrack_framework_3dsmax import plugin
 
 
 class MaxScenePublisherCollectorPlugin(plugin.MaxPublisherCollectorPlugin):

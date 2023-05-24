@@ -6,8 +6,8 @@ from Qt import QtWidgets
 
 import ftrack_api
 
-from framework_maya import plugin
-from framework_qt.plugin.widget.dynamic import DynamicWidget
+from ftrack_framework_maya import plugin
+from ftrack_framework_qt.plugin.widget.dynamic import DynamicWidget
 
 
 class MayaAbcPublisherExporterOptionsWidget(DynamicWidget):

@@ -3,8 +3,8 @@
 
 import maya.cmds as cmds
 
-from framework_maya import plugin
-from framework_maya.constants import asset as asset_const
+from ftrack_framework_maya import plugin
+from ftrack_framework_maya.constants import asset as asset_const
 import ftrack_api
 
 

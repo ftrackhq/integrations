@@ -1,7 +1,7 @@
 ftrack\_connect\_pipeline\_qt.plugin.base package
 =================================================
 
-.. automodule:: framework_qt.plugin.base
+.. automodule:: ftrack_framework_qt.plugin.base
    :members:
    :undoc-members:
    :show-inheritance:
@@ -12,7 +12,7 @@ Submodules
 ftrack\_connect\_pipeline\_qt.plugin.base.collector module
 ----------------------------------------------------------
 
-.. automodule:: framework_qt.plugin.base.collector
+.. automodule:: ftrack_framework_qt.plugin.base.collector
    :members:
    :undoc-members:
    :show-inheritance:
@@ -20,7 +20,7 @@ ftrack\_connect\_pipeline\_qt.plugin.base.collector module
 ftrack\_connect\_pipeline\_qt.plugin.base.context module
 --------------------------------------------------------
 
-.. automodule:: framework_qt.plugin.base.context
+.. automodule:: ftrack_framework_qt.plugin.base.context
    :members:
    :undoc-members:
    :show-inheritance:
@@ -28,7 +28,7 @@ ftrack\_connect\_pipeline\_qt.plugin.base.context module
 ftrack\_connect\_pipeline\_qt.plugin.base.finalizer module
 ----------------------------------------------------------
 
-.. automodule:: framework_qt.plugin.base.finalizer
+.. automodule:: ftrack_framework_qt.plugin.base.finalizer
    :members:
    :undoc-members:
    :show-inheritance:
@@ -36,7 +36,7 @@ ftrack\_connect\_pipeline\_qt.plugin.base.finalizer module
 ftrack\_connect\_pipeline\_qt.plugin.base.importer module
 ---------------------------------------------------------
 
-.. automodule:: framework_qt.plugin.base.importer
+.. automodule:: ftrack_framework_qt.plugin.base.importer
    :members:
    :undoc-members:
    :show-inheritance:
@@ -44,7 +44,7 @@ ftrack\_connect\_pipeline\_qt.plugin.base.importer module
 ftrack\_connect\_pipeline\_qt.plugin.base.exporter module
 ---------------------------------------------------------
 
-.. automodule:: framework_qt.plugin.base.exporter
+.. automodule:: ftrack_framework_qt.plugin.base.exporter
    :members:
    :undoc-members:
    :show-inheritance:
@@ -52,7 +52,7 @@ ftrack\_connect\_pipeline\_qt.plugin.base.exporter module
 ftrack\_connect\_pipeline\_qt.plugin.base.post\_finalizer module
 ----------------------------------------------------------------
 
-.. automodule:: framework_qt.plugin.base.post_finalizer
+.. automodule:: ftrack_framework_qt.plugin.base.post_finalizer
    :members:
    :undoc-members:
    :show-inheritance:
@@ -60,7 +60,7 @@ ftrack\_connect\_pipeline\_qt.plugin.base.post\_finalizer module
 ftrack\_connect\_pipeline\_qt.plugin.base.post\_import module
 -------------------------------------------------------------
 
-.. automodule:: framework_qt.plugin.base.post_importer
+.. automodule:: ftrack_framework_qt.plugin.base.post_importer
    :members:
    :undoc-members:
    :show-inheritance:
@@ -68,7 +68,7 @@ ftrack\_connect\_pipeline\_qt.plugin.base.post\_import module
 ftrack\_connect\_pipeline\_qt.plugin.base.pre\_finalizer module
 ---------------------------------------------------------------
 
-.. automodule:: framework_qt.plugin.base.pre_finalizer
+.. automodule:: ftrack_framework_qt.plugin.base.pre_finalizer
    :members:
    :undoc-members:
    :show-inheritance:
@@ -76,7 +76,7 @@ ftrack\_connect\_pipeline\_qt.plugin.base.pre\_finalizer module
 ftrack\_connect\_pipeline\_qt.plugin.base.validator module
 ----------------------------------------------------------
 
-.. automodule:: framework_qt.plugin.base.validator
+.. automodule:: ftrack_framework_qt.plugin.base.validator
    :members:
    :undoc-members:
    :show-inheritance:

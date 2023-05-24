@@ -9,13 +9,13 @@ resource(
 )
 
 python_distribution(
-    name="framework_houdini",
+    name="ftrack_framework_houdini",
     dependencies=[
          ":houdini_project",
          ":README"
     ],
     provides=python_artifact(
-        name="framework_houdini",
+        name="ftrack_framework_houdini",
     ),
     wheel_config_settings={"--global-option": ["--python-tag", "py37.py38.py39"]},
     generate_setup = False,

@@ -5,9 +5,9 @@ import os
 
 # import maya.cmds as cmds
 
-from framework_3dsmax import plugin
-from framework_3dsmax.constants.asset import modes as load_const
-from framework_3dsmax.constants import asset as asset_const
+from ftrack_framework_3dsmax import plugin
+from ftrack_framework_3dsmax.constants.asset import modes as load_const
+from ftrack_framework_3dsmax.constants import asset as asset_const
 import ftrack_api
 
 
