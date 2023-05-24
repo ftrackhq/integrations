@@ -18,7 +18,7 @@ jobs:
         run: |
           git fetch --all
           git branch
-          echo "CHANGED=$(git diff --name-only origin/main | cut -d'/' -f 2-2 | uniq)" >> $GITHUB_ENV
+          echo "CHANGED=$(git diff --name-only origin/main | cut -d'/' -f 2-2 | uniq | tr '\n' ',')" >> $GITHUB_ENV
 
   docs:
     needs: probe
