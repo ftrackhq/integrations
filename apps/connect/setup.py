@@ -34,7 +34,6 @@ RESOURCE_TARGET_PATH = os.path.join(
 )
 
 README_PATH = os.path.join(os.path.dirname(__file__), 'README.md')
-PACKAGES_PATH = os.path.join(os.path.dirname(__file__), 'source')
 
 FONTS_PATH = os.path.join(RESOURCE_PATH, 'font')
 FONTS_TARGET_PATH = os.path.join(SOURCE_PATH, 'ftrack_connect', 'fonts')
@@ -231,21 +230,18 @@ __version__ = {version!r}
 # General configuration.
 configuration = dict(
     name='ftrack-connect',
-    description='Core for ftrack connect.',
+    description='ftrack connect application.',
     long_description=open(README_PATH).read(),
     keywords='ftrack, connect, publish',
     url='https://github.com/ftrackhq/integrations/apps/connect',
     author='ftrack',
     author_email='support@ftrack.com',
     license='Apache License (2.0)',
-    packages=find_packages(PACKAGES_PATH),
+    packages=find_packages(SOURCE_PATH),
     include_package_data=True,
-    use_scm_version={
-        'write_to': 'source/ftrack_connect/_version.py',
-        'write_to_template': version_template,
-        'version_scheme': 'post-release',
-    },
     package_dir={'': 'source'},
+    package_data={"": ["{}/**/*.*".format(RESOURCE_PATH)]},
+    version="2.1.2",
     setup_requires=[
         'PySide2 >=5, <6',
         'Qt.py >=1.0.0, < 2',
@@ -270,7 +266,8 @@ configuration = dict(
     ],
     tests_require=['pytest >= 2.3.5, < 3'],
     cmdclass={
-        'build': Build,
+        # Deactivating build for now as Pants automatically executes it.
+        #'build': Build,
         'build_ext': Build,
         'build_resources': BuildResources,
         'bdist_egg': BuildEgg,
