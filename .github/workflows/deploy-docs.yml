@@ -17,7 +17,7 @@ jobs:
       - name: Determine which packages needs to have doc built
         run: |
           git fetch -a --force
-          bit branch
+          git branch
           echo "CHANGED=$(git diff main  --name-only | cut -d'/' -f 2-2 | uniq)" >> $GITHUB_ENV
 
   docs:
@@ -45,3 +45,11 @@ jobs:
         run: |
           cd ${{ matrix.folder }}/${{ matrix.package }}
           sphinx-build doc public
+      - name: Deploy
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          publish_branch: gh-pages-deploy
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ${{ matrix.folder }}/${{ matrix.package }}/public
+          force_orphan: true
+          destination_dir: ${{ matrix.folder }}/${{ matrix.package }}
