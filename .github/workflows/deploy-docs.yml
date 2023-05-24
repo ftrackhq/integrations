@@ -20,13 +20,13 @@ jobs:
           echo "CHANGED=$(git diff main  --name-only | cut -d'/' -f 2-2 | uniq)" >> $GITHUB_ENV
 
   docs:
-    name: Build docs for changed packages
     needs: probe
     strategy:
       matrix:
         include:
           - package: framework-core
             folder: libs
+    name: Build docs (${{ matrix.package }})
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -35,23 +35,4 @@ jobs:
         if: ${{ contains(needs.probe.outputs.changed,matrix.package) }}
         with:
           python-version: '3.7'
-      - name: Install dependencies
-        if: ${{ contains(needs.probe.outputs.changed,matrix.package) }}
-        run: |
-          pip install sphinx sphinx_rtd_theme lowdown
-      - name: Sphinx build
-        if: ${{ contains(needs.probe.outputs.changed,matrix.package) }}
-        run: |
-          cd ${{ matrix.folder }}/${{ matrix.package }}
-          sphinx-build doc public
-      - name: Deploy
-        uses: peaceiris/actions-gh-pages@v3
-        # Todo: uncheck this when you are ready to only deploy from main
-        #if: ${{ github.ref == 'refs/heads/main' }}
-        with:
-          # Todo: Change publish_branch to gh-pages when you have merged to main
-          publish_branch: gh-pages-deploy
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ${{ matrix.folder }}/${{ matrix.package }}/public
-          force_orphan: true
-          destination_dir: {{ matrix.folder }}/${{ matrix.package }}
+
