@@ -52,6 +52,6 @@ jobs:
         with:
           publish_branch: gh-pages-deploy
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: {{ matrix.folder }}/${{ matrix.package }}/public
+          publish_dir: ${{ matrix.folder }}/${{ matrix.package }}/public
           force_orphan: true
           destination_dir: {{ matrix.folder }}/${{ matrix.package }}
