@@ -5,21 +5,55 @@ on:
       - main # Set a branch name to trigger deployment
       - gh-pages # TODO: Remove before release
 
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
 jobs:
+  # Build root docs
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Setup Pages
+        uses: actions/configure-pages@v3
+      - name: Build with Jekyll
+        uses: actions/jekyll-build-pages@v1
+        with:
+          source: ./
+          destination: ./_site
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v1
+
+  # Deployment job
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v2
+
   probe:
+    needs: deploy
     runs-on: ubuntu-latest
     outputs:
       changed: ${{ env.CHANGED }}
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           fetch-depth: 0
       - name: Determine which packages needs to have doc built
         run: |
           git fetch --all
-          git branch
           echo "CHANGED=$(git diff --name-only origin/main | cut -d'/' -f 2-2 | uniq | tr '\n' ',')" >> $GITHUB_ENV
           echo "Change packages: ${{ env.CHANGED }}"
+
   docs:
     needs: probe
     strategy:
@@ -30,7 +64,7 @@ jobs:
     name: Build docs (${{ matrix.package }})
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         if: ${{ contains(needs.probe.outputs.changed,matrix.package) }}
       - uses: actions/setup-python@v4
         if: ${{ contains(needs.probe.outputs.changed,matrix.package) }}
