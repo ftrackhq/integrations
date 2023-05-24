@@ -17,6 +17,7 @@ jobs:
       - name: Determine which packages needs to have doc built
         run: |
           git fetch -a --force
+          bit branch
           echo "CHANGED=$(git diff main  --name-only | cut -d'/' -f 2-2 | uniq)" >> $GITHUB_ENV
 
   docs:
@@ -39,3 +40,8 @@ jobs:
         if: ${{ contains(needs.probe.outputs.changed,matrix.package) }}
         run: |
           pip install sphinx sphinx_rtd_theme lowdown
+      - name: Sphinx build
+        if: ${{ contains(needs.probe.outputs.changed,matrix.package) }}
+        run: |
+          cd ${{ matrix.folder }}/${{ matrix.package }}
+          sphinx-build doc public
