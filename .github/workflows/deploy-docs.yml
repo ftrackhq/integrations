@@ -6,7 +6,7 @@ on:
       - gh-pages # TODO: Remove before release
 
 permissions:
-  contents: read
+  contents: write
   pages: write
   id-token: write
 
@@ -39,7 +39,7 @@ jobs:
         id: deployment
         uses: actions/deploy-pages@v2
 
-  probe:
+  probe-packages:
     needs: deploy
     runs-on: ubuntu-latest
     outputs:
@@ -54,8 +54,8 @@ jobs:
           echo "CHANGED=$(git diff --name-only origin/main | cut -d'/' -f 2-2 | uniq | tr '\n' ',')" >> $GITHUB_ENV
           echo "Change packages: ${{ env.CHANGED }}"
 
-  docs:
-    needs: probe
+  build-package-docs:
+    needs: probe-packages
     strategy:
       matrix:
         include:
@@ -90,4 +90,4 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ${{ matrix.folder }}/${{ matrix.package }}/public
           force_orphan: true
-          destination_dir: ${{ matrix.folder }}/${{ matrix.package }}/public
+          destination_dir: ${{ matrix.folder }}/${{ matrix.package }}
