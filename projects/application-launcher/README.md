@@ -1,4 +1,4 @@
-# ftrack-application-launcher
+# application-launcher
 
 *A configurable launcher for integrations.*
 
@@ -11,4 +11,4 @@ be used in production.
 ## Documentation
 
 Full documentation, including installation and setup guides, can be
-found at <https://ftrack-application-launcher.readthedocs.io/en/latest/>
+found at <https://application-launcher.readthedocs.io/en/latest/>

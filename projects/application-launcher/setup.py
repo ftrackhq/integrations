@@ -95,7 +95,7 @@ setup(
     description='Base Class for handling application startup.',
     long_description=open(README_PATH).read(),
     keywords='ftrack',
-    url='https://bitbucket.org/ftrack/ftrack-application-launcher',
+    url='https://github.com/ftrackhq/integrations/projects/application-launcher',
     author='ftrack',
     author_email='support@ftrack.com',
     license='Apache License (2.0)',
