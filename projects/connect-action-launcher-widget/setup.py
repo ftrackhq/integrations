@@ -108,14 +108,9 @@ setup(
     author_email='support@ftrack.com',
     license='Apache License (2.0)',
     packages=find_packages(SOURCE_PATH),
-    package_dir={
-        '': 'source'
-    },
-    use_scm_version={
-        'write_to': os.path.join('source','ftrack_connect_action_launcher_widget','_version.py'),
-        'write_to_template': version_template,
-        'version_scheme': 'post-release'
-    },
+    package_dir={'': 'source'},
+    package_data={"": ["{}/**/*.*".format(RESOURCE_PATH)]},
+    version="0.1.2",
     setup_requires=[
         'sphinx >= 1.8.5, < 4',
         'sphinx_rtd_theme >= 0.1.6, < 2',
