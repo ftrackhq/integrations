@@ -1,8 +1,8 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2022 ftrack
 
-from framework_3dsmax import plugin
-from framework_qt.plugin.widget import BaseOptionsWidget
+from ftrack_framework_3dsmax import plugin
+from ftrack_framework_qt.plugin.widget import BaseOptionsWidget
 
 from Qt import QtWidgets
 

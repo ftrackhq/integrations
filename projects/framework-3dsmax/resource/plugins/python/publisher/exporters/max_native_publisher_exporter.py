@@ -7,7 +7,7 @@ from pymxs import runtime as rt
 
 import ftrack_api
 
-from framework_3dsmax import plugin
+from ftrack_framework_3dsmax import plugin
 
 
 class MaxNativePublisherExporterPlugin(plugin.MaxPublisherExporterPlugin):

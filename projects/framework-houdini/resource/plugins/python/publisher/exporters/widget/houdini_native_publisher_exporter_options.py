@@ -3,9 +3,9 @@
 
 from functools import partial
 
-from framework_houdini import plugin
-from framework_qt.plugin.widget.dynamic import DynamicWidget
-from framework_qt.ui.utility.widget import group_box
+from ftrack_framework_houdini import plugin
+from ftrack_framework_qt.plugin.widget.dynamic import DynamicWidget
+from ftrack_framework_qt.ui.utility.widget import group_box
 
 from Qt import QtWidgets
 

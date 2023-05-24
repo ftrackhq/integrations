@@ -1,7 +1,7 @@
 ftrack\_connect\_pipeline\_qt.ui.asset_manager\_asset_manager.model package
 ===========================================================================
 
-.. automodule:: framework_qt.ui.asset_manager.model
+.. automodule:: ftrack_framework_qt.ui.asset_manager.model
    :members:
    :undoc-members:
    :show-inheritance:

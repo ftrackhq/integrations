@@ -3,8 +3,8 @@
 
 import ftrack_api
 
-from framework_maya import plugin
-from framework_maya import utils as maya_utils
+from ftrack_framework_maya import plugin
+from ftrack_framework_maya import utils as maya_utils
 
 
 class MayaNativeOpenerFinalizerPlugin(plugin.MayaOpenerFinalizerPlugin):

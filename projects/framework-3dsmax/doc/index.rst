@@ -1,4 +1,4 @@
-Welcome to framework_3dsmax's documentation!
+Welcome to ftrack_framework_3dsmax's documentation!
 ========================================================
 
 .. toctree::
