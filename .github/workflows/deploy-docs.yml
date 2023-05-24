@@ -5,29 +5,53 @@ on:
       - main # Set a branch name to trigger deployment
       - gh-pages # TODO: Remove before release
 
-
 jobs:
+  probe:
+    runs-on: ubuntu-latest
+    outputs:
+      changed: ${{ env.CHANGED }}
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: Determine which packages needs to have doc built
+        run: |
+          git fetch -a -t --force
+          echo "CHANGED=$(git diff main  --name-only | cut -d'/' -f 2-2 | uniq)" >> $GITHUB_ENV
+
   docs:
+    name: Build docs for changed packages
+    needs: probe
+    strategy:
+      matrix:
+        include:
+          - package: framework-core
+            folder: libs
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+        if: ${{ contains(needs.probe.outputs.changed,matrix.package) }}
       - uses: actions/setup-python@v4
+        if: ${{ contains(needs.probe.outputs.changed,matrix.package) }}
         with:
           python-version: '3.7'
       - name: Install dependencies
+        if: ${{ contains(needs.probe.outputs.changed,matrix.package) }}
         run: |
           pip install sphinx sphinx_rtd_theme lowdown
       - name: Sphinx build
+        if: ${{ contains(needs.probe.outputs.changed,matrix.package) }}
         run: |
-          cd libs/framework-core
+          cd ${{ matrix.folder }}/${{ matrix.package }}
           sphinx-build doc public
       - name: Deploy
+        if: ${{ contains(needs.probe.outputs.changed,matrix.package) }}
         uses: peaceiris/actions-gh-pages@v3
         # Todo: uncheck this when you are ready to only deploy from main
         #if: ${{ github.ref == 'refs/heads/main' }}
         with:
-          publish_branch: gh-pages-deploy
+          publish_branch: gh-pages-deploy # Todo: change to gh-pages when ready to deploy
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: libs/framework-core/public
+          publish_dir: {{ matrix.folder }}/${{ matrix.package }}/public
           force_orphan: true
-          destination_dir: libs/framework-core/public
+          destination_dir: {{ matrix.folder }}/${{ matrix.package }}
