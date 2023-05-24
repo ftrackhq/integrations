@@ -47,10 +47,9 @@ jobs:
       - name: Deploy
         if: ${{ contains(needs.probe.outputs.changed,matrix.package) }}
         uses: peaceiris/actions-gh-pages@v3
-        # Todo: uncheck this when you are ready to only deploy from main
+        # Todo: uncheck this when you are ready to only deploy from main, and change publish_branch to gh-pages
         #if: ${{ github.ref == 'refs/heads/main' }}
         with:
-          # Todo: change to gh-pages when ready to deploy
           publish_branch: gh-pages-deploy
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: {{ matrix.folder }}/${{ matrix.package }}/public
