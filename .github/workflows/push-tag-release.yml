@@ -60,7 +60,7 @@ jobs:
       - name: Store framework core version
         if: ${{ contains(github.ref,'framework-core') && contains(env.CHANGED,'framework-core')  }}
         run:  | 
-          cd libs/framework-core/source/framework_core
+          cd libs/framework-core/source/ftrack_framework_core
           echo "__version__ = '${{ env.FRAMEWORK_CORE_VERSION }}'" > _version.py
 
       # QT version mgmt
@@ -72,7 +72,7 @@ jobs:
       - name: Store framework qt version
         if: ${{ contains(github.ref,'framework-qt') && contains(env.CHANGED,'framework-qt') }}
         run:  | 
-          cd libs/framework-qt/source/framework_qt
+          cd libs/framework-qt/source/ftrack_framework_qt
           echo "__version__ = '${{ env.FRAMEWORK_QT_VERSION }}'" > _version.py
 
       # Maya version mgmt
@@ -84,7 +84,7 @@ jobs:
       - name: Store framework maya version
         if: ${{ contains(github.ref,'framework-maya') && contains(env.CHANGED,'framework-maya') }}
         run:  | 
-          cd projects/framework-maya/source/framework_maya
+          cd projects/framework-maya/source/ftrack_framework_maya
           echo "__version__ = '${{ env.FRAMEWORK_MAYA_VERSION }}'" > _version.py
 
       # Nuke version mgmt
@@ -96,7 +96,7 @@ jobs:
       - name: Store framework nuke version
         if: ${{ contains(github.ref,'framework-nuke') && contains(env.CHANGED,'framework-nuke') }}
         run:  | 
-          cd projects/framework-nuke/source/framework_nuke
+          cd projects/framework-nuke/source/ftrack_framework_nuke
           echo "__version__ = '${{ env.FRAMEWORK_NUKE_VERSION }}'" > _version.py
 
       # Houdini version mgmt
@@ -108,7 +108,7 @@ jobs:
       - name: Store framework houdini version
         if: ${{ contains(github.ref,'framework-houdini') && contains(env.CHANGED,'framework-houdini') }}
         run:  | 
-          cd projects/framework-houdini/source/framework_houdini
+          cd projects/framework-houdini/source/ftrack_framework_houdini
           echo "__version__ = '${{ env.FRAMEWORK_HOUDINI_VERSION }}'" > _version.py
 
       # 3dsmax version mgmt
@@ -120,7 +120,7 @@ jobs:
       - name: Store framework 3dsmax version
         if: ${{ contains(github.ref,'framework-3dsmax') && contains(env.CHANGED,'framework-3dsmax') }}
         run:  | 
-          cd projects/framework-3dsmax/source/framework_3dsmax
+          cd projects/framework-3dsmax/source/ftrack_framework_3dsmax
           echo "__version__ = '${{ env.FRAMEWORK_3DSMAX_VERSION }}'" > _version.py
 
       # Unreal version mgmt
@@ -132,7 +132,7 @@ jobs:
       - name: Store framework unreal version
         if: ${{ contains(github.ref,'framework-unreal') && contains(env.CHANGED,'framework-unreal') }}
         run:  | 
-          cd projects/framework-unreal/source/framework_unreal
+          cd projects/framework-unreal/source/ftrack_framework_unreal
           echo "__version__ = '${{ env.FRAMEWORK_UNREAL_VERSION }}'" > _version.py
 
       # Add new packages here
