@@ -16,7 +16,7 @@ jobs:
           fetch-depth: 0
       - name: Determine which packages needs to have doc built
         run: |
-          git fetch -a --force
+          git fetch --all
           git branch
           echo "CHANGED=$(git diff main  --name-only | cut -d'/' -f 2-2 | uniq)" >> $GITHUB_ENV
 
@@ -47,7 +47,11 @@ jobs:
           sphinx-build doc public
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v3
+        if: ${{ contains(needs.probe.outputs.changed,matrix.package) }}
+        # Todo: uncheck this when you are ready to only deploy from main
+        #if: ${{ github.ref == 'refs/heads/main' }}
         with:
+          # Todo: Change to gh-pages when you are ready
           publish_branch: gh-pages-deploy
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ${{ matrix.folder }}/${{ matrix.package }}/public
