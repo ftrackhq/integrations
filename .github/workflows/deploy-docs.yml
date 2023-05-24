@@ -29,4 +29,4 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: libs/framework-core/public
           force_orphan: true
-          destination_dir: libs/framework-core
+          destination_dir: libs/framework-core/public
