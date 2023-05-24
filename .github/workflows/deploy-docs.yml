@@ -24,13 +24,13 @@ jobs:
         with:
           source: ./
           destination: ./_site
-      - name: Remove package docs
-        run: |
-          rm -rf ./_site/libs
-          rm -rf ./_site/projects
-          rm -rf ./_site/apps
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v1
+        with:
+          path: |
+            ./_site/index.html
+            ./_site/assets
+
 
   # Deployment job
   deploy:
