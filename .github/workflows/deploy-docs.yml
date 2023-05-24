@@ -19,6 +19,7 @@ jobs:
           pip install sphinx sphinx_rtd_theme lowdown
       - name: Sphinx build
         run: |
+          cd libs/framework-core
           sphinx-build doc public
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v3
@@ -27,6 +28,6 @@ jobs:
         with:
           publish_branch: gh-pages
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: public
+          publish_dir: libs/framework-core/public
           force_orphan: true
           destination_dir: libs/framework-core
