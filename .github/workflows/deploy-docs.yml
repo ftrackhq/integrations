@@ -11,8 +11,8 @@ permissions:
   id-token: write
 
 jobs:
+  # Build root docs
   build-index:
-    # Build integration root docs
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -24,15 +24,20 @@ jobs:
         with:
           source: ./
           destination: ./_site
-      - name: Save build results to cache
-        uses: actions/cache/save@v3
+      - name: Deploy
+        uses: peaceiris/actions-gh-pages@v3
+        if: ${{ contains(needs.probe.outputs.changed,matrix.package) }}
+        # Todo: uncheck this when you are ready to only deploy from main
+        #if: ${{ github.ref == 'refs/heads/main' }}
         with:
-          path: _site
-          key: pants-dist-${{github.sha}}
+          # Todo: Change to gh-pages when you are ready
+          publish_branch: gh-pages-deploy
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./site
+          force_orphan: true
 
 #  probe-packages:
-#    # Determine which monorepo packages need to have docs built
-#    needs: build
+#    needs: build-index
 #    runs-on: ubuntu-latest
 #    outputs:
 #      changed: ${{ env.CHANGED }}
@@ -44,10 +49,9 @@ jobs:
 #        run: |
 #          git fetch --all
 #          echo "CHANGED=$(git diff --name-only origin/main | cut -d'/' -f 2-2 | uniq | tr '\n' ',')" >> $GITHUB_ENV
-#          echo "Changed packages: ${{ env.CHANGED }}"
+#          echo "Change packages: ${{ env.CHANGED }}"
 
   build-package-docs:
-    # Build per-package docs and amend to site
     needs: build-index
     strategy:
       matrix:
@@ -58,16 +62,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+        #if: ${{ contains(needs.probe.outputs.changed,matrix.package) }}
       - uses: actions/setup-python@v4
         #if: ${{ contains(needs.probe.outputs.changed,matrix.package) }}
         with:
           python-version: '3.7'
-      - name: Restore built site from cache
-        uses: actions/cache/restore@v3
-        with:
-          path: _site
-          key: pants-dist-${{github.sha}}
-          fail-on-cache-miss: true
       - name: Install dependencies
         #if: ${{ contains(needs.probe.outputs.changed,matrix.package) }}
         run: |
@@ -76,31 +75,45 @@ jobs:
         #if: ${{ contains(needs.probe.outputs.changed,matrix.package) }}
         run: |
           cd ${{ matrix.folder }}/${{ matrix.package }}
-          sphinx-build doc _site/${{ matrix.folder }}/${{ matrix.package }}
-      - name: Save build results to cache
+          sphinx-build doc public
+      - name: Deploy
+        uses: peaceiris/actions-gh-pages@v3
         #if: ${{ contains(needs.probe.outputs.changed,matrix.package) }}
-        uses: actions/cache/save@v3
+        # Todo: uncheck this when you are ready to only deploy from main
+        #if: ${{ github.ref == 'refs/heads/main' }}
         with:
-          path: _site
-          key: pants-dist-${{github.sha}}
-          overwrite: true
+          # Todo: Change to gh-pages when you are ready
+          publish_branch: gh-pages-deploy
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ${{ matrix.folder }}/${{ matrix.package }}/public
+          force_orphan: true
+          destination_dir: ${{ matrix.folder }}/${{ matrix.package }}
 
+  upload:
+    needs:  build-package-docs
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: Checkout temporary branch
+        run: |
+          git fetch --all
+          git checkout gh-pages-deploy
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v1
+        with:
+          path: ./
+
+  # Deployment job
   deploy:
-    # Deploy to GitHub Pages
-    needs: build-package-docs
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
+    needs: build
     steps:
-      - name: Restore built site from cache
-        uses: actions/cache/restore@v3
-        with:
-          path: _site
-          key: pants-dist-${{github.sha}}
-          fail-on-cache-miss: true
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v1
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v2
