@@ -2,7 +2,7 @@
 # :copyright: Copyright (c) 2015 ftrack
 
 from Qt import QtWidgets, QtCore, QtGui
-import ftrack_connect_nuke_studio.ui.widget.html_delegate
+import ftrack_nuke_studio.ui.widget.html_delegate
 
 
 class HtmlComboBox(QtWidgets.QComboBox):
@@ -16,14 +16,14 @@ class HtmlComboBox(QtWidgets.QComboBox):
 
         .. seealso::
 
-            :class:`ftrack_connect_nuke_studio.ui.widget.html_delegate.HtmlDelegate`
+            :class:`ftrack_nuke_studio.ui.widget.html_delegate.HtmlDelegate`
 
         '''
         self.format = formatter
         self._resize_occurred = False
         super(HtmlComboBox, self).__init__(*args, **kwargs)
         self.setItemDelegate(
-            ftrack_connect_nuke_studio.ui.widget.html_delegate.HtmlDelegate(formatter)
+            ftrack_nuke_studio.ui.widget.html_delegate.HtmlDelegate(formatter)
         )
         self.setSizeAdjustPolicy(QtWidgets.QComboBox.AdjustToContents)
 

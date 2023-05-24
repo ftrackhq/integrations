@@ -6,9 +6,9 @@ import logging
 import hiero
 import nuke
 import datetime
-from ftrack_connect_nuke_studio.base import FtrackBase
-from ftrack_connect_nuke_studio.template import match, get_project_template
-import ftrack_connect_nuke_studio.exception
+from ftrack_nuke_studio.base import FtrackBase
+from ftrack_nuke_studio.template import match, get_project_template
+import ftrack_nuke_studio.exception
 
 logger = logging.getLogger(__name__)
 
@@ -94,7 +94,7 @@ class FtrackBasePreset(FtrackBase):
         if not isinstance(track_item, hiero.core.Sequence):
             try:
                 results = match(track_item, template)
-            except ftrack_connect_nuke_studio.exception.TemplateError:
+            except ftrack_nuke_studio.exception.TemplateError:
                 # we can happly return None as if the validation does not goes ahead
                 # the shot won't be created.
                 return None

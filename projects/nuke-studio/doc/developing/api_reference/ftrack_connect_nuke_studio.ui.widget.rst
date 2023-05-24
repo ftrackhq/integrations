@@ -7,7 +7,7 @@ Submodules
 ftrack\_connect\_nuke\_studio.ui.widget.template module
 -------------------------------------------------------
 
-.. automodule:: ftrack_connect_nuke_studio.ui.widget.template
+.. automodule:: ftrack_nuke_studio.ui.widget.template
     :members:
     :undoc-members:
     :show-inheritance:
@@ -16,7 +16,7 @@ ftrack\_connect\_nuke\_studio.ui.widget.template module
 Module contents
 ---------------
 
-.. automodule:: ftrack_connect_nuke_studio.ui.widget
+.. automodule:: ftrack_nuke_studio.ui.widget
     :members:
     :undoc-members:
     :show-inheritance:

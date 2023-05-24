@@ -7,8 +7,8 @@ from Qt import QtGui
 
 import hiero
 from hiero.core.VersionScanner import VersionScanner
-from ftrack_connect_nuke_studio.session import get_shared_session
-from ftrack_connect_nuke_studio.base import FtrackBase
+from ftrack_nuke_studio.session import get_shared_session
+from ftrack_nuke_studio.base import FtrackBase
 
 session = get_shared_session()
 logger = logging.getLogger(__name__)

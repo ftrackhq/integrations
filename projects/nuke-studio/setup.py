@@ -21,11 +21,11 @@ SOURCE_PATH = os.path.join(ROOT_PATH, 'source')
 README_PATH = os.path.join(ROOT_PATH, 'README.md')
 RESOURCE_PATH = os.path.join(ROOT_PATH, 'resource')
 RESOURCE_TARGET_PATH = os.path.join(
-    SOURCE_PATH, 'ftrack_connect_nuke_studio', 'resource.py'
+    SOURCE_PATH, 'ftrack_nuke_studio', 'resource.py'
 )
 HIERO_PLUGIN_PATH = os.path.join(RESOURCE_PATH, 'plugin')
 BUILD_PATH = os.path.join(ROOT_PATH, 'build')
-STAGING_PATH = os.path.join(BUILD_PATH, 'ftrack-connect-nuke-studio-{0}')
+STAGING_PATH = os.path.join(BUILD_PATH, 'ftrack-nuke-studio-{0}')
 HOOK_PATH = os.path.join(RESOURCE_PATH, 'hook')
 APPLICATION_HOOK_PATH = os.path.join(RESOURCE_PATH, 'application_hook')
 
@@ -68,7 +68,7 @@ class BuildResources(Command):
         try:
             pyside_rcc_command = 'pyside2-rcc'
             executable = None
-    
+
             # Check if the command for pyside*-rcc is in executable paths.
             if find_executable(pyside_rcc_command):
                 executable = pyside_rcc_command
@@ -152,7 +152,7 @@ class BuildPlugin(Command):
         shutil.make_archive(
             os.path.join(
                 BUILD_PATH,
-                'ftrack-connect-nuke-studio-{0}'.format(VERSION)
+                'ftrack-nuke-studio-{0}'.format(VERSION)
             ),
             'zip',
             STAGING_PATH
@@ -168,11 +168,11 @@ __version__ = {version!r}
 
 # Call main setup.
 setup(
-    name='ftrack-connect-nuke-studio',
+    name='ftrack-nuke-studio',
     description='ftrack integration with NUKE STUDIO.',
     long_description=open(README_PATH).read(),
     keywords='ftrack, integration, connect, the foundry, nuke, studio',
-    url='https://bitbucket.org/ftrack/ftrack-connect-nuke-studio',
+    url='https://github.com/ftrackhq/integrations/projects/nuke-studio',
     author='ftrack',
     author_email='support@ftrack.com',
     license='Apache License (2.0)',
@@ -198,7 +198,7 @@ setup(
         'ftrack-python-api'
     ],
     use_scm_version={
-        'write_to': 'source/ftrack_connect_nuke_studio/_version.py',
+        'write_to': 'source/ftrack_nuke_studio/_version.py',
         'write_to_template': version_template,
         'version_scheme': 'post-release'
     },

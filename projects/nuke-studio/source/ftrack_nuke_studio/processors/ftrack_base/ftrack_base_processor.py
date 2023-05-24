@@ -19,17 +19,17 @@ from hiero.core.FnExporterBase import TaskCallbacks
 from hiero.exporters.FnTimelineProcessor import TimelineProcessor
 from hiero.exporters.FnShotProcessor import getShotNameIndex
 
-from ftrack_connect_nuke_studio.processors.ftrack_base import (
+from ftrack_nuke_studio.processors.ftrack_base import (
     FtrackBasePreset,
     FtrackBase,
     FtrackProcessorValidationError,
     FtrackProcessorError
 )
-from ftrack_connect_nuke_studio.ui.widget.template import Template
-import ftrack_connect_nuke_studio.template as template_manager
-import ftrack_connect_nuke_studio.exception
-from ftrack_connect_nuke_studio.config import report_exception
-from ftrack_connect_nuke_studio import resource
+from ftrack_nuke_studio.ui.widget.template import Template
+import ftrack_nuke_studio.template as template_manager
+import ftrack_nuke_studio.exception
+from ftrack_nuke_studio.config import report_exception
+from ftrack_nuke_studio import resource
 
 
 class FtrackSettingsValidator(QtWidgets.QDialog):
@@ -512,7 +512,7 @@ class FtrackProcessor(FtrackBase):
 
             try:
                 template_manager.match(track_item, parsing_template)
-            except ftrack_connect_nuke_studio.exception.TemplateError:
+            except ftrack_nuke_studio.exception.TemplateError:
                 self.logger.warning(
                     'Skipping {} as does not match {}'.format(
                         track_item, parsing_template['expression']
@@ -1004,7 +1004,7 @@ class FtrackProcessor(FtrackBase):
 
                 try:
                     template_manager.match(item, parsing_template)
-                except ftrack_connect_nuke_studio.exception.TemplateError:
+                except ftrack_nuke_studio.exception.TemplateError:
                     self.logger.warning(
                         'Skipping {} as does not match {}'.format(
                             item, parsing_template['expression']

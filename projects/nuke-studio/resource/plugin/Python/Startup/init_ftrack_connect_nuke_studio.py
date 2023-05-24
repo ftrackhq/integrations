@@ -1,2 +1,2 @@
 # Import plugin to initiate it.
-import ftrack_connect_nuke_studio.plugin
+import ftrack_nuke_studio.plugin

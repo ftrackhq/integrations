@@ -9,9 +9,9 @@ import lucidity.error
 
 import ftrack_api
 
-import ftrack_connect_nuke_studio.exception
+import ftrack_nuke_studio.exception
 
-from ftrack_connect_nuke_studio.session import get_shared_session
+from ftrack_nuke_studio.session import get_shared_session
 
 session = get_shared_session()
 
@@ -109,7 +109,7 @@ def match(item, template):
     try:
         objects = lucidity_template.parse(item_name)
     except lucidity.error.ParseError:
-        raise ftrack_connect_nuke_studio.exception.TemplateError(
+        raise ftrack_nuke_studio.exception.TemplateError(
             message=(
                 '"{item_name}" did not match the '
                 'template "{template_name}"'.format(

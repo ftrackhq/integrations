@@ -15,22 +15,22 @@ sources = os.path.abspath(os.path.join(cwd, '..', 'dependencies'))
 sys.path.append(sources)
 
 
-def on_discover_nuke_studio_integration(session, event):
+def on_discover_ftrack_nuke_studio_integration(session, event):
 
-    from ftrack_connect_nuke_studio import __version__ as integration_version
+    from ftrack_nuke_studio import __version__ as integration_version
     data = {
         'integration': {
-            "name": 'ftrack-connect-nuke-studio',
+            "name": 'nuke-studio',
             'version': integration_version
         }
     }
 
     return data
 
-def on_launch_nuke_studio_integration(session, event):
-    ns_base_data = on_discover_nuke_studio_integration(session, event)
+def on_launch_ftrack_nuke_studio_integration(session, event):
+    ns_base_data = on_discover_ftrack_nuke_studio_integration(session, event)
 
-    ftrack_connect_nuke_studio_path = os.path.join(cwd, '..',  'resource')
+    ftrack_nuke_studio_path = os.path.join(cwd, '..',  'resource')
     application_hooks_path = os.path.join(cwd, '..', 'application_hook')
 
     entity = event['data']['context']['selection'][0]
@@ -39,7 +39,7 @@ def on_launch_nuke_studio_integration(session, event):
     ns_base_data['integration']['env'] = {
         'PYTHONPATH.prepend': sources,
         'FTRACK_EVENT_PLUGIN_PATH.prepend': application_hooks_path,
-        'HIERO_PLUGIN_PATH.prepend': ftrack_connect_nuke_studio_path,
+        'HIERO_PLUGIN_PATH.prepend': ftrack_nuke_studio_path,
         'FTRACK_CONTEXTID.set': project['id'],
         'QT_PREFERRED_BINDING.set':  os.pathsep.join(['PySide2', 'PySide'])
     }
@@ -57,7 +57,7 @@ def register(session, **kw):
         return
 
     handle_discovery_event = functools.partial(
-        on_discover_nuke_studio_integration,
+        on_discover_ftrack_nuke_studio_integration,
         session
     )
 
@@ -69,7 +69,7 @@ def register(session, **kw):
     )
     
     handle_launch_event = functools.partial(
-        on_launch_nuke_studio_integration,
+        on_launch_ftrack_nuke_studio_integration,
         session
     )    
 

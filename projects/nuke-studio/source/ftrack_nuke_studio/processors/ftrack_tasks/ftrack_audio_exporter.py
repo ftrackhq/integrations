@@ -7,9 +7,9 @@ from hiero.exporters.FnAudioExportUI import AudioExportUI
 from hiero.ui.FnTaskUIFormLayout import TaskUIFormLayout
 
 
-from ftrack_connect_nuke_studio.config import report_exception
+from ftrack_nuke_studio.config import report_exception
 
-from ftrack_connect_nuke_studio.processors.ftrack_base.ftrack_base_processor import (
+from ftrack_nuke_studio.processors.ftrack_base.ftrack_base_processor import (
     FtrackProcessorPreset,
     FtrackProcessor,
     FtrackProcessorUI
