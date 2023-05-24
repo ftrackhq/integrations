@@ -11,7 +11,7 @@ permissions:
   id-token: write
 
 jobs:
-  build:
+  build-index:
     # Build integration root docs
     runs-on: ubuntu-latest
     steps:
@@ -48,7 +48,7 @@ jobs:
 
   build-package-docs:
     # Build per-package docs and amend to site
-    needs: build
+    needs: build-index
     strategy:
       matrix:
         include:
@@ -83,6 +83,7 @@ jobs:
         with:
           path: _site
           key: pants-dist-${{github.sha}}
+          overwrite: true
 
   deploy:
     # Deploy to GitHub Pages
