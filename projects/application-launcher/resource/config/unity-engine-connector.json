@@ -1,0 +1,25 @@
+{
+    "priority":100,
+    "context": ["Task"],
+    "identifier": "ftrack-connect-launch-unity",
+    "applicationIdentifier":"unity-{variant}",
+    "integrations": {
+        "legacy":["ftrack-connect-unity-engine"]
+    },
+    "label": "Unity",
+    "icon": "unity",
+    "variant": "{version}",
+    "search_path":{
+        "windows": {
+            "prefix":["C:\\", "Program Files.*", "Unity", "Hub", "Editor"],
+            "expression":["2.+", "Editor", "Unity.exe"],
+            "version_expression": "(?P<version>\\d[\\d.a-z]*?)[^\\d]*$"
+        },
+        "darwin": {
+            "prefix":["/", "Applications", "Unity", "Hub", "Editor"],
+            "expression": ["2.+", "Unity.app"],
+            "version_expression": "(?P<version>\\d[\\d.a-z]*?)[^\\d]*$"
+        }
+    }
+ }
+ 
