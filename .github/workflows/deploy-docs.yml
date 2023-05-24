@@ -11,14 +11,14 @@ jobs:
     outputs:
       changed: ${{ env.CHANGED }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v2
         with:
           fetch-depth: 0
       - name: Determine which packages needs to have doc built
         run: |
           git fetch --all
           git branch
-          echo "CHANGED=$(git diff main  --name-only | cut -d'/' -f 2-2 | uniq)" >> $GITHUB_ENV
+          echo "CHANGED=$(git diff --name-only origin/main | cut -d'/' -f 2-2 | uniq)" >> $GITHUB_ENV
 
   docs:
     needs: probe
@@ -30,7 +30,7 @@ jobs:
     name: Build docs (${{ matrix.package }})
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v2
         if: ${{ contains(needs.probe.outputs.changed,matrix.package) }}
       - uses: actions/setup-python@v4
         if: ${{ contains(needs.probe.outputs.changed,matrix.package) }}
