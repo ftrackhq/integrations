@@ -32,7 +32,7 @@ jobs:
           # Todo: Change to gh-pages when you are ready
           publish_branch: gh-pages-deploy
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./site
+          publish_dir: ./_site
           force_orphan: true
 
 #  probe-packages:
