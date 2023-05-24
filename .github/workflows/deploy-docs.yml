@@ -25,7 +25,7 @@ jobs:
         # Todo: uncheck this when you are ready to only deploy from main
         #if: ${{ github.ref == 'refs/heads/main' }}
         with:
-          publish_branch: gh-pages
+          publish_branch: gh-pages-deploy
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: libs/framework-core/public
           force_orphan: true
