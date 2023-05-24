@@ -50,7 +50,8 @@ jobs:
         # Todo: uncheck this when you are ready to only deploy from main
         #if: ${{ github.ref == 'refs/heads/main' }}
         with:
-          publish_branch: gh-pages-deploy # Todo: change to gh-pages when ready to deploy
+          # Todo: change to gh-pages when ready to deploy
+          publish_branch: gh-pages-deploy
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: {{ matrix.folder }}/${{ matrix.package }}/public
           force_orphan: true
