@@ -16,7 +16,7 @@ ROOT_PATH = os.path.dirname(os.path.realpath(__file__))
 SOURCE_PATH = os.path.join(ROOT_PATH, 'source')
 README_PATH = os.path.join(ROOT_PATH, 'README.md')
 BUILD_PATH = os.path.join(ROOT_PATH, 'build')
-STAGING_PATH = os.path.join(BUILD_PATH, 'ftrack-connect-action-launcher-widget-{}')
+STAGING_PATH = os.path.join(BUILD_PATH, 'connect-action-launcher-widget-{}')
 RESOURCE_PATH = os.path.join(ROOT_PATH, 'resource')
 HOOK_PATH = os.path.join(RESOURCE_PATH, 'hook')
 
@@ -100,10 +100,10 @@ class BuildPlugin(Command):
 # Configuration.
 setup(
     name='ftrack-connect-action-launcher-widget',
-    description='ation launcher widget',
+    description='action launcher widget',
     long_description=open(README_PATH).read(),
     keywords='ftrack',
-    url='https://bitbucket.org/ftrack/ftrack-connect-action-launcher-widget',
+    url='https://github.com/ftrackhq/integrations/projects/connect-action-launcher-widget',
     author='ftrack',
     author_email='support@ftrack.com',
     license='Apache License (2.0)',
