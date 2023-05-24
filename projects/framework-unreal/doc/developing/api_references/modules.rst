@@ -7,10 +7,10 @@
 API Reference
 *************
 
-framework_unreal
+ftrack_framework_unreal
 ======================================
 
 .. toctree::
     :maxdepth: 1
 
-    framework_unreal
+    ftrack_framework_unreal

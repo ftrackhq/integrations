@@ -5,20 +5,20 @@ from Qt import QtWidgets, QtCore, QtGui
 
 import ftrack_api
 
-from framework_qt import plugin
+from ftrack_framework_qt import plugin
 
-from framework_qt.plugin.widget import BaseOptionsWidget
-from framework_qt.plugin.widget.context import StatusSelector
-from framework_qt.ui.utility.widget.context_selector import (
+from ftrack_framework_qt.plugin.widget import BaseOptionsWidget
+from ftrack_framework_qt.plugin.widget.context import StatusSelector
+from ftrack_framework_qt.ui.utility.widget.context_selector import (
     ContextSelector,
 )
-from framework_qt.ui.utility.widget import line
-from framework_qt.ui.utility.widget.asset_selector import (
+from ftrack_framework_qt.ui.utility.widget import line
+from ftrack_framework_qt.ui.utility.widget.asset_selector import (
     AssetSelector,
 )
-from framework_qt.utils import BaseThread
-from framework_qt.ui.utility.widget import dialog
-from framework_qt.ui.utility.widget.entity_info import EntityInfo
+from ftrack_framework_qt.utils import BaseThread
+from ftrack_framework_qt.ui.utility.widget import dialog
+from ftrack_framework_qt.ui.utility.widget.entity_info import EntityInfo
 
 
 class TestProjectPublisherContextOptionsWidget(BaseOptionsWidget):

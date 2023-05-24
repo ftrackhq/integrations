@@ -12,15 +12,15 @@ import hou, hdefereval
 
 import ftrack_api
 
-from framework_core.configure_logging import configure_logging
-from framework_core import constants as core_constants
+from ftrack_framework_core.configure_logging import configure_logging
+from ftrack_framework_core import constants as core_constants
 
-from framework_qt import event
-from framework_qt import constants as qt_constants
-from framework_qt.ui.asset_manager.model import AssetListModel
+from ftrack_framework_qt import event
+from ftrack_framework_qt import constants as qt_constants
+from ftrack_framework_qt.ui.asset_manager.model import AssetListModel
 
-from framework_houdini import host as houdini_host
-from framework_houdini.client import (
+from ftrack_framework_houdini import host as houdini_host
+from ftrack_framework_houdini.client import (
     open as ftrack_open,
     load,
     asset_manager,
@@ -29,14 +29,14 @@ from framework_houdini.client import (
     log_viewer,
     documentation,
 )
-from framework_houdini import utils as houdini_utils
+from ftrack_framework_houdini import utils as houdini_utils
 
 configure_logging(
-    'framework_houdini',
-    extra_modules=['framework_core', 'framework_qt'],
+    'ftrack_framework_houdini',
+    extra_modules=['ftrack_framework_core', 'ftrack_framework_qt'],
 )
 
-logger = logging.getLogger('framework_houdini')
+logger = logging.getLogger('ftrack_framework_houdini')
 
 event_manager = None
 host = None

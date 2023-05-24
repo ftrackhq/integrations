@@ -1,7 +1,7 @@
 framework\_houdini package
 ==========================================
 
-.. automodule:: framework_houdini
+.. automodule:: ftrack_framework_houdini
    :members:
    :undoc-members:
    :show-inheritance:
@@ -12,12 +12,12 @@ Subpackages
 .. toctree::
     :maxdepth: 1
 
-    framework_houdini.asset
-    framework_houdini.client
-    framework_houdini.constants
-    framework_houdini.host
-    framework_houdini.plugin
-    framework_houdini.utils
+    ftrack_framework_houdini.asset
+    ftrack_framework_houdini.client
+    ftrack_framework_houdini.constants
+    ftrack_framework_houdini.host
+    ftrack_framework_houdini.plugin
+    ftrack_framework_houdini.utils
 
 Submodules
 ----------
@@ -25,7 +25,7 @@ Submodules
 framework\_houdini._version module
 --------------------------------------------------
 
-.. automodule:: framework_houdini._version
+.. automodule:: ftrack_framework_houdini._version
    :members:
    :undoc-members:
    :show-inheritance:

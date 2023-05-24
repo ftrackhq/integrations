@@ -1,7 +1,7 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2022 ftrack
 
-from framework_maya import plugin
+from ftrack_framework_maya import plugin
 
 import maya.cmds as cmds
 import ftrack_api

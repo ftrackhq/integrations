@@ -13,15 +13,15 @@ from Qt import QtWidgets
 
 import ftrack_api
 
-import framework_nuke
-from framework_core import constants as core_constants
-from framework_core.configure_logging import configure_logging
+import ftrack_framework_nuke
+from ftrack_framework_core import constants as core_constants
+from ftrack_framework_core.configure_logging import configure_logging
 
-from framework_qt import event
-from framework_qt import constants as qt_constants
-from framework_qt.ui.asset_manager.model import AssetListModel
+from ftrack_framework_qt import event
+from ftrack_framework_qt import constants as qt_constants
+from ftrack_framework_qt.ui.asset_manager.model import AssetListModel
 
-from framework_nuke.client import (
+from ftrack_framework_nuke.client import (
     open,
     load,
     asset_manager,
@@ -31,16 +31,16 @@ from framework_nuke.client import (
     documentation,
 )
 
-from framework_nuke.menu import build_menu_widgets
-from framework_nuke import utils as nuke_utils
-from framework_nuke import host as nuke_host
+from ftrack_framework_nuke.menu import build_menu_widgets
+from ftrack_framework_nuke import utils as nuke_utils
+from ftrack_framework_nuke import host as nuke_host
 
 configure_logging(
-    'framework_nuke',
-    extra_modules=['framework_core', 'framework_qt'],
+    'ftrack_framework_nuke',
+    extra_modules=['ftrack_framework_core', 'ftrack_framework_qt'],
 )
 
-logger = logging.getLogger('framework_nuke')
+logger = logging.getLogger('ftrack_framework_nuke')
 
 
 def get_ftrack_menu(menu_name='ftrack', submenu_name='pipeline'):

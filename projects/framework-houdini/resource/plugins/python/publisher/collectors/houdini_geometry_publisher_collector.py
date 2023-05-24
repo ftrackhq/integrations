@@ -3,7 +3,7 @@
 
 import hou
 
-from framework_houdini import plugin
+from ftrack_framework_houdini import plugin
 import ftrack_api
 
 

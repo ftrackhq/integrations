@@ -5,10 +5,10 @@ import logging
 import hou
 
 import ftrack_api
-from framework_houdini import plugin
+from ftrack_framework_houdini import plugin
 
 
-logger = logging.getLogger('framework_houdini')
+logger = logging.getLogger('ftrack_framework_houdini')
 
 
 class HoudiniGeometryPublisherValidatorPlugin(

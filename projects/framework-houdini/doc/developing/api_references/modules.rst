@@ -7,10 +7,10 @@
 API Reference
 *************
 
-framework_houdini
+ftrack_framework_houdini
 ===============================
 
 .. toctree::
     :maxdepth: 1
 
-    framework_houdini
+    ftrack_framework_houdini

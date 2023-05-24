@@ -5,7 +5,7 @@ import ftrack_api
 
 import nuke
 
-from framework_nuke import plugin
+from ftrack_framework_nuke import plugin
 
 
 class NukeNodePublisherCollectorPlugin(plugin.NukePublisherCollectorPlugin):

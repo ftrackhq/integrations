@@ -7,10 +7,10 @@ import ftrack_api
 import json
 import functools
 
-from framework_core import event
-from framework_core import constants
-from framework_core import host as test_host
-from framework_core.definition import collect_and_validate
+from ftrack_framework_core import event
+from ftrack_framework_core import constants
+from ftrack_framework_core import host as test_host
+from ftrack_framework_core.definition import collect_and_validate
 
 
 def _temporary_file(request, **kwargs):

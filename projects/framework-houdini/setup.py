@@ -45,7 +45,7 @@ class BuildPlugin(setuptools.Command):
         VERSION = '.'.join(release.split('.')[:3])
         global STAGING_PATH
         STAGING_PATH = os.path.join(
-            BUILD_PATH, 'framework-houdini-{}'.format(VERSION)
+            BUILD_PATH, 'ftrack-framework-houdini-{}'.format(VERSION)
         )
 
         '''Run the build step.'''
@@ -73,7 +73,7 @@ class BuildPlugin(setuptools.Command):
         result_path = shutil.make_archive(
             os.path.join(
                 BUILD_PATH,
-                'framework-houdini-{0}'.format(VERSION),
+                'ftrack-framework-houdini-{0}'.format(VERSION),
             ),
             'zip',
             STAGING_PATH,
@@ -108,11 +108,11 @@ __version__ = {version!r}
 
 # Configuration.
 setup(
-    name='framework-houdini',
+    name='ftrack-framework-houdini',
     description='A dialog to publish package from houdini to ftrack',
     long_description=open(README_PATH).read(),
     keywords='ftrack',
-    url='https://bitbucket.org/ftrack/framework-houdini',
+    url='https://github.com/ftrackhq/integrations/projects/framework-houdini',
     author='ftrack',
     author_email='support@ftrack.com',
     license='Apache License (2.0)',

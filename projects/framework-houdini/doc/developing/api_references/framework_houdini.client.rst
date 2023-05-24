@@ -1,7 +1,7 @@
 framework\_houdini.client package
 =================================================
 
-.. automodule:: framework_houdini.client
+.. automodule:: ftrack_framework_houdini.client
    :members:
    :undoc-members:
    :show-inheritance:

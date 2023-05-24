@@ -47,10 +47,10 @@ def load_integration():
 
     import ftrack_api
 
-    from framework_core import constants as core_constants
-    from framework_core.configure_logging import configure_logging
+    from ftrack_framework_core import constants as core_constants
+    from ftrack_framework_core.configure_logging import configure_logging
 
-    # Create a qapplication, needs to be done before using framework_qt
+    # Create a qapplication, needs to be done before using ftrack_framework_qt
     qapp = QtWidgets.QApplication.instance()
     if qapp is None:
         qapp = QtWidgets.QApplication([])
@@ -58,15 +58,15 @@ def load_integration():
             QtGui.QIcon(os.path.dirname(__file__) + '/UEFtrack.ico')
         )
 
-    from framework_qt import event
-    from framework_qt import constants as qt_constants
+    from ftrack_framework_qt import event
+    from ftrack_framework_qt import constants as qt_constants
 
-    # from framework_qt.ui.asset_manager.model import (
+    # from ftrack_framework_qt.ui.asset_manager.model import (
     #     AssetListModel,
     # )
 
-    from framework_unreal import host as unreal_host
-    from framework_unreal.client import (
+    from ftrack_framework_unreal import host as unreal_host
+    from ftrack_framework_unreal.client import (
         # open,
         load,
         publish,
@@ -76,19 +76,19 @@ def load_integration():
         documentation,
     )
 
-    from framework_unreal import utils as unreal_utils
-    from framework_unreal import menu as unreal_menu
+    from ftrack_framework_unreal import utils as unreal_utils
+    from ftrack_framework_unreal import menu as unreal_menu
 
     configure_logging(
-        'framework_unreal',
+        'ftrack_framework_unreal',
         extra_modules=[
-            'framework_core',
-            'framework_qt',
+            'ftrack_framework_core',
+            'ftrack_framework_qt',
         ],
         propagate=False,
     )
 
-    logger = logging.getLogger('framework_unreal')
+    logger = logging.getLogger('ftrack_framework_unreal')
 
     created_widgets = dict()
 
@@ -263,7 +263,7 @@ def load_integration():
                 unreal.ToolMenuStringCommandType.PYTHON,
                 widget_name,
                 string=(
-                    "from framework_unreal.menu import launch_dialog;launch_dialog('{}')".format(
+                    "from ftrack_framework_unreal.menu import launch_dialog;launch_dialog('{}')".format(
                         widget_name
                     )
                 ),

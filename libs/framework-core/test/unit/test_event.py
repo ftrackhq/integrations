@@ -1,6 +1,6 @@
 import pytest
-from framework_core import constants
-from framework_core import event
+from ftrack_framework_core import constants
+from ftrack_framework_core import event
 
 
 @pytest.mark.parametrize(

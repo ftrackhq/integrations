@@ -1,8 +1,8 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2022 ftrack
 
-from framework_houdini import plugin
-from framework_qt.plugin.widget.base_collector_widget import (
+from ftrack_framework_houdini import plugin
+from ftrack_framework_qt.plugin.widget.base_collector_widget import (
     BaseCollectorWidget,
 )
 
