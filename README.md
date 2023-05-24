@@ -6,7 +6,7 @@ This monorepo contains the source code for the ftrack pipeline integration frame
 
 ## Framework
 
-The framework package contains the DCC integrations and is divided into libraries (libs/) folder
+The framework package group contains the DCC integrations and is divided into libraries (libs/) folder
 and projects (projects/)
 
 | Package                                | Path                  | Description                |
@@ -14,3 +14,8 @@ and projects (projects/)
 | [framework-core](libs/framework-core)  | libs/framework-core   | The core framework library |
 | framework-qt                           | libs/framework-qt     | The QT framework library   |
 
+TBC
+
+## Connect
+
+TBC
