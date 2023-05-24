@@ -1,0 +1,20 @@
+QRadioButton {
+    color: $primary-text;
+}
+
+QRadioButton::indicator {
+    width: 13px;
+    height: 13px;
+}
+
+QRadioButton::indicator::unchecked {}
+
+QRadioButton::indicator:unchecked:hover {}
+
+QRadioButton::indicator:unchecked:pressed {}
+
+QRadioButton::indicator:checked {}
+
+QRadioButton::indicator:checked:hover {}
+
+QRadioButton::indicator:checked:pressed {}
