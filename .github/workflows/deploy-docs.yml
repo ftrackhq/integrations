@@ -19,7 +19,7 @@ jobs:
           git fetch --all
           git branch
           echo "CHANGED=$(git diff --name-only origin/main | cut -d'/' -f 2-2 | uniq | tr '\n' ',')" >> $GITHUB_ENV
-
+          echo "Change packages: ${{ env.CHANGED }}"
   docs:
     needs: probe
     strategy:
@@ -56,4 +56,4 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ${{ matrix.folder }}/${{ matrix.package }}/public
           force_orphan: true
-          destination_dir: ${{ matrix.folder }}/${{ matrix.package }}
+          destination_dir: ${{ matrix.folder }}/${{ matrix.package }}/public
