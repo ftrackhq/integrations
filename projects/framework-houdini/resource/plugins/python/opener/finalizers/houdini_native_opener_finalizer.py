@@ -3,8 +3,8 @@
 
 import ftrack_api
 
-from framework_houdini import plugin
-from framework_houdini import utils as houdini_utils
+from ftrack_framework_houdini import plugin
+from ftrack_framework_houdini import utils as houdini_utils
 
 
 class HoudiniNativeOpenerFinalizerPlugin(plugin.HoudiniOpenerFinalizerPlugin):

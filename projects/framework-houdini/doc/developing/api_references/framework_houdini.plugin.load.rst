@@ -1,7 +1,7 @@
 framework\_houdini.plugin.load package
 ======================================================
 
-.. automodule:: framework_houdini.plugin.load
+.. automodule:: ftrack_framework_houdini.plugin.load
    :members:
    :undoc-members:
    :show-inheritance:

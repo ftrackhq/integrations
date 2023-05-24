@@ -5,11 +5,11 @@ from Qt import QtWidgets
 
 import ftrack_api
 
-from framework_qt import plugin as pluginWidget
-from framework_qt.plugin.widget.load_widget import (
+from ftrack_framework_qt import plugin as pluginWidget
+from ftrack_framework_qt.plugin.widget.load_widget import (
     LoadBaseWidget,
 )
-from framework_qt.ui.utility.widget import group_box
+from ftrack_framework_qt.ui.utility.widget import group_box
 
 
 class CommonTestLoaderImporterOptionsWidget(LoadBaseWidget):

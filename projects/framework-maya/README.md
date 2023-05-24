@@ -1,1 +1,1 @@
-# framework_maya
+# framework-maya

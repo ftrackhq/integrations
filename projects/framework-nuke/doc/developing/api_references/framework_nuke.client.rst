@@ -1,7 +1,7 @@
 framework\_nuke.client package
 ==============================================
 
-.. automodule:: framework_nuke.client
+.. automodule:: ftrack_framework_nuke.client
    :members:
    :undoc-members:
    :show-inheritance:

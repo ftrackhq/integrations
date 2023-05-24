@@ -10,18 +10,18 @@ from Qt import QtCore, QtWidgets
 
 import ftrack_api
 
-from framework_3dsmax import host as max_host
-from framework_qt import event
-from framework_core import constants
+from ftrack_framework_3dsmax import host as max_host
+from ftrack_framework_qt import event
+from ftrack_framework_core import constants
 
-from framework_core import constants as core_constants
-from framework_core.configure_logging import configure_logging
+from ftrack_framework_core import constants as core_constants
+from ftrack_framework_core.configure_logging import configure_logging
 
-from framework_qt import constants as qt_constants
-from framework_qt.ui.asset_manager.model import AssetListModel
+from ftrack_framework_qt import constants as qt_constants
+from ftrack_framework_qt.ui.asset_manager.model import AssetListModel
 
-from framework_3dsmax import menu as ftrack_menu_module
-from framework_3dsmax.client import (
+from ftrack_framework_3dsmax import menu as ftrack_menu_module
+from ftrack_framework_3dsmax.client import (
     open,
     load,
     publish,
@@ -30,14 +30,14 @@ from framework_3dsmax.client import (
     change_context,
     documentation,
 )
-from framework_3dsmax import utils as max_utils
+from ftrack_framework_3dsmax import utils as max_utils
 
 configure_logging(
-    'framework_3dsmax',
-    extra_modules=['framework_core', 'framework_qt'],
+    'ftrack_framework_3dsmax',
+    extra_modules=['ftrack_framework_core', 'ftrack_framework_qt'],
 )
 
-logger = logging.getLogger('framework_3dsmax')
+logger = logging.getLogger('ftrack_framework_3dsmax')
 
 created_widgets = dict()
 
@@ -203,7 +203,7 @@ def initialise():
         # The createActionItem expects a macro and not an script.
         python_code = ";".join(
             [
-                "from framework_3dsmax.menu import LaunchDialog",
+                "from ftrack_framework_3dsmax.menu import LaunchDialog",
                 "launch_dialog_class = LaunchDialog()",
                 "launch_dialog_class.launch_dialog('{}')".format(widget_name),
             ]

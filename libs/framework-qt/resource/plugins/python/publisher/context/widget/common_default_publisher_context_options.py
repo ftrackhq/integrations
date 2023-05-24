@@ -1,8 +1,8 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2022 ftrack
 
-from framework_qt import plugin
-from framework_qt.plugin.widget import context as context_widget
+from ftrack_framework_qt import plugin
+from ftrack_framework_qt.plugin.widget import context as context_widget
 import ftrack_api
 
 

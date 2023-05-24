@@ -1,7 +1,7 @@
 ftrack\_connect\_pipeline.plugin.publish
 ================================================
 
-.. automodule:: framework_core.plugin.publish
+.. automodule:: ftrack_framework_core.plugin.publish
     :members:
     :undoc-members:
     :show-inheritance:
@@ -10,7 +10,7 @@ ftrack\_connect\_pipeline.plugin.publish
 ftrack\_connect\_pipeline.plugin.publish.collector
 ---------------------------------------------------------
 
-.. automodule:: framework_core.plugin.publish.collector
+.. automodule:: ftrack_framework_core.plugin.publish.collector
     :members:
     :undoc-members:
     :show-inheritance:
@@ -18,7 +18,7 @@ ftrack\_connect\_pipeline.plugin.publish.collector
 ftrack\_connect\_pipeline.plugin.publish.context
 -------------------------------------------------------
 
-.. automodule:: framework_core.plugin.publish.context
+.. automodule:: ftrack_framework_core.plugin.publish.context
     :members:
     :undoc-members:
     :show-inheritance:
@@ -26,7 +26,7 @@ ftrack\_connect\_pipeline.plugin.publish.context
 ftrack\_connect\_pipeline.plugin.publish.finalizer
 ---------------------------------------------------------
 
-.. automodule:: framework_core.plugin.publish.finalizer
+.. automodule:: ftrack_framework_core.plugin.publish.finalizer
     :members:
     :undoc-members:
     :show-inheritance:
@@ -34,7 +34,7 @@ ftrack\_connect\_pipeline.plugin.publish.finalizer
 ftrack\_connect\_pipeline.plugin.publish.exporter
 ------------------------------------------------------
 
-.. automodule:: framework_core.plugin.publish.exporter
+.. automodule:: ftrack_framework_core.plugin.publish.exporter
     :members:
     :undoc-members:
     :show-inheritance:
@@ -42,7 +42,7 @@ ftrack\_connect\_pipeline.plugin.publish.exporter
 ftrack\_connect\_pipeline.plugin.publish.validator
 ---------------------------------------------------------
 
-.. automodule:: framework_core.plugin.publish.validator
+.. automodule:: ftrack_framework_core.plugin.publish.validator
     :members:
     :undoc-members:
     :show-inheritance:

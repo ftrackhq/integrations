@@ -3,9 +3,9 @@
 
 import ftrack_api
 
-from framework_unreal import plugin
-from framework_qt.plugin.widget.dynamic import DynamicWidget
-from framework_unreal.constants.asset import modes as load_const
+from ftrack_framework_unreal import plugin
+from ftrack_framework_qt.plugin.widget.dynamic import DynamicWidget
+from ftrack_framework_unreal.constants.asset import modes as load_const
 
 
 class UnrealFbxGeometryLoaderImporterOptionsWidget(DynamicWidget):

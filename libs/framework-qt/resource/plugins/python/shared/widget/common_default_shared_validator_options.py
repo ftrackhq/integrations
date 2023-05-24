@@ -1,8 +1,8 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2022 ftrack
 
-from framework_qt.plugin.widget import dynamic as dynamic_widget
-from framework_qt import plugin
+from ftrack_framework_qt.plugin.widget import dynamic as dynamic_widget
+from ftrack_framework_qt import plugin
 import ftrack_api
 
 
