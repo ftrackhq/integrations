@@ -34,6 +34,7 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./_site
           force_orphan: true
+          exclude_assets: libs,projects,apps
 
 #  probe-packages:
 #    needs: build-index
@@ -86,6 +87,7 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ${{ matrix.folder }}/${{ matrix.package }}/public
           force_orphan: true
+          keep_files: true
           destination_dir: ${{ matrix.folder }}/${{ matrix.package }}
 
   upload:
