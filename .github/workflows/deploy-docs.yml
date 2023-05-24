@@ -33,7 +33,6 @@ jobs:
           publish_branch: gh-pages-deploy
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./_site
-          force_orphan: true
           exclude_assets: libs,projects,apps
 
 #  probe-packages:
