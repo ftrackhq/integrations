@@ -230,7 +230,7 @@ __version__ = {version!r}
 # General configuration.
 configuration = dict(
     name='ftrack-connect',
-    description='Ftrack connect application.',
+    description='ftrack connect application.',
     long_description=open(README_PATH).read(),
     keywords='ftrack, connect, publish',
     url='https://github.com/ftrackhq/integrations/apps/connect',
