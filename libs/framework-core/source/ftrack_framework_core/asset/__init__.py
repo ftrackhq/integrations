@@ -119,7 +119,7 @@ class FtrackObjectManager(object):
         '''
         Returns a name for the current self :obj:`dcc_object` based on
         the first 2 and last 2 characters of the
-        :constant:`asset_const.ASSET_INFO_ID`
+        :const:`asset_const.ASSET_INFO_ID`
         '''
         short_id = "{}{}".format(
             self.asset_info[asset_const.ASSET_INFO_ID][:2],

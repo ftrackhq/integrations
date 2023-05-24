@@ -1,4 +1,4 @@
-ftrack\_connect\_pipeline
+ftrack\_framework\_core
 =================================
 
 .. automodule:: ftrack_framework_core
@@ -18,7 +18,7 @@ ftrack\_connect\_pipeline
     ftrack_framework_core.plugin
 
 
-ftrack\_connect\_pipeline.configure\_logging
+ftrack\_framework\_core.configure\_logging
 --------------------------------------------
 
 .. automodule:: ftrack_framework_core.configure_logging
@@ -26,7 +26,7 @@ ftrack\_connect\_pipeline.configure\_logging
     :undoc-members:
     :show-inheritance:
 
-ftrack\_connect\_pipeline.event
+ftrack\_framework\_core.event
 -------------------------------
 
 .. automodule:: ftrack_framework_core.event
@@ -34,7 +34,7 @@ ftrack\_connect\_pipeline.event
     :undoc-members:
     :show-inheritance:
 
-ftrack\_connect\_pipeline.exception
+ftrack\_framework\_core.exception
 -----------------------------------
 
 .. automodule:: ftrack_framework_core.exception
@@ -42,7 +42,7 @@ ftrack\_connect\_pipeline.exception
     :undoc-members:
     :show-inheritance:
 
-ftrack\_connect\_pipeline.utils
+ftrack\_framework\_core.utils
 -------------------------------
 
 .. automodule:: ftrack_framework_core.utils

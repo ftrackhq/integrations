@@ -1,48 +1,48 @@
-ftrack\_connect\_pipeline.plugin.load
+ftrack\_framework\_core.plugin.open
 =============================================
 
-.. automodule:: ftrack_framework_core.plugin.load
+.. automodule:: ftrack_framework_core.plugin.open
     :members:
     :undoc-members:
     :show-inheritance:
 
 
-ftrack\_connect\_pipeline.plugin.load.collector
+ftrack\_framework\_core.plugin.open.collector
 ------------------------------------------------------
 
-.. automodule:: ftrack_framework_core.plugin.load.collector
+.. automodule:: ftrack_framework_core.plugin.open.collector
     :members:
     :undoc-members:
     :show-inheritance:
 
-ftrack\_connect\_pipeline.plugin.load.context
+ftrack\_framework\_core.plugin.open.context
 ----------------------------------------------------
 
-.. automodule:: ftrack_framework_core.plugin.load.context
+.. automodule:: ftrack_framework_core.plugin.open.context
     :members:
     :undoc-members:
     :show-inheritance:
 
-ftrack\_connect\_pipeline.plugin.load.finalizer
+ftrack\_framework\_core.plugin.open.finalizer
 ------------------------------------------------------
 
-.. automodule:: ftrack_framework_core.plugin.load.finalizer
+.. automodule:: ftrack_framework_core.plugin.open.finalizer
     :members:
     :undoc-members:
     :show-inheritance:
 
-ftrack\_connect\_pipeline.plugin.load.importer
+ftrack\_framework\_core.plugin.open.importer
 -----------------------------------------------------
 
-.. automodule:: ftrack_framework_core.plugin.load.importer
+.. automodule:: ftrack_framework_core.plugin.open.importer
     :members:
     :undoc-members:
     :show-inheritance:
 
-ftrack\_connect\_pipeline.plugin.load.post\_import
+ftrack\_framework\_core.plugin.open.post\_import
 ---------------------------------------------------------
 
-.. automodule:: ftrack_framework_core.plugin.load.post_importer
+.. automodule:: ftrack_framework_core.plugin.open.post_importer
     :members:
     :undoc-members:
     :show-inheritance:

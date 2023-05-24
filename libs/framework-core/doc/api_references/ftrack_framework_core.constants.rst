@@ -1,4 +1,4 @@
-ftrack\_connect\_pipeline.constants
+ftrack\_framework\_core.constants
 ===========================================
 
 .. automodule:: ftrack_framework_core.constants
@@ -12,7 +12,7 @@ ftrack\_connect\_pipeline.constants
     ftrack_framework_core.constants.plugin
 
 
-ftrack\_connect\_pipeline.constants.event
+ftrack\_framework\_core.constants.event
 ------------------------------------------------
 
 .. automodule:: ftrack_framework_core.constants.event
@@ -20,7 +20,7 @@ ftrack\_connect\_pipeline.constants.event
     :undoc-members:
     :show-inheritance:
 
-ftrack\_connect\_pipeline.constants.status
+ftrack\_framework\_core.constants.status
 -------------------------------------------------
 
 .. automodule:: ftrack_framework_core.constants.status

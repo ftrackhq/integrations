@@ -1,4 +1,4 @@
-ftrack\_connect\_pipeline.log
+ftrack\_framework\_core.log
 =====================================
 
 .. automodule:: ftrack_framework_core.log
@@ -7,7 +7,7 @@ ftrack\_connect\_pipeline.log
     :show-inheritance:
 
 
-ftrack\_connect\_pipeline.log.log\_item
+ftrack\_framework\_core.log.log\_item
 ----------------------------------------------
 
 .. automodule:: ftrack_framework_core.log.log_item

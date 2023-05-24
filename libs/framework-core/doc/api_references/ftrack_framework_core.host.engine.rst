@@ -1,4 +1,4 @@
-ftrack\_connect\_pipeline.host.engine
+ftrack\_framework\_core.host.engine
 =============================================
 
 .. automodule:: ftrack_framework_core.host.engine
@@ -7,7 +7,7 @@ ftrack\_connect\_pipeline.host.engine
     :show-inheritance:
 
 
-ftrack\_connect\_pipeline.host.engine.asset\_manager
+ftrack\_framework\_core.host.engine.asset\_manager
 -----------------------------------------------------------
 
 .. automodule:: ftrack_framework_core.host.engine.asset_manager
@@ -15,7 +15,7 @@ ftrack\_connect\_pipeline.host.engine.asset\_manager
     :undoc-members:
     :show-inheritance:
 
-ftrack\_connect\_pipeline.host.engine.open
+ftrack\_framework\_core.host.engine.open
 -------------------------------------------------
 
 .. automodule:: ftrack_framework_core.host.engine.open
@@ -23,7 +23,7 @@ ftrack\_connect\_pipeline.host.engine.open
     :undoc-members:
     :show-inheritance:
 
-ftrack\_connect\_pipeline.host.engine.load
+ftrack\_framework\_core.host.engine.load
 -------------------------------------------------
 
 .. automodule:: ftrack_framework_core.host.engine.load
@@ -31,7 +31,7 @@ ftrack\_connect\_pipeline.host.engine.load
     :undoc-members:
     :show-inheritance:
 
-ftrack\_connect\_pipeline.host.engine.publish
+ftrack\_framework\_core.host.engine.publish
 ----------------------------------------------------
 
 .. automodule:: ftrack_framework_core.host.engine.publish

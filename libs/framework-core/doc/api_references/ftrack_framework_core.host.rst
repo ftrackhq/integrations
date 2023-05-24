@@ -1,4 +1,4 @@
-ftrack\_connect\_pipeline.host
+ftrack\_framework\_core.host
 ======================================
 
 .. automodule:: ftrack_framework_core.host
@@ -11,7 +11,7 @@ ftrack\_connect\_pipeline.host
     ftrack_framework_core.host.engine
 
 
-ftrack\_connect\_pipeline.host.validation
+ftrack\_framework\_core.host.validation
 ------------------------------------------------
 
 .. automodule:: ftrack_framework_core.host.validation

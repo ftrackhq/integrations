@@ -1,4 +1,4 @@
-ftrack\_connect\_pipeline.constants.asset
+ftrack\_framework\_core.constants.asset
 =================================================
 
 .. automodule:: ftrack_framework_core.constants.asset

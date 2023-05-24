@@ -1,4 +1,4 @@
-ftrack\_connect\_pipeline.plugin.publish
+ftrack\_framework\_core.plugin.publish
 ================================================
 
 .. automodule:: ftrack_framework_core.plugin.publish
@@ -7,7 +7,7 @@ ftrack\_connect\_pipeline.plugin.publish
     :show-inheritance:
 
 
-ftrack\_connect\_pipeline.plugin.publish.collector
+ftrack\_framework\_core.plugin.publish.collector
 ---------------------------------------------------------
 
 .. automodule:: ftrack_framework_core.plugin.publish.collector
@@ -15,7 +15,7 @@ ftrack\_connect\_pipeline.plugin.publish.collector
     :undoc-members:
     :show-inheritance:
 
-ftrack\_connect\_pipeline.plugin.publish.context
+ftrack\_framework\_core.plugin.publish.context
 -------------------------------------------------------
 
 .. automodule:: ftrack_framework_core.plugin.publish.context
@@ -23,7 +23,7 @@ ftrack\_connect\_pipeline.plugin.publish.context
     :undoc-members:
     :show-inheritance:
 
-ftrack\_connect\_pipeline.plugin.publish.finalizer
+ftrack\_framework\_core.plugin.publish.finalizer
 ---------------------------------------------------------
 
 .. automodule:: ftrack_framework_core.plugin.publish.finalizer
@@ -31,7 +31,7 @@ ftrack\_connect\_pipeline.plugin.publish.finalizer
     :undoc-members:
     :show-inheritance:
 
-ftrack\_connect\_pipeline.plugin.publish.exporter
+ftrack\_framework\_core.plugin.publish.exporter
 ------------------------------------------------------
 
 .. automodule:: ftrack_framework_core.plugin.publish.exporter
@@ -39,7 +39,7 @@ ftrack\_connect\_pipeline.plugin.publish.exporter
     :undoc-members:
     :show-inheritance:
 
-ftrack\_connect\_pipeline.plugin.publish.validator
+ftrack\_framework\_core.plugin.publish.validator
 ---------------------------------------------------------
 
 .. automodule:: ftrack_framework_core.plugin.publish.validator

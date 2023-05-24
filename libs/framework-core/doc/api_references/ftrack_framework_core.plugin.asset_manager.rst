@@ -1,4 +1,4 @@
-ftrack\_connect\_pipeline.plugin.asset\_manager
+ftrack\_framework\_core.plugin.asset\_manager
 =======================================================
 
 .. automodule:: ftrack_framework_core.plugin.asset_manager
@@ -7,7 +7,7 @@ ftrack\_connect\_pipeline.plugin.asset\_manager
     :show-inheritance:
 
 
-ftrack\_connect\_pipeline.plugin.asset\_manager.action
+ftrack\_framework\_core.plugin.asset\_manager.action
 -------------------------------------------------------------
 
 .. automodule:: ftrack_framework_core.plugin.asset_manager.action
@@ -15,7 +15,7 @@ ftrack\_connect\_pipeline.plugin.asset\_manager.action
     :undoc-members:
     :show-inheritance:
 
-ftrack\_connect\_pipeline.plugin.asset\_manager.discover
+ftrack\_framework\_core.plugin.asset\_manager.discover
 ---------------------------------------------------------------
 
 .. automodule:: ftrack_framework_core.plugin.asset_manager.discover
@@ -23,7 +23,7 @@ ftrack\_connect\_pipeline.plugin.asset\_manager.discover
     :undoc-members:
     :show-inheritance:
 
-ftrack\_connect\_pipeline.plugin.asset\_manager.resolve
+ftrack\_framework\_core.plugin.asset\_manager.resolve
 ---------------------------------------------------------------
 
 .. automodule:: ftrack_framework_core.plugin.asset_manager.resolve

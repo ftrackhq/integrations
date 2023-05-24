@@ -1,4 +1,4 @@
-ftrack\_connect\_pipeline.plugin
+ftrack\_framework\_core.plugin
 ========================================
 
 .. automodule:: ftrack_framework_core.plugin

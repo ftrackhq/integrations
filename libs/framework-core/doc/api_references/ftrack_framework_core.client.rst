@@ -1,4 +1,4 @@
-ftrack\_connect\_pipeline.client
+ftrack\_framework\_core.client
 ========================================
 
 .. automodule:: ftrack_framework_core.client
@@ -7,7 +7,7 @@ ftrack\_connect\_pipeline.client
     :show-inheritance:
 
 
-ftrack\_connect\_pipeline.client.asset\_manager
+ftrack\_framework\_core.client.asset\_manager
 ------------------------------------------------------
 
 .. automodule:: ftrack_framework_core.client.asset_manager
@@ -15,7 +15,7 @@ ftrack\_connect\_pipeline.client.asset\_manager
     :undoc-members:
     :show-inheritance:
 
-ftrack\_connect\_pipeline.client.loader\_loader
+ftrack\_framework\_core.client.loader\_loader
 ---------------------------------------------------
 
 .. automodule:: ftrack_framework_core.client.loader
@@ -23,7 +23,7 @@ ftrack\_connect\_pipeline.client.loader\_loader
     :undoc-members:
     :show-inheritance:
 
-ftrack\_connect\_pipeline.client.opener\_opener
+ftrack\_framework\_core.client.opener\_opener
 ---------------------------------------------------
 
 .. automodule:: ftrack_framework_core.client.opener
@@ -31,7 +31,7 @@ ftrack\_connect\_pipeline.client.opener\_opener
     :undoc-members:
     :show-inheritance:
 
-ftrack\_connect\_pipeline.client.publisher\_publisher
+ftrack\_framework\_core.client.publisher\_publisher
 --------------------------------------------------------
 
 .. automodule:: ftrack_framework_core.client.publisher
@@ -39,7 +39,7 @@ ftrack\_connect\_pipeline.client.publisher\_publisher
     :undoc-members:
     :show-inheritance:
 
-ftrack\_connect\_pipeline.client.log\_viewer
+ftrack\_framework\_core.client.log\_viewer
 ---------------------------------------------------
 
 .. automodule:: ftrack_framework_core.client.log_viewer

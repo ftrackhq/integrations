@@ -1,4 +1,4 @@
-ftrack\_connect\_pipeline.plugin.base
+ftrack\_framework\_core.plugin.base
 =============================================
 
 .. automodule:: ftrack_framework_core.plugin.base
@@ -7,7 +7,7 @@ ftrack\_connect\_pipeline.plugin.base
     :show-inheritance:
 
 
-ftrack\_connect\_pipeline.plugin.base.action
+ftrack\_framework\_core.plugin.base.action
 ---------------------------------------------------
 
 .. automodule:: ftrack_framework_core.plugin.base.action
@@ -15,7 +15,7 @@ ftrack\_connect\_pipeline.plugin.base.action
     :undoc-members:
     :show-inheritance:
 
-ftrack\_connect\_pipeline.plugin.base.collector
+ftrack\_framework\_core.plugin.base.collector
 ------------------------------------------------------
 
 .. automodule:: ftrack_framework_core.plugin.base.collector
@@ -23,7 +23,7 @@ ftrack\_connect\_pipeline.plugin.base.collector
     :undoc-members:
     :show-inheritance:
 
-ftrack\_connect\_pipeline.plugin.base.context
+ftrack\_framework\_core.plugin.base.context
 ----------------------------------------------------
 
 .. automodule:: ftrack_framework_core.plugin.base.context
@@ -31,7 +31,7 @@ ftrack\_connect\_pipeline.plugin.base.context
     :undoc-members:
     :show-inheritance:
 
-ftrack\_connect\_pipeline.plugin.base.discover
+ftrack\_framework\_core.plugin.base.discover
 -----------------------------------------------------
 
 .. automodule:: ftrack_framework_core.plugin.base.discover
@@ -39,7 +39,7 @@ ftrack\_connect\_pipeline.plugin.base.discover
     :undoc-members:
     :show-inheritance:
 
-ftrack\_connect\_pipeline.plugin.base.finalizer
+ftrack\_framework\_core.plugin.base.finalizer
 ------------------------------------------------------
 
 .. automodule:: ftrack_framework_core.plugin.base.finalizer
@@ -47,7 +47,7 @@ ftrack\_connect\_pipeline.plugin.base.finalizer
     :undoc-members:
     :show-inheritance:
 
-ftrack\_connect\_pipeline.plugin.base.importer
+ftrack\_framework\_core.plugin.base.importer
 -----------------------------------------------------
 
 .. automodule:: ftrack_framework_core.plugin.base.importer
@@ -55,7 +55,7 @@ ftrack\_connect\_pipeline.plugin.base.importer
     :undoc-members:
     :show-inheritance:
 
-ftrack\_connect\_pipeline.plugin.base.exporter
+ftrack\_framework\_core.plugin.base.exporter
 ---------------------------------------------------
 
 .. automodule:: ftrack_framework_core.plugin.base.exporter
@@ -63,7 +63,7 @@ ftrack\_connect\_pipeline.plugin.base.exporter
     :undoc-members:
     :show-inheritance:
 
-ftrack\_connect\_pipeline.plugin.base.post\_import
+ftrack\_framework\_core.plugin.base.post\_import
 ---------------------------------------------------------
 
 .. automodule:: ftrack_framework_core.plugin.base.post_importer
@@ -71,7 +71,7 @@ ftrack\_connect\_pipeline.plugin.base.post\_import
     :undoc-members:
     :show-inheritance:
 
-ftrack\_connect\_pipeline.plugin.base.validator
+ftrack\_framework\_core.plugin.base.validator
 ------------------------------------------------------
 
 .. automodule:: ftrack_framework_core.plugin.base.validator

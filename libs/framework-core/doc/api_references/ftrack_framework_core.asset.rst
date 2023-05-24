@@ -1,4 +1,4 @@
-ftrack\_connect\_pipeline.asset
+ftrack\_framework\_core.asset
 ===============================
 
 .. automodule:: ftrack_framework_core.asset
@@ -6,7 +6,7 @@ ftrack\_connect\_pipeline.asset
     :undoc-members:
     :show-inheritance:
 
-ftrack\_connect\_pipeline.constants.asset.asset_info
+ftrack\_framework\_core.constants.asset.asset_info
 ----------------------------------------------------
 
 .. automodule:: ftrack_framework_core.asset.asset_info
@@ -14,7 +14,7 @@ ftrack\_connect\_pipeline.constants.asset.asset_info
     :undoc-members:
     :show-inheritance:
 
-ftrack\_connect\_pipeline.constants.asset.dcc_object
+ftrack\_framework\_core.constants.asset.dcc_object
 ----------------------------------------------------
 
 .. automodule:: ftrack_framework_core.asset.dcc_object

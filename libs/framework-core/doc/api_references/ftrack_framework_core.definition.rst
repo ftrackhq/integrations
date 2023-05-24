@@ -1,4 +1,4 @@
-ftrack\_connect\_pipeline.definition
+ftrack\_framework\_core.definition
 ============================================
 
 .. automodule:: ftrack_framework_core.definition
@@ -7,7 +7,7 @@ ftrack\_connect\_pipeline.definition
     :show-inheritance:
 
 
-ftrack\_connect\_pipeline.definition.collect
+ftrack\_framework\_core.definition.collect
 ---------------------------------------------------
 
 .. automodule:: ftrack_framework_core.definition.collect
@@ -15,7 +15,7 @@ ftrack\_connect\_pipeline.definition.collect
     :undoc-members:
     :show-inheritance:
 
-ftrack\_connect\_pipeline.definition.validate
+ftrack\_framework\_core.definition.validate
 ----------------------------------------------------
 
 .. automodule:: ftrack_framework_core.definition.validate

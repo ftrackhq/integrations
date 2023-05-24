@@ -1,4 +1,4 @@
-ftrack\_connect\_pipeline.constants.plugin
+ftrack\_framework\_core.constants.plugin
 ==================================================
 
 .. automodule:: ftrack_framework_core.constants.plugin
@@ -7,7 +7,7 @@ ftrack\_connect\_pipeline.constants.plugin
     :show-inheritance:
 
 
-ftrack\_connect\_pipeline.constants.plugin.asset\_manager
+ftrack\_framework\_core.constants.plugin.asset\_manager
 ----------------------------------------------------------------
 
 .. automodule:: ftrack_framework_core.constants.plugin.asset_manager
@@ -15,7 +15,7 @@ ftrack\_connect\_pipeline.constants.plugin.asset\_manager
     :undoc-members:
     :show-inheritance:
 
-ftrack\_connect\_pipeline.constants.plugin.open
+ftrack\_framework\_core.constants.plugin.open
 ------------------------------------------------------
 
 .. automodule:: ftrack_framework_core.constants.plugin.open
@@ -23,7 +23,7 @@ ftrack\_connect\_pipeline.constants.plugin.open
     :undoc-members:
     :show-inheritance:
 
-ftrack\_connect\_pipeline.constants.plugin.load
+ftrack\_framework\_core.constants.plugin.load
 ------------------------------------------------------
 
 .. automodule:: ftrack_framework_core.constants.plugin.load
@@ -31,7 +31,7 @@ ftrack\_connect\_pipeline.constants.plugin.load
     :undoc-members:
     :show-inheritance:
 
-ftrack\_connect\_pipeline.constants.plugin.publish
+ftrack\_framework\_core.constants.plugin.publish
 ---------------------------------------------------------
 
 .. automodule:: ftrack_framework_core.constants.plugin.publish
