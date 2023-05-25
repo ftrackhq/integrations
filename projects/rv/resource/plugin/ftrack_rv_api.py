@@ -20,18 +20,18 @@ import rv.runtime
 import rv as rv
 
 
-ftrack_connect_rv_logger_name = 'ftrack_connect_rv'
+ftrack_rv_logger_name = 'ftrack_rv'
 
 
 
 try:
     import ftrack_logging
-    ftrack_logging.configure_logging(ftrack_connect_rv_logger_name)
+    ftrack_logging.configure_logging(ftrack_rv_logger_name)
     # Setup logging.
 except Exception as error:
     logging.warning('Failed to Initialize logging.', error)
 
-logger = logging.getLogger(ftrack_connect_rv_logger_name)
+logger = logging.getLogger(ftrack_rv_logger_name)
 logger.debug('PY3 Enabled: {}'.format(os.environ.get('RV_PYTHON3', 'NOT SET')))
 logger.debug('Interpreter {}'.format(sys.executable))
 logger.debug('version {}'.format(sys.version_info))

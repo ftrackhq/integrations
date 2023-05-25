@@ -221,7 +221,7 @@ setup(
     license='Apache License (2.0)',
     packages=find_packages(SOURCE_PATH),
     use_scm_version={
-        'write_to': 'source/ftrack_connect_rv/_version.py',
+        'write_to': 'source/ftrack_rv/_version.py',
         'write_to_template': version_template,
         'version_scheme': 'post-release'
     },
@@ -248,7 +248,7 @@ setup(
     },
     data_files=[
         (
-            'ftrack_connect_rv_resource/hook',
+            'ftrack_rv_resource/hook',
             glob.glob(os.path.join(ROOT_PATH, 'resource', 'hook', '*.py'))
         )
     ]

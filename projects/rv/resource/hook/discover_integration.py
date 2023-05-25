@@ -14,7 +14,7 @@ sys.path.append(sources)
 
 def on_discover_rv_integration(session, event):
 
-    from ftrack_connect_rv import __version__ as integration_version
+    from ftrack_rv import __version__ as integration_version
 
     data = {
         'integration': {

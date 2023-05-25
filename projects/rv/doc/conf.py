@@ -49,7 +49,7 @@ exclude_patterns = ['_template']
 
 # A list of prefixes to ignore for module listings.
 modindex_common_prefix = [
-    'ftrack_connect_rv.'
+    'ftrack_rv.'
 ]
 
 # -- HTML output --------------------------------------------------------------
