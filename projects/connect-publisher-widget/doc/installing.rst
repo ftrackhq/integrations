@@ -11,17 +11,17 @@ Installing
 
 Installation is simple with `pip <http://www.pip-installer.org/>`_::
 
-    pip install ftrack-connect-publisher-widget
+    pip install connect-publisher-widget
 
 Building from source
 ====================
 
 You can also build manually from the source for more control. First obtain a
 copy of the source by either downloading the
-`zipball <https://bitbucket.org/ftrack/ftrack-connect-publisher-widget/get/master.zip>`_ or
+`zipball <https://bitbucket.org/ftrack/connect-publisher-widget/get/master.zip>`_ or
 cloning the public repository::
 
-    git clone git@bitbucket.org:ftrack/ftrack-connect-publisher-widget.git
+    git clone git@bitbucket.org:ftrack/connect-publisher-widget.git
 
 Then you can build and install the package into your current Python
 site-packages folder::
@@ -38,7 +38,7 @@ To build the documentation from source::
 
 Then view in your browser::
 
-    file:///path/to/ftrack-connect-publisher-widget/build/doc/html/index.html
+    file:///path/to/connect-publisher-widget/build/doc/html/index.html
 
 Running tests against the source
 --------------------------------

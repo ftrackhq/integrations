@@ -103,7 +103,7 @@ setup(
     description='ftrack connect publisher widget',
     long_description=open(README_PATH).read(),
     keywords='ftrack',
-    url='https://bitbucket.org/ftrack/ftrack-connect-publisher-widget',
+    url='https://github.com/ftrackhq/integrations/projects/connect-publisher-widget',
     author='ftrack',
     author_email='support@ftrack.com',
     license='Apache License (2.0)',
