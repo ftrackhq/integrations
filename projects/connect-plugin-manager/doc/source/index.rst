@@ -5,7 +5,7 @@
 ftrack connect plugin manager
 #############################
 
-Welcome to ftrack-connect-plugin-manager's documentation.
+Welcome to connect-plugin-manager's documentation.
 
 
 Articles

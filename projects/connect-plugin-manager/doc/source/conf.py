@@ -25,7 +25,7 @@ sys.path.append(
 
 
 try:
-    release = get_distribution('ftrack-connect-plugin-manager').version
+    release = get_distribution('connect-plugin-manager').version
     # take major/minor/patch
     VERSION = '.'.join(release.split('.')[:3])
 except DistributionNotFound:
@@ -38,7 +38,7 @@ release = VERSION
 
 # -- Project information -----------------------------------------------------
 
-project = 'ftrack-connect-plugin-manager'
+project = 'connect-plugin-manager'
 copyright = '2022, ftrack'
 author = 'ftrack'
 
@@ -64,7 +64,7 @@ templates_path = ['_templates']
 
 # A list of prefixes to ignore for module listings.
 modindex_common_prefix = [
-    'ftrack-connect-plugin-manager.'
+    'connect-plugin-manager.'
 ]
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
