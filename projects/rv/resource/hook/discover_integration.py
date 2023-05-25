@@ -18,7 +18,7 @@ def on_discover_rv_integration(session, event):
 
     data = {
         'integration': {
-            'name': 'ftrack-connect-rv',
+            'name': 'rv',
             'version': integration_version
         }
     }

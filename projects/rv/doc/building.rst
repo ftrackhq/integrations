@@ -18,10 +18,10 @@ Building plugin
 
 You can build manually from the source for more control. First obtain a
 copy of the source by either downloading the
-`zipball <https://bitbucket.org/ftrack/ftrack-connect-rv/get/master.zip>`_ or
+`zipball <https://bitbucket.org/ftrack/rv/get/master.zip>`_ or
 cloning the public repository::
 
-    git clone git@bitbucket.org:ftrack/ftrack-connect-rv.git
+    git clone git@bitbucket.org:ftrack/rv.git
 
 Build the plugin (Will build the plugin and dependencies in `build/plugin`)::
 
@@ -39,7 +39,7 @@ To build the documentation from source::
 
 Then view in your browser::
 
-    file:///path/to/ftrack-connect-rv/build/doc/html/index.html
+    file:///path/to/rv/build/doc/html/index.html
 
 Running tests against the source
 ================================

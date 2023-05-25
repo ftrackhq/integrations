@@ -20,7 +20,7 @@ release = setuptools_scm.get_version(version_scheme='post-release')
 VERSION = '.'.join(release.split('.')[:2])
 
 
-PLUGIN_NAME = 'ftrack-connect-rv-{0}'
+PLUGIN_NAME = 'ftrack-rv-{0}'
 
 ROOT_PATH = os.path.dirname(
     os.path.realpath(__file__)
@@ -97,7 +97,7 @@ class BuildPlugin(Command):
         )
 
     def _build_release_zip(self):
-        '''Build zip file for ftrack-connect-rv.'''
+        '''Build zip file for ftrack-rv.'''
 
         shutil.make_archive(
             os.path.join(
@@ -211,11 +211,11 @@ __version__ = {version!r}
 
 # Configuration.
 setup(
-    name='ftrack-connect-rv',
+    name='ftrack-rv',
     description='Repository for ftrack connect rv.',
     long_description=open(README_PATH).read(),
     keywords='',
-    url='https://bitbucket.org/ftrack/ftrack-connect-rv',
+    url='https://github.com/ftrackhq/integrations/projects/rv',
     author='ftrack',
     author_email='support@ftrack.com',
     license='Apache License (2.0)',
