@@ -103,7 +103,7 @@ setup(
     description='ftrack connect time tracker widget',
     long_description=open(README_PATH).read(),
     keywords='ftrack',
-    url='https://github.com/ftrackhq/ftrack-connect-timetracker-widget',
+    url='https://github.com/ftrackhq/integrations/projects/connect-timetracker-widget',
     author='ftrack',
     author_email='support@ftrack.com',
     license='Apache License (2.0)',
