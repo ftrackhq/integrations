@@ -1,0 +1,25 @@
+{
+    "context": [null, "Task"],
+    "identifier": "ftrack-connect-launch-cinema-4d",
+    "applicationIdentifier":"cinema-4d_{variant}",
+    "integrations": {
+        "legacy":[
+            "ftrack-connect-cinema-4d"
+        ]
+    },
+    "label": "Cinema 4D",
+    "icon": "cinema_4d",
+    "variant": "{version}",
+    "search_path":{
+        "windows": {
+            "prefix":["C:\\", "Program Files.*"],
+            "expression": ["(?i)(MAXON CINEMA) 4D .+", "(?i)CINEMA 4D.exe"],
+            "version_expression": "(?i)(CINEMA 4D) [R]?(?P<version>[\\d.]+[\\d\\w\\s]*)"
+        },
+        "darwin": {
+            "prefix":["/", "Applications"],
+            "expression": ["(?i)(MAXON CINEMA) 4D .+", "(?i)CINEMA 4D.app"],
+            "version_expression": "(?i)(CINEMA 4D) [R]?(?P<version>[\\d.]+[\\d\\w\\s]*)"
+        }
+    }
+ }

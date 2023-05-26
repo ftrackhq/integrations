@@ -1,0 +1,23 @@
+{
+    "context": ["Task"],
+    "identifier": "ftrack-connect-launch-3dsmax",
+    "applicationIdentifier":"3ds-max_{variant}",
+    "integrations": {
+        "pipeline":[
+            "ftrack-connect-pipeline", 
+            "ftrack-connect-pipeline-qt",
+            "ftrack-connect-pipeline-3dsmax"
+        ]
+    },
+    "label": "3ds Max",
+    "icon": "3ds_max",
+    "variant": "{version}",
+    "search_path":{
+        "windows": {
+            "prefix":["C:\\", "Program Files.*"],
+            "version_expression": "3ds Max (?P<version>[\\d.]+)",
+            "expression":["Autodesk", "3ds Max.+", "^3dsmax.exe$"]
+        }
+    }
+ }
+ 
