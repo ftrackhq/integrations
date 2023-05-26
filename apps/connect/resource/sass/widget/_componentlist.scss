@@ -1,0 +1,14 @@
+QFrame#publisher-componentlist {
+    border: 0;
+}
+
+QFrame#publisher-componentlist QTableWidget {
+    background-color: transparent;
+    border: 0;
+}
+
+QFrame#publisher-componentlist QTableWidget::item {
+    background-color: transparent;
+    border: 0;
+    padding: 0;
+}

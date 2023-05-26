@@ -1,0 +1,6 @@
+include LICENSE.txt
+include README.rst
+include source/ftrack_connect/fonts/*
+exclude source/ftrack_connect/ui/resource.py
+recursive-include resource *.py *.png *.qrc *.txt *.ttf *.scss *.rb *.rst
+recursive-include doc *.rst *.conf *.py *.css *.png
