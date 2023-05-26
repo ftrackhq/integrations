@@ -1,14 +1,14 @@
-# ftrack connect package
+# ftrack connect installer
 
 Meta package that provides support for building platform specific
-bundles of ftrack connect packages.
+bundles of ftrack connect installers.
 
 Clone the public repository:
 
-    $ git clone git@bitbucket.org:ftrack/ftrack-connect-package.git
+    $ git clone git@bitbucket.org:ftrack/ftrack-connect-installer.git
 
 Or download and extract the
-[zipball](https://bitbucket.org/ftrack/ftrack-connect-package/get/master.zip)
+[zipball](https://bitbucket.org/ftrack/ftrack-connect-installer/get/master.zip)
 
 Clone ftrack connect public repository:
 
@@ -25,7 +25,7 @@ If in windows, please create the virtual env using venv.
 
 Install dependencies with:
 
-    $ pip install -r <ftrack-connect-package>/requirements.txt
+    $ pip install -r <ftrack-connect-installer>/requirements.txt
 
 Warning
 
@@ -52,7 +52,7 @@ Install ftrack connect:
 
 Build connect package with (specific build package):
 
-    $ cd <ftrack-connect-package>
+    $ cd <ftrack-connect-installer>
 
 ## Linux
 
@@ -65,11 +65,11 @@ build/exe.linux-x86_64-**\<PYTHON VERSION\>**
 
 To generate the tar.gz run from the build folder:
 
-    $ tar -zcvf ftrack-connect-package-<PACKAGE VERSION>-<PLATFORM>.tar.gz exe.linux-x86_64-3.7 --transform 's/exe.linux-x86_64-3.7/ftrack-connect-package/'
+    $ tar -zcvf ftrack-connect-installer-<PACKAGE VERSION>-<PLATFORM>.tar.gz exe.linux-x86_64-3.7 --transform 's/exe.linux-x86_64-3.7/ftrack-connect-installer/'
 
 Generate the md5 with:
 
-    $ md5sum ftrack-connect-package-<PACKAGE VERSION>-<PLATFORM>.tar.gz > ftrack-connect-package-<PACKAGE VERSION>-<PLATFORM>.tar.gz.md5
+    $ md5sum ftrack-connect-installer-<PACKAGE VERSION>-<PLATFORM>.tar.gz > ftrack-connect-installer-<PACKAGE VERSION>-<PLATFORM>.tar.gz.md5
 
 Note
 
@@ -151,7 +151,7 @@ Execute the following build command and follow the instructions:
 #### Docker
 
 As part of this repository, 3 Dockerfiles are available to sendbox the
-build of ftrack-connect-package.
+build of ftrack-connect-installer.
 
 -   C7.Dockerfile \[centos 7\]
 -   C8.Dockerfile \[centos 8\]

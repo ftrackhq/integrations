@@ -1,7 +1,7 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2015 ftrack
 
-'''ftrack connect package documentation build configuration file.'''
+'''ftrack connect installer documentation build configuration file.'''
 
 import os
 from pkg_resources import get_distribution, DistributionNotFound
@@ -26,12 +26,12 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'ftrack connect package'
+project = u'ftrack connect installer'
 copyright = u'2015, ftrack'
 
 # Read version from source.
 try:
-    release = get_distribution('ftrack-connect-package').version
+    release = get_distribution('ftrack-connect-installer').version
     # take major/minor/patch
     VERSION = '.'.join(release.split('.')[:3])
 except DistributionNotFound:

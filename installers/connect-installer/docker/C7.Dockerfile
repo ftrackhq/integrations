@@ -24,12 +24,12 @@ RUN python setup.py install
 
 # install connect package
 WORKDIR /usr/src/app
-RUN git clone -b master https://bitbucket.org/ftrack/ftrack-connect-package.git
-WORKDIR /usr/src/app/ftrack-connect-package
+RUN git clone -b master https://bitbucket.org/ftrack/ftrack-connect-installer.git
+WORKDIR /usr/src/app/ftrack-connect-installer
 RUN git fetch 
 
 RUN python -m pip install -r requirements.txt
 RUN python setup.py build
 
-WORKDIR /usr/src/app/ftrack-connect-package/build
+WORKDIR /usr/src/app/ftrack-connect-installer/build
 RUN tar -czvf ftrack\ Connect-2.0-C7.tar.gz exe.linux-x86_64-3.6

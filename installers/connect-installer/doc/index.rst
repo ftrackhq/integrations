@@ -2,10 +2,10 @@
     :copyright: Copyright (c) 2014 ftrack
 
 ######################
-ftrack connect package
+ftrack connect installer
 ######################
 
-ftrack connect package is a pre-built bundle of ftrack connect and the most
+ftrack connect installer is a pre-built bundle of ftrack connect and the most
 commonly used ftrack connect plugins.
 
 .. toctree::
