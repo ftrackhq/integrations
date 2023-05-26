@@ -101,13 +101,10 @@ setup(
     license='Apache License (2.0)',
     packages=find_packages(SOURCE_PATH),
     package_dir={'': 'source'},
+    package_data={"": ["{}/**/*.*".format(RESOURCE_PATH)]},
+    version="10.0.12",
     setup_requires=['setuptools>=45.0.0', 'setuptools_scm'],
     tests_require=['pytest >= 2.3.5, < 3'],
-    use_scm_version={
-        'write_to': 'source/ftrack_application_launcher/_version.py',
-        'write_to_template': version_template,
-        'version_scheme': 'post-release',
-    },
     install_requires=[
         'ftrack-python-api >= 2, < 3',
         'ftrack-action-handler',
