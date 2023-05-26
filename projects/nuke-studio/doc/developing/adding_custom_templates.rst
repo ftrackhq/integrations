@@ -19,9 +19,9 @@ be found in the following locations:
 =========    ====================
 Platform     Path
 =========    ====================
-Mac OS X     /Applications/ftrack-connect.app/Contents/MacOS/resource/ftrack_connect_nuke_studio/application_hook
-Windows      C:/\Program Files/\ftrack-connect package/\resource/\ftrack_connect_nuke_studio/\application_hook
-CentOS       <Installation directory>/ftrack-connect-package/resource/ftrack_connect_nuke_studio/application_hook
+Mac OS X     /Applications/ftrack-connect.app/Contents/MacOS/resource/ftrack_nuke_studio/application_hook
+Windows      C:/\Program Files/\ftrack-connect package/\resource/\ftrack_nuke_studio/\application_hook
+CentOS       <Installation directory>/ftrack-connect-package/resource/ftrack_nuke_studio/application_hook
 =========    ====================
 
 If running from source the hooks can be found in **resource/application_hook/**

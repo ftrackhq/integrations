@@ -36,7 +36,7 @@ sources = os.path.realpath(os.path.join(os.path.dirname(__file__), '..', 'source
 sys.path.append(sources)
 
 try:
-    release = get_distribution('ftrack-connect-nuke-studio').version
+    release = get_distribution('nuke-studio').version
     # take major/minor/patch
     VERSION = '.'.join(release.split('.')[:3])
 
@@ -52,7 +52,7 @@ release = VERSION
 exclude_patterns = ['_template']
 
 # A list of prefixes to ignore for module listings
-modindex_common_prefix = ['ftrack_connect_nuke_studio.']
+modindex_common_prefix = ['ftrack_nuke_studio.']
 
 
 # -- HTML output --------------------------------------------------------------
@@ -90,7 +90,7 @@ def autodoc_skip(app, what, name, obj, skip, options):
 
 # Packages / modules to mock so that build does not fail.
 for module in ['ftrack','ftrack_api',
-    'QtExt', 'ftrack_connect', 'ui.widget.html_combobox','ftrack_connect_nuke_studio.resource',
+    'QtExt', 'ftrack_connect', 'ui.widget.html_combobox','ftrack_nuke_studio.resource',
     'ftrack_connect.session', 'lucidity', 'lucidity.error','ftrack_connect.ui','ftrack_connect.ui.widget','ftrack_connect.ui.widget.html_combobox',
     'ftrack_connect','ui.widget.html_combobox', 'libpyside2-python2.7.so.2.0', 'hiero', 'hiero.core', 'hiero.core.FnProcessor', 'hiero.ui',
     'hiero.exporters', 'exporters.FnShotProcessor', 'hiero.exporters.FnShotProcessor', 'hiero.exporters.FnShotProcessorUI','hiero.core.FnExporterBase',

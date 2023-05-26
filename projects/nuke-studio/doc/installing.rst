@@ -29,10 +29,10 @@ Building from source
 
 You can also build manually from the source for more control. First obtain a
 copy of the source by either downloading the
-`zipball <https://bitbucket.org/ftrack/ftrack-connect-nuke-studio/get/master.zip>`_ or
+`zipball <https://bitbucket.org/ftrack/nuke-studio/get/master.zip>`_ or
 cloning the public repository::
 
-    git clone git@bitbucket.org:ftrack/ftrack-connect-nuke-studio.git
+    git clone git@bitbucket.org:ftrack/nuke-studio.git
 
 Then you can build and install the package into your current Python
 site-packages folder::
@@ -50,7 +50,7 @@ To build the documentation from source::
 
 Then view in your browser::
 
-    file:///path/to/ftrack-connect-nuke-studio/build/doc/html/index.html
+    file:///path/to/nuke-studio/build/doc/html/index.html
 
 Running tests against the source
 --------------------------------

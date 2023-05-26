@@ -7,7 +7,7 @@ Submodules
 ftrack\_connect\_nuke\_studio.actions.build\_track module
 ---------------------------------------------------------
 
-.. automodule:: ftrack_connect_nuke_studio.actions.build_track
+.. automodule:: ftrack_nuke_studio.actions.build_track
     :members:
     :undoc-members:
     :show-inheritance:
@@ -16,7 +16,7 @@ ftrack\_connect\_nuke\_studio.actions.build\_track module
 Module contents
 ---------------
 
-.. automodule:: ftrack_connect_nuke_studio.actions
+.. automodule:: ftrack_nuke_studio.actions
     :members:
     :undoc-members:
     :show-inheritance:

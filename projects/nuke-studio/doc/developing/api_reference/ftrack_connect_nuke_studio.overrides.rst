@@ -7,7 +7,7 @@ Submodules
 ftrack\_connect\_nuke\_studio.overrides.version\_scanner module
 ---------------------------------------------------------------
 
-.. automodule:: ftrack_connect_nuke_studio.overrides.version_scanner
+.. automodule:: ftrack_nuke_studio.overrides.version_scanner
     :members:
     :undoc-members:
     :show-inheritance:
@@ -16,7 +16,7 @@ ftrack\_connect\_nuke\_studio.overrides.version\_scanner module
 Module contents
 ---------------
 
-.. automodule:: ftrack_connect_nuke_studio.overrides
+.. automodule:: ftrack_nuke_studio.overrides
     :members:
     :undoc-members:
     :show-inheritance:
