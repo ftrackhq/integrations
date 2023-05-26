@@ -93,12 +93,14 @@ setup(
     description='Base Class for handling application startup.',
     long_description=open(README_PATH).read(),
     keywords='ftrack',
-    url='https://bitbucket.org/ftrack-integrations/ftrack-connect-plugin-manager',
+    url='https://github.com/ftrackhq/integrations/projects/connect-plugin-manager',
     author='ftrack',
     author_email='support@ftrack.com',
     license='Apache License (2.0)',
     packages=find_packages(SOURCE_PATH),
     package_dir={'': 'source'},
+    package_data={"": ["{}/**/*.*".format(RESOURCE_PATH)]},
+    version="0.1.6",
     setup_requires=[
         'sphinx >= 1.8.5, < 4',
         'sphinx_rtd_theme >= 0.1.6, < 2',
@@ -108,11 +110,6 @@ setup(
         'packaging'
     ],
     tests_require=['pytest >= 2.3.5, < 3'],
-    use_scm_version={
-        'write_to': 'source/ftrack_connect_plugin_manager/_version.py',
-        'write_to_template': version_template,
-        'version_scheme': 'post-release'
-    },
     classifiers=[
         'License :: OSI Approved :: Apache Software License',
         'Intended Audience :: Developers',
