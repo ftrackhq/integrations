@@ -27,7 +27,7 @@ sys.path.append(
 
 
 try:
-    release = get_distribution('ftrack-application-launcher').version
+    release = get_distribution('application-launcher').version
     # take major/minor/patch
     VERSION = '.'.join(release.split('.')[:3])
 except DistributionNotFound:
@@ -40,7 +40,7 @@ release = VERSION
 
 # -- Project information -----------------------------------------------------
 
-project = 'ftrack-application-launcher'
+project = 'application-launcher'
 copyright = '2021, ftrack'
 author = 'ftrack'
 
@@ -65,7 +65,7 @@ extensions = [
 templates_path = ['_templates']
 
 # A list of prefixes to ignore for module listings.
-modindex_common_prefix = ['ftrack-application-launcher.']
+modindex_common_prefix = ['application-launcher.']
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
 # This pattern also affects html_static_path and html_extra_path.
