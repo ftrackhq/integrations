@@ -103,19 +103,14 @@ setup(
     description='ftrack connect time tracker widget',
     long_description=open(README_PATH).read(),
     keywords='ftrack',
-    url='https://github.com/ftrackhq/ftrack-connect-timetracker-widget',
+    url='https://github.com/ftrackhq/integrations/projects/connect-timetracker-widget',
     author='ftrack',
     author_email='support@ftrack.com',
     license='Apache License (2.0)',
     packages=find_packages(SOURCE_PATH),
-    package_dir={
-        '': 'source'
-    },
-    use_scm_version={
-        'write_to': os.path.join('source','ftrack_connect_timetracker_widget','_version.py'),
-        'write_to_template': version_template,
-        'version_scheme': 'post-release'
-    },
+    package_dir={'': 'source'},
+    package_data={"": ["{}/**/*.*".format(RESOURCE_PATH)]},
+    version="0.5.1",
     setup_requires=[
         'sphinx >= 1.8.5, < 4',
         'sphinx_rtd_theme >= 0.1.6, < 2',

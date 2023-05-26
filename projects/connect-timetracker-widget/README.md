@@ -1,4 +1,4 @@
-# ftrack-connect-timetracker-widget
+# connect-timetracker-widget
 time tracker widget for connect
 
 
