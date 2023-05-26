@@ -45,7 +45,7 @@ class BuildPlugin(setuptools.Command):
         VERSION = '.'.join(release.split('.')[:3])
         global STAGING_PATH
         STAGING_PATH = os.path.join(
-            BUILD_PATH, 'framework-maya-{}'.format(VERSION)
+            BUILD_PATH, 'ftrack-framework-maya-{}'.format(VERSION)
         )
 
         '''Run the build step.'''
@@ -76,7 +76,7 @@ class BuildPlugin(setuptools.Command):
 
         shutil.make_archive(
             os.path.join(
-                BUILD_PATH, 'framework-maya-{0}'.format(VERSION)
+                BUILD_PATH, 'ftrack-framework-maya-{0}'.format(VERSION)
             ),
             'zip',
             STAGING_PATH,
@@ -110,7 +110,7 @@ __version__ = {version!r}
 
 # Configuration.
 setup(
-    name='framework-maya',
+    name='ftrack-framework-maya',
     description='A dialog to publish package from Maya to ftrack',
     long_description=open(README_PATH).read(),
     keywords='ftrack',
