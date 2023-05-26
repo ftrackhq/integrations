@@ -39,7 +39,7 @@ project = u'ftrack connect action launcher widget'
 copyright = u'2022, ftrack'
 
 try:
-    release = get_distribution('ftrack-connect-action-launcher-widget').version
+    release = get_distribution('connect-action-launcher-widget').version
     # take major/minor/patch
     VERSION = '.'.join(release.split('.')[:3])
 except DistributionNotFound:
