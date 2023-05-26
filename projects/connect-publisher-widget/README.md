@@ -6,4 +6,4 @@ ftrack connect publisher widget
 
 Full documentation, including installation and setup guides, can be
 found at
-<http://ftrack-connect-publisher-widget.rtd.ftrack.com/en/stable/>
+<http://connect-publisher-widget.rtd.ftrack.com/en/stable/>
