@@ -14,6 +14,5 @@ The Connect pipeline :term:`Framework` is divided into two four layers:
     :caption: Layers:
 
     core
-    definition
     ui
     dcc

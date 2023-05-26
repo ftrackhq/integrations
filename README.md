@@ -45,8 +45,8 @@ Example on how to build the Maya DCC Connect plugin:
 ```bash
 ./pants package projects/framework-maya
 cd dist
-tar -xzvf ftrack-framework-maya-1.2.3.tar.gz
-cd ftrack-framework-maya-1.2.3
+tar -xzvf framework-maya-1.2.3.tar.gz
+cd framework-maya-1.2.3
 # Create and activate a Python 3.7 virtual environment
 
 # For Poetry, first add <path to repo>/tools to your PATH

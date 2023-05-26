@@ -7,19 +7,7 @@
 Download
 ********
 
-.. highlight:: bash
+The Framework is 100% open source and accessible on GitHub through the
+integrations monorepo::
 
-The Framework is 100% open source and accessible on GitHub.
-
-Git clone base repositories::
-
-    git clone ftrackhq/framework-core
-    git clone ftrackhq/ftrack-connect-pipeline-definition
-    git clone ftrackhq/ftrack-connect-pipeline-qt
-
-
-Clone a DCC repository::
-
-    git clone ftrackhq/ftrack-connect-pipeline-maya
-
-
+    git clone ftrackhq/integrations

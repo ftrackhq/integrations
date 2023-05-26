@@ -7,7 +7,7 @@
 Introduction
 ************
 
-The ftrack pipeline Framework allows you to publish, load and manage assets from
+The ftrack DCC Framework allows you to publish, load and manage assets from
 a consistent set of api and interface to streamline the production process.
 
 

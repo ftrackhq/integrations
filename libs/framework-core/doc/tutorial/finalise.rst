@@ -21,7 +21,7 @@ Save copy of thumbnail image
 As a preparation, we need to have the thumbnail publisher to save a copy to be
 used with the Slack post:
 
-**PIPELINE/ftrack-connect-pipeline-definitions/resource/plugins/maya/python/publisher/exporters/maya_thumbnail_publisher_exporter.py**
+**mypipeline/projects/framework-maya/resource/plugins/python/publisher/exporters/maya_thumbnail_publisher_exporter.py**
 
 ..  code-block:: python
     :linenos:
@@ -43,9 +43,9 @@ used with the Slack post:
 Finaliser
 *********
 
-**PIPELINE/ftrack-connect-pipeline-definitions/resource/plugins/common/python/publisher/finalisers/common_slack_post_publisher_finalizer.py**
+**mypipeline/projects/framework-maya/resource/plugins/python/publisher/finalisers/common_slack_post_publisher_finalizer.py**
 
-.. literalinclude:: /resource/ftrack-connect-pipeline-definition/resource/plugins/common/python/publisher/finalisers/common_slack_publisher_post_finalizer.py
+.. literalinclude:: /resource/framework-maya/resource/plugins/python/publisher/finalisers/common_slack_publisher_post_finalizer.py
     :language: python
     :linenos:
     :emphasize-lines: 18,45-48,54-57,66-71
@@ -65,7 +65,7 @@ Add Slack finaliser to publishers
 
 Finally we augment the publishers that we wish to use.
 
-**PIPELINE/ftrack-connect-pipeline-definition/resource/definitions/publisher/maya/geometry-maya-publish.json**
+**mypipeline/projects/framework-maya/resource/definitions/publisher/geometry-maya-publish.json**
 
 ..  code-block:: json
     :linenos:
@@ -125,53 +125,33 @@ Add Slack library
 To be able to use the Slack Python API, we need to add it to our Framework build.
 We do that by adding the dependency to setup.py:
 
-**ftrack-connect-pipeline-definition/setup.py**
+**projects/framework-maya/setup.py**
 
 
 
 ..  code-block:: python
     :linenos:
-    :emphasize-lines: 27,29-31
+    :emphasize-lines: 7,9-11
 
     ..
 
     # Configuration.
     setup(
-        name='ftrack-connect-pipeline-definition',
-        description='Collection of definitions of package and packages.',
-        long_description=open(README_PATH).read(),
-        keywords='ftrack',
-        url='https://bitbucket.org/ftrack/ftrack-connect-pipeline-definition',
-        author='ftrack',
-        author_email='support@ftrack.com',
-        license='Apache License (2.0)',
-        packages=find_packages(SOURCE_PATH),
-        package_dir={'': 'source'},
-        python_requires='<3.10',
-        use_scm_version={
-            'write_to': 'source/ftrack_connect_pipeline_definition/_version.py',
-            'write_to_template': version_template,
-            'version_scheme': 'post-release',
-        },
+        name='ftrack-framework-maya',
+        ..
         setup_requires=[
-            'sphinx >= 1.8.5, < 4',
-            'sphinx_rtd_theme >= 0.1.6, < 2',
-            'lowdown >= 0.1.0, < 2',
-            'setuptools>=44.0.0',
-            'setuptools_scm',
+            ..
             'slackclient'
         ],
         install_requires=[
             'slackclient'
         ],
-        tests_require=['pytest >= 2.3.5, < 3'],
-        cmdclass={'test': PyTest, 'build_plugin': BuildPlugin},
-        zip_safe=False,
+        ..
     )
 
 
 
 ..  important::
 
-    A better approach is to add the dependency to the ``framework-core``
+    A better approach would be to add the dependency to the ``framework-core``
     module where the other pipeline dependencies are defined and built.
