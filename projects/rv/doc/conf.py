@@ -1,7 +1,7 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2015 ftrack
 
-'''ftrack-connect-rv documentation build configuration file.'''
+'''rv documentation build configuration file.'''
 
 import os
 import re
@@ -27,12 +27,12 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'ftrack-connect-rv'
+project = u'rv'
 copyright = u'2021, ftrack'
 
 # Version
 try:
-    release = get_distribution('ftrack-connect-rv').version
+    release = get_distribution('rv').version
     # take major/minor/patch
     VERSION = '.'.join(release.split('.')[:2])
 
@@ -49,7 +49,7 @@ exclude_patterns = ['_template']
 
 # A list of prefixes to ignore for module listings.
 modindex_common_prefix = [
-    'ftrack_connect_rv.'
+    'ftrack_rv.'
 ]
 
 # -- HTML output --------------------------------------------------------------

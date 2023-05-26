@@ -2,7 +2,7 @@
     :copyright: Copyright (c) 2015 ftrack
 
 ###############################
-ftrack-connect-rv
+rv
 ###############################
 
 Welcome to the documentation for ftrack connect RV.

@@ -13,14 +13,9 @@ import fileinput
 
 from setuptools import setup, find_packages, Command
 from setuptools.command.test import test as TestCommand
-from pkg_resources import parse_version
-import setuptools_scm
-
-release = setuptools_scm.get_version(version_scheme='post-release')
-VERSION = '.'.join(release.split('.')[:2])
 
 
-PLUGIN_NAME = 'ftrack-connect-rv-{0}'
+PLUGIN_NAME = 'ftrack-rv-{0}'
 
 ROOT_PATH = os.path.dirname(
     os.path.realpath(__file__)
@@ -53,8 +48,7 @@ STAGING_PATH = os.path.join(
 
 README_PATH = os.path.join(ROOT_PATH, 'README.md')
 
-# Update staging path with the plugin version
-STAGING_PATH = STAGING_PATH.format(VERSION)
+
 
 
 class BuildPlugin(Command):
@@ -97,12 +91,12 @@ class BuildPlugin(Command):
         )
 
     def _build_release_zip(self):
-        '''Build zip file for ftrack-connect-rv.'''
+        '''Build zip file for ftrack-rv.'''
 
         shutil.make_archive(
             os.path.join(
                 BUILD_PATH,
-                PLUGIN_NAME.format(VERSION)
+                PLUGIN_NAME.format(self.VERSION)
             ),
             'zip',
             STAGING_PATH
@@ -118,7 +112,7 @@ class BuildPlugin(Command):
         )
 
         # Strip off patch version from the tool: M.m rather than M.m.p
-        rvpkg_version = '.'.join(VERSION.split('.'))
+        rvpkg_version = '.'.join(self.VERSION.split('.'))
         plugin_name = 'ftrack-{0}'.format(rvpkg_version)
 
         plugin_destination_path = BUILD_PATH
@@ -133,7 +127,7 @@ class BuildPlugin(Command):
         package_file = fileinput.input(package_file_path, inplace=True)
         for line in package_file:
             if '{VERSION}' in line:
-                sys.stdout.write(line.format(VERSION=VERSION))
+                sys.stdout.write(line.format(VERSION=self.VERSION))
             else:
                 sys.stdout.write(line)
 
@@ -159,6 +153,13 @@ class BuildPlugin(Command):
 
     def run(self):
         '''Run the build step.'''
+
+        import setuptools_scm
+
+        release = setuptools_scm.get_version(version_scheme='post-release')
+        self.VERSION = '.'.join(release.split('.')[:2])
+        # Update staging path with the plugin version
+        STAGING_PATH = STAGING_PATH.format(self.VERSION)
 
         # Clean staging path.
         shutil.rmtree(STAGING_PATH, ignore_errors=True)
@@ -211,23 +212,18 @@ __version__ = {version!r}
 
 # Configuration.
 setup(
-    name='ftrack-connect-rv',
+    name='ftrack-rv',
     description='Repository for ftrack connect rv.',
     long_description=open(README_PATH).read(),
     keywords='',
-    url='https://bitbucket.org/ftrack/ftrack-connect-rv',
+    url='https://github.com/ftrackhq/integrations/projects/rv',
     author='ftrack',
     author_email='support@ftrack.com',
     license='Apache License (2.0)',
     packages=find_packages(SOURCE_PATH),
-    use_scm_version={
-        'write_to': 'source/ftrack_connect_rv/_version.py',
-        'write_to_template': version_template,
-        'version_scheme': 'post-release'
-    },
-    package_dir={
-        '': 'source'
-    },
+    package_dir={'': 'source'},
+    package_data={"": ["{}/**/*.*".format(RESOURCE_PATH)]},
+    version="5.0.1",
     setup_requires=[
         'sphinx >= 1.2.2, < 2',
         'sphinx_rtd_theme >= 0.1.6, < 2',
