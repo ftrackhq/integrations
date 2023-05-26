@@ -3,19 +3,16 @@
 
 import os
 import sys
-import re
 import shutil
-from pkg_resources import parse_version, DistributionNotFound, get_distribution
 from distutils.spawn import find_executable
-
-import pip
 
 import subprocess
 
 from setuptools import setup, find_packages, Command
 
 import fileinput
-import setuptools_scm
+
+
 ROOT_PATH = os.path.dirname(os.path.realpath(__file__))
 SOURCE_PATH = os.path.join(ROOT_PATH, 'source')
 README_PATH = os.path.join(ROOT_PATH, 'README.md')
@@ -28,8 +25,6 @@ BUILD_PATH = os.path.join(ROOT_PATH, 'build')
 STAGING_PATH = os.path.join(BUILD_PATH, 'ftrack-nuke-studio-{0}')
 HOOK_PATH = os.path.join(RESOURCE_PATH, 'hook')
 APPLICATION_HOOK_PATH = os.path.join(RESOURCE_PATH, 'application_hook')
-
-release = setuptools_scm.get_version(version_scheme='post-release')
 
 
 # Custom commands.
@@ -112,6 +107,8 @@ class BuildPlugin(Command):
 
     def run(self):
         '''Run the build step.'''
+        import setuptools_scm
+        release = setuptools_scm.get_version(version_scheme='post-release')
         VERSION = '.'.join(release.split('.')[:3])
         global STAGING_PATH
         STAGING_PATH = STAGING_PATH.format(VERSION)
@@ -177,9 +174,9 @@ setup(
     author_email='support@ftrack.com',
     license='Apache License (2.0)',
     packages=find_packages(SOURCE_PATH),
-    package_dir={
-        '': 'source'
-    },
+    package_dir={'': 'source'},
+    package_data={"": ["{}/**/*.*".format(RESOURCE_PATH)]},
+    version="2.5.2",
     setup_requires=[
         'PySide2 >=5, <6',
         'Qt.py >=1.0.0, < 2',
@@ -197,11 +194,6 @@ setup(
         'qt.py >=1.0.0, < 2',
         'ftrack-python-api'
     ],
-    use_scm_version={
-        'write_to': 'source/ftrack_nuke_studio/_version.py',
-        'write_to_template': version_template,
-        'version_scheme': 'post-release'
-    },
     zip_safe=False,
     cmdclass={
         'build_plugin': BuildPlugin,
