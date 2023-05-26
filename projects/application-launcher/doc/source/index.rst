@@ -5,7 +5,7 @@
 ftrack application launcher
 ###########################
 
-Welcome to ftrack-application-launcher's documentation.
+Welcome to application-launcher's documentation.
 
 
 Articles

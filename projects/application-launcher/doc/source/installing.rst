@@ -16,13 +16,13 @@ Building from source
 
 
 To build manually from the source, first obtain a copy of the source by either downloading the
-`zipball <https://bitbucket.org/ftrack/ftrack-application-launcher/get/master.zip>`_ or
+`zipball <https://bitbucket.org/ftrack/application-launcher/get/master.zip>`_ or
 cloning the public repository:
 
 
 .. code-block:: none
 
-    $ git clone git@bitbucket.org:ftrack/ftrack-application-launcher.git
+    $ git clone git@bitbucket.org:ftrack/application-launcher.git
 
 
 Then you can build the plugin with :
@@ -48,7 +48,7 @@ To build the documentation from source:
 
 Then view in your browser::
 
-    file:///path/to/ftrack-application-launcher/build/doc/html/index.html
+    file:///path/to/application-launcher/build/doc/html/index.html
 
 
 Installing
@@ -59,7 +59,7 @@ In order to install, you can either copy the plugin from the build folder or ens
 
 .. note::
 
-    eg: export FTRACK_CONNECT_PLUGIN_PATH=<ftrack-application-launcher_path>/build
+    eg: export FTRACK_CONNECT_PLUGIN_PATH=<application-launcher_path>/build
 
 
 Reporting bugs
