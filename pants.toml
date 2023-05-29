@@ -7,7 +7,7 @@ backend_packages = [
   "pants.backend.build_files.fmt.black"
 ]
 
-pants_ignore = ["/installers/*"]
+pants_ignore = ["/installers/*", "/tools/*"]
 
 [source]
 #marker_filenames = ["setup.py"]
