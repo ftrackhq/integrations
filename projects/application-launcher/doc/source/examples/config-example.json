@@ -1,0 +1,30 @@
+{
+    "priority": 1000,
+    "context": ["Task", "Project"],
+    "identifier": "ftrack-connect-launch-application",
+    "applicationIdentifier":"an-application_{variant}",
+    "label": "An Application",
+    "icon": "an_application",
+    "variant": "{version}",
+    "integrations": {
+        "example":["ftrack-example-integration"]
+    },
+    "search_path":{
+        "linux": {
+            "prefix":["/", "usr","local","Something.*"],
+            "expression":["Something\\d.+"],
+            "version_expression": "Something(?P<version>.*)\\/.+$",
+            "launch_arguments": ["--arguments"]
+        },
+        "windows": {
+            "prefix":["C:\\", "Program Files.*"],
+            "expression":["Something.*", "Something\\d.+.exe"],
+            "version_expression": "(?P<version>[\\d.]+[vabc]+[\\dvabc.]*)",
+            "launch_arguments": ["--arguments"]
+        },
+        "darwin": {
+            "prefix":["/", "Applications"],
+            "expression": ["Something.*", "Something\\d[\\w.]+.app"]
+        }
+    }
+ }

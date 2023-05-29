@@ -1,0 +1,30 @@
+/** Scroll bar */
+QScrollBar:vertical {               
+    border: 0;
+    background: $body-background ;
+    width: 12px;    
+    margin: 0;
+}
+
+QScrollBar::handle:vertical {
+    border: 0;
+    border-radius: 4px;
+    background: $muted-text;
+    margin: 2px;
+}
+
+QScrollBar::add-line:vertical {
+    border: 0;
+    height: 0;
+    background: $border;
+    subcontrol-position: bottom;
+    subcontrol-origin: margin;
+}
+
+QScrollBar::sub-line:vertical {
+    border: 0;
+    height: 0;
+    background: $border;
+    subcontrol-position: top;
+    subcontrol-origin: margin;
+}
