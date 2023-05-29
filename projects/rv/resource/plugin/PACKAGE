@@ -1,0 +1,29 @@
+package: ftrack
+author: ftrack AB
+organization: ftrack AB
+contact: support@ftrack.com
+version: {VERSION}
+url: http://www.ftrack.com
+optional: true
+rv: 7.5.0
+requires: ''
+
+modes:
+  - file: ftrack.mu
+    load: immediate
+files:
+  - file: noserver.html
+    location: SupportFiles/$PACKAGE
+
+  - file: dependencies.zip
+    location: Python
+
+  - file: cacert.pem
+    location: Python
+
+
+description: |
+
+  <h2>ftrack review</h2>
+  <p>ftrack connect review plugin for Tweak software's RV.</p>
+
