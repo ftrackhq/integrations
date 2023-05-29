@@ -45,7 +45,7 @@ runs:
         keep_latest: 0
         delete_tag_pattern: ${{ inputs.tag }} # defaults to ""
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GITHUB_TOKEN: ${{ inputs.token }}
     # Create pre-release
     - name: Create pre-release
       id: create_release
