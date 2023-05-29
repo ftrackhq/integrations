@@ -73,7 +73,7 @@ runs:
       env:
         GITHUB_TOKEN: ${{ inputs.token }}
       with:
-        file: "dist/${{ inputs.package }}-*.zip"
+        file: "dist/ftrack-${{ inputs.package }}-*.zip"
         release_id: ${{ steps.create_release.outputs.id }}
         overwrite: true
         verbose: true
