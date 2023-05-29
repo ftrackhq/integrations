@@ -67,7 +67,7 @@ runs:
         tar -xzvf ftrack-${{ inputs.package }}*.tar.gz
         cd $(ls -d ftrack-${{ inputs.package }}*/|head -n 1)
         python setup.py build_plugin
-        mv dist/*.zip ../
+        mv build/*.zip ../
       shell: bash
     - uses: xresloader/upload-to-github-release@main
       env:

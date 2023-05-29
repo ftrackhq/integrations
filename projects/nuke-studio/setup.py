@@ -13,19 +13,42 @@ from setuptools import setup, find_packages, Command
 
 import fileinput
 
+PLUGIN_NAME = 'ftrack-nuke-studio-{0}'
 
 ROOT_PATH = os.path.dirname(os.path.realpath(__file__))
+
 SOURCE_PATH = os.path.join(ROOT_PATH, 'source')
+
 README_PATH = os.path.join(ROOT_PATH, 'README.md')
+
 RESOURCE_PATH = os.path.join(ROOT_PATH, 'resource')
+
 RESOURCE_TARGET_PATH = os.path.join(
     SOURCE_PATH, 'ftrack_nuke_studio', 'resource.py'
 )
+
 HIERO_PLUGIN_PATH = os.path.join(RESOURCE_PATH, 'plugin')
-BUILD_PATH = os.path.join(ROOT_PATH, 'dist')
-STAGING_PATH = os.path.join(BUILD_PATH, 'ftrack-nuke-studio-{0}')
+
+BUILD_PATH = os.path.join(ROOT_PATH, 'build')
+
 HOOK_PATH = os.path.join(RESOURCE_PATH, 'hook')
+
 APPLICATION_HOOK_PATH = os.path.join(RESOURCE_PATH, 'application_hook')
+
+
+def get_version():
+    '''Read version from _version.py, updated by CI based on monorepo package tag'''
+    version_path = os.path.join(SOURCE_PATH, 'ftrack_nuke_studio', '_version.py')
+    with open(version_path, 'r') as file_handle:
+        for line in file_handle.readlines():
+            if line.find('__version__') > -1:
+                return re.findall(r'\'(.*)\'', line)[0].strip()
+    raise ValueError('Could not find version in {0}'.format(version_path))
+
+
+VERSION = get_version()
+
+STAGING_PATH = os.path.join(BUILD_PATH, PLUGIN_NAME.format(VERSION))
 
 
 # Custom commands.
@@ -108,11 +131,6 @@ class BuildPlugin(Command):
 
     def run(self):
         '''Run the build step.'''
-        import setuptools_scm
-        release = setuptools_scm.get_version(version_scheme='post-release')
-        VERSION = '.'.join(release.split('.')[:3])
-        global STAGING_PATH
-        STAGING_PATH = STAGING_PATH.format(VERSION)
 
         # Clean staging path
         shutil.rmtree(STAGING_PATH, ignore_errors=True)
@@ -148,23 +166,10 @@ class BuildPlugin(Command):
         )
 
         shutil.make_archive(
-            os.path.join(
-                BUILD_PATH,
-                'ftrack-nuke-studio-{0}'.format(VERSION)
-            ),
+            STAGING_PATH,
             'zip',
             STAGING_PATH
         )
-
-
-def get_version():
-    '''Read version from _version.py'''
-    version_path = os.path.join(SOURCE_PATH, 'ftrack_nuke_studio', '_version.py')
-    with open(version_path, 'r') as file_handle:
-        for line in file_handle.readlines():
-            if line.find('__version__') > -1:
-                return re.findall(r'\'(.*)\'', line)[0].strip()
-    raise ValueError('Could not find version in {0}'.format(version_path))
 
 
 # Call main setup.
@@ -180,15 +185,14 @@ setup(
     packages=find_packages(SOURCE_PATH),
     package_dir={'': 'source'},
     package_data={"": ["{}/**/*.*".format(RESOURCE_PATH)]},
-    version=get_version(),
+    version=VERSION,
     setup_requires=[
         'PySide2 >=5, <6',
         'Qt.py >=1.0.0, < 2',
         'sphinx >= 1.8.5, < 4',
         'sphinx_rtd_theme >= 0.1.6, < 1',
         'lowdown >= 0.1.0, < 1',
-        'setuptools>=45.0.0',
-        'setuptools_scm'
+        'setuptools>=45.0.0'
     ],
     install_requires=[
         'clique==1.6.1',

@@ -1,5 +1,5 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2015 ftrack
+# :copyright: Copyright (c) 20152-2023 ftrack
 
 import os
 import sys
@@ -39,15 +39,28 @@ RVPKG_SOURCE_PATH = os.path.join(
 )
 
 BUILD_PATH = os.path.join(
-    ROOT_PATH, 'build'
-)
-
-STAGING_PATH = os.path.join(
-    BUILD_PATH, PLUGIN_NAME
+    ROOT_PATH, 'dist'
 )
 
 README_PATH = os.path.join(ROOT_PATH, 'README.md')
 
+
+def get_version():
+    '''Read version from _version.py, updated by CI based on monorepo package tag'''
+    version_path = os.path.join(SOURCE_PATH, 'ftrack_rv', '_version.py')
+    with open(version_path, 'r') as file_handle:
+        for line in file_handle.readlines():
+            if line.find('__version__') > -1:
+                return re.findall(r'\'(.*)\'', line)[0].strip()
+    raise ValueError('Could not find version in {0}'.format(version_path))
+
+
+VERSION = get_version()
+
+# Define staging path based on the plugin version
+STAGING_PATH = os.path.join(
+    BUILD_PATH, PLUGIN_NAME.format(VERSION)
+)
 
 
 
@@ -94,10 +107,7 @@ class BuildPlugin(Command):
         '''Build zip file for ftrack-rv.'''
 
         shutil.make_archive(
-            os.path.join(
-                BUILD_PATH,
-                PLUGIN_NAME.format(self.VERSION)
-            ),
+            STAGING_PATH,
             'zip',
             STAGING_PATH
         )
@@ -112,7 +122,7 @@ class BuildPlugin(Command):
         )
 
         # Strip off patch version from the tool: M.m rather than M.m.p
-        rvpkg_version = '.'.join(self.VERSION.split('.'))
+        rvpkg_version = '.'.join(VERSION.split('.'))
         plugin_name = 'ftrack-{0}'.format(rvpkg_version)
 
         plugin_destination_path = BUILD_PATH
@@ -127,7 +137,7 @@ class BuildPlugin(Command):
         package_file = fileinput.input(package_file_path, inplace=True)
         for line in package_file:
             if '{VERSION}' in line:
-                sys.stdout.write(line.format(VERSION=self.VERSION))
+                sys.stdout.write(line.format(VERSION=VERSION))
             else:
                 sys.stdout.write(line)
 
@@ -154,16 +164,8 @@ class BuildPlugin(Command):
     def run(self):
         '''Run the build step.'''
 
-        import setuptools_scm
-
-        release = setuptools_scm.get_version(version_scheme='post-release')
-        self.VERSION = '.'.join(release.split('.')[:2])
-        # Update staging path with the plugin version
-        STAGING_PATH = STAGING_PATH.format(self.VERSION)
-
         # Clean staging path.
         shutil.rmtree(STAGING_PATH, ignore_errors=True)
-
 
         subprocess.check_call(
             [sys.executable, '-m', 'pip', 'install','.','--target',
@@ -201,16 +203,6 @@ class PyTest(TestCommand):
         raise SystemExit(errno)
 
 
-def get_version():
-    '''Read version from _version.py'''
-    version_path = os.path.join(SOURCE_PATH, 'ftrack_rv', '_version.py')
-    with open(version_path, 'r') as file_handle:
-        for line in file_handle.readlines():
-            if line.find('__version__') > -1:
-                return re.findall(r'\'(.*)\'', line)[0].strip()
-    raise ValueError('Could not find version in {0}'.format(version_path))
-
-
 # Configuration.
 setup(
     name='ftrack-rv',
@@ -224,13 +216,12 @@ setup(
     packages=find_packages(SOURCE_PATH),
     package_dir={'': 'source'},
     package_data={"": ["{}/**/*.*".format(RESOURCE_PATH)]},
-    version=get_version(),
+    version=VERSION,
     setup_requires=[
         'sphinx >= 1.2.2, < 2',
         'sphinx_rtd_theme >= 0.1.6, < 2',
         'lowdown >= 0.1.0, < 1',
-        'setuptools>=45.0.0',
-        'setuptools_scm'
+        'setuptools>=45.0.0'
     ],
     install_requires=[
         'ftrack-python-api >= 2, < 3',

@@ -21,7 +21,7 @@ RESOURCE_PATH = os.path.join(ROOT_PATH, 'resource')
 
 HOOK_PATH = os.path.join(ROOT_PATH, 'hook')
 
-BUILD_PATH = os.path.join(ROOT_PATH, 'dist')
+BUILD_PATH = os.path.join(ROOT_PATH, 'build')
 
 
 class BuildPlugin(setuptools.Command):
@@ -100,7 +100,7 @@ class PyTest(TestCommand):
 
 
 def get_version():
-    '''Read version from _version.py'''
+    '''Read version from _version.py, updated by CI based on monorepo package tag'''
     version_path = os.path.join(SOURCE_PATH, 'ftrack_framework_core', '_version.py')
     with open(version_path, 'r') as file_handle:
         for line in file_handle.readlines():
@@ -128,7 +128,6 @@ setup(
         'sphinx_rtd_theme >= 0.1.6, < 2',
         'lowdown >= 0.1.0, < 2',
         'setuptools>=44.0.0',
-        'setuptools_scm',
         'Jinja2<3.1',
     ],
     install_requires=[
