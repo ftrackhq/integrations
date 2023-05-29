@@ -50,6 +50,15 @@ VERSION = get_version()
 
 STAGING_PATH = os.path.join(BUILD_PATH, PLUGIN_NAME.format(VERSION))
 
+SETUP_REQUIRES = [
+    'PySide2 >=5, <6',
+    'Qt.py >=1.0.0, < 2',
+    'sphinx >= 1.8.5, < 4',
+    'sphinx_rtd_theme >= 0.1.6, < 1',
+    'lowdown >= 0.1.0, < 1',
+    'setuptools>=45.0.0'
+]
+
 
 # Custom commands.
 class BuildResources(Command):
@@ -84,6 +93,16 @@ class BuildResources(Command):
 
     def run(self):
         '''Run build.'''
+        # Make sure requirements are installed on GH Actions
+        subprocess.check_call(
+            [
+                sys.executable,
+                '-m',
+                'pip',
+                'install',
+            ]+[entry.replace(" ","") for entry in SETUP_REQUIRES]
+        )
+
         try:
             pyside_rcc_command = 'pyside2-rcc'
             executable = None
@@ -156,9 +175,7 @@ class BuildPlugin(Command):
             os.path.join(STAGING_PATH, 'application_hook')
         )
 
-
         dependencies_path = os.path.join(STAGING_PATH, 'dependencies')
-
 
         subprocess.check_call(
             [sys.executable, '-m', 'pip', 'install','.','--target',
@@ -186,14 +203,7 @@ setup(
     package_dir={'': 'source'},
     package_data={"": ["{}/**/*.*".format(RESOURCE_PATH)]},
     version=VERSION,
-    setup_requires=[
-        'PySide2 >=5, <6',
-        'Qt.py >=1.0.0, < 2',
-        'sphinx >= 1.8.5, < 4',
-        'sphinx_rtd_theme >= 0.1.6, < 1',
-        'lowdown >= 0.1.0, < 1',
-        'setuptools>=45.0.0'
-    ],
+    setup_requires=SETUP_REQUIRES,
     install_requires=[
         'clique==1.6.1',
         'appdirs == 1.4.0',

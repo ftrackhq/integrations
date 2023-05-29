@@ -39,7 +39,7 @@ RVPKG_SOURCE_PATH = os.path.join(
 )
 
 BUILD_PATH = os.path.join(
-    ROOT_PATH, 'dist'
+    ROOT_PATH, 'build'
 )
 
 README_PATH = os.path.join(ROOT_PATH, 'README.md')
@@ -150,6 +150,8 @@ class BuildPlugin(Command):
         )
 
         # prepare zip with rv plugin
+        print('packing rv plugin to {0}'.format(rvpkg_destination_file_path))
+
         zip_name = shutil.make_archive(
             base_name=zip_destination_file_path,
             format='zip',
@@ -168,8 +170,8 @@ class BuildPlugin(Command):
         shutil.rmtree(STAGING_PATH, ignore_errors=True)
 
         subprocess.check_call(
-            [sys.executable, '-m', 'pip', 'install','.','--target',
-            os.path.join(self.rvpkg_staging, 'dependencies')]
+            [sys.executable, '-m', 'pip', 'install', '.', '--target',
+                os.path.join(self.rvpkg_staging, 'dependencies')]
         )
 
         shutil.make_archive(

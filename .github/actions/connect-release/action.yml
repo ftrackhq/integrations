@@ -29,13 +29,24 @@ runs:
       run: |
         git fetch -a -t --force
       shell: bash
+    # Delete previous release and tag
     - uses: ClementTsang/delete-tag-and-release@v0.3.1
       if: ${{ inputs.deleteprevious == 'true' }}
       with:
         delete_release: true # default: false
-        tag_name: ${{ inputs.TAG }} # tag name to delete
+        tag_name: ${{ inputs.tag }} # tag name to delete
       env:
         GITHUB_TOKEN: ${{ inputs.token }}
+    # Failsafe delete previous all releases matching tag pattern
+    - uses: dev-drprasad/delete-older-releases@v0.2
+      if: ${{ inputs.deleteprevious == 'true' }}
+      with:
+        # repo: <owner>/<repoName> # defaults to current repo
+        keep_latest: 0
+        delete_tag_pattern: ${{ inputs.tag }} # defaults to ""
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    # Create pre-release
     - name: Create pre-release
       id: create_release
       uses: actions/create-release@v1
