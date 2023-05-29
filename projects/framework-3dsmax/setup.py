@@ -99,7 +99,7 @@ class PyTest(TestCommand):
 
 def get_version():
     '''Expect version written to source/framework_core/_version.py'''
-    version_path = os.path.join(SOURCE_PATH, 'framework_3dsmax', '_version.py')
+    version_path = os.path.join(SOURCE_PATH, 'ftrack_framework_3dsmax', '_version.py')
     with open(version_path, 'r') as file_handle:
         for line in file_handle.readlines():
             if line.find('__version__') > -1:
