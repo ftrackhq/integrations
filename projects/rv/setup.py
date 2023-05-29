@@ -70,13 +70,14 @@ class BuildPlugin(Command):
     user_options = []
 
     def copytree(self, src, dst, symlinks=False, ignore=None):
+        print('Copying {0} to {1}'.format(src, dst))
         for item in os.listdir(src):
             s = os.path.join(src, item)
             d = os.path.join(dst, item)
             if os.path.isdir(s):
                 shutil.copytree(s, d, symlinks, ignore)
             else:
-                shutil.copy2(s, d)
+               print(shutil.copy2(s, d))
 
     def initialize_options(self):
         '''Initialize options.'''
