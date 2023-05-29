@@ -1,0 +1,30 @@
+{
+    "context": ["Project"],
+    "identifier": "ftrack-connect-launch-hiero",
+    "applicationIdentifier":"hiero_{variant}",
+    "label": "Hiero",
+    "icon": "hiero",
+    "variant": "{version}",
+    "integrations": {
+        "main":["ftrack-connect-nuke-studio"]
+    },
+    "search_path":{
+        "linux": {
+            "prefix":["/", "usr","local","Nuke.*"],
+            "expression":["Nuke\\d.+"],
+            "version_expression": "Nuke(?P<version>.*)\\/.+$",
+            "launch_arguments": ["--hiero"]
+        },
+        "windows": {
+            "prefix":["C:\\", "Program Files.*"],
+            "version_expression": "(?P<version>[\\d.]+[vabc]+[\\dvabc.]*)",
+            "expression":["Nuke.*", "Nuke\\d.+.exe"],
+            "launch_arguments": ["--hiero"]
+        },
+        "darwin": {
+            "prefix":["/", "Applications"],
+            "version_expression": "Nuke(?P<version>.*)\/.+$",
+            "expression": ["Nuke.*", "Hiero\\d[\\w.]+.app"]
+        }
+    }
+ }

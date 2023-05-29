@@ -1,0 +1,28 @@
+{
+    "priority":100,
+    "context": ["Task"],
+    "identifier": "ftrack-connect-launch-unreal",
+    "applicationIdentifier":"unreal_{variant}",
+    "integrations": {
+        "pipeline":[
+            "ftrack-connect-pipeline",
+            "ftrack-connect-pipeline-qt",
+            "ftrack-connect-pipeline-unreal"
+        ]
+    },
+    "label": "Unreal Engine",
+    "icon": "unreal-engine",
+    "variant": "{version}",
+    "search_path":{
+        "windows": {
+            "prefix":["C:\\", "Program Files.*", "Epic Games"],
+            "expression":["UE_.+", "Engine", "Binaries", "Win64", "UnrealEditor.exe"],
+            "version_expression": "(?P<version>[\\d.]+[\\d.]+[\\d.])"
+        },
+        "darwin": {
+            "prefix":["/", "Users", "Shared", "Epic Games"],
+            "expression": ["UE_.+", "Engine", "Binaries", "Mac", "UnrealEditor.app"],
+            "version_expression": "(?P<version>[\\d.]+[\\d.]+[\\d.])"
+        }
+    }
+ }

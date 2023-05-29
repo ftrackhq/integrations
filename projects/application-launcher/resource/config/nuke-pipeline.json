@@ -1,0 +1,33 @@
+{
+    "context": ["Task"],
+    "identifier": "ftrack-connect-launch-nuke",
+    "applicationIdentifier":"nuke_{variant}",
+    "label": "Nuke",
+    "icon": "nuke",
+    "variant": "{version}",
+    "integrations": {
+        "pipeline":[
+            "ftrack-connect-pipeline", 
+            "ftrack-connect-pipeline-qt",
+            "ftrack-connect-pipeline-nuke"
+        ]
+    },
+    "search_path":{
+        "linux": {
+            "prefix":["/", "usr","local","Nuke.*"],
+            "expression":["Nuke\\d.+"],
+            "version_expression": "Nuke(?P<version>.*)\\/.+$"
+        },
+        "windows": {
+            "prefix":["C:\\", "Program Files.*"],
+            "expression":["Nuke.*", "Nuke\\d.+.exe"],
+            "version_expression": "(?P<version>[\\d.]+[vabc]+[\\dvabc.]*)"
+
+        },
+        "darwin": {
+            "prefix":["/", "Applications"],
+            "expression": ["Nuke.*", "Nuke\\d[\\w.]+.app"]
+        }
+    }
+ }
+ 
