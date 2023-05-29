@@ -15,7 +15,7 @@ import subprocess
 ROOT_PATH = os.path.dirname(os.path.realpath(__file__))
 SOURCE_PATH = os.path.join(ROOT_PATH, 'source')
 README_PATH = os.path.join(ROOT_PATH, 'README.md')
-BUILD_PATH = os.path.join(ROOT_PATH, 'build')
+BUILD_PATH = os.path.join(ROOT_PATH, 'dist')
 STAGING_PATH = os.path.join(BUILD_PATH, 'ftrack-connect-timetracker-widget-{}')
 RESOURCE_PATH = os.path.join(ROOT_PATH, 'resource')
 HOOK_PATH = os.path.join(RESOURCE_PATH, 'hook')

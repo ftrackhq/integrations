@@ -31,7 +31,7 @@ DEFINITIONS_PATH = os.path.join(RESOURCE_PATH, 'definitions')
 
 HOOK_PATH = os.path.join(ROOT_PATH, 'hook')
 
-BUILD_PATH = os.path.join(ROOT_PATH, 'build')
+BUILD_PATH = os.path.join(ROOT_PATH, 'dist')
 
 SETUP_REQUIRES = [
     'PySide2 == 5.12.6',

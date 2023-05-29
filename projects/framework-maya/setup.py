@@ -21,7 +21,7 @@ RESOURCE_PATH = os.path.join(ROOT_PATH, 'resource')
 
 HOOK_PATH = os.path.join(ROOT_PATH, 'hook')
 
-BUILD_PATH = os.path.join(ROOT_PATH, 'build')
+BUILD_PATH = os.path.join(ROOT_PATH, 'dist')
 
 
 class BuildPlugin(setuptools.Command):

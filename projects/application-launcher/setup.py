@@ -21,7 +21,7 @@ SOURCE_PATH = os.path.join(ROOT_PATH, 'source')
 
 README_PATH = os.path.join(ROOT_PATH, 'README.md')
 
-BUILD_PATH = os.path.join(ROOT_PATH, 'build')
+BUILD_PATH = os.path.join(ROOT_PATH, 'dist')
 
 STAGING_PATH = os.path.join(BUILD_PATH, PLUGIN_NAME)
 

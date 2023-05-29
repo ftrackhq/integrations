@@ -22,7 +22,7 @@ RESOURCE_TARGET_PATH = os.path.join(
     SOURCE_PATH, 'ftrack_nuke_studio', 'resource.py'
 )
 HIERO_PLUGIN_PATH = os.path.join(RESOURCE_PATH, 'plugin')
-BUILD_PATH = os.path.join(ROOT_PATH, 'build')
+BUILD_PATH = os.path.join(ROOT_PATH, 'dist')
 STAGING_PATH = os.path.join(BUILD_PATH, 'ftrack-nuke-studio-{0}')
 HOOK_PATH = os.path.join(RESOURCE_PATH, 'hook')
 APPLICATION_HOOK_PATH = os.path.join(RESOURCE_PATH, 'application_hook')
