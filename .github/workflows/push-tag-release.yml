@@ -13,6 +13,9 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       changed: ${{ env.CHANGED }}
+      connect_plugin_manager_tag: ${{ env.CONNECT_PLUGIN_MANAGER_TAG }}
+      application_launcher_tag: ${{ env.APPLICATION_LAUNCHER_TAG }}
+      connect_action_launcher_tag: ${{ env.CONNECT_ACTION_LAUNCHER_TAG }}
       framework_core_tag: ${{ env.FRAMEWORK_CORE_TAG }}
       framework_qt_tag: ${{ env.FRAMEWORK_QT_TAG }}
       framework_maya_tag: ${{ env.FRAMEWORK_MAYA_TAG }}
@@ -20,6 +23,9 @@ jobs:
       framework_houdini_tag: ${{ env.FRAMEWORK_HOUDINI_TAG }}
       framework_3dsmax_tag: ${{ env.FRAMEWORK_3DSMAX_TAG }}
       framework_unreal_tag: ${{ env.FRAMEWORK_UNREAL_TAG }}
+      connect_timetracker_widget_tag: ${{ env.CONNECT_TIMETRACKER_WIDGET_TAG }}
+      nuke_studio_tag: ${{ env.NUKE_STUDIO_TAG }}
+      rv_tag: ${{ env.RV_TAG }}
       # Add new packages here
     steps:
       - uses: actions/checkout@v3
@@ -51,7 +57,43 @@ jobs:
           echo "Ref: ${{ github.ref }}"
           echo "CHANGED=$(pants list --changed-since=stabletest | cut -d'/' -f 1-2 | grep -v : | tr '\n' ',')" >> $GITHUB_ENV
 
-      # Core version mgmt
+      # Connect plugin manager version mgmt
+      - name: Get connect plugin manager tag
+        if: ${{ contains(github.ref,'connect-plugin-manager') && contains(env.CHANGED,'connect-plugin-manager') }}
+        run:  | 
+          echo "CONNECT_PLUGIN_MANAGER_TAG=$(git tag | grep 'connect-plugin-manager' | sort | tail -n 1)" >> $GITHUB_ENV
+          echo "CONNECT_PLUGIN_MANAGER_VERSION=$(git tag | grep 'connect-plugin-manager' | sort | tail -n 1 | cut -d/ -f 2-)" >> $GITHUB_ENV
+      - name: Store connect plugin manager version
+        if: ${{ contains(github.ref,'connect-plugin-manager') && contains(env.CHANGED,'connect-plugin-manager') }}
+        run:  | 
+          cd projects/connect-plugin-manager/source/ftrack_connect_plugin_manager
+          echo "__version__ = '${{ env.CONNECT_PLUGIN_MANAGER_VERSION }}'" > _version.py
+
+      # Connect action launcher version mgmt
+      - name: Get connect action launcher tag
+        if: ${{ contains(github.ref,'connect-action-launcher') && contains(env.CHANGED,'connect-action-launcher') }}
+        run:  | 
+          echo "CONNECT_ACTION_LAUNCHER_TAG=$(git tag | grep 'connect-action-launcher' | sort | tail -n 1)" >> $GITHUB_ENV
+          echo "CONNECT_ACTION_LAUNCHER_VERSION=$(git tag | grep 'connect-action-launcher' | sort | tail -n 1 | cut -d/ -f 2-)" >> $GITHUB_ENV
+      - name: Store connect action launcher version
+        if: ${{ contains(github.ref,'connect-action-launcher') && contains(env.CHANGED,'connect-action-launcher') }}
+        run:  | 
+          cd projects/connect-action-launcher/source/ftrack_connect_action_launcher
+          echo "__version__ = '${{ env.CONNECT_ACTION_LAUNCHER_VERSION }}'" > _version.py
+
+      # App launcher version mgmt
+      - name: Get application launcher tag
+        if: ${{ contains(github.ref,'application-launcher') && contains(env.CHANGED,'application-launcher') }}
+        run:  | 
+          echo "APPLICATION_LAUNCHER_TAG=$(git tag | grep 'application-launcher' | sort | tail -n 1)" >> $GITHUB_ENV
+          echo "APPLICATION_LAUNCHER_VERSION=$(git tag | grep 'application-launcher' | sort | tail -n 1 | cut -d/ -f 2-)" >> $GITHUB_ENV
+      - name: Store application launcher version
+        if: ${{ contains(github.ref,'application-launcher') && contains(env.CHANGED,'application-launcher') }}
+        run:  | 
+          cd projects/application-launcher/source/ftrack_connect_launcher
+          echo "__version__ = '${{ env.APPLICATION_LAUNCHER_VERSION }}'" > _version.py
+
+      # Framework Core version mgmt
       - name: Get framework core tag
         if: ${{ contains(github.ref,'framework-core') && contains(env.CHANGED,'framework-core')  }}
         run:  | 
@@ -63,7 +105,7 @@ jobs:
           cd libs/framework-core/source/ftrack_framework_core
           echo "__version__ = '${{ env.FRAMEWORK_CORE_VERSION }}'" > _version.py
 
-      # QT version mgmt
+      # Framework QT version mgmt
       - name: Get framework qt tag
         if: ${{ contains(github.ref,'framework-qt') && contains(env.CHANGED,'framework-qt') }}
         run:  | 
@@ -75,7 +117,7 @@ jobs:
           cd libs/framework-qt/source/ftrack_framework_qt
           echo "__version__ = '${{ env.FRAMEWORK_QT_VERSION }}'" > _version.py
 
-      # Maya version mgmt
+      # Framework Maya version mgmt
       - name: Get framework maya tag
         if: ${{ contains(github.ref,'framework-maya') && contains(env.CHANGED,'framework-maya') }}
         run:  | 
@@ -87,7 +129,7 @@ jobs:
           cd projects/framework-maya/source/ftrack_framework_maya
           echo "__version__ = '${{ env.FRAMEWORK_MAYA_VERSION }}'" > _version.py
 
-      # Nuke version mgmt
+      # Framework Nuke version mgmt
       - name: Get framework nuke tag
         if: ${{ contains(github.ref,'framework-nuke') && contains(env.CHANGED,'framework-nuke') }}
         run:  | 
@@ -99,7 +141,7 @@ jobs:
           cd projects/framework-nuke/source/ftrack_framework_nuke
           echo "__version__ = '${{ env.FRAMEWORK_NUKE_VERSION }}'" > _version.py
 
-      # Houdini version mgmt
+      # Framework Houdini version mgmt
       - name: Get framework houdini tag
         if: ${{ contains(github.ref,'framework-houdini') && contains(env.CHANGED,'framework-houdini') }}
         run:  | 
@@ -111,7 +153,7 @@ jobs:
           cd projects/framework-houdini/source/ftrack_framework_houdini
           echo "__version__ = '${{ env.FRAMEWORK_HOUDINI_VERSION }}'" > _version.py
 
-      # 3dsmax version mgmt
+      # Framework 3dsmax version mgmt
       - name: Get framework 3dsmax tag
         if: ${{ contains(github.ref,'framework-3dsmax') && contains(env.CHANGED,'framework-3dsmax') }}
         run:  | 
@@ -123,7 +165,7 @@ jobs:
           cd projects/framework-3dsmax/source/ftrack_framework_3dsmax
           echo "__version__ = '${{ env.FRAMEWORK_3DSMAX_VERSION }}'" > _version.py
 
-      # Unreal version mgmt
+      # Framework Unreal version mgmt
       - name: Get framework unreal tag
         if: ${{ contains(github.ref,'framework-unreal') && contains(env.CHANGED,'framework-unreal') }}
         run:  | 
@@ -134,6 +176,42 @@ jobs:
         run:  | 
           cd projects/framework-unreal/source/ftrack_framework_unreal
           echo "__version__ = '${{ env.FRAMEWORK_UNREAL_VERSION }}'" > _version.py
+
+      # Connect timetracker widget version mgmt
+      - name: Get connect timetracker widget tag
+        if: ${{ contains(github.ref,'connect-timetracker-widget') && contains(env.CHANGED,'connect-timetracker-widget') }}
+        run:  | 
+          echo "CONNECT_TIMETRACKER_WIDGET_TAG=$(git tag | grep 'connect-timetracker-widget' | sort | tail -n 1)" >> $GITHUB_ENV
+          echo "CONNECT_TIMETRACKER_WIDGET_VERSION=$(git tag | grep 'connect-timetracker-widget' | sort | tail -n 1 | cut -d/ -f 2-)" >> $GITHUB_ENV
+      - name: Store connect timetracker widget version
+        if: ${{ contains(github.ref,'connect-timetracker-widget') && contains(env.CHANGED,'connect-timetracker-widget') }}
+        run:  | 
+          cd projects/connect-timetracker-widget/source/ftrack_connect_timetracker_widget
+          echo "__version__ = '${{ env.CONNECT_TIMETRACKER_WIDGET_VERSION }}'" > _version.py
+
+      # Nuke studio integration version mgmt
+      - name: Get nuke studio integration tag
+        if: ${{ contains(github.ref,'nuke-studio-integration') && contains(env.CHANGED,'nuke-studio-integration') }}
+        run:  | 
+          echo "NUKE_STUDIO_INTEGRATION_TAG=$(git tag | grep 'nuke-studio-integration' | sort | tail -n 1)" >> $GITHUB_ENV
+          echo "NUKE_STUDIO_INTEGRATION_VERSION=$(git tag | grep 'nuke-studio-integration' | sort | tail -n 1 | cut -d/ -f 2-)" >> $GITHUB_ENV
+      - name: Store nuke studio integration version
+        if: ${{ contains(github.ref,'nuke-studio-integration') && contains(env.CHANGED,'nuke-studio-integration') }}
+        run:  | 
+          cd projects/nuke-studio-integration/source/ftrack_nuke_studio_integration
+          echo "__version__ = '${{ env.NUKE_STUDIO_INTEGRATION_VERSION }}'" > _version.py
+
+      # RV integration version mgmt
+      - name: Get rv integration tag
+        if: ${{ contains(github.ref,'rv-integration') && contains(env.CHANGED,'rv-integration') }}
+        run:  | 
+          echo "RV_INTEGRATION_TAG=$(git tag | grep 'rv-integration' | sort | tail -n 1)" >> $GITHUB_ENV
+          echo "RV_INTEGRATION_VERSION=$(git tag | grep 'rv-integration' | sort | tail -n 1 | cut -d/ -f 2-)" >> $GITHUB_ENV
+      - name: Store rv integration version
+        if: ${{ contains(github.ref,'rv-integration') && contains(env.CHANGED,'rv-integration') }}
+        run:  | 
+          cd projects/rv-integration/source/ftrack_rv_integration
+          echo "__version__ = '${{ env.RV_INTEGRATION_VERSION }}'" > _version.py
 
       # Add new packages here
 
@@ -162,6 +240,15 @@ jobs:
     strategy:
       matrix:
         include:
+          - package: connect-plugin-manager
+            tag: ${{ needs.pants-build.outputs.connect_plugin_manager_tag }}
+            os: ubuntu-latest
+          - package: application-launcher
+            tag: ${{ needs.pants-build.outputs.application_launcher_tag }}
+            os: ubuntu-latest
+          - package: connect-action-launcher-widget
+            tag: ${{ needs.pants-build.outputs.connect_action_launcher_widget_tag }}
+            os: ubuntu-latest
           - package: framework-core
             tag: ${{ needs.pants-build.outputs.framework_core_tag }}
             os: ubuntu-latest
@@ -183,7 +270,17 @@ jobs:
           - package: framework-unreal
             tag: ${{ needs.pants-build.outputs.framework_unreal_tag }}
             os: windows-latest
+          - package: connect-timetracker-widget
+            tag: ${{ needs.pants-build.outputs.connect_timetracker_widget_tag }}
+            os: ubuntu-latest
+          - package: nuke-studio
+            tag: ${{ needs.pants-build.outputs.nuke_studio_tag }}
+            os: ubuntu-latest
+          - package: rv
+            tag: ${{ needs.pants-build.outputs.rv_tag }}
+            os: ubuntu-latest
           # Add new packages here
+
     runs-on: ${{ matrix.os }}
     steps:
       - name: Check out repository

@@ -1,5 +1,5 @@
 # Create the v0.0.0-pr<number> pre-release on PR update.
-# Cleans up old tags and releases.
+# Cleans up old tags and releases for the same PR.
 
 name: CI-PR
 
@@ -44,7 +44,7 @@ jobs:
       - name: Determine which packages has changed using Pants
         run: |
           git fetch -a -t --force
-          echo "CHANGED=$(pants list --changed-since=stable | cut -d'/' -f 1-2 | grep -v : | tr '\n' ',')" >> $GITHUB_ENV
+          echo "CHANGED=$(pants list --changed-since=main | cut -d'/' -f 1-2 | grep -v : | uniq | tr '\n' ',')" >> $GITHUB_ENV
       - name: Check BUILD files
         if: false # TODO enable linting with a later task
         run:  |
@@ -68,6 +68,12 @@ jobs:
     strategy:
       matrix:
         include:
+          - package: connect-plugin-manager
+            os: ubuntu-latest
+          - package: application-launcher
+            os: ubuntu-latest
+          - package: connect-action-launcher-widget
+            os: ubuntu-latest
           - package: framework-core
             os: ubuntu-latest
           - package: framework-qt
@@ -82,6 +88,12 @@ jobs:
             os: ubuntu-latest
           - package: framework-unreal
             os: windows-latest
+          - package: connect-timetracker-widget
+            os: ubuntu-latest
+          - package: nuke-studio
+            os: ubuntu-latest
+          - package: rv
+            os: ubuntu-latest
           # Add new packages here
     runs-on: ${{ matrix.os }}
     steps:
