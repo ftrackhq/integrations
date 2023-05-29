@@ -96,6 +96,14 @@ class BuildPlugin(Command):
             STAGING_PATH
         )
 
+def get_version():
+    '''Read version from _version.py'''
+    version_path = os.path.join(SOURCE_PATH, 'ftrack_connect_action_launcher_widget', '_version.py')
+    with open(version_path, 'r') as file_handle:
+        for line in file_handle.readlines():
+            if line.find('__version__') > -1:
+                return re.findall(r'\'(.*)\'', line)[0].strip()
+    raise ValueError('Could not find version in {0}'.format(version_path))
 
 # Configuration.
 setup(
@@ -110,7 +118,7 @@ setup(
     packages=find_packages(SOURCE_PATH),
     package_dir={'': 'source'},
     package_data={"": ["{}/**/*.*".format(RESOURCE_PATH)]},
-    version="0.1.2",
+    version=get_version(),
     setup_requires=[
         'sphinx >= 1.8.5, < 4',
         'sphinx_rtd_theme >= 0.1.6, < 2',

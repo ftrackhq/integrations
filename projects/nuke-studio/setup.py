@@ -4,6 +4,7 @@
 import os
 import sys
 import shutil
+import re
 from distutils.spawn import find_executable
 
 import subprocess
@@ -155,12 +156,15 @@ class BuildPlugin(Command):
             STAGING_PATH
         )
 
-version_template = '''
-# :coding: utf-8
-# :copyright: Copyright (c) 2017-2021 ftrack
 
-__version__ = {version!r}
-'''
+def get_version():
+    '''Read version from _version.py'''
+    version_path = os.path.join(SOURCE_PATH, 'ftrack_nuke_studio', '_version.py')
+    with open(version_path, 'r') as file_handle:
+        for line in file_handle.readlines():
+            if line.find('__version__') > -1:
+                return re.findall(r'\'(.*)\'', line)[0].strip()
+    raise ValueError('Could not find version in {0}'.format(version_path))
 
 
 # Call main setup.
@@ -176,7 +180,7 @@ setup(
     packages=find_packages(SOURCE_PATH),
     package_dir={'': 'source'},
     package_data={"": ["{}/**/*.*".format(RESOURCE_PATH)]},
-    version="2.5.2",
+    version=get_version(),
     setup_requires=[
         'PySide2 >=5, <6',
         'Qt.py >=1.0.0, < 2',

@@ -89,6 +89,15 @@ class BuildPlugin(Command):
         )
 
 
+def get_version():
+    '''Read version from _version.py'''
+    version_path = os.path.join(SOURCE_PATH, 'ftrack_application_launcher', '_version.py')
+    with open(version_path, 'r') as file_handle:
+        for line in file_handle.readlines():
+            if line.find('__version__') > -1:
+                return re.findall(r'\'(.*)\'', line)[0].strip()
+    raise ValueError('Could not find version in {0}'.format(version_path))
+
 # Configuration.
 setup(
     name='ftrack-application-launcher',
@@ -102,7 +111,7 @@ setup(
     packages=find_packages(SOURCE_PATH),
     package_dir={'': 'source'},
     package_data={"": ["{}/**/*.*".format(RESOURCE_PATH)]},
-    version="10.0.12",
+    version=get_version(),
     setup_requires=['setuptools>=45.0.0', 'setuptools_scm'],
     tests_require=['pytest >= 2.3.5, < 3'],
     install_requires=[

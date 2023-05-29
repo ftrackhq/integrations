@@ -97,6 +97,15 @@ class BuildPlugin(Command):
         )
 
 
+def get_version():
+    '''Read version from _version.py'''
+    version_path = os.path.join(SOURCE_PATH, 'ftrack_connect_timetracker_widget', '_version.py')
+    with open(version_path, 'r') as file_handle:
+        for line in file_handle.readlines():
+            if line.find('__version__') > -1:
+                return re.findall(r'\'(.*)\'', line)[0].strip()
+    raise ValueError('Could not find version in {0}'.format(version_path))
+
 # Configuration.
 setup(
     name='ftrack-connect-timetracker-widget',
