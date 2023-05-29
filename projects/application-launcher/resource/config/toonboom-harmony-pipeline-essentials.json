@@ -1,0 +1,30 @@
+{
+    "priority":100,
+    "context": ["Task"],
+    "identifier": "ftrack-connect-launch-toonboom-harmony-pipeline-prototype",
+    "applicationIdentifier":"toonboom-harmony_{variant}",
+    "integrations": {
+        "pipeline":[
+            "ftrack-connect-pipeline",
+            "ftrack-connect-pipeline-qt",
+            "ftrack-connect-pipeline-harmony"
+        ]
+    },
+    "label": "Toon Boom Harmony",
+    "icon": "harmony",
+    "variant": "essentials {version}",
+    "search_path":{
+        "linux": {
+            "prefix":["/", "usr","local","ToonBoomAnimation"],
+            "expression":["harmonyEssentials.*\\", "lnx86_64", "harmonyessentials"]
+        },
+        "windows": {
+            "prefix":["C:\\", "Program Files.*"],
+            "expression":["Toon Boom Animation", "Toon Boom Harmony .*\\ Essentials", "win64", "bin", "HarmonyEssentials.exe"]
+        },
+        "darwin": {
+            "prefix":["/", "Applications"],
+            "expression": ["Toon Boom Harmony*", "Harmony .*\\ Essentials.app"]
+        }
+    }
+ }

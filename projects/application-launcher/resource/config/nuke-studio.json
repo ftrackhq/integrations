@@ -1,0 +1,29 @@
+{
+    "context": ["Project"],
+    "identifier": "ftrack-connect-launch-nuke-studio",
+    "applicationIdentifier":"nuke-studio_{variant}",
+    "label": "Nuke Studio",
+    "icon": "nuke_studio",
+    "variant": "{version}",
+    "integrations": {
+        "legacy":["ftrack-connect-nuke-studio"]
+    },
+    "search_path":{
+        "linux": {
+            "prefix":["/", "usr","local","Nuke.*"],
+            "expression":["Nuke\\d.+"],
+            "version_expression": "Nuke(?P<version>.*)\\/.+$",
+            "launch_arguments": ["--studio"]
+        },
+        "windows": {
+            "prefix":["C:\\", "Program Files.*"],
+            "expression":["Nuke.*", "Nuke\\d.+.exe"],
+            "version_expression": "(?P<version>[\\d.]+[vabc]+[\\dvabc.]*)",
+            "launch_arguments": ["--studio"]
+        },
+        "darwin": {
+            "prefix":["/", "Applications"],
+            "expression": ["Nuke.*", "NukeStudio\\d[\\w.]+.app"]
+        }
+    }
+ }

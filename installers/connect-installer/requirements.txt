@@ -1,0 +1,10 @@
+cx-Freeze==6.9
+PySide2==5.14.1
+cryptography
+requests >= 2, <3
+setuptools>=45.0.0, <64
+certifi>=2022
+setuptools_scm
+wheel
+patchelf
+ftrack-action-handler
