@@ -64,10 +64,10 @@ runs:
     - name: Build Connect plugin
       run: |
         cd dist
-        tar -xzvf ${{ inputs.package }}*.tar.gz
-        cd $(ls -d ${{ inputs.package }}*/|head -n 1)
+        tar -xzvf ftrack-${{ inputs.package }}*.tar.gz
+        cd $(ls -d ftrack-${{ inputs.package }}*/|head -n 1)
         python setup.py build_plugin
-        mv build/*.zip ../
+        mv dist/*.zip ../
       shell: bash
     - uses: xresloader/upload-to-github-release@main
       env:
