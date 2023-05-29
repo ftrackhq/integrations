@@ -7,9 +7,9 @@
     "variant": "{version}",
     "integrations": {
         "pipeline":[
-            "ftrack-connect-pipeline", 
-            "ftrack-connect-pipeline-qt",
-            "ftrack-connect-pipeline-nuke"
+            "ftrack-framework-core",
+            "ftrack-framework-qt",
+            "ftrack-framework-nuke"
         ]
     },
     "search_path":{

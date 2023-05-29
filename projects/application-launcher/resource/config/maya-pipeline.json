@@ -5,9 +5,9 @@
     "applicationIdentifier":"maya_{variant}",
     "integrations": {
         "pipeline":[
-            "ftrack-connect-pipeline",
-            "ftrack-connect-pipeline-qt",
-            "ftrack-connect-pipeline-maya"
+            "ftrack-framework-core",
+            "ftrack-framework-qt",
+            "ftrack-framework-maya"
         ]
     },
     "label": "Maya",
