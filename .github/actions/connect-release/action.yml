@@ -38,7 +38,7 @@ runs:
       env:
         GITHUB_TOKEN: ${{ inputs.token }}
     # Failsafe delete previous all releases matching tag pattern
-    - uses: dev-drprasad/delete-older-releases@v0.2
+    - uses: dev-drprasad/delete-older-releases@v0.2.1
       if: ${{ inputs.deleteprevious == 'true' }}
       with:
         # repo: <owner>/<repoName> # defaults to current repo
