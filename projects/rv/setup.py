@@ -79,7 +79,7 @@ class BuildPlugin(Command):
             else:
                 if not os.path.exists(os.path.dirname(d)):
                     os.makedirs(os.path.dirname(d))
-               print(shutil.copy2(s, d))
+                print(shutil.copy2(s, d))
 
     def initialize_options(self):
         '''Initialize options.'''
