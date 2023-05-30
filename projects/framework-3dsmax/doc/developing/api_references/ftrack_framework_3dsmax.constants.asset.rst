@@ -1,4 +1,4 @@
-ftrack\_connect\_pipeline\_max.constants.asset package
+ftrack\_framework\_max.constants.asset package
 =======================================================
 
 .. automodule:: ftrack_framework_3dsmax.constants.asset

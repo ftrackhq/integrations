@@ -58,6 +58,8 @@ jobs:
         include:
           - package: framework-core
             folder: libs
+          - package: framework-3dsmax
+            folder: projects
     name: Build docs (${{ matrix.package }})
     runs-on: ubuntu-latest
     steps:
