@@ -79,8 +79,8 @@ jobs:
           #TMP  os: ubuntu-latest
           #TMP- package: framework-core
           #TMP  os: ubuntu-latest
-          - package: framework-qt
-            os: ubuntu-latest
+          #TMP- package: framework-qt
+          #TMP  os: ubuntu-latest
           #TMP- package: framework-maya
           #TMP  os: ubuntu-latest
           #TMP- package: framework-nuke
@@ -93,8 +93,8 @@ jobs:
           #TMP  os: windows-latest
           #TMP- package: connect-timetracker-widget
           #TMP  os: ubuntu-latest
-          #- package: nuke-studio
-          #  os: ubuntu-latest
+          - package: nuke-studio
+            os: ubuntu-latest
           #TMP- package: rv
           #TMP  os: ubuntu-latest
           # Add new packages here
