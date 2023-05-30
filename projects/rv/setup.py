@@ -73,10 +73,12 @@ class BuildPlugin(Command):
         print('Copying {0} to {1}'.format(src, dst))
         for item in os.listdir(src):
             s = os.path.join(src, item)
-            d = os.path.join(dst, item)
+            d = os.path.join(dst, item if item != "PACKAGE.yml" else "PACKAGE")
             if os.path.isdir(s):
                 shutil.copytree(s, d, symlinks, ignore)
             else:
+                if not os.path.exists(os.path.dirname(d)):
+                    os.makedirs(os.path.dirname(d))
                print(shutil.copy2(s, d))
 
     def initialize_options(self):
@@ -131,10 +133,10 @@ class BuildPlugin(Command):
         if not os.path.exists(plugin_destination_path):
             os.makedirs(plugin_destination_path)
 
-        if not os.path.exists(os.path.join(self.rvpkg_staging, 'PACKAGE')):
-            raise IOError('no PACKAGE file in {0}'.format(self.rvpkg_staging))
+        if not os.path.exists(os.path.join(self.rvpkg_staging, 'PACKAGE.yml')):
+            raise IOError('no PACKAGE.yml file in {0}'.format(self.rvpkg_staging))
 
-        package_file_path = os.path.join(self.rvpkg_staging, 'PACKAGE')
+        package_file_path = os.path.join(self.rvpkg_staging, 'PACKAGE.yml')
         package_file = fileinput.input(package_file_path, inplace=True)
         for line in package_file:
             if '{VERSION}' in line:
