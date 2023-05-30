@@ -225,7 +225,7 @@ jobs:
           pants lint check ::
       - name: Package all
         run: |
-          pants package ::
+          pants package --python-infer-unowned-dependency-behavior=ignore ::
       - name: Save pants build results to cache
         uses: actions/cache/save@v3
         with:
