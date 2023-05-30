@@ -178,8 +178,9 @@ class BuildPlugin(Command):
 
         dependencies_path = os.path.join(STAGING_PATH, 'dependencies')
 
+        print('Installing dependencies')
         subprocess.check_call(
-            [sys.executable, '-m', 'pip', 'install','.','--target',
+            [sys.executable, '-m', 'pip', 'install', '.', '--target',
             dependencies_path]
         )
 
