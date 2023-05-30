@@ -78,8 +78,8 @@ jobs:
           #TMP  os: ubuntu-latest
           #TMP- package: framework-core
           #TMP  os: ubuntu-latest
-          #TMP- package: framework-qt
-          #TMP  os: ubuntu-latest
+          - package: framework-qt
+            os: ubuntu-latest
           #TMP- package: framework-maya
           #TMP  os: ubuntu-latest
           #TMP- package: framework-nuke

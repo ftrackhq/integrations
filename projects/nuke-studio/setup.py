@@ -53,6 +53,7 @@ STAGING_PATH = os.path.join(BUILD_PATH, PLUGIN_NAME.format(VERSION))
 SETUP_REQUIRES = [
     'PySide2 >=5, <6',
     'Qt.py >=1.0.0, < 2',
+    'pyScss >= 1.2.0, < 2',
     'sphinx >= 1.8.5, < 4',
     'sphinx_rtd_theme >= 0.1.6, < 1',
     'lowdown >= 0.1.0, < 1',
@@ -93,6 +94,7 @@ class BuildResources(Command):
 
     def run(self):
         '''Run build.'''
+
         # Make sure requirements are installed on GH Actions
         print('Installing setup requirements')
         subprocess.check_call(
@@ -101,7 +103,7 @@ class BuildResources(Command):
                 '-m',
                 'pip',
                 'install',
-            ]+[entry.replace(" ","") for entry in SETUP_REQUIRES]
+            ]+[entry.replace(" ", "") for entry in SETUP_REQUIRES]
         )
 
         try:
@@ -170,7 +172,7 @@ class BuildPlugin(Command):
             os.path.join(STAGING_PATH, 'hook')
         )
 
-        # Copy applipcation hooks files
+        # Copy application hooks files
         shutil.copytree(
             APPLICATION_HOOK_PATH,
             os.path.join(STAGING_PATH, 'application_hook')

@@ -112,7 +112,7 @@ class BuildResources(setuptools.Command):
                 '-m',
                 'pip',
                 'install',
-            ]+[entry.replace(" ","") for entry in SETUP_REQUIRES]
+            ]+[entry.replace(" ", "") for entry in SETUP_REQUIRES]
         )
 
         try:
