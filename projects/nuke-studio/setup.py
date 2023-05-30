@@ -94,6 +94,7 @@ class BuildResources(Command):
     def run(self):
         '''Run build.'''
         # Make sure requirements are installed on GH Actions
+        print('Installing setup requirements')
         subprocess.check_call(
             [
                 sys.executable,

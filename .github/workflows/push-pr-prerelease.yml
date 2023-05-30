@@ -3,6 +3,8 @@
 
 name: CI-PR
 
+concurrency: pants_ci
+
 on:
   pull_request:
     types:

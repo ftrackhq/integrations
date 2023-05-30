@@ -4,6 +4,8 @@
 
 name: CI-MERGE
 
+concurrency: pants_ci
+
 on:
   push:
     branches: ["main","backlog/gh-ci-with-setuptools2"]

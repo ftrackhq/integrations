@@ -1,6 +1,9 @@
-# Create public release on tag push.
+# Create public release on tag push, preserves previous releases.
+# Re-tags "stable" to point on HEAD
 
 name: CI-TAG
+
+concurrency: pants_ci
 
 on:
   create:

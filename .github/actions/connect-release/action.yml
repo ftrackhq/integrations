@@ -45,6 +45,7 @@ runs:
         gh release list | sed 's/|/ /' | awk '{print $1, $8}' | grep ${{ inputs.tag }} | while read -r line; do echo Deleting previous release: $line; gh release delete -y "$line"; done
       env:
         GITHUB_TOKEN: ${{ inputs.token }}
+      continue-on-error: true
     # Create pre-release
     - name: Create pre-release
       id: create_release
