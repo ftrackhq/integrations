@@ -4,6 +4,7 @@ on:
     branches:
       - main # Set a branch name to trigger deployment
       - gh-pages # TODO: Remove before release
+      - gh-pages-framework-qt # TODO: Remove before merge to gh-pages
 
 permissions:
   contents: write
