@@ -63,7 +63,6 @@ runs:
           Commit: **${{ github.sha }}**
           
           Please check release notes for more information.
-        draft: true
         prerelease: ${{ inputs.prelease }}
     - name: Restore pants build from cache
       uses: actions/cache/restore@v3
