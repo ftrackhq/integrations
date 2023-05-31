@@ -71,32 +71,32 @@ jobs:
     strategy:
       matrix:
         include:
-          #TMP- package: connect-plugin-manager
-          #TMP  os: ubuntu-latest
-          #TMP- package: application-launcher
-          #TMP  os: ubuntu-latest
-          #TMP- package: connect-action-launcher-widget
-          #TMP  os: ubuntu-latest
-          #TMP- package: framework-core
-          #TMP  os: ubuntu-latest
-          #TMP- package: framework-qt
-          #TMP  os: ubuntu-latest
-          #TMP- package: framework-maya
-          #TMP  os: ubuntu-latest
-          #TMP- package: framework-nuke
-          #TMP  os: ubuntu-latest
-          #TMP- package: framework-houdini
-          #TMP  os: ubuntu-latest
-          #TMP- package: framework-3dsmax
-          #TMP  os: ubuntu-latest
-          #TMP- package: framework-unreal
-          #TMP  os: windows-latest
-          #TMP- package: connect-timetracker-widget
-          #TMP  os: ubuntu-latest
+          - package: connect-plugin-manager
+            os: ubuntu-latest
+          - package: application-launcher
+            os: ubuntu-latest
+          - package: connect-action-launcher-widget
+            os: ubuntu-latest
+          - package: framework-core
+            os: ubuntu-latest
+          - package: framework-qt
+            os: ubuntu-latest
+          - package: framework-maya
+            os: ubuntu-latest
+          - package: framework-nuke
+            os: ubuntu-latest
+          - package: framework-houdini
+            os: ubuntu-latest
+          - package: framework-3dsmax
+            os: ubuntu-latest
+          - package: framework-unreal
+            os: windows-latest
+          - package: connect-timetracker-widget
+            os: ubuntu-latest
           - package: nuke-studio
             os: ubuntu-latest
-          #TMP- package: rv
-          #TMP  os: ubuntu-latest
+          - package: rv
+            os: ubuntu-latest
           # Add new packages here
     runs-on: ${{ matrix.os }}
     steps:
