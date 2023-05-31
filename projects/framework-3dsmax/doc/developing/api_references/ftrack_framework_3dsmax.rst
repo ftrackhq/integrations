@@ -22,7 +22,7 @@ Subpackages
 Submodules
 ----------
 
-ftrack\_framework\_max._version module
+ftrack\_framework\_3dsmax._version module
 -----------------------------------------------
 
 .. automodule:: ftrack_framework_3dsmax._version

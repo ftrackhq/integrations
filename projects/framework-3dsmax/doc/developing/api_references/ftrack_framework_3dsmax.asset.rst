@@ -1,4 +1,4 @@
-ftrack\_framework\_max.asset\_asset package
+ftrack\_framework\_3dsmax.asset\_asset package
 ===========================================================
 
 .. automodule:: ftrack_framework_3dsmax.asset

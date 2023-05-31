@@ -1,4 +1,4 @@
-ftrack\_framework\_max.client package
+ftrack\_framework\_3dsmax.client package
 ==============================================
 
 .. automodule:: ftrack_framework_3dsmax.client
