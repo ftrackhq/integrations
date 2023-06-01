@@ -64,6 +64,7 @@ jobs:
           path: dist
           key: pants-dist-${{github.sha}}
           enableCrossOsArchive: true
+      # TODO: Cleanup closed PR pre-releases here
 
   release:
     needs: pants-build

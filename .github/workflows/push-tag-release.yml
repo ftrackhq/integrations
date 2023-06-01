@@ -55,11 +55,14 @@ jobs:
           # but will cause the cache entry to grow without bound over time.
           # See https://pants.readme.io/docs/using-pants-in-ci for tips on how to periodically clean it up.
           # Alternatively you change gha-cache-key to ignore old caches.
+      - name: Find out which package has been tagged
+        run: |
+          echo "Ref: ${{ github.ref }}"
+          echo "PACKAGE=$(echo ${{ github.ref }} | cut -d/ -f 2-2)" >> $GITHUB_ENV
       - name: Determine which packages has changed using Pants
         run: |
           git fetch -a -t --force
-          echo "Ref: ${{ github.ref }}"
-          echo "CHANGED=$(pants list --changed-since=stabletest | cut -d'/' -f 1-2 | grep -v : | tr '\n' ',')" >> $GITHUB_ENV
+          echo "CHANGED=$(pants list --changed-since=${{ env.PACKAGE }}/stable | cut -d'/' -f 1-2 | grep -v : | tr '\n' ',')" >> $GITHUB_ENV
 
       # Connect plugin manager version mgmt
       - name: Get connect plugin manager tag
