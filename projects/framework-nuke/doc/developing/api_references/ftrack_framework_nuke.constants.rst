@@ -1,4 +1,4 @@
-framework\_nuke.constants package
+ftrack\_framework\_nuke.constants package
 =================================================
 
 .. automodule:: ftrack_framework_nuke.constants

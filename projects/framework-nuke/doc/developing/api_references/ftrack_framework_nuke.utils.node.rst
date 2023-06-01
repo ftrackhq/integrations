@@ -1,7 +1,7 @@
-framework\_nuke.utils.bootstrap package
+ftrack\_framework\_nuke.utils.node package
 =======================================================
 
-.. automodule:: ftrack_framework_nuke.utils.bootstrap
+.. automodule:: ftrack_framework_nuke.utils.node
    :members:
    :undoc-members:
    :show-inheritance:

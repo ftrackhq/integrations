@@ -1,4 +1,4 @@
-framework\_nuke.utils package
+ftrack\_framework\_nuke.utils package
 =============================================
 
 .. automodule:: ftrack_framework_nuke.utils
