@@ -80,14 +80,14 @@ runs:
         tar -xzvf ftrack-${{ inputs.package }}*.tar.gz
         cd $(ls -d ftrack-${{ inputs.package }}*/|head -n 1)
         python setup.py build_plugin
-        mv build/*.zip ../
+        mv -v build/*.zip ../
       shell: bash
     - name: Append suffix
       if: ${{ inputs.suffix != '' }}
       run: |
           cd dist
           PLUGIN_ZIPBALL=`ls -f *.zip`
-          mv $FILE `echo $FILE | sed 's/.zip/-${{ inputs.suffix }}.zip/'`
+          mv $PLUGIN_ZIPBALL `echo $PLUGIN_ZIPBALL | sed 's/.zip/-${{ inputs.suffix }}.zip/'`
       shell: bash
     - uses: xresloader/upload-to-github-release@main
       env:
