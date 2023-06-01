@@ -16,9 +16,12 @@ inputs:
   prerelease:
     required: true
     description: Whether or not this is a pre-release
-  token:
+  aws_key_id:
     required: true
-    description: The GitHub token to use
+    description: The AWS key ID to use
+  aws_secret_access_key:
+    required: true
+    description: The AWS secret access key to use
 runs:
   using: "composite"
   steps:
@@ -106,8 +109,8 @@ runs:
         draft: false
     - uses: shallwefootball/s3-upload-action@master
       with:
-        aws_key_id: ${{ secrets.S3_ACCESS_KEY }}
-        aws_secret_access_key: ${{ secrets.S3_SECRET_ACCESS_KEY}}
+        aws_key_id: ${{ inputs.aws_key_id }}
+        aws_secret_access_key: ${{ inputs.aws_secret_access_key }}
         aws_bucket: ftrack-public-content
         source_dir: "dist/${{ env.PLUGIN_ZIPBALL }}"
         destination_dir: 'ftrack-connect/integrations/'
