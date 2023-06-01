@@ -71,7 +71,8 @@ jobs:
 
       - name: Write version to source
         run:  |
-          cd ${{ env.FOLDER }}/${{ env.PACKAGE }}/source/ftrack_`echo ${{ env.PACKAGE }} | tr - _`)
+          cd ${{ env.FOLDER }}/${{ env.PACKAGE }}/source/ftrack_`echo ${{ env.PACKAGE }} | tr - _`
+          pwd
           echo "__version__ = '${{ env.VERSION }}'" > _version.py
 
       - name: Check BUILD files
