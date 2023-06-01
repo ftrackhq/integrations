@@ -1,10 +1,10 @@
-ftrack\_connect\_nuke\_studio.processors.ftrack\_tasks package
+ftrack\_nuke\_studio.processors.ftrack\_tasks package
 ==============================================================
 
 Submodules
 ----------
 
-ftrack\_connect\_nuke\_studio.processors.ftrack\_tasks.ftrack\_audio\_exporter module
+ftrack\_nuke\_studio.processors.ftrack\_tasks.ftrack\_audio\_exporter module
 -------------------------------------------------------------------------------------
 
 .. automodule:: ftrack_nuke_studio.processors.ftrack_tasks.ftrack_audio_exporter
@@ -12,7 +12,7 @@ ftrack\_connect\_nuke\_studio.processors.ftrack\_tasks.ftrack\_audio\_exporter m
     :undoc-members:
     :show-inheritance:
 
-ftrack\_connect\_nuke\_studio.processors.ftrack\_tasks.ftrack\_edl\_exporter module
+ftrack\_nuke\_studio.processors.ftrack\_tasks.ftrack\_edl\_exporter module
 -----------------------------------------------------------------------------------
 
 .. automodule:: ftrack_nuke_studio.processors.ftrack_tasks.ftrack_edl_exporter
@@ -20,7 +20,7 @@ ftrack\_connect\_nuke\_studio.processors.ftrack\_tasks.ftrack\_edl\_exporter mod
     :undoc-members:
     :show-inheritance:
 
-ftrack\_connect\_nuke\_studio.processors.ftrack\_tasks.ftrack\_nuke\_render\_exporter module
+ftrack\_nuke\_studio.processors.ftrack\_tasks.ftrack\_nuke\_render\_exporter module
 --------------------------------------------------------------------------------------------
 
 .. automodule:: ftrack_nuke_studio.processors.ftrack_tasks.ftrack_nuke_render_exporter
@@ -28,7 +28,7 @@ ftrack\_connect\_nuke\_studio.processors.ftrack\_tasks.ftrack\_nuke\_render\_exp
     :undoc-members:
     :show-inheritance:
 
-ftrack\_connect\_nuke\_studio.processors.ftrack\_tasks.ftrack\_nuke\_shot\_exporter module
+ftrack\_nuke\_studio.processors.ftrack\_tasks.ftrack\_nuke\_shot\_exporter module
 ------------------------------------------------------------------------------------------
 
 .. automodule:: ftrack_nuke_studio.processors.ftrack_tasks.ftrack_nuke_shot_exporter
@@ -36,7 +36,7 @@ ftrack\_connect\_nuke\_studio.processors.ftrack\_tasks.ftrack\_nuke\_shot\_expor
     :undoc-members:
     :show-inheritance:
 
-ftrack\_connect\_nuke\_studio.processors.ftrack\_tasks.ftrack\_reviewable\_exporter module
+ftrack\_nuke\_studio.processors.ftrack\_tasks.ftrack\_reviewable\_exporter module
 ------------------------------------------------------------------------------------------
 
 .. automodule:: ftrack_nuke_studio.processors.ftrack_tasks.ftrack_reviewable_exporter

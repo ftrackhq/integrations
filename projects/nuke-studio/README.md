@@ -2,8 +2,7 @@
 
 ftrack integration with NUKE STUDIO.
 
-## Documentation
+Documentation: [https://ftrackhq.github.io/integrations/projects/nuke-studio/](https://ftrackhq.github.io/integrations/project/nuke-studio/)
 
-Full documentation can be found at
-<https://nuke-studio.readthedocs.io/en/latest/>
+
 

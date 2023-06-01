@@ -1,10 +1,10 @@
-ftrack\_connect\_nuke\_studio.ui.widget package
+ftrack\_nuke\_studio.ui.widget package
 ===============================================
 
 Submodules
 ----------
 
-ftrack\_connect\_nuke\_studio.ui.widget.template module
+ftrack\_nuke\_studio.ui.widget.template module
 -------------------------------------------------------
 
 .. automodule:: ftrack_nuke_studio.ui.widget.template

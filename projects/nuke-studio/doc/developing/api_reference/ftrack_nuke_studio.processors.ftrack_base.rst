@@ -1,10 +1,10 @@
-ftrack\_connect\_nuke\_studio.processors.ftrack\_base package
+ftrack\_nuke\_studio.processors.ftrack\_base package
 =============================================================
 
 Submodules
 ----------
 
-ftrack\_connect\_nuke\_studio.processors.ftrack\_base.ftrack\_base\_processor module
+ftrack\_nuke\_studio.processors.ftrack\_base.ftrack\_base\_processor module
 ------------------------------------------------------------------------------------
 
 .. automodule:: ftrack_nuke_studio.processors.ftrack_base.ftrack_base_processor
@@ -12,7 +12,7 @@ ftrack\_connect\_nuke\_studio.processors.ftrack\_base.ftrack\_base\_processor mo
     :undoc-members:
     :show-inheritance:
 
-ftrack\_connect\_nuke\_studio.processors.ftrack\_base.ftrack\_shot\_processor module
+ftrack\_nuke\_studio.processors.ftrack\_base.ftrack\_shot\_processor module
 ------------------------------------------------------------------------------------
 
 .. automodule:: ftrack_nuke_studio.processors.ftrack_base.ftrack_shot_processor
@@ -20,7 +20,7 @@ ftrack\_connect\_nuke\_studio.processors.ftrack\_base.ftrack\_shot\_processor mo
     :undoc-members:
     :show-inheritance:
 
-ftrack\_connect\_nuke\_studio.processors.ftrack\_base.ftrack\_timeline\_processor module
+ftrack\_nuke\_studio.processors.ftrack\_base.ftrack\_timeline\_processor module
 ----------------------------------------------------------------------------------------
 
 .. automodule:: ftrack_nuke_studio.processors.ftrack_base.ftrack_timeline_processor

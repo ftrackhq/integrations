@@ -1,10 +1,10 @@
-ftrack\_connect\_nuke\_studio.tags package
+ftrack\_nuke\_studio.tags package
 ==========================================
 
 Submodules
 ----------
 
-ftrack\_connect\_nuke\_studio.tags.tag\_drop\_handler module
+ftrack\_nuke\_studio.tags.tag\_drop\_handler module
 ------------------------------------------------------------
 
 .. automodule:: ftrack_nuke_studio.tags.tag_drop_handler
@@ -12,7 +12,7 @@ ftrack\_connect\_nuke\_studio.tags.tag\_drop\_handler module
     :undoc-members:
     :show-inheritance:
 
-ftrack\_connect\_nuke\_studio.tags.tag\_manager module
+ftrack\_nuke\_studio.tags.tag\_manager module
 ------------------------------------------------------
 
 .. automodule:: ftrack_nuke_studio.tags.tag_manager
