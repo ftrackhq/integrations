@@ -36,21 +36,6 @@ jobs:
           force_orphan: true
           exclude_assets: libs,projects,apps
 
-#  probe-packages:
-#    needs: build-index
-#    runs-on: ubuntu-latest
-#    outputs:
-#      changed: ${{ env.CHANGED }}
-#    steps:
-#      - uses: actions/checkout@v3
-#        with:
-#          fetch-depth: 0
-#      - name: Determine which packages needs to have doc built
-#        run: |
-#          git fetch --all
-#          echo "CHANGED=$(git diff --name-only origin/main | cut -d'/' -f 2-2 | uniq | tr '\n' ',')" >> $GITHUB_ENV
-#          echo "Change packages: ${{ env.CHANGED }}"
-
   build-package-docs:
     needs: build-index
     strategy:
