@@ -13,6 +13,7 @@ on:
 
 jobs:
   pants-build:
+    if: false
     name: Build with Pants and probe which packages has changed
     runs-on: ubuntu-latest
     outputs:
@@ -78,30 +79,43 @@ jobs:
         include:
           - package: application-launcher
             os: ubuntu-latest
+            suffix: ''
           - package: connect-action-launcher-widget
             os: ubuntu-latest
+            suffix: ''
           - package: connect-plugin-manager
             os: ubuntu-latest
+            suffix: ''
           - package: framework-core
             os: ubuntu-latest
+            suffix: ''
           - package: framework-qt
             os: ubuntu-latest
+            suffix: ''
           - package: framework-maya
             os: ubuntu-latest
+            suffix: ''
           - package: framework-nuke
             os: ubuntu-latest
+            suffix: ''
           - package: framework-houdini
             os: ubuntu-latest
+            suffix: ''
           - package: framework-3dsmax
             os: ubuntu-latest
+            suffix: ''
           - package: framework-unreal
             os: windows-latest
+            suffix: 'win'
           - package: connect-timetracker-widget
             os: ubuntu-latest
+            suffix: ''
           - package: nuke-studio
             os: ubuntu-latest
+            suffix: ''
           - package: rv
             os: ubuntu-latest
+            suffix: ''
           # Add new packages here
     runs-on: ${{ matrix.os }}
     steps:
@@ -114,6 +128,7 @@ jobs:
         with:
           package: ${{ matrix.package }}
           tag: ${{ matrix.package }}/v0.0.0-latest
+          suffix: ${{ matrix.suffix }}
           deleteprevious: true
           prerelease: true
           token: ${{ secrets.GITHUB_TOKEN }}

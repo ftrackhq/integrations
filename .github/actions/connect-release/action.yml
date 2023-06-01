@@ -7,6 +7,9 @@ inputs:
   tag:
     required: true
     description: The tag to release
+  suffix:
+    required: true
+    description: The suffix to append to the plugin filename
   deleteprevious:
     required: true
     description: Whether or not delete previous release and tag
@@ -78,6 +81,13 @@ runs:
         cd $(ls -d ftrack-${{ inputs.package }}*/|head -n 1)
         python setup.py build_plugin
         mv build/*.zip ../
+      shell: bash
+    - name: Append suffix
+      if: ${{ inputs.suffix != '' }}
+      run: |
+          cd dist
+          PLUGIN_ZIPBALL=`ls -f *.zip`
+          mv $FILE `echo $FILE | sed 's/.zip/-${{ inputs.suffix }}.zip/'`
       shell: bash
     - uses: xresloader/upload-to-github-release@main
       env:

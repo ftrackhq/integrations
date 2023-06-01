@@ -20,6 +20,7 @@ jobs:
       version: ${{ env.VERSION }}
       tag: ${{ env.TAG }}
       os: ${{ env.OS }}
+      suffix: ${{ env.SUFFIX }}
     steps:
       - uses: actions/checkout@v3
         with:
@@ -58,6 +59,7 @@ jobs:
         run:  | 
           echo "FOLDER=projects" >> $GITHUB_ENV
           echo "OS=ubuntu-latest" >> $GITHUB_ENV
+          echo "SUFFIX=" >> $GITHUB_ENV
 
       - name: Override folder
         if: ${{ env.PACKAGE == 'framework-core' || env.PACKAGE == 'framework-qt' }}
@@ -68,6 +70,7 @@ jobs:
         if: ${{ env.PACKAGE == 'framework-unreal' }}
         run:  | 
           echo "OS=windows-latest" >> $GITHUB_ENV
+          echo "SUFFIX=win" >> $GITHUB_ENV
 
       - name: Write version to source
         run:  |
@@ -105,6 +108,7 @@ jobs:
         with:
           package: ${{ needs.pants-build.outputs.package }}
           tag: ${{ needs.pants-build.outputs.tag }}
+          suffix: ${{ needs.pants-build.outputs.suffix }}
           deleteprevious: false
           prerelease: false
           token: ${{ secrets.GITHUB_TOKEN }}
@@ -126,6 +130,7 @@ jobs:
         with:
           package: ${{ needs.pants-build.outputs.package }}
           tag: ${{ needs.pants-build.outputs.package }}/v0.0.0-latest
+          suffix: ${{ needs.pants-build.outputs.suffix }}
           deleteprevious: true
           prerelease: true
           token: ${{ secrets.GITHUB_TOKEN }}
