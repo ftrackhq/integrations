@@ -112,7 +112,7 @@ jobs:
 
   # Align latest tag to the latest release tag
   align-latest:
-    needs: release
+    needs: pants-build
     runs-on: ${{ needs.pants-build.outputs.os }}
     steps:
       - name: Check out repository
