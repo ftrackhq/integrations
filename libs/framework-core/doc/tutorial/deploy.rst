@@ -31,7 +31,7 @@ We build the integration using this virtual env::
     $ python setup.py build_plugin
 
 
-The built Connect plugin will end up in the ``dist/`` folder.
+The built Connect plugin will end up in the ``build/`` folder.
 
 
 Install the integrations on another machine

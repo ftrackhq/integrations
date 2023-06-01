@@ -47,11 +47,6 @@ cd dist
 tar -xzvf framework-maya-1.2.3.tar.gz
 cd framework-maya-1.2.3
 # Create and activate a Python 3.7 virtual environment
-
-# For Poetry, first add <path to repo>/tools to your PATH
-python build.py build_plugin
-
-# Setuptools:
 python setup.py build_plugin
 ```
 
@@ -102,9 +97,9 @@ The framework package group contains the DCC integrations and is divided into li
 | [framework-nuke](projects/framework-nuke)       | projects/framework-nuke    | Nuke DCC integration          |
 | [framework-houdini](projects/framework-houdini) | projects/framework-houdini | Houdini DCC integration       |
 | [framework-3dsmax](projects/framework-3dsmax)   | projects/framework-3dsmax  | 3d Studio Max DCC integration |
-| [framework-unreal](projects/framework-unreal)   | projects/framework-maya    | Unreal Engine DCC integration |
+| [framework-unreal](projects/framework-unreal)   | projects/framework-unreal  | Unreal Engine DCC integration |
 
-### Integrations
+### Standalone integrations
 
 | Package                             | Path                 | Description             |
 |-------------------------------------|----------------------|-------------------------|
@@ -112,14 +107,14 @@ The framework package group contains the DCC integrations and is divided into li
 | [nuke-studio](projects/nuke-studio) | projects/nuke-studio | Nuke Studio integration |
 
 
-### Publisher
+### Connect publisher
 
 | Package                                                                   | Path                                    | Description                                |
 |---------------------------------------------------------------------------|-----------------------------------------|--------------------------------------------|
 | [connect-publisher-widget](projects/connect-publisher-widget)             | projects/connect-publisher-widget       | The standalone publisher widget in Connect |
 
 
-### Other
+### Tools
 
 | Package                                                | Path                           | Description                                                |
 |--------------------------------------------------------|--------------------------------|------------------------------------------------------------|
