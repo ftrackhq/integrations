@@ -87,7 +87,7 @@ runs:
       shell: bash
     - name: Retreive zipball filename
       run: |
-        cd dist`
+        cd dist
         echo "PLUGIN_ZIPBALL=$(ls -f *.zip)" >> $GITHUB_ENV
       shell: bash
     - name: Append suffix
@@ -107,7 +107,8 @@ runs:
         overwrite: true
         verbose: true
         draft: false
-    - name: Upload artifact to S3
+    #  Upload artifact to S3 making it available via download.ftrack.com (caching disabled for *0.0.0*.zip)
+    - name: S3 upload
       run: |
         aws s3 cp dist/${{ env.PLUGIN_ZIPBALL }} s3://ftrack-public-content/ftrack-connect/integrations/
       env:
