@@ -94,8 +94,8 @@ runs:
       if: ${{ inputs.suffix != '' }}
       run: |
         cd dist
-        PLUGIN_ZIPBALL_PLATFORM=$(echo ${{ env.PLUGIN_ZIPBALL }} | sed 's/.zip//')
-        mv ${{ env.PLUGIN_ZIPBALL }} PLUGIN_ZIPBALL_PLATFORM
+        PLUGIN_ZIPBALL_PLATFORM=$(echo ${{ env.PLUGIN_ZIPBALL }} | sed 's/.zip/-${{ inputs.suffix }}.zip/')
+        mv ${{ env.PLUGIN_ZIPBALL }} $PLUGIN_ZIPBALL_PLATFORM
         echo "PLUGIN_ZIPBALL=$PLUGIN_ZIPBALL_PLATFORM" >> $GITHUB_ENV
       shell: bash
     - uses: xresloader/upload-to-github-release@main
@@ -107,7 +107,7 @@ runs:
         overwrite: true
         verbose: true
         draft: false
-    - uses: shallwefootball/s3-upload-action@master
+    - uses: shallwefootball/s3-upload-action@main
       with:
         aws_key_id: ${{ inputs.aws_key_id }}
         aws_secret_access_key: ${{ inputs.aws_secret_access_key }}
