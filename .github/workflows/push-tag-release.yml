@@ -9,7 +9,7 @@ concurrency: pants_ci
 on:
   create:
     tags:
-      - '(.*\/.*)' # Only trigger on tags having a slash within, ignore other tags
+      - '(.*\/v.*)' # Only trigger on tags having a slash within, ignore other tags
 
 jobs:
   pants-build:
