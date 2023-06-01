@@ -1,4 +1,4 @@
-framework\_maya.host.engine package
+ftrack\_framework\_maya.host.engine package
 ===================================================
 
 .. automodule:: ftrack_framework_maya.host.engine

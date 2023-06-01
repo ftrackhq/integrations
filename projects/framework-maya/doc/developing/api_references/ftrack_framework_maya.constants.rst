@@ -1,4 +1,4 @@
-framework\_maya.constants package
+ftrack\_framework\_maya.constants package
 =================================================
 
 .. automodule:: ftrack_framework_maya.constants

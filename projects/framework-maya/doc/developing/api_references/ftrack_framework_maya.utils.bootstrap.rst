@@ -1,4 +1,4 @@
-framework\_maya.utils.bootstrap package
+ftrack\_framework\_maya.utils.bootstrap package
 =======================================================
 
 .. automodule:: ftrack_framework_maya.utils.bootstrap

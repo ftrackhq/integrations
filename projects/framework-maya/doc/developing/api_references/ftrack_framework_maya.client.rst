@@ -1,4 +1,4 @@
-framework\_maya.client package
+ftrack\_framework\_maya.client package
 ==============================================
 
 .. automodule:: ftrack_framework_maya.client

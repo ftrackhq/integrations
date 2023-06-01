@@ -1,4 +1,4 @@
-framework\_maya package
+ftrack\_framework\_maya package
 =======================================
 
 .. automodule:: ftrack_framework_maya
@@ -22,7 +22,7 @@ Subpackages
 Submodules
 ----------
 
-framework\_maya._version module
+ftrack\_framework\_maya._version module
 -----------------------------------------------
 
 .. automodule:: ftrack_framework_maya._version
