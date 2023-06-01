@@ -64,7 +64,12 @@ jobs:
           path: dist
           key: pants-dist-${{github.sha}}
           enableCrossOsArchive: true
-      # TODO: Cleanup closed PR pre-releases here
+      - name: Delete releases on closed PR:s
+        shell: bash
+        run: |
+          export PR_RELEASES=`gh release list --limit 1000 | grep "\-pr"`
+          for NUMBER in `gh pr list --state closed | cut -f 1-1`; do export MATCHING_RELEASES=`echo "$PR_RELEASES" | grep "pr${NUMBER}"`; if [ ! -z "$MATCHING_RELEASES" ]; then for RELEASE in $MATCHING_RELEASES; do echo Delete closed release and tag: $RELEASE; gh release delete -y $RELEASE; tag push origin --delete $RELEASE; done ; fi ; done
+        continue-on-error: true
 
   release:
     needs: pants-build
