@@ -1,4 +1,4 @@
-ftrack\_connect\_pipeline\_unreal.host package
+ftrack\_framework\_unreal.host package
 ======================================================
 
 .. automodule:: ftrack_framework_unreal.host

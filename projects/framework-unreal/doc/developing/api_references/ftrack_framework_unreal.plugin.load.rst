@@ -1,7 +1,7 @@
-ftrack\_connect\_pipeline\_unreal.host.engine package
+ftrack\_framework\_unreal.plugin.load package
 =============================================================
 
-.. automodule:: ftrack_framework_unreal.host.engine
+.. automodule:: ftrack_framework_unreal.plugin.load
    :members:
    :undoc-members:
    :show-inheritance:

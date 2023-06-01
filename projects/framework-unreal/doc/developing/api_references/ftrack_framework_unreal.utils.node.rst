@@ -1,7 +1,7 @@
-ftrack\_connect\_pipeline\_unreal.utils.file package
+ftrack\_framework\_unreal.utils.node package
 =======================================================
 
-.. automodule:: ftrack_framework_unreal.utils.file
+.. automodule:: ftrack_framework_unreal.utils.node
    :members:
    :undoc-members:
    :show-inheritance:

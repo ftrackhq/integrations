@@ -1,4 +1,4 @@
-ftrack\_connect\_pipeline\_unreal.plugin.publish package
+ftrack\_framework\_unreal.plugin.publish package
 ================================================================
 
 .. automodule:: ftrack_framework_unreal.plugin.publish
