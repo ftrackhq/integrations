@@ -107,12 +107,13 @@ runs:
         overwrite: true
         verbose: true
         draft: false
-    - uses: shallwefootball/s3-upload-action@master
-      with:
-        aws_key_id: ${{ inputs.aws_key_id }}
-        aws_secret_access_key: ${{ inputs.aws_secret_access_key }}
-        aws_bucket: ftrack-public-content
-        source_dir: "dist/${{ env.PLUGIN_ZIPBALL }}"
-        destination_dir: 'ftrack-connect/integrations/'
+    - name: Upload artifact to S3
+      run: |
+        aws s3 cp dist/${{ env.PLUGIN_ZIPBALL }} s3://ftrack-public-content/ftrack-connect/integrations/
+      env:
+        AWS_ACCESS_KEY_ID: ${{ inputs.aws_key_id }}
+        AWS_SECRET_ACCESS_KEY: ${{ sinputs.aws_secret_access_key }}
+        #AWS_DEFAULT_REGION: 'ap-south-1'
+      shell: bash
 
 
