@@ -47,7 +47,7 @@ Run::
 
     python setup.py build_plugin
 
-This will produce output into the /dist subfolder, repeat this step for each
+This will produce output into the /build subfolder, repeat this step for each
 Framework plugin (libs/framework-qt, projects/framework-maya and so on)
 
 
