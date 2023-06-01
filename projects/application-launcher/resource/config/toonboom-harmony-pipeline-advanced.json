@@ -5,9 +5,9 @@
     "applicationIdentifier":"toonboom-harmony_{variant}",
     "integrations": {
         "pipeline":[
-            "ftrack-connect-pipeline",
-            "ftrack-connect-pipeline-qt",
-            "ftrack-connect-pipeline-harmony"
+            "ftrack-framework-core",
+            "ftrack-framework-qt",
+            "ftrack-framework-harmony"
         ]
     },
     "label": "Toon Boom Harmony",
