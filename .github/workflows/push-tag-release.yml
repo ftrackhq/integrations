@@ -72,7 +72,7 @@ jobs:
       - name: Write version to source
         run:  |
           echo "SOURCE_PATH=${{ env.FOLDER }}/${{ env.PACKAGE }}/source/ftrack_$(echo ${{ env.PACKAGE }} | tr - _)" >> $GITHUB_ENV
-          cd ${{ env.SOURCE__PATH }}
+          cd ${{ env.SOURCE_PATH }}
           echo "__version__ = '${{ env.VERSION }}'" > _version.py
 
       - name: Check BUILD files
