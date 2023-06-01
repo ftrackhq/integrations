@@ -45,6 +45,7 @@ runs:
       env:
         GITHUB_TOKEN: ${{ inputs.token }}
       continue-on-error: true
+    # TODO: Do a diff on release notes and supply with release body
     # Create pre-release
     - name: Create pre-release
       id: create_release

@@ -71,8 +71,7 @@ jobs:
 
       - name: Write version to source
         run:  |
-          echo "SOURCE_PATH=${{ env.FOLDER }}/${{ env.PACKAGE }}/source/ftrack_$(echo ${{ env.PACKAGE }} | tr - _)" >> $GITHUB_ENV
-          cd ${{ env.SOURCE_PATH }}
+          cd ${{ env.FOLDER }}/${{ env.PACKAGE }}/source/ftrack_`echo ${{ env.PACKAGE }} | tr - _`)
           echo "__version__ = '${{ env.VERSION }}'" > _version.py
 
       - name: Check BUILD files
@@ -109,6 +108,11 @@ jobs:
           deleteprevious: false
           prerelease: false
           token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Tag package as stable
+        run: |
+          git fetch --force --tags
+          git tag -f ${{ needs.pants-build.outputs.package }}/stable
+          git push -f origin ${{ needs.pants-build.outputs.package }}/stable
 
   # Align latest tag to the latest release tag
   align-latest:
