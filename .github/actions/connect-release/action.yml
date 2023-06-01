@@ -37,12 +37,11 @@ runs:
         tag_name: ${{ inputs.tag }} # tag name to delete
       env:
         GITHUB_TOKEN: ${{ inputs.token }}
-    # Failsafe delete all previous releases, including drafts, matching tag pattern
-    - name: Delete previous releases
+    - name: Delete previous releases, including drafts, matching tag pattern
       if: ${{ inputs.deleteprevious == 'true' }}
       shell: bash
       run: |
-        gh release list | sed 's/|/ /' | awk '{print $1, $8}' | grep ${{ inputs.tag }} | while read -r line; do echo Deleting previous release: $line; gh release delete -y "$line"; done
+        gh release list --limit 100 | sed 's/|/ /' | awk '{print $1, $8}' | grep ${{ inputs.tag }} | while read -r line; do echo Deleting previous release: $line; gh release delete -y "$line"; done
       env:
         GITHUB_TOKEN: ${{ inputs.token }}
       continue-on-error: true

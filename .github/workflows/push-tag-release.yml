@@ -58,7 +58,7 @@ jobs:
       - name: Find out which package has been tagged
         run: |
           echo "Ref: ${{ github.ref }}"
-          echo "PACKAGE=$(echo ${{ github.ref }} | cut -d/ -f 2-2)" >> $GITHUB_ENV
+          echo "PACKAGE=$(echo ${{ github.ref }} | cut -d/ -f 3-3)" >> $GITHUB_ENV
       - name: Determine which packages has changed using Pants
         run: |
           git fetch -a -t --force
@@ -301,4 +301,52 @@ jobs:
           tag: ${{ matrix.tag }}
           deleteprevious: false
           prerelease: false
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+  # Align latest tag to the latest release tag
+  align-latest:
+    needs: release
+    strategy:
+      matrix:
+        include:
+          - package: application-launcher
+            os: ubuntu-latest
+          - package: connect-action-launcher-widget
+            os: ubuntu-latest
+          - package: connect-plugin-manager
+            os: ubuntu-latest
+          - package: framework-core
+            os: ubuntu-latest
+          - package: framework-qt
+            os: ubuntu-latest
+          - package: framework-maya
+            os: ubuntu-latest
+          - package: framework-nuke
+            os: ubuntu-latest
+          - package: framework-houdini
+            os: ubuntu-latest
+          - package: framework-3dsmax
+            os: ubuntu-latest
+          - package: framework-unreal
+            os: windows-latest
+          - package: connect-timetracker-widget
+            os: ubuntu-latest
+          - package: nuke-studio
+            os: ubuntu-latest
+          - package: rv
+            os: ubuntu-latest
+          # Add new packages here
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Check out repository
+        if: ${{ contains(needs.pants-build.outputs.changed,matrix.package) }}
+        uses: actions/checkout@v3
+      - name: Run release action
+        if: ${{ contains(needs.pants-build.outputs.changed,matrix.package) }}
+        uses: ./.github/actions/connect-release
+        with:
+          package: ${{ matrix.package }}
+          tag: ${{ matrix.package }}/v0.0.0-latest
+          deleteprevious: true
+          prerelease: true
           token: ${{ secrets.GITHUB_TOKEN }}
