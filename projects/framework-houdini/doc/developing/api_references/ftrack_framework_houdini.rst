@@ -1,4 +1,4 @@
-framework\_houdini package
+ftrack\_framework\_houdini package
 ==========================================
 
 .. automodule:: ftrack_framework_houdini
@@ -22,7 +22,7 @@ Subpackages
 Submodules
 ----------
 
-framework\_houdini._version module
+ftrack\_framework\_houdini._version module
 --------------------------------------------------
 
 .. automodule:: ftrack_framework_houdini._version

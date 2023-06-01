@@ -1,4 +1,4 @@
-framework\_houdini.constants package
+ftrack\_framework\_houdini.constants package
 ====================================================
 
 .. automodule:: ftrack_framework_houdini.constants

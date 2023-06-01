@@ -1,4 +1,4 @@
-framework\_houdini.plugin.open package
+ftrack\_framework\_houdini.plugin.open package
 ======================================================
 
 .. automodule:: ftrack_framework_houdini.plugin.open

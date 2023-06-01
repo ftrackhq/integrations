@@ -1,4 +1,4 @@
-framework\_houdini.utils.bootstrap package
+ftrack\_framework\_houdini.utils.bootstrap package
 ==========================================================
 
 .. automodule:: ftrack_framework_houdini.utils.bootstrap
