@@ -57,7 +57,7 @@ jobs:
       - name: Set base envs
         run:  | 
           echo "FOLDER=projects" >> $GITHUB_ENV
-          echo "OS=windows-latest" >> $GITHUB_ENV
+          echo "OS=ubuntu-latest" >> $GITHUB_ENV
 
       - name: Override folder
         if: ${{ env.PACKAGE == 'framework-core' || env.PACKAGE == 'framework-qt' }}
