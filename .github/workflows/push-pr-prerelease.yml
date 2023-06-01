@@ -16,6 +16,7 @@ on:
 
 jobs:
   pants-build:
+    if: false
     name: Build with Pants and probe which packages has changed
     runs-on: ubuntu-latest
     outputs:

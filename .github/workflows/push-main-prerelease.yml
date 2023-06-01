@@ -1,4 +1,4 @@
-# Create the v0.0.0-latest pre-release on push to main, be it on a PR merge,
+# Create the v0.0.0-latest pre-release on push/merge to main, be it on a PR merge,
 # direct push or a release tag push.
 # Cleans up old tags and releases.
 
@@ -45,7 +45,8 @@ jobs:
       - name: Determine which packages has changed using Pants
         run: |
           git fetch -a -t --force
-          echo "CHANGED=$(pants list --changed-since=stable | cut -d'/' -f 1-2 | grep -v : | uniq | tr '\n' ',')" >> $GITHUB_ENV
+          echo "Ref: ${{ github.ref }}"
+          echo "CHANGED=$(pants list --changed-since=origin/main | cut -d'/' -f 1-2 | grep -v : | uniq | tr '\n' ',')" >> $GITHUB_ENV
       - name: Check BUILD files
         if: false # TODO enable linting with a later task
         run:  |
