@@ -11,6 +11,7 @@ from urllib.request import urlopen
 from packaging.version import parse as parse_version
 import appdirs
 import json
+import sys
 
 from ftrack_connect.qt import QtWidgets, QtCore, QtGui
 import qtawesome as qta
@@ -91,16 +92,37 @@ class PluginProcessor(QtCore.QObject):
 
     def download(self, plugin):
         '''Download provided *plugin* item.'''
-        source_path = plugin.data(ROLES.PLUGIN_SOURCE_PATH)
-        zip_name = os.path.basename(source_path)
-        save_path = tempfile.gettempdir()
-        temp_path = os.path.join(save_path, zip_name)
-        logging.debug('Downloading {} to {}'.format(source_path, temp_path))
+        source_path_noarch = plugin.data(ROLES.PLUGIN_SOURCE_PATH)
+        # Determine our platform
+        if sys.platform.startswith('win'):
+            platform = 'win'
+        elif sys.platform.startswith('linux'):
+            platform = 'linux'
+        elif sys.platform.startswith('darwin'):
+            platform = 'mac'
+        else:
+            platform = sys.platform
+        for platform_dependent, source_path in [
+            (True, source_path_noarch.replace('.zip', '-{}.zip'.format(platform))),
+            (False, source_path_noarch)
+        ]:
+            try:
+                zip_name = os.path.basename(source_path_noarch)
+                save_path = tempfile.gettempdir()
+                temp_path = os.path.join(save_path, zip_name)
 
-        with urllib.request.urlopen(source_path) as dl_file:
-            with open(temp_path, 'wb') as out_file:
-                out_file.write(dl_file.read())
-        return temp_path
+                logging.debug('Downloading {} to {}'.format(source_path, temp_path))
+
+                with urllib.request.urlopen(source_path) as dl_file:
+                    with open(temp_path, 'wb') as out_file:
+                        out_file.write(dl_file.read())
+                return temp_path
+            except:
+                if platform_dependent:
+                    logging.debug('No download exists {} on platform {}'.format(
+                        source_path, platform))
+                else:
+                    raise
 
     def process(self, plugin):
         '''Process provided *plugin* item.'''
