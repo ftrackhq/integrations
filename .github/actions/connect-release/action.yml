@@ -82,21 +82,34 @@ runs:
         python setup.py build_plugin
         mv -v build/*.zip ../
       shell: bash
+    - name: Retreive zipball filename
+      run: |
+        cd dist`
+        echo "PLUGIN_ZIPBALL=$(ls -f *.zip)" >> $GITHUB_ENV
+      shell: bash
     - name: Append suffix
       if: ${{ inputs.suffix != '' }}
       run: |
-          cd dist
-          PLUGIN_ZIPBALL=`ls -f *.zip`
-          mv $PLUGIN_ZIPBALL `echo $PLUGIN_ZIPBALL | sed 's/.zip/-${{ inputs.suffix }}.zip/'`
+        cd dist
+        PLUGIN_ZIPBALL_PLATFORM=$(echo ${{ env.PLUGIN_ZIPBALL }} | sed 's/.zip//')
+        mv ${{ env.PLUGIN_ZIPBALL }} PLUGIN_ZIPBALL_PLATFORM
+        echo "PLUGIN_ZIPBALL=$PLUGIN_ZIPBALL_PLATFORM" >> $GITHUB_ENV
       shell: bash
     - uses: xresloader/upload-to-github-release@main
       env:
         GITHUB_TOKEN: ${{ inputs.token }}
       with:
-        file: "dist/ftrack-${{ inputs.package }}-*.zip"
+        file: "dist/${{ env.PLUGIN_ZIPBALL }}"
         release_id: ${{ steps.create_release.outputs.id }}
         overwrite: true
         verbose: true
         draft: false
+    - uses: shallwefootball/s3-upload-action@master
+      with:
+        aws_key_id: ${{ secrets.S3_ACCESS_KEY }}
+        aws_secret_access_key: ${{ secrets.S3_SECRET_ACCESS_KEY}}
+        aws_bucket: ftrack-public-content
+        source_dir: "dist/${{ env.PLUGIN_ZIPBALL }}"
+        destination_dir: 'ftrack-connect/integrations/'
 
 
