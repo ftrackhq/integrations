@@ -1,7 +1,7 @@
-framework\_nuke.constants.asset package
+ftrack\_framework\_nuke.utils.bootstrap package
 =======================================================
 
-.. automodule:: ftrack_framework_nuke.constants.asset
+.. automodule:: ftrack_framework_nuke.utils.bootstrap
    :members:
    :undoc-members:
    :show-inheritance:

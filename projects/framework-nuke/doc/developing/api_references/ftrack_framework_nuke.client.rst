@@ -1,4 +1,4 @@
-framework\_nuke.client package
+ftrack\_framework\_nuke.client package
 ==============================================
 
 .. automodule:: ftrack_framework_nuke.client

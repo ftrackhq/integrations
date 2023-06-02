@@ -1,4 +1,4 @@
-framework\_nuke package
+ftrack\_framework\_nuke package
 =======================================
 
 .. automodule:: ftrack_framework_nuke
@@ -22,7 +22,7 @@ Subpackages
 Submodules
 ----------
 
-framework\_nuke._version module
+ftrack\_framework\_nuke._version module
 -----------------------------------------------
 
 .. automodule:: ftrack_framework_nuke._version
