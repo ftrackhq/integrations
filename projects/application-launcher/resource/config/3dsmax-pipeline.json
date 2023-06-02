@@ -4,9 +4,9 @@
     "applicationIdentifier":"3ds-max_{variant}",
     "integrations": {
         "pipeline":[
-            "ftrack-connect-pipeline", 
-            "ftrack-connect-pipeline-qt",
-            "ftrack-connect-pipeline-3dsmax"
+            "ftrack-framework-core",
+            "ftrack-framework-qt",
+            "ftrack-framework-3dsmax"
         ]
     },
     "label": "3ds Max",

@@ -5,9 +5,9 @@
     "applicationIdentifier":"houdini_{variant}",
     "integrations": {
         "pipeline":[
-            "ftrack-connect-pipeline", 
-            "ftrack-connect-pipeline-qt",
-            "ftrack-connect-pipeline-houdini"
+            "ftrack-framework-core",
+            "ftrack-framework-qt",
+            "ftrack-framework-houdini"
         ]
     },
     "label": "Houdini",

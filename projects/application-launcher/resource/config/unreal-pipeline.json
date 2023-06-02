@@ -5,9 +5,9 @@
     "applicationIdentifier":"unreal_{variant}",
     "integrations": {
         "pipeline":[
-            "ftrack-connect-pipeline",
-            "ftrack-connect-pipeline-qt",
-            "ftrack-connect-pipeline-unreal"
+            "ftrack-framework-core",
+            "ftrack-framework-qt",
+            "ftrack-framework-unreal"
         ]
     },
     "label": "Unreal Engine",
