@@ -12,7 +12,7 @@ Glossary
         relies on the ftrack event system for communication. Further resources:
 
          * :doc:`ftrack Application Launcher documentation <ftrack-application-launcher:index>`
-         * Source code: `<https://github.com/ftrackhq/ftrack-application-launcher.git>`_
+         * Source code: `<https://github.com/ftrackhq/integrations/projects/application-launcher>`_
 
     ftrack Python api
         The supported :term:`Python` Application Programmable Interface for
@@ -34,7 +34,7 @@ Glossary
 
          * :doc:`ftrack Connect documentation <ftrack-connect:index>`
          * Download: `<https://www.ftrack.com/en/portfolio/connect>`_
-         * Source code: `<https://github.com/ftrackhq/ftrack-connect.git>`_
+         * Source code: `<https://github.com/ftrackhq/integrations/apps/connect>`_
 
     Connect package
         The :term:`Connect package` is Connect built and packaged for a certain
@@ -50,17 +50,14 @@ Glossary
         associated Framework plugin. For example the Maya plugin has the following
         resources:
 
-         * `ftrack_connect_pipeline_maya <https://ftrackhq.github.io/ftrack-connect-pipeline-maya/>`_
-         * Source code: `<https://github.com/ftrackhq/ftrack-connect-pipeline-maya.git>`_
+         * `ftrack_framework_maya <https://ftrackhq.github.io/integrations/projects/framework-maya/>`_
+         * Source code: `<https://github.com/ftrackhq/integrations/projects/framework-maya>`_
 
     Definition
         A :term:`JSON` configuration file defining :term:`Framework` :term:`engine` behaviour -
         which plugins and widgets to use. Is validated against a :term:`schema`.
         Example of a definition is the *Maya Geometry* publisher. Definitions lives within
-        the ftrack-connect-pipeline-definition plugin, resources:
-
-         * `ftrack_connect_pipeline_definition <https://ftrackhq.github.io/ftrack-connect-pipeline-definition/>`_
-         * Source code: `<https://github.com/ftrackhq/ftrack-connect-pipeline-definition.git>`_
+        the resource/definitions folder within each framework plugin.
 
     Engine
         A core Python module driving a specific behaviour within the :term:`Framework`,
@@ -78,7 +75,7 @@ Glossary
         load, management and other core functionality within an :term:`DCC` application
         or standalone. The core Framework module is called framework-core which
         this documentation is part of, source code to be found here:
-        `<https://github.com/ftrackhq/framework-core.git>`_
+        `<https://github.com/ftrackhq/integrations/libs/framework-core>`_
 
     Host
         The central part of the core Framework that discovers and executes definitions
@@ -95,6 +92,12 @@ Glossary
         for JavaScript Object Notation. For more information
         `<https://www.json.org/>`_
 
+    Monorepo
+        A way to organise code in a single repository, to benefit from a common
+        build and testing process both locally and on a CI server. The ftrack integrations
+        monorepo is were all :term:`Framework` code resides:
+        `<https://github.com/ftrackhq/integrations.git>`_
+
     Plugin
         A module designed to be discovered by the :term:`ftrack Python API`. Plugins
         designed to be discovered by Connect is called Connect plugins and are main
@@ -107,7 +110,7 @@ Glossary
         plugins, resources:
 
          * :doc:`ftrack Connect Plugin Manager documentation <ftrack-connect-plugin-manager:index>`
-         * Source code: `<https://github.com/ftrackhq/ftrack-connect-plugin-manager.git>`_
+         * Source code: `<https://github.com/ftrackhq/integrations/projects/connect-plugin-manager>`_
 
     Python
         A programming language that lets you work more quickly and integrate
@@ -119,8 +122,8 @@ Glossary
         the Qt.py Python binding module. The correponding Framework module containing
         UI bindings is named ftrack-connect-pipeline-qt, resources:
 
-         * `ftrack_connect_pipeline_qt <https://ftrackhq.github.io/ftrack-connect-pipeline-qt/>`_
-         * Source code: `<https://github.com/ftrackhq/ftrack-connect-pipeline-qt.git><`_
+         * `ftrack_framework_qt <https://ftrackhq.github.io/integrations/libs/framework-qt/>`_
+         * Source code: `<https://github.com/ftrackhq/integrations/libs/framework-qt>`_
          * Qt; `<https://www.qt.io/>`_
 
     UI

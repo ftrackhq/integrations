@@ -1,0 +1,15 @@
+ftrack\_framework\_unreal.host package
+======================================================
+
+.. automodule:: ftrack_framework_unreal.host
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Subpackages
+-----------
+
+.. toctree::
+   :maxdepth: 1
+
+   ftrack_framework_unreal.host.engine

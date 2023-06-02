@@ -18,14 +18,7 @@ functionality to the Framework. Another case would be providing shared integrati
 utility code that can be used across all DCC applications and definition plugins.
 
 
-ftrack-connect-pipeline-definition
-----------------------------------
-
-This module repository is designed to be the place where main customisations will happen
-within the resource directory.
-
-
-ftrack-connect-pipeline-qt
+framework-qt
 --------------------------
 
 This module is the repository were :term:`Qt` widgets, images and fonts resides,
@@ -34,7 +27,7 @@ augment the look and feel of the integrations, or if you seek to supply new widg
 that is to be used across DCC integrations.
 
 
-ftrack-connect-pipeline-host_type
+framework-<host type>
 ---------------------------------
 
 The module repository were you would make changes to each individual DCC

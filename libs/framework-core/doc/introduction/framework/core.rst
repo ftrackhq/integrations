@@ -3,19 +3,17 @@
 
 .. _introduction/framework/core:
 
-*******************
-Core Pipeline layer
-*******************
+********************
+Core Framework layer
+********************
 
 .. highlight:: bash
 
-The core pipeline :term:`Framework` module is the backbone of the pipeline, on which all
+The core :term:`Framework` module is the backbone of the framework, on which all
 other modules rely.
 
 It is in the core were all the interaction with the underlying :term:`host type` is
 performed, except when it comes to bootstrap of the DCC.
-
-The core is depending on the :term:`definition` module to be present.
 
 The module comprises four major components:
 

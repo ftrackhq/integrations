@@ -20,7 +20,7 @@ As a preparation, we constrain the camera loader to only be seen when on animati
 and lighting tasks, hiding it during modelling. We do this by modifying the loader
 definition json and adding the **discoverable** key:
 
-**mypipeline/ftrack-connect-pipeline-definitions/resource/definitions/loader/maya/camera-maya-loader.json**
+**mypipeline/projects/framework-maya/resource/definitions/loader/camera-maya-loader.json**
 
 ..  code-block:: json
     :linenos:
@@ -52,9 +52,9 @@ Definition
 Reviewable Quicktimes are most likely published with render (asset type), from Nuke
 Studio or similar tool. This is why we implement an new *render loader* definition:
 
-**mypipeline/ftrack-connect-pipeline-definitions/resource/definitions/loader/maya/render-maya-loader.json**
+**mypipeline/projects/framework-maya/resource/definitions/loader/render-maya-loader.json**
 
-.. literalinclude:: /resource/ftrack-connect-pipeline-definition/resource/definitions/loader/maya/render-maya-loader.json
+.. literalinclude:: /resource/framework-maya/resource/definitions/loader/render-maya-loader.json
     :language: json
     :linenos:
     :emphasize-lines: 3,4,26-27,43-46
@@ -74,9 +74,9 @@ Render importer plugin
 
 Finally we implement a new importer plugin:
 
-**mypipeline/ftrack-connect-pipeline-definitions/ftrack-connect-pipeline-definition/resource/plugins/maya/python/loader/importers/maya_render_loader_importer.py**
+**mypipeline/projects/framework-maya/resource/plugins/python/loader/importers/maya_render_loader_importer.py**
 
-.. literalinclude:: /resource/ftrack-connect-pipeline-definition/resource/plugins/maya/python/loader/importers/maya_render_loader_importer.py
+.. literalinclude:: /resource/framework-maya/resource/plugins/python/loader/importers/maya_render_loader_importer.py
     :language: python
     :linenos:
     :emphasize-lines: 13,15-43

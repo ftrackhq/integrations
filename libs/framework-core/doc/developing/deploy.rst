@@ -36,9 +36,8 @@ a central location within a new or existing Python environment.
 The process is documented in the :ref:`ftrack Connect documentation <ftrack-connect:developing>`,
 a short summary:
 
- * Clone the code from: https://github.com/ftrackhq/ftrack-connect.git
- * Create a Virtual environment
- * Change folder to ftrack-connect
+ * Create a Python 3.7 or later virtual environment
+ * Change monorepo folder to: **/apps/connect**
  * Install the requirements
 
 Run::

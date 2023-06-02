@@ -12,7 +12,7 @@ LOCATION_DIRECTORY = os.path.abspath(
 sys.path.append(LOCATION_DIRECTORY)
 
 logger = logging.getLogger(
-    'com.ftrack.framework-core.tutoriale.custom-location-plugin.hook.plugin_hook'
+    'com.ftrack.intgrations.tutoriale.custom-location-plugin.hook.plugin_hook'
 )
 
 
@@ -37,7 +37,7 @@ def appendPath(path, key, environment):
 def modify_application_launch(event):
     '''Modify the application environment to include  our location plugin.'''
     logger.info(
-        'Preparing Filmgate application launch, event: {}.'.format(event)
+        'Preparing application launch, event: {}.'.format(event)
     )
 
     environment = event['data']['options']['env']
@@ -45,7 +45,7 @@ def modify_application_launch(event):
     appendPath(LOCATION_DIRECTORY, 'FTRACK_EVENT_PLUGIN_PATH', environment)
     appendPath(LOCATION_DIRECTORY, 'PYTHONPATH', environment)
     logger.info(
-        'Connect plugin modified launch hook to register Filmgate location plugin.'
+        'Connect plugin modified launch hook to register location plugin.'
     )
 
 

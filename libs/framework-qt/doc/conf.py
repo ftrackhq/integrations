@@ -126,6 +126,7 @@ autodoc_mock_imports = [
     'jsonschema',
     'jsonref',
     'python_jsonschema_objects',
+    'ftrack_framework_qt.ui.resource',
     'ftrack_framework_core',
     'ftrack_framework_core.constants.asset.v2',
 ]

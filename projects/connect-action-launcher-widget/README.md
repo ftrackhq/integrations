@@ -1,11 +1,4 @@
 # ftrack connect action launcher widget
 
-ation launcher widget
+Documentation: [https://ftrackhq.github.io/integrations/projects/connect-action-launcher-widget/](https://ftrackhq.github.io/integrations/projects/connect-action-launcher-widget/)
 
-------------------------------------------------------------------------
-
-Documentation
-
-Full documentation, including installation and setup guides, can be
-found at
-http://connect-action-launcher-widget.rtd.ftrack.com/en/stable/

@@ -22,18 +22,16 @@ To be able to build the framework integrations, we need to create a Python 3.7.1
  #. Create the virtual environment: ``virtualenv venv_3712``
  #. Activate it: ``venv_py3712\Scripts\activate``
 
-Build the integrations
-**********************
+Build the integration
+*********************
 
-We build each integration using this virtual env::
+We build the integration using this virtual env::
 
-    $ cd mypipeline\ftrack-connect-pipeline-definition
+    $ cd mypipeline\framework-maya
     $ python setup.py build_plugin
 
-We repeat this for the ``ftrack-connect-pipeline-maya`` repository.
 
-
-The built plugin will end up in the ``build/`` folder.
+The built Connect plugin will end up in the ``build/`` folder.
 
 
 Install the integrations on another machine

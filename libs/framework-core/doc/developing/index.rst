@@ -7,10 +7,10 @@
 Developing
 **********
 
-Learn how to develop with the ftrack Connect pipeline Framework: download, build
+Learn how to develop with the ftrack Connect Framework: download, build
 and deploy integration in order to tailor it to your studio needs.
 
-Refer to the :ref:`api_reference` for detailed information on the pipeline core API.
+Refer to the :ref:`api_reference` for detailed information on the core API.
 
 Find examples on how to develop your own customisations within the :ref:`tutorial`.
 
