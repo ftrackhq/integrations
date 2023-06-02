@@ -1,4 +1,4 @@
-framework\_maya.utils.node package
+ftrack\_framework\_maya.utils.node package
 ==================================================
 
 .. automodule:: ftrack_framework_maya.utils.node

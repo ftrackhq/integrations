@@ -1,7 +1,7 @@
-framework\_maya.plugin.open package
+ftrack\_framework\_maya.plugin.load package
 ===================================================
 
-.. automodule:: ftrack_framework_maya.plugin.open
+.. automodule:: ftrack_framework_maya.plugin.load
    :members:
    :undoc-members:
    :show-inheritance:

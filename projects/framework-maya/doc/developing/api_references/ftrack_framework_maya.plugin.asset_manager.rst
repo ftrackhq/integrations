@@ -1,4 +1,4 @@
-framework\_maya.plugin.asset_manager package
+ftrack\_framework\_maya.plugin.asset_manager package
 ============================================================
 
 .. automodule:: ftrack_framework_maya.plugin.asset_manager
