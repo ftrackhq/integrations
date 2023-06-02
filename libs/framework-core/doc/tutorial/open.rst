@@ -26,14 +26,14 @@ Implementation
 
 All DCC tools goes into the file ``custom_commands.py``:
 
-**mypipeline/ftrack-connect-pipeline-maya/source/ftrack_connect_pipeline_maya/utils/custom_commands.py**
+**mypipeline/projects/framework-maya/source/ftrack_framework_maya/utils/bootstrap.py**
 
 
-.. literalinclude:: /resource/ftrack-connect-pipeline-maya/source/ftrack_connect_pipeline_maya/utils/custom_commands.py
+.. literalinclude:: /resource/framework-maya/source/ftrack_framework_maya/utils/bootstrap.py
     :language: python
     :linenos:
-    :lines: 1-12,232-292
-    :emphasize-lines: 7,11
+    :lines: 1-10, 99-174
+    :emphasize-lines: 5
 
 We are not going into detail what the ``scene_open`` function does, but it tries
 to locate a previous published snapshot and if not found - a new one is copied from a template
@@ -41,7 +41,7 @@ and saved to the temp folder and opened.
 
 Finally, to have this run during Maya startup, we add it to ``userSetup.py``:
 
-**mypipeline/ftrack-connect-pipeline-maya/resources/scripts/userSetup.py**
+**mypipeline/framework-maya/resources/scripts/userSetup.py**
 
 .. code-block:: python
     :linenos:

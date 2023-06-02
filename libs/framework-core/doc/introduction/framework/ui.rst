@@ -41,9 +41,15 @@ Description of main submodules:
 resource
 ========
 
-The resource folder contains associated fonts, images and stylesheets.
+style
+-----
 
+The folder contains associated fonts, images and stylesheets.
 
+plugins
+-------
+
+Contains the base classes for the UI plugin widgets referenced within the DCC definitions.
 
 
 

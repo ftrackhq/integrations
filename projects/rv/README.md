@@ -1,8 +1,8 @@
 # rv
 
-Repository for ftrack connect rv.
+ftrack connect rv integration.
 
 ## Documentation
 
-Full documentation, including installation and setup guides, can be
-found at <https://rv.readthedocs.io/en/latest/>
+Documentation: [https://ftrackhq.github.io/integrations/projects/rv/](https://ftrackhq.github.io/integrations/projects/rv/)
+
