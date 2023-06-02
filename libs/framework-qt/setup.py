@@ -1,5 +1,5 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2019 ftrack
+# :copyright: Copyright (c) 2019-2023 ftrack
 
 
 import os
@@ -16,22 +16,56 @@ from setuptools.command.test import test as TestCommand
 import setuptools
 from distutils.spawn import find_executable
 
+PLUGIN_NAME = 'ftrack-framework-qt-{0}'
+
 ROOT_PATH = os.path.dirname(os.path.realpath(__file__))
+
 SOURCE_PATH = os.path.join(ROOT_PATH, 'source')
+
 README_PATH = os.path.join(ROOT_PATH, 'README.md')
 
 RESOURCE_PATH = os.path.join(ROOT_PATH, 'resource')
+
 STYLE_PATH = os.path.join(RESOURCE_PATH, 'style')
+
 RESOURCE_TARGET_PATH = os.path.join(
     SOURCE_PATH, 'ftrack_framework_qt', 'ui', 'resource.py'
 )
+
 BOOTSTRAP_PATH = os.path.join(RESOURCE_PATH, 'bootstrap')
+
 PLUGINS_PATH = os.path.join(RESOURCE_PATH, 'plugins')
+
 DEFINITIONS_PATH = os.path.join(RESOURCE_PATH, 'definitions')
 
 HOOK_PATH = os.path.join(ROOT_PATH, 'hook')
 
 BUILD_PATH = os.path.join(ROOT_PATH, 'build')
+
+SETUP_REQUIRES = [
+    'PySide2 == 5.12.6',
+    'Qt.py >=1.0.0, < 2',
+    'pyScss >= 1.2.0, < 2',
+    'sphinx >= 1.8.5, < 4',
+    'sphinx_rtd_theme >= 0.1.6, < 2',
+    'lowdown >= 0.1.0, < 2',
+    'setuptools >= 44.0.0'
+]
+
+
+def get_version():
+    '''Read version from _version.py, updated by CI based on monorepo package tag'''
+    version_path = os.path.join(SOURCE_PATH, 'ftrack_framework_qt', '_version.py')
+    with open(version_path, 'r') as file_handle:
+        for line in file_handle.readlines():
+            if line.find('__version__') > -1:
+                return re.findall(r'\'(.*)\'', line)[0].strip()
+    raise ValueError('Could not find version in {0}'.format(version_path))
+
+
+VERSION = get_version()
+
+STAGING_PATH = os.path.join(BUILD_PATH, PLUGIN_NAME.format(VERSION))
 
 
 # Custom commands.
@@ -69,6 +103,18 @@ class BuildResources(setuptools.Command):
 
     def run(self):
         '''Run build.'''
+
+        # Make sure requirements are installed on GH Actions
+        print('Installing setup requirements')
+        subprocess.check_call(
+            [
+                sys.executable,
+                '-m',
+                'pip',
+                'install',
+            ]+[entry.replace(" ", "") for entry in SETUP_REQUIRES]
+        )
+
         try:
             import scss
         except ImportError:
@@ -139,16 +185,6 @@ class BuildPlugin(setuptools.Command):
         self.run_command('build_resources')
 
         '''Run the build step.'''
-        import setuptools_scm
-
-        release = setuptools_scm.get_version(version_scheme='post-release')
-        VERSION = '.'.join(release.split('.')[:3])
-        global STAGING_PATH
-        STAGING_PATH = os.path.join(
-            BUILD_PATH, 'ftrack-framework-qt-{}'.format(VERSION)
-        )
-
-        '''Run the build step.'''
         # Clean staging path
         shutil.rmtree(STAGING_PATH, ignore_errors=True)
 
@@ -176,9 +212,7 @@ class BuildPlugin(setuptools.Command):
         )
 
         shutil.make_archive(
-            os.path.join(
-                BUILD_PATH, 'ftrack-framework-qt-{0}'.format(VERSION)
-            ),
+            STAGING_PATH,
             'zip',
             STAGING_PATH,
         )
@@ -201,18 +235,10 @@ class PyTest(TestCommand):
         raise SystemExit(errno)
 
 
-version_template = '''
-# :coding: utf-8
-# :copyright: Copyright (c) 2017-2020 ftrack
-
-__version__ = {version!r}
-'''
-
-
 # Configuration.
 setup(
     name='ftrack-framework-qt',
-    description='Ftrack qt pipeline integration framework.',
+    description='ftrack qt pipeline integration framework.',
     long_description=open(README_PATH).read(),
     keywords='ftrack',
     url='https://github.com/ftrackhq/integrations/libs/framework-qt',
@@ -222,18 +248,9 @@ setup(
     packages=find_packages(SOURCE_PATH),
     package_dir={'': 'source'},
     package_data={"": ["{}/**/*.*".format(RESOURCE_PATH), "{}/**/*.py".format(HOOK_PATH)]},
-    version="1.4.0",
+    version=VERSION,
     python_requires='<3.10',
-    setup_requires=[
-        'PySide2 == 5.12.6',
-        'Qt.py >=1.0.0, < 2',
-        'pyScss >= 1.2.0, < 2',
-        'sphinx >= 1.8.5, < 4',
-        'sphinx_rtd_theme >= 0.1.6, < 2',
-        'lowdown >= 0.1.0, < 2',
-        'setuptools >= 44.0.0',
-        'setuptools_scm',
-    ],
+    setup_requires=SETUP_REQUIRES,
     install_requires=['Qt.py >=1.0.0, < 2'],
     tests_require=['pytest >= 2.3.5, < 3'],
     cmdclass={
