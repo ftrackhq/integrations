@@ -7,7 +7,7 @@
 Release Notes
 *************
 
-.. releaes:: Upcoming
+.. release:: Upcoming
 
     .. change:: fixed
         :tags: Tags

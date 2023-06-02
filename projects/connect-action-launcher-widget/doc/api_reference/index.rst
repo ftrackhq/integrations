@@ -8,7 +8,7 @@ API reference
 *************
 
 ftrack_connect_action_launcher_widget
-===============================
+=====================================
 
 .. automodule:: ftrack_connect_action_launcher_widget
 
