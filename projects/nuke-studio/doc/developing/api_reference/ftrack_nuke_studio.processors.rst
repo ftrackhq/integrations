@@ -1,4 +1,4 @@
-ftrack\_connect\_nuke\_studio.processors package
+ftrack\_nuke\_studio.processors package
 ================================================
 
 Subpackages

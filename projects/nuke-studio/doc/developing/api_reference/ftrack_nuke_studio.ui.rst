@@ -1,4 +1,4 @@
-ftrack\_connect\_nuke\_studio.ui package
+ftrack\_nuke\_studio.ui package
 ========================================
 
 Module contents

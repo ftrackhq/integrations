@@ -1,4 +1,4 @@
-ftrack\_connect\_nuke\_studio package
+ftrack\_nuke\_studio package
 =====================================
 
 Subpackages
@@ -10,11 +10,14 @@ Subpackages
     ftrack_nuke_studio.overrides
     ftrack_nuke_studio.processors
     ftrack_nuke_studio.tags
+    ftrack_nuke_studio.ui
+    ftrack_nuke_studio.ui.widget
+
 
 Submodules
 ----------
 
-ftrack\_connect\_nuke\_studio.base module
+ftrack\_nuke\_studio.base module
 -----------------------------------------
 
 .. automodule:: ftrack_nuke_studio.base
@@ -22,7 +25,7 @@ ftrack\_connect\_nuke\_studio.base module
     :undoc-members:
     :show-inheritance:
 
-ftrack\_connect\_nuke\_studio.exception module
+ftrack\_nuke\_studio.exception module
 ----------------------------------------------
 
 .. automodule:: ftrack_nuke_studio.exception
@@ -30,7 +33,7 @@ ftrack\_connect\_nuke\_studio.exception module
     :undoc-members:
     :show-inheritance:
 
-ftrack\_connect\_nuke\_studio.plugin module
+ftrack\_nuke\_studio.plugin module
 -------------------------------------------
 
 .. automodule:: ftrack_nuke_studio.plugin
@@ -38,7 +41,7 @@ ftrack\_connect\_nuke\_studio.plugin module
     :undoc-members:
     :show-inheritance:
 
-ftrack\_connect\_nuke\_studio.template module
+ftrack\_nuke\_studio.template module
 ---------------------------------------------
 
 .. automodule:: ftrack_nuke_studio.template
@@ -46,14 +49,13 @@ ftrack\_connect\_nuke\_studio.template module
     :undoc-members:
     :show-inheritance:
 
-ftrack\_connect\_nuke\_studio.usage module
+ftrack\_nuke\_studio.usage module
 ------------------------------------------
 
 .. automodule:: ftrack_nuke_studio.usage
     :members:
     :undoc-members:
     :show-inheritance:
-
 
 Module contents
 ---------------
