@@ -75,7 +75,7 @@ runs:
       with:
         path: dist
         key: pants-dist-${{github.sha}}
-        fail-on-cache-miss: true
+        fail-on-cache-miss: false
         enableCrossOsArchive: true
     - name: Build Connect plugin
       run: |
