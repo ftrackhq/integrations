@@ -1,7 +1,7 @@
-ftrack\_connect\_pipeline\_max.plugin.load package
+ftrack\_framework\_3dsmax.plugin.open package
 ===================================================
 
-.. automodule:: ftrack_framework_3dsmax.plugin.load
+.. automodule:: ftrack_framework_3dsmax.plugin.open
    :members:
    :undoc-members:
    :show-inheritance:

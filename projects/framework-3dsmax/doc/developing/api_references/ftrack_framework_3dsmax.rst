@@ -1,4 +1,4 @@
-ftrack\_connect\_pipeline\_max package
+ftrack\_framework\_max package
 =======================================
 
 .. automodule:: ftrack_framework_3dsmax
@@ -22,7 +22,7 @@ Subpackages
 Submodules
 ----------
 
-ftrack\_connect\_pipeline\_max._version module
+ftrack\_framework\_3dsmax._version module
 -----------------------------------------------
 
 .. automodule:: ftrack_framework_3dsmax._version

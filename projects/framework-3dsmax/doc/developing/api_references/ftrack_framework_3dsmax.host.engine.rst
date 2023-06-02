@@ -1,4 +1,4 @@
-ftrack\_connect\_pipeline\_max.host.engine package
+ftrack\_framework\_3dsmax.host.engine package
 ===================================================
 
 .. automodule:: ftrack_framework_3dsmax.host.engine

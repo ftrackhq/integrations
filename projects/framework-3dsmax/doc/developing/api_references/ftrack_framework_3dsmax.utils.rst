@@ -1,4 +1,4 @@
-ftrack\_connect\_pipeline\_max.utils package
+ftrack\_framework\_3dsmax.utils package
 =============================================
 
 .. automodule:: ftrack_framework_3dsmax.utils

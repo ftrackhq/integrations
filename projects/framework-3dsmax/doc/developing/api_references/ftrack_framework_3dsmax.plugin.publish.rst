@@ -1,4 +1,4 @@
-ftrack\_connect\_pipeline\_max.plugin.publish package
+ftrack\_framework\_3dsmax.plugin.publish package
 ======================================================
 
 .. automodule:: ftrack_framework_3dsmax.plugin.publish
