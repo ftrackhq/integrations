@@ -9,7 +9,7 @@ Standalone
 
 .. highlight:: bash
 
-This section describes how to use the pipeline Framework in standalone mode, from within
+This section describes how to use the Framework in standalone mode, from within
 the DCC application or outside.
 
 
@@ -68,22 +68,21 @@ framework to be discovered in a DCC application without launching from connect.
    * - Name
      - Values
    * - PYTHONPATH
-     - | <your-local-path-to>/ftrack-connect-plugins/ftrack-connect-pipeline-maya-1.0.2/dependencies;
-       | <your-local-path-to>/ftrack-connect-plugins/ftrack-connect-pipeline-maya-1.0.2/resource/scripts;
-       | <your-local-path-to>/ftrack-connect-plugins/ftrack-connect-pipeline-qt-1.0.3/dependencies;
-       | <your-local-path-to>/ftrack-connect-plugins/ftrack-connect-pipeline-1.0.4/dependencies;
-       | <your-local-path-to>/ftrack/ftrack-connect-plugins/ftrack-connect-pipeline-definition-1.0.3/dependencies;
+     - | <your-local-path-to>/ftrack-connect-plugins/ftrack-framework-maya-1.0.2/dependencies;
+       | <your-local-path-to>/ftrack-connect-plugins/ftrack-framework-maya-1.0.2/resource/scripts;
+       | <your-local-path-to>/ftrack-connect-plugins/ftrack-framework-qt-1.0.3/dependencies;
+       | <your-local-path-to>/ftrack-connect-plugins/ftrack-framework-core-1.0.4/dependencies;
        | <your-local-path-to>/ftrack/ftrack-connect-plugins/ftrack-application-launcher-1.0.6/dependencies;
 
    * - FTRACK_EVENT_PLUGIN_PATH
-     - | <your-local-path-to>/ftrack-connect-plugins/ftrack-connect-pipeline-definition-1.0.3/resource/plugins/maya/python;
-       | <your-local-path-to>/ftrack-connect-plugins/ftrack-connect-pipeline-definition-1.0.3/resource/plugins/qt/python;
-       | <your-local-path-to>/ftrack-connect-plugins/ftrack-connect-pipeline-definition-1.0.3/resource/plugins/common/python;
-       | <your-local-path-to>/ftrack-connect-plugins/ftrack-connect-pipeline-definition-1.0.3/resource/definitions;
+     - | <your-local-path-to>/ftrack-connect-plugins/ftrack-framework-core-1.0.4/resource/plugins/python;
+       | <your-local-path-to>/ftrack-connect-plugins/ftrack-framework-qt-1.0.3/resource/plugins/python;
+       | <your-local-path-to>/ftrack-connect-plugins/ftrack-framework-maya-1.0.2/resource/plugins/python;
+       | <your-local-path-to>/ftrack-connect-plugins/ftrack-framework-maya-1.0.2/resource/definitions;
 
    * - FTRACK_DEFINITION_PLUGIN_PATH
-     - <your-local-path-to>/ftrack-connect-plugins/ftrack-connect-pipeline-definition-1.0.3/resource/plugins
+     - <your-local-path-to>/ftrack-connect-plugins/ftrack-framework-maya-1.0.2/resource/plugins
 
    * - MAYA_SCRIPT_PATH
-     - <your-local-path-to>/ftrack-connect-plugins/ftrack-connect-pipeline-maya-1.0.2/resource/scripts
+     - <your-local-path-to>/ftrack-connect-plugins/ftrack-framework-maya-1.0.2/resource/scripts
 

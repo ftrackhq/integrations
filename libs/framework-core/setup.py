@@ -109,7 +109,7 @@ __version__ = {version!r}
 # Configuration.
 setup(
     name='ftrack-framework-core',
-    description='Ftrack core pipeline integration framework.',
+    description='ftrack framework core pipeline integration.',
     long_description=open(README_PATH).read(),
     keywords='ftrack',
     url='https://github.com/ftrackhq/integrations/libs/framework-core',
@@ -122,12 +122,12 @@ setup(
     version="1.4.0",
     python_requires='<3.10',
     setup_requires=[
-        'sphinx >= 1.8.5, < 4',
+        'sphinx >= 1.8.5, < 6',
         'sphinx_rtd_theme >= 0.1.6, < 2',
         'lowdown >= 0.1.0, < 2',
         'setuptools>=44.0.0',
         'setuptools_scm',
-        'Jinja2<3.1',
+        'Jinja2<3.2',
     ],
     install_requires=[
         'ftrack-python-api >= 1, < 3',  # == 2.0RC1

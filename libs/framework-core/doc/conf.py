@@ -270,34 +270,6 @@ intersphinx_mapping = {
         None,
     ),
     # TODO: Make intersphinx work with Github hosted docs.
-    # 'ftrack-connect-pipeline-definition': (
-    #     'https://ftrackhq.github.io/ftrack-connect-pipeline-definition/',
-    #    None,
-    # ),
-    # 'ftrack-connect-pipeline-qt': (
-    #    'https://ftrackhq.github.io/ftrack-connect-pipeline-qt/',
-    #    None,
-    # ),
-    # 'ftrack-connect-pipeline-maya': (
-    #    'https://ftrackhq.github.io/ftrack-connect-pipeline-maya/',
-    #    None,
-    # ),
-    # 'ftrack-connect-pipeline-nuke': (
-    #    'https://ftrackhq.github.io/ftrack-connect-pipeline-nuke/',
-    #    None,
-    # ),
-    # 'ftrack-connect-pipeline-houdini': (
-    #    'https://ftrackhq.github.io/ftrack-connect-pipeline-houdini/',
-    #    None,
-    # ),
-    # 'ftrack-connect-pipeline-3dsmax': (
-    #     'https://ftrackhq.github.io/ftrack-connect-pipeline-3dsmax/',
-    #     None,
-    # ),
-    #'ftrack-connect-pipeline-unreal': (
-    #    'https://ftrackhq.github.io/ftrack-connect-pipeline-unreal/',
-    #    None,
-    # ),
 }
 
 # -- Options for todo extension ----------------------------------------------
