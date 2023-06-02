@@ -47,6 +47,8 @@ jobs:
             folder: projects
           - package: framework-houdini
             folder: projects
+          - package: framework-qt
+            folder: libs
     name: Build docs (${{ matrix.package }})
     runs-on: ubuntu-latest
     steps:
