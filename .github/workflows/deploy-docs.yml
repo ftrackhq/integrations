@@ -45,6 +45,8 @@ jobs:
             folder: libs
           - package: framework-3dsmax
             folder: projects
+          - package: framework-houdini
+            folder: projects
     name: Build docs (${{ matrix.package }})
     runs-on: ubuntu-latest
     steps:

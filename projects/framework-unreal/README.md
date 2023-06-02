@@ -1,11 +1,5 @@
-ftrack connect pipeline unreal
-###############################
+framework-unreal
+################
 
-Community owned Unreal integration for ftrack.
+Documentation: [https://ftrackhq.github.io/integrations/projects/framework-unreal/](https://ftrackhq.github.io/integrations/projects/framework-unreal/)
 
-*************
-Documentation
-*************
-
-Full documentation, including installation and setup guides, can be found at
-https://framework-unreal.readthedocs.io/en/latest/

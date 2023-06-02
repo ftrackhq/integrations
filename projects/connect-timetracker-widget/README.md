@@ -1,9 +1,4 @@
 # connect-timetracker-widget
-time tracker widget for connect
 
+Documentation: [https://ftrackhq.github.io/integrations/projects/connect-timetracker-widget/](https://ftrackhq.github.io/integrations/projects/connect-timetracker-widget/)
 
-# build
-
-build with: 
-
-    python setup.py build_plugin
