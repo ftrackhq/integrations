@@ -116,5 +116,4 @@ setup(
     cmdclass={'build_plugin': BuildPlugin},
     zip_safe=False,
     python_requires=">=3, <4",
-    build_base="dist"
 )

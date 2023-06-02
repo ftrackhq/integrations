@@ -106,7 +106,7 @@ class PyTest(TestCommand):
 
 # Configuration.
 setup(
-    name={{cookiecutter.repo_name}},
+    name='{{cookiecutter.repo_name}}',
     description='{{cookiecutter.description}}',
     long_description=open(README_PATH).read(),
     keywords='ftrack',
