@@ -1,4 +1,4 @@
-ftrack\_connect\_pipeline\_unreal.constants package
+ftrack\_framework\_unreal.constants package
 ===========================================================
 
 .. automodule:: ftrack_framework_unreal.constants

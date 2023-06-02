@@ -1,4 +1,4 @@
-ftrack\_connect\_pipeline\_unreal package
+ftrack\_framework\_unreal package
 =================================================
 
 .. automodule:: ftrack_framework_unreal
@@ -22,7 +22,7 @@ Subpackages
 Submodules
 ----------
 
-ftrack\_connect\_pipeline\_unreal._version module
+ftrack\_framework\_unreal._version module
 ---------------------------------------------------------
 
 .. automodule:: ftrack_framework_unreal._version

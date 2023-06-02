@@ -1,4 +1,4 @@
-ftrack\_connect\_pipeline\_unreal.client package
+ftrack\_framework\_unreal.client package
 ========================================================
 
 .. automodule:: ftrack_framework_unreal.client
