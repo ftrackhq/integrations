@@ -1,4 +1,4 @@
-framework\_houdini.client package
+ftrack\_framework\_houdini.client package
 =================================================
 
 .. automodule:: ftrack_framework_houdini.client

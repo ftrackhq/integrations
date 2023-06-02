@@ -1,4 +1,4 @@
-framework\_houdini.plugin package
+ftrack\_framework\_houdini.plugin package
 =================================================
 
 .. automodule:: ftrack_framework_houdini.plugin

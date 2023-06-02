@@ -1,4 +1,4 @@
-framework\_houdini.host package
+ftrack\_framework\_houdini.host package
 ===============================================
 
 .. automodule:: ftrack_framework_houdini.host
