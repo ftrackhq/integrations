@@ -109,6 +109,7 @@ runs:
         draft: false
     #  Upload artifact to S3 making it available via download.ftrack.com (caching disabled for *0.0.0*.zip)
     - name: S3 upload
+      if: false
       run: |
         aws s3 cp dist/${{ env.PLUGIN_ZIPBALL }} s3://ftrack-public-content/ftrack-connect/integrations/
       env:
