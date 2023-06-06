@@ -31,18 +31,22 @@ runs:
         # See https://pants.readme.io/docs/using-pants-in-ci for tips on how to periodically clean it up.
         # Alternatively you change gha-cache-key to ignore old caches.
     - name: Determine which packages has changed using Pants
+      shell: bash
       run: |
         git fetch --all --force
         echo "CHANGED=$(pants list --changed-since=origin/main | cut -d'/' -f 1-2 | grep -v : | uniq | tr '\n' ',')" >> $GITHUB_ENV
     - name: Check BUILD files
       if: false # TODO enable linting with a later task
+      shell: bash
       run: |
         pants tailor --check update-build-files --check ::
     - name: Lint and typecheck
       if: false # TODO enable linting with a later task
+      shell: bash
       run: |
         pants lint check ::
     - name: Package all
+      shell: bash
       run: |
         pants package ::
     - name: Save pants build results to cache
