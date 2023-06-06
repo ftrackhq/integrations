@@ -7,6 +7,8 @@ name: CI-PR
 concurrency: pants_ci
 
 on:
+  push:
+    branches: [ "backlog/ci" ]
   pull_request:
     types:
       - opened
