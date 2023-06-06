@@ -31,6 +31,13 @@ jobs:
 #    with:
 #      changed: pants-build.outputs.changed
 
+  test:
+    needs: pants-build
+    runs-on: ubuntu-latest
+    steps:
+      - name: test the variables
+        run : echo ${{needs.pants-build.outputs.changed}}
+
   deploy-docs:
     needs: pants-build
     uses: ./.github/workflows/deploy-docs.yml
