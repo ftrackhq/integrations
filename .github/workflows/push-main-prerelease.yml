@@ -16,120 +16,18 @@ jobs:
     name: Build with Pants and probe which packages has changed
     runs-on: ubuntu-latest
     outputs:
-      changed: ${{ env.CHANGED }}
-      version: ${{ env.VERSION }}
+      changed: ${{ steps.pantsBuild.outputs.changed }}
     steps:
-      - uses: actions/checkout@v3
-        with:
-          fetch-depth: 0 # Fetch all commits so we can calculate diff properly
-      - uses: pantsbuild/actions/init-pants@v4-scie-pants
-        # This action bootstraps pants and manages 2-3 GHA caches.
-        # See: github.com/pantsbuild/actions/tree/main/init-pants/
-        with:
-          # v0 makes it easy to bust the cache if needed
-          # just increase the integer to start with a fresh cache
-          gha-cache-key: v0
-          # The Python backend uses named_caches for Pip/PEX state,
-          # so it is appropriate to invalidate on lockfile changes.
-          named-caches-hash: ${{ hashFiles('python-default.lock') }}
-          # If you're not using a fine-grained remote caching service (see https://www.pantsbuild.org/docs/remote-caching),
-          # then you may also want to preserve the local Pants cache (lmdb_store). However this must invalidate for
-          # changes to any file that can affect the build, so may not be practical in larger repos.
-          # A remote cache service integrates with Pants's fine-grained invalidation and avoids these problems.
-          cache-lmdb-store: 'true'  # defaults to 'false'
-          # Note that named_caches and lmdb_store falls back to partial restore keys which
-          # may give a useful partial result that will save time over completely clean state,
-          # but will cause the cache entry to grow without bound over time.
-          # See https://pants.readme.io/docs/using-pants-in-ci for tips on how to periodically clean it up.
-          # Alternatively you change gha-cache-key to ignore old caches.
-      - name: Determine which packages has changed using Pants
-        run: |
-          git fetch -a -t --force
-          echo "Ref: ${{ github.ref }}"
-          echo "CHANGED=$(pants list --changed-since=origin/main | cut -d'/' -f 1-2 | grep -v : | uniq | tr '\n' ',')" >> $GITHUB_ENV
-      - name: Check BUILD files
-        if: false # TODO enable linting with a later task
-        run:  |
-          pants tailor --check update-build-files --check ::
-      - name: Lint and typecheck
-        if: false # TODO enable linting with a later task
-        run: | 
-          pants lint check ::
-      - name: Package all
-        run: |
-          pants package --python-infer-unowned-dependency-behavior=ignore ::
-      - name: Save pants build results to cache
-        uses: actions/cache/save@v3
-        with:
-          path: dist
-          key: pants-dist-${{github.sha}}
-          enableCrossOsArchive: true
-      - name: Delete releases on closed PR:s
-        shell: bash
-        run: |
-          export PR_RELEASES=`gh release list --limit 1000 | grep "\-pr"`
-          for NUMBER in `gh pr list --state closed | cut -f 1-1`; do export MATCHING_RELEASES=`echo "$PR_RELEASES" | grep "pr${NUMBER}"`; if [ ! -z "$MATCHING_RELEASES" ]; then for RELEASE in $MATCHING_RELEASES; do echo Delete closed release and tag: $RELEASE; gh release delete -y $RELEASE; tag push origin --delete $RELEASE; done ; fi ; done
-        continue-on-error: true
+      - id: pantsBuild
+        uses: ./.github/actions/pants-build@backlog/ci #lluisFtrack/test_monorepo_ci/.github/actions/pants-build@backlog/ci #./.github/actions/pants-build@backlog/ci
 
-  release:
-    needs: pants-build
-    strategy:
-      matrix:
-        include:
-          - package: application-launcher
-            os: ubuntu-latest
-            suffix: ''
-          - package: connect-action-launcher-widget
-            os: ubuntu-latest
-            suffix: ''
-          - package: connect-plugin-manager
-            os: ubuntu-latest
-            suffix: ''
-          - package: framework-core
-            os: ubuntu-latest
-            suffix: ''
-          - package: framework-qt
-            os: ubuntu-latest
-            suffix: ''
-          - package: framework-maya
-            os: ubuntu-latest
-            suffix: ''
-          - package: framework-nuke
-            os: ubuntu-latest
-            suffix: ''
-          - package: framework-houdini
-            os: ubuntu-latest
-            suffix: ''
-          - package: framework-3dsmax
-            os: ubuntu-latest
-            suffix: ''
-          - package: framework-unreal
-            os: windows-latest
-            suffix: 'win'
-          - package: connect-timetracker-widget
-            os: ubuntu-latest
-            suffix: ''
-          - package: nuke-studio
-            os: ubuntu-latest
-            suffix: ''
-          - package: rv
-            os: ubuntu-latest
-            suffix: ''
-          # Add new packages here
-    runs-on: ${{ matrix.os }}
-    steps:
-      - name: Check out repository
-        if: ${{ contains(needs.pants-build.outputs.changed,matrix.package) }}
-        uses: actions/checkout@v3
-      - name: Run release action
-        if: ${{ contains(needs.pants-build.outputs.changed,matrix.package) }}
-        uses: ./.github/actions/connect-release
-        with:
-          package: ${{ matrix.package }}
-          tag: ${{ matrix.package }}/v0.0.0-latest
-          suffix: ${{ matrix.suffix }}
-          deleteprevious: true
-          prerelease: true
-          token: ${{ secrets.GITHUB_TOKEN }}
-          aws_key_id: ${{ secrets.S3_ACCESS_KEY }}
-          aws_secret_access_key: ${{ secrets.S3_SECRET_ACCESS_KEY}}
+#  pre-release:
+#    needs: pants-build
+#    uses: ./.github/workflows/pre-release.yml
+#    with:
+#      changed: pants-build.outputs.changed
+
+  deploy-docs:
+    uses: ./.github/workflows/deploy-docs.yml
+    with:
+      changed: pants-build.outputs.changed

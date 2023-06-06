@@ -1,5 +1,10 @@
 name: Docs
 on:
+  workflow_call:
+    inputs:
+      changed:
+        required: true
+        type: string
   push:
     branches:
       - main # Set a branch name to trigger deployment
@@ -16,6 +21,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
+        run : echo ${{ inputs.changed }}
         uses: actions/checkout@v3
       - name: Setup Pages
         uses: actions/configure-pages@v3
