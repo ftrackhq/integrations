@@ -31,8 +31,8 @@ jobs:
     with:
       changed: ${{needs.pants-build.outputs.changed}}
 
-  deploy-docs:
-    needs: pants-build
-    uses: ./.github/workflows/deploy-docs.yml
-    with:
-      changed: ${{needs.pants-build.outputs.changed}}
+#  deploy-docs:
+#    needs: pants-build
+#    uses: ./.github/workflows/deploy-docs.yml
+#    with:
+#      changed: ${{needs.pants-build.outputs.changed}}
