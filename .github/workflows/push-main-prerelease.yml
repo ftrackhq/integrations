@@ -23,20 +23,13 @@ jobs:
         with:
           fetch-depth: 0
       - id: pantsBuild
-        uses: ./.github/actions/pants-build #lluisFtrack/test_monorepo_ci/.github/actions/pants-build@backlog/ci #./.github/actions/pants-build@backlog/ci
+        uses: ./.github/actions/pants-build
 
-#  pre-release:
-#    needs: pants-build
-#    uses: ./.github/workflows/pre-release.yml
-#    with:
-#      changed: pants-build.outputs.changed
-
-  test:
+  pre-release:
     needs: pants-build
-    runs-on: ubuntu-latest
-    steps:
-      - name: test the variables
-        run : echo "${{needs.pants-build.outputs.changed}}"
+    uses: ./.github/workflows/pre-release.yml
+    with:
+      changed: ${{needs.pants-build.outputs.changed}}
 
   deploy-docs:
     needs: pants-build

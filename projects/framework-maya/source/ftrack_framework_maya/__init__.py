@@ -2,4 +2,4 @@
 # :copyright: Copyright (c) 2019 ftrack
 
 from ._version import __version__
-print("a")
+print("b")
