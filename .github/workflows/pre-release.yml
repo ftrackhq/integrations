@@ -4,9 +4,6 @@
 
 name: pre-release
 
-# Prevent concurrent runs of this workflow due to the pants cache being shared between them.
-concurrency: pants_ci
-
 on:
   workflow_call:
     inputs:
