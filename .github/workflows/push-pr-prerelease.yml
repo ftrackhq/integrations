@@ -8,7 +8,7 @@ concurrency: pants_ci
 
 on:
   push:
-    branches: [ "backlog/ci" ]
+    branches: [ "backlog/ci" ] #TODO: remember to remove pushand branches
   pull_request:
     types:
       - opened
