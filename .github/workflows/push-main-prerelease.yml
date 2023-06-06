@@ -20,6 +20,8 @@ jobs:
     steps:
       - name: Check out repository
         uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
       - id: pantsBuild
         uses: ./.github/actions/pants-build@backlog/ci #lluisFtrack/test_monorepo_ci/.github/actions/pants-build@backlog/ci #./.github/actions/pants-build@backlog/ci
 
