@@ -47,45 +47,23 @@ jobs:
     needs: build-index
     strategy:
       matrix:
+        package: [ application-launcher, connect-action-launcher-widget, connect-plugin-manager, framework-maya, framework-nuke, framework-houdini, framework-3dsmax, connect-timetracker-widget, nuke-studio, rv ]
+        folder: [projects]
         include:
           - package: framework-core
             folder: libs
-          - package: framework-3dsmax
-            folder: projects
-          - package: framework-houdini
-            folder: projects
           - package: framework-qt
             folder: libs
+          # Add new packages here
+
     name: Build docs (${{ matrix.package }})
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-        #if: ${{ contains(needs.probe.outputs.changed,matrix.package) }}
-      - uses: actions/setup-python@v4
-        #if: ${{ contains(needs.probe.outputs.changed,matrix.package) }}
+      - uses: ./.github/actions/build-docs
+        if: ${{ contains(inputs.changed,matrix.package) }}
         with:
-          python-version: '3.7'
-      - name: Install dependencies
-        #if: ${{ contains(needs.probe.outputs.changed,matrix.package) }}
-        run: |
-          pip install sphinx sphinx_rtd_theme lowdown
-      - name: Sphinx build
-        #if: ${{ contains(needs.probe.outputs.changed,matrix.package) }}
-        run: |
-          cd ${{ matrix.folder }}/${{ matrix.package }}
-          sphinx-build doc public
-      - name: Deploy
-        uses: peaceiris/actions-gh-pages@v3
-        #if: ${{ contains(needs.probe.outputs.changed,matrix.package) }}
-        # Todo: uncheck this when you are ready to only deploy from main
-        #if: ${{ github.ref == 'refs/heads/main' }}
-        with:
-          # Todo: Change to gh-pages when you are ready
-          publish_branch: gh-pages-deploy
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ${{ matrix.folder }}/${{ matrix.package }}/public
-          keep_files: true
-          destination_dir: ${{ matrix.folder }}/${{ matrix.package }}
+          package: ${{ matrix.package }}
+          folder: ${{ matrix.folder }}
 
   upload:
     needs:  build-package-docs
