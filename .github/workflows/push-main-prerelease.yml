@@ -16,7 +16,7 @@ jobs:
     name: Build with Pants and probe which packages has changed
     runs-on: ubuntu-latest
     outputs:
-      changed: ${{ steps.pantsBuild.outputs.changed }}
+      changed: ${{ env.CHANGED }}
     steps:
       - name: Check out repository
         uses: actions/checkout@v3
