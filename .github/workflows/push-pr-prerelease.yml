@@ -18,17 +18,21 @@ on:
 
 jobs:
   pants-build:
-    name: Build with Pants and probe which packages has changed
-    runs-on: ubuntu-latest
-    outputs:
-      changed: ${{ env.CHANGED }}
-    steps:
-      - name: Check out repository
-        uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
-      - id: pantsBuild
-        uses: ./.github/actions/pants-build
+    uses: ./.github/workflows/pants-build.yml
+    with:
+      pre_tag: false
+      check_changed: true
+#    name: Build with Pants and probe which packages has changed
+#    runs-on: ubuntu-latest
+#    outputs:
+#      changed: ${{ env.CHANGED }}
+#    steps:
+#      - name: Check out repository
+#        uses: actions/checkout@v3
+#        with:
+#          fetch-depth: 0
+#      - id: pantsBuild
+#        uses: ./.github/actions/pants-build
 
   pre-release:
     needs: pants-build
