@@ -64,9 +64,9 @@ jobs:
           # See https://pants.readme.io/docs/using-pants-in-ci for tips on how to periodically clean it up.
           # Alternatively you change gha-cache-key to ignore old caches.
       - uses: ./.github/workflows/pre-tag.yml
-        if: input.pre_tag
+        if: ${{ inputs.pre_tag }}
       - name: Determine which packages has changed using Pants
-        if: input.check_changed
+        if: ${{ inputs.check_changed }}
         shell: bash
         run: |
           git fetch --all --force
