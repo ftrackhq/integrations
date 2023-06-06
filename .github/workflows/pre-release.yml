@@ -10,6 +10,9 @@ on:
       changed:
         required: true
         type: string
+      tag_type:
+        required: true
+        type: string
 
 jobs:
   pre-release:
@@ -17,9 +20,11 @@ jobs:
       matrix:
         package: [application-launcher, connect-action-launcher-widget, connect-plugin-manager, framework-core, framework-qt, framework-maya, framework-nuke, framework-houdini, framework-3dsmax, connect-timetracker-widget, nuke-studio, rv]
         os: [ubuntu-latest]
+        sufix: ['']
         include:
           - package: framework-unreal
             os: windows-latest
+            suffix: 'win'
           # Add new packages here
     runs-on: ${{ matrix.os }}
     steps:
@@ -33,7 +38,7 @@ jobs:
         uses: ./.github/actions/connect-release
         with:
           package: ${{ matrix.package }}
-          tag: ${{ matrix.package }}/v0.0.0-latest
+          tag: ${{ matrix.package }}/v0.0.0-${{inputs.tag_type}}
           suffix: ${{ matrix.suffix }}
           deleteprevious: true
           prerelease: true

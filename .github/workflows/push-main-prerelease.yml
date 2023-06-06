@@ -30,6 +30,7 @@ jobs:
     uses: ./.github/workflows/pre-release.yml
     with:
       changed: ${{needs.pants-build.outputs.changed}}
+      tag_type: "latest"
 
 #  deploy-docs:
 #    needs: pants-build
