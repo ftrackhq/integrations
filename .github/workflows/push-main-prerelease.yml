@@ -36,7 +36,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: test the variables
-        run : echo ${{needs.pants-build.outputs.changed}}
+        run : echo "${{needs.pants-build.outputs.changed}}"
 
   deploy-docs:
     needs: pants-build
