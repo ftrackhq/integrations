@@ -16,7 +16,6 @@ on:
 
 jobs:
   pre-release:
-    needs: pants-build
     strategy:
       matrix:
         package: [application-launcher, connect-action-launcher-widget, connect-plugin-manager, framework-core, framework-qt, framework-maya, framework-nuke, framework-houdini, framework-3dsmax, connect-timetracker-widget, nuke-studio, rv]
@@ -27,6 +26,10 @@ jobs:
           # Add new packages here
     runs-on: ${{ matrix.os }}
     steps:
+      - name: test
+        run: echo "${{inputs.changed}}"
+      - name: test_en
+        run: echo "${{ env.CHANGED }}"
       - name: Check out repository
         if: ${{ contains(needs.pants-build.outputs.changed,matrix.package) }}
         uses: actions/checkout@v3
