@@ -16,15 +16,17 @@ on:
 
 jobs:
   pre-release:
-    strategy:
-      matrix:
-        package: [application-launcher, connect-action-launcher-widget, connect-plugin-manager, framework-core, framework-qt, framework-maya, framework-nuke, framework-houdini, framework-3dsmax, connect-timetracker-widget, nuke-studio, rv]
-        os: [ubuntu-latest]
-        include:
-          - package: framework-unreal
-            os: windows-latest
-          # Add new packages here
-    runs-on: ${{ matrix.os }}
+    runs-on: ubuntu-latest
+
+#    strategy:
+#      matrix:
+#        package: [application-launcher, connect-action-launcher-widget, connect-plugin-manager, framework-core, framework-qt, framework-maya, framework-nuke, framework-houdini, framework-3dsmax, connect-timetracker-widget, nuke-studio, rv]
+#        os: [ubuntu-latest]
+#        include:
+#          - package: framework-unreal
+#            os: windows-latest
+#          # Add new packages here
+#    runs-on: ${{ matrix.os }}
     steps:
       - name: test
         run: echo "${{inputs.changed}}"
