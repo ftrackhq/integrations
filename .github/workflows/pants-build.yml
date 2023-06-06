@@ -11,27 +11,34 @@ on:
     outputs:
       changed:
         description: "Changed packages"
-        value: ${{ env.CHANGED }}
+        value: ${{ jobs.pants-build.outputs.changed }}
       package:
         description: "Package name"
-        value: ${{ env.PACKAGE }}
+        value: ${{ jobs.pants-build.outputs.package }}
       version:
         description: "Package version"
-        value: ${{ env.VERSION }}
+        value: ${{ jobs.pants-build.outputs.version }}
       tag:
         description: "Package tag"
-        value: ${{ env.TAG }}
+        value: ${{ jobs.pants-build.outputs.tag }}
       os:
         description: "Package os"
-        value: ${{ env.OS }}
+        value: ${{ jobs.pants-build.outputs.os }}
       suffix:
         description: "Package suffix"
-        value: ${{ env.SUFFIX }}
+        value: ${{ jobs.pants-build.outputs.suffix }}
 
 jobs:
   # Build root docs
   pants-build:
     runs-on: ubuntu-latest
+    outputs:
+      changed: ${{ env.CHANGED }}
+      package: ${{ env.PACKAGE }}
+      version: ${{ env.VERSION }}
+      tag: ${{ env.TAG }}
+      os: ${{ env.OS }}
+      suffix: ${{ env.SUFFIX }}
     steps:
       - uses: actions/checkout@v3
         with:
@@ -58,9 +65,6 @@ jobs:
           # Alternatively you change gha-cache-key to ignore old caches.
       - uses: ./.github/workflows/pre-tag.yml
         if: input.pre_tag
-        with:
-          changed: ${{needs.pants-build.outputs.changed}}
-          tag_type: "latest"
       - name: Determine which packages has changed using Pants
         if: input.check_changed
         shell: bash
