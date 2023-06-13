@@ -29,5 +29,5 @@ jobs:
     #needs: pants-build
     uses: ./.github/workflows/deploy-docs.yml
     with:
-      changed: ${{needs.pants-build.outputs.changed}}
+      changed: test #${{needs.pants-build.outputs.changed}}
       #destination: ./latest
