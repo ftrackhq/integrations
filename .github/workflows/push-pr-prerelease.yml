@@ -7,13 +7,13 @@ name: CI-PR
 concurrency: pants_ci
 
 on:
-  push:
-    branches: [ "backlog/ci" ] #TODO: remember to remove pushand branches
+#  push:
+#    branches: [ "backlog/ci" ] #TODO: remember to remove pushand branches
   pull_request:
     types:
-      - opened
-      - edited
-      - synchronize
+#      - opened
+#      - edited
+#      - synchronize
       - closed
 
 jobs:

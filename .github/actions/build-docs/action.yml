@@ -11,18 +11,14 @@ runs:
   using: "composite"
   steps:
     - uses: actions/checkout@v3
-      #if: ${{ contains(needs.probe.outputs.changed,matrix.package) }}
     - uses: actions/setup-python@v4
-      #if: ${{ contains(needs.probe.outputs.changed,matrix.package) }}
       with:
         python-version: '3.7'
     - name: Install dependencies
-      #if: ${{ contains(needs.probe.outputs.changed,matrix.package) }}
       shell: bash
       run: |
         pip install sphinx sphinx_rtd_theme lowdown
     - name: Sphinx build
-      #if: ${{ contains(needs.probe.outputs.changed,matrix.package) }}
       shell: bash
       run: |
         cd ${{ inputs.folder }}/${{ inputs.package }}
@@ -34,7 +30,7 @@ runs:
       #if: ${{ github.ref == 'refs/heads/main' }}
       with:
         # Todo: Change to gh-pages when you are ready
-        publish_branch: gh-pages-deploy
+        publish_branch: gh-pages
         github_token: ${{ secrets.GITHUB_TOKEN }}
         publish_dir: ${{ inputs.folder }}/${{ inputs.package }}/public
         keep_files: true
