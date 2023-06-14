@@ -49,28 +49,28 @@ jobs:
         uses: actions/upload-pages-artifact@v1
         with:
           path: ${{ inputs.destination }}
-#
-#  build-package-docs:
-#    needs: build-index
-#    strategy:
-#      matrix:
-#        package: [ application-launcher, connect-action-launcher-widget, connect-plugin-manager, framework-maya, framework-nuke, framework-houdini, framework-3dsmax, connect-timetracker-widget, nuke-studio, rv ]
-#        folder: [projects]
-#        include:
-#          - package: framework-core
-#            folder: libs
-#          - package: framework-qt
-#            folder: libs
-#          # Add new packages here
-#
-#    name: Build docs (${{ matrix.package }})
-#    runs-on: ubuntu-latest
-#    steps:
-#      - uses: ./.github/actions/build-docs
-#        if: ${{ contains(inputs.changed,matrix.package) }}
-#        with:
-#          package: ${{ matrix.package }}
-#          folder: ${{ matrix.folder }}
+
+  build-package-docs:
+    needs: build-index
+    strategy:
+      matrix:
+        package: [ application-launcher, connect-action-launcher-widget, connect-plugin-manager, framework-maya, framework-nuke, framework-houdini, framework-3dsmax, connect-timetracker-widget, nuke-studio, rv ]
+        folder: [projects]
+        include:
+          - package: framework-core
+            folder: libs
+          - package: framework-qt
+            folder: libs
+          # Add new packages here
+
+    name: Build docs (${{ matrix.package }})
+    runs-on: ubuntu-latest
+    steps:
+      - uses: ./.github/actions/build-docs
+        if: ${{ contains(inputs.changed,matrix.package) }}
+        with:
+          package: ${{ matrix.package }}
+          folder: ${{ matrix.folder }}
 
   deploy: #TODO: This is working, but probably should be moved under build packages
     runs-on: ubuntu-latest
