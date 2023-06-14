@@ -45,10 +45,10 @@ jobs:
           force_orphan: true
           exclude_assets: libs,projects,apps
           enable_jekyll: true
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v1
-        with:
-          path: ${{ inputs.destination }}
+#      - name: Upload artifact
+#        uses: actions/upload-pages-artifact@v1
+#        with:
+#          path: ${{ inputs.destination }}
 
   build-package-docs:
     needs: build-index
@@ -71,6 +71,10 @@ jobs:
         with:
           package: ${{ matrix.package }}
           folder: ${{ matrix.folder }}
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v1
+        with:
+          path: ./_site
 
   deploy: #TODO: This is working, but probably should be moved under build packages
     runs-on: ubuntu-latest
