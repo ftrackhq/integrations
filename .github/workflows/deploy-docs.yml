@@ -54,7 +54,7 @@ jobs:
     needs: build-index
     strategy:
       matrix:
-        package: [ application-launcher, connect-action-launcher-widget, connect-plugin-manager, framework-maya, framework-nuke, framework-houdini, framework-3dsmax, connect-timetracker-widget, nuke-studio, rv ]
+        package: [ framework-maya, framework-nuke, framework-houdini, framework-3dsmax, connect-timetracker-widget, nuke-studio, rv ] #application-launcher, connect-action-launcher-widget, connect-plugin-manager,
         folder: [projects]
         include:
           - package: framework-core
