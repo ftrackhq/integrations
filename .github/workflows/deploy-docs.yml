@@ -38,16 +38,7 @@ jobs:
         uses: actions/upload-pages-artifact@v1
         with:
           path: ${{ inputs.destination }}
-  deploy: #TODO: This is working, but probably should be moved under build packages
-    runs-on: ubuntu-latest
-    needs: build-index
-    steps:
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v2
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+
 
 #      - name: Deploy
 #        uses: peaceiris/actions-gh-pages@v3
@@ -81,6 +72,17 @@ jobs:
         with:
           package: ${{ matrix.package }}
           folder: ${{ matrix.folder }}
+
+    deploy: #TODO: This is working, but probably should be moved under build packages
+      runs-on: ubuntu-latest
+      needs: build-index
+      steps:
+        - name: Deploy to GitHub Pages
+          id: deployment
+          uses: actions/deploy-pages@v2
+      environment:
+        name: github-pages
+        url: ${{ steps.deployment.outputs.page_url }}
 #
 #  upload:
 #    needs:  build-package-docs
