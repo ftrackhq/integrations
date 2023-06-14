@@ -73,16 +73,16 @@ jobs:
           package: ${{ matrix.package }}
           folder: ${{ matrix.folder }}
 
-    deploy: #TODO: This is working, but probably should be moved under build packages
-      runs-on: ubuntu-latest
-      needs: build-package-docs
-      steps:
-        - name: Deploy to GitHub Pages
-          id: deployment
-          uses: actions/deploy-pages@v2
-      environment:
-        name: github-pages
-        url: ${{ steps.deployment.outputs.page_url }}
+  deploy: #TODO: This is working, but probably should be moved under build packages
+    runs-on: ubuntu-latest
+    needs: build-package-docs
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v2
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
 #
 #  upload:
 #    needs:  build-package-docs
