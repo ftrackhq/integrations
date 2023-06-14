@@ -63,7 +63,7 @@ jobs:
           # but will cause the cache entry to grow without bound over time.
           # See https://pants.readme.io/docs/using-pants-in-ci for tips on how to periodically clean it up.
           # Alternatively you change gha-cache-key to ignore old caches.
-      - uses: ./.github/actions/pre-tag.yml
+      - uses: ./.github/actions/pre-tag
         if: ${{ inputs.pre_tag }}
       - name: Determine which packages has changed using Pants
         if: ${{ inputs.check_changed }}
