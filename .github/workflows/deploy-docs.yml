@@ -20,38 +20,38 @@ permissions:
 
 jobs:
   # Build root docs
-#  build-index:
-#    runs-on: ubuntu-latest
-#    steps:
-#      - name: test_input
-#        run : echo ${{ inputs.changed }} && echo ${{ inputs.destination }}
-#      - name: Checkout
-#        uses: actions/checkout@v3
-#      - name: Setup Pages
-#        uses: actions/configure-pages@v3
-#      - name: Build with Jekyll
-#        uses: actions/jekyll-build-pages@v1
+  build-index:
+    runs-on: ubuntu-latest
+    steps:
+      - name: test_input
+        run : echo ${{ inputs.changed }} && echo ${{ inputs.destination }}
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Setup Pages
+        uses: actions/configure-pages@v3
+      - name: Build with Jekyll
+        uses: actions/jekyll-build-pages@v1
+        with:
+          source: ./
+          destination: ${{ inputs.destination }}
+#      - name: Deploy
+#        uses: peaceiris/actions-gh-pages@v3
+#        # Todo: uncheck this when you are ready to only deploy from main
+#        #if: ${{ github.ref == 'refs/heads/main' }}
 #        with:
-#          source: ./
-#          destination: ${{ inputs.destination }}
-##      - name: Deploy
-##        uses: peaceiris/actions-gh-pages@v3
-##        # Todo: uncheck this when you are ready to only deploy from main
-##        #if: ${{ github.ref == 'refs/heads/main' }}
-##        with:
-##          publish_branch: gh-pages
-##          github_token: ${{ secrets.GITHUB_TOKEN }}
-##          publish_dir: ${{ inputs.destination }}
-##          force_orphan: true
-##          exclude_assets: libs,projects,apps
-#          #enable_jekyll: true
-#      - name: Upload artifact
-#        uses: actions/upload-pages-artifact@v1
-#        with:
-#          path: ${{ inputs.destination }}
+#          publish_branch: gh-pages
+#          github_token: ${{ secrets.GITHUB_TOKEN }}
+#          publish_dir: ${{ inputs.destination }}
+#          force_orphan: true
+#          exclude_assets: libs,projects,apps
+          #enable_jekyll: true
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v1
+        with:
+          path: ${{ inputs.destination }}
 
   build-package-docs:
-    #needs: build-index
+    needs: build-index
     strategy:
       matrix:
         package: [ framework-maya, framework-nuke, framework-houdini, framework-3dsmax] #application-launcher, connect-action-launcher-widget, connect-plugin-manager, connect-timetracker-widget, nuke-studio, rv
@@ -73,8 +73,8 @@ jobs:
       - name: Build with Jekyll
         uses: actions/jekyll-build-pages@v1
         with:
-          source: ./${{ inputs.folder }}/${{ inputs.package }}
-          destination: ${{ inputs.folder }}/${{ inputs.package }}
+          source: ./
+          destination: public/${{ inputs.folder }}/${{ inputs.package }}
       - name: build-docs
         uses: ./.github/actions/build-docs
         #if: ${{ contains(inputs.changed,matrix.package) }}
@@ -85,7 +85,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v1
         with:
-          path: ${{ inputs.folder }}/${{ inputs.package }}
+          path: public/${{ inputs.folder }}/${{ inputs.package }}
 
 
 #
