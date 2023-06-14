@@ -128,7 +128,7 @@ jobs:
 
   deploy: #TODO: This is working, but probably should be moved under build packages
     runs-on: ubuntu-latest
-    needs: build-package-docs
+    needs: upload
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
