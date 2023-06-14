@@ -28,15 +28,15 @@ runs:
       run: |
         cd ${{ inputs.folder }}/${{ inputs.package }}
         sphinx-build doc public
-    - name: Deploy
-      uses: peaceiris/actions-gh-pages@v3
-      #if: ${{ contains(needs.probe.outputs.changed,matrix.package) }}
-      # Todo: uncheck this when you are ready to only deploy from main
-      #if: ${{ github.ref == 'refs/heads/main' }}
-      with:
-        # Todo: Change to gh-pages when you are ready
-        publish_branch: gh-pages
-        github_token: ${{ inputs.GITHUB_TOKEN }}
-        publish_dir: ${{ inputs.folder }}/${{ inputs.package }}/public
-        keep_files: true
-        destination_dir: ${{ inputs.folder }}/${{ inputs.package }}
+#    - name: Deploy
+#      uses: peaceiris/actions-gh-pages@v3
+#      #if: ${{ contains(needs.probe.outputs.changed,matrix.package) }}
+#      # Todo: uncheck this when you are ready to only deploy from main
+#      #if: ${{ github.ref == 'refs/heads/main' }}
+#      with:
+#        # Todo: Change to gh-pages when you are ready
+#        publish_branch: gh-pages
+#        github_token: ${{ inputs.GITHUB_TOKEN }}
+#        publish_dir: ${{ inputs.folder }}/${{ inputs.package }}/public
+#        keep_files: true
+#        destination_dir: ${{ inputs.folder }}/${{ inputs.package }}
