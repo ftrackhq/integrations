@@ -66,7 +66,10 @@ jobs:
     name: Build docs (${{ matrix.package }})
     runs-on: ubuntu-latest
     steps:
-      - uses: ./.github/actions/build-docs
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: build-docs
+        uses: ./.github/actions/build-docs
         #if: ${{ contains(inputs.changed,matrix.package) }}
         with:
           package: ${{ matrix.package }}
