@@ -17,6 +17,16 @@ permissions:
   contents: write
   pages: write
   id-token: write
+  actions: write
+  checks: write
+  deployments: write
+  issues: write
+  discussions: write
+  packages: write
+  pull-requests: write
+  repository-projects: write
+  security-events: write
+  statuses: write
 
 jobs:
   # Build root docs
