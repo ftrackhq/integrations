@@ -48,6 +48,7 @@ jobs:
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
+      
 #      - name: Deploy
 #        uses: peaceiris/actions-gh-pages@v3
 #        # Todo: uncheck this when you are ready to only deploy from main
