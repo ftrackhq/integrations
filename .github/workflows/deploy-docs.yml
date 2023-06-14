@@ -44,7 +44,7 @@ jobs:
           publish_dir: ${{ inputs.destination }}
           force_orphan: true
           exclude_assets: libs,projects,apps
-          enable_jekyll: true
+          #enable_jekyll: true
 #      - name: Upload artifact
 #        uses: actions/upload-pages-artifact@v1
 #        with:
