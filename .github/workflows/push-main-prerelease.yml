@@ -9,25 +9,25 @@ concurrency: pants_ci
 
 on:
   push:
-    branches: ["main", "backlog/ci"] #TODO: remember to remobe backlog/ci
+    branches: ["main"] # , "backlog/ci"] #TODO: remember to remobe backlog/ci
 
 jobs:
-#  pants-build:
-#    uses: ./.github/workflows/pants-build.yml
-#    with:
-#      pre_tag: false
-#      check_changed: true
-#
-#  pre-release:
-#    needs: pants-build
-#    uses: ./.github/workflows/pre-release.yml
-#    with:
-#      changed: ${{needs.pants-build.outputs.changed}}
-#      tag_type: "latest"
-
-  deploy-docs:
-    #needs: pants-build
-    uses: ./.github/workflows/deploy-docs.yml
+  pants-build:
+    uses: ./.github/workflows/pants-build.yml
     with:
-      changed: test #${{needs.pants-build.outputs.changed}}
-      #destination: ./latest
+      pre_tag: false
+      check_changed: true
+
+  pre-release:
+    needs: pants-build
+    uses: ./.github/workflows/pre-release.yml
+    with:
+      changed: ${{needs.pants-build.outputs.changed}}
+      tag_type: "latest"
+
+#  deploy-docs:
+#    #needs: pants-build
+#    uses: ./.github/workflows/deploy-docs.yml
+#    with:
+#      changed: test #${{needs.pants-build.outputs.changed}}
+#      #destination: ./latest
