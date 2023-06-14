@@ -73,7 +73,7 @@ jobs:
       - name: Build with Jekyll
         uses: actions/jekyll-build-pages@v1
         with:
-          source: ./${{ inputs.folder }}/${{ inputs.package }}
+          source: ./${{ inputs.folder }}/${{ inputs.package }}/public
           destination: ${{ inputs.folder }}/${{ inputs.package }}
       - name: build-docs
         uses: ./.github/actions/build-docs
