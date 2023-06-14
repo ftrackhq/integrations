@@ -74,7 +74,7 @@ jobs:
         with:
           package: ${{ matrix.package }}
           folder: ${{ matrix.folder }}
-          ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
 
 #

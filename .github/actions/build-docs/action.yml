@@ -7,7 +7,7 @@ inputs:
   folder:
     description: "Package folder"
     required: true
-  ACCESS_TOKEN:
+  GITHUB_TOKEN:
     description: "GH token"
     required: true
 runs:
@@ -36,7 +36,7 @@ runs:
       with:
         # Todo: Change to gh-pages when you are ready
         publish_branch: gh-pages
-        github_token: ${{ inputs.ACCESS_TOKEN }}
+        github_token: ${{ inputs.GITHUB_TOKEN }}
         publish_dir: ${{ inputs.folder }}/${{ inputs.package }}/public
         keep_files: true
         destination_dir: ${{ inputs.folder }}/${{ inputs.package }}
