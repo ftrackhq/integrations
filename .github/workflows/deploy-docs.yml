@@ -34,10 +34,6 @@ jobs:
         with:
           source: ./
           destination: ${{ inputs.destination }}
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v1
-        with:
-          path: ${{ inputs.destination }}
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v3
         # Todo: uncheck this when you are ready to only deploy from main
@@ -49,6 +45,10 @@ jobs:
           force_orphan: true
           exclude_assets: libs,projects,apps
           enable_jekyll: true
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v1
+        with:
+          path: ${{ inputs.destination }}
 #
 #  build-package-docs:
 #    needs: build-index
