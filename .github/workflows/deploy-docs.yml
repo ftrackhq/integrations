@@ -67,7 +67,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: ./.github/actions/build-docs
-        if: ${{ contains(inputs.changed,matrix.package) }}
+        #if: ${{ contains(inputs.changed,matrix.package) }}
         with:
           package: ${{ matrix.package }}
           folder: ${{ matrix.folder }}
@@ -89,7 +89,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v1
         with:
-          path: ${{ inputs.destination }} #./
+          path: ./
 
 
   deploy: #TODO: This is working, but probably should be moved under build packages
