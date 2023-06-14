@@ -73,8 +73,8 @@ jobs:
       - name: Build with Jekyll
         uses: actions/jekyll-build-pages@v1
         with:
-          source: ./
-          destination: ${{ inputs.folder }}/${{ inputs.package }}
+          source: ${{ inputs.destination }}
+          destination: ${{ inputs.destination }}/${{ inputs.folder }}/${{ inputs.package }}
       - name: build-docs
         uses: ./.github/actions/build-docs
         #if: ${{ contains(inputs.changed,matrix.package) }}
@@ -85,7 +85,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v1
         with:
-          path:${{ inputs.folder }}/${{ inputs.package }}
+          path: ${{ inputs.destination }}/${{ inputs.folder }}/${{ inputs.package }}
 
 
 #
