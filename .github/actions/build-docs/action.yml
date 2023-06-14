@@ -26,7 +26,7 @@ runs:
     - name: Upload artifact
       uses: actions/upload-pages-artifact@v1
       with:
-        path: ${{ inputs.folder }}/${{ inputs.package }}
+        path: ${{ inputs.destination }}
 #    - name: Deploy
 #      uses: peaceiris/actions-gh-pages@v3
 #      #if: ${{ contains(needs.probe.outputs.changed,matrix.package) }}
