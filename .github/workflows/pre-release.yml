@@ -42,5 +42,5 @@ jobs:
           deleteprevious: true
           prerelease: true
           token: ${{ secrets.GITHUB_TOKEN }}
-          aws_key_id: ${{ secrets.S3_ACCESS_KEY }}
-          aws_secret_access_key: ${{ secrets.S3_SECRET_ACCESS_KEY}}
+          allan: ${{ secrets.S3_ACCESS_KEY }}
+          brallan: ${{ secrets.S3_SECRET_ACCESS_KEY }}
