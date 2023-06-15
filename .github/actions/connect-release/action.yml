@@ -16,10 +16,13 @@ inputs:
   prerelease:
     required: true
     description: Whether or not this is a pre-release
-  allan:
+  token:
+    required: true
+    description: The GH token
+  aws_key_id:
     required: true
     description: The AWS key ID to use
-  brallan:
+  aws_secret_access_key:
     required: true
     description: The AWS secret access key to use
 runs:
@@ -114,8 +117,8 @@ runs:
       run: |
         aws s3 cp dist/${{ env.PLUGIN_ZIPBALL }} s3://ftrack-public-content/ftrack-connect/integrations/
       env:
-        AWS_ACCESS_KEY_ID: ${{ inputs.allan }}
-        AWS_SECRET_ACCESS_KEY: ${{ inputs.brallan }}
+        AWS_ACCESS_KEY_ID: ${{ inputs.aws_key_id }}
+        AWS_SECRET_ACCESS_KEY: ${{ inputs.aws_secret_access_key }}
         AWS_DEFAULT_REGION: 'eu-central-1'
       shell: bash
 
