@@ -13,7 +13,7 @@ Release Notes
     .. change:: changed
         :tags: scm
 
-        Moved repository to monorepo package libs/framework-core.
+        Moved repository to monorepo package projects/framework-maya.
 
 .. release:: 1.2.0
     :date: 2023-04-05
