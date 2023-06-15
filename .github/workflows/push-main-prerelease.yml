@@ -53,6 +53,7 @@ jobs:
           suffix: ${{ matrix.suffix }}
           deleteprevious: true
           prerelease: true
+          deploy_aws: true
           token: ${{ secrets.GITHUB_TOKEN }}
           aws_key_id: ${{ secrets.S3_ACCESS_KEY }}
           aws_secret_access_key: ${{ secrets.S3_SECRET_ACCESS_KEY }}

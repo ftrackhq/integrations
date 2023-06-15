@@ -19,6 +19,9 @@ inputs:
   token:
     required: true
     description: The GH token
+  deploy_aws:
+    required: true
+    description: Deploy to AWS
   aws_key_id:
     required: true
     description: The AWS key ID to use
@@ -114,7 +117,7 @@ runs:
     #  Upload non PR release artifact to S3 making it available via download.ftrack.com
     # (caching disabled for *0.0.0*.zip)
     - name: S3 upload
-      if: ${{ !inputs.prerelease || contains(inputs.tag,'latest')}}
+      if: ${{ inputs.deploy_aws == 'true' }}
       run: |
         mkdir -p ~/.aws
         echo "[default]" > ~/.aws/credentials
