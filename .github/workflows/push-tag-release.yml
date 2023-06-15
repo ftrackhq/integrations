@@ -10,6 +10,8 @@ on:
   push:
     tags-ignore:
       - '*0.0.0*'
+      - '*latest'
+      - '*stable'
 
 # TODO: Support multiple platform builds
 

@@ -28,6 +28,7 @@ runs:
         echo "PACKAGE=$(echo ${{ github.ref }} | cut -d/ -f 3-3)" >> $GITHUB_ENV
         echo "VERSION=$(echo ${{ github.ref }} | cut -d/ -f 4-4)" >> $GITHUB_ENV
         echo "TAG=$(echo ${{ github.ref }} | cut -d/ -f 3-4)" >> $GITHUB_ENV
+      shell: bash
 
     # Connect plugin manager version mgmt
 
@@ -36,21 +37,24 @@ runs:
         echo "FOLDER=projects" >> $GITHUB_ENV
         echo "OS=ubuntu-latest" >> $GITHUB_ENV
         echo "SUFFIX=" >> $GITHUB_ENV
+      shell: bash
 
     - name: Override folder
       if: ${{ env.PACKAGE == 'framework-core' || env.PACKAGE == 'framework-qt' }}
       run: |
         echo "FOLDER=libs" >> $GITHUB_ENV
+      shell: bash
 
     - name: Override os
       if: ${{ env.PACKAGE == 'framework-unreal' }}
       run: |
         echo "OS=windows-latest" >> $GITHUB_ENV
         echo "SUFFIX=win" >> $GITHUB_ENV
+      shell: bash
 
     - name: Write version to source
       run: |
         cd ${{ env.FOLDER }}/${{ env.PACKAGE }}/source/ftrack_`echo ${{ env.PACKAGE }} | tr - _`
         echo "__version__ = '${{ env.VERSION }}'" > _version.py
-
+      shell: bash
 
