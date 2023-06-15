@@ -18,6 +18,7 @@ jobs:
   pre-release:
     strategy:
       matrix:
+        # Add new packages here
         package: [application-launcher, connect-action-launcher-widget, connect-plugin-manager, framework-core, framework-qt, framework-maya, framework-nuke, framework-houdini, framework-3dsmax, connect-timetracker-widget, nuke-studio, rv]
         os: [ubuntu-latest]
         suffix: ['']
@@ -25,11 +26,9 @@ jobs:
           - package: framework-unreal
             os: windows-latest
             suffix: 'win'
-          # Add new packages here
+          # Add platform dependent packages here
     runs-on: ${{ matrix.os }}
     steps:
-      - name: test
-        run: echo "${{inputs.changed}}"
       - name: Check out repository
         if: ${{ contains(inputs.changed,matrix.package) }}
         uses: actions/checkout@v3

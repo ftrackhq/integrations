@@ -107,15 +107,16 @@ runs:
         overwrite: true
         verbose: true
         draft: false
-    #  Upload artifact to S3 making it available via download.ftrack.com (caching disabled for *0.0.0*.zip)
+    #  Upload non PR release artifact to S3 making it available via download.ftrack.com
+    # (caching disabled for *0.0.0*.zip)
     - name: S3 upload
-      if: false
+      if: ${{ !inputs.prerelease || contains(inputs.tag,'0.0.0'}}
       run: |
         aws s3 cp dist/${{ env.PLUGIN_ZIPBALL }} s3://ftrack-public-content/ftrack-connect/integrations/
       env:
         AWS_ACCESS_KEY_ID: ${{ inputs.aws_key_id }}
         AWS_SECRET_ACCESS_KEY: ${{ inputs.aws_secret_access_key }}
-        AWS_DEFAULT_REGION: 'eu-west-1'
+        AWS_DEFAULT_REGION: 'eu-central-1'
       shell: bash
 
 
