@@ -119,7 +119,7 @@ runs:
     - name: S3 upload
       if: ${{ inputs.deploy_aws == 'true' }}
       run: |
-        aws --version)
+        aws --version
         mkdir -p ~/.aws
         echo "[default]" > ~/.aws/credentials
         echo "aws_access_key_id = ${{ inputs.aws_key_id }}" >> ~/.aws/credentials
