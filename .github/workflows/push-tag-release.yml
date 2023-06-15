@@ -9,12 +9,14 @@ concurrency: pants_ci
 on:
   create:
     tags:
-      - /(.*\/v.*)/ # Only trigger on tags having a slash within, ignore other tags
+      - '*'
 
 # TODO: Support multiple platform builds
 
 jobs:
   pants-build:
+    # Only trigger on tags having a slash within and version starting with "v", ignore other tags
+    if: '$CI_COMMIT_TAG =~ /(.*\/v.*)/'
     uses: ./.github/workflows/pants-build.yml
     with:
       pre_tag: true
