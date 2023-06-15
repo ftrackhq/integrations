@@ -27,6 +27,7 @@ jobs:
   #    tag_type: "latest"
 
   pre-release:
+    needs: pants-build
     strategy:
       matrix:
         # Add new packages here

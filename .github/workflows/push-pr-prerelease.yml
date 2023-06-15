@@ -32,6 +32,7 @@ jobs:
   #    tag_type: "pr${{ github.event.number }}"
 
   pre-release:
+    needs: pants-build
     strategy:
       matrix:
         # Add new packages here
