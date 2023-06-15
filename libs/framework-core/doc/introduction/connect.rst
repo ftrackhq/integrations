@@ -22,7 +22,8 @@ The :term:`Application launcher` is a Connect plugin responsible for discovery a
 launch of DCC applications.
 
 The application launcher reads its :term:`JSON` configuration files and performs
-discovery of :term:`DCC` applications.
+discovery of :term:`DCC` applications by sending events that is picked up by the
+installed framework plugins (**hook/disover_<plugin name>.py**)
 
 The tutorial part of this documentation shows an example on how to modify the
 configuration.

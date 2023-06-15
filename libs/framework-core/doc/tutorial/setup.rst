@@ -28,7 +28,7 @@ Git repositories
 ****************
 
 The best approach is to create your own set of repositories and then pull from the
-ftrack Framework repositories as a remote upstream.
+ftrack Framework repository as a remote upstream.
 
 ..  important::
 
@@ -37,31 +37,28 @@ ftrack Framework repositories as a remote upstream.
     the code internally as a team without proper SCM in place.
 
 
-We will extend two Framework plugins:
+We will extend one single Framework plugins:
 
- * ftrack-connect-pipeline-definition
- * ftrack-connect-pipeline-maya
+ * ftrack-framework-maya
 
 The rest of the plugins we will use are shipped with Connect and installable through
 the plugin manager.
 
-As a first step, create the repositories within your SCM environment (GitHub, Bitbucket, locally..). We
-recommend you create them by the same name to minimise confusion.
+As a first step, create the corresponding integrations repository within your SCM environment
+(GitHub, Bitbucket, locally..). In this tutorial we will call it 'my-ftrack-integrations'.
 
-
-Next create folders, clone the remote repositories with Git bash and merge from ftrack::
+Next a local dev folder, clone the remote repository with Git bash and merge from ftrack::
 
     $ mkdir mypipeline
     $ cd mypipeline
-    $ git clone <my SCM service base url>/ftrack-connect-pipeline-definition
-    $ git remote add upstream https://github.com/ftrackhq/ftrack-connect-pipeline-definition.git
+    $ git clone <my SCM service base url>/my-ftrack-integrations
+    $ git remote add upstream https://github.com/ftrackhq/integrations.git
     $ git fetch upstream
     $ git merge upstream/main
     $ git rebase upstream/main
 
 
-Repeat the steps above for ftrack-connect-pipeline-maya repository. Throughout this
-tutorial, the folder **mypipeline** will refer to this location were you checkout
+Throughout this tutorial, the folder **mypipeline** will refer to this location were you checkout
 and store your local source code repository.
 
 At any new release done by ftrack, you can simply pull these and then merge into your repository::
@@ -85,12 +82,13 @@ centrally. As first step, :ref:`create a virtual environment <developing/build>`
 then follow the instructions on how to build and deploy locally::
 
     $ <activate virtual environment>
-    $ cd mypipeline\ftrack-connect-pipeline-definition
+    $ cd mypipeline\projects\framework-maya
     $ python setup.py build_plugin
-    $ rmdir /s "%HOMEPATH%\AppData\Local\ftrack\ftrack-connect-plugins\ftrack-connect-pipeline-definition-<version>"
-    $ move build\ftrack-connect-pipeline-definition-<version> "%HOMEPATH%\AppData\Local\ftrack\ftrack-connect-plugins"
+    $ rmdir /s "%HOMEPATH%\AppData\Local\ftrack\ftrack-connect-plugins\ftrack-framework-maya-<version>"
+    $ move dist\ftrack-framework-maya-<version> "%HOMEPATH%\AppData\Local\ftrack\ftrack-connect-plugins"
 
-The same process applies to the Maya DCC plugin and all other Connect framework plugins.
+The same process applies to all other Connect framework plugins that you might
+want to extend in the future.
 
 Pipeline deploy
 ***************

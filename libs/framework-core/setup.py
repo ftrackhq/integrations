@@ -12,9 +12,12 @@ from setuptools import setup, find_packages
 from setuptools.command.test import test as TestCommand
 import setuptools
 
+PLUGIN_NAME = 'ftrack-framework-core-{0}'
 
 ROOT_PATH = os.path.dirname(os.path.realpath(__file__))
+
 SOURCE_PATH = os.path.join(ROOT_PATH, 'source')
+
 README_PATH = os.path.join(ROOT_PATH, 'README.md')
 
 RESOURCE_PATH = os.path.join(ROOT_PATH, 'resource')
@@ -22,6 +25,21 @@ RESOURCE_PATH = os.path.join(ROOT_PATH, 'resource')
 HOOK_PATH = os.path.join(ROOT_PATH, 'hook')
 
 BUILD_PATH = os.path.join(ROOT_PATH, 'build')
+
+
+def get_version():
+    '''Read version from _version.py, updated by CI based on monorepo package tag'''
+    version_path = os.path.join(SOURCE_PATH, 'ftrack_framework_core', '_version.py')
+    with open(version_path, 'r') as file_handle:
+        for line in file_handle.readlines():
+            if line.find('__version__') > -1:
+                return re.findall(r'\'(.*)\'', line)[0].strip()
+    raise ValueError('Could not find version in {0}'.format(version_path))
+
+
+VERSION = get_version()
+
+STAGING_PATH = os.path.join(BUILD_PATH, PLUGIN_NAME.format(VERSION))
 
 
 class BuildPlugin(setuptools.Command):
@@ -38,16 +56,6 @@ class BuildPlugin(setuptools.Command):
         pass
 
     def run(self):
-        '''Run the build step.'''
-        import setuptools_scm
-
-        release = setuptools_scm.get_version(version_scheme='post-release')
-        VERSION = '.'.join(release.split('.')[:3])
-        global STAGING_PATH
-        STAGING_PATH = os.path.join(
-            BUILD_PATH, 'ftrack-framework-core-{}'.format(VERSION)
-        )
-
         '''Run the build step.'''
         # Clean staging path
         shutil.rmtree(STAGING_PATH, ignore_errors=True)
@@ -74,9 +82,7 @@ class BuildPlugin(setuptools.Command):
         )
 
         result_path = shutil.make_archive(
-            os.path.join(
-                BUILD_PATH, 'ftrack-framework-core-{0}'.format(VERSION)
-            ),
+            STAGING_PATH,
             'zip',
             STAGING_PATH,
         )
@@ -99,17 +105,10 @@ class PyTest(TestCommand):
         raise SystemExit(errno)
 
 
-version_template = '''
-# :coding: utf-8
-# :copyright: Copyright (c) 2017-2020 ftrack
-
-__version__ = {version!r}
-'''
-
 # Configuration.
 setup(
     name='ftrack-framework-core',
-    description='Ftrack core pipeline integration framework.',
+    description='ftrack core pipeline integration framework.',
     long_description=open(README_PATH).read(),
     keywords='ftrack',
     url='https://github.com/ftrackhq/integrations/libs/framework-core',
@@ -119,15 +118,15 @@ setup(
     packages=find_packages(SOURCE_PATH),
     package_dir={'': 'source'},
     package_data={"": ["{}/**/*.*".format(RESOURCE_PATH), "{}/**/*.py".format(HOOK_PATH)]},
-    version="1.4.0",
+    version=VERSION,
     python_requires='<3.10',
     setup_requires=[
-        'sphinx >= 1.8.5, < 4',
+        'sphinx >= 1.8.5, < 6',
         'sphinx_rtd_theme >= 0.1.6, < 2',
         'lowdown >= 0.1.0, < 2',
         'setuptools>=44.0.0',
         'setuptools_scm',
-        'Jinja2<3.1',
+        'Jinja2<3.2',
     ],
     install_requires=[
         'ftrack-python-api >= 1, < 3',  # == 2.0RC1
@@ -146,3 +145,4 @@ setup(
     cmdclass={'test': PyTest, 'build_plugin': BuildPlugin},
     zip_safe=False,
 )
+

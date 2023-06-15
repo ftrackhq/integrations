@@ -7,6 +7,14 @@
 Release Notes
 *************
 
+.. release:: 1.0.1
+    :date: 2023-06-15
+
+    .. change:: changed
+        :tags: scm
+
+        Moved repository to monorepo package projects/framework-unreal.
+
 .. release:: 1.0.0
     :date: 2023-04-05
 

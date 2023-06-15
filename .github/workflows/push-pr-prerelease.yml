@@ -1,0 +1,60 @@
+# Create the v0.0.0-pr<number> pre-release on PR update.
+# Cleans up old tags and releases for the same PR.
+
+name: CI-PR
+
+# Prevent concurrent runs of this workflow due to the pants cache being shared between them.
+concurrency: pants_ci
+
+on:
+  pull_request:
+    types:
+      - opened
+      - edited
+      - synchronize
+
+jobs:
+  pants-build:
+    uses: ./.github/workflows/pants-build.yml
+    with:
+      pre_tag: false
+      check_changed: true
+
+  # Have to call connect release directly due to problems passing on AWS credentials
+  # pre-release:
+  #  needs: pants-build
+  #  uses: ./.github/workflows/pre-release.yml
+  #  with:
+  #    changed: ${{needs.pants-build.outputs.changed}}
+  #    tag_type: "pr${{ github.event.number }}"
+
+  pre-release:
+    needs: pants-build
+    strategy:
+      matrix:
+        # Add new packages here
+        package: [application-launcher, connect-action-launcher-widget, connect-plugin-manager, framework-core, framework-qt, framework-maya, framework-nuke, framework-houdini, framework-3dsmax, connect-timetracker-widget, nuke-studio, rv]
+        os: [ubuntu-latest]
+        suffix: ['']
+        include:
+          - package: framework-unreal
+            os: windows-latest
+            suffix: 'win'
+          # Add platform dependent packages here
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Check out repository
+        if: ${{ contains(needs.pants-build.outputs.changed,matrix.package) }}
+        uses: actions/checkout@v3
+      - name: Run release action
+        if: ${{ contains(needs.pants-build.outputs.changed,matrix.package) }}
+        uses: ./.github/actions/connect-release
+        with:
+          package: ${{ matrix.package }}
+          tag: ${{ matrix.package }}/v0.0.0-pr${{ github.event.number }}
+          suffix: ${{ matrix.suffix }}
+          deleteprevious: true
+          prerelease: true
+          deploy_aws: false
+          token: ${{ secrets.GITHUB_TOKEN }}
+

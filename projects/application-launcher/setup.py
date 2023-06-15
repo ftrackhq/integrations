@@ -23,17 +23,23 @@ README_PATH = os.path.join(ROOT_PATH, 'README.md')
 
 BUILD_PATH = os.path.join(ROOT_PATH, 'build')
 
-STAGING_PATH = os.path.join(BUILD_PATH, PLUGIN_NAME)
-
 HOOK_PATH = os.path.join(RESOURCE_PATH, 'hook')
 CONFIG_PATH = os.path.join(RESOURCE_PATH, 'config')
 
-version_template = '''
-# :coding: utf-8
-# :copyright: Copyright (c) 2014-2021 ftrack
 
-__version__ = {version!r}
-'''
+def get_version():
+    '''Read version from _version.py, updated by CI based on monorepo package tag'''
+    version_path = os.path.join(SOURCE_PATH, 'ftrack_application_launcher', '_version.py')
+    with open(version_path, 'r') as file_handle:
+        for line in file_handle.readlines():
+            if line.find('__version__') > -1:
+                return re.findall(r'\'(.*)\'', line)[0].strip()
+    raise ValueError('Could not find version in {0}'.format(version_path))
+
+
+VERSION = get_version()
+
+STAGING_PATH = os.path.join(BUILD_PATH, PLUGIN_NAME.format(VERSION))
 
 
 class BuildPlugin(Command):
@@ -50,14 +56,6 @@ class BuildPlugin(Command):
         pass
 
     def run(self):
-        '''Run the build step.'''
-        import setuptools_scm
-
-        release = setuptools_scm.get_version(version_scheme='post-release')
-        VERSION = '.'.join(release.split('.')[:3])
-        global STAGING_PATH
-        STAGING_PATH = STAGING_PATH.format(VERSION)
-
         '''Run the build step.'''
         # Clean staging path
         shutil.rmtree(STAGING_PATH, ignore_errors=True)
@@ -83,7 +81,7 @@ class BuildPlugin(Command):
 
         # Generate plugin zip
         shutil.make_archive(
-            os.path.join(BUILD_PATH, PLUGIN_NAME.format(VERSION)),
+            STAGING_PATH,
             'zip',
             STAGING_PATH,
         )
@@ -102,8 +100,8 @@ setup(
     packages=find_packages(SOURCE_PATH),
     package_dir={'': 'source'},
     package_data={"": ["{}/**/*.*".format(RESOURCE_PATH)]},
-    version="10.0.12",
-    setup_requires=['setuptools>=45.0.0', 'setuptools_scm'],
+    version=VERSION,
+    setup_requires=['setuptools>=45.0.0'],
     tests_require=['pytest >= 2.3.5, < 3'],
     install_requires=[
         'ftrack-python-api >= 2, < 3',

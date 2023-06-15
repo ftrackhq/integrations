@@ -1,0 +1,15 @@
+ftrack\_framework\_qt.ui.assembler\_assembler package
+=============================================================
+
+.. automodule:: ftrack_framework_qt.ui.assembler
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Subpackages
+-----------
+
+.. toctree::
+   :maxdepth: 1
+
+   ftrack_framework_qt.ui.assembler.base

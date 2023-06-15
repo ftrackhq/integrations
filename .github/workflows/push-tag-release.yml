@@ -1,0 +1,74 @@
+# Create public release on tag push, preserves previous releases.
+# Re-tags "stable" to point on HEAD
+
+name: CI-TAG
+
+# Prevent concurrent runs of this workflow due to the pants cache being shared between them.
+concurrency: pants_ci
+
+on:
+  push:
+    tags-ignore:
+      - '**0.0.0**'
+      - '**latest**'
+      - '**stable**'
+
+# TODO: Support multiple platform builds
+
+jobs:
+  pants-build:
+    # Only trigger on tags having a slash within and version starting with "v", ignore other tags
+    uses: ./.github/workflows/pants-build.yml
+    with:
+      pre_tag: true
+      check_changed: false
+
+  release:
+    needs: pants-build
+    runs-on: ${{ needs.pants-build.outputs.os }}
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v3
+      - name: Run release action
+        uses: ./.github/actions/connect-release
+        with:
+          package: ${{ needs.pants-build.outputs.package }}
+          tag: ${{ needs.pants-build.outputs.tag }}
+          suffix: ${{ needs.pants-build.outputs.suffix }}
+          deleteprevious: false
+          prerelease: false
+          token: ${{ secrets.GITHUB_TOKEN }}
+          deploy_aws: true
+          aws_key_id: ${{ secrets.S3_ACCESS_KEY }}
+          aws_secret_access_key: ${{ secrets.S3_SECRET_ACCESS_KEY}}
+      - name: Tag package as stable
+        run: |
+          git fetch --force --tags
+          git tag -f ${{ needs.pants-build.outputs.package }}/stable
+          git push -f origin ${{ needs.pants-build.outputs.package }}/stable
+
+  # Align latest tag to the latest release tag
+  align-latest:
+    needs: pants-build
+    runs-on: ${{ needs.pants-build.outputs.os }}
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v3
+      - name: Run release action
+        uses: ./.github/actions/connect-release
+        with:
+          package: ${{ needs.pants-build.outputs.package }}
+          tag: ${{ needs.pants-build.outputs.package }}/v0.0.0-latest
+          suffix: ${{ needs.pants-build.outputs.suffix }}
+          deleteprevious: true
+          prerelease: true
+          deploy_aws: true
+          token: ${{ secrets.GITHUB_TOKEN }}
+          aws_key_id: ${{ secrets.S3_ACCESS_KEY }}
+          aws_secret_access_key: ${{ secrets.S3_SECRET_ACCESS_KEY}}
+
+#  deploy-docs:
+#    needs: pants-build
+#    uses: ./.github/workflows/deploy-docs.yml
+#    with:
+#      changed: ${{needs.pants-build.outputs.changed}}

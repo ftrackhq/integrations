@@ -11,7 +11,7 @@ In this section we demonstrate how to add your own studio tool to the Maya plug-
 which in this case updates the status of the task you have launched to “In progress”.
 We add its menu item to the ftrack menu in **userSetup.py**:
 
-**mypipeline/ftrack-connect-pipeline-maya/resource/scripts/userSetup.py**
+**mypipeline/projects/framework-maya/resource/scripts/userSetup.py**
 
 .. code-block:: python
     :linenos:
@@ -36,10 +36,10 @@ We add its menu item to the ftrack menu in **userSetup.py**:
 
 In DCC **custom_commands.py**, we add the corresponding ``set_task_status`` function:
 
-**mypipeline/ftrack-connect-pipeline-maya/source/ftrack_connect_pipeline_maya/utils/custom_commands.py**
+**mypipeline/projects/framework-maya/source/ftrack_framework_maya/utils/bootstrap.py**
 
-.. literalinclude:: /resource/ftrack-connect-pipeline-maya/source/ftrack_connect_pipeline_maya/utils/custom_commands.py
+.. literalinclude:: /resource/framework-maya/source/ftrack_framework_maya/utils/bootstrap.py
     :language: python
     :linenos:
-    :lines: 295-
+    :lines: 163-
 

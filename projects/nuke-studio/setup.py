@@ -4,6 +4,7 @@
 import os
 import sys
 import shutil
+import re
 from distutils.spawn import find_executable
 
 import subprocess
@@ -12,19 +13,52 @@ from setuptools import setup, find_packages, Command
 
 import fileinput
 
+PLUGIN_NAME = 'ftrack-nuke-studio-{0}'
 
 ROOT_PATH = os.path.dirname(os.path.realpath(__file__))
+
 SOURCE_PATH = os.path.join(ROOT_PATH, 'source')
+
 README_PATH = os.path.join(ROOT_PATH, 'README.md')
+
 RESOURCE_PATH = os.path.join(ROOT_PATH, 'resource')
+
 RESOURCE_TARGET_PATH = os.path.join(
     SOURCE_PATH, 'ftrack_nuke_studio', 'resource.py'
 )
+
 HIERO_PLUGIN_PATH = os.path.join(RESOURCE_PATH, 'plugin')
+
 BUILD_PATH = os.path.join(ROOT_PATH, 'build')
-STAGING_PATH = os.path.join(BUILD_PATH, 'ftrack-nuke-studio-{0}')
+
 HOOK_PATH = os.path.join(RESOURCE_PATH, 'hook')
+
 APPLICATION_HOOK_PATH = os.path.join(RESOURCE_PATH, 'application_hook')
+
+
+def get_version():
+    '''Read version from _version.py, updated by CI based on monorepo package tag'''
+    version_path = os.path.join(SOURCE_PATH, 'ftrack_nuke_studio', '_version.py')
+    with open(version_path, 'r') as file_handle:
+        for line in file_handle.readlines():
+            if line.find('__version__') > -1:
+                return re.findall(r'\'(.*)\'', line)[0].strip()
+    raise ValueError('Could not find version in {0}'.format(version_path))
+
+
+VERSION = get_version()
+
+STAGING_PATH = os.path.join(BUILD_PATH, PLUGIN_NAME.format(VERSION))
+
+SETUP_REQUIRES = [
+    'PySide2 >=5, <6',
+    'Qt.py >=1.0.0, < 2',
+    'sphinx >= 1.8.5, < 4',
+    'sphinx_rtd_theme >= 0.1.6, < 1',
+    'lowdown >= 0.1.0, < 1',
+    'setuptools>=45.0.0',
+    'wheel'
+]
 
 
 # Custom commands.
@@ -60,6 +94,18 @@ class BuildResources(Command):
 
     def run(self):
         '''Run build.'''
+
+        # Make sure requirements are installed on GH Actions
+        print('Installing setup requirements')
+        subprocess.check_call(
+            [
+                sys.executable,
+                '-m',
+                'pip',
+                'install',
+            ]+[entry.replace(" ", "") for entry in SETUP_REQUIRES]
+        )
+
         try:
             pyside_rcc_command = 'pyside2-rcc'
             executable = None
@@ -107,11 +153,6 @@ class BuildPlugin(Command):
 
     def run(self):
         '''Run the build step.'''
-        import setuptools_scm
-        release = setuptools_scm.get_version(version_scheme='post-release')
-        VERSION = '.'.join(release.split('.')[:3])
-        global STAGING_PATH
-        STAGING_PATH = STAGING_PATH.format(VERSION)
 
         # Clean staging path
         shutil.rmtree(STAGING_PATH, ignore_errors=True)
@@ -131,36 +172,29 @@ class BuildPlugin(Command):
             os.path.join(STAGING_PATH, 'hook')
         )
 
-        # Copy applipcation hooks files
+        # Copy application hooks files
         shutil.copytree(
             APPLICATION_HOOK_PATH,
             os.path.join(STAGING_PATH, 'application_hook')
         )
 
-
         dependencies_path = os.path.join(STAGING_PATH, 'dependencies')
 
-
         subprocess.check_call(
-            [sys.executable, '-m', 'pip', 'install','.','--target',
+            [sys.executable, '-m', 'pip', 'list']
+        )
+
+        print('Installing dependencies')
+        subprocess.check_call(
+            [sys.executable, '-m', 'pip', 'install', '.', '--target',
             dependencies_path]
         )
 
         shutil.make_archive(
-            os.path.join(
-                BUILD_PATH,
-                'ftrack-nuke-studio-{0}'.format(VERSION)
-            ),
+            STAGING_PATH,
             'zip',
             STAGING_PATH
         )
-
-version_template = '''
-# :coding: utf-8
-# :copyright: Copyright (c) 2017-2021 ftrack
-
-__version__ = {version!r}
-'''
 
 
 # Call main setup.
@@ -176,16 +210,8 @@ setup(
     packages=find_packages(SOURCE_PATH),
     package_dir={'': 'source'},
     package_data={"": ["{}/**/*.*".format(RESOURCE_PATH)]},
-    version="2.5.2",
-    setup_requires=[
-        'PySide2 >=5, <6',
-        'Qt.py >=1.0.0, < 2',
-        'sphinx >= 1.8.5, < 4',
-        'sphinx_rtd_theme >= 0.1.6, < 1',
-        'lowdown >= 0.1.0, < 1',
-        'setuptools>=45.0.0',
-        'setuptools_scm'
-    ],
+    version=VERSION,
+    setup_requires=SETUP_REQUIRES,
     install_requires=[
         'clique==1.6.1',
         'appdirs == 1.4.0',
