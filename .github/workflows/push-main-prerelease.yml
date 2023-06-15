@@ -24,8 +24,6 @@ jobs:
     with:
       changed: ${{needs.pants-build.outputs.changed}}
       tag_type: "latest"
-      aws_key_id: ${{ secrets.S3_ACCESS_KEY }}
-      aws_secret_access_key: ${{ secrets.S3_SECRET_ACCESS_KEY}}
 
 #  deploy-docs:
 #    #needs: pants-build

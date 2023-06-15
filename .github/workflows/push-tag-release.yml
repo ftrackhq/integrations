@@ -33,6 +33,8 @@ jobs:
           deleteprevious: false
           prerelease: false
           token: ${{ secrets.GITHUB_TOKEN }}
+          aws_key_id: ${{ secrets.S3_ACCESS_KEY }}
+          aws_secret_access_key: ${{ secrets.S3_SECRET_ACCESS_KEY}}
       - name: Tag package as stable
         run: |
           git fetch --force --tags
