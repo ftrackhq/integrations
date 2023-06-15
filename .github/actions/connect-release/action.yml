@@ -110,7 +110,7 @@ runs:
     #  Upload non PR release artifact to S3 making it available via download.ftrack.com
     # (caching disabled for *0.0.0*.zip)
     - name: S3 upload
-      if: ${{ !inputs.prerelease || contains(inputs.tag,'0.0.0'}}
+      if: ${{ !inputs.prerelease || contains(inputs.tag,'0.0.0')}}
       run: |
         aws s3 cp dist/${{ env.PLUGIN_ZIPBALL }} s3://ftrack-public-content/ftrack-connect/integrations/
       env:
