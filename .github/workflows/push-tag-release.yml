@@ -9,7 +9,9 @@ concurrency: pants_ci
 on:
   push:
     tags:
-      - /.*\/v([0-9]+\.[0-9]+\.[0-9]+)/
+      - '*'
+    tags-ignore:
+      - '*0.0.0*'
 
 # TODO: Support multiple platform builds
 
