@@ -18,8 +18,6 @@ jobs:
       pre_tag: true
       check_changed: false
 
-# TODO: Re-tag stable from this point on
-
   release:
     needs: pants-build
     runs-on: ${{ needs.pants-build.outputs.os }}
