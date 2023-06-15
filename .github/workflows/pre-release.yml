@@ -13,6 +13,12 @@ on:
       tag_type:
         required: true
         type: string
+      aws_key_id:
+        required: true
+        type: string
+      aws_secret_access_key:
+        required: true
+        type: string
 
 jobs:
   pre-release:
@@ -42,5 +48,5 @@ jobs:
           deleteprevious: true
           prerelease: true
           token: ${{ secrets.GITHUB_TOKEN }}
-          aws_key_id: ${{ secrets.S3_ACCESS_KEY }}
-          aws_secret_access_key: ${{ secrets.S3_SECRET_ACCESS_KEY}}
+          aws_key_id: ${{ inputs.aws_key_id }}
+          aws_secret_access_key: ${{ inputs.aws_secret_access_key}}
