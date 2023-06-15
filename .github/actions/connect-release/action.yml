@@ -25,6 +25,9 @@ inputs:
   aws_secret_access_key:
     required: true
     description: The AWS secret access key to use
+  random:
+    required: true
+    description: Test arg
 runs:
   using: "composite"
   steps:
@@ -36,6 +39,7 @@ runs:
         python-version: '3.7'
     - name: Fetch tags
       run: |
+        echo "@@@ Random is: ${{ inputs.random }}"
         git fetch -a -t --force
       shell: bash
     # Delete previous release and tag

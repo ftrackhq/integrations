@@ -14,10 +14,10 @@ on:
       - opened
       - edited
       - synchronize
-      - closed
 
 jobs:
   pants-build:
+    if: false
     uses: ./.github/workflows/pants-build.yml
     with:
       pre_tag: false
