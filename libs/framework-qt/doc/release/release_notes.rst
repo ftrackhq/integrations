@@ -7,6 +7,14 @@
 Release Notes
 *************
 
+.. release:: 1.3.1
+    :date: 2023-06-15
+
+    .. change:: changed
+        :tags: scm
+
+        Moved repository to monorepo package libs/framework-qt.
+
 .. release:: 1.3.0
     :date: 2022-04-05
 
