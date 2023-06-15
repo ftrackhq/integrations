@@ -12,7 +12,21 @@ on:
     branches: ["main", "backlog/ci"] #TODO: remember to remove backlog/ci
 
 jobs:
+  test-s3-copy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: S3 upload
+        run: |
+          echo "dummy content" > /tmp/dummy.txt
+          aws s3 cp /tmp/dummy.txt s3://ftrack-public-content/ftrack-connect/integrations/
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.S3_ACCESS_KEY }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.S3_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: 'eu-central-1'
+        shell: bash
+
   pants-build:
+    if: false
     uses: ./.github/workflows/pants-build.yml
     with:
       pre_tag: false
