@@ -1,0 +1,18 @@
+name: aws-test
+
+on:
+  push:
+    branches: ["backlog/aws-test"]
+
+jobs:
+  aws-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Bedum
+        run: |
+          echo "stupid" > dum.txt
+          aws s3 cp dum.txt s3://ftrack-public-content/ftrack-connect/integrations/
+        shell: bash
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.S3_ACCESS_KEY }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
