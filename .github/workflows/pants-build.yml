@@ -66,7 +66,7 @@ jobs:
           # but will cause the cache entry to grow without bound over time.
           # See https://pants.readme.io/docs/using-pants-in-ci for tips on how to periodically clean it up.
           # Alternatively you change gha-cache-key to ignore old caches.
-      - uses: ./.github/workflow/update-packages-version
+      - uses: ./.github/workflows/update-packages-version
         if: ${{ inputs.full_release }}
         with:
           changed: $(echo ${{ github.ref }} | cut -d/ -f 3-3)"
@@ -85,7 +85,7 @@ jobs:
         run: |
           git fetch --all --force
           echo "CHANGED=$(pants list --changed-since=origin/main | cut -d'/' -f 1-2 | grep -v : | uniq | tr '\n' ',')" >> $GITHUB_ENV
-      - uses: ./.github/workflow/update-packages-version
+      - uses: ./.github/workflows/update-packages-version
         if: ${{ inputs.check_changed }}
         with:
           changed: ${{ env.CHANGED }}
