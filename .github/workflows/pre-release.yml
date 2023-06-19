@@ -18,9 +18,9 @@ on:
         type: boolean
     secrets:
       aws_key_id:
-        required: false
+        required: true
       aws_secret_access_key:
-        required: false
+        required: true
 
 jobs:
   pre-release:
@@ -51,6 +51,5 @@ jobs:
           prerelease: true
           deploy_aws: ${{inputs.deploy_aws}}
           token: ${{ secrets.GITHUB_TOKEN }}
-          if: ${{ secrets.aws_key_id }}
           aws_key_id: ${{ secrets.aws_key_id }}
           aws_secret_access_key: ${{ secrets.aws_secret_access_key }}
