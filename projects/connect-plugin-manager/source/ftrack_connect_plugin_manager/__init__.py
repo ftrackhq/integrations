@@ -333,6 +333,16 @@ class DndPluginList(QtWidgets.QFrame):
         for link in response_json['integrations']:
             self.addPlugin(link, STATUSES.DOWNLOAD)
 
+    def get_conflicting_plugins(self):
+        result = []
+        plugins = os.listdir(
+            self.default_plugin_directory
+        )
+        for plugin in plugins:
+            if plugin.lower().startswith("ftrack-connect-pipeline"):
+                result.append(plugin)
+        return result
+
     def _processMimeData(self, mimeData):
         '''Return a list of valid filepaths.'''
         validPaths = []

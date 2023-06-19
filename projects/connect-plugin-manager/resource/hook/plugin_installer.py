@@ -192,6 +192,12 @@ class PluginInstaller(ftrack_connect.ui.application.ConnectWidget):
     @asynchronous
     def _on_apply_changes(self, event=None):
         '''Will process all the selected plugins.'''
+        # Check if any conflicting plugins are installed.
+        conflicting_plugins = self.plugin_list_widget.get_conflicting_plugins()
+        if conflicting_plugins:
+            if QtGui.QMessageBox.question(self, "Warning", "The following plugins will be removed:\n\n{}".format(
+                    "\n".join(conflicting_plugins))) == QtGui.QMessageBox.No:
+                return
         self.installation_started.emit()
         num_items = self.plugin_list_widget.plugin_model.rowCount()
         for i in range(num_items):
