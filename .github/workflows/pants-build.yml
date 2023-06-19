@@ -8,6 +8,9 @@ on:
       check_changed:
         required: true
         type: boolean
+      tag_type:
+        required: false
+        type: string
     outputs:
       changed:
         description: "Changed packages"
@@ -86,6 +89,7 @@ jobs:
         if: ${{ inputs.check_changed }}
         with:
           changed: ${{ env.CHANGED }}
+          version: "0.0.0-${{inputs.tag_type}}"
       - name: Check BUILD files
         if: false # TODO enable linting with a later task
         shell: bash

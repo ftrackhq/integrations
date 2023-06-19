@@ -17,6 +17,7 @@ jobs:
     with:
       full_release: false
       check_changed: true
+      tag_type: "latest"
 
   pre-release:
     needs: pants-build
