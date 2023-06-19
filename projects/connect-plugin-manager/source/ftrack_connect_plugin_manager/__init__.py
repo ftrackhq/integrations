@@ -4,6 +4,7 @@ import os
 import re
 import logging
 import shutil
+import traceback
 import zipfile
 import tempfile
 import urllib
@@ -152,7 +153,7 @@ class PluginProcessor(QtCore.QObject):
                     with open(temp_path, 'wb') as out_file:
                         out_file.write(dl_file.read())
                 return temp_path
-            except HTTPError:
+            except HTTPError as e:
                 if platform_dependent:
                     logging.debug(
                         'No download exists {} on platform {}'.format(
@@ -160,7 +161,13 @@ class PluginProcessor(QtCore.QObject):
                         )
                     )
                 else:
-                    raise
+                    logging.warning(traceback.format_exc())
+                    raise Exception(
+                        "Plugin '{}' is not supported on this platform"
+                        " or temporarily unavailable. Details: {}".format(
+                            plugin.data(ROLES.PLUGIN_NAME), e
+                        )
+                    )
 
     def process(self, plugin):
         '''Process provided *plugin* item.'''
