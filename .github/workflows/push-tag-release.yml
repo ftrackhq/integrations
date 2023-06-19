@@ -34,7 +34,6 @@ jobs:
         with:
           package: ${{ needs.pants-build.outputs.package }}
           tag: ${{ needs.pants-build.outputs.tag }}
-          release_name: ${{ needs.pants-build.outputs.tag }}
           suffix: ${{ needs.pants-build.outputs.suffix }}
           deleteprevious: false
           prerelease: false
