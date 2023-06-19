@@ -16,6 +16,11 @@ on:
       deploy_aws:
         required: true
         type: boolean
+    secrets:
+      aws_key_id:
+        required: false
+      aws_secret_access_key:
+        required: false
 
 jobs:
   pre-release:
@@ -46,5 +51,6 @@ jobs:
           prerelease: true
           deploy_aws: ${{inputs.deploy_aws}}
           token: ${{ secrets.GITHUB_TOKEN }}
-          aws_key_id: ${{ secrets.S3_ACCESS_KEY }}
-          aws_secret_access_key: ${{ secrets.S3_SECRET_ACCESS_KEY }}
+          if: ${{ secrets.aws_key_id }}
+          aws_key_id: ${{ secrets.aws_key_id }}
+          aws_secret_access_key: ${{ secrets.aws_secret_access_key }}
