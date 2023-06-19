@@ -4,12 +4,15 @@
 import os
 import sys
 import logging
+import traceback
+from functools import partial
 
 cwd = os.path.dirname(__file__)
 sources = os.path.abspath(os.path.join(cwd, '..', 'dependencies'))
 sys.path.append(sources)
 
 import platform
+
 import ftrack_api
 from ftrack_connect.qt import QtWidgets, QtCore, QtGui
 import qtawesome as qta
@@ -19,7 +22,7 @@ import ftrack_connect.ui.application
 from ftrack_connect.asynchronous import asynchronous
 
 from ftrack_connect_plugin_manager import (
-    InstallerBlockingOverlay, PluginProcessor, DndPluginList, ROLES
+    InstallerDoneBlockingOverlay, InstallerFailedBlockingOverlay, PluginProcessor, DndPluginList, ROLES
 )
 
 logger = logging.getLogger('ftrack_connect.plugin.plugin_installer')
@@ -33,9 +36,12 @@ class PluginInstaller(ftrack_connect.ui.application.ConnectWidget):
     installation_done = QtCore.Signal()
     installation_started = QtCore.Signal()
     installation_in_progress = QtCore.Signal(object)
+    installation_failed = QtCore.Signal(object)
 
     refresh_started = QtCore.Signal()
     refresh_done = QtCore.Signal()
+
+    apply_changes = QtCore.Signal()
 
     # default methods
     def __init__(self, session, parent=None):
@@ -83,10 +89,15 @@ class PluginInstaller(ftrack_connect.ui.application.ConnectWidget):
         layout.addLayout(button_layout)
 
         # overlays
-        self.blockingOverlay = InstallerBlockingOverlay(self)
-        self.blockingOverlay.hide()
-        self.blockingOverlay.confirmButton.clicked.connect(self.refresh)
-        self.blockingOverlay.restartButton.clicked.connect(self.requestConnectRestart.emit)
+        self.blockingOverlayDone = InstallerDoneBlockingOverlay(self)
+        self.blockingOverlayDone.hide()
+        self.blockingOverlayDone.confirmButton.clicked.connect(self.refresh)
+        self.blockingOverlayDone.restartButton.clicked.connect(self.requestConnectRestart.emit)
+
+        self.blockingOverlayFailed = InstallerFailedBlockingOverlay(self)
+        self.blockingOverlayFailed.hide()
+        self.blockingOverlayFailed.confirmButton.clicked.connect(self.refresh)
+        self.blockingOverlayFailed.restartButton.clicked.connect(self.requestConnectRestart.emit)
 
         self.busyOverlay = BusyOverlay(self, 'Updating....')
         self.busyOverlay.hide()
@@ -96,9 +107,12 @@ class PluginInstaller(ftrack_connect.ui.application.ConnectWidget):
         self.reset_button.clicked.connect(self.refresh)
         self.search_bar.textChanged.connect(self.plugin_list_widget.proxy_model.setFilterFixedString)
 
+        self.apply_changes.connect(self._on_apply_changes_confirmed)
         self.installation_started.connect(self.busyOverlay.show)
         self.installation_done.connect(self.busyOverlay.hide)
-        self.installation_done.connect(self._show_user_message)
+        self.installation_done.connect(partial(self._show_user_message_done, 'Installation finished!'))
+        self.installation_failed.connect(self.busyOverlay.hide)
+        self.installation_failed.connect(partial(self._show_user_message_failed, 'Installation FAILED!'))
 
         self.installation_done.connect(self._reset_overlay)
         self.installation_in_progress.connect(self._update_overlay)
@@ -162,13 +176,25 @@ class PluginInstaller(ftrack_connect.ui.application.ConnectWidget):
         self.reset_plugin_list()
         self.refresh_done.emit()
 
-    def _show_user_message(self):
+    def _show_user_message_done(self, message):
         '''Show final message to the user.'''
-        self.blockingOverlay.setMessage(
-            '<h2>Installation finished!</h2>'
+        self.blockingOverlayDone.setMessage(
+            '<h2>{}</h2>'.format(message)
         )
-        self.blockingOverlay.confirmButton.show()
-        self.blockingOverlay.show()
+        self.blockingOverlayDone.confirmButton.show()
+        self.blockingOverlayDone.show()
+
+    def _show_user_message_failed(self, message, reason):
+        '''Show final message to the user.'''
+        self.blockingOverlayFailed.setMessage(
+            '<h2>{}</h2>'.format(message)
+        )
+        self.blockingOverlayFailed.setReason(
+            reason
+        )
+        self.blockingOverlayFailed.confirmButton.show()
+        self.blockingOverlayFailed.show()
+
 
     def _reset_overlay(self):
         self.reset_plugin_list()
@@ -189,25 +215,38 @@ class PluginInstaller(ftrack_connect.ui.application.ConnectWidget):
             )
         )
 
-    @asynchronous
     def _on_apply_changes(self, event=None):
-        '''Will process all the selected plugins.'''
-        # Check if any conflicting plugins are installed.
         conflicting_plugins = self.plugin_list_widget.get_conflicting_plugins()
         if conflicting_plugins:
-            if QtGui.QMessageBox.question(self, "Warning", "The following plugins will be removed:\n\n{}".format(
-                    "\n".join(conflicting_plugins))) == QtGui.QMessageBox.No:
+            if QtWidgets.QMessageBox.question(None,
+                                              "Warning",
+                                              "The following conflicting/deprecated"
+                                              " plugins will be removed:\n\n{}\n\nProceed?".format(
+                    "\n".join(conflicting_plugins)), ) == QtWidgets.QMessageBox.No:
                 return
+        self.apply_changes.emit()
+
+    @asynchronous
+    def _on_apply_changes_confirmed(self, event=None):
+        '''Will process all the selected plugins.'''
+        # Check if any conflicting plugins are installed.
         self.installation_started.emit()
-        num_items = self.plugin_list_widget.plugin_model.rowCount()
-        for i in range(num_items):
-            item = self.plugin_list_widget.plugin_model.item(i)
-            if item.checkState() == QtCore.Qt.Checked:
-                self.installation_in_progress.emit(item)
-                self.plugin_processor.process(item)
-        self.installation_done.emit()
-        self.emit_downloaded_plugins(self._plugins_to_install)
-        self.reset_plugin_list()
+        try:
+            conflicting_plugins = self.plugin_list_widget.get_conflicting_plugins()
+            for plugin in conflicting_plugins:
+                self.plugin_list_widget.remove_conflicting_plugin(plugin)
+            num_items = self.plugin_list_widget.plugin_model.rowCount()
+            for i in range(num_items):
+                item = self.plugin_list_widget.plugin_model.item(i)
+                if item.checkState() == QtCore.Qt.Checked:
+                    self.installation_in_progress.emit(item)
+                    self.plugin_processor.process(item)
+            self.installation_done.emit()
+            self.emit_downloaded_plugins(self._plugins_to_install)
+            self.reset_plugin_list()
+        except:
+            # Do not leave the overlay in a bad state.
+            self.installation_failed.emit(traceback.format_exc())
 
 
 def register(session, **kw):

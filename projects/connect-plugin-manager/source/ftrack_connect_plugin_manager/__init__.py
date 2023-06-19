@@ -8,6 +8,7 @@ import zipfile
 import tempfile
 import urllib
 from urllib.request import urlopen
+from urllib.error import HTTPError
 from packaging.version import parse as parse_version
 import appdirs
 import json
@@ -19,13 +20,13 @@ import qtawesome as qta
 from ftrack_connect.ui.widget.overlay import BlockingOverlay
 
 
-class InstallerBlockingOverlay(
+class InstallerDoneBlockingOverlay(
     BlockingOverlay
 ):
     '''Custom blocking overlay for publisher.'''
 
     def __init__(self, parent, message=''):
-        super(InstallerBlockingOverlay, self).__init__(
+        super(InstallerDoneBlockingOverlay, self).__init__(
             parent, message=message, icon=qta.icon('mdi6.check', color='#FFDD86', scale_factor=1.2)
         )
 
@@ -46,6 +47,41 @@ class InstallerBlockingOverlay(
         self.confirmButton.hide()
         self.confirmButton.clicked.connect(self.hide)
 
+class InstallerFailedBlockingOverlay(
+    BlockingOverlay
+):
+    '''Custom blocking overlay for publisher.'''
+
+    def __init__(self, parent, message=''):
+        super(InstallerFailedBlockingOverlay, self).__init__(
+            parent, message=message, icon=qta.icon('mdi6.close', color='#FF8686', scale_factor=1.2)
+        )
+
+        self.textEdit = QtWidgets.QTextEdit()
+        self.textEdit.setReadOnly(True)
+        self.textEdit.setLineWrapMode(QtWidgets.QTextEdit.NoWrap)
+        self.textEdit.setFixedHeight(200)
+        self.contentLayout.addWidget(self.textEdit)
+
+        self.button_layout = QtWidgets.QHBoxLayout()
+        self.button_layout.setContentsMargins(0, 0, 0, 0)
+        self.contentLayout.addSpacing(30)
+        self.contentLayout.addLayout(self.button_layout)
+        self.confirmButton = QtWidgets.QPushButton('Install more plugins')
+        self.restartButton = QtWidgets.QPushButton('Restart')
+        self.restartButton.setObjectName('primary')
+
+        self.button_layout.addWidget(
+            self.confirmButton
+        )
+        self.button_layout.addWidget(
+            self.restartButton
+        )
+        self.confirmButton.hide()
+        self.confirmButton.clicked.connect(self.hide)
+
+    def setReason(self, reason):
+        self.textEdit.setText(reason)
 
 class STATUSES(object):
     '''Store plugin statuses'''
@@ -102,6 +138,7 @@ class PluginProcessor(QtCore.QObject):
             platform = 'mac'
         else:
             platform = sys.platform
+
         for platform_dependent, source_path in [
             (True, source_path_noarch.replace('.zip', '-{}.zip'.format(platform))),
             (False, source_path_noarch)
@@ -111,13 +148,13 @@ class PluginProcessor(QtCore.QObject):
                 save_path = tempfile.gettempdir()
                 temp_path = os.path.join(save_path, zip_name)
 
-                logging.debug('Downloading {} to {}'.format(source_path, temp_path))
+                logging.info('Downloading {} to {}'.format(source_path, temp_path))
 
                 with urllib.request.urlopen(source_path) as dl_file:
                     with open(temp_path, 'wb') as out_file:
                         out_file.write(dl_file.read())
                 return temp_path
-            except:
+            except HTTPError:
                 if platform_dependent:
                     logging.debug('No download exists {} on platform {}'.format(
                         source_path, platform))
@@ -266,7 +303,8 @@ class DndPluginList(QtWidgets.QFrame):
                 status in [STATUSES.NEW, STATUSES.DOWNLOAD]
         ):
             stored_plugin_version = stored_item.data(ROLES.PLUGIN_VERSION)
-            should_update = stored_plugin_version < new_plugin_version
+            should_update = stored_plugin_version < new_plugin_version or (
+                new_plugin_version.major == 0 and new_plugin_version.minor == 0 and new_plugin_version.micro == 0)
             if not should_update:
                 return
 
@@ -342,6 +380,15 @@ class DndPluginList(QtWidgets.QFrame):
             if plugin.lower().startswith("ftrack-connect-pipeline"):
                 result.append(plugin)
         return result
+
+    def remove_conflicting_plugin(self, plugin_name):
+        install_path = os.path.join(
+            self.default_plugin_directory,
+            plugin_name
+        )
+        logging.debug('Removing {}'.format(install_path))
+        if os.path.exists(install_path) and os.path.isdir(install_path):
+            shutil.rmtree(install_path, ignore_errors=False, onerror=None)
 
     def _processMimeData(self, mimeData):
         '''Return a list of valid filepaths.'''
