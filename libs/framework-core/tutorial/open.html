@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Maya open latest scene &mdash; framework-core Unknown version documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/ftrack.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/lowdown.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/sphinx_highlight.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Load camera image plane in Maya" href="load.html" />
+    <link rel="prev" title="Custom file structure" href="structure.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            framework-core
+          </a>
+              <div class="version">
+                Unknown version
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../introduction/index.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../installing.html">Installing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developing/index.html">Developing</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Tutorial</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="introduction.html">Introduction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="setup.html">Setup</a></li>
+<li class="toctree-l2"><a class="reference internal" href="structure.html">Custom file structure</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Maya open latest scene</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#prerequisites">Prerequisites</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#implementation">Implementation</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="load.html">Load camera image plane in Maya</a></li>
+<li class="toctree-l2"><a class="reference internal" href="finalise.html">Post Slack message on publish</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tool.html">Add a custom tool the the ftrack menu within Maya</a></li>
+<li class="toctree-l2"><a class="reference internal" href="launch.html">Customising DCC launch</a></li>
+<li class="toctree-l2"><a class="reference internal" href="deploy.html">Deploy the customised pipeline within studio</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../standalone/index.html">Standalone</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api_references/modules.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../release/index.html">Release and migration notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../glossary.html">Glossary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../troubleshooting.html">Troubleshooting</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">framework-core</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">Tutorial</a></li>
+      <li class="breadcrumb-item active">Maya open latest scene</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/tutorial/open.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <div class="section" id="maya-open-latest-scene">
+<span id="tutorial-open"></span><h1>Maya open latest scene<a class="headerlink" href="#maya-open-latest-scene" title="Permalink to this heading">¶</a></h1>
+<p>As our first task, we implement an automatic scene open in Maya upon launch. It will
+check if there is a previous snapshot published on the task, if not it tries to
+locate a template scene, based on the task, to load and start from.</p>
+<div class="section" id="prerequisites">
+<h2>Prerequisites<a class="headerlink" href="#prerequisites" title="Permalink to this heading">¶</a></h2>
+<blockquote>
+<div><ol class="arabic simple">
+<li><p>A shot created in ftrack, with proper timeline and fps set.</p></li>
+<li><p>The previous custom location plugin deployed, and configured storage scenario set up (preferable).</p></li>
+<li><p>A Maya template scene to use when no previous published snapshot file exists, present in project folder &#64; _TEMPLATES/maya/&lt;task type&gt;_template.mb</p></li>
+</ol>
+</div></blockquote>
+</div>
+<div class="section" id="implementation">
+<h2>Implementation<a class="headerlink" href="#implementation" title="Permalink to this heading">¶</a></h2>
+<p>All DCC tools goes into the file <code class="docutils literal notranslate"><span class="pre">custom_commands.py</span></code>:</p>
+<p><strong>mypipeline/projects/framework-maya/source/ftrack_framework_maya/utils/bootstrap.py</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span><span class="c1"># :coding: utf-8</span>
+<span class="linenos"> 2</span><span class="c1"># :copyright: Copyright (c) 2014-2023 ftrack</span>
+<span class="linenos"> 3</span><span class="kn">import</span> <span class="nn">logging</span>
+<span class="linenos"> 4</span><span class="kn">import</span> <span class="nn">os</span>
+<span class="hll"><span class="linenos"> 5</span><span class="kn">import</span> <span class="nn">shutil</span>
+</span><span class="linenos"> 6</span>
+<span class="linenos"> 7</span><span class="kn">import</span> <span class="nn">maya.cmds</span> <span class="k">as</span> <span class="nn">cmds</span>
+<span class="linenos"> 8</span>
+<span class="linenos"> 9</span><span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+<span class="linenos">10</span>
+<span class="linenos">11</span><span class="k">def</span> <span class="nf">scene_open</span><span class="p">(</span><span class="n">session</span><span class="p">,</span> <span class="n">logger</span><span class="p">):</span>
+<span class="linenos">12</span><span class="w">    </span><span class="sd">&#39;&#39;&#39;Load latest scene, or generate new from template.&#39;&#39;&#39;</span>
+<span class="linenos">13</span>    <span class="kn">from</span> <span class="nn">ftrack_framework_maya.utils</span> <span class="kn">import</span> <span class="n">get_save_path</span>
+<span class="linenos">14</span>
+<span class="linenos">15</span>    <span class="n">context_id</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s1">&#39;FTRACK_CONTEXTID&#39;</span><span class="p">)</span>
+<span class="linenos">16</span>    <span class="n">task</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="s1">&#39;Task where id=</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">context_id</span><span class="p">))</span><span class="o">.</span><span class="n">one</span><span class="p">()</span>
+<span class="linenos">17</span>    <span class="n">path_snapshot_open</span> <span class="o">=</span> <span class="n">path_snapshot_load</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="linenos">18</span>    <span class="n">path_snapshot</span><span class="p">,</span> <span class="n">message</span> <span class="o">=</span> <span class="n">get_save_path</span><span class="p">(</span>
+<span class="linenos">19</span>        <span class="n">context_id</span><span class="p">,</span> <span class="n">session</span><span class="p">,</span> <span class="n">extension</span><span class="o">=</span><span class="s1">&#39;.mb&#39;</span><span class="p">,</span> <span class="n">temp</span><span class="o">=</span><span class="kc">True</span>
+<span class="linenos">20</span>    <span class="p">)</span>
+<span class="linenos">21</span>    <span class="n">location</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">pick_location</span><span class="p">()</span>
+<span class="linenos">22</span>    <span class="k">for</span> <span class="n">version</span> <span class="ow">in</span> <span class="n">session</span><span class="o">.</span><span class="n">query</span><span class="p">(</span>
+<span class="linenos">23</span>        <span class="s1">&#39;AssetVersion where &#39;</span>
+<span class="linenos">24</span>        <span class="s1">&#39;task.id=</span><span class="si">{}</span><span class="s1"> order by date descending&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+<span class="linenos">25</span>            <span class="n">task</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">],</span>
+<span class="linenos">26</span>        <span class="p">)</span>
+<span class="linenos">27</span>    <span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">():</span>
+<span class="linenos">28</span>        <span class="c1"># Find a snapshot</span>
+<span class="linenos">29</span>        <span class="n">component</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">query</span><span class="p">(</span>
+<span class="linenos">30</span>            <span class="s1">&#39;Component where &#39;</span>
+<span class="linenos">31</span>            <span class="s1">&#39;name=&quot;snapshot&quot; and version.id=</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">version</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">])</span>
+<span class="linenos">32</span>        <span class="p">)</span><span class="o">.</span><span class="n">first</span><span class="p">()</span>
+<span class="linenos">33</span>        <span class="k">if</span> <span class="n">component</span><span class="p">:</span>
+<span class="linenos">34</span>            <span class="k">try</span><span class="p">:</span>
+<span class="linenos">35</span>                <span class="n">path_snapshot_open</span> <span class="o">=</span> <span class="n">location</span><span class="o">.</span><span class="n">get_filesystem_path</span><span class="p">(</span><span class="n">component</span><span class="p">)</span>
+<span class="linenos">36</span>            <span class="k">except</span> <span class="n">ftrack_api</span><span class="o">.</span><span class="n">exception</span><span class="o">.</span><span class="n">ComponentNotInLocationError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+<span class="linenos">37</span>                <span class="n">cmds</span><span class="o">.</span><span class="n">confirmDialog</span><span class="p">(</span><span class="n">message</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">))</span>
+<span class="linenos">38</span>
+<span class="linenos">39</span>    <span class="k">if</span> <span class="n">path_snapshot_open</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+<span class="linenos">40</span>        <span class="c1"># Copy Maya template scene</span>
+<span class="linenos">41</span>        <span class="n">path_template</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+<span class="linenos">42</span>            <span class="n">location</span><span class="o">.</span><span class="n">accessor</span><span class="o">.</span><span class="n">prefix</span><span class="p">,</span>
+<span class="linenos">43</span>            <span class="n">task</span><span class="p">[</span><span class="s1">&#39;project&#39;</span><span class="p">][</span><span class="s1">&#39;name&#39;</span><span class="p">],</span>
+<span class="linenos">44</span>            <span class="s1">&#39;_TEMPLATES&#39;</span><span class="p">,</span>
+<span class="linenos">45</span>            <span class="s1">&#39;maya&#39;</span><span class="p">,</span>
+<span class="linenos">46</span>            <span class="s1">&#39;</span><span class="si">{}</span><span class="s1">_template.mb&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">task</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">][</span><span class="s1">&#39;name&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()),</span>
+<span class="linenos">47</span>        <span class="p">)</span>
+<span class="linenos">48</span>        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">path_template</span><span class="p">):</span>
+<span class="linenos">49</span>            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+<span class="linenos">50</span>                <span class="s1">&#39;Copying Maya template </span><span class="si">{}</span><span class="s1"> to </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+<span class="linenos">51</span>                    <span class="n">path_template</span><span class="p">,</span> <span class="n">path_snapshot</span>
+<span class="linenos">52</span>                <span class="p">)</span>
+<span class="linenos">53</span>            <span class="p">)</span>
+<span class="linenos">54</span>            <span class="n">shutil</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">path_template</span><span class="p">,</span> <span class="n">path_snapshot</span><span class="p">)</span>
+<span class="linenos">55</span>            <span class="n">path_snapshot_load</span> <span class="o">=</span> <span class="n">path_snapshot</span>
+<span class="linenos">56</span>        <span class="k">else</span><span class="p">:</span>
+<span class="linenos">57</span>            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+<span class="linenos">58</span>                <span class="s1">&#39;Maya template not found @ </span><span class="si">{}</span><span class="s1">!&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">path_template</span><span class="p">)</span>
+<span class="linenos">59</span>            <span class="p">)</span>
+<span class="linenos">60</span>    <span class="k">else</span><span class="p">:</span>
+<span class="linenos">61</span>        <span class="c1"># Make a copy in temp</span>
+<span class="linenos">62</span>        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+<span class="linenos">63</span>            <span class="s1">&#39;Copying most recent snapshot </span><span class="si">{}</span><span class="s1"> to </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+<span class="linenos">64</span>                <span class="n">path_snapshot_open</span><span class="p">,</span> <span class="n">path_snapshot</span>
+<span class="linenos">65</span>            <span class="p">)</span>
+<span class="linenos">66</span>        <span class="p">)</span>
+<span class="linenos">67</span>        <span class="n">shutil</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">path_snapshot_open</span><span class="p">,</span> <span class="n">path_snapshot</span><span class="p">)</span>
+<span class="linenos">68</span>        <span class="n">path_snapshot_load</span> <span class="o">=</span> <span class="n">path_snapshot</span>
+<span class="linenos">69</span>
+<span class="linenos">70</span>    <span class="k">if</span> <span class="n">path_snapshot_load</span><span class="p">:</span>
+<span class="linenos">71</span>        <span class="c1"># Load the scene</span>
+<span class="linenos">72</span>        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Loading scene: </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">path_snapshot_load</span><span class="p">))</span>
+<span class="linenos">73</span>        <span class="n">cmds</span><span class="o">.</span><span class="n">file</span><span class="p">(</span><span class="n">path_snapshot_load</span><span class="p">,</span> <span class="nb">open</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">force</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="linenos">74</span>
+<span class="linenos">75</span>
+<span class="linenos">76</span><span class="k">def</span> <span class="nf">set_task_status</span><span class="p">(</span><span class="n">status_name</span><span class="p">,</span> <span class="n">session</span><span class="p">,</span> <span class="n">logger</span><span class="p">,</span> <span class="n">unused_arg</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="linenos">77</span><span class="w">    </span><span class="sd">&#39;&#39;&#39;Change the status of the launched task to *status*&#39;&#39;&#39;</span>
+<span class="linenos">78</span>    <span class="n">task</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">query</span><span class="p">(</span>
+<span class="linenos">79</span>        <span class="s1">&#39;Task where id=</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;FTRACK_CONTEXTID&#39;</span><span class="p">])</span>
+<span class="linenos">80</span>    <span class="p">)</span><span class="o">.</span><span class="n">one</span><span class="p">()</span>
+<span class="linenos">81</span>    <span class="n">status</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="s1">&#39;Status where name=&quot;</span><span class="si">{}</span><span class="s1">&quot;&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">status_name</span><span class="p">))</span><span class="o">.</span><span class="n">one</span><span class="p">()</span>
+<span class="linenos">82</span>    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+<span class="linenos">83</span>        <span class="s1">&#39;Changing status of task </span><span class="si">{}</span><span class="s1"> to </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">task</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">],</span> <span class="n">status_name</span><span class="p">)</span>
+<span class="linenos">84</span>    <span class="p">)</span>
+<span class="linenos">85</span>    <span class="n">task</span><span class="p">[</span><span class="s1">&#39;status&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">status</span>
+<span class="linenos">86</span>    <span class="n">session</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>We are not going into detail what the <code class="docutils literal notranslate"><span class="pre">scene_open</span></code> function does, but it tries
+to locate a previous published snapshot and if not found - a new one is copied from a template
+and saved to the temp folder and opened.</p>
+<p>Finally, to have this run during Maya startup, we add it to <code class="docutils literal notranslate"><span class="pre">userSetup.py</span></code>:</p>
+<p><strong>mypipeline/framework-maya/resources/scripts/userSetup.py</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos">1</span><span class="k">def</span> <span class="nf">initialise</span><span class="p">():</span>
+<span class="linenos">2</span>    <span class="o">..</span>
+<span class="linenos">3</span>
+<span class="linenos">4</span>    <span class="n">maya_utils</span><span class="o">.</span><span class="n">init_maya</span><span class="p">()</span>
+<span class="linenos">5</span>
+<span class="linenos">6</span>    <span class="n">maya_utils</span><span class="o">.</span><span class="n">scene_open</span><span class="p">(</span><span class="n">session</span><span class="p">,</span> <span class="n">logger</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="structure.html" class="btn btn-neutral float-left" title="Custom file structure" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="load.html" class="btn btn-neutral float-right" title="Load camera image plane in Maya" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2020, ftrack.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

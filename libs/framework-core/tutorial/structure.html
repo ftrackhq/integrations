@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Custom file structure &mdash; framework-core Unknown version documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/ftrack.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/lowdown.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/sphinx_highlight.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Maya open latest scene" href="open.html" />
+    <link rel="prev" title="Setup" href="setup.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            framework-core
+          </a>
+              <div class="version">
+                Unknown version
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../introduction/index.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../installing.html">Installing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developing/index.html">Developing</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Tutorial</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="introduction.html">Introduction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="setup.html">Setup</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Custom file structure</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#structure">Structure</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#location">Location</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#source-code">Source code</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="open.html">Maya open latest scene</a></li>
+<li class="toctree-l2"><a class="reference internal" href="load.html">Load camera image plane in Maya</a></li>
+<li class="toctree-l2"><a class="reference internal" href="finalise.html">Post Slack message on publish</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tool.html">Add a custom tool the the ftrack menu within Maya</a></li>
+<li class="toctree-l2"><a class="reference internal" href="launch.html">Customising DCC launch</a></li>
+<li class="toctree-l2"><a class="reference internal" href="deploy.html">Deploy the customised pipeline within studio</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../standalone/index.html">Standalone</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api_references/modules.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../release/index.html">Release and migration notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../glossary.html">Glossary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../troubleshooting.html">Troubleshooting</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">framework-core</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">Tutorial</a></li>
+      <li class="breadcrumb-item active">Custom file structure</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/tutorial/structure.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <div class="section" id="custom-file-structure">
+<span id="tutorial-structure"></span><h1>Custom file structure<a class="headerlink" href="#custom-file-structure" title="Permalink to this heading">¶</a></h1>
+<p>The tutorial relies on defining a custom folder structure across the studio.</p>
+<p>With ftrack, and a storage scenario, comes the <code class="docutils literal notranslate"><span class="pre">ftrack_api.structure.Standard</span></code>
+structure plugin which publishes files with the standard ftrack structure:</p>
+<p><strong>project/sequence/shot/model/v001/alembic.abc</strong></p>
+<p>With this tutorial, we are going to provide our custom studio file structure that puts
+publishes in a “PUBLISH” folder:</p>
+<p><strong>project/sequence/shot/PUBLISH/anim/alembic.abc</strong></p>
+<p>We are achieving this by defining our own structure plugin that we apply to the
+storage scenario location. This API/Connect plugin needs to reside server side:</p>
+<p><strong>mypipeline/custom-location-plugin</strong>:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>hook/plugin_hook.py<span class="w">                 </span><span class="c1">#  Enable structure within Connect</span>
+location/custom_location_plugin.py<span class="w">  </span><span class="c1">#  Initialise the location - apply structure</span>
+location/structure.py<span class="w">               </span><span class="c1">#  Provides the custom file structure</span>
+</pre></div>
+</div>
+<div class="section" id="structure">
+<h2>Structure<a class="headerlink" href="#structure" title="Permalink to this heading">¶</a></h2>
+<p>Within the structure plugin we define an asset resolver:</p>
+<p><strong>mypipeline/custom-location-plugin/location/structure.py</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos">  1</span><span class="c1"># :coding: utf-8</span>
+<span class="linenos">  2</span><span class="c1"># :copyright: Copyright (c) 2022 ftrack</span>
+<span class="linenos">  3</span>
+<span class="linenos">  4</span><span class="kn">import</span> <span class="nn">sys</span>
+<span class="linenos">  5</span><span class="kn">import</span> <span class="nn">os</span>
+<span class="linenos">  6</span><span class="kn">import</span> <span class="nn">re</span>
+<span class="linenos">  7</span><span class="kn">import</span> <span class="nn">unicodedata</span>
+<span class="linenos">  8</span><span class="kn">import</span> <span class="nn">logging</span>
+<span class="linenos">  9</span><span class="kn">import</span> <span class="nn">traceback</span>
+<span class="linenos"> 10</span>
+<span class="linenos"> 11</span><span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">OrderedDict</span>
+<span class="linenos"> 12</span>
+<span class="linenos"> 13</span><span class="kn">import</span> <span class="nn">ftrack_api.symbol</span>
+<span class="linenos"> 14</span><span class="kn">import</span> <span class="nn">ftrack_api.structure.base</span>
+<span class="linenos"> 15</span>
+<span class="linenos"> 16</span><span class="n">STUDIO_PUBLISH_FOLDER</span> <span class="o">=</span> <span class="s2">&quot;PUBLISH&quot;</span>
+<span class="linenos"> 17</span>
+<span class="linenos"> 18</span>
+<span class="linenos"> 19</span><span class="k">class</span> <span class="nc">Structure</span><span class="p">(</span><span class="n">ftrack_api</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">base</span><span class="o">.</span><span class="n">Structure</span><span class="p">):</span>
+<span class="linenos"> 20</span><span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="linenos"> 21</span><span class="sd">    Custom structure publishing to &quot;_PUBLISH&quot; folder beneath shot.</span>
+<span class="linenos"> 22</span><span class="sd">    &#39;&#39;&#39;</span>
+<span class="linenos"> 23</span>
+<span class="linenos"> 24</span>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+<span class="linenos"> 25</span>        <span class="bp">self</span><span class="p">,</span> <span class="n">project_versions_prefix</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">illegal_character_substitute</span><span class="o">=</span><span class="s1">&#39;_&#39;</span>
+<span class="linenos"> 26</span>    <span class="p">):</span>
+<span class="linenos"> 27</span>        <span class="nb">super</span><span class="p">(</span><span class="n">Structure</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+<span class="linenos"> 28</span>        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span>
+<span class="linenos"> 29</span>            <span class="s1">&#39;com.ftrack.integartions.tutorials.custom-location-plugin.location.Structure&#39;</span>
+<span class="linenos"> 30</span>        <span class="p">)</span>
+<span class="linenos"> 31</span>        <span class="bp">self</span><span class="o">.</span><span class="n">project_versions_prefix</span> <span class="o">=</span> <span class="n">project_versions_prefix</span>
+<span class="linenos"> 32</span>        <span class="bp">self</span><span class="o">.</span><span class="n">illegal_character_substitute</span> <span class="o">=</span> <span class="n">illegal_character_substitute</span>
+<span class="linenos"> 33</span>        <span class="bp">self</span><span class="o">.</span><span class="n">resolvers</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">(</span>
+<span class="linenos"> 34</span>            <span class="p">{</span>
+<span class="linenos"> 35</span>                <span class="s1">&#39;FileComponent&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_resolve_filecomponent</span><span class="p">,</span>
+<span class="linenos"> 36</span>                <span class="s1">&#39;SequenceComponent&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_resolve_sequencecomponent</span><span class="p">,</span>
+<span class="linenos"> 37</span>                <span class="s1">&#39;ContainerComponent&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_resolve_containercomponent</span><span class="p">,</span>
+<span class="linenos"> 38</span>                <span class="s1">&#39;AssetVersion&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_resolve_version</span><span class="p">,</span>
+<span class="hll"><span class="linenos"> 39</span>                <span class="s1">&#39;Asset&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_resolve_asset</span><span class="p">,</span>
+</span><span class="linenos"> 40</span>                <span class="s1">&#39;Task&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_resolve_task</span><span class="p">,</span>
+<span class="linenos"> 41</span>                <span class="s1">&#39;Project&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_resolve_project</span><span class="p">,</span>
+<span class="linenos"> 42</span>                <span class="s1">&#39;ContextEntity&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_resolve_context_entity</span><span class="p">,</span>
+<span class="linenos"> 43</span>            <span class="p">}</span>
+<span class="linenos"> 44</span>        <span class="p">)</span>
+<span class="linenos"> 45</span>
+<span class="linenos"> 46</span>    <span class="k">def</span> <span class="nf">sanitise_for_filesystem</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+<span class="linenos"> 47</span><span class="w">        </span><span class="sd">&#39;&#39;&#39;Return *value* with illegal filesystem characters replaced.</span>
+<span class="linenos"> 48</span>
+<span class="linenos"> 49</span><span class="sd">        An illegal character is one that is not typically valid for filesystem</span>
+<span class="linenos"> 50</span><span class="sd">        usage, such as non ascii characters, or can be awkward to use in a</span>
+<span class="linenos"> 51</span><span class="sd">        filesystem, such as spaces. Replace these characters with</span>
+<span class="linenos"> 52</span><span class="sd">        the character specified by *illegal_character_substitute* on</span>
+<span class="linenos"> 53</span><span class="sd">        initialisation. If no character was specified as substitute then return</span>
+<span class="linenos"> 54</span><span class="sd">        *value* unmodified.</span>
+<span class="linenos"> 55</span>
+<span class="linenos"> 56</span><span class="sd">        &#39;&#39;&#39;</span>
+<span class="linenos"> 57</span>        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">illegal_character_substitute</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+<span class="linenos"> 58</span>            <span class="k">return</span> <span class="n">value</span>
+<span class="linenos"> 59</span>
+<span class="linenos"> 60</span>        <span class="n">value</span> <span class="o">=</span> <span class="n">unicodedata</span><span class="o">.</span><span class="n">normalize</span><span class="p">(</span><span class="s1">&#39;NFKD&#39;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">value</span><span class="p">))</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span>
+<span class="linenos"> 61</span>            <span class="s1">&#39;ascii&#39;</span><span class="p">,</span> <span class="s1">&#39;ignore&#39;</span>
+<span class="linenos"> 62</span>        <span class="p">)</span>
+<span class="linenos"> 63</span>        <span class="n">value</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span>
+<span class="linenos"> 64</span>            <span class="s1">&#39;[^\w\.-]&#39;</span><span class="p">,</span>
+<span class="linenos"> 65</span>            <span class="bp">self</span><span class="o">.</span><span class="n">illegal_character_substitute</span><span class="p">,</span>
+<span class="linenos"> 66</span>            <span class="n">value</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">),</span>
+<span class="linenos"> 67</span>        <span class="p">)</span>
+<span class="linenos"> 68</span>        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">value</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">lower</span><span class="p">())</span>
+<span class="linenos"> 69</span>
+<span class="linenos"> 70</span>    <span class="k">def</span> <span class="nf">_resolve_project</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">project</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="linenos"> 71</span><span class="w">        </span><span class="sd">&#39;&#39;&#39;Return resource identifier for *project*.&#39;&#39;&#39;</span>
+<span class="linenos"> 72</span>        <span class="c1"># Base on project name</span>
+<span class="linenos"> 73</span>        <span class="k">return</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">sanitise_for_filesystem</span><span class="p">(</span><span class="n">project</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">])]</span>
+<span class="linenos"> 74</span>
+<span class="linenos"> 75</span>    <span class="k">def</span> <span class="nf">_resolve_context_entity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">entity</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="linenos"> 76</span><span class="w">        </span><span class="sd">&#39;&#39;&#39;Return resource identifier parts from general *entity*.&#39;&#39;&#39;</span>
+<span class="linenos"> 77</span>
+<span class="linenos"> 78</span>        <span class="n">error_message</span> <span class="o">=</span> <span class="p">(</span>
+<span class="linenos"> 79</span>            <span class="s1">&#39;Entity </span><span class="si">{0!r}</span><span class="s1"> must be supported (have a link), be committed and have&#39;</span>
+<span class="linenos"> 80</span>            <span class="s1">&#39; a parent context.&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">entity</span><span class="p">)</span>
+<span class="linenos"> 81</span>        <span class="p">)</span>
+<span class="linenos"> 82</span>
+<span class="linenos"> 83</span>        <span class="k">if</span> <span class="n">entity</span> <span class="ow">is</span> <span class="n">ftrack_api</span><span class="o">.</span><span class="n">symbol</span><span class="o">.</span><span class="n">NOT_SET</span><span class="p">:</span>
+<span class="linenos"> 84</span>            <span class="k">raise</span> <span class="n">ftrack_api</span><span class="o">.</span><span class="n">exception</span><span class="o">.</span><span class="n">StructureError</span><span class="p">(</span><span class="n">error_message</span><span class="p">)</span>
+<span class="linenos"> 85</span>
+<span class="linenos"> 86</span>        <span class="n">session</span> <span class="o">=</span> <span class="n">entity</span><span class="o">.</span><span class="n">session</span>
+<span class="linenos"> 87</span>
+<span class="linenos"> 88</span>        <span class="k">if</span> <span class="ow">not</span> <span class="s1">&#39;link&#39;</span> <span class="ow">in</span> <span class="n">entity</span><span class="p">:</span>
+<span class="linenos"> 89</span>            <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
+<span class="linenos"> 90</span>                <span class="s1">&#39;Cannot generate resource identifier for unsupported &#39;</span>
+<span class="linenos"> 91</span>                <span class="s1">&#39;entity </span><span class="si">{0!r}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">entity</span><span class="p">)</span>
+<span class="linenos"> 92</span>            <span class="p">)</span>
+<span class="linenos"> 93</span>
+<span class="linenos"> 94</span>        <span class="n">link</span> <span class="o">=</span> <span class="n">entity</span><span class="p">[</span><span class="s1">&#39;link&#39;</span><span class="p">]</span>
+<span class="linenos"> 95</span>
+<span class="linenos"> 96</span>        <span class="k">if</span> <span class="ow">not</span> <span class="n">link</span><span class="p">:</span>
+<span class="linenos"> 97</span>            <span class="k">raise</span> <span class="n">ftrack_api</span><span class="o">.</span><span class="n">exception</span><span class="o">.</span><span class="n">StructureError</span><span class="p">(</span><span class="n">error_message</span><span class="p">)</span>
+<span class="linenos"> 98</span>
+<span class="linenos"> 99</span>        <span class="n">structure_names</span> <span class="o">=</span> <span class="p">[</span><span class="n">item</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">link</span><span class="p">[</span><span class="mi">1</span><span class="p">:]]</span>
+<span class="linenos">100</span>
+<span class="linenos">101</span>        <span class="k">if</span> <span class="s1">&#39;project&#39;</span> <span class="ow">in</span> <span class="n">entity</span><span class="p">:</span>
+<span class="linenos">102</span>            <span class="n">project</span> <span class="o">=</span> <span class="n">entity</span><span class="p">[</span><span class="s1">&#39;project&#39;</span><span class="p">]</span>
+<span class="linenos">103</span>        <span class="k">elif</span> <span class="s1">&#39;project_id&#39;</span> <span class="ow">in</span> <span class="n">entity</span><span class="p">:</span>
+<span class="linenos">104</span>            <span class="n">project</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;Project&#39;</span><span class="p">,</span> <span class="n">entity</span><span class="p">[</span><span class="s1">&#39;project_id&#39;</span><span class="p">])</span>
+<span class="linenos">105</span>        <span class="k">else</span><span class="p">:</span>
+<span class="linenos">106</span>            <span class="n">project</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;Project&#39;</span><span class="p">,</span> <span class="n">link</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s1">&#39;id&#39;</span><span class="p">])</span>
+<span class="linenos">107</span>
+<span class="linenos">108</span>        <span class="n">parts</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_resolve_project</span><span class="p">(</span><span class="n">project</span><span class="p">)</span>
+<span class="linenos">109</span>
+<span class="linenos">110</span>        <span class="k">if</span> <span class="n">structure_names</span><span class="p">:</span>
+<span class="linenos">111</span>            <span class="k">for</span> <span class="n">part</span> <span class="ow">in</span> <span class="n">structure_names</span><span class="p">:</span>
+<span class="linenos">112</span>                <span class="n">parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sanitise_for_filesystem</span><span class="p">(</span><span class="n">part</span><span class="p">))</span>
+<span class="linenos">113</span>        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">project_versions_prefix</span><span class="p">:</span>
+<span class="linenos">114</span>            <span class="c1"># Add *project_versions_prefix* if configured and the version is</span>
+<span class="linenos">115</span>            <span class="c1"># published directly under the project.</span>
+<span class="linenos">116</span>            <span class="n">parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+<span class="linenos">117</span>                <span class="bp">self</span><span class="o">.</span><span class="n">sanitise_for_filesystem</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">project_versions_prefix</span><span class="p">)</span>
+<span class="linenos">118</span>            <span class="p">)</span>
+<span class="linenos">119</span>
+<span class="linenos">120</span>        <span class="k">return</span> <span class="n">parts</span>
+<span class="linenos">121</span>
+<span class="linenos">122</span>    <span class="k">def</span> <span class="nf">_resolve_task</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">task</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="linenos">123</span><span class="w">        </span><span class="sd">&#39;&#39;&#39;Build resource identifier for *task*.&#39;&#39;&#39;</span>
+<span class="linenos">124</span>        <span class="c1"># Resolve parent context</span>
+<span class="linenos">125</span>        <span class="n">parts</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_resolve_context_entity</span><span class="p">(</span><span class="n">task</span><span class="p">[</span><span class="s1">&#39;parent&#39;</span><span class="p">],</span> <span class="n">context</span><span class="o">=</span><span class="n">context</span><span class="p">)</span>
+<span class="linenos">126</span>        <span class="c1"># TODO: Customise were task work files go</span>
+<span class="linenos">127</span>        <span class="c1"># Base on task name, and use underscore instead of whitespaces</span>
+<span class="linenos">128</span>        <span class="n">parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+<span class="linenos">129</span>            <span class="bp">self</span><span class="o">.</span><span class="n">sanitise_for_filesystem</span><span class="p">(</span><span class="n">task</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">,</span> <span class="s1">&#39;_&#39;</span><span class="p">))</span>
+<span class="linenos">130</span>        <span class="p">)</span>
+<span class="linenos">131</span>        <span class="k">return</span> <span class="n">parts</span>
+<span class="linenos">132</span>
+<span class="hll"><span class="linenos">133</span>    <span class="k">def</span> <span class="nf">_resolve_asset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">asset</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+</span><span class="hll"><span class="linenos">134</span><span class="w">        </span><span class="sd">&#39;&#39;&#39;Build resource identifier for *asset*.&#39;&#39;&#39;</span>
+</span><span class="hll"><span class="linenos">135</span>        <span class="c1"># Resolve parent context</span>
+</span><span class="hll"><span class="linenos">136</span>        <span class="n">parts</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_resolve_context_entity</span><span class="p">(</span><span class="n">asset</span><span class="p">[</span><span class="s1">&#39;parent&#39;</span><span class="p">],</span> <span class="n">context</span><span class="o">=</span><span class="n">context</span><span class="p">)</span>
+</span><span class="hll"><span class="linenos">137</span>        <span class="c1"># Framework guide customisation - publish to shot/asset &quot;publish&quot; subfolder</span>
+</span><span class="hll"><span class="linenos">138</span>        <span class="n">parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">STUDIO_PUBLISH_FOLDER</span><span class="p">)</span>
+</span><span class="hll"><span class="linenos">139</span>        <span class="c1"># Base on its name</span>
+</span><span class="hll"><span class="linenos">140</span>        <span class="n">parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sanitise_for_filesystem</span><span class="p">(</span><span class="n">asset</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]))</span>
+</span><span class="hll"><span class="linenos">141</span>        <span class="k">return</span> <span class="n">parts</span>
+</span><span class="linenos">142</span>
+<span class="linenos">143</span>    <span class="k">def</span> <span class="nf">_format_version</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">number</span><span class="p">):</span>
+<span class="linenos">144</span><span class="w">        </span><span class="sd">&#39;&#39;&#39;Return a formatted string representing version *number*.&#39;&#39;&#39;</span>
+<span class="linenos">145</span>        <span class="k">return</span> <span class="s1">&#39;v</span><span class="si">{0:03d}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">number</span><span class="p">)</span>
+<span class="linenos">146</span>
+<span class="linenos">147</span>    <span class="k">def</span> <span class="nf">_resolve_version</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">version</span><span class="p">,</span> <span class="n">component</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="linenos">148</span><span class="w">        </span><span class="sd">&#39;&#39;&#39;Get resource identifier for *version*.&#39;&#39;&#39;</span>
+<span class="linenos">149</span>
+<span class="linenos">150</span>        <span class="n">error_message</span> <span class="o">=</span> <span class="s1">&#39;Version </span><span class="si">{0!r}</span><span class="s1"> must be committed and have a asset with parent context.&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+<span class="linenos">151</span>            <span class="n">version</span>
+<span class="linenos">152</span>        <span class="p">)</span>
+<span class="linenos">153</span>
+<span class="linenos">154</span>        <span class="k">if</span> <span class="n">version</span> <span class="ow">is</span> <span class="n">ftrack_api</span><span class="o">.</span><span class="n">symbol</span><span class="o">.</span><span class="n">NOT_SET</span> <span class="ow">and</span> <span class="n">component</span><span class="p">:</span>
+<span class="linenos">155</span>            <span class="n">version</span> <span class="o">=</span> <span class="n">component</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+<span class="linenos">156</span>                <span class="s1">&#39;AssetVersion&#39;</span><span class="p">,</span> <span class="n">component</span><span class="p">[</span><span class="s1">&#39;version_id&#39;</span><span class="p">]</span>
+<span class="linenos">157</span>            <span class="p">)</span>
+<span class="linenos">158</span>
+<span class="linenos">159</span>        <span class="k">if</span> <span class="n">version</span> <span class="ow">is</span> <span class="n">ftrack_api</span><span class="o">.</span><span class="n">symbol</span><span class="o">.</span><span class="n">NOT_SET</span> <span class="ow">or</span> <span class="p">(</span>
+<span class="linenos">160</span>            <span class="ow">not</span> <span class="n">component</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">version</span> <span class="ow">in</span> <span class="n">component</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">created</span>
+<span class="linenos">161</span>        <span class="p">):</span>
+<span class="linenos">162</span>            <span class="k">raise</span> <span class="n">ftrack_api</span><span class="o">.</span><span class="n">exception</span><span class="o">.</span><span class="n">StructureError</span><span class="p">(</span><span class="n">error_message</span><span class="p">)</span>
+<span class="linenos">163</span>
+<span class="linenos">164</span>        <span class="c1"># Create version resource identifier from asset and version number</span>
+<span class="linenos">165</span>        <span class="n">version_number</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_format_version</span><span class="p">(</span><span class="n">version</span><span class="p">[</span><span class="s1">&#39;version&#39;</span><span class="p">])</span>
+<span class="linenos">166</span>        <span class="n">parts</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_resolve_asset</span><span class="p">(</span><span class="n">version</span><span class="p">[</span><span class="s1">&#39;asset&#39;</span><span class="p">],</span> <span class="n">context</span><span class="o">=</span><span class="n">context</span><span class="p">)</span>
+<span class="linenos">167</span>        <span class="n">parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sanitise_for_filesystem</span><span class="p">(</span><span class="n">version_number</span><span class="p">))</span>
+<span class="linenos">168</span>
+<span class="linenos">169</span>        <span class="k">return</span> <span class="n">parts</span>
+<span class="linenos">170</span>
+<span class="linenos">171</span>    <span class="k">def</span> <span class="nf">_resolve_sequencecomponent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sequencecomponent</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="linenos">172</span><span class="w">        </span><span class="sd">&#39;&#39;&#39;Get resource identifier for *sequencecomponent*.&#39;&#39;&#39;</span>
+<span class="linenos">173</span>        <span class="c1"># Create sequence expression for the sequence component and add it</span>
+<span class="linenos">174</span>        <span class="c1"># to the parts.</span>
+<span class="linenos">175</span>        <span class="n">parts</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_resolve_version</span><span class="p">(</span>
+<span class="linenos">176</span>            <span class="n">sequencecomponent</span><span class="p">[</span><span class="s1">&#39;version&#39;</span><span class="p">],</span>
+<span class="linenos">177</span>            <span class="n">component</span><span class="o">=</span><span class="n">sequencecomponent</span><span class="p">,</span>
+<span class="linenos">178</span>            <span class="n">context</span><span class="o">=</span><span class="n">context</span><span class="p">,</span>
+<span class="linenos">179</span>        <span class="p">)</span>
+<span class="linenos">180</span>        <span class="n">sequence_expression</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_sequence_expression</span><span class="p">(</span><span class="n">sequencecomponent</span><span class="p">)</span>
+<span class="linenos">181</span>        <span class="n">parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+<span class="linenos">182</span>            <span class="s1">&#39;</span><span class="si">{0}</span><span class="s1">.</span><span class="si">{1}{2}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+<span class="linenos">183</span>                <span class="bp">self</span><span class="o">.</span><span class="n">sanitise_for_filesystem</span><span class="p">(</span><span class="n">sequencecomponent</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]),</span>
+<span class="linenos">184</span>                <span class="n">sequence_expression</span><span class="p">,</span>
+<span class="linenos">185</span>                <span class="bp">self</span><span class="o">.</span><span class="n">sanitise_for_filesystem</span><span class="p">(</span><span class="n">sequencecomponent</span><span class="p">[</span><span class="s1">&#39;file_type&#39;</span><span class="p">]),</span>
+<span class="linenos">186</span>            <span class="p">)</span>
+<span class="linenos">187</span>        <span class="p">)</span>
+<span class="linenos">188</span>        <span class="k">return</span> <span class="n">parts</span>
+<span class="linenos">189</span>
+<span class="linenos">190</span>    <span class="k">def</span> <span class="nf">_resolve_container</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="n">container</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="linenos">191</span><span class="w">        </span><span class="sd">&#39;&#39;&#39;Get resource identifier for *container*, based on the *component*</span>
+<span class="linenos">192</span><span class="sd">        supplied.&#39;&#39;&#39;</span>
+<span class="linenos">193</span>        <span class="n">container_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_resource_identifier</span><span class="p">(</span>
+<span class="linenos">194</span>            <span class="n">container</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="n">context</span>
+<span class="linenos">195</span>        <span class="p">)</span>
+<span class="linenos">196</span>        <span class="k">if</span> <span class="n">container</span><span class="o">.</span><span class="n">entity_type</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;SequenceComponent&#39;</span><span class="p">,):</span>
+<span class="linenos">197</span>            <span class="c1"># Strip the sequence component expression from the parent</span>
+<span class="linenos">198</span>            <span class="c1"># container and back the correct filename, i.e.</span>
+<span class="linenos">199</span>            <span class="c1"># /sequence/component/sequence_component_name.0012.exr.</span>
+<span class="linenos">200</span>            <span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">{0}</span><span class="s1">.</span><span class="si">{1}{2}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+<span class="linenos">201</span>                <span class="n">container</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">],</span> <span class="n">component</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">],</span> <span class="n">component</span><span class="p">[</span><span class="s1">&#39;file_type&#39;</span><span class="p">]</span>
+<span class="linenos">202</span>            <span class="p">)</span>
+<span class="linenos">203</span>            <span class="n">parts</span> <span class="o">=</span> <span class="p">[</span>
+<span class="linenos">204</span>                <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">container_path</span><span class="p">),</span>
+<span class="linenos">205</span>                <span class="bp">self</span><span class="o">.</span><span class="n">sanitise_for_filesystem</span><span class="p">(</span><span class="n">name</span><span class="p">),</span>
+<span class="linenos">206</span>            <span class="p">]</span>
+<span class="linenos">207</span>
+<span class="linenos">208</span>        <span class="k">else</span><span class="p">:</span>
+<span class="linenos">209</span>            <span class="c1"># Container is not a sequence component so add it as a</span>
+<span class="linenos">210</span>            <span class="c1"># normal component inside the container.</span>
+<span class="linenos">211</span>            <span class="n">name</span> <span class="o">=</span> <span class="n">component</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="n">component</span><span class="p">[</span><span class="s1">&#39;file_type&#39;</span><span class="p">]</span>
+<span class="linenos">212</span>            <span class="n">parts</span> <span class="o">=</span> <span class="p">[</span><span class="n">container_path</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">sanitise_for_filesystem</span><span class="p">(</span><span class="n">name</span><span class="p">)]</span>
+<span class="linenos">213</span>        <span class="k">return</span> <span class="n">parts</span>
+<span class="linenos">214</span>
+<span class="linenos">215</span>    <span class="k">def</span> <span class="nf">_resolve_filecomponent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filecomponent</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="linenos">216</span><span class="w">        </span><span class="sd">&#39;&#39;&#39;Get resource identifier for file component.&#39;&#39;&#39;</span>
+<span class="linenos">217</span>        <span class="n">container</span> <span class="o">=</span> <span class="n">filecomponent</span><span class="p">[</span><span class="s1">&#39;container&#39;</span><span class="p">]</span>
+<span class="linenos">218</span>        <span class="k">if</span> <span class="n">container</span><span class="p">:</span>
+<span class="linenos">219</span>            <span class="n">parts</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_resolve_container</span><span class="p">(</span>
+<span class="linenos">220</span>                <span class="n">filecomponent</span><span class="p">,</span> <span class="n">container</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="n">context</span>
+<span class="linenos">221</span>            <span class="p">)</span>
+<span class="linenos">222</span>        <span class="k">else</span><span class="p">:</span>
+<span class="linenos">223</span>            <span class="c1"># File component does not have a container, construct name from</span>
+<span class="linenos">224</span>            <span class="c1"># component name and file type.</span>
+<span class="linenos">225</span>            <span class="n">parts</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_resolve_version</span><span class="p">(</span>
+<span class="linenos">226</span>                <span class="n">filecomponent</span><span class="p">[</span><span class="s1">&#39;version&#39;</span><span class="p">],</span>
+<span class="linenos">227</span>                <span class="n">component</span><span class="o">=</span><span class="n">filecomponent</span><span class="p">,</span>
+<span class="linenos">228</span>                <span class="n">context</span><span class="o">=</span><span class="n">context</span><span class="p">,</span>
+<span class="linenos">229</span>            <span class="p">)</span>
+<span class="linenos">230</span>            <span class="n">name</span> <span class="o">=</span> <span class="n">filecomponent</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="n">filecomponent</span><span class="p">[</span><span class="s1">&#39;file_type&#39;</span><span class="p">]</span>
+<span class="linenos">231</span>            <span class="n">parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sanitise_for_filesystem</span><span class="p">(</span><span class="n">name</span><span class="p">))</span>
+<span class="linenos">232</span>        <span class="k">return</span> <span class="n">parts</span>
+<span class="linenos">233</span>
+<span class="linenos">234</span>    <span class="k">def</span> <span class="nf">_resolve_containercomponent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">containercomponent</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="linenos">235</span><span class="w">        </span><span class="sd">&#39;&#39;&#39;Get resource identifier for *containercomponent*.&#39;&#39;&#39;</span>
+<span class="linenos">236</span>        <span class="c1"># Get resource identifier for container component</span>
+<span class="linenos">237</span>        <span class="c1"># Add the name of the container to the resource identifier parts.</span>
+<span class="linenos">238</span>        <span class="n">parts</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_resolve_version</span><span class="p">(</span>
+<span class="linenos">239</span>            <span class="n">containercomponent</span><span class="p">[</span><span class="s1">&#39;version&#39;</span><span class="p">],</span>
+<span class="linenos">240</span>            <span class="n">component</span><span class="o">=</span><span class="n">containercomponent</span><span class="p">,</span>
+<span class="linenos">241</span>            <span class="n">context</span><span class="o">=</span><span class="n">context</span><span class="p">,</span>
+<span class="linenos">242</span>        <span class="p">)</span>
+<span class="linenos">243</span>        <span class="n">parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sanitise_for_filesystem</span><span class="p">(</span><span class="n">containercomponent</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]))</span>
+<span class="linenos">244</span>        <span class="k">return</span> <span class="n">parts</span>
+<span class="linenos">245</span>
+<span class="linenos">246</span>    <span class="k">def</span> <span class="nf">get_resource_identifier</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">entity</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="linenos">247</span><span class="w">        </span><span class="sd">&#39;&#39;&#39;Return a resource identifier for supplied *entity*.</span>
+<span class="linenos">248</span>
+<span class="linenos">249</span><span class="sd">        *context* can be a mapping that supplies additional information, but</span>
+<span class="linenos">250</span><span class="sd">        is unused in this implementation.</span>
+<span class="linenos">251</span>
+<span class="linenos">252</span>
+<span class="linenos">253</span><span class="sd">        Raise a :py:exc:`ftrack_api.exeption.StructureError` if *entity* is a</span>
+<span class="linenos">254</span><span class="sd">        component not attached to a committed version/asset with a parent</span>
+<span class="linenos">255</span><span class="sd">        context, or if entity is not a proper Context.</span>
+<span class="linenos">256</span>
+<span class="linenos">257</span><span class="sd">        &#39;&#39;&#39;</span>
+<span class="linenos">258</span>
+<span class="linenos">259</span>        <span class="n">resolver_fn</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">resolvers</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+<span class="linenos">260</span>            <span class="n">entity</span><span class="o">.</span><span class="n">entity_type</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_resolve_context_entity</span>
+<span class="linenos">261</span>        <span class="p">)</span>
+<span class="linenos">262</span>
+<span class="linenos">263</span>        <span class="n">parts</span> <span class="o">=</span> <span class="n">resolver_fn</span><span class="p">(</span><span class="n">entity</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="n">context</span><span class="p">)</span>
+<span class="linenos">264</span>
+<span class="linenos">265</span>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">path_separator</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">parts</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="location">
+<h2>Location<a class="headerlink" href="#location" title="Permalink to this heading">¶</a></h2>
+<p>The structure are then registered and used with the default location, if it is an
+unmanaged/server location, a default location at disk is used so publishes
+not are lost in system temp directory:</p>
+<p><strong>mypipeline/custom-location-plugin/location/custom_location_plugin.py</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span><span class="c1"># :coding: utf-8</span>
+<span class="linenos"> 2</span><span class="c1"># :copyright: Copyright (c) 2022 ftrack</span>
+<span class="linenos"> 3</span>
+<span class="linenos"> 4</span><span class="kn">import</span> <span class="nn">os</span>
+<span class="linenos"> 5</span><span class="kn">import</span> <span class="nn">functools</span>
+<span class="linenos"> 6</span><span class="kn">import</span> <span class="nn">logging</span>
+<span class="linenos"> 7</span>
+<span class="linenos"> 8</span><span class="kn">import</span> <span class="nn">ftrack_api</span>
+<span class="linenos"> 9</span><span class="kn">import</span> <span class="nn">ftrack_api.accessor.disk</span>
+<span class="linenos">10</span>
+<span class="linenos">11</span><span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span>
+<span class="linenos">12</span>    <span class="s1">&#39;com.ftrack.framework-core.tutorial.custom-location-plugin.location.custom_location_plugin&#39;</span>
+<span class="linenos">13</span><span class="p">)</span>
+<span class="linenos">14</span>
+<span class="linenos">15</span>
+<span class="hll"><span class="linenos">16</span><span class="k">def</span> <span class="nf">configure_location</span><span class="p">(</span><span class="n">session</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+</span><span class="hll"><span class="linenos">17</span><span class="w">    </span><span class="sd">&#39;&#39;&#39;Apply our custom structure to default storage scenario location.&#39;&#39;&#39;</span>
+</span><span class="hll"><span class="linenos">18</span>    <span class="kn">import</span> <span class="nn">structure</span>
+</span><span class="hll"><span class="linenos">19</span>
+</span><span class="hll"><span class="linenos">20</span>    <span class="n">DEFAULT_USER_DISK_PREFIX</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+</span><span class="hll"><span class="linenos">21</span>        <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">expanduser</span><span class="p">(</span><span class="s1">&#39;~&#39;</span><span class="p">),</span> <span class="s1">&#39;Documents&#39;</span><span class="p">,</span> <span class="s1">&#39;ftrack_tutorial&#39;</span>
+</span><span class="hll"><span class="linenos">22</span>    <span class="p">)</span>
+</span><span class="hll"><span class="linenos">23</span>
+</span><span class="hll"><span class="linenos">24</span>    <span class="n">location</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">pick_location</span><span class="p">()</span>
+</span><span class="hll"><span class="linenos">25</span>    <span class="k">if</span> <span class="n">location</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;ftrack.unmanaged&#39;</span><span class="p">,</span> <span class="s1">&#39;ftrack.server&#39;</span><span class="p">]:</span>
+</span><span class="hll"><span class="linenos">26</span>        <span class="n">location</span><span class="o">.</span><span class="n">accessor</span> <span class="o">=</span> <span class="n">ftrack_api</span><span class="o">.</span><span class="n">accessor</span><span class="o">.</span><span class="n">disk</span><span class="o">.</span><span class="n">DiskAccessor</span><span class="p">(</span>
+</span><span class="hll"><span class="linenos">27</span>            <span class="n">prefix</span><span class="o">=</span><span class="n">DEFAULT_USER_DISK_PREFIX</span>
+</span><span class="hll"><span class="linenos">28</span>        <span class="p">)</span>
+</span><span class="hll"><span class="linenos">29</span>    <span class="n">location</span><span class="o">.</span><span class="n">structure</span> <span class="o">=</span> <span class="n">structure</span><span class="o">.</span><span class="n">Structure</span><span class="p">()</span>
+</span><span class="hll"><span class="linenos">30</span>    <span class="c1"># location.priority = 1</span>
+</span><span class="hll"><span class="linenos">31</span>
+</span><span class="hll"><span class="linenos">32</span>    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+</span><span class="hll"><span class="linenos">33</span>        <span class="sa">u</span><span class="s1">&#39;Registered custom file structure at location &quot;</span><span class="si">{0}</span><span class="s1">&quot;, path: </span><span class="si">{1}</span><span class="s1">.&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+</span><span class="hll"><span class="linenos">34</span>            <span class="n">location</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">],</span> <span class="n">DEFAULT_USER_DISK_PREFIX</span>
+</span><span class="hll"><span class="linenos">35</span>        <span class="p">)</span>
+</span><span class="hll"><span class="linenos">36</span>    <span class="p">)</span>
+</span><span class="linenos">37</span>
+<span class="linenos">38</span>
+<span class="linenos">39</span><span class="k">def</span> <span class="nf">register</span><span class="p">(</span><span class="n">api_object</span><span class="p">,</span> <span class="o">**</span><span class="n">kw</span><span class="p">):</span>
+<span class="linenos">40</span><span class="w">    </span><span class="sd">&#39;&#39;&#39;Register location with *session*.&#39;&#39;&#39;</span>
+<span class="linenos">41</span>
+<span class="linenos">42</span>    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">api_object</span><span class="p">,</span> <span class="n">ftrack_api</span><span class="o">.</span><span class="n">Session</span><span class="p">):</span>
+<span class="linenos">43</span>        <span class="k">return</span>
+<span class="linenos">44</span>
+<span class="linenos">45</span>    <span class="n">api_object</span><span class="o">.</span><span class="n">event_hub</span><span class="o">.</span><span class="n">subscribe</span><span class="p">(</span>
+<span class="linenos">46</span>        <span class="s1">&#39;topic=ftrack.api.session.configure-location&#39;</span><span class="p">,</span>
+<span class="linenos">47</span>        <span class="n">functools</span><span class="o">.</span><span class="n">partial</span><span class="p">(</span><span class="n">configure_location</span><span class="p">,</span> <span class="n">api_object</span><span class="p">),</span>
+<span class="linenos">48</span>    <span class="p">)</span>
+<span class="linenos">49</span>
+<span class="linenos">50</span>    <span class="n">api_object</span><span class="o">.</span><span class="n">event_hub</span><span class="o">.</span><span class="n">subscribe</span><span class="p">(</span>
+<span class="linenos">51</span>        <span class="s1">&#39;topic=ftrack.api.connect.configure-location&#39;</span><span class="p">,</span>
+<span class="linenos">52</span>        <span class="n">functools</span><span class="o">.</span><span class="n">partial</span><span class="p">(</span><span class="n">configure_location</span><span class="p">,</span> <span class="n">api_object</span><span class="p">),</span>
+<span class="linenos">53</span>    <span class="p">)</span>
+<span class="linenos">54</span>
+<span class="linenos">55</span>    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">u</span><span class="s1">&#39;Registered tutorial location plugin.&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="section" id="source-code">
+<h3>Source code<a class="headerlink" href="#source-code" title="Permalink to this heading">¶</a></h3>
+<p>The complete source code for the API location structure plugin can be found here:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>resource/custom-location-plugin
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="setup.html" class="btn btn-neutral float-left" title="Setup" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="open.html" class="btn btn-neutral float-right" title="Maya open latest scene" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2020, ftrack.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

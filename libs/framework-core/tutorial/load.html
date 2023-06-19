@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Load camera image plane in Maya &mdash; framework-core Unknown version documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/ftrack.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/lowdown.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/sphinx_highlight.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Post Slack message on publish" href="finalise.html" />
+    <link rel="prev" title="Maya open latest scene" href="open.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            framework-core
+          </a>
+              <div class="version">
+                Unknown version
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../introduction/index.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../installing.html">Installing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developing/index.html">Developing</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Tutorial</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="introduction.html">Introduction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="setup.html">Setup</a></li>
+<li class="toctree-l2"><a class="reference internal" href="structure.html">Custom file structure</a></li>
+<li class="toctree-l2"><a class="reference internal" href="open.html">Maya open latest scene</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Load camera image plane in Maya</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#constrain-camera-loader">Constrain camera loader</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#render-loader">Render loader</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#definition">Definition</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#render-importer-plugin">Render importer plugin</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#custom-publisher-plugin">Custom publisher plugin</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="finalise.html">Post Slack message on publish</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tool.html">Add a custom tool the the ftrack menu within Maya</a></li>
+<li class="toctree-l2"><a class="reference internal" href="launch.html">Customising DCC launch</a></li>
+<li class="toctree-l2"><a class="reference internal" href="deploy.html">Deploy the customised pipeline within studio</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../standalone/index.html">Standalone</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api_references/modules.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../release/index.html">Release and migration notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../glossary.html">Glossary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../troubleshooting.html">Troubleshooting</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">framework-core</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">Tutorial</a></li>
+      <li class="breadcrumb-item active">Load camera image plane in Maya</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/tutorial/load.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <div class="section" id="load-camera-image-plane-in-maya">
+<span id="tutorial-load"></span><h1>Load camera image plane in Maya<a class="headerlink" href="#load-camera-image-plane-in-maya" title="Permalink to this heading">¶</a></h1>
+<p>Next, we implement a custom camera loader within Maya that loads a reviewable Quicktime
+(.mov) as an image plane, to aid animation and lighting framing.</p>
+<div class="section" id="constrain-camera-loader">
+<h2>Constrain camera loader<a class="headerlink" href="#constrain-camera-loader" title="Permalink to this heading">¶</a></h2>
+<p>As a preparation, we constrain the camera loader to only be seen when on animation
+and lighting tasks, hiding it during modelling. We do this by modifying the loader
+definition json and adding the <strong>discoverable</strong> key:</p>
+<p><strong>mypipeline/projects/framework-maya/resource/definitions/loader/camera-maya-loader.json</strong></p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="linenos">1</span><span class="p">{</span>
+<span class="linenos">2</span><span class="w">    </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;loader&quot;</span><span class="p">,</span>
+<span class="linenos">3</span><span class="w">    </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Camera Loader&quot;</span><span class="p">,</span>
+<span class="linenos">4</span><span class="w">    </span><span class="nt">&quot;asset_type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;cam&quot;</span><span class="p">,</span>
+<span class="linenos">5</span><span class="w">    </span><span class="nt">&quot;host_type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;maya&quot;</span><span class="p">,</span>
+<span class="linenos">6</span><span class="w">    </span><span class="nt">&quot;ui_type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;qt&quot;</span><span class="p">,</span>
+<span class="hll"><span class="linenos">7</span><span class="w">    </span><span class="nt">&quot;discoverable&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;animation&quot;</span><span class="p">,</span><span class="s2">&quot;lighting&quot;</span><span class="p">]</span>
+</span><span class="linenos">8</span>
+<span class="linenos">9</span><span class="p">}</span>
+</pre></div>
+</div>
+<p>Here we have added the additional <em>discoverable</em> key with associate task type names.</p>
+</div>
+<div class="section" id="render-loader">
+<h2>Render loader<a class="headerlink" href="#render-loader" title="Permalink to this heading">¶</a></h2>
+<p>This serves as an example on how to implement your own loader that is not part of
+the framework but required in production.</p>
+<div class="section" id="definition">
+<h3>Definition<a class="headerlink" href="#definition" title="Permalink to this heading">¶</a></h3>
+<p>Reviewable Quicktimes are most likely published with render (asset type), from Nuke
+Studio or similar tool. This is why we implement an new <em>render loader</em> definition:</p>
+<p><strong>mypipeline/projects/framework-maya/resource/definitions/loader/render-maya-loader.json</strong></p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span><span class="p">{</span>
+<span class="linenos"> 2</span><span class="w">  </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;loader&quot;</span><span class="p">,</span>
+<span class="hll"><span class="linenos"> 3</span><span class="w">  </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Render Loader&quot;</span><span class="p">,</span>
+</span><span class="hll"><span class="linenos"> 4</span><span class="w">  </span><span class="nt">&quot;asset_type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;render&quot;</span><span class="p">,</span>
+</span><span class="linenos"> 5</span><span class="w">  </span><span class="nt">&quot;host_type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;maya&quot;</span><span class="p">,</span>
+<span class="linenos"> 6</span><span class="w">  </span><span class="nt">&quot;ui_type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;qt&quot;</span><span class="p">,</span>
+<span class="linenos"> 7</span><span class="w">  </span><span class="nt">&quot;contexts&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="linenos"> 8</span><span class="w">    </span><span class="p">{</span>
+<span class="linenos"> 9</span><span class="w">      </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;main&quot;</span><span class="p">,</span>
+<span class="linenos">10</span><span class="w">      </span><span class="nt">&quot;stages&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="linenos">11</span><span class="w">        </span><span class="p">{</span>
+<span class="linenos">12</span><span class="w">          </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;context&quot;</span><span class="p">,</span>
+<span class="linenos">13</span><span class="w">          </span><span class="nt">&quot;plugins&quot;</span><span class="p">:[</span>
+<span class="linenos">14</span><span class="w">            </span><span class="p">{</span>
+<span class="linenos">15</span><span class="w">              </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;context selector&quot;</span><span class="p">,</span>
+<span class="linenos">16</span><span class="w">              </span><span class="nt">&quot;plugin&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;common_passthrough_loader_context&quot;</span><span class="p">,</span>
+<span class="linenos">17</span><span class="w">              </span><span class="nt">&quot;widget&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;common_default_loader_context&quot;</span>
+<span class="linenos">18</span><span class="w">            </span><span class="p">}</span>
+<span class="linenos">19</span><span class="w">          </span><span class="p">]</span>
+<span class="linenos">20</span><span class="w">        </span><span class="p">}</span>
+<span class="linenos">21</span><span class="w">      </span><span class="p">]</span>
+<span class="linenos">22</span><span class="w">    </span><span class="p">}</span>
+<span class="linenos">23</span><span class="w">  </span><span class="p">],</span>
+<span class="linenos">24</span><span class="w">  </span><span class="nt">&quot;components&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="linenos">25</span><span class="w">    </span><span class="p">{</span>
+<span class="hll"><span class="linenos">26</span><span class="w">      </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;movie&quot;</span><span class="p">,</span>
+</span><span class="hll"><span class="linenos">27</span><span class="w">      </span><span class="nt">&quot;file_formats&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;.mov&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;.r3d&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;.mxf&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;.avi&quot;</span><span class="p">],</span>
+</span><span class="linenos">28</span><span class="w">      </span><span class="nt">&quot;stages&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="linenos">29</span><span class="w">        </span><span class="p">{</span>
+<span class="linenos">30</span><span class="w">          </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;collector&quot;</span><span class="p">,</span>
+<span class="linenos">31</span><span class="w">          </span><span class="nt">&quot;plugins&quot;</span><span class="p">:[</span>
+<span class="linenos">32</span><span class="w">            </span><span class="p">{</span>
+<span class="linenos">33</span><span class="w">              </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Collect components from context&quot;</span><span class="p">,</span>
+<span class="linenos">34</span><span class="w">              </span><span class="nt">&quot;plugin&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;common_context_loader_collector&quot;</span>
+<span class="linenos">35</span><span class="w">            </span><span class="p">}</span>
+<span class="linenos">36</span><span class="w">          </span><span class="p">]</span>
+<span class="linenos">37</span><span class="w">        </span><span class="p">},</span>
+<span class="linenos">38</span><span class="w">        </span><span class="p">{</span>
+<span class="linenos">39</span><span class="w">          </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;importer&quot;</span><span class="p">,</span>
+<span class="linenos">40</span><span class="w">          </span><span class="nt">&quot;plugins&quot;</span><span class="p">:[</span>
+<span class="linenos">41</span><span class="w">            </span><span class="p">{</span>
+<span class="linenos">42</span><span class="w">              </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Import reviewable to Maya&quot;</span><span class="p">,</span>
+<span class="hll"><span class="linenos">43</span><span class="w">              </span><span class="nt">&quot;plugin&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;maya_render_loader_importer&quot;</span><span class="p">,</span>
+</span><span class="hll"><span class="linenos">44</span><span class="w">              </span><span class="nt">&quot;options&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+</span><span class="hll"><span class="linenos">45</span><span class="w">                </span><span class="nt">&quot;camera_name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;persp&quot;</span>
+</span><span class="hll"><span class="linenos">46</span><span class="w">              </span><span class="p">}</span>
+</span><span class="linenos">47</span><span class="w">            </span><span class="p">}</span>
+<span class="linenos">48</span><span class="w">          </span><span class="p">]</span>
+<span class="linenos">49</span><span class="w">        </span><span class="p">},</span>
+<span class="linenos">50</span><span class="w">        </span><span class="p">{</span>
+<span class="linenos">51</span><span class="w">          </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;post_importer&quot;</span><span class="p">,</span>
+<span class="linenos">52</span><span class="w">          </span><span class="nt">&quot;plugins&quot;</span><span class="p">:[</span>
+<span class="linenos">53</span><span class="w">            </span><span class="p">{</span>
+<span class="linenos">54</span><span class="w">              </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;maya&quot;</span><span class="p">,</span>
+<span class="linenos">55</span><span class="w">              </span><span class="nt">&quot;plugin&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;common_passthrough_loader_post_importer&quot;</span>
+<span class="linenos">56</span><span class="w">            </span><span class="p">}</span>
+<span class="linenos">57</span><span class="w">          </span><span class="p">]</span>
+<span class="linenos">58</span><span class="w">        </span><span class="p">}</span>
+<span class="linenos">59</span><span class="w">      </span><span class="p">]</span>
+<span class="linenos">60</span><span class="w">    </span><span class="p">}</span>
+<span class="linenos">61</span><span class="w">  </span><span class="p">],</span>
+<span class="linenos">62</span><span class="w">  </span><span class="nt">&quot;finalizers&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="linenos">63</span><span class="w">    </span><span class="p">{</span>
+<span class="linenos">64</span><span class="w">      </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;main&quot;</span><span class="p">,</span>
+<span class="linenos">65</span><span class="w">      </span><span class="nt">&quot;stages&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="linenos">66</span><span class="w">        </span><span class="p">{</span>
+<span class="linenos">67</span><span class="w">          </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;pre_finalizer&quot;</span><span class="p">,</span>
+<span class="linenos">68</span><span class="w">          </span><span class="nt">&quot;visible&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span>
+<span class="linenos">69</span><span class="w">          </span><span class="nt">&quot;plugins&quot;</span><span class="p">:[</span>
+<span class="linenos">70</span><span class="w">            </span><span class="p">{</span>
+<span class="linenos">71</span><span class="w">              </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Pre finalizer&quot;</span><span class="p">,</span>
+<span class="linenos">72</span><span class="w">              </span><span class="nt">&quot;plugin&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;common_passthrough_loader_pre_finalizer&quot;</span>
+<span class="linenos">73</span><span class="w">            </span><span class="p">}</span>
+<span class="linenos">74</span><span class="w">          </span><span class="p">]</span>
+<span class="linenos">75</span><span class="w">        </span><span class="p">},</span>
+<span class="linenos">76</span><span class="w">        </span><span class="p">{</span>
+<span class="linenos">77</span><span class="w">          </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;finalizer&quot;</span><span class="p">,</span>
+<span class="linenos">78</span><span class="w">          </span><span class="nt">&quot;visible&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span>
+<span class="linenos">79</span><span class="w">          </span><span class="nt">&quot;plugins&quot;</span><span class="p">:[</span>
+<span class="linenos">80</span><span class="w">            </span><span class="p">{</span>
+<span class="linenos">81</span><span class="w">              </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Finalizer&quot;</span><span class="p">,</span>
+<span class="linenos">82</span><span class="w">              </span><span class="nt">&quot;plugin&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;common_passthrough_loader_finalizer&quot;</span>
+<span class="linenos">83</span><span class="w">            </span><span class="p">}</span>
+<span class="linenos">84</span><span class="w">          </span><span class="p">]</span>
+<span class="linenos">85</span><span class="w">        </span><span class="p">},</span>
+<span class="linenos">86</span><span class="w">        </span><span class="p">{</span>
+<span class="linenos">87</span><span class="w">          </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;post_finalizer&quot;</span><span class="p">,</span>
+<span class="linenos">88</span><span class="w">          </span><span class="nt">&quot;visible&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span>
+<span class="linenos">89</span><span class="w">          </span><span class="nt">&quot;plugins&quot;</span><span class="p">:[</span>
+<span class="linenos">90</span><span class="w">            </span><span class="p">{</span>
+<span class="linenos">91</span><span class="w">              </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Post finalizer&quot;</span><span class="p">,</span>
+<span class="linenos">92</span><span class="w">              </span><span class="nt">&quot;plugin&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;common_passthrough_loader_post_finalizer&quot;</span>
+<span class="linenos">93</span><span class="w">            </span><span class="p">}</span>
+<span class="linenos">94</span><span class="w">          </span><span class="p">]</span>
+<span class="linenos">95</span><span class="w">        </span><span class="p">}</span>
+<span class="linenos">96</span><span class="w">      </span><span class="p">]</span>
+<span class="linenos">97</span><span class="w">    </span><span class="p">}</span>
+<span class="linenos">98</span><span class="w">  </span><span class="p">]</span>
+<span class="linenos">99</span><span class="p">}</span>
+</pre></div>
+</div>
+<p>Definition breakdown:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><em>name</em>; We follow the Framework naming convention here.</p></li>
+<li><p><em>asset_type</em>: Change here if quicktimes are published onto a different custom asset type than <em>render</em>.</p></li>
+<li><p><em>component name</em>; The name of loadable components on an asset version.</p></li>
+<li><p><em>component file formats/types</em>; List of file format extensions supported by the loader plugin.</p></li>
+<li><p><em>importer plugin</em>; Here we reference the new <strong>maya_render_loader_importer</strong> that we are about to write.</p></li>
+<li><p><em>importer plugin options</em>; In the options we expose a <strong>camera_name</strong> attribute, which will be an option that the user can change.</p></li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="render-importer-plugin">
+<h3>Render importer plugin<a class="headerlink" href="#render-importer-plugin" title="Permalink to this heading">¶</a></h3>
+<p>Finally we implement a new importer plugin:</p>
+<p><strong>mypipeline/projects/framework-maya/resource/plugins/python/loader/importers/maya_render_loader_importer.py</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span><span class="c1"># :coding: utf-8</span>
+<span class="linenos"> 2</span><span class="c1"># :copyright: Copyright (c) 2014-2022 ftrack</span>
+<span class="linenos"> 3</span>
+<span class="linenos"> 4</span><span class="kn">import</span> <span class="nn">maya.cmds</span> <span class="k">as</span> <span class="nn">cmds</span>
+<span class="linenos"> 5</span>
+<span class="linenos"> 6</span><span class="kn">from</span> <span class="nn">ftrack_framework_maya</span> <span class="kn">import</span> <span class="n">plugin</span>
+<span class="linenos"> 7</span><span class="kn">import</span> <span class="nn">ftrack_api</span>
+<span class="linenos"> 8</span>
+<span class="linenos"> 9</span>
+<span class="linenos">10</span><span class="k">class</span> <span class="nc">MayaRenderLoaderImporterPlugin</span><span class="p">(</span><span class="n">plugin</span><span class="o">.</span><span class="n">MayaLoaderImporterPlugin</span><span class="p">):</span>
+<span class="linenos">11</span><span class="w">    </span><span class="sd">&#39;&#39;&#39;Maya Quicktime importer plugin&#39;&#39;&#39;</span>
+<span class="linenos">12</span>
+<span class="hll"><span class="linenos">13</span>    <span class="n">plugin_name</span> <span class="o">=</span> <span class="s1">&#39;maya_render_loader_importer&#39;</span>
+</span><span class="linenos">14</span>
+<span class="hll"><span class="linenos">15</span>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">context_data</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+</span><span class="hll"><span class="linenos">16</span><span class="w">        </span><span class="sd">&#39;&#39;&#39;Load alembic files pointed out by collected paths supplied in *data*&#39;&#39;&#39;</span>
+</span><span class="hll"><span class="linenos">17</span>
+</span><span class="hll"><span class="linenos">18</span>        <span class="n">results</span> <span class="o">=</span> <span class="p">{}</span>
+</span><span class="hll"><span class="linenos">19</span>
+</span><span class="hll"><span class="linenos">20</span>        <span class="n">camera_name</span> <span class="o">=</span> <span class="n">options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;camera_name&#39;</span><span class="p">,</span> <span class="s1">&#39;persp&#39;</span><span class="p">)</span>
+</span><span class="hll"><span class="linenos">21</span>        <span class="n">paths_to_import</span> <span class="o">=</span> <span class="p">[]</span>
+</span><span class="hll"><span class="linenos">22</span>        <span class="k">for</span> <span class="n">collector</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
+</span><span class="hll"><span class="linenos">23</span>            <span class="n">paths_to_import</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">collector</span><span class="p">[</span><span class="s1">&#39;result&#39;</span><span class="p">])</span>
+</span><span class="hll"><span class="linenos">24</span>
+</span><span class="hll"><span class="linenos">25</span>        <span class="k">for</span> <span class="n">component_path</span> <span class="ow">in</span> <span class="n">paths_to_import</span><span class="p">:</span>
+</span><span class="hll"><span class="linenos">26</span>            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+</span><span class="hll"><span class="linenos">27</span>                <span class="s1">&#39;Importing path &quot;</span><span class="si">{}</span><span class="s1">&quot; as image plane to camera &quot;</span><span class="si">{}</span><span class="s1">&quot;&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+</span><span class="hll"><span class="linenos">28</span>                    <span class="n">component_path</span><span class="p">,</span> <span class="n">camera_name</span>
+</span><span class="hll"><span class="linenos">29</span>                <span class="p">)</span>
+</span><span class="hll"><span class="linenos">30</span>            <span class="p">)</span>
+</span><span class="hll"><span class="linenos">31</span>            <span class="n">imagePlane</span> <span class="o">=</span> <span class="n">cmds</span><span class="o">.</span><span class="n">imagePlane</span><span class="p">(</span>
+</span><span class="hll"><span class="linenos">32</span>                <span class="n">camera</span><span class="o">=</span><span class="n">camera_name</span><span class="p">,</span> <span class="n">fileName</span><span class="o">=</span><span class="n">component_path</span>
+</span><span class="hll"><span class="linenos">33</span>            <span class="p">)</span>
+</span><span class="hll"><span class="linenos">34</span>            <span class="n">cmds</span><span class="o">.</span><span class="n">setAttr</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1">.type&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">imagePlane</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="mi">2</span><span class="p">)</span>
+</span><span class="hll"><span class="linenos">35</span>            <span class="n">cmds</span><span class="o">.</span><span class="n">setAttr</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1">.useFrameExtension&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">imagePlane</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="kc">True</span><span class="p">)</span>
+</span><span class="hll"><span class="linenos">36</span>
+</span><span class="hll"><span class="linenos">37</span>            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+</span><span class="hll"><span class="linenos">38</span>                <span class="s1">&#39;Imported &quot;</span><span class="si">{}</span><span class="s1">&quot; to </span><span class="si">{}</span><span class="s1">.&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">component_path</span><span class="p">,</span> <span class="n">imagePlane</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+</span><span class="hll"><span class="linenos">39</span>            <span class="p">)</span>
+</span><span class="hll"><span class="linenos">40</span>
+</span><span class="hll"><span class="linenos">41</span>            <span class="n">results</span><span class="p">[</span><span class="n">component_path</span><span class="p">]</span> <span class="o">=</span> <span class="n">imagePlane</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+</span><span class="hll"><span class="linenos">42</span>
+</span><span class="hll"><span class="linenos">43</span>        <span class="k">return</span> <span class="n">results</span>
+</span><span class="linenos">44</span>
+<span class="linenos">45</span>
+<span class="linenos">46</span><span class="k">def</span> <span class="nf">register</span><span class="p">(</span><span class="n">api_object</span><span class="p">,</span> <span class="o">**</span><span class="n">kw</span><span class="p">):</span>
+<span class="linenos">47</span>    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">api_object</span><span class="p">,</span> <span class="n">ftrack_api</span><span class="o">.</span><span class="n">Session</span><span class="p">):</span>
+<span class="linenos">48</span>        <span class="c1"># Exit to avoid registering this plugin again.</span>
+<span class="linenos">49</span>        <span class="k">return</span>
+<span class="linenos">50</span>    <span class="n">plugin</span> <span class="o">=</span> <span class="n">MayaRenderLoaderImporterPlugin</span><span class="p">(</span><span class="n">api_object</span><span class="p">)</span>
+<span class="linenos">51</span>    <span class="n">plugin</span><span class="o">.</span><span class="n">register</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>Plugin breakdown:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><em>plugin_name</em>; The name of the plugin, have to match the name used within the definition.</p></li>
+<li><p><em>run</em> function; The function that will be run during load in the ftrack Assembler.</p></li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="custom-publisher-plugin">
+<h3>Custom publisher plugin<a class="headerlink" href="#custom-publisher-plugin" title="Permalink to this heading">¶</a></h3>
+<p>Writing a custom publisher is very similar to writing a loader, the big difference is
+that you also will have to write a <em>publisher collector</em> that collects which objects within
+the DCC to publish, and also decide on component name and file format extension.</p>
+<p>In this tutorial, we will not provide any example publisher code. Instead we refer to
+the extensive set of built-in publishers for inspiration.</p>
+</div>
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="open.html" class="btn btn-neutral float-left" title="Maya open latest scene" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="finalise.html" class="btn btn-neutral float-right" title="Post Slack message on publish" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2020, ftrack.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

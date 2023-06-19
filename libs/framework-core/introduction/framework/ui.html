@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>UI layer &mdash; framework-core Unknown version documentation</title>
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/ftrack.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/lowdown.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/sphinx_highlight.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="DCC integration layer" href="dcc.html" />
+    <link rel="prev" title="Core Framework layer" href="core.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            framework-core
+          </a>
+              <div class="version">
+                Unknown version
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">Introduction</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../overview.html">Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../connect.html">Connect</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="index.html">Framework</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="core.html">Core Framework layer</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">UI layer</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#resource">resource</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="dcc.html">DCC integration layer</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../how/index.html">How it works</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../index.html#history">History</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../installing.html">Installing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developing/index.html">Developing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorial/index.html">Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../standalone/index.html">Standalone</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api_references/modules.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../release/index.html">Release and migration notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../glossary.html">Glossary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../troubleshooting.html">Troubleshooting</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">framework-core</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Introduction</a></li>
+          <li class="breadcrumb-item"><a href="index.html">Framework</a></li>
+      <li class="breadcrumb-item active">UI layer</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/introduction/framework/ui.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <div class="section" id="ui-layer">
+<span id="introduction-framework-ui"></span><h1>UI layer<a class="headerlink" href="#ui-layer" title="Permalink to this heading">¶</a></h1>
+<p>The <a class="reference internal" href="../../glossary.html#term-UI"><span class="xref std std-term">UI</span></a> abstraction layer takes care of rendering widgets inside the DCC
+application, with the ftrack default style applied. The UI sits on top of the
+pipeline Framework core layer in the stack and is backed by the :term: <cite>Qt</cite>
+framework plugin.</p>
+<p>Each <a class="reference internal" href="../../glossary.html#term-Client"><span class="xref std std-term">Client</span></a> is represented in the UI layer, which in turn is inherited by
+the DCC layer (Maya and so on).</p>
+<p>Structure:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>client/
+plugin/
+ui/
+<span class="w">    </span>assembler/
+<span class="w">    </span>asset_manager/
+<span class="w">    </span>factory/
+<span class="w">    </span>log_viewer/
+<span class="w">    </span>utility/
+</pre></div>
+</div>
+<p>Description of main submodules:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><strong>client</strong>; Contains client UI implementations.</p></li>
+<li><p><strong>plugin</strong>; Contain bases for definition plugin widgets</p></li>
+<li><p><strong>assembler</strong>; The assembler/loader widget.</p></li>
+<li><p><strong>asset_manager</strong>; The asset manager widget.</p></li>
+<li><p><strong>factory</strong>; Contains widgets and logic for generating the publisher and parts of the loader, factorised from the definition.</p></li>
+<li><p><strong>log_viewer</strong>; The log viewer widget.</p></li>
+<li><p><strong>utility</strong>; Utility widgets such as the entity browser, context selectors and so on.</p></li>
+</ul>
+</div></blockquote>
+<div class="section" id="resource">
+<h2>resource<a class="headerlink" href="#resource" title="Permalink to this heading">¶</a></h2>
+<div class="section" id="style">
+<h3>style<a class="headerlink" href="#style" title="Permalink to this heading">¶</a></h3>
+<p>The folder contains associated fonts, images and stylesheets.</p>
+</div>
+<div class="section" id="plugins">
+<h3>plugins<a class="headerlink" href="#plugins" title="Permalink to this heading">¶</a></h3>
+<p>Contains the base classes for the UI plugin widgets referenced within the DCC definitions.</p>
+</div>
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="core.html" class="btn btn-neutral float-left" title="Core Framework layer" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="dcc.html" class="btn btn-neutral float-right" title="DCC integration layer" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2020, ftrack.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
