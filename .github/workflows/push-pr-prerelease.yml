@@ -14,11 +14,11 @@ on:
       - synchronize
 
 jobs:
-  pants-build:
-    uses: ./.github/workflows/pants-build.yml
-    with:
-      pre_tag: false
-      check_changed: true
+#  pants-build:
+#    uses: ./.github/workflows/pants-build.yml
+#    with:
+#      pre_tag: false
+#      check_changed: true
 
   # Have to call connect release directly due to problems passing on AWS credentials
   # pre-release:
@@ -28,33 +28,40 @@ jobs:
   #    changed: ${{needs.pants-build.outputs.changed}}
   #    tag_type: "pr${{ github.event.number }}"
 
-  pre-release:
-    needs: pants-build
-    strategy:
-      matrix:
-        # Add new packages here
-        package: [application-launcher, connect-action-launcher-widget, connect-plugin-manager, framework-core, framework-qt, framework-maya, framework-nuke, framework-houdini, framework-3dsmax, connect-timetracker-widget, nuke-studio, rv]
-        os: [ubuntu-latest]
-        suffix: ['']
-        include:
-          - package: framework-unreal
-            os: windows-latest
-            suffix: 'win'
-          # Add platform dependent packages here
-    runs-on: ${{ matrix.os }}
-    steps:
-      - name: Check out repository
-        if: ${{ contains(needs.pants-build.outputs.changed,matrix.package) }}
-        uses: actions/checkout@v3
-      - name: Run release action
-        if: ${{ contains(needs.pants-build.outputs.changed,matrix.package) }}
-        uses: ./.github/actions/connect-release
-        with:
-          package: ${{ matrix.package }}
-          tag: ${{ matrix.package }}/v0.0.0-pr${{ github.event.number }}
-          suffix: ${{ matrix.suffix }}
-          deleteprevious: true
-          prerelease: true
-          deploy_aws: false
-          token: ${{ secrets.GITHUB_TOKEN }}
+#  pre-release:
+#    needs: pants-build
+#    strategy:
+#      matrix:
+#        # Add new packages here
+#        package: [application-launcher, connect-action-launcher-widget, connect-plugin-manager, framework-core, framework-qt, framework-maya, framework-nuke, framework-houdini, framework-3dsmax, connect-timetracker-widget, nuke-studio, rv]
+#        os: [ubuntu-latest]
+#        suffix: ['']
+#        include:
+#          - package: framework-unreal
+#            os: windows-latest
+#            suffix: 'win'
+#          # Add platform dependent packages here
+#    runs-on: ${{ matrix.os }}
+#    steps:
+#      - name: Check out repository
+#        if: ${{ contains(needs.pants-build.outputs.changed,matrix.package) }}
+#        uses: actions/checkout@v3
+#      - name: Run release action
+#        if: ${{ contains(needs.pants-build.outputs.changed,matrix.package) }}
+#        uses: ./.github/actions/connect-release
+#        with:
+#          package: ${{ matrix.package }}
+#          tag: ${{ matrix.package }}/v0.0.0-pr${{ github.event.number }}
+#          suffix: ${{ matrix.suffix }}
+#          deleteprevious: true
+#          prerelease: true
+#          deploy_aws: false
+#          token: ${{ secrets.GITHUB_TOKEN }}
+
+  deploy-docs:
+      #needs: pants-build
+      uses: ./.github/workflows/deploy-docs.yml
+      with:
+        changed: test #${{needs.pants-build.outputs.changed}}
+        #destination: ./latest
 
