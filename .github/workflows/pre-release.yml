@@ -46,6 +46,7 @@ jobs:
         with:
           package: ${{ matrix.package }}
           tag: ${{ matrix.package }}/v0.0.0-${{inputs.tag_type}}
+          release_name: ${{ matrix.package }}/latest
           suffix: ${{ matrix.suffix }}
           deleteprevious: true
           prerelease: true

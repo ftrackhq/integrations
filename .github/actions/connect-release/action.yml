@@ -7,6 +7,9 @@ inputs:
   tag:
     required: true
     description: The tag to release
+  release-name:
+    required: true
+    description: The name of the released connect plugin
   suffix:
     required: true
     description: The suffix to append to the plugin filename
@@ -67,7 +70,7 @@ runs:
         GITHUB_TOKEN: ${{ inputs.token }} # This token is provided by Actions, you do not need to create your own token
       with:
         tag_name: ${{ inputs.tag }}
-        release_name: ${{ inputs.tag }}
+        release_name: ${{ inputs.release_name }}
         body: |
           Auto-generated pre-release on PR
           

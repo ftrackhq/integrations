@@ -18,7 +18,6 @@ jobs:
       pre_tag: false
       check_changed: true
 
-   # Have to call connect release directly due to problems passing on AWS credentials
   pre-release:
     needs: pants-build
     uses: ./.github/workflows/pre-release.yml
