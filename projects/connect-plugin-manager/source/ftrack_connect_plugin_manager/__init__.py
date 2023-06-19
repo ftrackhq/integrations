@@ -56,7 +56,6 @@ class InstallerFailedBlockingOverlay(BlockingOverlay):
 
         self.textEdit = QtWidgets.QTextEdit()
         self.textEdit.setReadOnly(True)
-        self.textEdit.setLineWrapMode(QtWidgets.QTextEdit.NoWrap)
         self.textEdit.setFixedHeight(200)
         self.contentLayout.addWidget(self.textEdit)
 
