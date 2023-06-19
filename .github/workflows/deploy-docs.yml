@@ -40,7 +40,7 @@ jobs:
         #if: ${{ github.ref == 'refs/heads/main' }}
         with:
           # Todo: Change to gh-pages when you are ready
-          publish_branch: gh-pages-deploy
+          publish_branch: gh-pages
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./_site
           force_orphan: true
@@ -84,7 +84,7 @@ jobs:
         #if: ${{ github.ref == 'refs/heads/main' }}
         with:
           # Todo: Change to gh-pages when you are ready
-          publish_branch: gh-pages-deploy
+          publish_branch: gh-pages
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ${{ matrix.folder }}/${{ matrix.package }}/public
           keep_files: true
@@ -101,7 +101,7 @@ jobs:
       - name: Checkout temporary branch
         run: |
           git fetch --all
-          git checkout gh-pages-deploy
+          git checkout gh-pages
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v1
         with:
