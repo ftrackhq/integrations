@@ -64,4 +64,3 @@ jobs:
       with:
         changed: test #${{needs.pants-build.outputs.changed}}
         #destination: ./latest
-
