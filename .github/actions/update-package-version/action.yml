@@ -1,4 +1,4 @@
-name: 'Pants build'
+name: 'Update package version'
 description: "Action that runs pants to package changed packages"
 inputs:
   package:

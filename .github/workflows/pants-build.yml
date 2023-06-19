@@ -33,15 +33,8 @@ on:
 
 jobs:
   # Build root docs
-  pants-build:
+  init-pants:
     runs-on: ubuntu-latest
-    outputs:
-      changed: ${{ env.CHANGED }}
-      package: ${{ env.PACKAGE }}
-      version: ${{ env.VERSION }}
-      tag: ${{ env.TAG }}
-      os: ${{ env.OS }}
-      suffix: ${{ env.SUFFIX }}
     steps:
       - uses: actions/checkout@v3
         with:
@@ -66,30 +59,51 @@ jobs:
           # but will cause the cache entry to grow without bound over time.
           # See https://pants.readme.io/docs/using-pants-in-ci for tips on how to periodically clean it up.
           # Alternatively you change gha-cache-key to ignore old caches.
+  update-package-version:
+    runs-on: ubuntu-latest
+    needs: init-pants
+    if: ${{ inputs.full_release }}
+    outputs:
+      package: ${{ env.PACKAGE }}
+      version: ${{ env.VERSION }}
+      tag: ${{ env.TAG }}
+      os: ${{ env.OS }}
+      suffix: ${{ env.SUFFIX }}
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0 # Fetch all commits so we can calculate diff properly
       - uses: ./.github/workflows/update-packages-version.yml
-        if: ${{ inputs.full_release }}
         with:
           changed: $(echo ${{ github.ref }} | cut -d/ -f 3-3)"
           version: $(echo ${{ github.ref }} | cut -d/ -f 4-4)"
       - name: Set output environment variables
-        if: ${{ inputs.full_release }}
         shell: bash
         run: |
           echo "PACKAGE=$(echo ${{ github.ref }} | cut -d/ -f 3-3)" >> $GITHUB_ENV
           echo "VERSION=$(echo ${{ github.ref }} | cut -d/ -f 4-4)" >> $GITHUB_ENV
           echo "TAG=$(echo ${{ github.ref }} | cut -d/ -f 3-4)" >> $GITHUB_ENV
-
+  check-changed:
+    runs-on: ubuntu-latest
+    needs: init-pants
+    if: ${{ inputs.check_changed }}
+    outputs:
+      changed: ${{ env.CHANGED }}
+    steps:
       - name: Determine which packages has changed using Pants
-        if: ${{ inputs.check_changed }}
         shell: bash
         run: |
           git fetch --all --force
           echo "CHANGED=$(pants list --changed-since=origin/main | cut -d'/' -f 1-2 | grep -v : | uniq | tr '\n' ',')" >> $GITHUB_ENV
       - uses: ./.github/workflows/update-packages-version.yml
-        if: ${{ inputs.check_changed }}
         with:
           changed: ${{ env.CHANGED }}
           version: "0.0.0-${{inputs.tag_type}}"
+  pants-build:
+    runs-on: ubuntu-latest
+    if: ${{ always() }}
+    needs: [update-package-version, check-changed]
+    steps:
       - name: Check BUILD files
         if: false # TODO enable linting with a later task
         shell: bash
