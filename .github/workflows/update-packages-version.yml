@@ -48,6 +48,10 @@ jobs:
       os: ${{ env.OS }}
       suffix: ${{ env.SUFFIX }}
     steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0 # Fetch all commits so we can calculate diff properly
+          
       - name: Run set internal version action
         if: ${{ contains(inputs.changed,matrix.package) }}
         uses: ./.github/actions/update-package-version
