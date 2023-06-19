@@ -1,0 +1,27 @@
+name: 'Pants build'
+description: "Action that runs pants to package changed packages"
+inputs:
+  package:
+    required: true
+    description: The package to build the plugin for
+  folder:
+    required: true
+    description: The tag to release
+  version:
+    required: false
+    description: The tag to release
+    default: 0.0.0
+
+runs:
+  using: "composite"
+  steps:
+    - uses: actions/checkout@v3
+      with:
+        fetch-depth: 0 # Fetch all commits so we can calculate diff properly
+
+    - name: Write version to source
+      run: |
+        cd ${{ inputs.folder }}/${{ inputs.package }}/source/ftrack_`echo ${{ inputs.package }} | tr - _`
+        echo "__version__ = '${{ inputs.version }}'" > _version.py
+      shell: bash
+

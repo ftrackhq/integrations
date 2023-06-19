@@ -17,7 +17,7 @@ jobs:
   pants-build:
     uses: ./.github/workflows/pants-build.yml
     with:
-      pre_tag: true
+      full_release: false
       check_changed: true
 
   pre-release:

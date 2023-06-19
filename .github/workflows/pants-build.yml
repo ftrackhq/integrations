@@ -2,7 +2,7 @@ name: Pants-build
 on:
   workflow_call:
     inputs:
-      pre_tag:
+      full_release:
         required: true
         type: boolean
       check_changed:
@@ -63,14 +63,29 @@ jobs:
           # but will cause the cache entry to grow without bound over time.
           # See https://pants.readme.io/docs/using-pants-in-ci for tips on how to periodically clean it up.
           # Alternatively you change gha-cache-key to ignore old caches.
-      - uses: ./.github/actions/pre-tag
-        if: ${{ inputs.pre_tag }}
+      - uses: ./.github/workflow/update-packages-version
+        if: ${{ inputs.full_release }}
+        with:
+          changed: $(echo ${{ github.ref }} | cut -d/ -f 3-3)"
+          version: $(echo ${{ github.ref }} | cut -d/ -f 4-4)"
+      - name: Set output environment variables
+        if: ${{ inputs.full_release }}
+        shell: bash
+        run: |
+          echo "PACKAGE=$(echo ${{ github.ref }} | cut -d/ -f 3-3)" >> $GITHUB_ENV
+          echo "VERSION=$(echo ${{ github.ref }} | cut -d/ -f 4-4)" >> $GITHUB_ENV
+          echo "TAG=$(echo ${{ github.ref }} | cut -d/ -f 3-4)" >> $GITHUB_ENV
+
       - name: Determine which packages has changed using Pants
         if: ${{ inputs.check_changed }}
         shell: bash
         run: |
           git fetch --all --force
           echo "CHANGED=$(pants list --changed-since=origin/main | cut -d'/' -f 1-2 | grep -v : | uniq | tr '\n' ',')" >> $GITHUB_ENV
+      - uses: ./.github/workflow/update-packages-version
+        if: ${{ inputs.check_changed }}
+        with:
+          changed: ${{ env.CHANGED }}
       - name: Check BUILD files
         if: false # TODO enable linting with a later task
         shell: bash

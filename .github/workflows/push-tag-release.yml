@@ -20,7 +20,7 @@ jobs:
     # Only trigger on tags having a slash within and version starting with "v", ignore other tags
     uses: ./.github/workflows/pants-build.yml
     with:
-      pre_tag: true
+      full_release: true
       check_changed: false
 
   release:
@@ -58,7 +58,7 @@ jobs:
         uses: ./.github/actions/connect-release
         with:
           package: ${{ needs.pants-build.outputs.package }}
-          tag: ${{ needs.pants-build.outputs.package }}/v0.0.0-latest
+          tag: ${{ needs.pants-build.outputs.package }}/latest
           suffix: ${{ needs.pants-build.outputs.suffix }}
           deleteprevious: true
           prerelease: true
