@@ -22,7 +22,11 @@ import ftrack_connect.ui.application
 from ftrack_connect.asynchronous import asynchronous
 
 from ftrack_connect_plugin_manager import (
-    InstallerDoneBlockingOverlay, InstallerFailedBlockingOverlay, PluginProcessor, DndPluginList, ROLES
+    InstallerDoneBlockingOverlay,
+    InstallerFailedBlockingOverlay,
+    PluginProcessor,
+    DndPluginList,
+    ROLES,
 )
 
 logger = logging.getLogger('ftrack_connect.plugin.plugin_installer')
@@ -67,9 +71,7 @@ class PluginInstaller(ftrack_connect.ui.application.ConnectWidget):
         self.layout().addWidget(label)
 
         # plugin list
-        self.plugin_list_widget = DndPluginList(
-            self.session
-        )
+        self.plugin_list_widget = DndPluginList(self.session)
         layout.addWidget(self.plugin_list_widget)
 
         # apply and reset button.
@@ -92,12 +94,16 @@ class PluginInstaller(ftrack_connect.ui.application.ConnectWidget):
         self.blockingOverlayDone = InstallerDoneBlockingOverlay(self)
         self.blockingOverlayDone.hide()
         self.blockingOverlayDone.confirmButton.clicked.connect(self.refresh)
-        self.blockingOverlayDone.restartButton.clicked.connect(self.requestConnectRestart.emit)
+        self.blockingOverlayDone.restartButton.clicked.connect(
+            self.requestConnectRestart.emit
+        )
 
         self.blockingOverlayFailed = InstallerFailedBlockingOverlay(self)
         self.blockingOverlayFailed.hide()
         self.blockingOverlayFailed.confirmButton.clicked.connect(self.refresh)
-        self.blockingOverlayFailed.restartButton.clicked.connect(self.requestConnectRestart.emit)
+        self.blockingOverlayFailed.restartButton.clicked.connect(
+            self.requestConnectRestart.emit
+        )
 
         self.busyOverlay = BusyOverlay(self, 'Updating....')
         self.busyOverlay.hide()
@@ -105,14 +111,20 @@ class PluginInstaller(ftrack_connect.ui.application.ConnectWidget):
         # wire connections
         self.apply_button.clicked.connect(self._on_apply_changes)
         self.reset_button.clicked.connect(self.refresh)
-        self.search_bar.textChanged.connect(self.plugin_list_widget.proxy_model.setFilterFixedString)
+        self.search_bar.textChanged.connect(
+            self.plugin_list_widget.proxy_model.setFilterFixedString
+        )
 
         self.apply_changes.connect(self._on_apply_changes_confirmed)
         self.installation_started.connect(self.busyOverlay.show)
         self.installation_done.connect(self.busyOverlay.hide)
-        self.installation_done.connect(partial(self._show_user_message_done, 'Installation finished!'))
+        self.installation_done.connect(
+            partial(self._show_user_message_done, 'Installation finished!')
+        )
         self.installation_failed.connect(self.busyOverlay.hide)
-        self.installation_failed.connect(partial(self._show_user_message_failed, 'Installation FAILED!'))
+        self.installation_failed.connect(
+            partial(self._show_user_message_failed, 'Installation FAILED!')
+        )
 
         self.installation_done.connect(self._reset_overlay)
         self.installation_in_progress.connect(self._update_overlay)
@@ -120,7 +132,9 @@ class PluginInstaller(ftrack_connect.ui.application.ConnectWidget):
         self.refresh_started.connect(self.busyOverlay.show)
         self.refresh_done.connect(self.busyOverlay.hide)
 
-        self.plugin_list_widget.plugin_model.itemChanged.connect(self.enable_apply_button)
+        self.plugin_list_widget.plugin_model.itemChanged.connect(
+            self.enable_apply_button
+        )
 
         # refresh
         self.refresh()
@@ -144,7 +158,7 @@ class PluginInstaller(ftrack_connect.ui.application.ConnectWidget):
             self.session,
             'INSTALLED-CONNECT-PLUGINS',
             metadata,
-            asynchronous=True
+            asynchronous=True,
         )
 
     def enable_apply_button(self, item):
@@ -152,7 +166,10 @@ class PluginInstaller(ftrack_connect.ui.application.ConnectWidget):
         self.apply_button.setDisabled(True)
         items = []
         for index in range(self.plugin_list_widget.plugin_model.rowCount()):
-            if self.plugin_list_widget.plugin_model.item(index).checkState() == QtCore.Qt.Checked:
+            if (
+                self.plugin_list_widget.plugin_model.item(index).checkState()
+                == QtCore.Qt.Checked
+            ):
                 items.append(self.plugin_list_widget.plugin_model.item(index))
 
         self._plugins_to_install = items
@@ -161,9 +178,7 @@ class PluginInstaller(ftrack_connect.ui.application.ConnectWidget):
             self.apply_button.setEnabled(True)
 
         self.apply_button.setText(
-            'Install {} Plugins'.format(
-                len(self._plugins_to_install)
-            )
+            'Install {} Plugins'.format(len(self._plugins_to_install))
         )
 
     @asynchronous
@@ -178,23 +193,16 @@ class PluginInstaller(ftrack_connect.ui.application.ConnectWidget):
 
     def _show_user_message_done(self, message):
         '''Show final message to the user.'''
-        self.blockingOverlayDone.setMessage(
-            '<h2>{}</h2>'.format(message)
-        )
+        self.blockingOverlayDone.setMessage('<h2>{}</h2>'.format(message))
         self.blockingOverlayDone.confirmButton.show()
         self.blockingOverlayDone.show()
 
     def _show_user_message_failed(self, message, reason):
         '''Show final message to the user.'''
-        self.blockingOverlayFailed.setMessage(
-            '<h2>{}</h2>'.format(message)
-        )
-        self.blockingOverlayFailed.setReason(
-            reason
-        )
+        self.blockingOverlayFailed.setMessage('<h2>{}</h2>'.format(message))
+        self.blockingOverlayFailed.setReason(reason)
         self.blockingOverlayFailed.confirmButton.show()
         self.blockingOverlayFailed.show()
-
 
     def _reset_overlay(self):
         self.reset_plugin_list()
@@ -206,23 +214,28 @@ class PluginInstaller(ftrack_connect.ui.application.ConnectWidget):
 
         self.busyOverlay.setMessage(
             '<h2>Installing {} of {} plugins...</h2></br>'
-            '{}, Version {}'
-            .format(
+            '{}, Version {}'.format(
                 self.counter,
                 len(self._plugins_to_install),
                 item.data(ROLES.PLUGIN_NAME),
-                str(item.data(ROLES.PLUGIN_VERSION))
+                str(item.data(ROLES.PLUGIN_VERSION)),
             )
         )
 
     def _on_apply_changes(self, event=None):
         conflicting_plugins = self.plugin_list_widget.get_conflicting_plugins()
         if conflicting_plugins:
-            if QtWidgets.QMessageBox.question(None,
-                                              "Warning",
-                                              "The following conflicting/deprecated"
-                                              " plugins will be removed:\n\n{}\n\nProceed?".format(
-                    "\n".join(conflicting_plugins)), ) == QtWidgets.QMessageBox.No:
+            if (
+                QtWidgets.QMessageBox.question(
+                    None,
+                    "Warning",
+                    "The following conflicting/deprecated"
+                    " plugins will be removed:\n\n{}\n\nProceed?".format(
+                        "\n".join(conflicting_plugins)
+                    ),
+                )
+                == QtWidgets.QMessageBox.No
+            ):
                 return
         self.apply_changes.emit()
 
@@ -232,7 +245,9 @@ class PluginInstaller(ftrack_connect.ui.application.ConnectWidget):
         # Check if any conflicting plugins are installed.
         self.installation_started.emit()
         try:
-            conflicting_plugins = self.plugin_list_widget.get_conflicting_plugins()
+            conflicting_plugins = (
+                self.plugin_list_widget.get_conflicting_plugins()
+            )
             for plugin in conflicting_plugins:
                 self.plugin_list_widget.remove_conflicting_plugin(plugin)
             num_items = self.plugin_list_widget.plugin_model.rowCount()

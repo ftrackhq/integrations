@@ -20,14 +20,14 @@ import qtawesome as qta
 from ftrack_connect.ui.widget.overlay import BlockingOverlay
 
 
-class InstallerDoneBlockingOverlay(
-    BlockingOverlay
-):
+class InstallerDoneBlockingOverlay(BlockingOverlay):
     '''Custom blocking overlay for publisher.'''
 
     def __init__(self, parent, message=''):
         super(InstallerDoneBlockingOverlay, self).__init__(
-            parent, message=message, icon=qta.icon('mdi6.check', color='#FFDD86', scale_factor=1.2)
+            parent,
+            message=message,
+            icon=qta.icon('mdi6.check', color='#FFDD86', scale_factor=1.2),
         )
 
         self.button_layout = QtWidgets.QHBoxLayout()
@@ -38,23 +38,20 @@ class InstallerDoneBlockingOverlay(
         self.restartButton = QtWidgets.QPushButton('Restart')
         self.restartButton.setObjectName('primary')
 
-        self.button_layout.addWidget(
-            self.confirmButton
-        )
-        self.button_layout.addWidget(
-            self.restartButton
-        )
+        self.button_layout.addWidget(self.confirmButton)
+        self.button_layout.addWidget(self.restartButton)
         self.confirmButton.hide()
         self.confirmButton.clicked.connect(self.hide)
 
-class InstallerFailedBlockingOverlay(
-    BlockingOverlay
-):
+
+class InstallerFailedBlockingOverlay(BlockingOverlay):
     '''Custom blocking overlay for publisher.'''
 
     def __init__(self, parent, message=''):
         super(InstallerFailedBlockingOverlay, self).__init__(
-            parent, message=message, icon=qta.icon('mdi6.close', color='#FF8686', scale_factor=1.2)
+            parent,
+            message=message,
+            icon=qta.icon('mdi6.close', color='#FF8686', scale_factor=1.2),
         )
 
         self.textEdit = QtWidgets.QTextEdit()
@@ -71,20 +68,18 @@ class InstallerFailedBlockingOverlay(
         self.restartButton = QtWidgets.QPushButton('Restart')
         self.restartButton.setObjectName('primary')
 
-        self.button_layout.addWidget(
-            self.confirmButton
-        )
-        self.button_layout.addWidget(
-            self.restartButton
-        )
+        self.button_layout.addWidget(self.confirmButton)
+        self.button_layout.addWidget(self.restartButton)
         self.confirmButton.hide()
         self.confirmButton.clicked.connect(self.hide)
 
     def setReason(self, reason):
         self.textEdit.setText(reason)
 
+
 class STATUSES(object):
     '''Store plugin statuses'''
+
     INSTALLED = 0
     NEW = 1
     UPDATE = 2
@@ -106,10 +101,9 @@ class ROLES(object):
 # Icon representation for statuses
 STATUS_ICONS = {
     STATUSES.INSTALLED: QtGui.QIcon(qta.icon('mdi6.harddisk')),
-    STATUSES.NEW:  QtGui.QIcon(qta.icon('mdi6.new-box')),
-    STATUSES.UPDATE:  QtGui.QIcon(qta.icon('mdi6.update')),
+    STATUSES.NEW: QtGui.QIcon(qta.icon('mdi6.new-box')),
+    STATUSES.UPDATE: QtGui.QIcon(qta.icon('mdi6.update')),
     STATUSES.DOWNLOAD: QtGui.QIcon(qta.icon('mdi6.download')),
-
 }
 
 
@@ -123,7 +117,7 @@ class PluginProcessor(QtCore.QObject):
             STATUSES.NEW: self.install,
             STATUSES.UPDATE: self.update,
             STATUSES.REMOVE: self.remove,
-            STATUSES.DOWNLOAD: self.install
+            STATUSES.DOWNLOAD: self.install,
         }
 
     def download(self, plugin):
@@ -140,15 +134,20 @@ class PluginProcessor(QtCore.QObject):
             platform = sys.platform
 
         for platform_dependent, source_path in [
-            (True, source_path_noarch.replace('.zip', '-{}.zip'.format(platform))),
-            (False, source_path_noarch)
+            (
+                True,
+                source_path_noarch.replace('.zip', '-{}.zip'.format(platform)),
+            ),
+            (False, source_path_noarch),
         ]:
             try:
                 zip_name = os.path.basename(source_path_noarch)
                 save_path = tempfile.gettempdir()
                 temp_path = os.path.join(save_path, zip_name)
 
-                logging.info('Downloading {} to {}'.format(source_path, temp_path))
+                logging.info(
+                    'Downloading {} to {}'.format(source_path, temp_path)
+                )
 
                 with urllib.request.urlopen(source_path) as dl_file:
                     with open(temp_path, 'wb') as out_file:
@@ -156,8 +155,11 @@ class PluginProcessor(QtCore.QObject):
                 return temp_path
             except HTTPError:
                 if platform_dependent:
-                    logging.debug('No download exists {} on platform {}'.format(
-                        source_path, platform))
+                    logging.debug(
+                        'No download exists {} on platform {}'.format(
+                            source_path, platform
+                        )
+                    )
                 else:
                     raise
 
@@ -187,7 +189,9 @@ class PluginProcessor(QtCore.QObject):
 
         install_path = os.path.dirname(plugin.data(ROLES.PLUGIN_INSTALL_PATH))
         destination_path = os.path.join(install_path, plugin_name)
-        logging.debug('Installing {} to {}'.format(source_path, destination_path))
+        logging.debug(
+            'Installing {} to {}'.format(source_path, destination_path)
+        )
 
         with zipfile.ZipFile(source_path, 'r') as zip_ref:
             zip_ref.extractall(destination_path)
@@ -201,18 +205,16 @@ class PluginProcessor(QtCore.QObject):
 
 
 class DndPluginList(QtWidgets.QFrame):
-
-    default_json_config_url = 'https://download.ftrack.com/ftrack-connect/plugins.json'
-    plugin_re = re.compile(
-        '(?P<name>(([A-Za-z-3-4]+)))-(?P<version>(\w.+))'
+    default_json_config_url = (
+        'https://download.ftrack.com/ftrack-connect/plugins.json'
     )
+    plugin_re = re.compile('(?P<name>(([A-Za-z-3-4]+)))-(?P<version>(\w.+))')
 
     def __init__(self, session, parent=None):
         super(DndPluginList, self).__init__(parent=parent)
 
         self.json_config_url = os.environ.get(
-            'FTRACK_CONNECT_JSON_PLUGINS_URL',
-            self.default_json_config_url
+            'FTRACK_CONNECT_JSON_PLUGINS_URL', self.default_json_config_url
         )
 
         self.default_plugin_directory = appdirs.user_data_dir(
@@ -267,25 +269,20 @@ class DndPluginList(QtWidgets.QFrame):
         if not stored_item:
             # add new plugin
             if status == STATUSES.INSTALLED:
-                plugin_item.setData(
-                    file_path, ROLES.PLUGIN_INSTALL_PATH
-                )
+                plugin_item.setData(file_path, ROLES.PLUGIN_INSTALL_PATH)
                 plugin_item.setEnabled(False)
                 plugin_item.setCheckable(False)
 
             elif status in [STATUSES.NEW, STATUSES.DOWNLOAD]:
                 destination_path = os.path.join(
-                    self.default_plugin_directory,
-                    os.path.basename(file_path)
+                    self.default_plugin_directory, os.path.basename(file_path)
                 )
 
                 plugin_item.setData(
                     destination_path, ROLES.PLUGIN_INSTALL_PATH
                 )
 
-                plugin_item.setData(
-                    file_path, ROLES.PLUGIN_SOURCE_PATH
-                )
+                plugin_item.setData(file_path, ROLES.PLUGIN_SOURCE_PATH)
 
                 if status is STATUSES.NEW:
                     # enable it by default as is new.
@@ -298,13 +295,16 @@ class DndPluginList(QtWidgets.QFrame):
 
         # update/remove plugin
         stored_status = stored_item.data(ROLES.PLUGIN_STATUS)
-        if (
-                stored_status in [STATUSES.INSTALLED, STATUSES.DOWNLOAD] and
-                status in [STATUSES.NEW, STATUSES.DOWNLOAD]
-        ):
+        if stored_status in [
+            STATUSES.INSTALLED,
+            STATUSES.DOWNLOAD,
+        ] and status in [STATUSES.NEW, STATUSES.DOWNLOAD]:
             stored_plugin_version = stored_item.data(ROLES.PLUGIN_VERSION)
             should_update = stored_plugin_version < new_plugin_version or (
-                new_plugin_version.major == 0 and new_plugin_version.minor == 0 and new_plugin_version.micro == 0)
+                new_plugin_version.major == 0
+                and new_plugin_version.minor == 0
+                and new_plugin_version.micro == 0
+            )
             if not should_update:
                 return
 
@@ -351,15 +351,10 @@ class DndPluginList(QtWidgets.QFrame):
         '''Populate model with installed plugins.'''
         self.plugin_model.clear()
 
-        plugins = os.listdir(
-            self.default_plugin_directory
-        )
+        plugins = os.listdir(self.default_plugin_directory)
 
         for plugin in plugins:
-            plugin_path = os.path.join(
-                self.default_plugin_directory,
-                plugin
-            )
+            plugin_path = os.path.join(self.default_plugin_directory, plugin)
             self.addPlugin(plugin_path, STATUSES.INSTALLED)
 
     def populate_download_plugins(self):
@@ -373,19 +368,14 @@ class DndPluginList(QtWidgets.QFrame):
 
     def get_conflicting_plugins(self):
         result = []
-        plugins = os.listdir(
-            self.default_plugin_directory
-        )
+        plugins = os.listdir(self.default_plugin_directory)
         for plugin in plugins:
             if plugin.lower().startswith("ftrack-connect-pipeline"):
                 result.append(plugin)
         return result
 
     def remove_conflicting_plugin(self, plugin_name):
-        install_path = os.path.join(
-            self.default_plugin_directory,
-            plugin_name
-        )
+        install_path = os.path.join(self.default_plugin_directory, plugin_name)
         logging.debug('Removing {}'.format(install_path))
         if os.path.exists(install_path) and os.path.isdir(install_path):
             shutil.rmtree(install_path, ignore_errors=False, onerror=None)
@@ -398,7 +388,7 @@ class DndPluginList(QtWidgets.QFrame):
             QtWidgets.QMessageBox.warning(
                 self,
                 'Invalid file',
-                'Invalid file: the dropped item is not a valid file.'
+                'Invalid file: the dropped item is not a valid file.',
             )
             return validPaths
 
@@ -420,16 +410,13 @@ class DndPluginList(QtWidgets.QFrame):
         '''Handle dropped file event.'''
         self._setDropZoneState()
 
-        paths = self._processMimeData(
-            event.mimeData()
-        )
+        paths = self._processMimeData(event.mimeData())
 
         for path in paths:
             self.addPlugin(path, STATUSES.NEW)
 
         event.accept()
         self._setDropZoneState()
-
 
     def _setDropZoneState(self, state='default'):
         '''Set drop zone state to *state*.
