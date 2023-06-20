@@ -155,18 +155,18 @@ jobs:
       - name: Update packages version
         shell: bash
         run: |
-          echo "import sys " >> /tmp/foo.py
-          echo "def update_versions(packages, version):" >> /tmp/foo.py
-          echo "  folder = 'projects' " >> /tmp/foo.py
-          echo "  for package in packages.split(','): " >> /tmp/foo.py
-          echo "    if package == 'framework-qt' or 'framework-core': " >> /tmp/foo.py
-          echo "      folder = 'libs' " >> /tmp/foo.py
-          echo "    set_package_version(package, folder, version) " >> /tmp/foo.py
-          echo "def set_package_version(package, folder, version): " >> /tmp/foo.py
-          echo "  with open('{folder}/{package}/source/ftrack_{package_underscore}/_version.py'.format(folder=folder, package=package, package_underscore=package.replace('-','_') ), 'w') as f: " >> /tmp/foo.py
-          echo "    f.write('__version__ = /"{}/"'.format(version)) " >> /tmp/foo.py
+          echo "import sys " >> /tmp/update_versions.py
+          echo "def update_versions(packages, version):" >> /tmp/update_versions.py
+          echo "  folder = 'projects' " >> /tmp/update_versions.py
+          echo "  for package in packages.split(','): " >> /tmp/update_versions.py
+          echo "    if package == 'framework-qt' or 'framework-core': " >> /tmp/update_versions.py
+          echo "      folder = 'libs' " >> /tmp/update_versions.py
+          echo "    set_package_version(package, folder, version) " >> /tmp/update_versions.py
+          echo "def set_package_version(package, folder, version): " >> /tmp/update_versions.py
+          echo "  with open('{folder}/{package}/source/ftrack_{package_underscore}/_version.py'.format(folder=folder, package=package, package_underscore=package.replace('-','_') ), 'w') as f: " >> /tmp/update_versions.py
+          echo "    f.write('__version__ = /"{}/"'.format(version)) " >> /tmp/update_versions.py
 
-          echo " update_versions(sys.args[1], sys.args[2]) " >> /tmp/foo.py
+          echo " update_versions(sys.args[1], sys.args[2]) " >> /tmp/update_versions.py
           
           python /tmp/update_versions.py ${{ env.CHANGED }}, ${{ needs.set-variables.outputs.version }}
 
