@@ -17,28 +17,28 @@ on:
         value: ${{ jobs.pants-build.outputs.changed }}
       package:
         description: "Package name"
-        value: ${{ jobs.pants-build.outputs.package }}
+        value: ${{ env.PACKAGE }}
       version:
         description: "Package version"
-        value: ${{ jobs.pants-build.outputs.version }}
+        value: ${{ env.VERSION }}
       tag:
         description: "Package tag"
-        value: ${{ jobs.pants-build.outputs.tag }}
+        value: ${{ env.TAG }}
       os:
         description: "Package os"
-        value: ${{ jobs.pants-build.outputs.os }}
+        value: ${{ env.OS }}
       suffix:
         description: "Package suffix"
-        value: ${{ jobs.pants-build.outputs.suffix }}
+        value: ${{ env.SUFFIX }}
 
 jobs:
   # Build root docs
   full-release-update-versions:
     if: ${{ inputs.full_release }}
     uses: ./.github/workflows/update-packages-version.yml
-    outputs:
-      package: ${{ env.PACKAGE }}
-      version: ${{ env.VERSION }}
+#    outputs:
+#      package: ${{ env.PACKAGE }}
+#      version: ${{ env.VERSION }}
     with:
       changed: $(echo ${{ github.ref }} | cut -d/ -f 3-3)"
       version: $(echo ${{ github.ref }} | cut -d/ -f 4-4)"
@@ -46,10 +46,10 @@ jobs:
   full-release-set-environments:
     if: ${{ inputs.full_release }}
     runs-on: ubuntu-latest
-    outputs:
-      tag: ${{ env.TAG }}
-      os: ${{ env.OS }}
-      suffix: ${{ env.SUFFIX }}
+#    outputs:
+#      tag: ${{ env.TAG }}
+#      os: ${{ env.OS }}
+#      suffix: ${{ env.SUFFIX }}
     steps:
       - name: set environments
         shell: bash
