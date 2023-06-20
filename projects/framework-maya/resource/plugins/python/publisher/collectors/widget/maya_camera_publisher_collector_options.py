@@ -28,7 +28,6 @@ class MayaCameraPublisherCollectorOptionsWidget(BaseOptionsWidget):
         context_id=None,
         asset_type_name=None,
     ):
-
         self.maya_cameras = []
         super(MayaCameraPublisherCollectorOptionsWidget, self).__init__(
             parent=parent,

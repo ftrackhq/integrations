@@ -24,7 +24,7 @@ extensions = [
     'sphinx.ext.intersphinx',
     'sphinx.ext.todo',
     'sphinx.ext.viewcode',
-    'lowdown'
+    'lowdown',
 ]
 
 
@@ -55,9 +55,7 @@ release = VERSION
 exclude_patterns = ['_template']
 
 # A list of prefixes to ignore for module listings.
-modindex_common_prefix = [
-    '{{ cookiecutter.package_name }}.'
-]
+modindex_common_prefix = ['{{ cookiecutter.package_name }}.']
 
 # -- HTML output --------------------------------------------------------------
 
@@ -66,6 +64,7 @@ on_rtd = os.environ.get('READTHEDOCS', None) == 'True'
 
 if not on_rtd:  # only import and set the theme if building docs locally
     import sphinx_rtd_theme
+
     html_theme = 'sphinx_rtd_theme'
     html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
 
@@ -91,9 +90,7 @@ def autodoc_skip(app, what, name, obj, skip, options):
 
 # -- Intersphinx --------------------------------------------------------------
 
-intersphinx_mapping = {
-    'python': ('http://docs.python.org/', None)
-}
+intersphinx_mapping = {'python': ('http://docs.python.org/', None)}
 
 
 # -- Todos ---------------------------------------------------------------------
@@ -102,6 +99,7 @@ todo_include_todos = True
 
 
 # -- Setup --------------------------------------------------------------------
+
 
 def setup(app):
     app.connect('autodoc-skip-member', autodoc_skip)

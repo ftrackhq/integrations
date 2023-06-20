@@ -145,9 +145,7 @@ class QtOpenerClientWidget(QtOpenerClient, dialog.Dialog):
         button_widget.layout().addWidget(self.l_filler, 10)
 
         self.run_button = (
-            ftrack_framework_qt.ui.utility.widget.button.RunButton(
-                'OPEN'
-            )
+            ftrack_framework_qt.ui.utility.widget.button.RunButton('OPEN')
         )
         button_widget.layout().addWidget(self.run_button)
         self.run_button.setEnabled(False)

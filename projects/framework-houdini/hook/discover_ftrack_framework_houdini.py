@@ -114,7 +114,9 @@ def on_discover_ftrack_framework_houdini(session, event):
 
 
 def on_launch_ftrack_framework_houdini(session, event):
-    ftrack_framework_houdini_base_data = on_discover_ftrack_framework_houdini(session, event)
+    ftrack_framework_houdini_base_data = on_discover_ftrack_framework_houdini(
+        session, event
+    )
 
     houdini_plugins_path = os.path.join(
         plugin_base_dir, 'resource', 'plugins', 'python'
@@ -163,15 +165,15 @@ def on_launch_ftrack_framework_houdini(session, event):
                 task['parent']['id']
             )
         ).first()  # Make sure updated custom attributes are fetched
-        ftrack_framework_houdini_base_data['integration']['env']['FS.set'] = parent[
-            'custom_attributes'
-        ].get('fstart', '1.0')
-        ftrack_framework_houdini_base_data['integration']['env']['FE.set'] = parent[
-            'custom_attributes'
-        ].get('fend', '100.0')
-        ftrack_framework_houdini_base_data['integration']['env']['FPS.set'] = parent[
-            'custom_attributes'
-        ].get('fps', '24.0')
+        ftrack_framework_houdini_base_data['integration']['env'][
+            'FS.set'
+        ] = parent['custom_attributes'].get('fstart', '1.0')
+        ftrack_framework_houdini_base_data['integration']['env'][
+            'FE.set'
+        ] = parent['custom_attributes'].get('fend', '100.0')
+        ftrack_framework_houdini_base_data['integration']['env'][
+            'FPS.set'
+        ] = parent['custom_attributes'].get('fps', '24.0')
 
     return ftrack_framework_houdini_base_data
 

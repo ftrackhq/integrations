@@ -193,10 +193,8 @@ class EntityBrowser(dialog.ModalDialog):
 
     def get_approve_button(self):
         '''(Override)'''
-        return (
-            ftrack_framework_qt.ui.utility.widget.button.ApproveButton(
-                "APPLY CONTEXT", width=80
-            )
+        return ftrack_framework_qt.ui.utility.widget.button.ApproveButton(
+            "APPLY CONTEXT", width=80
         )
 
     def get_deny_button(self):

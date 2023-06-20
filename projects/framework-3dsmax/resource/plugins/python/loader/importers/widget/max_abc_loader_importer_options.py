@@ -21,7 +21,6 @@ class MaxAbcLoaderImporterOptionsWidget(DynamicWidget):
         context_id=None,
         asset_type_name=None,
     ):
-
         super(MaxAbcLoaderImporterOptionsWidget, self).__init__(
             parent=parent,
             session=session,

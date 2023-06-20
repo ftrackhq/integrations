@@ -21,7 +21,6 @@ class MaxFbxPublisherExporterOptionsWidget(DynamicWidget):
         context_id=None,
         asset_type_name=None,
     ):
-
         super(MaxFbxPublisherExporterOptionsWidget, self).__init__(
             parent=parent,
             session=session,

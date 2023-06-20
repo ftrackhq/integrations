@@ -268,7 +268,6 @@ class Actions(QtWidgets.QWidget):
     def _getCurrentUserId(self):
         '''Return current user id.'''
         if not self._currentUserId:
-
             user = self.session.query(
                 'User where username="{0}"'.format(self.session.api_user)
             ).one()

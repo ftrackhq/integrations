@@ -29,7 +29,9 @@ HOOK_PATH = os.path.join(RESOURCE_PATH, 'hook')
 
 def get_version():
     '''Read version from _version.py, updated by CI based on monorepo package tag'''
-    version_path = os.path.join(SOURCE_PATH, 'ftrack_connect_action_launcher_widget', '_version.py')
+    version_path = os.path.join(
+        SOURCE_PATH, 'ftrack_connect_action_launcher_widget', '_version.py'
+    )
     with open(version_path, 'r') as file_handle:
         for line in file_handle.readlines():
             if line.find('__version__') > -1:
@@ -54,6 +56,7 @@ class PyTest(TestCommand):
     def run_tests(self):
         '''Import pytest and run.'''
         import pytest
+
         errno = pytest.main(self.test_args)
         raise SystemExit(errno)
 
@@ -77,26 +80,24 @@ class BuildPlugin(Command):
         shutil.rmtree(STAGING_PATH, ignore_errors=True)
 
         # Copy hook files
-        shutil.copytree(
-            HOOK_PATH,
-            os.path.join(STAGING_PATH, 'hook')
-        )
+        shutil.copytree(HOOK_PATH, os.path.join(STAGING_PATH, 'hook'))
 
         # Install local dependencies
         subprocess.check_call(
             [
-                sys.executable, '-m', 'pip', 'install', '.', '--target',
-                os.path.join(STAGING_PATH, 'dependencies')
+                sys.executable,
+                '-m',
+                'pip',
+                'install',
+                '.',
+                '--target',
+                os.path.join(STAGING_PATH, 'dependencies'),
             ]
         )
         print(VERSION)
 
         # Generate plugin zip
-        shutil.make_archive(
-            STAGING_PATH,
-            'zip',
-            STAGING_PATH
-        )
+        shutil.make_archive(STAGING_PATH, 'zip', STAGING_PATH)
 
 
 # Configuration.
@@ -117,22 +118,16 @@ setup(
         'sphinx >= 1.8.5, < 4',
         'sphinx_rtd_theme >= 0.1.6, < 2',
         'lowdown >= 0.1.0, < 2',
-        'setuptools>=45.0.0'
+        'setuptools>=45.0.0',
     ],
-    install_requires=[
-    ],
-    tests_require=[
-        'pytest >= 2.3.5, < 3'
-    ],
+    install_requires=[],
+    tests_require=['pytest >= 2.3.5, < 3'],
     classifiers=[
         'License :: OSI Approved :: Apache Software License',
         'Intended Audience :: Developers',
-        'Programming Language :: Python :: 3'
+        'Programming Language :: Python :: 3',
     ],
-    cmdclass={
-        'build_plugin': BuildPlugin,
-        'test': PyTest
-    },
+    cmdclass={'build_plugin': BuildPlugin, 'test': PyTest},
     zip_safe=False,
-    python_requires=">=3, <4"
+    python_requires=">=3, <4",
 )

@@ -47,7 +47,7 @@ def _open_widget(event_manager, asset_list_model, widgets, event):
     exists'''
     widget_name = None
     widget_class = None
-    for (_widget_name, _widget_class, unused_label, unused_image) in widgets:
+    for _widget_name, _widget_class, unused_label, unused_image in widgets:
         if _widget_name == event['data']['pipeline']['name']:
             widget_name = _widget_name
             widget_class = _widget_class
@@ -104,7 +104,6 @@ class EventFilterWidget(QtWidgets.QWidget):
 
 
 def initialise():
-
     logger.debug('Setting up the menu')
     session = ftrack_api.Session(auto_connect_event_hub=False)
 

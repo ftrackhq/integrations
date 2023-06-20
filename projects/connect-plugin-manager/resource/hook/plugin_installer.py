@@ -19,7 +19,10 @@ import ftrack_connect.ui.application
 from ftrack_connect.asynchronous import asynchronous
 
 from ftrack_connect_plugin_manager import (
-    InstallerBlockingOverlay, PluginProcessor, DndPluginList, ROLES
+    InstallerBlockingOverlay,
+    PluginProcessor,
+    DndPluginList,
+    ROLES,
 )
 
 logger = logging.getLogger('ftrack_connect.plugin.plugin_installer')
@@ -61,9 +64,7 @@ class PluginInstaller(ftrack_connect.ui.application.ConnectWidget):
         self.layout().addWidget(label)
 
         # plugin list
-        self.plugin_list_widget = DndPluginList(
-            self.session
-        )
+        self.plugin_list_widget = DndPluginList(self.session)
         layout.addWidget(self.plugin_list_widget)
 
         # apply and reset button.
@@ -86,7 +87,9 @@ class PluginInstaller(ftrack_connect.ui.application.ConnectWidget):
         self.blockingOverlay = InstallerBlockingOverlay(self)
         self.blockingOverlay.hide()
         self.blockingOverlay.confirmButton.clicked.connect(self.refresh)
-        self.blockingOverlay.restartButton.clicked.connect(self.requestConnectRestart.emit)
+        self.blockingOverlay.restartButton.clicked.connect(
+            self.requestConnectRestart.emit
+        )
 
         self.busyOverlay = BusyOverlay(self, 'Updating....')
         self.busyOverlay.hide()
@@ -94,7 +97,9 @@ class PluginInstaller(ftrack_connect.ui.application.ConnectWidget):
         # wire connections
         self.apply_button.clicked.connect(self._on_apply_changes)
         self.reset_button.clicked.connect(self.refresh)
-        self.search_bar.textChanged.connect(self.plugin_list_widget.proxy_model.setFilterFixedString)
+        self.search_bar.textChanged.connect(
+            self.plugin_list_widget.proxy_model.setFilterFixedString
+        )
 
         self.installation_started.connect(self.busyOverlay.show)
         self.installation_done.connect(self.busyOverlay.hide)
@@ -106,7 +111,9 @@ class PluginInstaller(ftrack_connect.ui.application.ConnectWidget):
         self.refresh_started.connect(self.busyOverlay.show)
         self.refresh_done.connect(self.busyOverlay.hide)
 
-        self.plugin_list_widget.plugin_model.itemChanged.connect(self.enable_apply_button)
+        self.plugin_list_widget.plugin_model.itemChanged.connect(
+            self.enable_apply_button
+        )
 
         # refresh
         self.refresh()
@@ -130,7 +137,7 @@ class PluginInstaller(ftrack_connect.ui.application.ConnectWidget):
             self.session,
             'INSTALLED-CONNECT-PLUGINS',
             metadata,
-            asynchronous=True
+            asynchronous=True,
         )
 
     def enable_apply_button(self, item):
@@ -138,7 +145,10 @@ class PluginInstaller(ftrack_connect.ui.application.ConnectWidget):
         self.apply_button.setDisabled(True)
         items = []
         for index in range(self.plugin_list_widget.plugin_model.rowCount()):
-            if self.plugin_list_widget.plugin_model.item(index).checkState() == QtCore.Qt.Checked:
+            if (
+                self.plugin_list_widget.plugin_model.item(index).checkState()
+                == QtCore.Qt.Checked
+            ):
                 items.append(self.plugin_list_widget.plugin_model.item(index))
 
         self._plugins_to_install = items
@@ -147,9 +157,7 @@ class PluginInstaller(ftrack_connect.ui.application.ConnectWidget):
             self.apply_button.setEnabled(True)
 
         self.apply_button.setText(
-            'Install {} Plugins'.format(
-                len(self._plugins_to_install)
-            )
+            'Install {} Plugins'.format(len(self._plugins_to_install))
         )
 
     @asynchronous
@@ -164,9 +172,7 @@ class PluginInstaller(ftrack_connect.ui.application.ConnectWidget):
 
     def _show_user_message(self):
         '''Show final message to the user.'''
-        self.blockingOverlay.setMessage(
-            '<h2>Installation finished!</h2>'
-        )
+        self.blockingOverlay.setMessage('<h2>Installation finished!</h2>')
         self.blockingOverlay.confirmButton.show()
         self.blockingOverlay.show()
 
@@ -180,12 +186,11 @@ class PluginInstaller(ftrack_connect.ui.application.ConnectWidget):
 
         self.busyOverlay.setMessage(
             '<h2>Installing {} of {} plugins...</h2></br>'
-            '{}, Version {}'
-            .format(
+            '{}, Version {}'.format(
                 self.counter,
                 len(self._plugins_to_install),
                 item.data(ROLES.PLUGIN_NAME),
-                str(item.data(ROLES.PLUGIN_VERSION))
+                str(item.data(ROLES.PLUGIN_VERSION)),
             )
         )
 

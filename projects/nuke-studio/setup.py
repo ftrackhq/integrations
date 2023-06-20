@@ -38,7 +38,9 @@ APPLICATION_HOOK_PATH = os.path.join(RESOURCE_PATH, 'application_hook')
 
 def get_version():
     '''Read version from _version.py, updated by CI based on monorepo package tag'''
-    version_path = os.path.join(SOURCE_PATH, 'ftrack_nuke_studio', '_version.py')
+    version_path = os.path.join(
+        SOURCE_PATH, 'ftrack_nuke_studio', '_version.py'
+    )
     with open(version_path, 'r') as file_handle:
         for line in file_handle.readlines():
             if line.find('__version__') > -1:
@@ -57,7 +59,7 @@ SETUP_REQUIRES = [
     'sphinx_rtd_theme >= 0.1.6, < 1',
     'lowdown >= 0.1.0, < 1',
     'setuptools>=45.0.0',
-    'wheel'
+    'wheel',
 ]
 
 
@@ -72,9 +74,7 @@ class BuildResources(Command):
 
     def finalize_options(self):
         '''Finalize options to be used.'''
-        self.resource_source_path = os.path.join(
-            RESOURCE_PATH, 'resource.qrc'
-        )
+        self.resource_source_path = os.path.join(RESOURCE_PATH, 'resource.qrc')
         self.resource_target_path = RESOURCE_TARGET_PATH
 
     def _replace_imports_(self):
@@ -85,7 +85,9 @@ class BuildResources(Command):
 
         '''
         replace = r'from Qt import QtCore'
-        for line in fileinput.input(self.resource_target_path, inplace=True, mode='r'):
+        for line in fileinput.input(
+            self.resource_target_path, inplace=True, mode='r'
+        ):
             if r'import QtCore' in line:
                 # Calling print will yield a new line in the resource file.
                 sys.stdout.write(line.replace(line, replace))
@@ -103,7 +105,8 @@ class BuildResources(Command):
                 '-m',
                 'pip',
                 'install',
-            ]+[entry.replace(" ", "") for entry in SETUP_REQUIRES]
+            ]
+            + [entry.replace(" ", "") for entry in SETUP_REQUIRES]
         )
 
         try:
@@ -122,7 +125,7 @@ class BuildResources(Command):
                 executable,
                 '-o',
                 self.resource_target_path,
-                self.resource_source_path
+                self.resource_source_path,
             ]
             print('running : {}'.format(cmd))
             subprocess.check_call(cmd)
@@ -135,7 +138,6 @@ class BuildResources(Command):
             )
 
         self._replace_imports_()
-
 
 
 class BuildPlugin(Command):
@@ -162,39 +164,36 @@ class BuildPlugin(Command):
 
         # Copy plugin files
         shutil.copytree(
-            HIERO_PLUGIN_PATH,
-            os.path.join(STAGING_PATH, 'resource')
+            HIERO_PLUGIN_PATH, os.path.join(STAGING_PATH, 'resource')
         )
 
         # Copy hook files
-        shutil.copytree(
-            HOOK_PATH,
-            os.path.join(STAGING_PATH, 'hook')
-        )
+        shutil.copytree(HOOK_PATH, os.path.join(STAGING_PATH, 'hook'))
 
         # Copy application hooks files
         shutil.copytree(
             APPLICATION_HOOK_PATH,
-            os.path.join(STAGING_PATH, 'application_hook')
+            os.path.join(STAGING_PATH, 'application_hook'),
         )
 
         dependencies_path = os.path.join(STAGING_PATH, 'dependencies')
 
-        subprocess.check_call(
-            [sys.executable, '-m', 'pip', 'list']
-        )
+        subprocess.check_call([sys.executable, '-m', 'pip', 'list'])
 
         print('Installing dependencies')
         subprocess.check_call(
-            [sys.executable, '-m', 'pip', 'install', '.', '--target',
-            dependencies_path]
+            [
+                sys.executable,
+                '-m',
+                'pip',
+                'install',
+                '.',
+                '--target',
+                dependencies_path,
+            ]
         )
 
-        shutil.make_archive(
-            STAGING_PATH,
-            'zip',
-            STAGING_PATH
-        )
+        shutil.make_archive(STAGING_PATH, 'zip', STAGING_PATH)
 
 
 # Call main setup.
@@ -218,12 +217,9 @@ setup(
         'lucidity >= 1.5, < 2',
         'opentimelineio ==0.11',
         'qt.py >=1.0.0, < 2',
-        'ftrack-python-api'
+        'ftrack-python-api',
     ],
     zip_safe=False,
-    cmdclass={
-        'build_plugin': BuildPlugin,
-        'build_resources': BuildResources
-    },
-    python_requires=">=3, <4.0"
+    cmdclass={'build_plugin': BuildPlugin, 'build_resources': BuildResources},
+    python_requires=">=3, <4.0",
 )

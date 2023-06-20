@@ -10,7 +10,6 @@ from ftrack_framework_3dsmax.asset.dcc_object import MaxDccObject
 
 
 class MaxBasePlugin(plugin.BasePlugin):
-
     host_type = max_constants.HOST_TYPE
 
     FtrackObjectManager = MaxFtrackObjectManager

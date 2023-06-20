@@ -54,9 +54,8 @@ class HtmlDelegate(QtWidgets.QStyledItemDelegate):
             paint_context.palette.setColor(
                 QtGui.QPalette.Text,
                 options.palette.color(
-                    QtGui.QPalette.Active,
-                    QtGui.QPalette.HighlightedText
-                )
+                    QtGui.QPalette.Active, QtGui.QPalette.HighlightedText
+                ),
             )
 
         # Get paint rectangle in screen coordinates

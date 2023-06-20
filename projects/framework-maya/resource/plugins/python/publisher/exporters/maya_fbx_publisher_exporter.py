@@ -16,7 +16,6 @@ class MayaFbxPublisherExporterPlugin(plugin.MayaPublisherExporterPlugin):
     plugin_name = 'maya_fbx_publisher_exporter'
 
     def extract_options(self, options):
-
         return {
             'FBXExportScaleFactor': int(
                 options.get('FBXExportScaleFactor', 1)

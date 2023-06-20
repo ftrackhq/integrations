@@ -197,7 +197,8 @@ class UnrealQtAssemblerClientWidget(load.QtAssemblerClientWidget):
 
     def run(self, method=None):
         '''(Override) Function called when the run button is clicked.
-        *method* decides which load method to use, "init_nodes"(track) or "init_and_load"(track and load)'''
+        *method* decides which load method to use, "init_nodes"(track) or "init_and_load"(track and load)
+        '''
         # Load batch of components, any selected
         component_widgets = self._assembler_widget.component_list.selection(
             as_widgets=True

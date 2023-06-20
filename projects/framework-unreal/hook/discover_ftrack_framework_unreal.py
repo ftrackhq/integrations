@@ -35,7 +35,9 @@ def on_discover_ftrack_framework_unreal(session, event):
 def on_launch_ftrack_framework_unreal(session, event):
     '''Handle application launch and add environment to *event*.'''
 
-    pipeline_unreal_base_data = on_discover_ftrack_framework_unreal(session, event)
+    pipeline_unreal_base_data = on_discover_ftrack_framework_unreal(
+        session, event
+    )
 
     unreal_plugins_path = os.path.join(
         plugin_base_dir, 'resource', 'plugins', 'python'
@@ -161,7 +163,9 @@ def register(session):
         priority=40,
     )
 
-    handle_launch_event = functools.partial(on_launch_ftrack_framework_unreal, session)
+    handle_launch_event = functools.partial(
+        on_launch_ftrack_framework_unreal, session
+    )
 
     session.event_hub.subscribe(
         'topic=ftrack.connect.application.launch and '

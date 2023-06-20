@@ -65,7 +65,7 @@ class NukeNodePublisherCollectorOptionsWidget(BaseOptionsWidget):
         self.report_input()
 
     def refresh_nodes(self):
-        ''' Run fetch function '''
+        '''Run fetch function'''
         self.on_run_plugin(method="fetch")
 
     def _on_node_selected(self, node_name):

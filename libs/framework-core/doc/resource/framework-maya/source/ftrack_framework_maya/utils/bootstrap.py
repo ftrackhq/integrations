@@ -95,7 +95,6 @@ def init_maya(context_id=None, session=None):
         cmds.currentUnit(time=fps_unit)
 
 
-
 def scene_open(session, logger):
     '''Load latest scene, or generate new from template.'''
     from ftrack_framework_maya.utils import get_save_path
