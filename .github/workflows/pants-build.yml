@@ -157,10 +157,13 @@ jobs:
         run: |
           echo "import sys " >> /tmp/update_versions.py
           echo "def update_versions(packages, version):" >> /tmp/update_versions.py
-          echo "    folder = 'projects' " >> /tmp/update_versions.py
           echo "    for package in packages.split(','): " >> /tmp/update_versions.py
-          echo "        if package == 'framework-qt' or 'framework-core': " >> /tmp/update_versions.py
-          echo "            folder = 'libs' " >> /tmp/update_versions.py
+          echo "        if package.contains('/'):  >> /tmp/update_versions.py
+          echo "            folder, package = package.split('/') " >> /tmp/update_versions.py
+          echo "        else:  >> /tmp/update_versions.py
+          echo "            folder = 'projects' " >> /tmp/update_versions.py
+          echo "            if package == 'framework-qt' or 'framework-core': " >> /tmp/update_versions.py
+          echo "                folder = 'libs' " >> /tmp/update_versions.py
           echo "        set_package_version(package, folder, version) " >> /tmp/update_versions.py
           echo "def set_package_version(package, folder, version): " >> /tmp/update_versions.py
           echo "    print(package, folder, version) " >> /tmp/update_versions.py
