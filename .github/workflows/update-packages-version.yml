@@ -58,7 +58,7 @@ jobs:
         with:
           package: ${{ matrix.package }}
           version: ${{ inputs.version }}
-          folder: ${{ matrix.package }}
+          folder: ${{ matrix.folder }}
       - name: Set output variables
         shell: bash
         run: |
