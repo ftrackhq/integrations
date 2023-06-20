@@ -114,7 +114,7 @@ jobs:
 
 
   pants-build:
-    needs: [ full-release-update-versions, update-version-on-changed ]
+    needs: [ set-variables ]
     runs-on: ubuntu-latest
     outputs:
       changed: ${{ env.CHANGED }}
