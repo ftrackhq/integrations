@@ -167,7 +167,7 @@ jobs:
           echo "        set_package_version(package, folder, version) " >> /tmp/update_versions.py
           echo "def set_package_version(package, folder, version): " >> /tmp/update_versions.py
           echo "    print(package, folder, version) " >> /tmp/update_versions.py
-          echo "    ver_path = '{fol}/{pack}/source/ftrack_{pack_mod}/_version.py'.format(fol=folder, pack=package, pack_underscore=package.replace('-','_')) " >> /tmp/update_versions.py
+          echo "    ver_path = '{fol}/{pack}/source/ftrack_{pack_mod}/_version.py'.format(fol=folder, pack=package, pack_mod=package.replace('-','_')) " >> /tmp/update_versions.py
           echo "    with open(ver_path, 'w') as f: " >> /tmp/update_versions.py
           echo "        f.write('__version__ = /"{}/"'.format(version)) " >> /tmp/update_versions.py
 
