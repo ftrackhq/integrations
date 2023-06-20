@@ -104,8 +104,8 @@ jobs:
       version: "0.0.0-${{inputs.tag_type}}"
 
   pants-build:
-    if: ${{ success() && jobs.full-release-update-versions == 'success' }}
     needs: [ full-release-update-versions, update-version-on-changed ]
+    if: ${{ needs.full-release-update-versions == 'success' }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
