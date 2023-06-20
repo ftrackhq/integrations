@@ -159,12 +159,13 @@ jobs:
           echo "def update_versions(packages, version):" >> /tmp/update_versions.py
           echo "    for package in packages.split(','): " >> /tmp/update_versions.py
           echo "        if '/' in package: " >> /tmp/update_versions.py
-          echo "            folder, package = package.split('/') " >> /tmp/update_versions.py
+          echo "            folder, pack = package.split('/') " >> /tmp/update_versions.py
           echo "        else: " >> /tmp/update_versions.py
+          echo "            pack = package " >> /tmp/update_versions.py
           echo "            folder = 'projects' " >> /tmp/update_versions.py
           echo "            if package == 'framework-qt' or 'framework-core': " >> /tmp/update_versions.py
           echo "                folder = 'libs' " >> /tmp/update_versions.py
-          echo "        set_package_version(package, folder, version) " >> /tmp/update_versions.py
+          echo "        set_package_version(pack, folder, version) " >> /tmp/update_versions.py
           echo "def set_package_version(package, folder, version): " >> /tmp/update_versions.py
           echo "    print(package, folder, version) " >> /tmp/update_versions.py
           echo "    ver_path = '{fol}/{pack}/source/ftrack_{pack_mod}/_version.py'.format(fol=folder, pack=package, pack_mod=package.replace('-','_')) " >> /tmp/update_versions.py
