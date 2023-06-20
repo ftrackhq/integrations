@@ -34,7 +34,6 @@ on:
 jobs:
   # Build root docs
   set-variables:
-
     runs-on: ubuntu-latest
     outputs:
       package: ${{ env.PACKAGE }}
@@ -149,6 +148,7 @@ jobs:
             git fetch --all --force
             echo "CHANGED=$(pants list --changed-since=origin/main | cut -d'/' -f 1-2 | grep -v : | uniq | tr '\n' ',')" >> $GITHUB_ENV
       - name: Set surrent package as changed for full release
+        if: ${{ inputs.full_release }}
         shell: bash
         run: |
           echo "CHANGED=${{ needs.set-variables.outputs.package }}" >> $GITHUB_ENV
@@ -157,14 +157,14 @@ jobs:
         run: |
           echo "import sys " >> /tmp/update_versions.py
           echo "def update_versions(packages, version):" >> /tmp/update_versions.py
-          echo "  folder = 'projects' " >> /tmp/update_versions.py
-          echo "  for package in packages.split(','): " >> /tmp/update_versions.py
-          echo "    if package == 'framework-qt' or 'framework-core': " >> /tmp/update_versions.py
-          echo "      folder = 'libs' " >> /tmp/update_versions.py
-          echo "    set_package_version(package, folder, version) " >> /tmp/update_versions.py
+          echo "    folder = 'projects' " >> /tmp/update_versions.py
+          echo "    for package in packages.split(','): " >> /tmp/update_versions.py
+          echo "        if package == 'framework-qt' or 'framework-core': " >> /tmp/update_versions.py
+          echo "            folder = 'libs' " >> /tmp/update_versions.py
+          echo "        set_package_version(package, folder, version) " >> /tmp/update_versions.py
           echo "def set_package_version(package, folder, version): " >> /tmp/update_versions.py
-          echo "  with open('{folder}/{package}/source/ftrack_{package_underscore}/_version.py'.format(folder=folder, package=package, package_underscore=package.replace('-','_') ), 'w') as f: " >> /tmp/update_versions.py
-          echo "    f.write('__version__ = /"{}/"'.format(version)) " >> /tmp/update_versions.py
+          echo "    with open('{folder}/{package}/source/ftrack_{package_underscore}/_version.py'.format(folder=folder, package=package, package_underscore=package.replace('-','_') ), 'w') as f: " >> /tmp/update_versions.py
+          echo "        f.write('__version__ = /"{}/"'.format(version)) " >> /tmp/update_versions.py
 
           echo "update_versions(sys.argv[1], sys.argv[2]) " >> /tmp/update_versions.py
           
