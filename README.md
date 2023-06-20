@@ -15,6 +15,14 @@ git clone https://github.com/ftrackhq/integrations
 
 or download the source ZIP from the [Integrations repository](https://github.com/ftrackhq/integrations) on Github
 
+## Black
+
+Run this command to enable Git black pre commit hook::
+
+```bash
+pip install pre-commit
+pre-commit install
+```
 
 ## Building
 
