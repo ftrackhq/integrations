@@ -100,7 +100,7 @@ jobs:
     needs: check-changed
     uses: ./.github/workflows/update-packages-version.yml
     with:
-      changed: ${{ env.CHANGED }}
+      changed: ${{ needs.check-changed.outputs.changed }}
       version: "0.0.0-${{inputs.tag_type}}"
 
   pants-build:
