@@ -17,39 +17,29 @@ on:
         value: ${{ jobs.pants-build.outputs.changed }}
       package:
         description: "Package name"
-        value: ${{ env.PACKAGE }}
+        value: ${{ jobs.full-release-set-environments.outputs.package }}
       version:
         description: "Package version"
-        value: ${{ env.VERSION }}
+        value: ${{ jobs.full-release-set-environments.outputs.version }}
       tag:
         description: "Package tag"
-        value: ${{ env.TAG }}
+        value: ${{ jobs.full-release-set-environments.outputs.tag }}
       os:
         description: "Package os"
-        value: ${{ env.OS }}
+        value: ${{ jobs.full-release-update-versions.outputs.os }}
       suffix:
         description: "Package suffix"
-        value: ${{ env.SUFFIX }}
+        value: ${{ jobs.full-release-update-versions.outputs.suffix }}
 
 jobs:
   # Build root docs
-  full-release-update-versions:
-    if: ${{ inputs.full_release }}
-    uses: ./.github/workflows/update-packages-version.yml
-#    outputs:
-#      package: ${{ env.PACKAGE }}
-#      version: ${{ env.VERSION }}
-    with:
-      changed: $(echo ${{ github.ref }} | cut -d/ -f 3-3)"
-      version: $(echo ${{ github.ref }} | cut -d/ -f 4-4)"
-
   full-release-set-environments:
     if: ${{ inputs.full_release }}
     runs-on: ubuntu-latest
-#    outputs:
-#      tag: ${{ env.TAG }}
-#      os: ${{ env.OS }}
-#      suffix: ${{ env.SUFFIX }}
+    outputs:
+      package: ${{ env.PACKAGE }}
+      version: ${{ env.VERSION }}
+      tag: ${{ env.TAG }}
     steps:
       - name: set environments
         shell: bash
@@ -57,6 +47,14 @@ jobs:
           echo "PACKAGE=$(echo ${{ github.ref }} | cut -d/ -f 3-3)" >> $GITHUB_ENV
           echo "VERSION=$(echo ${{ github.ref }} | cut -d/ -f 4-4)" >> $GITHUB_ENV
           echo "TAG=$(echo ${{ github.ref }} | cut -d/ -f 3-4)" >> $GITHUB_ENV
+
+  full-release-update-versions:
+    if: ${{ inputs.full_release }}
+    needs: full-release-set-environments
+    uses: ./.github/workflows/update-packages-version.yml
+    with:
+      changed: ${{ needs.full-release-set-environments.outputs.package }}
+      version: ${{ needs.full-release-set-environments.outputs.version }}
 
   check-changed:
     if: ${{ inputs.check_changed }}
