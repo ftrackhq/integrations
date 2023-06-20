@@ -14,7 +14,7 @@ on:
     outputs:
       changed:
         description: "Changed packages"
-        value: ${{ jobs.pants-build.outputs.changed }}
+        value: ${{ jobs.check-changed.outputs.changed }}
       package:
         description: "Package name"
         value: ${{ jobs.full-release-set-environments.outputs.package }}
@@ -105,7 +105,7 @@ jobs:
 
   pants-build:
     needs: [ full-release-update-versions, update-version-on-changed ]
-    if: ${{ needs.full-release-update-versions == 'success' }}
+    if: ${{ (needs.full-release-update-versions == 'success') || (needs.update-version-on-changed == 'success') }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
