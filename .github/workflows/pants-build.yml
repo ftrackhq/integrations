@@ -166,7 +166,7 @@ jobs:
           echo "  with open('{folder}/{package}/source/ftrack_{package_underscore}/_version.py'.format(folder=folder, package=package, package_underscore=package.replace('-','_') ), 'w') as f: " >> /tmp/update_versions.py
           echo "    f.write('__version__ = /"{}/"'.format(version)) " >> /tmp/update_versions.py
 
-          echo " update_versions(sys.args[1], sys.args[2]) " >> /tmp/update_versions.py
+          echo "update_versions(sys.args[1], sys.args[2]) " >> /tmp/update_versions.py
           
           python /tmp/update_versions.py ${{ env.CHANGED }}, ${{ needs.set-variables.outputs.version }}
 
