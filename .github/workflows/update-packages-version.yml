@@ -52,6 +52,14 @@ jobs:
         with:
           fetch-depth: 0 # Fetch all commits so we can calculate diff properly
 
+      - name: Set output variables
+        output:
+          packages_matrix: ${{ matrix.package }}=${{ matrix.folder }}, ${{ inputs.version }}, ${{ inputs.version }}
+        shell: bash
+        run: |
+          echo "OS=${{ matrix.os }}" >> $GITHUB_ENV
+          echo "SUFFIX=${{ matrix.suffix }}" >> $GITHUB_ENV
+
       - name: Run set internal version action
         if: ${{ contains(inputs.changed,matrix.package) }}
         uses: ./.github/actions/update-package-version

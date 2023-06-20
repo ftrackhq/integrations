@@ -14,16 +14,16 @@ on:
     outputs:
       changed:
         description: "Changed packages"
-        value: ${{ jobs.check-changed.outputs.changed }}
+        value: ${{ jobs.pants-build.outputs.changed }}
       package:
         description: "Package name"
-        value: ${{ jobs.full-release-set-environments.outputs.package }}
+        value: ${{ jobs.set-variables.outputs.package }}
       version:
         description: "Package version"
-        value: ${{ jobs.full-release-set-environments.outputs.version }}
+        value: ${{ jobs.set-variables.outputs.version }}
       tag:
         description: "Package tag"
-        value: ${{ jobs.full-release-set-environments.outputs.tag }}
+        value: ${{ jobs.set-variables.outputs.tag }}
       os:
         description: "Package os"
         value: ${{ jobs.full-release-update-versions.outputs.os }}
@@ -33,31 +33,88 @@ on:
 
 jobs:
   # Build root docs
-  full-release-set-environments:
-    if: ${{ inputs.full_release }}
+  set-variables:
+
     runs-on: ubuntu-latest
     outputs:
       package: ${{ env.PACKAGE }}
       version: ${{ env.VERSION }}
       tag: ${{ env.TAG }}
     steps:
-      - name: set environments
+      - name: set environments on full release
+        if: ${{ inputs.full_release }}
         shell: bash
         run: |
           echo "PACKAGE=$(echo ${{ github.ref }} | cut -d/ -f 3-3)" >> $GITHUB_ENV
           echo "VERSION=$(echo ${{ github.ref }} | cut -d/ -f 4-4)" >> $GITHUB_ENV
           echo "TAG=$(echo ${{ github.ref }} | cut -d/ -f 3-4)" >> $GITHUB_ENV
+      - name: set environments for pre-release
+        if: ${{ inputs.check_changed }}
+        shell: bash
+        run: |
+          echo 'VERSION=0.0.0-${{inputs.tag_type}}' >> $GITHUB_ENV
 
-  full-release-update-versions:
-    if: ${{ inputs.full_release }}
-    needs: full-release-set-environments
-    uses: ./.github/workflows/update-packages-version.yml
-    with:
-      changed: ${{ needs.full-release-set-environments.outputs.package }}
-      version: ${{ needs.full-release-set-environments.outputs.version }}
+#  full-release-update-versions:
+#    if: ${{ inputs.full_release }}
+#    needs: full-release-set-environments
+#    uses: ./.github/workflows/update-packages-version.yml
+#    with:
+#      changed: ${{ needs.full-release-set-environments.outputs.package }}
+#      version: ${{ needs.full-release-set-environments.outputs.version }}
+#
+#  check-changed:
+#    if: ${{ inputs.check_changed }}
+#    runs-on: ubuntu-latest
+#    outputs:
+#      changed: ${{ env.CHANGED }}
+#    steps:
+#      - uses: actions/checkout@v3
+#        with:
+#          fetch-depth: 0 # Fetch all commits so we can calculate diff properly
+#      - uses: pantsbuild/actions/init-pants@v4-scie-pants
+#        # This action bootstraps pants and manages 2-3 GHA caches.
+#        # See: github.com/pantsbuild/actions/tree/main/init-pants/
+#        with:
+#          # v0 makes it easy to bust the cache if needed
+#          # just increase the integer to start with a fresh cache
+#          gha-cache-key: v0
+#          # The Python backend uses named_caches for Pip/PEX state,
+#          # so it is appropriate to invalidate on lockfile changes.
+#          named-caches-hash: ${{ hashFiles('python-default.lock') }}
+#          # If you're not using a fine-grained remote caching service (see https://www.pantsbuild.org/docs/remote-caching),
+#          # then you may also want to preserve the local Pants cache (lmdb_store). However this must invalidate for
+#          # changes to any file that can affect the build, so may not be practical in larger repos.
+#          # A remote cache service integrates with Pants's fine-grained invalidation and avoids these problems.
+#          cache-lmdb-store: 'true'  # defaults to 'false'
+#          # Note that named_caches and lmdb_store falls back to partial restore keys which
+#          # may give a useful partial result that will save time over completely clean state,
+#          # but will cause the cache entry to grow without bound over time.
+#          # See https://pants.readme.io/docs/using-pants-in-ci for tips on how to periodically clean it up.
+#          # Alternatively you change gha-cache-key to ignore old caches.
+#      - name: Determine which packages has changed using Pants
+#        shell: bash
+#        run: |
+#          git fetch --all --force
+#          echo "CHANGED=$(pants list --changed-since=origin/main | cut -d'/' -f 1-2 | grep -v : | uniq | tr '\n' ',')" >> $GITHUB_ENV
+#
+#
+#
+#
+#
+#  update-version-on-changed:
+#    if: ${{ inputs.check_changed }}
+#    needs: check-changed
+#    uses: ./.github/workflows/update-packages-version.yml
+#    with:
+#      changed: ${{ needs.check-changed.outputs.changed }}
+#      version: "0.0.0-${{inputs.tag_type}}"
+#  pre-release-set-version:
+#    if: ${{ inputs.check_changed }}
+#    output
 
-  check-changed:
-    if: ${{ inputs.check_changed }}
+
+  pants-build:
+    needs: [ full-release-update-versions, update-version-on-changed ]
     runs-on: ubuntu-latest
     outputs:
       changed: ${{ env.CHANGED }}
@@ -86,51 +143,33 @@ jobs:
           # See https://pants.readme.io/docs/using-pants-in-ci for tips on how to periodically clean it up.
           # Alternatively you change gha-cache-key to ignore old caches.
       - name: Determine which packages has changed using Pants
+        if: ${{ inputs.check_changed }}
         shell: bash
         run: |
-          git fetch --all --force
-          echo "CHANGED=$(pants list --changed-since=origin/main | cut -d'/' -f 1-2 | grep -v : | uniq | tr '\n' ',')" >> $GITHUB_ENV
-    
-    
+            git fetch --all --force
+            echo "CHANGED=$(pants list --changed-since=origin/main | cut -d'/' -f 1-2 | grep -v : | uniq | tr '\n' ',')" >> $GITHUB_ENV
+      - name: Set surrent package as changed for full release
+        shell: bash
+        run: |
+          echo "CHANGED=${{ needs.set-variables.outputs.package }}" >> $GITHUB_ENV
+      - name: Update packages version
+        shell: bash
+        run: |
+          echo "import sys " >> /tmp/foo.py
+          echo "def update_versions(packages, version):" >> /tmp/foo.py
+          echo "  folder = 'projects' " >> /tmp/foo.py
+          echo "  for package in packages.split(','): " >> /tmp/foo.py
+          echo "    if package == 'framework-qt' or 'framework-core': " >> /tmp/foo.py
+          echo "      folder = 'libs' " >> /tmp/foo.py
+          echo "    set_package_version(package, folder, version) " >> /tmp/foo.py
+          echo "def set_package_version(package, folder, version): " >> /tmp/foo.py
+          echo "  with open('{folder}/{package}/source/ftrack_{package_underscore}/_version.py'.format(folder=folder, package=package, package_underscore=package.replace('-','_') ), 'w') as f: " >> /tmp/foo.py
+          echo "    f.write('__version__ = /"{}/"'.format(version)) " >> /tmp/foo.py
 
+          echo " update_versions(sys.args[1], sys.args[2]) " >> /tmp/foo.py
+          
+          python /tmp/update_versions.py ${{ env.CHANGED }}, ${{ needs.set-variables.outputs.version }}
 
-
-  update-version-on-changed:
-    if: ${{ inputs.check_changed }}
-    needs: check-changed
-    uses: ./.github/workflows/update-packages-version.yml
-    with:
-      changed: ${{ needs.check-changed.outputs.changed }}
-      version: "0.0.0-${{inputs.tag_type}}"
-
-  pants-build:
-    if: ${{ always() }}
-    needs: [ full-release-update-versions, update-version-on-changed ]
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-        with:
-          fetch-depth: 0 # Fetch all commits so we can calculate diff properly
-      - uses: pantsbuild/actions/init-pants@v4-scie-pants
-        # This action bootstraps pants and manages 2-3 GHA caches.
-        # See: github.com/pantsbuild/actions/tree/main/init-pants/
-        with:
-          # v0 makes it easy to bust the cache if needed
-          # just increase the integer to start with a fresh cache
-          gha-cache-key: v0
-          # The Python backend uses named_caches for Pip/PEX state,
-          # so it is appropriate to invalidate on lockfile changes.
-          named-caches-hash: ${{ hashFiles('python-default.lock') }}
-          # If you're not using a fine-grained remote caching service (see https://www.pantsbuild.org/docs/remote-caching),
-          # then you may also want to preserve the local Pants cache (lmdb_store). However this must invalidate for
-          # changes to any file that can affect the build, so may not be practical in larger repos.
-          # A remote cache service integrates with Pants's fine-grained invalidation and avoids these problems.
-          cache-lmdb-store: 'true'  # defaults to 'false'
-          # Note that named_caches and lmdb_store falls back to partial restore keys which
-          # may give a useful partial result that will save time over completely clean state,
-          # but will cause the cache entry to grow without bound over time.
-          # See https://pants.readme.io/docs/using-pants-in-ci for tips on how to periodically clean it up.
-          # Alternatively you change gha-cache-key to ignore old caches.
       - name: Check BUILD files
         if: false # TODO enable linting with a later task
         shell: bash
