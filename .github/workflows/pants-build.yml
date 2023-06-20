@@ -158,7 +158,7 @@ jobs:
           echo "import sys " >> /tmp/update_versions.py
           echo "def update_versions(packages, version):" >> /tmp/update_versions.py
           echo "    for package in packages.split(','): " >> /tmp/update_versions.py
-          echo "        if package.contains('/'): " >> /tmp/update_versions.py
+          echo "        if '/' in package: " >> /tmp/update_versions.py
           echo "            folder, package = package.split('/') " >> /tmp/update_versions.py
           echo "        else: " >> /tmp/update_versions.py
           echo "            folder = 'projects' " >> /tmp/update_versions.py
