@@ -19,7 +19,7 @@ jobs:
     with:
       full_release: false
       check_changed: true
-      tag_type: "pr${{ github.event.number }}"
+      tag_type: "dev${{ github.event.number }}"
 
   pre-release:
     needs: pants-build
