@@ -90,12 +90,13 @@ jobs:
       - name: Set destination  directory
         if: ${{ contains(inputs.changed,matrix.package) }}
         run: |
-          if ${{ inputs.is_rc }}
+          if [ ${{ inputs.is_rc }} = true ]
           then
-            echo "destination_dir=$(${{ matrix.folder }}/${{ matrix.package }}/rc)\n" >> $GITHUB_OUTPUT
+            echo "destination_dir=$(${{ matrix.folder }}/${{ matrix.package }}/rc)" >> $GITHUB_OUTPUT
           else
-            echo "destination_dir=$(${{ matrix.folder }}/${{ matrix.package }})\n" >> $GITHUB_OUTPUT
+            echo "destination_dir=$(${{ matrix.folder }}/${{ matrix.package }})" >> $GITHUB_OUTPUT
           fi
+          echo destination_dir
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v3
         if: ${{ contains(inputs.changed,matrix.package) }}
