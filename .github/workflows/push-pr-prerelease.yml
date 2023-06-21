@@ -1,4 +1,4 @@
-# Create the v0.0.0-pr<number> pre-release on PR update.
+# Create the v0.0.0dev<number> pre-release on PR update.
 # Cleans up old tags and releases for the same PR.
 
 name: CI-PR

@@ -1,4 +1,4 @@
-# Create the v0.0.0-latest pre-release on push/merge to main, be it on a PR merge,
+# Create the v0.0.0rc pre-release on push/merge to main, be it on a PR merge,
 # direct push or a release tag push.
 # Cleans up old tags and releases.
 

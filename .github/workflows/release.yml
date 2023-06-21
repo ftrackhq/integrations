@@ -1,4 +1,4 @@
-# Create a full release or a pre release
+# Create a full release or a pre-release
 
 name: release
 
@@ -48,9 +48,14 @@ jobs:
           package: ${{ matrix.package }}
           tag: ${{ matrix.package }}/${{inputs.tag}}
           suffix: ${{ matrix.suffix }}
-          deleteprevious: true
-          prerelease: ${{inputs.pre}}
+          pre: ${{inputs.pre}}
           deploy_aws: ${{inputs.deploy_aws}}
           token: ${{ secrets.GITHUB_TOKEN }}
           aws_key_id: ${{ secrets.aws_key_id }}
           aws_secret_access_key: ${{ secrets.aws_secret_access_key }}
+      - name: Tag package as stable
+        if: ${{ ! inputs.pre && contains(inputs.changed,matrix.package) }}
+        run: |
+          git fetch --force --tags
+          git tag -f ${{ matrix.package }}/stable
+          git push -f origin ${{ matrix.package }}/stable
