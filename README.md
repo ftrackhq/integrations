@@ -91,13 +91,13 @@ The framework package group contains the DCC integrations and is divided into li
 
 #### DCC integrations
 
-| Package                                         | Path                       | Description                   |
-|-------------------------------------------------|----------------------------|-------------------------------|
-| [framework-maya](projects/framework-maya)       | projects/framework-maya    | Maya DCC integration          |
-| [framework-nuke](projects/framework-nuke)       | projects/framework-nuke    | Nuke DCC integration          |
-| [framework-houdini](projects/framework-houdini) | projects/framework-houdini | Houdini DCC integration       |
-| [framework-3dsmax](projects/framework-3dsmax)   | projects/framework-3dsmax  | 3d Studio Max DCC integration |
-| [framework-unreal](projects/framework-unreal)   | projects/framework-unreal  | Unreal Engine DCC integration |
+| Package                                         | Path                       | Description                   | RC                                                    |
+|-------------------------------------------------|----------------------------|-------------------------------|-------------------------------------------------------|
+| [framework-maya](projects/framework-maya)       | projects/framework-maya    | Maya DCC integration          | [framework-maya-rc](projects/framework-maya/rc)       |
+| [framework-nuke](projects/framework-nuke)       | projects/framework-nuke    | Nuke DCC integration          | [framework-nuke-rc](projects/framework-nuke/rc)       |
+| [framework-houdini](projects/framework-houdini) | projects/framework-houdini | Houdini DCC integration       | [framework-houdini-rc](projects/framework-houdini/rc) |
+| [framework-3dsmax](projects/framework-3dsmax)   | projects/framework-3dsmax  | 3d Studio Max DCC integration | [framework-3dsmax-rc](projects/framework-3dsmax/rc)   |
+| [framework-unreal](projects/framework-unreal)   | projects/framework-unreal  | Unreal Engine DCC integration | [framework-unreal-rc](projects/framework-unreal/rc)   |
 
 ### Standalone integrations
 
