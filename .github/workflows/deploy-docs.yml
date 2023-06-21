@@ -88,6 +88,7 @@ jobs:
           cd ${{ matrix.folder }}/${{ matrix.package }}
           sphinx-build doc public
       - name: Set destination  directory
+        id: dest_dir
         if: ${{ contains(inputs.changed,matrix.package) }}
         run: |
           if [ ${{ inputs.is_rc }} = true ]
@@ -99,7 +100,7 @@ jobs:
       - name: test
         if: ${{ contains(inputs.changed,matrix.package) }}
         run: |
-          echo ${{steps.run_tests.outputs.DEST_DIR}}
+          echo "The count was ${{ steps.dest_dir.outputs.DEST_DIR }}"
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v3
         if: ${{ contains(inputs.changed,matrix.package) }}
@@ -110,7 +111,7 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ${{ matrix.folder }}/${{ matrix.package }}/public
           keep_files: true
-          destination_dir: ${{steps.run_tests.outputs.DEST_DIR}}
+          destination_dir: ${{steps.dest_dir.outputs.DEST_DIR}}
 
   upload:
     needs:  build-package-docs
