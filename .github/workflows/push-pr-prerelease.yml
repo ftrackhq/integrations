@@ -37,6 +37,6 @@ jobs:
       uses: ./.github/workflows/deploy-docs.yml
       with:
         changed: framework-nuke #${{needs.pants-build.outputs.changed}}
-        build_index: false
+        build_index: true
         is_rc: true
         #destination: ./latest

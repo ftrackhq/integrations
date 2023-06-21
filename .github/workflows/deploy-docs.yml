@@ -97,10 +97,6 @@ jobs:
           else
             echo "DEST_DIR=${{ matrix.folder }}/${{ matrix.package }}" >> $GITHUB_OUTPUT
           fi
-      - name: test
-        if: ${{ contains(inputs.changed,matrix.package) }}
-        run: |
-          echo "The count was ${{ steps.dest_dir.outputs.DEST_DIR }}"
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v3
         if: ${{ contains(inputs.changed,matrix.package) }}
