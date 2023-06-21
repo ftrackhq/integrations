@@ -24,7 +24,7 @@ on:
         required: true
 
 jobs:
-  pre-release:
+  release:
     strategy:
       matrix:
         # Add new packages here

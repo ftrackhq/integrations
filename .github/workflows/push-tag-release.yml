@@ -13,8 +13,6 @@ on:
       - '**latest**'
       - '**stable**'
 
-# TODO: Support multiple platform builds
-
 jobs:
   pants-build:
     uses: ./.github/workflows/pants-build.yml
