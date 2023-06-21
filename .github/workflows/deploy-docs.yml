@@ -92,15 +92,14 @@ jobs:
         run: |
           if [ ${{ inputs.is_rc }} = true ]
           then
-            echo "destination_dir=$(${{ matrix.folder }}/${{ matrix.package }}/rc)" >> $GITHUB_OUTPUT
+            echo "::set-output name=DEST_DIR::$(${{ matrix.folder }}/${{ matrix.package }}/rc)"
           else
-            echo "destination_dir=$(${{ matrix.folder }}/${{ matrix.package }})" >> $GITHUB_OUTPUT
+            echo "::set-output name=DEST_DIR::$(${{ matrix.folder }}/${{ matrix.package }}/rc)"
           fi
-          echo destination_dir
       - name: test
         if: ${{ contains(inputs.changed,matrix.package) }}
         run: |
-          echo ${{steps.run_tests.outputs.destination_dir}}
+          echo ${{steps.run_tests.outputs.DEST_DIR}}
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v3
         if: ${{ contains(inputs.changed,matrix.package) }}
@@ -111,7 +110,7 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ${{ matrix.folder }}/${{ matrix.package }}/public
           keep_files: true
-          destination_dir: ${{steps.run_tests.outputs.destination_dir}}
+          destination_dir: ${{steps.run_tests.outputs.DEST_DIR}}
 
   upload:
     needs:  build-package-docs
