@@ -54,8 +54,8 @@ jobs:
         if: ${{ !inputs.full_release }}
         shell: bash
         run: |
-          echo 'PACKAGE={{ $inputs.package }}' >> $GITHUB_ENV
-          echo 'VERSION=0.0.0${{ $inputs.tag_type }}' >> $GITHUB_ENV
+          echo 'PACKAGE=${{ inputs.package }}' >> $GITHUB_ENV
+          echo 'VERSION=0.0.0${{ inputs.tag_type }}' >> $GITHUB_ENV
 
 
   pants-build:
