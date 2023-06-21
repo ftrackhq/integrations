@@ -13,7 +13,6 @@ on:
 #      - main # Set a branch name to trigger deployment
 #      - gh-pages # TODO: Remove before release
 
-#concurrency: strategy
 
 permissions:
   contents: write
