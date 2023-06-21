@@ -13,7 +13,6 @@ on:
 #      - main # Set a branch name to trigger deployment
 #      - gh-pages # TODO: Remove before release
 
-concurrency: pants_ci
 
 permissions:
   contents: write
@@ -61,6 +60,7 @@ jobs:
             folder: libs
           # Add new packages here
 
+    concurrency: strategy
     name: Build docs (${{ matrix.package }})
     runs-on: ubuntu-latest
     steps:
