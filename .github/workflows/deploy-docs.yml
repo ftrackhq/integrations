@@ -92,9 +92,9 @@ jobs:
         run: |
           if [ ${{ inputs.is_rc }} = true ]
           then
-            echo "DEST_DIR=$(${{ matrix.folder }}/${{ matrix.package }}/rc" >> $GITHUB_OUTPUT
+            echo "DEST_DIR=${{ matrix.folder }}/${{ matrix.package }}/rc" >> $GITHUB_OUTPUT
           else
-            echo "DEST_DIR=$(${{ matrix.folder }}/${{ matrix.package }}" >> $GITHUB_OUTPUT
+            echo "DEST_DIR=${{ matrix.folder }}/${{ matrix.package }}" >> $GITHUB_OUTPUT
           fi
       - name: test
         if: ${{ contains(inputs.changed,matrix.package) }}
