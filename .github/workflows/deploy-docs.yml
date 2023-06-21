@@ -60,7 +60,7 @@ jobs:
     strategy:
       max-parallel: 1
       matrix:
-        package: [ application-launcher, connect-action-launcher-widget, connect-plugin-manager, connect-timetracker-widget, nuke-studio, rv]
+        package: [ framework-maya, framework-nuke, framework-houdini, framework-3dsmax] #application-launcher, connect-action-launcher-widget, connect-plugin-manager, connect-timetracker-widget, nuke-studio, rv
         folder: [projects]
         include:
           - package: framework-core
@@ -73,23 +73,23 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-        #if: ${{ contains(inputs.changed,matrix.package) }}
+        if: ${{ contains(inputs.changed,matrix.package) }}
       - uses: actions/setup-python@v4
-        #if: ${{ contains(inputs.changed,matrix.package) }}
+        if: ${{ contains(inputs.changed,matrix.package) }}
         with:
           python-version: '3.7'
       - name: Install dependencies
-        #if: ${{ contains(inputs.changed,matrix.package) }}
+        if: ${{ contains(inputs.changed,matrix.package) }}
         run: |
           pip install sphinx sphinx_rtd_theme lowdown
       - name: Sphinx build
-        #if: ${{ contains(inputs.changed,matrix.package) }}
+        if: ${{ contains(inputs.changed,matrix.package) }}
         run: |
           cd ${{ matrix.folder }}/${{ matrix.package }}
           sphinx-build doc public
       - name: Set destination  directory
         id: dest_dir
-        #if: ${{ contains(inputs.changed,matrix.package) }}
+        if: ${{ contains(inputs.changed,matrix.package) }}
         run: |
           if [ ${{ inputs.is_rc }} = true ]
           then
@@ -99,7 +99,7 @@ jobs:
           fi
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v3
-        #if: ${{ contains(inputs.changed,matrix.package) }}
+        if: ${{ contains(inputs.changed,matrix.package) }}
         # Todo: uncheck this when you are ready to only deploy from main
         #if: ${{ github.ref == 'refs/heads/main' }}
         with:
