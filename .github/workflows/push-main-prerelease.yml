@@ -13,10 +13,10 @@ on:
 
 jobs:
   pants-build:
-    if: false
     uses: ./.github/workflows/pants-build.yml
     with:
-      pre: true
+      full_release: false
+      check_changed: true
       tag_type: "rc"
 
   pre-release:
