@@ -131,5 +131,3 @@ setup(
     cmdclass={'test': PyTest, 'build_plugin': BuildPlugin},
     zip_safe=False,
 )
-
-
