@@ -76,7 +76,7 @@ jobs:
       - name: Build with Jekyll
         uses: actions/jekyll-build-pages@v1
         with:
-          source: ${{ matrix.folder }}
+          source: ${{ matrix.folder }}/${{ matrix.package }}
           destination: ${{ matrix.folder }}/${{ matrix.package }}
       - name: build-docs
         uses: ./.github/actions/build-docs
