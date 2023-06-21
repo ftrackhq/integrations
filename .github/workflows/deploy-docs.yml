@@ -95,7 +95,7 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ${{ matrix.folder }}/${{ matrix.package }}/public
           keep_files: true
-          destination_dir: ${{ matrix.folder }}/${{ matrix.package }}
+          destination_dir: ${{ matrix.folder }}/${{ matrix.package }}/rc
 
   upload:
     needs:  build-package-docs
