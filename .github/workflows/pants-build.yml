@@ -94,7 +94,7 @@ jobs:
             git fetch --all --force
             echo "CHANGED=$(pants list --changed-since=origin/main | cut -d'/' -f 1-2 | grep -v : | uniq | tr '\n' ',')" >> $GITHUB_ENV
       - name: Set current package as changed for full release
-        if: ${{ !inputs.check_changed }}
+        if: ${{ !inputs.check_changed }} # Use supplied package
         shell: bash
         run: |
           echo "CHANGED=${{ needs.set-variables.outputs.package }}" >> $GITHUB_ENV
@@ -103,12 +103,11 @@ jobs:
         run: |
           echo "import sys " >> /tmp/update_versions.py
           echo "def update_versions(packages, version):" >> /tmp/update_versions.py
-          echo "    print(packages) " >> /tmp/update_versions.py
           echo "    packages = packages.split(',') " >> /tmp/update_versions.py
           echo "    print('new packages: {}'.format(packages)) " >> /tmp/update_versions.py
           echo "    for package in packages: " >> /tmp/update_versions.py
-          echo "        if not package: " >> /tmp/update_versions.py
-          echo "            continue " >> /tmp/update_versions.py
+          echo "        #if not package: " >> /tmp/update_versions.py
+          echo "        #    continue " >> /tmp/update_versions.py
           echo "        if '/' in package: " >> /tmp/update_versions.py
           echo "            folder, pack = package.split('/') " >> /tmp/update_versions.py
           echo "        else: " >> /tmp/update_versions.py
@@ -118,14 +117,14 @@ jobs:
           echo "                folder = 'libs' " >> /tmp/update_versions.py
           echo "        set_package_version(pack, folder, version) " >> /tmp/update_versions.py
           echo "def set_package_version(package, folder, version): " >> /tmp/update_versions.py
-          echo "    print(package, folder, version) " >> /tmp/update_versions.py
+          echo "    print('Write version {} to package: {}, folder: {}'.format(version, package, folder)) " >> /tmp/update_versions.py
           echo "    ver_path = '{fol}/{pack}/source/ftrack_{pack_mod}/_version.py'.format(fol=folder, pack=package, pack_mod=package.replace('-','_')) " >> /tmp/update_versions.py
           echo "    with open(ver_path, 'w') as f: " >> /tmp/update_versions.py
           echo "        f.write('__version__=\'{}\''.format(version)) " >> /tmp/update_versions.py
 
           echo "update_versions(sys.argv[1], sys.argv[2]) " >> /tmp/update_versions.py
           
-          python /tmp/update_versions.py ${{ env.CHANGED }}, ${{ needs.set-variables.outputs.version }}
+          python /tmp/update_versions.py ${{ env.CHANGED }} ${{ needs.set-variables.outputs.version }}
 
       - name: Check BUILD files
         if: false # TODO enable linting with a later task

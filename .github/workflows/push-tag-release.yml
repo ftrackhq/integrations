@@ -39,7 +39,7 @@ jobs:
       full_release: false
       check_changed: false
       tag_type: "rc"
-      package: ${{needs.pants-build.outputs.package}}
+      package: ${{needs.pants-build.outputs.changed}}
 
   # Align latest rc pre-release
   pre-release:
