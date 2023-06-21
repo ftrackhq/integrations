@@ -107,8 +107,8 @@ jobs:
           echo "    packages = packages.split(',') " >> /tmp/update_versions.py
           echo "    print('new packages: {}'.format(packages)) " >> /tmp/update_versions.py
           echo "    for package in packages: " >> /tmp/update_versions.py
-          echo "        #if not package: " >> /tmp/update_versions.py
-          echo "        #    continue " >> /tmp/update_versions.py
+          echo "        if not package: " >> /tmp/update_versions.py
+          echo "            continue " >> /tmp/update_versions.py
           echo "        if '/' in package: " >> /tmp/update_versions.py
           echo "            folder, pack = package.split('/') " >> /tmp/update_versions.py
           echo "        else: " >> /tmp/update_versions.py
@@ -128,21 +128,23 @@ jobs:
           python /tmp/update_versions.py ${{ env.CHANGED }} ${{ needs.set-variables.outputs.version }}
 
       - name: Check BUILD files
-        if: false # TODO enable linting with a later task
+        if: ${{ env.CHANGED != '' && false }} # TODO enable linting with a later task
         shell: bash
         run: |
           pants tailor --check update-build-files --check ::
       - name: Lint and typecheck
-        if: false # TODO enable linting with a later task
+        if: ${{ !inputs.check_changed && false }} # TODO enable linting with a later task
         shell: bash
         run: |
           pants lint check ::
       - name: Package all
+        if: ${{ env.CHANGED != '' }}
         shell: bash
         run: |
           pants package ::
       - name: Save pants build results to cache
         uses: actions/cache/save@v3
+        if: ${{ env.CHANGED != '' }}
         with:
           path: dist
           key: pants-dist-${{github.sha}}
