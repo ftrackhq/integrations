@@ -100,6 +100,7 @@ jobs:
           echo "CHANGED=${{ needs.set-variables.outputs.package }}" >> $GITHUB_ENV
       - name: Update packages version
         shell: bash
+        if: ${{ env.CHANGED != '' }}
         run: |
           echo "import sys " >> /tmp/update_versions.py
           echo "def update_versions(packages, version):" >> /tmp/update_versions.py
