@@ -1,8 +1,6 @@
-# Create the v0.0.0-latest pre-release on push/merge to main, be it on a PR merge,
-# direct push or a release tag push.
-# Cleans up old tags and releases.
+# Create a full release or a pre release
 
-name: pre-release
+name: release
 
 on:
   workflow_call:
@@ -10,7 +8,10 @@ on:
       changed:
         required: true
         type: string
-      tag_type:
+      pre:
+        required: true
+        type: boolean
+      tag:
         required: true
         type: string
       deploy_aws:
@@ -45,10 +46,10 @@ jobs:
         uses: ./.github/actions/connect-release
         with:
           package: ${{ matrix.package }}
-          tag: ${{ matrix.package }}/0.0.0${{inputs.tag_type}}
+          tag: ${{ matrix.package }}/${{inputs.tag}}
           suffix: ${{ matrix.suffix }}
           deleteprevious: true
-          prerelease: true
+          prerelease: ${{inputs.pre}}
           deploy_aws: ${{inputs.deploy_aws}}
           token: ${{ secrets.GITHUB_TOKEN }}
           aws_key_id: ${{ secrets.aws_key_id }}

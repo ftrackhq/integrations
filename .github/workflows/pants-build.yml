@@ -2,10 +2,7 @@ name: Pants-build
 on:
   workflow_call:
     inputs:
-      full_release:
-        required: true
-        type: boolean
-      check_changed:
+      pre:
         required: true
         type: boolean
       tag_type:
@@ -41,14 +38,14 @@ jobs:
       tag: ${{ env.TAG }}
     steps:
       - name: set environments on full release
-        if: ${{ inputs.full_release }}
+        if: ${{ !inputs.pre }}
         shell: bash
         run: |
           echo "PACKAGE=$(echo ${{ github.ref }} | cut -d/ -f 3-3)" >> $GITHUB_ENV
           echo "VERSION=$(echo ${{ github.ref }} | cut -d/ -f 4-4)" >> $GITHUB_ENV
           echo "TAG=$(echo ${{ github.ref }} | cut -d/ -f 3-4)" >> $GITHUB_ENV
       - name: set environments for pre-release
-        if: ${{ inputs.check_changed }}
+        if: ${{ inputs.pre }}
         shell: bash
         run: |
           echo 'VERSION=0.0.0${{inputs.tag_type}}' >> $GITHUB_ENV
@@ -84,13 +81,13 @@ jobs:
           # See https://pants.readme.io/docs/using-pants-in-ci for tips on how to periodically clean it up.
           # Alternatively you change gha-cache-key to ignore old caches.
       - name: Determine which packages has changed using Pants
-        if: ${{ inputs.check_changed }}
+        if: ${{ inputs.pre }}
         shell: bash
         run: |
             git fetch --all --force
             echo "CHANGED=$(pants list --changed-since=origin/main | cut -d'/' -f 1-2 | grep -v : | uniq | tr '\n' ',')" >> $GITHUB_ENV
-      - name: Set surrent package as changed for full release
-        if: ${{ inputs.full_release }}
+      - name: Set current package as changed for full release
+        if: ${{ !pre }}
         shell: bash
         run: |
           echo "CHANGED=${{ needs.set-variables.outputs.package }}" >> $GITHUB_ENV
