@@ -36,5 +36,6 @@ jobs:
       #needs: pants-build
       uses: ./.github/workflows/deploy-docs.yml
       with:
-        changed: test #${{needs.pants-build.outputs.changed}}
+        changed: framework-maya #${{needs.pants-build.outputs.changed}}
+        build_index: true
         #destination: ./latest
