@@ -58,7 +58,7 @@ jobs:
         uses: ./.github/actions/connect-release
         with:
           package: ${{ needs.pants-build.outputs.package }}
-          tag: ${{ needs.pants-build.outputs.package }}/latest
+          tag: ${{ needs.pants-build.outputs.package }}/0.0.0rc
           suffix: ${{ needs.pants-build.outputs.suffix }}
           deleteprevious: true
           prerelease: true
