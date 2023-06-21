@@ -87,7 +87,7 @@ jobs:
             git fetch --all --force
             echo "CHANGED=$(pants list --changed-since=origin/main | cut -d'/' -f 1-2 | grep -v : | uniq | tr '\n' ',')" >> $GITHUB_ENV
       - name: Set current package as changed for full release
-        if: ${{ !pre }}
+        if: ${{ !inputs.pre }}
         shell: bash
         run: |
           echo "CHANGED=${{ needs.set-variables.outputs.package }}" >> $GITHUB_ENV
