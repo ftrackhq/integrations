@@ -13,7 +13,7 @@ on:
 #      - main # Set a branch name to trigger deployment
 #      - gh-pages # TODO: Remove before release
 
-concurrency: strategy
+#concurrency: strategy
 
 permissions:
   contents: write
@@ -51,6 +51,7 @@ jobs:
   build-package-docs:
     needs: build-index
     strategy:
+      max-parallel: 0
       matrix:
         package: [ framework-maya, framework-nuke, framework-houdini, framework-3dsmax] #application-launcher, connect-action-launcher-widget, connect-plugin-manager, connect-timetracker-widget, nuke-studio, rv
         folder: [projects]
