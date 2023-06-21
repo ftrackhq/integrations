@@ -25,6 +25,7 @@ permissions:
 jobs:
   # Build root docs
   build-index:
+    if: ${{ inputs.build_index }}
     runs-on: ubuntu-latest
     steps:
       - name: test_input
