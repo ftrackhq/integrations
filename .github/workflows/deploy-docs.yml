@@ -53,6 +53,7 @@ jobs:
 
   build-package-docs:
     needs: build-index
+    if: ${{ always() }}
     strategy:
       max-parallel: 1
       matrix:
