@@ -35,14 +35,17 @@ jobs:
       aws_secret_access_key: ${{ secrets.S3_SECRET_ACCESS_KEY }}
 
   pants-build-pre-release:
+    needs: release
     uses: ./.github/workflows/pants-build.yml
     with:
-      pre: true
+      full_release: false
+      check_changed: false
       tag_type: "rc"
+      package: ${{needs.pants-build.outputs.package}}
 
   # Align latest rc pre-release
   pre-release:
-    needs: pants-build
+    needs: pants-build-pre-release
     uses: ./.github/workflows/release.yml
     with:
       changed: ${{needs.pants-build.outputs.changed}}

@@ -11,6 +11,9 @@ on:
       tag_type:
         required: false
         type: string
+      package:
+        required: false
+        type: string
     outputs:
       changed:
         description: "Changed packages"
@@ -51,7 +54,8 @@ jobs:
         if: ${{ !inputs.full_release }}
         shell: bash
         run: |
-          echo 'VERSION=0.0.0${{inputs.tag_type}}' >> $GITHUB_ENV
+          echo 'PACKAGE={{ inputs.package }}' >> $GITHUB_ENV
+          echo 'VERSION=0.0.0${{ inputs.tag_type }}' >> $GITHUB_ENV
 
 
   pants-build:
