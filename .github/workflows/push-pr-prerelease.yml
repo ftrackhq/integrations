@@ -33,10 +33,10 @@ jobs:
 #      aws_secret_access_key: ${{ secrets.S3_SECRET_ACCESS_KEY }}
 
   deploy-docs:
-      needs: pants-build
+      #needs: pants-build
       uses: ./.github/workflows/deploy-docs.yml
       with:
-        changed: ${{needs.pants-build.outputs.changed}}
+        changed: a#${{needs.pants-build.outputs.changed}}
         build_index: false
         is_rc: true
         #destination: ./latest
