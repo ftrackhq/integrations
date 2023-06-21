@@ -26,9 +26,9 @@ runs:
     - name: Sphinx build
       shell: bash
       run: |
-        echo ls -la
-        echo ls ${{ inputs.folder }}
-        echo ls ${{ inputs.folder }}/${{ inputs.package }}
+        ls -la
+        ls ${{ inputs.folder }}
+        ls ${{ inputs.folder }}/${{ inputs.package }}
         cd ${{ inputs.folder }}/${{ inputs.package }}
         sphinx-build doc public
 #    - name: Deploy
