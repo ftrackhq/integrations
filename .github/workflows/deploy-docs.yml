@@ -5,6 +5,9 @@ on:
       changed:
         required: true
         type: string
+      is_rc:
+        required: true
+        type: boolean
       build_index:
         required: true
         type: boolean
@@ -84,18 +87,26 @@ jobs:
         run: |
           cd ${{ matrix.folder }}/${{ matrix.package }}
           sphinx-build doc public
+      - name: Set destination  directory
+        if: ${{ contains(inputs.changed,matrix.package) }}
+        run: |
+          if ${{ inputs.is_rc }}
+          then
+            echo "destination_dir=$(${{ matrix.folder }}/${{ matrix.package }}/rc)\n" >> $GITHUB_OUTPUT
+          else
+            echo "destination_dir=$(${{ matrix.folder }}/${{ matrix.package }})\n" >> $GITHUB_OUTPUT
+          fi
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v3
         if: ${{ contains(inputs.changed,matrix.package) }}
         # Todo: uncheck this when you are ready to only deploy from main
         #if: ${{ github.ref == 'refs/heads/main' }}
         with:
-          # Todo: Change to gh-pages when you are ready
           publish_branch: gh-pages
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ${{ matrix.folder }}/${{ matrix.package }}/public
           keep_files: true
-          destination_dir: ${{ matrix.folder }}/${{ matrix.package }}/rc
+          destination_dir: ${{steps.run_tests.outputs.destination_dir}}
 
   upload:
     needs:  build-package-docs

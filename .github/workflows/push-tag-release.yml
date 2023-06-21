@@ -73,4 +73,5 @@ jobs:
       with:
         changed: ${{needs.pants-build.outputs.changed}}
         build_index: false
+        is_rc: false
         #destination: ./latest
