@@ -13,6 +13,8 @@ on:
 #      - main # Set a branch name to trigger deployment
 #      - gh-pages # TODO: Remove before release
 
+concurrency: pants_ci
+
 permissions:
   contents: write
   pages: write

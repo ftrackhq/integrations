@@ -8,6 +8,14 @@
 Release Notes
 *************
 
+.. release:: 1.0.12
+    :date: 2023-06-15
+
+    .. change:: changed
+        :tags: launchers
+
+        Moved repository to monorepo package projects/application-launcher.
+
 .. release:: 1.0.11
     :date: 2023-05-24
 

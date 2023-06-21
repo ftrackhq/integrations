@@ -2,43 +2,63 @@ name: Pants-build
 on:
   workflow_call:
     inputs:
-      pre_tag:
+      full_release:
         required: true
         type: boolean
       check_changed:
         required: true
         type: boolean
+      tag_type:
+        required: false
+        type: string
     outputs:
       changed:
         description: "Changed packages"
         value: ${{ jobs.pants-build.outputs.changed }}
       package:
         description: "Package name"
-        value: ${{ jobs.pants-build.outputs.package }}
+        value: ${{ jobs.set-variables.outputs.package }}
       version:
         description: "Package version"
-        value: ${{ jobs.pants-build.outputs.version }}
+        value: ${{ jobs.set-variables.outputs.version }}
       tag:
         description: "Package tag"
-        value: ${{ jobs.pants-build.outputs.tag }}
+        value: ${{ jobs.set-variables.outputs.tag }}
       os:
         description: "Package os"
-        value: ${{ jobs.pants-build.outputs.os }}
+        value: ${{ jobs.full-release-update-versions.outputs.os }}
       suffix:
         description: "Package suffix"
-        value: ${{ jobs.pants-build.outputs.suffix }}
+        value: ${{ jobs.full-release-update-versions.outputs.suffix }}
 
 jobs:
   # Build root docs
-  pants-build:
+  set-variables:
     runs-on: ubuntu-latest
     outputs:
-      changed: ${{ env.CHANGED }}
       package: ${{ env.PACKAGE }}
       version: ${{ env.VERSION }}
       tag: ${{ env.TAG }}
-      os: ${{ env.OS }}
-      suffix: ${{ env.SUFFIX }}
+    steps:
+      - name: set environments on full release
+        if: ${{ inputs.full_release }}
+        shell: bash
+        run: |
+          echo "PACKAGE=$(echo ${{ github.ref }} | cut -d/ -f 3-3)" >> $GITHUB_ENV
+          echo "VERSION=$(echo ${{ github.ref }} | cut -d/ -f 4-4)" >> $GITHUB_ENV
+          echo "TAG=$(echo ${{ github.ref }} | cut -d/ -f 3-4)" >> $GITHUB_ENV
+      - name: set environments for pre-release
+        if: ${{ inputs.check_changed }}
+        shell: bash
+        run: |
+          echo 'VERSION=0.0.0${{inputs.tag_type}}' >> $GITHUB_ENV
+
+
+  pants-build:
+    needs: [ set-variables ]
+    runs-on: ubuntu-latest
+    outputs:
+      changed: ${{ env.CHANGED }}
     steps:
       - uses: actions/checkout@v3
         with:
@@ -63,14 +83,46 @@ jobs:
           # but will cause the cache entry to grow without bound over time.
           # See https://pants.readme.io/docs/using-pants-in-ci for tips on how to periodically clean it up.
           # Alternatively you change gha-cache-key to ignore old caches.
-      - uses: ./.github/actions/pre-tag
-        if: ${{ inputs.pre_tag }}
       - name: Determine which packages has changed using Pants
         if: ${{ inputs.check_changed }}
         shell: bash
         run: |
-          git fetch --all --force
-          echo "CHANGED=$(pants list --changed-since=origin/main | cut -d'/' -f 1-2 | grep -v : | uniq | tr '\n' ',')" >> $GITHUB_ENV
+            git fetch --all --force
+            echo "CHANGED=$(pants list --changed-since=origin/main | cut -d'/' -f 1-2 | grep -v : | uniq | tr '\n' ',')" >> $GITHUB_ENV
+      - name: Set surrent package as changed for full release
+        if: ${{ inputs.full_release }}
+        shell: bash
+        run: |
+          echo "CHANGED=${{ needs.set-variables.outputs.package }}" >> $GITHUB_ENV
+      - name: Update packages version
+        shell: bash
+        run: |
+          echo "import sys " >> /tmp/update_versions.py
+          echo "def update_versions(packages, version):" >> /tmp/update_versions.py
+          echo "    print(packages) " >> /tmp/update_versions.py
+          echo "    packages = packages.split(',') " >> /tmp/update_versions.py
+          echo "    print('new packages: {}'.format(packages)) " >> /tmp/update_versions.py
+          echo "    for package in packages: " >> /tmp/update_versions.py
+          echo "        if not package: " >> /tmp/update_versions.py
+          echo "            continue " >> /tmp/update_versions.py
+          echo "        if '/' in package: " >> /tmp/update_versions.py
+          echo "            folder, pack = package.split('/') " >> /tmp/update_versions.py
+          echo "        else: " >> /tmp/update_versions.py
+          echo "            pack = package " >> /tmp/update_versions.py
+          echo "            folder = 'projects' " >> /tmp/update_versions.py
+          echo "            if package == 'framework-qt' or 'framework-core': " >> /tmp/update_versions.py
+          echo "                folder = 'libs' " >> /tmp/update_versions.py
+          echo "        set_package_version(pack, folder, version) " >> /tmp/update_versions.py
+          echo "def set_package_version(package, folder, version): " >> /tmp/update_versions.py
+          echo "    print(package, folder, version) " >> /tmp/update_versions.py
+          echo "    ver_path = '{fol}/{pack}/source/ftrack_{pack_mod}/_version.py'.format(fol=folder, pack=package, pack_mod=package.replace('-','_')) " >> /tmp/update_versions.py
+          echo "    with open(ver_path, 'w') as f: " >> /tmp/update_versions.py
+          echo "        f.write('__version__=\'{}\''.format(version)) " >> /tmp/update_versions.py
+
+          echo "update_versions(sys.argv[1], sys.argv[2]) " >> /tmp/update_versions.py
+          
+          python /tmp/update_versions.py ${{ env.CHANGED }}, ${{ needs.set-variables.outputs.version }}
+
       - name: Check BUILD files
         if: false # TODO enable linting with a later task
         shell: bash
