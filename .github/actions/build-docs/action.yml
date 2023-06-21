@@ -26,8 +26,11 @@ runs:
     - name: Sphinx build
       shell: bash
       run: |
-        ls -la
+        echo ${{ inputs.package }}
+        echo ${{ inputs.folder }}
+        echo The folder
         ls ${{ inputs.folder }}
+        echo folder and package
         ls ${{ inputs.folder }}/${{ inputs.package }}
         cd ${{ inputs.folder }}/${{ inputs.package }}
         sphinx-build doc public
