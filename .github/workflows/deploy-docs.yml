@@ -97,6 +97,10 @@ jobs:
             echo "destination_dir=$(${{ matrix.folder }}/${{ matrix.package }})" >> $GITHUB_OUTPUT
           fi
           echo destination_dir
+      - name: test
+        if: ${{ contains(inputs.changed,matrix.package) }}
+        run: |
+          echo ${{steps.run_tests.outputs.destination_dir}}
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v3
         if: ${{ contains(inputs.changed,matrix.package) }}
