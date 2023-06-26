@@ -57,7 +57,7 @@ jobs:
     strategy:
       max-parallel: 1
       matrix:
-        package: [ framework-maya, framework-nuke, framework-houdini, framework-3dsmax, application-launcher, connect-action-launcher-widget, connect-plugin-manager, connect-publisher-widget, nuke-studio, rv]
+        package: [ framework-maya, framework-nuke, framework-houdini, framework-3dsmax, framework-unreal application-launcher, connect-action-launcher-widget, connect-plugin-manager, connect-publisher-widget, nuke-studio, rv]
         folder: [projects]
         include:
           - package: framework-core
