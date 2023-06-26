@@ -1,3 +1,5 @@
+# Action to release a package for Connect
+
 name: 'Connect plugin build and release'
 description: "Action that builds and releases a Connect plugin based on setuptools"
 inputs:
@@ -18,7 +20,7 @@ inputs:
     description: The GH token
   deploy_aws:
     required: true
-    description: Deploy to AWS
+    description: Deploy to AWS or not
   aws_key_id:
     required: true
     description: The AWS key ID to use

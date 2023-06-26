@@ -1,41 +1,46 @@
+# Helper workflow that run pants build and sets variables for the release workflow
+
 name: Pants-build
 on:
   workflow_call:
     inputs:
+      # Whether it is a full release on tag push (true) or a pre-release on PR update / merge to main (false)
       full_release:
         required: true
         type: boolean
+      # Whether to check for changed packages using Pants (true) or use the provided package at full release (false)
       check_changed:
         required: true
         type: boolean
+      # If not full release, use this tag type
       tag_type:
         required: false
         type: string
+      # If full release, this is the package to release
       package:
         required: false
         type: string
     outputs:
+      # (Pre-release) Comma(,) separated list of packages that have changed
       changed:
         description: "Changed packages"
         value: ${{ jobs.pants-build.outputs.changed }}
+      # (Full release) The released package
       package:
         description: "Package name"
         value: ${{ jobs.set-variables.outputs.package }}
+      # (Full release) The released package version
       version:
         description: "Package version"
         value: ${{ jobs.set-variables.outputs.version }}
+      # (Full release) The release tag
       tag:
         description: "Package tag"
         value: ${{ jobs.set-variables.outputs.tag }}
-      os:
-        description: "Package os"
-        value: ${{ jobs.full-release-update-versions.outputs.os }}
-      suffix:
-        description: "Package suffix"
-        value: ${{ jobs.full-release-update-versions.outputs.suffix }}
 
 jobs:
-  # Build root docs
+
+  # Set the environment variables for the release workflow
   set-variables:
     runs-on: ubuntu-latest
     outputs:
@@ -57,7 +62,7 @@ jobs:
           echo 'PACKAGE=${{ inputs.package }}' >> $GITHUB_ENV
           echo 'VERSION=0.0.0${{ inputs.tag_type }}' >> $GITHUB_ENV
 
-
+  # Run pants build to detected changed packages, update their versions and lint+build them
   pants-build:
     needs: [ set-variables ]
     runs-on: ubuntu-latest

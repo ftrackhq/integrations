@@ -1,22 +1,27 @@
-# Create a full release or a pre-release
+# Helper workflow to create a full release or a pre-release
 
 name: release
 
 on:
   workflow_call:
     inputs:
+      # Comma(,) separated list of packages that have changed
       changed:
         required: true
         type: string
+      # Boolean to indicate if this is a pre-release (true) or not (false)
       pre:
         required: true
         type: boolean
-      tag:
+      # The version to use for the release
+      version:
         required: true
         type: string
+      # Whether or not to deploy artefacts to AWS
       deploy_aws:
         required: true
         type: boolean
+    # AWS credentials, as needed
     secrets:
       aws_key_id:
         required: true
@@ -46,7 +51,7 @@ jobs:
         uses: ./.github/actions/connect-release
         with:
           package: ${{ matrix.package }}
-          tag: ${{ matrix.package }}/${{inputs.tag}}
+          tag: ${{ matrix.package }}/${{inputs.version}}
           suffix: ${{ matrix.suffix }}
           pre: ${{inputs.pre}}
           deploy_aws: ${{inputs.deploy_aws}}
