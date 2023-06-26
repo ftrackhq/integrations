@@ -12,8 +12,8 @@ on:
       check_changed:
         required: true
         type: boolean
-      # If not full release, use this tag type
-      tag_type:
+      # If not full release, use this version for the pre-release
+      version:
         required: false
         type: string
       # If full release, this is the package to release
@@ -60,7 +60,7 @@ jobs:
         shell: bash
         run: |
           echo 'PACKAGE=${{ inputs.package }}' >> $GITHUB_ENV
-          echo 'VERSION=0.0.0${{ inputs.tag_type }}' >> $GITHUB_ENV
+          echo 'VERSION=${{ inputs.version }}' >> $GITHUB_ENV
 
   # Run pants build to detected changed packages, update their versions and lint+build them
   pants-build:

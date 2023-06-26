@@ -54,6 +54,7 @@ jobs:
           tag: ${{ matrix.package }}/${{inputs.version}}
           suffix: ${{ matrix.suffix }}
           pre: ${{inputs.pre}}
+          deleteprevious: ${{inputs.pre}}
           deploy_aws: ${{inputs.deploy_aws}}
           token: ${{ secrets.GITHUB_TOKEN }}
           aws_key_id: ${{ secrets.aws_key_id }}

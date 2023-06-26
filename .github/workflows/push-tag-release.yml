@@ -44,16 +44,16 @@ jobs:
     with:
       full_release: false
       check_changed: false
-      tag_type: "rc"
-      package: ${{needs.pants-build.outputs.changed}}
+      version: "0.0.0rc"
+      package: ${{ needs.pants-build.outputs.changed }}
 
   pre-release:
     needs: pants-build-pre-release
     uses: ./.github/workflows/release.yml
     with:
-      changed: ${{needs.pants-build.outputs.changed}}
+      changed: ${{ needs.pants-build.outputs.changed }}
       pre: true
-      version: "0.0.0rc"
+      version: ${{ needs.pants-build.outputs.version }}
       deploy_aws: true
     secrets:
       aws_key_id: ${{ secrets.S3_ACCESS_KEY }}

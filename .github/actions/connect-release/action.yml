@@ -14,7 +14,10 @@ inputs:
     description: The suffix to append to the plugin filename
   pre:
     required: true
-    description: Whether or not this is a pre-release and previous release and tag should be deleted
+    description: Whether or not this is a pre-release
+  deleteprevious:
+    required: true
+    description: Whether or not to delete the previous release
   token:
     required: true
     description: The GH token
@@ -43,14 +46,14 @@ runs:
       shell: bash
     # Delete previous release and tag
     - uses: ClementTsang/delete-tag-and-release@v0.3.1
-      if: ${{ inputs.pre == 'true' }}
+      if: ${{ inputs.deleteprevious == 'true' }}
       with:
         delete_release: true # default: false
         tag_name: ${{ inputs.tag }} # tag name to delete
       env:
         GITHUB_TOKEN: ${{ inputs.token }}
-    - name: Delete previous releases & tags, including drafts, matching tag pattern
-      if: ${{ inputs.pre == 'true' }}
+    - name: Failsafe delete previous releases & tags, including drafts, matching tag pattern
+      if: ${{ inputs.deleteprevious == 'true' }}
       shell: bash
       run: |
         gh release list --limit 100 | sed 's/|/ /' | awk '{print $1, $8}' | grep ${{ inputs.tag }} | while read -r line; do echo Deleting previous release: $line; gh release delete -y "$line" && git tag -d "$line" && git push origin --delete "$line"; done
