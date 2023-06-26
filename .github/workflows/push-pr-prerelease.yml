@@ -23,7 +23,7 @@ jobs:
         uses: actions/checkout@v2
       - id: set-matrix
         run: |
-          matrix=$(jq --arg package "framework-maya" 'map(.)' tools/deployment_tools/matrix_includes.json)                
+          matrix=$(jq --arg package "framework-maya" 'map(.)' tools/deployment_tools/gh_repo_matrix.json)                
           echo "matrix={\"include\":$(echo $matrix)}" >> $GITHUB_OUTPUT
 #  pants-build:
 #    uses: ./.github/workflows/pants-build.yml
