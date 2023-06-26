@@ -1,0 +1,85 @@
+/*
+ * :copyright: Copyright (c) 2014 ftrack
+ */
+
+.lowdown-release {
+    position: relative;
+}
+
+.lowdown-release > h1, h2, h3, h4, h5 {
+    margin-bottom: 5px;
+}
+
+.lowdown-release em.release-date {
+    color: #999;
+    position: absolute;
+    line-height: 2.5em;
+    top: 0;
+    right: 0;
+}
+
+.lowdown-release ul.lowdown-change-list {
+    list-style: outside none none;
+}
+
+.lowdown-release ul.lowdown-change-list > li {
+    list-style: outside none none;
+    position: relative;
+    margin: 0;
+    padding: 8px 0 2px 120px;
+    border-top: 1px solid #D6D6D6;
+}
+
+.rst-content .section .lowdown-change-list .lowdown-change ul li {
+    list-style: initial;
+}
+
+.lowdown-category {
+    border-right: 3px solid #CCC;
+    box-shadow: 0px 1px 1px rgba(0, 0, 0, 0.05), 0px -1px 0px rgba(0, 0, 0, 0.05) inset;
+    color: #333;
+    display: inline-block;
+    font-size: 0.7em;
+    font-style: normal;
+    font-weight: bold;
+    line-height: 14px;
+    padding: 4px 2px 4px 10px;
+    text-shadow: 1px 1px 0px #FFF;
+    text-transform: uppercase;
+    width: 102px;
+    position: absolute;
+    top: 10px;
+    left: 0px;
+    background-color: #f8f8f8;
+}
+
+.lowdown-category-fixed {
+    border-color: #7C0;
+}
+
+.lowdown-category-new {
+    border-color: #11B0E9;
+}
+
+.lowdown-category-changed {
+    border-color: #EB3F3F;
+}
+
+.lowdown-tag {
+    display: inline-block;
+    color: #aaa;
+    text-shadow: 1px 1px 0px #fff;
+    background-color: #f5f5f5;
+    padding: 3px 5px;
+    font-size: 0.8em;
+    line-height: 1;
+    margin-right: 5px;
+}
+
+.lowdown-changeset {
+    font-size: 0.8em;
+}
+
+.lowdown-changeset:before {
+    content: '@';
+}
