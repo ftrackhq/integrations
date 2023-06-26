@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Publishing &mdash; ftrack connect publisher widget Unknown version documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="_static/lowdown.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="API reference" href="api_reference/index.html" />
+    <link rel="prev" title="Using" href="using.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            ftrack connect publisher widget
+          </a>
+              <div class="version">
+                Unknown version
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="installing.html">Installing</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="using.html">Using</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Publishing</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#add-components">Add components</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#select-a-linked-entity">Select a linked entity</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#choose-or-create-asset">Choose or create asset</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#fill-out-remaining-fields">Fill out remaining fields</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#publish">Publish</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="api_reference/index.html">API reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="release/index.html">Release and migration notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="glossary.html">Glossary</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">ftrack connect publisher widget</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="using.html">Using</a></li>
+      <li class="breadcrumb-item active">Publishing</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/publishing.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <div class="section" id="publishing">
+<span id="using-publishing"></span><h1>Publishing<a class="headerlink" href="#publishing" title="Permalink to this heading">¶</a></h1>
+<p>Connect provides a simple publisher application to support publishing files
+directly from your computer without the need to open another application (though
+publishing from within many applications, including from the ftrack web
+interface, is also supported).</p>
+<p>To publish, ensure you have the interface open by selecting <span class="guilabel">Open</span>
+from the <a class="reference external" href="http://ftrack-connect.rtd.ftrack.com/en/latest/glossary.html#term-service-context-menu" title="(in ftrack connect vUnknown version)"><span class="xref std std-term">service context menu</span></a> and then selecting the <span class="guilabel">Publish</span>
+tab.</p>
+<img alt="_images/publisher_tab.png" src="_images/publisher_tab.png" />
+<div class="section" id="add-components">
+<h2>Add components<a class="headerlink" href="#add-components" title="Permalink to this heading">¶</a></h2>
+<p>Drag and drop files from your computer onto the publisher (or use the
+<span class="guilabel">Browse</span> button to browse and select files).</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Sequences of files will be automatically detected and added as one entry.</p>
+</div>
+<img alt="_images/publisher_drop_files.png" src="_images/publisher_drop_files.png" />
+<p>Each file will be added as a component with a name based on the filename of the
+file. You can manually edit the name if desired by clicking in the name of the
+component and typing a new name.</p>
+<img alt="_images/publisher_edit_component_name.png" src="_images/publisher_edit_component_name.png" />
+<p>Components can be removed by clicking the <span class="guilabel">Remove</span> icon next to each
+entry.</p>
+</div>
+<div class="section" id="select-a-linked-entity">
+<h2>Select a linked entity<a class="headerlink" href="#select-a-linked-entity" title="Permalink to this heading">¶</a></h2>
+<p>To change the entity that the publish will be linked to, click the
+<span class="guilabel">Browse</span> button next to the <span class="guilabel">Linked Entity</span> field.</p>
+<img alt="_images/publisher_linked_entity_field.png" src="_images/publisher_linked_entity_field.png" />
+<p>A browser, similar to the file browser, will appear, but it allows browsing
+ftrack rather than the filesystem.</p>
+<img alt="_images/entity_browser.png" src="_images/entity_browser.png" />
+<p>You can navigate through a project structure by double clicking on items in the
+list. A navigation bar at the top will show you where you are and you can also
+click an item in the navigation bar to jump back up the hierarchy.
+Alternatively, use the neighbouring <span class="guilabel">Navigate Up</span> tool button to move
+up a level at a time.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>If an item you expect to see in the list is not appearing, try clicking the
+<span class="guilabel">Reload</span> tool button to refresh the list from the server.</p>
+</div>
+<p>To select the entity to link against, select an item in the list and then click
+the <span class="guilabel">Choose</span> button. Alternatively, to cancel making any changes
+click the <span class="guilabel">Cancel</span> button.</p>
+</div>
+<div class="section" id="choose-or-create-asset">
+<span id="using-publishing-choose-or-create-asset"></span><h2>Choose or create asset<a class="headerlink" href="#choose-or-create-asset" title="Permalink to this heading">¶</a></h2>
+<p>You can now choose if you like to publish a new version of an previously
+published <span class="xref std std-term">asset</span> or if you like to publish the first version of a new
+<span class="xref std std-term">asset</span>.</p>
+<img alt="_images/publisher_asset_options.png" src="_images/publisher_asset_options.png" />
+<p>To create a new <span class="xref std std-term">asset</span>, select <span class="guilabel">Create new</span> and fill in the
+following options.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>The type of <span class="xref std std-term">asset</span> to publish. Choose from a list retrieved from
+the connected <a class="reference external" href="http://ftrack-connect.rtd.ftrack.com/en/latest/glossary.html#term-ftrack" title="(in ftrack connect vUnknown version)"><span class="xref std std-term">ftrack</span></a> server.</p>
+</dd>
+<dt class="field-even">Name</dt>
+<dd class="field-even"><p>The name of <span class="xref std std-term">asset</span> to publish. The name and type must be unique
+when creating new assets.</p>
+</dd>
+</dl>
+<p>To publish a new version of an existing <span class="xref std std-term">asset</span>, select
+<span class="guilabel">Version up existing</span> instead. In the list which is shown below the
+radio buttons, select the <span class="xref std std-term">asset</span> you wish to use.</p>
+<img alt="_images/publisher_asset_existing.png" src="_images/publisher_asset_existing.png" />
+</div>
+<div class="section" id="fill-out-remaining-fields">
+<h2>Fill out remaining fields<a class="headerlink" href="#fill-out-remaining-fields" title="Permalink to this heading">¶</a></h2>
+<p>Fill out the remaining fields in the publisher.</p>
+<img alt="_images/publisher_filled_out.png" src="_images/publisher_filled_out.png" />
+<dl class="field-list simple">
+<dt class="field-odd">Web playable</dt>
+<dd class="field-odd"><p>If you want one of the components to be encoded for playing on
+the web select it in this field from the list of components
+added.</p>
+</dd>
+<dt class="field-even">Thumbnail</dt>
+<dd class="field-even"><p>Drag and drop a small thumbnail of the asset onto this field to give
+others a better indication of what the asset is before opening.</p>
+</dd>
+<dt class="field-odd">Description</dt>
+<dd class="field-odd"><p>A brief description of the published asset or the changes made
+since the last published version.</p>
+</dd>
+</dl>
+</div>
+<div class="section" id="publish">
+<h2>Publish<a class="headerlink" href="#publish" title="Permalink to this heading">¶</a></h2>
+<p>When ready, press <span class="guilabel">Publish</span> to start the publish. During this time
+you will see a progress indicator.</p>
+<img alt="_images/publisher_publish_progress.png" src="_images/publisher_publish_progress.png" />
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>Do not quit the service whilst the publish is in progress.</p>
+</div>
+<p>Once completed, the indicator will change to a notification.</p>
+<img alt="_images/publisher_publish_success.png" src="_images/publisher_publish_success.png" />
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="using.html" class="btn btn-neutral float-left" title="Using" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="api_reference/index.html" class="btn btn-neutral float-right" title="API reference" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, ftrack.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
