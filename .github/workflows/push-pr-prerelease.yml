@@ -39,6 +39,6 @@ jobs:
   deploy-docs:
     uses: ./.github/workflows/deploy-docs.yml
     with:
-      changed: "projects/application-launcher"
+      changed: "projects/connect-plugin-manager, projects/nuke-studio, projects/rv, projects/connect-action-launcher-widget, connect-publisher-widget"
       build_index: true
       is_rc: true
