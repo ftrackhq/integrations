@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>About &mdash; connect-plugin-manager Unknown version documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/ftrack.css" type="text/css" />
+      <link rel="stylesheet" href="_static/lowdown.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="author" title="About these documents" href="#" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Release and migration notes" href="release/index.html" />
+    <link rel="prev" title="ftrack connect plugin manager" href="index.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            connect-plugin-manager
+          </a>
+              <div class="version">
+                Unknown version
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">About</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#start-up">Start Up</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#filtering">Filtering</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#installation">Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#customizations">Customizations</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="release/index.html">Release and migration notes</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">connect-plugin-manager</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">About</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/about.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <div class="section" id="about">
+<span id="using-managing-integrations"></span><h1>About<a class="headerlink" href="#about" title="Permalink to this heading">¶</a></h1>
+<p>This plugin provide a ConnectWidget made to visually manage your integrations,
+which can be used to install and update them from local as well as remote sources.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The User Plugin Manager widget will manipulate ONLY locally installed to the user.
+Will not discover, look or manage centrally installed plugins.</p>
+</div>
+<div class="section" id="start-up">
+<h2>Start Up<a class="headerlink" href="#start-up" title="Permalink to this heading">¶</a></h2>
+<p>When Connect startup it’ll check for the integrations available locally as well as remote, and present with various options.
+Plugins which can be updated, will be automatically be checked.</p>
+<a class="reference internal image-reference" href="_images/plugin_startup.png"><img alt="_images/plugin_startup.png" src="_images/plugin_startup.png" style="width: 384.29999999999995px; height: 428.4px;" /></a>
+</div>
+<div class="section" id="filtering">
+<h2>Filtering<a class="headerlink" href="#filtering" title="Permalink to this heading">¶</a></h2>
+<p>The widget allows to simply filter all the available integrations to quickly search for the one needed.</p>
+<a class="reference internal image-reference" href="_images/plugin_filtering.png"><img alt="_images/plugin_filtering.png" src="_images/plugin_filtering.png" style="width: 310.79999999999995px; height: 129.5px;" /></a>
+</div>
+<div class="section" id="installation">
+<h2>Installation<a class="headerlink" href="#installation" title="Permalink to this heading">¶</a></h2>
+<p>When your list of plugin is checked, all you’ll be in need of doing is to press the <strong>apply</strong>
+button and the installation process will begin.</p>
+<p>Plugins (as zip) can also be installed through drag and drop in the widget.</p>
+<p>The progress will show what plugins is installing.</p>
+<a class="reference internal image-reference" href="_images/plugin_progress.png"><img alt="_images/plugin_progress.png" src="_images/plugin_progress.png" style="width: 319.2px; height: 478.09999999999997px;" /></a>
+<p>Once the list of plugin to install is processed, users will be prompted with a message to restart connect.</p>
+<a class="reference internal image-reference" href="_images/plugin_done.png"><img alt="_images/plugin_done.png" src="_images/plugin_done.png" style="width: 318.5px; height: 474.59999999999997px;" /></a>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>ftrack Connect requires to be restarted after plugins have been installed.</p>
+</div>
+</div>
+<div class="section" id="customizations">
+<h2>Customizations<a class="headerlink" href="#customizations" title="Permalink to this heading">¶</a></h2>
+<p>Currently the remote list of plugins is contained in a json encoded file hosted on <a class="reference external" href="https://download.ftrack.com/ftrack-connect/plugins.json">ftrack S3 bucket</a>
+This path can be overwritten using the environment variable <strong>FTRACK_CONNECT_JSON_PLUGINS_URL</strong>, which will have to point to a json containing the full path to where
+your integrations and plugins are hosted.</p>
+<p>The content of the json will have to contain a key named <em>integrations</em> which will host the full paths.</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;integrations&quot;</span><span class="p">:[</span>
+<span class="w">        </span><span class="s2">&quot;https://s3-eu-west-1.amazonaws.com/ftrack-deployment/ftrack-connect/plugins/ftrack-application-launcher-1.0.1.zip&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="s2">&quot;etc....&quot;</span>
+<span class="w">    </span><span class="p">]</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="index.html" class="btn btn-neutral float-left" title="ftrack connect plugin manager" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="release/index.html" class="btn btn-neutral float-right" title="Release and migration notes" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, ftrack.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

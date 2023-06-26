@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Migration Notes &mdash; connect-plugin-manager Unknown version documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/ftrack.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/lowdown.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/sphinx_highlight.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="author" title="About these documents" href="../about.html" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="prev" title="Release Notes" href="release_notes.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            connect-plugin-manager
+          </a>
+              <div class="version">
+                Unknown version
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../about.html">About</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Release and migration notes</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="release_notes.html">Release Notes</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Migration Notes</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#changes">changes</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#application-hooks">application hooks</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#integration-hooks">integration hooks</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#environment-variables-management">environment variables management</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">connect-plugin-manager</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">Release and migration notes</a></li>
+      <li class="breadcrumb-item active">Migration Notes</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/release/migration.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <div class="section" id="migration-notes">
+<span id="release-migration"></span><h1>Migration Notes<a class="headerlink" href="#migration-notes" title="Permalink to this heading">¶</a></h1>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>If you are porting old custom application hooks, please check first the configuration options if are suitable for you.</p>
+</div>
+<div class="section" id="changes">
+<h2>changes<a class="headerlink" href="#changes" title="Permalink to this heading">¶</a></h2>
+<p>If you come from Connect 1.X here you can find some information on how to port your custom launchers into this new plugin.</p>
+<div class="section" id="application-hooks">
+<h3>application hooks<a class="headerlink" href="#application-hooks" title="Permalink to this heading">¶</a></h3>
+<p>Application hooks (launchers) are now hosted in the application-launcher itself and not in the integrations.</p>
+</div>
+<div class="section" id="integration-hooks">
+<h3>integration hooks<a class="headerlink" href="#integration-hooks" title="Permalink to this heading">¶</a></h3>
+<p>Integration hooks now provide the data required to be configured and launched, but not the application itself.</p>
+</div>
+<div class="section" id="environment-variables-management">
+<h3>environment variables management<a class="headerlink" href="#environment-variables-management" title="Permalink to this heading">¶</a></h3>
+<ul>
+<li><p>Environment variable management is now handled from within the integration and not the launcher itself.
+All the imports from ftrack_connect in this regard will not be vailable anymore:</p>
+<ul class="simple">
+<li><p>ftrack_connect.application.appendPath</p></li>
+<li><p>ftrack_connect.application.prependPath</p></li>
+</ul>
+<p>this example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">environment</span> <span class="o">=</span> <span class="n">ftrack_connect</span><span class="o">.</span><span class="n">application</span><span class="o">.</span><span class="n">appendPath</span><span class="p">(</span>
+    <span class="n">maya_connect_plugins</span><span class="p">,</span>
+    <span class="s1">&#39;MAYA_PLUG_IN_PATH&#39;</span><span class="p">,</span>
+    <span class="n">environment</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>can be easily replaced with the this integration configuration:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+  <span class="s2">&quot;env&quot;</span><span class="p">:</span> <span class="p">{</span>
+      <span class="s2">&quot;MAYA_PLUG_IN_PATH.append&quot;</span><span class="p">:</span> <span class="n">maya_connect_plugins</span>
+   <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</li>
+</ul>
+</div>
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="release_notes.html" class="btn btn-neutral float-left" title="Release Notes" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, ftrack.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
