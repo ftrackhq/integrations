@@ -37,7 +37,6 @@ jobs:
 #      aws_secret_access_key: ${{ secrets.S3_SECRET_ACCESS_KEY }}
 
   deploy-docs:
-    needs: pants-build
     uses: ./.github/workflows/deploy-docs.yml
     with:
       changed: "projects/application-launcher"
