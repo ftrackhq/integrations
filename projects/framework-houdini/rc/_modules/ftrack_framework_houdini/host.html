@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ftrack_framework_houdini.host &mdash; ftrack_framework_houdini Unknown version documentation</title>
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/ftrack.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/lowdown.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/sphinx_highlight.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            ftrack_framework_houdini
+          </a>
+              <div class="version">
+                Unknown version
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../developing/index.html">Developing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../release/index.html">Release and migration notes</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">ftrack_framework_houdini</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">ftrack_framework_houdini.host</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for ftrack_framework_houdini.host</h1><div class="highlight"><pre>
+<span></span><span class="c1"># :coding: utf-8</span>
+<span class="c1"># :copyright: Copyright (c) 2014-2021 ftrack</span>
+
+<span class="kn">import</span> <span class="nn">logging</span>
+
+<span class="kn">from</span> <span class="nn">ftrack_framework_qt</span> <span class="kn">import</span> <span class="n">constants</span> <span class="k">as</span> <span class="n">qt_constants</span>
+<span class="kn">from</span> <span class="nn">ftrack_framework_houdini</span> <span class="kn">import</span> <span class="n">constants</span> <span class="k">as</span> <span class="n">houdini_constants</span>
+<span class="kn">from</span> <span class="nn">ftrack_framework_core.host</span> <span class="kn">import</span> <span class="n">Host</span>
+<span class="kn">from</span> <span class="nn">ftrack_framework_houdini.host</span> <span class="kn">import</span> <span class="n">engine</span> <span class="k">as</span> <span class="n">host_engine</span>
+
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="HoudiniHost"><a class="viewcode-back" href="../../developing/api_references/ftrack_framework_houdini.host.html#ftrack_framework_houdini.host.HoudiniHost">[docs]</a><span class="k">class</span> <span class="nc">HoudiniHost</span><span class="p">(</span><span class="n">Host</span><span class="p">):</span>
+    <span class="n">host_types</span> <span class="o">=</span> <span class="p">[</span><span class="n">qt_constants</span><span class="o">.</span><span class="n">HOST_TYPE</span><span class="p">,</span> <span class="n">houdini_constants</span><span class="o">.</span><span class="n">HOST_TYPE</span><span class="p">]</span>
+
+    <span class="c1"># Define the Houdini engines to be run during the run function</span>
+    <span class="n">engines</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;asset_manager&#39;</span><span class="p">:</span> <span class="n">host_engine</span><span class="o">.</span><span class="n">HoudiniAssetManagerEngine</span><span class="p">,</span>
+        <span class="s1">&#39;opener&#39;</span><span class="p">:</span> <span class="n">host_engine</span><span class="o">.</span><span class="n">HoudiniOpenerEngine</span><span class="p">,</span>
+        <span class="s1">&#39;loader&#39;</span><span class="p">:</span> <span class="n">host_engine</span><span class="o">.</span><span class="n">HoudiniLoaderEngine</span><span class="p">,</span>
+        <span class="s1">&#39;publisher&#39;</span><span class="p">:</span> <span class="n">host_engine</span><span class="o">.</span><span class="n">HoudiniPublisherEngine</span><span class="p">,</span>
+    <span class="p">}</span>
+
+<div class="viewcode-block" id="HoudiniHost.__init__"><a class="viewcode-back" href="../../developing/api_references/ftrack_framework_houdini.host.html#ftrack_framework_houdini.host.HoudiniHost.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event_manager</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Initialize HoudiniHost with *event_manager*.</span>
+
+<span class="sd">        *event_manager* instance of</span>
+<span class="sd">        :class:`ftrack_framework_core.event.EventManager`</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">HoudiniHost</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">event_manager</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="HoudiniHost.run"><a class="viewcode-back" href="../../developing/api_references/ftrack_framework_houdini.host.html#ftrack_framework_houdini.host.HoudiniHost.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+        <span class="n">runnerResult</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span><span class="n">HoudiniHost</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">event</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">runnerResult</span></div></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, ftrack.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
