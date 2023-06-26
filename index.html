@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en-US">
+  <head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+<!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>integrations | Public monorepo containing the DCC pipeline framework and Connect</title>
+<meta name="generator" content="Jekyll v3.9.3" />
+<meta property="og:title" content="integrations" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Public monorepo containing the DCC pipeline framework and Connect" />
+<meta property="og:description" content="Public monorepo containing the DCC pipeline framework and Connect" />
+<link rel="canonical" href="https://ftrackhq.github.io/integrations/" />
+<meta property="og:url" content="https://ftrackhq.github.io/integrations/" />
+<meta property="og:site_name" content="integrations" />
+<meta property="og:type" content="website" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="integrations" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebSite","description":"Public monorepo containing the DCC pipeline framework and Connect","headline":"integrations","name":"integrations","url":"https://ftrackhq.github.io/integrations/"}</script>
+<!-- End Jekyll SEO tag -->
+
+    <link rel="stylesheet" href="/integrations/assets/css/style.css?v=733927a2620723332d228ecf0c24886f8bb276d2">
+    <!-- start custom head snippets, customize with your own _includes/head-custom.html file -->
+
+<!-- Setup Google Analytics -->
+
+
+
+<!-- You can set your favicon here -->
+<!-- link rel="shortcut icon" type="image/x-icon" href="/integrations/favicon.ico" -->
+
+<!-- end custom head snippets -->
+
+  </head>
+  <body>
+    <div class="container-lg px-3 my-5 markdown-body">
+      
+      <h1><a href="https://ftrackhq.github.io/integrations/">integrations</a></h1>
+      
+
+      
+<p>This monorepo contains the source code for the ftrack pipeline integration framework, divided into packages.</p>
+
+<h1 id="developing">Developing</h1>
+
+<p>We use <a href="https://www.pantsbuild.org/">Pants</a> to build and test the packages in this repository, and to manage the dependencies between them.</p>
+
+<p>Each package can be built on it its own with either Poetry or Setuptools (depending on the package), but Pants is required to build the entire repository.</p>
+
+<h2 id="obtaining-the-source-code">Obtaining the source code</h2>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>git clone https://github.com/ftrackhq/integrations
+</code></pre></div></div>
+
+<p>or download the source ZIP from the <a href="https://github.com/ftrackhq/integrations">Integrations repository</a> on Github</p>
+
+<h2 id="building">Building</h2>
+
+<p>A Github CI/CF provide automated builds of the packages in this repository on PRs, merge to main and on tagging of releases.</p>
+
+<p>To build the entire repository, run:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>./pants package ::
+</code></pre></div></div>
+
+<p>The resulting source distribution (sdist) and wheel will be out to: <code class="language-plaintext highlighter-rouge">dist/</code></p>
+
+<p>To build a single package:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>./pants package projects/framework-maya
+</code></pre></div></div>
+
+<h2 id="building-connect-plugin">Building Connect plugin</h2>
+
+<p>Connect requires packages to be built and distributes as plugins.</p>
+
+<p>Example on how to build the Maya DCC Connect plugin:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>./pants package projects/framework-maya
+<span class="nb">cd </span>dist
+<span class="nb">tar</span> <span class="nt">-xzvf</span> framework-maya-1.2.3.tar.gz
+<span class="nb">cd </span>framework-maya-1.2.3
+<span class="c"># Create and activate a Python 3.7 virtual environment</span>
+python setup.py build_plugin
+</code></pre></div></div>
+
+<h2 id="testing">Testing</h2>
+
+<p>Currently we do not have any tests in the repository, but we will add them in the future.</p>
+
+<h1 id="package-overview">Package overview</h1>
+
+<h2 id="connect">Connect</h2>
+
+<p>The desktop application that discovers and launches the DCC integrations and drives widget plugins.</p>
+
+<h3 id="app">App</h3>
+
+<table>
+  <thead>
+    <tr>
+      <th>Package</th>
+      <th>Path</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><a href="apps/connect">connect</a></td>
+      <td>app/connect</td>
+      <td>ftrack Connect app</td>
+    </tr>
+    <tr>
+      <td><a href="installers/connect-installer">connect-installer</a></td>
+      <td>installers/connect-installer</td>
+      <td>ftrack Connect app installer</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 id="application-launcher">Application launcher</h3>
+
+<table>
+  <thead>
+    <tr>
+      <th>Package</th>
+      <th>Path</th>
+      <th>Description</th>
+      <th>RC</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><a href="projects/application-launcher">application-launcher</a></td>
+      <td>projects/application-launcher</td>
+      <td>The application launcher logic</td>
+      <td><a href="projects/application-launcher/rc">application-launcher</a></td>
+    </tr>
+    <tr>
+      <td><a href="projects/connect-action-launcher-widget">connect-action-launcher-widget</a></td>
+      <td>projects/connect-action-launcher-widget</td>
+      <td>The action launcher widget in Connect</td>
+      <td><a href="projects/connect-action-launcher-widget/rc">connect-action-launcher-widget</a></td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 id="framework-integrations">Framework integrations</h3>
+
+<p>The framework package group contains the DCC integrations and is divided into libraries and DCC integration projects.</p>
+
+<h4 id="libraries">Libraries</h4>
+
+<table>
+  <thead>
+    <tr>
+      <th>Package</th>
+      <th>Path</th>
+      <th>Description</th>
+      <th>RC</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><a href="libs/framework-core">framework-core</a></td>
+      <td>libs/framework-core</td>
+      <td>The core framework library</td>
+      <td><a href="libs/framework-core/rc">framework-core-rc</a></td>
+    </tr>
+    <tr>
+      <td><a href="libs/framework-qt">framework-qt</a></td>
+      <td>libs/framework-qt</td>
+      <td>The QT framework library</td>
+      <td><a href="libs/framework-qt/rc">framework-qt-rc</a></td>
+    </tr>
+  </tbody>
+</table>
+
+<h4 id="dcc-integrations">DCC integrations</h4>
+
+<table>
+  <thead>
+    <tr>
+      <th>Package</th>
+      <th>Path</th>
+      <th>Description</th>
+      <th>RC</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><a href="projects/framework-maya">framework-maya</a></td>
+      <td>projects/framework-maya</td>
+      <td>Maya DCC integration</td>
+      <td><a href="projects/framework-maya/rc">framework-maya-rc</a></td>
+    </tr>
+    <tr>
+      <td><a href="projects/framework-nuke">framework-nuke</a></td>
+      <td>projects/framework-nuke</td>
+      <td>Nuke DCC integration</td>
+      <td><a href="projects/framework-nuke/rc">framework-nuke-rc</a></td>
+    </tr>
+    <tr>
+      <td><a href="projects/framework-houdini">framework-houdini</a></td>
+      <td>projects/framework-houdini</td>
+      <td>Houdini DCC integration</td>
+      <td><a href="projects/framework-houdini/rc">framework-houdini-rc</a></td>
+    </tr>
+    <tr>
+      <td><a href="projects/framework-3dsmax">framework-3dsmax</a></td>
+      <td>projects/framework-3dsmax</td>
+      <td>3d Studio Max DCC integration</td>
+      <td><a href="projects/framework-3dsmax/rc">framework-3dsmax-rc</a></td>
+    </tr>
+    <tr>
+      <td><a href="projects/framework-unreal">framework-unreal</a></td>
+      <td>projects/framework-unreal</td>
+      <td>Unreal Engine DCC integration</td>
+      <td><a href="projects/framework-unreal/rc">framework-unreal-rc</a></td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 id="standalone-integrations">Standalone integrations</h3>
+
+<table>
+  <thead>
+    <tr>
+      <th>Package</th>
+      <th>Path</th>
+      <th>Description</th>
+      <th>RC</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><a href="projects/rv">rv</a></td>
+      <td>projects/rv</td>
+      <td>RV player integration</td>
+      <td><a href="projects/rv/rc">rv</a></td>
+    </tr>
+    <tr>
+      <td><a href="projects/nuke-studio">nuke-studio</a></td>
+      <td>projects/nuke-studio</td>
+      <td>Nuke Studio integration</td>
+      <td><a href="projects/nuke-studio/rc">nuke-studio</a></td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 id="connect-publisher">Connect publisher</h3>
+
+<table>
+  <thead>
+    <tr>
+      <th>Package</th>
+      <th>Path</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><a href="projects/connect-publisher-widget">connect-publisher-widget</a></td>
+      <td>projects/connect-publisher-widget</td>
+      <td>The standalone publisher widget in Connect</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 id="tools">Tools</h3>
+
+<table>
+  <thead>
+    <tr>
+      <th>Package</th>
+      <th>Path</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><a href="tools/connect-cookiecutter">connect-cookiecutter</a></td>
+      <td>tools/connect-cookiecutter</td>
+      <td>Cookiecutter template for Connect plugins</td>
+    </tr>
+    <tr>
+      <td><a href="tools/framework-cookiecutter">framework-cookiecutter</a></td>
+      <td>tools/framework-cookiecutter</td>
+      <td>Cookiecutter template for Framework (integrations) plugins</td>
+    </tr>
+  </tbody>
+</table>
+
+
+      
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/anchor-js/4.1.0/anchor.min.js" integrity="sha256-lZaRhKri35AyJSypXXs4o6OPFTbTmUoltBbDCbdzegg=" crossorigin="anonymous"></script>
+    <script>anchors.add();</script>
+  </body>
+</html>

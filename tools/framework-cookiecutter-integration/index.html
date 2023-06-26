@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en-US">
+  <head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+<!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>ftrack cookiecutter connect plugin | integrations</title>
+<meta name="generator" content="Jekyll v3.9.3" />
+<meta property="og:title" content="ftrack cookiecutter connect plugin" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Public monorepo containing the DCC pipeline framework and Connect" />
+<meta property="og:description" content="Public monorepo containing the DCC pipeline framework and Connect" />
+<link rel="canonical" href="https://ftrackhq.github.io/integrations/tools/framework-cookiecutter-integration/" />
+<meta property="og:url" content="https://ftrackhq.github.io/integrations/tools/framework-cookiecutter-integration/" />
+<meta property="og:site_name" content="integrations" />
+<meta property="og:type" content="website" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="ftrack cookiecutter connect plugin" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebPage","description":"Public monorepo containing the DCC pipeline framework and Connect","headline":"ftrack cookiecutter connect plugin","url":"https://ftrackhq.github.io/integrations/tools/framework-cookiecutter-integration/"}</script>
+<!-- End Jekyll SEO tag -->
+
+    <link rel="stylesheet" href="/integrations/assets/css/style.css?v=733927a2620723332d228ecf0c24886f8bb276d2">
+    <!-- start custom head snippets, customize with your own _includes/head-custom.html file -->
+
+<!-- Setup Google Analytics -->
+
+
+
+<!-- You can set your favicon here -->
+<!-- link rel="shortcut icon" type="image/x-icon" href="/integrations/favicon.ico" -->
+
+<!-- end custom head snippets -->
+
+  </head>
+  <body>
+    <div class="container-lg px-3 my-5 markdown-body">
+      
+      <h1><a href="https://ftrackhq.github.io/integrations/">integrations</a></h1>
+      
+
+      <h1 id="ftrack-cookiecutter-connect-plugin">ftrack cookiecutter connect plugin</h1>
+
+<p>Cookiecutter template for a ftrack Connect plugin.</p>
+
+<h2 id="usage">Usage</h2>
+
+<p>First make sure you have cookiecutter installed on your python environment:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>pip install cookiecutter
+</code></pre></div></div>
+
+<h3 id="generate-new-plugin">Generate new plugin:</h3>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code> cookiecutter -f -o &lt;path-to-your-ropo-folder&gt; &lt;path-to-coockiecutter-template-git-or-local-path&gt;  Example:
+
+cookiecutter -f -o /Users/ftrack/repos https://github.com/ftrackhq/ftrack-cookiecutter-connect-framework-plugin.git
+</code></pre></div></div>
+
+<ul>
+  <li>Fill up all the new plugin name input field when asked (All the other fields are automatically fill out by default).</li>
+</ul>
+
+<p>Once the project is create you should initialise a local git repo with:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>git init
+</code></pre></div></div>
+
+<h3 id="extend-definitions-repository-with-the-new-plugin-definitions">Extend definitions repository with the new plugin definitions:</h3>
+
+<p>Clone definitions repository to your repository folder:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>cd &lt;path-to-your-ropo-folder&gt;
+git clone https://github.com/ftrackhq/ftrack-connect-pipeline-definition.git
+</code></pre></div></div>
+
+<p>Apply new plugin template to definitions repository:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>cookiecutter -f -c definition -o &lt;path-to-your-ropo-folder&gt; &lt;path-to-coockiecutter-template-git-or-local-path&gt; Example:
+
+cookiecutter -f -c definition -o /Users/ftrack/repos https://github.com/ftrackhq/ftrack-cookiecutter-connect-framework-plugin.git
+</code></pre></div></div>
+
+<ul>
+  <li>Fill up all the new plugin name input field when asked (All the other fields are automatically fill out by default).</li>
+</ul>
+
+<h4 id="note-check-the-output---you-may-need-to-fix-documentation-underlining-add-dependencies-etc">Note: Check the output - you may need to fix documentation underlining, add dependencies etc.</h4>
+
+<h2 id="copyright-and-license">Copyright and license</h2>
+
+<p>Copyright (c) 2022 ftrack</p>
+
+<p>Licensed under the Apache License, Version 2.0 (the "License"); you
+may not use this work except in compliance with the License. You may
+obtain a copy of the License in the LICENSE.txt file, or at:</p>
+
+<p><a href="http://www.apache.org/licenses/LICENSE-2.0">http://www.apache.org/licenses/LICENSE-2.0</a></p>
+
+<p>Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.</p>
+
+
+      
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/anchor-js/4.1.0/anchor.min.js" integrity="sha256-lZaRhKri35AyJSypXXs4o6OPFTbTmUoltBbDCbdzegg=" crossorigin="anonymous"></script>
+    <script>anchors.add();</script>
+  </body>
+</html>

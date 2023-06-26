@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en-US">
+  <head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+<!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>ftrack connect installer | integrations</title>
+<meta name="generator" content="Jekyll v3.9.3" />
+<meta property="og:title" content="ftrack connect installer" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Public monorepo containing the DCC pipeline framework and Connect" />
+<meta property="og:description" content="Public monorepo containing the DCC pipeline framework and Connect" />
+<link rel="canonical" href="https://ftrackhq.github.io/integrations/installers/connect-installer/" />
+<meta property="og:url" content="https://ftrackhq.github.io/integrations/installers/connect-installer/" />
+<meta property="og:site_name" content="integrations" />
+<meta property="og:type" content="website" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="ftrack connect installer" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebPage","description":"Public monorepo containing the DCC pipeline framework and Connect","headline":"ftrack connect installer","url":"https://ftrackhq.github.io/integrations/installers/connect-installer/"}</script>
+<!-- End Jekyll SEO tag -->
+
+    <link rel="stylesheet" href="/integrations/assets/css/style.css?v=733927a2620723332d228ecf0c24886f8bb276d2">
+    <!-- start custom head snippets, customize with your own _includes/head-custom.html file -->
+
+<!-- Setup Google Analytics -->
+
+
+
+<!-- You can set your favicon here -->
+<!-- link rel="shortcut icon" type="image/x-icon" href="/integrations/favicon.ico" -->
+
+<!-- end custom head snippets -->
+
+  </head>
+  <body>
+    <div class="container-lg px-3 my-5 markdown-body">
+      
+      <h1><a href="https://ftrackhq.github.io/integrations/">integrations</a></h1>
+      
+
+      <h1 id="ftrack-connect-installer">ftrack connect installer</h1>
+
+<p>Meta package that provides support for building platform specific
+bundles of ftrack connect installers.</p>
+
+<p>Clone the public repository:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ git clone git@bitbucket.org:ftrack/ftrack-connect-installer.git
+</code></pre></div></div>
+
+<p>Or download and extract the
+<a href="https://bitbucket.org/ftrack/ftrack-connect-installer/get/master.zip">zipball</a></p>
+
+<p>Clone ftrack connect public repository:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ git clone git@bitbucket.org:ftrack/ftrack-connect.git
+</code></pre></div></div>
+
+<p>Or download and extract the
+<a href="https://bitbucket.org/ftrack/ftrack-connect/get/master.zip">zipball</a></p>
+
+<p>Create and activate a virtual environment with python3.7</p>
+
+<p>Note</p>
+
+<p>If in windows, please create the virtual env using venv.</p>
+
+<p>Install dependencies with:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ pip install -r &lt;ftrack-connect-installer&gt;/requirements.txt
+</code></pre></div></div>
+
+<p>Warning</p>
+
+<p>( Windows only )</p>
+
+<p>Visual studio and <a href="https://visualstudio.microsoft.com/downloads/#build-tools-for-visual-studio-2019">c++ build
+tools</a>
+should be installed before install the requirements.</p>
+
+<p>Reference:
+(<a href="https://stackoverflow.com/questions/40018405/cannot-open-include-file-io-h-no-such-file-or-directory">link</a>)</p>
+
+<p>Note</p>
+
+<p>cx_freeze branch installation is temporary until cx_freeze &gt; 6.5
+version is released. (
+<a href="https://github.com/marcelotduarte/cx_Freeze/pull/887">3.7</a> )</p>
+
+<p>Install ftrack connect:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ cd &lt;ftrack-connect&gt;
+$ pip install -r &lt;ftrack-connect&gt;/requirements.txt
+$ python setup.py install
+</code></pre></div></div>
+
+<p>Build connect package with (specific build package):</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ cd &lt;ftrack-connect-installer&gt;
+</code></pre></div></div>
+
+<h2 id="linux">Linux</h2>
+
+<p>Build tar.gz release with:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ python setup.py build_exe
+</code></pre></div></div>
+
+<p>Once build the result will be available in
+build/exe.linux-x86_64-<strong>&lt;PYTHON VERSION&gt;</strong></p>
+
+<p>To generate the tar.gz run from the build folder:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ tar -zcvf ftrack-connect-installer-&lt;PACKAGE VERSION&gt;-&lt;PLATFORM&gt;.tar.gz exe.linux-x86_64-3.7 --transform 's/exe.linux-x86_64-3.7/ftrack-connect-installer/'
+</code></pre></div></div>
+
+<p>Generate the md5 with:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ md5sum ftrack-connect-installer-&lt;PACKAGE VERSION&gt;-&lt;PLATFORM&gt;.tar.gz &gt; ftrack-connect-installer-&lt;PACKAGE VERSION&gt;-&lt;PLATFORM&gt;.tar.gz.md5
+</code></pre></div></div>
+
+<p>Note</p>
+
+<p>Please remember to set <strong>&lt;PLATFORM&gt;</strong> to either:</p>
+
+<ul>
+  <li>C7 for Centos 7 compatible releases.</li>
+  <li>C8 for centos 8 compatible releases.</li>
+</ul>
+
+<h2 id="windows">Windows</h2>
+
+<p>Build msi release with:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ python setup.py bdist_msi
+</code></pre></div></div>
+
+<p>Note</p>
+
+<p>Codesign process works only on machine where the key certificate is
+loaded and available. Codesign also require to have the signtool.exe
+installed and available.</p>
+
+<h3 id="to-codesign">To codesign</h3>
+
+<h4 id="preparation">Preparation</h4>
+
+<ul>
+  <li>Install signtool.exe from
+<a href="https://docs.microsoft.com/en-us/dotnet/framework/tools/signtool-exe">https://docs.microsoft.com/en-us/dotnet/framework/tools/signtool-exe</a></li>
+  <li>If you download the Windows 10 SDK, the signtools is located here (version number may vary):
+“C:\Program Files (x86)\Windows Kits\10\bin\10.0.22621.0\x64\signtool.exe”</li>
+  <li>Download and install the certificate .p12 certificate.</li>
+</ul>
+
+<p>Once the msi is built, run the following commands to codesign it:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ signtool sign /tr http://timestamp.sectigo.com /td sha256 /fd sha256 /a &lt;path to msi file&gt;
+</code></pre></div></div>
+
+<p>At the end of the process you’ll then asked to provide your token
+password, once done, the package should get codesigned.</p>
+
+<h2 id="macos">MacOs</h2>
+
+<h3 id="preparation-1">Preparation</h3>
+
+<p>Install appdmg to be able to create the dmg:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ npm install -g appdmg
+</code></pre></div></div>
+
+<p>Note</p>
+
+<p>On latest version of OSX these envs are needed in order to properly
+build:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ export CPPFLAGS=-I/usr/local/opt/openssl/include
+$ export LDFLAGS=-L/usr/local/opt/openssl/lib
+</code></pre></div></div>
+
+<h3 id="to-build-without-codesign">To build without codesign</h3>
+
+<p>Build with:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ python setup.py bdist_mac
+</code></pre></div></div>
+
+<h3 id="to-build-and-codesign">To build and codesign</h3>
+
+<p>Set your certificate id to <strong>CODESIGN_IDENTITY</strong>:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ export CODESIGN_IDENTITY="&lt;your_certificate_id_here&gt;"
+</code></pre></div></div>
+
+<p>Set your Apple username to <strong>APPLE_USER_NAME</strong>:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ export APPLE_USER_NAME="&lt;your_apple_user&gt;"
+</code></pre></div></div>
+
+<p>Set your APP-specific password generated on
+<a href="https://appleid.apple.com/account/manage">https://appleid.apple.com/account/manage</a> to the keychain under the
+name ftrack_connect_sign_pass.</p>
+
+<p>Execute the following build command and follow the instructions:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ python setup.py bdist_mac --codesign_frameworks --codesign --create_dmg --notarize
+</code></pre></div></div>
+
+<h4 id="docker">Docker</h4>
+
+<p>As part of this repository, 3 Dockerfiles are available to sendbox the
+build of ftrack-connect-installer.</p>
+
+<ul>
+  <li>C7.Dockerfile [centos 7]</li>
+  <li>C8.Dockerfile [centos 8]</li>
+  <li>Win10.Dockerfile [windows 10]</li>
+</ul>
+
+<p>For further information, please use the README file contained in the
+<strong>docker</strong> folder.</p>
+
+<p>Note</p>
+
+<p>In order to build in docker windows, you need to have a windows 10 Pro
+activated and configured.</p>
+
+<h4 id="known-issues">Known Issues</h4>
+
+<ul>
+  <li>None</li>
+</ul>
+
+<h4 id="dependencies">Dependencies</h4>
+
+<ul>
+  <li><a href="http://python.org">Python</a> &gt;= 3.7, &lt; 3.8</li>
+  <li><a href="https://bitbucket.org/ftrack/ftrack-connect">ftrack-connect</a> &gt;=
+2.0, &lt; 3.0</li>
+</ul>
+
+
+      
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/anchor-js/4.1.0/anchor.min.js" integrity="sha256-lZaRhKri35AyJSypXXs4o6OPFTbTmUoltBbDCbdzegg=" crossorigin="anonymous"></script>
+    <script>anchors.add();</script>
+  </body>
+</html>
