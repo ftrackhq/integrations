@@ -78,6 +78,7 @@ jobs:
       - name: Install dependencies
         if: ${{ contains(inputs.changed,matrix.package) }}
         run: |
+          pip install mock
           pip install sphinx sphinx_rtd_theme lowdown
       - name: Sphinx build
         if: ${{ contains(inputs.changed,matrix.package) }}

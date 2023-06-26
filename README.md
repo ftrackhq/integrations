@@ -71,10 +71,10 @@ The desktop application that discovers and launches the DCC integrations and dri
 
 ### Application launcher
 
-| Package                                                                   | Path                                    | Description                                |
-|---------------------------------------------------------------------------|-----------------------------------------|--------------------------------------------|
-| [application-launcher](projects/application-launcher)                     | projects/application-launcher           | The application launcher logic             |
-| [connect-action-launcher-widget](projects/connect-action-launcher-widget) | projects/connect-action-launcher-widget | The action launcher widget in Connect      |
+| Package                                                                   | Path                                    | Description                                | RC                                                                           |
+|---------------------------------------------------------------------------|-----------------------------------------|--------------------------------------------|------------------------------------------------------------------------------|
+| [application-launcher](projects/application-launcher)                     | projects/application-launcher           | The application launcher logic             | [application-launcher](projects/application-launcher/rc)                     |
+| [connect-action-launcher-widget](projects/connect-action-launcher-widget) | projects/connect-action-launcher-widget | The action launcher widget in Connect      | [connect-action-launcher-widget](projects/connect-action-launcher-widget/rc) |
 
 
 ### Framework integrations
@@ -101,10 +101,10 @@ The framework package group contains the DCC integrations and is divided into li
 
 ### Standalone integrations
 
-| Package                             | Path                 | Description             |
-|-------------------------------------|----------------------|-------------------------|
-| [rv](projects/rv)                   | projects/rv          | RV player integration   |
-| [nuke-studio](projects/nuke-studio) | projects/nuke-studio | Nuke Studio integration |
+| Package                             | Path                 | Description             | RC                                     |
+|-------------------------------------|----------------------|-------------------------|----------------------------------------|
+| [rv](projects/rv)                   | projects/rv          | RV player integration   | [rv](projects/rv/rc)                   |
+| [nuke-studio](projects/nuke-studio) | projects/nuke-studio | Nuke Studio integration | [nuke-studio](projects/nuke-studio/rc) |
 
 
 ### Connect publisher
