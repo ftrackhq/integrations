@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Adding custom templates &mdash; ftrack connect nuke studio Unknown version documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/ftrack.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/lowdown.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/sphinx_highlight.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="author" title="About these documents" href="../about.html" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="source" href="api_reference/modules.html" />
+    <link rel="prev" title="Developing" href="index.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            ftrack connect nuke studio
+          </a>
+              <div class="version">
+                Unknown version
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../about.html">About</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../installing.html">Installing</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Developing</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Adding custom templates</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api_reference/modules.html">source</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../glossary.html">Glossary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../release/index.html">Release and migration notes</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">ftrack connect nuke studio</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">Developing</a></li>
+      <li class="breadcrumb-item active">Adding custom templates</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/developing/adding_custom_templates.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <div class="section" id="adding-custom-templates">
+<span id="developing-adding-custom-templates"></span><h1>Adding custom templates<a class="headerlink" href="#adding-custom-templates" title="Permalink to this heading">¶</a></h1>
+<p>It is possible to customise the templates available when exporting. This is done
+by modifying the default hook that loads the templates.</p>
+<p>The file to modify is called <cite>context_template_hook.py</cite> and is located in
+different locations depending on how you are running the Nuke Studio plugin.</p>
+<p>If you are using a built ftrack connect package application, the file can
+be found in the following locations:</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 9%" />
+<col style="width: 91%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Platform</p></th>
+<th class="head"><p>Path</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Mac OS X</p></td>
+<td><p>/Applications/ftrack-connect.app/Contents/MacOS/resource/ftrack_nuke_studio/application_hook</p></td>
+</tr>
+<tr class="row-odd"><td><p>Windows</p></td>
+<td><p>C:/Program Files/ftrack-connect package/resource/ftrack_nuke_studio/application_hook</p></td>
+</tr>
+<tr class="row-even"><td><p>CentOS</p></td>
+<td><p>&lt;Installation directory&gt;/ftrack-connect-package/resource/ftrack_nuke_studio/application_hook</p></td>
+</tr>
+</tbody>
+</table>
+<p>If running from source the hooks can be found in <strong>resource/application_hook/</strong>
+in the plugin project folder.</p>
+<p>Once you’ve found the file, open it in your favorite text editor. The file
+should look something like this:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># :coding: utf-8</span>
+<span class="c1"># :copyright: Copyright (c) 2015 ftrack</span>
+
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">ftrack_api</span>
+
+
+<span class="k">class</span> <span class="nc">ContextTemplates</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;Return context templates for Nuke Studio.&#39;&#39;&#39;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">session</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;Initialise context templates hook.&#39;&#39;&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span>
+            <span class="vm">__name__</span> <span class="o">+</span> <span class="s1">&#39;.&#39;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span>
+        <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">session</span> <span class="o">=</span> <span class="n">session</span>
+
+        <span class="nb">super</span><span class="p">(</span><span class="n">ContextTemplates</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">launch</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;Return context templates.&#39;&#39;&#39;</span>
+        <span class="c1"># Define tag regular expressions.</span>
+        <span class="k">return</span> <span class="p">[{</span>
+            <span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="s1">&#39;Classic, sequence and shot&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;description&#39;</span><span class="p">:</span> <span class="p">(</span>
+                <span class="s1">&#39;Match SQ or SH and any subsequent numbers. &#39;</span>
+                <span class="s1">&#39;Example: SQ001_SH010 will be matched as Sequence with name &#39;</span>
+                <span class="s1">&#39;001 and a shot named 010.&#39;</span>
+            <span class="p">),</span>
+            <span class="s1">&#39;expression&#39;</span><span class="p">:</span> <span class="s1">&#39;{_:SQ|sq}{Sequence:\d+}{_:.+(SH|sh)}{Shot:\d+}&#39;</span>
+        <span class="p">},</span> <span class="p">{</span>
+            <span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="s1">&#39;Classic, shot only&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;description&#39;</span><span class="p">:</span> <span class="p">(</span>
+                <span class="s1">&#39;Match SH and any subsequent digits. &#39;</span>
+                <span class="s1">&#39;Example: vfx_SH001 will match 001.&#39;</span>
+            <span class="p">),</span>
+            <span class="s1">&#39;expression&#39;</span><span class="p">:</span> <span class="s1">&#39;{_:SH|sh}{Shot:\d+}&#39;</span>
+        <span class="p">},</span> <span class="p">{</span>
+            <span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="s1">&#39;Full name, shot only&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;description&#39;</span><span class="p">:</span> <span class="p">(</span>
+                <span class="s1">&#39;Match entire clip name. &#39;</span>
+                <span class="s1">&#39;Example: vfx_SH001 will match vfx_SH001.&#39;</span>
+            <span class="p">),</span>
+            <span class="s1">&#39;expression&#39;</span><span class="p">:</span> <span class="s1">&#39;{Shot:.+}&#39;</span>
+        <span class="p">}]</span>
+
+    <span class="k">def</span> <span class="nf">register</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;Register hook.&#39;&#39;&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">event_hub</span><span class="o">.</span><span class="n">subscribe</span><span class="p">(</span>
+            <span class="s1">&#39;topic=ftrack.connect.nuke-studio.get-context-templates&#39;</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">launch</span>
+        <span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">register</span><span class="p">(</span><span class="n">session</span><span class="p">,</span> <span class="o">**</span><span class="n">kw</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;Register plugin. Called when used as an plugin.&#39;&#39;&#39;</span>
+    <span class="c1"># Validate that session is an instance of ftrack_api.Session. If not,</span>
+    <span class="c1"># assume that register is being called from an old or incompatible API and</span>
+    <span class="c1"># return without doing anything.</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">session</span><span class="p">,</span> <span class="n">ftrack_api</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">Session</span><span class="p">):</span>
+        <span class="k">return</span>
+
+    <span class="n">plugin</span> <span class="o">=</span> <span class="n">ContextTemplates</span><span class="p">(</span>
+        <span class="n">session</span>
+    <span class="p">)</span>
+
+    <span class="n">plugin</span><span class="o">.</span><span class="n">register</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>The part you need to focus on is the one returning the actual templates:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">return</span> <span class="p">[{</span>
+    <span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="s1">&#39;Classic, sequence and shot&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;description&#39;</span><span class="p">:</span> <span class="p">(</span>
+        <span class="s1">&#39;Match SQ or SH and any subsequent numbers. &#39;</span>
+        <span class="s1">&#39;Example: SQ001_SH010 will be matched as Sequence with name &#39;</span>
+        <span class="s1">&#39;001 and a shot named 010.&#39;</span>
+    <span class="p">),</span>
+    <span class="s1">&#39;expression&#39;</span><span class="p">:</span> <span class="s1">&#39;SQ{Sequence:\d+}{_:.+}H{Shot:\d+}&#39;</span>
+<span class="p">},</span> <span class="p">{</span>
+    <span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="s1">&#39;Classic, shot only&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;description&#39;</span><span class="p">:</span> <span class="p">(</span>
+        <span class="s1">&#39;Match SH and any subsequent digits. &#39;</span>
+        <span class="s1">&#39;Example: vfx_SH001 will match 001.&#39;</span>
+    <span class="p">),</span>
+    <span class="s1">&#39;expression&#39;</span><span class="p">:</span> <span class="s1">&#39;SH{Shot:\d+}&#39;</span>
+<span class="p">},</span> <span class="p">{</span>
+    <span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="s1">&#39;Full name, shot only&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;description&#39;</span><span class="p">:</span> <span class="p">(</span>
+        <span class="s1">&#39;Match entire clip name. &#39;</span>
+        <span class="s1">&#39;Example: vfx_SH001 will match vfx_SH001.&#39;</span>
+    <span class="p">),</span>
+    <span class="s1">&#39;expression&#39;</span><span class="p">:</span> <span class="s1">&#39;{Shot:.+}&#39;</span>
+<span class="p">},</span> <span class="o">...</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>Each item in the list represents a template and you can either modify one of
+the existing templates or add a new one.</p>
+<p>A template has the structure:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="nb">dict</span><span class="p">(</span>
+    <span class="n">name</span><span class="o">=</span><span class="s1">&#39;Name of template&#39;</span><span class="p">,</span>
+    <span class="n">description</span><span class="o">=</span><span class="s1">&#39;Description of template&#39;</span><span class="p">,</span>
+    <span class="n">expression</span><span class="o">=</span><span class="s1">&#39;The expression used to match the clip name&#39;</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>The <cite>name</cite> and <cite>description</cite> are regular strings and will be displayed in the
+interface and can contain HTML if desired. The <cite>expression</cite> use a flavor of
+<a class="reference external" href="https://docs.python.org/2/library/re.html">regular expressions</a> to define
+the object types to match.</p>
+<p>The expression needs to contain a named group matching the name of the object
+type. Named groups are defined within curly brackets
+<cite>{ObjectTypeName:Expression}</cite> starting with the name followed by the expression.</p>
+<p>If you for example want to create a template which matches episodes and shots
+it could look something like this:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="nb">dict</span><span class="p">(</span>
+    <span class="n">name</span><span class="o">=</span><span class="s1">&#39;Episode and shot&#39;</span><span class="p">,</span>
+    <span class="n">description</span><span class="o">=</span><span class="s1">&#39;Match `EP` or `SH` and any subsequent numbers&#39;</span><span class="p">,</span>
+    <span class="n">expression</span><span class="o">=</span><span class="s1">&#39;EP{Episode:\d+}_SH{Shot:\d+}&#39;</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>This template will match clips named <cite>EP001_SH001</cite>, <cite>EP001_SH002</cite> and so on.</p>
+<p>To exclude things in the name you need to use our custom exclude group with
+name <cite>_</cite>.</p>
+<p>As you can see in the <cite>Classic, sequence and shot</cite> expression it use this
+group in the middle, <cite>{_:.+}</cite>. This enables the name to have any characters
+in between the <cite>SQ</cite> and <cite>SH</cite>. The <cite>_</cite> group can be used several times in the
+same expression.</p>
+<span class="target" id="developing-customise-template-output"></span></div>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="index.html" class="btn btn-neutral float-left" title="Developing" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="api_reference/modules.html" class="btn btn-neutral float-right" title="source" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2018, ftrack.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

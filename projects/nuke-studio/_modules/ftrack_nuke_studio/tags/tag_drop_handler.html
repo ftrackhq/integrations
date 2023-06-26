@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ftrack_nuke_studio.tags.tag_drop_handler &mdash; ftrack connect nuke studio Unknown version documentation</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/ftrack.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/lowdown.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/sphinx_highlight.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="author" title="About these documents" href="../../../about.html" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            ftrack connect nuke studio
+          </a>
+              <div class="version">
+                Unknown version
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../about.html">About</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../installing.html">Installing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developing/index.html">Developing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../glossary.html">Glossary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../release/index.html">Release and migration notes</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">ftrack connect nuke studio</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">ftrack_nuke_studio.tags.tag_drop_handler</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for ftrack_nuke_studio.tags.tag_drop_handler</h1><div class="highlight"><pre>
+<span></span><span class="c1"># :coding: utf-8</span>
+<span class="c1"># :copyright: Copyright (c) 2018 ftrack</span>
+
+<span class="kn">import</span> <span class="nn">logging</span>
+
+<span class="kn">import</span> <span class="nn">hiero</span>
+<span class="kn">import</span> <span class="nn">hiero.core.events</span>
+
+
+<div class="viewcode-block" id="TagDropHandler"><a class="viewcode-back" href="../../../developing/api_reference/ftrack_nuke_studio.tags.html#ftrack_nuke_studio.tags.tag_drop_handler.TagDropHandler">[docs]</a><span class="k">class</span> <span class="nc">TagDropHandler</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+
+    <span class="n">kTextMimeType</span> <span class="o">=</span> <span class="s1">&#39;text/plain&#39;</span>
+
+<div class="viewcode-block" id="TagDropHandler.__init__"><a class="viewcode-back" href="../../../developing/api_reference/ftrack_nuke_studio.tags.html#ftrack_nuke_studio.tags.tag_drop_handler.TagDropHandler.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;Initialize the class and register the handler.&#39;&#39;&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span>
+            <span class="vm">__name__</span> <span class="o">+</span> <span class="s1">&#39;.&#39;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span>
+        <span class="p">)</span>
+
+        <span class="c1"># Nuke studio doesn&#39;t deal with drag and drop for text/plain data, so</span>
+        <span class="c1"># tell it to allow it</span>
+        <span class="n">hiero</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">registerBinViewCustomMimeDataType</span><span class="p">(</span>
+            <span class="n">TagDropHandler</span><span class="o">.</span><span class="n">kTextMimeType</span>
+        <span class="p">)</span>
+
+        <span class="c1"># Register interest drop event.</span>
+        <span class="n">hiero</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">events</span><span class="o">.</span><span class="n">registerInterest</span><span class="p">(</span>
+            <span class="p">(</span>
+                <span class="n">hiero</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">events</span><span class="o">.</span><span class="n">EventType</span><span class="o">.</span><span class="n">kDrop</span><span class="p">,</span>
+                <span class="n">hiero</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">events</span><span class="o">.</span><span class="n">EventType</span><span class="o">.</span><span class="n">kTimeline</span>
+            <span class="p">),</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">dropHandler</span>
+        <span class="p">)</span></div>
+
+<div class="viewcode-block" id="TagDropHandler.dropHandler"><a class="viewcode-back" href="../../../developing/api_reference/ftrack_nuke_studio.tags.html#ftrack_nuke_studio.tags.tag_drop_handler.TagDropHandler.dropHandler">[docs]</a>    <span class="k">def</span> <span class="nf">dropHandler</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;Intercept the drop *event* on the timeline.</span>
+
+<span class="sd">        Filter out any non ftrack tag.</span>
+
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">track_item</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">trackItem</span>
+        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+            <span class="k">return</span>
+
+        <span class="n">can_use_tags</span> <span class="o">=</span> <span class="nb">all</span><span class="p">([</span>
+            <span class="nb">hasattr</span><span class="p">(</span><span class="n">track_item</span><span class="p">,</span> <span class="s1">&#39;tags&#39;</span><span class="p">),</span>
+            <span class="nb">hasattr</span><span class="p">(</span><span class="n">track_item</span><span class="p">,</span> <span class="s1">&#39;sourceIn&#39;</span><span class="p">),</span>
+            <span class="nb">hasattr</span><span class="p">(</span><span class="n">track_item</span><span class="p">,</span> <span class="s1">&#39;sourceOut&#39;</span><span class="p">),</span>
+            <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">track_item</span><span class="p">,</span> <span class="n">hiero</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">Sequence</span><span class="p">),</span>
+        <span class="p">])</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">can_use_tags</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+                <span class="s1">&#39;cannot use tags on </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">track_item</span><span class="p">)</span>
+            <span class="p">)</span>
+            <span class="k">return</span>
+
+        <span class="n">dropped_tags</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">items</span>
+        <span class="n">existing_ftrack_tag_names</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="c1"># Create a list of ftrack tags on the target track item. This is used to</span>
+        <span class="c1"># filter out duplicates.</span>
+        <span class="k">for</span> <span class="n">existing_tag</span> <span class="ow">in</span> <span class="n">track_item</span><span class="o">.</span><span class="n">tags</span><span class="p">():</span>
+            <span class="n">meta</span> <span class="o">=</span> <span class="n">existing_tag</span><span class="o">.</span><span class="n">metadata</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">meta</span><span class="o">.</span><span class="n">hasKey</span><span class="p">(</span><span class="s1">&#39;type&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">meta</span><span class="o">.</span><span class="n">value</span><span class="p">(</span><span class="s1">&#39;type&#39;</span><span class="p">)</span> <span class="o">==</span> <span class="s1">&#39;ftrack&#39;</span><span class="p">:</span>
+                <span class="n">existing_ftrack_tag_names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="n">existing_tag</span><span class="o">.</span><span class="n">name</span><span class="p">()</span>
+                <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+            <span class="s1">&#39;Existing ftrack tags names: </span><span class="si">{0}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">existing_ftrack_tag_names</span><span class="p">)</span>
+        <span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">tag</span> <span class="ow">in</span> <span class="n">dropped_tags</span><span class="p">:</span>
+            <span class="n">tag</span> <span class="o">=</span> <span class="n">tag</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+            <span class="n">tag_name</span> <span class="o">=</span> <span class="n">tag</span><span class="o">.</span><span class="n">name</span><span class="p">()</span>
+            <span class="n">meta</span> <span class="o">=</span> <span class="n">tag</span><span class="o">.</span><span class="n">metadata</span><span class="p">()</span>
+
+            <span class="c1"># Skip adding tag if it already exists on the track item.</span>
+            <span class="k">if</span> <span class="n">tag_name</span> <span class="ow">in</span> <span class="n">existing_ftrack_tag_names</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+                    <span class="s1">&#39;</span><span class="si">{0}</span><span class="s1"> already exists on </span><span class="si">{1}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">tag_name</span><span class="p">,</span> <span class="n">track_item</span><span class="p">)</span>
+                <span class="p">)</span>
+                <span class="n">event</span><span class="o">.</span><span class="n">dropEvent</span><span class="o">.</span><span class="n">accept</span><span class="p">()</span>
+                <span class="k">continue</span>
+
+            <span class="c1"># Filter out any non ftrack tags.</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">meta</span><span class="o">.</span><span class="n">hasKey</span><span class="p">(</span><span class="s1">&#39;type&#39;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">meta</span><span class="o">.</span><span class="n">value</span><span class="p">(</span><span class="s1">&#39;type&#39;</span><span class="p">)</span> <span class="o">!=</span> <span class="s1">&#39;ftrack&#39;</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+                    <span class="s1">&#39;</span><span class="si">{0}</span><span class="s1"> is not a valid track tag type&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">tag_name</span><span class="p">)</span>
+                <span class="p">)</span>
+                <span class="k">continue</span>
+
+            <span class="k">if</span> <span class="p">(</span>
+                <span class="ow">not</span> <span class="n">meta</span><span class="o">.</span><span class="n">hasKey</span><span class="p">(</span><span class="s1">&#39;ftrack.id&#39;</span><span class="p">)</span>
+                <span class="ow">or</span> <span class="n">meta</span><span class="o">.</span><span class="n">value</span><span class="p">(</span><span class="s1">&#39;ftrack.id&#39;</span><span class="p">)</span> <span class="o">==</span> <span class="s1">&#39;show&#39;</span>
+            <span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+                    <span class="s1">&#39;</span><span class="si">{0}</span><span class="s1"> is not a valid track tag type&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">tag_name</span><span class="p">)</span>
+                <span class="p">)</span>
+                <span class="n">event</span><span class="o">.</span><span class="n">dropEvent</span><span class="o">.</span><span class="n">accept</span><span class="p">()</span>
+                <span class="k">continue</span>
+
+            <span class="n">track_item</span><span class="o">.</span><span class="n">addTag</span><span class="p">(</span><span class="n">tag</span><span class="p">)</span>
+            <span class="n">event</span><span class="o">.</span><span class="n">dropEvent</span><span class="o">.</span><span class="n">accept</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="TagDropHandler.unregister"><a class="viewcode-back" href="../../../developing/api_reference/ftrack_nuke_studio.tags.html#ftrack_nuke_studio.tags.tag_drop_handler.TagDropHandler.unregister">[docs]</a>    <span class="k">def</span> <span class="nf">unregister</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;Unregister the handler.&#39;&#39;&#39;</span>
+        <span class="n">hiero</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">events</span><span class="o">.</span><span class="n">unregisterInterest</span><span class="p">(</span>
+            <span class="p">(</span>
+                <span class="n">hiero</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">events</span><span class="o">.</span><span class="n">EventType</span><span class="o">.</span><span class="n">kDrop</span><span class="p">,</span>
+                <span class="n">hiero</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">events</span><span class="o">.</span><span class="n">EventType</span><span class="o">.</span><span class="n">kTimeline</span>
+            <span class="p">),</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">dropHandler</span>
+        <span class="p">)</span>
+
+        <span class="n">hiero</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">unregisterBinViewCustomMimeDataType</span><span class="p">(</span>
+            <span class="n">TagDropHandler</span><span class="o">.</span><span class="n">kTextMimeType</span>
+        <span class="p">)</span></div></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2018, ftrack.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
