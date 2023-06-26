@@ -14,7 +14,6 @@ jobs:
 
   # Run Pants to evaluate which packages have changed.
   pants-build:
-    if: false
     uses: ./.github/workflows/pants-build.yml
     with:
       full_release: false
