@@ -41,4 +41,4 @@ jobs:
     with:
       changed: "framework-maya, framework-nuke, framework-houdini, framework-3dsmax, application-launcher, connect-action-launcher-widget, connect-plugin-manager, connect-publisher-widget, nuke-studio, rv"
       build_index: true
-      is_rc: false
+      is_rc: true
