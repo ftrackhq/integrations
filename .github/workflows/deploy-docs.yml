@@ -47,7 +47,6 @@ jobs:
         # Todo: uncheck this when you are ready to only deploy from main
         #if: ${{ github.ref == 'refs/heads/main' }}
         with:
-          # Todo: Change to gh-pages when you are ready
           publish_branch: gh-pages
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./_site
