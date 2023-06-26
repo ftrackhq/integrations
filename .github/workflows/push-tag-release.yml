@@ -29,6 +29,7 @@ jobs:
     with:
       changed: ${{needs.pants-build.outputs.changed}}
       pre: false
+      version: ${{ needs.pants-build.outputs.version }}
       tag: ${{needs.pants-build.outputs.tag}}
       deploy_aws: true
     secrets:
