@@ -1,21 +1,27 @@
-# Create the v0.0.0-latest pre-release on push/merge to main, be it on a PR merge,
-# direct push or a release tag push.
-# Cleans up old tags and releases.
+# Helper workflow to create a full release or a pre-release
 
-name: pre-release
+name: release
 
 on:
   workflow_call:
     inputs:
+      # Comma(,) separated list of packages that have changed
       changed:
         required: true
         type: string
-      tag_type:
+      # Boolean to indicate if this is a pre-release (true) or not (false)
+      pre:
+        required: true
+        type: boolean
+      # The version to use for the release
+      version:
         required: true
         type: string
+      # Whether or not to deploy artefacts to AWS
       deploy_aws:
         required: true
         type: boolean
+    # AWS credentials, as needed
     secrets:
       aws_key_id:
         required: true
@@ -23,7 +29,7 @@ on:
         required: true
 
 jobs:
-  pre-release:
+  release:
     strategy:
       matrix:
         # Add new packages here
@@ -45,11 +51,17 @@ jobs:
         uses: ./.github/actions/connect-release
         with:
           package: ${{ matrix.package }}
-          tag: ${{ matrix.package }}/0.0.0${{inputs.tag_type}}
+          tag: ${{ matrix.package }}/${{inputs.version}}
           suffix: ${{ matrix.suffix }}
-          deleteprevious: true
-          prerelease: true
+          pre: ${{inputs.pre}}
+          deleteprevious: ${{inputs.pre}}
           deploy_aws: ${{inputs.deploy_aws}}
           token: ${{ secrets.GITHUB_TOKEN }}
           aws_key_id: ${{ secrets.aws_key_id }}
           aws_secret_access_key: ${{ secrets.aws_secret_access_key }}
+      - name: Tag package as stable
+        if: ${{ ! inputs.pre && contains(inputs.changed,matrix.package) }}
+        run: |
+          git fetch --force --tags
+          git tag -f ${{ matrix.package }}/stable
+          git push -f origin ${{ matrix.package }}/stable
