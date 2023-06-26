@@ -31,8 +31,6 @@ jobs:
     if: ${{ inputs.build_index }}
     runs-on: ubuntu-latest
     steps:
-      - name: test_input
-        run : echo ${{ inputs.changed }} && echo ${{ inputs.destination }}
       - name: Checkout
         uses: actions/checkout@v3
       - name: Setup Pages
@@ -59,7 +57,7 @@ jobs:
     strategy:
       max-parallel: 1
       matrix:
-        package: [ framework-maya, framework-nuke, framework-houdini, framework-3dsmax] #application-launcher, connect-action-launcher-widget, connect-plugin-manager, connect-timetracker-widget, nuke-studio, rv
+        package: [ application-launcher, framework-maya, framework-nuke, framework-houdini, framework-3dsmax] #application-launcher, connect-action-launcher-widget, connect-plugin-manager, connect-timetracker-widget, nuke-studio, rv
         folder: [projects]
         include:
           - package: framework-core

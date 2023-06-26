@@ -83,10 +83,10 @@ The framework package group contains the DCC integrations and is divided into li
 
 #### Libraries
 
-| Package                               | Path                  | Description                |
-|---------------------------------------|-----------------------|----------------------------|
-| [framework-core](libs/framework-core) | libs/framework-core   | The core framework library |
-| [framework-qt](libs/framework-qt)     | libs/framework-qt     | The QT framework library   |
+| Package                               | Path                  | Description                | RC                                          |
+|---------------------------------------|-----------------------|----------------------------|---------------------------------------------|
+| [framework-core](libs/framework-core) | libs/framework-core   | The core framework library | [framework-core-rc](libs/framework-core/rc) |
+| [framework-qt](libs/framework-qt)     | libs/framework-qt     | The QT framework library   | [framework-qt-rc](libs/framework-qt/rc)     |
 
 
 #### DCC integrations
