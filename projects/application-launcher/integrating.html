@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Integrating &mdash; application-launcher Unknown version documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/ftrack.css" type="text/css" />
+      <link rel="stylesheet" href="_static/lowdown.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="author" title="About these documents" href="about.html" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Api" href="api/modules.html" />
+    <link rel="prev" title="Developing" href="developing.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            application-launcher
+          </a>
+              <div class="version">
+                Unknown version
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="about.html">About</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installing.html">Installing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="using.html">Using</a></li>
+<li class="toctree-l1"><a class="reference internal" href="developing.html">Developing</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Integrating</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#listeners">Listeners</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#discover-function">Discover Function</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#managing-environment-variables">Managing environment variables</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#environment-operations">environment operations</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="api/modules.html">Api</a></li>
+<li class="toctree-l1"><a class="reference internal" href="release/index.html">Release and migration notes</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">application-launcher</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Integrating</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/integrating.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <div class="section" id="integrating">
+<h1>Integrating<a class="headerlink" href="#integrating" title="Permalink to this heading">¶</a></h1>
+<p>Launching an application is usually not enough to have ftrack integrated.
+In order to do so , integrations are provided separately.</p>
+<p>The purpose of this hook is to provide vital information to the application startup, so the
+ftrack api and integration code can be fully loaded and put to the use.</p>
+<p>Each integration will provide something similar to the hook below.:</p>
+<blockquote>
+<div><div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># :coding: utf-8</span>
+<span class="c1"># :copyright: Copyright (c) 2016 ftrack</span>
+
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">ftrack_api</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">partial</span>
+
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s1">&#39;example_integration.discover&#39;</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">on_application_launch</span><span class="p">(</span><span class="n">session</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;Handle application launch and add environment to *event*.&#39;&#39;&#39;</span>
+
+    <span class="c1"># gather local paths</span>
+    <span class="n">plugin_base_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">normpath</span><span class="p">(</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)),</span> <span class="s1">&#39;..&#39;</span><span class="p">)</span>
+    <span class="p">)</span>
+
+    <span class="n">hook_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">plugin_base_dir</span><span class="p">,</span> <span class="s1">&#39;resource&#39;</span><span class="p">,</span> <span class="s1">&#39;hook&#39;</span><span class="p">)</span>
+
+    <span class="c1"># Add dependencies to PATH.</span>
+    <span class="n">python_dependencies</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">plugin_base_dir</span><span class="p">,</span> <span class="s1">&#39;dependencies&#39;</span><span class="p">)</span>
+    <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">python_dependencies</span><span class="p">)</span>
+
+    <span class="c1"># Get the context is running from.</span>
+    <span class="n">entity</span> <span class="o">=</span> <span class="n">event</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">][</span><span class="s1">&#39;context&#39;</span><span class="p">][</span><span class="s1">&#39;selection&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">task</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;Context&#39;</span><span class="p">,</span> <span class="n">entity</span><span class="p">[</span><span class="s1">&#39;entityId&#39;</span><span class="p">])</span>
+
+    <span class="n">data</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;integration&#39;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s1">&#39;ftrack-example-integration&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;version&#39;</span><span class="p">:</span> <span class="s1">&#39;0.0.0&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;env&#39;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s1">&#39;FTRACK_EVENT_PLUGIN_PATH.prepend&#39;</span><span class="p">:</span> <span class="n">hook_path</span><span class="p">,</span>
+                <span class="s1">&#39;PYTHONPATH.prepend&#39;</span><span class="p">:</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">pathsep</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                    <span class="p">[</span><span class="n">python_dependencies</span><span class="p">]</span>
+                <span class="p">),</span>
+                <span class="s1">&#39;FTRACK_CONTEXTID.set&#39;</span><span class="p">:</span> <span class="n">task</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">],</span>
+                <span class="s1">&#39;FS.set&#39;</span><span class="p">:</span> <span class="n">task</span><span class="p">[</span><span class="s1">&#39;parent&#39;</span><span class="p">][</span><span class="s1">&#39;custom_attributes&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+                    <span class="s1">&#39;fstart&#39;</span><span class="p">,</span> <span class="s1">&#39;1.0&#39;</span>
+                <span class="p">),</span>
+                <span class="s1">&#39;FE.set&#39;</span><span class="p">:</span> <span class="n">task</span><span class="p">[</span><span class="s1">&#39;parent&#39;</span><span class="p">][</span><span class="s1">&#39;custom_attributes&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+                    <span class="s1">&#39;fend&#39;</span><span class="p">,</span> <span class="s1">&#39;100.0&#39;</span>
+                <span class="p">),</span>
+            <span class="p">},</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+
+    <span class="c1"># Return the composed data for this integration.</span>
+    <span class="k">return</span> <span class="n">data</span>
+
+
+<span class="k">def</span> <span class="nf">register</span><span class="p">(</span><span class="n">session</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;Subscribe to application launch events on *registry*.&#39;&#39;&#39;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">session</span><span class="p">,</span> <span class="n">ftrack_api</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">Session</span><span class="p">):</span>
+        <span class="k">return</span>
+
+    <span class="n">handle_event</span> <span class="o">=</span> <span class="n">partial</span><span class="p">(</span><span class="n">on_application_launch</span><span class="p">,</span> <span class="n">session</span><span class="p">)</span>
+
+    <span class="c1"># Filter the application launch and discovery, based on the application</span>
+    <span class="c1"># identifier and the version extracted.</span>
+    <span class="n">session</span><span class="o">.</span><span class="n">event_hub</span><span class="o">.</span><span class="n">subscribe</span><span class="p">(</span>
+        <span class="s1">&#39;topic=ftrack.connect.application.launch and &#39;</span>
+        <span class="s1">&#39;data.application.identifier=an_application*&#39;</span>
+        <span class="s1">&#39; and data.application.version &gt;= 2021&#39;</span><span class="p">,</span>
+        <span class="n">handle_event</span><span class="p">,</span>
+        <span class="n">priority</span><span class="o">=</span><span class="mi">40</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">session</span><span class="o">.</span><span class="n">event_hub</span><span class="o">.</span><span class="n">subscribe</span><span class="p">(</span>
+        <span class="s1">&#39;topic=ftrack.connect.application.discover and &#39;</span>
+        <span class="s1">&#39;data.application.identifier=an_application*&#39;</span>
+        <span class="s1">&#39; and data.application.version &gt;= 2021&#39;</span><span class="p">,</span>
+        <span class="n">handle_event</span><span class="p">,</span>
+        <span class="n">priority</span><span class="o">=</span><span class="mi">40</span><span class="p">,</span>
+    <span class="p">)</span>
+</pre></div>
+</div>
+</div></blockquote>
+<p>This discover is composed by 3 important pieces.</p>
+<ul class="simple">
+<li><p>2 listeners to discover and launch</p></li>
+<li><p>1 function hooked to them.</p></li>
+</ul>
+<div class="section" id="listeners">
+<h2>Listeners<a class="headerlink" href="#listeners" title="Permalink to this heading">¶</a></h2>
+<p>Each integration will have to provide two event listeners hooked to the same function.</p>
+<p>Each of this will have to provide a filter for the application to be launched, optional, but suggested
+is to provide a lower/higher limit based on the application version for this integration.</p>
+<p>In case more than one integration has to be loaded in a given order is suggested to provide them with an increasing
+priority version.</p>
+<p>The discovery one:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">session</span><span class="o">.</span><span class="n">event_hub</span><span class="o">.</span><span class="n">subscribe</span><span class="p">(</span>
+    <span class="s1">&#39;topic=ftrack.connect.application.discover and &#39;</span>
+    <span class="s1">&#39;data.application.identifier=an_application*&#39;</span>
+    <span class="s1">&#39; and data.application.version &gt;= 2021&#39;</span><span class="p">,</span>
+    <span class="n">handle_event</span><span class="p">,</span> <span class="n">priority</span><span class="o">=</span><span class="mi">40</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>The above event will be emitted during the discovery cycle of the applications , which happens when the correct context
+gets selected. This is used to check the version and if the integration is available.</p>
+<p>And the launch one:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">session</span><span class="o">.</span><span class="n">event_hub</span><span class="o">.</span><span class="n">subscribe</span><span class="p">(</span>
+    <span class="s1">&#39;topic=ftrack.connect.application.launch and &#39;</span>
+    <span class="s1">&#39;data.application.identifier=an_application*&#39;</span>
+    <span class="s1">&#39; and data.application.version &gt;= 2021&#39;</span><span class="p">,</span>
+    <span class="n">handle_event</span><span class="p">,</span> <span class="n">priority</span><span class="o">=</span><span class="mi">40</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>The above event will be emitted during the launch cycle of the applications and will be used to parse and inject the environment
+variables defined during the application’s startup.</p>
+</div>
+<div class="section" id="discover-function">
+<h2>Discover Function<a class="headerlink" href="#discover-function" title="Permalink to this heading">¶</a></h2>
+<p>The discover function will be the one to provide to the applications the right environment where to pick the required files.</p>
+<p>The bare minimum amount of data it should return in order to be discovered as working integrations is</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+    <span class="s1">&#39;integration&#39;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s1">&#39;&lt;name-of-the-integration&gt;&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;version&#39;</span><span class="p">:</span> <span class="s1">&#39;&lt;the.integration.version&gt;&#39;</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>where a fully formed integrations would provide also entry point for the environment variables:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">data</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;integration&#39;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s1">&#39;ftrack-example-integration&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;version&#39;</span><span class="p">:</span> <span class="s1">&#39;0.0.0&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;env&#39;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s1">&#39;FTRACK_EVENT_PLUGIN_PATH.prepend&#39;</span><span class="p">:</span> <span class="n">hook_path</span><span class="p">,</span>
+            <span class="s1">&#39;PYTHONPATH.prepend&#39;</span><span class="p">:</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">pathsep</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">python_dependencies</span><span class="p">]),</span>
+            <span class="s1">&#39;FTRACK_CONTEXTID.set&#39;</span><span class="p">:</span> <span class="n">task</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">],</span>
+            <span class="s1">&#39;FS.set&#39;</span><span class="p">:</span> <span class="n">task</span><span class="p">[</span><span class="s1">&#39;parent&#39;</span><span class="p">][</span><span class="s1">&#39;custom_attributes&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;fstart&#39;</span><span class="p">,</span> <span class="s1">&#39;1.0&#39;</span><span class="p">),</span>
+            <span class="s1">&#39;FE.set&#39;</span><span class="p">:</span> <span class="n">task</span><span class="p">[</span><span class="s1">&#39;parent&#39;</span><span class="p">][</span><span class="s1">&#39;custom_attributes&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;fend&#39;</span><span class="p">,</span> <span class="s1">&#39;100.0&#39;</span><span class="p">)</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="managing-environment-variables">
+<h2>Managing environment variables<a class="headerlink" href="#managing-environment-variables" title="Permalink to this heading">¶</a></h2>
+<p>Each integration can express a set of environment variables and operations to be performed when handled by the application launcher.</p>
+<p>the formatting of envs is composed by : <strong>&lt;$ENVIRONMENT&gt;</strong> . <strong>&lt;OPERATION&gt;</strong></p>
+<p>for example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="s1">&#39;PYTHONPATH.append&#39;</span><span class="p">:</span> <span class="s1">&#39;&lt;some file system path&gt;&#39;</span>
+</pre></div>
+</div>
+<div class="section" id="environment-operations">
+<h3>environment operations<a class="headerlink" href="#environment-operations" title="Permalink to this heading">¶</a></h3>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>If not provided, the default operation for environment will be <em>append</em></p>
+</div>
+<ul class="simple">
+<li><p><strong>prepend</strong> : The value of the environment will be prepended.</p></li>
+<li><p><strong>append</strong> : The value of the environment will be appended.</p></li>
+<li><p><strong>set</strong>: The given environment will be set with the given value.</p></li>
+<li><p><strong>pop</strong>: The value of the environment variable will be removed.</p></li>
+<li><p><strong>unset</strong>: The environment value will be unset.</p></li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>In case of multiple integrations loaded, the priority provided in the integration will drive the order the environment variables will be manipulated.</p>
+</div>
+</div>
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="developing.html" class="btn btn-neutral float-left" title="Developing" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="api/modules.html" class="btn btn-neutral float-right" title="Api" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021, ftrack.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

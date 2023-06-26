@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Developing &mdash; application-launcher Unknown version documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/ftrack.css" type="text/css" />
+      <link rel="stylesheet" href="_static/lowdown.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="author" title="About these documents" href="about.html" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Integrating" href="integrating.html" />
+    <link rel="prev" title="Using" href="using.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            application-launcher
+          </a>
+              <div class="version">
+                Unknown version
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="about.html">About</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installing.html">Installing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="using.html">Using</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Developing</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#creating-a-new-launcher">Creating a new launcher</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#attributes">Attributes</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#mandatory-attributes"><strong>Mandatory attributes</strong></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#optional-attributes"><strong>Optional attributes</strong></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#comparing-launchers">Comparing launchers</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#configuration-based-launcher">Configuration based launcher</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#code-based-launcher">Code based launcher</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#customising-configuration-path">Customising configuration path</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="integrating.html">Integrating</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/modules.html">Api</a></li>
+<li class="toctree-l1"><a class="reference internal" href="release/index.html">Release and migration notes</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">application-launcher</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Developing</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/developing.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <div class="section" id="developing">
+<span id="id1"></span><h1>Developing<a class="headerlink" href="#developing" title="Permalink to this heading">¶</a></h1>
+<div class="section" id="creating-a-new-launcher">
+<h2>Creating a new launcher<a class="headerlink" href="#creating-a-new-launcher" title="Permalink to this heading">¶</a></h2>
+<p>In order to be able to find and manage applications and integrations,
+an application launcher has to be provided.</p>
+<p>Launchers requires to be either configured or written from scratch using the base libraries included in this module.</p>
+<p>The configuration mode is suggested for all the base cases,
+where the code base approach is suggested in case of special application launch behaviours.</p>
+<div class="section" id="attributes">
+<h3>Attributes<a class="headerlink" href="#attributes" title="Permalink to this heading">¶</a></h3>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>For simplicity we’ll be taking the config arguments as example as are easier to read.</p>
+</div>
+<p>Let’s have a look at the common attributes you’ll find in both, split by mandatory and optional attributes.</p>
+<div class="section" id="mandatory-attributes">
+<h4><strong>Mandatory attributes</strong><a class="headerlink" href="#mandatory-attributes" title="Permalink to this heading">¶</a></h4>
+<p><strong>context</strong>:</p>
+<blockquote>
+<div><p>Provide a list to fill up with named contexts.
+The launcher will appear only when one of the given contexts is selected.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>context can contain one or more entity type name such as <strong>“Project”</strong>, <strong>“Task”</strong>, etc…
+<strong>None</strong> in code or <strong>null</strong> in config, will allow to discover the application without any context selected.</p>
+</div>
+</div></blockquote>
+<p><strong>identifier</strong>:</p>
+<blockquote>
+<div><p>Defines a unique string identifier for this launcher.</p>
+</div></blockquote>
+<p><strong>applicationIdentifier</strong>:</p>
+<blockquote>
+<div><p>Defines a unique string identifier for the application to be launch,
+this also need to contain the potential <strong>variant</strong> available, so can be uniquely identified.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p><strong>applicationIdentifier</strong> should always include the <strong>{variant}</strong> variable.</p>
+</div>
+</div></blockquote>
+<p><strong>label</strong>:</p>
+<blockquote>
+<div><p>A descriptive label to identify the application.</p>
+</div></blockquote>
+<p><strong>icon</strong>:</p>
+<blockquote>
+<div><p>An icon to represent the application to launch.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Icon can be either one of the application name mapped or a full url path to a given icon.</p>
+</div>
+</div></blockquote>
+<p><strong>variant</strong>:</p>
+<blockquote>
+<div><p>Defines the variant of the application to be launched.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p><strong>variant</strong> should always include the <strong>{version}</strong> variable.</p>
+</div>
+</div></blockquote>
+<p><strong>search_path</strong>:</p>
+<blockquote>
+<div><p>Provide an entry point for each operating system to define where from the application will searched.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The valid operating system are:</p>
+<ul class="simple">
+<li><p><strong>linux</strong></p></li>
+<li><p><strong>windows</strong></p></li>
+<li><p><strong>darwin</strong></p></li>
+</ul>
+</div>
+<p>Each operating system will require to define :</p>
+<blockquote>
+<div><p><strong>prefix</strong></p>
+<blockquote>
+<div><p>Provide the root search path for all the versions of the given application.</p>
+<p>eg:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="s2">&quot;prefix&quot;</span><span class="p">:[</span><span class="s2">&quot;C:</span><span class="se">\\</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;Program Files.*&quot;</span><span class="p">],</span>
+</pre></div>
+</div>
+</div></blockquote>
+<p><strong>expression</strong></p>
+<blockquote>
+<div><p>Provide a regular expression used to extract the versions available for the given application.</p>
+<p>eg:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="s2">&quot;expression&quot;</span><span class="p">:[</span><span class="s2">&quot;Something.*&quot;</span><span class="p">,</span> <span class="s2">&quot;Something</span><span class="se">\\</span><span class="s2">d.+.exe&quot;</span><span class="p">],</span>
+</pre></div>
+</div>
+</div></blockquote>
+</div></blockquote>
+<p>and optionally :</p>
+<blockquote>
+<div><p><strong>version_expression</strong></p>
+<blockquote>
+<div><p>Defines a regular expression used to extract the version from the found application paths.</p>
+<p>eg:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="s2">&quot;version_expression&quot;</span><span class="p">:</span> <span class="s2">&quot;Something(?P&lt;version&gt;.*)</span><span class="se">\\</span><span class="s2">/.+$&quot;</span><span class="p">,</span>
+</pre></div>
+</div>
+</div></blockquote>
+<p><strong>launch_arguments</strong></p>
+<blockquote>
+<div><p>Allows to specify specific arguments to be passed when the application gets launched.</p>
+<p>eg:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="s2">&quot;launch_arguments&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;--arguments&quot;</span><span class="p">]</span>
+</pre></div>
+</div>
+</div></blockquote>
+</div></blockquote>
+</div></blockquote>
+</div>
+<div class="section" id="optional-attributes">
+<h4><strong>Optional attributes</strong><a class="headerlink" href="#optional-attributes" title="Permalink to this heading">¶</a></h4>
+<p><strong>priority</strong> <em>(optional)</em>:</p>
+<blockquote>
+<div><p>Define the priority on which this event will be discovered.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Negative priorities are higher than positive ones.</p>
+</div>
+</div></blockquote>
+<p><strong>integrations</strong> <em>(optional)</em>:</p>
+<blockquote>
+<div><p>Provide a way to collect integrations into named groups.
+If any of the integration requested is not discovered, the application itself won’t be discovered.</p>
+<p>eg:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="s2">&quot;integrations&quot;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="s2">&quot;example&quot;</span><span class="p">:[</span><span class="s2">&quot;ftrack-example-integration&quot;</span><span class="p">]</span>
+<span class="p">},</span>
+</pre></div>
+</div>
+</div></blockquote>
+</div>
+</div>
+<div class="section" id="comparing-launchers">
+<h3>Comparing launchers<a class="headerlink" href="#comparing-launchers" title="Permalink to this heading">¶</a></h3>
+<p>Below we’ll be looking at the same launch application expressed in configuration and code.</p>
+<div class="section" id="configuration-based-launcher">
+<h4>Configuration based launcher<a class="headerlink" href="#configuration-based-launcher" title="Permalink to this heading">¶</a></h4>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Configuration launchers are based on json language.</p>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+    <span class="s2">&quot;priority&quot;</span><span class="p">:</span> <span class="mi">1000</span><span class="p">,</span>
+    <span class="s2">&quot;context&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;Task&quot;</span><span class="p">,</span> <span class="s2">&quot;Project&quot;</span><span class="p">],</span>
+    <span class="s2">&quot;identifier&quot;</span><span class="p">:</span> <span class="s2">&quot;ftrack-connect-launch-application&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;applicationIdentifier&quot;</span><span class="p">:</span><span class="s2">&quot;an-application_</span><span class="si">{variant}</span><span class="s2">&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="s2">&quot;An Application&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;icon&quot;</span><span class="p">:</span> <span class="s2">&quot;an_application&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;variant&quot;</span><span class="p">:</span> <span class="s2">&quot;</span><span class="si">{version}</span><span class="s2">&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;integrations&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;example&quot;</span><span class="p">:[</span><span class="s2">&quot;ftrack-example-integration&quot;</span><span class="p">]</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;search_path&quot;</span><span class="p">:{</span>
+        <span class="s2">&quot;linux&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;prefix&quot;</span><span class="p">:[</span><span class="s2">&quot;/&quot;</span><span class="p">,</span> <span class="s2">&quot;usr&quot;</span><span class="p">,</span><span class="s2">&quot;local&quot;</span><span class="p">,</span><span class="s2">&quot;Something.*&quot;</span><span class="p">],</span>
+            <span class="s2">&quot;expression&quot;</span><span class="p">:[</span><span class="s2">&quot;Something</span><span class="se">\\</span><span class="s2">d.+&quot;</span><span class="p">],</span>
+            <span class="s2">&quot;version_expression&quot;</span><span class="p">:</span> <span class="s2">&quot;Something(?P&lt;version&gt;.*)</span><span class="se">\\</span><span class="s2">/.+$&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;launch_arguments&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;--arguments&quot;</span><span class="p">]</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;windows&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;prefix&quot;</span><span class="p">:[</span><span class="s2">&quot;C:</span><span class="se">\\</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;Program Files.*&quot;</span><span class="p">],</span>
+            <span class="s2">&quot;expression&quot;</span><span class="p">:[</span><span class="s2">&quot;Something.*&quot;</span><span class="p">,</span> <span class="s2">&quot;Something</span><span class="se">\\</span><span class="s2">d.+.exe&quot;</span><span class="p">],</span>
+            <span class="s2">&quot;version_expression&quot;</span><span class="p">:</span> <span class="s2">&quot;(?P&lt;version&gt;[</span><span class="se">\\</span><span class="s2">d.]+[vabc]+[</span><span class="se">\\</span><span class="s2">dvabc.]*)&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;launch_arguments&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;--arguments&quot;</span><span class="p">]</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;darwin&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;prefix&quot;</span><span class="p">:[</span><span class="s2">&quot;/&quot;</span><span class="p">,</span> <span class="s2">&quot;Applications&quot;</span><span class="p">],</span>
+            <span class="s2">&quot;expression&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;Something.*&quot;</span><span class="p">,</span> <span class="s2">&quot;Something</span><span class="se">\\</span><span class="s2">d[</span><span class="se">\\</span><span class="s2">w.]+.app&quot;</span><span class="p">]</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+ <span class="p">}</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="code-based-launcher">
+<h4>Code based launcher<a class="headerlink" href="#code-based-launcher" title="Permalink to this heading">¶</a></h4>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Code launchers are based on python 3.7 language.</p>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="sd">&#39;&#39;&#39;</span>
+
+<span class="sd">Import base modules and ensure the dependencies are available in the path.</span>
+
+<span class="sd">&#39;&#39;&#39;</span>
+
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">os</span>
+
+<span class="n">cwd</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span>
+
+<span class="n">sources</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">cwd</span><span class="p">,</span> <span class="s1">&#39;..&#39;</span><span class="p">,</span> <span class="s1">&#39;dependencies&#39;</span><span class="p">))</span>
+
+<span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">sources</span><span class="p">)</span>
+
+
+<span class="kn">import</span> <span class="nn">ftrack_api</span>
+<span class="kn">import</span> <span class="nn">ftrack_application_launcher</span>
+
+
+<span class="sd">&#39;&#39;&#39;</span>
+
+<span class="sd">Create launch action, to limit the context to be discovered.</span>
+
+<span class="sd">&#39;&#39;&#39;</span>
+
+
+<span class="k">class</span> <span class="nc">LaunchAction</span><span class="p">(</span><span class="n">ftrack_application_launcher</span><span class="o">.</span><span class="n">ApplicationLaunchAction</span><span class="p">):</span>
+    <span class="n">context</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="s1">&#39;Task&#39;</span><span class="p">,</span> <span class="s1">&#39;Project&#39;</span><span class="p">]</span>
+    <span class="n">identifier</span> <span class="o">=</span> <span class="s1">&#39;ftrack-connect-launch-application&#39;</span>
+    <span class="n">label</span> <span class="o">=</span> <span class="s1">&#39;An Application&#39;</span>
+
+
+<span class="sd">&#39;&#39;&#39;</span>
+
+<span class="sd">Create application store, to let the system find the application </span>
+<span class="sd">versions for the various operating systems.</span>
+
+<span class="sd">&#39;&#39;&#39;</span>
+
+
+<span class="k">class</span> <span class="nc">ApplicationStore</span><span class="p">(</span><span class="n">ftrack_application_launcher</span><span class="o">.</span><span class="n">ApplicationStore</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_discover_applications</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">applications</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_os</span> <span class="o">==</span> <span class="s1">&#39;darwin&#39;</span><span class="p">:</span>
+            <span class="n">prefix</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;/&#39;</span><span class="p">,</span> <span class="s1">&#39;Applications&#39;</span><span class="p">]</span>
+
+            <span class="n">applications</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_search_filesystem</span><span class="p">(</span>
+                    <span class="n">expression</span><span class="o">=</span><span class="n">prefix</span>
+                    <span class="o">+</span> <span class="p">[</span><span class="s1">&#39;Something.*&#39;</span><span class="p">,</span> <span class="s1">&#39;Something</span><span class="se">\\</span><span class="s1">d[</span><span class="se">\\</span><span class="s1">w.]+.app&#39;</span><span class="p">],</span>
+                    <span class="n">label</span><span class="o">=</span><span class="s1">&#39;An Application&#39;</span><span class="p">,</span>
+                    <span class="n">variant</span><span class="o">=</span><span class="s1">&#39;</span><span class="si">{version}</span><span class="s1">&#39;</span><span class="p">,</span>
+                    <span class="n">applicationIdentifier</span><span class="o">=</span><span class="s1">&#39;an-application_</span><span class="si">{variant}</span><span class="s1">&#39;</span><span class="p">,</span>
+                    <span class="n">icon</span><span class="o">=</span><span class="s1">&#39;an_application&#39;</span><span class="p">,</span>
+                    <span class="n">integrations</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;example&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;ftrack-example-integration&#39;</span><span class="p">]},</span>
+                    <span class="n">launchArguments</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;--arguments&quot;</span><span class="p">],</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_os</span> <span class="o">==</span> <span class="s1">&#39;windows&#39;</span><span class="p">:</span>
+            <span class="n">prefix</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;C:</span><span class="se">\\</span><span class="s1">&#39;</span><span class="p">,</span> <span class="s1">&#39;Program Files.*&#39;</span><span class="p">]</span>
+
+            <span class="n">applications</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_search_filesystem</span><span class="p">(</span>
+                    <span class="n">expression</span><span class="o">=</span><span class="n">prefix</span> <span class="o">+</span> <span class="p">[</span><span class="s2">&quot;Something.*&quot;</span><span class="p">,</span> <span class="s2">&quot;Something</span><span class="se">\\</span><span class="s2">d.+.exe&quot;</span><span class="p">],</span>
+                    <span class="n">label</span><span class="o">=</span><span class="s1">&#39;An Application&#39;</span><span class="p">,</span>
+                    <span class="n">variant</span><span class="o">=</span><span class="s1">&#39;</span><span class="si">{version}</span><span class="s1">&#39;</span><span class="p">,</span>
+                    <span class="n">applicationIdentifier</span><span class="o">=</span><span class="s1">&#39;an-application_</span><span class="si">{variant}</span><span class="s1">&#39;</span><span class="p">,</span>
+                    <span class="n">versionExpression</span><span class="o">=</span><span class="s2">&quot;(?P&lt;version&gt;[</span><span class="se">\\</span><span class="s2">d.]+[vabc]+[</span><span class="se">\\</span><span class="s2">dvabc.]*)&quot;</span><span class="p">,</span>
+                    <span class="n">icon</span><span class="o">=</span><span class="s1">&#39;an_application&#39;</span><span class="p">,</span>
+                    <span class="n">integrations</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;example&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;ftrack-example-integration&#39;</span><span class="p">]},</span>
+                    <span class="n">launchArguments</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;--arguments&quot;</span><span class="p">],</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_os</span> <span class="o">==</span> <span class="s1">&#39;linux&#39;</span><span class="p">:</span>
+            <span class="n">prefix</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;/&quot;</span><span class="p">,</span> <span class="s2">&quot;usr&quot;</span><span class="p">,</span> <span class="s2">&quot;local&quot;</span><span class="p">,</span> <span class="s2">&quot;Something.*&quot;</span><span class="p">]</span>
+
+            <span class="n">applications</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_search_filesystem</span><span class="p">(</span>
+                    <span class="n">expression</span><span class="o">=</span><span class="n">prefix</span> <span class="o">+</span> <span class="p">[</span><span class="s2">&quot;Something.*&quot;</span><span class="p">,</span> <span class="s2">&quot;Something</span><span class="se">\\</span><span class="s2">d.+.exe&quot;</span><span class="p">],</span>
+                    <span class="n">label</span><span class="o">=</span><span class="s1">&#39;An Application&#39;</span><span class="p">,</span>
+                    <span class="n">variant</span><span class="o">=</span><span class="s1">&#39;</span><span class="si">{version}</span><span class="s1">&#39;</span><span class="p">,</span>
+                    <span class="n">applicationIdentifier</span><span class="o">=</span><span class="s1">&#39;an-application_</span><span class="si">{variant}</span><span class="s1">&#39;</span><span class="p">,</span>
+                    <span class="n">versionExpression</span><span class="o">=</span><span class="s2">&quot;(?P&lt;version&gt;[</span><span class="se">\\</span><span class="s2">d.]+[vabc]+[</span><span class="se">\\</span><span class="s2">dvabc.]*)&quot;</span><span class="p">,</span>
+                    <span class="n">icon</span><span class="o">=</span><span class="s1">&#39;an_application&#39;</span><span class="p">,</span>
+                    <span class="n">integrations</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;example&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;ftrack-example-integration&#39;</span><span class="p">]},</span>
+                    <span class="n">launchArguments</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;--arguments&quot;</span><span class="p">],</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">applications</span>
+
+
+<span class="sd">&#39;&#39;&#39;</span>
+
+<span class="sd">Create application launcher, to let use the default launch action mechanism.</span>
+
+<span class="sd">&#39;&#39;&#39;</span>
+
+
+<span class="k">class</span> <span class="nc">ApplicationLauncher</span><span class="p">(</span><span class="n">ftrack_application_launcher</span><span class="o">.</span><span class="n">ApplicationLauncher</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
+
+<span class="sd">    This class is usually customised to provide a special launch mechanisms,</span>
+<span class="sd">    this could involve opening a url or something completely different different.</span>
+
+<span class="sd">    def launch(self, applicationIdentifier, context=None):</span>
+<span class="sd">        [....]</span>
+
+<span class="sd">        return {</span>
+<span class="sd">            &#39;success&#39;: success,</span>
+<span class="sd">            &#39;message&#39;: message</span>
+<span class="sd">        }</span>
+
+<span class="sd">    &#39;&#39;&#39;</span>
+
+
+<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">Register the new application launcher.</span>
+<span class="sd">&#39;&#39;&#39;</span>
+
+
+<span class="k">def</span> <span class="nf">register</span><span class="p">(</span><span class="n">session</span><span class="p">,</span> <span class="o">**</span><span class="n">kw</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;Register hooks for Adobe plugins.&#39;&#39;&#39;</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">session</span><span class="p">,</span> <span class="n">ftrack_api</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">Session</span><span class="p">):</span>
+        <span class="k">return</span>
+
+    <span class="n">application_store</span> <span class="o">=</span> <span class="n">ApplicationStore</span><span class="p">(</span><span class="n">session</span><span class="p">)</span>
+
+    <span class="n">launcher</span> <span class="o">=</span> <span class="n">ApplicationLauncher</span><span class="p">(</span><span class="n">application_store</span><span class="p">)</span>
+
+    <span class="c1"># Create action and register to respond to discover and launch events.</span>
+    <span class="n">action</span> <span class="o">=</span> <span class="n">LaunchAction</span><span class="p">(</span><span class="n">session</span><span class="p">,</span> <span class="n">application_store</span><span class="p">,</span> <span class="n">launcher</span><span class="p">,</span> <span class="n">priority</span><span class="o">=</span><span class="mi">1000</span><span class="p">)</span>
+    <span class="n">action</span><span class="o">.</span><span class="n">register</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="customising-configuration-path">
+<h4>Customising configuration path<a class="headerlink" href="#customising-configuration-path" title="Permalink to this heading">¶</a></h4>
+<p>If you want to provide alternative configurations for the application launchers,
+it is possible to override the search path setting the following environment variable to a set of new folder search path.</p>
+<p><strong>FTRACK_APPLICATION_LAUNCHER_CONFIG_PATHS</strong></p>
+</div>
+</div>
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="using.html" class="btn btn-neutral float-left" title="Using" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="integrating.html" class="btn btn-neutral float-right" title="Integrating" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021, ftrack.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
