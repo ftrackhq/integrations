@@ -1,4 +1,4 @@
-# Create the v0.0.0-pr<number> pre-release on PR update.
+# Create the v0.0.0dev<number> pre-release on PR update.
 # Cleans up old tags and releases for the same PR.
 
 name: CI-PR
@@ -14,19 +14,23 @@ on:
       - synchronize
 
 jobs:
+
+  # Run Pants to evaluate which packages have changed.
   pants-build:
     uses: ./.github/workflows/pants-build.yml
     with:
       full_release: false
       check_changed: true
-      tag_type: "dev${{ github.event.number }}"
+      version: "0.0.0dev${{ github.event.number }}"
 
+  # Create a pre-release for the packages that have changed.
   pre-release:
     needs: pants-build
-    uses: ./.github/workflows/pre-release.yml
+    uses: ./.github/workflows/release.yml
     with:
-      changed: ${{needs.pants-build.outputs.changed}}
-      tag_type: "dev${{ github.event.number }}"
+      changed: ${{ needs.pants-build.outputs.changed }}
+      pre: true
+      version: ${{ needs.pants-build.outputs.version }}
       deploy_aws: false
     secrets:
       aws_key_id: ${{ secrets.S3_ACCESS_KEY }}
