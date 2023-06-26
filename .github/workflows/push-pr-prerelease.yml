@@ -16,29 +16,22 @@ on:
 jobs:
 
   # Run Pants to evaluate which packages have changed.
-#  pants-build:
-#    uses: ./.github/workflows/pants-build.yml
-#    with:
-#      full_release: false
-#      check_changed: true
-#      version: "0.0.0dev${{ github.event.number }}"
-#
-#  # Create a pre-release for the packages that have changed.
-#  pre-release:
-#    needs: pants-build
-#    uses: ./.github/workflows/release.yml
-#    with:
-#      changed: ${{ needs.pants-build.outputs.changed }}
-#      pre: true
-#      version: ${{ needs.pants-build.outputs.version }}
-#      deploy_aws: false
-#    secrets:
-#      aws_key_id: ${{ secrets.S3_ACCESS_KEY }}
-#      aws_secret_access_key: ${{ secrets.S3_SECRET_ACCESS_KEY }}
-
-  deploy-docs:
-    uses: ./.github/workflows/deploy-docs.yml
+  pants-build:
+    uses: ./.github/workflows/pants-build.yml
     with:
-      changed: "framework-maya, framework-nuke, framework-houdini, framework-3dsmax, application-launcher, connect-action-launcher-widget, connect-plugin-manager, connect-publisher-widget, nuke-studio, rv"
-      build_index: true
-      is_rc: true
+      full_release: false
+      check_changed: true
+      version: "0.0.0dev${{ github.event.number }}"
+
+  # Create a pre-release for the packages that have changed.
+  pre-release:
+    needs: pants-build
+    uses: ./.github/workflows/release.yml
+    with:
+      changed: ${{ needs.pants-build.outputs.changed }}
+      pre: true
+      version: ${{ needs.pants-build.outputs.version }}
+      deploy_aws: false
+    secrets:
+      aws_key_id: ${{ secrets.S3_ACCESS_KEY }}
+      aws_secret_access_key: ${{ secrets.S3_SECRET_ACCESS_KEY }}
