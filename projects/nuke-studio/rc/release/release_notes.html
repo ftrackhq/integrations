@@ -1,0 +1,866 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Release Notes &mdash; ftrack connect nuke studio Unknown version documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/ftrack.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/lowdown.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/sphinx_highlight.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="author" title="About these documents" href="../about.html" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Migration notes" href="migration.html" />
+    <link rel="prev" title="Release and migration notes" href="index.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            ftrack connect nuke studio
+          </a>
+              <div class="version">
+                Unknown version
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../about.html">About</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../installing.html">Installing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developing/index.html">Developing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../glossary.html">Glossary</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Release and migration notes</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Release Notes</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#release-Upcoming"><span>Upcoming</span></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#release-2.5.1"><span>2.5.1</span></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#release-2.5.0"><span>2.5.0</span></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#release-2.4.1"><span>2.4.1</span></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#release-2.4.0"><span>2.4.0</span></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#release-2.3.0"><span>2.3.0</span></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#release-2.2.5"><span>2.2.5</span></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#release-2.2.4"><span>2.2.4</span></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#release-2.2.3"><span>2.2.3</span></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#release-2.2.2"><span>2.2.2</span></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#release-2.2.1"><span>2.2.1</span></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#release-2.2.0"><span>2.2.0</span></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#release-2.1.3"><span>2.1.3</span></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#release-2.1.2"><span>2.1.2</span></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#release-2.1.1"><span>2.1.1</span></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#release-2.1.0"><span>2.1.0</span></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#release-2.0.1"><span>2.0.1</span></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#release-2.0.0"><span>2.0.0</span></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#release-1.1.2"><span>1.1.2</span></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#release-1.1.1"><span>1.1.1</span></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#release-1.1.0"><span>1.1.0</span></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#release-1.0.0"><span>1.0.0</span></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#release-0.2.7"><span>0.2.7</span></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#release-0.2.6"><span>0.2.6</span></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#release-0.2.5"><span>0.2.5</span></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#release-0.2.4"><span>0.2.4</span></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#release-0.2.3"><span>0.2.3</span></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#release-0.2.2"><span>0.2.2</span></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#release-0.2.1"><span>0.2.1</span></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#release-0.2.0"><span>0.2.0</span></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#release-0.1.4"><span>0.1.4</span></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#release-0.1.3"><span>0.1.3</span></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#release-0.1.2"><span>0.1.2</span></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#release-0.1.1"><span>0.1.1</span></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#release-0.1.0"><span>0.1.0</span></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="migration.html">Migration notes</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">ftrack connect nuke studio</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">Release and migration notes</a></li>
+      <li class="breadcrumb-item active">Release Notes</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/release/release_notes.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <div class="section" id="release-notes">
+<span id="release-release-notes"></span><h1>Release Notes<a class="headerlink" href="#release-notes" title="Permalink to this heading">¶</a></h1>
+<div class="lowdown-release section" id="release-Upcoming">
+<h2><span>Upcoming</span><a class="headerlink" href="#release-Upcoming" title="Permalink to this heading">¶</a></h2>
+<em class="release-date">26 June 2023</em><ul class="lowdown-change-list">
+<li><div class="lowdown-change">
+<span class="lowdown-category lowdown-category-fixed">fixed</span> <div class="docutils container">
+<p><span class="lowdown-tag lowdown-tag-tags">Tags</span>Tags on sequences break exporters.</p>
+</div>
+ </div>
+</li>
+<li><div class="lowdown-change">
+<span class="lowdown-category lowdown-category-changed">changed</span> <div class="docutils container">
+<p><span class="lowdown-tag lowdown-tag-environment-variables">Environment Variables</span><strong>HIERO_PLUGIN_PATH</strong> Environment variable is now prepended rather than just set.</p>
+</div>
+ </div>
+</li>
+</ul>
+</div>
+<div class="lowdown-release section" id="release-2.5.1">
+<h2><span>2.5.1</span><a class="headerlink" href="#release-2.5.1" title="Permalink to this heading">¶</a></h2>
+<em class="release-date">24 February 2022</em><ul class="lowdown-change-list">
+<li><div class="lowdown-change">
+<span class="lowdown-category lowdown-category-changed">changed</span> <div class="docutils container">
+<p><span class="lowdown-tag lowdown-tag-setup">Setup</span>Remove pyside2 installation’s dependency.</p>
+</div>
+ </div>
+</li>
+<li><div class="lowdown-change">
+<span class="lowdown-category lowdown-category-changed">changed</span> <div class="docutils container">
+<p><span class="lowdown-tag lowdown-tag-taskplugin">TaskPlugin</span>Copy Exporter does not force 4 digit limits in sequence file names.</p>
+</div>
+ </div>
+</li>
+</ul>
+</div>
+<div class="lowdown-release section" id="release-2.5.0">
+<h2><span>2.5.0</span><a class="headerlink" href="#release-2.5.0" title="Permalink to this heading">¶</a></h2>
+<em class="release-date">6 September 2021</em><ul class="lowdown-change-list">
+<li><div class="lowdown-change">
+<span class="lowdown-category lowdown-category-change">change</span> <div class="docutils container">
+<p><span class="lowdown-tag lowdown-tag-discovery">Discovery</span>Update hook for application launcher.</p>
+</div>
+ </div>
+</li>
+<li><div class="lowdown-change">
+<span class="lowdown-category lowdown-category-change">change</span> <div class="docutils container">
+<p><span class="lowdown-tag lowdown-tag-discovery">Discovery</span>Limit discovery to Nuke 13.+.</p>
+</div>
+ </div>
+</li>
+<li><div class="lowdown-change">
+<span class="lowdown-category lowdown-category-change">change</span> <div class="docutils container">
+<p><span class="lowdown-tag lowdown-tag-setup">Setup</span>Limit to python 3+ version.</p>
+</div>
+ </div>
+</li>
+<li><div class="lowdown-change">
+<span class="lowdown-category lowdown-category-change">change</span> <div class="docutils container">
+<p><span class="lowdown-tag lowdown-tag-api">Api</span>Update to python3 and pyside2.</p>
+</div>
+ </div>
+</li>
+</ul>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>From this version the support for ftrack-connect 1.X is dropped, and
+only ftrack-conenct 2.0 will be supported up to the integration EOL.</p>
+</div>
+<div class="lowdown-release section" id="release-2.4.1">
+<h2><span>2.4.1</span><a class="headerlink" href="#release-2.4.1" title="Permalink to this heading">¶</a></h2>
+<em class="release-date">15 September 2020</em><ul class="lowdown-change-list">
+<li><div class="lowdown-change">
+<span class="lowdown-category lowdown-category-add">add</span> <div class="docutils container">
+<p><span class="lowdown-tag lowdown-tag-ui">Ui</span>Startup error related to location setup are now visually reported.</p>
+</div>
+ </div>
+</li>
+<li><div class="lowdown-change">
+<span class="lowdown-category lowdown-category-fix">fix</span> <div class="docutils container">
+<p><span class="lowdown-tag lowdown-tag-action">Action</span>Discovery does break on non context entities.</p>
+</div>
+ </div>
+</li>
+</ul>
+</div>
+<div class="lowdown-release section" id="release-2.4.0">
+<h2><span>2.4.0</span><a class="headerlink" href="#release-2.4.0" title="Permalink to this heading">¶</a></h2>
+<em class="release-date">17 June 2020</em><ul class="lowdown-change-list">
+<li><div class="lowdown-change">
+<span class="lowdown-category lowdown-category-fixed">fixed</span> <div class="docutils container">
+<p><span class="lowdown-tag lowdown-tag-track-build">Track build</span>Rebuild track from exported episodes does not work.</p>
+</div>
+ </div>
+</li>
+<li><div class="lowdown-change">
+<span class="lowdown-category lowdown-category-change">change</span> <div class="docutils container">
+<p><span class="lowdown-tag lowdown-tag-exporter">Exporter</span>Ensure shot export path is consistent with the location structure generated.</p>
+</div>
+ </div>
+</li>
+<li><div class="lowdown-change">
+<span class="lowdown-category lowdown-category-new">new</span> <div class="docutils container">
+<p><span class="lowdown-tag lowdown-tag-exporter">Exporter</span>Add ‘Ftrack Copy Exporter’ for publish file or sequence to ftrack without transcoding.</p>
+</div>
+ </div>
+</li>
+<li><div class="lowdown-change">
+<span class="lowdown-category lowdown-category-fixed">fixed</span> <div class="docutils container">
+<p><span class="lowdown-tag lowdown-tag-template-parser">Template parser</span>Tokens are not always parsed correctly.</p>
+</div>
+ </div>
+</li>
+<li><div class="lowdown-change">
+<span class="lowdown-category lowdown-category-change">change</span> <div class="docutils container">
+<p><span class="lowdown-tag lowdown-tag-exporter">Exporter</span>Ensure shot output path normalized when replacing shot name.</p>
+</div>
+ </div>
+</li>
+<li><div class="lowdown-change">
+<span class="lowdown-category lowdown-category-change">change</span> <div class="docutils container">
+<p><span class="lowdown-tag lowdown-tag-version">Version</span>Replace fixed version with automatic versioning from git repository.</p>
+</div>
+ </div>
+</li>
+<li><div class="lowdown-change">
+<span class="lowdown-category lowdown-category-fix">fix</span> <div class="docutils container">
+<p><span class="lowdown-tag lowdown-tag-exporter">Exporter</span>Reviewable export audio breaks on earlier Nuke Studio versions (version &lt; 12.1).</p>
+</div>
+ </div>
+</li>
+<li><div class="lowdown-change">
+<span class="lowdown-category lowdown-category-fix">fix</span> <div class="docutils container">
+<p><span class="lowdown-tag lowdown-tag-exporter">Exporter</span>Reviewable Task break when including audio.</p>
+</div>
+ </div>
+</li>
+</ul>
+</div>
+<div class="lowdown-release section" id="release-2.3.0">
+<h2><span>2.3.0</span><a class="headerlink" href="#release-2.3.0" title="Permalink to this heading">¶</a></h2>
+<em class="release-date">23 April 2020</em><ul class="lowdown-change-list">
+<li><div class="lowdown-change">
+<span class="lowdown-category lowdown-category-fix">fix</span> <div class="docutils container">
+<p><span class="lowdown-tag lowdown-tag-internal">Internal</span>Custom start frame are not consistently output in frame sequence.</p>
+</div>
+ </div>
+</li>
+<li><div class="lowdown-change">
+<span class="lowdown-category lowdown-category-change">change</span> <div class="docutils container">
+<p><span class="lowdown-tag lowdown-tag-internal">Internal</span>Lock OTIO dependency version to last python only.</p>
+</div>
+ </div>
+</li>
+<li><div class="lowdown-change">
+<span class="lowdown-category lowdown-category-fix">fix</span> <div class="docutils container">
+<p><span class="lowdown-tag lowdown-tag-internal">Internal</span>Sequences rendered with Nuke Studio cannot be imported in nuke.</p>
+</div>
+ </div>
+</li>
+<li><div class="lowdown-change">
+<span class="lowdown-category lowdown-category-fix">fix</span> <div class="docutils container">
+<p><span class="lowdown-tag lowdown-tag-internal">Internal</span>ImageSequences are rendered as FileComponent.</p>
+</div>
+ </div>
+</li>
+<li><div class="lowdown-change">
+<span class="lowdown-category lowdown-category-fix">fix</span> <div class="docutils container">
+<p><span class="lowdown-tag lowdown-tag-internal">Internal</span>Thumbnail generation breaks when exporting just nuke scripts.</p>
+</div>
+ </div>
+</li>
+</ul>
+</div>
+<div class="lowdown-release section" id="release-2.2.5">
+<h2><span>2.2.5</span><a class="headerlink" href="#release-2.2.5" title="Permalink to this heading">¶</a></h2>
+<em class="release-date">12 March 2020</em><ul class="lowdown-change-list">
+<li><div class="lowdown-change">
+<span class="lowdown-category lowdown-category-fix">fix</span> <div class="docutils container">
+<p><span class="lowdown-tag lowdown-tag-internal">Internal</span>Thumbnail generation breaks when setting custom start frame.</p>
+</div>
+ </div>
+</li>
+</ul>
+</div>
+<div class="lowdown-release section" id="release-2.2.4">
+<h2><span>2.2.4</span><a class="headerlink" href="#release-2.2.4" title="Permalink to this heading">¶</a></h2>
+<em class="release-date">21 January 2020</em><ul class="lowdown-change-list">
+<li><div class="lowdown-change">
+<span class="lowdown-category lowdown-category-changed">changed</span> <div class="docutils container">
+<p><span class="lowdown-tag lowdown-tag-setup">Setup</span>Pip compatibility for version 19.3.0 or higher</p>
+</div>
+ </div>
+</li>
+<li><div class="lowdown-change">
+<span class="lowdown-category lowdown-category-add">Add</span> <div class="docutils container">
+<p><span class="lowdown-tag lowdown-tag-internal">Internal</span>Mark ftrack.perforce-location as non compatible.</p>
+</div>
+ </div>
+</li>
+<li><div class="lowdown-change">
+<span class="lowdown-category lowdown-category-fixed">fixed</span> <div class="docutils container">
+<p><span class="lowdown-tag lowdown-tag-internal">Internal</span>Replace pyqt with qt.py</p>
+</div>
+ </div>
+</li>
+</ul>
+</div>
+<div class="lowdown-release section" id="release-2.2.3">
+<h2><span>2.2.3</span><a class="headerlink" href="#release-2.2.3" title="Permalink to this heading">¶</a></h2>
+<em class="release-date">21 October 2019</em><ul class="lowdown-change-list">
+<li><div class="lowdown-change">
+<span class="lowdown-category lowdown-category-fixed">fixed</span> <div class="docutils container">
+<p><span class="lowdown-tag lowdown-tag-internal">Internal</span>Improve render task deduplication logic.</p>
+</div>
+ </div>
+</li>
+<li><div class="lowdown-change">
+<span class="lowdown-category lowdown-category-fixed">fixed</span> <div class="docutils container">
+<p><span class="lowdown-tag lowdown-tag-internal">Internal</span>Integration fails to start on nuke &gt;= 12.</p>
+</div>
+ </div>
+</li>
+<li><div class="lowdown-change">
+<span class="lowdown-category lowdown-category-fixed">fixed</span> <div class="docutils container">
+<p><span class="lowdown-tag lowdown-tag-internal">Internal</span></p>
+<blockquote>
+<div><p>Thumbnail frame is now generated from the mid frame of the exported clip.</p>
+</div></blockquote>
+</div>
+ </div>
+</li>
+</ul>
+</div>
+<div class="lowdown-release section" id="release-2.2.2">
+<h2><span>2.2.2</span><a class="headerlink" href="#release-2.2.2" title="Permalink to this heading">¶</a></h2>
+<em class="release-date">10 July 2019</em><ul class="lowdown-change-list">
+<li><div class="lowdown-change">
+<span class="lowdown-category lowdown-category-changed">changed</span> <div class="docutils container">
+<p><span class="lowdown-tag lowdown-tag-internal">Internal</span></p>
+<blockquote>
+<div><p>Replace QtExt module with QtPy.</p>
+</div></blockquote>
+</div>
+ </div>
+</li>
+</ul>
+</div>
+<div class="lowdown-release section" id="release-2.2.1">
+<h2><span>2.2.1</span><a class="headerlink" href="#release-2.2.1" title="Permalink to this heading">¶</a></h2>
+<em class="release-date">22 May 2019</em><ul class="lowdown-change-list">
+<li><div class="lowdown-change">
+<span class="lowdown-category lowdown-category-fixed">fixed</span> <div class="docutils container">
+<p>Tasks are marked as duplicated if the same clip name is present on multiple tracks.</p>
+</div>
+ </div>
+</li>
+<li><div class="lowdown-change">
+<span class="lowdown-category lowdown-category-fixed">fixed</span> <div class="docutils container">
+<p>Tasks generate empty unwanted components.</p>
+</div>
+ </div>
+</li>
+<li><div class="lowdown-change">
+<span class="lowdown-category lowdown-category-changed">changed</span> <div class="docutils container">
+<p>Replace simple EDL export with OpenTimelineIO edl export.</p>
+</div>
+ </div>
+</li>
+<li><div class="lowdown-change">
+<span class="lowdown-category lowdown-category-new">new</span> <div class="docutils container">
+<p>Thumbnails are published also to parent entity.</p>
+</div>
+ </div>
+</li>
+</ul>
+</div>
+<div class="lowdown-release section" id="release-2.2.0">
+<h2><span>2.2.0</span><a class="headerlink" href="#release-2.2.0" title="Permalink to this heading">¶</a></h2>
+<em class="release-date">8 March 2019</em><ul class="lowdown-change-list">
+<li><div class="lowdown-change">
+<span class="lowdown-category lowdown-category-new">new</span> <div class="docutils container">
+<p>Extend context template to support episodes.</p>
+</div>
+ </div>
+</li>
+<li><div class="lowdown-change">
+<span class="lowdown-category lowdown-category-changed">changed</span> <div class="docutils container">
+<p>Application requires a project to start and
+project selection from export is now disabled.</p>
+</div>
+ </div>
+</li>
+</ul>
+</div>
+<div class="lowdown-release section" id="release-2.1.3">
+<h2><span>2.1.3</span><a class="headerlink" href="#release-2.1.3" title="Permalink to this heading">¶</a></h2>
+<em class="release-date">21 February 2019</em><ul class="lowdown-change-list">
+<li><div class="lowdown-change">
+<span class="lowdown-category lowdown-category-fixed">fixed</span> <div class="docutils container">
+<p>Edl Exporter generates empty components.</p>
+</div>
+ </div>
+</li>
+<li><div class="lowdown-change">
+<span class="lowdown-category lowdown-category-new">new</span> <div class="docutils container">
+<p><span class="lowdown-tag lowdown-tag-logging">Logging</span></p>
+<blockquote>
+<div><p>Better error handling to log.</p>
+</div></blockquote>
+</div>
+ </div>
+</li>
+</ul>
+</div>
+<div class="lowdown-release section" id="release-2.1.2">
+<h2><span>2.1.2</span><a class="headerlink" href="#release-2.1.2" title="Permalink to this heading">¶</a></h2>
+<em class="release-date">17 January 2019</em><ul class="lowdown-change-list">
+<li><div class="lowdown-change">
+<span class="lowdown-category lowdown-category-fixed">fixed</span> <div class="docutils container">
+<p>Due to application api changes, the plugin does not work
+in Nuke Studio/Hiero versions &gt;= 11.3v1.</p>
+</div>
+ </div>
+</li>
+</ul>
+</div>
+<div class="lowdown-release section" id="release-2.1.1">
+<h2><span>2.1.1</span><a class="headerlink" href="#release-2.1.1" title="Permalink to this heading">¶</a></h2>
+<em class="release-date">11 January 2019</em><ul class="lowdown-change-list">
+<li><div class="lowdown-change">
+<span class="lowdown-category lowdown-category-fixed">fixed</span> <div class="docutils container">
+<p>Presets are not properly restored between sessions.</p>
+</div>
+ </div>
+</li>
+<li><div class="lowdown-change">
+<span class="lowdown-category lowdown-category-fixed">fixed</span> <div class="docutils container">
+<p>Components are not collected under one single asset.</p>
+</div>
+ </div>
+</li>
+</ul>
+</div>
+<div class="lowdown-release section" id="release-2.1.0">
+<h2><span>2.1.0</span><a class="headerlink" href="#release-2.1.0" title="Permalink to this heading">¶</a></h2>
+<em class="release-date">17 December 2018</em><ul class="lowdown-change-list">
+<li><div class="lowdown-change">
+<span class="lowdown-category lowdown-category-new">new</span> <div class="docutils container">
+<p>Support tokens resolution in component names.</p>
+</div>
+ </div>
+</li>
+<li><div class="lowdown-change">
+<span class="lowdown-category lowdown-category-new">new</span> <div class="docutils container">
+<p>Support multi track export.</p>
+</div>
+ </div>
+</li>
+<li><div class="lowdown-change">
+<span class="lowdown-category lowdown-category-fixed">fixed</span> <div class="docutils container">
+<p>Hiero under windows does not load templates.</p>
+</div>
+ </div>
+</li>
+</ul>
+</div>
+<div class="lowdown-release section" id="release-2.0.1">
+<h2><span>2.0.1</span><a class="headerlink" href="#release-2.0.1" title="Permalink to this heading">¶</a></h2>
+<em class="release-date">12 November 2018</em><ul class="lowdown-change-list">
+<li><div class="lowdown-change">
+<span class="lowdown-category lowdown-category-fixed">fixed</span> <div class="docutils container">
+<p>Error when trying to validate duplicated components.</p>
+</div>
+ </div>
+</li>
+</ul>
+</div>
+<div class="lowdown-release section" id="release-2.0.0">
+<h2><span>2.0.0</span><a class="headerlink" href="#release-2.0.0" title="Permalink to this heading">¶</a></h2>
+<em class="release-date">8 October 2018</em><ul class="lowdown-change-list">
+<li><div class="lowdown-change">
+<span class="lowdown-category lowdown-category-new">new</span> <div class="docutils container">
+<p>Complete re write of the integration as standalone plugin.</p>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><a class="reference internal" href="migration.html#release-migration"><span class="std std-ref">migration guide</span></a></p>
+</div>
+</div>
+ </div>
+</li>
+</ul>
+</div>
+<div class="lowdown-release section" id="release-1.1.2">
+<h2><span>1.1.2</span><a class="headerlink" href="#release-1.1.2" title="Permalink to this heading">¶</a></h2>
+<em class="release-date">27 April 2017</em><ul class="lowdown-change-list">
+<li><div class="lowdown-change">
+<span class="lowdown-category lowdown-category-fixed">fixed</span> <div class="docutils container">
+<p><span class="lowdown-tag lowdown-tag-crew">Crew</span></p>
+<blockquote>
+<div><p>Nuke Studio 11.1 crashes with ftrack integration.</p>
+</div></blockquote>
+</div>
+ </div>
+</li>
+</ul>
+</div>
+<div class="lowdown-release section" id="release-1.1.1">
+<h2><span>1.1.1</span><a class="headerlink" href="#release-1.1.1" title="Permalink to this heading">¶</a></h2>
+<em class="release-date">14 December 2017</em><ul class="lowdown-change-list">
+<li><div class="lowdown-change">
+<span class="lowdown-category lowdown-category-new">new</span> <div class="docutils container">
+<p><span class="lowdown-tag lowdown-tag-logging">Logging</span>Improved feedback gathering.</p>
+</div>
+ </div>
+</li>
+</ul>
+</div>
+<div class="lowdown-release section" id="release-1.1.0">
+<h2><span>1.1.0</span><a class="headerlink" href="#release-1.1.0" title="Permalink to this heading">¶</a></h2>
+<em class="release-date">12 September 2017</em><ul class="lowdown-change-list">
+<li><div class="lowdown-change">
+<span class="lowdown-category lowdown-category-fixed">fixed</span> <div class="docutils container">
+<p><span class="lowdown-tag lowdown-tag-nuke-studio">Nuke Studio</span>Nuke 11 not supported.</p>
+</div>
+ </div>
+</li>
+</ul>
+</div>
+<div class="lowdown-release section" id="release-1.0.0">
+<h2><span>1.0.0</span><a class="headerlink" href="#release-1.0.0" title="Permalink to this heading">¶</a></h2>
+<em class="release-date">7 July 2017</em><ul class="lowdown-change-list">
+<li><div class="lowdown-change">
+<span class="lowdown-category lowdown-category-fixed">fixed</span> <div class="docutils container">
+<p><span class="lowdown-tag lowdown-tag-macos">macOS</span>Occasional errors when running processors.</p>
+</div>
+ </div>
+</li>
+<li><div class="lowdown-change">
+<span class="lowdown-category lowdown-category-fixed">fixed</span> <div class="docutils container">
+<p><span class="lowdown-tag lowdown-tag-export-project">Export project</span>Show an error dialog if the img asset type does not exist in the server.</p>
+</div>
+ </div>
+</li>
+<li><div class="lowdown-change">
+<span class="lowdown-category lowdown-category-new">new</span> <div class="docutils container">
+<p><span class="lowdown-tag lowdown-tag-api">API</span>Remove dependencies on the ftrack legacy API where possible</p>
+</div>
+ </div>
+</li>
+<li><div class="lowdown-change">
+<span class="lowdown-category lowdown-category-new">new</span> <div class="docutils container">
+<p><span class="lowdown-tag lowdown-tag-structure">Structure</span><span class="lowdown-tag lowdown-tag-template">Template</span>Add new event to allow modification of the template output structure.</p>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><a class="reference internal" href="../developing/adding_custom_templates.html#developing-customise-template-output"><span class="std std-ref">Updated template tutorial</span></a></p>
+</div>
+</div>
+ </div>
+</li>
+</ul>
+</div>
+<div class="lowdown-release section" id="release-0.2.7">
+<h2><span>0.2.7</span><a class="headerlink" href="#release-0.2.7" title="Permalink to this heading">¶</a></h2>
+<em class="release-date">11 January 2017</em><ul class="lowdown-change-list">
+<li><div class="lowdown-change">
+<span class="lowdown-category lowdown-category-fixed">fixed</span> <div class="docutils container">
+<p><span class="lowdown-tag lowdown-tag-custom-attributes">Custom attributes</span>Cannot set custom attributes when used in combination with new api
+and ftrack server version.</p>
+</div>
+ </div>
+</li>
+</ul>
+</div>
+<div class="lowdown-release section" id="release-0.2.6">
+<h2><span>0.2.6</span><a class="headerlink" href="#release-0.2.6" title="Permalink to this heading">¶</a></h2>
+<em class="release-date">1 December 2016</em><ul class="lowdown-change-list">
+<li><div class="lowdown-change">
+<span class="lowdown-category lowdown-category-changed">changed</span> <div class="docutils container">
+<p><span class="lowdown-tag lowdown-tag-api">API</span>Switched to require ftrack-python-api &gt; 1.0.0.</p>
+</div>
+ </div>
+</li>
+</ul>
+</div>
+<div class="lowdown-release section" id="release-0.2.5">
+<h2><span>0.2.5</span><a class="headerlink" href="#release-0.2.5" title="Permalink to this heading">¶</a></h2>
+<em class="release-date">3 August 2016</em><ul class="lowdown-change-list">
+<li><div class="lowdown-change">
+<span class="lowdown-category lowdown-category-fixed">fixed</span> <div class="docutils container">
+<p><span class="lowdown-tag lowdown-tag-processor">Processor</span>Processors fail in NukeStudio 10.0v3 and later for single-file track
+items.</p>
+</div>
+ </div>
+</li>
+</ul>
+</div>
+<div class="lowdown-release section" id="release-0.2.4">
+<h2><span>0.2.4</span><a class="headerlink" href="#release-0.2.4" title="Permalink to this heading">¶</a></h2>
+<em class="release-date">7 June 2016</em><ul class="lowdown-change-list">
+<li><div class="lowdown-change">
+<span class="lowdown-category lowdown-category-fixed">fixed</span> <div class="docutils container">
+<p><span class="lowdown-tag lowdown-tag-ui">Ui</span>Schema selection is not in sync with the selected exiting project.</p>
+</div>
+ </div>
+</li>
+</ul>
+</div>
+<div class="lowdown-release section" id="release-0.2.3">
+<h2><span>0.2.3</span><a class="headerlink" href="#release-0.2.3" title="Permalink to this heading">¶</a></h2>
+<em class="release-date">2 May 2016</em><ul class="lowdown-change-list">
+<li><div class="lowdown-change">
+<span class="lowdown-category lowdown-category-fixed">fixed</span> <div class="docutils container">
+<p><span class="lowdown-tag lowdown-tag-compatibility">Compatibility</span>Plugin doesn’t work with Nuke Studio 10.0v1 beta.</p>
+</div>
+ </div>
+</li>
+</ul>
+</div>
+<div class="lowdown-release section" id="release-0.2.2">
+<h2><span>0.2.2</span><a class="headerlink" href="#release-0.2.2" title="Permalink to this heading">¶</a></h2>
+<em class="release-date">4 April 2016</em><ul class="lowdown-change-list">
+<li><div class="lowdown-change">
+<span class="lowdown-category lowdown-category-fixed">fixed</span> <div class="docutils container">
+<p><span class="lowdown-tag lowdown-tag-processor">Processor</span>Handles are not treated correctly when publishing through processors.</p>
+</div>
+ </div>
+</li>
+</ul>
+</div>
+<div class="lowdown-release section" id="release-0.2.1">
+<h2><span>0.2.1</span><a class="headerlink" href="#release-0.2.1" title="Permalink to this heading">¶</a></h2>
+<em class="release-date">14 March 2016</em><ul class="lowdown-change-list">
+<li><div class="lowdown-change">
+<span class="lowdown-category lowdown-category-changed">changed</span> <div class="docutils container">
+<p><span class="lowdown-tag lowdown-tag-development">Development</span><span class="lowdown-tag lowdown-tag-processor">Processor</span>Track item is passed as <cite>application_object</cite> when discovering
+processors.</p>
+</div>
+ </div>
+</li>
+<li><div class="lowdown-change">
+<span class="lowdown-category lowdown-category-fixed">fixed</span> <div class="docutils container">
+<p><span class="lowdown-tag lowdown-tag-create-project">Create project</span>Fix issue where a project cannot be created or updated from the Create
+dialog.</p>
+</div>
+ </div>
+</li>
+<li><div class="lowdown-change">
+<span class="lowdown-category lowdown-category-fixed">fixed</span> <div class="docutils container">
+<p>Meta data on project is overwritten when an existing project is updated.</p>
+</div>
+ </div>
+</li>
+</ul>
+</div>
+<div class="lowdown-release section" id="release-0.2.0">
+<h2><span>0.2.0</span><a class="headerlink" href="#release-0.2.0" title="Permalink to this heading">¶</a></h2>
+<em class="release-date">10 November 2015</em><ul class="lowdown-change-list">
+<li><div class="lowdown-change">
+<span class="lowdown-category lowdown-category-new">new</span> <div class="docutils container">
+<p><span class="lowdown-tag lowdown-tag-context-tag">Context tag</span><span class="lowdown-tag lowdown-tag-context-template">Context template</span>Introduced <a class="reference internal" href="../glossary.html#term-Context-template"><span class="xref std std-term">Context templates</span></a> to simplify
+configuration of project structure on export.</p>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><span class="xref std std-ref">Updated export project tutorial</span></p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>A ftrack server version of 3.3.4 or higher is required.</p>
+</div>
+</div>
+ </div>
+</li>
+</ul>
+</div>
+<div class="lowdown-release section" id="release-0.1.4">
+<h2><span>0.1.4</span><a class="headerlink" href="#release-0.1.4" title="Permalink to this heading">¶</a></h2>
+<em class="release-date">16 October 2015</em><ul class="lowdown-change-list">
+<li><div class="lowdown-change">
+<span class="lowdown-category lowdown-category-changed">changed</span> <div class="docutils container">
+<p>Default tag expressions now check for either the previous syntax or
+as-is naming to support a wider variety of use cases out of the box.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>As part of this change the regular expressions must now define a
+“value” named group in order to work.</p>
+</div>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><span class="xref std std-ref">developing/customising_tag_expressions</span></p>
+</div>
+</div>
+ </div>
+</li>
+<li><div class="lowdown-change">
+<span class="lowdown-category lowdown-category-changed">changed</span> <div class="docutils container">
+<p>Improved error messages shown when tag expression does not match.</p>
+</div>
+ </div>
+</li>
+</ul>
+</div>
+<div class="lowdown-release section" id="release-0.1.3">
+<h2><span>0.1.3</span><a class="headerlink" href="#release-0.1.3" title="Permalink to this heading">¶</a></h2>
+<em class="release-date">1 October 2015</em><ul class="lowdown-change-list">
+<li><div class="lowdown-change">
+<span class="lowdown-category lowdown-category-changed">changed</span> <div class="docutils container">
+<p>Propagate thumbnails to tasks on export by default.</p>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><span class="xref std std-ref">Thumbnail processor</span></p>
+</div>
+</div>
+ </div>
+</li>
+<li><div class="lowdown-change">
+<span class="lowdown-category lowdown-category-changed">changed</span> <div class="docutils container">
+<p>Publish and Proxy processors disabled as default.</p>
+</div>
+ </div>
+</li>
+<li><div class="lowdown-change">
+<span class="lowdown-category lowdown-category-changed">changed</span> <div class="docutils container">
+<p>Store reference to outermost ftrack entity in hierarchy when exporting
+track items.</p>
+</div>
+ </div>
+</li>
+<li><div class="lowdown-change">
+<span class="lowdown-category lowdown-category-fixed">fixed</span> <div class="docutils container">
+<p>Info panel not updating if track item has effect track.</p>
+</div>
+ </div>
+</li>
+</ul>
+</div>
+<div class="lowdown-release section" id="release-0.1.2">
+<h2><span>0.1.2</span><a class="headerlink" href="#release-0.1.2" title="Permalink to this heading">¶</a></h2>
+<em class="release-date">22 September 2015</em><ul class="lowdown-change-list">
+<li><div class="lowdown-change">
+<span class="lowdown-category lowdown-category-fixed">fixed</span> <div class="docutils container">
+<p>Processors not working correct on Windows.</p>
+</div>
+ </div>
+</li>
+<li><div class="lowdown-change">
+<span class="lowdown-category lowdown-category-fixed">fixed</span> <div class="docutils container">
+<p>Incomplete version number displayed for Nuke Studio application when
+discovered.</p>
+</div>
+ </div>
+</li>
+<li><div class="lowdown-change">
+<span class="lowdown-category lowdown-category-fixed">fixed</span> <div class="docutils container">
+<p>Changes to context tags hook not being respected.</p>
+</div>
+ </div>
+</li>
+<li><div class="lowdown-change">
+<span class="lowdown-category lowdown-category-changed">changed</span> <div class="docutils container">
+<p>Read default export values for <cite>fps</cite> and <cite>resolution</cite> from the
+project settings.</p>
+</div>
+ </div>
+</li>
+</ul>
+</div>
+<div class="lowdown-release section" id="release-0.1.1">
+<h2><span>0.1.1</span><a class="headerlink" href="#release-0.1.1" title="Permalink to this heading">¶</a></h2>
+<em class="release-date">10 September 2015</em><ul class="lowdown-change-list">
+<li><div class="lowdown-change">
+<span class="lowdown-category lowdown-category-fixed">fixed</span> <div class="docutils container">
+<p>Dropping several tags of same type causes export to fail.</p>
+</div>
+ </div>
+</li>
+<li><div class="lowdown-change">
+<span class="lowdown-category lowdown-category-fixed">fixed</span> <div class="docutils container">
+<p>Segmentation fault when closing down Nuke Studio with plugin loaded.</p>
+</div>
+ </div>
+</li>
+<li><div class="lowdown-change">
+<span class="lowdown-category lowdown-category-changed">changed</span> <div class="docutils container">
+<p>Updated default export values for <cite>fps</cite>, <cite>resolution</cite> and <cite>handles</cite>.</p>
+</div>
+ </div>
+</li>
+<li><div class="lowdown-change">
+<span class="lowdown-category lowdown-category-fixed">fixed</span> <div class="docutils container">
+<p><span class="lowdown-tag lowdown-tag-processors">Processors</span><span class="lowdown-tag lowdown-tag-web-playable-component">Web playable component</span>In and out points not calculated correctly when when offset is used
+on source clip.</p>
+</div>
+ </div>
+</li>
+</ul>
+</div>
+<div class="lowdown-release section" id="release-0.1.0">
+<h2><span>0.1.0</span><a class="headerlink" href="#release-0.1.0" title="Permalink to this heading">¶</a></h2>
+<em class="release-date">8 September 2015</em><ul class="lowdown-change-list">
+<li><div class="lowdown-change">
+<span class="lowdown-category lowdown-category-new">new</span> <div class="docutils container">
+<p>Initial release of ftrack connect Nuke studio plugin.</p>
+</div>
+ </div>
+</li>
+</ul>
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="index.html" class="btn btn-neutral float-left" title="Release and migration notes" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="migration.html" class="btn btn-neutral float-right" title="Migration notes" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2018, ftrack.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

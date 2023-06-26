@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Installing &mdash; ftrack connect nuke studio Unknown version documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/ftrack.css" type="text/css" />
+      <link rel="stylesheet" href="_static/lowdown.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="author" title="About these documents" href="about.html" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Developing" href="developing/index.html" />
+    <link rel="prev" title="About" href="about.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            ftrack connect nuke studio
+          </a>
+              <div class="version">
+                Unknown version
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="about.html">About</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Installing</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#using-ftrack-connect">Using ftrack Connect</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#building-from-source">Building from source</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#building-documentation-from-source">Building documentation from source</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#running-tests-against-the-source">Running tests against the source</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#dependencies">Dependencies</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#additional-for-building">Additional For building</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#additional-for-testing">Additional For testing</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="developing/index.html">Developing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="glossary.html">Glossary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="release/index.html">Release and migration notes</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">ftrack connect nuke studio</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Installing</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/installing.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <div class="section" id="installing">
+<span id="id1"></span><h1>Installing<a class="headerlink" href="#installing" title="Permalink to this heading">¶</a></h1>
+<div class="section" id="using-ftrack-connect">
+<h2>Using ftrack Connect<a class="headerlink" href="#using-ftrack-connect" title="Permalink to this heading">¶</a></h2>
+<p id="using-installing-ftrack-connect-package">The primary way of installing and launching the Nuke studio integration is
+through the ftrack Connect package. Go to
+<a class="reference external" href="https://www.ftrack.com/portfolio/connect">ftrack Connect package</a> and
+download it for your platform.</p>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p>Once ftrack Connect package is installed please follow this
+<span class="xref std std-ref">article</span> to launch Nuke studio with the ftrack
+integration.</p>
+</div>
+</div>
+<div class="section" id="building-from-source">
+<h2>Building from source<a class="headerlink" href="#building-from-source" title="Permalink to this heading">¶</a></h2>
+<p>You can also build manually from the source for more control. First obtain a
+copy of the source by either downloading the
+<a class="reference external" href="https://bitbucket.org/ftrack/nuke-studio/get/master.zip">zipball</a> or
+cloning the public repository:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">clone</span> <span class="n">git</span><span class="nd">@bitbucket</span><span class="o">.</span><span class="n">org</span><span class="p">:</span><span class="n">ftrack</span><span class="o">/</span><span class="n">nuke</span><span class="o">-</span><span class="n">studio</span><span class="o">.</span><span class="n">git</span>
+</pre></div>
+</div>
+<p>Then you can build and install the package into your current Python
+site-packages folder:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="n">setup</span><span class="o">.</span><span class="n">py</span> <span class="n">build_plugin</span>
+</pre></div>
+</div>
+<p>Once build you can <a class="reference external" href="http://help.ftrack.com/connect/getting-started-with-connect/installing-and-using-connect#customizing-ftrack-connect">install</a> the result plugin in the ftrack-connect-plugin folder directory.</p>
+<div class="section" id="building-documentation-from-source">
+<h3>Building documentation from source<a class="headerlink" href="#building-documentation-from-source" title="Permalink to this heading">¶</a></h3>
+<p>To build the documentation from source:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="n">setup</span><span class="o">.</span><span class="n">py</span> <span class="n">build_sphinx</span>
+</pre></div>
+</div>
+<p>Then view in your browser:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">file</span><span class="p">:</span><span class="o">///</span><span class="n">path</span><span class="o">/</span><span class="n">to</span><span class="o">/</span><span class="n">nuke</span><span class="o">-</span><span class="n">studio</span><span class="o">/</span><span class="n">build</span><span class="o">/</span><span class="n">doc</span><span class="o">/</span><span class="n">html</span><span class="o">/</span><span class="n">index</span><span class="o">.</span><span class="n">html</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="running-tests-against-the-source">
+<h3>Running tests against the source<a class="headerlink" href="#running-tests-against-the-source" title="Permalink to this heading">¶</a></h3>
+<p>With a copy of the source it is also possible to run the unit tests:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="n">setup</span><span class="o">.</span><span class="n">py</span> <span class="n">test</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="dependencies">
+<h2>Dependencies<a class="headerlink" href="#dependencies" title="Permalink to this heading">¶</a></h2>
+<ul class="simple">
+<li><p><a class="reference external" href="http://python.org">Python</a> &gt;= 2.6, &lt; 3</p></li>
+<li><p><a class="reference external" href="https://bitbucket.org/ftrack/ftrack-connect">ftrack connect</a> &gt;= 0.1.2, &lt; 2</p></li>
+<li><p><a class="reference external" href="https://www.thefoundry.co.uk/products/nuke/studio/">Nuke Studio</a> &gt;= 2 &lt; 3</p></li>
+</ul>
+<div class="section" id="additional-for-building">
+<h3>Additional For building<a class="headerlink" href="#additional-for-building" title="Permalink to this heading">¶</a></h3>
+<ul class="simple">
+<li><p><a class="reference external" href="http://sphinx-doc.org/">Sphinx</a> &gt;= 1.2.2, &lt; 2</p></li>
+<li><p><a class="reference external" href="https://github.com/snide/sphinx_rtd_theme">sphinx_rtd_theme</a> &gt;= 0.1.6, &lt; 1</p></li>
+</ul>
+</div>
+<div class="section" id="additional-for-testing">
+<h3>Additional For testing<a class="headerlink" href="#additional-for-testing" title="Permalink to this heading">¶</a></h3>
+<ul class="simple">
+<li><p><a class="reference external" href="http://pytest.org">Pytest</a>  &gt;= 2.3.5</p></li>
+</ul>
+</div>
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="about.html" class="btn btn-neutral float-left" title="About" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="developing/index.html" class="btn btn-neutral float-right" title="Developing" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2018, ftrack.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

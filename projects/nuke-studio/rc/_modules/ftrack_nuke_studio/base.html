@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ftrack_nuke_studio.base &mdash; ftrack connect nuke studio Unknown version documentation</title>
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/ftrack.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/lowdown.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/sphinx_highlight.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="author" title="About these documents" href="../../about.html" />
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            ftrack connect nuke studio
+          </a>
+              <div class="version">
+                Unknown version
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../about.html">About</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../installing.html">Installing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developing/index.html">Developing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../glossary.html">Glossary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../release/index.html">Release and migration notes</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">ftrack connect nuke studio</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">ftrack_nuke_studio.base</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for ftrack_nuke_studio.base</h1><div class="highlight"><pre>
+<span></span><span class="c1"># :coding: utf-8</span>
+<span class="c1"># :copyright: Copyright (c) 2018 ftrack</span>
+
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">import</span> <span class="nn">unicodedata</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+<span class="kn">import</span> <span class="nn">hiero</span>
+
+<span class="kn">from</span> <span class="nn">ftrack_nuke_studio.session</span> <span class="kn">import</span> <span class="n">get_shared_session</span>
+
+
+<div class="viewcode-block" id="FtrackBase"><a class="viewcode-back" href="../../developing/api_reference/ftrack_nuke_studio.html#ftrack_nuke_studio.base.FtrackBase">[docs]</a><span class="k">class</span> <span class="nc">FtrackBase</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    wrap ftrack functionalities and methods</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+    <span class="n">ingored_locations</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="s1">&#39;ftrack.server&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;ftrack.review&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;ftrack.origin&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;ftrack.unmanaged&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;ftrack.connect&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;ftrack.perforce-scenario&#39;</span>
+    <span class="p">]</span>
+    <span class="n">illegal_character_substitute</span> <span class="o">=</span> <span class="s1">&#39;_&#39;</span>
+    <span class="n">path_separator</span> <span class="o">=</span> <span class="s1">&#39;/&#39;</span>
+
+    <span class="n">_components</span> <span class="o">=</span> <span class="p">{}</span>
+
+<div class="viewcode-block" id="FtrackBase.__init__"><a class="viewcode-back" href="../../developing/api_reference/ftrack_nuke_studio.html#ftrack_nuke_studio.base.FtrackBase.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span>
+            <span class="vm">__name__</span> <span class="o">+</span> <span class="s1">&#39;.&#39;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span>
+        <span class="p">)</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">session</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;Return ftrack session.&#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="n">get_shared_session</span><span class="p">()</span>
+
+<div class="viewcode-block" id="FtrackBase.timeStampString"><a class="viewcode-back" href="../../developing/api_reference/ftrack_nuke_studio.html#ftrack_nuke_studio.base.FtrackBase.timeStampString">[docs]</a>    <span class="k">def</span> <span class="nf">timeStampString</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">localtime</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;Return stringified *localtime*.&#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="n">time</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">&#39;%Y/%m/</span><span class="si">%d</span><span class="s1"> </span><span class="si">%X</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">localtime</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="FtrackBase.sanitise_for_filesystem"><a class="viewcode-back" href="../../developing/api_reference/ftrack_nuke_studio.html#ftrack_nuke_studio.base.FtrackBase.sanitise_for_filesystem">[docs]</a>    <span class="k">def</span> <span class="nf">sanitise_for_filesystem</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;Return *value* with illegal filesystem characters replaced.</span>
+
+<span class="sd">        An illegal character is one that is not typically valid for filesystem</span>
+<span class="sd">        usage, such as non ascii characters, or can be awkward to use in a</span>
+<span class="sd">        filesystem, such as spaces. Replace these characters with</span>
+<span class="sd">        the character specified by *illegal_character_substitute* on</span>
+<span class="sd">        initialisation. If no character was specified as substitute then return</span>
+<span class="sd">        *value* unmodified.</span>
+
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">illegal_character_substitute</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">value</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">):</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span>
+
+        <span class="n">value</span> <span class="o">=</span> <span class="n">unicodedata</span><span class="o">.</span><span class="n">normalize</span><span class="p">(</span><span class="s1">&#39;NFKD&#39;</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">u</span><span class="s1">&#39;[^\w\.-]&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">illegal_character_substitute</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">value</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">hiero_version_tuple</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;Return current hiero version.&#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="n">hiero</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">env</span><span class="p">[</span><span class="s1">&#39;VersionMajor&#39;</span><span class="p">],</span>
+            <span class="n">hiero</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">env</span><span class="p">[</span><span class="s1">&#39;VersionMinor&#39;</span><span class="p">],</span>
+            <span class="n">hiero</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">env</span><span class="p">[</span><span class="s1">&#39;VersionRelease&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;v&#39;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">ftrack_location</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;Return current ftrack location.&#39;&#39;&#39;</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">pick_location</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">result</span></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2018, ftrack.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
