@@ -126,8 +126,7 @@ jobs:
           echo "    print('Write version {} to package: {}, folder: {}'.format(version, package, folder)) " >> /tmp/update_versions.py
           echo "    ver_path = '{fol}/{pack}/source/ftrack_{pack_mod}/_version.py'.format(fol=folder, pack=package, pack_mod=package.replace('-','_')) " >> /tmp/update_versions.py
           echo "    with open(ver_path, 'w') as f: " >> /tmp/update_versions.py
-          echo "        f.write('__version__=\'{}\''.format(version))" >> /tmp/update_versions.py
-          echo "        f.write('') # Black formatting" >> /tmp/update_versions.py
+          echo "        f.write('__version__ = \'{}\''.format(version))" >> /tmp/update_versions.py
 
           echo "update_versions(sys.argv[1], sys.argv[2]) " >> /tmp/update_versions.py
           
