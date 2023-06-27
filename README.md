@@ -17,7 +17,9 @@ or download the source ZIP from the [Integrations repository](https://github.com
 
 ## Black
 
-Run this command to enable Git black pre commit hook::
+We run Black version 23 on the codebase to ensure consistent formatting.
+
+To be sure that code is properly formatted, enable the Git black pre commit hook by running this commands::
 
 ```bash
 pip install pre-commit
@@ -26,7 +28,7 @@ pre-commit install
 
 ## Building
 
-A Github CI/CF provide automated builds of the packages in this repository on PRs, merge to main and on tagging of releases.
+A GitHub CI/CF provide automated builds of the packages in this repository on PRs, merge to main and on tagging of releases.
 
 To build the entire repository, run:
 
