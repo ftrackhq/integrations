@@ -17,14 +17,34 @@ or download the source ZIP from the [Integrations repository](https://github.com
 
 ## Black
 
-We run Black version 23 on the codebase to ensure consistent formatting.
+We run Black version 23 on the codebase to ensure consistent formatting. 
 
-To be sure that code is properly formatted, enable the Git black pre commit hook by running this commands::
+If updating or adding BUILD files, remember to have them properly formatted before committing otherwise CI will fail:
+
+```bash
+pants fmt --lint-only="black" ::
+```
+
+To check that BUILD files are properly formatted:
+
+```bash
+pants lint check --lint-only="black" ::
+```
+
+To be sure that code is properly formatted before committing code, enable the Git black pre commit hook by running this commands::
 
 ```bash
 pip install pre-commit
 pre-commit install
 ```
+
+
+To format the code manually before committing, run:
+
+```bash
+black -l 79 --skip-string-normalization .
+```
+
 
 ## Building
 
