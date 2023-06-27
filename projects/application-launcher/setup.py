@@ -29,7 +29,9 @@ CONFIG_PATH = os.path.join(RESOURCE_PATH, 'config')
 
 def get_version():
     '''Read version from _version.py, updated by CI based on monorepo package tag'''
-    version_path = os.path.join(SOURCE_PATH, 'ftrack_application_launcher', '_version.py')
+    version_path = os.path.join(
+        SOURCE_PATH, 'ftrack_application_launcher', '_version.py'
+    )
     with open(version_path, 'r') as file_handle:
         for line in file_handle.readlines():
             if line.find('__version__') > -1:

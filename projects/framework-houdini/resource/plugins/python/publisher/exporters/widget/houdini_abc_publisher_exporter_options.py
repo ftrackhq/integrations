@@ -8,7 +8,6 @@ from ftrack_framework_qt.plugin.widget.dynamic import DynamicWidget
 
 
 class HoudiniAbcPublisherExporterOptionsWidget(DynamicWidget):
-
     auto_fetch_on_init = True
 
     def __init__(

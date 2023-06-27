@@ -27,7 +27,8 @@ class CommonDefaultAssetManagerResolverPlugin(
     ):
         '''Add *entity* to *result* if it has assets property that can be resolved or directly linked. Follow
         links/go to upstream parent to recursively add further related contexts, up to
-        a *link_depth* of maximum 1 (default). Prevents cycles by adding *entity* to *processed_entities*.'''
+        a *link_depth* of maximum 1 (default). Prevents cycles by adding *entity* to *processed_entities*.
+        '''
         if entity is None:
             self.logger.debug(
                 'Not resolving dependencies for {}({}) - null entity!'.format(
@@ -40,7 +41,7 @@ class CommonDefaultAssetManagerResolverPlugin(
             calling_entity_id = calling_entity['id']
         else:
             calling_entity_id = ''
-        for (entity_id, processed_calling_entity_id) in processed_entities:
+        for entity_id, processed_calling_entity_id in processed_entities:
             if (
                 entity_id == entity['id']
                 and processed_calling_entity_id == calling_entity_id
@@ -218,7 +219,8 @@ class CommonDefaultAssetManagerResolverPlugin(
 
     def resolve_dependencies(self, entities, options):
         '''Generic dependency resolve, locates latest versions from *entities*,
-        based on task type resolvable asset types supplied *options* and filters.'''
+        based on task type resolvable asset types supplied *options* and filters.
+        '''
         self.logger.debug(
             'Resolving asset dependencies on {} context(s)'.format(
                 len(entities)

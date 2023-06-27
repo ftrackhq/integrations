@@ -56,7 +56,6 @@ class MaxViewportPublisherCollectorOptionsWidget(BaseOptionsWidget):
         context_id=None,
         asset_type_name=None,
     ):
-
         self._viewports = []
         self._viewport_name = options.get('viewport_name')
         self._viewport_index = options.get('viewport_index')

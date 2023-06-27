@@ -55,8 +55,8 @@ class HtmlComboBox(QtWidgets.QComboBox):
 
             painter.save()
             painter.translate(text_rectangle.topLeft())
-            painter.setClipRect(text_rectangle.translated(
-                -text_rectangle.topLeft())
+            painter.setClipRect(
+                text_rectangle.translated(-text_rectangle.topLeft())
             )
             document.documentLayout().draw(painter, paint_context)
             painter.restore()

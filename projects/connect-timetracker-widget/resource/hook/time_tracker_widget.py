@@ -30,9 +30,7 @@ class TimeTracker(ftrack_connect.ui.application.ConnectWidget):
     @property
     def user(self):
         return self.session.query(
-            'User where username is "{}"'.format(
-                self.session.api_user
-            )
+            'User where username is "{}"'.format(self.session.api_user)
         ).first()
 
     def __init__(self, *args, **kwargs):
@@ -76,27 +74,29 @@ class TimeTracker(ftrack_connect.ui.application.ConnectWidget):
         self.timer.stopped.connect(self._onCommitTime)
         self.timer.timeEdited.connect(self._onCommitTime)
 
-        self.assignedTimeLogList.itemSelected.connect(
-            self._onSelectTimeLog
-        )
+        self.assignedTimeLogList.itemSelected.connect(self._onSelectTimeLog)
 
         self._updateAssignedList()
 
     def _updateAssignedList(self):
         '''Update assigned list.'''
         self.assignedTimeLogList.clearItems()
-    
 
         assigned_tasks = self.session.query(
             'select link from Task '
             f'where assignments any (resource.username = "{self.session.api_user}")'
         )
 
-        formattedTasks = [dict({
-            'title': task['name'],
-            'description': self._getPath(task),
-            'data': task
-        }) for task in assigned_tasks]
+        formattedTasks = [
+            dict(
+                {
+                    'title': task['name'],
+                    'description': self._getPath(task),
+                    'data': task,
+                }
+            )
+            for task in assigned_tasks
+        ]
 
         formattedTasks = sorted(
             formattedTasks, key=operator.itemgetter('description', 'title')
@@ -134,6 +134,7 @@ class TimeTracker(ftrack_connect.ui.application.ConnectWidget):
             self.disableTimer()
         else:
             self.enableTimer()
+
     def startTime(self, data):
         self.user.start_timer(self._activeEntity, force=True)
 
@@ -162,7 +163,7 @@ class TimeTracker(ftrack_connect.ui.application.ConnectWidget):
                 timeLogValue = {
                     'title': timeLog.title(),
                     'description': timeLog.description(),
-                    'time': timeReport
+                    'time': timeReport,
                 }
 
                 self.timer.setValue(timeLogValue)

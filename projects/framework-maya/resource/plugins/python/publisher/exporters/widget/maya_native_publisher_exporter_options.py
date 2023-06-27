@@ -21,7 +21,6 @@ class MayaNativePublisherExporterOptionsWidget(DynamicWidget):
         context_id=None,
         asset_type_name=None,
     ):
-
         self.options_cb = {}
 
         super(MayaNativePublisherExporterOptionsWidget, self).__init__(

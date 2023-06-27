@@ -16,21 +16,19 @@ sys.path.append(sources)
 
 
 def on_discover_ftrack_nuke_studio_integration(session, event):
-
     from ftrack_nuke_studio import __version__ as integration_version
+
     data = {
-        'integration': {
-            "name": 'nuke-studio',
-            'version': integration_version
-        }
+        'integration': {"name": 'nuke-studio', 'version': integration_version}
     }
 
     return data
 
+
 def on_launch_ftrack_nuke_studio_integration(session, event):
     ns_base_data = on_discover_ftrack_nuke_studio_integration(session, event)
 
-    ftrack_nuke_studio_path = os.path.join(cwd, '..',  'resource')
+    ftrack_nuke_studio_path = os.path.join(cwd, '..', 'resource')
     application_hooks_path = os.path.join(cwd, '..', 'application_hook')
 
     entity = event['data']['context']['selection'][0]
@@ -41,10 +39,11 @@ def on_launch_ftrack_nuke_studio_integration(session, event):
         'FTRACK_EVENT_PLUGIN_PATH.prepend': application_hooks_path,
         'HIERO_PLUGIN_PATH.prepend': ftrack_nuke_studio_path,
         'FTRACK_CONTEXTID.set': project['id'],
-        'QT_PREFERRED_BINDING.set':  os.pathsep.join(['PySide2', 'PySide'])
+        'QT_PREFERRED_BINDING.set': os.pathsep.join(['PySide2', 'PySide']),
     }
 
     return ns_base_data
+
 
 def register(session, **kw):
     '''Register hooks for ftrack connect legacy plugins.'''
@@ -57,29 +56,23 @@ def register(session, **kw):
         return
 
     handle_discovery_event = functools.partial(
-        on_discover_ftrack_nuke_studio_integration,
-        session
+        on_discover_ftrack_nuke_studio_integration, session
     )
 
     session.event_hub.subscribe(
         'topic=ftrack.connect.application.discover'
         ' and (data.application.identifier=nuke-studio* or data.application.identifier=hiero*)'
         ' and data.application.version >= 13',
-        handle_discovery_event
+        handle_discovery_event,
     )
-    
+
     handle_launch_event = functools.partial(
-        on_launch_ftrack_nuke_studio_integration,
-        session
-    )    
+        on_launch_ftrack_nuke_studio_integration, session
+    )
 
     session.event_hub.subscribe(
         'topic=ftrack.connect.application.launch'
         ' and (data.application.identifier=nuke-studio* or data.application.identifier=hiero*)'
         ' and data.application.version >= 13',
-        handle_launch_event
+        handle_launch_event,
     )
-
-
-
-

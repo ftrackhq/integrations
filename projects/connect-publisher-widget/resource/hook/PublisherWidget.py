@@ -4,6 +4,7 @@
 import os
 import sys
 import logging
+
 logger = logging.getLogger('ftrack-connect.widget.PublisherWidget')
 
 cwd = os.path.dirname(__file__)
@@ -40,33 +41,30 @@ class PublisherBlockingOverlay(
 
 
 class PublisherWidget(ftrack_connect.ui.application.ConnectWidget):
-
     name = 'Publish'
 
     entityChanged = QtCore.Signal(object)
 
     def __init__(self, session, parent=None):
-            '''Instantiate the publisher widget.'''
-            super(PublisherWidget, self).__init__(session, parent=parent)
-            layout = QtWidgets.QVBoxLayout()
-            self.setLayout(layout)
+        '''Instantiate the publisher widget.'''
+        super(PublisherWidget, self).__init__(session, parent=parent)
+        layout = QtWidgets.QVBoxLayout()
+        self.setLayout(layout)
 
-            self.publishView = Publisher(
-                self.session
-            )
-            layout.addWidget(self.publishView)
+        self.publishView = Publisher(self.session)
+        layout.addWidget(self.publishView)
 
-            self.blockingOverlay = PublisherBlockingOverlay(self)
-            self.blockingOverlay.hide()
+        self.blockingOverlay = PublisherBlockingOverlay(self)
+        self.blockingOverlay.hide()
 
-            self.busyOverlay = ftrack_connect.ui.widget.overlay.BusyOverlay(self)
-            self.busyOverlay.hide()
+        self.busyOverlay = ftrack_connect.ui.widget.overlay.BusyOverlay(self)
+        self.busyOverlay.hide()
 
-            self.publishView.publishStarted.connect(self._onPublishStarted)
+        self.publishView.publishStarted.connect(self._onPublishStarted)
 
-            self.publishView.publishFinished.connect(self._onPublishFinished)
+        self.publishView.publishFinished.connect(self._onPublishFinished)
 
-            self.entityChanged.connect(self._onEntityChanged)
+        self.entityChanged.connect(self._onEntityChanged)
 
     def _onPublishStarted(self):
         '''Callback for publish started signal.'''

@@ -29,7 +29,9 @@ BUILD_PATH = os.path.join(ROOT_PATH, 'build')
 
 def get_version():
     '''Expect version written to source/framework_core/_version.py'''
-    version_path = os.path.join(SOURCE_PATH, 'ftrack_framework_3dsmax', '_version.py')
+    version_path = os.path.join(
+        SOURCE_PATH, 'ftrack_framework_3dsmax', '_version.py'
+    )
     with open(version_path, 'r') as file_handle:
         for line in file_handle.readlines():
             if line.find('__version__') > -1:
@@ -114,13 +116,15 @@ setup(
     license='Apache License (2.0)',
     packages=find_packages(SOURCE_PATH),
     package_dir={'': 'source'},
-    package_data={"": ["{}/**/*.*".format(RESOURCE_PATH), "{}/**/*.py".format(HOOK_PATH)]},
+    package_data={
+        "": ["{}/**/*.*".format(RESOURCE_PATH), "{}/**/*.py".format(HOOK_PATH)]
+    },
     version=VERSION,
     setup_requires=[
         'sphinx >= 1.8.5, < 4',
         'sphinx_rtd_theme >= 0.1.6, < 2',
         'lowdown >= 0.1.0, < 2',
-        'setuptools>=45.0.0'
+        'setuptools>=45.0.0',
     ],
     tests_require=['pytest >= 2.3.5, < 3'],
     cmdclass={'test': PyTest, 'build_plugin': BuildPlugin},

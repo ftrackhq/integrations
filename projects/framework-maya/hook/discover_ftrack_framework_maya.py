@@ -32,7 +32,9 @@ def on_discover_ftrack_framework_maya(session, event):
 def on_launch_ftrack_framework_maya(session, event):
     '''Handle application launch and add environment to *event*.'''
 
-    ftrack_framework_maya_base_data = on_discover_ftrack_framework_maya(session, event)
+    ftrack_framework_maya_base_data = on_discover_ftrack_framework_maya(
+        session, event
+    )
 
     maya_plugins_path = os.path.join(
         plugin_base_dir, 'resource', 'plugins', 'python'
@@ -72,15 +74,15 @@ def on_launch_ftrack_framework_maya(session, event):
                 task['parent']['id']
             )
         ).first()  # Make sure updated custom attributes are fetched
-        ftrack_framework_maya_base_data['integration']['env']['FS.set'] = parent[
-            'custom_attributes'
-        ].get('fstart', '1.0')
-        ftrack_framework_maya_base_data['integration']['env']['FE.set'] = parent[
-            'custom_attributes'
-        ].get('fend', '100.0')
-        ftrack_framework_maya_base_data['integration']['env']['FPS.set'] = parent[
-            'custom_attributes'
-        ].get('fps', '24.0')
+        ftrack_framework_maya_base_data['integration']['env'][
+            'FS.set'
+        ] = parent['custom_attributes'].get('fstart', '1.0')
+        ftrack_framework_maya_base_data['integration']['env'][
+            'FE.set'
+        ] = parent['custom_attributes'].get('fend', '100.0')
+        ftrack_framework_maya_base_data['integration']['env'][
+            'FPS.set'
+        ] = parent['custom_attributes'].get('fps', '24.0')
 
     return ftrack_framework_maya_base_data
 
@@ -102,7 +104,9 @@ def register(session):
         priority=40,
     )
 
-    handle_launch_event = functools.partial(on_launch_ftrack_framework_maya, session)
+    handle_launch_event = functools.partial(
+        on_launch_ftrack_framework_maya, session
+    )
 
     session.event_hub.subscribe(
         'topic=ftrack.connect.application.launch and '

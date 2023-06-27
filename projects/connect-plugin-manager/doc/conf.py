@@ -20,7 +20,9 @@ from pkg_resources import get_distribution, DistributionNotFound
 # Inject source onto path so that autodoc can find it by default, but in such a
 # way as to allow overriding location.
 sys.path.append(
-    os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..','source'))
+    os.path.abspath(
+        os.path.join(os.path.dirname(__file__), '..', '..', 'source')
+    )
 )
 
 
@@ -29,7 +31,7 @@ try:
     # take major/minor/patch
     VERSION = '.'.join(release.split('.')[:3])
 except DistributionNotFound:
-     # package is not installed
+    # package is not installed
     VERSION = 'Unknown version'
 
 version = VERSION
@@ -56,16 +58,14 @@ extensions = [
     'sphinx.ext.extlinks',
     'sphinx.ext.todo',
     'sphinx.ext.viewcode',
-    'lowdown'
+    'lowdown',
 ]
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
 
 # A list of prefixes to ignore for module listings.
-modindex_common_prefix = [
-    'connect-plugin-manager.'
-]
+modindex_common_prefix = ['connect-plugin-manager.']
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
 # This pattern also affects html_static_path and html_extra_path.
@@ -79,6 +79,7 @@ on_rtd = os.environ.get('READTHEDOCS', None) == 'True'
 
 if not on_rtd:  # only import and set the theme if building docs locally
     import sphinx_rtd_theme
+
     html_theme = 'sphinx_rtd_theme'
     html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
 
@@ -102,12 +103,14 @@ def autodoc_skip(app, what, name, obj, skip, options):
 
     return skip
 
+
 # -- Todos ---------------------------------------------------------------------
 
 todo_include_todos = True
 autodoc_mock_imports = ['ftrack_action_handler']
 
 # -- Setup --------------------------------------------------------------------
+
 
 def setup(app):
     app.connect('autodoc-skip-member', autodoc_skip)

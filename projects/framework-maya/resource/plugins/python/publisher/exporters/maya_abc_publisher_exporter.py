@@ -23,7 +23,6 @@ class MayaAbcPublisherExporterPlugin(plugin.MayaPublisherExporterPlugin):
         return frame_info
 
     def extract_options(self, options):
-
         return {
             'alembicAnimation': bool(options.get('alembicAnimation', True)),
             'frameStart': float(
