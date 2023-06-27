@@ -10,13 +10,11 @@ from ftrack_framework_core import plugin
 
 
 class CommonSlackPublisherFinalizerPlugin(plugin.PublisherPostFinalizerPlugin):
-
     plugin_name = 'common_slack_publisher_finalizer'
 
     SLACK_CHANNEL = 'test'
 
     def run(self, context_data=None, data=None, options=None):
-
         # Harvest publish data
         reviewable_path = asset_version_id = component_names = None
         for component_data in data:

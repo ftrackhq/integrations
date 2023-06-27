@@ -28,7 +28,8 @@ class HostConnection(object):
     @context_id.setter
     def context_id(self, value):
         '''Set the context id for this host connection to *value*. Will notify the host and
-        other active host connection through an event, and tell the client through callback.'''
+        other active host connection through an event, and tell the client through callback.
+        '''
         if value == self.context_id:
             return
         self._context_id = value
@@ -51,7 +52,6 @@ class HostConnection(object):
         '''Returns the current definitions, filtered on discoverable.'''
         context_identifiers = []
         if self.context_id:
-
             entity = self.session.query(
                 'TypedContext where id is {}'.format(self.context_id)
             ).first()
@@ -523,7 +523,8 @@ class Client(object):
 
     def on_context_changed(self, context_id):
         '''Called when the context has been set or changed within the host connection, either from this
-        client or remote (other client or the host). Should be overridden by client.'''
+        client or remote (other client or the host). Should be overridden by client.
+        '''
         pass
 
     def unsubscribe_host_context_change(self):
@@ -683,7 +684,6 @@ class Client(object):
         self._on_log_item_added(LogItem(event['data']['pipeline']))
 
         if constants.status_bool_mapping[status]:
-
             self.logger.debug(
                 '\n plugin_name: {} \n status: {} \n result: {} \n '
                 'message: {} \n user_message: {} \n plugin_id: {}'.format(

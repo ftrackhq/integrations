@@ -219,7 +219,6 @@ class BaseEngine(object):
         result_data['status'] = constants.UNKNOWN_STATUS
 
         for host_type in reversed(self._host_types):
-
             event = self.run_event(
                 plugin_name,
                 plugin_type,
@@ -352,7 +351,6 @@ class BaseEngine(object):
 
         i = 1
         for plugin in plugins:
-
             plugin_name = plugin['plugin']
             plugin_enabled = plugin['enabled']
 

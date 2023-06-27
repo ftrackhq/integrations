@@ -4,6 +4,7 @@
 import os
 import sys
 import logging
+
 logger = logging.getLogger('ftrack-connect.widget.ActionLauncherWidget')
 
 cwd = os.path.dirname(__file__)
@@ -28,9 +29,7 @@ class ActionLauncherWidget(ftrack_connect.ui.application.ConnectWidget):
         layout = QtWidgets.QVBoxLayout()
         self.setLayout(layout)
 
-        self.actionsView = Actions(
-            self.session
-        )
+        self.actionsView = Actions(self.session)
         layout.addWidget(self.actionsView)
 
 
@@ -47,5 +46,7 @@ def register(session, **kw):
         return
 
     #  Uncomment to register plugin
-    plugin = ftrack_connect.ui.application.ConnectWidgetPlugin(ActionLauncherWidget)
+    plugin = ftrack_connect.ui.application.ConnectWidgetPlugin(
+        ActionLauncherWidget
+    )
     plugin.register(session, priority=20)

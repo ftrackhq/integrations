@@ -36,9 +36,7 @@ def appendPath(path, key, environment):
 
 def modify_application_launch(event):
     '''Modify the application environment to include  our location plugin.'''
-    logger.info(
-        'Preparing application launch, event: {}.'.format(event)
-    )
+    logger.info('Preparing application launch, event: {}.'.format(event))
 
     environment = event['data']['options']['env']
 

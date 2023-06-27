@@ -7,11 +7,12 @@ import hiero.core
 
 from ftrack_nuke_studio.base import FtrackBase
 
+
 class TagManager(FtrackBase):
     '''Creates all the custom tags wrapping the ftrack's entities.'''
 
     def __init__(self, *args, **kwargs):
-        ''' Initialize and create the needed Bin and Tags.'''
+        '''Initialize and create the needed Bin and Tags.'''
         super(TagManager, self).__init__()
 
         self.logger.debug('Creating Ftrack tags')
@@ -53,11 +54,7 @@ class TagManager(FtrackBase):
             task_type_tags, key=lambda tag_tuple: tag_tuple[0].lower()
         )
 
-        self.logger.debug(
-            u'Added task type tags: {0}'.format(
-                task_type_tags
-            )
-        )
+        self.logger.debug(u'Added task type tags: {0}'.format(task_type_tags))
 
         for _, tag in task_type_tags:
             self.ftrack_bin_task.addItem(tag)

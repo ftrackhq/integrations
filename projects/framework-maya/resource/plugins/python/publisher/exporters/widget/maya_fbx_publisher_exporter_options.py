@@ -21,7 +21,6 @@ class MayaFbxPublisherExporterOptionsWidget(DynamicWidget):
         context_id=None,
         asset_type_name=None,
     ):
-
         super(MayaFbxPublisherExporterOptionsWidget, self).__init__(
             parent=parent,
             session=session,

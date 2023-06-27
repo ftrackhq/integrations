@@ -9,7 +9,9 @@ UI_TYPE = 'unreal'
 
 try:
     FTRACK_ROOT_PATH = os.path.realpath(
-        os.path.join(unreal.SystemLibrary.get_project_saved_directory(), "ftrack")
+        os.path.join(
+            unreal.SystemLibrary.get_project_saved_directory(), "ftrack"
+        )
     )
 except TypeError as te:
     # Ignore exception during docs/sphinx build

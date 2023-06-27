@@ -149,9 +149,7 @@ class QtPublisherClientWidget(QtPublisherClient, QtWidgets.QFrame):
         button_widget.layout().setSpacing(10)
 
         self.run_button = (
-            ftrack_framework_qt.ui.utility.widget.button.RunButton(
-                'PUBLISH'
-            )
+            ftrack_framework_qt.ui.utility.widget.button.RunButton('PUBLISH')
         )
         button_widget.layout().addWidget(self.run_button)
         self.run_button.setEnabled(False)

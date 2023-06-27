@@ -23,7 +23,6 @@ sys.path.append(python_dependencies)
 
 
 def on_discover_ftrack_framework_3dsmax(session, event):
-
     from ftrack_framework_3dsmax import (
         __version__ as integration_version,
     )
@@ -38,7 +37,9 @@ def on_discover_ftrack_framework_3dsmax(session, event):
 
 
 def on_launch_ftrack_framework_3dsmax(session, event):
-    pipeline_max_base_data = on_discover_ftrack_framework_3dsmax(session, event)
+    pipeline_max_base_data = on_discover_ftrack_framework_3dsmax(
+        session, event
+    )
 
     max_bootstrap_path = os.path.abspath(
         os.path.join(plugin_base_dir, 'resource', 'bootstrap')
@@ -112,7 +113,9 @@ def register(session):
         priority=40,
     )
 
-    handle_launch_event = functools.partial(on_launch_ftrack_framework_3dsmax, session)
+    handle_launch_event = functools.partial(
+        on_launch_ftrack_framework_3dsmax, session
+    )
     session.event_hub.subscribe(
         'topic=ftrack.connect.application.launch'
         ' and data.application.identifier=3ds-max*'

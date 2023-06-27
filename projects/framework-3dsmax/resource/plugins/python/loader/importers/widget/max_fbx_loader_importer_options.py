@@ -21,7 +21,6 @@ class MaxFbxLoaderImporterOptionsWidget(DynamicWidget):
         context_id=None,
         asset_type_name=None,
     ):
-
         super(MaxFbxLoaderImporterOptionsWidget, self).__init__(
             parent=parent,
             session=session,

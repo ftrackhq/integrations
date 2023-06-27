@@ -11,6 +11,4 @@ class MayaQtDocumentationClientWidget(
 ):
     '''Maya documentation client'''
 
-    documentation_url = (
-        "https://help.ftrack-studio.backlight.co/hc/en-us/articles/13129843823767"
-    )
+    documentation_url = "https://help.ftrack-studio.backlight.co/hc/en-us/articles/13129843823767"

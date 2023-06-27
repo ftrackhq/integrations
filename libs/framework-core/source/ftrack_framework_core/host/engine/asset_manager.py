@@ -157,7 +157,6 @@ class AssetManagerEngine(BaseEngine):
         if not options:
             options = {}
         if plugin:
-
             plugin['plugin_data'] = {'context_id': context_id}
 
             # Fill in default options from definition
@@ -188,7 +187,6 @@ class AssetManagerEngine(BaseEngine):
             bool_status = constants.status_bool_mapping[status]
 
             if not bool_status:
-
                 message = "Error executing the plugin: {}".format(plugin)
                 self.logger.error(message)
 
@@ -355,7 +353,6 @@ class AssetManagerEngine(BaseEngine):
         if not options:
             options = {}
         if plugin:
-
             plugin['plugin_data'] = asset_info
 
             plugin_result = self._run_plugin(
@@ -485,7 +482,6 @@ class AssetManagerEngine(BaseEngine):
         if not options:
             options = {}
         if plugin:
-
             plugin_result = self._run_plugin(
                 plugin,
                 plugin_type,

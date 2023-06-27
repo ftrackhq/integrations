@@ -55,7 +55,6 @@ class MaxCameraPublisherCollectorOptionsWidget(BaseOptionsWidget):
         context_id=None,
         asset_type_name=None,
     ):
-
         self._cameras = []
         self._camera_name = options.get('camera_name')
         super(MaxCameraPublisherCollectorOptionsWidget, self).__init__(

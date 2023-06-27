@@ -11,6 +11,4 @@ class MaxQtDocumentationClientWidget(
 ):
     '''Max documentation client'''
 
-    documentation_url = (
-        "https://help.ftrack-studio.backlight.co/hc/en-us/articles/13130003686423"
-    )
+    documentation_url = "https://help.ftrack-studio.backlight.co/hc/en-us/articles/13130003686423"

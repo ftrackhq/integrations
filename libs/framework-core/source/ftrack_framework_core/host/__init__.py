@@ -44,7 +44,6 @@ def provide_host_information(
 
 
 class Host(object):
-
     host_types = [constants.HOST_TYPE]
     '''Compatible Host types for this HOST.'''
 

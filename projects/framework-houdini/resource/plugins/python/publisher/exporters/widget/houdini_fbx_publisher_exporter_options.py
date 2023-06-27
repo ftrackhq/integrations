@@ -8,7 +8,6 @@ import ftrack_api
 
 
 class HoudiniFbxPublisherExporterOptionsWidget(DynamicWidget):
-
     auto_fetch_on_init = True
 
     def __init__(

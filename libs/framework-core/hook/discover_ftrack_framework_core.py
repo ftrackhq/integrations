@@ -22,7 +22,6 @@ sys.path.append(python_dependencies)
 
 
 def on_discover_ftrack_framework_core(session, event):
-
     from ftrack_framework_core import __version__ as integration_version
 
     data = {
@@ -48,9 +47,7 @@ def on_launch_ftrack_framework_core(session, event):
         plugin_base_dir, 'resource', 'bootstrap'
     )
 
-    core_bootstrap_plugin_path = os.path.join(
-        core_bootstrap_path, 'plugins'
-    )
+    core_bootstrap_plugin_path = os.path.join(core_bootstrap_path, 'plugins')
 
     core_definitions_path = os.path.join(
         plugin_base_dir, 'resource', 'definitions'
@@ -72,7 +69,9 @@ def register(session):
     if not isinstance(session, ftrack_api.session.Session):
         return
 
-    handle_discovery_event = functools.partial(on_discover_ftrack_framework_core, session)
+    handle_discovery_event = functools.partial(
+        on_discover_ftrack_framework_core, session
+    )
 
     session.event_hub.subscribe(
         'topic=ftrack.connect.application.discover '
@@ -81,7 +80,9 @@ def register(session):
         priority=20,
     )
 
-    handle_launch_event = functools.partial(on_launch_ftrack_framework_core, session)
+    handle_launch_event = functools.partial(
+        on_launch_ftrack_framework_core, session
+    )
 
     session.event_hub.subscribe(
         'topic=ftrack.connect.application.launch '

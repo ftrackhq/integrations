@@ -115,7 +115,6 @@ class EventManager(object):
         #     )
         # )
         if mode is constants.LOCAL_EVENT_MODE:
-
             result = self.session.event_hub.publish(
                 event,
                 synchronous=True,

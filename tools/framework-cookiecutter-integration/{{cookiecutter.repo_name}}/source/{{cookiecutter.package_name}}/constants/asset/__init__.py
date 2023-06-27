@@ -1,8 +1,8 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-{{cookiecutter.year}} ftrack
 
-#FTRACK_PLUGIN_ID = 0x190319
-FTRACK_PLUGIN_TYPE = 'ftrackAssetNode' # or 'ftracktab'
+# FTRACK_PLUGIN_ID = 0x190319
+FTRACK_PLUGIN_TYPE = 'ftrackAssetNode'  # or 'ftracktab'
 LOCKED = 'locked'
 ASSET_LINK = 'asset_link'
 

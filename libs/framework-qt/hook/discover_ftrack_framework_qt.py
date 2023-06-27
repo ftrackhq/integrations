@@ -77,7 +77,9 @@ def register(session):
         priority=30,
     )
 
-    handle_launch_event = functools.partial(on_launch_ftrack_framework_qt, session)
+    handle_launch_event = functools.partial(
+        on_launch_ftrack_framework_qt, session
+    )
 
     session.event_hub.subscribe(
         'topic=ftrack.connect.application.launch '

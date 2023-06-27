@@ -29,7 +29,9 @@ BUILD_PATH = os.path.join(ROOT_PATH, 'build')
 
 def get_version():
     '''Read version from _version.py, updated by CI based on monorepo package tag'''
-    version_path = os.path.join(SOURCE_PATH, 'ftrack_framework_core', '_version.py')
+    version_path = os.path.join(
+        SOURCE_PATH, 'ftrack_framework_core', '_version.py'
+    )
     with open(version_path, 'r') as file_handle:
         for line in file_handle.readlines():
             if line.find('__version__') > -1:
@@ -117,7 +119,9 @@ setup(
     license='Apache License (2.0)',
     packages=find_packages(SOURCE_PATH),
     package_dir={'': 'source'},
-    package_data={"": ["{}/**/*.*".format(RESOURCE_PATH), "{}/**/*.py".format(HOOK_PATH)]},
+    package_data={
+        "": ["{}/**/*.*".format(RESOURCE_PATH), "{}/**/*.py".format(HOOK_PATH)]
+    },
     version=VERSION,
     python_requires='<3.10',
     setup_requires=[
@@ -145,4 +149,3 @@ setup(
     cmdclass={'test': PyTest, 'build_plugin': BuildPlugin},
     zip_safe=False,
 )
-

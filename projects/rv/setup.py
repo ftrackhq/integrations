@@ -17,30 +17,18 @@ from setuptools.command.test import test as TestCommand
 
 PLUGIN_NAME = 'ftrack-rv-{0}'
 
-ROOT_PATH = os.path.dirname(
-    os.path.realpath(__file__)
-)
+ROOT_PATH = os.path.dirname(os.path.realpath(__file__))
 
-RESOURCE_PATH = os.path.join(
-    ROOT_PATH, 'resource'
-)
+RESOURCE_PATH = os.path.join(ROOT_PATH, 'resource')
 
-HOOK_PATH = os.path.join(
-    RESOURCE_PATH, 'hook'
-)
+HOOK_PATH = os.path.join(RESOURCE_PATH, 'hook')
 
 
-SOURCE_PATH = os.path.join(
-    ROOT_PATH, 'source'
-)
+SOURCE_PATH = os.path.join(ROOT_PATH, 'source')
 
-RVPKG_SOURCE_PATH = os.path.join(
-    RESOURCE_PATH, 'plugin'
-)
+RVPKG_SOURCE_PATH = os.path.join(RESOURCE_PATH, 'plugin')
 
-BUILD_PATH = os.path.join(
-    ROOT_PATH, 'build'
-)
+BUILD_PATH = os.path.join(ROOT_PATH, 'build')
 
 README_PATH = os.path.join(ROOT_PATH, 'README.md')
 
@@ -58,14 +46,12 @@ def get_version():
 VERSION = get_version()
 
 # Define staging path based on the plugin version
-STAGING_PATH = os.path.join(
-    BUILD_PATH, PLUGIN_NAME.format(VERSION)
-)
-
+STAGING_PATH = os.path.join(BUILD_PATH, PLUGIN_NAME.format(VERSION))
 
 
 class BuildPlugin(Command):
     '''Build plugin.'''
+
     description = 'Download dependencies and build plugin .'
     user_options = []
 
@@ -93,27 +79,17 @@ class BuildPlugin(Command):
         '''Copy the hook and the source code.'''
 
         # Copy hooks.
-        shutil.copytree(
-            HOOK_PATH,
-            os.path.join(STAGING_PATH, 'hook')
-        )
+        shutil.copytree(HOOK_PATH, os.path.join(STAGING_PATH, 'hook'))
 
         # Copy sources.
         shutil.copytree(
-            SOURCE_PATH,
-            os.path.join(
-                STAGING_PATH, 'dependencies'
-            )
+            SOURCE_PATH, os.path.join(STAGING_PATH, 'dependencies')
         )
 
     def _build_release_zip(self):
         '''Build zip file for ftrack-rv.'''
 
-        shutil.make_archive(
-            STAGING_PATH,
-            'zip',
-            STAGING_PATH
-        )
+        shutil.make_archive(STAGING_PATH, 'zip', STAGING_PATH)
 
     def _build_rvpkg(self):
         '''Build rv plugin package.'''
@@ -158,13 +134,10 @@ class BuildPlugin(Command):
         zip_name = shutil.make_archive(
             base_name=zip_destination_file_path,
             format='zip',
-            root_dir=self.rvpkg_staging
+            root_dir=self.rvpkg_staging,
         )
 
-        shutil.move(
-            zip_name,
-            rvpkg_destination_file_path
-        )
+        shutil.move(zip_name, rvpkg_destination_file_path)
 
     def run(self):
         '''Run the build step.'''
@@ -173,14 +146,21 @@ class BuildPlugin(Command):
         shutil.rmtree(STAGING_PATH, ignore_errors=True)
 
         subprocess.check_call(
-            [sys.executable, '-m', 'pip', 'install', '.', '--target',
-                os.path.join(self.rvpkg_staging, 'dependencies')]
+            [
+                sys.executable,
+                '-m',
+                'pip',
+                'install',
+                '.',
+                '--target',
+                os.path.join(self.rvpkg_staging, 'dependencies'),
+            ]
         )
 
         shutil.make_archive(
             os.path.join(self.rvpkg_staging, 'dependencies'),
             'zip',
-            os.path.join(self.rvpkg_staging, 'dependencies')
+            os.path.join(self.rvpkg_staging, 'dependencies'),
         )
         shutil.rmtree(os.path.join(self.rvpkg_staging, 'dependencies'))
 
@@ -204,6 +184,7 @@ class PyTest(TestCommand):
     def run_tests(self):
         '''Import pytest and run.'''
         import pytest
+
         errno = pytest.main(self.test_args)
         raise SystemExit(errno)
 
@@ -226,15 +207,10 @@ setup(
         'sphinx >= 1.2.2, < 2',
         'sphinx_rtd_theme >= 0.1.6, < 2',
         'lowdown >= 0.1.0, < 1',
-        'setuptools>=45.0.0'
+        'setuptools>=45.0.0',
     ],
-    install_requires=[
-        'ftrack-python-api >= 2, < 3',
-        'appdirs == 1.4.0'
-    ],
-    tests_require=[
-        'pytest >= 2.3.5, < 3'
-    ],
+    install_requires=['ftrack-python-api >= 2, < 3', 'appdirs == 1.4.0'],
+    tests_require=['pytest >= 2.3.5, < 3'],
     cmdclass={
         'test': PyTest,
         'build_plugin': BuildPlugin,
@@ -242,7 +218,7 @@ setup(
     data_files=[
         (
             'ftrack_connect_rv_resource/hook',
-            glob.glob(os.path.join(ROOT_PATH, 'resource', 'hook', '*.py'))
+            glob.glob(os.path.join(ROOT_PATH, 'resource', 'hook', '*.py')),
         )
-    ]
+    ],
 )
