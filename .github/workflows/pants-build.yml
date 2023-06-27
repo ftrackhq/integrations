@@ -133,11 +133,13 @@ jobs:
           python /tmp/update_versions.py ${{ env.CHANGED }} ${{ needs.set-variables.outputs.version }}
 
       - name: Check BUILD files
+        if: ${{ env.CHANGED != '' }}
         shell: bash
         run: |
           pants tailor --check update-build-files --check ::
       - name: Lint and typecheck
         # TODO enable full linting after fixing all issues (mostly wildcard imports)
+        if: ${{ env.CHANGED != '' }}
         shell: bash
         run: |
           pants lint check --lint-only="black" ::
