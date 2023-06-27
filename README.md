@@ -71,10 +71,10 @@ The desktop application that discovers and launches the DCC integrations and dri
 
 ### Application launcher
 
-| Package                                                                   | Path                                    | Description                                |
-|---------------------------------------------------------------------------|-----------------------------------------|--------------------------------------------|
-| [application-launcher](projects/application-launcher)                     | projects/application-launcher           | The application launcher logic             |
-| [connect-action-launcher-widget](projects/connect-action-launcher-widget) | projects/connect-action-launcher-widget | The action launcher widget in Connect      |
+| Package                                                                   | Path                                    | Description                                | RC                                                                              |
+|---------------------------------------------------------------------------|-----------------------------------------|--------------------------------------------|---------------------------------------------------------------------------------|
+| [application-launcher](projects/application-launcher)                     | projects/application-launcher           | The application launcher logic             | [application-launcher-rc](projects/application-launcher/rc)                     |
+| [connect-action-launcher-widget](projects/connect-action-launcher-widget) | projects/connect-action-launcher-widget | The action launcher widget in Connect      | [connect-action-launcher-widget-rc](projects/connect-action-launcher-widget/rc) |
 
 
 ### Framework integrations
@@ -83,28 +83,28 @@ The framework package group contains the DCC integrations and is divided into li
 
 #### Libraries
 
-| Package                               | Path                  | Description                |
-|---------------------------------------|-----------------------|----------------------------|
-| [framework-core](libs/framework-core) | libs/framework-core   | The core framework library |
-| [framework-qt](libs/framework-qt)     | libs/framework-qt     | The QT framework library   |
+| Package                               | Path                  | Description                | RC                                          |
+|---------------------------------------|-----------------------|----------------------------|---------------------------------------------|
+| [framework-core](libs/framework-core) | libs/framework-core   | The core framework library | [framework-core-rc](libs/framework-core/rc) |
+| [framework-qt](libs/framework-qt)     | libs/framework-qt     | The QT framework library   | [framework-qt-rc](libs/framework-qt/rc)     |
 
 
 #### DCC integrations
 
-| Package                                         | Path                       | Description                   |
-|-------------------------------------------------|----------------------------|-------------------------------|
-| [framework-maya](projects/framework-maya)       | projects/framework-maya    | Maya DCC integration          |
-| [framework-nuke](projects/framework-nuke)       | projects/framework-nuke    | Nuke DCC integration          |
-| [framework-houdini](projects/framework-houdini) | projects/framework-houdini | Houdini DCC integration       |
-| [framework-3dsmax](projects/framework-3dsmax)   | projects/framework-3dsmax  | 3d Studio Max DCC integration |
-| [framework-unreal](projects/framework-unreal)   | projects/framework-unreal  | Unreal Engine DCC integration |
+| Package                                         | Path                       | Description                   | RC                                                    |
+|-------------------------------------------------|----------------------------|-------------------------------|-------------------------------------------------------|
+| [framework-maya](projects/framework-maya)       | projects/framework-maya    | Maya DCC integration          | [framework-maya-rc](projects/framework-maya/rc)       |
+| [framework-nuke](projects/framework-nuke)       | projects/framework-nuke    | Nuke DCC integration          | [framework-nuke-rc](projects/framework-nuke/rc)       |
+| [framework-houdini](projects/framework-houdini) | projects/framework-houdini | Houdini DCC integration       | [framework-houdini-rc](projects/framework-houdini/rc) |
+| [framework-3dsmax](projects/framework-3dsmax)   | projects/framework-3dsmax  | 3d Studio Max DCC integration | [framework-3dsmax-rc](projects/framework-3dsmax/rc)   |
+| [framework-unreal](projects/framework-unreal)   | projects/framework-unreal  | Unreal Engine DCC integration | [framework-unreal-rc](projects/framework-unreal/rc)   |
 
 ### Standalone integrations
 
-| Package                             | Path                 | Description             |
-|-------------------------------------|----------------------|-------------------------|
-| [rv](projects/rv)                   | projects/rv          | RV player integration   |
-| [nuke-studio](projects/nuke-studio) | projects/nuke-studio | Nuke Studio integration |
+| Package                             | Path                 | Description             | RC                                        |
+|-------------------------------------|----------------------|-------------------------|-------------------------------------------|
+| [rv](projects/rv)                   | projects/rv          | RV player integration   | [rv-rc](projects/rv/rc)                   |
+| [nuke-studio](projects/nuke-studio) | projects/nuke-studio | Nuke Studio integration | [nuke-studio-rc](projects/nuke-studio/rc) |
 
 
 ### Connect publisher

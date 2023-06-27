@@ -5,6 +5,12 @@ on:
       changed:
         required: true
         type: string
+      is_rc:
+        required: true
+        type: boolean
+      build_index:
+        required: true
+        type: boolean
       destination:
         default: ./_site
         type: string
@@ -12,6 +18,7 @@ on:
 #    branches:
 #      - main # Set a branch name to trigger deployment
 #      - gh-pages # TODO: Remove before release
+
 
 permissions:
   contents: write
@@ -21,10 +28,9 @@ permissions:
 jobs:
   # Build root docs
   build-index:
+    if: ${{ inputs.build_index }}
     runs-on: ubuntu-latest
     steps:
-      - name: test_input
-        run : echo ${{ inputs.changed }} && echo ${{ inputs.destination }}
       - name: Checkout
         uses: actions/checkout@v3
       - name: Setup Pages
@@ -33,28 +39,25 @@ jobs:
         uses: actions/jekyll-build-pages@v1
         with:
           source: ./
-          destination: ${{ inputs.destination }}
-#      - name: Deploy
-#        uses: peaceiris/actions-gh-pages@v3
-#        # Todo: uncheck this when you are ready to only deploy from main
-#        #if: ${{ github.ref == 'refs/heads/main' }}
-#        with:
-#          publish_branch: gh-pages
-#          github_token: ${{ secrets.GITHUB_TOKEN }}
-#          publish_dir: ${{ inputs.destination }}
-#          force_orphan: true
-#          exclude_assets: libs,projects,apps
-          #enable_jekyll: true
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v1
+          destination: ./_site
+      - name: Deploy
+        uses: peaceiris/actions-gh-pages@v3
+        # Todo: uncheck this when you are ready to only deploy from main
+        #if: ${{ github.ref == 'refs/heads/main' }}
         with:
-          path: ${{ inputs.destination }}
+          publish_branch: gh-pages
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./_site
+          force_orphan: true
+          exclude_assets: libs,projects,apps
 
   build-package-docs:
     needs: build-index
+    if: ${{ always() }}
     strategy:
+      max-parallel: 1
       matrix:
-        package: [ framework-maya, framework-nuke, framework-houdini, framework-3dsmax] #application-launcher, connect-action-launcher-widget, connect-plugin-manager, connect-timetracker-widget, nuke-studio, rv
+        package: [ framework-maya, framework-nuke, framework-houdini, framework-3dsmax, framework-unreal application-launcher, connect-action-launcher-widget, connect-plugin-manager, connect-publisher-widget, nuke-studio, rv]
         folder: [projects]
         include:
           - package: framework-core
@@ -66,66 +69,71 @@ jobs:
     name: Build docs (${{ matrix.package }})
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v3
+        if: ${{ contains(inputs.changed,matrix.package) }}
+      - uses: actions/setup-python@v4
+        if: ${{ contains(inputs.changed,matrix.package) }}
+        with:
+          python-version: '3.7'
+      - name: Install dependencies
+        if: ${{ contains(inputs.changed,matrix.package) }}
+        run: |
+          pip install mock
+          pip install sphinx sphinx_rtd_theme lowdown
+      - name: Sphinx build
+        if: ${{ contains(inputs.changed,matrix.package) }}
+        run: |
+          cd ${{ matrix.folder }}/${{ matrix.package }}
+          sphinx-build doc public
+      - name: Set destination  directory
+        id: dest_dir
+        if: ${{ contains(inputs.changed,matrix.package) }}
+        run: |
+          if [ ${{ inputs.is_rc }} = true ]
+          then
+            echo "DEST_DIR=${{ matrix.folder }}/${{ matrix.package }}/rc" >> $GITHUB_OUTPUT
+          else
+            echo "DEST_DIR=${{ matrix.folder }}/${{ matrix.package }}" >> $GITHUB_OUTPUT
+          fi
+      - name: Deploy
+        uses: peaceiris/actions-gh-pages@v3
+        if: ${{ contains(inputs.changed,matrix.package) }}
+        # Todo: uncheck this when you are ready to only deploy from main
+        #if: ${{ github.ref == 'refs/heads/main' }}
+        with:
+          publish_branch: gh-pages
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ${{ matrix.folder }}/${{ matrix.package }}/public
+          keep_files: true
+          destination_dir: ${{steps.dest_dir.outputs.DEST_DIR}}
+
+  upload:
+    needs:  build-package-docs
+    if: ${{ always() }}
+    runs-on: ubuntu-latest
+    steps:
       - name: Checkout
         uses: actions/checkout@v3
-      - name: Setup Pages
-        uses: actions/configure-pages@v3
-      - name: Build with Jekyll
-        uses: actions/jekyll-build-pages@v1
         with:
-          source: ./
-          destination: public/${{ inputs.folder }}/${{ inputs.package }}
-      - name: build-docs
-        uses: ./.github/actions/build-docs
-        #if: ${{ contains(inputs.changed,matrix.package) }}
-        with:
-          package: ${{ matrix.package }}
-          folder: ${{ matrix.folder }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
+      - name: Checkout temporary branch
+        run: |
+          git fetch --all
+          git checkout gh-pages
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v1
         with:
-          path: public/${{ inputs.folder }}/${{ inputs.package }}
+          path: ./
 
-
-#
-#  upload:
-#    needs:  build-package-docs
-#    runs-on: ubuntu-latest
-#    steps:
-#      - name: Checkout
-#        uses: actions/checkout@v3
-#        with:
-#          fetch-depth: 0
-#      - name: Checkout temporary branch
-#        run: |
-#          git fetch --all
-#          git checkout gh-pages
-#      - name: Upload artifact
-#        uses: actions/upload-pages-artifact@v1
-#        with:
-#          path: ./
-
-
-  deploy: #TODO: This is working, but probably should be moved under build packages
+  # Deployment job
+  deploy:
+    needs: upload
+    if: ${{ always() }}
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
-    needs: build-package-docs
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v2
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-
-#  # Deployment job
-#  deploy:
-#    needs: upload
-#    environment:
-#      name: github-pages
-#      url: ${{ steps.deployment.outputs.page_url }}
-#    runs-on: ubuntu-latest
-#    steps:
-#      - name: Deploy to GitHub Pages
-#        id: deployment
-#        uses: actions/deploy-pages@v2
