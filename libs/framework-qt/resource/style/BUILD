@@ -1,4 +1,1 @@
-resources(
-    name="qt_style",
-    sources=["**/*.*"]
-)
+resources(name="qt_style", sources=["**/*.*"])

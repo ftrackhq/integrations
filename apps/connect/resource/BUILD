@@ -1,4 +1,1 @@
-resources(
-    name="style",
-    sources=["**/*.*"]
-)
+resources(name="style", sources=["**/*.*"])
