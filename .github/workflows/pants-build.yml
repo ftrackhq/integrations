@@ -108,7 +108,6 @@ jobs:
         if: ${{ env.CHANGED != '' }}
         run: |
           echo "import sys " >> /tmp/update_versions.py
-          echo "import os " >> /tmp/update_versions.py
           echo "def update_versions(packages, version):" >> /tmp/update_versions.py
           echo "    packages = packages.split(',') " >> /tmp/update_versions.py
           echo "    print('new packages: {}'.format(packages)) " >> /tmp/update_versions.py
@@ -128,7 +127,6 @@ jobs:
           echo "    ver_path = '{fol}/{pack}/source/ftrack_{pack_mod}/_version.py'.format(fol=folder, pack=package, pack_mod=package.replace('-','_')) " >> /tmp/update_versions.py
           echo "    with open(ver_path, 'w') as f: " >> /tmp/update_versions.py
           echo "        f.write('__version__ = \'{}\'\n'.format(version))" >> /tmp/update_versions.py
-          echo "    os.system('cat {}'.format(ver_path))" >> /tmp/update_versions.py
 
           echo "update_versions(sys.argv[1], sys.argv[2]) " >> /tmp/update_versions.py
           
