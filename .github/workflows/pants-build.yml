@@ -135,12 +135,12 @@ jobs:
       - name: Check BUILD files
         shell: bash
         run: |
-          pants tailor --check update-build-files --no-update-build-files-fmt --check ::
+          pants tailor --check update-build-files --check ::
       - name: Lint and typecheck
-        if: ${{ !inputs.check_changed && false }} # TODO enable linting after fixing all issues (mostly wildcard imports)
+        # TODO enable full linting after fixing all issues (mostly wildcard imports)
         shell: bash
         run: |
-          pants lint check ::
+          pants lint check --lint-only="black" ::
       - name: Package all
         if: ${{ env.CHANGED != '' }}
         shell: bash
