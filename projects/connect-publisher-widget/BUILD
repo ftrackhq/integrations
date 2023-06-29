@@ -6,23 +6,17 @@ python_requirements(
     name="reqs",
 )
 
-resource(
-    name="README",
-    source="README.md"
-)
+resource(name="README", source="README.md")
 
 
 python_distribution(
     name="ftrack_connect_publisher_widget",
-    dependencies=[
-         ":reqs",
-         ":connect_publisher_widget_project",
-         ":README"
-    ],
+    dependencies=[":reqs", ":connect_publisher_widget_project", ":README"],
     provides=python_artifact(
         name="ftrack_connect_publisher_widget",
     ),
-    wheel_config_settings={"--global-option": ["--python-tag", "py37.py38.py39"]},
-    generate_setup = False,
+    wheel_config_settings={
+        "--global-option": ["--python-tag", "py37.py38.py39"]
+    },
+    generate_setup=False,
 )
-
