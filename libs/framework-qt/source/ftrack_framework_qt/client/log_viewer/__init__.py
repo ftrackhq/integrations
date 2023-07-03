@@ -72,7 +72,7 @@ class QtLogViewerClientWidget(QtLogViewerClient, dialog.Dialog):
         return 'ftrack'
 
     def is_docked(self):
-        False
+        return False
 
     # Build
 
