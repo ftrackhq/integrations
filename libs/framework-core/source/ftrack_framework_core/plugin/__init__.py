@@ -15,6 +15,7 @@ from ftrack_framework_core.asset import FtrackObjectManager
 from ftrack_framework_core.asset.dcc_object import DccObject
 
 
+# TODO: Move this to a validation file In this case maybe better to keep it inside the plugin folder
 class BasePluginValidation(object):
     '''Plugin Validation base class'''
 
@@ -126,7 +127,7 @@ class BasePluginValidation(object):
                         break
         return validator_result
 
-
+# TODO: Shouldn't basePlugin, somehow be an object like the definitionObject Plugin class? maybe inherit from there?
 class BasePlugin(object):
     '''Base Class to represent a Plugin'''
 
@@ -210,11 +211,13 @@ class BasePlugin(object):
         '''Returns a copy of :attr:`required_output`'''
         return copy.deepcopy(self._required_output)
 
+    #TODO: remove this and move it to the event module
     @property
     def discover_topic(self):
         '''Return a formatted PIPELINE_DISCOVER_PLUGIN_TOPIC'''
         return self._base_topic(constants.PIPELINE_DISCOVER_PLUGIN_TOPIC)
 
+    # TODO: remove this and move it to the event module
     @property
     def run_topic(self):
         '''Return a formatted PIPELINE_RUN_PLUGIN_TOPIC'''

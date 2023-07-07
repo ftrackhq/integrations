@@ -173,7 +173,9 @@ class Events(object):
         #TODO: retrun all available events
         pass
 
-
+# TODO: all pipeline events should be renamed to framework events, including
+#  the structure: data/pipeline/<data> should be renamed to data/framework/<data>
+#  or directly data/<data>
 
 
 class Publish(object):

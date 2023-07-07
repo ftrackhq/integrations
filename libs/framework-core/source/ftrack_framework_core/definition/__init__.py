@@ -56,6 +56,7 @@ class BaseDefinition(object):
             return
 
         # TODO: Should we rename this to pipeline_Register_definition??
+        # Also move this to events module
         self.session.event_hub.subscribe(
             'topic={} and data.pipeline.type=definition'.format(
                 constants.PIPELINE_REGISTER_TOPIC
@@ -63,6 +64,7 @@ class BaseDefinition(object):
             self.register_definitions,
         )
 
+    # TODO: rename to register_definitions_callback.
     def register_definitions(self, event):
         '''
         Callback method that returns the registred host_types and

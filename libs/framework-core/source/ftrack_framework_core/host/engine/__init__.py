@@ -119,6 +119,7 @@ class BaseEngine(object):
 
         self.event_manager = event_manager
 
+    # TODO: rename this to prepare the data for the run plugin event, and move the event to the events module
     def run_event(
         self,
         plugin_name,
@@ -203,6 +204,8 @@ class BaseEngine(object):
         '''
 
         plugin_name = plugin['plugin']
+        # TODO: try to find a way to not get the plugin data structure. Maybe moving it to constants.
+        #  OR by creating the pluginObject
         start_data = {
             'plugin_name': plugin_name,
             'plugin_type': plugin_type,
@@ -219,6 +222,7 @@ class BaseEngine(object):
         result_data['status'] = constants.UNKNOWN_STATUS
 
         for host_type in reversed(self._host_types):
+            # TODO: move this to events module
             event = self.run_event(
                 plugin_name,
                 plugin_type,
@@ -229,6 +233,7 @@ class BaseEngine(object):
                 method,
             )
 
+            # TODO: result data should contain widget_ref and plugin_id and host_id for the notify client.
             plugin_result_data = self.session.event_hub.publish(
                 event, synchronous=True
             )
@@ -236,9 +241,11 @@ class BaseEngine(object):
                 result_data = plugin_result_data[0]
                 break
 
+        # TODO: once event moved to events module, directly call that in here and remove the _notify_client method
         self._notify_client(plugin, result_data)
         return result_data
 
+    # TODO: this would be removed once event is moved to events module.
     def _notify_client(self, plugin, result_data):
         '''
         Publish an :class:`ftrack_api.event.base.Event` with the topic
@@ -252,7 +259,9 @@ class BaseEngine(object):
 
         '''
 
+        # Todo: host_id,widget_ref and plugin_id should come from the plugin_result_data
         result_data['host_id'] = self.host_id
+
         if plugin:
             result_data['widget_ref'] = plugin.get('widget_ref')
             result_data["plugin_id"] = plugin.get('plugin_id')
@@ -270,6 +279,7 @@ class BaseEngine(object):
             event,
         )
 
+    # TODO: This should be renamed to run_plugin or removed as run_plugin already exists.
     def run(self, data):
         '''
         Executes the :meth:`_run_plugin` with the provided *data*.
@@ -279,6 +289,7 @@ class BaseEngine(object):
         :meth:`~ftrack_framework_core.client.HostConnection.run`
         '''
 
+        # TODO: refactor this: if not plugin return None.
         method = data.get('method', 'run')
         plugin = data.get('plugin', None)
         plugin_type = data.get('plugin_type', None)
@@ -406,6 +417,8 @@ class BaseEngine(object):
                     if step_type == constants.CONTEXT:
                         result['asset_type_name'] = self.asset_type_name
 
+            # TODO: the keys for a plugin dictionary should come from constants.
+            #  A new plugin object should be created to manage this like the definitionsObject.
             plugin_dict = {
                 "name": plugin_name,
                 "options": plugin_options,
@@ -464,6 +477,7 @@ class BaseEngine(object):
         # data will be, the previous step data, plus the current step dictionary
         # plus the stage result filled on every loop
         data = step_data
+        # TODO: should this come from constants as well?
         current_step_dict = {
             "name": step_name,
             "result": step_results,
@@ -509,6 +523,7 @@ class BaseEngine(object):
                         "Execution of the stage {} failed.".format(stage_name)
                     )
 
+                # TODO: this should also be defined in constants
                 stage_dict = {
                     "name": stage_name,
                     "result": stage_result,
@@ -553,6 +568,7 @@ class BaseEngine(object):
         )
         return step_status, step_results
 
+    # tODO: once moved to events, this can be removed and directly call it from the event module
     def _notify_progress_client(
         self,
         step_type,
@@ -586,6 +602,7 @@ class BaseEngine(object):
             'results': results,
         }
 
+        # TODO: Move this to events. Also make sure that name of the event makes sense and is aligned with others.
         event = ftrack_api.event.base.Event(
             topic=constants.PIPELINE_CLIENT_PROGRESS_NOTIFICATION,
             data={'pipeline': data},
@@ -595,6 +612,7 @@ class BaseEngine(object):
             event,
         )
 
+    # TODO: as a low priority task, try to improve this makeing a better use of the definition object, maybe extending the definition object as well to know how to run steps, stages and plugins.
     def run_definition(self, data):
         '''
         Runs the whole definition from the provided *data*.
@@ -621,6 +639,7 @@ class BaseEngine(object):
             group_status = True
 
             for step in group_steps:
+                # TODO: bare in mind that this is a definitionObject, so we can make use of it like step.name
                 step_name = step['name']
                 step_stages = step['stages']
                 step_enabled = step['enabled']
@@ -662,6 +681,7 @@ class BaseEngine(object):
                         "Execution of the step {} failed.".format(step_name)
                     )
 
+                # TODO: this should be defined in constnats
                 step_dict = {
                     "name": step_name,
                     "result": step_result,
@@ -702,6 +722,10 @@ class BaseEngine(object):
                             )
                         )
                         if not component_stage.get("type") in [
+                            # TODO: re-evaluate this kind of things, what if the
+                            #  definition doesn't have exporters?
+                            #  Example: the AM definition. Can't we make use of
+                            #  the definition object to solve this kind of stuff?
                             constants.IMPORTER,
                             constants.EXPORTER,
                             constants.POST_IMPORTER,
@@ -721,7 +745,7 @@ class BaseEngine(object):
 
         return finalizers_output
 
-
+# TODO: Don't use * imports
 from ftrack_framework_core.host.engine.publish import *
 from ftrack_framework_core.host.engine.load import *
 from ftrack_framework_core.host.engine.open import *

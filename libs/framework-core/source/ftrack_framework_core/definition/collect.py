@@ -12,6 +12,7 @@ from ftrack_framework_core import constants
 
 logger = logging.getLogger(__name__)
 
+# TODO: maybe rename this module to discover definitions to align with the plugins? or its ok as collector? In any case align booth.
 
 def resolve_schemas(data):
     '''
@@ -50,6 +51,7 @@ def filter_definitions_by_host(data, host_types):
     return copy_data
 
 
+# Discover or collect, but align with plugins.
 def collect_definitions(definition_paths):
     '''
     Collect all the schemas and definitions from the given
