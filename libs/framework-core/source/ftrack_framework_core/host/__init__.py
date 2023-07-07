@@ -191,6 +191,7 @@ class Host(object):
             self.host_name,
         )
 
+        #TODO: move this to the events module
         self._event_manager.subscribe(
             constants.PIPELINE_DISCOVER_HOST, handle_event
         )
@@ -322,6 +323,7 @@ class Host(object):
         :const:`~ftrack_framework_core.constants.PIPELINE_CLIENT_NOTIFICATION`
         to receive client notifications from the host in :meth:`_notify_client`
         '''
+        #TODO: move this to the events module
         self.session.event_hub.subscribe(
             'topic={} and data.pipeline.host_id={}'.format(
                 constants.PIPELINE_CLIENT_NOTIFICATION, self._host_id
@@ -369,6 +371,7 @@ class Host(object):
             self.context_id = context_id
 
     def _ftrack_context_id_changed(self):
+        #TODO: move this to events module
         event = ftrack_api.event.base.Event(
             topic=constants.PIPELINE_HOST_CONTEXT_CHANGE,
             data={

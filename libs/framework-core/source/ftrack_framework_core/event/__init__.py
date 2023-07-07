@@ -73,6 +73,10 @@ class EventManager(object):
     def mode(self):
         return self._mode
 
+    @property
+    def events(self):
+        return self._events_class
+
     def _connect(self):
         # If is not already connected, connect to event hub.
         while not self.connected:
@@ -102,6 +106,8 @@ class EventManager(object):
             # TODO: Bring this back when API event hub properly can differentiate between local and remote mode
             self._connect()
             self._wait()
+
+        self._events_class = Events(self)
 
         # self.logger.debug('Initialising {}'.format(self))
 
@@ -138,3 +144,71 @@ class EventManager(object):
 
     def subscribe(self, topic, callback):
         self.session.event_hub.subscribe('topic={}'.format(topic), callback)
+
+    def available_framework_events(self):
+        pass
+
+
+class Events(object):
+
+    @property
+    def event_manager(self):
+        return self._event_manager
+
+    @property
+    def publish(self):
+        return self._publish_class
+
+    @property
+    def subscribe(self):
+        return self._subscription_class
+
+    def __init__(self, event_manager):
+        super(Events, self).__init__()
+        self._event_manager = event_manager
+        self._publish_class = Publish(self.event_manager)
+        self._subscription_class = Subscribe(self.event_manager)
+
+    def list(self):
+        # TODO: retrun all available events
+        pass
+
+
+
+
+class Publish(object):
+
+    @property
+    def event_manager(self):
+        return self._event_manager
+
+    def __init__(self, event_manager):
+        super(Publish, self).__init__()
+        self._event_manager = event_manager
+
+    def _publish_event(self, event_topic, callback):
+        event = ftrack_api.event.base.Event(topic=event_topic)
+        self.event_manager.publish(event, callback=callback)
+
+    def discover_host(self, callback=None):
+        topic = constants.PIPELINE_DISCOVER_HOST
+        self._publish_event(topic, callback)
+
+
+class Subscribe(object):
+
+    @property
+    def event_manager(self):
+        return self._event_manager
+
+    def __init__(self, event_manager):
+        super(Subscribe, self).__init__()
+        self._event_manager = event_manager
+
+    def _subscribe_event(self, event_topic, callback):
+        self.event_manager.subscribe(event_topic, callback=callback)
+
+    def discover_host(self, callback):
+        topic = constants.PIPELINE_DISCOVER_HOST
+        self._subscribe_event(topic, callback)
+

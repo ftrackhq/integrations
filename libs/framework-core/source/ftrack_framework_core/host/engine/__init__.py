@@ -260,6 +260,7 @@ class BaseEngine(object):
             result_data['widget_ref'] = None
             result_data["plugin_id"] = None
 
+        #TODO: move this to the events module
         event = ftrack_api.event.base.Event(
             topic=constants.PIPELINE_CLIENT_NOTIFICATION,
             data={'pipeline': result_data},

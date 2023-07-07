@@ -91,6 +91,7 @@ PIPELINE_HOST_RUN = '{}.host.run'.format(_BASE_)
 #: Published in :meth:`~ftrack_framework_core.host.engine.BaseEngine._notify_client`,
 #: and Subscribed in
 #: :meth:`~ftrack_framework_core.client.on_client_notification`
+# TODO: rename this to PIPELINE_NOTIFY_CLIENT
 PIPELINE_CLIENT_NOTIFICATION = '{}.client.notification'.format(_BASE_)
 #: Pipeline client progress notification topic event. Used to communicate the result of
 #: the steps execution from host to the client.
