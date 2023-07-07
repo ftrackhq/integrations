@@ -13,69 +13,6 @@ from ftrack_framework_core.log import LogDB
 from ftrack_framework_core.log.log_item import LogItem
 from ftrack_framework_core.definition import definition_object
 
-class Client(object):
-    @property
-    def event_manager(self):
-        return self._event_manager
-    @property
-    def available_hosts(self):
-        return self._available_hosts
-
-    @property
-    def connected_host(self):
-        pass
-        #return self._connected_host
-
-    def __init__(self, event_manager):
-        '''
-        Initialise Client with instance of
-        :class:`~ftrack_framework_core.event.EventManager`
-        '''
-        self.logger = logging.getLogger(
-            __name__ + '.' + self.__class__.__name__
-        )
-        self._event_manager = event_manager
-        self.logger.debug('Initialising {}'.format(self))
-        self._available_hosts = []
-
-    def discover_hosts(self, time_out=3):
-        # discovery host loop and timeout.
-        start_time = time.time()
-        self.logger.debug('time out set to {}:'.format(time_out))
-        if not time_out:
-            self.logger.warning(
-                'Running client with no time out.'
-                'Will not stop until discover a host.'
-                'Terminate with: Ctrl-C'
-            )
-
-        while not self.available_hosts:
-            delta_time = time.time() - start_time
-
-            if time_out and delta_time >= time_out:
-                self.logger.warning('Could not discover any host.')
-                break
-
-            #TODO: this doesn't work because is async, we have to add them into the variable self. so we have to change the properties back.
-            self.event_manager.events.publish.discover_host(callback=self._host_discovered)
-
-    def _host_discovered(self, event):
-        '''
-        Callback, add the :class:`~ftrack_framework_core.client.HostConnection`
-        of the new discovered :class:`~ftrack_framework_core.host.HOST` from
-        the given *event*.
-
-        *event*: :class:`ftrack_api.event.base.Event`
-        '''
-        print("in discover")
-        if not event['data']:
-            return
-        host_connection = HostConnection(self.event_manager, event['data'])
-        if (
-            host_connection# and self.filter_host(host_connection)
-        ):
-            self._available_hosts.append(host_connection)
-
 
 
 
