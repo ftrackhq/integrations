@@ -55,6 +55,7 @@ class BaseDefinition(object):
             # Exit to avoid registering this plugin again.
             return
 
+        # TODO: Should we rename this to pipeline_Register_definition??
         self.session.event_hub.subscribe(
             'topic={} and data.pipeline.type=definition'.format(
                 constants.PIPELINE_REGISTER_TOPIC

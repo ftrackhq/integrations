@@ -170,7 +170,7 @@ class Events(object):
         self._subscription_class = Subscribe(self.event_manager)
 
     def list(self):
-        # TODO: retrun all available events
+        #TODO: retrun all available events
         pass
 
 

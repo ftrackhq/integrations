@@ -1,6 +1,8 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2020 ftrack
 
+#TODO: re-check that all the constants in here are used. Remove the unused ones.
+
 #: Default ui type for ftrack_framework_core
 UI_TYPE = None
 #: Default host type for ftrack_framework_core
@@ -63,6 +65,7 @@ LOG_VIEWER = 'log_viewer'
 
 DEFINITION_TYPES = [OPENER, LOADER, PUBLISHER, ASSET_MANAGER]
 
+# TODO: Move event constants to event constants file
 # External events.
 #: Pipeline register topic event. Published by the
 #: :class:`~ftrack_framework_core.host.Host` and used to register

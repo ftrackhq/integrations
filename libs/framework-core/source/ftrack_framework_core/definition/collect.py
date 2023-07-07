@@ -38,6 +38,7 @@ def filter_definitions_by_host(data, host_types):
     logger.debug('filtering definition for host_type: {}'.format(host_types))
     for entry in constants.DEFINITION_TYPES:
         for definition in data[entry]:
+            # TODO: host_type should be replaced by a constant.
             if str(definition.get('host_type')) not in host_types:
                 logger.debug(
                     'Removing definition for host_type: {}'.format(
@@ -56,6 +57,7 @@ def collect_definitions(definition_paths):
 
     *definition_paths* : Directory path to look for the definitions.
     '''
+    # TODO: keys should be given by constants, we might have different clients in the future.
     data = {
         'schema': [],
         'publisher': [],
