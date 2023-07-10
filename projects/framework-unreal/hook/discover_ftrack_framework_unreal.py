@@ -8,6 +8,8 @@ import logging
 import functools
 import shutil
 
+NAME = 'framework-unreal'
+
 logger = logging.getLogger('ftrack_framework_unreal.discover')
 
 plugin_base_dir = os.path.normpath(
@@ -24,7 +26,7 @@ def on_discover_ftrack_framework_unreal(session, event):
 
     data = {
         'integration': {
-            "name": 'framework-unreal',
+            'name': 'ftrack-{}'.format(NAME),
             'version': integration_version,
         }
     }
