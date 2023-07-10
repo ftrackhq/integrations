@@ -290,6 +290,7 @@ class BasePlugin(object):
             self.return_value,
         )
 
+
     # TODO: clean up this and move to events
     def _base_topic(self, topic):
         '''

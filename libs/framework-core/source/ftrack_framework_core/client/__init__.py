@@ -266,6 +266,19 @@ class Client(object):
         '''
         return self._event_manager.session
 
+    # TODO: I think there should be a midle man that is a base framework widget
+    #  and its a ABC wraper. This one should be inherit in the qt widgets and
+    #  maybe this should live in the ftrack_ui library? or framework_widget
+    #  library. ftrack framework_ui library (this will be the base ABC wrapper)
+    #   def connect_widget_signals(self):
+    #     if widget:
+    #         widget.conetxt_changed.connect_signal(self.context_changed)
+    #   def discover_hosts(self):
+    #     host_discovered = discover()
+    #     if widget:
+    #         widget.hosts = host_discovered
+
+
     @property
     def event_manager(self):
         '''Returns instance of
