@@ -7,6 +7,8 @@ import ftrack_api
 import logging
 import functools
 
+NAME = 'framework-maya'
+
 logger = logging.getLogger('ftrack_framework_maya.discover')
 
 plugin_base_dir = os.path.normpath(
@@ -21,7 +23,7 @@ def on_discover_ftrack_framework_maya(session, event):
 
     data = {
         'integration': {
-            "name": 'framework-maya',
+            'name': 'ftrack-{}'.format(NAME),
             'version': integration_version,
         }
     }

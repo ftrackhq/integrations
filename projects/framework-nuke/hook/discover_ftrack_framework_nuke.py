@@ -7,6 +7,8 @@ import ftrack_api
 import logging
 import functools
 
+NAME = 'framework-nuke'
+
 logger = logging.getLogger('ftrack_framework_nuke.listen_nuke_launch')
 
 plugin_base_dir = os.path.normpath(
@@ -23,7 +25,7 @@ def on_discover_ftrack_framework_nuke(session, event):
 
     data = {
         'integration': {
-            "name": 'framework-nuke',
+            'name': 'ftrack-{}'.format(NAME),
             'version': integration_version,
         }
     }

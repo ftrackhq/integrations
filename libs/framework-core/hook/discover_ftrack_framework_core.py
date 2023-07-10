@@ -8,7 +8,6 @@ import logging
 import functools
 
 NAME = 'framework-core'
-VERSION = '0.1.0'
 
 logger = logging.getLogger('{}.hook'.format(NAME.replace('-', '_')))
 
@@ -26,7 +25,7 @@ def on_discover_ftrack_framework_core(session, event):
 
     data = {
         'integration': {
-            'name': 'framework-core',
+            'name': 'ftrack-{}'.format(NAME),
             'version': integration_version,
         }
     }

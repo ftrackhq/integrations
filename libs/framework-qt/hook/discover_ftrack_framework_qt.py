@@ -25,7 +25,7 @@ def on_discover_ftrack_framework_qt(session, event):
 
     data = {
         'integration': {
-            'name': 'framework-qt',
+            'name': 'ftrack-{}'.format(NAME),
             'version': integration_version,
         }
     }
