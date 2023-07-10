@@ -1,0 +1,44 @@
+{
+    "type": "resolver",
+    "name": "default",
+    "host_type": "nuke",
+    "ui_type": "qt",
+    "resolvers":{
+        "resolve_dependencies":[
+            {
+                "name": "Resolve Nuke context asset dependencies",
+                "plugin": "common_default_am_resolver",
+                "options": {
+                    "task_types":{
+                        "*": {
+                            "asset_types": [
+                                {
+                                    "asset_type": "img",
+                                    "filters": {
+                                        "task_names_include": [".*"],
+                                        "task_names_exclude": [".^"],
+                                        "asset_names_include": [".*"],
+                                        "asset_names_exclude": [".^"]
+                                    }
+                                },
+                                {
+                                    "asset_type": "render",
+                                    "filters": {
+                                        "task_names_include": [".*"],
+                                        "task_names_exclude": [".^"],
+                                        "asset_names_include": [".*"],
+                                        "asset_names_exclude": [".^"]
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "status_names_include": [".*"],
+                    "status_names_exclude": ["(?i)(\\W|^)(Omitted)(\\W|$)"],
+                    "linked_only": true,
+                    "max_link_depth": 1
+                }
+            }
+        ]
+    }
+}

@@ -1,5 +1,5 @@
 {
-  "title": "Asset_manager",
+  "title": "Resolver",
   "type": "object",
   "additionalProperties": false,
   "definitions": {
@@ -20,7 +20,7 @@
         },
         "engine_type": {
           "type": "string",
-          "default": "asset_manager"
+          "default": "resolver"
         }
       }
     },
@@ -80,7 +80,7 @@
         }
       }
     },
-    "ActionPlugin": {
+    "ResolverPlugin": {
       "allOf": [
         {
           "$ref": "#/definitions/Plugin"
@@ -88,114 +88,31 @@
       ],
       "properties": {
         "type": {
-          "pattern": "^action$",
-          "default": "action"
+          "pattern": "^resolver$",
+          "default": "resolver$"
         }
       }
     },
-    "Action": {
-      "title": "Action",
+    "Resolver": {
+      "title": "Resolver",
       "type": "object",
       "required": [
-        "update",
-        "select",
-        "remove",
-        "load",
-        "unload"
-      ],
-      "order":[
-        "update",
-        "select",
-        "remove",
-        "load",
-        "unload"
+        "resolve_dependencies"
       ],
       "additionalProperties": false,
       "properties": {
-        "update": {
+        "resolve_dependencies": {
           "type": "array",
           "items": {
-            "allOf": [{"$ref": "#/definitions/ActionPlugin"}],
+            "allOf": [{"$ref": "#/definitions/ResolverPlugin"}],
             "properties": {
                 "type": {
-                  "pattern": "^action$",
-                  "default": "action"
-                },
-                "ui_callback": {
-                  "type": "string",
-                  "default": "ctx_update"
+                  "pattern": "^resolver$",
+                  "default": "resolver"
                 }
               }
           },
           "minItems": 1
-        },
-        "select": {
-          "type": "array",
-          "default": [],
-          "items": {
-            "allOf": [{"$ref": "#/definitions/ActionPlugin"}],
-            "properties": {
-              "type": {
-                "pattern": "^action$",
-                "default": "action"
-              },
-              "ui_callback": {
-                "type": "string",
-                "default": "ctx_select"
-              }
-            }
-          }
-        },
-        "remove": {
-          "type": "array",
-          "default": [],
-          "items": {
-            "allOf": [{"$ref": "#/definitions/ActionPlugin"}],
-            "properties": {
-                "type": {
-                  "pattern": "^action$",
-                  "default": "action"
-                },
-                "ui_callback": {
-                  "type": "string",
-                  "default": "ctx_remove"
-                }
-              }
-          }
-        },
-        "load": {
-          "type": "array",
-          "default": [],
-          "items": {
-            "allOf": [{"$ref": "#/definitions/ActionPlugin"}],
-            "properties": {
-              "type": {
-                "pattern": "^action$",
-                "default": "action"
-              },
-              "ui_callback": {
-                "type": "string",
-                "default": "ctx_load"
-              }
-            }
-          }
-        },
-        "unload": {
-          "type": "array",
-          "default": [],
-          "items": {
-            "allOf": [{"$ref": "#/definitions/ActionPlugin"}],
-            "properties": {
-              "type": {
-                "pattern": "^action$",
-                "default": "action"
-              },
-              "ui_callback": {
-                "type": "string",
-                "default": "ctx_unload"
-              }
-            }
-          }
         }
       }
     }
@@ -204,17 +121,17 @@
     "name",
     "host_type",
     "type",
-    "actions",
+    "resolvers",
     "_config"
   ],
   "order":[
-    "type", "name", "host_type", "actions"
+    "type", "name", "host_type", "resolvers"
   ],
   "properties": {
     "type": {
       "type": "string",
-      "pattern": "^asset_manager$",
-      "default": "asset_manager$"
+      "pattern": "^resolver$",
+      "default": "resolver$"
     },
     "name": {
       "type": "string"
@@ -241,8 +158,8 @@
       "minItems": 0,
       "maxItems": 1
     },
-    "actions": {
-      "$ref": "#/definitions/Action"
+    "resolvers": {
+      "$ref": "#/definitions/Resolver"
     },
     "_config": {
       "$ref": "#/definitions/Config",

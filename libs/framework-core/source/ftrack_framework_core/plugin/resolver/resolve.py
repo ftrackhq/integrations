@@ -5,21 +5,21 @@ from ftrack_framework_core import constants
 from ftrack_framework_core.plugin import base
 
 
-class AssetManagerResolvePlugin(base.BaseActionPlugin):
+class ResolverPlugin(base.BaseActionPlugin):
     '''
-    Class representing a Asset Manager Resolve Plugin Inherits from
+    Class representing a Resolver Plugin. Inherits from
     :class:`~ftrack_framework_core.plugin.base.BaseActionPlugin`
     '''
 
     return_type = dict
     '''Type of object that should be returned'''
-    plugin_type = constants.PLUGIN_AM_RESOLVE_TYPE
+    plugin_type = constants.PLUGIN_RESOLVE_TYPE
     '''Plugin type of the current plugin'''
     _required_output = []
 
     def __init__(self, session):
         '''
-        Initialise AssetManagerActionPlugin with instance of
+        Initialise ActionPlugin with instance of
         :class:`ftrack_api.session.Session`
         '''
-        super(AssetManagerResolvePlugin, self).__init__(session)
+        super(ResolverPlugin, self).__init__(session)

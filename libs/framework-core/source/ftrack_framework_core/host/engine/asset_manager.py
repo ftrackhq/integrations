@@ -138,7 +138,7 @@ class AssetManagerEngine(BaseEngine):
         result = []
         message = None
 
-        plugin_type = constants.PLUGIN_AM_RESOLVE_TYPE
+        plugin_type = constants.PLUGIN_RESOLVE_TYPE
         plugin_name = None
         if plugin:
             plugin_type = '{}.{}'.format('asset_manager', plugin['type'])

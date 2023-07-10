@@ -58,6 +58,8 @@ LOADER = 'loader'
 PUBLISHER = 'publisher'
 # Asset manager
 ASSET_MANAGER = 'asset_manager'
+# Resolver
+RESOLVER = 'resolver'
 # Log viewer dialog
 LOG_VIEWER = 'log_viewer'
 

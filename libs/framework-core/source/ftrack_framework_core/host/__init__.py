@@ -48,10 +48,11 @@ class Host(object):
     '''Compatible Host types for this HOST.'''
 
     engines = {
-        'asset_manager': host_engine.AssetManagerEngine,
+        'publisher': host_engine.PublisherEngine,
         'loader': host_engine.LoaderEngine,
         'opener': host_engine.OpenerEngine,
-        'publisher': host_engine.PublisherEngine,
+        'asset_manager': host_engine.AssetManagerEngine,
+        'resolver': host_engine.ResolverEngine,
     }
     '''Available engines for this host.'''
 
