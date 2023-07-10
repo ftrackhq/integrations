@@ -132,6 +132,7 @@ class BasePluginValidation(object):
 # TODO: We will not have the plugins separated, all them will inherit from the
 #  basePlugin and will pass the type, we will only check if the type is valid.
 #  Overrides will be exposed in the core_plugins library.
+# TODO: also the plugins will have the attribute widget, that the user can override but we will not have the widget type of plugin.
 class BasePlugin(object):
     '''Base Class to represent a Plugin'''
 
