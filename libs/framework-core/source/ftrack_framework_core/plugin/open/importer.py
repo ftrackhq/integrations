@@ -10,7 +10,9 @@ from ftrack_framework_core.plugin import base
 from ftrack_framework_core.asset.asset_info import FtrackAssetInfo
 from ftrack_framework_core.constants import asset as asset_const
 
-
+# TODO: this is exactly the same code as the load importer plugin, is there a
+#  way to not have it duplicated, but in case anyone wants to override the open
+#  plugin can do it without efecting the loader?
 class OpenerImporterPlugin(base.BaseImporterPlugin):
     '''
     Base Opener Importer Plugin Class inherits from

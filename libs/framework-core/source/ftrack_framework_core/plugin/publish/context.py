@@ -4,7 +4,7 @@
 from ftrack_framework_core import constants
 from ftrack_framework_core.plugin import base
 
-
+# TODO: check required output is it used?
 class PublisherContextPlugin(base.BaseContextPlugin):
     '''
     Base Publisher Context Plugin Class inherits from

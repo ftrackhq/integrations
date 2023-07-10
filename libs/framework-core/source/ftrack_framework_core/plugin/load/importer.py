@@ -10,7 +10,10 @@ from ftrack_framework_core.plugin import base
 from ftrack_framework_core.asset.asset_info import FtrackAssetInfo
 from ftrack_framework_core.constants import asset as asset_const
 
-
+# TODO: so in here, we could simply have an override to the basePlugin, and we
+#  pass the plugin_type = constants.PLUGIN_LOADER_IMPORTER_TYPE in the base we have a type validator to validate that
+#  the given type is a knowing type.
+#  Also this might need to go to the core_plugin library and not in here.
 class LoaderImporterPlugin(base.BaseImporterPlugin):
     '''
     Base Loader Importer Plugin Class inherits from
@@ -60,10 +63,14 @@ class LoaderImporterPlugin(base.BaseImporterPlugin):
             plugin_settings['data'] = collector_result
         return method, plugin_settings
 
+    # TODO: check exactly what is this for, but if its something that works in
+    #  standalone, put a better name and implementit as ABC method, otherwise
+    #  remove it and just add it in the DCC
     def get_current_objects(self):
         # TODO: implement this function on the dcc plugin importer.py
         raise NotImplementedError
 
+    # TODO: are this ABC for all the importers?
     def init_nodes(self, context_data=None, data=None, options=None):
         '''Alternative plugin method to init all the nodes in the scene but not
         need to load the assets'''
@@ -118,6 +125,7 @@ class LoaderImporterPlugin(base.BaseImporterPlugin):
         result = {'asset_info': self.asset_info, 'dcc_object': self.dcc_object}
         return result
 
+    # TODO: are this ABC for all the importers?
     def load_asset(self, context_data=None, data=None, options=None):
         '''Alternative plugin method to only load the asset in the scene'''
 
@@ -152,6 +160,7 @@ class LoaderImporterPlugin(base.BaseImporterPlugin):
 
         return result
 
+    # TODO: are this ABC for all the importers?
     def init_and_load(self, context_data=None, data=None, options=None):
         '''Alternative plugin method to init and load the node and the assets
         into the scene'''
@@ -165,6 +174,7 @@ class LoaderImporterPlugin(base.BaseImporterPlugin):
         )
         return load_asset_result
 
+    # TODO: should this be an ABC method?
     def _run(self, event):
         self.old_data = self.get_current_objects()
         self.logger.debug('Current objects : {}'.format(len(self.old_data)))

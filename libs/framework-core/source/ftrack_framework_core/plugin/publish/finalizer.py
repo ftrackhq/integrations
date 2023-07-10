@@ -6,7 +6,7 @@ import traceback
 from ftrack_framework_core import constants
 from ftrack_framework_core.plugin import base
 
-
+# TODO: I think we should expose this into the core_plugins.
 class PublisherFinalizerPlugin(base.BaseFinalizerPlugin):
     '''
     Base Publisher Finalizer Plugin Class inherits from

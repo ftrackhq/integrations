@@ -4,7 +4,7 @@
 from ftrack_framework_core import constants
 from ftrack_framework_core.plugin import base
 
-
+# TODO: check parser.
 class PublisherValidatorPlugin(base.BaseValidatorPlugin):
     '''
     Base Publisher Validator Plugin Class inherits from
