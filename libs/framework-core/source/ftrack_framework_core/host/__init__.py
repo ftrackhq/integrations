@@ -377,6 +377,7 @@ class Host(object):
         self.__registry = {}
 
     # TODO: why fo we have this duplicated in here and in the client? also this seems to be to launch a UI not a client.
+    #  this is launch_client_widget
     def launch_client(self, name, source=None):
         '''Send a widget launch event, to be picked up by DCC.'''
         event = ftrack_api.event.base.Event(
@@ -393,7 +394,7 @@ class Host(object):
             event,
         )
 
-    #TODO: rename this to client_context_change_callback
+    # TODO: rename this to client_context_change_callback
     def _change_context_id(self, event):
         if event['data']['pipeline']['host_id'] != self.host_id:
             return

@@ -125,6 +125,7 @@ class HostConnection(object):
         # method and automatically convert all definitions to definitionObject
         return definition_object.DefinitionList(result)
 
+    # tODO: rename this to host_id
     @property
     def id(self):
         '''Returns the current host id.'''
@@ -194,6 +195,7 @@ class HostConnection(object):
     # TODO: DOuble check this:
     #  Why we have this? is this to launch a client UI? maybe better to rename it.
     #  Also same method is in host, its a bit confusing, can't we always use the same? from host or host connection but to avoid duplicate code, as there are places that are calling this from host and places that calling this from client.
+    # TODO remove this and call the events.publish.launch_client in a launch_assembler function that we will have in the opener client and in any other client that we have to launch another client from
     def launch_client(self, name, source=None):
         '''Send a widget launch event, to be picked up by DCC.'''
         event = ftrack_api.event.base.Event(
