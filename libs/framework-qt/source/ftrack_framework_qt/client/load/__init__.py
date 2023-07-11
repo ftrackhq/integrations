@@ -388,6 +388,7 @@ class QtAssemblerClientWidget(QtLoaderClient, dialog.Dialog):
         plugin information and the *method* to be run has to be passed'''
         self.run_plugin(plugin_data, method, self.engine_type)
 
+    # TODO: This should be inherit from a base framework widget and should be ABC method
     def run(self, method=None):
         '''(Override) Function called when the run button is clicked.
         *method* decides which load method to use, "init_nodes"(track) or "init_and_load"(track and load)
@@ -507,6 +508,7 @@ class QtAssemblerClientWidget(QtLoaderClient, dialog.Dialog):
                     ),
                 )
 
+    # TODO: This should be inherit from a base framework widget and should be ABC method
     def refresh(self, force_hard_refresh=False):
         if force_hard_refresh:
             self.hard_refresh = True

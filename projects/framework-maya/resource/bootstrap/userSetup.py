@@ -218,6 +218,7 @@ def initialise():
         cmds.menuItem(
             parent=ftrack_menu,
             label=label,
+            # TODO: call the events.publish.launch_client here instead the host.launch_client
             command=(functools.partial(host.launch_client, widget_name)),
             image=":/{}.png".format(image),
         )

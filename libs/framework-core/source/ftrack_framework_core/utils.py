@@ -8,7 +8,7 @@ import six
 
 from ftrack_framework_core import constants as core_constants
 
-
+# TODO: better move it into utils folder and try to separate to common files?
 def str_context(context, delimiter='/'):
     '''Utility function to produce a human-readable describing *context*.'''
     if context is None:

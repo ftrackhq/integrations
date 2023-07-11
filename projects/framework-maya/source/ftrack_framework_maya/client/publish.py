@@ -8,6 +8,14 @@ import ftrack_framework_maya.constants as maya_constants
 
 from maya.app.general.mayaMixin import MayaQWidgetDockableMixin
 
+# TODO: we will have all the logic in the core, except for the overrides.
+#  class mayapublisher(client):
+#      widget=None
+#  class mayapublisherwidget(mayapublisher, MayaQWidgetDockableMixin):
+#     widget = qt.framework.publisher_widget # --> this widget inherits from ABC framework_ui and from the qtwidget
+#     if widget:
+#        self.layout.addWidget(widget)
+
 
 class MayaQtPublisherClientWidget(QtPublisherClientWidget):
     def __init__(self, event_manager, parent=None):

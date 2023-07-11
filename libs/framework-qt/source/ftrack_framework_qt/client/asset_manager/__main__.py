@@ -10,6 +10,8 @@ deps_paths = os.environ.get('PYTHONPATH', '').split(os.pathsep)
 for path in deps_paths:
     sys.path.append(path)
 
+# TODO: this should be removed, instead, the project framework_standalone,
+#  should handle this type of things.
 
 if __name__ == '__main__':
     app = QtWidgets.QApplication.instance()

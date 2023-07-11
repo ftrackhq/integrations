@@ -4,7 +4,7 @@
 from ftrack_framework_core.plugin import BasePlugin, BasePluginValidation
 from ftrack_framework_core.constants import plugin
 
-
+# TODO: put this in the validatior file? same for all the base types
 class BaseActionPluginValidation(BasePluginValidation):
     '''
     Action Plugin Validation class inherits from
@@ -39,6 +39,10 @@ class BaseActionPluginValidation(BasePluginValidation):
         return validator_result
 
 
+# TODO: somehow, should we try to remove all these files? and maybe merge them
+#  into the basePlugin file? the only thing that changes is the plugin type.
+#  Maybe we don't even need to have diferent classes. We simply pass a type of
+#  plugin to the base class and that is all.
 class BaseActionPlugin(BasePlugin):
     '''
     Base Action Plugin Class inherits from
