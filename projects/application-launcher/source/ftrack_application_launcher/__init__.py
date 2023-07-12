@@ -534,7 +534,6 @@ class ApplicationLauncher(object):
                             f.write('export {}="{}"\n'.format(key, value))
 
                         app_package = command[0]
-                        print('@@@ app_package: {}'.format(app_package))
                         if app_package.lower().endswith('.app'):
                             # And app bundle, need to launch the executable inside. Discover from
                             # plist.
