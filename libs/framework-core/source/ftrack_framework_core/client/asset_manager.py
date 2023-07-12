@@ -5,7 +5,7 @@ from functools import partial
 from ftrack_framework_core.client import Client
 from ftrack_framework_core import constants as core_constants
 
-
+# TODO: We have to align asset manager with the other clients, and move all the logic to the plugins.
 class AssetManagerClient(Client):
     '''
     Asset Manager Client Base Class

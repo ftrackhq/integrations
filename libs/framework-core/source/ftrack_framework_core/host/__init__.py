@@ -19,7 +19,9 @@ from ftrack_framework_core.log import LogDB
 
 logger = logging.getLogger(__name__)
 
-
+# TODO: this is the discover_host_reply function:
+#  1. Double check if this should better be part of the host class as a method.
+#  2. Rename it to discover_host_reply_callback or similar?
 def provide_host_information(
     context_id, host_id, definitions, host_name, event
 ):
@@ -47,6 +49,8 @@ class Host(object):
     host_types = [constants.HOST_TYPE]
     '''Compatible Host types for this HOST.'''
 
+    # TODO: Engines Dictionary should come from constants.
+    #  Should be something CLIENT_NAME:ENGINE:NAME and in here we any have engines = constant.ENGINES_DICT
     engines = {
         'publisher': host_engine.PublisherEngine,
         'loader': host_engine.LoaderEngine,
@@ -62,6 +66,9 @@ class Host(object):
     @property
     def context_id(self):
         '''Return the the default context id set at host launch'''
+        #TODO: do we really need to store the context in an env variable?
+        # That might be needed for connect but aybe not needed for the framework.
+        # In any case, can we remove FTRACK_TASKID and FTRACK_SHOTID?
         return os.getenv(
             'FTRACK_CONTEXTID',
             os.getenv('FTRACK_TASKID', os.getenv('FTRACK_SHOTID')),
@@ -72,6 +79,7 @@ class Host(object):
         '''Set the context id to *value* and send event to clients (through host connections)'''
         if value == self.context_id:
             return
+        # TODO: RE-evaluate if we need to store the context to an environment variable
         os.environ['FTRACK_CONTEXTID'] = value
         self.logger.warning(
             'ftrack host context is now: {}'.format(self.context_id)
@@ -115,10 +123,15 @@ class Host(object):
         )
         self._logs = None
 
+        #TODO: initializing host
         self.logger.debug('initializing {}'.format(self))
         self._event_manager = event_manager
+        # TODO: split the register method to publish_events, subcribe_events or
+        #  find some standard way to do it around all the framework modules. Maybe register its ok, but make sure its
+        #  not confusing with the register function of the definitions.
         self.register()
 
+    #TODO: Should we try to find a better name for evaluating the definitions or plugins?
     def run(self, event):
         '''
         Runs the data with the defined engine type of the givent *event*
@@ -129,17 +142,22 @@ class Host(object):
         :meth:`~ftrack_framework_core.client.HostConnection.run`
         '''
 
+        #TODO: data/pipeline will be removed to data/framework or data/
         data = event['data']['pipeline']['data']
         engine_type = event['data']['pipeline']['engine_type']
         asset_type_name = data.get('asset_type')
 
         Engine = self.engines.get(engine_type)
         if Engine is None:
+            # TODO: should we have our own exceptions? So they automatically registers to log as well.
             raise Exception('No engine of type "{}" found'.format(engine_type))
         engine_runner = Engine(
             self._event_manager, self.host_types, self.host_id, asset_type_name
         )
 
+        # TODO: this is a bit magic, at some point we should clarify, run_plugin
+        #  or run_definition, but we shouldn't assume that if not plugin in data
+        #  we run_definition.
         if not 'plugin' in data:
             # Run a definition
             try:
@@ -150,12 +168,15 @@ class Host(object):
                 )
             runner_result = engine_runner.run_definition(data)
         else:
+            #TODO: maybe better to rename this to run_plugin if it makes sense
             runner_result = engine_runner.run(data)
 
         if runner_result == False:
+            # TODO: fix this log. We don't know if we are publishing loading or what.
             self.logger.error("Couldn't publish the data {}".format(data))
         return runner_result
 
+    #TODO: rename to on_register_definition_callback? (Same for all the callbacks in all the modules)
     def on_register_definition(self, event):
         '''
         Callback of the :meth:`register`
@@ -182,6 +203,7 @@ class Host(object):
             definition_paths, host_types
         )
 
+        # TODO: rename this to __schema_registry or __definitions_registry. Also make sure its initialized in the init.
         self.__registry = validated_result
 
         handle_event = partial(
@@ -192,10 +214,13 @@ class Host(object):
             self.host_name,
         )
 
+        #TODO: move this to the events module
+        # Method should be named something like subscribe_host or discover_host(make sure to align it to the publish)
         self._event_manager.subscribe(
             constants.PIPELINE_DISCOVER_HOST, handle_event
         )
 
+        # TODO:move this to events module, should be called something like host_run
         self._event_manager.subscribe(
             '{} and data.pipeline.host_id={}'.format(
                 constants.PIPELINE_HOST_RUN, self.host_id
@@ -255,7 +280,8 @@ class Host(object):
         plugin_validator = validation.PluginDiscoverValidation(
             self.session, self.host_types
         )
-
+        #TODO: all client names should be cosntants. Also try to make this smaller,
+        # and automatically extensible by a list from cosntants.
         invalid_publishers_idxs = plugin_validator.validate_plugins(
             data['publisher'], constants.PUBLISHER
         )
@@ -294,6 +320,7 @@ class Host(object):
         '''
 
         self._init_logs()
+        # TODO: all data/pipeline events should come from data/framework or data/  events.
         self._logs.add_log_item(LogItem(event['data']['pipeline']))
 
     def register(self):
@@ -306,6 +333,7 @@ class Host(object):
         Callback of the event points to :meth:`on_register_definition`
         '''
 
+        # TODO: move this to events module
         event = ftrack_api.event.base.Event(
             topic=constants.PIPELINE_REGISTER_TOPIC,
             data={
@@ -323,6 +351,7 @@ class Host(object):
         :const:`~ftrack_framework_core.constants.PIPELINE_CLIENT_NOTIFICATION`
         to receive client notifications from the host in :meth:`_notify_client`
         '''
+        #TODO: move this to the events module
         self.session.event_hub.subscribe(
             'topic={} and data.pipeline.host_id={}'.format(
                 constants.PIPELINE_CLIENT_NOTIFICATION, self._host_id
@@ -331,6 +360,7 @@ class Host(object):
         )
 
         ''' Listen to context change events for this host and its connected clients'''
+        # tODO: move this to events module
         self.session.event_hub.subscribe(
             'topic={} and data.pipeline.host_id={}'.format(
                 constants.PIPELINE_CLIENT_CONTEXT_CHANGE, self._host_id
@@ -344,8 +374,11 @@ class Host(object):
         '''
         self._host_type = []
         self._host_id = None
+        #TODO: rename this to __schema_registry ot __definitions_registry also make sure is initialized in the init.
         self.__registry = {}
 
+    # TODO: why fo we have this duplicated in here and in the client? also this seems to be to launch a UI not a client.
+    #  this is launch_client_widget
     def launch_client(self, name, source=None):
         '''Send a widget launch event, to be picked up by DCC.'''
         event = ftrack_api.event.base.Event(
@@ -362,6 +395,7 @@ class Host(object):
             event,
         )
 
+    # TODO: rename this to client_context_change_callback
     def _change_context_id(self, event):
         if event['data']['pipeline']['host_id'] != self.host_id:
             return
@@ -369,7 +403,9 @@ class Host(object):
         if context_id != self.context_id:
             self.context_id = context_id
 
+    # TODO: why ftrack? if no hard reason, rename this to host context_change (and move it to events)
     def _ftrack_context_id_changed(self):
+        #TODO: move this to events module
         event = ftrack_api.event.base.Event(
             topic=constants.PIPELINE_HOST_CONTEXT_CHANGE,
             data={

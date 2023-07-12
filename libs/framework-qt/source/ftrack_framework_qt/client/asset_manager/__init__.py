@@ -27,7 +27,10 @@ from ftrack_framework_qt.ui.utility.widget.context_selector import (
 from ftrack_framework_qt.ui.utility.widget import dialog
 from ftrack_framework_qt.utils import BaseThread, set_property
 
-
+# TODO: Move the widget to a qt standalone widget. Then Client from core should
+#  have a property named widget where we can connect the desired widget.
+#  The communication between widget and client should happend in the
+#  implementation frontend, so in the DCC.
 class QtAssetManagerClient(AssetManagerClient):
     '''
     QtAssetManagerClient class.
@@ -42,7 +45,9 @@ class QtAssetManagerClient(AssetManagerClient):
 
         self.logger.debug('start qt asset manager')
 
-
+# TODO: we can create a framework widget base classes that are ABC, and methods
+#  like pre_build, build, post_build, is_docked, on_host_discovered,
+#  on_host_changed, on_run, etc... should be ABC methods.
 class QtAssetManagerClientWidget(QtAssetManagerClient, QtWidgets.QFrame):
     '''
     QtAssetManagerClientWidget class.
@@ -110,6 +115,7 @@ class QtAssetManagerClientWidget(QtAssetManagerClient, QtWidgets.QFrame):
 
     # Build
 
+    # TODO: This should be inherit from a base framework widget and should be ABC method
     def pre_build(self):
         '''Prepare general layout.'''
         self.setLayout(QtWidgets.QVBoxLayout())
@@ -123,6 +129,7 @@ class QtAssetManagerClientWidget(QtAssetManagerClient, QtWidgets.QFrame):
         if self.is_assembler:
             set_property(self, 'assembler', 'true')
 
+    # TODO: This should be inherit from a base framework widget and should be ABC method
     def build(self):
         '''Build widgets and parent them.'''
         if not self.is_assembler:
@@ -158,6 +165,7 @@ class QtAssetManagerClientWidget(QtAssetManagerClient, QtWidgets.QFrame):
         else:
             self._remove_button = None
 
+    # TODO: This should be inherit from a base framework widget and should be ABC method
     def post_build(self):
         '''Post Build ui method for events connections.'''
 
@@ -197,11 +205,13 @@ class QtAssetManagerClientWidget(QtAssetManagerClient, QtWidgets.QFrame):
 
     # Host
 
+    # TODO: This should be inherit from a base framework widget and should be ABC method
     def on_hosts_discovered(self, host_connections):
         '''(Override) Host(s) have been discovered, add to host selector'''
         if not self.is_assembler:
             self.host_selector.add_hosts(host_connections)
 
+    # TODO: This should be inherit from a base framework widget and should be ABC method
     def on_host_changed(self, host_connection):
         '''Triggered when client has set host connection'''
         self._reset_asset_list()
@@ -227,10 +237,12 @@ class QtAssetManagerClientWidget(QtAssetManagerClient, QtWidgets.QFrame):
 
     # Context
 
+    # TODO: This should be inherit from a base framework widget and should be ABC method
     def on_context_changed(self, context_id):
         '''Async call upon context changed'''
         self.contextChanged.emit(context_id)
 
+    # TODO: This should be inherit from a base framework widget and should be ABC method
     def on_context_changed_sync(self, context_id):
         '''(Override) Context has been evaluated'''
         if not self.is_assembler:
@@ -242,6 +254,7 @@ class QtAssetManagerClientWidget(QtAssetManagerClient, QtWidgets.QFrame):
         '''Empty the :obj:`asset_entities_list`'''
         self._asset_list_model.reset()
 
+    # TODO: This should be inherit from a base framework widget and should be ABC method
     def rebuild(self):
         '''
         Do a deep async refresh of the ui - running the discover_assets() to locate all asset within the DCC. Allow this
@@ -571,6 +584,7 @@ class QtAssetManagerClientWidget(QtAssetManagerClient, QtWidgets.QFrame):
         '''Open entity browser'''
         self.host_connection.launch_client(qt_constants.CHANGE_CONTEXT_WIDGET)
 
+    # TODO: This should be inherit from a base framework widget and should be ABC method
     def closeEvent(self, e):
         super(QtAssetManagerClientWidget, self).closeEvent(e)
         self.logger.debug('closing qt client')

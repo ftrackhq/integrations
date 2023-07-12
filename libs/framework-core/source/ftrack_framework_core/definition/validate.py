@@ -8,7 +8,7 @@ import sys
 
 logger = logging.getLogger(__name__)
 
-
+# TODO: move the definitions validators to a new validators folder
 def _validate_and_augment_schema(schema, definition, type):
     '''
     Augments the given *definition* ot he given *type* with the
@@ -37,6 +37,7 @@ def validate_schema(data, session):
 
     # validate schema
     for schema in data['schema']:
+        # TODO: these keys should be constants
         for entry in ['loader', 'opener', 'publisher', 'asset_manager']:
             if schema['title'].lower() == entry:
                 for definition in data[entry]:

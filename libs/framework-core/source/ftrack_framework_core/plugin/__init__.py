@@ -15,6 +15,7 @@ from ftrack_framework_core.asset import FtrackObjectManager
 from ftrack_framework_core.asset.dcc_object import DccObject
 
 
+# TODO: Move this to a validation file In this case maybe better to keep it inside the plugin folder
 class BasePluginValidation(object):
     '''Plugin Validation base class'''
 
@@ -126,7 +127,12 @@ class BasePluginValidation(object):
                         break
         return validator_result
 
-
+# TODO: Shouldn't basePlugin, somehow be an object like the definitionObject Plugin class? maybe inherit from there?
+#  Maybe not. We have to double check how we want this.
+# TODO: We will not have the plugins separated, all them will inherit from the
+#  basePlugin and will pass the type, we will only check if the type is valid.
+#  Overrides will be exposed in the core_plugins library.
+# TODO: also the plugins will have the attribute widget, that the user can override but we will not have the widget type of plugin.
 class BasePlugin(object):
     '''Base Class to represent a Plugin'''
 
@@ -210,11 +216,13 @@ class BasePlugin(object):
         '''Returns a copy of :attr:`required_output`'''
         return copy.deepcopy(self._required_output)
 
+    #TODO: remove this and move it to the event module
     @property
     def discover_topic(self):
         '''Return a formatted PIPELINE_DISCOVER_PLUGIN_TOPIC'''
         return self._base_topic(constants.PIPELINE_DISCOVER_PLUGIN_TOPIC)
 
+    # TODO: remove this and move it to the event module
     @property
     def run_topic(self):
         '''Return a formatted PIPELINE_RUN_PLUGIN_TOPIC'''
@@ -237,9 +245,12 @@ class BasePlugin(object):
 
     @property
     def raw_data(self):
+        # TODO: fix this docstring
         '''Returns the current context id'''
         return self._raw_data
 
+    # TODO: are plugin setting the same as plugin options? If so, align it.
+    #  I think are the context_data, data and options arguments that are passed to execute a plugin. But this should probbably come from the plugin_object, and also maybe we should try to clean up the event to not be that complicated.
     @property
     def plugin_settings(self):
         '''Returns the current plugin_settings'''
@@ -247,6 +258,7 @@ class BasePlugin(object):
 
     @property
     def method(self):
+        # TODO: method is the method of the plugin that will be executed
         '''Returns the current method'''
         return self._method
 
@@ -264,10 +276,13 @@ class BasePlugin(object):
 
         self._ftrack_object_manager = None
         self._raw_data = []
+        # TODO: _method: This should be a string not a list
         self._method = []
+        # TODO: we should initialize self._plugin_settings in here
         self._event_manager = event.EventManager(
             session=session, mode=constants.LOCAL_EVENT_MODE
         )
+        # TODO: validator should probably be a property of the plugin
         self.validator = BasePluginValidation(
             self.plugin_name,
             self._required_output,
@@ -275,6 +290,8 @@ class BasePlugin(object):
             self.return_value,
         )
 
+
+    # TODO: clean up this and move to events
     def _base_topic(self, topic):
         '''
         Ensures that :attr:`host_type`, :attr:`category`, :attr:`plugin_type`,
@@ -333,11 +350,13 @@ class BasePlugin(object):
             'registering: {} for {}'.format(self.plugin_name, self.plugin_type)
         )
 
+        # TODO: move the subscriptions to a standar subscription method?
         self.session.event_hub.subscribe(self.run_topic, self._run)
 
         # subscribe to discover the plugin
         self.session.event_hub.subscribe(self.discover_topic, self._discover)
 
+    # TODO: rename this to discover callback in case. But is it necesary?
     def _discover(self, event):
         '''
         Callback of
@@ -351,6 +370,7 @@ class BasePlugin(object):
 
         return True
 
+    # TODO: validate_run_result, as it only works for the run method
     def _validate_result(self, result):
         '''
         Validates the *result* of the :meth:`run` of the plugin using the
@@ -464,6 +484,8 @@ class BasePlugin(object):
 
         user_data = {}
 
+        # TODO: should this come from the definition_object? or from constants? Somewhere, we should define how a plugin is. and what should it return.
+        #  Maybe having the plugin_object that inherits form the plugin definition object
         result_data = {
             'plugin_name': self.plugin_name,
             'plugin_type': self.plugin_type,
@@ -476,6 +498,7 @@ class BasePlugin(object):
             'plugin_id': self.plugin_id,
         }
 
+        # TODO: add a comment here explaining that we detect which method to run before execute the plugin
         run_fn = getattr(self, self.method)
         if not run_fn:
             message = (
@@ -508,6 +531,7 @@ class BasePlugin(object):
         result_data['execution_time'] = total_time
         # We check that the optional user_data it's a dictionary and contains
         # message and data keys.
+        # TODO: can we clean up this? maybe separating it into a smaller method will be easier.
         if user_data:
             (
                 user_data_status,
@@ -539,10 +563,12 @@ class BasePlugin(object):
 
         bool_status = constants.status_bool_mapping[status]
         if bool_status:
+            # TODO: somehow we should use the plugin object in here.
             result_data['result'] = {self.method: result}
 
         return result_data
 
+    # tODO: this should be an ABC MEthod
     def run(self, context_data=None, data=None, options=None):
         '''
         Runs the current plugin with , *context_data* , *data* and *options*.
@@ -562,6 +588,7 @@ class BasePlugin(object):
         '''
         raise NotImplementedError('Missing run method.')
 
+    # TODO: this should be an EBC method
     def fetch(self, context_data=None, data=None, options=None):
         '''
         Runs the current plugin with , *context_data* , *data* and *options*.
@@ -583,7 +610,7 @@ class BasePlugin(object):
         '''
         raise NotImplementedError('Missing fetch method.')
 
-
+# TODO: cleanup this kind of imprts
 from ftrack_framework_core.plugin.load import *
 from ftrack_framework_core.plugin.open import *
 from ftrack_framework_core.plugin.publish import *

@@ -25,6 +25,7 @@ class MayaPublisherFinalizerPlugin(
         current asset
     '''
 
+    # TODO: this should be moved to the ftrack_maya-plugins, maybe can be a base class in there.
     def _run(self, event):
         '''Run the current plugin with the settings form the *event*.
 
