@@ -17,7 +17,7 @@ from ftrack_framework_maya.asset.dcc_object import MayaDccObject
 
 
 class MayaAssetManagerEngine(AssetManagerEngine):
-    engine_type = 'asset_manager'
+    engine_type = core_constants.ASSET_MANAGER
 
     FtrackObjectManager = MayaFtrackObjectManager
     '''FtrackObjectManager class to use'''
