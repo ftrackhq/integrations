@@ -8,6 +8,13 @@
 Release Notes
 *************
 
+.. release:: upcoming
+
+    .. change:: new
+        :tags: launchers
+
+        Support for launching with a Terminal on Mac, by setting FTRACK_CONNECT_CONSOLE to true|1, enabling easy debugging during development.
+
 .. release:: 1.0.12
     :date: 2023-06-15
 

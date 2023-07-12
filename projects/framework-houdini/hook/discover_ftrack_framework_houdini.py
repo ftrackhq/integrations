@@ -8,10 +8,9 @@ import logging
 
 import ftrack_api
 
-integration_name = 'framework-houdini'
-logger = logging.getLogger(
-    '{}.hook'.format(integration_name.replace('-', '_'))
-)
+NAME = 'framework-houdini'
+
+logger = logging.getLogger('ftrack_framework_houdini.discover')
 
 plugin_base_dir = os.path.normpath(
     os.path.join(os.path.abspath(os.path.dirname(__file__)), '..')
@@ -102,7 +101,7 @@ def on_discover_ftrack_framework_houdini(session, event):
 
     data = {
         'integration': {
-            'name': integration_name,
+            'name': 'ftrack-{}'.format(NAME),
             'version': integration_version,
         }
     }

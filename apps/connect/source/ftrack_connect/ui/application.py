@@ -12,7 +12,7 @@ import weakref
 from operator import itemgetter
 import appdirs
 import time
-import urllib
+import urllib.request
 import zipfile
 import json
 import tempfile

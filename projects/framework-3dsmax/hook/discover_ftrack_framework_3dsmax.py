@@ -9,6 +9,8 @@ import importlib
 import ftrack_api
 import functools
 
+NAME = 'framework-3dsmax'
+
 logger = logging.getLogger('ftrack_framework_3dsmax.discover')
 
 
@@ -29,7 +31,7 @@ def on_discover_ftrack_framework_3dsmax(session, event):
 
     data = {
         'integration': {
-            "name": 'framework-3dsmax',
+            'name': 'ftrack-{}'.format(NAME),
             'version': integration_version,
         }
     }
