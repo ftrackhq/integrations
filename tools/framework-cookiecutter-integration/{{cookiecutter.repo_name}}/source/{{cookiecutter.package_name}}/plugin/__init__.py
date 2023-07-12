@@ -36,3 +36,4 @@ from {{cookiecutter.package_name}}.plugin.load import *
 from {{cookiecutter.package_name}}.plugin.open import *
 from {{cookiecutter.package_name}}.plugin.publish import *
 from {{cookiecutter.package_name}}.plugin.asset_manager import *
+from {{cookiecutter.package_name}}.plugin.resolver import *

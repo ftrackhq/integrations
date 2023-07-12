@@ -1,17 +1,8 @@
 {
-    "type": "asset_manager",
+    "type": "resolver",
     "name": "default",
     "host_type": "{{cookiecutter.host_type}}",
     "ui_type": "qt",
-    "actions":{
-        "update":[
-            {
-                "name": "Update to latest",
-                "plugin": "common_update_latest_am_action",
-                "options": {"clear_selection":  false}
-            }
-        ]
-    },
     "resolvers":{
         "resolve_dependencies":[
             {
