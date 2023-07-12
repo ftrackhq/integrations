@@ -7,7 +7,7 @@
         "resolve_dependencies":[
             {
                 "name": "Resolve Nuke context asset dependencies",
-                "plugin": "common_default_am_resolver",
+                "plugin": "common_default_resolver",
                 "options": {
                     "task_types":{
                         "*": {

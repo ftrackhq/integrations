@@ -127,6 +127,7 @@ class BasePluginValidation(object):
                         break
         return validator_result
 
+
 # TODO: Shouldn't basePlugin, somehow be an object like the definitionObject Plugin class? maybe inherit from there?
 #  Maybe not. We have to double check how we want this.
 # TODO: We will not have the plugins separated, all them will inherit from the
@@ -216,7 +217,7 @@ class BasePlugin(object):
         '''Returns a copy of :attr:`required_output`'''
         return copy.deepcopy(self._required_output)
 
-    #TODO: remove this and move it to the event module
+    # TODO: remove this and move it to the event module
     @property
     def discover_topic(self):
         '''Return a formatted PIPELINE_DISCOVER_PLUGIN_TOPIC'''
@@ -289,7 +290,6 @@ class BasePlugin(object):
             self.return_type,
             self.return_value,
         )
-
 
     # TODO: clean up this and move to events
     def _base_topic(self, topic):
@@ -609,6 +609,7 @@ class BasePlugin(object):
 
         '''
         raise NotImplementedError('Missing fetch method.')
+
 
 # TODO: cleanup this kind of imprts
 from ftrack_framework_core.plugin.load import *

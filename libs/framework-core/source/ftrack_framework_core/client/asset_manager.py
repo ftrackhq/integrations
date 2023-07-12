@@ -5,6 +5,7 @@ from functools import partial
 from ftrack_framework_core.client import Client
 from ftrack_framework_core import constants as core_constants
 
+
 # TODO: We have to align asset manager with the other clients, and move all the logic to the plugins.
 class AssetManagerClient(Client):
     '''
@@ -67,7 +68,9 @@ class AssetManagerClient(Client):
         self._reset_asset_list()
         plugin_type = None
         if plugin:
-            plugin_type = '{}.{}'.format('asset_manager', plugin['type'])
+            plugin_type = '{}.{}'.format(
+                core_constants.ASSET_MANAGER, plugin['type']
+            )
         data = {
             'method': 'discover_assets',
             'plugin': plugin,
@@ -150,7 +153,9 @@ class AssetManagerClient(Client):
         '''
         plugin_type = None
         if plugin:
-            plugin_type = '{}.{}'.format('asset_manager', plugin['type'])
+            plugin_type = '{}.{}'.format(
+                core_constants.ASSET_MANAGER, plugin['type']
+            )
         data = {
             'method': 'update_assets',
             'plugin': plugin,

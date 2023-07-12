@@ -6,6 +6,7 @@ from ftrack_framework_core import plugin
 from ftrack_framework_qt import constants as qt_constants
 from ftrack_framework_qt.plugin.widget import BaseOptionsWidget
 
+
 # tODO: this should be removed and just pass it as property of a plugin.
 class BasePluginWidget(plugin.BasePlugin):
     '''Base Class to represent a Widget'''

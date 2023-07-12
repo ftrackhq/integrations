@@ -4,6 +4,7 @@
 from ftrack_framework_core.plugin import BasePlugin, BasePluginValidation
 from ftrack_framework_core.constants import plugin
 
+
 # TODO: put this in the validatior file? same for all the base types
 class BaseActionPluginValidation(BasePluginValidation):
     '''

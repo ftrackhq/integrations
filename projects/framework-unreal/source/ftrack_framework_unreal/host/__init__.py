@@ -3,6 +3,7 @@
 
 import logging
 from ftrack_framework_core.host import Host
+from ftrack_framework_core import constants as core_constants
 from ftrack_framework_qt import constants as qt_constants
 from ftrack_framework_unreal import constants as unreal_constants
 from ftrack_framework_unreal.host import engine as host_engine
@@ -18,9 +19,10 @@ class UnrealHost(Host):
     host_types = [qt_constants.HOST_TYPE, unreal_constants.HOST_TYPE]
     # Define the Unreal engines to be run during the run function
     engines = {
-        'asset_manager': host_engine.UnrealAssetManagerEngine,
-        'loader': host_engine.UnrealLoaderEngine,
-        'publisher': host_engine.UnrealPublisherEngine,
+        core_constants.PUBLISHER: host_engine.UnrealPublisherEngine,
+        core_constants.LOADER: host_engine.UnrealLoaderEngine,
+        core_constants.ASSET_MANAGER: host_engine.UnrealAssetManagerEngine,
+        core_constants.RESOLVER: host_engine.UnrealResolverEngine,
     }
 
     def __init__(self, event_manager):

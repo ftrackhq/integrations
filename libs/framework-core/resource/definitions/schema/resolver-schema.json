@@ -144,20 +144,6 @@
       "type": "string",
       "default": null
     },
-    "discover": {
-      "type": "array",
-      "items": {
-        "allOf": [{"$ref": "#/definitions/Plugin"}],
-        "properties": {
-            "type": {
-              "pattern": "^discover$",
-              "default": "discover"
-            }
-          }
-      },
-      "minItems": 0,
-      "maxItems": 1
-    },
     "resolvers": {
       "$ref": "#/definitions/Resolver"
     },

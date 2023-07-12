@@ -1,5 +1,6 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2023 ftrack
+import json
 from functools import partial
 
 from ftrack_framework_core import client
@@ -65,7 +66,9 @@ class ResolverClient(client.Client):
 
         resolver_plugin = self.resolver_plugins[0]
 
-        plugin_type = '{}.{}'.format('asset_manager', resolver_plugin['type'])
+        plugin_type = '{}.{}'.format(
+            constants.RESOLVER, resolver_plugin['type']
+        )
         data = {
             'method': 'resolve_dependencies',
             'plugin': resolver_plugin,
