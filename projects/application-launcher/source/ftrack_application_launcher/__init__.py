@@ -6,7 +6,7 @@ import pprint
 import re
 import os
 import ssl
-
+import tempfile
 import subprocess
 import collections
 import base64
@@ -513,6 +513,76 @@ class ApplicationLauncher(object):
             application = launchData['application']
             options['env'] = environment
 
+            if (os.environ.get('FTRACK_CONNECT_CONSOLE') or '') in [
+                '1',
+                'true',
+            ]:
+                if self.current_os == 'darwin':
+                    p_script_path = os.path.join(
+                        os.environ['TMPDIR'], 'ftrack'
+                    )
+                    if not os.path.exists(p_script_path):
+                        os.makedirs(p_script_path)
+                    script_path = tempfile.NamedTemporaryFile(
+                        delete=False, dir=p_script_path, suffix='.command'
+                    ).name
+
+                    with open(script_path, "w") as f:
+                        f.write('#!/bin/bash\n')
+
+                        for key, value in options['env'].items():
+                            f.write('export {}="{}"\n'.format(key, value))
+
+                        app_package = command[0]
+                        print('@@@ app_package: {}'.format(app_package))
+                        if app_package.lower().endswith('.app'):
+                            # And app bundle, need to launch the executable inside. Discover from
+                            # plist.
+                            fetch_next_string = False
+                            executable_filename = None
+                            with open(
+                                os.path.join(
+                                    app_package, 'Contents', 'Info.plist'
+                                ),
+                                'r',
+                            ) as plist:
+                                for line in plist.read().split('\n'):
+                                    if line.find('CFBundleExecutable') > -1:
+                                        fetch_next_string = True
+                                    elif fetch_next_string:
+                                        # <string>Nuke13.0</string>
+                                        executable_filename = line[
+                                            line.find('>')
+                                            + 1 : line.rfind('<')
+                                        ]
+                                        break
+                            if executable_filename:
+                                command[0] = os.path.join(
+                                    app_package,
+                                    'Contents',
+                                    'MacOS',
+                                    executable_filename,
+                                )
+
+                        commandline = ' '.join(
+                            '"{}"'.format(c) for c in command
+                        )
+
+                        f.write('{}\n'.format(commandline))
+
+                        f.write(
+                            'sleep 10\n'
+                        )  # Keep console open for 10 seconds, to enable traceback readouts
+
+                    os.system('chmod 755 {}'.format(script_path))
+
+                    command = ['open', '-a', 'Terminal', script_path]
+
+                else:
+                    self.logger.warning(
+                        'Console launch only supported on Mac OS'
+                    )
+
             self.logger.debug(
                 'Launching {0} with options {1}'.format(command, options)
             )
@@ -686,7 +756,13 @@ class ApplicationLauncher(object):
             command = [application['path']]
 
         elif self.current_os == 'darwin':
-            command = ['open', application['path']]
+            if (os.environ.get('FTRACK_CONNECT_CONSOLE') or '') in [
+                '1',
+                'true',
+            ]:
+                command = [application['path']]
+            else:
+                command = ['open', application['path']]
 
         else:
             self.logger.warning(
