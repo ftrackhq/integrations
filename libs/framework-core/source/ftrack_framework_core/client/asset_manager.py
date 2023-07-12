@@ -80,7 +80,7 @@ class AssetManagerClient(Client):
             'options': options,
         }
 
-        self.host_connection.run(
+        self.host_connection.run_definition(
             data,
             self.engine_type,
             callback=partial(
@@ -122,7 +122,7 @@ class AssetManagerClient(Client):
             'plugin': plugin,
             'plugin_type': plugin_type,
         }
-        self.host_connection.run(
+        self.host_connection.run_definition(
             data, self.engine_type, callback=self._asset_discovered_callback
         )
 
@@ -150,7 +150,7 @@ class AssetManagerClient(Client):
             'plugin': None,
             'assets': asset_info_list,
         }
-        self.host_connection.run(
+        self.host_connection.run_definition(
             data, self.engine_type, callback=self._load_assets_callback
         )
 
@@ -178,7 +178,7 @@ class AssetManagerClient(Client):
             'plugin': None,
             'assets': asset_info_list,
         }
-        self.host_connection.run(data, self.engine_type)
+        self.host_connection.run_definition(data, self.engine_type)
 
     # Update
 
@@ -206,7 +206,7 @@ class AssetManagerClient(Client):
             'assets': asset_info_list,
             'plugin_type': plugin_type,
         }
-        self.host_connection.run(
+        self.host_connection.run_definition(
             data, self.engine_type, callback=self._update_assets_callback
         )
 
@@ -240,7 +240,7 @@ class AssetManagerClient(Client):
             'assets': asset_info,
             'options': {'new_version_id': new_version_id},
         }
-        self.host_connection.run(
+        self.host_connection.run_definition(
             data, self.engine_type, callback=self._change_version_callback
         )
 
@@ -271,7 +271,7 @@ class AssetManagerClient(Client):
             'plugin': None,
             'assets': asset_info_list,
         }
-        self.host_connection.run(
+        self.host_connection.run_definition(
             data, self.engine_type, callback=self._unload_assets_callback
         )
 
@@ -302,7 +302,7 @@ class AssetManagerClient(Client):
             'plugin': None,
             'assets': asset_info_list,
         }
-        self.host_connection.run(
+        self.host_connection.run_definition(
             data, self.engine_type, callback=self._remove_assets_callback
         )
 

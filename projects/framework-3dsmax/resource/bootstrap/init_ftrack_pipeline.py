@@ -228,10 +228,8 @@ def initialise():
     rt.menuMan.updateMenuBar()
 
     # Listen to widget launch events
-    session.event_hub.subscribe(
-        'topic={} and data.pipeline.host_id={}'.format(
-            core_constants.PIPELINE_CLIENT_LAUNCH, host.host_id
-        ),
+    event_manager.events.subscription.launch_client_widget(
+        host.host_id,
         partial(
             _open_widget,
             event_manager,

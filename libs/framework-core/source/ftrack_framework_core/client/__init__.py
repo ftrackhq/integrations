@@ -127,12 +127,12 @@ class HostConnection(object):
 
     # tODO: rename this to host_id
     @property
-    def id(self):
+    def host_id(self):
         '''Returns the current host id.'''
         return self._raw_host_data['host_id']
 
     @property
-    def name(self):
+    def host_name(self):
         '''Returns the current host name.'''
         return self._raw_host_data['host_name']
 
@@ -145,10 +145,10 @@ class HostConnection(object):
         self.logger.debug('Closing {}'.format(self))
 
     def __repr__(self):
-        return '<HostConnection: {}>'.format(self.id)
+        return '<HostConnection: {}>'.format(self.host_id)
 
     def __hash__(self):
-        return hash(self.id)
+        return hash(self.host_id)
 
     def __eq__(self, other):
         return self.__hash__() == other.__hash__()
@@ -170,71 +170,31 @@ class HostConnection(object):
         self._event_manager = event_manager
         self._raw_host_data = copy_data
         self._context_id = self._raw_host_data.get('context_id')
-        # TODO: instead of having this in a method we can have the subscription call to events here.
-        self.subscribe_host_context_change()
+        self.event_manager.events.subscribe.host_context_changed(self.host_id, self._on_host_context_changed_callback)
 
-    def run(self, data, engine, callback=None):
+    def run_definition(self, definition, engine_type, callback=None):
         '''
         Publish an event with the topic
-        :py:const:`~ftrack_framework_core.constants.PIPELINE_HOST_RUN`
+        :py:const:`~ftrack_framework_core.constants.HOST_RUN_DEFINITION_TOPIC`
         with the given *data* and *engine*.
         '''
-        # TODO: move this event to events module
-        event = ftrack_api.event.base.Event(
-            topic=constants.PIPELINE_HOST_RUN,
-            data={
-                'pipeline': {
-                    'host_id': self.id,
-                    'data': data,
-                    'engine_type': engine,
-                }
-            },
-        )
-        self.event_manager.publish(event, callback)
-
-    # TODO: DOuble check this:
-    #  Why we have this? is this to launch a client UI? maybe better to rename it.
-    #  Also same method is in host, its a bit confusing, can't we always use the same? from host or host connection but to avoid duplicate code, as there are places that are calling this from host and places that calling this from client.
-    # TODO remove this and call the events.publish.launch_client in a launch_assembler function that we will have in the opener client and in any other client that we have to launch another client from
-    def launch_client(self, name, source=None):
-        '''Send a widget launch event, to be picked up by DCC.'''
-        event = ftrack_api.event.base.Event(
-            topic=constants.PIPELINE_CLIENT_LAUNCH,
-            data={
-                'pipeline': {
-                    'host_id': self.id,
-                    'name': name,
-                    'source': source,
-                }
-            },
-        )
-        self.event_manager.publish(
-            event,
+        self.event_manager.events.publish.host_run_definition(
+            self.host_id,
+            definition,
+            engine_type,
+            callback
         )
 
-    #TODO: move this to a standarized subscriptions method? also in case to leave it here, maybe rename to subscribe_on_host_conetext_change
-    def subscribe_host_context_change(self):
-        '''Have host connection subscribe to context change events, to be able
-        to notify client'''
-        #TODO: use event_manager instead of the event_hub and move to event module
-        self.session.event_hub.subscribe(
-            'topic={} and data.pipeline.host_id={}'.format(
-                constants.PIPELINE_HOST_CONTEXT_CHANGE, self.id
-            ),
-            self._ftrack_host_context_id_changed,
-        )
-
-    # TODO: Rename this to on_host_context_change
-    def _ftrack_host_context_id_changed(self, event):
+    def _on_host_context_changed_callback(self, event):
         '''Set the new context ID based on data provided in *event*'''
-        self.context_id = event['data']['pipeline']['context_id']
+        self.context_id = event['data']['context_id']
 
     #TODO: rename to on_client_context_change?
     def change_host_context_id(self, context_id):
         #TODO: move this to events module
         event = ftrack_api.event.base.Event(
-            topic=constants.PIPELINE_CLIENT_CONTEXT_CHANGE,
-            data={'pipeline': {'host_id': self.id, 'context_id': context_id}},
+            topic=constants.CLIENT_CONTEXT_CHANGE_TOPIC,
+            data={'pipeline': {'host_id': self.host_id, 'context_id': context_id}},
         )
         self.event_manager.publish(
             event,
@@ -353,7 +313,7 @@ class Client(object):
         :class:`~ftrack_framework_core.client.HostConnection`
         '''
         if value is None or (
-            self.host_connection and value.id == self.host_connection.id
+            self.host_connection and value.id == self.host_connection.host_id
         ):
             return
 
@@ -361,7 +321,14 @@ class Client(object):
         Client._host_connection = value
         #TODO: try to simplify this and mix this to in a host subscriptions method?
         self.on_client_notification()
-        self.subscribe_host_context_change()
+        # Clean up host_context_change_subscription in case exists
+        self.unsubscribe_host_context_changed()
+        # Subscribe to host_context_change even though we already subscribed in
+        # the host_connection. This is because we want to notify the widget that
+        # context_id has been changed.
+        self.host_context_changed_subscribe_id = self.event_manager.events.subscribe.host_context_changed(
+            self.host_connection.host_id, self._host_context_changed_callback
+        )
         # Feed change of host and context to client
         # TODO: convert the following 2 signals to abstract metods, so always need to be overriden.
         self.on_host_changed(self.host_connection)
@@ -395,7 +362,7 @@ class Client(object):
         '''Return the log items'''
         self._init_logs()
         return self._logs.get_log_items(
-            self.host_connection.id
+            self.host_connection.host_id
             if not self.host_connection is None
             else None
         )
@@ -404,7 +371,7 @@ class Client(object):
         '''Delayed initialization of logs, when we know host ID.'''
         if self._logs is None:
             self._logs = LogDB(
-                self.host_connection.id
+                self.host_connection.host_id
                 if not self.host_connection is None
                 else uuid.uuid4().hex
             )
@@ -424,7 +391,7 @@ class Client(object):
         self._current = {}
 
         #TODO: Can we handle this into the events module?
-        self.context_change_subscribe_id = None
+        self.host_context_changed_subscribe_id = None
         #TODO: is this really necesary? self.host_connection already tell us if we are connected.
         self._connected = False
         self._logs = None
@@ -461,7 +428,14 @@ class Client(object):
         #TODO: I think we can remove this from this method. If its used, we should move it to a reconnect method or some similar name.
         if self.host_connection is not None:
             self.on_client_notification()
-            self.subscribe_host_context_change()
+            # Clean up host_context_change_subscription in case exists
+            self.unsubscribe_host_context_changed()
+            # Subscribe to host_context_change even though we already subscribed in
+            # the host_connection. This is because we want to notify the widget that
+            # context_id has been changed.
+            self.host_context_changed_subscribe_id = self.event_manager.events.subscribe.host_context_changed(
+                self.host_connection.host_id, self._host_context_changed_callback
+            )
             self.on_host_changed(self.host_connection)
             self.on_context_changed(self.host_connection.context_id)
             return
@@ -496,14 +470,14 @@ class Client(object):
     def _discover_hosts(self):
         '''
         Publish an event with the topic
-        :py:data:`~ftrack_framework_core.constants.PIPELINE_DISCOVER_HOST`
+        :py:data:`~ftrack_framework_core.constants.DISCOVER_HOST_TOPIC`
         with the callback
         py:meth:`~ftrack_framework_core.client._host_discovered`
         '''
         # TODO: Move this to events module
         self.host_connections = []  # Start over
         discover_event = ftrack_api.event.base.Event(
-            topic=constants.PIPELINE_DISCOVER_HOST
+            topic=constants.DISCOVER_HOST_TOPIC
         )
 
         self._event_manager.publish(
@@ -563,42 +537,28 @@ class Client(object):
 
     # Context
 
-    def subscribe_host_context_change(self):
-        '''Have host connection subscribe to context change events, to be able
-        to notify client'''
-        #TODO: Why we want to unsubscribe? and why can't we use the method unsubscribe_host_context_change?
-        if self.context_change_subscribe_id:
-            self.session.unsubscribe(self.context_change_subscribe_id)
-        #TODO: move to events module
-        self.context_change_subscribe_id = self.session.event_hub.subscribe(
-            'topic={} and data.pipeline.host_id={}'.format(
-                constants.PIPELINE_HOST_CONTEXT_CHANGE,
-                self.host_connection.id,
-            ),
-            self._host_context_id_changed,
-        )
-
-    #TODO: this should be renamed to _host_context_changed or remove it and directly call self.on_context_changed
-    def _host_context_id_changed(self, event):
+    def _host_context_changed_callback(self, event):
         '''Set the new context ID based on data provided in *event*'''
         # Feed the new context to the client
-        self.on_context_changed(event['data']['pipeline']['context_id'])
+        self.on_context_changed(event['data']['context_id'])
 
     # TODO: if used, should this be an ABC method?
     def on_context_changed(self, context_id):
         '''Called when the context has been set or changed within the host connection, either from this
         client or remote (other client or the host). Should be overridden by client.
         '''
+        # TODO: we have to add something like  if widget: widget.on_context_changed()
+        #  In the widget itself we will import from the wraper widget which is an ABC: from framework_ui_wrappers import widget(this will be what has to be imported in the widget)
         pass
 
     #TODO: why do we need this one?
-    def unsubscribe_host_context_change(self):
+    def unsubscribe_host_context_changed(self):
         '''Unsubscribe to client context change events'''
-        if self.context_change_subscribe_id:
+        if self.host_context_changed_subscribe_id:
             self.session.event_hub.unsubscribe(
-                self.context_change_subscribe_id
+                self.host_context_changed_subscribe_id
             )
-            self.context_change_subscribe_id = None
+            self.host_context_changed_subscribe_id = None
 
     # Definition
 
@@ -617,7 +577,7 @@ class Client(object):
             definition = self.definition
         if not engine_type:
             engine_type = self.engine_type
-        self.host_connection.run(
+        self.host_connection.run_definition(
             definition.to_dict(),
             engine_type,
             # TODO: should we call _run_definition_callback? and run_plugin_callback for the plugin?
@@ -697,7 +657,7 @@ class Client(object):
             'plugin_type': plugin_type,
             'method': method,
         }
-        self.host_connection.run(
+        self.host_connection.run_definition(
             data, engine_type, callback=self._run_callback
         )
 
@@ -730,13 +690,13 @@ class Client(object):
     def on_client_notification(self):
         '''
         Subscribe to topic
-        :const:`~ftrack_framework_core.constants.PIPELINE_CLIENT_NOTIFICATION`
+        :const:`~ftrack_framework_core.constants.NOTIFY_CLIENT_TOPIC`
         to receive client notifications from the host in :meth:`_notify_client`
         '''
         # TODO: MOVE this to events module
         self.session.event_hub.subscribe(
             'topic={} and data.pipeline.host_id={}'.format(
-                constants.PIPELINE_CLIENT_NOTIFICATION, self.host_connection.id
+                constants.NOTIFY_CLIENT_TOPIC, self.host_connection.host_id
             ),
             self._notify_client,
         )
@@ -745,7 +705,7 @@ class Client(object):
     def _notify_client(self, event):
         '''
         Callback of the
-        :const:`~ftrack_framework_core.constants.PIPELINE_CLIENT_NOTIFICATION`
+        :const:`~ftrack_framework_core.constants.NOTIFY_CLIENT_TOPIC`
          event.
 
         *event*: :class:`ftrack_api.event.base.Event`

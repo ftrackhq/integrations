@@ -192,7 +192,7 @@ class PluginDiscoverValidation(object):
     def _discover_plugin(self, plugin, plugin_type):
         '''
         Publish an event with the topic
-        :py:const:`~ftrack_framework_core.constants.PIPELINE_DISCOVER_PLUGIN_TOPIC`
+        :py:const:`~ftrack_framework_core.constants.DISCOVER_PLUGIN_TOPIC`
         with the given *plugin* name and *plugin_type* as data to check that the
         pluging can be discovered with no issues.
 
@@ -218,7 +218,7 @@ class PluginDiscoverValidation(object):
             # TODO: move this to the events module also rename it to align with the defintions register topic. EX: Register_plugin
             #  Also this registry, should probably be moved to the host, as well as we register the definitions in there.
             event = ftrack_api.event.base.Event(
-                topic=constants.PIPELINE_DISCOVER_PLUGIN_TOPIC, data=data
+                topic=constants.DISCOVER_PLUGIN_TOPIC, data=data
             )
 
             plugin_result = self.session.event_hub.publish(
@@ -244,7 +244,7 @@ class PluginDiscoverValidation(object):
                 }
                 # TODO: move this to the events module
                 event = ftrack_api.event.base.Event(
-                    topic=constants.PIPELINE_DISCOVER_PLUGIN_TOPIC,
+                    topic=constants.DISCOVER_PLUGIN_TOPIC,
                     data=status_event,
                 )
 

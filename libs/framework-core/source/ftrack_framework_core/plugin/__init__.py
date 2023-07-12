@@ -219,14 +219,14 @@ class BasePlugin(object):
     #TODO: remove this and move it to the event module
     @property
     def discover_topic(self):
-        '''Return a formatted PIPELINE_DISCOVER_PLUGIN_TOPIC'''
-        return self._base_topic(constants.PIPELINE_DISCOVER_PLUGIN_TOPIC)
+        '''Return a formatted DISCOVER_PLUGIN_TOPIC'''
+        return self._base_topic(constants.DISCOVER_PLUGIN_TOPIC)
 
     # TODO: remove this and move it to the event module
     @property
     def run_topic(self):
-        '''Return a formatted PIPELINE_RUN_PLUGIN_TOPIC'''
-        return self._base_topic(constants.PIPELINE_RUN_PLUGIN_TOPIC)
+        '''Return a formatted HOST_RUN_PLUGIN_TOPIC'''
+        return self._base_topic(constants.HOST_RUN_PLUGIN_TOPIC)
 
     @property
     def session(self):
@@ -336,10 +336,10 @@ class BasePlugin(object):
             This function subscribes the plugin to two
             :class:`ftrack_api.event.base.Event` topics:
 
-            :const:`~ftrack_framework_core.constants.PIPELINE_DISCOVER_PLUGIN_TOPIC`:
+            :const:`~ftrack_framework_core.constants.DISCOVER_PLUGIN_TOPIC`:
             Topic to make the plugin discoverable for the host.
 
-            :const:`~ftrack_framework_core.constants.PIPELINE_RUN_PLUGIN_TOPIC`:
+            :const:`~ftrack_framework_core.constants.HOST_RUN_PLUGIN_TOPIC`:
             Topic to execute the plugin
         '''
         if not isinstance(self.session, ftrack_api.Session):
@@ -360,7 +360,7 @@ class BasePlugin(object):
     def _discover(self, event):
         '''
         Callback of
-        :const:`~ftrack_framework_core.constants.PIPELINE_DISCOVER_PLUGIN_TOPIC`
+        :const:`~ftrack_framework_core.constants.DISCOVER_PLUGIN_TOPIC`
         Makes sure the plugin is discoverable for the host.
 
         '''
@@ -465,14 +465,14 @@ class BasePlugin(object):
     def _run(self, event):
         '''
         Callback function of the event
-        :const:`~ftrack_framework_core.constants.PIPELINE_RUN_PLUGIN_TOPIC`
+        :const:`~ftrack_framework_core.constants.HOST_RUN_PLUGIN_TOPIC`
         Runs the method passed in the given
         *event* ['data']['pipeline']['method'].
 
         Returns a dictionary with the result information of the called method.
 
         *event* : Dictionary returned when the event topic
-        :const:`~ftrack_framework_core.constants.PIPELINE_RUN_PLUGIN_TOPIC` is
+        :const:`~ftrack_framework_core.constants.HOST_RUN_PLUGIN_TOPIC` is
         called.
 
         '''

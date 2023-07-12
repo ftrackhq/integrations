@@ -49,7 +49,7 @@ class BaseDefinition(object):
     def register(self):
         '''
         Register the definition subscribing to the
-        PIPELINE_REGISTER_TOPIC event
+        DISCOVER_DEFINITION_TOPIC event
         '''
         if not isinstance(self.session, ftrack_api.Session):
             # Exit to avoid registering this plugin again.
@@ -59,7 +59,7 @@ class BaseDefinition(object):
         # Also move this to events module
         self.session.event_hub.subscribe(
             'topic={} and data.pipeline.type=definition'.format(
-                constants.PIPELINE_REGISTER_TOPIC
+                constants.DISCOVER_DEFINITION_TOPIC
             ),
             self.register_definitions,
         )

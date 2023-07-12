@@ -676,7 +676,7 @@ class AssetManagerEngine(BaseEngine):
 
             # Run the plugin with the asset info options
             run_event = ftrack_api.event.base.Event(
-                topic=constants.PIPELINE_RUN_PLUGIN_TOPIC,
+                topic=constants.HOST_RUN_PLUGIN_TOPIC,
                 data=asset_info_options,
             )
 

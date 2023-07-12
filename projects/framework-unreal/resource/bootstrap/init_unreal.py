@@ -270,11 +270,12 @@ def load_integration():
             )
             ftrack_menu.add_menu_entry(label, menu_entry)
 
+        # TODO: also this one is not using the host.laucnhCLient? we should
+        #  align this, IMO is better to not use it in any integration, and just
+        #  start the widget as we do here or in 3dsmax.
         # Listen to widget launch events
-        session.event_hub.subscribe(
-            'topic={} and data.pipeline.host_id={}'.format(
-                core_constants.PIPELINE_CLIENT_LAUNCH, host.host_id
-            ),
+        event_manager.events.subscription.launch_client_widget(
+            host.host_id,
             functools.partial(
                 _open_widget,
                 event_manager,

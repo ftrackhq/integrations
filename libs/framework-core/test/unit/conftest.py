@@ -184,7 +184,7 @@ def event_manager(session):
 
     event_manager.subscribe(
         '{} and data.pipeline.type=definition'.format(
-            constants.PIPELINE_REGISTER_TOPIC
+            constants.DISCOVER_DEFINITION_TOPIC
         ),
         callback,
     )

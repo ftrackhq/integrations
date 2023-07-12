@@ -132,7 +132,7 @@ class BaseEngine(object):
     ):
         '''
         Returns an :class:`ftrack_api.event.base.Event` with the topic
-        :const:`~ftrack_connnect_pipeline.constants.PIPELINE_RUN_PLUGIN_TOPIC`
+        :const:`~ftrack_connnect_pipeline.constants.HOST_RUN_PLUGIN_TOPIC`
         with the data of the given *plugin_name*, *plugin_type*,
         *host_definition*, *data*, *options*, *context_data*, *method*
 
@@ -153,7 +153,7 @@ class BaseEngine(object):
 
         '''
         return ftrack_api.event.base.Event(
-            topic=constants.PIPELINE_RUN_PLUGIN_TOPIC,
+            topic=constants.HOST_RUN_PLUGIN_TOPIC,
             data={
                 'pipeline': {
                     'plugin_name': plugin_name,
@@ -249,7 +249,7 @@ class BaseEngine(object):
     def _notify_client(self, plugin, result_data):
         '''
         Publish an :class:`ftrack_api.event.base.Event` with the topic
-        :const:`~ftrack_connnect_pipeline.constants.PIPELINE_CLIENT_NOTIFICATION`
+        :const:`~ftrack_connnect_pipeline.constants.NOTIFY_CLIENT_TOPIC`
         to notify the client of the given *plugin* result *result_data*.
         Also store plugin result in persistent database.
 
@@ -271,7 +271,7 @@ class BaseEngine(object):
 
         #TODO: move this to the events module
         event = ftrack_api.event.base.Event(
-            topic=constants.PIPELINE_CLIENT_NOTIFICATION,
+            topic=constants.NOTIFY_CLIENT_TOPIC,
             data={'pipeline': result_data},
         )
 
@@ -581,7 +581,7 @@ class BaseEngine(object):
     ):
         '''
         Publish an :class:`ftrack_api.event.base.Event` with the topic
-        :const:`~ftrack_connnect_pipeline.constants.PIPELINE_CLIENT_NOTIFICATION`
+        :const:`~ftrack_connnect_pipeline.constants.NOTIFY_CLIENT_TOPIC`
         to notify the client of the given *plugin* result *result_data*.
         Also store plugin result in persistent database.
 
@@ -604,7 +604,7 @@ class BaseEngine(object):
 
         # TODO: Move this to events. Also make sure that name of the event makes sense and is aligned with others.
         event = ftrack_api.event.base.Event(
-            topic=constants.PIPELINE_CLIENT_PROGRESS_NOTIFICATION,
+            topic=constants.NOTIFY_PROGRESS_CLIENT_TOPIC,
             data={'pipeline': data},
         )
 

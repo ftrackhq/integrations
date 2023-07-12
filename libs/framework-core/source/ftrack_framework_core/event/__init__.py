@@ -143,7 +143,8 @@ class EventManager(object):
             self.session.event_hub.publish(event, on_reply=callback)
 
     def subscribe(self, topic, callback):
-        self.session.event_hub.subscribe('topic={}'.format(topic), callback)
+        subscribe_id = self.session.event_hub.subscribe('topic={}'.format(topic), callback)
+        return subscribe_id
 
     def available_framework_events(self):
         pass
@@ -188,13 +189,43 @@ class Publish(object):
         super(Publish, self).__init__()
         self._event_manager = event_manager
 
-    def _publish_event(self, event_topic, callback):
-        event = ftrack_api.event.base.Event(topic=event_topic)
+    def _publish_event(self, event_topic, data, callback):
+        event = ftrack_api.event.base.Event(topic=event_topic, data=data)
         self.event_manager.publish(event, callback=callback)
 
     def discover_host(self, callback=None):
-        topic = constants.PIPELINE_DISCOVER_HOST
+        topic = constants.DISCOVER_HOST_TOPIC
         self._publish_event(topic, callback)
+
+    def host_run_definition(self, host_id, definition, engine_type, callback=None):
+        data = {
+            'host_id': host_id,
+            'definition': definition,
+            'engine_type': engine_type,
+        }
+        event_topic = constants.HOST_RUN_DEFINITION_TOPIC
+        self._publish_event(event_topic, data, callback)
+
+    def host_context_changed(self, host_id, context_id, callback=None):
+        data = {
+            'host_id': host_id,
+            'context_id': context_id,
+        }
+        event_topic = constants.HOST_CONTEXT_CHANGED_TOPIC
+        self._publish_event(event_topic, data, callback)
+
+    def launch_client_widget(self, host_id, widget_name, source=None, callback=None):
+        '''Send a widget launch event, to be picked up by DCC.'''
+        # TODO: call this from a new launch_assembler method in the opener
+        #  client or in any other place. The data needed is like the following:
+        data = {
+            'host_id': host_id,
+            'name': widget_name,
+            'source': source,
+        }
+
+        event_topic = constants.CLIENT_LAUNCH_WIDGET_TOPIC
+        self._publish_event(event_topic, data, callback)
 
 
 class Subscribe(object):
@@ -208,9 +239,26 @@ class Subscribe(object):
         self._event_manager = event_manager
 
     def _subscribe_event(self, event_topic, callback):
-        self.event_manager.subscribe(event_topic, callback=callback)
+        return self.event_manager.subscribe(event_topic, callback=callback)
 
     def discover_host(self, callback):
-        topic = constants.PIPELINE_DISCOVER_HOST
-        self._subscribe_event(topic, callback)
+        topic = constants.DISCOVER_HOST_TOPIC
+        return self._subscribe_event(topic, callback)
+    def host_run_definition(self, host_id, callback=None):
+        event_topic = '{} and data.host_id={}'.format(
+            constants.HOST_RUN_DEFINITION_TOPIC, host_id
+        )
+        return self._subscribe_event(event_topic, callback)
+
+    def host_context_changed(self, host_id, callback=None):
+        event_topic = '{} and data.host_id={}'.format(
+            constants.HOST_CONTEXT_CHANGED_TOPIC, host_id
+        )
+        return self._subscribe_event(event_topic, callback)
+
+    def launch_client_widget(self, host_id, callback=None):
+        event_topic = '{} and data.host_id={}'.format(
+            constants.CLIENT_LAUNCH_WIDGET_TOPIC, host_id
+        )
+        return self._subscribe_event(event_topic, callback)
 

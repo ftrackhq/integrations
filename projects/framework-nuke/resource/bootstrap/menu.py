@@ -61,11 +61,12 @@ def get_ftrack_menu(menu_name='ftrack', submenu_name='pipeline'):
 
 
 class WidgetLauncher(object):
-    def __init__(self, host):
+    def __init__(self, host, event_manager):
         self._host = host
+        self._event_manager = host
 
     def launch(self, widget_name):
-        self._host.launch_client(widget_name)
+        self._event_manager.events.publish.launch_client_widget(self._host.id,widget_name)
 
 
 def handle_exception(exc_type, exc_value, exc_traceback):
@@ -218,7 +219,7 @@ def initialise():
     )
 
     ftrack_menu = get_ftrack_menu(submenu_name=None)
-    widget_launcher = WidgetLauncher(host)
+    widget_launcher = WidgetLauncher(host, event_manager)
 
     build_menu_widgets(
         ftrack_menu,
@@ -229,11 +230,9 @@ def initialise():
         created_widgets,
     )
 
-    # Listen to client launch events
-    session.event_hub.subscribe(
-        'topic={} and data.pipeline.host_id={}'.format(
-            core_constants.PIPELINE_CLIENT_LAUNCH, host.host_id
-        ),
+    # Listen to widget launch events
+    event_manager.events.subscription.launch_client_widget(
+        host.host_id,
         functools.partial(
             _open_widget, event_manager, asset_list_model, widgets
         ),
