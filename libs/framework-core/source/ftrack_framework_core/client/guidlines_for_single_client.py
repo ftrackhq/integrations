@@ -46,13 +46,16 @@ class Client(object):
     
     WITH UI
     client = Client(event_manager)
+    client.selectHost()
+    definitions = client_get_definition()
+    
     client.run_ui(MayaPublisherWidget)
-    client.run_ui(AssemblerWidget)
+    client.run_ui(AssemblerWidget, loader_definition)
     maya_widget = client.widgets(MayaPublisherWidget)
     maya_widget.close()
     
     
-    
+    # TODO: host selector is a standalone widget and is in the ftrack menu
     
     class Client(object):
         def __init__():
@@ -70,7 +73,7 @@ class Client(object):
                 widget.notify()
         def discover_host():
             client_discover_host()
-        def run(definition, engine...):
+        def run_definition(definition, engine...):
             run_definition(efinition, engine...)
         def run_plugin(options, callback):
              result = run_plugin('discover_assets', callback)
@@ -79,11 +82,20 @@ class Client(object):
         def func(method_name, options, callback):
             meth = getAttr(method_name)
             meth(options, callback)
+        def get_definition(definition_type):
+            return host_connection.definitions['definitions_name']
             
     class FrameworkWidgetBaseABC(ABC):# THis lives inside the framework connect library.        
         client_func = None
         def connect(func):
             self.client_func = func
+        @abc
+        @property
+        def definition():
+            return self._definition
+        @abc
+        def set_definition(definition):
+            self._definition = definition
         @abc
         def pre_build():
         @abc
@@ -95,7 +107,8 @@ class Client(object):
             pass
             
     class PublisherWidget(FrameworkWidgetABC, QFrame):
-        def __init__():
+        
+        def __init__(definition):
             build
         def build():
             pass
@@ -122,12 +135,15 @@ class Client(object):
         def notify(func):
             self.update_progeres_bar()
         def build():
-            resolver_widget = ResolverWidget()
-            am_widget = AMWidget()
+            resolver_widget = ResolverWidget(am_Definition)
+            am_widget = AMWidget(am_definitoin)
             resolver_widget.discover_assets.connect(self.discover_assets)
+            resolver_widget.get_definition.connect(self.get_resolver_definition)
         def discover_assets(context):
             self.client_func('discover_assets', options, self.assets_discovered_callback)
             #self.discover_assets.emit(context, <client_method>(discover_assets), self.assets_discovered_callback)
+        def get_resolver_definition(definition_type):
+            self.client_func('get_definition', definition_type, self.resolver_widget.set_definition)
         def assets_discovered_callback(result):
             fill out the combo box
         
