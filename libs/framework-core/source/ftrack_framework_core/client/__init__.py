@@ -14,10 +14,8 @@ from ftrack_framework_core.log.log_item import LogItem
 from ftrack_framework_core.definition import definition_object
 
 
-
-
 # TODO: Rename PIPELINE_* Events to FRAMEWORK_
-#TODO: Move Host connection to a separated file, is much easier to navigate when working with the code.
+# TODO: Move Host connection to a separated file, is much easier to navigate when working with the code.
 class HostConnection(object):
     '''
     Host Connection Base class.
@@ -51,7 +49,7 @@ class HostConnection(object):
         '''
         return self.event_manager.session
 
-    #TODO: Separate schemas from the definitions
+    # TODO: Separate schemas from the definitions
     @property
     def definitions(self):
         '''Returns the current definitions, filtered on discoverable.'''
@@ -212,11 +210,11 @@ class HostConnection(object):
             event,
         )
 
-    #TODO: move this to a standarized subscriptions method? also in case to leave it here, maybe rename to subscribe_on_host_conetext_change
+    # TODO: move this to a standarized subscriptions method? also in case to leave it here, maybe rename to subscribe_on_host_conetext_change
     def subscribe_host_context_change(self):
         '''Have host connection subscribe to context change events, to be able
         to notify client'''
-        #TODO: use event_manager instead of the event_hub and move to event module
+        # TODO: use event_manager instead of the event_hub and move to event module
         self.session.event_hub.subscribe(
             'topic={} and data.pipeline.host_id={}'.format(
                 constants.PIPELINE_HOST_CONTEXT_CHANGE, self.id
@@ -229,9 +227,9 @@ class HostConnection(object):
         '''Set the new context ID based on data provided in *event*'''
         self.context_id = event['data']['pipeline']['context_id']
 
-    #TODO: rename to on_client_context_change?
+    # TODO: rename to on_client_context_change?
     def change_host_context_id(self, context_id):
-        #TODO: move this to events module
+        # TODO: move this to events module
         event = ftrack_api.event.base.Event(
             topic=constants.PIPELINE_CLIENT_CONTEXT_CHANGE,
             data={'pipeline': {'host_id': self.id, 'context_id': context_id}},
@@ -279,7 +277,6 @@ class Client(object):
     #     host_discovered = discover()
     #     if widget:
     #         widget.hosts = host_discovered
-
 
     @property
     def event_manager(self):
@@ -335,7 +332,7 @@ class Client(object):
         '''Return the current list of host_connections'''
         Client._host_connections = value
 
-    #TODO: change this to connected host
+    # TODO: change this to connected host
     @property
     def host_connection(self):
         '''
@@ -359,7 +356,7 @@ class Client(object):
 
         self.logger.debug('host connection: {}'.format(value))
         Client._host_connection = value
-        #TODO: try to simplify this and mix this to in a host subscriptions method?
+        # TODO: try to simplify this and mix this to in a host subscriptions method?
         self.on_client_notification()
         self.subscribe_host_context_change()
         # Feed change of host and context to client
@@ -423,9 +420,9 @@ class Client(object):
         # TODO: we don't use _current, remove it.
         self._current = {}
 
-        #TODO: Can we handle this into the events module?
+        # TODO: Can we handle this into the events module?
         self.context_change_subscribe_id = None
-        #TODO: is this really necesary? self.host_connection already tell us if we are connected.
+        # TODO: is this really necesary? self.host_connection already tell us if we are connected.
         self._connected = False
         self._logs = None
         # TODO: remove this in case we remove schema from the client
@@ -458,7 +455,7 @@ class Client(object):
         if force_rediscover:
             self.host_connections = None
             self.host_connection = None
-        #TODO: I think we can remove this from this method. If its used, we should move it to a reconnect method or some similar name.
+        # TODO: I think we can remove this from this method. If its used, we should move it to a reconnect method or some similar name.
         if self.host_connection is not None:
             self.on_client_notification()
             self.subscribe_host_context_change()
@@ -527,7 +524,7 @@ class Client(object):
             and host_connection not in self.host_connections
             and self.filter_host(host_connection)
         ):
-            #TODO: check if we need to call Client._host_connections or self.host... is enough.
+            # TODO: check if we need to call Client._host_connections or self.host... is enough.
             Client._host_connections.append(host_connection)
 
         # TODO: this can be removed from here, also doesn't makes sense as here is not yet connected, just discovered.
@@ -550,7 +547,7 @@ class Client(object):
         '''Client(user) has chosen the host connection to use, set it to *host_connection*'''
         self.host_connection = host_connection
 
-   # TODO: should this be ABC method?
+    # TODO: should this be ABC method?
     def on_hosts_discovered(self, host_connections):
         '''Callback, hosts has been discovered. To be overridden by the qt client'''
         pass
@@ -566,10 +563,10 @@ class Client(object):
     def subscribe_host_context_change(self):
         '''Have host connection subscribe to context change events, to be able
         to notify client'''
-        #TODO: Why we want to unsubscribe? and why can't we use the method unsubscribe_host_context_change?
+        # TODO: Why we want to unsubscribe? and why can't we use the method unsubscribe_host_context_change?
         if self.context_change_subscribe_id:
             self.session.unsubscribe(self.context_change_subscribe_id)
-        #TODO: move to events module
+        # TODO: move to events module
         self.context_change_subscribe_id = self.session.event_hub.subscribe(
             'topic={} and data.pipeline.host_id={}'.format(
                 constants.PIPELINE_HOST_CONTEXT_CHANGE,
@@ -578,7 +575,7 @@ class Client(object):
             self._host_context_id_changed,
         )
 
-    #TODO: this should be renamed to _host_context_changed or remove it and directly call self.on_context_changed
+    # TODO: this should be renamed to _host_context_changed or remove it and directly call self.on_context_changed
     def _host_context_id_changed(self, event):
         '''Set the new context ID based on data provided in *event*'''
         # Feed the new context to the client
@@ -591,7 +588,7 @@ class Client(object):
         '''
         pass
 
-    #TODO: why do we need this one?
+    # TODO: why do we need this one?
     def unsubscribe_host_context_change(self):
         '''Unsubscribe to client context change events'''
         if self.context_change_subscribe_id:
@@ -624,7 +621,7 @@ class Client(object):
             callback=self._run_callback,
         )
 
-    #TODO: I think this is safe to remove as we don't need the schema in the client.
+    # TODO: I think this is safe to remove as we don't need the schema in the client.
     def get_schema_from_definition(self, definition):
         '''Return matching schema for the given *definition*'''
         if not self.host_connection:
@@ -674,7 +671,7 @@ class Client(object):
 
     # Plugin
 
-    #TODO: should this be an ABC ? maybe not needed.
+    # TODO: should this be an ABC ? maybe not needed.
     def run_plugin(self, plugin_data, method, engine_type):
         '''
         Calls the :meth:`~ftrack_framework_core.client.HostConnection.run`
@@ -715,14 +712,14 @@ class Client(object):
         self.__callback = callback
         self.discover_hosts(time_out=time_out)
 
-    #TODO: shouldn't this be something like set_engine or simply call the property setter?
+    # TODO: shouldn't this be something like set_engine or simply call the property setter?
     def change_engine(self, engine_type):
         '''
         Assign the given *engine_type* as the current :obj:`engine_type`
         '''
         self._engine_type = engine_type
 
-    #TODO: is this needed? shoudl then this be ABC?
+    # TODO: is this needed? shoudl then this be ABC?
     def _on_log_item_added(self, log_item):
         '''Called when a client notify event arrives.'''
         pass
@@ -750,7 +747,7 @@ class Client(object):
 
         *event*: :class:`ftrack_api.event.base.Event`
         '''
-        #TODO: not as priority task, but we might should have a method in events module to parse the events so we don't have to go into data/pipeline all the time.
+        # TODO: not as priority task, but we might should have a method in events module to parse the events so we don't have to go into data/pipeline all the time.
         result = event['data']['pipeline']['result']
         status = event['data']['pipeline']['status']
         plugin_name = event['data']['pipeline']['plugin_name']

@@ -150,7 +150,6 @@ class EventManager(object):
 
 
 class Events(object):
-
     @property
     def event_manager(self):
         return self._event_manager
@@ -170,8 +169,9 @@ class Events(object):
         self._subscription_class = Subscribe(self.event_manager)
 
     def list(self):
-        #TODO: retrun all available events
+        # TODO: retrun all available events
         pass
+
 
 # TODO: all pipeline events should be renamed to framework events, including
 #  the structure: data/pipeline/<data> should be renamed to data/framework/<data>
@@ -179,7 +179,6 @@ class Events(object):
 
 
 class Publish(object):
-
     @property
     def event_manager(self):
         return self._event_manager
@@ -198,7 +197,6 @@ class Publish(object):
 
 
 class Subscribe(object):
-
     @property
     def event_manager(self):
         return self._event_manager
@@ -213,4 +211,3 @@ class Subscribe(object):
     def discover_host(self, callback):
         topic = constants.PIPELINE_DISCOVER_HOST
         self._subscribe_event(topic, callback)
-

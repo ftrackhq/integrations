@@ -269,7 +269,7 @@ class BaseEngine(object):
             result_data['widget_ref'] = None
             result_data["plugin_id"] = None
 
-        #TODO: move this to the events module
+        # TODO: move this to the events module
         event = ftrack_api.event.base.Event(
             topic=constants.PIPELINE_CLIENT_NOTIFICATION,
             data={'pipeline': result_data},
@@ -744,6 +744,7 @@ class BaseEngine(object):
                 finalizers_output = group_results
 
         return finalizers_output
+
 
 # TODO: Don't use * imports
 from ftrack_framework_core.host.engine.publish import *

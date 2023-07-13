@@ -4,6 +4,7 @@
 from ftrack_framework_core import constants
 from ftrack_framework_core.plugin import base
 
+
 # TODO: same as the loader importer plugin, just inherit from basePlugin and pass the plugin type
 #  Also this might need to go to the core_plugin library and not in here.
 class LoaderPostImporterPlugin(base.BasePostImporterPlugin):

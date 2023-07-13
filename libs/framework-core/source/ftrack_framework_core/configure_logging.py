@@ -10,6 +10,7 @@ import errno
 
 # TODO: at some point clean this up and standarize logings
 
+
 def get_log_directory():
     '''Get log directory.
 

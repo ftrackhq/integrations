@@ -10,6 +10,7 @@ from ftrack_framework_core.plugin import base
 from ftrack_framework_core.asset.asset_info import FtrackAssetInfo
 from ftrack_framework_core.constants import asset as asset_const
 
+
 # TODO: so in here, we could simply have an override to the basePlugin, and we
 #  pass the plugin_type = constants.PLUGIN_LOADER_IMPORTER_TYPE in the base we have a type validator to validate that
 #  the given type is a knowing type.

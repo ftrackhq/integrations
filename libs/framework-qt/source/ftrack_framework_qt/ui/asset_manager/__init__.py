@@ -403,7 +403,7 @@ class AssetManagerWidget(AssetManagerBaseWidget):
         '''Subscribe to the PIPELINE_CLIENT_NOTIFICATION topic to call the
         _update_widget function when the host returns and answer through the
         same topic'''
-        #TODO: move this to the events module
+        # TODO: move this to the events module
         self.client_notification_subscribe_id = (
             self.session.event_hub.subscribe(
                 'topic={} and data.pipeline.host_id={}'.format(
