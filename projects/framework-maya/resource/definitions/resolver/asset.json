@@ -1,13 +1,13 @@
 {
     "type": "resolver",
-    "name": "default",
-    "host_type": "3dsmax",
+    "name": "Asset resolver",
+    "host_type": "maya",
     "ui_type": "qt",
     "resolvers":{
         "resolve_dependencies":[
             {
-                "name": "Resolve 3DSMax context asset dependencies",
-                "plugin": "common_default_resolver",
+                "name": "Resolve Maya context asset dependencies",
+                "plugin": "common_default_asset_resolver",
                 "options": {
                     "task_types":{
                         "rendering":{

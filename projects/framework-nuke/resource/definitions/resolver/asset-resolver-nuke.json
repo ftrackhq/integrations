@@ -1,13 +1,13 @@
 {
     "type": "resolver",
-    "name": "default",
+    "name": "Asset resolver",
     "host_type": "nuke",
     "ui_type": "qt",
     "resolvers":{
         "resolve_dependencies":[
             {
                 "name": "Resolve Nuke context asset dependencies",
-                "plugin": "common_default_resolver",
+                "plugin": "common_default_asset_resolver",
                 "options": {
                     "task_types":{
                         "*": {

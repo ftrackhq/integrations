@@ -5,7 +5,9 @@ from ftrack_framework_core import plugin
 from ftrack_framework_houdini.plugin import HoudiniBasePlugin
 
 
-class HoudiniResolverPlugin(plugin.ResolverPlugin, HoudiniBasePlugin):
+class HoudiniAssetResolverPlugin(
+    plugin.AssetResolverPlugin, HoudiniBasePlugin
+):
     '''
     Class representing a Resolver Houdini Plugin
     '''

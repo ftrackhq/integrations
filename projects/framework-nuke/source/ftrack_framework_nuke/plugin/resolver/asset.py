@@ -5,7 +5,7 @@ from ftrack_framework_core import plugin
 from ftrack_framework_nuke.plugin import NukeBasePlugin
 
 
-class NukeResolverPlugin(plugin.ResolverPlugin, NukeBasePlugin):
+class NukeAssetResolverPlugin(plugin.AssetResolverPlugin, NukeBasePlugin):
     '''
     Class representing a Resolver Nuke Plugin
     '''

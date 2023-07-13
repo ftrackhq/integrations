@@ -32,7 +32,7 @@ class ResolverEngine(BaseEngine):
         result = []
         message = None
 
-        plugin_type = constants.PLUGIN_RESOLVE_TYPE
+        plugin_type = constants.PLUGIN_ASSET_RESOLVE_TYPE
         plugin_name = None
         if plugin:
             plugin_type = '{}.{}'.format(constants.RESOLVER, plugin['type'])

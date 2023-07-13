@@ -1,13 +1,13 @@
 {
     "type": "resolver",
-    "name": "default",
-    "host_type": "unreal",
+    "name": "Asset resolver",
+    "host_type": "houdini",
     "ui_type": "qt",
     "resolvers":{
         "resolve_dependencies":[
             {
-                "name": "Resolve Unreal context asset dependencies",
-                "plugin": "common_default_am_resolver",
+                "name": "Resolve Houdini context asset dependencies",
+                "plugin": "common_default_asset_resolver",
                 "options": {
                     "task_types":{
                         "rendering":{
@@ -24,55 +24,11 @@
                             ]
                         },
                         "animation": {
-                            "asset_types": [
-                                {
-                                    "asset_type": "rig",
-                                    "filters": {
-                                        "task_names_include": [".*"],
-                                        "task_names_exclude": [".^"],
-                                        "asset_names_include": [".*"],
-                                        "asset_names_exclude": [".^"]
-                                    }
-                                },{
-                                    "asset_type": "geo",
-                                    "filters": {
-                                        "task_names_include": [".*"],
-                                        "task_names_exclude": [".^"],
-                                        "asset_names_include": [".*"],
-                                        "asset_names_exclude": [".^"]
-                                    }
-                                },{
-                                    "asset_type": "lgt",
-                                    "filters": {
-                                        "task_names_include": [".*"],
-                                        "task_names_exclude": [".^"],
-                                        "asset_names_include": [".*"],
-                                        "asset_names_exclude": [".^"]
-                                    }
-                                },{
-                                    "asset_type": "cam",
-                                    "filters": {
-                                        "task_names_include": [".*"],
-                                        "task_names_exclude": [".^"],
-                                        "asset_names_include": [".*"],
-                                        "asset_names_exclude": [".^"]
-                                    }
-                                }
-                            ]
                         },
                         "modeling": {
                             "asset_types": [
                                 {
                                     "asset_type": "geo",
-                                    "filters": {
-                                        "task_names_include": [".*"],
-                                        "task_names_exclude": [".^"],
-                                        "asset_names_include": [".*"],
-                                        "asset_names_exclude": [".^"]
-                                    }
-                                },
-                                {
-                                    "asset_type": "rig",
                                     "filters": {
                                         "task_names_include": [".*"],
                                         "task_names_exclude": [".^"],
@@ -151,39 +107,6 @@
                         "compositing": {
                         },
                         "tracking": {
-                            "asset_types": [
-                                {
-                                    "asset_type": "edit",
-                                    "filters": {
-                                        "task_names_include": [".*"],
-                                        "task_names_exclude": [".^"],
-                                        "asset_names_include": [".*"],
-                                        "asset_names_exclude": [".^"]
-                                    }
-                                }
-                            ]
-                        },
-                        "rigging": {
-                            "asset_types": [
-                                {
-                                    "asset_type": "geo",
-                                    "filters": {
-                                        "task_names_include": [".*"],
-                                        "task_names_exclude": [".^"],
-                                        "asset_names_include": [".*"],
-                                        "asset_names_exclude": [".^"]
-                                    }
-                                },
-                                {
-                                    "asset_type": "rig",
-                                    "filters": {
-                                        "task_names_include": [".*"],
-                                        "task_names_exclude": [".^"],
-                                        "asset_names_include": [".*"],
-                                        "asset_names_exclude": [".^"]
-                                    }
-                                }
-                            ]
                         },
                         "concept art": {
                         },
@@ -191,14 +114,6 @@
                             "asset_types": [
                                 {
                                     "asset_type": "geo",
-                                    "filters": {
-                                        "task_names_include": [".*"],
-                                        "task_names_exclude": [".^"],
-                                        "asset_names_include": [".*"],
-                                        "asset_names_exclude": [".^"]
-                                    }
-                                },{
-                                    "asset_type": "rig",
                                     "filters": {
                                         "task_names_include": [".*"],
                                         "task_names_exclude": [".^"],
@@ -220,15 +135,6 @@
                             "asset_types": [
                                 {
                                     "asset_type": "geo",
-                                    "filters": {
-                                        "task_names_include": [".*"],
-                                        "task_names_exclude": [".^"],
-                                        "asset_names_include": [".*"],
-                                        "asset_names_exclude": [".^"]
-                                    }
-                                },
-                                {
-                                    "asset_type": "rig",
                                     "filters": {
                                         "task_names_include": [".*"],
                                         "task_names_exclude": [".^"],

@@ -5,7 +5,7 @@ from ftrack_framework_core import plugin
 from ftrack_framework_unreal.plugin import UnrealBasePlugin
 
 
-class UnrealResolverPlugin(plugin.ResolverPlugin, UnrealBasePlugin):
+class UnrealAssetResolverPlugin(plugin.AssetResolverPlugin, UnrealBasePlugin):
     '''
     Class representing an Unreal asset Resolver Plugin
     '''

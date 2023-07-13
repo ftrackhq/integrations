@@ -1,1 +1,1 @@
-from ftrack_framework_maya.plugin.resolver.resolver import *
+from ftrack_framework_maya.plugin.resolver.asset import *

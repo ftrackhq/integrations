@@ -43,9 +43,7 @@
           "default": "plugin"
         },
         "type": {
-          "type": "string",
-          "pattern": "^base$",
-          "default": "base"
+          "type": "string"
         },
         "name": {
           "type": "string"
@@ -88,8 +86,9 @@
       ],
       "properties": {
         "type": {
-          "pattern": "^resolver$",
-          "default": "resolver$"
+          "enum": [
+            "asset"
+          ]
         }
       }
     },
@@ -107,8 +106,7 @@
             "allOf": [{"$ref": "#/definitions/ResolverPlugin"}],
             "properties": {
                 "type": {
-                  "pattern": "^resolver$",
-                  "default": "resolver"
+                  "default": "asset"
                 }
               }
           },

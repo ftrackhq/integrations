@@ -1,13 +1,13 @@
 {
     "type": "resolver",
-    "name": "default",
-    "host_type": "maya",
+    "name": "Asset resolver",
+    "host_type": "{{cookiecutter.host_type}}",
     "ui_type": "qt",
     "resolvers":{
         "resolve_dependencies":[
             {
-                "name": "Resolve Maya context asset dependencies",
-                "plugin": "common_default_am_resolver",
+                "name": "Resolve {{cookiecutter.host_type_capitalized}} context asset dependencies",
+                "plugin": "common_default_asset_resolver",
                 "options": {
                     "task_types":{
                         "rendering":{

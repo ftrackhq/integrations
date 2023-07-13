@@ -1,13 +1,13 @@
 {
     "type": "resolver",
-    "name": "default",
-    "host_type": "{{cookiecutter.host_type}}",
+    "name": "Asset resolver",
+    "host_type": "3dsmax",
     "ui_type": "qt",
     "resolvers":{
         "resolve_dependencies":[
             {
-                "name": "Resolve {{cookiecutter.host_type_capitalized}} context asset dependencies",
-                "plugin": "common_default_am_resolver",
+                "name": "Resolve 3DSMax context asset dependencies",
+                "plugin": "common_default_asset_resolver",
                 "options": {
                     "task_types":{
                         "rendering":{
