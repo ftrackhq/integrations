@@ -200,7 +200,7 @@ class HostConnection(object):
             event,
         )
 
-
+# TODO: one single client, multiple engines.
 class Client(object):
     '''
     Base client class.

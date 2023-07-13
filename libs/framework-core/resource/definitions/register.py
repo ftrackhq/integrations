@@ -10,7 +10,8 @@ from ftrack_framework_core.definition import BaseDefinition
 
 logger = logging.getLogger('ftrack_connect_pipeline_definition.register')
 
-
+# TODO: As low priority task, improve schemas, re-use stuff like plugins,
+#  and see how to make them simple.
 def register(api_object, **kw):
     '''Register plugin to api_object.'''
 
