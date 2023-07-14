@@ -43,7 +43,6 @@ class AssetManagerClient(Client):
             self.change_definition(definitions[0], schema)
 
             self.menu_action_plugins = self.definition.get('actions')
-            self.discover_plugins = self.definition.get('discover')
             self.resolver_plugins = self.definition['resolvers'].get(
                 'resolve_dependencies'
             )
@@ -116,13 +115,15 @@ class AssetManagerClient(Client):
         '''
         self._reset_asset_list()
         plugin_type = None
-        if plugin:
-            plugin_type = '{}.{}'.format('asset_manager', plugin['type'])
+        if not plugin:
+            # Use the first discover plugin in the list
+            plugin = self.menu_action_plugins['discover'][0]
+        plugin_type = '{}.{}'.format('asset_manager', plugin['type'])
         data = {
-            'method': 'discover_assets',
             'plugin': plugin,
             'plugin_type': plugin_type,
         }
+
         self.host_connection.run(
             data, self.engine_type, callback=self._asset_discovered_callback
         )

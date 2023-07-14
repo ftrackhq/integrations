@@ -498,7 +498,7 @@ class QtAssemblerClientWidget(QtLoaderClient, dialog.Dialog):
                             failed,
                         ),
                     )
-                self.asset_manager.asset_manager_widget.rebuild.emit()
+                self.asset_manager.asset_manager_widget.rebuild.emit(None)
             else:
                 self.progress_widget.set_status(
                     core_constants.ERROR_STATUS,

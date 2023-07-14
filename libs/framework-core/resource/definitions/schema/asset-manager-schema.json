@@ -90,6 +90,9 @@
         "type": {
           "pattern": "^action$",
           "default": "action"
+        },
+        "label": {
+          "type": "string"
         }
       }
     },
@@ -97,21 +100,74 @@
       "title": "Action",
       "type": "object",
       "required": [
-        "update",
-        "select",
-        "remove",
+        "discover",
         "load",
-        "unload"
+        "select",
+        "update",
+        "unload",
+        "remove"
       ],
       "order":[
-        "update",
-        "select",
-        "remove",
+        "discover",
         "load",
-        "unload"
+        "select",
+        "update",
+        "unload",
+        "remove"
       ],
       "additionalProperties": false,
       "properties": {
+        "discover": {
+          "type": "array",
+          "default": [],
+          "items": {
+            "allOf": [{"$ref": "#/definitions/ActionPlugin"}],
+            "properties": {
+              "type": {
+                "pattern": "^action$",
+                "default": "action"
+              },
+              "ui_callback": {
+                "type": "string",
+                "default": "ctx_discover"
+              }
+            }
+          }
+        },
+        "load": {
+          "type": "array",
+          "default": [],
+          "items": {
+            "allOf": [{"$ref": "#/definitions/ActionPlugin"}],
+            "properties": {
+              "type": {
+                "pattern": "^action$",
+                "default": "action"
+              },
+              "ui_callback": {
+                "type": "string",
+                "default": "ctx_discover"
+              }
+            }
+          }
+        },
+        "select": {
+          "type": "array",
+          "default": [],
+          "items": {
+            "allOf": [{"$ref": "#/definitions/ActionPlugin"}],
+            "properties": {
+              "type": {
+                "pattern": "^action$",
+                "default": "action"
+              },
+              "ui_callback": {
+                "type": "string",
+                "default": "ctx_select"
+              }
+            }
+          }
+        },
         "update": {
           "type": "array",
           "items": {
@@ -129,7 +185,7 @@
           },
           "minItems": 1
         },
-        "select": {
+        "unload": {
           "type": "array",
           "default": [],
           "items": {
@@ -141,7 +197,7 @@
               },
               "ui_callback": {
                 "type": "string",
-                "default": "ctx_select"
+                "default": "ctx_unload"
               }
             }
           }
@@ -161,40 +217,6 @@
                   "default": "ctx_remove"
                 }
               }
-          }
-        },
-        "load": {
-          "type": "array",
-          "default": [],
-          "items": {
-            "allOf": [{"$ref": "#/definitions/ActionPlugin"}],
-            "properties": {
-              "type": {
-                "pattern": "^action$",
-                "default": "action"
-              },
-              "ui_callback": {
-                "type": "string",
-                "default": "ctx_load"
-              }
-            }
-          }
-        },
-        "unload": {
-          "type": "array",
-          "default": [],
-          "items": {
-            "allOf": [{"$ref": "#/definitions/ActionPlugin"}],
-            "properties": {
-              "type": {
-                "pattern": "^action$",
-                "default": "action"
-              },
-              "ui_callback": {
-                "type": "string",
-                "default": "ctx_unload"
-              }
-            }
           }
         }
       }

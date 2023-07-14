@@ -4,9 +4,17 @@
     "host_type": "nuke",
     "ui_type": "qt",
     "actions":{
+        "discover":[
+            {
+                "label": "Refresh",
+                "name": "discover",
+                "plugin": "nuke_discover_am_action"
+            }
+        ],
         "update":[
             {
-                "name": "Update to latest",
+                "label": "Update to latest",
+                "name": "update_to_latest",
                 "plugin": "common_update_latest_am_action",
                 "options": {"clear_selection":  false}
             }

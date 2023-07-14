@@ -257,10 +257,11 @@ class QtAssetManagerClientWidget(QtAssetManagerClient, QtWidgets.QFrame):
         self._asset_list_model.reset()
 
     # TODO: This should be inherit from a base framework widget and should be ABC method
-    def rebuild(self):
+    def rebuild(self, plugin=None):
         '''
-        Do a deep async refresh of the ui - running the discover_assets() to locate all asset within the DCC. Allow this
-        to execute in a separate thread as it does not alter the DCC internal state (read only)
+        Do a deep async refresh of the ui - running the discover_assets() to locate
+        all asset within the DCC. Allow this to execute in a separate thread as
+        it does not alter the DCC internal state (read only)
         '''
         if not self.host_connection:
             return
@@ -269,10 +270,10 @@ class QtAssetManagerClientWidget(QtAssetManagerClient, QtWidgets.QFrame):
             BaseThread(
                 name='discover_assets_thread',
                 target=self.discover_assets,
-                target_args=(),
+                target_args=[plugin] if plugin else (),
             ).start()
         else:
-            self.discover_assets()
+            self.discover_assets(plugin)
 
     def _asset_discovered_callback(self, event):
         '''

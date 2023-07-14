@@ -158,6 +158,7 @@ class Host(object):
         # TODO: this is a bit magic, at some point we should clarify, run_plugin
         #  or run_definition, but we shouldn't assume that if not plugin in data
         #  we run_definition.
+
         if not 'plugin' in data:
             # Run a definition
             try:
