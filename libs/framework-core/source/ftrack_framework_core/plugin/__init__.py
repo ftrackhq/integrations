@@ -216,18 +216,6 @@ class BasePlugin(object):
         '''Returns a copy of :attr:`required_output`'''
         return copy.deepcopy(self._required_output)
 
-    #TODO: remove this and move it to the event module
-    @property
-    def discover_topic(self):
-        '''Return a formatted DISCOVER_PLUGIN_TOPIC'''
-        return self._base_topic(constants.DISCOVER_PLUGIN_TOPIC)
-
-    # TODO: remove this and move it to the event module
-    @property
-    def run_topic(self):
-        '''Return a formatted HOST_RUN_PLUGIN_TOPIC'''
-        return self._base_topic(constants.HOST_RUN_PLUGIN_TOPIC)
-
     @property
     def session(self):
         '''
@@ -244,13 +232,14 @@ class BasePlugin(object):
         return self._event_manager
 
     @property
-    def raw_data(self):
+    def raw_plugin_data(self):
         # TODO: fix this docstring
         '''Returns the current context id'''
-        return self._raw_data
+        return self._raw_plugin_data
 
     # TODO: are plugin setting the same as plugin options? If so, align it.
     #  I think are the context_data, data and options arguments that are passed to execute a plugin. But this should probbably come from the plugin_object, and also maybe we should try to clean up the event to not be that complicated.
+    # TODO: update all places where using plugin_settings to self._context_data, self._plugin_data, self._options properties. re-review this.
     @property
     def plugin_settings(self):
         '''Returns the current plugin_settings'''
@@ -275,7 +264,7 @@ class BasePlugin(object):
         self.plugin_id = uuid.uuid4().hex
 
         self._ftrack_object_manager = None
-        self._raw_data = []
+        self._raw_plugin_data = []
         # TODO: _method: This should be a string not a list
         self._method = []
         # TODO: we should initialize self._plugin_settings in here
@@ -289,43 +278,6 @@ class BasePlugin(object):
             self.return_type,
             self.return_value,
         )
-
-
-    # TODO: clean up this and move to events
-    def _base_topic(self, topic):
-        '''
-        Ensures that :attr:`host_type`, :attr:`category`, :attr:`plugin_type`,
-        :attr:`plugin_name` are defined and Returns a formatted topic of an event
-        for the given *topic*
-
-        *topic* topic base value
-
-        Raise :exc:`ftrack_framework_core.exception.PluginError` if some
-        information is missed.
-        '''
-
-        required = [
-            self.host_type,
-            self.category,
-            self.plugin_type,
-            self.plugin_name,
-        ]
-        if not all(required):
-            raise exception.PluginError('Some required fields are missing')
-
-        topic = (
-            'topic={} and data.pipeline.host_type={} and '
-            'data.pipeline.category={} and data.pipeline.plugin_type={} and '
-            'data.pipeline.plugin_name={}'
-        ).format(
-            topic,
-            self.host_type,
-            self.category,
-            self.plugin_type,
-            self.plugin_name,
-        )
-
-        return topic
 
     def register(self):
         '''
@@ -351,10 +303,22 @@ class BasePlugin(object):
         )
 
         # TODO: move the subscriptions to a standar subscription method?
-        self.session.event_hub.subscribe(self.run_topic, self._run)
+        self.event_manager.subscribe.execute_plugin(
+            self.host_type,
+            self.category,
+            self.plugin_type,
+            self.plugin_name,
+            callback=self._run
+        )
 
         # subscribe to discover the plugin
-        self.session.event_hub.subscribe(self.discover_topic, self._discover)
+        self.event_manager.subscribe.discover_plugin(
+            self.host_type,
+            self.category,
+            self.plugin_type,
+            self.plugin_name,
+            callback=self._discover
+        )
 
     # TODO: rename this to discover callback in case. But is it necesary?
     def _discover(self, event):
@@ -446,21 +410,23 @@ class BasePlugin(object):
         Parse the event given on the :meth:`_run`. Returns method name to be
         executed and plugin_setting to be passed to the method.
         Also this functions saves the original passed data to the property
-        :obj:`raw_data`.
+        :obj:`raw_plugin_data`.
 
         Note:: Publisher validator, exporters and Loader/Opener importer and post_importer
         plugin types override this function to modify the data that arrives to
         the plugin.
         '''
-        method = event['data']['pipeline']['method']
+        method = event['data']['method']
         self.logger.debug('method : {}'.format(method))
-        plugin_settings = event['data']['settings']
-        self.logger.debug('plugin_settings : {}'.format(plugin_settings))
-        # Save a copy of the original data as _raw_data to be able to be access
+        plugin_data = event['data']['plugin_data']
+        plugin_options = event['data']['options']
+        context_data = event['data']['context_data']
+        self.logger.debug('plugin_settings : {}'.format(plugin_data, plugin_options, context_data))
+        # Save a copy of the original data as _raw_plugin_data to be able to be access
         # to the original data in case we modify it for a specific plugin. So
-        # the user can allways aces to self.raw_data property.
-        self._raw_data = plugin_settings.get('data')
-        return method, plugin_settings
+        # the user can allways aces to self.raw_plugin_data property.
+        self._raw_plugin_data = plugin_data
+        return method, plugin_data, plugin_options, context_data
 
     def _run(self, event):
         '''
@@ -478,7 +444,7 @@ class BasePlugin(object):
         '''
         # Having this in a separate method, we can override the parse depending
         #  on the plugin type.
-        self._method, self._plugin_settings = self._parse_run_event(event)
+        self._method, self._context_data, self._plugin_data, self._options = self._parse_run_event(event)
 
         start_time = time.time()
 
@@ -511,7 +477,7 @@ class BasePlugin(object):
             result_data['message'] = str(message)
             return result_data
         try:
-            result = run_fn(**self.plugin_settings)
+            result = run_fn(context_data=self.context_data, data=self.plugin_data, options=self.options)
             if isinstance(result, tuple):
                 user_data = result[1]
                 result = result[0]

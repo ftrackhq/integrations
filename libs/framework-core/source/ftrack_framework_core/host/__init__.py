@@ -89,7 +89,7 @@ class Host(object):
         self.logger.warning(
             'ftrack host context is now: {}'.format(self.context_id)
         )
-        self.event_manager.events.publish.host_context_changed(
+        self.event_manager.publish.host_context_changed(
             self.host_id,
             self.context_id
         )
@@ -139,9 +139,7 @@ class Host(object):
         #  not confusing with the register function of the definitions.
         self.register()
 
-    #TODO: Should we try to find a better name for evaluating the definitions or plugins?
-    # Rename to run_definition and run_plugin
-    def run(self, event):
+    def run_definition(self, event):
         '''
         Runs the data with the defined engine type of the givent *event*
 
@@ -155,6 +153,7 @@ class Host(object):
         engine_type = event['data']['engine_type']
         asset_type_name = definition.get('asset_type')
 
+        # TODO: maybe move this to a separated method to get the engine
         Engine = self.engines.get(engine_type)
         if Engine is None:
             # TODO: should we have our own exceptions? So they automatically registers to log as well.
@@ -166,22 +165,47 @@ class Host(object):
         # TODO: this is a bit magic, at some point we should clarify, run_plugin
         #  or run_definition, but we shouldn't assume that if not plugin in data
         #  we run_definition.
-        if not 'plugin' in definition:
-            # Run a definition
-            try:
-                validation.validate_schema(self.__registry['schema'], definition)
-            except Exception as error:
-                self.logger.error(
-                    "Can't validate definition {} error: {}".format(definition, error)
-                )
-            runner_result = engine_runner.run_definition(definition)
-        else:
-            #TODO: maybe better to rename this to run_plugin if it makes sense
-            runner_result = engine_runner.run(definition)
+        try:
+            validation.validate_schema(self.__registry['schema'], definition)
+        except Exception as error:
+            self.logger.error(
+                "Can't validate definition {} error: {}".format(definition, error)
+            )
+        runner_result = engine_runner.run_definition(definition)
 
         if runner_result == False:
             # TODO: fix this log. We don't know if we are publishing loading or what.
-            self.logger.error("Couldn't publish the data {}".format(definition))
+            self.logger.error("Couldn't run efinition {}".format(definition))
+        return runner_result
+
+    def run_plugin(self, event):
+        '''
+        Runs the data with the defined engine type of the givent *event*
+
+        Returns result of the engine run.
+
+        *event* : Published from the client host connection at
+        :meth:`~ftrack_framework_core.client.HostConnection.run`
+        '''
+
+        plugin = event['data']['plugin']
+        plugin_type = event['data']['plugin_type']
+        method = event['data']['method']
+        engine_type = event['data']['engine_type']
+
+        Engine = self.engines.get(engine_type)
+        if Engine is None:
+            # TODO: should we have our own exceptions? So they automatically registers to log as well.
+            raise Exception('No engine of type "{}" found'.format(engine_type))
+        engine_runner = Engine(
+            self._event_manager, self.host_types, self.host_id, None
+        )
+
+        runner_result = engine_runner.run_plugin(plugin, plugin_type, method)
+
+        if runner_result == False:
+            # TODO: fix this log. We don't know if we are publishing loading or what.
+            self.logger.error("Couldn't run plugin {}".format(plugin))
         return runner_result
 
     #TODO: rename to on_register_definition_callback? (Same for all the callbacks in all the modules)
@@ -228,7 +252,11 @@ class Host(object):
             constants.DISCOVER_HOST_TOPIC, handle_event
         )
 
-        self.event_manager.events.subscribe.host_run_definition(self.host_id, self.run)
+        # TODO: change the run callback to run_definiton
+        self.event_manager.events.subscribe.host_run_definition(self.host_id, self.run_definition)
+        # TODO: create the run_plugin method (pick the desired parts from the current self.run plugin)
+        #  Carefully, run plugin topic was already used by engines to be able to run plugins, so the run plugin function wasn't existing int the host. We will have to separate this 2 events maybe.
+        self.event_manager.events.subscribe.host_run_plugin(self.host_id, self.run_plugin)
         self.logger.debug('host {} ready.'.format(self.host_id))
 
     def collect_and_validate_definitions(self, definition_paths, host_types):
@@ -280,7 +308,7 @@ class Host(object):
         :func:`ftrack_connect_pipeline_definition.resource.definitions.register.register_definitions`
         '''
         plugin_validator = validation.PluginDiscoverValidation(
-            self.session, self.host_types
+            self.event_manager, self.host_types
         )
         #TODO: all client names should be cosntants. Also try to make this smaller,
         # and automatically extensible by a list from cosntants.
@@ -362,12 +390,8 @@ class Host(object):
         )
 
         ''' Listen to context change events for this host and its connected clients'''
-        # tODO: move this to events module
-        self.session.event_hub.subscribe(
-            'topic={} and data.pipeline.host_id={}'.format(
-                constants.CLIENT_CONTEXT_CHANGE_TOPIC, self._host_id
-            ),
-            self._change_context_id,
+        self.event_manager.subscribe.client_context_changed(
+            self.host_id, self._change_context_id
         )
 
     def reset(self):

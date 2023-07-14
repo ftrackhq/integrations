@@ -210,7 +210,7 @@ class Client(object):
             raise ValueError('Context should be in form of a string.')
         if self.host_connection is None:
             raise Exception('No host connection available')
-        self.host_connection.change_host_context_id(context_id)
+        self.host_connection.on_client_context_changed(context_id)
 
     # TODO: fix all cantext and context id, try to use always just context ID, if succed, then remove context from everywhere.
     @property
@@ -412,7 +412,7 @@ class Client(object):
         Publish an event with the topic
         :py:data:`~ftrack_framework_core.constants.DISCOVER_HOST_TOPIC`
         with the callback
-        py:meth:`~ftrack_framework_core.client._host_discovered`
+        py:meth:`~ftrack_framework_core.client._host_discovered_callback`
         '''
         # TODO: Move this to events module
         self.host_connections = []  # Start over

@@ -66,7 +66,7 @@ class WidgetLauncher(object):
         self._event_manager = host
 
     def launch(self, widget_name):
-        self._event_manager.events.publish.launch_client_widget(self._host.id,widget_name)
+        self._event_manager.publish.client_launch_widget(self._host.id, widget_name)
 
 
 def handle_exception(exc_type, exc_value, exc_traceback):
@@ -231,7 +231,7 @@ def initialise():
     )
 
     # Listen to widget launch events
-    event_manager.events.subscription.launch_client_widget(
+    event_manager.subscribe.client_launch_widget(
         host.host_id,
         functools.partial(
             _open_widget, event_manager, asset_list_model, widgets

@@ -107,6 +107,7 @@ class BaseEngine(object):
         super(BaseEngine, self).__init__()
 
         self.asset_type_name = asset_type_name
+        # TODO: this should be a property to align to the other code
         self.session = event_manager.session
         self._host_types = host_types
         self._host_id = host_id
@@ -117,68 +118,15 @@ class BaseEngine(object):
             __name__ + '.' + self.__class__.__name__
         )
 
+        # TODO: this should be a property to align to the other code
         self.event_manager = event_manager
-
-    # TODO: rename this to prepare the data for the run plugin event, and move the event to the events module
-    def run_event(
-        self,
-        plugin_name,
-        plugin_type,
-        host_type,
-        data,
-        options,
-        context_data,
-        method,
-    ):
-        '''
-        Returns an :class:`ftrack_api.event.base.Event` with the topic
-        :const:`~ftrack_connnect_pipeline.constants.HOST_RUN_PLUGIN_TOPIC`
-        with the data of the given *plugin_name*, *plugin_type*,
-        *host_definition*, *data*, *options*, *context_data*, *method*
-
-        *plugin_name* : Name of the plugin.
-
-        *plugin_type* : Type of plugin.
-
-        *host_definition* : Host type.
-
-        *data* : data to pass to the plugin.
-
-        *options* : options to pass to the plugin
-
-        *context_data* : result of the context plugin containing the context_id,
-        aset_name... Or None
-
-        *method* : Method of the plugin to be executed.
-
-        '''
-        return ftrack_api.event.base.Event(
-            topic=constants.HOST_RUN_PLUGIN_TOPIC,
-            data={
-                'pipeline': {
-                    'plugin_name': plugin_name,
-                    'plugin_type': plugin_type,
-                    'method': method,
-                    'category': 'plugin',
-                    'host_type': host_type,
-                    'definition': self._definition['name']
-                    if self._definition
-                    else None,
-                },
-                'settings': {
-                    'data': data,
-                    'options': options,
-                    'context_data': context_data,
-                },
-            },
-        )
 
     def _run_plugin(
         self,
         plugin,
         plugin_type,
         options=None,
-        data=None,
+        plugin_data=None,
         context_data=None,
         method='run',
     ):
@@ -222,20 +170,9 @@ class BaseEngine(object):
         result_data['status'] = constants.UNKNOWN_STATUS
 
         for host_type in reversed(self._host_types):
-            # TODO: move this to events module
-            event = self.run_event(
-                plugin_name,
-                plugin_type,
-                host_type,
-                data,
-                options,
-                context_data,
-                method,
-            )
-
-            # TODO: result data should contain widget_ref and plugin_id and host_id for the notify client.
-            plugin_result_data = self.session.event_hub.publish(
-                event, synchronous=True
+            plugin_result_data = self.event_manager.publish.execute_plugin(
+                plugin_name, plugin_type, method, host_type, plugin_data,
+                options, context_data
             )
             if plugin_result_data:
                 result_data = plugin_result_data[0]
@@ -280,7 +217,7 @@ class BaseEngine(object):
         )
 
     # TODO: This should be renamed to run_plugin or removed as run_plugin already exists.
-    def run(self, data):
+    def run_plugin(self, plugin, plugin_type, method='run'):
         '''
         Executes the :meth:`_run_plugin` with the provided *data*.
         Returns the result of the mentioned method.
@@ -290,9 +227,6 @@ class BaseEngine(object):
         '''
 
         # TODO: refactor this: if not plugin return None.
-        method = data.get('method', 'run')
-        plugin = data.get('plugin', None)
-        plugin_type = data.get('plugin_type', None)
 
         result = None
 
@@ -392,6 +326,7 @@ class BaseEngine(object):
             type = plugin['type']
             default_method = plugin['default_method']
 
+            # TODO: we should call the public run_plugin here maybe?
             plugin_result = self._run_plugin(
                 plugin,
                 plugin_type,
@@ -613,6 +548,7 @@ class BaseEngine(object):
         )
 
     # TODO: as a low priority task, try to improve this makeing a better use of the definition object, maybe extending the definition object as well to know how to run steps, stages and plugins.
+    # TODO: receive definition in here instead of data
     def run_definition(self, data):
         '''
         Runs the whole definition from the provided *data*.

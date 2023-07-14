@@ -114,7 +114,7 @@ def init():
     asset_list_model = AssetListModel(event_manager)
 
     # Listen to widget launch events
-    event_manager.events.subscription.launch_client_widget(
+    event_manager.subscribe.client_launch_widget(
         host.host_id,
         functools.partial(_open_widget, event_manager, asset_list_model),
     )
@@ -133,7 +133,7 @@ def init():
 def launchWidget(widget_name):
     '''Send an event to launch the widget'''
     global host
-    event_manager.events.publish.launch_client_widget(host.host_id, widget_name)
+    event_manager.publish.client_launch_widget(host.host_id, widget_name)
 
 
 def _open_widget(event_manager, asset_list_model, event):

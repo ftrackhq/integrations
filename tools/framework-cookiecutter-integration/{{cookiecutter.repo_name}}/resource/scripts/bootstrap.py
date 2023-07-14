@@ -220,12 +220,12 @@ def initialise():
         # cmds.menuItem(
         #     parent=ftrack_menu,
         #     label=label,
-        #     command=(functools.partial(event_manager.events.publish.launch_client_widget, host.host_id, widget_nam)),
+        #     command=(functools.partial(event_manager.publish.client_launch_widget, host.host_id, widget_nam)),
         #     image=":/{}.png".format(image),
         # )
 
     # Listen to widget launch events
-    event_manager.events.subscription.launch_client_widget(
+    event_manager.subscribe.client_launch_widget(
         host.host_id,
         functools.partial(
             _open_widget, event_manager, asset_list_model, widgets
@@ -234,7 +234,7 @@ def initialise():
 
     {{cookiecutter.host_type}}_utils.init_{{cookiecutter.host_type}}()
 
-    # event_manager.events.publish.launch_client_widget(host.host_id, qt_constants.OPENER_WIDGET)
+    # event_manager.publish.client_launch_widget(host.host_id, qt_constants.OPENER_WIDGET)
 
 
 # cmds.evalDeferred('initialise()', lp=True)

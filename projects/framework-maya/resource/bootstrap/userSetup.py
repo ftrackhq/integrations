@@ -219,12 +219,12 @@ def initialise():
             parent=ftrack_menu,
             label=label,
             # TODO: double check this as its only implemented in maya, or at least compare to 3dsmax, is not duing it this way, fins a common way and align it.
-            command=(functools.partial(event_manager.events.publish.launch_client_widget, host.host_id, widget_name)),
+            command=(functools.partial(event_manager.publish.client_launch_widget, host.host_id, widget_name)),
             image=":/{}.png".format(image),
         )
 
     # Listen to widget launch events
-    event_manager.events.subscription.launch_client_widget(
+    event_manager.subscribe.client_launch_widget(
         host.host_id,
         functools.partial(
             _open_widget, event_manager, asset_list_model, widgets

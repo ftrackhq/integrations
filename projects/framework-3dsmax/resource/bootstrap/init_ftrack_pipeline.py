@@ -228,7 +228,7 @@ def initialise():
     rt.menuMan.updateMenuBar()
 
     # Listen to widget launch events
-    event_manager.events.subscription.launch_client_widget(
+    event_manager.subscribe.client_launch_widget(
         host.host_id,
         partial(
             _open_widget,

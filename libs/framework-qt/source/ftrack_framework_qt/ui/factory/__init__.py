@@ -583,8 +583,10 @@ class WidgetFactoryBase(QtWidgets.QWidget):
                     },
                 }
 
+                # TODO this is the execute plugin event, but we are not
+                #  refactoring this now because should be removed.
                 event = ftrack_api.event.base.Event(
-                    topic=core_constants.HOST_RUN_PLUGIN_TOPIC, data=data
+                    topic=core_constants.EXECUTE_PLUGIN_TOPIC, data=data
                 )
 
                 result = self.session.event_hub.publish(

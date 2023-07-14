@@ -16,7 +16,6 @@ from ftrack_framework_core.definition import definition_object
 
 
 
-# TODO: Rename PIPELINE_* Events to FRAMEWORK_
 #TODO: Move Host connection to a separated file, is much easier to navigate when working with the code.
 class HostConnection(object):
     '''
@@ -172,15 +171,31 @@ class HostConnection(object):
         self._context_id = self._raw_host_data.get('context_id')
         self.event_manager.events.subscribe.host_context_changed(self.host_id, self._on_host_context_changed_callback)
 
+    #TODO: this should probably be directly called in the client as the host conenction is to provide host action but the event can directly be run through the client.
     def run_definition(self, definition, engine_type, callback=None):
         '''
         Publish an event with the topic
         :py:const:`~ftrack_framework_core.constants.HOST_RUN_DEFINITION_TOPIC`
         with the given *data* and *engine*.
         '''
-        self.event_manager.events.publish.host_run_definition(
+        self.event_manager.publish.host_run_definition(
             self.host_id,
             definition,
+            engine_type,
+            callback
+        )
+
+    def run_plugin(self, plugin, plugin_type, method, engine_type, callback=None):
+        '''
+        Publish an event with the topic
+        :py:const:`~ftrack_framework_core.constants.HOST_RUN_DEFINITION_TOPIC`
+        with the given *data* and *engine*.
+        '''
+        self.event_manager.publish.host_run_plugin(
+            self.host_id,
+            plugin,
+            plugin_type,
+            method,
             engine_type,
             callback
         )
@@ -189,15 +204,9 @@ class HostConnection(object):
         '''Set the new context ID based on data provided in *event*'''
         self.context_id = event['data']['context_id']
 
-    #TODO: rename to on_client_context_change?
-    def change_host_context_id(self, context_id):
-        #TODO: move this to events module
-        event = ftrack_api.event.base.Event(
-            topic=constants.CLIENT_CONTEXT_CHANGE_TOPIC,
-            data={'pipeline': {'host_id': self.host_id, 'context_id': context_id}},
-        )
-        self.event_manager.publish(
-            event,
+    def on_client_context_changed(self, context_id):
+        self.event_manager.publish.client_context_changed(
+            self.host_id, context_id
         )
 
 # TODO: one single client, multiple engines.
@@ -270,7 +279,7 @@ class Client(object):
             raise ValueError('Context should be in form of a string.')
         if self.host_connection is None:
             raise Exception('No host connection available')
-        self.host_connection.change_host_context_id(context_id)
+        self.host_connection.on_client_context_changed(context_id)
 
     # TODO: fix all cantext and context id, try to use always just context ID, if succed, then remove context from everywhere.
     @property
@@ -457,7 +466,7 @@ class Client(object):
                 self.logger.warning('Could not discover any host.')
                 break
 
-            self._discover_hosts()
+            self.event_manager.publish.discover_host(self._host_discovered_callback)
 
         # TODO: remove this if not needed
         if self.__callback and self.host_connections:
@@ -467,24 +476,7 @@ class Client(object):
         # Feed host connections to the client
         self.on_hosts_discovered(self.host_connections)
 
-    def _discover_hosts(self):
-        '''
-        Publish an event with the topic
-        :py:data:`~ftrack_framework_core.constants.DISCOVER_HOST_TOPIC`
-        with the callback
-        py:meth:`~ftrack_framework_core.client._host_discovered`
-        '''
-        # TODO: Move this to events module
-        self.host_connections = []  # Start over
-        discover_event = ftrack_api.event.base.Event(
-            topic=constants.DISCOVER_HOST_TOPIC
-        )
-
-        self._event_manager.publish(
-            discover_event, callback=self._host_discovered
-        )
-
-    def _host_discovered(self, event):
+    def _host_discovered_callback(self, event):
         '''
         Callback, add the :class:`~ftrack_framework_core.client.HostConnection`
         of the new discovered :class:`~ftrack_framework_core.host.HOST` from
@@ -494,6 +486,7 @@ class Client(object):
         '''
         if not event['data']:
             return
+        self.host_connections = []
         host_connection = HostConnection(self.event_manager, event['data'])
         # TODO: should we remove the filter_host for now as its not used.
         if (
@@ -652,14 +645,11 @@ class Client(object):
         # passing data to the engine. And the engine_type is only available
         # on the definition.
         plugin_type = '{}.{}'.format(engine_type, plugin_data['type'])
-        data = {
-            'plugin': plugin_data,
-            'plugin_type': plugin_type,
-            'method': method,
-        }
-        self.host_connection.run_definition(
-            data, engine_type, callback=self._run_callback
-        )
+
+        # TODO: this should be refactored, as its not calling the run definition
+        #  here, it should call the run plugin.
+        #  This might be able to be a call directly from client, so not need to be in the host_connection, host connection is providing the host id.
+        self.host_connection.run_plugin(plugin_data, plugin_type, method, callback=self._run_callback)
 
     # TODO: use diferent callback for plugin and for definition
     def _run_callback(self, event):
