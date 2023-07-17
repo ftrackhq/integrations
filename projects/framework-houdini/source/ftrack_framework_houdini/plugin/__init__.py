@@ -37,3 +37,4 @@ from ftrack_framework_houdini.plugin.load import *
 from ftrack_framework_houdini.plugin.open import *
 from ftrack_framework_houdini.plugin.publish import *
 from ftrack_framework_houdini.plugin.asset_manager import *
+from ftrack_framework_houdini.plugin.resolver import *

@@ -53,10 +53,11 @@ class Host(object):
     # TODO: Engines Dictionary should come from constants.
     #  Should be something CLIENT_NAME:ENGINE:NAME and in here we any have engines = constant.ENGINES_DICT
     engines = {
-        'asset_manager': host_engine.AssetManagerEngine,
-        'loader': host_engine.LoaderEngine,
-        'opener': host_engine.OpenerEngine,
-        'publisher': host_engine.PublisherEngine,
+        constants.PUBLISHER: host_engine.PublisherEngine,
+        constants.LOADER: host_engine.LoaderEngine,
+        constants.OPENER: host_engine.OpenerEngine,
+        constants.ASSET_MANAGER: host_engine.AssetManagerEngine,
+        constants.RESOLVER: host_engine.ResolverEngine,
     }
     '''Available engines for this host.'''
 
@@ -134,7 +135,7 @@ class Host(object):
     # TODO: Should we try to find a better name for evaluating the definitions or plugins?
     def run(self, event):
         '''
-        Runs the data with the defined engine type of the givent *event*
+        Runs the data with the defined engine type of the given *event*
 
         Returns result of the engine run.
 
@@ -158,7 +159,7 @@ class Host(object):
         # TODO: this is a bit magic, at some point we should clarify, run_plugin
         #  or run_definition, but we shouldn't assume that if not plugin in data
         #  we run_definition.
-        if not 'plugin' in data:
+        if 'plugin' not in data:
             # Run a definition
             try:
                 validation.validate_schema(self.__registry['schema'], data)

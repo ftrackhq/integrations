@@ -44,58 +44,9 @@ class AssetManagerClient(Client):
 
             self.menu_action_plugins = self.definition.get('actions')
             self.discover_plugins = self.definition.get('discover')
-            self.resolver_plugins = self.definition['resolvers'].get(
-                'resolve_dependencies'
-            )
             return True
         else:
             return False
-
-    def resolve_dependencies(
-        self, context_id, resolve_dependencies_callback, options=None
-    ):
-        '''
-        Calls the :meth:`~ftrack_framework_core.client.HostConnection.run`
-        to run the method
-        :meth:`~ftrack_framework_core.host.engine.AssetManagerEngine.resolve_dependencies`
-        To fetch list of version dependencies on the given *context_id*.
-
-        Callback received *resolve_dependencies_callback*
-
-        *context_id* : Should be the ID of an existing task.
-
-        *resolve_dependencies_callback* : Callback function that should take the result
-        as argument.
-
-        *options* : The options to supply to the plugin.
-        '''
-
-        resolver_plugin = self.resolver_plugins[0]
-
-        plugin_type = '{}.{}'.format('asset_manager', resolver_plugin['type'])
-        data = {
-            'method': 'resolve_dependencies',
-            'plugin': resolver_plugin,
-            'context_id': context_id,
-            'plugin_type': plugin_type,
-            'options': options,
-        }
-
-        self.host_connection.run(
-            data,
-            self.engine_type,
-            callback=partial(
-                self._resolve_dependencies_callback,
-                resolve_dependencies_callback,
-            ),
-        )
-
-    def _resolve_dependencies_callback(
-        self, resolve_dependencies_callback, event
-    ):
-        if not event['data']:
-            return
-        resolve_dependencies_callback(event['data'])
 
     def _reset_asset_list(self):
         '''Empty the :obj:`asset_entities_list`'''
@@ -117,7 +68,9 @@ class AssetManagerClient(Client):
         self._reset_asset_list()
         plugin_type = None
         if plugin:
-            plugin_type = '{}.{}'.format('asset_manager', plugin['type'])
+            plugin_type = '{}.{}'.format(
+                core_constants.ASSET_MANAGER, plugin['type']
+            )
         data = {
             'method': 'discover_assets',
             'plugin': plugin,
@@ -200,7 +153,9 @@ class AssetManagerClient(Client):
         '''
         plugin_type = None
         if plugin:
-            plugin_type = '{}.{}'.format('asset_manager', plugin['type'])
+            plugin_type = '{}.{}'.format(
+                core_constants.ASSET_MANAGER, plugin['type']
+            )
         data = {
             'method': 'update_assets',
             'plugin': plugin,

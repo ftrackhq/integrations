@@ -39,3 +39,4 @@ from ftrack_framework_nuke.plugin.load import *
 from ftrack_framework_nuke.plugin.open import *
 from ftrack_framework_nuke.plugin.publish import *
 from ftrack_framework_nuke.plugin.asset_manager import *
+from ftrack_framework_nuke.plugin.resolver import *

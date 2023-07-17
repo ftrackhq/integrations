@@ -1,22 +1,13 @@
 {
-    "type": "asset_manager",
-    "name": "default",
+    "type": "resolver",
+    "name": "Asset resolver",
     "host_type": "unreal",
     "ui_type": "qt",
-    "actions":{
-        "update":[
-            {
-                "name": "Update to latest",
-                "plugin": "common_update_latest_am_action",
-                "options": {"clear_selection":  false}
-            }
-        ]
-    },
     "resolvers":{
         "resolve_dependencies":[
             {
                 "name": "Resolve Unreal context asset dependencies",
-                "plugin": "common_default_am_resolver",
+                "plugin": "common_default_asset_resolver",
                 "options": {
                     "task_types":{
                         "rendering":{

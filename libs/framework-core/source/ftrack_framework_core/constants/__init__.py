@@ -52,6 +52,7 @@ IMPORTER = 'importer'
 POST_IMPORTER = 'post_importer'
 
 # Common definition/client types.
+SCHEMA = 'schema'
 #: Opener client and its definition.
 OPENER = 'opener'
 #: Loader client and its definition used with assembler
@@ -60,10 +61,12 @@ LOADER = 'loader'
 PUBLISHER = 'publisher'
 # Asset manager
 ASSET_MANAGER = 'asset_manager'
+# Resolver
+RESOLVER = 'resolver'
 # Log viewer dialog
 LOG_VIEWER = 'log_viewer'
 
-DEFINITION_TYPES = [OPENER, LOADER, PUBLISHER, ASSET_MANAGER]
+DEFINITION_TYPES = [OPENER, LOADER, PUBLISHER, ASSET_MANAGER, RESOLVER]
 
 # TODO: Move event constants to event constants file
 # External events.
@@ -129,5 +132,6 @@ from ftrack_framework_core.constants.plugin.load import *
 from ftrack_framework_core.constants.plugin.open import *
 from ftrack_framework_core.constants.plugin.publish import *
 from ftrack_framework_core.constants.plugin.asset_manager import *
+from ftrack_framework_core.constants.plugin.resolver import *
 from ftrack_framework_core.constants.event import *
 from ftrack_framework_core.constants.status import *

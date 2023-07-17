@@ -9,6 +9,7 @@ from Qt import QtCore, QtWidgets
 from ftrack_framework_core.utils import str_version
 from ftrack_framework_core import constants as core_constants
 from ftrack_framework_core.client.loader import LoaderClient
+from ftrack_framework_core.client.resolver import ResolverClient
 from ftrack_framework_qt.ui.utility.widget.button import (
     AddRunButton,
     LoadRunButton,
@@ -145,6 +146,7 @@ class QtAssemblerClientWidget(QtLoaderClient, dialog.Dialog):
             is_assembler=True,
             multithreading_enabled=self.multithreading_enabled,
         )
+        self.resolver = ResolverClient(self.event_manager)
 
     def build_left_widget(self):
         '''Left split pane content'''
@@ -305,6 +307,7 @@ class QtAssemblerClientWidget(QtLoaderClient, dialog.Dialog):
         self.context_selector.context_id = self.context_id
         # Have AM fetch assets
         self.asset_manager.on_host_changed(self.host_connection)
+        self.resolver.on_host_changed(self.host_connection)
         # Reset definition selector and clear client
         self.definition_selector.clear_definitions()
         self.definition_selector.populate_definitions()

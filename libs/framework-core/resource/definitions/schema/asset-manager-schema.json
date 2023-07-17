@@ -198,42 +198,6 @@
           }
         }
       }
-    },
-    "ResolverPlugin": {
-      "allOf": [
-        {
-          "$ref": "#/definitions/Plugin"
-        }
-      ],
-      "properties": {
-        "type": {
-          "pattern": "^resolver$",
-          "default": "resolver$"
-        }
-      }
-    },
-    "Resolver": {
-      "title": "Resolver",
-      "type": "object",
-      "required": [
-        "resolve_dependencies"
-      ],
-      "additionalProperties": false,
-      "properties": {
-        "resolve_dependencies": {
-          "type": "array",
-          "items": {
-            "allOf": [{"$ref": "#/definitions/ResolverPlugin"}],
-            "properties": {
-                "type": {
-                  "pattern": "^resolver$",
-                  "default": "resolver"
-                }
-              }
-          },
-          "minItems": 1
-        }
-      }
     }
   },
   "required": [
@@ -241,11 +205,10 @@
     "host_type",
     "type",
     "actions",
-    "resolvers",
     "_config"
   ],
   "order":[
-    "type", "name", "host_type", "actions", "resolvers"
+    "type", "name", "host_type", "actions"
   ],
   "properties": {
     "type": {
@@ -280,9 +243,6 @@
     },
     "actions": {
       "$ref": "#/definitions/Action"
-    },
-    "resolvers": {
-      "$ref": "#/definitions/Resolver"
     },
     "_config": {
       "$ref": "#/definitions/Config",

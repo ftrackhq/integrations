@@ -96,7 +96,7 @@ class AssemblerDependenciesWidget(AssemblerBaseWidget):
     def _resolve_dependencies(self, context_id, options):
         '''(Background thread) Resolve dependencies from ftrack'''
         try:
-            return self.client.asset_manager.resolve_dependencies(
+            return self.client.resolver.resolve_dependencies(
                 context_id,
                 self._on_dependencies_resolved_async,
                 options=options,
