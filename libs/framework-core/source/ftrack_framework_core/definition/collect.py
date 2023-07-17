@@ -14,6 +14,7 @@ logger = logging.getLogger(__name__)
 
 # TODO: maybe rename this module to discover definitions to align with the plugins? or its ok as collector? In any case align booth.
 
+
 def resolve_schemas(data):
     '''
     Resolves the refs of the schemas in the given *data*

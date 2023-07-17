@@ -24,6 +24,7 @@ from ftrack_framework_qt.ui.factory.ui_overrides import (
 )
 from ftrack_framework_qt.ui.utility.widget import line
 
+
 # TODO: completely remove the factory. Factory is called by the clients in the
 #  build time, mostly used fro the progress widget, but somehow, we should be
 #  able to do that in the DCC. We can have a base client in the dcc where we

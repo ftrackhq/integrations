@@ -27,6 +27,7 @@ from ftrack_framework_qt.ui.utility.widget.context_selector import (
 from ftrack_framework_qt.ui.utility.widget import dialog
 from ftrack_framework_qt.utils import BaseThread, set_property
 
+
 # TODO: Move the widget to a qt standalone widget. Then Client from core should
 #  have a property named widget where we can connect the desired widget.
 #  The communication between widget and client should happend in the
@@ -44,6 +45,7 @@ class QtAssetManagerClient(AssetManagerClient):
         )
 
         self.logger.debug('start qt asset manager')
+
 
 # TODO: we can create a framework widget base classes that are ABC, and methods
 #  like pre_build, build, post_build, is_docked, on_host_discovered,

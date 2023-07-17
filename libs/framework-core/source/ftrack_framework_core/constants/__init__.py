@@ -1,7 +1,7 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2020 ftrack
 
-#TODO: re-check that all the constants in here are used. Remove the unused ones.
+# TODO: re-check that all the constants in here are used. Remove the unused ones.
 
 #: Default ui type for ftrack_framework_core
 UI_TYPE = None

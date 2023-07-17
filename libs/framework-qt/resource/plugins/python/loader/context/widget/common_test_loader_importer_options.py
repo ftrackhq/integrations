@@ -11,6 +11,7 @@ from ftrack_framework_qt.plugin.widget.load_widget import (
 )
 from ftrack_framework_qt.ui.utility.widget import group_box
 
+
 # TODO: move this to a standalone widget. This will be loaded as property of a plugin. Same for all the other widgets.
 class CommonTestLoaderImporterOptionsWidget(LoadBaseWidget):
     '''Opener importer options user input test/template plugin widget'''

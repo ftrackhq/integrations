@@ -10,6 +10,7 @@ from ftrack_framework_core.asset.asset_info import FtrackAssetInfo
 
 import ftrack_api
 
+
 # TODO: Move all the logic to its own definition and plugins.
 class AssetManagerEngine(BaseEngine):
     '''

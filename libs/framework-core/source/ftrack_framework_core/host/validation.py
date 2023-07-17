@@ -9,7 +9,8 @@ from ftrack_framework_core import constants
 
 logger = logging.getLogger(__name__)
 
-#TODO: this should be moved to definition folder
+
+# TODO: this should be moved to definition folder
 def get_schema(definition_type, schemas):
     '''
     Returns the schema in the given *schemas* for the given *definition_type*
@@ -23,7 +24,8 @@ def get_schema(definition_type, schemas):
             return schema
     return None
 
-#TODO: this should be moved to validate folder with the definitions
+
+# TODO: this should be moved to validate folder with the definitions
 def validate_schema(schemas, definition):
     '''
     Validates the schema of the given *definition* from the given *schemas*
@@ -36,7 +38,8 @@ def validate_schema(schemas, definition):
     schema = get_schema(definition['type'], schemas)
     _validate_jsonschema(definition, schema)
 
-#TODO: this should be moved to plugin folder or definition folder(analize it carefully as definition object has plugins as well.
+
+# TODO: this should be moved to plugin folder or definition folder(analize it carefully as definition object has plugins as well.
 # Also separate validation from discovery and move validation to the validation folder and discovery to the collect or discovery module in plugins.
 class PluginDiscoverValidation(object):
     '''Plugin discover validation base class'''

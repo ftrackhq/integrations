@@ -8,6 +8,7 @@ import sys
 
 logger = logging.getLogger(__name__)
 
+
 # TODO: move the definitions validators to a new validators folder
 def _validate_and_augment_schema(schema, definition, type):
     '''

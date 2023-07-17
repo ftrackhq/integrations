@@ -403,7 +403,7 @@ class AssetManagerWidget(AssetManagerBaseWidget):
         '''Subscribe to the NOTIFY_CLIENT_TOPIC topic to call the
         _update_widget function when the host returns and answer through the
         same topic'''
-        #TODO: move this to the events module
+        # TODO: move this to the events module
         self.client_notification_subscribe_id = (
             self.event_manager.subscribe.notify_client(
                 self.host_connection.host_id,
