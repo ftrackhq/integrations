@@ -61,7 +61,7 @@ class ResolverEngine(BaseEngine):
             plugin_result = self._run_plugin(
                 plugin,
                 plugin_type,
-                data=plugin.get('plugin_data'),
+                plugin_data=plugin.get('plugin_data'),
                 options=options,
                 context_data=None,
                 method=plugin['default_method'],
@@ -92,7 +92,9 @@ class ResolverEngine(BaseEngine):
                 result_data['execution_time'] = total_time
                 result_data['message'] = message
 
-                self._notify_client(plugin, result_data)
+                self.event_manager.publish.notify_client(
+                    self.host_id, **result_data
+                )
 
                 return status, result
 
@@ -103,11 +105,13 @@ class ResolverEngine(BaseEngine):
         result_data['result'] = result
         result_data['execution_time'] = total_time
 
-        self._notify_client(plugin, result_data)
+        self.event_manager.publish.notify_client(
+            self.host_id, **result_data
+        )
 
         return status, result
 
-    def run(self, data):
+    def run_definition(self, data):
         '''
         Override method of :meth:`~ftrack_framework_core.host.engine`
         Executes the method defined in the given *data* method key or in case is
@@ -155,7 +159,7 @@ class ResolverEngine(BaseEngine):
             plugin_result = self._run_plugin(
                 plugin,
                 plugin_type,
-                data=plugin.get('plugin_data'),
+                plugin_data=plugin.get('plugin_data'),
                 options=plugin['options'],
                 context_data=None,
                 method=plugin['default_method'],

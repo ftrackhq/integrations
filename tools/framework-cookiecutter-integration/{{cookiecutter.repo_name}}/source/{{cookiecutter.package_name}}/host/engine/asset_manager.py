@@ -76,7 +76,9 @@ class {{cookiecutter.host_type_capitalized}}AssetManagerEngine(AssetManagerEngin
         result_data['result'] = result
         result_data['execution_time'] = total_time
 
-        self._notify_client(plugin, result_data)
+        self.event_manager.publish.notify_client(
+            self.host_id, **result_data
+        )
 
         return status, result
 
@@ -161,7 +163,9 @@ class {{cookiecutter.host_type_capitalized}}AssetManagerEngine(AssetManagerEngin
             result_data['execution_time'] = total_time
             result_data['message'] = result['message'] = message
 
-            self._notify_client(plugin, result_data)
+            self.event_manager.publish.notify_client(
+            self.host_id, **result_data
+        )
 
             return unload_status, unload_result
 
@@ -230,7 +234,9 @@ class {{cookiecutter.host_type_capitalized}}AssetManagerEngine(AssetManagerEngin
             result_data['execution_time'] = total_time
             result_data['message'] = result['message'] = message
 
-            self._notify_client(plugin, result_data)
+            self.event_manager.publish.notify_client(
+            self.host_id, **result_data
+        )
 
             return collect_status, result
 
@@ -260,7 +266,9 @@ class {{cookiecutter.host_type_capitalized}}AssetManagerEngine(AssetManagerEngin
             result_data['execution_time'] = total_time
             result_data['message'] = result['message'] = message
 
-            self._notify_client(plugin, result_data)
+            self.event_manager.publish.notify_client(
+            self.host_id, **result_data
+        )
 
             return update_status, result
 
@@ -335,7 +343,9 @@ class {{cookiecutter.host_type_capitalized}}AssetManagerEngine(AssetManagerEngin
         result_data['execution_time'] = total_time
         result_data['message'] = result['message'] = message
 
-        self._notify_client(plugin, result_data)
+        self.event_manager.publish.notify_client(
+            self.host_id, **result_data
+        )
 
         return status, result
 
@@ -405,7 +415,9 @@ class {{cookiecutter.host_type_capitalized}}AssetManagerEngine(AssetManagerEngin
                 result_data['execution_time'] = total_time
                 result_data['message'] = result['message'] = message
 
-                self._notify_client(plugin, result_data)
+                self.event_manager.publish.notify_client(
+            self.host_id, **result_data
+        )
                 return status, result
 
         end_time = time.time()
@@ -415,7 +427,9 @@ class {{cookiecutter.host_type_capitalized}}AssetManagerEngine(AssetManagerEngin
         result_data['result'] = result
         result_data['execution_time'] = total_time
 
-        self._notify_client(plugin, result_data)
+        self.event_manager.publish.notify_client(
+            self.host_id, **result_data
+        )
 
         return status, result
 
@@ -521,7 +535,9 @@ class {{cookiecutter.host_type_capitalized}}AssetManagerEngine(AssetManagerEngin
         result_data['execution_time'] = total_time
         result_data['message'] = message
 
-        self._notify_client(plugin, result_data)
+        self.event_manager.publish.notify_client(
+            self.host_id, **result_data
+        )
         return status, result
 
     @{{cookiecutter.host_type}}_utils.run_in_main_thread
@@ -598,7 +614,9 @@ class {{cookiecutter.host_type_capitalized}}AssetManagerEngine(AssetManagerEngin
                 result_data['execution_time'] = total_time
                 result_data['message'] = message
 
-                self._notify_client(plugin, result_data)
+                self.event_manager.publish.notify_client(
+            self.host_id, **result_data
+        )
                 return status, result
         else:
             for node in nodes:
@@ -627,7 +645,9 @@ class {{cookiecutter.host_type_capitalized}}AssetManagerEngine(AssetManagerEngin
                     result_data['execution_time'] = total_time
                     result_data['message'] = message
 
-                    self._notify_client(plugin, result_data)
+                    self.event_manager.publish.notify_client(
+            self.host_id, **result_data
+        )
                     return status, result
 
         self.ftrack_object_manager.objects_loaded = False
@@ -639,7 +659,9 @@ class {{cookiecutter.host_type_capitalized}}AssetManagerEngine(AssetManagerEngin
         result_data['result'] = result
         result_data['execution_time'] = total_time
 
-        self._notify_client(plugin, result_data)
+        self.event_manager.publish.notify_client(
+            self.host_id, **result_data
+        )
 
         return status, result
 
@@ -714,7 +736,9 @@ class {{cookiecutter.host_type_capitalized}}AssetManagerEngine(AssetManagerEngin
                 result_data['execution_time'] = total_time
                 result_data['message'] = message
 
-                self._notify_client(plugin, result_data)
+                self.event_manager.publish.notify_client(
+            self.host_id, **result_data
+        )
                 return status, result
         else:
             for node in nodes:
@@ -743,7 +767,9 @@ class {{cookiecutter.host_type_capitalized}}AssetManagerEngine(AssetManagerEngin
                     result_data['execution_time'] = total_time
                     result_data['message'] = message
 
-                    self._notify_client(plugin, result_data)
+                    self.event_manager.publish.notify_client(
+            self.host_id, **result_data
+        )
                     return status, result
 
         if {{cookiecutter.host_type}}_utils.obj_exists(self.dcc_object.name):
@@ -768,7 +794,9 @@ class {{cookiecutter.host_type_capitalized}}AssetManagerEngine(AssetManagerEngin
                 result_data['execution_time'] = total_time
                 result_data['message'] = result['message'] = message
 
-                self._notify_client(plugin, result_data)
+                self.event_manager.publish.notify_client(
+            self.host_id, **result_data
+        )
 
                 return status, result
 
@@ -779,6 +807,8 @@ class {{cookiecutter.host_type_capitalized}}AssetManagerEngine(AssetManagerEngin
         result_data['result'] = result
         result_data['execution_time'] = total_time
 
-        self._notify_client(plugin, result_data)
+        self.event_manager.publish.notify_client(
+            self.host_id, **result_data
+        )
 
         return status, result

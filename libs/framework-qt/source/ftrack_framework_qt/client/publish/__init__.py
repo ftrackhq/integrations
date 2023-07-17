@@ -319,4 +319,4 @@ class QtPublisherClientWidget(QtPublisherClient, QtWidgets.QFrame):
         super(QtPublisherClientWidget, self).closeEvent(e)
         self.logger.debug('closing qt client')
         # Unsubscribe to context change events
-        self.unsubscribe_host_context_change()
+        self.unsubscribe_host_context_changed()

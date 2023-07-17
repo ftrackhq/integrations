@@ -400,17 +400,14 @@ class AssetManagerWidget(AssetManagerBaseWidget):
             self.rebuild.emit()
 
     def _listen_widget_updates(self):
-        '''Subscribe to the PIPELINE_CLIENT_NOTIFICATION topic to call the
+        '''Subscribe to the NOTIFY_CLIENT_TOPIC topic to call the
         _update_widget function when the host returns and answer through the
         same topic'''
         # TODO: move this to the events module
         self.client_notification_subscribe_id = (
-            self.session.event_hub.subscribe(
-                'topic={} and data.pipeline.host_id={}'.format(
-                    core_constants.PIPELINE_CLIENT_NOTIFICATION,
-                    self.host_connection.id,
-                ),
-                self._update_widget,
+            self.event_manager.subscribe.notify_client(
+                self.host_connection.host_id,
+                self._update_widget
             )
         )
 

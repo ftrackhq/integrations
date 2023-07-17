@@ -49,20 +49,13 @@ class BaseDefinition(object):
     def register(self):
         '''
         Register the definition subscribing to the
-        PIPELINE_REGISTER_TOPIC event
+        DISCOVER_DEFINITION_TOPIC event
         '''
         if not isinstance(self.session, ftrack_api.Session):
             # Exit to avoid registering this plugin again.
             return
 
-        # TODO: Should we rename this to pipeline_Register_definition??
-        # Also move this to events module
-        self.session.event_hub.subscribe(
-            'topic={} and data.pipeline.type=definition'.format(
-                constants.PIPELINE_REGISTER_TOPIC
-            ),
-            self.register_definitions,
-        )
+        self.event_manager.subscribe.discover_definition(self.register_definitions)
 
     # TODO: rename to register_definitions_callback.
     def register_definitions(self, event):
@@ -70,7 +63,7 @@ class BaseDefinition(object):
         Callback method that returns the registred host_types and
         definition_paths of the discovered definitions
         '''
-        host_types = event['data']['pipeline']['host_types']
+        host_types = event['data']['host_types']
         definition_paths = os.getenv("FTRACK_DEFINITION_PATH").split(
             os.pathsep
         )

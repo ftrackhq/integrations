@@ -44,7 +44,25 @@ def validate_schema(schemas, definition):
 class PluginDiscoverValidation(object):
     '''Plugin discover validation base class'''
 
-    def __init__(self, session, host_types):
+    @property
+    def session(self):
+        '''
+        Returns instance of :class:`ftrack_api.session.Session`
+        '''
+        return self._event_manager.session
+
+    @property
+    def event_manager(self):
+        '''Returns instance of
+        :class:`~ftrack_framework_core.event.EventManager`'''
+        return self._event_manager
+
+    @property
+    def host_types(self):
+        '''Return supported host types'''
+        return self._host_types
+
+    def __init__(self, event_manager, host_types):
         '''
 
         Initialise PluginDiscoverValidation with instance of
@@ -58,9 +76,9 @@ class PluginDiscoverValidation(object):
         self.logger = logging.getLogger(
             __name__ + '.' + self.__class__.__name__
         )
+        self._event_manager = event_manager
 
-        self.session = session
-        self.host_types = host_types
+        self._host_types = host_types
 
     # This method should go to the validation folder in the plugins module
     def validate_plugins(self, definitions, schema_type):
@@ -195,7 +213,7 @@ class PluginDiscoverValidation(object):
     def _discover_plugin(self, plugin, plugin_type):
         '''
         Publish an event with the topic
-        :py:const:`~ftrack_framework_core.constants.PIPELINE_DISCOVER_PLUGIN_TOPIC`
+        :py:const:`~ftrack_framework_core.constants.DISCOVER_PLUGIN_TOPIC`
         with the given *plugin* name and *plugin_type* as data to check that the
         pluging can be discovered with no issues.
 
@@ -209,24 +227,15 @@ class PluginDiscoverValidation(object):
         plugin_result = {}
 
         for host_type in reversed(self.host_types):
-            data = {
-                'pipeline': {
-                    'plugin_name': plugin_name,
-                    'plugin_type': plugin_type,
-                    'category': 'plugin',
-                    'host_type': host_type,
-                }
-            }
 
-            # TODO: move this to the events module also rename it to align with the defintions register topic. EX: Register_plugin
-            #  Also this registry, should probably be moved to the host, as well as we register the definitions in there.
-            event = ftrack_api.event.base.Event(
-                topic=constants.PIPELINE_DISCOVER_PLUGIN_TOPIC, data=data
+            # TODO: Also this registry, should probably be moved to the host, as well as we register the definitions in there.
+            plugin_result = self.event_manager.publish.discover_plugin(
+                plugin_name,
+                plugin_type,
+                host_type,
+                category='plugin'
             )
 
-            plugin_result = self.session.event_hub.publish(
-                event, synchronous=True
-            )
 
             if plugin_result:
                 plugin_result = plugin_result[0]
@@ -237,21 +246,14 @@ class PluginDiscoverValidation(object):
                 )
 
                 # TODO: is this really necesary? Do we need to publish the event again?
-                status_event = {
-                    'plugin_name': plugin_name,
-                    'plugin_type': plugin_type,
-                    'status': constants.DEFAULT_STATUS,
-                    'result': None,
-                    'execution_time': 0,
-                    'message': "Plugin Ready",
-                }
-                # TODO: move this to the events module
-                event = ftrack_api.event.base.Event(
-                    topic=constants.PIPELINE_DISCOVER_PLUGIN_TOPIC,
-                    data=status_event,
-                )
 
-                self.session.event_hub.publish(event, synchronous=True)
+                plugin_result = self.event_manager.publish.discover_plugin(
+                    plugin_name,
+                    plugin_type,
+                    constants.DEFAULT_STATUS,
+                    host_type,
+                    message='Plugin Ready'
+                )
 
                 break
             self.logger.debug(

@@ -118,7 +118,9 @@ class AssetManagerEngine(BaseEngine):
             'message': None,
         }
 
-        self._notify_client(plugin, result_data)
+        self.event_manager.publish.notify_client(
+            self.host_id, **result_data
+        )
 
         return status, result
 
@@ -191,7 +193,9 @@ class AssetManagerEngine(BaseEngine):
             'message': message,
         }
 
-        self._notify_client(plugin, result_data)
+        self.event_manager.publish.notify_client(
+            self.host_id, **result_data
+        )
 
         raise NotImplementedError(message)
 
@@ -271,7 +275,7 @@ class AssetManagerEngine(BaseEngine):
             plugin_result = self._run_plugin(
                 plugin,
                 plugin_type,
-                data=plugin.get('plugin_data'),
+                plugin_data=plugin.get('plugin_data'),
                 options=plugin['options'],
                 context_data=None,
                 method=plugin['default_method'],
@@ -292,7 +296,9 @@ class AssetManagerEngine(BaseEngine):
                 result_data['execution_time'] = total_time
                 result_data['message'] = message
 
-                self._notify_client(plugin, result_data)
+                self.event_manager.publish.notify_client(
+                    self.host_id, **result_data
+                )
 
                 return status, result
 
@@ -308,7 +314,9 @@ class AssetManagerEngine(BaseEngine):
         result_data['result'] = result
         result_data['execution_time'] = total_time
 
-        self._notify_client(plugin, result_data)
+        self.event_manager.publish.notify_client(
+            self.host_id, **result_data
+        )
 
         return status, result
 
@@ -419,7 +427,9 @@ class AssetManagerEngine(BaseEngine):
                 result_data['execution_time'] = total_time
                 result_data['message'] = message
 
-                self._notify_client(plugin, result_data)
+                self.event_manager.publish.notify_client(
+                    self.host_id, **result_data
+                )
 
                 return status, result
 
@@ -430,7 +440,9 @@ class AssetManagerEngine(BaseEngine):
         result_data['result'] = result
         result_data['execution_time'] = total_time
 
-        self._notify_client(plugin, result_data)
+        self.event_manager.publish.notify_client(
+            self.host_id, **result_data
+        )
 
         return status, result
 
@@ -513,7 +525,9 @@ class AssetManagerEngine(BaseEngine):
             result_data['execution_time'] = total_time
             result_data['message'] = message
 
-            self._notify_client(plugin, result_data)
+            self.event_manager.publish.notify_client(
+                self.host_id, **result_data
+            )
 
             return remove_status, remove_result
 
@@ -555,7 +569,7 @@ class AssetManagerEngine(BaseEngine):
                 )
             # Use the original asset_info options to reload the new version
             # Collect asset_context_data and asset data
-            asset_context_data = asset_info_options['settings']['context_data']
+            asset_context_data = asset_info_options['context_data']
             asset_context_data[asset_const.ASSET_ID] = asset_id
             asset_context_data[asset_const.VERSION_NUMBER] = version_number
             asset_context_data[asset_const.ASSET_NAME] = asset_name
@@ -563,23 +577,23 @@ class AssetManagerEngine(BaseEngine):
             asset_context_data[asset_const.VERSION_ID] = version_id
 
             # Update asset_info_options
-            asset_info_options['settings']['data'][0]['result'] = {
+            asset_info_options['plugin_data'][0]['result'] = {
                 asset_const.COMPONENT_NAME: component_name,
                 asset_const.COMPONENT_ID: component_id,
                 asset_const.COMPONENT_PATH: component_path,
             }
-            asset_info_options['settings']['context_data'].update(
+            asset_info_options['context_data'].update(
                 asset_context_data
             )
 
             # Align track/load mode
-            run_method = asset_info_options['pipeline']['method']
+            run_method = asset_info_options['method']
             if asset_info[asset_const.OBJECTS_LOADED]:
                 run_method_effective = 'init_and_load'
             else:
                 run_method_effective = 'init_nodes'
             if run_method != run_method_effective:
-                asset_info_options['pipeline']['method'] = run_method_effective
+                asset_info_options['method'] = run_method_effective
                 self.logger.debug(
                     'Changing run method from {} to {} to align with track/load mode'.format(
                         run_method, run_method_effective
@@ -590,13 +604,14 @@ class AssetManagerEngine(BaseEngine):
             new_asset_info_options = copy.deepcopy(asset_info_options)
 
             # Run the plugin with the asset info options
-            run_event = ftrack_api.event.base.Event(
-                topic=constants.PIPELINE_RUN_PLUGIN_TOPIC,
-                data=asset_info_options,
-            )
-
-            plugin_result_data = self.session.event_hub.publish(
-                run_event, synchronous=True
+            plugin_result_data = self.event_manager.publish.execute_plugin(
+                plugin_name,
+                plugin_type,
+                asset_info_options['method'],
+                asset_info_options['host_type'],
+                asset_info_options['plugin_data'],
+                asset_info_options['options'],
+                asset_info_options['context_data']
             )
 
             # Get the result
@@ -639,7 +654,9 @@ class AssetManagerEngine(BaseEngine):
             result_data['execution_time'] = total_time
             result_data['message'] = message
 
-            self._notify_client(plugin, result_data)
+            self.event_manager.publish.notify_client(
+                self.host_id, **result_data
+            )
             return status, result
 
         if not new_asset_info:
@@ -656,7 +673,9 @@ class AssetManagerEngine(BaseEngine):
         result_data['result'] = result
         result_data['execution_time'] = total_time
 
-        self._notify_client(plugin, result_data)
+        self.event_manager.publish.notify_client(
+            self.host_id, **result_data
+        )
 
         return status, result
 
@@ -723,7 +742,9 @@ class AssetManagerEngine(BaseEngine):
             'message': None,
         }
 
-        self._notify_client(plugin, result_data)
+        self.event_manager.publish.notify_client(
+            self.host_id, **result_data
+        )
 
         return status, result
 
@@ -790,7 +811,9 @@ class AssetManagerEngine(BaseEngine):
             'message': None,
         }
 
-        self._notify_client(plugin, result_data)
+        self.event_manager.publish.notify_client(
+            self.host_id, **result_data
+        )
 
         return status, result
 
@@ -842,7 +865,7 @@ class AssetManagerEngine(BaseEngine):
             plugin_result = self._run_plugin(
                 plugin,
                 plugin_type,
-                data=plugin.get('plugin_data'),
+                plugin_data=plugin.get('plugin_data'),
                 options=plugin['options'],
                 context_data=None,
                 method=plugin['default_method'],

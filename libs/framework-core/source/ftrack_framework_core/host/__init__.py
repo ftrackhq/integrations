@@ -19,12 +19,11 @@ from ftrack_framework_core.log import LogDB
 
 logger = logging.getLogger(__name__)
 
-
 # TODO: this is the discover_host_reply function:
 #  1. Double check if this should better be part of the host class as a method.
 #  2. Rename it to discover_host_reply_callback or similar?
 def provide_host_information(
-    context_id, host_id, definitions, host_name, event
+        host_id, host_name, context_id, definitions, event
 ):
     '''
     Returns dictionary with host id, host name, context id and definition from
@@ -65,9 +64,15 @@ class Host(object):
         return '<Host:{0}>'.format(self.host_id)
 
     @property
+    def event_manager(self):
+        '''Returns instance of
+        :class:`~ftrack_framework_core.event.EventManager`'''
+        return self._event_manager
+
+    @property
     def context_id(self):
         '''Return the the default context id set at host launch'''
-        # TODO: do we really need to store the context in an env variable?
+        #TODO: do we really need to store the context in an env variable?
         # That might be needed for connect but aybe not needed for the framework.
         # In any case, can we remove FTRACK_TASKID and FTRACK_SHOTID?
         return os.getenv(
@@ -85,7 +90,10 @@ class Host(object):
         self.logger.warning(
             'ftrack host context is now: {}'.format(self.context_id)
         )
-        self._ftrack_context_id_changed()
+        self.event_manager.publish.host_context_changed(
+            self.host_id,
+            self.context_id
+        )
 
     @property
     def host_id(self):
@@ -124,7 +132,7 @@ class Host(object):
         )
         self._logs = None
 
-        # TODO: initializing host
+        #TODO: initializing host
         self.logger.debug('initializing {}'.format(self))
         self._event_manager = event_manager
         # TODO: split the register method to publish_events, subcribe_events or
@@ -132,8 +140,7 @@ class Host(object):
         #  not confusing with the register function of the definitions.
         self.register()
 
-    # TODO: Should we try to find a better name for evaluating the definitions or plugins?
-    def run(self, event):
+    def run_definition(self, event):
         '''
         Runs the data with the defined engine type of the given *event*
 
@@ -143,11 +150,11 @@ class Host(object):
         :meth:`~ftrack_framework_core.client.HostConnection.run`
         '''
 
-        # TODO: data/pipeline will be removed to data/framework or data/
-        data = event['data']['pipeline']['data']
-        engine_type = event['data']['pipeline']['engine_type']
-        asset_type_name = data.get('asset_type')
+        definition = event['data']['definition']
+        engine_type = event['data']['engine_type']
+        asset_type_name = definition.get('asset_type')
 
+        # TODO: maybe move this to a separated method to get the engine
         Engine = self.engines.get(engine_type)
         if Engine is None:
             # TODO: should we have our own exceptions? So they automatically registers to log as well.
@@ -159,32 +166,57 @@ class Host(object):
         # TODO: this is a bit magic, at some point we should clarify, run_plugin
         #  or run_definition, but we shouldn't assume that if not plugin in data
         #  we run_definition.
-        if 'plugin' not in data:
-            # Run a definition
-            try:
-                validation.validate_schema(self.__registry['schema'], data)
-            except Exception as error:
-                self.logger.error(
-                    "Can't validate the data {} error: {}".format(data, error)
-                )
-            runner_result = engine_runner.run_definition(data)
-        else:
-            # TODO: maybe better to rename this to run_plugin if it makes sense
-            runner_result = engine_runner.run(data)
+        try:
+            validation.validate_schema(self.__registry['schema'], definition)
+        except Exception as error:
+            self.logger.error(
+                "Can't validate definition {} error: {}".format(definition, error)
+            )
+        runner_result = engine_runner.run_definition(definition)
 
         if runner_result == False:
             # TODO: fix this log. We don't know if we are publishing loading or what.
-            self.logger.error("Couldn't publish the data {}".format(data))
+            self.logger.error("Couldn't run efinition {}".format(definition))
         return runner_result
 
-    # TODO: rename to on_register_definition_callback? (Same for all the callbacks in all the modules)
+    def run_plugin(self, event):
+        '''
+        Runs the data with the defined engine type of the givent *event*
+
+        Returns result of the engine run.
+
+        *event* : Published from the client host connection at
+        :meth:`~ftrack_framework_core.client.HostConnection.run`
+        '''
+
+        plugin = event['data']['plugin']
+        plugin_type = event['data']['plugin_type']
+        method = event['data']['method']
+        engine_type = event['data']['engine_type']
+
+        Engine = self.engines.get(engine_type)
+        if Engine is None:
+            # TODO: should we have our own exceptions? So they automatically registers to log as well.
+            raise Exception('No engine of type "{}" found'.format(engine_type))
+        engine_runner = Engine(
+            self._event_manager, self.host_types, self.host_id, None
+        )
+
+        runner_result = engine_runner.run_plugin(plugin, plugin_type, method)
+
+        if runner_result == False:
+            # TODO: fix this log. We don't know if we are publishing loading or what.
+            self.logger.error("Couldn't run plugin {}".format(plugin))
+        return runner_result
+
+    #TODO: rename to on_register_definition_callback? (Same for all the callbacks in all the modules)
     def on_register_definition(self, event):
         '''
         Callback of the :meth:`register`
         Validates the given *event* and subscribes to the
         :class:`ftrack_api.event.base.Event` events with the topics
-        :const:`~ftrack_connnect_pipeline.constants.PIPELINE_DISCOVER_HOST`
-        and :const:`~ftrack_connnect_pipeline.constants.PIPELINE_HOST_RUN`
+        :const:`~ftrack_connnect_pipeline.constants.DISCOVER_HOST_TOPIC`
+        and :const:`~ftrack_connnect_pipeline.constants.HOST_RUN_DEFINITION_TOPIC`
 
         *event* : Should be a validated and complete definitions, schema and
         packages dictionary coming from
@@ -207,27 +239,23 @@ class Host(object):
         # TODO: rename this to __schema_registry or __definitions_registry. Also make sure its initialized in the init.
         self.__registry = validated_result
 
-        handle_event = partial(
+        discover_host_callback_reply = partial(
             provide_host_information,
-            self.context_id,
             self.host_id,
-            validated_result,
             self.host_name,
+            self.context_id,
+            validated_result,
         )
 
-        # TODO: move this to the events module
-        # Method should be named something like subscribe_host or discover_host(make sure to align it to the publish)
-        self._event_manager.subscribe(
-            constants.PIPELINE_DISCOVER_HOST, handle_event
+        self.event_manager.subscribe.discover_host(
+            callback=discover_host_callback_reply
         )
 
-        # TODO:move this to events module, should be called something like host_run
-        self._event_manager.subscribe(
-            '{} and data.pipeline.host_id={}'.format(
-                constants.PIPELINE_HOST_RUN, self.host_id
-            ),
-            self.run,
-        )
+        # TODO: change the run callback to run_definiton
+        self.event_manager.events.subscribe.host_run_definition(self.host_id, self.run_definition)
+        # TODO: create the run_plugin method (pick the desired parts from the current self.run plugin)
+        #  Carefully, run plugin topic was already used by engines to be able to run plugins, so the run plugin function wasn't existing int the host. We will have to separate this 2 events maybe.
+        self.event_manager.events.subscribe.host_run_plugin(self.host_id, self.run_plugin)
         self.logger.debug('host {} ready.'.format(self.host_id))
 
     def collect_and_validate_definitions(self, definition_paths, host_types):
@@ -279,9 +307,9 @@ class Host(object):
         :func:`ftrack_connect_pipeline_definition.resource.definitions.register.register_definitions`
         '''
         plugin_validator = validation.PluginDiscoverValidation(
-            self.session, self.host_types
+            self.event_manager, self.host_types
         )
-        # TODO: all client names should be cosntants. Also try to make this smaller,
+        #TODO: all client names should be cosntants. Also try to make this smaller,
         # and automatically extensible by a list from cosntants.
         invalid_publishers_idxs = plugin_validator.validate_plugins(
             data['publisher'], constants.PUBLISHER
@@ -314,7 +342,7 @@ class Host(object):
     def _on_client_notification(self, event):
         '''
         Callback of the
-        :const:`~ftrack_framework_core.constants.PIPELINE_CLIENT_NOTIFICATION`
+        :const:`~ftrack_framework_core.constants.NOTIFY_CLIENT_TOPIC`
          event. Stores a log item in host pipeline log DB.
 
         *event*: :class:`ftrack_api.event.base.Event`
@@ -327,46 +355,27 @@ class Host(object):
     def register(self):
         '''
         Publishes the :class:`ftrack_api.event.base.Event` with the topic
-        :const:`~ftrack_connnect_pipeline.constants.PIPELINE_REGISTER_TOPIC`
+        :const:`~ftrack_connnect_pipeline.constants.DISCOVER_DEFINITION_TOPIC`
         with the first host_type in the list :obj:`host_types` and type definition as the
         data.
 
         Callback of the event points to :meth:`on_register_definition`
         '''
 
-        # TODO: move this to events module
-        event = ftrack_api.event.base.Event(
-            topic=constants.PIPELINE_REGISTER_TOPIC,
-            data={
-                'pipeline': {
-                    'type': 'definition',
-                    'host_types': self.host_types,
-                }
-            },
-        )
-
-        self._event_manager.publish(event, self.on_register_definition)
+        self.event_manager.publish.discover_definition(host_types=self.host_types)
 
         '''
         Subscribe to topic
-        :const:`~ftrack_framework_core.constants.PIPELINE_CLIENT_NOTIFICATION`
-        to receive client notifications from the host in :meth:`_notify_client`
+        :const:`~ftrack_framework_core.constants.NOTIFY_CLIENT_TOPIC`
+        to receive client notifications from the host in :meth:`_notify_client_callback`
         '''
-        # TODO: move this to the events module
-        self.session.event_hub.subscribe(
-            'topic={} and data.pipeline.host_id={}'.format(
-                constants.PIPELINE_CLIENT_NOTIFICATION, self._host_id
-            ),
-            self._on_client_notification,
+        self.event_manager.subscribe.notify_client(
+            self.host_id, self._on_client_notification
         )
 
         ''' Listen to context change events for this host and its connected clients'''
-        # tODO: move this to events module
-        self.session.event_hub.subscribe(
-            'topic={} and data.pipeline.host_id={}'.format(
-                constants.PIPELINE_CLIENT_CONTEXT_CHANGE, self._host_id
-            ),
-            self._change_context_id,
+        self.event_manager.subscribe.client_context_changed(
+            self.host_id, self._change_context_id
         )
 
     def reset(self):
@@ -375,26 +384,8 @@ class Host(object):
         '''
         self._host_type = []
         self._host_id = None
-        # TODO: rename this to __schema_registry ot __definitions_registry also make sure is initialized in the init.
+        #TODO: rename this to __schema_registry ot __definitions_registry also make sure is initialized in the init.
         self.__registry = {}
-
-    # TODO: why fo we have this duplicated in here and in the client? also this seems to be to launch a UI not a client.
-    #  this is launch_client_widget
-    def launch_client(self, name, source=None):
-        '''Send a widget launch event, to be picked up by DCC.'''
-        event = ftrack_api.event.base.Event(
-            topic=constants.PIPELINE_CLIENT_LAUNCH,
-            data={
-                'pipeline': {
-                    'host_id': self._host_id,
-                    'name': name,
-                    'source': source,
-                }
-            },
-        )
-        self._event_manager.publish(
-            event,
-        )
 
     # TODO: rename this to client_context_change_callback
     def _change_context_id(self, event):
@@ -403,19 +394,3 @@ class Host(object):
         context_id = event['data']['pipeline']['context_id']
         if context_id != self.context_id:
             self.context_id = context_id
-
-    # TODO: why ftrack? if no hard reason, rename this to host context_change (and move it to events)
-    def _ftrack_context_id_changed(self):
-        # TODO: move this to events module
-        event = ftrack_api.event.base.Event(
-            topic=constants.PIPELINE_HOST_CONTEXT_CHANGE,
-            data={
-                'pipeline': {
-                    'host_id': self.host_id,
-                    'context_id': self.context_id,
-                }
-            },
-        )
-        self._event_manager.publish(
-            event,
-        )

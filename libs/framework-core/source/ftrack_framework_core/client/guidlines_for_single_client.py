@@ -14,201 +14,6 @@ from ftrack_framework_core.log.log_item import LogItem
 from ftrack_framework_core.definition import definition_object
 
 
-
-
-#TODO: Move Host connection to a separated file, is much easier to navigate when working with the code.
-class HostConnection(object):
-    '''
-    Host Connection Base class.
-    This class is used to communicate between the client and the host.
-    '''
-
-    @property
-    def context_id(self):
-        '''Returns the current context id as fetched from the host'''
-        return self._context_id
-
-    @context_id.setter
-    def context_id(self, value):
-        '''Set the context id for this host connection to *value*. Will notify the host and
-        other active host connection through an event, and tell the client through callback.
-        '''
-        if value == self.context_id:
-            return
-        self._context_id = value
-
-    @property
-    def event_manager(self):
-        '''Returns instance of
-        :class:`~ftrack_framework_core.event.EventManager`'''
-        return self._event_manager
-
-    @property
-    def session(self):
-        '''
-        Returns instance of :class:`ftrack_api.session.Session`
-        '''
-        return self.event_manager.session
-
-    #TODO: Separate schemas from the definitions
-    @property
-    def definitions(self):
-        '''Returns the current definitions, filtered on discoverable.'''
-        context_identifiers = []
-        if self.context_id:
-            entity = self.session.query(
-                'TypedContext where id is {}'.format(self.context_id)
-            ).first()
-            if entity:
-                # Task, Project,...
-                context_identifiers.append(entity.get('context_type').lower())
-                if 'type' in entity:
-                    # Modeling, animation...
-                    context_identifiers.append(
-                        entity['type'].get('name').lower()
-                    )
-                # Name of the task or the project
-                context_identifiers.append(entity.get('name').lower())
-
-        if context_identifiers:
-            result = {}
-            for schema_title in self._raw_host_data['definition'].keys():
-                result[schema_title] = self._filter_definitions(
-                    context_identifiers,
-                    self._raw_host_data['definition'][schema_title],
-                )
-            # TODO:
-            #  This is a dictionary where the keys are the definition types like
-            #  publisher, opener, etc... and the values are a list of those.
-            #  But it also includes the key Schema, which contains a list of the
-            #  schemas for each type. This should be cleaned up in the future in
-            #  order to separate schemas from the definitions.
-            return copy.deepcopy(result)
-
-        return definition_object.DefinitionObject(
-            self._raw_host_data['definition']
-        )
-
-    def _filter_definitions(self, context_identifiers, definitions):
-        '''Filter *definitions* on *context_identifiers* and discoverable.'''
-        result = []
-        for definition in definitions:
-            match = False
-            discoverable = definition.get('discoverable')
-            if not discoverable:
-                # Append if not discoverable, because that means should be
-                # discovered always as the Asset Manager or the logger
-                match = True
-            else:
-                # This is not in a list comprehension because it needs the break
-                # once found
-                for discover_name in discoverable:
-                    if discover_name.lower() in context_identifiers:
-                        # Add definition as it matches
-                        match = True
-                        break
-
-            if not match:
-                self.logger.debug(
-                    'Excluding definition {} - context identifiers {} '
-                    'does not match schema discoverable: {}.'.format(
-                        definition.get('name'),
-                        context_identifiers,
-                        discoverable,
-                    )
-                )
-            if match:
-                result.append(definition)
-
-        # Convert the list to our custom DefinitionList so we can have get
-        # method and automatically convert all definitions to definitionObject
-        return definition_object.DefinitionList(result)
-
-    # tODO: rename this to host_id
-    @property
-    def host_id(self):
-        '''Returns the current host id.'''
-        return self._raw_host_data['host_id']
-
-    @property
-    def host_name(self):
-        '''Returns the current host name.'''
-        return self._raw_host_data['host_name']
-
-    @property
-    def host_types(self):
-        '''Returns the list of compatible host for the current definitions.'''
-        return self._raw_host_data['host_id'].split("-")[0].split(".")
-
-    def __del__(self):
-        self.logger.debug('Closing {}'.format(self))
-
-    def __repr__(self):
-        return '<HostConnection: {}>'.format(self.host_id)
-
-    def __hash__(self):
-        return hash(self.host_id)
-
-    def __eq__(self, other):
-        return self.__hash__() == other.__hash__()
-
-    def __init__(self, event_manager, host_data):
-        '''Initialise HostConnection with instance of
-        :class:`~ftrack_framework_core.event.EventManager` , and *host_data*
-
-        *host_data* : Dictionary containing the host information.
-        :py:func:`~ftrack_framework_core.host.provide_host_information`
-
-        '''
-        self.logger = logging.getLogger(
-            '{0}.{1}'.format(__name__, self.__class__.__name__)
-        )
-
-        copy_data = copy.deepcopy(host_data)
-
-        self._event_manager = event_manager
-        self._raw_host_data = copy_data
-        self._context_id = self._raw_host_data.get('context_id')
-        self.event_manager.events.subscribe.host_context_changed(self.host_id, self._on_host_context_changed_callback)
-
-    #TODO: this should probably be directly called in the client as the host conenction is to provide host action but the event can directly be run through the client.
-    def run_definition(self, definition, engine_type, callback=None):
-        '''
-        Publish an event with the topic
-        :py:const:`~ftrack_framework_core.constants.HOST_RUN_DEFINITION_TOPIC`
-        with the given *data* and *engine*.
-        '''
-        self.event_manager.publish.host_run_definition(
-            self.host_id,
-            definition,
-            engine_type,
-            callback
-        )
-
-    def run_plugin(self, plugin, plugin_type, method, engine_type, callback=None):
-        '''
-        Publish an event with the topic
-        :py:const:`~ftrack_framework_core.constants.HOST_RUN_DEFINITION_TOPIC`
-        with the given *data* and *engine*.
-        '''
-        self.event_manager.publish.host_run_plugin(
-            self.host_id,
-            plugin,
-            plugin_type,
-            method,
-            engine_type,
-            callback
-        )
-
-    def _on_host_context_changed_callback(self, event):
-        '''Set the new context ID based on data provided in *event*'''
-        self.context_id = event['data']['context_id']
-
-    def on_client_context_changed(self, context_id):
-        self.event_manager.publish.client_context_changed(
-            self.host_id, context_id
-        )
-
 # TODO: one single client, multiple engines.
 class Client(object):
     '''
@@ -229,6 +34,132 @@ class Client(object):
 
     def __repr__(self):
         return '<Client:{0}>'.format(self.ui_types)
+
+    '''
+    Standalone
+    client = Client(event_manager)
+    publish_definitions = client.get_definitions('publisher')
+    client.run_definition(publish_definitions[0], 'publisher_engine') # We don't need the engine type as it is defined inside the definition
+    
+    # We don't have this now but is a wrapper to the run_definitoin
+    client.publish('asset_001', <destination_path>, context) 
+    
+    WITH UI
+    client = Client(event_manager)
+    client.selectHost()
+    definitions = client_get_definition()
+    
+    client.run_ui(MayaPublisherWidget)
+    client.run_ui(AssemblerWidget, loader_definition)
+    maya_widget = client.widgets(MayaPublisherWidget)
+    maya_widget.close()
+    
+    
+    # TODO: host selector is a standalone widget and is in the ftrack menu
+    
+    class Client(object):
+        def __init__():
+            build
+        def run_ui(widget_class): # This is the widgetClass
+            self.widgets_registry = {}
+            widget = widget_class()
+            widget.show()
+            self.widgets_registry.extend(id:widget_name, widget:widget)
+        def connect_widget_signals():
+            for widget in widgets():
+                widget.connect(self.func)
+        def Notify_client_callback():
+            for widget in widgets():
+                widget.notify()
+        def discover_host():
+            client_discover_host()
+        def run_definition(definition, engine...):
+            run_definition(efinition, engine...)
+        def run_plugin(options, callback):
+             result = run_plugin('discover_assets', callback)
+             callback_fn(result)
+        # Method_name should be run_plugin or run_definition)
+        def func(method_name, options, callback):
+            meth = getAttr(method_name)
+            meth(options, callback)
+        def get_definition(definition_type):
+            return host_connection.definitions['definitions_name']
+            
+    class FrameworkWidgetBaseABC(ABC):# THis lives inside the framework connect library.        
+        client_func = None
+        def connect(func):
+            self.client_func = func
+        @abc
+        @property
+        def definition():
+            return self._definition
+        @abc
+        def set_definition(definition):
+            self._definition = definition
+        @abc
+        def pre_build():
+        @abc
+        def build():
+        @abc
+        def post_build():
+        @abc
+        def notify(args):
+            pass
+            
+    class PublisherWidget(FrameworkWidgetABC, QFrame):
+        
+        def __init__(definition):
+            build
+        def build():
+            pass
+        def run_button_clicked() # THIS is an ABC method
+    
+    class MayaPublisherWidget(MayaQWidgetDockableMixin, PublisherWidget):
+        def __init__():
+        def show(self):
+            super(MayaQtPublisherClientWidgetMixin, self).show(
+                dockable=True,
+                floating=False,
+                area='right',
+                width=200,
+                height=300,
+                x=300,
+                y=600,
+                retain=False,
+            )
+    
+    class AssemblerWidget(FrameworkWidgetABC, QFrame):
+        QtCore.Signal(discover_assets, object, object, object)
+        def __init__():
+            build
+        def notify(func):
+            self.update_progeres_bar()
+        def build():
+            resolver_widget = ResolverWidget(am_Definition)
+            am_widget = AMWidget(am_definitoin)
+            resolver_widget.discover_assets.connect(self.discover_assets)
+            resolver_widget.get_definition.connect(self.get_resolver_definition)
+        def discover_assets(context):
+            self.client_func('discover_assets', options, self.assets_discovered_callback)
+            #self.discover_assets.emit(context, <client_method>(discover_assets), self.assets_discovered_callback)
+        def get_resolver_definition(definition_type):
+            self.client_func('get_definition', definition_type, self.resolver_widget.set_definition)
+        def assets_discovered_callback(result):
+            fill out the combo box
+        
+        #def connect_signals():
+            
+    
+    
+    '''
+
+    def get_definitions(self, engine_type):
+        # This returns definitions available for a specific engine
+        pass
+    # This should be run_engine
+    def run_definition(self, definitiin, engine_type):
+        # this reads the definition and runs it in the host
+        pass
 
     @property
     def session(self):
@@ -329,10 +260,7 @@ class Client(object):
         self.logger.debug('host connection: {}'.format(value))
         Client._host_connection = value
         #TODO: try to simplify this and mix this to in a host subscriptions method?
-        self.event_manager.subscribe.notify_client(
-            self.host_connection.host_id,
-            self._notify_client_callback
-        )
+        self.on_client_notification()
         # Clean up host_context_change_subscription in case exists
         self.unsubscribe_host_context_changed()
         # Subscribe to host_context_change even though we already subscribed in
@@ -439,10 +367,7 @@ class Client(object):
             self.host_connection = None
         #TODO: I think we can remove this from this method. If its used, we should move it to a reconnect method or some similar name.
         if self.host_connection is not None:
-            self.event_manager.subscribe.notify_client(
-                self.host_connection.host_id,
-                self._notify_client_callback
-            )
+            self.on_client_notification()
             # Clean up host_context_change_subscription in case exists
             self.unsubscribe_host_context_changed()
             # Subscribe to host_context_change even though we already subscribed in
@@ -472,7 +397,7 @@ class Client(object):
                 self.logger.warning('Could not discover any host.')
                 break
 
-            self.event_manager.publish.discover_host(self._host_discovered_callback)
+            self._discover_hosts()
 
         # TODO: remove this if not needed
         if self.__callback and self.host_connections:
@@ -482,7 +407,24 @@ class Client(object):
         # Feed host connections to the client
         self.on_hosts_discovered(self.host_connections)
 
-    def _host_discovered_callback(self, event):
+    def _discover_hosts(self):
+        '''
+        Publish an event with the topic
+        :py:data:`~ftrack_framework_core.constants.DISCOVER_HOST_TOPIC`
+        with the callback
+        py:meth:`~ftrack_framework_core.client._host_discovered_callback`
+        '''
+        # TODO: Move this to events module
+        self.host_connections = []  # Start over
+        discover_event = ftrack_api.event.base.Event(
+            topic=constants.DISCOVER_HOST_TOPIC
+        )
+
+        self._event_manager.publish(
+            discover_event, callback=self._host_discovered
+        )
+
+    def _host_discovered(self, event):
         '''
         Callback, add the :class:`~ftrack_framework_core.client.HostConnection`
         of the new discovered :class:`~ftrack_framework_core.host.HOST` from
@@ -492,7 +434,6 @@ class Client(object):
         '''
         if not event['data']:
             return
-        self.host_connections = []
         host_connection = HostConnection(self.event_manager, event['data'])
         # TODO: should we remove the filter_host for now as its not used.
         if (
@@ -651,11 +592,14 @@ class Client(object):
         # passing data to the engine. And the engine_type is only available
         # on the definition.
         plugin_type = '{}.{}'.format(engine_type, plugin_data['type'])
-
-        # TODO: this should be refactored, as its not calling the run definition
-        #  here, it should call the run plugin.
-        #  This might be able to be a call directly from client, so not need to be in the host_connection, host connection is providing the host id.
-        self.host_connection.run_plugin(plugin_data, plugin_type, method, callback=self._run_callback)
+        data = {
+            'plugin': plugin_data,
+            'plugin_type': plugin_type,
+            'method': method,
+        }
+        self.host_connection.run_definition(
+            data, engine_type, callback=self._run_callback
+        )
 
     # TODO: use diferent callback for plugin and for definition
     def _run_callback(self, event):
@@ -683,8 +627,22 @@ class Client(object):
         '''Called when a client notify event arrives.'''
         pass
 
+    def on_client_notification(self):
+        '''
+        Subscribe to topic
+        :const:`~ftrack_framework_core.constants.NOTIFY_CLIENT_TOPIC`
+        to receive client notifications from the host in :meth:`_notify_client_callback`
+        '''
+        # TODO: MOVE this to events module
+        self.session.event_hub.subscribe(
+            'topic={} and data.pipeline.host_id={}'.format(
+                constants.NOTIFY_CLIENT_TOPIC, self.host_connection.host_id
+            ),
+            self._notify_client,
+        )
+
     # TODO: check if this should be ABC emthod to be overriden in all the client childs or is ok as it is.
-    def _notify_client_callback(self, event):
+    def _notify_client(self, event):
         '''
         Callback of the
         :const:`~ftrack_framework_core.constants.NOTIFY_CLIENT_TOPIC`
@@ -693,17 +651,17 @@ class Client(object):
         *event*: :class:`ftrack_api.event.base.Event`
         '''
         #TODO: not as priority task, but we might should have a method in events module to parse the events so we don't have to go into data/pipeline all the time.
-        plugin_name = event['data']['plugin_name']
-        widget_ref = event['data']['widget_ref']
-        result = event['data']['result']
-        status = event['data']['status']
-        message = event['data']['message']
-        user_data = event['data'].get('user_data') or {}
+        result = event['data']['pipeline']['result']
+        status = event['data']['pipeline']['status']
+        plugin_name = event['data']['pipeline']['plugin_name']
+        widget_ref = event['data']['pipeline']['widget_ref']
+        message = event['data']['pipeline']['message']
+        user_data = event['data']['pipeline'].get('user_data') or {}
         user_message = user_data.get('message')
-        plugin_id = event['data'].get('plugin_id')
+        plugin_id = event['data']['pipeline'].get('plugin_id')
 
         # TODO: shouldn't this be add_log_item? and the on_log_item_added is the callback?
-        self._on_log_item_added(LogItem(event['data']))
+        self._on_log_item_added(LogItem(event['data']['pipeline']))
 
         if constants.status_bool_mapping[status]:
             self.logger.debug(

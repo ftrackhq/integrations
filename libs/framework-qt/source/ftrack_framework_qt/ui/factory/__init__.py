@@ -584,8 +584,10 @@ class WidgetFactoryBase(QtWidgets.QWidget):
                     },
                 }
 
+                # TODO this is the execute plugin event, but we are not
+                #  refactoring this now because should be removed.
                 event = ftrack_api.event.base.Event(
-                    topic=core_constants.PIPELINE_RUN_PLUGIN_TOPIC, data=data
+                    topic=core_constants.EXECUTE_PLUGIN_TOPIC, data=data
                 )
 
                 result = self.session.event_hub.publish(
@@ -689,22 +691,22 @@ class WidgetFactoryBase(QtWidgets.QWidget):
     def listen_widget_updates(self):
         '''
         Subscribe to the
-        :const:`~ftrack_connnect_pipeline.constants.PIPELINE_CLIENT_PROGRESS_NOTIFICATION`
+        :const:`~ftrack_connnect_pipeline.constants.NOTIFY_PROGRESS_CLIENT_TOPIC`
         topic to call the _update_progress_widget function when the host returns and
         answer through the same topic
         '''
 
         self._subscriber_id = self.session.event_hub.subscribe(
             'topic={} and data.pipeline.host_id={}'.format(
-                core_constants.PIPELINE_CLIENT_PROGRESS_NOTIFICATION,
-                self.host_connection.id,
+                core_constants.NOTIFY_PROGRESS_CLIENT_TOPIC,
+                self.host_connection.host_id,
             ),
             self._update_progress_widget_async,
         )
         self.has_error = False
 
     def end_widget_updates(self):
-        '''Unsubscribe from :const:`~ftrack_connnect_pipeline.constants.PIPELINE_CLIENT_NOTIFICATION`'''
+        '''Unsubscribe from :const:`~ftrack_connnect_pipeline.constants.NOTIFY_CLIENT_TOPIC`'''
         if self._subscriber_id:
             self.session.event_hub.unsubscribe(self._subscriber_id)
 

@@ -84,7 +84,7 @@ class PublisherFinalizerPlugin(base.BaseFinalizerPlugin):
     def _run(self, event):
         '''
         Overrides the Callback function of the event
-        :const:`~ftrack_framework_core.constants.PIPELINE_RUN_PLUGIN_TOPIC`
+        :const:`~ftrack_framework_core.constants.HOST_RUN_PLUGIN_TOPIC`
         :meth:`ftrack_framework_core.plugin._run`.
         Which runs the method passed in the given
         *event* ['data']['pipeline']['method'].
@@ -97,7 +97,7 @@ class PublisherFinalizerPlugin(base.BaseFinalizerPlugin):
         Returns a dictionary with the result information of the called method.
 
         *event* : Dictionary returned when the event topic
-        :const:`~ftrack_framework_core.constants.PIPELINE_RUN_PLUGIN_TOPIC` is
+        :const:`~ftrack_framework_core.constants.HOST_RUN_PLUGIN_TOPIC` is
         called.
 
         '''

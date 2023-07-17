@@ -82,7 +82,9 @@ class NukeAssetManagerEngine(AssetManagerEngine):
         result_data['result'] = result
         result_data['execution_time'] = total_time
 
-        self._notify_client(plugin, result_data)
+        self.event_manager.publish.notify_client(
+            self.host_id, **result_data
+        )
 
         return status, result
 
@@ -160,7 +162,9 @@ class NukeAssetManagerEngine(AssetManagerEngine):
                 result_data['execution_time'] = total_time
                 result_data['message'] = message
 
-                self._notify_client(plugin, result_data)
+                self.event_manager.publish.notify_client(
+            self.host_id, **result_data
+        )
                 return status, result
 
         try:
@@ -184,7 +188,9 @@ class NukeAssetManagerEngine(AssetManagerEngine):
             result_data['execution_time'] = total_time
             result_data['message'] = message
 
-            self._notify_client(plugin, result_data)
+            self.event_manager.publish.notify_client(
+            self.host_id, **result_data
+        )
             return status, result
 
         end_time = time.time()
@@ -194,7 +200,9 @@ class NukeAssetManagerEngine(AssetManagerEngine):
         result_data['result'] = result
         result_data['execution_time'] = total_time
 
-        self._notify_client(plugin, result_data)
+        self.event_manager.publish.notify_client(
+            self.host_id, **result_data
+        )
         return status, result
 
     @nuke_utils.run_in_main_thread
@@ -258,7 +266,9 @@ class NukeAssetManagerEngine(AssetManagerEngine):
             result_data['execution_time'] = total_time
             result_data['message'] = message
 
-            self._notify_client(plugin, result_data)
+            self.event_manager.publish.notify_client(
+            self.host_id, **result_data
+        )
             return status, result
 
         if ftrack_node.Class() == 'BackdropNode':
@@ -302,7 +312,9 @@ class NukeAssetManagerEngine(AssetManagerEngine):
                     result_data['execution_time'] = total_time
                     result_data['message'] = message
 
-                    self._notify_client(plugin, result_data)
+                    self.event_manager.publish.notify_client(
+            self.host_id, **result_data
+        )
                     return status, result
 
         bool_status = core_constants.status_bool_mapping[status]
@@ -315,7 +327,9 @@ class NukeAssetManagerEngine(AssetManagerEngine):
             result_data['execution_time'] = total_time
             result_data['message'] = message
 
-            self._notify_client(plugin, result_data)
+            self.event_manager.publish.notify_client(
+            self.host_id, **result_data
+        )
             return status, result
 
         self.ftrack_object_manager.objects_loaded = False
@@ -327,7 +341,9 @@ class NukeAssetManagerEngine(AssetManagerEngine):
         result_data['result'] = result
         result_data['execution_time'] = total_time
 
-        self._notify_client(plugin, result_data)
+        self.event_manager.publish.notify_client(
+            self.host_id, **result_data
+        )
 
         return status, result
 
@@ -378,7 +394,9 @@ class NukeAssetManagerEngine(AssetManagerEngine):
             result_data['execution_time'] = total_time
             result_data['message'] = message
 
-            self._notify_client(plugin, result_data)
+            self.event_manager.publish.notify_client(
+            self.host_id, **result_data
+        )
             return status, result
 
         if ftrack_node.Class() == 'BackdropNode':
@@ -429,7 +447,9 @@ class NukeAssetManagerEngine(AssetManagerEngine):
                     result_data['execution_time'] = total_time
                     result_data['message'] = message
 
-                    self._notify_client(plugin, result_data)
+                    self.event_manager.publish.notify_client(
+            self.host_id, **result_data
+        )
                     return status, result
 
         try:
@@ -455,7 +475,9 @@ class NukeAssetManagerEngine(AssetManagerEngine):
             result_data['execution_time'] = total_time
             result_data['message'] = message
 
-            self._notify_client(plugin, result_data)
+            self.event_manager.publish.notify_client(
+            self.host_id, **result_data
+        )
             return status, result
 
         end_time = time.time()
@@ -465,6 +487,8 @@ class NukeAssetManagerEngine(AssetManagerEngine):
         result_data['result'] = result
         result_data['execution_time'] = total_time
 
-        self._notify_client(plugin, result_data)
+        self.event_manager.publish.notify_client(
+            self.host_id, **result_data
+        )
 
         return status, result
