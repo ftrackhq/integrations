@@ -4,7 +4,8 @@ import copy
 import json
 import python_jsonschema_objects as pjo
 import logging
-import sys
+
+from ftrack_framework_core import constants
 
 logger = logging.getLogger(__name__)
 
@@ -39,11 +40,20 @@ def validate_schema(data, session):
     # validate schema
     for schema in data['schema']:
         # TODO: these keys should be constants
-        for entry in ['loader', 'opener', 'publisher', 'asset_manager']:
+        for entry in [
+            constants.LOADER,
+            constants.OPENER,
+            constants.PUBLISHER,
+            constants.ASSET_MANAGER,
+            constants.RESOLVER,
+        ]:
             if schema['title'].lower() == entry:
                 for definition in data[entry]:
                     copy_data[entry].remove(definition)
-                    if schema['title'].lower() != 'asset_manager':
+                    if schema['title'].lower() not in [
+                        constants.ASSET_MANAGER,
+                        constants.RESOLVER,
+                    ]:
                         if (
                             definition.get('asset_type')
                             not in valid_assets_types

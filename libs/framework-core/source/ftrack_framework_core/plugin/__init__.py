@@ -581,3 +581,4 @@ from ftrack_framework_core.plugin.load import *
 from ftrack_framework_core.plugin.open import *
 from ftrack_framework_core.plugin.publish import *
 from ftrack_framework_core.plugin.asset_manager import *
+from ftrack_framework_core.plugin.resolver import *

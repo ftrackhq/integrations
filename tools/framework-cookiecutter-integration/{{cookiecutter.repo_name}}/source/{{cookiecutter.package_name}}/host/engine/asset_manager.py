@@ -12,7 +12,8 @@ from {{cookiecutter.package_name}}.asset.dcc_object import {{cookiecutter.host_t
 
 
 class {{cookiecutter.host_type_capitalized}}AssetManagerEngine(AssetManagerEngine):
-    engine_type = 'asset_manager'
+
+    engine_type = core_constants.ASSET_MANAGER
 
     FtrackObjectManager = {{cookiecutter.host_type_capitalized}}FtrackObjectManager
     '''FtrackObjectManager class to use'''

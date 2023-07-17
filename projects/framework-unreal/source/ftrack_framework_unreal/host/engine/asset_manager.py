@@ -19,7 +19,7 @@ from ftrack_framework_unreal.asset.dcc_object import UnrealDccObject
 
 
 class UnrealAssetManagerEngine(AssetManagerEngine):
-    engine_type = 'asset_manager'
+    engine_type = core_constants.ASSET_MANAGER
 
     FtrackObjectManager = UnrealFtrackObjectManager
     '''FtrackObjectManager class to use'''

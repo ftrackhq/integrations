@@ -62,27 +62,28 @@ def collect_definitions(definition_paths):
     '''
     # TODO: keys should be given by constants, we might have different clients in the future.
     data = {
-        'schema': [],
-        'publisher': [],
-        'loader': [],
-        'opener': [],
-        'asset_manager': [],
+        constants.SCHEMA: [],
+        constants.PUBLISHER: [],
+        constants.LOADER: [],
+        constants.OPENER: [],
+        constants.ASSET_MANAGER: [],
+        constants.RESOLVER: [],
     }
     for lookup_dir in definition_paths:
         for file_type in [
-            'schema',
-            'loader',
-            'opener',
-            'publisher',
-            'asset_manager',
+            constants.SCHEMA,
+            constants.PUBLISHER,
+            constants.LOADER,
+            constants.OPENER,
+            constants.ASSET_MANAGER,
+            constants.RESOLVER,
         ]:
-            collected_files = _collect_json(
-                os.path.join(lookup_dir, file_type)
-            )
+            search_path = os.path.join(lookup_dir, file_type)
+            collected_files = _collect_json(search_path)
             data[file_type].extend(collected_files)
             logger.debug(
                 'Found {} definitions in path: {}'.format(
-                    len(collected_files), lookup_dir
+                    len(collected_files), search_path
                 )
             )
 

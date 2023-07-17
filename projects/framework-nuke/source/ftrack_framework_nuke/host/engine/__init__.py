@@ -5,3 +5,4 @@ from ftrack_framework_nuke.host.engine.publish import *
 from ftrack_framework_nuke.host.engine.load import *
 from ftrack_framework_nuke.host.engine.open import *
 from ftrack_framework_nuke.host.engine.asset_manager import *
+from ftrack_framework_nuke.host.engine.resolver import *

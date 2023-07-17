@@ -614,3 +614,4 @@ from ftrack_framework_core.host.engine.publish import *
 from ftrack_framework_core.host.engine.load import *
 from ftrack_framework_core.host.engine.open import *
 from ftrack_framework_core.host.engine.asset_manager import *
+from ftrack_framework_core.host.engine.resolver import *

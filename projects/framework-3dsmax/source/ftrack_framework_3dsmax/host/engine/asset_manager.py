@@ -13,7 +13,7 @@ from ftrack_framework_3dsmax.asset.dcc_object import MaxDccObject
 
 
 class MaxAssetManagerEngine(AssetManagerEngine):
-    engine_type = 'asset_manager'
+    engine_type = core_constants.ASSET_MANAGER
 
     FtrackObjectManager = MaxFtrackObjectManager
     '''FtrackObjectManager class to use'''

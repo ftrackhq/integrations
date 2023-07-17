@@ -36,3 +36,4 @@ from ftrack_framework_maya.plugin.load import *
 from ftrack_framework_maya.plugin.open import *
 from ftrack_framework_maya.plugin.publish import *
 from ftrack_framework_maya.plugin.asset_manager import *
+from ftrack_framework_maya.plugin.resolver import *

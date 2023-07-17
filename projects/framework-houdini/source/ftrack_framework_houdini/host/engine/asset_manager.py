@@ -14,7 +14,7 @@ from ftrack_framework_houdini.asset.dcc_object import HoudiniDccObject
 
 
 class HoudiniAssetManagerEngine(AssetManagerEngine):
-    engine_type = 'asset_manager'
+    engine_type = core_constants.ASSET_MANAGER
 
     FtrackObjectManager = HoudiniFtrackObjectManager
     '''FtrackObjectManager class to use'''
