@@ -23,7 +23,7 @@ def getEngine(baseClass, engineType):
         if match:
             return match
 
-
+# TODO: try to separate engine to its own library, like the definitions.
 class BaseEngine(object):
     '''
     Base engine class.
