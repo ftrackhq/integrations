@@ -329,7 +329,10 @@ class Client(object):
         self.logger.debug('host connection: {}'.format(value))
         Client._host_connection = value
         #TODO: try to simplify this and mix this to in a host subscriptions method?
-        self.on_client_notification()
+        self.event_manager.subscribe.notify_client(
+            self.host_connection.host_id,
+            self._notify_client_callback
+        )
         # Clean up host_context_change_subscription in case exists
         self.unsubscribe_host_context_changed()
         # Subscribe to host_context_change even though we already subscribed in
@@ -436,7 +439,10 @@ class Client(object):
             self.host_connection = None
         #TODO: I think we can remove this from this method. If its used, we should move it to a reconnect method or some similar name.
         if self.host_connection is not None:
-            self.on_client_notification()
+            self.event_manager.subscribe.notify_client(
+                self.host_connection.host_id,
+                self._notify_client_callback
+            )
             # Clean up host_context_change_subscription in case exists
             self.unsubscribe_host_context_changed()
             # Subscribe to host_context_change even though we already subscribed in
@@ -677,22 +683,8 @@ class Client(object):
         '''Called when a client notify event arrives.'''
         pass
 
-    def on_client_notification(self):
-        '''
-        Subscribe to topic
-        :const:`~ftrack_framework_core.constants.NOTIFY_CLIENT_TOPIC`
-        to receive client notifications from the host in :meth:`_notify_client`
-        '''
-        # TODO: MOVE this to events module
-        self.session.event_hub.subscribe(
-            'topic={} and data.pipeline.host_id={}'.format(
-                constants.NOTIFY_CLIENT_TOPIC, self.host_connection.host_id
-            ),
-            self._notify_client,
-        )
-
     # TODO: check if this should be ABC emthod to be overriden in all the client childs or is ok as it is.
-    def _notify_client(self, event):
+    def _notify_client_callback(self, event):
         '''
         Callback of the
         :const:`~ftrack_framework_core.constants.NOTIFY_CLIENT_TOPIC`
@@ -701,17 +693,17 @@ class Client(object):
         *event*: :class:`ftrack_api.event.base.Event`
         '''
         #TODO: not as priority task, but we might should have a method in events module to parse the events so we don't have to go into data/pipeline all the time.
-        result = event['data']['pipeline']['result']
-        status = event['data']['pipeline']['status']
-        plugin_name = event['data']['pipeline']['plugin_name']
-        widget_ref = event['data']['pipeline']['widget_ref']
-        message = event['data']['pipeline']['message']
-        user_data = event['data']['pipeline'].get('user_data') or {}
+        plugin_name = event['data']['plugin_name']
+        widget_ref = event['data']['widget_ref']
+        result = event['data']['result']
+        status = event['data']['status']
+        message = event['data']['message']
+        user_data = event['data'].get('user_data') or {}
         user_message = user_data.get('message')
-        plugin_id = event['data']['pipeline'].get('plugin_id')
+        plugin_id = event['data'].get('plugin_id')
 
         # TODO: shouldn't this be add_log_item? and the on_log_item_added is the callback?
-        self._on_log_item_added(LogItem(event['data']['pipeline']))
+        self._on_log_item_added(LogItem(event['data']))
 
         if constants.status_bool_mapping[status]:
             self.logger.debug(

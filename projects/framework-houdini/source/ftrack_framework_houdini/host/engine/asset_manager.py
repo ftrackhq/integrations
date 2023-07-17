@@ -78,7 +78,9 @@ class HoudiniAssetManagerEngine(AssetManagerEngine):
         result_data['result'] = result
         result_data['execution_time'] = total_time
 
-        self._notify_client(plugin, result_data)
+        self.event_manager.publish.notify_client(
+            self.host_id, **result_data
+        )
 
         return status, result
 
@@ -146,7 +148,9 @@ class HoudiniAssetManagerEngine(AssetManagerEngine):
                 result_data['execution_time'] = total_time
                 result_data['message'] = result['message'] = message
 
-                self._notify_client(plugin, result_data)
+                self.event_manager.publish.notify_client(
+            self.host_id, **result_data
+        )
                 return status, result
 
         end_time = time.time()
@@ -156,7 +160,9 @@ class HoudiniAssetManagerEngine(AssetManagerEngine):
         result_data['result'] = result
         result_data['execution_time'] = total_time
 
-        self._notify_client(plugin, result_data)
+        self.event_manager.publish.notify_client(
+            self.host_id, **result_data
+        )
 
         return status, result
 
@@ -219,7 +225,9 @@ class HoudiniAssetManagerEngine(AssetManagerEngine):
                 result_data['execution_time'] = total_time
                 result_data['message'] = message
 
-                self._notify_client(plugin, result_data)
+                self.event_manager.publish.notify_client(
+            self.host_id, **result_data
+        )
                 return status, result
 
         self.ftrack_object_manager.objects_loaded = False
@@ -231,7 +239,9 @@ class HoudiniAssetManagerEngine(AssetManagerEngine):
         result_data['result'] = result
         result_data['execution_time'] = total_time
 
-        self._notify_client(plugin, result_data)
+        self.event_manager.publish.notify_client(
+            self.host_id, **result_data
+        )
 
         return status, result
 
@@ -295,7 +305,9 @@ class HoudiniAssetManagerEngine(AssetManagerEngine):
                 result_data['execution_time'] = total_time
                 result_data['message'] = message
 
-                self._notify_client(plugin, result_data)
+                self.event_manager.publish.notify_client(
+            self.host_id, **result_data
+        )
                 return status, result
 
         # Remove the ftrack node
@@ -322,7 +334,9 @@ class HoudiniAssetManagerEngine(AssetManagerEngine):
                 result_data['execution_time'] = total_time
                 result_data['message'] = result['message'] = message
 
-                self._notify_client(plugin, result_data)
+                self.event_manager.publish.notify_client(
+            self.host_id, **result_data
+        )
 
                 return status, result
 
@@ -333,6 +347,8 @@ class HoudiniAssetManagerEngine(AssetManagerEngine):
         result_data['result'] = result
         result_data['execution_time'] = total_time
 
-        self._notify_client(plugin, result_data)
+        self.event_manager.publish.notify_client(
+            self.host_id, **result_data
+        )
 
         return status, result

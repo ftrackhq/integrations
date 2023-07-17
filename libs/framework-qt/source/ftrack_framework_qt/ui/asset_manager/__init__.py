@@ -405,12 +405,9 @@ class AssetManagerWidget(AssetManagerBaseWidget):
         same topic'''
         #TODO: move this to the events module
         self.client_notification_subscribe_id = (
-            self.session.event_hub.subscribe(
-                'topic={} and data.pipeline.host_id={}'.format(
-                    core_constants.NOTIFY_CLIENT_TOPIC,
-                    self.host_connection.host_id,
-                ),
-                self._update_widget,
+            self.event_manager.subscribe.notify_client(
+                self.host_connection.host_id,
+                self._update_widget
             )
         )
 

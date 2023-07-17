@@ -23,7 +23,7 @@ logger = logging.getLogger(__name__)
 #  1. Double check if this should better be part of the host class as a method.
 #  2. Rename it to discover_host_reply_callback or similar?
 def provide_host_information(
-    context_id, host_id, definitions, host_name, event
+        host_id, host_name, context_id, definitions, event
 ):
     '''
     Returns dictionary with host id, host name, context id and definition from
@@ -238,18 +238,16 @@ class Host(object):
         # TODO: rename this to __schema_registry or __definitions_registry. Also make sure its initialized in the init.
         self.__registry = validated_result
 
-        handle_event = partial(
+        discover_host_callback_reply = partial(
             provide_host_information,
-            self.context_id,
             self.host_id,
-            validated_result,
             self.host_name,
+            self.context_id,
+            validated_result,
         )
 
-        #TODO: move this to the events module
-        # Method should be named something like subscribe_host or discover_host(make sure to align it to the publish)
-        self._event_manager.subscribe(
-            constants.DISCOVER_HOST_TOPIC, handle_event
+        self.event_manager.subscribe.discover_host(
+            callback=discover_host_callback_reply
         )
 
         # TODO: change the run callback to run_definiton
@@ -363,30 +361,15 @@ class Host(object):
         Callback of the event points to :meth:`on_register_definition`
         '''
 
-        # TODO: move this to events module
-        event = ftrack_api.event.base.Event(
-            topic=constants.DISCOVER_DEFINITION_TOPIC,
-            data={
-                'pipeline': {
-                    'type': 'definition',
-                    'host_types': self.host_types,
-                }
-            },
-        )
-
-        self._event_manager.publish(event, self.on_register_definition)
+        self.event_manager.publish.discover_definition(host_types=self.host_types)
 
         '''
         Subscribe to topic
         :const:`~ftrack_framework_core.constants.NOTIFY_CLIENT_TOPIC`
-        to receive client notifications from the host in :meth:`_notify_client`
+        to receive client notifications from the host in :meth:`_notify_client_callback`
         '''
-        #TODO: move this to the events module
-        self.session.event_hub.subscribe(
-            'topic={} and data.pipeline.host_id={}'.format(
-                constants.NOTIFY_CLIENT_TOPIC, self._host_id
-            ),
-            self._on_client_notification,
+        self.event_manager.subscribe.notify_client(
+            self.host_id, self._on_client_notification
         )
 
         ''' Listen to context change events for this host and its connected clients'''

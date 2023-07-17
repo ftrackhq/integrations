@@ -631,7 +631,7 @@ class Client(object):
         '''
         Subscribe to topic
         :const:`~ftrack_framework_core.constants.NOTIFY_CLIENT_TOPIC`
-        to receive client notifications from the host in :meth:`_notify_client`
+        to receive client notifications from the host in :meth:`_notify_client_callback`
         '''
         # TODO: MOVE this to events module
         self.session.event_hub.subscribe(

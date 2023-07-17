@@ -117,7 +117,9 @@ class AssetManagerEngine(BaseEngine):
             'message': None,
         }
 
-        self._notify_client(plugin, result_data)
+        self.event_manager.publish.notify_client(
+            self.host_id, **result_data
+        )
 
         return status, result
 
@@ -198,7 +200,9 @@ class AssetManagerEngine(BaseEngine):
                 result_data['execution_time'] = total_time
                 result_data['message'] = message
 
-                self._notify_client(plugin, result_data)
+                self.event_manager.publish.notify_client(
+                    self.host_id, **result_data
+                )
 
                 return status, result
 
@@ -209,7 +213,9 @@ class AssetManagerEngine(BaseEngine):
         result_data['result'] = result
         result_data['execution_time'] = total_time
 
-        self._notify_client(plugin, result_data)
+        self.event_manager.publish.notify_client(
+            self.host_id, **result_data
+        )
 
         return status, result
 
@@ -280,7 +286,9 @@ class AssetManagerEngine(BaseEngine):
             'message': message,
         }
 
-        self._notify_client(plugin, result_data)
+        self.event_manager.publish.notify_client(
+            self.host_id, **result_data
+        )
 
         raise NotImplementedError(message)
 
@@ -379,7 +387,9 @@ class AssetManagerEngine(BaseEngine):
                 result_data['execution_time'] = total_time
                 result_data['message'] = message
 
-                self._notify_client(plugin, result_data)
+                self.event_manager.publish.notify_client(
+                    self.host_id, **result_data
+                )
 
                 return status, result
 
@@ -395,7 +405,9 @@ class AssetManagerEngine(BaseEngine):
         result_data['result'] = result
         result_data['execution_time'] = total_time
 
-        self._notify_client(plugin, result_data)
+        self.event_manager.publish.notify_client(
+            self.host_id, **result_data
+        )
 
         return status, result
 
@@ -506,7 +518,9 @@ class AssetManagerEngine(BaseEngine):
                 result_data['execution_time'] = total_time
                 result_data['message'] = message
 
-                self._notify_client(plugin, result_data)
+                self.event_manager.publish.notify_client(
+                    self.host_id, **result_data
+                )
 
                 return status, result
 
@@ -517,7 +531,9 @@ class AssetManagerEngine(BaseEngine):
         result_data['result'] = result
         result_data['execution_time'] = total_time
 
-        self._notify_client(plugin, result_data)
+        self.event_manager.publish.notify_client(
+            self.host_id, **result_data
+        )
 
         return status, result
 
@@ -598,7 +614,9 @@ class AssetManagerEngine(BaseEngine):
             result_data['execution_time'] = total_time
             result_data['message'] = message
 
-            self._notify_client(plugin, result_data)
+            self.event_manager.publish.notify_client(
+                self.host_id, **result_data
+            )
 
             return remove_status, remove_result
 
@@ -725,7 +743,9 @@ class AssetManagerEngine(BaseEngine):
             result_data['execution_time'] = total_time
             result_data['message'] = message
 
-            self._notify_client(plugin, result_data)
+            self.event_manager.publish.notify_client(
+                self.host_id, **result_data
+            )
             return status, result
 
         if not new_asset_info:
@@ -742,7 +762,9 @@ class AssetManagerEngine(BaseEngine):
         result_data['result'] = result
         result_data['execution_time'] = total_time
 
-        self._notify_client(plugin, result_data)
+        self.event_manager.publish.notify_client(
+            self.host_id, **result_data
+        )
 
         return status, result
 
@@ -807,7 +829,9 @@ class AssetManagerEngine(BaseEngine):
             'message': None,
         }
 
-        self._notify_client(plugin, result_data)
+        self.event_manager.publish.notify_client(
+            self.host_id, **result_data
+        )
 
         return status, result
 
@@ -872,7 +896,9 @@ class AssetManagerEngine(BaseEngine):
             'message': None,
         }
 
-        self._notify_client(plugin, result_data)
+        self.event_manager.publish.notify_client(
+            self.host_id, **result_data
+        )
 
         return status, result
 

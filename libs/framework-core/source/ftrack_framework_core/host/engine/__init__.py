@@ -164,7 +164,10 @@ class BaseEngine(object):
             'message': None,
         }
 
-        self._notify_client(plugin, start_data)
+        self.event_manager.publish.notify_client(
+            self.host_id, **start_data
+        )
+
 
         result_data = copy.deepcopy(start_data)
         result_data['status'] = constants.UNKNOWN_STATUS
@@ -178,43 +181,12 @@ class BaseEngine(object):
                 result_data = plugin_result_data[0]
                 break
 
-        # TODO: once event moved to events module, directly call that in here and remove the _notify_client method
-        self._notify_client(plugin, result_data)
+        result_data['widget_ref'] = plugin.get('widget_ref')
+        result_data['plugin_id'] = plugin.get('plugin_id')
+        self.event_manager.publish.notify_client(
+            self.host_id, **result_data
+        )
         return result_data
-
-    # TODO: this would be removed once event is moved to events module.
-    def _notify_client(self, plugin, result_data):
-        '''
-        Publish an :class:`ftrack_api.event.base.Event` with the topic
-        :const:`~ftrack_connnect_pipeline.constants.NOTIFY_CLIENT_TOPIC`
-        to notify the client of the given *plugin* result *result_data*.
-        Also store plugin result in persistent database.
-
-        *plugin* : Plugin definition, a dictionary with the plugin information.
-
-        *result_data* : Result of the plugin execution.
-
-        '''
-
-        # Todo: host_id,widget_ref and plugin_id should come from the plugin_result_data
-        result_data['host_id'] = self.host_id
-
-        if plugin:
-            result_data['widget_ref'] = plugin.get('widget_ref')
-            result_data["plugin_id"] = plugin.get('plugin_id')
-        else:
-            result_data['widget_ref'] = None
-            result_data["plugin_id"] = None
-
-        #TODO: move this to the events module
-        event = ftrack_api.event.base.Event(
-            topic=constants.NOTIFY_CLIENT_TOPIC,
-            data={'pipeline': result_data},
-        )
-
-        self.event_manager.publish(
-            event,
-        )
 
     # TODO: This should be renamed to run_plugin or removed as run_plugin already exists.
     def run_plugin(self, plugin, plugin_type, method='run'):
@@ -234,7 +206,7 @@ class BaseEngine(object):
             plugin_result = self._run_plugin(
                 plugin,
                 plugin_type,
-                data=plugin.get('plugin_data'),
+                plugin_data=plugin.get('plugin_data'),
                 options=plugin['options'],
                 context_data=None,
                 method=method,
@@ -308,7 +280,8 @@ class BaseEngine(object):
                 )
                 continue
 
-            self._notify_progress_client(
+            self.event_manager.publish.notify_progress_client(
+                host_id=self.host_id,
                 step_type=step_type,
                 step_name=step_name,
                 stage_name=stage_name,
@@ -330,7 +303,7 @@ class BaseEngine(object):
             plugin_result = self._run_plugin(
                 plugin,
                 plugin_type,
-                data=data,
+                plugin_data=data,
                 options=plugin_options,
                 context_data=stage_context,
                 method=default_method,
@@ -469,83 +442,38 @@ class BaseEngine(object):
 
                 step_results.append(stage_dict)
 
+                status = constants.SUCCESS_STATUS
                 # We stop the loop if the stage failed. To raise an error on
                 # run_definitions
                 if not step_status:
-                    self._notify_progress_client(
-                        step_type,
-                        step_name,
-                        stage_name,
-                        None,
-                        None,
-                        constants.ERROR_STATUS,
-                        step_results,
-                    )
+                    status = constants.ERROR_STATUS
+
+                self.event_manager.publish.notify_progress_client(
+                    host_id=self.host_id,
+                    step_type=step_type,
+                    step_name=step_name,
+                    stage_name=stage_name,
+                    total_plugins=None,
+                    current_plugin_index=None,
+                    status=constants.ERROR_STATUS,
+                    results=step_results,
+                )
+
+                bool_status = constants.status_bool_mapping[status]
+                if not bool_status:
                     return step_status, step_results
-                else:
-                    self._notify_progress_client(
-                        step_type,
-                        step_name,
-                        stage_name,
-                        None,
-                        None,
-                        constants.SUCCESS_STATUS,
-                        step_results,
-                    )
-        self._notify_progress_client(
-            step_type,
-            step_name,
-            None,
-            None,
-            None,
-            constants.SUCCESS_STATUS,
-            step_results,
+
+        self.event_manager.publish.notify_progress_client(
+            host_id=self.host_id,
+            step_type=step_type,
+            step_name=step_name,
+            stage_name=None,
+            total_plugins=None,
+            current_plugin_index=None,
+            status=constants.SUCCESS_STATUS,
+            results=step_results,
         )
         return step_status, step_results
-
-    # tODO: once moved to events, this can be removed and directly call it from the event module
-    def _notify_progress_client(
-        self,
-        step_type,
-        step_name,
-        stage_name,
-        total_plugins,
-        current_plugin_index,
-        status,
-        results,
-    ):
-        '''
-        Publish an :class:`ftrack_api.event.base.Event` with the topic
-        :const:`~ftrack_connnect_pipeline.constants.NOTIFY_CLIENT_TOPIC`
-        to notify the client of the given *plugin* result *result_data*.
-        Also store plugin result in persistent database.
-
-        *plugin* : Plugin definition, a dictionary with the plugin information.
-
-        *result_data* : Result of the plugin execution.
-
-        '''
-
-        data = {
-            'host_id': self.host_id,
-            'step_type': step_type,
-            'step_name': step_name,
-            'stage_name': stage_name,
-            'total_plugins': total_plugins,
-            'current_plugin_index': current_plugin_index,
-            'status': status,
-            'results': results,
-        }
-
-        # TODO: Move this to events. Also make sure that name of the event makes sense and is aligned with others.
-        event = ftrack_api.event.base.Event(
-            topic=constants.NOTIFY_PROGRESS_CLIENT_TOPIC,
-            data={'pipeline': data},
-        )
-
-        self.event_manager.publish(
-            event,
-        )
 
     # TODO: as a low priority task, try to improve this makeing a better use of the definition object, maybe extending the definition object as well to know how to run steps, stages and plugins.
     # TODO: receive definition in here instead of data

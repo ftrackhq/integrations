@@ -229,7 +229,7 @@ class Publish(object):
                 'message': message,
             },
 
-        event_topic = constants.EXECUTE_PLUGIN_TOPIC
+        event_topic = constants.DISCOVER_PLUGIN_TOPIC
         return self._publish_event(event_topic, data, callback)
 
     def host_context_changed(self, host_id, context_id, callback=None):
@@ -259,6 +259,60 @@ class Publish(object):
         }
 
         event_topic = constants.CLIENT_LAUNCH_WIDGET_TOPIC
+        return self._publish_event(event_topic, data, callback)
+
+    def notify_client(
+            self, host_id, plugin_name, plugin_type, plugin_id=None,
+            widget_ref=None, method=None, status=None, result=None,
+            execution_time=0, message=None, user_data=None, callback=None):
+        '''Send a widget launch event, to be picked up by DCC.'''
+        # TODO: call this from a new launch_assembler method in the opener
+        #  client or in any other place. The data needed is like the following:
+        data = {
+            'host_id': host_id,
+            'plugin_name': plugin_name,
+            'plugin_type': plugin_type,# Not used
+            'plugin_id': plugin_id,
+            'widget_ref': widget_ref,
+            'method': method, # Not used
+            'status': status,
+            'result': result,
+            'execution_time': execution_time, # Not used
+            'message': message,
+            'user_data':user_data
+        }
+
+        event_topic = constants.NOTIFY_CLIENT_TOPIC
+        return self._publish_event(event_topic, data, callback)
+
+    def notify_progress_client(
+            self, host_id, step_type, step_name, stage_name,
+            total_plugins, current_plugin_index, status,
+            results=None, callback=None
+    ):
+        '''Send a widget launch event, to be picked up by DCC.'''
+        # TODO: call this from a new launch_assembler method in the opener
+        #  client or in any other place. The data needed is like the following:
+        data = {
+            'host_id': host_id,
+            'step_type': step_type,
+            'step_name': step_name,# Not used
+            'stage_name': stage_name,
+            'total_plugins': total_plugins,
+            'current_plugin_index': current_plugin_index, # Not used
+            'status': status,
+            'results': results,
+        }
+
+        event_topic = constants.NOTIFY_PROGRESS_CLIENT_TOPIC
+        return self._publish_event(event_topic, data, callback)
+
+    def discover_definition(self, host_types, callback=None):
+        data = {
+            'host_types': host_types,
+        }
+
+        event_topic = constants.DISCOVER_DEFINITION_TOPIC
         return self._publish_event(event_topic, data, callback)
 
 
@@ -291,10 +345,21 @@ class Subscribe(object):
 
     def execute_plugin(self, host_type, category, plugin_type, plugin_name, callback=None):
         event_topic = (
-            '{} and data.pipeline.host_type={} and data.pipeline.category={} '
-            'and data.pipeline.plugin_type={} and '
-            'data.pipeline.plugin_name={}'.format(
+            '{} and data.host_type={} and data.category={} '
+            'and data.plugin_type={} and '
+            'data.plugin_name={}'.format(
                 constants.EXECUTE_PLUGIN_TOPIC, host_type,
+                category, plugin_type, plugin_name
+            )
+        )
+        return self._subscribe_event(event_topic, callback)
+
+    def discover_plugin(self, host_type, category, plugin_type, plugin_name, callback=None):
+        event_topic = (
+            '{} and data.host_type={} and data.category={} '
+            'and data.plugin_type={} and '
+            'data.plugin_name={}'.format(
+                constants.DISCOVER_PLUGIN_TOPIC, host_type,
                 category, plugin_type, plugin_name
             )
         )
@@ -315,6 +380,22 @@ class Subscribe(object):
     def client_launch_widget(self, host_id, callback=None):
         event_topic = '{} and data.host_id={}'.format(
             constants.CLIENT_LAUNCH_WIDGET_TOPIC, host_id
+        )
+        return self._subscribe_event(event_topic, callback)
+    def notify_client(self, host_id, callback=None):
+        event_topic = '{} and data.host_id={}'.format(
+            constants.NOTIFY_CLIENT_TOPIC, host_id
+        )
+        return self._subscribe_event(event_topic, callback)
+    def notify_progress_client(self, host_id, callback=None):
+        event_topic = '{} and data.host_id={}'.format(
+            constants.NOTIFY_PROGRESS_CLIENT_TOPIC, host_id
+        )
+        return self._subscribe_event(event_topic, callback)
+
+    def discover_definition(self, callback=None):
+        event_topic = '{} and data.type=definition'.format(
+            constants.DISCOVER_DEFINITION_TOPIC
         )
         return self._subscribe_event(event_topic, callback)
 
