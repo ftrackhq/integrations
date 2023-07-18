@@ -138,7 +138,8 @@ class EventManager(object):
             )
 
             if result:
-                result = result[0]
+                # TODO: this is to receive answers from all the suscribers. Maybe add an argument all_answers or just the first one.
+                result = result#[0]
 
             # Mock async event reply.
             new_event = ftrack_api.event.base.Event(
@@ -361,6 +362,7 @@ class Publish(object):
         :const:`~ftrack_framework_core.constants.DISCOVER_DEFINITION_TOPIC`
         '''
         data = {
+            'type': 'definition',
             'host_types': host_types,
         }
 

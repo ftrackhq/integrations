@@ -8,9 +8,8 @@ import socket
 import os
 import time
 
-from ftrack_framework_core.definition import collect, validate
+from ftrack_framework_definition import discover, validate
 from ftrack_framework_core.host import engine as host_engine
-from ftrack_framework_core.host import validation
 from ftrack_framework_core import constants, utils
 
 from functools import partial
@@ -135,6 +134,7 @@ class Host(object):
         #TODO: initializing host
         self.logger.debug('initializing {}'.format(self))
         self._event_manager = event_manager
+        self.__definitions_registry = {}
         # TODO: split the register method to publish_events, subcribe_events or
         #  find some standard way to do it around all the framework modules. Maybe register its ok, but make sure its
         #  not confusing with the register function of the definitions.
@@ -167,7 +167,7 @@ class Host(object):
         #  or run_definition, but we shouldn't assume that if not plugin in data
         #  we run_definition.
         try:
-            validation.validate_schema(self.__registry['schema'], definition)
+            validate.validate_definition(self.__definitions_registry['schemas'], definition)
         except Exception as error:
             self.logger.error(
                 "Can't validate definition {} error: {}".format(definition, error)
@@ -209,8 +209,7 @@ class Host(object):
             self.logger.error("Couldn't run plugin {}".format(plugin))
         return runner_result
 
-    #TODO: rename to on_register_definition_callback? (Same for all the callbacks in all the modules)
-    def on_register_definition(self, event):
+    def _on_register_definition_callback(self, event):
         '''
         Callback of the :meth:`register`
         Validates the given *event* and subscribes to the
@@ -220,7 +219,7 @@ class Host(object):
 
         *event* : Should be a validated and complete definitions, schema and
         packages dictionary coming from
-        :func:`ftrack_connect_pipeline_definition.resource.definitions.register.register_definitions`
+        :func:`ftrack_connect_pipeline_definition.resource.definitions.register._register_definitions_callback`
         '''
 
         raw_result = event['data']
@@ -232,19 +231,20 @@ class Host(object):
         host_types = list(set(raw_result.get("host_types")))
         definition_paths = list(set(raw_result.get("definition_paths")))
 
-        validated_result = self.collect_and_validate_definitions(
+        definitions, schemas = self.collect_and_validate_definitions(
             definition_paths, host_types
         )
 
         # TODO: rename this to __schema_registry or __definitions_registry. Also make sure its initialized in the init.
-        self.__registry = validated_result
+        self.__definitions_registry = definitions
+        self.__definitions_registry['schemas'] = schemas
 
         discover_host_callback_reply = partial(
             provide_host_information,
             self.host_id,
             self.host_name,
             self.context_id,
-            validated_result,
+            definitions,
         )
 
         self.event_manager.subscribe.discover_host(
@@ -265,74 +265,42 @@ class Host(object):
         '''
         start = time.time()
 
-        # collect definitions
-        discovered_definitions = collect.collect_definitions(definition_paths)
+        # discover definitions
+        discovered_definitions, discovered_schemas = discover.discover_definitions(definition_paths)
 
         # filter definitions
-        discovered_definitions = collect.filter_definitions_by_host(
+        discovered_definitions = discover.filter_definitions_by_host(
             discovered_definitions, host_types
         )
 
         # validate schemas
-        discovered_definitions = validate.validate_schema(
-            discovered_definitions, self.session
+        discovered_definitions = discover.augment_definition(
+            discovered_definitions, discovered_schemas, self.session
         )
 
         # resolve schemas
-        discovered_definitions = collect.resolve_schemas(
-            discovered_definitions
+        valid_schemas = discover.resolve_schemas(
+            discovered_schemas
         )
 
         # validate_plugins
-        validated_result = self.validate_definition_plugins(
-            discovered_definitions
+        validated_definitions = discover.discover_definitions_plugins(
+            discovered_definitions, self.event_manager, self.host_types
         )
 
         end = time.time()
         logger.debug('Discover definitions run in: {}s'.format((end - start)))
 
-        for key, value in list(validated_result.items()):
+        for key, value in list(validated_definitions.items()):
             logger.warning(
                 'Valid definitions : {} : {}'.format(key, len(value))
             )
+        for key, value in list(valid_schemas.items()):
+            logger.warning(
+                'Schemas : {} : {}'.format(key, len(value))
+            )
 
-        return validated_result
-
-    def validate_definition_plugins(self, data):
-        '''
-        Validates the given *data* against the correspondant plugin validator.
-        Returns a validated data.
-
-        *data* : Should be a validated and complete definitions and schemas coming from
-        :func:`ftrack_connect_pipeline_definition.resource.definitions.register.register_definitions`
-        '''
-        plugin_validator = validation.PluginDiscoverValidation(
-            self.event_manager, self.host_types
-        )
-        #TODO: all client names should be cosntants. Also try to make this smaller,
-        # and automatically extensible by a list from cosntants.
-        invalid_publishers_idxs = plugin_validator.validate_plugins(
-            data['publisher'], constants.PUBLISHER
-        )
-        if invalid_publishers_idxs:
-            for idx in sorted(invalid_publishers_idxs, reverse=True):
-                data['publisher'].pop(idx)
-
-        invalid_loaders_idxs = plugin_validator.validate_plugins(
-            data['loader'], constants.LOADER
-        )
-        if invalid_loaders_idxs:
-            for idx in sorted(invalid_loaders_idxs, reverse=True):
-                data['loader'].pop(idx)
-
-        invalid_openers_idxs = plugin_validator.validate_plugins(
-            data['opener'], constants.OPENER
-        )
-        if invalid_openers_idxs:
-            for idx in sorted(invalid_openers_idxs, reverse=True):
-                data['opener'].pop(idx)
-
-        return data
+        return validated_definitions, valid_schemas
 
     def _init_logs(self):
         '''Delayed initialization of logs, when we know host ID.'''
@@ -359,10 +327,12 @@ class Host(object):
         with the first host_type in the list :obj:`host_types` and type definition as the
         data.
 
-        Callback of the event points to :meth:`on_register_definition`
+        Callback of the event points to :meth:`_on_register_definition_callback`
         '''
 
-        self.event_manager.publish.discover_definition(host_types=self.host_types)
+        self.event_manager.publish.discover_definition(
+            host_types=self.host_types, callback=self._on_register_definition_callback
+        )
 
         '''
         Subscribe to topic
@@ -380,12 +350,11 @@ class Host(object):
 
     def reset(self):
         '''
-        Empty the variables :obj:`host_type`, :obj:`host_id` and :obj:`__registry`
+        Empty the variables :obj:`host_type`, :obj:`host_id` and :obj:`__definitions_registry`
         '''
         self._host_type = []
         self._host_id = None
-        #TODO: rename this to __schema_registry ot __definitions_registry also make sure is initialized in the init.
-        self.__registry = {}
+        self.__definitions_registry = {}
 
     # TODO: rename this to client_context_change_callback
     def _change_context_id(self, event):

@@ -46,12 +46,15 @@ class Client(object):
     
     WITH UI
     client = Client(event_manager)
-    client.selectHost()
+    client.selectHost(<thehost>)
     definitions = client_get_definition()
-    
+    # open a ui
     client.run_ui(MayaPublisherWidget)
+    #Open a ui with a specific definition
     client.run_ui(AssemblerWidget, loader_definition)
+    # get a widget
     maya_widget = client.widgets(MayaPublisherWidget)
+    # interact with the widget.
     maya_widget.close()
     
     

@@ -3,12 +3,9 @@
 
 import os
 import logging
-import ftrack_api
-import functools
-from ftrack_framework_core import constants, configure_logging
-from ftrack_framework_core.definition import BaseDefinition
+from ftrack_framework_definition import Definition
 
-logger = logging.getLogger('ftrack_connect_pipeline_definition.register')
+logger = logging.getLogger('ftrack_framework_definition.register')
 
 # TODO: As low priority task, improve schemas, re-use stuff like plugins,
 #  and see how to make them simple.
@@ -18,9 +15,8 @@ def register(api_object, **kw):
     # Validate that api_object is an instance of ftrack_api.Session. If not,
     # assume that _register is being called from an incompatible API
     # and return without doing anything.
-    if not isinstance(api_object, ftrack_api.Session):
-        # Exit to avoid registering this plugin again.
-        return
+    print("in the first registry")
 
-    definition = BaseDefinition(api_object)
-    definition.register()
+    definition = Definition(api_object)
+    current_dir = os.path.dirname(__file__)
+    definition.register(path='asd')

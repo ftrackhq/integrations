@@ -26,6 +26,10 @@ FINALIZERS = 'finalizers'
 #: Components step group.
 COMPONENTS = 'components'
 
+# TODO: this should be used in the definition_object, so a client can override
+#  it with a new definition that contains other steps. Or better, should be
+#  read from the schema directly (So the definition_objects provides it reading
+#  from the schema).
 STEP_GROUPS = [CONTEXTS, COMPONENTS, FINALIZERS]
 
 # Common steps types.

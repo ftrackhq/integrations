@@ -1,84 +1,38 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2022 ftrack
-import copy
-import json
-import python_jsonschema_objects as pjo
+
 import logging
 
-from ftrack_framework_core import constants
+from jsonschema import validate as _validate_jsonschema
 
 logger = logging.getLogger(__name__)
 
-
-# TODO: move the definitions validators to a new validators folder
-def _validate_and_augment_schema(schema, definition, type):
+def _get_schema(definition_type, schemas):
     '''
-    Augments the given *definition* ot he given *type* with the
-    given *schema*
+    Returns the schema in the given *schemas* for the given *definition_type*
+
+    *definition_type* : Type of the definition. (asset_manager, publisher...)
+
+    *schemas* : List of schemas.
     '''
-    builder = pjo.ObjectBuilder(schema)
-    ns = builder.build_classes(standardize_names=False)
-    ObjectBuilder = getattr(ns, type.capitalize())
-    klass = ObjectBuilder(**definition)
-    serialised_data = klass.serialize()
-    return json.loads(serialised_data)
+    for schema in schemas:
+        if definition_type == schema['title'].lower():
+            return schema
+    return None
 
 
-def validate_schema(data, session):
+# TODO: this should be moved to validate folder with the definitions
+def validate_definition(schemas, definition):
     '''
-    Validates and aguments the definitions and the schemas from the given *data*
+    Validates the schema of the given *definition* from the given *schemas*
+    using the _validate_jsonschema function of the jsonschema.validate library.
 
-    *data* : Dictionary of json definitions and schemas generated at
-    :func:`collect_definitions`
+    *schemas* : List of schemas.
+
+    *definition* : Definition to be validated against the schema.
     '''
-    copy_data = copy.deepcopy(data)
-    valid_assets_types = [
-        type['short']
-        for type in session.query('select short from AssetType').all()
-    ]
+    schema = _get_schema(definition['type'], schemas)
+    _validate_jsonschema(definition, schema)
 
-    # validate schema
-    for schema in data['schema']:
-        # TODO: these keys should be constants
-        for entry in [
-            constants.LOADER,
-            constants.OPENER,
-            constants.PUBLISHER,
-            constants.ASSET_MANAGER,
-            constants.RESOLVER,
-        ]:
-            if schema['title'].lower() == entry:
-                for definition in data[entry]:
-                    copy_data[entry].remove(definition)
-                    if schema['title'].lower() not in [
-                        constants.ASSET_MANAGER,
-                        constants.RESOLVER,
-                    ]:
-                        if (
-                            definition.get('asset_type')
-                            not in valid_assets_types
-                        ):
-                            logger.error(
-                                'Definition {} does use a non existing'
-                                ' asset type: {}'.format(
-                                    definition['name'],
-                                    definition.get('asset_type'),
-                                )
-                            )
-                            continue
 
-                    try:
-                        augumented_valid_data = _validate_and_augment_schema(
-                            schema, definition, entry
-                        )
-                    except Exception as error:
-                        logger.error(
-                            '{} {} does not match any schema. {}'.format(
-                                entry, definition['name'], str(error)
-                            )
-                        )
 
-                        continue
-                    copy_data[entry].append(augumented_valid_data)
-
-    return copy_data

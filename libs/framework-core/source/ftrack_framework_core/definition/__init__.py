@@ -7,7 +7,6 @@ import logging
 import ftrack_api
 from ftrack_framework_core import event
 from ftrack_framework_core import constants
-from ftrack_framework_core.definition import collect, validate
 
 logger = logging.getLogger(__name__)
 
@@ -55,10 +54,10 @@ class BaseDefinition(object):
             # Exit to avoid registering this plugin again.
             return
 
-        self.event_manager.subscribe.discover_definition(self.register_definitions)
+        self.event_manager.subscribe.discover_definition(self._register_definitions_callback)
 
     # TODO: rename to register_definitions_callback.
-    def register_definitions(self, event):
+    def _register_definitions_callback(self, event):
         '''
         Callback method that returns the registred host_types and
         definition_paths of the discovered definitions
