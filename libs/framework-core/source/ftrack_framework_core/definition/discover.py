@@ -130,24 +130,40 @@ def discover_definitions(definition_paths):
     *definition_paths* : Directory path to look for the definitions.
     '''
     definitions = {}
-    schemas = []
     for lookup_dir in definition_paths:
-        for file_type in constants.DEFINITION_TYPES + [constants.SCHEMA]:
-            if file_type not in definitions.keys() and file_type != constants.SCHEMA:
+        for file_type in constants.DEFINITION_TYPES:
+            if file_type not in definitions.keys():
                 definitions[file_type] = []
             search_path = os.path.join(lookup_dir, file_type)
             collected_files = _collect_json(search_path)
-            if file_type == constants.SCHEMA:
-                schemas.extend(collected_files)
-            else:
-                definitions[file_type].extend(collected_files)
+            definitions[file_type].extend(collected_files)
             logger.debug(
                 'Found {} {} in path: {}'.format(
                     len(collected_files), file_type, search_path
                 )
             )
 
-    return definitions, schemas
+    return definitions
+
+def discover_schemas(schema_paths):
+    '''
+    Collect all the schemas and definitions from the given
+    *definition_paths*
+
+    *definition_paths* : Directory path to look for the definitions.
+    '''
+    schemas = []
+    for lookup_dir in schema_paths:
+        search_path = os.path.join(lookup_dir, constants.SCHEMA)
+        collected_files = _collect_json(search_path)
+        schemas.extend(collected_files)
+        logger.debug(
+            'Found {} {} in path: {}'.format(
+                len(collected_files), constants.SCHEMA, search_path
+            )
+        )
+
+    return schemas
 
 
 def _collect_json(source_path):
@@ -225,7 +241,6 @@ def augment_definition(definitions, schemas, session):
             if schema['title'].lower() == entry:
                 for definition in definitions[entry]:
                     copy_definitions[entry].remove(definition)
-                    # TODO: why are we not doing this for AM and resolver?
                     if schema['title'].lower() not in [
                         constants.ASSET_MANAGER,
                         constants.RESOLVER,

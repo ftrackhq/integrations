@@ -4,7 +4,7 @@
 #import ftrack_api
 import os
 import logging
-#from ftrack_framework_definition import Definition
+#from ftrack_framework_definition import Schema
 
 logger = logging.getLogger('ftrack_framework_definition.register')
 
@@ -21,9 +21,9 @@ logger = logging.getLogger('ftrack_framework_definition.register')
 #         # Exit to avoid registering this plugin again.
 #         return
 #
-#     definition = Definition(api_object)
+#     schema = Schema(api_object)
 #     current_dir = os.path.dirname(__file__)
-#     definition.register(path=current_dir)
+#     schema.register(path=current_dir)
 #     return current_dir
 
 def temp_registry():
