@@ -2,13 +2,14 @@
 # :copyright: Copyright (c) 2014-2023 ftrack
 
 import uuid
+import pkgutil
 import ftrack_api
 import logging
 import socket
 import os
 import time
 
-from ftrack_framework_definition import discover, validate
+from ftrack_framework_core.definition import discover, validate
 from ftrack_framework_core.host import engine as host_engine
 from ftrack_framework_core import constants, utils
 
@@ -258,6 +259,47 @@ class Host(object):
         self.event_manager.events.subscribe.host_run_plugin(self.host_id, self.run_plugin)
         self.logger.debug('host {} ready.'.format(self.host_id))
 
+    def _on_register_definition_callback_temp(self, definition_paths):
+        '''
+        Callback of the :meth:`register`
+        Validates the given *event* and subscribes to the
+        :class:`ftrack_api.event.base.Event` events with the topics
+        :const:`~ftrack_connnect_pipeline.constants.DISCOVER_HOST_TOPIC`
+        and :const:`~ftrack_connnect_pipeline.constants.HOST_RUN_DEFINITION_TOPIC`
+
+        *event* : Should be a validated and complete definitions, schema and
+        packages dictionary coming from
+        :func:`ftrack_connect_pipeline_definition.resource.definitions.register._register_definitions_callback`
+        '''
+        definition_paths = list(set(definition_paths))
+
+        definitions, schemas = self.collect_and_validate_definitions(
+            definition_paths, self.host_types
+        )
+
+        # TODO: rename this to __schema_registry or __definitions_registry. Also make sure its initialized in the init.
+        self.__definitions_registry = definitions
+        self.__definitions_registry['schemas'] = schemas
+
+        discover_host_callback_reply = partial(
+            provide_host_information,
+            self.host_id,
+            self.host_name,
+            self.context_id,
+            definitions,
+        )
+
+        self.event_manager.subscribe.discover_host(
+            callback=discover_host_callback_reply
+        )
+
+        # TODO: change the run callback to run_definiton
+        self.event_manager.events.subscribe.host_run_definition(self.host_id, self.run_definition)
+        # TODO: create the run_plugin method (pick the desired parts from the current self.run plugin)
+        #  Carefully, run plugin topic was already used by engines to be able to run plugins, so the run plugin function wasn't existing int the host. We will have to separate this 2 events maybe.
+        self.event_manager.events.subscribe.host_run_plugin(self.host_id, self.run_plugin)
+        self.logger.debug('host {} ready.'.format(self.host_id))
+
     def collect_and_validate_definitions(self, definition_paths, host_types):
         '''
         Collects all json files from the given *definition_paths* that match
@@ -330,8 +372,12 @@ class Host(object):
         Callback of the event points to :meth:`_on_register_definition_callback`
         '''
 
-        self.event_manager.publish.discover_definition(
-            host_types=self.host_types, callback=self._on_register_definition_callback
+        # Publish event to discover definition. For now its not available as its not worth if all are local dependencies.
+        # self.event_manager.publish.discover_definition(
+        #     host_types=self.host_types, callback=self._on_register_definition_callback
+        # )
+        self.register_definitions(
+            callback = self._on_register_definition_callback_temp
         )
 
         '''
@@ -347,6 +393,21 @@ class Host(object):
         self.event_manager.subscribe.client_context_changed(
             self.host_id, self._change_context_id
         )
+
+    def register_definitions(self, callback):
+        definition_paths = []
+        for package in pkgutil.iter_modules():
+            is_definition = all(x in package.name.split("_") for x in ['ftrack', 'framework', 'definitions'])
+            if not is_definition:
+                continue
+            register_module = getattr(__import__(package.name, fromlist=['register']), 'register')
+            # Register by event
+            # register_module.register(self.session)
+            # register by direct connection
+            definition_paths = register_module.temp_registry()
+
+        if definition_paths:
+            callback(definition_paths)
 
     def reset(self):
         '''

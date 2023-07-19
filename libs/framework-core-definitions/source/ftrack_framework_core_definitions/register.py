@@ -19,4 +19,15 @@ def register(api_object, **kw):
 
     definition = Definition(api_object)
     current_dir = os.path.dirname(__file__)
-    definition.register(path='asd')
+    definition.register(path=current_dir)
+    return current_dir
+
+def temp_registry():
+    '''Register plugin to api_object.'''
+
+    # Validate that api_object is an instance of ftrack_api.Session. If not,
+    # assume that _register is being called from an incompatible API
+    # and return without doing anything.
+    print("in the first registry")
+    current_dir = os.path.dirname(__file__)
+    return current_dir
