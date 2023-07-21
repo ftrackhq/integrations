@@ -13,6 +13,7 @@ from ftrack_framework_core import exception
 from ftrack_framework_core import event
 from ftrack_framework_core.asset import FtrackObjectManager
 from ftrack_framework_core.asset.dcc_object import DccObject
+from ftrack_framework_core.plugin.validation import BasePluginValidation
 
 # TODO: Shouldn't basePlugin, somehow be an object like the definitionObject Plugin class? maybe inherit from there?
 #  Maybe not. We have to double check how we want this.

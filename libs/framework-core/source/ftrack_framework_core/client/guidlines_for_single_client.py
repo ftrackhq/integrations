@@ -511,7 +511,7 @@ class Client(object):
         Calls the :meth:`~ftrack_framework_core.client.HostConnection.run`
         to run the entire given *definition* with the given *engine_type*.
 
-        Callback received at :meth:`_run_callback`
+        Callback received at :meth:`_run_definition_callback`
         '''
         # TODO: maybe we should always pass the definition and the engine type. And remove the magic of using the set ones, isntead we can call it with self.run_definition(self.definition, self.engine_type)
         # If not definition or engine type passed use the original ones set up
@@ -583,7 +583,7 @@ class Client(object):
         Calls the :meth:`~ftrack_framework_core.client.HostConnection.run`
         to run one single plugin.
 
-        Callback received at :meth:`_run_callback`
+        Callback received at :meth:`_run_definition_callback`
 
         *plugin_data* : Dictionary with the plugin information.
 
@@ -607,7 +607,7 @@ class Client(object):
     # TODO: use diferent callback for plugin and for definition
     def _run_callback(self, event):
         '''Callback of the :meth:`~ftrack_framework_core.client.run_plugin'''
-        self.logger.debug("_run_callback event: {}".format(event))
+        self.logger.debug("_run_definition_callback event: {}".format(event))
 
     # TODO: remove this if not used.
     def on_ready(self, callback, time_out=3):

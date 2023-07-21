@@ -130,6 +130,13 @@ class Host(object):
         '''
         return self.__definitions_registry
 
+    @property
+    def plugins(self):
+        '''
+        Returns the registred definitions`
+        '''
+        return self.__plugins_registry
+
     def __init__(self, event_manager):
         '''
         Initialise Host with instance of
@@ -151,6 +158,7 @@ class Host(object):
         self._event_manager = event_manager
         self.__definitions_registry = {}
         self.__schemas_registry = []
+        self.__plugins_registry = []
         # TODO: split the register method to publish_events, subcribe_events or
         #  find some standard way to do it around all the framework modules. Maybe register its ok, but make sure its
         #  not confusing with the register function of the definitions.
@@ -183,7 +191,7 @@ class Host(object):
         #  or run_definition, but we shouldn't assume that if not plugin in data
         #  we run_definition.
         try:
-            validate.validate_definition(self.__schemas_registry, definition)
+            validate.validate_definition(self.schemas, definition)
         except Exception as error:
             self.logger.error(
                 "Can't validate definition {} error: {}".format(definition, error)
@@ -205,9 +213,8 @@ class Host(object):
         :meth:`~ftrack_framework_core.client.HostConnection.run`
         '''
 
-        plugin = event['data']['plugin']
-        plugin_type = event['data']['plugin_type']
-        method = event['data']['method']
+        plugin_definition = event['data']['plugin_definition']
+        plugin_method = event['data']['plugin_method']
         engine_type = event['data']['engine_type']
 
         Engine = self.engines.get(engine_type)
@@ -218,11 +225,21 @@ class Host(object):
             self._event_manager, self.host_types, self.host_id, None
         )
 
-        runner_result = engine_runner.run_plugin(plugin, plugin_type, method)
+        runner_result = engine_runner.run_plugin(
+            plugin_definition = plugin_definition,
+            plugin_data=plugin_definition.get('plugin_data'),
+            plugin_options=plugin_definition.get('options'),
+            plugin_context_data=None,
+            plugin_method=plugin_method
+        )
 
         if runner_result == False:
-            # TODO: fix this log. We don't know if we are publishing loading or what.
-            self.logger.error("Couldn't run plugin {}".format(plugin))
+            self.logger.error(
+                "Couldn't run plugin:\n "
+                "Definition: {}\n"
+                "Method: {}\n"
+                "Engine: {}\n".format(plugin_definition, method, engine_type)
+            )
         return runner_result
 
     # TODO: remove this if we do a direct registry
@@ -303,15 +320,31 @@ class Host(object):
         Callback of the event points to :meth:`_on_register_definition_callback`
         '''
 
-        # Publish event to discover definition. For now its not available as its not worth if all are local dependencies.
+        # Publish event to discover definition. For now its not available as its
+        # not worth if all are local dependencies.
         # self.event_manager.publish.discover_definition(
         #     host_types=self.host_types, callback=self._on_register_definition_callback
         # )
-        self.register_schemas(
-            callback=self._on_register_schemas_callback_temp
+        # TODO: remove temp if we go for this design
+        # We register the plugins first so they can subscribe to the discover event
+        self._register_framework_modules(
+            type='plugins', callback=self._on_register_plugins_callback_temp
         )
-        self.register_definitions(
-            callback = self._on_register_definitions_callback_temp
+        # Register the schemas befor the definitions
+        self._register_framework_modules(
+            type='schemas', callback=self._on_register_schemas_callback_temp
+        )
+        # Make sure schemas are found
+        if not self.schemas:
+            raise Exception(
+                'No schemas found. Please register valid schemas first.'
+            )
+        # Register the definitions, passing the shcemas in the callback as are
+        # needed to augment and validate the definitions.
+        self._register_framework_modules(
+            type='definitions', callback=partial(
+                self._on_register_definitions_callback_temp, self.schemas
+            )
         )
 
         '''
@@ -328,41 +361,26 @@ class Host(object):
             self.host_id, self._change_context_id
         )
 
-    def register_schemas(self, callback):
-        schema_paths = []
+    def _register_framework_modules(self, type, callback):
+        registry_result = []
         for package in pkgutil.iter_modules():
-            is_schema = all(x in package.name.split("_") for x in ['ftrack', 'framework', 'schemas'])
-            if not is_schema:
+            is_type = all(x in package.name.split("_") for x in ['ftrack', 'framework', type])
+            if not is_type:
                 continue
             register_module = getattr(__import__(package.name, fromlist=['register']), 'register')
             # Register by event
             # register_module.register(self.session)
             # register by direct connection
-            schema_paths = register_module.temp_registry()
-
-        if schema_paths:
-            callback(schema_paths)
-
-    def register_definitions(self, callback):
-        if not self.schemas:
-            raise Exception(
-                'No schemas found. Please register valid schemas first.'
-            )
-        definition_paths = []
-        for package in pkgutil.iter_modules():
-            is_definition = all(x in package.name.split("_") for x in ['ftrack', 'framework', 'definitions'])
-            if not is_definition:
+            result = register_module.register()
+            if type(result) == list:
+                registry_result.extend(register_module.register())
                 continue
-            register_module = getattr(__import__(package.name, fromlist=['register']), 'register')
-            # Register by event
-            # register_module.register(self.session)
-            # register by direct connection
-            definition_paths = register_module.temp_registry()
+            registry_result.append(register_module.register())
 
-        if definition_paths:
-            callback(definition_paths, self.schemas)
+        if registry_result:
+            callback(registry_result)
 
-    def _on_register_definitions_callback_temp(self, definition_paths, schemas):
+    def _on_register_definitions_callback_temp(self, schemas, definition_paths):
         '''
         Callback of the :meth:`register`
         Validates the given *event* and subscribes to the
@@ -377,7 +395,7 @@ class Host(object):
         definition_paths = list(set(definition_paths))
 
         definitions, schemas = self._discover_definitions(
-            definition_paths, self.host_types
+            definition_paths, self.host_types, schemas
         )
 
         self.__definitions_registry = definitions
@@ -418,6 +436,23 @@ class Host(object):
         schemas = self._discover_schemas(schema_paths, self.host_types)
 
         self.__schemas_registry = schemas
+
+    def _on_register_plugins_callback_temp(self, registred_plugins):
+        '''
+        Callback of the :meth:`register`
+        Validates the given *event* and subscribes to the
+        :class:`ftrack_api.event.base.Event` events with the topics
+        :const:`~ftrack_connnect_pipeline.constants.DISCOVER_HOST_TOPIC`
+        and :const:`~ftrack_connnect_pipeline.constants.HOST_RUN_DEFINITION_TOPIC`
+
+        *event* : Should be a validated and complete definitions, schema and
+        packages dictionary coming from
+        :func:`ftrack_connect_pipeline_definition.resource.definitions.register._register_definitions_callback`
+        '''
+        registred_plugins = list(set(registred_plugins))
+
+        self.__plugins_registry = registred_plugins
+
 
     def _discover_definitions(self, definition_paths, host_types, schemas):
         '''
@@ -487,6 +522,7 @@ class Host(object):
         self._host_id = None
         self.__definitions_registry = {}
         self.__schemas_registry = []
+        self.__plugins_registry = []
 
     # TODO: rename this to client_context_change_callback
     def _change_context_id(self, event):

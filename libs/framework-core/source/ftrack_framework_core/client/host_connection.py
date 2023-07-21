@@ -159,35 +159,9 @@ class HostConnection(object):
         self._event_manager = event_manager
         self._raw_host_data = copy_data
         self._context_id = self._raw_host_data.get('context_id')
-        self.event_manager.events.subscribe.host_context_changed(self.host_id, self._on_host_context_changed_callback)
-
-    #TODO: this should probably be directly called in the client as the host conenction is to provide host action but the event can directly be run through the client.
-    def run_definition(self, definition, engine_type, callback=None):
-        '''
-        Publish an event with the topic
-        :py:const:`~ftrack_framework_core.constants.HOST_RUN_DEFINITION_TOPIC`
-        with the given *data* and *engine*.
-        '''
-        self.event_manager.publish.host_run_definition(
+        self.event_manager.events.subscribe.host_context_changed(
             self.host_id,
-            definition,
-            engine_type,
-            callback
-        )
-
-    def run_plugin(self, plugin, plugin_type, method, engine_type, callback=None):
-        '''
-        Publish an event with the topic
-        :py:const:`~ftrack_framework_core.constants.HOST_RUN_DEFINITION_TOPIC`
-        with the given *data* and *engine*.
-        '''
-        self.event_manager.publish.host_run_plugin(
-            self.host_id,
-            plugin,
-            plugin_type,
-            method,
-            engine_type,
-            callback
+            self._on_host_context_changed_callback
         )
 
     def _on_host_context_changed_callback(self, event):

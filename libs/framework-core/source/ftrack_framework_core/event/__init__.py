@@ -205,24 +205,23 @@ class Publish(object):
         event_topic = constants.HOST_RUN_DEFINITION_TOPIC
         return self._publish_event(event_topic, data, callback)
 
-    def host_run_plugin(self, host_id, plugin, plugin_type, method, engine_type, callback=None):
+    def host_run_plugin(self, host_id, plugin_definition, plugin_method, engine_type, callback=None):
         '''
         Publish an event with topic
         :const:`~ftrack_framework_core.constants.HOST_RUN_PLUGIN_TOPIC`
         '''
         data = {
             'host_id': host_id,
-            'plugin': plugin,
-            'plugin_type': plugin_type,
-            'method': method,
+            'plugin_definition': plugin_definition,
+            'plugin_method': plugin_method,
             'engine_type': engine_type,
         }
         event_topic = constants.HOST_RUN_PLUGIN_TOPIC
         return self._publish_event(event_topic, data, callback)
 
     def execute_plugin(
-            self, plugin_name, plugin_type, method, host_type,
-            plugin_data, options, context_data, category='plugin', callback=None
+            self, plugin_name, plugin_method, host_type,
+            plugin_data, plugin_options, plugin_context_data, callback=None
     ):
         '''
         Publish an event with topic
@@ -230,36 +229,32 @@ class Publish(object):
         '''
         data = {
                 'plugin_name': plugin_name,
-                'plugin_type': plugin_type,
-                'method': method,
+                'plugin_method': plugin_method,
                 'host_type': host_type,
                 'plugin_data': plugin_data,
-                'options': options,
-                'context_data': context_data,
-                'category': category,
+                'plugin_options': plugin_options,
+                'plugin_context_data': plugin_context_data,
             },
 
         event_topic = constants.EXECUTE_PLUGIN_TOPIC
         return self._publish_event(event_topic, data, callback)
 
     def discover_plugin(
-            self, plugin_name, plugin_type, status, host_type, category='plugin',
-            result=None, execution_time=0, message=None, callback=None
+            self, plugin_name, plugin_method, host_type,
+            plugin_data, plugin_options, plugin_context_data, callback=None
     ):
         '''
         Publish an event with topic
         :const:`~ftrack_framework_core.constants.DISCOVER_PLUGIN_TOPIC`
         '''
         data = {
-                'plugin_name': plugin_name,
-                'plugin_type': plugin_type,
-                'category': category,
-                'host_type': host_type,
-                'status': status,
-                'result': result,
-                'execution_time': execution_time,
-                'message': message,
-            },
+            'plugin_name': plugin_name,
+            'plugin_method': plugin_method,
+            'host_type': host_type,
+            'plugin_data': plugin_data,
+            'plugin_options': plugin_options,
+            'plugin_context_data': plugin_context_data,
+        },
 
         event_topic = constants.DISCOVER_PLUGIN_TOPIC
         return self._publish_event(event_topic, data, callback)
@@ -304,32 +299,16 @@ class Publish(object):
         event_topic = constants.CLIENT_LAUNCH_WIDGET_TOPIC
         return self._publish_event(event_topic, data, callback)
 
+    # TODO: rename this to notify_plugin_progress_client and has a notify client
+    #  for more generic stuff in case is needed.
     def notify_client(
-            self, host_id, plugin_name, plugin_type, plugin_id=None,
-            widget_ref=None, method=None, status=None, result=None,
-            execution_time=0, message=None, user_data=None, callback=None):
+            self, plugin_info, callback=None):
         '''
         Publish an event with topic
         :const:`~ftrack_framework_core.constants.NOTIFY_CLIENT_TOPIC`
         '''
-        # TODO: call this from a new launch_assembler method in the opener
-        #  client or in any other place. The data needed is like the following:
-        data = {
-            'host_id': host_id,
-            'plugin_name': plugin_name,
-            'plugin_type': plugin_type,# Not used
-            'plugin_id': plugin_id,
-            'widget_ref': widget_ref,
-            'method': method, # Not used
-            'status': status,
-            'result': result,
-            'execution_time': execution_time, # Not used
-            'message': message,
-            'user_data':user_data
-        }
-
         event_topic = constants.NOTIFY_CLIENT_TOPIC
-        return self._publish_event(event_topic, data, callback)
+        return self._publish_event(event_topic, plugin_info, callback)
 
     def notify_progress_client(
             self, host_id, step_type, step_name, stage_name,
@@ -412,32 +391,28 @@ class Subscribe(object):
         )
         return self._subscribe_event(event_topic, callback)
 
-    def execute_plugin(self, host_type, category, plugin_type, plugin_name, callback=None):
+    def execute_plugin(self, host_type, plugin_name, callback=None):
         '''
         Subscribe to an event with topic
         :const:`~ftrack_framework_core.constants.EXECUTE_PLUGIN_TOPIC`
         '''
         event_topic = (
-            '{} and data.host_type={} and data.category={} '
-            'and data.plugin_type={} and '
-            'data.plugin_name={}'.format(
-                constants.EXECUTE_PLUGIN_TOPIC, host_type,
-                category, plugin_type, plugin_name
+            '{} and data.host_type={}'
+            'and data.plugin_name={}'.format(
+                constants.EXECUTE_PLUGIN_TOPIC, host_type, plugin_name
             )
         )
         return self._subscribe_event(event_topic, callback)
 
-    def discover_plugin(self, host_type, category, plugin_type, plugin_name, callback=None):
+    def discover_plugin(self, host_type, plugin_name, callback=None):
         '''
         Subscribe to an event with topic
         :const:`~ftrack_framework_core.constants.DISCOVER_PLUGIN_TOPIC`
         '''
         event_topic = (
-            '{} and data.host_type={} and data.category={} '
-            'and data.plugin_type={} and '
-            'data.plugin_name={}'.format(
-                constants.DISCOVER_PLUGIN_TOPIC, host_type,
-                category, plugin_type, plugin_name
+            '{} and data.host_type={}'
+            'and data.plugin_name={}'.format(
+                constants.DISCOVER_PLUGIN_TOPIC, host_type, plugin_name
             )
         )
         return self._subscribe_event(event_topic, callback)

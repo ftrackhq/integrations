@@ -1,7 +1,6 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2014-2020 ftrack
-# TODO: check if we can remove status from here and just have it in the plugin
-#  repo. (We might need them in the steps as well but lets see)
+# :copyright: Copyright (c) 2014-2023 ftrack
+
 #: Unknown status of plugin execution.
 UNKNOWN_STATUS = 'UNKNOWN_STATUS'
 #: Succed status of plugin execution.
@@ -16,6 +15,16 @@ EXCEPTION_STATUS = 'EXCEPTION_STATUS'
 RUNNING_STATUS = 'RUNNING_STATUS'
 #: Default status of plugin execution.
 DEFAULT_STATUS = 'PAUSE_STATUS'
+
+STATUS_LIST = [
+    UNKNOWN_STATUS,
+    SUCCESS_STATUS,
+    WARNING_STATUS,
+    ERROR_STATUS,
+    EXCEPTION_STATUS,
+    RUNNING_STATUS,
+    DEFAULT_STATUS,
+]
 
 #: Mapping of the run plugins status. Valid or non-valid result.
 status_bool_mapping = {

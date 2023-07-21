@@ -123,12 +123,11 @@ class BaseEngine(object):
 
     def _run_plugin(
         self,
-        plugin,
-        plugin_type,
-        options=None,
+        plugin_definition,
+        plugin_options=None,
         plugin_data=None,
-        context_data=None,
-        method='run',
+        plugin_context_data=None,
+        plugin_method='run',
     ):
         '''
         Returns the result of running the plugin with the event returned from
@@ -151,45 +150,22 @@ class BaseEngine(object):
 
         '''
 
-        plugin_name = plugin['plugin']
-        # TODO: try to find a way to not get the plugin data structure. Maybe moving it to constants.
-        #  OR by creating the pluginObject
-        start_data = {
-            'plugin_name': plugin_name,
-            'plugin_type': plugin_type,
-            'method': method,
-            'status': constants.RUNNING_STATUS,
-            'result': None,
-            'execution_time': 0,
-            'message': None,
-        }
+        plugin_name = plugin_definition['plugin']
 
-        self.event_manager.publish.notify_client(
-            self.host_id, **start_data
-        )
-
-
-        result_data = copy.deepcopy(start_data)
-        result_data['status'] = constants.UNKNOWN_STATUS
+        plugin_result_data=None
 
         for host_type in reversed(self._host_types):
+            # TODO: double check that it syncronously returns us the result of the plugin.
+            #  Should be the plugin_info dictionary-
             plugin_result_data = self.event_manager.publish.execute_plugin(
-                plugin_name, plugin_type, method, host_type, plugin_data,
-                options, context_data
+                plugin_name, plugin_method, host_type, plugin_data,
+                plugin_options, plugin_context_data
             )
-            if plugin_result_data:
-                result_data = plugin_result_data[0]
-                break
 
-        result_data['widget_ref'] = plugin.get('widget_ref')
-        result_data['plugin_id'] = plugin.get('plugin_id')
-        self.event_manager.publish.notify_client(
-            self.host_id, **result_data
-        )
-        return result_data
+        return plugin_result_data
 
-    # TODO: This should be renamed to run_plugin or removed as run_plugin already exists.
-    def run_plugin(self, plugin, plugin_type, method='run'):
+
+    def run_plugin(self, plugin_definition, plugin_data, plugin_options, plugin_context_data, plugin_method='run'):
         '''
         Executes the :meth:`_run_plugin` with the provided *data*.
         Returns the result of the mentioned method.
@@ -200,29 +176,18 @@ class BaseEngine(object):
 
         # TODO: refactor this: if not plugin return None.
 
-        result = None
+        plugin_result = None
 
-        if plugin:
+        if plugin_definition:
             plugin_result = self._run_plugin(
-                plugin,
-                plugin_type,
-                plugin_data=plugin.get('plugin_data'),
-                options=plugin['options'],
-                context_data=None,
-                method=method,
+                plugin_definition,
+                plugin_data=plugin_data,
+                plugin_options=plugin_options,
+                plugin_context_data=plugin_context_data,
+                plugin_method=plugin_method,
             )
-            status = plugin_result['status']
-            bool_status = constants.status_bool_mapping[status]
-            result = plugin_result
-            if not bool_status:
-                raise Exception(
-                    'An error occurred during the execution of the plugin {}'
-                    '\n status: {} \n result: {}'.format(
-                        plugin['plugin'], status, result
-                    )
-                )
 
-        return result
+        return plugin_result
 
     # Base functions for loader, opener and publisher
 
@@ -263,14 +228,10 @@ class BaseEngine(object):
         stage_status = True
         stage_results = []
 
-        # We don't want to pass the information of the previous plugin, so that
-        # is why we only pass the data of the previous stage.
-        data = stage_data
-
         i = 1
-        for plugin in plugins:
-            plugin_name = plugin['plugin']
-            plugin_enabled = plugin['enabled']
+        for plugin_definition in plugins:
+            plugin_name = plugin_definition['plugin']
+            plugin_enabled = plugin_definition['enabled']
 
             if not plugin_enabled:
                 self.logger.debug(
@@ -292,21 +253,21 @@ class BaseEngine(object):
             )
 
             result = None
-            plugin_options = plugin['options']
+            plugin_options = plugin_definition['options']
             # Update the plugin_options with the stage_options.
             plugin_options.update(stage_options)
-            category = plugin['category']
-            type = plugin['type']
-            default_method = plugin['default_method']
+            category = plugin_definition['category']
+            type = plugin_definition['type']
+            default_method = plugin_definition['default_method']
 
-            # TODO: we should call the public run_plugin here maybe?
-            plugin_result = self._run_plugin(
-                plugin,
-                plugin_type,
-                plugin_data=data,
-                options=plugin_options,
-                context_data=stage_context,
-                method=default_method,
+            plugin_result = self.run_plugin(
+                plugin_definition,
+                # We don't want to pass the information of the previous plugin, so that
+                # is why we only pass the data of the previous stage.
+                plugin_data=stage_data,
+                plugin_options=plugin_options,
+                plugin_context_data=stage_context,
+                plugin_method=plugin_definition['default_method'],
             )
 
             bool_status = constants.status_bool_mapping[

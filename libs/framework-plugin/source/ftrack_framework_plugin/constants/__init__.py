@@ -1,5 +1,5 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2014-2020 ftrack
+# :copyright: Copyright (c) 2014-2023 ftrack
 
 # Generic plugins
 #: Generic plugin type for Finalizer plugins
@@ -26,3 +26,5 @@ _PLUGIN_ACTION_TYPE = 'action'
 _PLUGIN_DISCOVER_TYPE = 'discover'
 #: Generic plugin type for resolver plugins
 _PLUGIN_RESOLVER_TYPE = 'resolver'
+
+from ftrack_framework_plugin.constants import status
