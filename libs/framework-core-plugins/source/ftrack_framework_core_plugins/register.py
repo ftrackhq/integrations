@@ -8,6 +8,12 @@ import pkgutil
 import inspect
 logger = logging.getLogger('ftrack_framework_plugins.register')
 
+# TODO: maybe all plugins provided by ftrack can be defined here, just add the
+#  DCC ones in a separated folder like maya/loader/plugin_name. Still clients
+#  can nadd new plugins by simply creating ftrack_framework_myStudio_plugins,
+#  or we can add prototype plugins by adding:
+#  ftrack_framework_<SpecificDCC>_plugins.
+
 
 # This is faster than glob and walk found in:
 # https://stackoverflow.com/questions/973473/getting-a-list-of-all-subdirectories-in-the-current-directory
@@ -47,8 +53,9 @@ def register(api_object, **kw):
             if framework_plugin_type not in inspect.getmro(obj):
                 logger.debug("Not registring {} because is not type of {}".format(name, framework_plugin_type))
                 continue
-            #TODO: check if session is still necessary after the refactor
+            #TODO: check if session is still necessary after the refactor We should pass the event manager and host_id
             try:
+                # TODO: we need to pass event manager, host id.
                 plugin = obj(api_object)
                 plugin.register()
                 registred_plugins.append(obj.__class__)

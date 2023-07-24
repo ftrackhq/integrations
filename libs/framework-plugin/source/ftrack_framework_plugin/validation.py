@@ -23,11 +23,11 @@ def validate_output_value(result, required_value):
     return result == required_value
 
 def _validate_dict_keys(result_keys, required_keys):
-    if sorted(result_keys) == sorted(required_keys)
+    if sorted(result_keys) == sorted(required_keys):
         return True
     return False
 
 def _validate_dict_values(result_values, required_values):
-    if sorted(result_values) == sorted(required_values)
+    if sorted(result_values) == sorted(required_values):
         return True
     return False

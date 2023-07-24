@@ -21,6 +21,13 @@ from ftrack_framework_plugin import validation
 class BasePlugin(object):
     '''Base Class to represent a Plugin'''
 
+    # We Define name, plugin_type and host_type as class variables for
+    # conviniance for the user when crreating its own plugin.
+    name = None
+    plugin_type = None
+    host_type = None
+
+
     FtrackObjectManager = FtrackObjectManager
     '''FtrackObjectManager class to use'''
     DccObject = DccObject
@@ -104,26 +111,26 @@ class BasePlugin(object):
         '''
         return self._id
 
-    @property
-    def name(self):
-        '''
-        Name of the plugin
-        '''
-        return self._name
-
-    @property
-    def plugin_type(self):
-        '''
-        Type of the plugin
-        '''
-        return self._plugin_type
-
-    @property
-    def host_type(self):
-        '''
-        Type of the plugin
-        '''
-        return self._host_type
+    # @property
+    # def name(self):
+    #     '''
+    #     Name of the plugin
+    #     '''
+    #     return self._name
+    #
+    # @property
+    # def plugin_type(self):
+    #     '''
+    #     Type of the plugin
+    #     '''
+    #     return self._plugin_type
+    #
+    # @property
+    # def host_type(self):
+    #     '''
+    #     Type of the plugin
+    #     '''
+    #     return self._host_type
 
     @property
     def host_id(self):
@@ -222,7 +229,10 @@ class BasePlugin(object):
         '''List all available executable methods'''
         return self._plugin_options
 
-    def __init__(self, event_manager, plugin_type, name, host_Type, host_id):
+    # TODO: should we pass the host itself instead of the event_manager? so if
+    #  user wants, he can query stuff from core using host, like:
+    #  host.constants.asset_Name
+    def __init__(self, event_manager, host_id):
         '''
         Initialise BasePlugin with instance of
         :class:`ftrack_api.session.Session`
@@ -238,9 +248,9 @@ class BasePlugin(object):
         self._event_manager = event_manager
         self._host_id = host_id
         self._id = uuid.uuid4().hex
-        self._plugin_type = plugin_type
-        self._name = name
-        self._host_type = host_Type
+        # self._plugin_type = self.plugin_type
+        # self._name = self.name
+        # self._host_type = self.host_Type
         self._ftrack_object_manager = None
         self._raw_plugin_data = []
         #self._default_method = None
@@ -412,7 +422,7 @@ class BasePlugin(object):
             'plugin_status': self.status,
             'plugin_result':self.result,
             'plugin_execution_time':self.execution_time,
-            'plugin_message': self.message
+            'plugin_message': self.message,
             'plugin_context_data':self.context_data,
             'plugin_data': self.plugin_data,
             'plugin_options': self.plugin_options
@@ -440,7 +450,7 @@ class BasePlugin(object):
             return
 
         self.logger.debug(
-            'registering: {} for {}'.format(self.plugin_name, self.plugin_type)
+            'registering: {} for {}'.format(self.name, self.plugin_type)
         )
 
         # TODO: move the subscriptions to a standar subscription method?

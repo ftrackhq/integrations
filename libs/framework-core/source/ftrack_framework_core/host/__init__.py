@@ -46,6 +46,7 @@ def provide_host_information(
 
 
 class Host(object):
+    # TODO: double_check host types and host type
     host_types = [constants.HOST_TYPE]
     '''Compatible Host types for this HOST.'''
 
@@ -226,10 +227,14 @@ class Host(object):
         )
 
         runner_result = engine_runner.run_plugin(
-            plugin_definition = plugin_definition,
+            plugin_definition=plugin_definition,
+            # plugin_data will usually be None, but can be defined in the
+            # definition
             plugin_data=plugin_definition.get('plugin_data'),
             plugin_options=plugin_definition.get('options'),
-            plugin_context_data=None,
+            # plugin_context_data will usually be None, but can be defined in the
+            # definition
+            plugin_context_data=plugin_definition.get('context_data'),
             plugin_method=plugin_method
         )
 
@@ -238,7 +243,7 @@ class Host(object):
                 "Couldn't run plugin:\n "
                 "Definition: {}\n"
                 "Method: {}\n"
-                "Engine: {}\n".format(plugin_definition, method, engine_type)
+                "Engine: {}\n".format(plugin_definition, plugin_method, engine_type)
             )
         return runner_result
 
@@ -371,6 +376,7 @@ class Host(object):
             # Register by event
             # register_module.register(self.session)
             # register by direct connection
+            # TODO: we need to pass event manager, host id
             result = register_module.register()
             if type(result) == list:
                 registry_result.extend(register_module.register())
@@ -518,7 +524,7 @@ class Host(object):
         '''
         Empty the variables :obj:`host_type`, :obj:`host_id` and :obj:`__definitions_registry`
         '''
-        self._host_type = []
+        self._host_types = []
         self._host_id = None
         self.__definitions_registry = {}
         self.__schemas_registry = []

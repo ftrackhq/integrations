@@ -1,5 +1,5 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2014-2022 ftrack
+# :copyright: Copyright (c) 2014-2023 ftrack
 
 from ftrack_framework_plugin import BasePlugin
 from ftrack_framework_plugin import constants
@@ -13,8 +13,8 @@ class CommonTestAssetManagerDiscoverPlugin(BasePlugin):
     def register_methods(self):
         self.register_method(
             method_name='run',
-            required_output_type=list,
-            required_output_value=None
+            required_output_type=dict,
+            required_output_value={'asset_name':None, 'asset_type_name':None}
         )
 
     def run(self, context_data=None, data=None, options=None):
@@ -23,9 +23,3 @@ class CommonTestAssetManagerDiscoverPlugin(BasePlugin):
         return filter
 
 
-def register(api_object, **kw):
-    if not isinstance(api_object, ftrack_api.Session):
-        # Exit to avoid registering this plugin again.
-        return
-    plugin = CommonTestAssetManagerDiscoverPlugin(api_object)
-    plugin.register()

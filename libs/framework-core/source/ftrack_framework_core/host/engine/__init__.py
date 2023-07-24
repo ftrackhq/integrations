@@ -265,8 +265,11 @@ class BaseEngine(object):
                 # We don't want to pass the information of the previous plugin, so that
                 # is why we only pass the data of the previous stage.
                 plugin_data=stage_data,
+                # From the definition + stage_options
                 plugin_options=plugin_options,
+                # Data from the plugin context
                 plugin_context_data=stage_context,
+                # default_method is defined in the definitions
                 plugin_method=plugin_definition['default_method'],
             )
 
