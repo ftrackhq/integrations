@@ -24,6 +24,7 @@ def getEngine(baseClass, engineType):
             return match
 
 # TODO: try to separate engine to its own library, like the definitions.
+# TODO: engines should be cfreated dependeant on the workflow of the schema, so this engine is for loader, publisher etc... but not for AM or resolver.
 class BaseEngine(object):
     '''
     Base engine class.
@@ -51,6 +52,8 @@ class BaseEngine(object):
             )
         return self._ftrack_object_manager
 
+    # TODO: evaluate this later, but I think we can remove this properties as
+    #  all them come from ftrack_object_manager so we can call it directly from there.
     @property
     def dcc_object(self):
         '''
@@ -151,6 +154,7 @@ class BaseEngine(object):
         '''
 
         plugin_name = plugin_definition['plugin']
+        plugin_default_method = plugin_definition['default_method']
 
         plugin_result_data=None
 
@@ -158,7 +162,7 @@ class BaseEngine(object):
             # TODO: double check that it syncronously returns us the result of the plugin.
             #  Should be the plugin_info dictionary-
             plugin_result_data = self.event_manager.publish.execute_plugin(
-                plugin_name, plugin_method, host_type, plugin_data,
+                plugin_name, plugin_default_method, plugin_method, host_type, plugin_data,
                 plugin_options, plugin_context_data
             )
 

@@ -51,7 +51,10 @@ class Host(object):
     '''Compatible Host types for this HOST.'''
 
     # TODO: Engines Dictionary should come from constants.
-    #  Should be something CLIENT_NAME:ENGINE:NAME and in here we any have engines = constant.ENGINES_DICT
+    #  Should be something CLIENT_NAME:ENGINE:NAME and in here we any have
+    #  engines = constant.ENGINES_DICT
+    #  Also user should be able to easily create new engine, so maybe we should
+    #  be able to discover engines like the plugins and the definitions.
     engines = {
         constants.PUBLISHER: host_engine.PublisherEngine,
         constants.LOADER: host_engine.LoaderEngine,

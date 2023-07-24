@@ -220,7 +220,7 @@ class Publish(object):
         return self._publish_event(event_topic, data, callback)
 
     def execute_plugin(
-            self, plugin_name, plugin_method, host_type,
+            self, plugin_name, plugin_default_method, plugin_method, host_type,
             plugin_data, plugin_options, plugin_context_data, callback=None
     ):
         '''
@@ -229,6 +229,7 @@ class Publish(object):
         '''
         data = {
                 'plugin_name': plugin_name,
+                'plugin_default_method':plugin_default_method,
                 'plugin_method': plugin_method,
                 'host_type': host_type,
                 'plugin_data': plugin_data,

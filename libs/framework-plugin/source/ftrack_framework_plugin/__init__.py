@@ -10,8 +10,6 @@ import uuid
 #  Also create STTUS LIST
 from ftrack_framework_plugin import constants
 # TODO: double check if we really need the ftrackobject manager and the dcc, in case we need it, d
-from ftrack_framework_core.asset import FtrackObjectManager
-from ftrack_framework_core.asset.dcc_object import DccObject
 from ftrack_framework_plugin import validation
 
 # TODO: We will not have the plugins separated, all them will inherit from the
@@ -27,12 +25,6 @@ class BasePlugin(object):
     plugin_type = None
     host_type = None
 
-
-    FtrackObjectManager = FtrackObjectManager
-    '''FtrackObjectManager class to use'''
-    DccObject = DccObject
-    '''DccObject class to use'''
-
     def __repr__(self):
         return '<{}:{}>'.format(self.plugin_type, self.name)
 
@@ -43,12 +35,6 @@ class BasePlugin(object):
         Initializes and returns an instance of
         :class:`~ftrack_framework_core.asset.FtrackObjectManager`
         '''
-        if not isinstance(
-            self._ftrack_object_manager, self.FtrackObjectManager
-        ):
-            self._ftrack_object_manager = self.FtrackObjectManager(
-                self.event_manager
-            )
         return self._ftrack_object_manager
 
     # @property
@@ -204,10 +190,10 @@ class BasePlugin(object):
         '''Returns the method of the plugin that will be executed'''
         return self._method
 
-    # @property
-    # def default_method(self):
-    #     '''Returns the default executable methodof the plugin'''
-    #     return self._default_method
+    @property
+    def default_method(self):
+        '''Returns the default executable methodof the plugin'''
+        return self._default_method
 
     @property
     def methods(self):
@@ -232,7 +218,7 @@ class BasePlugin(object):
     # TODO: should we pass the host itself instead of the event_manager? so if
     #  user wants, he can query stuff from core using host, like:
     #  host.constants.asset_Name
-    def __init__(self, event_manager, host_id):
+    def __init__(self, event_manager, host_id, ftrack_object_manager):
         '''
         Initialise BasePlugin with instance of
         :class:`ftrack_api.session.Session`
@@ -246,12 +232,12 @@ class BasePlugin(object):
 
         # TODO: we should initialize self._plugin_settings in here
         self._event_manager = event_manager
+        self._ftrack_object_manager = ftrack_object_manager
         self._host_id = host_id
         self._id = uuid.uuid4().hex
         # self._plugin_type = self.plugin_type
         # self._name = self.name
         # self._host_type = self.host_Type
-        self._ftrack_object_manager = None
         self._raw_plugin_data = []
         #self._default_method = None
         self._methods = {}
@@ -285,9 +271,17 @@ class BasePlugin(object):
     def _execute_callback(self, event):
         start_time = time.time()
 
+        #Reset all statuses
         self.status = constants.status.DEFAULT_STATUS
         self.message = None
         self.result = None
+
+        # Override the current execute method for the one given by the event
+        self._default_method = event['data'].get('plugin_default_method')
+        self._method = event['data'].get('plugin_method')
+        self._context_data = event['data'].get('plugin_context_data')
+        self._plugin_data = event['data'].get('plugin_data')
+        self._plugin_options = event['data'].get('plugin_options')
 
         # Pre execute callback hook
         self.message = "Execute pre_execute_callback"
@@ -314,11 +308,6 @@ class BasePlugin(object):
             self._notify_client()
             return self.provide_plugin_info()
 
-        # Override the current execute method for the one given by the event
-        self._method = event['data'].get('method')
-        self._context_data = event['data'].get('context_data')
-        self._plugin_data = event['data'].get('plugin_data')
-        self._plugin_options = event['data'].get('plugin_options')
         # Get the execute Method
         execute_fn = getattr(self, self.method)
         # Execute the method
@@ -373,7 +362,7 @@ class BasePlugin(object):
             return self.provide_plugin_info()
 
         # Post execute callback hook
-        self.message = "Execute post_execute_callback"
+        self.message = "Execute te_callback"
         self._notify_client()
         # reset message
         self.message = None
@@ -519,6 +508,20 @@ class BasePlugin(object):
                     )
                 )
         return is_valid
+
+    # This is the previous _parse_run_event, but cleaned up
+    def get_previous_stage_data(self, plugin_data, stage_name):
+        '''
+        Parse plugin_data to return only the previous given stage_name data
+        '''
+        collector_result = []
+        component_step = plugin_data[-1]
+        for component_stage in component_step.get("result"):
+            if component_stage.get("name") == stage_name:
+                collector_result = component_stage.get("result")
+                break
+        return collector_result
+
 
     # def _parse_run_event(self, event):
     #     '''

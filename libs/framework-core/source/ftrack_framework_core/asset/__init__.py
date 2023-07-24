@@ -186,3 +186,35 @@ class FtrackObjectManager(object):
         self.dcc_object = dcc_object
 
         return self.dcc_object
+
+    def create_dcc_object_from_id(self, asset_info_id):
+        dcc_object = self.DccObject(from_id=asset_info_id)
+        self.dcc_object = dcc_object
+
+        return self.dcc_object
+    def create_new_asset_info(
+            self,
+            asset_version_entity,
+            component_name,
+            component_path,
+            component_id,
+            load_mode,
+            asset_info_options,
+            objects_loaded,
+            reference_object
+    ):
+        '''
+        Creates a new dcc_object with a unique name.
+        '''
+        asset_info = FtrackAssetInfo.create(
+            asset_version_entity,
+            component_name=component_name,
+            component_path=component_path,
+            component_id=component_id,
+            load_mode=load_mode,
+            asset_info_options=asset_info_options,
+            objects_loaded=objects_loaded,
+            reference_object=reference_object,
+        )
+        self.asset_info = asset_info
+        return self.asset_info

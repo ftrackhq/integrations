@@ -4,6 +4,11 @@
 from ftrack_framework_plugin import BasePlugin
 from ftrack_framework_plugin import constants
 
+# TODO: double check we are allowed to do this, or we should not use constants
+#  here, or have host available in base plugin to be able to do something
+#  like: host.constants.stage_types.COLLECTOR
+from ftrack_framework_core import constants as core_constants
+
 class GenericPassthroughPlugin(BasePlugin):
     plugin_name = 'generic_passthrough'
     host_type = constants.hosts.PYTHON_HOST_TYPE
@@ -18,4 +23,9 @@ class GenericPassthroughPlugin(BasePlugin):
         )
 
     def run(self, context_data=None, data=None, options=None):
+        # Example of getting the previous collector data from plugin_data
+        self.get_previous_stage_data(
+            plugin_data=data,
+            stage_name=core_constants.COLLECTOR
+        )
         return {}
