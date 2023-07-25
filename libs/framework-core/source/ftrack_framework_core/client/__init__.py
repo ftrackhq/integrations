@@ -12,7 +12,7 @@ from ftrack_framework_core import constants
 from ftrack_framework_core.log import LogDB
 from ftrack_framework_core.log.log_item import LogItem
 
-# TODO: one single client, multiple engines.
+#TODO: one single client, multiple engines.
 class Client(object):
     '''
     Base client class.

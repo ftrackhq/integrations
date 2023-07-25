@@ -426,6 +426,10 @@ class Host(object):
             definition_paths, self.host_types, schemas
         )
 
+        #TODO: can we convert definitions to FtrackDefinitionObject in here and
+        # pass it through the event? or better to revceive it as json in client
+        # and convert it in there?
+
         self.__definitions_registry = definitions
 
         discover_host_callback_reply = partial(
