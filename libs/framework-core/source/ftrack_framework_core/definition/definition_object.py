@@ -7,7 +7,7 @@ import json
 
 from ftrack_framework_core import constants
 
-
+# TODO: rename this, this is not a definitionObject, maybe a definitionHelper, definitionWrapper, definitionAPI, definitionParser...
 class DefinitionObject(MutableMapping):
     '''Base DccObject class.'''
 
@@ -154,7 +154,24 @@ class Stage(DefinitionObject):
     def __init__(self, stage):
         super(Stage, self).__init__(stage)
 
-
+#TODO: Plugin schema has the following properties:
+#  category
+# type
+# name
+# description
+# plugin
+# widget
+# widget_ref
+# visible
+# optional
+# enabled
+# editable
+# options
+# default_method
+#  We can try to do the following: when user reads plugin, if it does somethiing
+#  like plugin_object = plugin['plugin'] it already returns the python plugin module, so it can
+#  do something like plugin_object.run() or at least be able to do:
+#  plugin_object_init = plugin_object.init() plugin_object_init.run()
 class Plugin(DefinitionObject):
     def __init__(self, plugin):
         super(Plugin, self).__init__(plugin)
@@ -167,6 +184,9 @@ class Plugin(DefinitionObject):
         if k == 'options':
             v = Options(v)
         super(Plugin, self).__setitem__(k, v)
+        # TODO: in here we may need to do:
+        #  if k == 'plugin': v = plugin_object(v) --> and this inits the plugin object.
+        #  No need to validate the discover plugin because it is already validated in the host when discovering the definitions, so if the code arrives here is because is already validated.
 
 
 class Options(DefinitionObject):

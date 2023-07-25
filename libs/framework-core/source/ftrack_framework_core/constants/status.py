@@ -1,6 +1,7 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2020 ftrack
-
+# TODO: check if we can remove status from here and just have it in the plugin
+#  repo. (We might need them in the steps as well but lets see)
 #: Unknown status of plugin execution.
 UNKNOWN_STATUS = 'UNKNOWN_STATUS'
 #: Succed status of plugin execution.

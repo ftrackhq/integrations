@@ -386,6 +386,7 @@ class QtAssemblerClientWidget(QtLoaderClient, dialog.Dialog):
         widget_factory.host_connection = self._host_connection
         widget_factory.set_definition_type(definition['type'])
 
+    # TODO: plugin_data is in reality the plugin_definition, so rename this.
     def _on_run_plugin(self, plugin_data, method):
         '''Function called to run one single plugin *plugin_data* with the
         plugin information and the *method* to be run has to be passed'''

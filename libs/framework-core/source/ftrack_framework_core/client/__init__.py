@@ -12,7 +12,7 @@ from ftrack_framework_core import constants
 from ftrack_framework_core.log import LogDB
 from ftrack_framework_core.log.log_item import LogItem
 
-# TODO: one single client, multiple engines.
+#TODO: one single client, multiple engines.
 class Client(object):
     '''
     Base client class.
@@ -166,6 +166,13 @@ class Client(object):
         if self.host_connection is None:
             raise Exception('No host connection available')
         return self.host_connection.definitions
+
+    @property
+    def host_id(self):
+        '''Returns the definitions list of the current host connection'''
+        if self.host_connection is None:
+            raise Exception('No host connection available')
+        return self.host_connection.host_id
 
     @property
     def engine_type(self):
@@ -370,7 +377,7 @@ class Client(object):
         Calls the :meth:`~ftrack_framework_core.client.HostConnection.run`
         to run the entire given *definition* with the given *engine_type*.
 
-        Callback received at :meth:`_run_callback`
+        Callback received at :meth:`_run_definition_callback`
         '''
         # TODO: maybe we should always pass the definition and the engine type. And remove the magic of using the set ones, isntead we can call it with self.run_definition(self.definition, self.engine_type)
         # If not definition or engine type passed use the original ones set up
@@ -379,12 +386,14 @@ class Client(object):
             definition = self.definition
         if not engine_type:
             engine_type = self.engine_type
-        self.host_connection.run_definition(
+
+        self.event_manager.publish.host_run_definition(
+            self.host_id,
             definition.to_dict(),
             engine_type,
-            # TODO: should we call _run_definition_callback? and run_plugin_callback for the plugin?
-            callback=self._run_callback,
+            self._run_definition_callback
         )
+
 
     #TODO: I think this is safe to remove as we don't need the schema in the client.
     def get_schema_from_definition(self, definition):
@@ -437,33 +446,34 @@ class Client(object):
     # Plugin
 
     #TODO: should this be an ABC ? maybe not needed.
-    def run_plugin(self, plugin_data, method, engine_type):
+    def run_plugin(self, plugin_definition, plugin_method, engine_type):
         '''
         Calls the :meth:`~ftrack_framework_core.client.HostConnection.run`
         to run one single plugin.
 
-        Callback received at :meth:`_run_callback`
+        Callback received at :meth:`_run_definition_callback`
 
         *plugin_data* : Dictionary with the plugin information.
 
         *method* : method of the plugin to be run
         '''
-        # Plugin type is constructed using the engine_type and the type of the plugin.
-        # (publisher.collector). We have to make sure that plugin_type is in
-        # the data argument passed to the host_connection, because we are only
-        # passing data to the engine. And the engine_type is only available
-        # on the definition.
-        plugin_type = '{}.{}'.format(engine_type, plugin_data['type'])
 
-        # TODO: this should be refactored, as its not calling the run definition
-        #  here, it should call the run plugin.
-        #  This might be able to be a call directly from client, so not need to be in the host_connection, host connection is providing the host id.
-        self.host_connection.run_plugin(plugin_data, plugin_type, method, callback=self._run_callback)
+        self.event_manager.publish.host_run_plugin(
+            self.host_id,
+            plugin_definition,
+            plugin_method,
+            engine_type,
+            self._run_plugin_callback
+        )
 
     # TODO: use diferent callback for plugin and for definition
-    def _run_callback(self, event):
+    def _run_definition_callback(self, event):
         '''Callback of the :meth:`~ftrack_framework_core.client.run_plugin'''
-        self.logger.debug("_run_callback event: {}".format(event))
+        self.logger.debug("_run_definition_callback event: {}".format(event))
+
+    def _run_plugin_callback(self, event):
+        '''Callback of the :meth:`~ftrack_framework_core.client.run_plugin'''
+        self.logger.debug("_run_plugin_callback event: {}".format(event))
 
     # TODO: remove this if not used.
     def on_ready(self, callback, time_out=3):
