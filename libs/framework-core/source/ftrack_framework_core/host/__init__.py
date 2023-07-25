@@ -10,7 +10,8 @@ import os
 import time
 
 from ftrack_framework_core.definition import discover, validate
-from ftrack_framework_core.host import engine as host_engine
+from ftrack_framework_core.host.engine import load_publish, asset_manager, resolver
+from ftrack_framework_core.asset import FtrackObjectManager
 from ftrack_framework_core import constants, utils
 
 from functools import partial
@@ -44,7 +45,9 @@ def provide_host_information(
     }
     return host_dict
 
-
+# TODO: we maight need to init the FtrackObjectManager in the host and pass it
+#  to the engine and engine to the plugins. Because host is overriden in all the
+#  DCC and engines might not
 class Host(object):
     # TODO: double_check host types and host type
     host_types = [constants.HOST_TYPE]
@@ -55,14 +58,18 @@ class Host(object):
     #  engines = constant.ENGINES_DICT
     #  Also user should be able to easily create new engine, so maybe we should
     #  be able to discover engines like the plugins and the definitions.
+    #   THis should go to a configuration file
     engines = {
-        constants.PUBLISHER: host_engine.PublisherEngine,
-        constants.LOADER: host_engine.LoaderEngine,
-        constants.OPENER: host_engine.OpenerEngine,
-        constants.ASSET_MANAGER: host_engine.AssetManagerEngine,
-        constants.RESOLVER: host_engine.ResolverEngine,
+        constants.PUBLISHER: load_publish.LoadPublishEngine,
+        constants.LOADER: load_publish.LoadPublishEngine,
+        constants.OPENER: load_publish.LoadPublishEngine,
+        constants.ASSET_MANAGER: asset_manager.AssetManagerEngine,
+        constants.RESOLVER: resolver.ResolverEngine,
     }
     '''Available engines for this host.'''
+
+    FtrackObjectManager = FtrackObjectManager
+    '''FtrackObjectManager class to use'''
 
     def __repr__(self):
         return '<Host:{0}>'.format(self.host_id)
@@ -74,11 +81,25 @@ class Host(object):
         return self._event_manager
 
     @property
+    def ftrack_object_manager(self):
+        '''
+        Initializes and returns an instance of
+        :class:`~ftrack_framework_core.asset.FtrackObjectManager`
+        '''
+        if not isinstance(
+                self._ftrack_object_manager, self.FtrackObjectManager
+        ):
+            self._ftrack_object_manager = self.FtrackObjectManager(
+                self.event_manager
+            )
+        return self._ftrack_object_manager
+
+    @property
     def context_id(self):
         '''Return the the default context id set at host launch'''
-        #TODO: do we really need to store the context in an env variable?
-        # That might be needed for connect but aybe not needed for the framework.
-        # In any case, can we remove FTRACK_TASKID and FTRACK_SHOTID?
+        # We get the host id from the env variable in case we start from C2
+        # TODO: connect3 pass context id when init host, so no need to store it
+        #  in an env variable
         return os.getenv(
             'FTRACK_CONTEXTID',
             os.getenv('FTRACK_TASKID', os.getenv('FTRACK_SHOTID')),
@@ -160,6 +181,7 @@ class Host(object):
         #TODO: initializing host
         self.logger.debug('initializing {}'.format(self))
         self._event_manager = event_manager
+        self._ftrack_object_manager = None
         self.__definitions_registry = {}
         self.__schemas_registry = []
         self.__plugins_registry = []
@@ -182,18 +204,15 @@ class Host(object):
         engine_type = event['data']['engine_type']
         asset_type_name = definition.get('asset_type')
 
-        # TODO: maybe move this to a separated method to get the engine
         Engine = self.engines.get(engine_type)
         if Engine is None:
             # TODO: should we have our own exceptions? So they automatically registers to log as well.
             raise Exception('No engine of type "{}" found'.format(engine_type))
         engine_runner = Engine(
-            self._event_manager, self.host_types, self.host_id, asset_type_name
+            self.event_manager, self.ftrack_object_manager, self.host_types,
+            self.host_id, asset_type_name
         )
 
-        # TODO: this is a bit magic, at some point we should clarify, run_plugin
-        #  or run_definition, but we shouldn't assume that if not plugin in data
-        #  we run_definition.
         try:
             validate.validate_definition(self.schemas, definition)
         except Exception as error:
@@ -203,7 +222,6 @@ class Host(object):
         runner_result = engine_runner.run_definition(definition)
 
         if runner_result == False:
-            # TODO: fix this log. We don't know if we are publishing loading or what.
             self.logger.error("Couldn't run efinition {}".format(definition))
         return runner_result
 
@@ -226,7 +244,8 @@ class Host(object):
             # TODO: should we have our own exceptions? So they automatically registers to log as well.
             raise Exception('No engine of type "{}" found'.format(engine_type))
         engine_runner = Engine(
-            self._event_manager, self.host_types, self.host_id, None
+            self.event_manager, self.ftrack_object_manager, self.host_types,
+            self.host_id, None
         )
 
         runner_result = engine_runner.run_plugin(

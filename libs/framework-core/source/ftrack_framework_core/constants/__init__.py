@@ -74,10 +74,5 @@ SNAPSHOT_COMPONENT_NAME = 'snapshot'
 FTRACKREVIEW_COMPONENT_NAME = 'ftrackreview'
 
 # Avoid circular dependencies.
-from ftrack_framework_core.constants.plugin.load import *
-from ftrack_framework_core.constants.plugin.open import *
-from ftrack_framework_core.constants.plugin.publish import *
-from ftrack_framework_core.constants.plugin.asset_manager import *
-from ftrack_framework_core.constants.plugin.resolver import *
-from ftrack_framework_core.constants.event import *
-from ftrack_framework_core.constants.status import *
+from ftrack_framework_core.constants import event
+from ftrack_framework_core.constants import status
