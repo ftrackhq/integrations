@@ -52,7 +52,7 @@ class Client(object):
     client.run_ui(MayaPublisherWidget)
     #Open a ui with a specific definition
     client.run_ui(AssemblerWidget, loader_definition)
-    # get a widget
+    # get a widget from the ui
     maya_widget = client.widgets(MayaPublisherWidget)
     # interact with the widget.
     maya_widget.close()
