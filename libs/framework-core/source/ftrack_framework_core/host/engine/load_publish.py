@@ -187,8 +187,7 @@ class LoadPublishEngine(BaseEngine):
                     if step_type == constants.CONTEXT:
                         result['asset_type_name'] = self.asset_type_name
 
-            # TODO: the keys for a plugin dictionary should come from constants.
-            #  A new plugin object should be created to manage this like the definitionsObject.
+            # TODO: This should be the plugin result becasue its already the plugin_info dictionary returned by the plugin.
             plugin_dict = {
                 "name": plugin_name,
                 "options": plugin_options,
