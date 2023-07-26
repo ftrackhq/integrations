@@ -691,7 +691,7 @@ class WidgetFactoryBase(QtWidgets.QWidget):
     def listen_widget_updates(self):
         '''
         Subscribe to the
-        :const:`~ftrack_connnect_pipeline.constants.NOTIFY_PROGRESS_CLIENT_TOPIC`
+        :const:`~ftrack_connnect_pipeline.constants.NOTIFY_DEFINITION_PROGRESS_CLIENT_TOPIC`
         topic to call the _update_progress_widget function when the host returns and
         answer through the same topic
         '''
@@ -706,7 +706,7 @@ class WidgetFactoryBase(QtWidgets.QWidget):
         self.has_error = False
 
     def end_widget_updates(self):
-        '''Unsubscribe from :const:`~ftrack_connnect_pipeline.constants.NOTIFY_CLIENT_TOPIC`'''
+        '''Unsubscribe from :const:`~ftrack_connnect_pipeline.constants.NOTIFY_PLUGIN_PROGRESS_CLIENT_TOPIC`'''
         if self._subscriber_id:
             self.session.event_hub.unsubscribe(self._subscriber_id)
 

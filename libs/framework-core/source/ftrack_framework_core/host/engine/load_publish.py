@@ -136,7 +136,10 @@ class LoadPublishEngine(BaseEngine):
                 )
                 continue
 
-            self.event_manager.publish.notify_progress_client(
+            # TODO: clean up this and provide a definition_info dictionary like
+            #  we do with the plugins. Probably the definition_object should be
+            #  the one that has the definition info? or maybe just the engine.
+            self.event_manager.publish.notify_definition_progress_client(
                 host_id=self.host_id,
                 step_type=step_type,
                 step_name=step_name,
@@ -307,7 +310,7 @@ class LoadPublishEngine(BaseEngine):
                 if not step_status:
                     status = constants.ERROR_STATUS
 
-                self.event_manager.publish.notify_progress_client(
+                self.event_manager.publish.notify_definition_progress_client(
                     host_id=self.host_id,
                     step_type=step_type,
                     step_name=step_name,
@@ -322,7 +325,7 @@ class LoadPublishEngine(BaseEngine):
                 if not bool_status:
                     return step_status, step_results
 
-        self.event_manager.publish.notify_progress_client(
+        self.event_manager.publish.notify_definition_progress_client(
             host_id=self.host_id,
             step_type=step_type,
             step_name=step_name,

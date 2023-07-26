@@ -92,7 +92,7 @@ class ResolverEngine(BaseEngine):
                 result_data['execution_time'] = total_time
                 result_data['message'] = message
 
-                self.event_manager.publish.notify_client(
+                self.event_manager.publish.notify_plugin_progress_client(
                     self.host_id, **result_data
                 )
 
@@ -105,7 +105,7 @@ class ResolverEngine(BaseEngine):
         result_data['result'] = result
         result_data['execution_time'] = total_time
 
-        self.event_manager.publish.notify_client(
+        self.event_manager.publish.notify_plugin_progress_client(
             self.host_id, **result_data
         )
 

@@ -7,12 +7,12 @@ import uuid
 
 from six import string_types
 
-import host_connection
+from host_connection import HostConnection
 from ftrack_framework_core import constants
 from ftrack_framework_core.log import LogDB
 from ftrack_framework_core.log.log_item import LogItem
 
-#TODO: one single client, multiple engines.
+
 class Client(object):
     '''
     Base client class.
@@ -20,11 +20,10 @@ class Client(object):
 
     ui_types = [constants.UI_TYPE]
     '''Compatible UI for this client.'''
-    definition_filters = None
-    '''Use only definitions that matches the definition_filters'''
-    definition_extensions_filter = None
-    '''(Open) Only show definitions and components capable of accept these filename extensions. '''
 
+    # TODO: Double check with the team if this is needed to have a singleton host
+    #  connection and if it still makes sense to be a singleton as we only have
+    #  one client now.
     _host_connection = None
     '''The singleton host connection used by all clients within the process space / DCC'''
     _host_connections = []
@@ -33,6 +32,11 @@ class Client(object):
     def __repr__(self):
         return '<Client:{0}>'.format(self.ui_types)
 
+    @property
+    def event_manager(self):
+        '''Returns instance of
+        :class:`~ftrack_framework_core.event.EventManager`'''
+        return self._event_manager
     @property
     def session(self):
         '''
@@ -52,50 +56,6 @@ class Client(object):
     #     if widget:
     #         widget.hosts = host_discovered
 
-
-    @property
-    def event_manager(self):
-        '''Returns instance of
-        :class:`~ftrack_framework_core.event.EventManager`'''
-        return self._event_manager
-
-    # TODO: evaluate where do we use this and if its needed, as if host_connection that means that we are connected.
-    @property
-    def connected(self):
-        '''
-        Returns True if client is connected to a
-        :class:`~ftrack_framework_core.host.HOST`'''
-        return self._connected
-
-    @property
-    def context_id(self):
-        '''Returns the current context id from host'''
-        if self.host_connection is None:
-            raise Exception('No host connection available')
-        return self.host_connection.context_id
-
-    @context_id.setter
-    def context_id(self, context_id):
-        '''Sets the context id on current host connection, will throw an exception
-        if no host connection is active'''
-        if not isinstance(context_id, string_types):
-            raise ValueError('Context should be in form of a string.')
-        if self.host_connection is None:
-            raise Exception('No host connection available')
-        self.host_connection.on_client_context_changed(context_id)
-
-    # TODO: fix all cantext and context id, try to use always just context ID, if succed, then remove context from everywhere.
-    @property
-    def context(self):
-        '''Returns the current context'''
-        if self.host_connection is None:
-            raise Exception('No host connection available')
-        if self.host_connection.context_id is None:
-            raise Exception('No host context id set')
-        return self.session.query(
-            'Context where id={}'.format(self.context_id)
-        ).first()
-
     # TODO: change name to available_hosts
     @property
     def host_connections(self):
@@ -107,7 +67,7 @@ class Client(object):
         '''Return the current list of host_connections'''
         Client._host_connections = value
 
-    #TODO: change this to connected host
+    # TODO: change this to connected host
     @property
     def host_connection(self):
         '''
@@ -124,48 +84,30 @@ class Client(object):
         *value* : should be instance of
         :class:`~ftrack_framework_core.client.HostConnection`
         '''
-        if value is None or (
-            self.host_connection and value.id == self.host_connection.host_id
+        if not value or (
+                self.host_connection and value.id == self.host_connection.host_id
         ):
             return
 
-        self.logger.debug('host connection: {}'.format(value))
+        self.logger.debug('Setting new host connection: {}'.format(value))
         Client._host_connection = value
-        #TODO: try to simplify this and mix this to in a host subscriptions method?
-        self.event_manager.subscribe.notify_client(
+        # Subscribe to plugin progress
+        self.event_manager.subscribe.notify_plugin_progress_client(
             self.host_connection.host_id,
-            self._notify_client_callback
+            self._notify_plugin_progress_client_callback()
         )
         # Clean up host_context_change_subscription in case exists
         self.unsubscribe_host_context_changed()
         # Subscribe to host_context_change even though we already subscribed in
-        # the host_connection. This is because we want to notify the widget that
-        # context_id has been changed.
-        self.host_context_changed_subscribe_id = self.event_manager.events.subscribe.host_context_changed(
+        # the host_connection. This is because we want to let the client know
+        # that host changed context but also update the host connection to the
+        # new context.
+        self._host_context_changed_subscribe_id = self.event_manager.events.subscribe.host_context_changed(
             self.host_connection.host_id, self._host_context_changed_callback
         )
         # Feed change of host and context to client
-        # TODO: convert the following 2 signals to abstract metods, so always need to be overriden.
         self.on_host_changed(self.host_connection)
         self.on_context_changed(self.host_connection.context_id)
-
-    # TODO: double check if we really need the shcema. I think we don't.
-    @property
-    def schema(self):
-        '''Return the current schema.'''
-        return self._schema
-
-    @property
-    def definition(self):
-        '''Returns the current definition.'''
-        return self._definition
-
-    @property
-    def definitions(self):
-        '''Returns the definitions list of the current host connection'''
-        if self.host_connection is None:
-            raise Exception('No host connection available')
-        return self.host_connection.definitions
 
     @property
     def host_id(self):
@@ -173,11 +115,73 @@ class Client(object):
         if self.host_connection is None:
             raise Exception('No host connection available')
         return self.host_connection.host_id
+    @property
+    def context_id(self):
+        '''Returns the current context id from host'''
+        if self.host_connection is None:
+            raise Exception('No host connection available')
+        return self.host_connection.context_id
+
+    @context_id.setter
+    def context_id(self, context_id):
+        '''Sets the context id on current host connection, will throw an exception
+        if no host connection is active'''
+        if not isinstance(context_id, string_types):
+            raise ValueError('Context should be in form of a string.')
+        if self.host_connection is None:
+            raise Exception('No host connection available')
+        # Publish event to notify host that client has changed the context
+        self.event_manager.publish.client_context_changed(
+            self.host_id, context_id
+        )
+
+    @property
+    def host_context_changed_subscribe_id(self):
+        return self._host_context_changed_subscribe_id
+
+    @property
+    def definitions(self):
+        '''Returns the definitions list of the current host connection'''
+        if not self.host_connection:
+            raise Exception('No host connection available')
+        return self.host_connection.definitions
+
+    @property
+    def definition(self):
+        '''Returns the current definition.'''
+        return self._definition
+
+    @definition.setter
+    def definition(self, value):
+        '''Returns the current definition.'''
+        # TODO: add a checker to check that the definition is type definition and is in
+        #  definitions
+        if not self.host_connection:
+            self.logger.error(
+                "Please set the host connection before setting a definition"
+            )
+            return
+        if value not in self.definitions:
+            self.logger.error(
+                "Invalid definition, choose one from : {}".format(
+                    self.definitions
+                )
+            )
+            return
+        self._definition = value
+        # Automatically set the engine of the definition
+        self.engine_type(self.definition['_config']['engine_type'])
 
     @property
     def engine_type(self):
         '''Return the current engine type'''
         return self._engine_type
+
+    @engine_type.setter
+    def engine_type(self, value):
+        '''Return the current engine type'''
+        # TODO: add a checker to check that value is a valid engine
+        self._engine_type = value
 
     @property
     def logs(self):
@@ -198,72 +202,57 @@ class Client(object):
                 else uuid.uuid4().hex
             )
 
-    # TODO: double check how we enable disbale multithreading, I think we can improve it and make it simplest.
+    # TODO: double check how we enable disbale multithreading,
+    #  I think we can improve it and make it simplest.
     @property
     def multithreading_enabled(self):
         '''Return True if DCC supports multithreading (write operations)'''
         return self._multithreading_enabled
 
-    def __init__(self, event_manager, multithreading_enabled=True):
+    def __init__(self, event_manager, auto_discover_host=True, multithreading_enabled=True):
         '''
         Initialise Client with instance of
         :class:`~ftrack_framework_core.event.EventManager`
         '''
-        # TODO: we don't use _current, remove it.
-        self._current = {}
-
-        #TODO: Can we handle this into the events module?
-        self.host_context_changed_subscribe_id = None
-        #TODO: is this really necesary? self.host_connection already tell us if we are connected.
-        self._connected = False
-        self._logs = None
-        # TODO: remove this in case we remove schema from the client
-        self._schema = None
-        self._definition = None
-
-        # TODO: double check, but think that we can remove this as is just use in on_ready method that is only used in tests, so we can remove booth.
-        self.__callback = None
         # TODO: find a common way of using logs and standarize them
+        # Setting logger
         self.logger = logging.getLogger(
             __name__ + '.' + self.__class__.__name__
         )
-
+        # Set the event manager
         self._event_manager = event_manager
-        # TODO: Initializing client
-        self.logger.debug('Initialising {}'.format(self))
+        # TODO: convert this to a decorator, so whenever something is
+        #  multithread it has a decorator and this decorator does the if
+        #  multithreadenabled
+        # Set multithreading
         self._multithreading_enabled = multithreading_enabled
 
-    # Host
+        # Setting init variables to 0
+        self._host_context_changed_subscribe_id = None
+        self._logs = None
+        self.definition = None
+        self.engine_type = None
 
-    def discover_hosts(self, force_rediscover=False, time_out=3):
+        # TODO: Initializing client
+        self.logger.debug('Initialising Client {}'.format(self))
+
+        if auto_discover_host and not self.host_connections:
+            self.discover_hosts()
+
+    # Host
+    def discover_hosts(self, time_out=3):
         '''
         Find for available hosts during the optional *time_out* and Returns
         a list of discovered :class:`~ftrack_framework_core.client.HostConnection`.
 
-        Skip this and use existing singleton host connection if previously detected,
-        unless *force_rediscover* is True.
+        This removes all previously discovered host connections.
         '''
-        # TODO: remove force_rediscover if not used. We will implemented when needed
-        if force_rediscover:
-            self.host_connections = None
-            self.host_connection = None
-        #TODO: I think we can remove this from this method. If its used, we should move it to a reconnect method or some similar name.
-        if self.host_connection is not None:
-            self.event_manager.subscribe.notify_client(
-                self.host_connection.host_id,
-                self._notify_client_callback
-            )
-            # Clean up host_context_change_subscription in case exists
+        # Reset host connections
+        self.host_connections = []
+        if self.host_connection:
             self.unsubscribe_host_context_changed()
-            # Subscribe to host_context_change even though we already subscribed in
-            # the host_connection. This is because we want to notify the widget that
-            # context_id has been changed.
-            self.host_context_changed_subscribe_id = self.event_manager.events.subscribe.host_context_changed(
-                self.host_connection.host_id, self._host_context_changed_callback
-            )
-            self.on_host_changed(self.host_connection)
-            self.on_context_changed(self.host_connection.context_id)
-            return
+            self.host_connection = None
+
         # discovery host loop and timeout.
         start_time = time.time()
         self.logger.debug('time out set to {}:'.format(time_out))
@@ -284,74 +273,48 @@ class Client(object):
 
             self.event_manager.publish.discover_host(self._host_discovered_callback)
 
-        # TODO: remove this if not needed
-        if self.__callback and self.host_connections:
-            self.__callback(self.host_connections)
-
-        # TODO: this might need to be called from host discovered? does it makes more sense? because here could be that no host is discovered so no need to call the on_host_discovered method?
         # Feed host connections to the client
         self.on_hosts_discovered(self.host_connections)
 
     def _host_discovered_callback(self, event):
         '''
-        Callback, add the :class:`~ftrack_framework_core.client.HostConnection`
-        of the new discovered :class:`~ftrack_framework_core.host.HOST` from
-        the given *event*.
+        Reply callback of the discover host event, generate
+        :class:`~ftrack_framework_core.client.HostConnection`
+        of all discovered hosts from the given *event*.
 
         *event*: :class:`ftrack_api.event.base.Event`
         '''
         if not event['data']:
             return
-        self.host_connections = []
-        host_connection = HostConnection(self.event_manager, event['data'])
-        # TODO: should we remove the filter_host for now as its not used.
-        if (
-            host_connection
-            and host_connection not in self.host_connections
-            and self.filter_host(host_connection)
-        ):
-            #TODO: check if we need to call Client._host_connections or self.host... is enough.
-            Client._host_connections.append(host_connection)
+        for reply_data in event['data']:
+            host_connection = HostConnection(self.event_manager, reply_data)
+            # TODO: should we remove the filter_host for now as its not used.
+            if (
+                host_connection
+                and host_connection not in self.host_connections
+            ):
+                self.host_connections.append(host_connection)
 
-        # TODO: this can be removed from here, also doesn't makes sense as here is not yet connected, just discovered.
-        self._connected = True
-
-    # TODO: remove this method for now until we need it?
-    def filter_host(self, host_connection):
-        '''Return True if the *host_connection* should be considered
-
-        *host_connection*: :class:`ftrack_framework_core.client.HostConnection`
-        '''
-        # On the discovery time context id could be None, so we have to consider
-        # hosts with non context id. This method could be useful later on to
-        # filter hosts that not match a specific criteria. But considering all
-        # hosts as valid for now.
-        return True
-
-    # TODO: Shouldn't we use something like set_host? or simply use the setter property?
-    def change_host(self, host_connection):
-        '''Client(user) has chosen the host connection to use, set it to *host_connection*'''
-        self.host_connection = host_connection
-
-   # TODO: should this be ABC method?
+    # TODO: this should be an ABC
     def on_hosts_discovered(self, host_connections):
-        '''Callback, hosts has been discovered. To be overridden by the qt client'''
-        pass
+        # TODO: add the call to the widget in here.
+        '''Callback, hosts has been discovered. Widgets can hook in here.'''
+        # Automatically connect to the first one
+        self.host_connection = host_connections[0]
 
-    # TODO: should this be ABC method?
+    # TODO: this should be ABC method
     def on_host_changed(self, host_connection):
         '''Called when the host has been (re-)selected by the user. To be
         overridden by the qt client.'''
         pass
 
     # Context
-
     def _host_context_changed_callback(self, event):
         '''Set the new context ID based on data provided in *event*'''
         # Feed the new context to the client
         self.on_context_changed(event['data']['context_id'])
 
-    # TODO: if used, should this be an ABC method?
+    # TODO: this should be ABC method
     def on_context_changed(self, context_id):
         '''Called when the context has been set or changed within the host connection, either from this
         client or remote (other client or the host). Should be overridden by client.
@@ -360,33 +323,23 @@ class Client(object):
         #  In the widget itself we will import from the wraper widget which is an ABC: from framework_ui_wrappers import widget(this will be what has to be imported in the widget)
         pass
 
-    #TODO: why do we need this one?
     def unsubscribe_host_context_changed(self):
         '''Unsubscribe to client context change events'''
         if self.host_context_changed_subscribe_id:
             self.session.event_hub.unsubscribe(
                 self.host_context_changed_subscribe_id
             )
-            self.host_context_changed_subscribe_id = None
+            self._host_context_changed_subscribe_id = None
 
     # Definition
-
-    # TODO: should this be an ABC method?
-    def run_definition(self, definition=None, engine_type=None):
+    def run_definition(self, definition, engine_type):
         '''
         Calls the :meth:`~ftrack_framework_core.client.HostConnection.run`
         to run the entire given *definition* with the given *engine_type*.
 
         Callback received at :meth:`_run_definition_callback`
+        *definition* Should be type of DefinitionObject
         '''
-        # TODO: maybe we should always pass the definition and the engine type. And remove the magic of using the set ones, isntead we can call it with self.run_definition(self.definition, self.engine_type)
-        # If not definition or engine type passed use the original ones set up
-        # in the client
-        if not definition:
-            definition = self.definition
-        if not engine_type:
-            engine_type = self.engine_type
-
         self.event_manager.publish.host_run_definition(
             self.host_id,
             definition.to_dict(),
@@ -394,58 +347,13 @@ class Client(object):
             self._run_definition_callback
         )
 
-
-    #TODO: I think this is safe to remove as we don't need the schema in the client.
-    def get_schema_from_definition(self, definition):
-        '''Return matching schema for the given *definition*'''
-        if not self.host_connection:
-            self.logger.error("please set the host connection first")
-            return
-        for schema in self.host_connection.definitions['schema']:
-            if (
-                schema['properties']['type'].get('default')
-                == definition['type']
-            ):
-                return schema
-
-            self.logger.debug(
-                "Schema title: {} and type: {} does not match definition {}".format(
-                    schema['title'],
-                    schema['properties']['type'].get('default'),
-                    definition['name'],
-                )
-            )
-
-        self.logger.error(
-            "Can't find a matching schema for the given definition: {}".format(
-                definition.name
-            )
-        )
-        return
-
-    # TODO: shouldn't this be something like set_definition or simply call the property setter?
-    def change_definition(self, definition, schema=None):
-        '''
-        Assign the given *schema* and the given *definition* as the current
-        :obj:`schema` and :obj:`definition`
-        '''
-        if not self.host_connection:
-            self.logger.error("please set the host connection first")
-            return
-        if not definition:
-            self.logger.error("please provide a definition")
-            return
-
-        # TODO: remove the schema part if we remove schema from the client
-        if not schema:
-            schema = self.get_schema_from_definition(definition)
-        self._schema = schema
-        self._definition = definition
-        self.change_engine(self.definition['_config']['engine_type'])
+    # TODO: evaluate later once widgets are implemented, this might need to be
+    #  converted to ABC method.
+    def _run_definition_callback(self, event):
+        '''Callback of the :meth:`~ftrack_framework_core.client.run_definition'''
+        self.logger.debug("_run_definition_callback event: {}".format(event))
 
     # Plugin
-
-    #TODO: should this be an ABC ? maybe not needed.
     def run_plugin(self, plugin_definition, plugin_method, engine_type):
         '''
         Calls the :meth:`~ftrack_framework_core.client.HostConnection.run`
@@ -466,79 +374,32 @@ class Client(object):
             self._run_plugin_callback
         )
 
-    # TODO: use diferent callback for plugin and for definition
-    def _run_definition_callback(self, event):
-        '''Callback of the :meth:`~ftrack_framework_core.client.run_plugin'''
-        self.logger.debug("_run_definition_callback event: {}".format(event))
-
+    # TODO: evaluate later once widgets are implemented, this might need to be
+    #  converted to ABC method.
     def _run_plugin_callback(self, event):
         '''Callback of the :meth:`~ftrack_framework_core.client.run_plugin'''
         self.logger.debug("_run_plugin_callback event: {}".format(event))
 
-    # TODO: remove this if not used.
-    def on_ready(self, callback, time_out=3):
-        '''
-        calls the given *callback* method when host is been discovered with the
-        optional *time_out*
-        '''
-        self.__callback = callback
-        self.discover_hosts(time_out=time_out)
-
-    #TODO: shouldn't this be something like set_engine or simply call the property setter?
-    def change_engine(self, engine_type):
-        '''
-        Assign the given *engine_type* as the current :obj:`engine_type`
-        '''
-        self._engine_type = engine_type
-
-    #TODO: is this needed? shoudl then this be ABC?
-    def _on_log_item_added(self, log_item):
-        '''Called when a client notify event arrives.'''
-        pass
-
     # TODO: check if this should be ABC emthod to be overriden in all the client childs or is ok as it is.
-    def _notify_client_callback(self, event):
+    def _notify_plugin_progress_client_callback(self, event):
         '''
         Callback of the
-        :const:`~ftrack_framework_core.constants.NOTIFY_CLIENT_TOPIC`
+        :const:`~ftrack_framework_core.constants.NOTIFY_PLUGIN_PROGRESS_CLIENT_TOPIC`
          event.
 
         *event*: :class:`ftrack_api.event.base.Event`
         '''
-        #TODO: not as priority task, but we might should have a method in events module to parse the events so we don't have to go into data/pipeline all the time.
-        plugin_name = event['data']['plugin_name']
-        widget_ref = event['data']['widget_ref']
-        result = event['data']['result']
-        status = event['data']['status']
-        message = event['data']['message']
-        user_data = event['data'].get('user_data') or {}
-        user_message = user_data.get('message')
-        plugin_id = event['data'].get('plugin_id')
 
-        # TODO: shouldn't this be add_log_item? and the on_log_item_added is the callback?
-        self._on_log_item_added(LogItem(event['data']))
+        # Get the plugin info dictionary and add it to the logDB
+        plugin_info = event['data']
+        self._add_log_item(plugin_info)
 
-        if constants.status_bool_mapping[status]:
-            self.logger.debug(
-                '\n plugin_name: {} \n status: {} \n result: {} \n '
-                'message: {} \n user_message: {} \n plugin_id: {}'.format(
-                    plugin_name,
-                    status,
-                    result,
-                    message,
-                    user_message,
-                    plugin_id,
-                )
-            )
+    # Log
+    def _add_log_item(self, log_data):
+        self.on_log_item_added(LogItem(log_data))
 
-        if (
-            status == constants.ERROR_STATUS
-            or status == constants.EXCEPTION_STATUS
-        ):
-            raise Exception(
-                'An error occurred during the execution of the '
-                'plugin name {} \n message: {}  \n user_message: {} '
-                '\n data: {} \n plugin_id: {}'.format(
-                    plugin_name, message, user_message, result, plugin_id
-                )
-            )
+    # TODO: This should be an ABC
+    def on_log_item_added(self, log_item):
+        '''Called when a client notify event arrives.'''
+        pass
+

@@ -52,7 +52,7 @@ class Client(object):
     client.run_ui(MayaPublisherWidget)
     #Open a ui with a specific definition
     client.run_ui(AssemblerWidget, loader_definition)
-    # get a widget
+    # get a widget from the ui
     maya_widget = client.widgets(MayaPublisherWidget)
     # interact with the widget.
     maya_widget.close()
@@ -633,7 +633,7 @@ class Client(object):
     def on_client_notification(self):
         '''
         Subscribe to topic
-        :const:`~ftrack_framework_core.constants.NOTIFY_CLIENT_TOPIC`
+        :const:`~ftrack_framework_core.constants.NOTIFY_PLUGIN_PROGRESS_CLIENT_TOPIC`
         to receive client notifications from the host in :meth:`_notify_client_callback`
         '''
         # TODO: MOVE this to events module
@@ -648,7 +648,7 @@ class Client(object):
     def _notify_client(self, event):
         '''
         Callback of the
-        :const:`~ftrack_framework_core.constants.NOTIFY_CLIENT_TOPIC`
+        :const:`~ftrack_framework_core.constants.NOTIFY_PLUGIN_PROGRESS_CLIENT_TOPIC`
          event.
 
         *event*: :class:`ftrack_api.event.base.Event`
