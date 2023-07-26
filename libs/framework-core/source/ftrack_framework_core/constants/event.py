@@ -24,12 +24,12 @@ HOST_RUN_DEFINITION_TOPIC = '{}.host.run.definition'.format(_BASE_)
 HOST_RUN_PLUGIN_TOPIC = '{}.host.run.plugin'.format(_BASE_)
 #: Execute plugin topic event used from the engine to tell the plugin to run.
 EXECUTE_PLUGIN_TOPIC = '{}.execute.plugin'.format(_BASE_)
-#: Pipeline client notification topic event, used to communicate the result of
+#: Pipeline client notification topic event, used to communicate general stuff the result of
 #: the plugin execution from host to the client.
-NOTIFY_CLIENT_TOPIC = '{}.client.notify.client'.format(_BASE_)
+NOTIFY_PLUGIN_PROGRESS_CLIENT_TOPIC = '{}.client.notify.plugin.progress'.format(_BASE_)
 #: Pipeline client progress notification topic event, used to communicate the result of
 #: the steps execution from host to the client.
-NOTIFY_PROGRESS_CLIENT_TOPIC = '{}.client.notify.progress'.format(_BASE_)
+NOTIFY_DEFINITION_PROGRESS_CLIENT_TOPIC = '{}.client.notify.progress'.format(_BASE_)
 # Launch a widget within a client
 CLIENT_LAUNCH_WIDGET_TOPIC = '{}.client.launch.widget'.format(_BASE_)
 # The main host context has changed, sent from host or host connection (change context)

@@ -695,7 +695,7 @@ class BasePlugin(object):
         raise NotImplementedError('Missing fetch method.')
 
     def _notify_client(self):
-        self.event_manager.publish.notify_client(
+        self.event_manager.publish.notify_plugin_progress_client(
             self.provide_plugin_info()
         )
 

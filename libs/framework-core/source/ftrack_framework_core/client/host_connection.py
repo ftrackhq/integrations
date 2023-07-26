@@ -14,6 +14,19 @@ class HostConnection(object):
     '''
 
     @property
+    def event_manager(self):
+        '''Returns instance of
+        :class:`~ftrack_framework_core.event.EventManager`'''
+        return self._event_manager
+
+    @property
+    def session(self):
+        '''
+        Returns instance of :class:`ftrack_api.session.Session`
+        '''
+        return self.event_manager.session
+
+    @property
     def context_id(self):
         '''Returns the current context id as fetched from the host'''
         return self._context_id
@@ -28,23 +41,21 @@ class HostConnection(object):
         self._context_id = value
 
     @property
-    def event_manager(self):
-        '''Returns instance of
-        :class:`~ftrack_framework_core.event.EventManager`'''
-        return self._event_manager
+    def host_id(self):
+        '''Returns the current host id.'''
+        return self._raw_host_data['host_id']
 
     @property
-    def session(self):
-        '''
-        Returns instance of :class:`ftrack_api.session.Session`
-        '''
-        return self.event_manager.session
+    def host_name(self):
+        '''Returns the current host name.'''
+        return self._raw_host_data['host_name']
 
-    #TODO: Separate schemas from the definitions
     @property
     def definitions(self):
         '''Returns the current definitions, filtered on discoverable.'''
         context_identifiers = []
+        # Find context identifiers (Based on the context id, are we in a task,
+        # project, entity type, etc...)
         if self.context_id:
             entity = self.session.query(
                 'TypedContext where id is {}'.format(self.context_id)
@@ -62,21 +73,16 @@ class HostConnection(object):
 
         if context_identifiers:
             result = {}
-            for schema_title in self._raw_host_data['definition'].keys():
+            # Filter definitions that doesn't match the context identifiers.
+            for schema_title in self._raw_host_data['definitions'].keys():
                 result[schema_title] = self._filter_definitions(
                     context_identifiers,
-                    self._raw_host_data['definition'][schema_title],
+                    self._raw_host_data['definitions'][schema_title],
                 )
-            # TODO:
-            #  This is a dictionary where the keys are the definition types like
-            #  publisher, opener, etc... and the values are a list of those.
-            #  But it also includes the key Schema, which contains a list of the
-            #  schemas for each type. This should be cleaned up in the future in
-            #  order to separate schemas from the definitions.
             return copy.deepcopy(result)
 
-        return definition_object.DefinitionObject(
-            self._raw_host_data['definition']
+        return definition_object.DefinitionList(
+            self._raw_host_data['definitions']
         )
 
     def _filter_definitions(self, context_identifiers, definitions):
@@ -114,22 +120,6 @@ class HostConnection(object):
         # method and automatically convert all definitions to definitionObject
         return definition_object.DefinitionList(result)
 
-    # tODO: rename this to host_id
-    @property
-    def host_id(self):
-        '''Returns the current host id.'''
-        return self._raw_host_data['host_id']
-
-    @property
-    def host_name(self):
-        '''Returns the current host name.'''
-        return self._raw_host_data['host_name']
-
-    @property
-    def host_types(self):
-        '''Returns the list of compatible host for the current definitions.'''
-        return self._raw_host_data['host_id'].split("-")[0].split(".")
-
     def __del__(self):
         self.logger.debug('Closing {}'.format(self))
 
@@ -159,6 +149,7 @@ class HostConnection(object):
         self._event_manager = event_manager
         self._raw_host_data = copy_data
         self._context_id = self._raw_host_data.get('context_id')
+
         self.event_manager.events.subscribe.host_context_changed(
             self.host_id,
             self._on_host_context_changed_callback
@@ -167,8 +158,3 @@ class HostConnection(object):
     def _on_host_context_changed_callback(self, event):
         '''Set the new context ID based on data provided in *event*'''
         self.context_id = event['data']['context_id']
-
-    def on_client_context_changed(self, context_id):
-        self.event_manager.publish.client_context_changed(
-            self.host_id, context_id
-        )

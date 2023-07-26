@@ -138,8 +138,7 @@ class EventManager(object):
             )
 
             if result:
-                # TODO: this is to receive answers from all the suscribers. Maybe add an argument all_answers or just the first one.
-                result = result#[0]
+                result = result
 
             # Mock async event reply.
             new_event = ftrack_api.event.base.Event(
@@ -302,23 +301,23 @@ class Publish(object):
 
     # TODO: rename this to notify_plugin_progress_client and has a notify client
     #  for more generic stuff in case is needed.
-    def notify_client(
+    def notify_plugin_progress_client(
             self, plugin_info, callback=None):
         '''
         Publish an event with topic
-        :const:`~ftrack_framework_core.constants.event.NOTIFY_CLIENT_TOPIC`
+        :const:`~ftrack_framework_core.constants.event.NOTIFY_PLUGIN_PROGRESS_CLIENT_TOPIC`
         '''
-        event_topic = constants.event.NOTIFY_CLIENT_TOPIC
+        event_topic = constants.event.NOTIFY_PLUGIN_PROGRESS_CLIENT_TOPIC
         return self._publish_event(event_topic, plugin_info, callback)
 
-    def notify_progress_client(
+    def notify_definition_progress_client(
             self, host_id, step_type, step_name, stage_name,
             total_plugins, current_plugin_index, status,
             results=None, callback=None
     ):
         '''
         Publish an event with topic
-        :const:`~ftrack_framework_core.constants.event.NOTIFY_PROGRESS_CLIENT_TOPIC`
+        :const:`~ftrack_framework_core.constants.event.NOTIFY_DEFINITION_PROGRESS_CLIENT_TOPIC`
         '''
         # TODO: call this from a new launch_assembler method in the opener
         #  client or in any other place. The data needed is like the following:
@@ -333,7 +332,7 @@ class Publish(object):
             'results': results,
         }
 
-        event_topic = constants.event.NOTIFY_PROGRESS_CLIENT_TOPIC
+        event_topic = constants.event.NOTIFY_DEFINITION_PROGRESS_CLIENT_TOPIC
         return self._publish_event(event_topic, data, callback)
 
     def discover_definition(self, host_types, callback=None):
@@ -448,23 +447,23 @@ class Subscribe(object):
         )
         return self._subscribe_event(event_topic, callback)
 
-    def notify_client(self, host_id, callback=None):
+    def notify_plugin_progress_client(self, host_id, callback=None):
         '''
         Subscribe to an event with topic
-        :const:`~ftrack_framework_core.constants.event.NOTIFY_CLIENT_TOPIC`
+        :const:`~ftrack_framework_core.constants.event.NOTIFY_PLUGIN_PROGRESS_CLIENT_TOPIC`
         '''
         event_topic = '{} and data.host_id={}'.format(
-            constants.event.NOTIFY_CLIENT_TOPIC, host_id
+            constants.event.NOTIFY_PLUGIN_PROGRESS_CLIENT_TOPIC, host_id
         )
         return self._subscribe_event(event_topic, callback)
 
-    def notify_progress_client(self, host_id, callback=None):
+    def notify_definition_progress_client(self, host_id, callback=None):
         '''
         Subscribe to an event with topic
-        :const:`~ftrack_framework_core.constants.event.NOTIFY_PROGRESS_CLIENT_TOPIC`
+        :const:`~ftrack_framework_core.constants.event.NOTIFY_DEFINITION_PROGRESS_CLIENT_TOPIC`
         '''
         event_topic = '{} and data.host_id={}'.format(
-            constants.event.NOTIFY_PROGRESS_CLIENT_TOPIC, host_id
+            constants.event.NOTIFY_DEFINITION_PROGRESS_CLIENT_TOPIC, host_id
         )
         return self._subscribe_event(event_topic, callback)
 
