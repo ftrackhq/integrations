@@ -706,7 +706,7 @@ class WidgetFactoryBase(QtWidgets.QWidget):
         self.has_error = False
 
     def end_widget_updates(self):
-        '''Unsubscribe from :const:`~ftrack_connnect_pipeline.constants.NOTIFY_PLUGIN_PROGRESS_CLIENT_TOPIC`'''
+        '''Unsubscribe from :const:`~ftrack_connnect_pipeline.constants.NOTIFY_PLUGIN_PROGRESS_TOPIC`'''
         if self._subscriber_id:
             self.session.event_hub.unsubscribe(self._subscriber_id)
 

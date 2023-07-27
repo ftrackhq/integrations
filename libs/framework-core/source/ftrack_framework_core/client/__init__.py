@@ -9,8 +9,6 @@ from six import string_types
 
 from host_connection import HostConnection
 from ftrack_framework_core import constants
-from ftrack_framework_core.log import LogDB
-from ftrack_framework_core.log.log_item import LogItem
 
 
 class Client(object):
@@ -91,10 +89,11 @@ class Client(object):
 
         self.logger.debug('Setting new host connection: {}'.format(value))
         Client._host_connection = value
-        # Subscribe to plugin progress
-        self.event_manager.subscribe.notify_plugin_progress_client(
+
+        # Subscribe log item added
+        self.event_manager.subscribe.host_log_item_added(
             self.host_connection.host_id,
-            self._notify_plugin_progress_client_callback()
+            self.on_log_item_added_callback()
         )
         # Clean up host_context_change_subscription in case exists
         self.unsubscribe_host_context_changed()
@@ -183,25 +182,6 @@ class Client(object):
         # TODO: add a checker to check that value is a valid engine
         self._engine_type = value
 
-    @property
-    def logs(self):
-        '''Return the log items'''
-        self._init_logs()
-        return self._logs.get_log_items(
-            self.host_connection.host_id
-            if not self.host_connection is None
-            else None
-        )
-
-    def _init_logs(self):
-        '''Delayed initialization of logs, when we know host ID.'''
-        if self._logs is None:
-            self._logs = LogDB(
-                self.host_connection.host_id
-                if not self.host_connection is None
-                else uuid.uuid4().hex
-            )
-
     # TODO: double check how we enable disbale multithreading,
     #  I think we can improve it and make it simplest.
     @property
@@ -229,7 +209,6 @@ class Client(object):
 
         # Setting init variables to 0
         self._host_context_changed_subscribe_id = None
-        self._logs = None
         self.definition = None
         self.engine_type = None
 
@@ -380,26 +359,12 @@ class Client(object):
         '''Callback of the :meth:`~ftrack_framework_core.client.run_plugin'''
         self.logger.debug("_run_plugin_callback event: {}".format(event))
 
-    # TODO: check if this should be ABC emthod to be overriden in all the client childs or is ok as it is.
-    def _notify_plugin_progress_client_callback(self, event):
-        '''
-        Callback of the
-        :const:`~ftrack_framework_core.constants.NOTIFY_PLUGIN_PROGRESS_CLIENT_TOPIC`
-         event.
-
-        *event*: :class:`ftrack_api.event.base.Event`
-        '''
-
-        # Get the plugin info dictionary and add it to the logDB
-        plugin_info = event['data']
-        self._add_log_item(plugin_info)
-
-    # Log
-    def _add_log_item(self, log_data):
-        self.on_log_item_added(LogItem(log_data))
-
     # TODO: This should be an ABC
-    def on_log_item_added(self, log_item):
-        '''Called when a client notify event arrives.'''
+    def on_log_item_added_callback(self, log_item):
+        '''
+        Called when a log item has added in the host.
+        Is the old Client notification
+        '''
+        self.logger.debug("New log item added in the host: {}".format(log_item))
         pass
 

@@ -400,7 +400,7 @@ class AssetManagerWidget(AssetManagerBaseWidget):
             self.rebuild.emit()
 
     def _listen_widget_updates(self):
-        '''Subscribe to the NOTIFY_PLUGIN_PROGRESS_CLIENT_TOPIC topic to call the
+        '''Subscribe to the NOTIFY_PLUGIN_PROGRESS_TOPIC topic to call the
         _update_widget function when the host returns and answer through the
         same topic'''
         # TODO: move this to the events module
