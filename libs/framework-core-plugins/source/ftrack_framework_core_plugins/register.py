@@ -28,15 +28,8 @@ def fast_scandir(dirname):
 #  something like:
 #  from framework_utilities import register_plugin
 #  register_plugin.register( current_dir )
-def register(api_object, **kw):
+def register(event_manager, host_id, ftrack_object_manager):
     '''Register plugin to api_object.'''
-
-    # Validate that api_object is an instance of ftrack_api.Session. If not,
-    # assume that _register is being called from an incompatible API
-    # and return without doing anything.
-    if not isinstance(api_object, ftrack_api.Session):
-        # Exit to avoid registering this plugin again.
-        return
 
     # TODO: add the basePluginType class here.
     framework_plugin_type = ""
@@ -51,12 +44,16 @@ def register(api_object, **kw):
         success_registry = False
         for name, obj in cls_members:
             if framework_plugin_type not in inspect.getmro(obj):
-                logger.debug("Not registring {} because is not type of {}".format(name, framework_plugin_type))
+                logger.debug(
+                    "Not registring {} because is not type of {}".format(
+                        name, framework_plugin_type
+                    )
+                )
                 continue
             #TODO: check if session is still necessary after the refactor We should pass the event manager and host_id
             try:
                 # TODO: we need to pass event manager, host id.
-                plugin = obj(api_object)
+                plugin = obj(event_manager, host_id, ftrack_object_manager)
                 plugin.register()
                 registred_plugins.append(obj.__class__)
             except Exception as e:

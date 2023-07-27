@@ -299,15 +299,13 @@ class Publish(object):
         event_topic = constants.event.CLIENT_LAUNCH_WIDGET_TOPIC
         return self._publish_event(event_topic, data, callback)
 
-    # TODO: rename this to notify_plugin_progress_client and has a notify client
-    #  for more generic stuff in case is needed.
     def notify_plugin_progress_client(
             self, plugin_info, callback=None):
         '''
         Publish an event with topic
-        :const:`~ftrack_framework_core.constants.event.NOTIFY_PLUGIN_PROGRESS_CLIENT_TOPIC`
+        :const:`~ftrack_framework_core.constants.event.NOTIFY_PLUGIN_PROGRESS_TOPIC`
         '''
-        event_topic = constants.event.NOTIFY_PLUGIN_PROGRESS_CLIENT_TOPIC
+        event_topic = constants.event.NOTIFY_PLUGIN_PROGRESS_TOPIC
         return self._publish_event(event_topic, plugin_info, callback)
 
     def notify_definition_progress_client(
@@ -346,6 +344,19 @@ class Publish(object):
         }
 
         event_topic = constants.event.DISCOVER_DEFINITION_TOPIC
+        return self._publish_event(event_topic, data, callback)
+
+    def host_log_item_added(self, host_id, log_item, callback=None):
+        '''
+        Publish an event with topic
+        :const:`~ftrack_framework_core.constants.event.HOST_LOG_ITEM_ADDED_TOPIC`
+        '''
+        data = {
+            'host_id': host_id,
+            'log_item': log_item,
+        }
+
+        event_topic = constants.event.HOST_LOG_ITEM_ADDED_TOPIC
         return self._publish_event(event_topic, data, callback)
 
 
@@ -450,10 +461,10 @@ class Subscribe(object):
     def notify_plugin_progress_client(self, host_id, callback=None):
         '''
         Subscribe to an event with topic
-        :const:`~ftrack_framework_core.constants.event.NOTIFY_PLUGIN_PROGRESS_CLIENT_TOPIC`
+        :const:`~ftrack_framework_core.constants.event.NOTIFY_PLUGIN_PROGRESS_TOPIC`
         '''
         event_topic = '{} and data.host_id={}'.format(
-            constants.event.NOTIFY_PLUGIN_PROGRESS_CLIENT_TOPIC, host_id
+            constants.event.NOTIFY_PLUGIN_PROGRESS_TOPIC, host_id
         )
         return self._subscribe_event(event_topic, callback)
 
@@ -474,6 +485,16 @@ class Subscribe(object):
         '''
         event_topic = '{} and data.type=definition'.format(
             constants.event.DISCOVER_DEFINITION_TOPIC
+        )
+        return self._subscribe_event(event_topic, callback)
+
+    def host_log_item_added(self, host_id, callback=None):
+        '''
+        Publish an event with topic
+        :const:`~ftrack_framework_core.constants.event.HOST_LOG_ITEM_ADDED_TOPIC`
+        '''
+        event_topic = '{} and data.host_id={}'.format(
+            constants.event.HOST_LOG_ITEM_ADDED_TOPIC, host_id
         )
         return self._subscribe_event(event_topic, callback)
 

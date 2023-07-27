@@ -26,7 +26,7 @@ logger = logging.getLogger('ftrack_framework_schemas.register')
 #     schema.register(path=current_dir)
 #     return current_dir
 
-def register():
+def register(event_manager, host_id, ftrack_object_manager):
     '''Register plugin to api_object.'''
 
     # We just need to pass the location of this file in order to register
