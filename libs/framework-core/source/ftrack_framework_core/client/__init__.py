@@ -3,7 +3,6 @@
 
 import time
 import logging
-import uuid
 
 from six import string_types
 
