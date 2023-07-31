@@ -97,7 +97,7 @@ jobs:
         shell: bash
         run: |
             git fetch --all --force
-            echo "CHANGED=$(framework-core,framework-qt)" >> $GITHUB_ENV
+            echo "CHANGED=libs/framework-core,libs/framework-qt" >> $GITHUB_ENV
       - name: Set current package as changed for full release
         if: ${{ !inputs.check_changed }} # Use supplied package
         shell: bash
