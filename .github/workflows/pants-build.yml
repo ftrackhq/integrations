@@ -97,7 +97,7 @@ jobs:
         shell: bash
         run: |
             git fetch --all --force
-            echo "CHANGED=libs/framework-core,libs/framework-qt,projects/application-launcher,projects/framework-3dsmax,projects/houdini,projects/maya,projects/nuke,projects/unreal" >> $GITHUB_ENV
+            echo "CHANGED=libs/framework-core,libs/framework-qt,projects/application-launcher,projects/framework-3dsmax,projects/framework-houdini,projects/framework-maya,projects/framework-nuke,projects/framework-unreal" >> $GITHUB_ENV
       - name: Set current package as changed for full release
         if: ${{ !inputs.check_changed }} # Use supplied package
         shell: bash
