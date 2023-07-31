@@ -13,7 +13,7 @@ Release Notes
     .. change:: fix
         :tags: assembler
 
-        Fix assembler query to be compatible with ftrack version < 4.10.2
+        Fix assembler query to be compatible with ftrack version < 4.10.2.
 
 .. release:: 1.3.1
     :date: 2023-06-15
