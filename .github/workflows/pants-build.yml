@@ -97,7 +97,7 @@ jobs:
         shell: bash
         run: |
             git fetch --all --force
-            echo "CHANGED=$(pants list --changed-since=origin/main | cut -d'/' -f 1-2 | grep -v : | uniq | tr '\n' ',')" >> $GITHUB_ENV
+            echo "CHANGED=$(libs/framework-core, libs/framework-qt)" >> $GITHUB_ENV
       - name: Set current package as changed for full release
         if: ${{ !inputs.check_changed }} # Use supplied package
         shell: bash
