@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Deploy the customised pipeline within studio &mdash; framework-core Unknown version documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/ftrack.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/lowdown.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/sphinx_highlight.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Standalone" href="../standalone/index.html" />
+    <link rel="prev" title="Customising DCC launch" href="launch.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            framework-core
+          </a>
+              <div class="version">
+                Unknown version
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../introduction/index.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../installing.html">Installing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developing/index.html">Developing</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Tutorial</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="introduction.html">Introduction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="setup.html">Setup</a></li>
+<li class="toctree-l2"><a class="reference internal" href="structure.html">Custom file structure</a></li>
+<li class="toctree-l2"><a class="reference internal" href="open.html">Maya open latest scene</a></li>
+<li class="toctree-l2"><a class="reference internal" href="load.html">Load camera image plane in Maya</a></li>
+<li class="toctree-l2"><a class="reference internal" href="finalise.html">Post Slack message on publish</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tool.html">Add a custom tool the the ftrack menu within Maya</a></li>
+<li class="toctree-l2"><a class="reference internal" href="launch.html">Customising DCC launch</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Deploy the customised pipeline within studio</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#create-and-activate-an-virtual-environment">Create and activate an virtual environment</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#build-the-integration">Build the integration</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#install-the-integrations-on-another-machine">Install the integrations on another machine</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#deploy-the-integrations-studio-wide">Deploy the integrations studio wide</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../standalone/index.html">Standalone</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api_references/modules.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../release/index.html">Release and migration notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../glossary.html">Glossary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../troubleshooting.html">Troubleshooting</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">framework-core</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">Tutorial</a></li>
+      <li class="breadcrumb-item active">Deploy the customised pipeline within studio</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/tutorial/deploy.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <div class="section" id="deploy-the-customised-pipeline-within-studio">
+<span id="tutorial-deploy"></span><h1>Deploy the customised pipeline within studio<a class="headerlink" href="#deploy-the-customised-pipeline-within-studio" title="Permalink to this heading">¶</a></h1>
+<p>Before we can start using our custom pipeline, we want to make sure
+Maya can be launched using our customised framework through Connect.</p>
+<div class="section" id="create-and-activate-an-virtual-environment">
+<h2>Create and activate an virtual environment<a class="headerlink" href="#create-and-activate-an-virtual-environment" title="Permalink to this heading">¶</a></h2>
+<p>To be able to build the framework integrations, we need to create a Python 3.7.12 virtual environment:</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li><p>Download Python 3.7.12 (<a class="reference external" href="https://www.python.org/downloads/release/python-3712/">https://www.python.org/downloads/release/python-3712/</a>)</p></li>
+<li><p>Open a shell/DOS box and install virtual env: <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">virtualenv</span></code></p></li>
+<li><p>Create the virtual environment: <code class="docutils literal notranslate"><span class="pre">virtualenv</span> <span class="pre">venv_3712</span></code></p></li>
+<li><p>Activate it: <code class="docutils literal notranslate"><span class="pre">venv_py3712\Scripts\activate</span></code></p></li>
+</ol>
+</div></blockquote>
+</div>
+<div class="section" id="build-the-integration">
+<h2>Build the integration<a class="headerlink" href="#build-the-integration" title="Permalink to this heading">¶</a></h2>
+<p>We build the integration using this virtual env:</p>
+<div class="highlight-bat notranslate"><div class="highlight"><pre><span></span>$ cd mypipeline\framework-maya
+$ python setup.py build_plugin
+</pre></div>
+</div>
+<p>The built Connect plugin will end up in the <code class="docutils literal notranslate"><span class="pre">build/</span></code> folder.</p>
+</div>
+<div class="section" id="install-the-integrations-on-another-machine">
+<h2>Install the integrations on another machine<a class="headerlink" href="#install-the-integrations-on-another-machine" title="Permalink to this heading">¶</a></h2>
+<p>Before we deploy centrally, we advise testing integrations on a separate machine,
+and iron out eventual bugs with rigorous testing.</p>
+<p>Copy the integrations from each build/ folder to the Connect default plug-in search path,
+overwriting the existing plugins:</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li><p>Windows: C:Documents and Settings&lt;User&gt;Application DataLocal Settingsftrackftrack-connect-plugins</p></li>
+<li><p>Linux: ~/.local/share/ftrack-connect-plugins</p></li>
+<li><p>OSX: ~/Library/Application Support/ftrack-connect-plugins</p></li>
+</ol>
+</div></blockquote>
+<p>Also copy the custom folder structure, <code class="docutils literal notranslate"><span class="pre">custom-location-plugin</span> <span class="pre">folder</span></code>.</p>
+<p>Restart ftrack Connect and verify that all plugins are installed, including
+<code class="docutils literal notranslate"><span class="pre">ftrack-application-launcher</span></code>, <code class="docutils literal notranslate"><span class="pre">ftrack-connect-pipeline-qt</span></code>,
+<code class="docutils literal notranslate"><span class="pre">ftrack-connect-application-launcher-widget</span></code>.</p>
+<p>Launch Maya on an animation task, verify the publish and
+load functions together with the task status set tool.</p>
+</div>
+<div class="section" id="deploy-the-integrations-studio-wide">
+<h2>Deploy the integrations studio wide<a class="headerlink" href="#deploy-the-integrations-studio-wide" title="Permalink to this heading">¶</a></h2>
+<p>Here we make sure all on-prem workstations load the same centrally deployed
+integrations:</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li><p>Pick a folder on the network (e.g. <code class="docutils literal notranslate"><span class="pre">\\server\share\PIPELINE\connect</span></code>)</p></li>
+<li><p>Move all integrations from local test deploy to this folder.</p></li>
+<li><p>Move the custom location plug-in to a separate folder (e.g. <code class="docutils literal notranslate"><span class="pre">\\server\share\PIPELINE\api</span></code>)</p></li>
+<li><p>Setup FTRACK_CONNECT_PLUGIN_PATH to point to these folders (e.g. <code class="docutils literal notranslate"><span class="pre">FTRACK_CONNECT_PLUGIN_PATH=\\server\share\PIPELINE\connect;\\server\share\PIPELINE\api</span></code>)</p></li>
+<li><p>Set FTRACK_EVENT_PLUGIN_PATH to point to the custom location structure this enables our custom folder structure within all API sessions (e.g. <code class="docutils literal notranslate"><span class="pre">FTRACK_EVENT_PLUGIN_PATH=\\server\share\PIPELINE\api</span></code>).</p></li>
+</ol>
+</div></blockquote>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>Make sure that the default builds of your customised integration plugins
+are removed from Connect installed at workstations across your studio
+(see local folders above), otherwise they will collide.</p>
+</div>
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="launch.html" class="btn btn-neutral float-left" title="Customising DCC launch" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../standalone/index.html" class="btn btn-neutral float-right" title="Standalone" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2020, ftrack.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

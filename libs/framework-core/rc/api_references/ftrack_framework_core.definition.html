@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ftrack_framework_core.definition &mdash; framework-core Unknown version documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/ftrack.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/lowdown.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/sphinx_highlight.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="ftrack_framework_core.host" href="ftrack_framework_core.host.html" />
+    <link rel="prev" title="ftrack_framework_core.constants.plugin" href="ftrack_framework_core.constants.plugin.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            framework-core
+          </a>
+              <div class="version">
+                Unknown version
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../introduction/index.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../installing.html">Installing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developing/index.html">Developing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorial/index.html">Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../standalone/index.html">Standalone</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">API Reference</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="ftrack_framework_core.html">ftrack_framework_core</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="ftrack_framework_core.asset.html">ftrack_framework_core.asset</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ftrack_framework_core.client.html">ftrack_framework_core.client</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ftrack_framework_core.constants.html">ftrack_framework_core.constants</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">ftrack_framework_core.definition</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#ftrack-framework-core-definition-collect">ftrack_framework_core.definition.collect</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#ftrack-framework-core-definition-validate">ftrack_framework_core.definition.validate</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="ftrack_framework_core.host.html">ftrack_framework_core.host</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ftrack_framework_core.log.html">ftrack_framework_core.log</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ftrack_framework_core.plugin.html">ftrack_framework_core.plugin</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ftrack_framework_core.html#ftrack-framework-core-configure-logging">ftrack_framework_core.configure_logging</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ftrack_framework_core.html#ftrack-framework-core-event">ftrack_framework_core.event</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ftrack_framework_core.html#ftrack-framework-core-exception">ftrack_framework_core.exception</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ftrack_framework_core.html#ftrack-framework-core-utils">ftrack_framework_core.utils</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../release/index.html">Release and migration notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../glossary.html">Glossary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../troubleshooting.html">Troubleshooting</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">framework-core</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="modules.html">API Reference</a></li>
+          <li class="breadcrumb-item"><a href="ftrack_framework_core.html">ftrack_framework_core</a></li>
+      <li class="breadcrumb-item active">ftrack_framework_core.definition</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/api_references/ftrack_framework_core.definition.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <div class="section" id="ftrack-framework-core-definition">
+<h1>ftrack_framework_core.definition<a class="headerlink" href="#ftrack-framework-core-definition" title="Permalink to this heading">¶</a></h1>
+<div class="section" id="ftrack-framework-core-definition-collect">
+<h2>ftrack_framework_core.definition.collect<a class="headerlink" href="#ftrack-framework-core-definition-collect" title="Permalink to this heading">¶</a></h2>
+</div>
+<div class="section" id="ftrack-framework-core-definition-validate">
+<h2>ftrack_framework_core.definition.validate<a class="headerlink" href="#ftrack-framework-core-definition-validate" title="Permalink to this heading">¶</a></h2>
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="ftrack_framework_core.constants.plugin.html" class="btn btn-neutral float-left" title="ftrack_framework_core.constants.plugin" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="ftrack_framework_core.host.html" class="btn btn-neutral float-right" title="ftrack_framework_core.host" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2020, ftrack.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

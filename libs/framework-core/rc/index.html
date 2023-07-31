@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ftrack integrations Framework &mdash; framework-core Unknown version documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/ftrack.css" type="text/css" />
+      <link rel="stylesheet" href="_static/lowdown.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Introduction" href="introduction/index.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="#" class="icon icon-home">
+            framework-core
+          </a>
+              <div class="version">
+                Unknown version
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="introduction/index.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installing.html">Installing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="developing/index.html">Developing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial/index.html">Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="standalone/index.html">Standalone</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api_references/modules.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="release/index.html">Release and migration notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="glossary.html">Glossary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="troubleshooting.html">Troubleshooting</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="#">framework-core</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="#" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">ftrack integrations Framework</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/index.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <div class="section" id="ftrack-integrations-framework">
+<h1>ftrack integrations Framework<a class="headerlink" href="#ftrack-integrations-framework" title="Permalink to this heading">¶</a></h1>
+<p>Welcome to the ftrack integrations framework documentation!</p>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>This is the new DCC Framework for <a class="reference internal" href="glossary.html#term-Connect"><span class="xref std std-term">Connect</span></a> 2 written in <a class="reference internal" href="glossary.html#term-Python"><span class="xref std std-term">Python</span></a>.
+If you are migrating from the old ftrack Connectors integrations then please
+read the dedicated <a class="reference internal" href="release/migrating_from_legacy_connectors.html#release-migrating-from-legacy-connectors"><span class="std std-ref">migration guide</span></a>.</p>
+</div>
+<p>This document is intended to bring a deeper understanding of how the new
+<a class="reference internal" href="glossary.html#term-Framework"><span class="xref std std-term">Framework</span></a> works under the hood, enabling developers to customise it to their
+particular needs.</p>
+<p>For a general introduction on how to install and use ftrack Connect 2 out of the box,
+please head over here: <a class="reference external" href="https://www.ftrack.com/en/portfolio/connect">https://www.ftrack.com/en/portfolio/connect</a>.</p>
+<p>The documentation is divided into two main parts, the first part is where we describe
+the new Framework and the second tutorial part is where we customise it to fit our needs.</p>
+<div class="toctree-wrapper compound">
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="introduction/index.html">Introduction</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="introduction/overview.html">Overview</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="introduction/overview.html#prerequisites">Prerequisites</a></li>
+<li class="toctree-l3"><a class="reference internal" href="introduction/overview.html#key-design-elements-and-tradeoffs">Key design elements and tradeoffs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="introduction/overview.html#architecture">Architecture</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="introduction/connect.html">Connect</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="introduction/connect.html#application-launcher">Application launcher</a></li>
+<li class="toctree-l3"><a class="reference internal" href="introduction/connect.html#connect-package">Connect Package</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="introduction/framework/index.html">Framework</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="introduction/framework/core.html">Core Framework layer</a></li>
+<li class="toctree-l3"><a class="reference internal" href="introduction/framework/ui.html">UI layer</a></li>
+<li class="toctree-l3"><a class="reference internal" href="introduction/framework/dcc.html">DCC integration layer</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="introduction/how/index.html">How it works</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="introduction/how/launch.html">DCC launch</a></li>
+<li class="toctree-l3"><a class="reference internal" href="introduction/how/load.html">Asset loading</a></li>
+<li class="toctree-l3"><a class="reference internal" href="introduction/how/asset.html">Asset management</a></li>
+<li class="toctree-l3"><a class="reference internal" href="introduction/how/publish.html">Asset publish</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="introduction/index.html#history">History</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="installing.html">Installing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="developing/index.html">Developing</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="developing/environment.html">Coding environment setup</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="developing/environment.html#ide">IDE</a></li>
+<li class="toctree-l3"><a class="reference internal" href="developing/environment.html#source-code-management">Source Code Management</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="developing/download.html">Download</a></li>
+<li class="toctree-l2"><a class="reference internal" href="developing/customise.html">Customise</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="developing/customise.html#framework-core">framework-core</a></li>
+<li class="toctree-l3"><a class="reference internal" href="developing/customise.html#framework-qt">framework-qt</a></li>
+<li class="toctree-l3"><a class="reference internal" href="developing/customise.html#framework-host-type">framework-&lt;host type&gt;</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="developing/build.html">Build</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="developing/build.html#create-a-virtual-environment">Create a virtual environment</a></li>
+<li class="toctree-l3"><a class="reference internal" href="developing/build.html#building-the-framework">Building the Framework</a></li>
+<li class="toctree-l3"><a class="reference internal" href="developing/build.html#building-the-documentation">Building the documentation</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="developing/deploy.html">Deploy</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="developing/deploy.html#deploying-the-framework-locally">Deploying the Framework locally</a></li>
+<li class="toctree-l3"><a class="reference internal" href="developing/deploy.html#building-and-deploying-connect-centrally">Building and deploying Connect centrally</a></li>
+<li class="toctree-l3"><a class="reference internal" href="developing/deploy.html#deploying-framework-centrally">Deploying Framework centrally</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial/index.html">Tutorial</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="tutorial/introduction.html">Introduction</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tutorial/introduction.html#checkout-documentation-code">Checkout documentation code</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tutorial/introduction.html#the-tools-we-are-about-to-build">The tools we are about to build</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial/setup.html">Setup</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tutorial/setup.html#prerequisites">Prerequisites</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tutorial/setup.html#git-repositories">Git repositories</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tutorial/setup.html#branching">Branching</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tutorial/setup.html#testing">Testing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tutorial/setup.html#pipeline-deploy">Pipeline deploy</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial/structure.html">Custom file structure</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tutorial/structure.html#structure">Structure</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tutorial/structure.html#location">Location</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial/open.html">Maya open latest scene</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tutorial/open.html#prerequisites">Prerequisites</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tutorial/open.html#implementation">Implementation</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial/load.html">Load camera image plane in Maya</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tutorial/load.html#constrain-camera-loader">Constrain camera loader</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tutorial/load.html#render-loader">Render loader</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial/finalise.html">Post Slack message on publish</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tutorial/finalise.html#save-copy-of-thumbnail-image">Save copy of thumbnail image</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tutorial/finalise.html#finaliser">Finaliser</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tutorial/finalise.html#add-slack-finaliser-to-publishers">Add Slack finaliser to publishers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tutorial/finalise.html#add-slack-library">Add Slack library</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial/tool.html">Add a custom tool the the ftrack menu within Maya</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial/launch.html">Customising DCC launch</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tutorial/launch.html#changing-paths-to-dcc-executables-and-arguments">Changing paths to DCC executables and arguments</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial/deploy.html">Deploy the customised pipeline within studio</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tutorial/deploy.html#create-and-activate-an-virtual-environment">Create and activate an virtual environment</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tutorial/deploy.html#build-the-integration">Build the integration</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tutorial/deploy.html#install-the-integrations-on-another-machine">Install the integrations on another machine</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tutorial/deploy.html#deploy-the-integrations-studio-wide">Deploy the integrations studio wide</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="standalone/index.html">Standalone</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="standalone/index.html#python-example">Python Example</a></li>
+<li class="toctree-l2"><a class="reference internal" href="standalone/index.html#dcc-maya-example">DCC Maya Example</a></li>
+<li class="toctree-l2"><a class="reference internal" href="standalone/index.html#discover-framework-from-standalone-dcc">Discover Framework from Standalone DCC</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="api_references/modules.html">API Reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="api_references/ftrack_framework_core.html">ftrack_framework_core</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="api_references/ftrack_framework_core.asset.html">ftrack_framework_core.asset</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api_references/ftrack_framework_core.client.html">ftrack_framework_core.client</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api_references/ftrack_framework_core.constants.html">ftrack_framework_core.constants</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api_references/ftrack_framework_core.definition.html">ftrack_framework_core.definition</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api_references/ftrack_framework_core.host.html">ftrack_framework_core.host</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api_references/ftrack_framework_core.log.html">ftrack_framework_core.log</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api_references/ftrack_framework_core.plugin.html">ftrack_framework_core.plugin</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api_references/ftrack_framework_core.html#ftrack-framework-core-configure-logging">ftrack_framework_core.configure_logging</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api_references/ftrack_framework_core.html#ftrack-framework-core-event">ftrack_framework_core.event</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api_references/ftrack_framework_core.html#ftrack-framework-core-exception">ftrack_framework_core.exception</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api_references/ftrack_framework_core.html#ftrack-framework-core-utils">ftrack_framework_core.utils</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="release/index.html">Release and migration notes</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="release/release_notes.html">Release Notes</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="release/release_notes.html#release-1.3.2"><span>1.3.2</span></a></li>
+<li class="toctree-l3"><a class="reference internal" href="release/release_notes.html#release-1.3.1"><span>1.3.1</span></a></li>
+<li class="toctree-l3"><a class="reference internal" href="release/release_notes.html#release-1.3.0"><span>1.3.0</span></a></li>
+<li class="toctree-l3"><a class="reference internal" href="release/release_notes.html#release-1.2.0"><span>1.2.0</span></a></li>
+<li class="toctree-l3"><a class="reference internal" href="release/release_notes.html#release-1.1.0"><span>1.1.0</span></a></li>
+<li class="toctree-l3"><a class="reference internal" href="release/release_notes.html#release-1.0.1"><span>1.0.1</span></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="release/migrating_from_legacy_connectors.html">Migrating from old ftrack Connectors</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="release/migrating_from_legacy_connectors.html#why-a-new-framework">Why a new Framework?</a></li>
+<li class="toctree-l3"><a class="reference internal" href="release/migrating_from_legacy_connectors.html#compability">Compability</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="glossary.html">Glossary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="troubleshooting.html">Troubleshooting</a></li>
+</ul>
+</div>
+<div class="section" id="help-and-support">
+<h2>Help and support<a class="headerlink" href="#help-and-support" title="Permalink to this heading">¶</a></h2>
+<p>Please visit our user Slack channel to get help on integration issues, and receive
+tips and tricks from other users.</p>
+<p>On our forum, you will also find useful information about Connect and Framework releases.</p>
+</div>
+<div class="section" id="indices-and-tables">
+<h2>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this heading">¶</a></h2>
+<ul class="simple">
+<li><p><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></p></li>
+<li><p><a class="reference internal" href="py-modindex.html"><span class="std std-ref">Module Index</span></a></p></li>
+<li><p><a class="reference internal" href="search.html"><span class="std std-ref">Search Page</span></a></p></li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This document is hosted within the ftrack integrations monorepo:
+<a class="reference external" href="https://ftrackhq.github.io/integrations">https://ftrackhq.github.io/integrations</a></p>
+</div>
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="introduction/index.html" class="btn btn-neutral float-right" title="Introduction" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2020, ftrack.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

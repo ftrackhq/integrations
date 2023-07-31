@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Setup &mdash; framework-core Unknown version documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/ftrack.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/lowdown.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/sphinx_highlight.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Custom file structure" href="structure.html" />
+    <link rel="prev" title="Introduction" href="introduction.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            framework-core
+          </a>
+              <div class="version">
+                Unknown version
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../introduction/index.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../installing.html">Installing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developing/index.html">Developing</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Tutorial</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="introduction.html">Introduction</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Setup</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#prerequisites">Prerequisites</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#git-repositories">Git repositories</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#branching">Branching</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#testing">Testing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pipeline-deploy">Pipeline deploy</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="structure.html">Custom file structure</a></li>
+<li class="toctree-l2"><a class="reference internal" href="open.html">Maya open latest scene</a></li>
+<li class="toctree-l2"><a class="reference internal" href="load.html">Load camera image plane in Maya</a></li>
+<li class="toctree-l2"><a class="reference internal" href="finalise.html">Post Slack message on publish</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tool.html">Add a custom tool the the ftrack menu within Maya</a></li>
+<li class="toctree-l2"><a class="reference internal" href="launch.html">Customising DCC launch</a></li>
+<li class="toctree-l2"><a class="reference internal" href="deploy.html">Deploy the customised pipeline within studio</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../standalone/index.html">Standalone</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api_references/modules.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../release/index.html">Release and migration notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../glossary.html">Glossary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../troubleshooting.html">Troubleshooting</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">framework-core</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">Tutorial</a></li>
+      <li class="breadcrumb-item active">Setup</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/tutorial/setup.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <div class="section" id="setup">
+<span id="tutorial-setup"></span><h1>Setup<a class="headerlink" href="#setup" title="Permalink to this heading">¶</a></h1>
+<div class="section" id="prerequisites">
+<h2>Prerequisites<a class="headerlink" href="#prerequisites" title="Permalink to this heading">¶</a></h2>
+<p>For this exercise we require to following:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>A workstation, in our example a PC running Windows 11.</p></li>
+<li><p>A text editor for syntax highlighted editing of Python code, for example PyCharm or Visual Code.</p></li>
+<li><p>Git command line tools installed, including Git bash.</p></li>
+<li><p>A licensed version of Maya 2022 or later.</p></li>
+<li><p>A valid ftrack trial or subscription.</p></li>
+<li><p>ftrack Connect 2 Package installed, with the new framework.</p></li>
+<li><p>A central storage scenario setup to point to your studio network file share.</p></li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="git-repositories">
+<h2>Git repositories<a class="headerlink" href="#git-repositories" title="Permalink to this heading">¶</a></h2>
+<p>The best approach is to create your own set of repositories and then pull from the
+ftrack Framework repository as a remote upstream.</p>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>You are not forced to create repositories, the simplest approach is to just pull
+the code and start working on it. Recall that it will be difficult to work on
+the code internally as a team without proper SCM in place.</p>
+</div>
+<p>We will extend one single Framework plugins:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>ftrack-framework-maya</p></li>
+</ul>
+</div></blockquote>
+<p>The rest of the plugins we will use are shipped with Connect and installable through
+the plugin manager.</p>
+<p>As a first step, create the corresponding integrations repository within your SCM environment
+(GitHub, Bitbucket, locally..). In this tutorial we will call it ‘my-ftrack-integrations’.</p>
+<p>Next a local dev folder, clone the remote repository with Git bash and merge from ftrack:</p>
+<div class="highlight-bat notranslate"><div class="highlight"><pre><span></span>$ mkdir mypipeline
+$ cd mypipeline
+$ git clone <span class="p">&lt;</span>my SCM service base url<span class="p">&gt;</span>/my-ftrack-integrations
+$ git remote add upstream https://github.com/ftrackhq/integrations.git
+$ git fetch upstream
+$ git merge upstream/main
+$ git rebase upstream/main
+</pre></div>
+</div>
+<p>Throughout this tutorial, the folder <strong>mypipeline</strong> will refer to this location were you checkout
+and store your local source code repository.</p>
+<p>At any new release done by ftrack, you can simply pull these and then merge into your repository:</p>
+<div class="highlight-bat notranslate"><div class="highlight"><pre><span></span>$ git pull upstream main
+</pre></div>
+</div>
+</div>
+<div class="section" id="branching">
+<h2>Branching<a class="headerlink" href="#branching" title="Permalink to this heading">¶</a></h2>
+<p>We are not going into full detail on how to manage your source code, a good
+general practice to always develop on stories, e.g. backlog/bigfeature/story with
+sub branches. For more guidelines on Git: <a class="reference external" href="https://nvie.com/posts/a-successful-git-branching-model">https://nvie.com/posts/a-successful-git-branching-model</a></p>
+</div>
+<div class="section" id="testing">
+<h2>Testing<a class="headerlink" href="#testing" title="Permalink to this heading">¶</a></h2>
+<p>During the test phase you would want to test your tools locally before deploying
+centrally. As first step, <a class="reference internal" href="../developing/build.html#developing-build"><span class="std std-ref">create a virtual environment</span></a>,
+then follow the instructions on how to build and deploy locally:</p>
+<div class="highlight-bat notranslate"><div class="highlight"><pre><span></span>$ <span class="p">&lt;</span>activate virtual environment&gt;
+$ cd mypipeline\projects\framework-maya
+$ python setup.py build_plugin
+$ rmdir /s <span class="s2">&quot;</span><span class="nv">%HOMEPATH%</span><span class="s2">\AppData\Local\ftrack\ftrack-connect-plugins\ftrack-framework-maya-&lt;version&gt;&quot;</span>
+$ move dist\ftrack-framework-maya-<span class="p">&lt;</span>version<span class="p">&gt;</span> <span class="s2">&quot;</span><span class="nv">%HOMEPATH%</span><span class="s2">\AppData\Local\ftrack\ftrack-connect-plugins&quot;</span>
+</pre></div>
+</div>
+<p>The same process applies to all other Connect framework plugins that you might
+want to extend in the future.</p>
+</div>
+<div class="section" id="pipeline-deploy">
+<h2>Pipeline deploy<a class="headerlink" href="#pipeline-deploy" title="Permalink to this heading">¶</a></h2>
+<p>Towards the end of this chapter, we will build the integration plugins
+and put them centrally on a server for everyone to use. We assume there is a space
+for pipeline to reside on a network share:</p>
+<div class="highlight-bat notranslate"><div class="highlight"><pre><span></span>\\server\share\PIPELINE
+</pre></div>
+</div>
+<p>This will be the physical location of our custom pipeline, and will be named
+“<strong>PIPELINE</strong>” hereafter.</p>
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="introduction.html" class="btn btn-neutral float-left" title="Introduction" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="structure.html" class="btn btn-neutral float-right" title="Custom file structure" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2020, ftrack.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

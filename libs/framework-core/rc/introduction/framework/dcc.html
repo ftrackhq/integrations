@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DCC integration layer &mdash; framework-core Unknown version documentation</title>
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/ftrack.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/lowdown.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/sphinx_highlight.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="How it works" href="../how/index.html" />
+    <link rel="prev" title="UI layer" href="ui.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            framework-core
+          </a>
+              <div class="version">
+                Unknown version
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">Introduction</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../overview.html">Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../connect.html">Connect</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="index.html">Framework</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="core.html">Core Framework layer</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ui.html">UI layer</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">DCC integration layer</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#hook">hook</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#resource">resource</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#source">source</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../how/index.html">How it works</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../index.html#history">History</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../installing.html">Installing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developing/index.html">Developing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorial/index.html">Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../standalone/index.html">Standalone</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api_references/modules.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../release/index.html">Release and migration notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../glossary.html">Glossary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../troubleshooting.html">Troubleshooting</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">framework-core</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Introduction</a></li>
+          <li class="breadcrumb-item"><a href="index.html">Framework</a></li>
+      <li class="breadcrumb-item active">DCC integration layer</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/introduction/framework/dcc.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <div class="section" id="dcc-integration-layer">
+<span id="introduction-framework-dcc"></span><h1>DCC integration layer<a class="headerlink" href="#dcc-integration-layer" title="Permalink to this heading">¶</a></h1>
+<p>The plugin for a specific <a class="reference internal" href="../../glossary.html#term-DCC"><span class="xref std std-term">DCC</span></a> application (maya, nuke and so on) and is
+identified by the <a class="reference internal" href="../../glossary.html#term-Host-type"><span class="xref std std-term">host type</span></a>. Depends on the core Framework plugins above
+for bootstrapping and providing the three main Framework features:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Publish files/components.</p></li>
+<li><p>Load files/components.</p></li>
+<li><p>Asset management.</p></li>
+</ul>
+</div></blockquote>
+<p>The integration achieves this by:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Bootstrapping the DCC app.</p></li>
+<li><p>Launching the pipeline host.</p></li>
+<li><p>Adding menu items to the “ftrack” menu within the DCC app, enabling launch of each <a class="reference internal" href="../../glossary.html#term-Client"><span class="xref std std-term">client</span></a> widget.</p></li>
+</ul>
+</div></blockquote>
+<p>The DCC module sits on top of the <a class="reference internal" href="../../glossary.html#term-UI"><span class="xref std std-term">UI</span></a> layer in the pipeline Framework stack.</p>
+<div class="section" id="hook">
+<h2>hook<a class="headerlink" href="#hook" title="Permalink to this heading">¶</a></h2>
+<p>The hook is designed to setup the DCC by either environment variables or arguments so it is able to find and load
+the bootstrap script(s).</p>
+</div>
+<div class="section" id="resource">
+<h2>resource<a class="headerlink" href="#resource" title="Permalink to this heading">¶</a></h2>
+<p>The resource folder contains the bootstrap scripts, definition configurations and the associated plugins.</p>
+<div class="section" id="bootstrap">
+<h3>bootstrap<a class="headerlink" href="#bootstrap" title="Permalink to this heading">¶</a></h3>
+<p>The bootstrap script is the entry point within the DCC that is responsible for
+spawning the <a class="reference internal" href="../../glossary.html#term-Host"><span class="xref std std-term">host</span></a> and <a class="reference internal" href="../../glossary.html#term-Client"><span class="xref std std-term">client</span></a> widgets through the main DCC menu.</p>
+</div>
+<div class="section" id="definitions">
+<h3>definitions<a class="headerlink" href="#definitions" title="Permalink to this heading">¶</a></h3>
+<p>The definition pipeline module is were the each <a class="reference internal" href="../../glossary.html#term-Definition"><span class="xref std std-term">definition</span></a>, <a class="reference internal" href="../../glossary.html#term-Schema"><span class="xref std std-term">schema</span></a> and
+Framework <a class="reference internal" href="../../glossary.html#term-Plugin"><span class="xref std std-term">plugin</span></a> are stored.</p>
+<p>As mentioned previously, the new Framework is designed to make it easy to write
+custom code that takes care of asset load and publishing, the new Framework achieves
+this by introducing “definitions” which basically are JSON schemas that configures
+which Framework plugins (loaders and publishers) to run for a certain ftrack asset type.
+This module is were you most likely do customisations in order to tailor the Framework
+to the studio needs.</p>
+<p>This directory contains the <a class="reference internal" href="../../glossary.html#term-Definition"><span class="xref std std-term">definition</span></a> JSON configuration files for each
+<a class="reference internal" href="../../glossary.html#term-Engine"><span class="xref std std-term">engine</span></a> and <a class="reference internal" href="../../glossary.html#term-Host-type"><span class="xref std std-term">host type</span></a>.</p>
+<p>We have highlighted some file of importance, leaving out built-in definitions that
+would be left out of an potential customization:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>asset_manager/
+<span class="w">   </span>..
+loader/
+<span class="w">   </span>..
+<span class="w">   </span>geometry-maya-loader.json
+publisher/
+<span class="w">    </span>..
+<span class="w">    </span>geometry-maya-publish.json
+</pre></div>
+</div>
+<div class="section" id="loader">
+<h4>loader<a class="headerlink" href="#loader" title="Permalink to this heading">¶</a></h4>
+<p>Loader definitions, used by the Assembler client during load of assets.</p>
+<p><strong>loader/geometry-maya-loader.json</strong></p>
+<p>The Framework definition for loading geometry asset versions into Maya:</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;loader&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Geometry Loader&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;asset_type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;geo&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;host_type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;maya&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;ui_type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;qt&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;contexts&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">        </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;main&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;stages&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">                </span><span class="p">{</span>
+<span class="w">                    </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;context&quot;</span><span class="p">,</span>
+<span class="w">                    </span><span class="nt">&quot;plugins&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">                        </span><span class="p">{</span>
+<span class="w">                            </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;context selector&quot;</span><span class="p">,</span>
+<span class="w">                            </span><span class="nt">&quot;plugin&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;common_passthrough_loader_context&quot;</span><span class="p">,</span>
+<span class="w">                            </span><span class="nt">&quot;widget&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;common_default_loader_context&quot;</span>
+<span class="w">                        </span><span class="p">}</span>
+<span class="w">                    </span><span class="p">]</span>
+<span class="w">                </span><span class="p">}</span>
+<span class="w">            </span><span class="p">]</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">],</span>
+<span class="w">    </span><span class="nt">&quot;components&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">        </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;snapshot&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;file_formats&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">                </span><span class="s2">&quot;.mb&quot;</span><span class="p">,</span>
+<span class="w">                </span><span class="s2">&quot;.ma&quot;</span>
+<span class="w">            </span><span class="p">],</span>
+<span class="w">            </span><span class="nt">&quot;stages&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">                </span><span class="p">{</span>
+<span class="w">                    </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;collector&quot;</span><span class="p">,</span>
+<span class="w">                    </span><span class="nt">&quot;plugins&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">                        </span><span class="p">{</span>
+<span class="w">                            </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Collect components from context&quot;</span><span class="p">,</span>
+<span class="w">                            </span><span class="nt">&quot;plugin&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;common_context_loader_collector&quot;</span>
+<span class="w">                        </span><span class="p">}</span>
+<span class="w">                    </span><span class="p">]</span>
+<span class="w">                </span><span class="p">},</span>
+<span class="w">                </span><span class="p">{</span>
+<span class="w">                    </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;importer&quot;</span><span class="p">,</span>
+<span class="w">                    </span><span class="nt">&quot;plugins&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">                        </span><span class="p">{</span>
+<span class="w">                            </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Import paths to Maya&quot;</span><span class="p">,</span>
+<span class="w">                            </span><span class="nt">&quot;plugin&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;maya_native_loader_importer&quot;</span><span class="p">,</span>
+<span class="w">                            </span><span class="nt">&quot;options&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                                </span><span class="nt">&quot;load_mode&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;import&quot;</span><span class="p">,</span>
+<span class="w">                                </span><span class="nt">&quot;load_options&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                                    </span><span class="nt">&quot;preserve_references&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">                                    </span><span class="nt">&quot;add_namespace&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">                                    </span><span class="nt">&quot;namespace_option&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;file_name&quot;</span>
+<span class="w">                                </span><span class="p">}</span>
+<span class="w">                            </span><span class="p">}</span>
+<span class="w">                        </span><span class="p">}</span>
+<span class="w">                    </span><span class="p">]</span>
+<span class="w">                </span><span class="p">},</span>
+<span class="w">                </span><span class="p">{</span>
+<span class="w">                    </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;post_importer&quot;</span><span class="p">,</span>
+<span class="w">                    </span><span class="nt">&quot;plugins&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">                        </span><span class="p">{</span>
+<span class="w">                            </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;maya&quot;</span><span class="p">,</span>
+<span class="w">                            </span><span class="nt">&quot;plugin&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;common_passthrough_loader_post_importer&quot;</span>
+<span class="w">                        </span><span class="p">}</span>
+<span class="w">                    </span><span class="p">]</span>
+<span class="w">                </span><span class="p">}</span>
+<span class="w">            </span><span class="p">]</span>
+<span class="w">        </span><span class="p">},</span>
+<span class="w">        </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;model&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;file_formats&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">                </span><span class="s2">&quot;.mb&quot;</span><span class="p">,</span>
+<span class="w">                </span><span class="s2">&quot;.ma&quot;</span>
+<span class="w">            </span><span class="p">],</span>
+<span class="w">            </span><span class="nt">&quot;stages&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">                </span><span class="p">{</span>
+<span class="w">                    </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;collector&quot;</span><span class="p">,</span>
+<span class="w">                    </span><span class="nt">&quot;plugins&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">                        </span><span class="p">{</span>
+<span class="w">                            </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Collect components from context&quot;</span><span class="p">,</span>
+<span class="w">                            </span><span class="nt">&quot;plugin&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;common_context_loader_collector&quot;</span>
+<span class="w">                        </span><span class="p">}</span>
+<span class="w">                    </span><span class="p">]</span>
+<span class="w">                </span><span class="p">},</span>
+<span class="w">                </span><span class="p">{</span>
+<span class="w">                    </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;importer&quot;</span><span class="p">,</span>
+<span class="w">                    </span><span class="nt">&quot;plugins&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">                        </span><span class="p">{</span>
+<span class="w">                            </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Import paths to Maya&quot;</span><span class="p">,</span>
+<span class="w">                            </span><span class="nt">&quot;plugin&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;maya_native_loader_importer&quot;</span><span class="p">,</span>
+<span class="w">                            </span><span class="nt">&quot;options&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                                </span><span class="nt">&quot;load_mode&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;reference&quot;</span><span class="p">,</span>
+<span class="w">                                </span><span class="nt">&quot;load_options&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                                    </span><span class="nt">&quot;preserve_references&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">                                    </span><span class="nt">&quot;add_namespace&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">                                    </span><span class="nt">&quot;namespace_option&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;file_name&quot;</span>
+<span class="w">                                </span><span class="p">}</span>
+<span class="w">                            </span><span class="p">}</span>
+<span class="w">                        </span><span class="p">}</span>
+<span class="w">                    </span><span class="p">]</span>
+<span class="w">                </span><span class="p">},</span>
+<span class="w">                </span><span class="p">{</span>
+<span class="w">                    </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;post_importer&quot;</span><span class="p">,</span>
+<span class="w">                    </span><span class="nt">&quot;plugins&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">                        </span><span class="p">{</span>
+<span class="w">                            </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;maya&quot;</span><span class="p">,</span>
+<span class="w">                            </span><span class="nt">&quot;plugin&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;common_passthrough_loader_post_importer&quot;</span>
+<span class="w">                        </span><span class="p">}</span>
+<span class="w">                    </span><span class="p">]</span>
+<span class="w">                </span><span class="p">}</span>
+<span class="w">            </span><span class="p">]</span>
+<span class="w">        </span><span class="p">},</span>
+<span class="w">        </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;cache&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;file_formats&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">                </span><span class="s2">&quot;.abc&quot;</span>
+<span class="w">            </span><span class="p">],</span>
+<span class="w">            </span><span class="nt">&quot;optional&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;selected&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;stages&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">                </span><span class="p">{</span>
+<span class="w">                    </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;collector&quot;</span><span class="p">,</span>
+<span class="w">                    </span><span class="nt">&quot;plugins&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">                        </span><span class="p">{</span>
+<span class="w">                            </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Collect components from context&quot;</span><span class="p">,</span>
+<span class="w">                            </span><span class="nt">&quot;plugin&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;common_context_loader_collector&quot;</span>
+<span class="w">                        </span><span class="p">}</span>
+<span class="w">                    </span><span class="p">]</span>
+<span class="w">                </span><span class="p">},</span>
+<span class="w">                </span><span class="p">{</span>
+<span class="w">                    </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;importer&quot;</span><span class="p">,</span>
+<span class="w">                    </span><span class="nt">&quot;plugins&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">                        </span><span class="p">{</span>
+<span class="w">                            </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Import paths to Maya&quot;</span><span class="p">,</span>
+<span class="w">                            </span><span class="nt">&quot;plugin&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;maya_abc_loader_importer&quot;</span>
+<span class="w">                        </span><span class="p">}</span>
+<span class="w">                    </span><span class="p">]</span>
+<span class="w">                </span><span class="p">},</span>
+<span class="w">                </span><span class="p">{</span>
+<span class="w">                    </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;post_importer&quot;</span><span class="p">,</span>
+<span class="w">                    </span><span class="nt">&quot;plugins&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">                        </span><span class="p">{</span>
+<span class="w">                            </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;maya&quot;</span><span class="p">,</span>
+<span class="w">                            </span><span class="nt">&quot;plugin&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;common_passthrough_loader_post_importer&quot;</span>
+<span class="w">                        </span><span class="p">}</span>
+<span class="w">                    </span><span class="p">]</span>
+<span class="w">                </span><span class="p">}</span>
+<span class="w">            </span><span class="p">]</span>
+<span class="w">        </span><span class="p">},</span>
+<span class="w">        </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;game&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;file_formats&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">                </span><span class="s2">&quot;.fbx&quot;</span>
+<span class="w">            </span><span class="p">],</span>
+<span class="w">            </span><span class="nt">&quot;optional&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;selected&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;stages&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">                </span><span class="p">{</span>
+<span class="w">                    </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;collector&quot;</span><span class="p">,</span>
+<span class="w">                    </span><span class="nt">&quot;plugins&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">                        </span><span class="p">{</span>
+<span class="w">                            </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Collect components from context&quot;</span><span class="p">,</span>
+<span class="w">                            </span><span class="nt">&quot;plugin&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;common_context_loader_collector&quot;</span>
+<span class="w">                        </span><span class="p">}</span>
+<span class="w">                    </span><span class="p">]</span>
+<span class="w">                </span><span class="p">},</span>
+<span class="w">                </span><span class="p">{</span>
+<span class="w">                    </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;importer&quot;</span><span class="p">,</span>
+<span class="w">                    </span><span class="nt">&quot;plugins&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">                        </span><span class="p">{</span>
+<span class="w">                            </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Import paths to Maya&quot;</span><span class="p">,</span>
+<span class="w">                            </span><span class="nt">&quot;plugin&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;maya_native_loader_importer&quot;</span><span class="p">,</span>
+<span class="w">                            </span><span class="nt">&quot;options&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                                </span><span class="nt">&quot;load_mode&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;import&quot;</span><span class="p">,</span>
+<span class="w">                                </span><span class="nt">&quot;load_options&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                                    </span><span class="nt">&quot;preserve_references&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">                                    </span><span class="nt">&quot;add_namespace&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">                                    </span><span class="nt">&quot;namespace_option&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;file_name&quot;</span>
+<span class="w">                                </span><span class="p">}</span>
+<span class="w">                            </span><span class="p">}</span>
+<span class="w">                        </span><span class="p">}</span>
+<span class="w">                    </span><span class="p">]</span>
+<span class="w">                </span><span class="p">},</span>
+<span class="w">                </span><span class="p">{</span>
+<span class="w">                    </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;post_importer&quot;</span><span class="p">,</span>
+<span class="w">                    </span><span class="nt">&quot;plugins&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">                        </span><span class="p">{</span>
+<span class="w">                            </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;maya&quot;</span><span class="p">,</span>
+<span class="w">                            </span><span class="nt">&quot;plugin&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;common_passthrough_loader_post_importer&quot;</span>
+<span class="w">                        </span><span class="p">}</span>
+<span class="w">                    </span><span class="p">]</span>
+<span class="w">                </span><span class="p">}</span>
+<span class="w">            </span><span class="p">]</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">],</span>
+<span class="w">    </span><span class="nt">&quot;finalizers&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">        </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;main&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;stages&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">                </span><span class="p">{</span>
+<span class="w">                    </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;pre_finalizer&quot;</span><span class="p">,</span>
+<span class="w">                    </span><span class="nt">&quot;visible&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span>
+<span class="w">                    </span><span class="nt">&quot;plugins&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">                        </span><span class="p">{</span>
+<span class="w">                            </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Pre finalizer&quot;</span><span class="p">,</span>
+<span class="w">                            </span><span class="nt">&quot;plugin&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;common_passthrough_loader_pre_finalizer&quot;</span>
+<span class="w">                        </span><span class="p">}</span>
+<span class="w">                    </span><span class="p">]</span>
+<span class="w">                </span><span class="p">},</span>
+<span class="w">                </span><span class="p">{</span>
+<span class="w">                    </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;finalizer&quot;</span><span class="p">,</span>
+<span class="w">                    </span><span class="nt">&quot;visible&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span>
+<span class="w">                    </span><span class="nt">&quot;plugins&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">                        </span><span class="p">{</span>
+<span class="w">                            </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Finalizer&quot;</span><span class="p">,</span>
+<span class="w">                            </span><span class="nt">&quot;plugin&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;common_passthrough_loader_finalizer&quot;</span>
+<span class="w">                        </span><span class="p">}</span>
+<span class="w">                    </span><span class="p">]</span>
+<span class="w">                </span><span class="p">},</span>
+<span class="w">                </span><span class="p">{</span>
+<span class="w">                    </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;post_finalizer&quot;</span><span class="p">,</span>
+<span class="w">                    </span><span class="nt">&quot;visible&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span>
+<span class="w">                    </span><span class="nt">&quot;plugins&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">                        </span><span class="p">{</span>
+<span class="w">                            </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Post finalizer&quot;</span><span class="p">,</span>
+<span class="w">                            </span><span class="nt">&quot;plugin&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;common_passthrough_loader_post_finalizer&quot;</span>
+<span class="w">                        </span><span class="p">}</span>
+<span class="w">                    </span><span class="p">]</span>
+<span class="w">                </span><span class="p">}</span>
+<span class="w">            </span><span class="p">]</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">]</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Attributes:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><strong>type</strong>; Definition type, binds to the host engine names.</p></li>
+<li><p><strong>name</strong>; The name of the definition should be kept unique within the pipeline.</p></li>
+<li><p><strong>host_type</strong>; The type of host this definition should  be available to, basically the name of the DCC application.</p></li>
+<li><p><strong>context</strong>; Section that defines the plugin to use when selecting context (Task) and the asset version to load.</p></li>
+<li><p><strong>components</strong>; Section that defines each loadable component (step) - which definition plugin and options to use for collect and load into the DCC app. See plugin and their widgets directories below.</p></li>
+<li><p><strong>finalizers</strong>; Section that defines plugins that should be run after load has finished.</p></li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="publisher">
+<h4>Publisher<a class="headerlink" href="#publisher" title="Permalink to this heading">¶</a></h4>
+<p>Publisher definitions, used by the Publisher client during publish of assets.</p>
+<p>The structure of a publish definition is very similar to the loader, with different
+plugins and options.</p>
+</div>
+<div class="section" id="asset-manager">
+<h4>Asset Manager<a class="headerlink" href="#asset-manager" title="Permalink to this heading">¶</a></h4>
+<p>Plugins and options are defined that are used with the Framework asset manager client
+and engine.</p>
+<p>The Assembler dependency resolver options are defined here, and allows tuning of
+which asset types are to be resolved for a certain task type.</p>
+</div>
+<div class="section" id="schema">
+<h4>Schema<a class="headerlink" href="#schema" title="Permalink to this heading">¶</a></h4>
+<p>JSON configuration files defining the rules that apply to the syntax of definitions
+(asset manager, loader and publisher). Typically you will not alter these files,
+but you can add your own attributes to definitions here, that can be picked up by the plugins.</p>
+</div>
+</div>
+<div class="section" id="plugin">
+<h3>plugin<a class="headerlink" href="#plugin" title="Permalink to this heading">¶</a></h3>
+<p>The plugins are were the code lives, that are referenced within the definitions. Structure:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>..
+python/
+<span class="w">    </span>loader/
+<span class="w">        </span>importers/
+<span class="w">            </span>widget/
+<span class="w">                </span>smaya_native_loader_importer_options.py
+<span class="w">            </span>maya_native_loader_importer.py
+<span class="w">            </span>..
+<span class="w">        </span>finalizers/
+<span class="w">            </span>maya_merge_abc_loader_finalizer.py
+<span class="w">    </span>publisher/
+<span class="w">        </span>collectors/
+<span class="w">            </span>widget/
+<span class="w">                </span>maya_geometry_publisher_collector_options.py
+<span class="w">            </span>maya_geometry_publisher_collector.py
+<span class="w">                </span>..
+<span class="w">        </span>validators/
+<span class="w">            </span>maya_geometry_publisher_validator.py
+<span class="w">            </span>..
+<span class="w">        </span>exporters/
+<span class="w">            </span>maya_abc_publisher_exporter.py
+<span class="w">            </span>..
+<span class="w">        </span>finalizers/
+<span class="w">            </span>publish_result_maya.py
+<span class="w">    </span>opener/
+<span class="w">        </span>..
+common/
+<span class="w">    </span>python/
+<span class="w">        </span>asset_manager/
+<span class="w">        </span>..
+..
+</pre></div>
+</div>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python/loader/importers/
+</pre></div>
+</div>
+<p>Directory that should harbour Python plugins responsible for collecting options and do the actual loading into the DCC app.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python/loader/importers/widget/maya_native_loader_importer_options.py
+</pre></div>
+</div>
+<p>This Qt widget plugin defines the UI elements presented to the user, so the user
+can set the load options. These load options are then read by the loader plugin below.
+The name of the plugin has to be unique within Framework but can be shared with the loader
+plugin:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="o">..</span>
+<span class="k">class</span> <span class="nc">MayaNativeLoaderImporterPluginWidget</span><span class="p">(</span>
+    <span class="n">plugin</span><span class="o">.</span><span class="n">MayaLoaderImporterPluginWidget</span>
+<span class="p">):</span>
+    <span class="n">plugin_name</span> <span class="o">=</span> <span class="s1">&#39;maya_native_loader_importer&#39;</span>
+    <span class="n">idget</span> <span class="o">=</span> <span class="n">MayaNativeLoaderImporterOptionsWidget</span>
+<span class="o">..</span>
+</pre></div>
+</div>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python/loader/importers/maya_native_loader_importer.py
+</pre></div>
+</div>
+<p>This is the actual required DCC app plugin that reads the data from disk, as
+collected by the Framework, and loads it into the current open project.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python/loader/finalizers/maya_merge_abc_loader_finalizer.py
+</pre></div>
+</div>
+<p>This optional plugin runs after load and here the post process of the imported
+data can be performed as necessary.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python/publisher/
+</pre></div>
+</div>
+<p>Plugins for exporting data out from DCC app to disk and creating a version in
+ftrack with reviewable and components.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python/publisher/collectors/widget/maya_geometry_publisher_collector_options.py
+</pre></div>
+</div>
+<p>The Qt plugin that defines the widget associated with the geometry collector,
+and usually is based on the standard built in collector that adds selected objects
+to a list of objects.</p>
+<p>Set auto_fetch_on_init property to True and the fetch function within the collector
+plugin will be called upon widget instantiation - enabling immediate population
+of objects based on selection or other expressions/rules.</p>
+<p>One can also define a different function, than the default “run” function, to be
+executed when the plugin is run.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python/publisher/collectors/maya_geometry_publisher_collector.py
+</pre></div>
+</div>
+<p>The plugin that fetches objects from the loaded DCC app project to be published,
+in this case Maya geometry. Depending on the type of integration, Pythonic objects
+can be returned to the next stage or a path to object(s) is returned (Houdini, Unreal).</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python/publisher/validators/maya_geometry_publisher_validator.py
+</pre></div>
+</div>
+<p>(Optional) Validator plugins that can be used to make sure the collected(selected)
+objects are eligible for publish.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python/publisher/output/maya_abc_publisher_exporter.py
+</pre></div>
+</div>
+<p>The plugin that is responsible for exporting the collected(selected) objects to
+disk, to a temporary path. The file will then be moved to its correct path dictated
+by the API structure plugin associated with the location  (if a managed), upon finalization.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python/publisher/finalizers/publish_result_maya.py
+</pre></div>
+</div>
+<p>(Optional) Plugin that can be used to prepare the data for publish, after the output
+stage is done.  A post process plugin can be implemented that runs after version have
+been published, allowing for example a trigger that sends out extra notifications or
+do uploads to additional storage.</p>
+</div>
+<div class="section" id="schema-validation">
+<h3>Schema validation<a class="headerlink" href="#schema-validation" title="Permalink to this heading">¶</a></h3>
+<p>This host performs validation of the definitions at boot and when a definition
+is supplied to be run with a engine.</p>
+<p>The validation is important to make sure the syntax and plugin references are
+correct within the definition.</p>
+<p>Search the DCC log for validation errors, for example Maya log is located here:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Windows; <strong>%LOCALAPPDATA%\ftrack\ftrack-connect\log\ftrack_connect_pipeline_maya.log</strong></p></li>
+<li><p>Mac OSX; <strong>~/Library/Application Support/ftrack-connect/log/ftrack_connect_pipeline_maya.log</strong></p></li>
+<li><p>Linux; <strong>~/.local/share/ftrack-connect/log/ftrack_connect_pipeline_maya.log</strong></p></li>
+</ul>
+</div></blockquote>
+</div>
+</div>
+<div class="section" id="source">
+<h2>source<a class="headerlink" href="#source" title="Permalink to this heading">¶</a></h2>
+<p>Structure:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>asset/
+client/
+host/
+plugin/
+utils/
+</pre></div>
+</div>
+<p>Description of main submodules:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><strong>asset</strong>; Contains asset manager logic for handling DCC objects.</p></li>
+<li><p><strong>client</strong>; DCC implementation of each :term;`client`.</p></li>
+<li><p><strong>host</strong>; DCC implementation of the :term;`host`.</p></li>
+<li><p><strong>plugin</strong>; Contain DCC implementation of bases for definition plugin widgets.</p></li>
+<li><p><strong>utils</strong>; Contains additional utils and tools related to the DCC application.</p></li>
+</ul>
+</div></blockquote>
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="ui.html" class="btn btn-neutral float-left" title="UI layer" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../how/index.html" class="btn btn-neutral float-right" title="How it works" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2020, ftrack.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
