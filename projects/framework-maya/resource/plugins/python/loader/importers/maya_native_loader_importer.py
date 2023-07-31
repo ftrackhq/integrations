@@ -51,10 +51,10 @@ class MayaNativeLoaderImporterPlugin(plugin.MayaLoaderImporterPlugin):
         for component_path in paths_to_import:
             self.logger.debug('Loading path {}'.format(component_path))
 
-            if maya_options.get('ns') == 'file_name':
-                maya_options['ns'] = os.path.basename(component_path).split(
-                    "."
-                )[0]
+            if maya_options.get('ns') == 'asset_name':
+                # '/Users/ftrack/Documents/local_ftrack_projects/ftrack_integrations/lluis_testing/assets/hammer/rig/v001/snapshot.mb'
+                path = os.path.normpath(component_path)
+                maya_options['ns'] = path.split(os.sep)[-4]
             elif maya_options.get('ns') == 'component':
                 maya_options['ns'] = data[0].get('name')
 

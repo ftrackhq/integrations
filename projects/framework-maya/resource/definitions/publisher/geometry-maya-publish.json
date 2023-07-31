@@ -68,7 +68,7 @@
           "plugins":[
             {
               "name": "Geometry Collector",
-              "plugin": "maya_geometry_publisher_collector"
+              "plugin": "maya_generic_publisher_collector"
             }
           ]
         },
@@ -103,7 +103,7 @@
           "plugins":[
             {
               "name": "Geometry Collector",
-              "plugin": "maya_geometry_publisher_collector"
+              "plugin": "maya_generic_publisher_collector"
             }
           ]
         },
@@ -112,7 +112,7 @@
           "plugins":[
             {
               "name": "validate selection",
-              "plugin": "maya_geometry_publisher_validator"
+              "plugin": "common_non_empty_publisher_validator"
             }
           ]
         },
@@ -138,7 +138,7 @@
           "plugins":[
             {
               "name": "Geometry Collector",
-              "plugin": "maya_geometry_publisher_collector"
+              "plugin": "maya_generic_publisher_collector"
             }
           ]
         },
@@ -147,7 +147,7 @@
           "plugins":[
             {
               "name": "validate selection",
-              "plugin": "maya_geometry_publisher_validator"
+              "plugin": "common_non_empty_publisher_validator"
             }
           ]
         },
@@ -202,21 +202,16 @@
     },
     {
       "name": "reviewable",
-      "optional": true,
       "stages": [
         {
           "name": "collector",
           "plugins":[
             {
-              "name": "select turntable camera",
+              "name": "select camera to playblast",
               "plugin": "maya_camera_publisher_collector",
               "options": {
                 "camera_name": "persp"
               }
-            },
-            {
-              "name": "select target geometry",
-              "plugin": "maya_geometry_publisher_collector"
             }
           ]
         },
@@ -233,8 +228,8 @@
           "name": "exporter",
           "plugins":[
             {
-              "name": "write turntable",
-              "plugin": "maya_turntable_publisher_exporter"
+              "name": "write reviewable",
+              "plugin": "maya_reviewable_publisher_exporter"
             }
           ]
         }
