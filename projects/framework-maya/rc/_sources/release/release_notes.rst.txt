@@ -7,13 +7,31 @@
 Release Notes
 *************
 
+.. release:: 1.3.0
+    :date: 2023-07-31
+
+    .. change:: changed
+        :tags: monorepo
+
+        First release from monorepo.
+
+    .. change:: fix
+        :tags: publisher
+
+        Updated default publisher options.
+
+    .. change:: fix
+        :tags: loader
+
+        Fix namespaces add asset_name as default.
+
 .. release:: 1.2.1
     :date: 2023-06-15
 
     .. change:: changed
         :tags: scm
 
-        Moved repository to monorepo package projects/framework-maya.
+        Moved repository to the monorepo package projects/framework-maya.
 
 .. release:: 1.2.0
     :date: 2023-04-05
