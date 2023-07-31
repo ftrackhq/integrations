@@ -97,7 +97,7 @@ jobs:
         shell: bash
         run: |
             git fetch --all --force
-            echo "CHANGED=libs/framework-core,libs/framework-qt,projects/application-launcher,projects/framework-3dsmax,projects/framework-houdini,projects/framework-maya,projects/framework-nuke,projects/framework-unreal" >> $GITHUB_ENV
+            echo "CHANGED=$(pants list --changed-since=origin/main | cut -d'/' -f 1-2 | grep -v : | uniq | tr '\n' ',')" >> $GITHUB_ENV
       - name: Set current package as changed for full release
         if: ${{ !inputs.check_changed }} # Use supplied package
         shell: bash
@@ -137,6 +137,12 @@ jobs:
         shell: bash
         run: |
           pants tailor --check update-build-files --check ::
+      - name: Lint and typecheck
+        # TODO enable full linting after fixing all issues (mostly wildcard imports)
+        if: ${{ env.CHANGED != '' }}
+        shell: bash
+        run: |
+          pants lint check --lint-only="black" ::
       - name: Package all
         if: ${{ env.CHANGED != '' }}
         shell: bash
