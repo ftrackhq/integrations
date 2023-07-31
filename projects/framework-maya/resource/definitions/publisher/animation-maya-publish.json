@@ -67,9 +67,9 @@
           "name": "collector",
           "plugins":[
             {
-              "name": "Geometry Collector",
-              "plugin": "maya_geometry_publisher_collector",
-              "widget": "maya_geometry_publisher_collector"
+              "name": "Animation Collector",
+              "plugin": "maya_generic_publisher_collector",
+              "widget": "maya_generic_publisher_collector"
             }
           ]
         },
@@ -78,7 +78,7 @@
           "plugins":[
             {
               "name": "validate selection",
-              "plugin": "maya_geometry_publisher_validator"
+              "plugin": "common_non_empty_publisher_validator"
             }
           ]
         },
@@ -102,8 +102,8 @@
           "name": "collector",
           "plugins":[
             {
-              "name": "Geometry Collector",
-              "plugin": "maya_geometry_publisher_collector"
+              "name": "Animation Collector",
+              "plugin": "maya_generic_publisher_collector"
             }
           ]
         },
@@ -112,7 +112,7 @@
           "plugins":[
             {
               "name": "validate selection",
-              "plugin": "maya_geometry_publisher_validator"
+              "plugin": "common_non_empty_publisher_validator"
             }
           ]
         },
@@ -139,8 +139,8 @@
           "name": "collector",
           "plugins":[
             {
-              "name": "Geometry Collector",
-              "plugin": "maya_geometry_publisher_collector"
+              "name": "Animation Collector",
+              "plugin": "maya_generic_publisher_collector"
             }
           ]
         },
@@ -149,7 +149,7 @@
           "plugins":[
             {
               "name": "validate selection",
-              "plugin": "maya_geometry_publisher_validator"
+              "plugin": "common_non_empty_publisher_validator"
             }
           ]
         },
