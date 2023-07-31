@@ -7,14 +7,6 @@
 Release Notes
 *************
 
-.. release:: 1.2.0
-    :date: 2023-07-31
-
-    .. change:: changed
-        :tags: monorepo
-
-        First release from monorepo.
-
 .. release:: 1.1.1
     :date: 2023-06-15
 

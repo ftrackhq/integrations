@@ -7,13 +7,6 @@
 Release Notes
 *************
 
-.. release:: 1.3.2
-    :date: 2023-07-31
-
-    .. change:: fix
-
-        Align version to framework-qt, and first monorepo release.
-
 .. release:: 1.3.1
     :date: 2023-06-15
 
