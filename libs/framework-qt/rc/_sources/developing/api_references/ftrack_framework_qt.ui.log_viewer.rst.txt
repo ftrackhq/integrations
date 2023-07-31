@@ -1,0 +1,15 @@
+ftrack\_framework\_qt.ui.log\_viewer package
+====================================================
+
+.. automodule:: ftrack_framework_qt.ui.log_viewer
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Subpackages
+-----------
+
+.. toctree::
+   :maxdepth: 1
+
+   ftrack_framework_qt.ui.log_viewer.model
