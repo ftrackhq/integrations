@@ -7,7 +7,7 @@ import copy
 
 from ftrack_framework_core import constants
 from ftrack_framework_core.host.engine import BaseEngine
-
+from ftrack_framework_core.definition import definition_object
 
 # TODO: try to separate engine to its own library, like the definitions.
 # TODO: engines should be cfreated dependeant on the workflow of the schema, so this engine is for loader, publisher etc... but not for AM or resolver.
@@ -42,47 +42,21 @@ class LoadPublishEngine(BaseEngine):
 
     def run_plugin(
         self,
-        plugin_definition,
+        plugin_name,
+        plugin_default_method=None,
         plugin_options=None,
         plugin_data=None,
         plugin_context_data=None,
-        plugin_method='run',
+        plugin_method=None,
     ):
-        '''
-        Returns the result of running the plugin with the event returned from
-        :meth:`run_event` using the given *plugin*, *plugin_type*,
-        *options*, *data*, *context_data*, *method*
-
-        *plugin* : Plugin definition, a dictionary with the plugin information.
-
-        *plugin_type* : Type of plugin.
-
-
-        *options* : options to pass to the plugin
-
-        *data* : data to pass to the plugin.
-
-        *context_data* : result of the context plugin containing the context_id,
-        aset_name... Or None
-
-        *method* : Method of the plugin to be executed.
-
-        '''
-
-        plugin_name = plugin_definition['plugin']
-        plugin_default_method = plugin_definition['default_method']
-
-        plugin_result_data=None
-
-        for host_type in reversed(self._host_types):
-            # TODO: double check that it syncronously returns us the result of the plugin.
-            #  Should be the plugin_info dictionary-
-            plugin_result_data = self.event_manager.publish.execute_plugin(
-                plugin_name, plugin_default_method, plugin_method, host_type, plugin_data,
-                plugin_options, plugin_context_data
-            )
-
-        return plugin_result_data
+        return super(LoadPublishEngine, self).run_plugin(
+            plugin_name=plugin_name,
+            plugin_default_method=plugin_default_method,
+            plugin_options=plugin_options,
+            plugin_data=plugin_data,
+            plugin_context_data=plugin_context_data,
+            plugin_method=plugin_method
+        )
 
     # Base functions for loader, opener and publisher
 
@@ -159,7 +133,8 @@ class LoadPublishEngine(BaseEngine):
             default_method = plugin_definition['default_method']
 
             plugin_result = self.run_plugin(
-                plugin_definition,
+                plugin_name=plugin_definition.get('plugin_name'),
+                plugin_default_method=plugin_definition.get('plugin_default_method'),
                 # We don't want to pass the information of the previous plugin, so that
                 # is why we only pass the data of the previous stage.
                 plugin_data=stage_data,
@@ -185,6 +160,7 @@ class LoadPublishEngine(BaseEngine):
                 if plugin_result['result']:
                     result = plugin_result['result'].get(default_method)
                     if step_type == constants.CONTEXT:
+                        # tODO: review this when testing, I think we can remove it.
                         result['asset_type_name'] = self.asset_type_name
 
             # TODO: This should be the plugin result becasue its already the plugin_info dictionary returned by the plugin.
@@ -348,10 +324,32 @@ class LoadPublishEngine(BaseEngine):
         :meth:`~ftrack_framework_core.client.HostConnection.run` Should be a
         valid definition.
         '''
-        # TODO: we should use definition object in here to clean this up
+        # Convert current definition to DefinitionObject
+        definition_object = definition_object.DefinitionObject(definition_data)
+
         context_data = None
         components_output = []
         finalizers_output = []
+        component_steps = def_obj.get_all(category="step", type='component')
+        for step in def_obj.get_all(category="step"):
+            if not step.enabled:
+                self.logger.debug(
+                    'Skipping step {} as it has been disabled'.format(
+                        step.name
+                    )
+                )
+                continue
+            # TODO: add step_data from previous group results
+            step_status, step_result = self.run_step(
+                step_name=step.name,
+                stages=step.stages,
+                step_context=context_data,
+                step_options=step_options,
+                step_data=step_data,
+                stages_order=step_stage_order,
+                step_type=step_type,
+            )
+
         for step_group in constants.STEP_GROUPS:
             group_steps = definition_data[step_group]
             group_results = []

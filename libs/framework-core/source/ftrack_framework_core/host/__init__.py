@@ -501,7 +501,8 @@ class Host(object):
         )
 
         runner_result = engine_runner.run_plugin(
-            plugin_definition=plugin_definition,
+            plugin_name=plugin_definition.get('plugin_name'),
+            plugin_default_method=plugin_definition.get('plugin_default_method'),
             # plugin_data will usually be None, but can be defined in the
             # definition
             plugin_data=plugin_definition.get('plugin_data'),
