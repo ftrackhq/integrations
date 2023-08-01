@@ -119,7 +119,7 @@ jobs:
           echo "        else: " >> /tmp/update_versions.py
           echo "            pack = package " >> /tmp/update_versions.py
           echo "            folder = 'projects' " >> /tmp/update_versions.py
-          echo "            if package == 'framework-qt' or 'framework-core': " >> /tmp/update_versions.py
+          echo "            if package in ['framework-qt', 'framework-core']: " >> /tmp/update_versions.py
           echo "                folder = 'libs' " >> /tmp/update_versions.py
           echo "        set_package_version(pack, folder, version) " >> /tmp/update_versions.py
           echo "def set_package_version(package, folder, version): " >> /tmp/update_versions.py
