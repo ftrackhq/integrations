@@ -53,7 +53,7 @@ jobs:
         shell: bash
         run: |
           echo "PACKAGE=$(echo ${{ github.ref }} | cut -d/ -f 3-3)" >> $GITHUB_ENV
-          echo "VERSION=$(echo ${{ github.ref }} | cut -d/ -f 4-4 | tr -d v)" >> $GITHUB_ENV
+          echo "VERSION=$(echo ${{ github.ref }} | cut -d/ -f 4-4)" >> $GITHUB_ENV
           echo "TAG=$(echo ${{ github.ref }} | cut -d/ -f 3-4)" >> $GITHUB_ENV
       - name: set environments for pre-release
         if: ${{ !inputs.full_release }}
