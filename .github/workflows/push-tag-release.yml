@@ -44,7 +44,7 @@ jobs:
     with:
       full_release: false
       check_changed: false
-      version: "0.0.0rc"
+      version: "v0.0.0rc"
       package: ${{ needs.pants-build.outputs.changed }}
 
   pre-release:

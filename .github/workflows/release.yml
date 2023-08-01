@@ -59,9 +59,10 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           aws_key_id: ${{ secrets.aws_key_id }}
           aws_secret_access_key: ${{ secrets.aws_secret_access_key }}
-      - name: Tag package as stable
-        if: ${{ ! inputs.pre && contains(inputs.changed,matrix.package) }}
-        run: |
-          git fetch --force --tags
-          git tag -f ${{ matrix.package }}/stable
-          git push -f origin ${{ matrix.package }}/stable
+# Stable tag is not compatible with PEP 440
+#      - name: Tag package as stable
+#        if: ${{ ! inputs.pre && contains(inputs.changed,matrix.package) }}
+#        run: |
+#          git fetch --force --tags
+#          git tag -f ${{ matrix.package }}/stable
+#          git push -f origin ${{ matrix.package }}/stable
