@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ftrack_framework_core.constants &mdash; framework-core Unknown version documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/ftrack.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/lowdown.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/sphinx_highlight.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="ftrack_framework_core.constants.asset" href="ftrack_framework_core.constants.asset.html" />
+    <link rel="prev" title="ftrack_framework_core.client" href="ftrack_framework_core.client.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            framework-core
+          </a>
+              <div class="version">
+                Unknown version
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../introduction/index.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../installing.html">Installing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developing/index.html">Developing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorial/index.html">Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../standalone/index.html">Standalone</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">API Reference</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="ftrack_framework_core.html">ftrack_framework_core</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="ftrack_framework_core.asset.html">ftrack_framework_core.asset</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ftrack_framework_core.client.html">ftrack_framework_core.client</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">ftrack_framework_core.constants</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#ftrack_framework_core.constants.UI_TYPE"><code class="docutils literal notranslate"><span class="pre">UI_TYPE</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#ftrack_framework_core.constants.HOST_TYPE"><code class="docutils literal notranslate"><span class="pre">HOST_TYPE</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#ftrack_framework_core.constants.STEP"><code class="docutils literal notranslate"><span class="pre">STEP</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#ftrack_framework_core.constants.STAGE"><code class="docutils literal notranslate"><span class="pre">STAGE</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#ftrack_framework_core.constants.PLUGIN"><code class="docutils literal notranslate"><span class="pre">PLUGIN</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#ftrack_framework_core.constants.CONTEXTS"><code class="docutils literal notranslate"><span class="pre">CONTEXTS</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#ftrack_framework_core.constants.FINALIZERS"><code class="docutils literal notranslate"><span class="pre">FINALIZERS</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#ftrack_framework_core.constants.COMPONENTS"><code class="docutils literal notranslate"><span class="pre">COMPONENTS</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#ftrack_framework_core.constants.CONTEXT"><code class="docutils literal notranslate"><span class="pre">CONTEXT</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#ftrack_framework_core.constants.FINALIZER"><code class="docutils literal notranslate"><span class="pre">FINALIZER</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#ftrack_framework_core.constants.COMPONENT"><code class="docutils literal notranslate"><span class="pre">COMPONENT</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#ftrack_framework_core.constants.COLLECTOR"><code class="docutils literal notranslate"><span class="pre">COLLECTOR</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#ftrack_framework_core.constants.VALIDATOR"><code class="docutils literal notranslate"><span class="pre">VALIDATOR</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#ftrack_framework_core.constants.EXPORTER"><code class="docutils literal notranslate"><span class="pre">EXPORTER</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#ftrack_framework_core.constants.IMPORTER"><code class="docutils literal notranslate"><span class="pre">IMPORTER</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#ftrack_framework_core.constants.POST_IMPORTER"><code class="docutils literal notranslate"><span class="pre">POST_IMPORTER</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#ftrack_framework_core.constants.OPENER"><code class="docutils literal notranslate"><span class="pre">OPENER</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#ftrack_framework_core.constants.LOADER"><code class="docutils literal notranslate"><span class="pre">LOADER</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#ftrack_framework_core.constants.PUBLISHER"><code class="docutils literal notranslate"><span class="pre">PUBLISHER</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#ftrack_framework_core.constants.PIPELINE_REGISTER_TOPIC"><code class="docutils literal notranslate"><span class="pre">PIPELINE_REGISTER_TOPIC</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#ftrack_framework_core.constants.PIPELINE_RUN_PLUGIN_TOPIC"><code class="docutils literal notranslate"><span class="pre">PIPELINE_RUN_PLUGIN_TOPIC</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#ftrack_framework_core.constants.PIPELINE_DISCOVER_PLUGIN_TOPIC"><code class="docutils literal notranslate"><span class="pre">PIPELINE_DISCOVER_PLUGIN_TOPIC</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#ftrack_framework_core.constants.PIPELINE_HOST_RUN"><code class="docutils literal notranslate"><span class="pre">PIPELINE_HOST_RUN</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#ftrack_framework_core.constants.PIPELINE_CLIENT_NOTIFICATION"><code class="docutils literal notranslate"><span class="pre">PIPELINE_CLIENT_NOTIFICATION</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#ftrack_framework_core.constants.PIPELINE_CLIENT_PROGRESS_NOTIFICATION"><code class="docutils literal notranslate"><span class="pre">PIPELINE_CLIENT_PROGRESS_NOTIFICATION</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#ftrack_framework_core.constants.PIPELINE_DISCOVER_HOST"><code class="docutils literal notranslate"><span class="pre">PIPELINE_DISCOVER_HOST</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ftrack_framework_core.constants.asset.html">ftrack_framework_core.constants.asset</a></li>
+<li class="toctree-l4"><a class="reference internal" href="ftrack_framework_core.constants.plugin.html">ftrack_framework_core.constants.plugin</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-ftrack_framework_core.constants.event">ftrack_framework_core.constants.event</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-ftrack_framework_core.constants.status">ftrack_framework_core.constants.status</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="ftrack_framework_core.definition.html">ftrack_framework_core.definition</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ftrack_framework_core.host.html">ftrack_framework_core.host</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ftrack_framework_core.log.html">ftrack_framework_core.log</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ftrack_framework_core.plugin.html">ftrack_framework_core.plugin</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ftrack_framework_core.html#ftrack-framework-core-configure-logging">ftrack_framework_core.configure_logging</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ftrack_framework_core.html#ftrack-framework-core-event">ftrack_framework_core.event</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ftrack_framework_core.html#ftrack-framework-core-exception">ftrack_framework_core.exception</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ftrack_framework_core.html#ftrack-framework-core-utils">ftrack_framework_core.utils</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../release/index.html">Release and migration notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../glossary.html">Glossary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../troubleshooting.html">Troubleshooting</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">framework-core</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="modules.html">API Reference</a></li>
+          <li class="breadcrumb-item"><a href="ftrack_framework_core.html">ftrack_framework_core</a></li>
+      <li class="breadcrumb-item active">ftrack_framework_core.constants</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/api_references/ftrack_framework_core.constants.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <div class="section" id="module-ftrack_framework_core.constants">
+<span id="ftrack-framework-core-constants"></span><h1>ftrack_framework_core.constants<a class="headerlink" href="#module-ftrack_framework_core.constants" title="Permalink to this heading">¶</a></h1>
+<dl class="py data">
+<dt class="sig sig-object py" id="ftrack_framework_core.constants.UI_TYPE">
+<span class="sig-prename descclassname"><span class="pre">ftrack_framework_core.constants.</span></span><span class="sig-name descname"><span class="pre">UI_TYPE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#ftrack_framework_core.constants.UI_TYPE" title="Permalink to this definition">¶</a></dt>
+<dd><p>Default ui type for ftrack_framework_core</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="ftrack_framework_core.constants.HOST_TYPE">
+<span class="sig-prename descclassname"><span class="pre">ftrack_framework_core.constants.</span></span><span class="sig-name descname"><span class="pre">HOST_TYPE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'python'</span></em><a class="headerlink" href="#ftrack_framework_core.constants.HOST_TYPE" title="Permalink to this definition">¶</a></dt>
+<dd><p>Default host type for ftrack_framework_core</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="ftrack_framework_core.constants.STEP">
+<span class="sig-prename descclassname"><span class="pre">ftrack_framework_core.constants.</span></span><span class="sig-name descname"><span class="pre">STEP</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'step'</span></em><a class="headerlink" href="#ftrack_framework_core.constants.STEP" title="Permalink to this definition">¶</a></dt>
+<dd><p>Step Category.</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="ftrack_framework_core.constants.STAGE">
+<span class="sig-prename descclassname"><span class="pre">ftrack_framework_core.constants.</span></span><span class="sig-name descname"><span class="pre">STAGE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'stage'</span></em><a class="headerlink" href="#ftrack_framework_core.constants.STAGE" title="Permalink to this definition">¶</a></dt>
+<dd><p>Stage Category.</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="ftrack_framework_core.constants.PLUGIN">
+<span class="sig-prename descclassname"><span class="pre">ftrack_framework_core.constants.</span></span><span class="sig-name descname"><span class="pre">PLUGIN</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'plugin'</span></em><a class="headerlink" href="#ftrack_framework_core.constants.PLUGIN" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plugin Category.</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="ftrack_framework_core.constants.CONTEXTS">
+<span class="sig-prename descclassname"><span class="pre">ftrack_framework_core.constants.</span></span><span class="sig-name descname"><span class="pre">CONTEXTS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'contexts'</span></em><a class="headerlink" href="#ftrack_framework_core.constants.CONTEXTS" title="Permalink to this definition">¶</a></dt>
+<dd><p>Contexts step group.</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="ftrack_framework_core.constants.FINALIZERS">
+<span class="sig-prename descclassname"><span class="pre">ftrack_framework_core.constants.</span></span><span class="sig-name descname"><span class="pre">FINALIZERS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'finalizers'</span></em><a class="headerlink" href="#ftrack_framework_core.constants.FINALIZERS" title="Permalink to this definition">¶</a></dt>
+<dd><p>Finalizers step group.</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="ftrack_framework_core.constants.COMPONENTS">
+<span class="sig-prename descclassname"><span class="pre">ftrack_framework_core.constants.</span></span><span class="sig-name descname"><span class="pre">COMPONENTS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'components'</span></em><a class="headerlink" href="#ftrack_framework_core.constants.COMPONENTS" title="Permalink to this definition">¶</a></dt>
+<dd><p>Components step group.</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="ftrack_framework_core.constants.CONTEXT">
+<span class="sig-prename descclassname"><span class="pre">ftrack_framework_core.constants.</span></span><span class="sig-name descname"><span class="pre">CONTEXT</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'context'</span></em><a class="headerlink" href="#ftrack_framework_core.constants.CONTEXT" title="Permalink to this definition">¶</a></dt>
+<dd><p>Contexts step type.</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="ftrack_framework_core.constants.FINALIZER">
+<span class="sig-prename descclassname"><span class="pre">ftrack_framework_core.constants.</span></span><span class="sig-name descname"><span class="pre">FINALIZER</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'finalizer'</span></em><a class="headerlink" href="#ftrack_framework_core.constants.FINALIZER" title="Permalink to this definition">¶</a></dt>
+<dd><p>Finalizers step type.</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="ftrack_framework_core.constants.COMPONENT">
+<span class="sig-prename descclassname"><span class="pre">ftrack_framework_core.constants.</span></span><span class="sig-name descname"><span class="pre">COMPONENT</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'component'</span></em><a class="headerlink" href="#ftrack_framework_core.constants.COMPONENT" title="Permalink to this definition">¶</a></dt>
+<dd><p>Components step type.</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="ftrack_framework_core.constants.COLLECTOR">
+<span class="sig-prename descclassname"><span class="pre">ftrack_framework_core.constants.</span></span><span class="sig-name descname"><span class="pre">COLLECTOR</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'collector'</span></em><a class="headerlink" href="#ftrack_framework_core.constants.COLLECTOR" title="Permalink to this definition">¶</a></dt>
+<dd><p>Collector component stage name.</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="ftrack_framework_core.constants.VALIDATOR">
+<span class="sig-prename descclassname"><span class="pre">ftrack_framework_core.constants.</span></span><span class="sig-name descname"><span class="pre">VALIDATOR</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'validator'</span></em><a class="headerlink" href="#ftrack_framework_core.constants.VALIDATOR" title="Permalink to this definition">¶</a></dt>
+<dd><p>Validator component stage name.</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="ftrack_framework_core.constants.EXPORTER">
+<span class="sig-prename descclassname"><span class="pre">ftrack_framework_core.constants.</span></span><span class="sig-name descname"><span class="pre">EXPORTER</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'exporter'</span></em><a class="headerlink" href="#ftrack_framework_core.constants.EXPORTER" title="Permalink to this definition">¶</a></dt>
+<dd><p>Output component stage name.</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="ftrack_framework_core.constants.IMPORTER">
+<span class="sig-prename descclassname"><span class="pre">ftrack_framework_core.constants.</span></span><span class="sig-name descname"><span class="pre">IMPORTER</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'importer'</span></em><a class="headerlink" href="#ftrack_framework_core.constants.IMPORTER" title="Permalink to this definition">¶</a></dt>
+<dd><p>Importer component stage name.</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="ftrack_framework_core.constants.POST_IMPORTER">
+<span class="sig-prename descclassname"><span class="pre">ftrack_framework_core.constants.</span></span><span class="sig-name descname"><span class="pre">POST_IMPORTER</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'post_importer'</span></em><a class="headerlink" href="#ftrack_framework_core.constants.POST_IMPORTER" title="Permalink to this definition">¶</a></dt>
+<dd><p>Post_import component stage name.</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="ftrack_framework_core.constants.OPENER">
+<span class="sig-prename descclassname"><span class="pre">ftrack_framework_core.constants.</span></span><span class="sig-name descname"><span class="pre">OPENER</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'opener'</span></em><a class="headerlink" href="#ftrack_framework_core.constants.OPENER" title="Permalink to this definition">¶</a></dt>
+<dd><p>Opener client and its definition.</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="ftrack_framework_core.constants.LOADER">
+<span class="sig-prename descclassname"><span class="pre">ftrack_framework_core.constants.</span></span><span class="sig-name descname"><span class="pre">LOADER</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'loader'</span></em><a class="headerlink" href="#ftrack_framework_core.constants.LOADER" title="Permalink to this definition">¶</a></dt>
+<dd><p>Loader client and its definition used with assembler</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="ftrack_framework_core.constants.PUBLISHER">
+<span class="sig-prename descclassname"><span class="pre">ftrack_framework_core.constants.</span></span><span class="sig-name descname"><span class="pre">PUBLISHER</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'publisher'</span></em><a class="headerlink" href="#ftrack_framework_core.constants.PUBLISHER" title="Permalink to this definition">¶</a></dt>
+<dd><p>Publisher client and its definition.</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="ftrack_framework_core.constants.PIPELINE_REGISTER_TOPIC">
+<span class="sig-prename descclassname"><span class="pre">ftrack_framework_core.constants.</span></span><span class="sig-name descname"><span class="pre">PIPELINE_REGISTER_TOPIC</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'ftrack.pipeline.register'</span></em><a class="headerlink" href="#ftrack_framework_core.constants.PIPELINE_REGISTER_TOPIC" title="Permalink to this definition">¶</a></dt>
+<dd><p>Pipeline register topic event. Published by the
+<code class="xref py py-class docutils literal notranslate"><span class="pre">Host</span></code> and used to register
+the definitions module.
+<a class="reference external" href="http://packages.python.org/an_example_pypi_project/">Definitions Docs</a></p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="ftrack_framework_core.constants.PIPELINE_RUN_PLUGIN_TOPIC">
+<span class="sig-prename descclassname"><span class="pre">ftrack_framework_core.constants.</span></span><span class="sig-name descname"><span class="pre">PIPELINE_RUN_PLUGIN_TOPIC</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'ftrack.pipeline.run'</span></em><a class="headerlink" href="#ftrack_framework_core.constants.PIPELINE_RUN_PLUGIN_TOPIC" title="Permalink to this definition">¶</a></dt>
+<dd><p>Pipeline run plugin topic event. Used to run the plugins. Published in
+<code class="xref py py-meth docutils literal notranslate"><span class="pre">change_version()</span></code> and
+<code class="xref py py-meth docutils literal notranslate"><span class="pre">_run_plugin()</span></code>.
+Subscribed to run the plugins in
+<code class="xref py py-meth docutils literal notranslate"><span class="pre">register()</span></code></p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="ftrack_framework_core.constants.PIPELINE_DISCOVER_PLUGIN_TOPIC">
+<span class="sig-prename descclassname"><span class="pre">ftrack_framework_core.constants.</span></span><span class="sig-name descname"><span class="pre">PIPELINE_DISCOVER_PLUGIN_TOPIC</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'ftrack.pipeline.discover'</span></em><a class="headerlink" href="#ftrack_framework_core.constants.PIPELINE_DISCOVER_PLUGIN_TOPIC" title="Permalink to this definition">¶</a></dt>
+<dd><p>Pipeline discover plugin topic event. Used to discover the plugins. Published
+in <code class="xref py py-meth docutils literal notranslate"><span class="pre">_discover_plugin()</span></code>,
+Subscribed to discover the plugins in
+<code class="xref py py-meth docutils literal notranslate"><span class="pre">register()</span></code></p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="ftrack_framework_core.constants.PIPELINE_HOST_RUN">
+<span class="sig-prename descclassname"><span class="pre">ftrack_framework_core.constants.</span></span><span class="sig-name descname"><span class="pre">PIPELINE_HOST_RUN</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'ftrack.pipeline.host.run'</span></em><a class="headerlink" href="#ftrack_framework_core.constants.PIPELINE_HOST_RUN" title="Permalink to this definition">¶</a></dt>
+<dd><p>Pipeline host run plugin topic event. Used to communicate between client and
+host, by the host connection to make the host run the plugin. the plugins.
+Published in <code class="xref py py-meth docutils literal notranslate"><span class="pre">run()</span></code>,
+and Subscribed in
+<code class="xref py py-meth docutils literal notranslate"><span class="pre">on_register_definition()</span></code></p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="ftrack_framework_core.constants.PIPELINE_CLIENT_NOTIFICATION">
+<span class="sig-prename descclassname"><span class="pre">ftrack_framework_core.constants.</span></span><span class="sig-name descname"><span class="pre">PIPELINE_CLIENT_NOTIFICATION</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'ftrack.pipeline.client.notification'</span></em><a class="headerlink" href="#ftrack_framework_core.constants.PIPELINE_CLIENT_NOTIFICATION" title="Permalink to this definition">¶</a></dt>
+<dd><p>Pipeline client notification topic event. Used to communicate the result of
+the plugin execution from host to the client.
+Published in <code class="xref py py-meth docutils literal notranslate"><span class="pre">_notify_client()</span></code>,
+and Subscribed in
+<code class="xref py py-meth docutils literal notranslate"><span class="pre">on_client_notification()</span></code></p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="ftrack_framework_core.constants.PIPELINE_CLIENT_PROGRESS_NOTIFICATION">
+<span class="sig-prename descclassname"><span class="pre">ftrack_framework_core.constants.</span></span><span class="sig-name descname"><span class="pre">PIPELINE_CLIENT_PROGRESS_NOTIFICATION</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'ftrack.pipeline.client.progress.notification'</span></em><a class="headerlink" href="#ftrack_framework_core.constants.PIPELINE_CLIENT_PROGRESS_NOTIFICATION" title="Permalink to this definition">¶</a></dt>
+<dd><p>Pipeline client progress notification topic event. Used to communicate the result of
+the steps execution from host to the client.
+Published in <code class="xref py py-meth docutils literal notranslate"><span class="pre">_notify_progress_client()</span></code>,
+and Subscribed in
+<code class="xref py py-meth docutils literal notranslate"><span class="pre">on_client_progress_notification()</span></code></p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="ftrack_framework_core.constants.PIPELINE_DISCOVER_HOST">
+<span class="sig-prename descclassname"><span class="pre">ftrack_framework_core.constants.</span></span><span class="sig-name descname"><span class="pre">PIPELINE_DISCOVER_HOST</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'ftrack.pipeline.host.discover'</span></em><a class="headerlink" href="#ftrack_framework_core.constants.PIPELINE_DISCOVER_HOST" title="Permalink to this definition">¶</a></dt>
+<dd><p>Pipeline Discover host topic event. Used to discover available hosts.
+Published in <code class="xref py py-meth docutils literal notranslate"><span class="pre">_discover_hosts()</span></code>,
+and Subscribed in
+<code class="xref py py-meth docutils literal notranslate"><span class="pre">on_register_definition()</span></code></p>
+</dd></dl>
+
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="ftrack_framework_core.constants.asset.html">ftrack_framework_core.constants.asset</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="ftrack_framework_core.constants.asset.html#ftrack_framework_core.constants.asset.DCC_OBJECT_NAME"><code class="docutils literal notranslate"><span class="pre">DCC_OBJECT_NAME</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="ftrack_framework_core.constants.asset.html#ftrack_framework_core.constants.asset.ASSET_ID"><code class="docutils literal notranslate"><span class="pre">ASSET_ID</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="ftrack_framework_core.constants.asset.html#ftrack_framework_core.constants.asset.ASSET_NAME"><code class="docutils literal notranslate"><span class="pre">ASSET_NAME</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="ftrack_framework_core.constants.asset.html#ftrack_framework_core.constants.asset.CONTEXT_PATH"><code class="docutils literal notranslate"><span class="pre">CONTEXT_PATH</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="ftrack_framework_core.constants.asset.html#ftrack_framework_core.constants.asset.ASSET_TYPE_NAME"><code class="docutils literal notranslate"><span class="pre">ASSET_TYPE_NAME</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="ftrack_framework_core.constants.asset.html#ftrack_framework_core.constants.asset.VERSION_ID"><code class="docutils literal notranslate"><span class="pre">VERSION_ID</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="ftrack_framework_core.constants.asset.html#ftrack_framework_core.constants.asset.VERSION_NUMBER"><code class="docutils literal notranslate"><span class="pre">VERSION_NUMBER</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="ftrack_framework_core.constants.asset.html#ftrack_framework_core.constants.asset.COMPONENT_PATH"><code class="docutils literal notranslate"><span class="pre">COMPONENT_PATH</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="ftrack_framework_core.constants.asset.html#ftrack_framework_core.constants.asset.COMPONENT_NAME"><code class="docutils literal notranslate"><span class="pre">COMPONENT_NAME</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="ftrack_framework_core.constants.asset.html#ftrack_framework_core.constants.asset.COMPONENT_ID"><code class="docutils literal notranslate"><span class="pre">COMPONENT_ID</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="ftrack_framework_core.constants.asset.html#ftrack_framework_core.constants.asset.LOAD_MODE"><code class="docutils literal notranslate"><span class="pre">LOAD_MODE</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="ftrack_framework_core.constants.asset.html#ftrack_framework_core.constants.asset.ASSET_INFO_OPTIONS"><code class="docutils literal notranslate"><span class="pre">ASSET_INFO_OPTIONS</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="ftrack_framework_core.constants.asset.html#ftrack_framework_core.constants.asset.IS_LATEST_VERSION"><code class="docutils literal notranslate"><span class="pre">IS_LATEST_VERSION</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="ftrack_framework_core.constants.asset.html#ftrack_framework_core.constants.asset.ASSET_INFO_ID"><code class="docutils literal notranslate"><span class="pre">ASSET_INFO_ID</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="ftrack_framework_core.constants.asset.html#ftrack_framework_core.constants.asset.DEPENDENCY_IDS"><code class="docutils literal notranslate"><span class="pre">DEPENDENCY_IDS</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="ftrack_framework_core.constants.asset.html#ftrack_framework_core.constants.asset.OBJECTS_LOADED"><code class="docutils literal notranslate"><span class="pre">OBJECTS_LOADED</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="ftrack_framework_core.constants.asset.html#ftrack_framework_core.constants.asset.VERSION"><code class="docutils literal notranslate"><span class="pre">VERSION</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="ftrack_framework_core.constants.asset.html#ftrack_framework_core.constants.asset.KEYS"><code class="docutils literal notranslate"><span class="pre">KEYS</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="ftrack_framework_core.constants.plugin.html">ftrack_framework_core.constants.plugin</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="ftrack_framework_core.constants.plugin.html#module-ftrack_framework_core.constants.plugin.asset_manager">ftrack_framework_core.constants.plugin.asset_manager</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="ftrack_framework_core.constants.plugin.html#ftrack_framework_core.constants.plugin.asset_manager.PLUGIN_AM_ACTION_TYPE"><code class="docutils literal notranslate"><span class="pre">PLUGIN_AM_ACTION_TYPE</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="ftrack_framework_core.constants.plugin.html#ftrack_framework_core.constants.plugin.asset_manager.PLUGIN_AM_DISCOVER_TYPE"><code class="docutils literal notranslate"><span class="pre">PLUGIN_AM_DISCOVER_TYPE</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="ftrack_framework_core.constants.plugin.html#ftrack_framework_core.constants.plugin.asset_manager.PLUGIN_AM_RESOLVE_TYPE"><code class="docutils literal notranslate"><span class="pre">PLUGIN_AM_RESOLVE_TYPE</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="ftrack_framework_core.constants.plugin.html#module-ftrack_framework_core.constants.plugin.open">ftrack_framework_core.constants.plugin.open</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="ftrack_framework_core.constants.plugin.html#ftrack_framework_core.constants.plugin.open.PLUGIN_OPENER_FINALIZER_TYPE"><code class="docutils literal notranslate"><span class="pre">PLUGIN_OPENER_FINALIZER_TYPE</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="ftrack_framework_core.constants.plugin.html#ftrack_framework_core.constants.plugin.open.PLUGIN_OPENER_POST_FINALIZER_TYPE"><code class="docutils literal notranslate"><span class="pre">PLUGIN_OPENER_POST_FINALIZER_TYPE</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="ftrack_framework_core.constants.plugin.html#ftrack_framework_core.constants.plugin.open.PLUGIN_OPENER_PRE_FINALIZER_TYPE"><code class="docutils literal notranslate"><span class="pre">PLUGIN_OPENER_PRE_FINALIZER_TYPE</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="ftrack_framework_core.constants.plugin.html#ftrack_framework_core.constants.plugin.open.PLUGIN_OPENER_CONTEXT_TYPE"><code class="docutils literal notranslate"><span class="pre">PLUGIN_OPENER_CONTEXT_TYPE</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="ftrack_framework_core.constants.plugin.html#ftrack_framework_core.constants.plugin.open.PLUGIN_OPENER_COLLECTOR_TYPE"><code class="docutils literal notranslate"><span class="pre">PLUGIN_OPENER_COLLECTOR_TYPE</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="ftrack_framework_core.constants.plugin.html#ftrack_framework_core.constants.plugin.open.PLUGIN_OPENER_IMPORTER_TYPE"><code class="docutils literal notranslate"><span class="pre">PLUGIN_OPENER_IMPORTER_TYPE</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="ftrack_framework_core.constants.plugin.html#ftrack_framework_core.constants.plugin.open.PLUGIN_OPENER_POST_IMPORTER_TYPE"><code class="docutils literal notranslate"><span class="pre">PLUGIN_OPENER_POST_IMPORTER_TYPE</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="ftrack_framework_core.constants.plugin.html#module-ftrack_framework_core.constants.plugin.load">ftrack_framework_core.constants.plugin.load</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="ftrack_framework_core.constants.plugin.html#ftrack_framework_core.constants.plugin.load.PLUGIN_LOADER_FINALIZER_TYPE"><code class="docutils literal notranslate"><span class="pre">PLUGIN_LOADER_FINALIZER_TYPE</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="ftrack_framework_core.constants.plugin.html#ftrack_framework_core.constants.plugin.load.PLUGIN_LOADER_POST_FINALIZER_TYPE"><code class="docutils literal notranslate"><span class="pre">PLUGIN_LOADER_POST_FINALIZER_TYPE</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="ftrack_framework_core.constants.plugin.html#ftrack_framework_core.constants.plugin.load.PLUGIN_LOADER_PRE_FINALIZER_TYPE"><code class="docutils literal notranslate"><span class="pre">PLUGIN_LOADER_PRE_FINALIZER_TYPE</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="ftrack_framework_core.constants.plugin.html#ftrack_framework_core.constants.plugin.load.PLUGIN_LOADER_CONTEXT_TYPE"><code class="docutils literal notranslate"><span class="pre">PLUGIN_LOADER_CONTEXT_TYPE</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="ftrack_framework_core.constants.plugin.html#ftrack_framework_core.constants.plugin.load.PLUGIN_LOADER_COLLECTOR_TYPE"><code class="docutils literal notranslate"><span class="pre">PLUGIN_LOADER_COLLECTOR_TYPE</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="ftrack_framework_core.constants.plugin.html#ftrack_framework_core.constants.plugin.load.PLUGIN_LOADER_IMPORTER_TYPE"><code class="docutils literal notranslate"><span class="pre">PLUGIN_LOADER_IMPORTER_TYPE</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="ftrack_framework_core.constants.plugin.html#ftrack_framework_core.constants.plugin.load.PLUGIN_LOADER_POST_IMPORTER_TYPE"><code class="docutils literal notranslate"><span class="pre">PLUGIN_LOADER_POST_IMPORTER_TYPE</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="ftrack_framework_core.constants.plugin.html#module-ftrack_framework_core.constants.plugin.publish">ftrack_framework_core.constants.plugin.publish</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="ftrack_framework_core.constants.plugin.html#ftrack_framework_core.constants.plugin.publish.PLUGIN_PUBLISHER_FINALIZER_TYPE"><code class="docutils literal notranslate"><span class="pre">PLUGIN_PUBLISHER_FINALIZER_TYPE</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="ftrack_framework_core.constants.plugin.html#ftrack_framework_core.constants.plugin.publish.PLUGIN_PUBLISHER_POST_FINALIZER_TYPE"><code class="docutils literal notranslate"><span class="pre">PLUGIN_PUBLISHER_POST_FINALIZER_TYPE</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="ftrack_framework_core.constants.plugin.html#ftrack_framework_core.constants.plugin.publish.PLUGIN_PUBLISHER_PRE_FINALIZER_TYPE"><code class="docutils literal notranslate"><span class="pre">PLUGIN_PUBLISHER_PRE_FINALIZER_TYPE</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="ftrack_framework_core.constants.plugin.html#ftrack_framework_core.constants.plugin.publish.PLUGIN_PUBLISHER_CONTEXT_TYPE"><code class="docutils literal notranslate"><span class="pre">PLUGIN_PUBLISHER_CONTEXT_TYPE</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="ftrack_framework_core.constants.plugin.html#ftrack_framework_core.constants.plugin.publish.PLUGIN_PUBLISHER_COLLECTOR_TYPE"><code class="docutils literal notranslate"><span class="pre">PLUGIN_PUBLISHER_COLLECTOR_TYPE</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="ftrack_framework_core.constants.plugin.html#ftrack_framework_core.constants.plugin.publish.PLUGIN_PUBLISHER_VALIDATOR_TYPE"><code class="docutils literal notranslate"><span class="pre">PLUGIN_PUBLISHER_VALIDATOR_TYPE</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="ftrack_framework_core.constants.plugin.html#ftrack_framework_core.constants.plugin.publish.PLUGIN_PUBLISHER_EXPORTER_TYPE"><code class="docutils literal notranslate"><span class="pre">PLUGIN_PUBLISHER_EXPORTER_TYPE</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="section" id="module-ftrack_framework_core.constants.event">
+<span id="ftrack-framework-core-constants-event"></span><h2>ftrack_framework_core.constants.event<a class="headerlink" href="#module-ftrack_framework_core.constants.event" title="Permalink to this heading">¶</a></h2>
+<dl class="py data">
+<dt class="sig sig-object py" id="ftrack_framework_core.constants.event.REMOTE_EVENT_MODE">
+<span class="sig-prename descclassname"><span class="pre">ftrack_framework_core.constants.event.</span></span><span class="sig-name descname"><span class="pre">REMOTE_EVENT_MODE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1</span></em><a class="headerlink" href="#ftrack_framework_core.constants.event.REMOTE_EVENT_MODE" title="Permalink to this definition">¶</a></dt>
+<dd><p>Run the events of the session in remote mode</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="ftrack_framework_core.constants.event.LOCAL_EVENT_MODE">
+<span class="sig-prename descclassname"><span class="pre">ftrack_framework_core.constants.event.</span></span><span class="sig-name descname"><span class="pre">LOCAL_EVENT_MODE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></em><a class="headerlink" href="#ftrack_framework_core.constants.event.LOCAL_EVENT_MODE" title="Permalink to this definition">¶</a></dt>
+<dd><p>Run the events of the session in local mode</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-ftrack_framework_core.constants.status">
+<span id="ftrack-framework-core-constants-status"></span><h2>ftrack_framework_core.constants.status<a class="headerlink" href="#module-ftrack_framework_core.constants.status" title="Permalink to this heading">¶</a></h2>
+<dl class="py data">
+<dt class="sig sig-object py" id="ftrack_framework_core.constants.status.UNKNOWN_STATUS">
+<span class="sig-prename descclassname"><span class="pre">ftrack_framework_core.constants.status.</span></span><span class="sig-name descname"><span class="pre">UNKNOWN_STATUS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'UNKNOWN_STATUS'</span></em><a class="headerlink" href="#ftrack_framework_core.constants.status.UNKNOWN_STATUS" title="Permalink to this definition">¶</a></dt>
+<dd><p>Unknown status of plugin execution.</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="ftrack_framework_core.constants.status.SUCCESS_STATUS">
+<span class="sig-prename descclassname"><span class="pre">ftrack_framework_core.constants.status.</span></span><span class="sig-name descname"><span class="pre">SUCCESS_STATUS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'SUCCESS_STATUS'</span></em><a class="headerlink" href="#ftrack_framework_core.constants.status.SUCCESS_STATUS" title="Permalink to this definition">¶</a></dt>
+<dd><p>Succed status of plugin execution.</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="ftrack_framework_core.constants.status.WARNING_STATUS">
+<span class="sig-prename descclassname"><span class="pre">ftrack_framework_core.constants.status.</span></span><span class="sig-name descname"><span class="pre">WARNING_STATUS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'WARNING_STATUS'</span></em><a class="headerlink" href="#ftrack_framework_core.constants.status.WARNING_STATUS" title="Permalink to this definition">¶</a></dt>
+<dd><p>Warning status of plugin execution.</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="ftrack_framework_core.constants.status.ERROR_STATUS">
+<span class="sig-prename descclassname"><span class="pre">ftrack_framework_core.constants.status.</span></span><span class="sig-name descname"><span class="pre">ERROR_STATUS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'ERROR_STATUS'</span></em><a class="headerlink" href="#ftrack_framework_core.constants.status.ERROR_STATUS" title="Permalink to this definition">¶</a></dt>
+<dd><p>Error status of plugin execution.</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="ftrack_framework_core.constants.status.EXCEPTION_STATUS">
+<span class="sig-prename descclassname"><span class="pre">ftrack_framework_core.constants.status.</span></span><span class="sig-name descname"><span class="pre">EXCEPTION_STATUS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'EXCEPTION_STATUS'</span></em><a class="headerlink" href="#ftrack_framework_core.constants.status.EXCEPTION_STATUS" title="Permalink to this definition">¶</a></dt>
+<dd><p>Exception status of plugin execution.</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="ftrack_framework_core.constants.status.RUNNING_STATUS">
+<span class="sig-prename descclassname"><span class="pre">ftrack_framework_core.constants.status.</span></span><span class="sig-name descname"><span class="pre">RUNNING_STATUS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'RUNNING_STATUS'</span></em><a class="headerlink" href="#ftrack_framework_core.constants.status.RUNNING_STATUS" title="Permalink to this definition">¶</a></dt>
+<dd><p>Running status of plugin execution.</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="ftrack_framework_core.constants.status.DEFAULT_STATUS">
+<span class="sig-prename descclassname"><span class="pre">ftrack_framework_core.constants.status.</span></span><span class="sig-name descname"><span class="pre">DEFAULT_STATUS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'PAUSE_STATUS'</span></em><a class="headerlink" href="#ftrack_framework_core.constants.status.DEFAULT_STATUS" title="Permalink to this definition">¶</a></dt>
+<dd><p>Default status of plugin execution.</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="ftrack_framework_core.constants.status.status_bool_mapping">
+<span class="sig-prename descclassname"><span class="pre">ftrack_framework_core.constants.status.</span></span><span class="sig-name descname"><span class="pre">status_bool_mapping</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'ERROR_STATUS':</span> <span class="pre">False,</span> <span class="pre">'EXCEPTION_STATUS':</span> <span class="pre">False,</span> <span class="pre">'PAUSE_STATUS':</span> <span class="pre">False,</span> <span class="pre">'RUNNING_STATUS':</span> <span class="pre">False,</span> <span class="pre">'SUCCESS_STATUS':</span> <span class="pre">True,</span> <span class="pre">'UNKNOWN_STATUS':</span> <span class="pre">False,</span> <span class="pre">'WARNING_STATUS':</span> <span class="pre">False}</span></em><a class="headerlink" href="#ftrack_framework_core.constants.status.status_bool_mapping" title="Permalink to this definition">¶</a></dt>
+<dd><p>Mapping of the run plugins status. Valid or non-valid result.</p>
+</dd></dl>
+
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="ftrack_framework_core.client.html" class="btn btn-neutral float-left" title="ftrack_framework_core.client" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="ftrack_framework_core.constants.asset.html" class="btn btn-neutral float-right" title="ftrack_framework_core.constants.asset" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2020, ftrack.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
