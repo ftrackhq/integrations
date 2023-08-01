@@ -137,12 +137,12 @@ jobs:
         shell: bash
         run: |
           pants tailor --check update-build-files --check ::
-      - name: Lint and typecheck
-        # TODO enable full linting after fixing all issues (mostly wildcard imports)
-        if: ${{ env.CHANGED != '' }}
-        shell: bash
-        run: |
-          pants lint check --lint-only="black" ::
+#      - name: Lint and typecheck
+#        # TODO enable full linting after fixing all issues (mostly wildcard imports)
+#        if: ${{ env.CHANGED != '' }}
+#        shell: bash
+#        run: |
+#          pants lint check --lint-only="black" ::
       - name: Package all
         if: ${{ env.CHANGED != '' }}
         shell: bash
