@@ -7,7 +7,7 @@ import copy
 
 from ftrack_framework_core import constants
 from ftrack_framework_core.host.engine import BaseEngine
-
+from ftrack_framework_core.definition import definition_object
 
 # TODO: try to separate engine to its own library, like the definitions.
 # TODO: engines should be cfreated dependeant on the workflow of the schema, so this engine is for loader, publisher etc... but not for AM or resolver.
@@ -42,47 +42,21 @@ class LoadPublishEngine(BaseEngine):
 
     def run_plugin(
         self,
-        plugin_definition,
+        plugin_name,
+        plugin_default_method=None,
         plugin_options=None,
         plugin_data=None,
         plugin_context_data=None,
-        plugin_method='run',
+        plugin_method=None,
     ):
-        '''
-        Returns the result of running the plugin with the event returned from
-        :meth:`run_event` using the given *plugin*, *plugin_type*,
-        *options*, *data*, *context_data*, *method*
-
-        *plugin* : Plugin definition, a dictionary with the plugin information.
-
-        *plugin_type* : Type of plugin.
-
-
-        *options* : options to pass to the plugin
-
-        *data* : data to pass to the plugin.
-
-        *context_data* : result of the context plugin containing the context_id,
-        aset_name... Or None
-
-        *method* : Method of the plugin to be executed.
-
-        '''
-
-        plugin_name = plugin_definition['plugin']
-        plugin_default_method = plugin_definition['default_method']
-
-        plugin_result_data=None
-
-        for host_type in reversed(self._host_types):
-            # TODO: double check that it syncronously returns us the result of the plugin.
-            #  Should be the plugin_info dictionary-
-            plugin_result_data = self.event_manager.publish.execute_plugin(
-                plugin_name, plugin_default_method, plugin_method, host_type, plugin_data,
-                plugin_options, plugin_context_data
-            )
-
-        return plugin_result_data
+        return super(LoadPublishEngine, self).run_plugin(
+            plugin_name=plugin_name,
+            plugin_default_method=plugin_default_method,
+            plugin_options=plugin_options,
+            plugin_data=plugin_data,
+            plugin_context_data=plugin_context_data,
+            plugin_method=plugin_method
+        )
 
     # Base functions for loader, opener and publisher
 
@@ -146,7 +120,7 @@ class LoadPublishEngine(BaseEngine):
                 stage_name=stage_name,
                 total_plugins=len(plugins),
                 current_plugin_index=i,
-                status=constants.RUNNING_STATUS,
+                status=constants.status.RUNNING_STATUS,
                 results=None,
             )
 
@@ -159,7 +133,8 @@ class LoadPublishEngine(BaseEngine):
             default_method = plugin_definition['default_method']
 
             plugin_result = self.run_plugin(
-                plugin_definition,
+                plugin_name=plugin_definition.get('plugin_name'),
+                plugin_default_method=plugin_definition.get('plugin_default_method'),
                 # We don't want to pass the information of the previous plugin, so that
                 # is why we only pass the data of the previous stage.
                 plugin_data=stage_data,
@@ -171,7 +146,7 @@ class LoadPublishEngine(BaseEngine):
                 plugin_method=plugin_definition['default_method'],
             )
 
-            bool_status = constants.status_bool_mapping[
+            bool_status = constants.status.status_bool_mapping[
                 plugin_result['status']
             ]
             if not bool_status:
@@ -185,6 +160,7 @@ class LoadPublishEngine(BaseEngine):
                 if plugin_result['result']:
                     result = plugin_result['result'].get(default_method)
                     if step_type == constants.CONTEXT:
+                        # tODO: review this when testing, I think we can remove it.
                         result['asset_type_name'] = self.asset_type_name
 
             # TODO: This should be the plugin result becasue its already the plugin_info dictionary returned by the plugin.
@@ -303,11 +279,11 @@ class LoadPublishEngine(BaseEngine):
 
                 step_results.append(stage_dict)
 
-                status = constants.SUCCESS_STATUS
+                status = constants.status.SUCCESS_STATUS
                 # We stop the loop if the stage failed. To raise an error on
                 # run_definitions
                 if not step_status:
-                    status = constants.ERROR_STATUS
+                    status = constants.status.ERROR_STATUS
 
                 self.event_manager.publish.notify_definition_progress_client(
                     host_id=self.host_id,
@@ -316,11 +292,11 @@ class LoadPublishEngine(BaseEngine):
                     stage_name=stage_name,
                     total_plugins=None,
                     current_plugin_index=None,
-                    status=constants.ERROR_STATUS,
+                    status=constants.status.ERROR_STATUS,
                     results=step_results,
                 )
 
-                bool_status = constants.status_bool_mapping[status]
+                bool_status = constants.status.status_bool_mapping[status]
                 if not bool_status:
                     return step_status, step_results
 
@@ -331,7 +307,7 @@ class LoadPublishEngine(BaseEngine):
             stage_name=None,
             total_plugins=None,
             current_plugin_index=None,
-            status=constants.SUCCESS_STATUS,
+            status=constants.status.SUCCESS_STATUS,
             results=step_results,
         )
         return step_status, step_results
