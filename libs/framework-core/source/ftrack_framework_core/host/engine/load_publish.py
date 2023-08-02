@@ -120,7 +120,7 @@ class LoadPublishEngine(BaseEngine):
                 stage_name=stage_name,
                 total_plugins=len(plugins),
                 current_plugin_index=i,
-                status=constants.RUNNING_STATUS,
+                status=constants.status.RUNNING_STATUS,
                 results=None,
             )
 
@@ -146,7 +146,7 @@ class LoadPublishEngine(BaseEngine):
                 plugin_method=plugin_definition['default_method'],
             )
 
-            bool_status = constants.status_bool_mapping[
+            bool_status = constants.status.status_bool_mapping[
                 plugin_result['status']
             ]
             if not bool_status:
@@ -279,11 +279,11 @@ class LoadPublishEngine(BaseEngine):
 
                 step_results.append(stage_dict)
 
-                status = constants.SUCCESS_STATUS
+                status = constants.status.SUCCESS_STATUS
                 # We stop the loop if the stage failed. To raise an error on
                 # run_definitions
                 if not step_status:
-                    status = constants.ERROR_STATUS
+                    status = constants.status.ERROR_STATUS
 
                 self.event_manager.publish.notify_definition_progress_client(
                     host_id=self.host_id,
@@ -292,11 +292,11 @@ class LoadPublishEngine(BaseEngine):
                     stage_name=stage_name,
                     total_plugins=None,
                     current_plugin_index=None,
-                    status=constants.ERROR_STATUS,
+                    status=constants.status.ERROR_STATUS,
                     results=step_results,
                 )
 
-                bool_status = constants.status_bool_mapping[status]
+                bool_status = constants.status.status_bool_mapping[status]
                 if not bool_status:
                     return step_status, step_results
 
@@ -307,7 +307,7 @@ class LoadPublishEngine(BaseEngine):
             stage_name=None,
             total_plugins=None,
             current_plugin_index=None,
-            status=constants.SUCCESS_STATUS,
+            status=constants.status.SUCCESS_STATUS,
             results=step_results,
         )
         return step_status, step_results
@@ -324,32 +324,10 @@ class LoadPublishEngine(BaseEngine):
         :meth:`~ftrack_framework_core.client.HostConnection.run` Should be a
         valid definition.
         '''
-        # Convert current definition to DefinitionObject
-        definition_object = definition_object.DefinitionObject(definition_data)
-
+        # TODO: we should use definition object in here to clean this up
         context_data = None
         components_output = []
         finalizers_output = []
-        component_steps = def_obj.get_all(category="step", type='component')
-        for step in def_obj.get_all(category="step"):
-            if not step.enabled:
-                self.logger.debug(
-                    'Skipping step {} as it has been disabled'.format(
-                        step.name
-                    )
-                )
-                continue
-            # TODO: add step_data from previous group results
-            step_status, step_result = self.run_step(
-                step_name=step.name,
-                stages=step.stages,
-                step_context=context_data,
-                step_options=step_options,
-                step_data=step_data,
-                stages_order=step_stage_order,
-                step_type=step_type,
-            )
-
         for step_group in constants.STEP_GROUPS:
             group_steps = definition_data[step_group]
             group_results = []
