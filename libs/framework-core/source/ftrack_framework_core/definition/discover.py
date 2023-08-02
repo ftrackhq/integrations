@@ -203,10 +203,12 @@ def resolve_schemas(schemas):
     *data* : Dictionary of json definitions and schemas generated at
     :func:`discover_definitions`
     '''
-    schemas = [
-        JsonRef.replace_refs(schema) for schema in schemas
-    ]
+    # TODO: double check this: We have a problem with the definitions augment, need to doublecheck what is going on, if we resolve schemas before augmenting the definitions it doesn’t work.
     return schemas
+    # schemas = [
+    #     JsonRef.replace_refs(schema) for schema in schemas
+    # ]
+    # return schemas
 
 
 def _augment_definition(schema, definition, type):
@@ -214,6 +216,7 @@ def _augment_definition(schema, definition, type):
     Augments the given *definition* ot he given *type* with the
     given *schema*
     '''
+    # TODO: double check if there is a more comprensive way to augment definitions
     builder = pjo.ObjectBuilder(schema)
     ns = builder.build_classes(standardize_names=False)
     ObjectBuilder = getattr(ns, type.capitalize())

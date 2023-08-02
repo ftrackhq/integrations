@@ -45,6 +45,13 @@ class BaseEngine(object):
         return self._ftrack_object_manager
 
     @property
+    def session(self):
+        '''
+        Returns instance of :class:`ftrack_api.session.Session`
+        '''
+        return self._event_manager.session
+
+    @property
     def host_id(self):
         '''Returns the current host id.'''
         return self._host_id
@@ -53,13 +60,6 @@ class BaseEngine(object):
     def host_types(self):
         '''Return the current host type.'''
         return self._host_types
-
-    @property
-    def session(self):
-        '''
-        Returns instance of :class:`ftrack_api.session.Session`
-        '''
-        return self._event_manager.session
 
     def __init__(
             self, event_manager, ftrack_object_manager, host_types, host_id,
@@ -92,11 +92,12 @@ class BaseEngine(object):
     # TODO: this should be an ABC
     def run_plugin(
         self,
-        plugin_definition,
+        plugin_name,
+        plugin_default_method=None,
         plugin_options=None,
         plugin_data=None,
         plugin_context_data=None,
-        plugin_method='run',
+        plugin_method=None,
     ):
         '''
         Returns the result of running the plugin with the event returned from
@@ -118,21 +119,16 @@ class BaseEngine(object):
         *method* : Method of the plugin to be executed.
 
         '''
-
-        plugin_name = plugin_definition['plugin']
-        plugin_default_method = plugin_definition['default_method']
-
-        plugin_result_data=None
+        plugin_info = None
 
         for host_type in reversed(self._host_types):
-            # TODO: double check that it syncronously returns us the result of the plugin.
-            #  Should be the plugin_info dictionary-
-            plugin_result_data = self.event_manager.publish.execute_plugin(
+            plugin_info = self.event_manager.publish.execute_plugin(
                 plugin_name, plugin_default_method, plugin_method, host_type, plugin_data,
                 plugin_options, plugin_context_data
             )
+            break
 
-        return plugin_result_data
+        return plugin_info
 
 
     #TODO: This should be an ABC
