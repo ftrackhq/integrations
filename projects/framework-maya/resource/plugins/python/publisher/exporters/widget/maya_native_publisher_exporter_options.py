@@ -37,12 +37,12 @@ class MayaNativePublisherExporterOptionsWidget(DynamicWidget):
     def define_options(self):
         '''Default renderable options for dynamic widget'''
         return {
-            'constructionHistory': False,
-            'channels': False,
-            'preserveReferences': False,
-            'shader': False,
-            'constraints': False,
-            'expressions': False,
+            'constructionHistory': True,
+            'channels': True,
+            'preserveReferences': True,
+            'shader': True,
+            'constraints': True,
+            'expressions': True,
             'type': [
                 {
                     'label': 'mayaBinary (.mb)',

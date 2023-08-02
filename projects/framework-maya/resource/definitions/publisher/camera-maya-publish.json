@@ -134,7 +134,6 @@
       "name": "game",
       "optional": true,
       "enabled": false,
-      "enabled": false,
       "stages": [
         {
           "name": "collector",

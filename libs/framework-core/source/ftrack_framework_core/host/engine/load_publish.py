@@ -120,7 +120,7 @@ class LoadPublishEngine(BaseEngine):
                 stage_name=stage_name,
                 total_plugins=len(plugins),
                 current_plugin_index=i,
-                status=constants.RUNNING_STATUS,
+                status=constants.status.RUNNING_STATUS,
                 results=None,
             )
 
@@ -146,7 +146,7 @@ class LoadPublishEngine(BaseEngine):
                 plugin_method=plugin_definition['default_method'],
             )
 
-            bool_status = constants.status_bool_mapping[
+            bool_status = constants.status.status_bool_mapping[
                 plugin_result['status']
             ]
             if not bool_status:
@@ -279,11 +279,11 @@ class LoadPublishEngine(BaseEngine):
 
                 step_results.append(stage_dict)
 
-                status = constants.SUCCESS_STATUS
+                status = constants.status.SUCCESS_STATUS
                 # We stop the loop if the stage failed. To raise an error on
                 # run_definitions
                 if not step_status:
-                    status = constants.ERROR_STATUS
+                    status = constants.status.ERROR_STATUS
 
                 self.event_manager.publish.notify_definition_progress_client(
                     host_id=self.host_id,
@@ -292,11 +292,11 @@ class LoadPublishEngine(BaseEngine):
                     stage_name=stage_name,
                     total_plugins=None,
                     current_plugin_index=None,
-                    status=constants.ERROR_STATUS,
+                    status=constants.status.ERROR_STATUS,
                     results=step_results,
                 )
 
-                bool_status = constants.status_bool_mapping[status]
+                bool_status = constants.status.status_bool_mapping[status]
                 if not bool_status:
                     return step_status, step_results
 
@@ -307,7 +307,7 @@ class LoadPublishEngine(BaseEngine):
             stage_name=None,
             total_plugins=None,
             current_plugin_index=None,
-            status=constants.SUCCESS_STATUS,
+            status=constants.status.SUCCESS_STATUS,
             results=step_results,
         )
         return step_status, step_results

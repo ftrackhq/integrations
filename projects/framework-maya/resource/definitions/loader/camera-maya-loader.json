@@ -46,7 +46,7 @@
                 "load_options": {
                   "preserve_references": true,
                   "add_namespace": true,
-                  "namespace_option": "file_name"
+                  "namespace_option": "asset_name"
                 }
               }
             }
@@ -87,7 +87,7 @@
                 "load_options": {
                   "preserve_references": true,
                   "add_namespace": true,
-                  "namespace_option": "file_name"
+                  "namespace_option": "asset_name"
                 }
               }
             }
@@ -165,7 +165,7 @@
                 "load_options": {
                   "preserve_references": true,
                   "add_namespace": true,
-                  "namespace_option": "file_name"
+                  "namespace_option": "asset_name"
                 }
               }
             }
