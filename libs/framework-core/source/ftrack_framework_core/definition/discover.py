@@ -10,6 +10,7 @@ import python_jsonschema_objects as pjo
 from jsonref import JsonRef
 
 from ftrack_framework_core import constants
+from ftrack_framework_core.definition import definition_object
 
 logger = logging.getLogger(__name__)
 
@@ -49,7 +50,7 @@ def _discover_plugins(definition, event_manager, host_types):
     invalid_plugins = []
     for plugin in plugins:
         plugin_type = "{}.{}".format(def_obj.type, plugin.type)
-        if not discover._discover_plugin(event_manager, host_types, plugin, plugin_type):
+        if not _discover_plugin(event_manager, host_types, plugin, plugin_type):
             invalid_plugins.append(plugin)
     if invalid_plugins:
         return False
@@ -74,12 +75,9 @@ def _discover_plugin(event_manager, host_types, plugin, plugin_type):
 
     for host_type in reversed(host_types):
 
-        # TODO: Also this registry, should probably be moved to the host, as well as we register the definitions in there.
         plugin_result = event_manager.publish.discover_plugin(
             plugin_name,
-            plugin_type,
             host_type,
-            category='plugin'
         )
 
         if plugin_result:

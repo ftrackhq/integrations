@@ -240,8 +240,7 @@ class Publish(object):
         return self._publish_event(event_topic, data, callback)
 
     def discover_plugin(
-            self, plugin_name, plugin_method, host_type,
-            plugin_data, plugin_options, plugin_context_data, callback=None
+            self, plugin_name, host_type, callback=None
     ):
         '''
         Publish an event with topic
@@ -249,11 +248,7 @@ class Publish(object):
         '''
         data = {
             'plugin_name': plugin_name,
-            'plugin_method': plugin_method,
             'host_type': host_type,
-            'plugin_data': plugin_data,
-            'plugin_options': plugin_options,
-            'plugin_context_data': plugin_context_data,
         },
 
         event_topic = constants.event.DISCOVER_PLUGIN_TOPIC

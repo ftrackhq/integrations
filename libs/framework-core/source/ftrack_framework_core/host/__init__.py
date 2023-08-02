@@ -180,12 +180,13 @@ class Host(object):
         self.logger = logging.getLogger(
             __name__ + '.' + self.__class__.__name__
         )
-        self.logger.debug('Initializing Host {}'.format(self))
-
         # Create the host id
         self._host_id = '{}-{}'.format(
             '.'.join(self.host_types), uuid.uuid4().hex
         )
+
+        self.logger.debug('Initializing Host {}'.format(self))
+
         # Reset Logs
         self._logs = None
         # Set event manager and object manager
@@ -228,6 +229,7 @@ class Host(object):
                 self._on_register_definitions_callback, self.schemas
             )
         )
+        print("self.__definitions_registry {}".format(self.__definitions_registry))
         if (
                 self.__plugins_registry and
                 self.__schemas_registry and
@@ -261,17 +263,18 @@ class Host(object):
             )
             if type(result) == list:
                 # Result might be a list so extend the current registry list
-                registry_result.extend(register_module.register())
+                registry_result.extend(result)
                 continue
             # If result is just string, we append it to our registry
-            registry_result.append(register_module.register())
+            registry_result.append(result)
 
         # Call the callback with the result
         if registry_result:
             callback(registry_result)
-        self.logger.error(
-            "Couldn't find any {} module to register".format(module_type)
-        )
+        else:
+            self.logger.error(
+                "Couldn't find any {} module to register".format(module_type)
+            )
 
     def _on_register_plugins_callback(self, registred_plugins):
         '''
@@ -292,7 +295,7 @@ class Host(object):
         '''
         schema_paths = list(set(schema_paths))
 
-        schemas = self._discover_schemas(schema_paths, self.host_types)
+        schemas = self._discover_schemas(schema_paths)
 
         self.__schemas_registry = schemas
 
@@ -335,10 +338,11 @@ class Host(object):
         end = time.time()
         logger.debug('Discover schemas run in: {}s'.format((end - start)))
 
-        for key, value in list(valid_schemas.items()):
-            logger.warning(
-                'Schemas : {} : {}'.format(key, len(value))
-            )
+        # TODO: re-activate this when schema augmentation is solved
+        # for key, value in list(valid_schemas.items()):
+        #     logger.warning(
+        #         'Schemas : {} : {}'.format(key, len(value))
+        #     )
 
         return valid_schemas
 

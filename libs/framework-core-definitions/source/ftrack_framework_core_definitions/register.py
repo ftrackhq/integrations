@@ -31,6 +31,5 @@ def register(event_manager, host_id, ftrack_object_manager):
 
     # We just need to pass the location of this file in order to register
     # definitions.
-    print("in the first registry")
     current_dir = os.path.dirname(__file__)
     return current_dir
