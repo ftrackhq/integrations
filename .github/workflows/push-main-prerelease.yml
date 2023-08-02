@@ -18,7 +18,7 @@ jobs:
     with:
       full_release: false
       check_changed: true
-      version: "0.0.0rc"
+      version: "v0.0.0rc"
 
   # Create a pre-release for the packages that have changed.
   pre-release:

@@ -355,13 +355,14 @@ class AssemblerBrowserWidget(AssemblerBaseWidget):
                 )
             )
             versions = []
+            # We query from TypedContext where project_id is.... to avoid using
+            # the asset.project_id which is not compatible with
+            # ftrack version <4.10.2
             for version in self.session.query(
                 'select components.name,components.file_type,id,version,date,comment,is_latest_version,thumbnail_url,'
                 'asset.id,asset.name,asset.type.id,task.link,task.name,status.id,status.name,user.id '
                 'from AssetVersion where is_latest_version=true and ('
-                'asset.context_id in ('
-                'select id from TypedContext where ancestors.id is "{0}"'
-                ') or '
+                'asset.context_id in (select id from TypedContext where project_id is "{0}") or '
                 'asset.context_id is "{0}" or '
                 'asset.project_id is "{0}" or '
                 'task_id is "{0}"'
