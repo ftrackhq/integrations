@@ -324,6 +324,8 @@ class LoadPublishEngine(BaseEngine):
         :meth:`~ftrack_framework_core.client.HostConnection.run` Should be a
         valid definition.
         '''
+
+
         # Convert current definition to DefinitionObject
         definition_object = definition_object.DefinitionObject(definition_data)
 
@@ -339,6 +341,8 @@ class LoadPublishEngine(BaseEngine):
                     )
                 )
                 continue
+            if step.type == constants.FINALIZERS:
+                group_results = copy.deepcopy(components_output)
             # TODO: add step_data from previous group results
             step_status, step_result = self.run_step(
                 step_name=step.name,
