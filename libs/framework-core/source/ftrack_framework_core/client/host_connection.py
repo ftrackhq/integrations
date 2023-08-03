@@ -55,13 +55,13 @@ class HostConnection(object):
         '''Returns the current definitions, filtered on discoverable.'''
         context_identifiers = []
         # Find context identifiers (Based on the context id, are we in a task,
-        # project, entity type, etc...)
+        # entity type, etc...)
         if self.context_id:
             entity = self.session.query(
                 'TypedContext where id is {}'.format(self.context_id)
             ).first()
             if entity:
-                # Task, Project,...
+                # Task, Asset,...
                 context_identifiers.append(entity.get('context_type').lower())
                 if 'type' in entity:
                     # Modeling, animation...
@@ -81,9 +81,7 @@ class HostConnection(object):
                 )
             return copy.deepcopy(result)
 
-        return definition_object.DefinitionList(
-            self._raw_host_data['definitions']
-        )
+        return self._raw_host_data['definitions']
 
     def _filter_definitions(self, context_identifiers, definitions):
         '''Filter *definitions* on *context_identifiers* and discoverable.'''
@@ -116,8 +114,7 @@ class HostConnection(object):
             if match:
                 result.append(definition)
 
-        # Convert the list to our custom DefinitionList so we can have get
-        # method and automatically convert all definitions to definitionObject
+        # Convert the result to definition List
         return definition_object.DefinitionList(result)
 
     def __del__(self):
@@ -150,7 +147,7 @@ class HostConnection(object):
         self._raw_host_data = copy_data
         self._context_id = self._raw_host_data.get('context_id')
 
-        self.event_manager.events.subscribe.host_context_changed(
+        self.event_manager.subscribe.host_context_changed(
             self.host_id,
             self._on_host_context_changed_callback
         )

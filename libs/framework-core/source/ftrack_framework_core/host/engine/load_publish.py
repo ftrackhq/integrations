@@ -133,8 +133,8 @@ class LoadPublishEngine(BaseEngine):
             default_method = plugin_definition['default_method']
 
             plugin_result = self.run_plugin(
-                plugin_name=plugin_definition.get('plugin_name'),
-                plugin_default_method=plugin_definition.get('plugin_default_method'),
+                plugin_name=plugin_definition['plugin'],
+                plugin_default_method=plugin_definition['default_method'],
                 # We don't want to pass the information of the previous plugin, so that
                 # is why we only pass the data of the previous stage.
                 plugin_data=stage_data,
@@ -145,6 +145,7 @@ class LoadPublishEngine(BaseEngine):
                 # default_method is defined in the definitions
                 plugin_method=plugin_definition['default_method'],
             )
+            print(plugin_result)
 
             bool_status = constants.status.status_bool_mapping[
                 plugin_result['status']

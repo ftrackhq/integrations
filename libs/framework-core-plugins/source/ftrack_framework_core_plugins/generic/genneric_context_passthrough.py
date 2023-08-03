@@ -5,7 +5,7 @@ from ftrack_framework_plugin import BasePlugin
 from ftrack_framework_plugin import constants
 
 class GenericContextPassthroughPlugin(BasePlugin):
-    plugin_name = 'generic_context_passthrough'
+    name = 'generic_context_passthrough'
     host_type = constants.hosts.PYTHON_HOST_TYPE
     plugin_type = constants.PLUGIN_CONTEXT_TYPE
     '''Return the given options'''
@@ -24,6 +24,6 @@ class GenericContextPassthroughPlugin(BasePlugin):
 
     def run(self, context_data=None, data=None, options=None):
         self.logger.debug("given options: {}".format(options))
-        required_output = self.methods.get('run').required_output_value
+        required_output = self.methods.get('run').get('required_output_value')
         self.logger.debug("required_output: {}".format(required_output))
         return required_output.update(options)

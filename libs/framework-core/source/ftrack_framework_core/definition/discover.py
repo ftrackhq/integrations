@@ -29,6 +29,11 @@ def discover_definitions_plugins(definitions, event_manager, host_types):
         for definition in definitions[entry]:
             is_valid = _discover_plugins(definition, event_manager, host_types)
             if not is_valid:
+                logger.warning(
+                    'definition {} not valid for host types {}'.format(
+                        definition['name'], host_types
+                    )
+                )
                 copy_data[entry].remove(definition)
     return copy_data
 
@@ -45,19 +50,18 @@ def _discover_plugins(definition, event_manager, host_types):
     *definitions* : List of definitions (opener, loader, publisher and so on).
 
     '''
-    def_obj = definition_object.DefinitionObject(definition)
-    plugins = def_obj.get_all(category='plugin')
+    #def_obj = definition_object.DefinitionObject(definition)
+    plugins = definition.get_all(category='plugin')
     invalid_plugins = []
     for plugin in plugins:
-        plugin_type = "{}.{}".format(def_obj.type, plugin.type)
-        if not _discover_plugin(event_manager, host_types, plugin, plugin_type):
+        if not _discover_plugin(event_manager, host_types, plugin):
             invalid_plugins.append(plugin)
     if invalid_plugins:
         return False
     return True
 
 
-def _discover_plugin(event_manager, host_types, plugin, plugin_type):
+def _discover_plugin(event_manager, host_types, plugin):
     '''
     Publish an event with the topic
     :py:const:`~ftrack_framework_core.constants.DISCOVER_PLUGIN_TOPIC`
@@ -76,8 +80,8 @@ def _discover_plugin(event_manager, host_types, plugin, plugin_type):
     for host_type in reversed(host_types):
 
         plugin_result = event_manager.publish.discover_plugin(
-            plugin_name,
             host_type,
+            plugin_name,
         )
 
         if plugin_result:
@@ -87,7 +91,7 @@ def _discover_plugin(event_manager, host_types, plugin, plugin_type):
                 )
             )
             break
-        logger.debug(
+        logger.warning(
             'plugin {} not found for definition host_type {}'.format(
                 plugin_name, host_type
             )
@@ -271,6 +275,12 @@ def augment_definition(definitions, schemas, session):
                         )
 
                         continue
-                    copy_definitions[entry].append(augumented_valid_data)
+                    copy_definitions[entry].append(
+                        definition_object.DefinitionObject(
+                            augumented_valid_data
+                        )
+                    )
+                # Convert lists to DefinitionList
+                copy_definitions[entry] = definition_object.DefinitionList(copy_definitions[entry])
 
     return copy_definitions

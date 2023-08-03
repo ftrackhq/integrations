@@ -5,7 +5,7 @@ from ftrack_framework_plugin import BasePlugin
 from ftrack_framework_plugin import constants
 
 class GenericContextPassthroughPlugin(BasePlugin):
-    plugin_name = 'generic_finalizer_publish_to_ftrack'
+    name = 'generic_finalizer_publish_to_ftrack'
     host_type = constants.hosts.PYTHON_HOST_TYPE
     plugin_type = constants.PLUGIN_FINALIZER_TYPE
     '''Print given arguments'''

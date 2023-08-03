@@ -11,7 +11,7 @@ from ftrack_framework_plugin import constants
 class CommonFilePublisherExporterPlugin(BasePlugin):
     '''Standalone publisher file exporter plugin'''
 
-    plugin_name = 'common_file_publisher_exporter'
+    name = 'common_file_publisher_exporter'
     host_type = constants.hosts.PYTHON_HOST_TYPE
     plugin_type = constants.PLUGIN_EXPORTER_TYPE
 

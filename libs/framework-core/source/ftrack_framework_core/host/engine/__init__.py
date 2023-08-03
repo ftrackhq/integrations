@@ -126,6 +126,7 @@ class BaseEngine(object):
                 plugin_name, plugin_default_method, plugin_method, host_type, plugin_data,
                 plugin_options, plugin_context_data
             )
+            print(plugin_info)
             break
 
         return plugin_info

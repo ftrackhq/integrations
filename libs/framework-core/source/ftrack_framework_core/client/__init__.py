@@ -6,7 +6,7 @@ import logging
 
 from six import string_types
 
-from host_connection import HostConnection
+from ftrack_framework_core.client.host_connection import HostConnection
 from ftrack_framework_core import constants
 
 
@@ -92,7 +92,7 @@ class Client(object):
         # Subscribe log item added
         self.event_manager.subscribe.host_log_item_added(
             self.host_connection.host_id,
-            self.on_log_item_added_callback()
+            callback=self.on_log_item_added_callback
         )
         # Clean up host_context_change_subscription in case exists
         self.unsubscribe_host_context_changed()
@@ -100,7 +100,7 @@ class Client(object):
         # the host_connection. This is because we want to let the client know
         # that host changed context but also update the host connection to the
         # new context.
-        self._host_context_changed_subscribe_id = self.event_manager.events.subscribe.host_context_changed(
+        self._host_context_changed_subscribe_id = self.event_manager.subscribe.host_context_changed(
             self.host_connection.host_id, self._host_context_changed_callback
         )
         # Feed change of host and context to client
@@ -154,21 +154,23 @@ class Client(object):
         '''Returns the current definition.'''
         # TODO: add a checker to check that the definition is type definition and is in
         #  definitions
+
         if not self.host_connection:
             self.logger.error(
                 "Please set the host connection before setting a definition"
             )
             return
-        if value not in self.definitions:
+        if not self.definitions[value.type].get_first(name=value.name):
             self.logger.error(
                 "Invalid definition, choose one from : {}".format(
                     self.definitions
                 )
             )
             return
+
         self._definition = value
         # Automatically set the engine of the definition
-        self.engine_type(self.definition['_config']['engine_type'])
+        self.engine_type = self._definition['_config']['engine_type']
 
     @property
     def engine_type(self):
@@ -208,8 +210,8 @@ class Client(object):
 
         # Setting init variables to 0
         self._host_context_changed_subscribe_id = None
-        self.definition = None
-        self.engine_type = None
+        self._definition = None
+        self._engine_type = None
 
         # TODO: Initializing client
         self.logger.debug('Initialising Client {}'.format(self))
@@ -249,7 +251,7 @@ class Client(object):
                 self.logger.warning('Could not discover any host.')
                 break
 
-            self.event_manager.publish.discover_host(self._host_discovered_callback)
+            self.event_manager.publish.discover_host(callback=self._host_discovered_callback)
 
         # Feed host connections to the client
         self.on_hosts_discovered(self.host_connections)

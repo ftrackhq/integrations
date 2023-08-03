@@ -10,7 +10,7 @@ from ftrack_framework_plugin import constants
 from ftrack_framework_core import constants as core_constants
 
 class GenericPassthroughPlugin(BasePlugin):
-    plugin_name = 'generic_passthrough'
+    name = 'generic_passthrough'
     host_type = constants.hosts.PYTHON_HOST_TYPE
     plugin_type = constants.PLUGIN_GENERIC_TYPE
     '''Empty/passthrough loader finalizer plugin'''

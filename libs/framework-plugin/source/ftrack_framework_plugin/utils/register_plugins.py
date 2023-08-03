@@ -24,12 +24,10 @@ def fast_scandir(dirname):
 #  something like:
 #  from framework_utilities import register_plugins
 #  register_plugins.register( current_dir )
-def register(event_manager, host_id, ftrack_object_manager):
+def register(current_dir, event_manager, host_id, ftrack_object_manager):
     '''Register plugin to api_object.'''
 
-    # TODO: add the basePluginType class here.
     framework_plugin_type = BasePlugin
-    current_dir = os.path.dirname(__file__)
 
     subfolders = fast_scandir(current_dir)
 
@@ -39,6 +37,8 @@ def register(event_manager, host_id, ftrack_object_manager):
         cls_members = inspect.getmembers(_module, inspect.isclass)
         success_registry = False
         for name, obj in cls_members:
+            if obj == framework_plugin_type:
+                continue
             if framework_plugin_type not in inspect.getmro(obj):
                 logger.debug(
                     "Not registring {} because is not type of {}".format(
@@ -51,7 +51,7 @@ def register(event_manager, host_id, ftrack_object_manager):
                 # TODO: we need to pass event manager, host id.
                 plugin = obj(event_manager, host_id, ftrack_object_manager)
                 plugin.register()
-                registred_plugins.append(obj.__class__)
+                registred_plugins.append(obj)
             except Exception as e:
                 logger.warning(
                     "Couldn't register plugin {} \n error: {}".format(name, e)

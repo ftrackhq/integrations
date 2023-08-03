@@ -22,6 +22,9 @@ logger = logging.getLogger(__name__)
 # TODO: this is the discover_host_reply function:
 #  1. Double check if this should better be part of the host class as a method.
 #  2. Rename it to discover_host_reply_callback or similar?
+
+# TODO: update schemas to have description instead of name in the plugin section,
+#  so we don't confuse it with the plugin name which is the current plugin key.
 def provide_host_information(
         host_id, host_name, context_id, definitions, event
 ):
@@ -229,7 +232,7 @@ class Host(object):
                 self._on_register_definitions_callback, self.schemas
             )
         )
-        print("self.__definitions_registry {}".format(self.__definitions_registry))
+
         if (
                 self.__plugins_registry and
                 self.__schemas_registry and
@@ -261,6 +264,7 @@ class Host(object):
             result = register_module.register(
                 self.event_manager, self.host_id, self.ftrack_object_manager
             )
+
             if type(result) == list:
                 # Result might be a list so extend the current registry list
                 registry_result.extend(result)
@@ -379,8 +383,7 @@ class Host(object):
                 'Valid definitions : {} : {}'.format(key, len(value))
             )
 
-        # TODO: double check that this is working
-        return definition_object.DefinitionList(validated_definitions)
+        return validated_definitions
 
     # Subscribe
     def _subscribe_events(self):
@@ -403,17 +406,17 @@ class Host(object):
             self.host_id,
             self.host_name,
             self.context_id,
-            self.definitions.to_dict(),
+            self.definitions,
         )
         self.event_manager.subscribe.discover_host(
             callback=discover_host_callback_reply
         )
         # Subscribe to run definition
-        self.event_manager.events.subscribe.host_run_definition(
+        self.event_manager.subscribe.host_run_definition(
             self.host_id, self.run_definition_callback
         )
         # Subscribe to run plugin
-        self.event_manager.events.subscribe.host_run_plugin(
+        self.event_manager.subscribe.host_run_plugin(
             self.host_id, self.run_plugin_callback
         )
 
@@ -429,7 +432,7 @@ class Host(object):
         plugin_info = event['data']
         # TODO: double check this works, maybe need to modify LogItem
         log_item = LogItem(plugin_info)
-        self._logs.add_log_item(log_item)
+        self.logs.add_log_item(log_item)
         # Publish the event to notify client
         self.event_manager.publish.host_log_item_added(
             self.host_id,

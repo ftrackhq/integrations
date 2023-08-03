@@ -78,6 +78,9 @@ class BasePlugin(object):
         '''
         Type of the plugin
         '''
+        if not value:
+            self._result = value
+            return
         is_valid = self._validate_result(value)
         if not is_valid:
             self.status = constants.status.EXCEPTION_STATUS
@@ -110,6 +113,14 @@ class BasePlugin(object):
     @property
     def boolean_status(self):
         return constants.status.status_bool_mapping[self.status]
+
+    @property
+    def execution_time(self):
+        return self._execution_time
+
+    @execution_time.setter
+    def execution_time(self, value):
+        self._execution_time = value
 
     # TODO: is this used?
     @property
@@ -171,6 +182,7 @@ class BasePlugin(object):
         self._message = ''
         self._method = None
         self._default_method = None
+        self._execution_time = 0
 
         self.register_methods()
 
@@ -388,7 +400,7 @@ class BasePlugin(object):
         '''
         if not isinstance(self.session, ftrack_api.Session):
             # Exit to avoid registering this plugin again.
-            return
+            return False
 
         return True
 

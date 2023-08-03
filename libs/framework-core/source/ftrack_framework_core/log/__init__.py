@@ -154,27 +154,27 @@ class LogDB(object):
             cur = self.connection.cursor()
 
             cur.execute(
-                '''INSERT INTO {0} (date,status,widget_ref,host_id,'''
-                '''execution_time,plugin_name,result,message,user_message,'''
-                '''plugin_type, plugin_id) VALUES (?,?,?,?,?,?,?,?,?,?,?)'''.format(
+                '''INSERT INTO {0} (date,status,plugin_name,plugin_type,
+                plugin_id,host_type,plugin_status,plugin_result,
+                plugin_execution_time,plugin_message,plugin_context_data,
+                plugin_data,plugin_options) VALUES (?,?,?,?,?,?,?,?,?,?,?)'''.format(
                     self.table_name
                 ),
                 (
                     time.time(),
-                    log_item.status,
-                    log_item.widget_ref,
+                    log_item.plugin_status,
                     log_item.host_id,
-                    log_item.execution_time,
                     log_item.plugin_name,
-                    base64.encodebytes(
-                        json.dumps(log_item.result, cls=ResultEncoder).encode(
-                            'utf-8'
-                        )
-                    ).decode('utf-8'),
-                    log_item.message,
-                    log_item.user_message,
                     log_item.plugin_type,
                     log_item.plugin_id,
+                    log_item.host_type,
+                    log_item.plugin_status,
+                    log_item.plugin_result,
+                    log_item.plugin_execution_time,
+                    log_item.plugin_message,
+                    log_item.plugin_context_data,
+                    log_item.plugin_data,
+                    log_item.plugin_options,
                 ),
             )
             self.connection.commit()
