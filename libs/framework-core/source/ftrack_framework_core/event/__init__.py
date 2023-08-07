@@ -156,7 +156,9 @@ class EventManager(object):
             self.session.event_hub.publish(event, on_reply=callback)
 
     def _subscribe(self, topic, callback):
-        subscribe_id = self.session.event_hub.subscribe('topic={}'.format(topic), callback)
+        subscribe_id = self.session.event_hub.subscribe(
+            'topic={}'.format(topic), callback
+        )
         return subscribe_id
 
     def available_framework_events(self):
@@ -179,8 +181,8 @@ class Publish(object):
         Common method that calls the private publish method from the
         event manager
         '''
-        event = ftrack_api.event.base.Event(topic=event_topic, data=data)
-        publish_result = self.event_manager._publish(event, callback=callback)
+        publish_event = ftrack_api.event.base.Event(topic=event_topic, data=data)
+        publish_result = self.event_manager._publish(publish_event, callback=callback)
         return publish_result
 
     def discover_host(self, callback=None):
@@ -188,8 +190,10 @@ class Publish(object):
         Publish an event with topic
         :const:`~ftrack_framework_core.constants.event.DISCOVER_HOST_TOPIC`
         '''
-        topic = constants.event.DISCOVER_HOST_TOPIC
-        return self._publish_event(topic, callback)
+
+        data = None
+        event_topic = constants.event.DISCOVER_HOST_TOPIC
+        return self._publish_event(event_topic, data, callback)
 
     def host_run_definition(self, host_id, definition, engine_type, callback=None):
         '''
@@ -228,33 +232,28 @@ class Publish(object):
         '''
         data = {
                 'plugin_name': plugin_name,
-                'plugin_default_method':plugin_default_method,
+                'plugin_default_method': plugin_default_method,
                 'plugin_method': plugin_method,
                 'host_type': host_type,
                 'plugin_data': plugin_data,
                 'plugin_options': plugin_options,
                 'plugin_context_data': plugin_context_data,
-            },
+            }
 
         event_topic = constants.event.EXECUTE_PLUGIN_TOPIC
         return self._publish_event(event_topic, data, callback)
 
     def discover_plugin(
-            self, plugin_name, plugin_method, host_type,
-            plugin_data, plugin_options, plugin_context_data, callback=None
+            self, host_type, plugin_name, callback=None
     ):
         '''
         Publish an event with topic
         :const:`~ftrack_framework_core.constants.event.DISCOVER_PLUGIN_TOPIC`
         '''
         data = {
-            'plugin_name': plugin_name,
-            'plugin_method': plugin_method,
             'host_type': host_type,
-            'plugin_data': plugin_data,
-            'plugin_options': plugin_options,
-            'plugin_context_data': plugin_context_data,
-        },
+            'plugin_name': plugin_name,
+        }
 
         event_topic = constants.event.DISCOVER_PLUGIN_TOPIC
         return self._publish_event(event_topic, data, callback)
@@ -409,7 +408,7 @@ class Subscribe(object):
         '''
         event_topic = (
             '{} and data.host_type={}'
-            'and data.plugin_name={}'.format(
+            ' and data.plugin_name={}'.format(
                 constants.event.EXECUTE_PLUGIN_TOPIC, host_type, plugin_name
             )
         )
@@ -422,7 +421,7 @@ class Subscribe(object):
         '''
         event_topic = (
             '{} and data.host_type={}'
-            'and data.plugin_name={}'.format(
+            ' and data.plugin_name={}'.format(
                 constants.event.DISCOVER_PLUGIN_TOPIC, host_type, plugin_name
             )
         )

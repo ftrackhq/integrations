@@ -13,7 +13,7 @@ from ftrack_framework_core.constants import asset as asset_constants
 class CommonContextLoaderCollectorPlugin(BasePlugin):
     '''Plugin that collects loader compatible component paths'''
 
-    plugin_name = 'common_context_loader_collector'
+    name = 'common_context_loader_collector'
     host_type = constants.hosts.PYTHON_HOST_TYPE
     plugin_type = constants.PLUGIN_COLLECTOR_TYPE
 

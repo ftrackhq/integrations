@@ -92,11 +92,9 @@ class Definition(BaseDefinition):
         Register the definition subscribing to the
         DISCOVER_DEFINITION_TOPIC event
         '''
-        print("registring")
         if not isinstance(self.session, ftrack_api.Session):
             # Exit to avoid registering this plugin again.
             return
-        print("subscribing")
         self.event_manager.subscribe.discover_definition(partial(self._register_definitions_callback, path))
 
     # TODO: rename to register_definitions_callback.

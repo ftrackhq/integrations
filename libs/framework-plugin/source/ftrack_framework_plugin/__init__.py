@@ -20,7 +20,7 @@ class BasePlugin(object):
     '''Base Class to represent a Plugin'''
 
     # We Define name, plugin_type and host_type as class variables for
-    # conviniance for the user when crreating its own plugin.
+    # convenience for the user when creating its own plugin.
     name = None
     plugin_type = None
     host_type = None
@@ -36,44 +36,6 @@ class BasePlugin(object):
         :class:`~ftrack_framework_core.asset.FtrackObjectManager`
         '''
         return self._ftrack_object_manager
-
-    # @property
-    # def dcc_object(self):
-    #     '''
-    #     Returns the :obj:`dcc_object` from the
-    #     :class:`~ftrack_framework_core.asset.FtrackObjectManager`
-    #     '''
-    #     return self.ftrack_object_manager.dcc_object
-    #
-    # @dcc_object.setter
-    # def dcc_object(self, value):
-    #     '''
-    #     Sets the :obj:`dcc_object` to the
-    #     :class:`~ftrack_framework_core.asset.FtrackObjectManager`
-    #     '''
-    #     self.ftrack_object_manager.dcc_object = value
-    #
-    # @property
-    # def asset_info(self):
-    #     '''
-    #     Returns the :obj:`asset_info` from the
-    #     :class:`~ftrack_framework_core.asset.FtrackObjectManager`
-    #     '''
-    #     return self.ftrack_object_manager.asset_info
-    #
-    # @asset_info.setter
-    # def asset_info(self, value):
-    #     '''
-    #     Sets the :obj:`asset_info` to the
-    #     :class:`~ftrack_framework_core.asset.FtrackObjectManager`
-    #     '''
-    #     self.ftrack_object_manager.asset_info = value
-
-    # TODO: check the outup and maybe change name to required_output
-    # @property
-    # def output(self):
-    #     '''Returns a copy of :attr:`required_output`'''
-    #     return copy.deepcopy(self._required_output)
 
     @property
     def session(self):
@@ -97,27 +59,6 @@ class BasePlugin(object):
         '''
         return self._id
 
-    # @property
-    # def name(self):
-    #     '''
-    #     Name of the plugin
-    #     '''
-    #     return self._name
-    #
-    # @property
-    # def plugin_type(self):
-    #     '''
-    #     Type of the plugin
-    #     '''
-    #     return self._plugin_type
-    #
-    # @property
-    # def host_type(self):
-    #     '''
-    #     Type of the plugin
-    #     '''
-    #     return self._host_type
-
     @property
     def host_id(self):
         '''
@@ -126,14 +67,14 @@ class BasePlugin(object):
         return self._host_id
 
     @property
-    def result(self):
+    def method_result(self):
         '''
         Type of the plugin
         '''
-        return self._result
+        return self._method_result
 
-    @result.setter
-    def result(self, value):
+    @method_result.setter
+    def method_result(self, value):
         '''
         Type of the plugin
         '''
@@ -141,7 +82,22 @@ class BasePlugin(object):
         if not is_valid:
             self.status = constants.status.EXCEPTION_STATUS
 
-        self._result = value
+        self._method_result = value
+        self.result_registry = value
+
+    @property
+    def result_registry(self):
+        '''
+        Type of the plugin
+        '''
+        return self._result_registry
+
+    @result_registry.setter
+    def result_registry(self, value):
+        '''
+        Type of the plugin
+        '''
+        self._result_registry[self.method] = value
 
     @property
     def status(self):
@@ -170,20 +126,20 @@ class BasePlugin(object):
     def boolean_status(self):
         return constants.status.status_bool_mapping[self.status]
 
+    @property
+    def execution_time(self):
+        return self._execution_time
+
+    @execution_time.setter
+    def execution_time(self, value):
+        self._execution_time = value
+
     # TODO: is this used?
     @property
     def raw_plugin_data(self):
         # TODO: fix this docstring
         '''Returns the current context id'''
         return self._raw_plugin_data
-
-    # # TODO: are plugin setting the same as plugin options? If so, align it.
-    # #  I think are the context_data, data and options arguments that are passed to execute a plugin. But this should probbably come from the plugin_object, and also maybe we should try to clean up the event to not be that complicated.
-    # # TODO: update all places where using plugin_settings to self._context_data, self._plugin_data, self._options properties. re-review this.
-    # @property
-    # def plugin_settings(self):
-    #     '''Returns the current plugin_settings'''
-    #     return self._plugin_settings
 
     @property
     def method(self):
@@ -228,23 +184,19 @@ class BasePlugin(object):
             '{0}.{1}'.format(__name__, self.__class__.__name__)
         )
 
-        # TODO: we should add as ABC the required output could be None, the required result type should always be in. and the required_result_value could be none
-
-        # TODO: we should initialize self._plugin_settings in here
         self._event_manager = event_manager
         self._ftrack_object_manager = ftrack_object_manager
         self._host_id = host_id
         self._id = uuid.uuid4().hex
-        # self._plugin_type = self.plugin_type
-        # self._name = self.name
-        # self._host_type = self.host_Type
         self._raw_plugin_data = []
-        #self._default_method = None
         self._methods = {}
         self._status = constants.status.UNKNOWN_STATUS
         self._message = ''
-        # TODO: _method: This should be a string not a list
         self._method = None
+        self._default_method = None
+        self._execution_time = 0
+        self._result_registry = {}
+        self._method_result = None
 
         self.register_methods()
 
@@ -274,7 +226,7 @@ class BasePlugin(object):
         #Reset all statuses
         self.status = constants.status.DEFAULT_STATUS
         self.message = None
-        self.result = None
+        self._method_result = None
 
         # Override the current execute method for the one given by the event
         self._default_method = event['data'].get('plugin_default_method')
@@ -289,6 +241,7 @@ class BasePlugin(object):
         # reset message
         self.message = None
         try:
+            self.status = constants.status.RUNNING_STATUS
             event = self.pre_execute_callback_hook(event)
         except Exception as e:
             # If status is valid, set to not
@@ -308,15 +261,22 @@ class BasePlugin(object):
             self._notify_client()
             return self.provide_plugin_info()
 
+        # Print post Execute error handled by the plugin
+        if not self.boolean_status:
+            # Generic message printing the result in case no message is provided.
+            if not self.message:
+                self.message = (
+                    "Error detected on the pre execute funtion of the plugin {}, "
+                    "but no message provided. "
+                    "event is: {}.".format(self.name, event)
+                )
+            self.logger.error(self.message)
+            self._notify_client()
+            return self.provide_plugin_info()
+
         # Get the execute Method
         execute_fn = getattr(self, self.method)
-        # Execute the method
-        # TODO: maybe here in the future we can pass different arguments, but
-        #  think about it carefully, because this maight make it over complicated.
-        # TODO: we handle the staus here using a try except, but user can also set the status in the plugin.
-        #  user returns the result and we set the result in here. User can set the message or we set the message here.
 
-        # TODO: evaluate if to put these 3 in a function
         self.message = (
             "Execute method {} with following arguments:\n "
             "context_data: {} \n "
@@ -329,8 +289,12 @@ class BasePlugin(object):
         self._notify_client()
         # reset message
         self.message = None
+
         try:
-            self.result = execute_fn(
+            # Execute the method
+            # TODO: maybe here in the future we can pass different arguments, but
+            #  think about it carefully, because this might make it over complicated.
+            self.method_result = execute_fn(
                 context_data=self.context_data,
                 data=self.plugin_data,
                 options=self.plugin_options
@@ -355,21 +319,26 @@ class BasePlugin(object):
             if not self.message:
                 self.message = (
                     "Error detected on the plugin {}, but no message provided. "
-                    "Result is {}.".format(self.name, self.result)
+                    "Result is {}.".format(self.name, self.method_result)
                 )
             self.logger.error(self.message)
             self._notify_client()
             return self.provide_plugin_info()
 
-        # Post execute callback hook
-        self.message = "Execute te_callback"
+        # Notify client
+        self.message = "Plugin executed succesfully, result: {}".format(
+            self.method_result
+        )
         self._notify_client()
+        # Post execute callback hook
         # reset message
         self.message = None
         try:
             # We are not setting the post_execute_result as the result for now
             # because is a free method that maight not validate.
-            post_execute_result = self.post_execute_callback_hook(self.result)
+            post_execute_result = self.post_execute_callback_hook(
+                self.method_result
+            )
         except Exception as e:
             # If status is valid, set to not
             if self.boolean_status:
@@ -388,11 +357,27 @@ class BasePlugin(object):
             self._notify_client()
             return self.provide_plugin_info()
 
+        # Print post Execute error handled by the plugin
+        if not self.boolean_status:
+            # Generic message printing the result in case no message is provided.
+            if not self.message:
+                self.message = (
+                    "Error detected on the post execute funtion of the plugin {}, "
+                    "but no message provided. "
+                    "Result is: {}.".format(self.name, post_execute_result)
+                )
+            self.logger.error(self.message)
+            self._notify_client()
+            return self.provide_plugin_info()
+
+        self.message = "Post execute plugin succesfully, result: {}".format(
+            post_execute_result
+        )
+        self.status = constants.status.SUCCESS_STATUS
         end_time = time.time()
         total_time = end_time - start_time
         self.execution_time = total_time
 
-        # TODO: if we want, the notification to the client can be handled here, otherwise we can handle it in the engine as we do now.
         self._notify_client()
         return self.provide_plugin_info()
 
@@ -408,9 +393,11 @@ class BasePlugin(object):
             'plugin_id': self.id,
             'plugin_method': self.method,
             'host_type': self.host_type,
+            'plugin_boolean_status': self.boolean_status,
             'plugin_status': self.status,
-            'plugin_result':self.result,
-            'plugin_execution_time':self.execution_time,
+            'plugin_method_result': self.method_result,
+            'plugin_result_registry': self.result_registry,
+            'plugin_execution_time': self.execution_time,
             'plugin_message': self.message,
             'plugin_context_data':self.context_data,
             'plugin_data': self.plugin_data,
@@ -465,7 +452,7 @@ class BasePlugin(object):
         '''
         if not isinstance(self.session, ftrack_api.Session):
             # Exit to avoid registering this plugin again.
-            return
+            return False
 
         return True
 
@@ -492,7 +479,7 @@ class BasePlugin(object):
                 )
             )
             return is_valid
-        # TODO: this should act as booth, checks the keys and the values if its a dictionary, if its a string or a boolean then just the result
+
         if self.methods[self.method].get('required_output_value'):
             is_valid = validation.validate_output_value(
                 result,
@@ -522,137 +509,7 @@ class BasePlugin(object):
                 break
         return collector_result
 
-
-    # def _parse_run_event(self, event):
-    #     '''
-    #     Parse the event given on the :meth:`_run`. Returns method name to be
-    #     executed and plugin_setting to be passed to the method.
-    #     Also this functions saves the original passed data to the property
-    #     :obj:`raw_plugin_data`.
-    #
-    #     Note:: Publisher validator, exporters and Loader/Opener importer and post_importer
-    #     plugin types override this function to modify the data that arrives to
-    #     the plugin.
-    #     '''
-    #     method = event['data']['method']
-    #     self.logger.debug('method : {}'.format(method))
-    #     plugin_data = event['data']['plugin_data']
-    #     plugin_options = event['data']['options']
-    #     context_data = event['data']['context_data']
-    #     self.logger.debug('plugin_settings : {}'.format(plugin_data, plugin_options, context_data))
-    #     # Save a copy of the original data as _raw_plugin_data to be able to be access
-    #     # to the original data in case we modify it for a specific plugin. So
-    #     # the user can allways aces to self.raw_plugin_data property.
-    #     self._raw_plugin_data = plugin_data
-    #     return method, plugin_data, plugin_options, context_data
-
-    # def _run(self, event):
-    #     '''
-    #     Callback function of the event
-    #     :const:`~ftrack_framework_core.constants.HOST_RUN_PLUGIN_TOPIC`
-    #     Runs the method passed in the given
-    #     *event* ['data']['pipeline']['method'].
-    #
-    #     Returns a dictionary with the result information of the called method.
-    #
-    #     *event* : Dictionary returned when the event topic
-    #     :const:`~ftrack_framework_core.constants.HOST_RUN_PLUGIN_TOPIC` is
-    #     called.
-    #
-    #     '''
-    #     # Having this in a separate method, we can override the parse depending
-    #     #  on the plugin type.
-    #     self._method, self._context_data, self._plugin_data, self._options = self._parse_run_event(event)
-    #
-    #     start_time = time.time()
-    #
-    #     user_data = {}
-    #
-    #     # TODO: should this come from the definition_object? or from constants? Somewhere, we should define how a plugin is. and what should it return.
-    #     #  Maybe having the plugin_object that inherits form the plugin definition object
-    #     result_data = {
-    #         'plugin_name': self.plugin_name,
-    #         'plugin_type': self.plugin_type,
-    #         'method': self.method,
-    #         'status': constants.UNKNOWN_STATUS,
-    #         'result': None,
-    #         'execution_time': 0,
-    #         'message': None,
-    #         'user_data': user_data,
-    #         'plugin_id': self.plugin_id,
-    #     }
-    #
-    #     # TODO: add a comment here explaining that we detect which method to run before execute the plugin
-    #     run_fn = getattr(self, self.method)
-    #     if not run_fn:
-    #         message = (
-    #             'The method : {} does not exist for the '
-    #             'plugin:{}'.format(self.method, self.plugin_name)
-    #         )
-    #         self.logger.debug(message)
-    #         result_data['status'] = constants.EXCEPTION_STATUS
-    #         result_data['execution_time'] = 0
-    #         result_data['message'] = str(message)
-    #         return result_data
-    #     try:
-    #         result = run_fn(context_data=self.context_data, data=self.plugin_data, options=self.options)
-    #         if isinstance(result, tuple):
-    #             user_data = result[1]
-    #             result = result[0]
-    #
-    #     except Exception as message:
-    #         end_time = time.time()
-    #         total_time = end_time - start_time
-    #         tb = traceback.format_exc()
-    #         self.logger.error(message, exc_info=True)
-    #         result_data['status'] = constants.EXCEPTION_STATUS
-    #         result_data['execution_time'] = total_time
-    #         result_data['message'] = str(tb)
-    #         return result_data
-    #
-    #     end_time = time.time()
-    #     total_time = end_time - start_time
-    #     result_data['execution_time'] = total_time
-    #     # We check that the optional user_data it's a dictionary and contains
-    #     # message and data keys.
-    #     # TODO: can we clean up this? maybe separating it into a smaller method will be easier.
-    #     if user_data:
-    #         (
-    #             user_data_status,
-    #             user_data_validation_message,
-    #         ) = self._validate_user_data(user_data)
-    #         user_bool_status = constants.status_bool_mapping[user_data_status]
-    #         if not user_bool_status:
-    #             result_data['status'] = constants.EXCEPTION_STATUS
-    #             result_data['message'] = str(user_data_validation_message)
-    #             return result_data
-    #         elif result is False:
-    #             user_data_message = user_data.get('message')
-    #             result_data['status'] = constants.ERROR_STATUS
-    #             result_data['message'] = 'Failed to run {}: {}'.format(
-    #                 self.__class__.__name__,
-    #                 user_data_message
-    #                 if len(user_data_message or '') > 0
-    #                 else 'No message provided',
-    #             )
-    #             return result_data
-    #     if self.method == 'run':
-    #         status, message = self._validate_result(result)
-    #     else:
-    #         status = constants.SUCCESS_STATUS
-    #         message = 'Successfully run :{}'.format(self.__class__.__name__)
-    #     result_data['status'] = status
-    #     result_data['message'] = message
-    #     result_data['user_data'] = user_data
-    #
-    #     bool_status = constants.status_bool_mapping[status]
-    #     if bool_status:
-    #         # TODO: somehow we should use the plugin object in here.
-    #         result_data['result'] = {self.method: result}
-    #
-    #     return result_data
-
-    # tODO: this should be an ABC MEthod
+    # TODO: this should be an ABC method
     def run(self, context_data=None, data=None, options=None):
         '''
         Runs the current plugin with , *context_data* , *data* and *options*.
@@ -672,7 +529,7 @@ class BasePlugin(object):
         '''
         raise NotImplementedError('Missing run method.')
 
-    # TODO: this should be an EBC method
+    # TODO: this should be an ABC method
     def fetch(self, context_data=None, data=None, options=None):
         '''
         Runs the current plugin with , *context_data* , *data* and *options*.

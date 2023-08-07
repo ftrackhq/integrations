@@ -132,7 +132,9 @@ class BaseFinalizerPlugin(BasePlugin):
         comment = self.context_data['comment']
         status_id = self.context_data['status_id']
         asset_name = self.context_data['asset_name']
-        asset_type_name = self.context_data['asset_type_name']
+        # TODO: Discuss with the team, how we pass the asset type, in the
+        #  definition or in the context plugin? Right now only capable of publishing script asset type
+        asset_type_name = 'script'#self.context_data['asset_type_name']
 
         # Get Status object
         status_object = self.session.query(
@@ -195,25 +197,19 @@ class BaseFinalizerPlugin(BasePlugin):
 
             results = {}
 
-            # TODO: try to simplify this using the definition object,
-            #  and automatically query the plugins
-            for step in self.plugin_data:
-                if step['type'] == core_constants.COMPONENT:
-                    component_name = step['name']
-                    for stage in step['result']:
-                        for plugin in stage['result']:
-                            for component_path in plugin['result']:
-                                publish_component_fn = (
-                                    self.component_functions.get(
-                                        component_name, self._create_component
-                                    )
-                                )
-                                publish_component_fn(
-                                    asset_version_object,
-                                    component_name,
-                                    component_path,
-                                )
-                                results[component_name] = True
+            for component_name, paths in result.items():
+                publish_component_fn = (
+                    self.component_functions.get(
+                        component_name, self._create_component
+                    )
+                )
+               # TODO: allow multiple paths
+                publish_component_fn(
+                    asset_version_object,
+                    component_name,
+                    paths[0],
+                )
+                results[component_name] = True
             self.session.commit()
             rollback = False
         except:

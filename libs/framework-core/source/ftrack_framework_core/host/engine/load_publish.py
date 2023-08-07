@@ -92,7 +92,6 @@ class LoadPublishEngine(BaseEngine):
 
         *step_type* : Type of the step.
         '''
-        plugin_type = '{}.{}'.format(self.engine_type, stage_name)
 
         stage_status = True
         stage_results = []
@@ -133,11 +132,11 @@ class LoadPublishEngine(BaseEngine):
             default_method = plugin_definition['default_method']
 
             plugin_result = self.run_plugin(
-                plugin_name=plugin_definition.get('plugin_name'),
-                plugin_default_method=plugin_definition.get('plugin_default_method'),
+                plugin_name=plugin_definition['plugin'],
+                plugin_default_method=plugin_definition['default_method'],
                 # We don't want to pass the information of the previous plugin, so that
                 # is why we only pass the data of the previous stage.
-                plugin_data=stage_data,
+                plugin_data=copy.deepcopy(stage_data),
                 # From the definition + stage_options
                 plugin_options=plugin_options,
                 # Data from the plugin context
@@ -147,40 +146,24 @@ class LoadPublishEngine(BaseEngine):
             )
 
             bool_status = constants.status.status_bool_mapping[
-                plugin_result['status']
+                plugin_result['plugin_status']
             ]
             if not bool_status:
                 stage_status = False
-                result = plugin_result['result']
+                result = plugin_result['plugin_method_result']
                 # We log a warning if a plugin on the stage failed.
                 self.logger.error(
                     "Execution of the plugin {} failed.".format(plugin_name)
                 )
-            else:
-                if plugin_result['result']:
-                    result = plugin_result['result'].get(default_method)
-                    if step_type == constants.CONTEXT:
-                        # tODO: review this when testing, I think we can remove it.
-                        result['asset_type_name'] = self.asset_type_name
+            # TODO: deactivating this for now, I think is not needed.
+            # else:
+            #     if plugin_result['plugin_method_result']:
+            #         result = plugin_result['plugin_result_registry'].get(default_method)
+            #         if step_type == constants.CONTEXT:
+            #             # tODO: review this when testing, I think we can remove it.
+            #             result['asset_type_name'] = self.asset_type_name
 
-            # TODO: This should be the plugin result becasue its already the plugin_info dictionary returned by the plugin.
-            plugin_dict = {
-                "name": plugin_name,
-                "options": plugin_options,
-                "result": result,
-                "status": bool_status,
-                "category": category,
-                "type": type,
-                "plugin_type": plugin_result['plugin_type'],
-                "method": plugin_result['method'],
-                "user_data": plugin_result.get('user_data') or {},
-                "message": plugin_result['message'],
-                "widget_ref": plugin_result['widget_ref'],
-                "host_id": plugin_result['host_id'],
-                "plugin_id": plugin_result['plugin_id'],
-            }
-
-            stage_results.append(plugin_dict)
+            stage_results.append(plugin_result)
             i += 1
         return stage_status, stage_results
 
@@ -348,6 +331,7 @@ class LoadPublishEngine(BaseEngine):
                 step_options = {}
 
                 if step_group == constants.COMPONENTS:
+                    # TODO: This is wrong. Should already be defined in the options.
                     if 'file_formats' in step:
                         step_options['file_formats'] = step[
                             'file_formats'
@@ -407,7 +391,7 @@ class LoadPublishEngine(BaseEngine):
                 context_latest_stage = context_latest_step.get('result')[-1]
                 context_data = {}
                 for context_plugin in context_latest_stage.get('result'):
-                    context_data.update(context_plugin.get('result'))
+                    context_data.update(context_plugin.get('plugin_method_result'))
 
             elif step_group == constants.COMPONENTS:
                 components_output = copy.deepcopy(group_results)

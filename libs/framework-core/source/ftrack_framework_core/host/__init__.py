@@ -22,6 +22,9 @@ logger = logging.getLogger(__name__)
 # TODO: this is the discover_host_reply function:
 #  1. Double check if this should better be part of the host class as a method.
 #  2. Rename it to discover_host_reply_callback or similar?
+
+# TODO: update schemas to have description instead of name in the plugin section,
+#  so we don't confuse it with the plugin name which is the current plugin key.
 def provide_host_information(
         host_id, host_name, context_id, definitions, event
 ):
@@ -180,12 +183,13 @@ class Host(object):
         self.logger = logging.getLogger(
             __name__ + '.' + self.__class__.__name__
         )
-        self.logger.debug('Initializing Host {}'.format(self))
-
         # Create the host id
         self._host_id = '{}-{}'.format(
             '.'.join(self.host_types), uuid.uuid4().hex
         )
+
+        self.logger.debug('Initializing Host {}'.format(self))
+
         # Reset Logs
         self._logs = None
         # Set event manager and object manager
@@ -228,6 +232,7 @@ class Host(object):
                 self._on_register_definitions_callback, self.schemas
             )
         )
+
         if (
                 self.__plugins_registry and
                 self.__schemas_registry and
@@ -259,19 +264,21 @@ class Host(object):
             result = register_module.register(
                 self.event_manager, self.host_id, self.ftrack_object_manager
             )
+
             if type(result) == list:
                 # Result might be a list so extend the current registry list
-                registry_result.extend(register_module.register())
+                registry_result.extend(result)
                 continue
             # If result is just string, we append it to our registry
-            registry_result.append(register_module.register())
+            registry_result.append(result)
 
         # Call the callback with the result
         if registry_result:
             callback(registry_result)
-        self.logger.error(
-            "Couldn't find any {} module to register".format(module_type)
-        )
+        else:
+            self.logger.error(
+                "Couldn't find any {} module to register".format(module_type)
+            )
 
     def _on_register_plugins_callback(self, registred_plugins):
         '''
@@ -292,7 +299,7 @@ class Host(object):
         '''
         schema_paths = list(set(schema_paths))
 
-        schemas = self._discover_schemas(schema_paths, self.host_types)
+        schemas = self._discover_schemas(schema_paths)
 
         self.__schemas_registry = schemas
 
@@ -335,10 +342,11 @@ class Host(object):
         end = time.time()
         logger.debug('Discover schemas run in: {}s'.format((end - start)))
 
-        for key, value in list(valid_schemas.items()):
-            logger.warning(
-                'Schemas : {} : {}'.format(key, len(value))
-            )
+        # TODO: re-activate this when schema augmentation is solved
+        # for key, value in list(valid_schemas.items()):
+        #     logger.warning(
+        #         'Schemas : {} : {}'.format(key, len(value))
+        #     )
 
         return valid_schemas
 
@@ -375,8 +383,7 @@ class Host(object):
                 'Valid definitions : {} : {}'.format(key, len(value))
             )
 
-        # TODO: double check that this is working
-        return definition_object.DefinitionList(validated_definitions)
+        return validated_definitions
 
     # Subscribe
     def _subscribe_events(self):
@@ -399,17 +406,17 @@ class Host(object):
             self.host_id,
             self.host_name,
             self.context_id,
-            self.definitions.to_dict(),
+            self.definitions,
         )
         self.event_manager.subscribe.discover_host(
             callback=discover_host_callback_reply
         )
         # Subscribe to run definition
-        self.event_manager.events.subscribe.host_run_definition(
+        self.event_manager.subscribe.host_run_definition(
             self.host_id, self.run_definition_callback
         )
         # Subscribe to run plugin
-        self.event_manager.events.subscribe.host_run_plugin(
+        self.event_manager.subscribe.host_run_plugin(
             self.host_id, self.run_plugin_callback
         )
 
@@ -425,7 +432,7 @@ class Host(object):
         plugin_info = event['data']
         # TODO: double check this works, maybe need to modify LogItem
         log_item = LogItem(plugin_info)
-        self._logs.add_log_item(log_item)
+        self.logs.add_log_item(log_item)
         # Publish the event to notify client
         self.event_manager.publish.host_log_item_added(
             self.host_id,
@@ -453,7 +460,7 @@ class Host(object):
 
         definition = event['data']['definition']
         engine_type = event['data']['engine_type']
-        # TODO: double check the asset_type_name workflow, why we need it? can we remove it?
+        # TODO: Double check if we want to pass the asset type in the definition or should it be defined in the context plugin???
         asset_type_name = definition.get('asset_type')
 
         Engine = self.engines.get(engine_type)

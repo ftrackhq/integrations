@@ -269,7 +269,7 @@ class Client(object):
         # Subscribe to host_context_change even though we already subscribed in
         # the host_connection. This is because we want to notify the widget that
         # context_id has been changed.
-        self.host_context_changed_subscribe_id = self.event_manager.events.subscribe.host_context_changed(
+        self.host_context_changed_subscribe_id = self.event_manager.subscribe.host_context_changed(
             self.host_connection.host_id, self._host_context_changed_callback
         )
         # Feed change of host and context to client
@@ -376,7 +376,7 @@ class Client(object):
             # Subscribe to host_context_change even though we already subscribed in
             # the host_connection. This is because we want to notify the widget that
             # context_id has been changed.
-            self.host_context_changed_subscribe_id = self.event_manager.events.subscribe.host_context_changed(
+            self.host_context_changed_subscribe_id = self.event_manager.subscribe.host_context_changed(
                 self.host_connection.host_id, self._host_context_changed_callback
             )
             self.on_host_changed(self.host_connection)

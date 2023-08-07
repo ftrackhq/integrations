@@ -125,9 +125,24 @@ class BaseEngine(object):
             plugin_info = self.event_manager.publish.execute_plugin(
                 plugin_name, plugin_default_method, plugin_method, host_type, plugin_data,
                 plugin_options, plugin_context_data
-            )
+            )[0]
             break
 
+        if not plugin_info['plugin_boolean_status']:
+            raise Exception(
+                "Plugin execution error.\n"
+                "Name {} \n"
+                "Status {} \n"
+                "Method {} \n"
+                "Message {} \n"
+                "Result {} \n".format(
+                    plugin_info['plugin_name'],
+                    plugin_info['plugin_status'],
+                    plugin_info['plugin_method'],
+                    plugin_info['plugin_message'],
+                    plugin_info['plugin_method_result'],
+                )
+            )
         return plugin_info
 
 

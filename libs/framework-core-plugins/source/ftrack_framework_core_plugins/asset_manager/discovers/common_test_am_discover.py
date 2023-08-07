@@ -6,7 +6,7 @@ from ftrack_framework_plugin import constants
 
 
 class CommonTestAssetManagerDiscoverPlugin(BasePlugin):
-    plugin_name = 'common_test_am_discover'
+    name = 'common_test_am_discover'
     host_type = constants.hosts.PYTHON_HOST_TYPE
     plugin_type = constants.PLUGIN_DISCOVER_TYPE
 

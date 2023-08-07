@@ -9,7 +9,7 @@ from ftrack_framework_plugin import constants
 #  argument of the method?
 
 class CommonDefaultAssetResolverPlugin(BasePlugin):
-    plugin_name = 'common_default_asset_resolver'
+    name = 'common_default_asset_resolver'
     host_type = constants.hosts.PYTHON_HOST_TYPE
     plugin_type = constants.PLUGIN_RESOLVER_TYPE
 

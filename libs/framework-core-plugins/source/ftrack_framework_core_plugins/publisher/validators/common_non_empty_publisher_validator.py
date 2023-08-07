@@ -8,7 +8,7 @@ from ftrack_framework_plugin import constants
 class CommonNonEmptyPublisherValidatorPlugin(BasePlugin):
     '''Publisher non empty validator plugin'''
 
-    plugin_name = 'common_non_empty_publisher_validator'
+    name = 'common_non_empty_publisher_validator'
     host_type = constants.hosts.PYTHON_HOST_TYPE
     plugin_type = constants.PLUGIN_VALIDATOR_TYPE
 

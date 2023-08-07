@@ -1,15 +1,15 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2023 ftrack
+import copy
 
 from ftrack_framework_plugin import BasePlugin
 from ftrack_framework_plugin import constants
 
-
-class CommonPassthroughLoaderContextPlugin(BasePlugin):
-    name = 'common_passthrough_loader_context'
+class GenericContextPassthroughPlugin(BasePlugin):
+    name = 'generic_context_passthrough'
     host_type = constants.hosts.PYTHON_HOST_TYPE
     plugin_type = constants.PLUGIN_CONTEXT_TYPE
-    '''Option passthrough loader context plugin'''
+    '''Return the given options'''
 
     def register_methods(self):
         self.register_method(
@@ -24,8 +24,8 @@ class CommonPassthroughLoaderContextPlugin(BasePlugin):
         )
 
     def run(self, context_data=None, data=None, options=None):
-        '''Merge context output with *options*'''
-        output = self.methods['run'].get('required_output_value')
-        output.update(options)
-        return output
-
+        self.logger.debug("given options: {}".format(options))
+        required_output = copy.deepcopy(self.methods.get('run').get('required_output_value'))
+        self.logger.debug("required_output: {}".format(required_output))
+        required_output.update(options)
+        return required_output

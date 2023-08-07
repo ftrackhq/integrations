@@ -5,7 +5,7 @@ from ftrack_framework_plugin import BasePlugin
 from ftrack_framework_plugin import constants
 
 class CommonUpdateLatestAssetManagerActionPlugin(BasePlugin):
-    plugin_name = 'common_update_latest_am_action'
+    name = 'common_update_latest_am_action'
     host_type = constants.hosts.PYTHON_HOST_TYPE
     plugin_type = constants.PLUGIN_ACTION_TYPE
 
