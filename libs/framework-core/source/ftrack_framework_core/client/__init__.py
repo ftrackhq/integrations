@@ -361,11 +361,30 @@ class Client(object):
         self.logger.debug("_run_plugin_callback event: {}".format(event))
 
     # TODO: This should be an ABC
-    def on_log_item_added_callback(self, log_item):
+    def on_log_item_added_callback(self, event):
         '''
         Called when a log item has added in the host.
         Is the old Client notification
         '''
-        self.logger.debug("New log item added in the host: {}".format(log_item))
-        pass
+        log_item = event['data']['log_item']
+        self.logger.info(
+            "Plugin Execution progress: \n "
+            "plugin_name: {} \n"
+            "plugin_type: {} \n"
+            "plugin_status: {} \n"
+            "plugin_message: {} \n"
+            "plugin_method_result: {} \n"
+            "plugin_context_data: {} \n"
+            "plugin_data: {} \n"
+            "plugin_options: {} \n".format(
+                log_item.plugin_name,
+                log_item.plugin_type,
+                log_item.plugin_status,
+                log_item.plugin_message,
+                log_item.plugin_method_result,
+                log_item.plugin_context_data,
+                log_item.plugin_data,
+                log_item.plugin_options,
+            )
+        )
 

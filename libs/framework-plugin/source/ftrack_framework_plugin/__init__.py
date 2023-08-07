@@ -67,25 +67,37 @@ class BasePlugin(object):
         return self._host_id
 
     @property
-    def result(self):
+    def method_result(self):
         '''
         Type of the plugin
         '''
-        return self._result
+        return self._method_result
 
-    @result.setter
-    def result(self, value):
+    @method_result.setter
+    def method_result(self, value):
         '''
         Type of the plugin
         '''
-        if not value:
-            self._result = value
-            return
         is_valid = self._validate_result(value)
         if not is_valid:
             self.status = constants.status.EXCEPTION_STATUS
 
-        self._result = value
+        self._method_result = value
+        self.result_registry = value
+
+    @property
+    def result_registry(self):
+        '''
+        Type of the plugin
+        '''
+        return self._result_registry
+
+    @result_registry.setter
+    def result_registry(self, value):
+        '''
+        Type of the plugin
+        '''
+        self._result_registry[self.method] = value
 
     @property
     def status(self):
@@ -183,6 +195,8 @@ class BasePlugin(object):
         self._method = None
         self._default_method = None
         self._execution_time = 0
+        self._result_registry = {}
+        self._method_result = None
 
         self.register_methods()
 
@@ -212,7 +226,7 @@ class BasePlugin(object):
         #Reset all statuses
         self.status = constants.status.DEFAULT_STATUS
         self.message = None
-        self.result = None
+        self._method_result = None
 
         # Override the current execute method for the one given by the event
         self._default_method = event['data'].get('plugin_default_method')
@@ -227,6 +241,7 @@ class BasePlugin(object):
         # reset message
         self.message = None
         try:
+            self.status = constants.status.RUNNING_STATUS
             event = self.pre_execute_callback_hook(event)
         except Exception as e:
             # If status is valid, set to not
@@ -242,6 +257,19 @@ class BasePlugin(object):
                     )
                 )
             # If booth handled by the plugin, logger the message
+            self.logger.error(self.message)
+            self._notify_client()
+            return self.provide_plugin_info()
+
+        # Print post Execute error handled by the plugin
+        if not self.boolean_status:
+            # Generic message printing the result in case no message is provided.
+            if not self.message:
+                self.message = (
+                    "Error detected on the pre execute funtion of the plugin {}, "
+                    "but no message provided. "
+                    "event is: {}.".format(self.name, event)
+                )
             self.logger.error(self.message)
             self._notify_client()
             return self.provide_plugin_info()
@@ -266,7 +294,7 @@ class BasePlugin(object):
             # Execute the method
             # TODO: maybe here in the future we can pass different arguments, but
             #  think about it carefully, because this might make it over complicated.
-            self.result = execute_fn(
+            self.method_result = execute_fn(
                 context_data=self.context_data,
                 data=self.plugin_data,
                 options=self.plugin_options
@@ -291,21 +319,26 @@ class BasePlugin(object):
             if not self.message:
                 self.message = (
                     "Error detected on the plugin {}, but no message provided. "
-                    "Result is {}.".format(self.name, self.result)
+                    "Result is {}.".format(self.name, self.method_result)
                 )
             self.logger.error(self.message)
             self._notify_client()
             return self.provide_plugin_info()
 
-        # Post execute callback hook
-        self.message = "Execute te_callback"
+        # Notify client
+        self.message = "Plugin executed succesfully, result: {}".format(
+            self.method_result
+        )
         self._notify_client()
+        # Post execute callback hook
         # reset message
         self.message = None
         try:
             # We are not setting the post_execute_result as the result for now
             # because is a free method that maight not validate.
-            post_execute_result = self.post_execute_callback_hook(self.result)
+            post_execute_result = self.post_execute_callback_hook(
+                self.method_result
+            )
         except Exception as e:
             # If status is valid, set to not
             if self.boolean_status:
@@ -324,6 +357,23 @@ class BasePlugin(object):
             self._notify_client()
             return self.provide_plugin_info()
 
+        # Print post Execute error handled by the plugin
+        if not self.boolean_status:
+            # Generic message printing the result in case no message is provided.
+            if not self.message:
+                self.message = (
+                    "Error detected on the post execute funtion of the plugin {}, "
+                    "but no message provided. "
+                    "Result is: {}.".format(self.name, post_execute_result)
+                )
+            self.logger.error(self.message)
+            self._notify_client()
+            return self.provide_plugin_info()
+
+        self.message = "Post execute plugin succesfully, result: {}".format(
+            post_execute_result
+        )
+        self.status = constants.status.SUCCESS_STATUS
         end_time = time.time()
         total_time = end_time - start_time
         self.execution_time = total_time
@@ -343,9 +393,11 @@ class BasePlugin(object):
             'plugin_id': self.id,
             'plugin_method': self.method,
             'host_type': self.host_type,
+            'plugin_boolean_status': self.boolean_status,
             'plugin_status': self.status,
-            'plugin_result':self.result,
-            'plugin_execution_time':self.execution_time,
+            'plugin_method_result': self.method_result,
+            'plugin_result_registry': self.result_registry,
+            'plugin_execution_time': self.execution_time,
             'plugin_message': self.message,
             'plugin_context_data':self.context_data,
             'plugin_data': self.plugin_data,

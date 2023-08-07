@@ -33,6 +33,6 @@ status_bool_mapping = {
     WARNING_STATUS: False,
     ERROR_STATUS: False,
     EXCEPTION_STATUS: False,
-    RUNNING_STATUS: False,
+    RUNNING_STATUS: True,
     DEFAULT_STATUS: False,
 }

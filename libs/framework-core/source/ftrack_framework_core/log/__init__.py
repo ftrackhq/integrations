@@ -22,13 +22,14 @@ class ResultEncoder(JSONEncoder):
     def default(self, obj):
         return str(obj)
 
-
+# TODO: review this class to make it easier to maintain.
+#  Define all keys in a common place.
 class LogDB(object):
     '''
     Log database class
     '''
 
-    db_name = 'pipeline-{}.db'
+    db_name = 'framework-{}.db'
     table_name = 'LOGMGR'
     database_expire_grace_s = 7 * 24 * 3600
     _connection = None
@@ -45,10 +46,12 @@ class LogDB(object):
             '{0}.{1}'.format(__name__, self.__class__.__name__)
         )
 
-        if 0 < len(db_name or ''):
+        if db_name:
             self.db_name = db_name
-        if 0 < len(table_name or ''):
+        if table_name:
             self.table_name = table_name
+
+        print(self.table_name)
 
         self._database_path = self.get_database_path(host_id)
 
@@ -66,13 +69,16 @@ class LogDB(object):
         if cur.fetchone()[0] == 0:
             cur.execute(
                 '''CREATE TABLE {0} (id INTEGER PRIMARY KEY,'''
-                ''' date int, status text, widget_ref text,'''
-                ''' host_id text, execution_time real, plugin_name text,'''
-                ''' result text, message text, user_message text,'''
-                ''' plugin_type text, plugin_id text)'''.format(
+                ''' date int, plugin_status text, plugin_boolean_status bool, host_id text, plugin_name text,'''
+                ''' plugin_type text, plugin_id text, host_type text,'''
+                ''' plugin_method_result text, plugin_result_registry text,'''
+                ''' plugin_execution_time real,'''
+                ''' plugin_message text, plugin_context_data text,'''
+                ''' plugin_data text, plugin_options text)'''.format(
                     self.table_name
                 )
             )
+
             self.connection.commit()
             self.logger.debug('Initialised plugin log persistent storage.')
 
@@ -154,27 +160,30 @@ class LogDB(object):
             cur = self.connection.cursor()
 
             cur.execute(
-                '''INSERT INTO {0} (date,status,plugin_name,plugin_type,
-                plugin_id,host_type,plugin_status,plugin_result,
-                plugin_execution_time,plugin_message,plugin_context_data,
-                plugin_data,plugin_options) VALUES (?,?,?,?,?,?,?,?,?,?,?)'''.format(
+                '''INSERT INTO {0} (date,plugin_status,plugin_boolean_status,
+                host_id,plugin_name,plugin_type,plugin_id,host_type,
+                plugin_method_result,plugin_result_registry,plugin_execution_time,
+                plugin_message,plugin_context_data,plugin_data,plugin_options) 
+                VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)'''.format(
                     self.table_name
                 ),
                 (
                     time.time(),
                     log_item.plugin_status,
+                    log_item.plugin_boolean_status,
                     log_item.host_id,
                     log_item.plugin_name,
                     log_item.plugin_type,
                     log_item.plugin_id,
                     log_item.host_type,
-                    log_item.plugin_status,
-                    log_item.plugin_result,
+                    # TODO: Check previous versions to deal with Json in plugin result
+                    str(log_item.plugin_method_result),
+                    str(log_item.plugin_result_registry),
                     log_item.plugin_execution_time,
                     log_item.plugin_message,
-                    log_item.plugin_context_data,
-                    log_item.plugin_data,
-                    log_item.plugin_options,
+                    str(log_item.plugin_context_data),
+                    str(log_item.plugin_data),
+                    str(log_item.plugin_options),
                 ),
             )
             self.connection.commit()
@@ -196,8 +205,11 @@ class LogDB(object):
         log_items = []
         if not host_id is None:
             cur.execute(
-                ''' SELECT date,status,widget_ref,host_id,execution_time,'''
-                '''plugin_name,result,message,user_message,plugin_type, plugin_id '''
+                ''' SELECT date,plugin_status,plugin_boolean_status,host_id,'''
+                '''plugin_name,plugin_type,'''
+                '''plugin_id,host_type,plugin_method_result,'''
+                '''plugin_result_registry,plugin_execution_time,'''
+                '''plugin_message,plugin_context_data,plugin_data,plugin_options'''
                 ''' FROM {0} WHERE host_id=?;  '''.format(self.table_name),
                 (host_id,),
             )
@@ -207,18 +219,21 @@ class LogDB(object):
                     LogItem(
                         {
                             'date': datetime.datetime.fromtimestamp(t[0]),
-                            'status': t[1],
-                            'widget_ref': t[2],
+                            'plugin_status': t[1],
+                            'plugin_boolean_status': t[2],
                             'host_id': t[3],
-                            'execution_time': t[4],
-                            'plugin_name': t[5],
-                            'result': json.loads(
-                                base64.b64decode(t[6]).decode('utf-8')
-                            ),
-                            'message': t[7],
-                            'user_message': t[8],
-                            'plugin_type': t[9],
-                            'plugin_id': t[10],
+                            'plugin_name': t[4],
+                            'plugin_type': t[5],
+                            'plugin_id': t[6],
+                            'host_type': t[7],
+                            # TODO: Check previous versions to deal with Json in plugin result
+                            'plugin_method_result': t[8],
+                            'plugin_result_registry': t[9],
+                            'plugin_execution_time': t[10],
+                            'plugin_message': t[11],
+                            'plugin_context_data': t[12],
+                            'plugin_data': t[13],
+                            'plugin_options': t[14],
                         }
                     )
                 )
@@ -235,8 +250,11 @@ class LogDB(object):
         log_items = []
         if not host_id is None:
             cur.execute(
-                ''' SELECT date,status,widget_ref,host_id,execution_time,'''
-                '''plugin_name,result,message,user_message,plugin_type, plugin_id '''
+                ''' SELECT date,plugin_status,plugin_boolean_status,host_id,'''
+                '''plugin_name,plugin_type,'''
+                '''plugin_id,host_type,plugin_method_result,plugin_result_registry,'''
+                '''plugin_execution_time,plugin_message,plugin_context_data,'''
+                '''plugin_data,plugin_options '''
                 ''' FROM {0} WHERE host_id=? AND plugin_id=?;  '''.format(
                     self.table_name
                 ),
@@ -248,18 +266,21 @@ class LogDB(object):
                     LogItem(
                         {
                             'date': datetime.datetime.fromtimestamp(t[0]),
-                            'status': t[1],
-                            'widget_ref': t[2],
+                            'plugin_status': t[1],
+                            'plugin_boolean_status': t[2],
                             'host_id': t[3],
-                            'execution_time': t[4],
-                            'plugin_name': t[5],
-                            'result': json.loads(
-                                base64.b64decode(t[6]).decode('utf-8')
-                            ),
-                            'message': t[7],
-                            'user_message': t[8],
-                            'plugin_type': t[9],
-                            'plugin_id': t[10],
+                            'plugin_name': t[4],
+                            'plugin_type': t[5],
+                            'plugin_id': t[6],
+                            'host_type': t[7],
+                            # TODO: Check previous versions to deal with Json in plugin result
+                            'plugin_method_result': t[8],
+                            'plugin_result_registry': t[9],
+                            'plugin_execution_time': t[10],
+                            'plugin_message': t[11],
+                            'plugin_context_data': t[12],
+                            'plugin_data': t[13],
+                            'plugin_options': t[14],
                         }
                     )
                 )

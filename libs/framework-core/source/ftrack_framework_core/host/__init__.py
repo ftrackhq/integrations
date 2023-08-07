@@ -460,7 +460,7 @@ class Host(object):
 
         definition = event['data']['definition']
         engine_type = event['data']['engine_type']
-        # TODO: double check the asset_type_name workflow, why we need it? can we remove it?
+        # TODO: Double check if we want to pass the asset type in the definition or should it be defined in the context plugin???
         asset_type_name = definition.get('asset_type')
 
         Engine = self.engines.get(engine_type)

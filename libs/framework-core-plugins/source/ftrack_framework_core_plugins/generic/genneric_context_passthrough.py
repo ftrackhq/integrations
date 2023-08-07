@@ -1,5 +1,6 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2023 ftrack
+import copy
 
 from ftrack_framework_plugin import BasePlugin
 from ftrack_framework_plugin import constants
@@ -24,6 +25,7 @@ class GenericContextPassthroughPlugin(BasePlugin):
 
     def run(self, context_data=None, data=None, options=None):
         self.logger.debug("given options: {}".format(options))
-        required_output = self.methods.get('run').get('required_output_value')
+        required_output = copy.deepcopy(self.methods.get('run').get('required_output_value'))
         self.logger.debug("required_output: {}".format(required_output))
-        return required_output.update(options)
+        required_output.update(options)
+        return required_output
