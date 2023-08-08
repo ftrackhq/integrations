@@ -184,11 +184,28 @@ class Client(object):
         self._engine_type = value
 
     # TODO: double check how we enable disbale multithreading,
-    #  I think we can improve it and make it simplest.
+    #  I think we can improve it and make it simpler.
     @property
     def multithreading_enabled(self):
         '''Return True if DCC supports multithreading (write operations)'''
         return self._multithreading_enabled
+    # Widget
+    @property
+    def widgets(self):
+        return self.__widgets_registry
+
+    @widgets.setter
+    def widgets(self, value):
+        if value.id not in list(self.__widgets_registry.keys()):
+            self.__widgets_registry[value.id] = value
+    @property
+    def widget(self):
+        return self._widget
+
+    @widget.setter
+    def widget(self, value):
+        self._widget = value
+
 
     def __init__(self, event_manager, auto_discover_host=True, multithreading_enabled=True):
         '''
@@ -212,6 +229,8 @@ class Client(object):
         self._host_context_changed_subscribe_id = None
         self._definition = None
         self._engine_type = None
+        self.__widgets_registry = {}
+        self._widget = None
 
         # TODO: Initializing client
         self.logger.debug('Initialising Client {}'.format(self))
@@ -268,7 +287,6 @@ class Client(object):
             return
         for reply_data in event['data']:
             host_connection = HostConnection(self.event_manager, reply_data)
-            # TODO: should we remove the filter_host for now as its not used.
             if (
                 host_connection
                 and host_connection not in self.host_connections
@@ -387,4 +405,31 @@ class Client(object):
                 log_item.plugin_options,
             )
         )
+    # UI
+    # TODO: how we deal with the definition selector which receives a list of definitions
+    def run_dialog(self, dialog_widget):
+        self.widget = dialog_widget()
+        # Append widget to widgets
+        # TODO: maybe better to do it manually without the setter property.
+        self.widgets = self.widget
+        self._connect_widget_signals(self.widget)
+        self.widget.show()
+
+    def _connect_widget_signals(self, widget):
+        widget.connect_methods(self._connect_methods_widget_signal)
+        widget.connect_properties(
+            set_method=self._connect_properties_setter_widget_signal,
+            get_method=self._connect_properties_getter_widget_signal
+        )
+
+    def _connect_methods_widget_signal(self, method_name, options, callback):
+        meth = getAttr(method_name)
+        meth(options, callback)
+
+    def _connect_properties_setter_widget_signal(self, property_name, value):
+        self.__setattr__(property_name, value)
+
+    def _connect_properties_getter_widget_signal(self, property_name):
+        return self.__getattribute__(property_name)
+
 
