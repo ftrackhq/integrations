@@ -201,6 +201,7 @@ class Client(object):
         if value:
             # Automatically set the engine of the definition
             self.engine_type = self._definition['_config']['engine_type']
+        self.on_definition_changed(self.definition)
 
     @property
     def engine_type(self):
@@ -337,11 +338,15 @@ class Client(object):
         if self._auto_connect_host:
             # Automatically connect to the first one
             self.host_connection = host_connections[0]
+        # Call to widget
+        # self.event_manager.publish.client_notify_hosts_discovered(self.id)
 
     # TODO: this should be ABC method
     def on_host_changed(self, host_connection):
         '''Called when the host has been (re-)selected by the user. To be
         overridden by the qt client.'''
+        # Call to widget
+        # self.event_manager.publish.client_notify_host_changed(self.id)
         pass
 
     # Context
@@ -358,6 +363,10 @@ class Client(object):
         # TODO: we have to add something like  if widget: widget.on_context_changed()
         #  In the widget itself we will import from the wraper widget which is an ABC: from framework_ui_wrappers import widget(this will be what has to be imported in the widget)
         pass
+        # TODO: example of events to send to UI
+        # self.event_manager.publish.client_notify_context_changed(self.id)
+        # client_notify_ui_context_changed()
+        # client_notify_ui(signal='context_changed')
 
     def unsubscribe_host_context_changed(self):
         '''Unsubscribe to client context change events'''
@@ -368,6 +377,9 @@ class Client(object):
             self._host_context_changed_subscribe_id = None
 
     # Definition
+    def on_definition_changed(self, definition):
+        pass
+        # self.event_manager.publish.client_notify_definition_changed(self.id)
     def run_definition(self, definition, engine_type):
         '''
         Calls the :meth:`~ftrack_framework_core.client.HostConnection.run`

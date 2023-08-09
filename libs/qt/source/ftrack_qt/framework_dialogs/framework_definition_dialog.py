@@ -40,6 +40,8 @@ class FrameworkDefinitionDialog(FrameworkDialog, QtWidgets.QDialog):
         Initialise BasePlugin with instance of
         :class:`ftrack_api.session.Session`
         '''
+        self._context_selector = None
+        self._host_connection_selector = None
         self._definition_selector = None
         self._header = None
 
@@ -70,19 +72,24 @@ class FrameworkDefinitionDialog(FrameworkDialog, QtWidgets.QDialog):
         #self._progress_widget = ProgressWidget
         #self._header.add_widget(self._progress_widget)
 
+        # TODO: we have to update the signals from the context selector to
+        #  identify that are our signals and not qt signals.
         self._context_selector = ContextSelector(self.session)
-        self._host_connection_selector = ListSelector("Host Selector")
+        self._context_selector.context_id = self.context_id
+        # TODO: we should add events of client_context_changed to let the ui that a context has changed, same for defiitions or hosts.
 
-        # TODO: add the context selector
+        self._host_connection_selector = ListSelector("Host Selector")
 
         self._definition_selector = ListSelector("Definitions")
 
         self._add_host_connection_items()
 
+        # ToDO: add the run definition button
 
         # TODO: add scroll area where to put the publisher widget.
 
         self.layout().addWidget(self._header)
+        self.layout().addWidget(self._context_selector, QtCore.Qt.AlignTop)
         self.layout().addWidget(self._host_connection_selector)
         self.layout().addWidget(self._definition_selector)
 
@@ -162,4 +169,7 @@ class FrameworkDefinitionDialog(FrameworkDialog, QtWidgets.QDialog):
         #  arguments and callback. In that case we will need to pass a client id.
         self.client_method_connection('discover_hosts')
         self._add_definition_items()
+
+    def _on_client_context_changed_callback(self):
+        self._context_selector.context_id = self.context_id
 

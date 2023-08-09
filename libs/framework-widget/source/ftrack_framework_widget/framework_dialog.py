@@ -12,20 +12,6 @@ class FrameworkDialog(BaseWidget):
     name = None
     widget_type = 'framework_dialog'
 
-    @property
-    def definitions(self):
-        '''
-        Dependency framework widgets
-        '''
-        return self.client_property_getter_connection('definitions')
-
-    @property
-    def host_connections(self):
-        '''
-        Dependency framework widgets
-        '''
-        return self.client_property_getter_connection('host_connections')
-
     def __init__(
             self,
             event_manager,
@@ -46,8 +32,6 @@ class FrameworkDialog(BaseWidget):
             connect_getter_property_callback,
             parent
         )
-        self._definitions = None
-        self._host_connections = None
 
     # TODO: this should be an ABC
     def pre_build(self):
@@ -61,5 +45,7 @@ class FrameworkDialog(BaseWidget):
     def post_build(self):
         pass
 
+    def _on_client_context_changed_callback(self):
+        pass
 
 

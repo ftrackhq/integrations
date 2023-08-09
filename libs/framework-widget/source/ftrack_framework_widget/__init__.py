@@ -43,6 +43,13 @@ class BaseWidget(object):
         return self._id
 
     @property
+    def definitions(self):
+        '''
+        Dependency framework widgets
+        '''
+        return self.client_property_getter_connection('definitions')
+
+    @property
     def definition(self):
         '''
         Dependency framework widgets
@@ -55,6 +62,20 @@ class BaseWidget(object):
         Dependency framework widgets
         '''
         self.client_property_setter_connection('definition', value)
+
+    @property
+    def context_id(self):
+        '''
+        Dependency framework widgets
+        '''
+        return self.client_property_getter_connection('context_id')
+
+    @context_id.setter
+    def context_id(self, value):
+        '''
+        Dependency framework widgets
+        '''
+        self.client_property_setter_connection('context_id', value)
 
     @property
     def host_connection(self):
@@ -70,6 +91,12 @@ class BaseWidget(object):
         '''
         self.client_property_setter_connection('host_connection', value)
 
+    @property
+    def host_connections(self):
+        '''
+        Dependency framework widgets
+        '''
+        return self.client_property_getter_connection('host_connections')
     @property
     def plugins(self):
         '''
@@ -105,6 +132,8 @@ class BaseWidget(object):
         self._id = uuid.uuid4().hex
 
         # Set properties to 0
+        self._definitions = None
+        self._host_connections = None
         self._definition = None
         self._host_connection = None
         self._parent = None
@@ -115,6 +144,8 @@ class BaseWidget(object):
             connect_setter_property_callback,
             connect_getter_property_callback
         )
+
+        self._subscribe_client_events()
 
         self.pre_build()
         self.build()
@@ -129,6 +160,29 @@ class BaseWidget(object):
         self.client_property_setter_connection = set_method
         self.client_property_getter_connection = get_method
 
+    def _subscribe_client_events(self):
+        self.event_manager.subscribe.client_notify_context_changed(
+            self.client_id,
+            callback=self._on_client_context_changed_callback
+        )
+        self.event_manager.subscribe.client_notify_hosts_discovered(
+            self.client_id,
+            callback=self._on_client_hosts_discovered_callback
+        )
+        self.event_manager.subscribe.client_notify_host_changed(
+            self.client_id,
+            callback=self._on_client_host_changed_callback
+        )
+        # TODO: I think this one is not needed as when host is changed new definitions are discovered. And if context id is changed also new definitions are discovered.
+        # self.event_manager.subscribe.client_notify_definitions_discovered(
+        #     self.client_id,
+        #     callback=self._on_client_context_changed_callback
+        # )
+        self.event_manager.subscribe.client_notify_definition_changed(
+            self.client_id,
+            callback=self._on_client_definition_changed_callback
+        )
+
 
     # TODO: this should be an ABC
     def pre_build(self):
@@ -141,4 +195,19 @@ class BaseWidget(object):
     # TODO: this should be an ABC
     def post_build(self):
         pass
+
+    def _on_client_context_changed_callback(self):
+        # TODO: carefully, here we should update definitions!
+        pass
+
+    def _on_client_hosts_discovered_callback(self):
+        pass
+
+    def _on_client_host_changed_callback(self):
+        # TODO: carefully, here we should update definitions!
+        pass
+
+    def _on_client_definition_changed_callback(self):
+        pass
+
 

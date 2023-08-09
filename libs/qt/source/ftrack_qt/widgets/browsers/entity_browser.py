@@ -177,7 +177,7 @@ class EntityBrowser(ModalDialog):
         self._search.inputUpdated.connect(self._on_search)
         self._content_widget.layout().addWidget(self._search)
 
-        self._scroll = QtWidgets.ScrollArea()
+        self._scroll = QtWidgets.QScrollArea()
         self._scroll.setStyle(QtWidgets.QStyleFactory.create("plastique"))
         self._scroll.setWidgetResizable(True)
         self._scroll.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
