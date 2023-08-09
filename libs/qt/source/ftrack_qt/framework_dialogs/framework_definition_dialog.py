@@ -18,44 +18,77 @@ class FrameworkDefinitionDialog(FrameworkDialog, QtWidgets.QDialog):
     def definition_selector(self):
         return self._definition_selector
 
-    def __init__(self, event_manager):
+    @property
+    def filtred_definitions(self):
+        definitions = list(self.definitions.values())
+        if self.definition_filter:
+            definitions = self.definitions[self.definition_filter]
+        return definitions
+
+    def __init__(
+            self,
+            event_manager,
+            connect_methods_callback,
+            connect_setter_property_callback,
+            connect_getter_property_callback,
+            parent=None
+    ):
         '''
         Initialise BasePlugin with instance of
         :class:`ftrack_api.session.Session`
         '''
-
-        super(FrameworkDialog, self).__init__(event_manager)
         self._definition_selector = None
+        QtWidgets.QDialog.__init__(self, parent=parent)
+        FrameworkDialog.__init__(
+            self,
+            event_manager,
+            connect_methods_callback,
+            connect_setter_property_callback,
+            connect_getter_property_callback,
+            parent
+        )
 
     # TODO: this should be an ABC
     def pre_build(self):
+        super(FrameworkDefinitionDialog, self).pre_build()
         main_layout = QtWidgets.QVBoxLayout()
         self.setLayout(main_layout)
-        pass
 
     # TODO: this should be an ABC
     def build(self):
+        super(FrameworkDefinitionDialog, self).build()
         self._definition_selector = ListSelector()
+        self._definition_selector.label = "All Definitions"
         self._add_definition_items()
 
-    def _add_definition_items(self):
-        definitions = list(self.definitions.values())
-        if self.definition_filter:
-            definitions = self.definitions[self.definition_filter]
+        self.layout().addWidget(self._definition_selector)
 
-        for definition_list in definitions:
+    def _add_definition_items(self):
+        for definition_list in self.filtred_definitions:
             for definition in definition_list:
                 self._definition_selector.add_item(definition.name)
 
 
     # TODO: this should be an ABC
     def post_build(self):
-        self._definition_selector.current_index_changed.connect(self._on_definition_selected_callback)
+        super(FrameworkDefinitionDialog, self).post_build()
+        self._definition_selector.current_item_changed.connect(self._on_definition_selected_callback)
         self._definition_selector.refresh_clicked.connect(self._on_refresh_definitions_callback)
 
     def _on_definition_selected_callback(self, item):
-        self.definition = self.definitions[item]
+        definition = None
+        for definition_list in self.filtred_definitions:
+            definition = definition_list.get_first(name=item)
+            if definition:
+                break
+        self.definition = definition
 
     def _on_refresh_definitions_callback(self):
-        pass
+        self.definition = None
+        self._definition_selector.clear_items()
+        # TODO: evealuate if this should be an event,
+        #  like client_run_method_topic where we pass the method,
+        #  arguments and callback. In that case we will need to pass a client id.
+        self.client_method_connection('discover_hosts')
+        self._add_definition_items()
 

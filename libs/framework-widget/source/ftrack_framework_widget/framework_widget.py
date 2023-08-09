@@ -18,7 +18,7 @@ class FrameworkWidget(BaseWidget):
         :class:`ftrack_api.session.Session`
         '''
 
-        super(FrameworkWidget, self).__init__(event_manager)
+        super(FrameworkWidget, self).__init__(event_manager, parent)
 
     # TODO: this should be an ABC
     def pre_build(self):

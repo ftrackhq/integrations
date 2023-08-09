@@ -81,9 +81,12 @@ class Client(object):
         *value* : should be instance of
         :class:`~ftrack_framework_core.client.HostConnection`
         '''
-        if not value or (
-                self.host_connection and value.id == self.host_connection.host_id
-        ):
+        if not value:
+            # Clean up host_context_change_subscription in case exists
+            self.unsubscribe_host_context_changed()
+            Client._host_connection = value
+            return
+        if self.host_connection and value.id == self.host_connection.host_id:
             return
 
         self.logger.debug('Setting new host connection: {}'.format(value))
@@ -160,7 +163,7 @@ class Client(object):
                 "Please set the host connection before setting a definition"
             )
             return
-        if not self.definitions[value.type].get_first(name=value.name):
+        if value and not self.definitions[value.type].get_first(name=value.name):
             self.logger.error(
                 "Invalid definition, choose one from : {}".format(
                     self.definitions
@@ -169,8 +172,9 @@ class Client(object):
             return
 
         self._definition = value
-        # Automatically set the engine of the definition
-        self.engine_type = self._definition['_config']['engine_type']
+        if value:
+            # Automatically set the engine of the definition
+            self.engine_type = self._definition['_config']['engine_type']
 
     @property
     def engine_type(self):
@@ -408,28 +412,38 @@ class Client(object):
     # UI
     # TODO: how we deal with the definition selector which receives a list of definitions
     def run_dialog(self, dialog_widget):
-        self.widget = dialog_widget()
+        self.widget = dialog_widget(
+            self.event_manager,
+            connect_methods_callback=self._connect_methods_callback,
+            connect_setter_property_callback=self._connect_setter_property_callback,
+            connect_getter_property_callback=self._connect_getter_property_callback
+        )
         # Append widget to widgets
         # TODO: maybe better to do it manually without the setter property.
         self.widgets = self.widget
-        self._connect_widget_signals(self.widget)
         self.widget.show()
 
-    def _connect_widget_signals(self, widget):
-        widget.connect_methods(self._connect_methods_widget_signal)
-        widget.connect_properties(
-            set_method=self._connect_properties_setter_widget_signal,
-            get_method=self._connect_properties_getter_widget_signal
-        )
+    # def _connect_widget_signals(self, widget):
+    #     # tODO: should this be subscription events?
+    #     widget.connect_methods(self._connect_methods_callback)
+    #     widget.connect_properties(
+    #         set_method=self._connect_setter_property_callback,
+    #         get_method=self._connect_getter_property_callback
+    #     )
 
-    def _connect_methods_widget_signal(self, method_name, options, callback):
-        meth = getAttr(method_name)
-        meth(options, callback)
+    def _connect_methods_callback(self, method_name, arguments=None, callback=None):
+        meth = getattr(self, method_name)
+        if not arguments:
+            arguments = {}
+        result = meth(**arguments)
+        if callback:
+            callback(result)
+        return result
 
-    def _connect_properties_setter_widget_signal(self, property_name, value):
+    def _connect_setter_property_callback(self, property_name, value):
         self.__setattr__(property_name, value)
 
-    def _connect_properties_getter_widget_signal(self, property_name):
+    def _connect_getter_property_callback(self, property_name):
         return self.__getattribute__(property_name)
 
 

@@ -1,1 +1,1 @@
-from list_selector import ListSelector
+from ftrack_qt.widgets.selectors.list_selector import ListSelector

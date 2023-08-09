@@ -1,1 +1,1 @@
-from material_icon import MaterialIcon
+from ftrack_qt.widgets.icons.material_icon import MaterialIcon

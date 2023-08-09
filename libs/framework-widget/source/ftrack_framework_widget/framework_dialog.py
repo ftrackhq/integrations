@@ -19,13 +19,26 @@ class FrameworkDialog(BaseWidget):
         '''
         return self.client_property_getter_connection('definitions')
 
-    def __init__(self, event_manager):
+    def __init__(
+            self,
+            event_manager,
+            connect_methods_callback,
+            connect_setter_property_callback,
+            connect_getter_property_callback,
+            parent=None
+    ):
         '''
         Initialise BasePlugin with instance of
         :class:`ftrack_api.session.Session`
         '''
 
-        super(FrameworkDialog, self).__init__(event_manager)
+        super(FrameworkDialog, self).__init__(
+            event_manager,
+            connect_methods_callback,
+            connect_setter_property_callback,
+            connect_getter_property_callback,
+            parent
+        )
         self._definitions = None
 
     # TODO: this should be an ABC

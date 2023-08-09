@@ -9,14 +9,15 @@ from ftrack_qt.widgets.buttons import CircularButton
 
 
 class ListSelector(QtWidgets.QWidget):
-
+    current_item_changed = QtCore.Signal(object)
+    refresh_clicked = QtCore.Signal()
     @property
     def label(self):
         return self._label_widget.text()
 
     @label.setter
     def label(self, value):
-        self._label_widget.set_text = str(value)
+        self._label_widget.setText(str(value))
 
     @property
     def no_items_label(self):
@@ -78,7 +79,7 @@ class ListSelector(QtWidgets.QWidget):
         self.layout().addWidget(self._refresh_button)
 
     def post_build(self):
-        self._combo_box_selector.currentIndex_changed.connect(
+        self._combo_box_selector.currentIndexChanged.connect(
             self._on_current_index_changed_callback
         )
         self._refresh_button.clicked.connect(self._on_refresh_callback)
@@ -89,8 +90,10 @@ class ListSelector(QtWidgets.QWidget):
     def add_item(self, item):
         self._combo_box_selector.addItem(item)
 
-    def _on_current_index_changed_callback(self):
-        pass
+    def _on_current_index_changed_callback(self, index):
+        self.current_item_changed.emit(
+            self._combo_box_selector.currentText()
+        )
 
     def _on_refresh_callback(self):
-        pass
+        self.refresh_clicked.emit()

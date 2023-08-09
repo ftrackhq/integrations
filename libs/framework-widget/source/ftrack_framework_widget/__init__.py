@@ -66,7 +66,18 @@ class BaseWidget(object):
             return None
         return self.definition.get_all(category='plugin')
 
-    def __init__(self, event_manager):
+    @property
+    def parent(self):
+        return self._parent
+
+    def __init__(
+            self,
+            event_manager,
+            connect_methods_callback,
+            connect_setter_property_callback,
+            connect_getter_property_callback,
+            parent=None
+    ):
         '''
         Initialise BasePlugin with instance of
         :class:`ftrack_api.session.Session`
@@ -81,15 +92,25 @@ class BaseWidget(object):
 
         # Set properties to 0
         self._definition = None
+        self._parent = None
+
+        # tDO: can this be events???? Will be much cleaner
+        self.connect_methods(connect_methods_callback)
+        self.connect_properties(
+            connect_setter_property_callback,
+            connect_getter_property_callback
+        )
 
         self.pre_build()
         self.build()
         self.post_build()
 
     def connect_methods(self, method):
+        # TODO: should this be subscription events?
         self.client_method_connection = method
 
     def connect_properties(self, set_method, get_method):
+        # TODO: should this be subscription events?
         self.client_property_setter_connection = set_method
         self.client_property_getter_connection = get_method
 

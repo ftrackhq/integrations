@@ -1,0 +1,1 @@
+from ftrack_qt.framework_dialogs.framework_definition_dialog import FrameworkDefinitionDialog
