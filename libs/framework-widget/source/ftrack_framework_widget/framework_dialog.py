@@ -19,6 +19,13 @@ class FrameworkDialog(BaseWidget):
         '''
         return self.client_property_getter_connection('definitions')
 
+    @property
+    def host_connections(self):
+        '''
+        Dependency framework widgets
+        '''
+        return self.client_property_getter_connection('host_connections')
+
     def __init__(
             self,
             event_manager,
@@ -40,6 +47,7 @@ class FrameworkDialog(BaseWidget):
             parent
         )
         self._definitions = None
+        self._host_connections = None
 
     # TODO: this should be an ABC
     def pre_build(self):

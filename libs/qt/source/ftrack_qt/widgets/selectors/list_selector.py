@@ -13,19 +13,19 @@ class ListSelector(QtWidgets.QWidget):
     refresh_clicked = QtCore.Signal()
     @property
     def label(self):
-        return self._label_widget.text()
+        return self._label
 
     @label.setter
     def label(self, value):
-        self._label_widget.setText(str(value))
+        self._label = str(value)
 
     @property
     def no_items_label(self):
-        return self._label_widget.text()
+        return self._no_items_label_widget.text()
 
     @no_items_label.setter
     def no_items_label(self, value):
-        self._label_widget.set_text = str(value)
+        self._no_items_label_widget.set_text = str(value)
 
     @property
     def items(self):
@@ -35,7 +35,7 @@ class ListSelector(QtWidgets.QWidget):
     def items(self, items):
         self._combo_box_selector.addItems(items)
 
-    def __init__(self, parent=None):
+    def __init__(self, label, parent=None):
         '''
         Initialize DefinitionSelector widget
 
@@ -46,9 +46,11 @@ class ListSelector(QtWidgets.QWidget):
         self.logger = logging.getLogger(
             __name__ + '.' + self.__class__.__name__
         )
+        self._label = label
         self._label_widget = None
         self._combo_box_selector = None
         self._refresh_button = None
+        self._no_items_label_widget = None
 
         self.pre_build()
         self.build()
@@ -60,11 +62,12 @@ class ListSelector(QtWidgets.QWidget):
 
     def build(self):
         # Create Label
-        self._label_widget = QtWidgets.QLabel()
+        self._label_widget = QtWidgets.QLabel(self.label)
 
         # Create the no items label
         # TODO: finish this
-        self._no_items_label = QtWidgets.QLabel()
+        self._no_items_label_widget = QtWidgets.QLabel()
+        self.no_items_label = '<html><i>No items available</i></html>'
 
         # Create the combo box
         self._combo_box_selector = QtWidgets.QComboBox()
@@ -88,6 +91,11 @@ class ListSelector(QtWidgets.QWidget):
         self._combo_box_selector.clear()
 
     def add_item(self, item):
+        if self._combo_box_selector.count() == 0:
+            # Add first empty object
+            self._combo_box_selector.addItem(
+                "-- {} --".format(self.label)
+            )
         self._combo_box_selector.addItem(item)
 
     def _on_current_index_changed_callback(self, index):

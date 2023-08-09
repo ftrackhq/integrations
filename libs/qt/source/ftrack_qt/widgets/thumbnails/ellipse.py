@@ -1,0 +1,25 @@
+# :coding: utf-8
+# :copyright: Copyright (c) 2014-2023 ftrack
+# TODO: Clean this code
+
+from Qt import QtCore, QtGui, QtWidgets
+
+from ftrack_qt.widgets.thumbnails import ThumbnailBase
+
+
+class EllipseThumbnailBase(ThumbnailBase):
+    '''Thumbnail which is drawn as an ellipse.'''
+
+    def paintEvent(self, event):
+        '''Override paint event to make round thumbnails.'''
+        painter = QtGui.QPainter(self)
+        painter.setRenderHints(QtGui.QPainter.Antialiasing, True)
+
+        brush = QtGui.QBrush(self.pixmap())
+
+        painter.setBrush(brush)
+
+        painter.setPen(QtGui.QPen(QtGui.QColor(0, 0, 0, 0)))
+
+        painter.drawEllipse(QtCore.QRectF(0, 0, self.width(), self.height()))
+

@@ -57,6 +57,20 @@ class BaseWidget(object):
         self.client_property_setter_connection('definition', value)
 
     @property
+    def host_connection(self):
+        '''
+        Dependency framework widgets
+        '''
+        return self.client_property_getter_connection('host_connection')
+
+    @host_connection.setter
+    def host_connection(self, value):
+        '''
+        Dependency framework widgets
+        '''
+        self.client_property_setter_connection('host_connection', value)
+
+    @property
     def plugins(self):
         '''
         Dependency framework widgets
@@ -92,6 +106,7 @@ class BaseWidget(object):
 
         # Set properties to 0
         self._definition = None
+        self._host_connection = None
         self._parent = None
 
         # tDO: can this be events???? Will be much cleaner

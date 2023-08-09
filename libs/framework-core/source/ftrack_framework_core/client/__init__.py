@@ -9,6 +9,32 @@ from six import string_types
 from ftrack_framework_core.client.host_connection import HostConnection
 from ftrack_framework_core import constants
 
+# TODO: has a discussion on how client should communicate to widget.
+#  Example just via events:
+#       UI publish --> run_method (method_name, arguments, callback) --> Client subscribes
+#       UI publish --> set_method (property_name, value) --> Client subscribes
+#       Client publish --> log_item_added (log_item) --> UI subscribes
+#       Client publish --> host_connection_added (host_conections) --> UI subscribes
+#       Client publish --> definition_set (definition) --> UI subscribes
+#       ### PROBLEM ###
+#       UI problem: Now the UI has the definition that is set, but the definition
+#       is just a raw json and not a DefinitionObject, so to deal with finding
+#       all the plugins and augment the options will be very complicated.
+#       ### Possible solutions ###
+#       1: We split DefinitionObject from framework_core so booth ftrack_qt and
+#       ftrack_core can have it as dependnency, then once defiition_set event
+#       arrives to the UI we convert the definition to a DefinitionObject
+#       2: We connect with direct connection using the current methods. So UI is
+#       like an extension of the client. It is allways reading definitions directly
+#       from client and overriding them directly in the client. Also we use some
+#       events per convinience, like log_item_added, notify_progress_to_ui, etc...
+#       In this case, I have one more question:
+#           Should the UI subscribe to the host events directly or they should
+#           only be subscribed by the client?
+#           I think the second sceneario is safer because the client proceeds
+#           the data as we want, and then publish a new event to be picked by the UI.
+#           So this way we ensure that the UI always receives data that has been
+#           handled by th client first.
 
 class Client(object):
     '''
@@ -409,6 +435,7 @@ class Client(object):
                 log_item.plugin_options,
             )
         )
+        # TODO: in here we should publish an event to communicate this to the UI
     # UI
     # TODO: how we deal with the definition selector which receives a list of definitions
     def run_dialog(self, dialog_widget):
