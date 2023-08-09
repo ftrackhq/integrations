@@ -8,6 +8,7 @@ from ftrack_framework_widget.framework_dialog import FrameworkDialog
 
 from ftrack_qt.widgets.selectors import ListSelector
 from ftrack_qt.widgets.headers import SessionHeader
+from ftrack_qt.widgets.selectors import ContextSelector
 
 
 class FrameworkDefinitionDialog(FrameworkDialog, QtWidgets.QDialog):
@@ -69,22 +70,39 @@ class FrameworkDefinitionDialog(FrameworkDialog, QtWidgets.QDialog):
         #self._progress_widget = ProgressWidget
         #self._header.add_widget(self._progress_widget)
 
+        self._context_selector = ContextSelector(self.session)
         self._host_connection_selector = ListSelector("Host Selector")
-        # TODO: Add the host selector
+
         # TODO: add the context selector
 
         self._definition_selector = ListSelector("Definitions")
-        self._add_definition_items()
+
+        self._add_host_connection_items()
+
 
         # TODO: add scroll area where to put the publisher widget.
 
+        self.layout().addWidget(self._header)
+        self.layout().addWidget(self._host_connection_selector)
         self.layout().addWidget(self._definition_selector)
 
     def _add_host_connection_items(self):
         for host_connection in self.host_connections:
-            self._host_connection_selector.add_item(host_connection.id)
+            self._host_connection_selector.add_item(host_connection.host_id)
+
+        # TODO: deactivate the signal momentanetly to avoid re-selecting the host
+        if self.host_connection:
+            self._host_connection_selector.blockSignals(True)
+            self._host_connection_selector.set_current_item(
+                self.host_connection.host_id
+            )
+            self._definition_selector.clear_items()
+            self._add_definition_items()
+            self._host_connection_selector.blockSignals(False)
 
     def _add_definition_items(self):
+        if not self.host_connection:
+            return
         for definition_list in self.filtred_definitions:
             for definition in definition_list:
                 self._definition_selector.add_item(definition.name)
@@ -99,28 +117,37 @@ class FrameworkDefinitionDialog(FrameworkDialog, QtWidgets.QDialog):
         self._definition_selector.current_item_changed.connect(self._on_definition_selected_callback)
         self._definition_selector.refresh_clicked.connect(self._on_refresh_definitions_callback)
 
-    def _on_host_selected_callback(self, item):
+    def _on_host_selected_callback(self, item_text):
         '''
         Get the definition with the given *item* name from the filtered definitions
         '''
+        if not item_text:
+            return
+        self._definition_selector.clear_items()
+        match = False
         for host_connection in self.host_connections:
-            if host_connection.id == item:
+            if host_connection.host_id == item_text:
                 self.host_connection = host_connection
+                match = True
+                break
+
+        if match:
+            self._add_definition_items()
 
     def _on_refresh_hosts_callback(self):
+        self._definition_selector.clear_items()
         self.host_connection = None
         self._host_connection_selector.clear_items()
-        self._definition_selector.clear_items()
         self.client_method_connection('discover_hosts')
         self._add_host_connection_items()
 
-    def _on_definition_selected_callback(self, item):
+    def _on_definition_selected_callback(self, item_text):
         '''
         Get the definition with the given *item* name from the filtered definitions
         '''
         definition = None
         for definition_list in self.filtred_definitions:
-            definition = definition_list.get_first(name=item)
+            definition = definition_list.get_first(name=item_text)
             if definition:
                 break
         self.definition = definition

@@ -182,7 +182,7 @@ def clear_layout(layout):
 
 
 def center_widget(widget, width=None, height=None):
-    '''Returns a widget that is have *widget* centered horizontally and vertically'''
+    '''Returns a widget that is *widget* centered horizontally and vertically'''
     v_container = QtWidgets.QWidget()
     v_container.setLayout(QtWidgets.QVBoxLayout())
     v_container.layout().addWidget(QtWidgets.QLabel(""), 100)

@@ -112,7 +112,7 @@ class Client(object):
             self.unsubscribe_host_context_changed()
             Client._host_connection = value
             return
-        if self.host_connection and value.id == self.host_connection.host_id:
+        if self.host_connection and value.host_id == self.host_connection.host_id:
             return
 
         self.logger.debug('Setting new host connection: {}'.format(value))
@@ -237,7 +237,13 @@ class Client(object):
         self._widget = value
 
 
-    def __init__(self, event_manager, auto_discover_host=True, multithreading_enabled=True):
+    def __init__(
+            self,
+            event_manager,
+            auto_discover_host=True,
+            auto_connect_host=True,
+            multithreading_enabled=True
+    ):
         '''
         Initialise Client with instance of
         :class:`~ftrack_framework_core.event.EventManager`
@@ -261,6 +267,7 @@ class Client(object):
         self._engine_type = None
         self.__widgets_registry = {}
         self._widget = None
+        self._auto_connect_host = auto_connect_host
 
         # TODO: Initializing client
         self.logger.debug('Initialising Client {}'.format(self))
@@ -327,8 +334,9 @@ class Client(object):
     def on_hosts_discovered(self, host_connections):
         # TODO: add the call to the widget in here.
         '''Callback, hosts has been discovered. Widgets can hook in here.'''
-        # Automatically connect to the first one
-        self.host_connection = host_connections[0]
+        if self._auto_connect_host:
+            # Automatically connect to the first one
+            self.host_connection = host_connections[0]
 
     # TODO: this should be ABC method
     def on_host_changed(self, host_connection):

@@ -27,14 +27,6 @@ class ListSelector(QtWidgets.QWidget):
     def no_items_label(self, value):
         self._no_items_label_widget.set_text = str(value)
 
-    @property
-    def items(self):
-        return self._combo_box_selector.items()
-
-    @items.setter
-    def items(self, items):
-        self._combo_box_selector.addItems(items)
-
     def __init__(self, label, parent=None):
         '''
         Initialize DefinitionSelector widget
@@ -90,13 +82,19 @@ class ListSelector(QtWidgets.QWidget):
     def clear_items(self):
         self._combo_box_selector.clear()
 
-    def add_item(self, item):
+    def add_item(self, item_text):
         if self._combo_box_selector.count() == 0:
             # Add first empty object
             self._combo_box_selector.addItem(
                 "-- {} --".format(self.label)
             )
-        self._combo_box_selector.addItem(item)
+        self._combo_box_selector.addItem(item_text)
+
+    def set_current_item(self, item_text):
+        for index in range(0, self._combo_box_selector.count()):
+            if self._combo_box_selector.itemText(index) == item_text:
+                self._combo_box_selector.setCurrentIndex(index)
+                break
 
     def _on_current_index_changed_callback(self, index):
         self.current_item_changed.emit(

@@ -5,7 +5,7 @@ import urllib.request, urllib.parse, urllib.error
 
 from Qt import QtCore, QtGui, QtWidgets
 
-from ftrack_qt.widgets.thumbnails import ThumbnailBase
+from ftrack_qt.widgets.thumbnails.base import ThumbnailBase
 
 
 class AssetVersion(ThumbnailBase):

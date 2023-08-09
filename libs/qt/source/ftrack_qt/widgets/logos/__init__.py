@@ -1,1 +1,1 @@
-from ftrack_qt.widgets.logo.ftrack_logo import FtrackLogo
+from ftrack_qt.widgets.logos.ftrack_logo import FtrackLogo

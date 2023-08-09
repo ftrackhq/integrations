@@ -1,0 +1,1 @@
+from ftrack_qt.widgets.browsers.entity_browser import EntityBrowser

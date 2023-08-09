@@ -1,0 +1,1 @@
+from ftrack_qt.widgets.search.collapsable_search_box import SearchBox

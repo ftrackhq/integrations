@@ -3,7 +3,7 @@
 
 from Qt import QtCore, QtWidgets, QtGui
 
-from ftrack_qt.widgets.logo import FtrackLogo as Logo
+from ftrack_qt.widgets.logos import FtrackLogo as Logo
 from ftrack_qt.widgets.user import FtrackUser as User
 
 
@@ -75,7 +75,6 @@ class SessionHeader(QtWidgets.QFrame):
 
     def post_build(self):
         self.logo.setVisible(self._show_logo)
-        self._launch_publisher_button.setVisible(self._show_publisher)
         self.user.setVisible(self._show_user)
 
     def add_widget(self, widget):
