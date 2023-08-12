@@ -3,6 +3,7 @@
 
 import time
 import logging
+import uuid
 
 from six import string_types
 
@@ -41,6 +42,7 @@ class Client(object):
     Base client class.
     '''
 
+    # TODO: do we need to specify ui compatible types?
     ui_types = [constants.UI_TYPE]
     '''Compatible UI for this client.'''
 
@@ -53,7 +55,12 @@ class Client(object):
     '''The list of discovered host connections'''
 
     def __repr__(self):
-        return '<Client:{0}>'.format(self.ui_types)
+        return '<Client:{0}>'.format(self.id)
+
+    @property
+    def id(self):
+        '''Returns the current client id.'''
+        return self._id
 
     @property
     def event_manager(self):
@@ -222,20 +229,22 @@ class Client(object):
         return self._multithreading_enabled
     # Widget
     @property
-    def widgets(self):
-        return self.__widgets_registry
+    def dialogs(self):
+        return self.__dialogs_registry
 
-    @widgets.setter
-    def widgets(self, value):
-        if value.id not in list(self.__widgets_registry.keys()):
-            self.__widgets_registry[value.id] = value
+    @dialogs.setter
+    def dialogs(self, value):
+        if value.id not in list(self.__dialogs_registry.keys()):
+            self.__dialogs_registry[value.id] = value
+
     @property
-    def widget(self):
-        return self._widget
+    def dialog(self):
+        return self._dialog
 
-    @widget.setter
-    def widget(self, value):
-        self._widget = value
+    @dialog.setter
+    def dialog(self, value):
+        self.set_active_dialog(self._dialog, value)
+        self._dialog = value
 
 
     def __init__(
@@ -254,6 +263,10 @@ class Client(object):
         self.logger = logging.getLogger(
             __name__ + '.' + self.__class__.__name__
         )
+
+        # Create the client id to use to comunicate with UI
+        self._id = '{}'.format(uuid.uuid4().hex)
+
         # Set the event manager
         self._event_manager = event_manager
         # TODO: convert this to a decorator, so whenever something is
@@ -266,8 +279,8 @@ class Client(object):
         self._host_context_changed_subscribe_id = None
         self._definition = None
         self._engine_type = None
-        self.__widgets_registry = {}
-        self._widget = None
+        self.__dialogs_registry = {}
+        self._dialog = None
         self._auto_connect_host = auto_connect_host
 
         # TODO: Initializing client
@@ -326,8 +339,8 @@ class Client(object):
         for reply_data in event['data']:
             host_connection = HostConnection(self.event_manager, reply_data)
             if (
-                host_connection
-                and host_connection not in self.host_connections
+                    host_connection
+                    and host_connection not in self.host_connections
             ):
                 self.host_connections.append(host_connection)
 
@@ -339,14 +352,14 @@ class Client(object):
             # Automatically connect to the first one
             self.host_connection = host_connections[0]
         # Call to widget
-        # self.event_manager.publish.client_notify_hosts_discovered(self.id)
+        self.event_manager.publish.client_signal_hosts_discovered(self.id)
 
     # TODO: this should be ABC method
     def on_host_changed(self, host_connection):
         '''Called when the host has been (re-)selected by the user. To be
         overridden by the qt client.'''
         # Call to widget
-        # self.event_manager.publish.client_notify_host_changed(self.id)
+        self.event_manager.publish.client_signal_host_changed(self.id)
         pass
 
     # Context
@@ -360,13 +373,8 @@ class Client(object):
         '''Called when the context has been set or changed within the host connection, either from this
         client or remote (other client or the host). Should be overridden by client.
         '''
-        # TODO: we have to add something like  if widget: widget.on_context_changed()
-        #  In the widget itself we will import from the wraper widget which is an ABC: from framework_ui_wrappers import widget(this will be what has to be imported in the widget)
-        pass
-        # TODO: example of events to send to UI
-        # self.event_manager.publish.client_notify_context_changed(self.id)
-        # client_notify_ui_context_changed()
-        # client_notify_ui(signal='context_changed')
+        # Communicate ui that host has changed
+        self.event_manager.publish.client_signal_context_changed(self.id)
 
     def unsubscribe_host_context_changed(self):
         '''Unsubscribe to client context change events'''
@@ -378,8 +386,8 @@ class Client(object):
 
     # Definition
     def on_definition_changed(self, definition):
-        pass
-        # self.event_manager.publish.client_notify_definition_changed(self.id)
+        self.event_manager.publish.client_signal_definition_changed(self.id)
+
     def run_definition(self, definition, engine_type):
         '''
         Calls the :meth:`~ftrack_framework_core.client.HostConnection.run`
@@ -458,17 +466,23 @@ class Client(object):
         # TODO: in here we should publish an event to communicate this to the UI
     # UI
     # TODO: how we deal with the definition selector which receives a list of definitions
+    # TODO: do the run_widget also
     def run_dialog(self, dialog_widget):
-        self.widget = dialog_widget(
+        # TODO: activate the following check:
+        # if not isInstance(FrameworkDialog, dialog_widget):
+        #     return 'Not compatibleWidget'
+        dialog = dialog_widget(
             self.event_manager,
+            self.id,
             connect_methods_callback=self._connect_methods_callback,
             connect_setter_property_callback=self._connect_setter_property_callback,
             connect_getter_property_callback=self._connect_getter_property_callback
         )
         # Append widget to widgets
         # TODO: maybe better to do it manually without the setter property.
-        self.widgets = self.widget
-        self.widget.show()
+        self.dialogs = dialog
+        self.dialog = dialog
+        self.dialog.show()
 
     # def _connect_widget_signals(self, widget):
     #     # tODO: should this be subscription events?
@@ -477,6 +491,9 @@ class Client(object):
     #         set_method=self._connect_setter_property_callback,
     #         get_method=self._connect_getter_property_callback
     #     )
+    def set_active_dialog(self, old_dialog, new_dialog):
+        for dialog in list(self.dialogs.values()):
+            dialog.change_focus(old_dialog, new_dialog)
 
     def _connect_methods_callback(self, method_name, arguments=None, callback=None):
         meth = getattr(self, method_name)

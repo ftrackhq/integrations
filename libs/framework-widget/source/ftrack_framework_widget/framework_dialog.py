@@ -15,6 +15,7 @@ class FrameworkDialog(BaseWidget):
     def __init__(
             self,
             event_manager,
+            client_id,
             connect_methods_callback,
             connect_setter_property_callback,
             connect_getter_property_callback,
@@ -27,6 +28,7 @@ class FrameworkDialog(BaseWidget):
 
         super(FrameworkDialog, self).__init__(
             event_manager,
+            client_id,
             connect_methods_callback,
             connect_setter_property_callback,
             connect_getter_property_callback,

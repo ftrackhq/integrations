@@ -30,15 +30,15 @@ def provide_host_information(
 ):
     '''
     Returns dictionary with host id, host name, context id and definition from
-    the given *host_id*, *definitions* and *host_name*.
+    the given *id*, *definitions* and *name*.
 
-    *host_id* : Host id
+    *id* : Host id
 
     *definitions* : Dictionary with a valid definitions
 
-    *host_name* : Host name
+    *name* : Host name
     '''
-    logger.debug('providing host_id: {}'.format(host_id))
+    logger.debug('providing id: {}'.format(id))
     host_dict = {
         'host_id': host_id,
         'host_name': host_name,
@@ -52,7 +52,9 @@ def provide_host_information(
 
 
 class Host(object):
-    # TODO: double_check host types and host type
+    # TODO: double_check host types and host type do we really need it?
+    #  Maybe what we need is defnitions type? to specify which definitions we
+    #  want to discover?
     host_types = [constants.HOST_TYPE]
     '''Compatible Host types for this HOST.'''
 
@@ -75,7 +77,7 @@ class Host(object):
     '''FtrackObjectManager class to use'''
 
     def __repr__(self):
-        return '<Host:{0}>'.format(self.host_id)
+        return '<Host:{0}>'.format(self.id)
 
     @property
     def event_manager(self):
@@ -126,29 +128,29 @@ class Host(object):
             'ftrack host context is now: {}'.format(self.context_id)
         )
         self.event_manager.publish.host_context_changed(
-            self.host_id,
+            self.id,
             self.context_id
         )
 
     @property
-    def host_id(self):
+    def id(self):
         '''Returns the current host id.'''
-        return self._host_id
+        return self._id
 
     @property
-    def host_name(self):
+    def name(self):
         '''Returns the current host name'''
-        if not self.host_id:
+        if not self.id:
             return
-        host_types = self.host_id.split("-")[0]
-        host_name = '{}-{}'.format(host_types, socket.gethostname())
-        return host_name
+        host_types = self.id.split("-")[0]
+        name = '{}-{}'.format(host_types, socket.gethostname())
+        return name
 
     @property
     def logs(self):
         '''Returns the current host name'''
         if not self._logs:
-            self._logs = LogDB(self._host_id)
+            self._logs = LogDB(self._id)
         return self._logs
 
     @property
@@ -184,7 +186,7 @@ class Host(object):
             __name__ + '.' + self.__class__.__name__
         )
         # Create the host id
-        self._host_id = '{}-{}'.format(
+        self._id = '{}-{}'.format(
             '.'.join(self.host_types), uuid.uuid4().hex
         )
 
@@ -205,7 +207,7 @@ class Host(object):
         # Subscribe to events
         self._subscribe_events()
 
-        self.logger.debug('Host {} ready.'.format(self.host_id))
+        self.logger.debug('Host {} ready.'.format(self.id))
 
     # Register
     def _register_modules(self):
@@ -260,9 +262,9 @@ class Host(object):
             register_module = getattr(
                 __import__(package.name, fromlist=['register']), 'register'
             )
-            # Call the register method We pass the event manager and host_id
+            # Call the register method We pass the event manager and id
             result = register_module.register(
-                self.event_manager, self.host_id, self.ftrack_object_manager
+                self.event_manager, self.id, self.ftrack_object_manager
             )
 
             if type(result) == list:
@@ -392,19 +394,19 @@ class Host(object):
         # :const:`~ftrack_framework_core.constants.NOTIFY_PLUGIN_PROGRESS_TOPIC`
         # to receive client notifications from the host in :meth:`_notify_client_callback`
         self.event_manager.subscribe.notify_plugin_progress_client(
-            self.host_id, self._notify_plugin_progress_client_callback
+            self.id, self._notify_plugin_progress_client_callback
         )
 
         # Listen to context change events for this host and its connected clients
         self.event_manager.subscribe.client_context_changed(
-            self.host_id, self._client_context_change_callback
+            self.id, self._client_context_change_callback
         )
 
         # Reply to discover_host_callback to clints to pass the host information
         discover_host_callback_reply = partial(
             provide_host_information,
-            self.host_id,
-            self.host_name,
+            self.id,
+            self.name,
             self.context_id,
             self.definitions,
         )
@@ -413,11 +415,11 @@ class Host(object):
         )
         # Subscribe to run definition
         self.event_manager.subscribe.host_run_definition(
-            self.host_id, self.run_definition_callback
+            self.id, self.run_definition_callback
         )
         # Subscribe to run plugin
         self.event_manager.subscribe.host_run_plugin(
-            self.host_id, self.run_plugin_callback
+            self.id, self.run_plugin_callback
         )
 
     def _notify_plugin_progress_client_callback(self, event):
@@ -435,12 +437,12 @@ class Host(object):
         self.logs.add_log_item(log_item)
         # Publish the event to notify client
         self.event_manager.publish.host_log_item_added(
-            self.host_id,
+            self.id,
             log_item
         )
 
     def _client_context_change_callback(self, event):
-        if event['data']['pipeline']['host_id'] != self.host_id:
+        if event['data']['pipeline']['id'] != self.id:
             return
         context_id = event['data']['pipeline']['context_id']
         if context_id != self.context_id:
@@ -469,7 +471,7 @@ class Host(object):
             raise Exception('No engine of type "{}" found'.format(engine_type))
         engine_runner = Engine(
             self.event_manager, self.ftrack_object_manager, self.host_types,
-            self.host_id, asset_type_name
+            self.id, asset_type_name
         )
 
         try:
@@ -504,7 +506,7 @@ class Host(object):
             raise Exception('No engine of type "{}" found'.format(engine_type))
         engine_runner = Engine(
             self.event_manager, self.ftrack_object_manager, self.host_types,
-            self.host_id, None
+            self.id, None
         )
 
         runner_result = engine_runner.run_plugin(

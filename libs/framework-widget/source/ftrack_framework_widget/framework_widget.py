@@ -12,13 +12,28 @@ class FrameworkWidget(BaseWidget):
     name = None
     widget_type = 'framework_widget'
 
-    def __init__(self, event_manager):
+    def __init__(
+            self,
+            event_manager,
+            client_id,
+            connect_methods_callback,
+            connect_setter_property_callback,
+            connect_getter_property_callback,
+            parent=None
+    ):
         '''
         Initialise BasePlugin with instance of
         :class:`ftrack_api.session.Session`
         '''
 
-        super(FrameworkWidget, self).__init__(event_manager, parent)
+        super(FrameworkWidget, self).__init__(
+            event_manager,
+            client_id,
+            connect_methods_callback,
+            connect_setter_property_callback,
+            connect_getter_property_callback,
+            parent
+        )
 
     # TODO: this should be an ABC
     def pre_build(self):

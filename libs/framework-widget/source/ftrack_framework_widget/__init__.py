@@ -5,6 +5,14 @@ import logging
 import uuid
 
 
+def active_widget(func):
+    def wrapper(self, *args, **kwargs):
+        '''If self.active in class execute the function'''
+        print ("Gettting the variable self.active from class".format(self.active))
+        if self.active:
+            return func(self, *args, **kwargs)
+    return wrapper
+
 class BaseWidget(object):
     '''Base Class to represent a Plugin'''
 
@@ -111,9 +119,28 @@ class BaseWidget(object):
     def parent(self):
         return self._parent
 
+    @property
+    def client_id(self):
+        return self._client_id
+
+    @property
+    def is_active(self):
+        '''
+        Dependency framework widgets
+        '''
+        return self._is_active
+
+    @is_active.setter
+    def is_active(self, value):
+        '''
+        Dependency framework widgets
+        '''
+        self._is_active = value
+
     def __init__(
             self,
             event_manager,
+            client_id,
             connect_methods_callback,
             connect_setter_property_callback,
             connect_getter_property_callback,
@@ -137,7 +164,9 @@ class BaseWidget(object):
         self._definition = None
         self._host_connection = None
         self._parent = None
+        self._is_active = False
 
+        self._client_id = client_id
         # tDO: can this be events???? Will be much cleaner
         self.connect_methods(connect_methods_callback)
         self.connect_properties(
@@ -150,6 +179,7 @@ class BaseWidget(object):
         self.pre_build()
         self.build()
         self.post_build()
+        self.connect_focus_signal()
 
     def connect_methods(self, method):
         # TODO: should this be subscription events?
@@ -161,15 +191,15 @@ class BaseWidget(object):
         self.client_property_getter_connection = get_method
 
     def _subscribe_client_events(self):
-        self.event_manager.subscribe.client_notify_context_changed(
+        self.event_manager.subscribe.client_signal_context_changed(
             self.client_id,
             callback=self._on_client_context_changed_callback
         )
-        self.event_manager.subscribe.client_notify_hosts_discovered(
+        self.event_manager.subscribe.client_signal_hosts_discovered(
             self.client_id,
             callback=self._on_client_hosts_discovered_callback
         )
-        self.event_manager.subscribe.client_notify_host_changed(
+        self.event_manager.subscribe.client_signal_host_changed(
             self.client_id,
             callback=self._on_client_host_changed_callback
         )
@@ -178,7 +208,7 @@ class BaseWidget(object):
         #     self.client_id,
         #     callback=self._on_client_context_changed_callback
         # )
-        self.event_manager.subscribe.client_notify_definition_changed(
+        self.event_manager.subscribe.client_signal_definition_changed(
             self.client_id,
             callback=self._on_client_definition_changed_callback
         )
@@ -196,18 +226,86 @@ class BaseWidget(object):
     def post_build(self):
         pass
 
+    # TODO: This should be an ABC
+    @active_widget
     def _on_client_context_changed_callback(self):
+        '''Will only run if the widget is active'''
         # TODO: carefully, here we should update definitions!
         pass
 
+    # TODO: This should be an ABC
+    @active_widget
     def _on_client_hosts_discovered_callback(self):
         pass
 
+    # TODO: This should be an ABC
+    @active_widget
     def _on_client_host_changed_callback(self):
         # TODO: carefully, here we should update definitions!
         pass
 
+    # TODO: This should be an ABC
+    @active_widget
     def _on_client_definition_changed_callback(self):
         pass
+
+    # TODO: This should be an ABC
+    def show(self):
+        # TODO: Find a way to simulate a pyside signal
+        pass
+        #self._on_focus_changed(None, self)
+
+    # TODO: This should be an ABC
+    def connect_focus_signal(self):
+        # TODO: Find a way to simulate a pyside connection, so every time that
+        #  show() is called, we connect it to on_focus_changed
+        pass
+
+    def change_focus(self, old_widget, new_widget):
+        self._on_focus_changed(old_widget, new_widget)
+
+    def _on_focus_changed(self, old_widget, new_widget):
+        if self == old_widget:
+            self.is_active = False
+        elif self == new_widget:
+            self.is_active = True
+        else:
+            self.is_active = False
+        if self.is_active:
+            # Syncronize context with client
+            self.sync_context()
+            # Syncronize Host connection with client
+            self.sync_host_connection()
+            # Syncronize definitiion with client
+            self.sync_definition()
+
+    # TODO: this should be an ABC
+    def sync_context(self):
+        '''
+        Check if selected UI context_id is not sync with the client and sync them.
+        Pseudo code example PySide UI:
+            if self.context_id not is self.context_Selector.current_text():
+                raise confirmation widget to decide which one to keep
+                equal self.context_Selector.current_text() to self.context_id or
+                the other way around depending on the confirmation widget response
+        '''
+        pass
+
+    # TODO: this should be an ABC
+    def sync_host_connection(self):
+        '''
+        Check if UI selected host_connection is not sync with the client and sync them.
+        '''
+        pass
+
+    # TODO: this should be an ABC
+    def sync_definition(self):
+        '''
+        Check if UI selected definition is not sync with the client and sync them.
+        We usually want to keep the selected Definition
+        '''
+        pass
+
+
 
 

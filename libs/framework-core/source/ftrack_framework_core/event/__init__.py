@@ -358,6 +358,54 @@ class Publish(object):
         event_topic = constants.event.HOST_LOG_ITEM_ADDED_TOPIC
         return self._publish_event(event_topic, data, callback)
 
+    def client_signal_context_changed(self, client_id, callback=None):
+        '''
+        Publish an event with topic
+        :const:`~ftrack_framework_core.constants.event.CLIENT_SIGNAL_CONTEXT_CHANGED_TOPIC`
+        '''
+        data = {
+            'client_id': client_id,
+        }
+
+        event_topic = constants.event.CLIENT_SIGNAL_CONTEXT_CHANGED_TOPIC
+        return self._publish_event(event_topic, data, callback)
+
+    def client_signal_hosts_discovered(self, client_id, callback=None):
+        '''
+        Publish an event with topic
+        :const:`~ftrack_framework_core.constants.event.CLIENT_SIGNAL_HOSTS_DISCOVERED_TOPIC`
+        '''
+        data = {
+            'client_id': client_id,
+        }
+
+        event_topic = constants.event.CLIENT_SIGNAL_HOSTS_DISCOVERED_TOPIC
+        return self._publish_event(event_topic, data, callback)
+
+    def client_signal_host_changed(self, client_id, callback=None):
+        '''
+        Publish an event with topic
+        :const:`~ftrack_framework_core.constants.event.CLIENT_SIGNAL_HOST_CHANGED_TOPIC`
+        '''
+        data = {
+            'client_id': client_id,
+        }
+
+        event_topic = constants.event.CLIENT_SIGNAL_HOST_CHANGED_TOPIC
+        return self._publish_event(event_topic, data, callback)
+
+    def client_signal_definition_changed(self, client_id, callback=None):
+        '''
+        Publish an event with topic
+        :const:`~ftrack_framework_core.constants.event.CLIENT_SIGNAL_DEFINITION_CHANGED_TOPIC`
+        '''
+        data = {
+            'client_id': client_id,
+        }
+
+        event_topic = constants.event.CLIENT_SIGNAL_DEFINITION_CHANGED_TOPIC
+        return self._publish_event(event_topic, data, callback)
+
 
 class Subscribe(object):
     '''Class with all the events subscribed by the framework'''
@@ -489,7 +537,7 @@ class Subscribe(object):
 
     def host_log_item_added(self, host_id, callback=None):
         '''
-        Publish an event with topic
+        Subscribe to an event with topic
         :const:`~ftrack_framework_core.constants.event.HOST_LOG_ITEM_ADDED_TOPIC`
         '''
         event_topic = '{} and data.host_id={}'.format(
@@ -497,3 +545,42 @@ class Subscribe(object):
         )
         return self._subscribe_event(event_topic, callback)
 
+    def client_signal_context_changed(self, client_id, callback=None):
+        '''
+        Subscribe to an event with topic
+        :const:`~ftrack_framework_core.constants.event.CLIENT_SIGNAL_CONTEXT_CHANGED_TOPIC`
+        '''
+        event_topic = '{} and data.client_id={}'.format(
+            constants.event.CLIENT_SIGNAL_CONTEXT_CHANGED_TOPIC, client_id
+        )
+        return self._subscribe_event(event_topic, callback)
+
+    def client_signal_hosts_discovered(self, client_id, callback=None):
+        '''
+        Subscribe to an event with topic
+        :const:`~ftrack_framework_core.constants.event.CLIENT_SIGNAL_HOSTS_DISCOVERED_TOPIC`
+        '''
+        event_topic = '{} and data.client_id={}'.format(
+            constants.event.CLIENT_SIGNAL_HOSTS_DISCOVERED_TOPIC, client_id
+        )
+        return self._subscribe_event(event_topic, callback)
+
+    def client_signal_host_changed(self, client_id, callback=None):
+        '''
+        Subscribe to an event with topic
+        :const:`~ftrack_framework_core.constants.event.CLIENT_SIGNAL_HOST_CHANGED_TOPIC`
+        '''
+        event_topic = '{} and data.client_id={}'.format(
+            constants.event.CLIENT_SIGNAL_HOST_CHANGED_TOPIC, client_id
+        )
+        return self._subscribe_event(event_topic, callback)
+
+    def client_signal_definition_changed(self, client_id, callback=None):
+        '''
+        Subscribe to an event with topic
+        :const:`~ftrack_framework_core.constants.event.CLIENT_SIGNAL_DEFINITION_CHANGED_TOPIC`
+        '''
+        event_topic = '{} and data.client_id={}'.format(
+            constants.event.CLIENT_SIGNAL_DEFINITION_CHANGED_TOPIC, client_id
+        )
+        return self._subscribe_event(event_topic, callback)

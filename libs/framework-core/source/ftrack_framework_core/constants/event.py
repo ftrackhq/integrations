@@ -38,3 +38,11 @@ HOST_CONTEXT_CHANGED_TOPIC = '{}.host.context.change'.format(_BASE_)
 CLIENT_CONTEXT_CHANGED_TOPIC = '{}.client.context.change'.format(_BASE_)
 # Host has added a new log item
 HOST_LOG_ITEM_ADDED_TOPIC = '{}.host.log.added'.format(_BASE_)
+# Client signal context changed
+CLIENT_SIGNAL_CONTEXT_CHANGED_TOPIC = '{}.client.signal.context.change'.format(_BASE_)
+# Client signal host discovered
+CLIENT_SIGNAL_HOSTS_DISCOVERED_TOPIC = '{}.client.signal.host.discover'.format(_BASE_)
+# Client signal host changed
+CLIENT_SIGNAL_HOST_CHANGED_TOPIC = '{}.client.signal.host.change'.format(_BASE_)
+# Client signal definition changed
+CLIENT_SIGNAL_DEFINITION_CHANGED_TOPIC = '{}.client.signal.definition.change'.format(_BASE_)

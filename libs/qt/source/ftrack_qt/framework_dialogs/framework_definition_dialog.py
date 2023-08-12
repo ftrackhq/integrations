@@ -18,10 +18,6 @@ class FrameworkDefinitionDialog(FrameworkDialog, QtWidgets.QDialog):
     definition_filter = None
 
     @property
-    def definition_selector(self):
-        return self._definition_selector
-
-    @property
     def filtred_definitions(self):
         definitions = list(self.definitions.values())
         if self.definition_filter:
@@ -31,6 +27,7 @@ class FrameworkDefinitionDialog(FrameworkDialog, QtWidgets.QDialog):
     def __init__(
             self,
             event_manager,
+            client_id,
             connect_methods_callback,
             connect_setter_property_callback,
             connect_getter_property_callback,
@@ -49,6 +46,7 @@ class FrameworkDefinitionDialog(FrameworkDialog, QtWidgets.QDialog):
         FrameworkDialog.__init__(
             self,
             event_manager,
+            client_id,
             connect_methods_callback,
             connect_setter_property_callback,
             connect_getter_property_callback,
@@ -75,8 +73,8 @@ class FrameworkDefinitionDialog(FrameworkDialog, QtWidgets.QDialog):
         # TODO: we have to update the signals from the context selector to
         #  identify that are our signals and not qt signals.
         self._context_selector = ContextSelector(self.session)
-        self._context_selector.context_id = self.context_id
-        # TODO: we should add events of client_context_changed to let the ui that a context has changed, same for defiitions or hosts.
+        # Set context from client:
+        self._on_client_context_changed_callback()
 
         self._host_connection_selector = ListSelector("Host Selector")
 
@@ -92,6 +90,21 @@ class FrameworkDefinitionDialog(FrameworkDialog, QtWidgets.QDialog):
         self.layout().addWidget(self._context_selector, QtCore.Qt.AlignTop)
         self.layout().addWidget(self._host_connection_selector)
         self.layout().addWidget(self._definition_selector)
+
+    # TODO: this should be an ABC
+    def post_build(self):
+        super(FrameworkDefinitionDialog, self).post_build()
+        # Connect host selector signals
+        self._host_connection_selector.current_item_changed.connect(self._on_host_selected_callback)
+        self._host_connection_selector.refresh_clicked.connect(self._on_refresh_hosts_callback)
+        # Connect definition selector signals
+        self._definition_selector.current_item_changed.connect(self._on_definition_selected_callback)
+        self._definition_selector.refresh_clicked.connect(self._on_refresh_definitions_callback)
+
+    # TODO: this should be an ABC
+    def connect_focus_signal(self):
+        # Update the is_active property.
+        QtWidgets.QApplication.instance().focusChanged.connect(self._on_focus_changed)
 
     def _add_host_connection_items(self):
         for host_connection in self.host_connections:
@@ -113,16 +126,6 @@ class FrameworkDefinitionDialog(FrameworkDialog, QtWidgets.QDialog):
         for definition_list in self.filtred_definitions:
             for definition in definition_list:
                 self._definition_selector.add_item(definition.name)
-
-    # TODO: this should be an ABC
-    def post_build(self):
-        super(FrameworkDefinitionDialog, self).post_build()
-        # Connect host selector signals
-        self._host_connection_selector.current_item_changed.connect(self._on_host_selected_callback)
-        self._host_connection_selector.refresh_clicked.connect(self._on_refresh_hosts_callback)
-        # Connect definition selector signals
-        self._definition_selector.current_item_changed.connect(self._on_definition_selected_callback)
-        self._definition_selector.refresh_clicked.connect(self._on_refresh_definitions_callback)
 
     def _on_host_selected_callback(self, item_text):
         '''
@@ -173,3 +176,102 @@ class FrameworkDefinitionDialog(FrameworkDialog, QtWidgets.QDialog):
     def _on_client_context_changed_callback(self):
         self._context_selector.context_id = self.context_id
 
+    # TODO: This should be an ABC
+    def _on_client_hosts_discovered_callback(self):
+        # TODO: for host_id in host_connection if host_id not in host_selector items, add it.
+        pass
+
+    # TODO: This should be an ABC
+    def _on_client_host_changed_callback(self):
+        if (
+                self._host_connection_selector.current_item_text() !=
+                self.host_connection.host_id
+        ):
+            self._host_connection_selector.set_current_item(
+                self.host_connection.host_id
+            )
+
+    # TODO: This should be an ABC
+    def _on_client_definition_changed_callback(self):
+        if (
+                self._definition_selector.current_item_text() !=
+                self.definition.name
+        ):
+            self._definition_selector.set_current_item(
+                self.definition.name
+            )
+
+    # TODO: This should be an ABC
+    def sync_context(self):
+        if self.context_id != self._context_selector.context_id:
+            result = self.show_message_dialog(
+                title='Context out of sync!',
+                message='Selected context is not the current context, '
+                        'do you want to update UI to syc with the current context?',
+                button_1_text='Update',
+                button_2_text='Keep Current'
+            )
+            if result == 1:
+                self._on_client_context_changed_callback()
+            elif result == 0:
+                # TODO: missing the on conecxt selection changed. Update this oonce added.
+                self.context_id = self._context_selector.context_id
+
+    # TODO: This should be an ABC
+    def sync_host_connection(self):
+        if self.host_connection.host_id != self._host_connection_selector.current_item_text():
+            result = self.show_message_dialog(
+                title='Host connection out of sync!',
+                message='Selected host connection is not the current host_connection, '
+                        'do you want to update UI to syc with the current one?',
+                button_1_text='Update',
+                button_2_text='Keep Current'
+            )
+            if result == 1:
+                self._on_client_host_changed_callback()
+            elif result == 0:
+                self._on_host_selected_callback(
+                    self._host_connection_selector.current_item_text()
+                )
+
+    # TODO: This should be an ABC
+    def sync_definition(self):
+        if self.definition.name != self._definition_selector.current_item_text():
+            match = False
+            for definition_list in self.filtred_definitions:
+                definition = definition_list.get_first(name=self.definition.name)
+                if definition:
+                    match = True
+                    break
+            if not match:
+                # Automatically sync current definition to client as the current
+                # definition is not available for this UI.
+                self._on_definition_selected_callback(
+                    self._definition_selector.current_item_text()
+                )
+                return
+            else:
+                result = self.show_message_dialog(
+                    title='Current definition is out of sync!',
+                    message='Selected definition is not the current definition, '
+                            'do you want to update UI to syc with the current one?',
+                    button_1_text='Update',
+                    button_2_text='Keep Current'
+                )
+                if result == 1:
+                    self._on_client_definition_changed_callback()
+                elif result == 0:
+                    self._on_definition_selected_callback(
+                        self._definition_selector.current_item_text()
+                    )
+
+    # TODO: maybe move this to a utils and standarize icon.
+    def show_message_dialog(self, title, message, button_1_text, button_2_text):
+        message_box = QtWidgets.QMessageBox()
+        message_box.setWindowTitle(title)
+        message_box.setText(message)
+        message_box.setIcon(QtWidgets.QMessageBox.Question)
+        message_box.addButton(button_1_text, QtWidgets.QMessageBox.YesRole)
+        message_box.addButton(button_2_text, QtWidgets.QMessageBox.NoRole)
+        result = message_box.exec_()
+        return result
