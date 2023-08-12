@@ -1,5 +1,6 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2023 ftrack
+# TODO: clean this code
 import shiboken2
 
 from Qt import QtWidgets, QtCore, QtGui

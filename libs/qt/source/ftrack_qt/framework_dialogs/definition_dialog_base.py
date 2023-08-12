@@ -11,7 +11,7 @@ from ftrack_qt.widgets.headers import SessionHeader
 from ftrack_qt.widgets.selectors import ContextSelector
 
 
-class FrameworkDefinitionDialog(FrameworkDialog, QtWidgets.QDialog):
+class DefinitionDialogBase(FrameworkDialog, QtWidgets.QDialog):
     '''Base Class to represent a Plugin'''
 
     name = 'framework_definition_dialog'
@@ -55,13 +55,13 @@ class FrameworkDefinitionDialog(FrameworkDialog, QtWidgets.QDialog):
 
     # TODO: this should be an ABC
     def pre_build(self):
-        super(FrameworkDefinitionDialog, self).pre_build()
+        super(DefinitionDialogBase, self).pre_build()
         main_layout = QtWidgets.QVBoxLayout()
         self.setLayout(main_layout)
 
     # TODO: this should be an ABC
     def build(self):
-        super(FrameworkDefinitionDialog, self).build()
+        super(DefinitionDialogBase, self).build()
         # Create the header
         self._header = SessionHeader(self.session)
         # TODO: implement progress widget. I think client should communicate the
@@ -86,15 +86,20 @@ class FrameworkDefinitionDialog(FrameworkDialog, QtWidgets.QDialog):
         # ToDO: add the run definition button
 
         # TODO: add scroll area where to put the publisher widget.
+        self._scroll_area = QtWidgets.QScrollArea()
+        self._scroll_area.setStyle(QtWidgets.QStyleFactory.create("plastique"))
+        self._scroll_area.setWidgetResizable(True)
+        self._scroll_area.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
 
         self.layout().addWidget(self._header)
         self.layout().addWidget(self._context_selector, QtCore.Qt.AlignTop)
         self.layout().addWidget(self._host_connection_selector)
         self.layout().addWidget(self._definition_selector)
+        self.layout().addWidget(self._scroll_area, 100)
 
     # TODO: this should be an ABC
     def post_build(self):
-        super(FrameworkDefinitionDialog, self).post_build()
+        super(DefinitionDialogBase, self).post_build()
         # Connect context selector signals
         self._context_selector.context_changed.connect(self._on_context_selected_callback)
         # Connect host selector signals
