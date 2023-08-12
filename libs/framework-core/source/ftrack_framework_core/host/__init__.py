@@ -442,9 +442,7 @@ class Host(object):
         )
 
     def _client_context_change_callback(self, event):
-        if event['data']['pipeline']['id'] != self.id:
-            return
-        context_id = event['data']['pipeline']['context_id']
+        context_id = event['data']['context_id']
         if context_id != self.context_id:
             self.context_id = context_id
 

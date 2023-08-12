@@ -228,25 +228,25 @@ class BaseWidget(object):
 
     # TODO: This should be an ABC
     @active_widget
-    def _on_client_context_changed_callback(self):
+    def _on_client_context_changed_callback(self, event=None):
         '''Will only run if the widget is active'''
         # TODO: carefully, here we should update definitions!
         pass
 
     # TODO: This should be an ABC
     @active_widget
-    def _on_client_hosts_discovered_callback(self):
+    def _on_client_hosts_discovered_callback(self, event=None):
         pass
 
     # TODO: This should be an ABC
     @active_widget
-    def _on_client_host_changed_callback(self):
+    def _on_client_host_changed_callback(self, event=None):
         # TODO: carefully, here we should update definitions!
         pass
 
     # TODO: This should be an ABC
     @active_widget
-    def _on_client_definition_changed_callback(self):
+    def _on_client_definition_changed_callback(self, event=None):
         pass
 
     # TODO: This should be an ABC

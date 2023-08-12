@@ -72,15 +72,16 @@ class FrameworkDefinitionDialog(FrameworkDialog, QtWidgets.QDialog):
 
         # TODO: we have to update the signals from the context selector to
         #  identify that are our signals and not qt signals.
-        self._context_selector = ContextSelector(self.session)
+        self._context_selector = ContextSelector(
+            self.session,
+            enble_context_change=True
+        )
         # Set context from client:
         self._on_client_context_changed_callback()
 
         self._host_connection_selector = ListSelector("Host Selector")
 
         self._definition_selector = ListSelector("Definitions")
-
-        self._add_host_connection_items()
 
         # ToDO: add the run definition button
 
@@ -94,6 +95,8 @@ class FrameworkDefinitionDialog(FrameworkDialog, QtWidgets.QDialog):
     # TODO: this should be an ABC
     def post_build(self):
         super(FrameworkDefinitionDialog, self).post_build()
+        # Connect context selector signals
+        self._context_selector.context_changed.connect(self._on_context_selected_callback)
         # Connect host selector signals
         self._host_connection_selector.current_item_changed.connect(self._on_host_selected_callback)
         self._host_connection_selector.refresh_clicked.connect(self._on_refresh_hosts_callback)
@@ -101,6 +104,11 @@ class FrameworkDefinitionDialog(FrameworkDialog, QtWidgets.QDialog):
         self._definition_selector.current_item_changed.connect(self._on_definition_selected_callback)
         self._definition_selector.refresh_clicked.connect(self._on_refresh_definitions_callback)
 
+        # Add host connection items
+        self._add_host_connection_items()
+
+    def show(self):
+        QtWidgets.QDialog.show(self)
     # TODO: this should be an ABC
     def connect_focus_signal(self):
         # Update the is_active property.
@@ -112,13 +120,8 @@ class FrameworkDefinitionDialog(FrameworkDialog, QtWidgets.QDialog):
 
         # TODO: deactivate the signal momentanetly to avoid re-selecting the host
         if self.host_connection:
-            self._host_connection_selector.blockSignals(True)
-            self._host_connection_selector.set_current_item(
-                self.host_connection.host_id
-            )
-            self._definition_selector.clear_items()
-            self._add_definition_items()
-            self._host_connection_selector.blockSignals(False)
+            # Prevent the sync calling on creation as host might be already set.
+            self._on_client_host_changed_callback()
 
     def _add_definition_items(self):
         if not self.host_connection:
@@ -126,6 +129,12 @@ class FrameworkDefinitionDialog(FrameworkDialog, QtWidgets.QDialog):
         for definition_list in self.filtred_definitions:
             for definition in definition_list:
                 self._definition_selector.add_item(definition.name)
+
+    def _on_context_selected_callback(self, context_id):
+        if not context_id:
+            return
+        if self.context_id != context_id:
+            self.context_id = context_id
 
     def _on_host_selected_callback(self, item_text):
         '''
@@ -135,11 +144,14 @@ class FrameworkDefinitionDialog(FrameworkDialog, QtWidgets.QDialog):
             return
         self._definition_selector.clear_items()
         match = False
-        for host_connection in self.host_connections:
-            if host_connection.host_id == item_text:
-                self.host_connection = host_connection
-                match = True
-                break
+        if self.host_connection != item_text:
+            for host_connection in self.host_connections:
+                if host_connection.host_id == item_text:
+                    self.host_connection = host_connection
+                    match = True
+                    break
+        else:
+            match = True
 
         if match:
             self._add_definition_items()
@@ -155,12 +167,16 @@ class FrameworkDefinitionDialog(FrameworkDialog, QtWidgets.QDialog):
         '''
         Get the definition with the given *item* name from the filtered definitions
         '''
+        if self.definition:
+            if self.definition.name == item_text:
+                return
         definition = None
         for definition_list in self.filtred_definitions:
             definition = definition_list.get_first(name=item_text)
             if definition:
                 break
-        self.definition = definition
+        if definition:
+            self.definition = definition
 
     def _on_refresh_definitions_callback(self):
         # TODO: double think if definitions can be refreshed? maybe we should
@@ -173,16 +189,17 @@ class FrameworkDefinitionDialog(FrameworkDialog, QtWidgets.QDialog):
         self.client_method_connection('discover_hosts')
         self._add_definition_items()
 
-    def _on_client_context_changed_callback(self):
+    def _on_client_context_changed_callback(self, event=None):
         self._context_selector.context_id = self.context_id
+        print(self._context_selector.is_browsing)
 
     # TODO: This should be an ABC
-    def _on_client_hosts_discovered_callback(self):
+    def _on_client_hosts_discovered_callback(self, event=None):
         # TODO: for host_id in host_connection if host_id not in host_selector items, add it.
         pass
 
     # TODO: This should be an ABC
-    def _on_client_host_changed_callback(self):
+    def _on_client_host_changed_callback(self, event=None):
         if (
                 self._host_connection_selector.current_item_text() !=
                 self.host_connection.host_id
@@ -192,17 +209,28 @@ class FrameworkDefinitionDialog(FrameworkDialog, QtWidgets.QDialog):
             )
 
     # TODO: This should be an ABC
-    def _on_client_definition_changed_callback(self):
+    def _on_client_definition_changed_callback(self, event=None):
+        print("_on_client_definition_changed_callback" )
+        definition_name = None
+        if self.definition:
+            definition_name = self.definition.name
+        if (
+                self._definition_selector.current_item_index() in [0, -1] and
+                not definition_name
+        ):
+            return
         if (
                 self._definition_selector.current_item_text() !=
-                self.definition.name
+                definition_name
         ):
             self._definition_selector.set_current_item(
-                self.definition.name
+                definition_name
             )
 
     # TODO: This should be an ABC
     def sync_context(self):
+        if self._context_selector.is_browsing:
+            return
         if self.context_id != self._context_selector.context_id:
             result = self.show_message_dialog(
                 title='Context out of sync!',
@@ -219,6 +247,11 @@ class FrameworkDefinitionDialog(FrameworkDialog, QtWidgets.QDialog):
 
     # TODO: This should be an ABC
     def sync_host_connection(self):
+        if (
+                not self.host_connection.host_id and
+                self._host_connection_selector.current_item_index() not in [0,-1]
+        ):
+            return
         if self.host_connection.host_id != self._host_connection_selector.current_item_text():
             result = self.show_message_dialog(
                 title='Host connection out of sync!',
@@ -236,34 +269,42 @@ class FrameworkDefinitionDialog(FrameworkDialog, QtWidgets.QDialog):
 
     # TODO: This should be an ABC
     def sync_definition(self):
-        if self.definition.name != self._definition_selector.current_item_text():
-            match = False
-            for definition_list in self.filtred_definitions:
-                definition = definition_list.get_first(name=self.definition.name)
-                if definition:
-                    match = True
-                    break
-            if not match:
-                # Automatically sync current definition to client as the current
-                # definition is not available for this UI.
-                self._on_definition_selected_callback(
-                    self._definition_selector.current_item_text()
-                )
-                return
-            else:
-                result = self.show_message_dialog(
-                    title='Current definition is out of sync!',
-                    message='Selected definition is not the current definition, '
-                            'do you want to update UI to syc with the current one?',
-                    button_1_text='Update',
-                    button_2_text='Keep Current'
-                )
-                if result == 1:
-                    self._on_client_definition_changed_callback()
-                elif result == 0:
+        sync = False
+        if not self.definition:
+            if self._definition_selector.current_item_index() not in [0,-1]:
+                sync = True
+        else:
+            if self.definition.name != self._definition_selector.current_item_text():
+                match = False
+                for definition_list in self.filtred_definitions:
+                    definition = definition_list.get_first(name=self.definition.name)
+                    if definition:
+                        match = True
+                        break
+                if not match:
+                    # Automatically sync current definition to client as the current
+                    # definition is not available for this UI.
                     self._on_definition_selected_callback(
                         self._definition_selector.current_item_text()
                     )
+                    return
+                if match:
+                    sync = True
+        if sync:
+            result = self.show_message_dialog(
+                title='Current definition is out of sync!',
+                message='Selected definition is not the current definition, '
+                        'do you want to update UI to syc with the current one?',
+                button_1_text='Update',
+                button_2_text='Keep Current'
+            )
+            if result == 1:
+                self._on_client_definition_changed_callback()
+            elif result == 0:
+                self._on_definition_selected_callback(
+                    self._definition_selector.current_item_text()
+                )
+
 
     # TODO: maybe move this to a utils and standarize icon.
     def show_message_dialog(self, title, message, button_1_text, button_2_text):

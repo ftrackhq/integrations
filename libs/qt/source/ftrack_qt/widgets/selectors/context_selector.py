@@ -11,13 +11,14 @@ from ftrack_qt.widgets.thumbnails import Context
 from ftrack_utils.threading import BaseThread
 from ftrack_qt.widgets.buttons import CircularButton
 from ftrack_qt.widgets.browsers import EntityBrowser
-
+# TODO: this code has to be reviewed
 
 class ContextSelector(QtWidgets.QFrame):
     '''Widget representing the current context by showing entity info, and a button enabling change of context'''
 
     changeContextClicked = QtCore.Signal()
-    entityChanged = QtCore.Signal(object)
+    entity_changed = QtCore.Signal(object)
+    context_changed = QtCore.Signal(object)
     entityFound = QtCore.Signal(object)
     disable_thumbnail = False
 
@@ -37,7 +38,8 @@ class ContextSelector(QtWidgets.QFrame):
         self._context_id = value['id'] if value else None
         if not self.disable_thumbnail:
             self.set_thumbnail(self._entity)
-        self.entityChanged.emit(value)
+        self.entity_changed.emit(value)
+        self.context_changed.emit(value['id'])
         self.entity_info.setVisible(self.entity is not None)
         self.no_entity_label.setVisible(self.entity is None)
 
@@ -57,8 +59,18 @@ class ContextSelector(QtWidgets.QFrame):
             callback=self._on_entity_found_async,
             target_args=[value],
         )
+        self.__thread_registry.append(thread)
+        self._borwsing_context = True
         thread.start()
 
+    @property
+    def is_browsing(self):
+        browsing = False
+        for thread in self.__thread_registry:
+            if thread.is_alive() or self._borwsing_context:
+                browsing = True
+                break
+        return browsing
     @property
     def browse_context_id(self):
         '''Return the browse context id'''
@@ -97,6 +109,8 @@ class ContextSelector(QtWidgets.QFrame):
         self._entity = None
         self._context_id = None
         self.session = session
+        self.__thread_registry = []
+        self._borwsing_context = False
 
         self.pre_build()
         self.build()
@@ -166,25 +180,10 @@ class ContextSelector(QtWidgets.QFrame):
         self.entityFound.connect(self._on_entity_found)
         self.setMaximumHeight(50)
 
-    def _ftrack_context_id_changed(self, event):
-        '''The main context has been set in another client (opener), align ourselves.'''
-        context_id = event['data']['pipeline']['context_id']
-        if self._context_id is None or context_id != self._context_id:
-            context = self._find_context_entity(context_id)
-            self.logger.info(
-                'Aligning to new global context: {}({})'.format(
-                    context['name'], context['id']
-                )
-            )
-            self.entity = context
-
     def reset(self, entity=None):
         '''Reset browser to the given *entity* or the default one'''
         current_entity = entity or self._entity
         self.entity = current_entity
-
-    def set_entity_info_path(self, path):
-        self.entity_info.set_path_field(path)
 
     def _find_context_entity(self, context_id):
         '''(Run in background thread) Query entity from ftrack'''
@@ -198,12 +197,14 @@ class ContextSelector(QtWidgets.QFrame):
         '''(Run in background thread) Entity found callback'''
         if not shiboken2.isValid(self):
             # Widget has been closed while entity fetched
+            self._borwsing_context = False
             return
         self.entityFound.emit(entity)
 
     def _on_entity_found(self, entity):
         '''Entity found callback, set entity'''
         self.entity = entity
+        self._borwsing_context = False
 
     def _on_entity_browse_button_clicked(self):
         '''Handle entity browse button clicked'''
