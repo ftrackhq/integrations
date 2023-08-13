@@ -396,7 +396,7 @@
         "type",
         "default_method"
       ],
-      "order":["type", "category", "name", "description", "plugin", "widget", "options", "default_method"],
+      "order":["type", "category", "name", "description", "plugin", "widget", "context_data","data","options", "default_method"],
       "additionalProperties": false,
       "properties": {
         "category": {
@@ -446,6 +446,14 @@
         "editable": {
           "type": "boolean",
           "default": true
+        },
+        "context_data": {
+          "type": "object",
+          "default": {}
+        },
+        "data": {
+          "type": "object",
+          "default": {}
         },
         "options": {
           "type": "object",

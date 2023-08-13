@@ -4,14 +4,14 @@
 from Qt import QtWidgets, QtCore
 
 
-from ftrack_framework_widget.framework_dialog import FrameworkDialog
+from ftrack_framework_widget.dialog import Dialog
 
 from ftrack_qt.widgets.selectors import ListSelector
 from ftrack_qt.widgets.headers import SessionHeader
 from ftrack_qt.widgets.selectors import ContextSelector
 
 
-class DefinitionDialogBase(FrameworkDialog, QtWidgets.QDialog):
+class DefinitionDialogBase(Dialog, QtWidgets.QDialog):
     '''Base Class to represent a Plugin'''
 
     name = 'framework_definition_dialog'
@@ -31,6 +31,7 @@ class DefinitionDialogBase(FrameworkDialog, QtWidgets.QDialog):
             connect_methods_callback,
             connect_setter_property_callback,
             connect_getter_property_callback,
+            dialog_options,
             parent=None
     ):
         '''
@@ -43,13 +44,14 @@ class DefinitionDialogBase(FrameworkDialog, QtWidgets.QDialog):
         self._header = None
 
         QtWidgets.QDialog.__init__(self, parent=parent)
-        FrameworkDialog.__init__(
+        Dialog.__init__(
             self,
             event_manager,
             client_id,
             connect_methods_callback,
             connect_setter_property_callback,
             connect_getter_property_callback,
+            dialog_options,
             parent
         )
 

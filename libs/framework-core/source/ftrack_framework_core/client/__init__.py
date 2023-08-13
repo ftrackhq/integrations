@@ -232,11 +232,6 @@ class Client(object):
     def dialogs(self):
         return self.__dialogs_registry
 
-    @dialogs.setter
-    def dialogs(self, value):
-        if value.id not in list(self.__dialogs_registry.keys()):
-            self.__dialogs_registry[value.id] = value
-
     @property
     def dialog(self):
         return self._dialog
@@ -435,6 +430,7 @@ class Client(object):
     def _run_plugin_callback(self, event):
         '''Callback of the :meth:`~ftrack_framework_core.client.run_plugin'''
         self.logger.debug("_run_plugin_callback event: {}".format(event))
+        # TODO: send the info back to the UI
 
     # TODO: This should be an ABC
     def on_log_item_added_callback(self, event):
@@ -467,30 +463,33 @@ class Client(object):
     # UI
     # TODO: how we deal with the definition selector which receives a list of definitions
     # TODO: do the run_widget also
-    def run_dialog(self, dialog_widget):
+    def run_dialog(self, dialog_class, dialog_options=None):
+        # use dialog options to pass options to the dialog like for
+        #  example: Dialog= WidgetDialog dialog_options= {definition_plugin: Context_selector}
+        #  ---> So this will execute the widget dialog with the widget of the
+        #  context_selector in it, it simulates a run_widget).
+
         # TODO: activate the following check:
         # if not isInstance(FrameworkDialog, dialog_widget):
         #     return 'Not compatibleWidget'
-        dialog = dialog_widget(
+        dialog = dialog_class(
             self.event_manager,
             self.id,
             connect_methods_callback=self._connect_methods_callback,
             connect_setter_property_callback=self._connect_setter_property_callback,
-            connect_getter_property_callback=self._connect_getter_property_callback
+            connect_getter_property_callback=self._connect_getter_property_callback,
+            dialog_options=dialog_options
         )
         # Append widget to widgets
         # TODO: maybe better to do it manually without the setter property.
-        self.dialogs = dialog
+        self._register_dialog(dialog)
         self.dialog = dialog
         self.dialog.show()
 
-    # def _connect_widget_signals(self, widget):
-    #     # tODO: should this be subscription events?
-    #     widget.connect_methods(self._connect_methods_callback)
-    #     widget.connect_properties(
-    #         set_method=self._connect_setter_property_callback,
-    #         get_method=self._connect_getter_property_callback
-    #     )
+    def _register_dialog(self, dialog):
+        if dialog.id not in list(self.__dialogs_registry.keys()):
+            self.__dialogs_registry[dialog.id] = dialog
+
     def set_active_dialog(self, old_dialog, new_dialog):
         for dialog in list(self.dialogs.values()):
             dialog.change_focus(old_dialog, new_dialog)

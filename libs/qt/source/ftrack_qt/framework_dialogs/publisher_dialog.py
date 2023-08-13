@@ -20,6 +20,7 @@ class PublisherDialog(DefinitionDialogBase):
             connect_methods_callback,
             connect_setter_property_callback,
             connect_getter_property_callback,
+            dialog_options,
             parent=None
     ):
         '''
@@ -33,6 +34,7 @@ class PublisherDialog(DefinitionDialogBase):
             connect_methods_callback,
             connect_setter_property_callback,
             connect_getter_property_callback,
+            dialog_options,
             parent
         )
 

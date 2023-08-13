@@ -183,6 +183,10 @@ class Plugin(DefinitionObject):
         # Convert options to options object
         if k == 'options':
             v = Options(v)
+        if k == 'data':
+            v = Data(v)
+        if k == 'context_data':
+            v = ContextData(v)
         super(Plugin, self).__setitem__(k, v)
         # TODO: in here we may need to do:
         #  if k == 'plugin': v = plugin_object(v) --> and this inits the plugin object.
@@ -192,6 +196,12 @@ class Plugin(DefinitionObject):
 class Options(DefinitionObject):
     def __init__(self, options):
         super(Options, self).__init__(options)
+class Data(DefinitionObject):
+    def __init__(self, data):
+        super(Data, self).__init__(Data)
+class ContextData(DefinitionObject):
+    def __init__(self, context_data):
+        super(ContextData, self).__init__(ContextData)
 
 
 class DefinitionList(MutableSequence):

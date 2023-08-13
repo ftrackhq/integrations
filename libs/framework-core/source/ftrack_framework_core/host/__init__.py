@@ -508,14 +508,16 @@ class Host(object):
         )
 
         runner_result = engine_runner.run_plugin(
-            plugin_name=plugin_definition.get('plugin_name'),
-            plugin_default_method=plugin_definition.get('plugin_default_method'),
+            plugin_name=plugin_definition.get('plugin'),
+            plugin_default_method=plugin_definition.get('default_method'),
             # plugin_data will usually be None, but can be defined in the
             # definition
-            plugin_data=plugin_definition.get('plugin_data'),
+            # I have registred data in the publisher schema
+            plugin_data=plugin_definition.get('data'),
             plugin_options=plugin_definition.get('options'),
             # plugin_context_data will usually be None, but can be defined in the
             # definition
+            # I have registred context_data i nthe schema
             plugin_context_data=plugin_definition.get('context_data'),
             plugin_method=plugin_method
         )
