@@ -244,30 +244,35 @@ class Dialog(Base):
             dialog_run_plugin_method_callback=self._connect_run_plugin_method_callback,
         )
         self._register_widget(widget)
-        widget.run_plugin(self.run_plugin)
+       # widget.run_plugin(self.run_plugin)
 
     def _register_widget(self, widget):
         if widget.id not in list(self.__framework_widget_registry.keys()):
             self.__framework_widget_registry[widget.id] = widget
 
     def _connect_run_plugin_method_callback(
-            self, plugin_definition, plugin_method_name, widget_id
+            self, plugin_definition, plugin_method_name, plugin_widget_id
     ):
         # No callback as it is async so its returned by an event
-        self.run_plugin_method(plugin_definition, plugin_method_name, widget_id)
-    def run_plugin_method(self, plugin_definition, plugin_method_name):
+        self.run_plugin_method(
+            plugin_definition, plugin_method_name, plugin_widget_id
+        )
+    def run_plugin_method(
+            self, plugin_definition, plugin_method_name, plugin_widget_id=None
+    ):
         # No callback as it is returned by an event
         arguments = {
             "plugin_definition": plugin_definition,
             "plugin_method": plugin_method_name,
-            "engine_type": self.definition['_config']['engine_type']
+            "engine_type": self.definition['_config']['engine_type'],
+            'plugin_widget_id': plugin_widget_id
         }
         self.client_method_connection('run_plugin', arguments=arguments)
     def _on_client_notify_ui_run_plugin_result_callback(self, event):
-        result = event
-        event_widget_id = event['widget_id']
-        widget = self.widgets.get(event_widget_id)
-        widget.run_plugin_callback(result)
+        plugin_info = event['data']
+        plugin_widget_id = plugin_info['widget_id']
+        widget = self.widgets.get(plugin_widget_id)
+        widget.run_plugin_callback(plugin_info)
 
 
 

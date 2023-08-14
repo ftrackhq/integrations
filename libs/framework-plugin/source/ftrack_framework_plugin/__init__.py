@@ -171,6 +171,16 @@ class BasePlugin(object):
         '''List all available executable methods'''
         return self._plugin_options
 
+    @property
+    def plugin_widget_id(self):
+        '''List all available executable methods'''
+        return self._plugin_widget_id
+
+    @property
+    def plugin_widget_name(self):
+        '''List all available executable methods'''
+        return self._plugin_widget_name
+
     # TODO: should we pass the host itself instead of the event_manager? so if
     #  user wants, he can query stuff from core using host, like:
     #  host.constants.asset_Name
@@ -197,6 +207,8 @@ class BasePlugin(object):
         self._execution_time = 0
         self._result_registry = {}
         self._method_result = None
+        self._plugin_widget_id = None
+        self._plugin_widget_name = None
 
         self.register_methods()
 
@@ -234,6 +246,8 @@ class BasePlugin(object):
         self._context_data = event['data'].get('plugin_context_data')
         self._plugin_data = event['data'].get('plugin_data')
         self._plugin_options = event['data'].get('plugin_options')
+        self._plugin_widget_id = event['data'].get('plugin_widget_id')
+        self._plugin_widget_name = event['data'].get('plugin_widget_name')
 
         # Pre execute callback hook
         self.message = "Execute pre_execute_callback"
@@ -401,9 +415,9 @@ class BasePlugin(object):
             'plugin_message': self.message,
             'plugin_context_data':self.context_data,
             'plugin_data': self.plugin_data,
-            'plugin_options': self.plugin_options
-            # TODO: implement widget and widget id
-            #'plugin_widget_id': self.widget.id
+            'plugin_options': self.plugin_options,
+            'plugin_widget_id': self.plugin_widget_id,
+            'plugin_widget_name': self.plugin_widget_name,
         }
 
     def register(self):

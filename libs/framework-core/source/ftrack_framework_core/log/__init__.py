@@ -74,7 +74,8 @@ class LogDB(object):
                 ''' plugin_method_result text, plugin_result_registry text,'''
                 ''' plugin_execution_time real,'''
                 ''' plugin_message text, plugin_context_data text,'''
-                ''' plugin_data text, plugin_options text)'''.format(
+                ''' plugin_data text, plugin_options text,'''
+                ''' plugin_widget_id text, plugin_widget_name text)'''.format(
                     self.table_name
                 )
             )
@@ -163,8 +164,9 @@ class LogDB(object):
                 '''INSERT INTO {0} (date,plugin_status,plugin_boolean_status,
                 host_id,plugin_name,plugin_type,plugin_id,host_type,
                 plugin_method_result,plugin_result_registry,plugin_execution_time,
-                plugin_message,plugin_context_data,plugin_data,plugin_options) 
-                VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)'''.format(
+                plugin_message,plugin_context_data,plugin_data,plugin_options,
+                plugin_widget_id,plugin_widget_name) 
+                VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)'''.format(
                     self.table_name
                 ),
                 (
@@ -184,6 +186,8 @@ class LogDB(object):
                     str(log_item.plugin_context_data),
                     str(log_item.plugin_data),
                     str(log_item.plugin_options),
+                    str(log_item.plugin_widget_id),
+                    str(log_item.plugin_widget_name)
                 ),
             )
             self.connection.commit()
@@ -210,6 +214,7 @@ class LogDB(object):
                 '''plugin_id,host_type,plugin_method_result,'''
                 '''plugin_result_registry,plugin_execution_time,'''
                 '''plugin_message,plugin_context_data,plugin_data,plugin_options'''
+                '''plugin_widget_id,plugin_widget_name'''
                 ''' FROM {0} WHERE host_id=?;  '''.format(self.table_name),
                 (host_id,),
             )
@@ -234,6 +239,8 @@ class LogDB(object):
                             'plugin_context_data': t[12],
                             'plugin_data': t[13],
                             'plugin_options': t[14],
+                            'plugin_widget_id': t[15],
+                            'plugin_widget_name': t[16],
                         }
                     )
                 )
@@ -254,7 +261,7 @@ class LogDB(object):
                 '''plugin_name,plugin_type,'''
                 '''plugin_id,host_type,plugin_method_result,plugin_result_registry,'''
                 '''plugin_execution_time,plugin_message,plugin_context_data,'''
-                '''plugin_data,plugin_options '''
+                '''plugin_data,plugin_options,plugin_widget_id,plugin_widget_name'''
                 ''' FROM {0} WHERE host_id=? AND plugin_id=?;  '''.format(
                     self.table_name
                 ),
@@ -281,6 +288,8 @@ class LogDB(object):
                             'plugin_context_data': t[12],
                             'plugin_data': t[13],
                             'plugin_options': t[14],
+                            'plugin_widget_id': t[15],
+                            'plugin_widget_name': t[16]
                         }
                     )
                 )

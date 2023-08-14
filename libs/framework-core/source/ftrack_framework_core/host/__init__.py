@@ -498,6 +498,7 @@ class Host(object):
         plugin_definition = event['data']['plugin_definition']
         plugin_method = event['data']['plugin_method']
         engine_type = event['data']['engine_type']
+        plugin_widget_id = event['data']['plugin_widget_id']
 
         Engine = self.engines.get(engine_type)
         if not Engine:
@@ -519,7 +520,9 @@ class Host(object):
             # definition
             # I have registred context_data i nthe schema
             plugin_context_data=plugin_definition.get('context_data'),
-            plugin_method=plugin_method
+            plugin_method=plugin_method,
+            plugin_widget_id=plugin_widget_id,
+            plugin_widget_name=plugin_definition.get('widget'),
         )
 
         if not runner_result:

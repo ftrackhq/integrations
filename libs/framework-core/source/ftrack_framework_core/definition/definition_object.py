@@ -196,12 +196,14 @@ class Plugin(DefinitionObject):
 class Options(DefinitionObject):
     def __init__(self, options):
         super(Options, self).__init__(options)
+
 class Data(DefinitionObject):
     def __init__(self, data):
-        super(Data, self).__init__(Data)
+        super(Data, self).__init__(data)
+
 class ContextData(DefinitionObject):
     def __init__(self, context_data):
-        super(ContextData, self).__init__(ContextData)
+        super(ContextData, self).__init__(context_data)
 
 
 class DefinitionList(MutableSequence):

@@ -48,6 +48,8 @@ class LoadPublishEngine(BaseEngine):
         plugin_data=None,
         plugin_context_data=None,
         plugin_method=None,
+        plugin_widget_id=None,
+        plugin_widget_name=None
     ):
         return super(LoadPublishEngine, self).run_plugin(
             plugin_name=plugin_name,
@@ -55,7 +57,9 @@ class LoadPublishEngine(BaseEngine):
             plugin_options=plugin_options,
             plugin_data=plugin_data,
             plugin_context_data=plugin_context_data,
-            plugin_method=plugin_method
+            plugin_method=plugin_method,
+            plugin_widget_id=plugin_widget_id,
+            plugin_widget_name=plugin_widget_name
         )
 
     # Base functions for loader, opener and publisher
@@ -143,6 +147,8 @@ class LoadPublishEngine(BaseEngine):
                 plugin_context_data=stage_context,
                 # default_method is defined in the definitions
                 plugin_method=plugin_definition['default_method'],
+                plugin_widget_id=plugin_definition['widget_id'],
+                plugin_widget_name=plugin_definition['widget']
             )
 
             bool_status = constants.status.status_bool_mapping[

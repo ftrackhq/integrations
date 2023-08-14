@@ -28,6 +28,8 @@ class LogItem(object):
         self.plugin_context_data = log_result.get('plugin_context_data')
         self.plugin_data = log_result.get('plugin_data')
         self.plugin_options = log_result.get('plugin_options')
+        self.plugin_widget_id = log_result.get('plugin_widget_id')
+        self.plugin_widget_name = log_result.get('plugin_widget_name')
 
 
     @property

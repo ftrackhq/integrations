@@ -405,7 +405,10 @@ class Client(object):
         self.logger.debug("_run_definition_callback event: {}".format(event))
 
     # Plugin
-    def run_plugin(self, plugin_definition, plugin_method, engine_type):
+    def run_plugin(
+            self, plugin_definition, plugin_method, engine_type,
+            plugin_widget_id=None
+    ):
         '''
         Calls the :meth:`~ftrack_framework_core.client.HostConnection.run`
         to run one single plugin.
@@ -422,6 +425,7 @@ class Client(object):
             plugin_definition,
             plugin_method,
             engine_type,
+            plugin_widget_id,
             self._run_plugin_callback
         )
 
@@ -430,6 +434,10 @@ class Client(object):
     def _run_plugin_callback(self, event):
         '''Callback of the :meth:`~ftrack_framework_core.client.run_plugin'''
         self.logger.debug("_run_plugin_callback event: {}".format(event))
+        self.event_manager.publish.client_notify_ui_run_plugin_result(
+            self.id,
+            event['data'][0]
+        )
         # TODO: send the info back to the UI
 
     # TODO: This should be an ABC

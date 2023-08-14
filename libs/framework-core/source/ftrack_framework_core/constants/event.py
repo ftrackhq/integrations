@@ -46,3 +46,5 @@ CLIENT_SIGNAL_HOSTS_DISCOVERED_TOPIC = '{}.client.signal.host.discover'.format(_
 CLIENT_SIGNAL_HOST_CHANGED_TOPIC = '{}.client.signal.host.change'.format(_BASE_)
 # Client signal definition changed
 CLIENT_SIGNAL_DEFINITION_CHANGED_TOPIC = '{}.client.signal.definition.change'.format(_BASE_)
+# Client receivet plugin result
+CLIENT_NOTIFY_UI_RUN_PLUGIN_RESULT_TOPIC = '{}.client.notify.plugin.result'.format(_BASE_)

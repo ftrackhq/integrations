@@ -1,5 +1,6 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2023 ftrack
+import uuid
 
 from ftrack_framework_widget import Base, active_widget
 
@@ -51,7 +52,6 @@ class Widget(Base):
             return
         self.plugin_definition.options.update(value)
 
-
     def __init__(
             self,
             event_manager,
@@ -70,8 +70,11 @@ class Widget(Base):
             client_id,
             parent
         )
-        self.connect_methods(dialog_run_plugin_method_callback)
         self._plugin_definition = plugin_definition
+        # Augment definition with the widget ID:
+        self.plugin_definition.id = self.id
+
+        self.connect_methods(dialog_run_plugin_method_callback)
 
     def connect_methods(self, method):
         # TODO: should this be subscription events?
@@ -93,10 +96,12 @@ class Widget(Base):
         self.dialog_run_plugin_method_connection(self.plugin_definition, plugin_method, self.id)
 
     # TODO: this should be an ABC
-    def run_plugin_callback(self, result):
+    def run_plugin_callback(self, plugin_info):
         # Called by the dialog
-        pass
-        # result[method] result Do whatever is needed in the widget
-
+        executed_method = plugin_info['plugin_method']
+        method_result = plugin_info['plugin_method_result']
+        print('executed_method'.format(executed_method))
+        print('method_result'.format(method_result))
+        # TODO: Implement this as you want in each widget.
 
 

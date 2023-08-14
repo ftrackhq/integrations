@@ -98,6 +98,8 @@ class BaseEngine(object):
         plugin_data=None,
         plugin_context_data=None,
         plugin_method=None,
+        plugin_widget_id=None,
+        plugin_widget_name=None
     ):
         '''
         Returns the result of running the plugin with the event returned from
@@ -124,7 +126,9 @@ class BaseEngine(object):
         for host_type in reversed(self._host_types):
             plugin_info = self.event_manager.publish.execute_plugin(
                 plugin_name, plugin_default_method, plugin_method, host_type, plugin_data,
-                plugin_options, plugin_context_data
+                plugin_options, plugin_context_data,
+                plugin_widget_id=plugin_widget_id,
+                plugin_widget_name=plugin_widget_name
             )[0]
             break
 
@@ -135,11 +139,13 @@ class BaseEngine(object):
                 "Status {} \n"
                 "Method {} \n"
                 "Message {} \n"
+                "Widget Name {} \n"
                 "Result {} \n".format(
                     plugin_info['plugin_name'],
                     plugin_info['plugin_status'],
                     plugin_info['plugin_method'],
                     plugin_info['plugin_message'],
+                    plugin_info['plugin_widget_name'],
                     plugin_info['plugin_method_result'],
                 )
             )

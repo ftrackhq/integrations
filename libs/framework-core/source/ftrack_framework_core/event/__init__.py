@@ -208,7 +208,10 @@ class Publish(object):
         event_topic = constants.event.HOST_RUN_DEFINITION_TOPIC
         return self._publish_event(event_topic, data, callback)
 
-    def host_run_plugin(self, host_id, plugin_definition, plugin_method, engine_type, callback=None):
+    def host_run_plugin(
+            self, host_id, plugin_definition, plugin_method, engine_type,
+            plugin_widget_id=None, callback=None
+    ):
         '''
         Publish an event with topic
         :const:`~ftrack_framework_core.constants.event.HOST_RUN_PLUGIN_TOPIC`
@@ -218,13 +221,15 @@ class Publish(object):
             'plugin_definition': plugin_definition,
             'plugin_method': plugin_method,
             'engine_type': engine_type,
+            'plugin_widget_id': plugin_widget_id,
         }
         event_topic = constants.event.HOST_RUN_PLUGIN_TOPIC
         return self._publish_event(event_topic, data, callback)
 
     def execute_plugin(
             self, plugin_name, plugin_default_method, plugin_method, host_type,
-            plugin_data, plugin_options, plugin_context_data, callback=None
+            plugin_data, plugin_options, plugin_context_data,
+            plugin_widget_id=None, plugin_widget_name=None, callback=None
     ):
         '''
         Publish an event with topic
@@ -238,6 +243,8 @@ class Publish(object):
                 'plugin_data': plugin_data,
                 'plugin_options': plugin_options,
                 'plugin_context_data': plugin_context_data,
+                'plugin_widget_id': plugin_widget_id,
+                'plugin_widget_name': plugin_widget_name
             }
 
         event_topic = constants.event.EXECUTE_PLUGIN_TOPIC
@@ -404,6 +411,15 @@ class Publish(object):
         }
 
         event_topic = constants.event.CLIENT_SIGNAL_DEFINITION_CHANGED_TOPIC
+        return self._publish_event(event_topic, data, callback)
+
+    def client_notify_ui_run_plugin_result(self, client_id, plugin_info, callback=None):
+        data = {
+            'client_id': client_id,
+            'plugin_info': plugin_info,
+        }
+
+        event_topic = constants.event.CLIENT_NOTIFY_UI_RUN_PLUGIN_RESULT_TOPIC
         return self._publish_event(event_topic, data, callback)
 
 
@@ -582,5 +598,11 @@ class Subscribe(object):
         '''
         event_topic = '{} and data.client_id={}'.format(
             constants.event.CLIENT_SIGNAL_DEFINITION_CHANGED_TOPIC, client_id
+        )
+        return self._subscribe_event(event_topic, callback)
+
+    def client_notify_ui_run_plugin_result(self, client_id, callback=None):
+        event_topic = '{} and data.client_id={}'.format(
+            constants.event.CLIENT_NOTIFY_UI_RUN_PLUGIN_RESULT_TOPIC, client_id
         )
         return self._subscribe_event(event_topic, callback)
