@@ -24,7 +24,7 @@ class AccordionBaseWidget(QtWidgets.QFrame):
     CHECK_MODE_CHECKBOX = 0  # Checkable and visible
     CHECK_MODE_CHECKBOX_DISABLED = 1  # Visible but not checkable
 
-    def on_collapse(self, collapsed):
+    def _on_collapse(self, collapsed):
         '''(Optional) To be overridden by child'''
         pass
 
@@ -190,8 +190,14 @@ class AccordionBaseWidget(QtWidgets.QFrame):
         main_widget.layout().setSpacing(1)
 
         # Create Header
-        self._header_widget = QtWidgets.QFrame()
-        self._header_widget = AccordionHeaderWidget(title=self.title)
+        self._header_widget = AccordionHeaderWidget(
+            title=self.title,
+            checkable=self.checkable,
+            checked=self.checked,
+            show_checkbox=self.show_checkbox,
+            collapsable=self.collapsable,
+            collapsed=self.collapsed
+        )
 
         # Add header to main widget
         main_widget.layout().addWidget(self._header_widget)
@@ -209,10 +215,9 @@ class AccordionBaseWidget(QtWidgets.QFrame):
         self.layout().addWidget(main_widget)
 
     def post_build(self):
-        if self.checkable:
-            self._header_widget.checkbox.stateChanged.connect(
-                self._on_header_checkbox_checked
-            )
+        self._header_widget.checkbox_status_changed.connect(
+            self._on_header_checkbox_checked
+        )
         self._header_widget.clicked.connect(self._on_header_clicked)
         self._header_widget.arrow_clicked.connect(self._on_header_arrow_clicked)
         self._content_widget.setVisible(not self._collapsed)
@@ -260,9 +265,9 @@ class AccordionBaseWidget(QtWidgets.QFrame):
         if not self._indicator_widget.isVisible():
             self._indicator_widget.setVisible(True)
 
-    def _on_header_checkbox_checked(self):
+    def _on_checkbox_status_changed(self, checked):
         '''Callback on enable checkbox user interaction'''
-        self.checked = self._header_widget.checkbox.isChecked()
+        self.checked = checked
 
     def _on_header_clicked(self, event):
         '''Callback on header user click'''
@@ -280,7 +285,7 @@ class AccordionBaseWidget(QtWidgets.QFrame):
         '''Toggle the accordion collapsed state'''
         self._collapsed = not self._collapsed
         self._header_widget.update_arrow_icon(int(self.collapsed))
-        self.on_collapse(self.collapsed)
+        self._on_collapse(self.collapsed)
         self._content_widget.setVisible(not self._collapsed)
 
     def mousePressEvent(self, event):

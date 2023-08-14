@@ -12,6 +12,7 @@ class AccordionHeaderWidget(QtWidgets.QFrame):
 
     clicked = QtCore.Signal(object)  # User header click
     arrow_clicked = QtCore.Signal(object)  # User header click
+    checkbox_status_changed = QtCore.Signal(object)
 
     @property
     def title(self):
@@ -111,8 +112,11 @@ class AccordionHeaderWidget(QtWidgets.QFrame):
         self.layout().addWidget(self._arrow)
 
     def post_build(self):
+        self._checkbox.stateChanged.connect(self._on_checkbox_status_changed)
         self._arrow.clicked.connect(self._on_arrow_clicked)
 
+    def _on_checkbox_status_changed(self):
+        self.checkbox_status_changed.emit(self._checkbox.isChecked())
     def _on_arrow_clicked(self, event):
         self.arrow_clicked.emit(event)
 
@@ -123,6 +127,7 @@ class AccordionHeaderWidget(QtWidgets.QFrame):
         else:
             icon_name = 'keyboard_arrow_up'
         self._arrow.set_icon(name=icon_name)
+        self._collapsed = collapsed
 
     def mousePressEvent(self, event):
         '''(Override)'''
