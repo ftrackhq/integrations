@@ -5,12 +5,13 @@ import logging
 
 from Qt import QtCore, QtWidgets, QtGui, QtSvg
 
-from ftrack_framework_core import constants as core_constants
+from ftrack_qt import constants
+from ftrack_qt.widgets.icons import MaterialIcon
 
 logger = logging.getLogger(__name__)
 
-
-class MaterialIconWidget(QtWidgets.QWidget):
+# This is the old materialIconWidget
+class StatusMaterialIconWidget(QtWidgets.QWidget):
     '''Material icon widget, support status > icon encoding'''
 
     @property
@@ -27,7 +28,7 @@ class MaterialIconWidget(QtWidgets.QWidget):
         :param variant: The variant of material icon to use
         :param parent:  The parent dialog or frame
         '''
-        super(MaterialIconWidget, self).__init__(parent=parent)
+        super(StatusMaterialIconWidget, self).__init__(parent=parent)
         self.setLayout(QtWidgets.QHBoxLayout())
         self.layout().setContentsMargins(0, 0, 0, 0)
         self.layout().setSpacing(1)
@@ -52,23 +53,23 @@ class MaterialIconWidget(QtWidgets.QWidget):
         color = '303030'
         variant = 'filled'
         if status in [
-            core_constants.UNKNOWN_STATUS,
-            core_constants.DEFAULT_STATUS,
+            constants.status.UNKNOWN_STATUS,
+            constants.status.DEFAULT_STATUS,
         ]:
             icon_name = 'help'
             color = '303030'
-        elif status in [core_constants.RUNNING_STATUS]:
+        elif status in [constants.status.RUNNING_STATUS]:
             icon_name = 'hourglass_bottom'
             color = '87E1EB'
-        elif status in [core_constants.SUCCESS_STATUS]:
+        elif status in [constants.status.SUCCESS_STATUS]:
             icon_name = 'check-circle-outline'
             color = '79DFB6'
-        elif status in [core_constants.WARNING_STATUS]:
+        elif status in [constants.status.WARNING_STATUS]:
             icon_name = 'error_outline'
             color = 'FFBD5D'
         elif status in [
-            core_constants.ERROR_STATUS,
-            core_constants.EXCEPTION_STATUS,
+            constants.status.ERROR_STATUS,
+            constants.status.EXCEPTION_STATUS,
         ]:
             icon_name = 'error'
             color = 'FF7A73'

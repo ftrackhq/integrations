@@ -244,6 +244,7 @@ class Dialog(Base):
             dialog_run_plugin_method_callback=self._connect_run_plugin_method_callback,
         )
         self._register_widget(widget)
+        return widget
        # widget.run_plugin(self.run_plugin)
 
     def _register_widget(self, widget):
@@ -268,10 +269,11 @@ class Dialog(Base):
             'plugin_widget_id': plugin_widget_id
         }
         self.client_method_connection('run_plugin', arguments=arguments)
+
     def _on_client_notify_ui_run_plugin_result_callback(self, event):
         plugin_info = event['data']
         plugin_widget_id = plugin_info['widget_id']
-        widget = self.widgets.get(plugin_widget_id)
+        widget = self.framework_widgets.get(plugin_widget_id)
         widget.run_plugin_callback(plugin_info)
 
 

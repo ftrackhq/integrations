@@ -11,12 +11,15 @@ from ftrack_qt.widgets.headers import SessionHeader
 from ftrack_qt.widgets.selectors import ContextSelector
 
 
-class DefinitionDialogBase(Dialog, QtWidgets.QDialog):
+class VerticalDialogDefinitionBase(Dialog, QtWidgets.QDialog):
     '''Base Class to represent a Plugin'''
 
     name = 'framework_definition_dialog'
     definition_filter = None
 
+    @property
+    def definition_widget(self):
+        return self._definition_widget
     @property
     def filtred_definitions(self):
         definitions = list(self.definitions.values())
@@ -57,13 +60,13 @@ class DefinitionDialogBase(Dialog, QtWidgets.QDialog):
 
     # TODO: this should be an ABC
     def pre_build(self):
-        super(DefinitionDialogBase, self).pre_build()
+        super(VerticalDialogDefinitionBase, self).pre_build()
         main_layout = QtWidgets.QVBoxLayout()
         self.setLayout(main_layout)
 
     # TODO: this should be an ABC
     def build(self):
-        super(DefinitionDialogBase, self).build()
+        super(VerticalDialogDefinitionBase, self).build()
         # Create the header
         self._header = SessionHeader(self.session)
         # TODO: implement progress widget. I think client should communicate the
@@ -93,15 +96,20 @@ class DefinitionDialogBase(Dialog, QtWidgets.QDialog):
         self._scroll_area.setWidgetResizable(True)
         self._scroll_area.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
 
+        self._definition_widget = QtWidgets.QWidget()
+        self._definition_widget_layout = QtWidgets.QVBoxLayout()
+        self._definition_widget.setLayout(self._definition_widget_layout)
+
         self.layout().addWidget(self._header)
         self.layout().addWidget(self._context_selector, QtCore.Qt.AlignTop)
         self.layout().addWidget(self._host_connection_selector)
         self.layout().addWidget(self._definition_selector)
         self.layout().addWidget(self._scroll_area, 100)
+        self._scroll_area.setWidget(self._definition_widget)
 
     # TODO: this should be an ABC
     def post_build(self):
-        super(DefinitionDialogBase, self).post_build()
+        super(VerticalDialogDefinitionBase, self).post_build()
         # Connect context selector signals
         self._context_selector.context_changed.connect(self._on_context_selected_callback)
         # Connect host selector signals
@@ -177,13 +185,14 @@ class DefinitionDialogBase(Dialog, QtWidgets.QDialog):
         if self.definition:
             if self.definition.name == item_text:
                 return
+
         definition = None
         for definition_list in self.filtred_definitions:
             definition = definition_list.get_first(name=item_text)
             if definition:
                 break
-        if definition:
-            self.definition = definition
+        self.definition = definition
+        self.build_definition_ui(self.definition)
 
     def _on_refresh_definitions_callback(self):
         # TODO: double think if definitions can be refreshed? maybe we should
@@ -323,3 +332,8 @@ class DefinitionDialogBase(Dialog, QtWidgets.QDialog):
         message_box.addButton(button_2_text, QtWidgets.QMessageBox.NoRole)
         result = message_box.exec_()
         return result
+
+    def build_definition_ui(self, definition):
+        # Override this function to build your widgets.
+        pass
+

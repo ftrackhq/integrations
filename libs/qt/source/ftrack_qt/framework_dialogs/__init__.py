@@ -1,1 +1,1 @@
-from ftrack_qt.framework_dialogs.definition_dialog_base import DefinitionDialogBase
+from ftrack_qt.framework_dialogs.vertical_dialog_definition_base import VerticalDialogDefinitionBase

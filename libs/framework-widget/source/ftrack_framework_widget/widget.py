@@ -93,7 +93,11 @@ class Widget(Base):
         pass
 
     def run_plugin_method(self, plugin_method):
-        self.dialog_run_plugin_method_connection(self.plugin_definition, plugin_method, self.id)
+        self.dialog_run_plugin_method_connection(
+            self.plugin_definition,
+            plugin_method,
+            self.id
+        )
 
     # TODO: this should be an ABC
     def run_plugin_callback(self, plugin_info):

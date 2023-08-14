@@ -10,6 +10,8 @@ from six import string_types
 from ftrack_framework_core.client.host_connection import HostConnection
 from ftrack_framework_core import constants
 
+# TODO: add a dicover_uis widget and dialgos method.
+
 # TODO: has a discussion on how client should communicate to widget.
 #  Example just via events:
 #       UI publish --> run_method (method_name, arguments, callback) --> Client subscribes

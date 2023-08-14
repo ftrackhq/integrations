@@ -4,10 +4,10 @@
 from Qt import QtWidgets, QtCore
 
 
-from ftrack_qt.framework_dialogs import DefinitionDialogBase
+from ftrack_qt.framework_dialogs import VerticalDialogDefinitionBase
 
 
-class PublisherDialog(DefinitionDialogBase):
+class PublisherDialog(VerticalDialogDefinitionBase):
     '''Base Class to represent a Plugin'''
 
     name = 'framework_publisher_dialog'
@@ -49,5 +49,33 @@ class PublisherDialog(DefinitionDialogBase):
     # TODO: this should be an ABC
     def post_build(self):
         super(PublisherDialog, self).post_build()
+
+    def build_definition_ui(self, definition):
+        # Build context widgets
+        context_plugins = definition.get_all(category='plugin', type='context')
+        for context_plugin in context_plugins:
+            context_widget_class = context_plugin.widget()
+            context_widget = self.init_framework_widget(context_widget_class)
+            self.definition_widget.layout().addWidget(context_widget)
+        # Build component widgets
+        component_steps = definition.get_all(category='step', type='component')
+        for step in component_steps:
+            #add acordion widget
+            # acordion widget add collector
+            # accordion widget add validator add exporter
+            print(step.name)
+        component_plugins = definition.get_all(category='plugin', type='')
+        AccordionBaseWidget.SELECT_MODE_NONE,
+        AccordionBaseWidget.CHECK_MODE_CHECKBOX
+        if checkable
+        else AccordionBaseWidget.CHECK_MODE_CHECKBOX_DISABLED,
+        checked = checked,
+        title = title,
+        parent = parent,
+
+        for plugin in self.plugins:
+            if plugin.
+
+
 
 

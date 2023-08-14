@@ -430,7 +430,7 @@
         },
         "widget_id": {
           "type": "string",
-          "default": ''
+          "default": ""
         },
         "visible": {
           "type": "boolean",
