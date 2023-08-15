@@ -3,7 +3,7 @@
 
 from Qt import QtWidgets, QtCore
 
-from ftrack_qt.widgets.icons import StatusMaterialIconWidget
+from ftrack_qt.widgets.icons.status_icon import StatusMaterialIconWidget
 
 
 class ArrowMaterialIconWidget(StatusMaterialIconWidget):
