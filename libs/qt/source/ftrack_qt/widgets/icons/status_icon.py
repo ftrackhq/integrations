@@ -10,6 +10,7 @@ from ftrack_qt.widgets.icons import MaterialIcon
 
 logger = logging.getLogger(__name__)
 
+
 # This is the old materialIconWidget
 class StatusMaterialIconWidget(QtWidgets.QWidget):
     '''Material icon widget, support status > icon encoding'''

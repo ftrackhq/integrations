@@ -3,7 +3,7 @@
 
 from Qt import QtWidgets, QtCore, QtGui
 
-from ftrack_qt.widgets.overlay import OverlayWidget
+from ftrack_qt.widgets.overlay import ShadedWidget
 
 
 class BaseDialog(QtWidgets.QDialog):
@@ -20,15 +20,15 @@ class BaseDialog(QtWidgets.QDialog):
     def darken(self, value):
         self._darken = value
         if self._darken:
-            self._overlay_widget = OverlayWidget(self)
-            self._overlay_widget.move(0, 0)
-            self._overlay_widget.resize(self.size())
-            self._overlay_widget.show()
+            self._shaded_widget = ShadedWidget(self)
+            self._shaded_widget.move(0, 0)
+            self._shaded_widget.resize(self.size())
+            self._shaded_widget.show()
         else:
-            if self._overlay_widget:
-                self._overlay_widget.close()
+            if self._shaded_widget:
+                self._shaded_widget.close()
 
     def __init__(self, parent):
         super(BaseDialog, self).__init__(parent=parent)
-        self._overlay_widget = None
+        self._shaded_widget = None
 

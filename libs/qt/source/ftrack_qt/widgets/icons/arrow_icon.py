@@ -1,7 +1,10 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2023 ftrack
 
+from Qt import QtWidgets, QtCore
+
 from ftrack_qt.widgets.icons import StatusMaterialIconWidget
+
 
 class ArrowMaterialIconWidget(StatusMaterialIconWidget):
     '''Custom material icon widget for arrow, emitting event on click'''

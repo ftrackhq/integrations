@@ -1,0 +1,1 @@
+from ftrack_qt.widgets.accordion.accordion_widget import AccordionBaseWidget

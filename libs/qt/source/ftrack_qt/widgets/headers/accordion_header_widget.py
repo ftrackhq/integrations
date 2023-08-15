@@ -3,8 +3,11 @@
 
 from Qt import QtWidgets, QtCore, QtGui
 
-from ftrack_qt.widgets.icons import ArrowMaterialIconWidget
-
+from ftrack_qt.widgets.icons import (
+    ArrowMaterialIconWidget, MaterialIcon, StatusMaterialIconWidget
+)
+from ftrack_qt.widgets.lines import LineWidget
+from ftrack_qt.widgets.buttons import OptionsButton
 
 class AccordionHeaderWidget(QtWidgets.QFrame):
     '''Container for accordion header - holding checkbox, title, user content
@@ -98,8 +101,23 @@ class AccordionHeaderWidget(QtWidgets.QFrame):
         content_layout = QtWidgets.QHBoxLayout()
         content_layout.setContentsMargins(0, 0, 0, 0)
         content_layout.setSpacing(0)
-        content_layout.addStretch()
         self._header_content_widget.setLayout(content_layout)
+
+        # Add Status label widget in context Widget
+        self._status_label = QtWidgets.QLabel()
+        self._status_label.setObjectName('color-primary')
+        content_layout.addWidget(self._status_label)
+        content_layout.addStretch()
+        content_layout.addWidget(LineWidget(horizontal=True))
+        # add options widget
+        self._options_button = OptionsButton(
+            self.title, MaterialIcon('settings', color='gray')
+        )
+        self._options_button.setObjectName('borderless')
+        content_layout.addWidget(LineWidget(horizontal=True))
+        # add status icon
+        self._status_icon = StatusMaterialIconWidget('check')
+        self._status_icon.setObjectName('borderless')
 
         # Create Arrow
         self._arrow = ArrowMaterialIconWidget(None)
@@ -115,8 +133,15 @@ class AccordionHeaderWidget(QtWidgets.QFrame):
         self._checkbox.stateChanged.connect(self._on_checkbox_status_changed)
         self._arrow.clicked.connect(self._on_arrow_clicked)
 
+    def add_option_widget(self, widget, section_name):
+        self._options_button.add_widget(widget, section_name)
+
     def _on_checkbox_status_changed(self):
-        self.checkbox_status_changed.emit(self._checkbox.isChecked())
+        self._checked = self._checkbox.isChecked()
+        self._title_label.setEnabled(self._checked)
+        self._header_content_widget.setEnabled(self._checked)
+        self.checkbox_status_changed.emit(self._checked)
+
     def _on_arrow_clicked(self, event):
         self.arrow_clicked.emit(event)
 

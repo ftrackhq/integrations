@@ -14,6 +14,10 @@ from ftrack_framework_core import constants as core_constants
 
 #TODO: if we want to expose this to clients, this can be moved to
 # framework_core_plugins same for the finalizer one.
+# TODO: maybe this should not be a base Finalizer or anything like that, this
+#  should simply be a post finalizer plugin and the execute method does the
+#  publish to ftrack, so no hidden code anywhere.
+#  (or another finalizer thhat is why we can put a list of plugins.)
 class BaseFinalizerPlugin(BasePlugin):
     '''Base Class to represent a Plugin'''
 

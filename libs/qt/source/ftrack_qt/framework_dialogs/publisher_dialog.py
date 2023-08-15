@@ -5,6 +5,7 @@ from Qt import QtWidgets, QtCore
 
 
 from ftrack_qt.framework_dialogs import VerticalDialogDefinitionBase
+from ftrack_qt.widgets.accordion import AccordionBaseWidget
 
 
 class PublisherDialog(VerticalDialogDefinitionBase):
@@ -54,28 +55,39 @@ class PublisherDialog(VerticalDialogDefinitionBase):
         # Build context widgets
         context_plugins = definition.get_all(category='plugin', type='context')
         for context_plugin in context_plugins:
-            context_widget_class = context_plugin.widget()
-            context_widget = self.init_framework_widget(context_widget_class)
+            if not context_plugin.widget:
+                continue
+            context_widget = self.init_framework_widget(context_plugin.widget)
             self.definition_widget.layout().addWidget(context_widget)
         # Build component widgets
         component_steps = definition.get_all(category='step', type='component')
         for step in component_steps:
-            #add acordion widget
-            # acordion widget add collector
-            # accordion widget add validator add exporter
-            print(step.name)
-        component_plugins = definition.get_all(category='plugin', type='')
-        AccordionBaseWidget.SELECT_MODE_NONE,
-        AccordionBaseWidget.CHECK_MODE_CHECKBOX
-        if checkable
-        else AccordionBaseWidget.CHECK_MODE_CHECKBOX_DISABLED,
-        checked = checked,
-        title = title,
-        parent = parent,
-
-        for plugin in self.plugins:
-            if plugin.
-
-
+            # TODO: add a key visible in the definition to hide the step if wanted.
+            step_accordion_widget = AccordionBaseWidget(
+                selectable=False,
+                show_checkbox=True,
+                checkable=not step.optional,
+                title=step.name,
+                selected=False,
+                checked=step.enabled,
+                collapsable=True,
+                collapsed=True
+            )
+            step_plugins = step.get_all(category='plugin')
+            for step_plugin in step_plugins:
+                if not step_plugin.widget:
+                    continue
+                widget = self.init_framework_widget(step_plugin.widget)
+                if step_plugin.type == 'collector' :
+                    step_accordion_widget.add_widget(widget)
+                if step_plugin.type == 'validator' :
+                    step_accordion_widget.add_option_widget(
+                        widget, section_name='Validators'
+                    )
+                if step_plugin.type == 'exporter' :
+                    step_accordion_widget.add_option_widget(
+                        widget, section_name='Exporters'
+                    )
+            self._definition_widget.layout().addWidget(step_accordion_widget)
 
 

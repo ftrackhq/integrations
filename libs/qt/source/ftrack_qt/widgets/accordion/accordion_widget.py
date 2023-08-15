@@ -6,31 +6,15 @@ from Qt import QtWidgets, QtCore, QtGui
 from ftrack_qt.utils.widget import set_property
 from ftrack_qt.widgets.headers import AccordionHeaderWidget
 
-# TODO: Review this code, make it cleaner and easier to modif. If accordion
-#  widget is meant to work in different ways, create a variation of it
-#  (Inheriting from this one) in another file.
+
 class AccordionBaseWidget(QtWidgets.QFrame):
     '''A utility accordion widget providing a header which can be expanded to show content'''
 
+    # TODO: double check when and if we need this signals.
     clicked = QtCore.Signal(object)  # Emitted when accordion is clicked
     doubleClicked = QtCore.Signal(
         object
     )  # Emitted when accordion is double clicked
-    checkedStateChanged = QtCore.Signal(
-        object
-    )  # Emitted when checked state changed
-
-    CHECK_MODE_NONE = -1  # Not checkable and not showing checkbox
-    CHECK_MODE_CHECKBOX = 0  # Checkable and visible
-    CHECK_MODE_CHECKBOX_DISABLED = 1  # Visible but not checkable
-
-    def _on_collapse(self, collapsed):
-        '''(Optional) To be overridden by child'''
-        pass
-
-    def init_content(self, content_layout):
-        '''(Optional) To be overridden by child'''
-        pass
 
     @property
     def title(self):
@@ -43,11 +27,6 @@ class AccordionBaseWidget(QtWidgets.QFrame):
         return self._selectable
 
     @property
-    def check_mode(self):
-        '''Return the current check (box) mode'''
-        return self._check_mode
-
-    @property
     def checkable(self):
         '''Return True if accordion is checkable with a checkbox'''
         return self._checkable
@@ -56,19 +35,6 @@ class AccordionBaseWidget(QtWidgets.QFrame):
     def show_checkbox(self):
         '''Return True if accordion is checkable with a checkbox'''
         return self._show_checkbox
-
-    @checkable.setter
-    def checkable(self, value):
-        '''Set the checkable property'''
-        self._check_mode = (
-            self.CHECK_MODE_CHECKBOX
-            if value
-            else self.CHECK_MODE_CHECKBOX_DISABLED
-        )
-        if self._header_widget and self._header_widget.checkbox:
-            self._header_widget.checkbox.setEnabled(
-                self._check_mode == self.CHECK_MODE_CHECKBOX
-            )
 
     @property
     def collapsed(self):
@@ -88,36 +54,14 @@ class AccordionBaseWidget(QtWidgets.QFrame):
     @selected.setter
     def selected(self, value):
         '''Set accordion selected property'''
-        self._selected = value
+        if self.isEnabled() and self.selectable:
+            self._selected = value
+            self.update_accordion()
 
     @property
     def checked(self):
         '''(Checkable) Return True if checked'''
         return self._checked
-
-    @checked.setter
-    def checked(self, value):
-        '''Set the checked property'''
-        if self.isEnabled():
-            prev_checked = self._checked
-            self._checked = value
-            if self._header_widget:
-                if self.check_mode == self.CHECK_MODE_CHECKBOX:
-                    self._header_widget.checkbox.setChecked(value)
-                self._header_widget.title_label.setEnabled(self._checked)
-            self.enable_content()
-            if self._checked != prev_checked:
-                self.checkedStateChanged.emit(self)
-
-    @property
-    def header_widget(self):
-        '''Return header widget'''
-        return self._header_widget
-
-    @property
-    def content_widget(self):
-        '''Return content widget'''
-        return self._content_widget
 
     def __init__(
         self,
@@ -129,7 +73,6 @@ class AccordionBaseWidget(QtWidgets.QFrame):
         checked=True,
         collapsable=True,
         collapsed=True,
-        docked=False,
         parent=None,
     ):
         '''
@@ -147,19 +90,19 @@ class AccordionBaseWidget(QtWidgets.QFrame):
         '''
         super(AccordionBaseWidget, self).__init__(parent=parent)
 
+        self._indicator_widget = None
+        self._header_widget = None
+        self._content_widget = None
+
         self._selectable = selectable
         self._checkable = checkable
         self._show_checkbox = show_checkbox
-        self._header_widget = None
-        self._content_widget = None
         self._title = title
-        self._inner_widget_status = {}
+        self._collapsable = collapsable
+
         self._selected = selected
         self._checked = checked
         self._collapsed = collapsed
-        self._checked = checked
-        self._collapsable = collapsable
-        self._docked = docked
 
         self.pre_build()
         self.build()
@@ -216,13 +159,15 @@ class AccordionBaseWidget(QtWidgets.QFrame):
 
     def post_build(self):
         self._header_widget.checkbox_status_changed.connect(
-            self._on_header_checkbox_checked
+            self._on_checkbox_status_changed
         )
         self._header_widget.clicked.connect(self._on_header_clicked)
         self._header_widget.arrow_clicked.connect(self._on_header_arrow_clicked)
         self._content_widget.setVisible(not self._collapsed)
-        if self.checkable:
-            self.enable_content()
+        self._content_widget.setEnabled(self.checked)
+
+    def add_option_widget(self, widget, section_name):
+        self._header_widget.add_widget(widget, section_name)
 
     def add_widget(self, widget):
         '''Add widget to content'''
@@ -235,21 +180,6 @@ class AccordionBaseWidget(QtWidgets.QFrame):
     def get_widget_at(self, index):
         '''Return the content widget at *index*'''
         return self._content_widget.layout().itemAt(index).widget()
-
-    def set_selected(self, selected):
-        '''Set selected property to *selected*, returns True is selection changed'''
-        retval = False
-        if self.isEnabled():
-            if self._selected != selected:
-                retval = True
-            self._selected = selected
-            self.update_accordion()
-        return retval
-
-    def enable_content(self):
-        '''Enable content widget depending on if accordion is checked or not'''
-        if self._content_widget:
-            self._content_widget.setEnabled(self.checked)
 
     def paint_title(self, color):
         '''Put a foreground *color* on header title label'''
@@ -267,7 +197,8 @@ class AccordionBaseWidget(QtWidgets.QFrame):
 
     def _on_checkbox_status_changed(self, checked):
         '''Callback on enable checkbox user interaction'''
-        self.checked = checked
+        self._checked = checked
+        self._content_widget.setEnabled(self.checked)
 
     def _on_header_clicked(self, event):
         '''Callback on header user click'''
@@ -287,6 +218,10 @@ class AccordionBaseWidget(QtWidgets.QFrame):
         self._header_widget.update_arrow_icon(int(self.collapsed))
         self._on_collapse(self.collapsed)
         self._content_widget.setVisible(not self._collapsed)
+
+    def _on_collapse(self, collapsed):
+        '''(Optional) To be overridden by child'''
+        pass
 
     def mousePressEvent(self, event):
         '''(Override)'''

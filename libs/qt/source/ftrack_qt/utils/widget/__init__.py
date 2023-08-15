@@ -5,6 +5,30 @@ import shiboken2
 
 from Qt import QtWidgets, QtCore, QtGui
 
+def find_parent(widget, class_name):
+    '''Recursively find upstream widget having class name
+    containing *class_name*'''
+    parent_widget = widget.parentWidget()
+    if not parent_widget:
+        return
+    if parent_widget.__class__.__name__.find(class_name) > -1:
+        return parent_widget
+    return find_parent(parent_widget, class_name)
+
+
+def get_main_window_from_widget(widget, class_name):
+    '''This function will return the main window of the framework from the
+    given *widget*. The main window is named as main_framework_widget'''
+    main_window = widget.window()
+    if not main_window:
+        return
+    # Locate the topmost widget
+    parent = find_parent(widget.parentWidget(), class_name)
+    if parent:
+        main_window = parent
+
+    return main_window
+
 def set_property(widget, name, value):
     '''Update property *name* to *value* for *widget*, and polish afterwards.'''
     widget.setProperty(name, value)
