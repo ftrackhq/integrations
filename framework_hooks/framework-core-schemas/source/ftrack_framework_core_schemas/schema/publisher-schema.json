@@ -423,10 +423,12 @@
           "type": "string"
         },
         "plugin": {
-          "type": "string"
+          "type": "string",
+          "default": ""
         },
         "widget": {
-          "type": "string"
+          "type": "string",
+          "default": ""
         },
         "widget_id": {
           "type": "string",

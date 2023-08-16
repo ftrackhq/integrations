@@ -104,14 +104,12 @@ class Dialog(Base):
         :class:`ftrack_api.session.Session`
         '''
 
-        super(Dialog, self).__init__(event_manager, client_id, parent)
-
         # Set properties to 0
         self._definitions = None
         self._host_connections = None
         self._definition = None
         self._host_connection = None
-        self.__framework_widget_registry = None
+        self.__framework_widget_registry = {}
 
         # TODO: implement dialog_options
 
@@ -122,6 +120,9 @@ class Dialog(Base):
             connect_setter_property_callback,
             connect_getter_property_callback
         )
+        self._dialog_options = dialog_options
+
+        super(Dialog, self).__init__(event_manager, client_id, parent)
 
     def connect_methods(self, method):
         # TODO: should this be subscription events?
@@ -175,8 +176,8 @@ class Dialog(Base):
     @active_widget
     def _on_client_context_changed_callback(self, event=None):
         '''Will only run if the widget is active'''
-        # TODO: carefully, here we should update definitions!
-        pass
+        for id, widget in self.framework_widgets.items():
+            widget.update_context(self.context_id)
 
     # TODO: This should be an ABC
     @active_widget
@@ -236,16 +237,17 @@ class Dialog(Base):
         '''
         pass
 
-    def init_framework_widget(self, widget_class, plugin_definition):
-        widget = widget_class(
+    def init_framework_widget(self, plugin_definition):
+        widget = plugin_definition.widget(
             self.event_manager,
             self.client_id,
+            self.context_id,
             plugin_definition,
             dialog_run_plugin_method_callback=self._connect_run_plugin_method_callback,
+            dialog_property_getter_connection_callback=self._connect_dialog_property_getter_connection_callback,
         )
         self._register_widget(widget)
         return widget
-       # widget.run_plugin(self.run_plugin)
 
     def _register_widget(self, widget):
         if widget.id not in list(self.__framework_widget_registry.keys()):
@@ -258,6 +260,11 @@ class Dialog(Base):
         self.run_plugin_method(
             plugin_definition, plugin_method_name, plugin_widget_id
         )
+
+    def _connect_dialog_property_getter_connection_callback(self, property_name):
+        return self.__getattribute__(property_name)
+
+
     def run_plugin_method(
             self, plugin_definition, plugin_method_name, plugin_widget_id=None
     ):

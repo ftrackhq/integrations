@@ -13,7 +13,11 @@ class Widget(Base):
     name = None
     widget_type = 'framework_widget'
     dialog_run_plugin_method_connection = None
+    dialog_property_getter_connection = None
 
+    @property
+    def context_id(self):
+        return self._context_id
     @property
     def plugin_definition(self):
         return self._plugin_definition
@@ -56,8 +60,10 @@ class Widget(Base):
             self,
             event_manager,
             client_id,
+            context_id,
             plugin_definition,
             dialog_run_plugin_method_callback,
+            dialog_property_getter_connection_callback,
             parent=None
     ):
         '''
@@ -70,15 +76,23 @@ class Widget(Base):
             client_id,
             parent
         )
+        self._context_id = context_id
         self._plugin_definition = plugin_definition
         # Augment definition with the widget ID:
         self.plugin_definition.id = self.id
 
         self.connect_methods(dialog_run_plugin_method_callback)
+        self.connect_properties(
+            dialog_property_getter_connection_callback
+        )
 
     def connect_methods(self, method):
         # TODO: should this be subscription events?
         self.dialog_run_plugin_method_connection = method
+
+    def connect_properties(self, get_method):
+        # TODO: should this be subscription events?
+        self.dialog_property_getter_connection = get_method
 
     # TODO: this should be an ABC
     def pre_build(self):
@@ -91,6 +105,10 @@ class Widget(Base):
     # TODO: this should be an ABC
     def post_build(self):
         pass
+
+    def update_context(self, context_id):
+        self._context_id = context_id
+        self.on_context_updated()
 
     def run_plugin_method(self, plugin_method):
         self.dialog_run_plugin_method_connection(
@@ -107,5 +125,14 @@ class Widget(Base):
         print('executed_method'.format(executed_method))
         print('method_result'.format(method_result))
         # TODO: Implement this as you want in each widget.
+
+    # TODO: this should be an ABC
+    def on_context_updated(self):
+        pass
+
+    def set_plugin_option(self, name, value):
+        self.plugin_options = {
+            name: value
+        }
 
 

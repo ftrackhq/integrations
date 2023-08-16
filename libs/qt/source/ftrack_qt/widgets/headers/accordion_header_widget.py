@@ -81,7 +81,7 @@ class AccordionHeaderWidget(QtWidgets.QFrame):
         self.setMinimumHeight(24)
         self.setLayout(QtWidgets.QHBoxLayout())
         self.layout().setContentsMargins(2, 0, 5, 0)
-        self.layout().setSpacing(0)
+        self.layout().setSpacing(10)
 
     def build(self):
         # Create checkbox

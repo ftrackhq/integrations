@@ -4,12 +4,14 @@
 import logging
 import uuid
 
+import ftrack_api
+
 
 def active_widget(func):
     def wrapper(self, *args, **kwargs):
         '''If self.active in class execute the function'''
-        print ("Gettting the variable self.active from class".format(self.active))
-        if self.active:
+        print ("Gettting the variable self.active from class".format(self.is_active))
+        if self.is_active:
             return func(self, *args, **kwargs)
     return wrapper
 
@@ -21,6 +23,7 @@ class Base(object):
     name = None
     # TODO: framework_dialog and framework_widget for the child classes
     widget_type = 'framework_base'
+    ui_type = 'all'
 
     def __repr__(self):
         return '<{}:{}>'.format(self.id, self.name)
@@ -88,10 +91,10 @@ class Base(object):
         self._id = uuid.uuid4().hex
 
         # Set properties to 0
-        self._parent = None
         self._is_active = False
 
         self._client_id = client_id
+        self._parent = parent
 
         # Subscribe to client events
         self._subscribe_client_events()
@@ -101,6 +104,34 @@ class Base(object):
         self.post_build()
         self.connect_focus_signal()
 
+    def register(self):
+        '''
+        Register function of the plugin to regiter it self.
+
+        .. note::
+
+            This function subscribes the plugin to two
+            :class:`ftrack_api.event.base.Event` topics:
+
+            :const:`~ftrack_framework_core.constants.DISCOVER_PLUGIN_TOPIC`:
+            Topic to make the plugin discoverable for the host.
+
+            :const:`~ftrack_framework_core.constants.HOST_RUN_PLUGIN_TOPIC`:
+            Topic to execute the plugin
+        '''
+        if not isinstance(self.session, ftrack_api.Session):
+            # Exit to avoid registering this plugin again.
+            return
+
+        self.logger.debug(
+            'registering: {} for {}'.format(self.name, self.widget_type)
+        )
+
+        # subscribe to discover the plugin
+        self.event_manager.subscribe.discover_widget(
+            self.ui_type,
+            self.name,
+        )
     def _subscribe_client_events(self):
         pass
 

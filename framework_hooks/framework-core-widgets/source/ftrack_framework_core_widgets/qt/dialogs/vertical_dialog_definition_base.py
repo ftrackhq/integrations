@@ -16,15 +16,18 @@ class VerticalDialogDefinitionBase(Dialog, QtWidgets.QDialog):
 
     name = 'framework_definition_dialog'
     definition_filter = None
+    ui_type = 'qt'
 
     @property
     def definition_widget(self):
         return self._definition_widget
     @property
     def filtred_definitions(self):
-        definitions = list(self.definitions.values())
-        if self.definition_filter:
-            definitions = self.definitions[self.definition_filter]
+        if not self.definition_filter:
+            return list(self.definitions.values())
+        definitions = []
+        for definition_type in self.definition_filter:
+            definitions.append(self.definitions.get(definition_type))
         return definitions
 
     def __init__(
@@ -192,7 +195,8 @@ class VerticalDialogDefinitionBase(Dialog, QtWidgets.QDialog):
             if definition:
                 break
         self.definition = definition
-        self.build_definition_ui(self.definition)
+        if definition:
+            self.build_definition_ui(self.definition)
 
     def _on_refresh_definitions_callback(self):
         # TODO: double think if definitions can be refreshed? maybe we should
@@ -206,16 +210,17 @@ class VerticalDialogDefinitionBase(Dialog, QtWidgets.QDialog):
         self._add_definition_items()
 
     def _on_client_context_changed_callback(self, event=None):
+        super(VerticalDialogDefinitionBase, self)._on_client_context_changed_callback()
         self._context_selector.context_id = self.context_id
-        print(self._context_selector.is_browsing)
 
     # TODO: This should be an ABC
     def _on_client_hosts_discovered_callback(self, event=None):
         # TODO: for host_id in host_connection if host_id not in host_selector items, add it.
-        pass
+        super(VerticalDialogDefinitionBase, self)._on_client_hosts_discovered_callback()
 
     # TODO: This should be an ABC
     def _on_client_host_changed_callback(self, event=None):
+        super(VerticalDialogDefinitionBase, self)._on_client_host_changed_callback()
         if (
                 self._host_connection_selector.current_item_text() !=
                 self.host_connection.host_id
@@ -226,7 +231,7 @@ class VerticalDialogDefinitionBase(Dialog, QtWidgets.QDialog):
 
     # TODO: This should be an ABC
     def _on_client_definition_changed_callback(self, event=None):
-        print("_on_client_definition_changed_callback" )
+        super(VerticalDialogDefinitionBase, self)._on_client_definition_changed_callback()
         definition_name = None
         if self.definition:
             definition_name = self.definition.name

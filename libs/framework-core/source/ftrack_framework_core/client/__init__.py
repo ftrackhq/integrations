@@ -276,15 +276,87 @@ class Client(object):
         self._host_context_changed_subscribe_id = None
         self._definition = None
         self._engine_type = None
+        self.__framework_widget_registry = {}
         self.__dialogs_registry = {}
         self._dialog = None
         self._auto_connect_host = auto_connect_host
+
+        self.__plugins_registry = []
+
+        # Register modules
+        self._register_modules()
 
         # TODO: Initializing client
         self.logger.debug('Initialising Client {}'.format(self))
 
         if auto_discover_host and not self.host_connections:
             self.discover_hosts()
+
+    def _register_modules(self):
+        '''
+        Register framework modules available.
+        '''
+        # We register the plugins first so they can subscribe to the discover event
+        self._register_framework_modules(
+            module_type='dialogs', callback=self._on_register_plugins_callback
+        )
+
+        if (
+                self.__plugins_registry and
+                self.__schemas_registry and
+                self.__definitions_registry
+        ):
+            # Check that registry went correct
+            return True
+        raise Exception(
+            'Error registring modules on host, please check logs'
+        )
+
+    def _register_framework_modules(self, module_type, callback):
+        registry_result = []
+        # Look in all the depenency packages in the current python environment
+        for package in pkgutil.iter_modules():
+            # Pick only the that matches ftrack framework and the module type
+            is_type = all(
+                x in package.name.split("_") for x in [
+                    'ftrack', 'framework', module_type
+                ]
+            )
+            if not is_type:
+                continue
+            # Import the register module
+            register_module = getattr(
+                __import__(package.name, fromlist=['register']), 'register'
+            )
+            # Call the register method We pass the event manager and id
+            result = register_module.register(
+                self.event_manager, self.id, self.ftrack_object_manager
+            )
+
+            if type(result) == list:
+                # Result might be a list so extend the current registry list
+                registry_result.extend(result)
+                continue
+            # If result is just string, we append it to our registry
+            registry_result.append(result)
+
+        # Call the callback with the result
+        if registry_result:
+            callback(registry_result)
+        else:
+            self.logger.error(
+                "Couldn't find any {} module to register".format(module_type)
+            )
+
+    def _on_register_plugins_callback(self, registred_plugins):
+        '''
+        Callback of the :meth:`_register_framework_modules` of type plugins.
+        We add all the *registred_plugins* into our
+        :obj:`self.__plugins_registry`
+        '''
+        registred_plugins = list(set(registred_plugins))
+
+        self.__plugins_registry = registred_plugins
 
     # Host
     def discover_hosts(self, time_out=3):

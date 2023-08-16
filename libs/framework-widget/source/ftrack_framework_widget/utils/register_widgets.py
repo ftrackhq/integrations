@@ -6,11 +6,11 @@ import logging
 import pkgutil
 import inspect
 
-from ftrack_framework_plugin import BasePlugin
+from ftrack_framework_widget import Widget, Dialog
 
-logger = logging.getLogger('ftrack_framework_plugins.register')
+logger = logging.getLogger('ftrack_framework_widgets.register')
 
-
+# TODO: put this in ftrack_utils???
 # This is faster than glob and walk found in:
 # https://stackoverflow.com/questions/973473/getting-a-list-of-all-subdirectories-in-the-current-directory
 def fast_scandir(dirname):
@@ -24,14 +24,15 @@ def fast_scandir(dirname):
 #  something like:
 #  from framework_utilities import register_plugins
 #  register_plugins.register( current_dir )
-def register(current_dir, event_manager, host_id, ftrack_object_manager):
+def register_widgets(
+        current_dir, event_manager, client_id, context_id, plugin_definition, dialog_run_plugin_method_callback, dialog_property_getter_connection_callback):
     '''Register plugin to api_object.'''
 
-    framework_plugin_type = BasePlugin
+    framework_plugin_type = Widget
 
     subfolders = fast_scandir(current_dir)
 
-    registred_plugins = []
+    registred_widgets = []
     for loader, module_name, is_pkg in pkgutil.walk_packages(subfolders):
         _module = loader.find_module(module_name).load_module(module_name)
         cls_members = inspect.getmembers(_module, inspect.isclass)
@@ -49,9 +50,17 @@ def register(current_dir, event_manager, host_id, ftrack_object_manager):
             #TODO: check if session is still necessary after the refactor We should pass the event manager and host_id
             try:
                 # TODO: we need to pass event manager, host id.
-                plugin = obj(event_manager, host_id, ftrack_object_manager)
-                plugin.register()
-                registred_plugins.append(obj)
+                widget = obj(
+                    event_manager,
+                    client_id,
+                    context_id = None,
+                    plugin_definition = None,
+                    dialog_run_plugin_method_callback = None,
+                    dialog_property_getter_connection_callback = None,
+                )
+                # TODO: can register be a classmethod so we don't have to initialize the widget?
+                widget.register()
+                registred_widgets.append(obj)
             except Exception as e:
                 logger.warning(
                     "Couldn't register plugin {} \n error: {}".format(name, e)
@@ -65,4 +74,4 @@ def register(current_dir, event_manager, host_id, ftrack_object_manager):
                 "No framework compatible plugin found in module {} "
                 "in path{}".format(module_name, loader.path)
             )
-    return registred_plugins
+    return registred_widgets

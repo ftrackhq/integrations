@@ -13,6 +13,7 @@ class PublisherDialog(VerticalDialogDefinitionBase):
 
     name = 'framework_publisher_dialog'
     definition_filter = ['publisher']
+    ui_type = 'qt'
 
     def __init__(
             self,
@@ -57,7 +58,7 @@ class PublisherDialog(VerticalDialogDefinitionBase):
         for context_plugin in context_plugins:
             if not context_plugin.widget:
                 continue
-            context_widget = self.init_framework_widget(context_plugin.widget)
+            context_widget = self.init_framework_widget(context_plugin)
             self.definition_widget.layout().addWidget(context_widget)
         # Build component widgets
         component_steps = definition.get_all(category='step', type='component')
@@ -77,7 +78,7 @@ class PublisherDialog(VerticalDialogDefinitionBase):
             for step_plugin in step_plugins:
                 if not step_plugin.widget:
                     continue
-                widget = self.init_framework_widget(step_plugin.widget)
+                widget = self.init_framework_widget(step_plugin)
                 if step_plugin.type == 'collector' :
                     step_accordion_widget.add_widget(widget)
                 if step_plugin.type == 'validator' :
