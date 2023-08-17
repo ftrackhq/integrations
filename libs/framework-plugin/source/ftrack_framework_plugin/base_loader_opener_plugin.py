@@ -14,6 +14,9 @@ import ftrack_constants.framework as constants
 
 #TODO: if we want to expose this to clients, this can be moved to
 # framework_core_plugins same for the finalizer one.
+
+# TODO: double check this code and try to not have a base, simply make it a
+#  plugin that is why we have a list of plugins.
 class BaseLoaderOpenerPlugin(BasePlugin):
     '''Base Class to represent a Plugin'''
 

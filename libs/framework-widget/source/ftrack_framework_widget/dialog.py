@@ -84,10 +84,15 @@ class Dialog(Base):
 
     @property
     def framework_widgets(self):
-        '''
-        Dependency framework widgets
-        '''
+        '''Return Initalized framework widgets'''
         return self.__framework_widget_registry
+
+    @property
+    def discovered_framework_widgets(self):
+        '''Return discovered framework widgets from client'''
+        return self.client_property_getter_connection(
+            'discovered_framework_widgets'
+        )
 
     def __init__(
             self,
@@ -238,7 +243,23 @@ class Dialog(Base):
         pass
 
     def init_framework_widget(self, plugin_definition):
-        widget = plugin_definition.widget(
+        widget_class = None
+        for widget in self.discovered_framework_widgets:
+            if widget.name == plugin_definition.widget:
+                widget_class = widget
+                break
+        if not widget_class:
+            error_message = (
+                'The provided widget {} for plugin {} is not registred '
+                'Please provide a registred widget.\n '
+                'Registreated widgets: {}'.format(
+                    plugin_definition.widget, plugin_definition.plugin,
+                    self.discovered_framework_widgets
+                )
+            )
+            self.logger.error(error_message)
+            raise Exception(error_message)
+        widget = widget_class(
             self.event_manager,
             self.client_id,
             self.context_id,

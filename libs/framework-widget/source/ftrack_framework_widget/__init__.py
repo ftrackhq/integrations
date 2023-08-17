@@ -149,12 +149,14 @@ class Base(object):
             'registering: {} for {}'.format(cls.name, cls.widget_type)
         )
 
-        # subscribe to discover the plugin
-        event_manager.subscribe.discover_widget(
-            cls.ui_type,
-            cls.name,
-            callback=lambda event: True
-        )
+        # TODO: evaluate if it's worth implementing the discover widget event
+        #  or it's not necesary
+        # subscribe to discover the widget
+        # event_manager.subscribe.discover_widget(
+        #     cls.ui_type,
+        #     cls.name,
+        #     callback=lambda event: True
+        # )
 
 
 

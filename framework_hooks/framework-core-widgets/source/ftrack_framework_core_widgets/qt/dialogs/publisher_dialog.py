@@ -1,10 +1,7 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2023 ftrack
 
-from Qt import QtWidgets, QtCore
-
-
-from ftrack_qt.framework_dialogs import VerticalDialogDefinitionBase
+from ftrack_framework_core_widgets.qt.dialogs.vertical_dialog_definition_base import VerticalDialogDefinitionBase
 from ftrack_qt.widgets.accordion import AccordionBaseWidget
 
 

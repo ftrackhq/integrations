@@ -14,7 +14,7 @@ from ftrack_utils.framework.dependencies import registry
 import ftrack_constants.framework as constants
 
 from ftrack_framework_core.definition import discover, validate, definition_object
-from ftrack_framework_core.host.engine import load_publish, asset_manager, resolver
+from ftrack_framework_core.host.engine import load_publish, asset_manager_to_remove, resolver_to_remove
 from ftrack_framework_core.asset import FtrackObjectManager
 from ftrack_framework_core.log.log_item import LogItem
 from ftrack_framework_core.log import LogDB
@@ -70,8 +70,8 @@ class Host(object):
         constants.definition.PUBLISHER: load_publish.LoadPublishEngine,
         constants.definition.LOADER: load_publish.LoadPublishEngine,
         constants.definition.OPENER: load_publish.LoadPublishEngine,
-        constants.definition.ASSET_MANAGER: asset_manager.AssetManagerEngine,
-        constants.definition.RESOLVER: resolver.ResolverEngine,
+        constants.definition.ASSET_MANAGER: asset_manager_to_remove.AssetManagerEngine,
+        constants.definition.RESOLVER: resolver_to_remove.ResolverEngine,
     }
     '''Available engines for this host.'''
 

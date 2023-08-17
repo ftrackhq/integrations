@@ -320,8 +320,26 @@ class Client(object):
         We add all the *registred_plugins* into our
         :obj:`self.__plugins_registry`
         '''
+        #discovered_widgets = []
         registred_widgets = list(set(registred_widgets))
+        # # TODO: this is not really necesary, but we use it also to filter all the registrated widgets and just take the ui
+        # #  compatible ones with this client.
+        # for widget in registred_widgets:
+        #     result = self.event_manager.publish.discover_widget(
+        #         self.ui_types,
+        #         widget.name,
+        #     )
+        #     if result:
+        #         discovered_widgets.append(widget)
+        #     else:
+        #         self.logger.warning(
+        #             " The widget {} hasn't been registred. "
+        #             "Check compatible UI types: {}".format(
+        #                 widget.name, self.ui_types
+        #             )
+        #         )
 
+        #self.__framework_widget_registry = discovered_widgets
         self.__framework_widget_registry = registred_widgets
 
     # Host

@@ -554,7 +554,6 @@ class BasePlugin(object):
         )
 
         # subscribe to discover the plugin
-        # subscribe to discover the plugin
         event_manager.subscribe.discover_plugin(
             cls.host_type,
             cls.name,
