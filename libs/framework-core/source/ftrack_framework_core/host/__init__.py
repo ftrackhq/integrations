@@ -57,7 +57,7 @@ class Host(object):
     # TODO: double_check host types and host type do we really need it?
     #  Maybe what we need is defnitions type? to specify which definitions we
     #  want to discover?
-    host_types = constants.host.COMPATIBLE_HOST_TYPES
+    host_types = [constants.host.PYTHON_HOST_TYPE]
     '''Compatible Host types for this HOST.'''
 
     # TODO: Engines Dictionary should come from constants.
