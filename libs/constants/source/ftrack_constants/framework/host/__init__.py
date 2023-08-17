@@ -15,7 +15,7 @@ HOUDINI_HOST_TYPE = 'houdini'
 UNREAL_HOST_TYPE = 'unreal'
 
 #: Available host types
-STATUS_LIST = [
+COMPATIBLE_HOST_TYPES = [
     PYTHON_HOST_TYPE,
     MAYA_HOST_TYPE,
     MAX_HOST_TYPE,

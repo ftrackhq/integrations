@@ -4,8 +4,7 @@ import copy
 import time
 
 from ftrack_framework_core.host.engine import BaseEngine
-from ftrack_framework_core import constants
-from ftrack_framework_core.constants import asset as asset_const
+import ftrack_constants.framework as constants
 from ftrack_framework_core.asset.asset_info import FtrackAssetInfo
 
 import ftrack_api
@@ -17,7 +16,7 @@ class AssetManagerEngine(BaseEngine):
     Base Asset Manager Engine class.
     '''
 
-    engine_type = constants.ASSET_MANAGER
+    engine_type = constants.definition.ASSET_MANAGER
     '''Engine type for this engine class'''
 
     def __init__(
@@ -44,7 +43,7 @@ class AssetManagerEngine(BaseEngine):
         Should be overridden by child
 
         (Standalone mode, dev, testing) Discover 10 random assets from Ftrack with component name main.
-        Returns :const:`~ftrack_connnect_pipeline.constants.status` and
+        Returns :const:`~ftrack_connnect_pipeline.constants.status.status` and
         :attr:`ftrack_asset_info_list` which is a list of
         :class:`~ftrack_framework_core.asset.FtrackAssetInfo`
         '''
@@ -90,7 +89,7 @@ class AssetManagerEngine(BaseEngine):
                         break
 
         ftrack_asset_info_list = []
-        status = constants.SUCCESS_STATUS
+        status = constants.status.SUCCESS_STATUS
 
         if asset_versions_entities:
             for version in asset_versions_entities:
@@ -98,7 +97,7 @@ class AssetManagerEngine(BaseEngine):
                 ftrack_asset_info_list.append(asset_info)
 
             if not ftrack_asset_info_list:
-                status = constants.ERROR_STATUS
+                status = constants.status.ERROR_STATUS
 
         else:
             self.logger.debug("No assets in the scene")
@@ -110,7 +109,7 @@ class AssetManagerEngine(BaseEngine):
 
         result_data = {
             'plugin_name': None,
-            'plugin_type': constants.PLUGIN_AM_ACTION_TYPE,
+            'plugin_type': constants.status.PLUGIN_AM_ACTION_TYPE,
             'method': 'discover_assets',
             'status': status,
             'result': result,
@@ -147,17 +146,17 @@ class AssetManagerEngine(BaseEngine):
             try:
                 status, result = self.select_asset(asset_info, options, plugin)
             except Exception as e:
-                status = constants.ERROR_STATUS
+                status = constants.status.ERROR_STATUS
                 self.logger.error(
                     "Error selecting asset with version id {} \n error: {} "
                     "\n asset_info: {}".format(
-                        asset_info[asset_const.VERSION_ID], e, asset_info
+                        asset_info[constants.status.asset.VERSION_ID], e, asset_info
                     )
                 )
 
-            bool_status = constants.status_bool_mapping[status]
-            statuses[asset_info[asset_const.ASSET_INFO_ID]] = bool_status
-            results[asset_info[asset_const.ASSET_INFO_ID]] = result
+            bool_status = constants.status.status_bool_mapping[status]
+            statuses[asset_info[constants.status.asset.ASSET_INFO_ID]] = bool_status
+            results[asset_info[constants.status.asset.ASSET_INFO_ID]] = result
 
             i += 1
 
@@ -166,20 +165,20 @@ class AssetManagerEngine(BaseEngine):
     def select_asset(self, asset_info, options=None, plugin=None):
         '''
         (Not implemented for python standalone mode)
-        Returns the :const:`~ftrack_connnect_pipeline.constants.status` and the
+        Returns the :const:`~ftrack_connnect_pipeline.constants.status.status` and the
         result of selecting the given *asset_info*
 
         *asset_info* : :class:`~ftrack_framework_core.asset.FtrackAssetInfo`
         '''
         result = False
         message = "Can't select on standalone mode"
-        status = constants.ERROR_STATUS
+        status = constants.status.ERROR_STATUS
 
-        plugin_type = constants.PLUGIN_AM_ACTION_TYPE
+        plugin_type = constants.status.PLUGIN_AM_ACTION_TYPE
         plugin_name = None
         if plugin:
             plugin_type = '{}.{}'.format(
-                constants.ASSET_MANAGER, plugin['type']
+                constants.status.ASSET_MANAGER, plugin['type']
             )
             plugin_name = plugin.get('name')
 
@@ -218,23 +217,23 @@ class AssetManagerEngine(BaseEngine):
             try:
                 status, result = self.update_asset(asset_info, options, plugin)
             except Exception as e:
-                status = constants.ERROR_STATUS
+                status = constants.status.ERROR_STATUS
                 self.logger.exception(e)
                 self.logger.error(
                     "Error updating asset with version id {} \n error: {} "
                     "\n asset_info: {}".format(
-                        asset_info[asset_const.VERSION_ID], e, asset_info
+                        asset_info[constants.status.asset.VERSION_ID], e, asset_info
                     )
                 )
-            bool_status = constants.status_bool_mapping[status]
-            statuses[asset_info[asset_const.ASSET_INFO_ID]] = bool_status
-            results[asset_info[asset_const.ASSET_INFO_ID]] = result
+            bool_status = constants.status.status_bool_mapping[status]
+            statuses[asset_info[constants.status.asset.ASSET_INFO_ID]] = bool_status
+            results[asset_info[constants.status.asset.ASSET_INFO_ID]] = result
 
         return statuses, results
 
     def update_asset(self, asset_info, options=None, plugin=None):
         '''
-        Returns the :const:`~ftrack_connnect_pipeline.constants.status` and the
+        Returns the :const:`~ftrack_connnect_pipeline.constants.status.status` and the
         result of updating the given *asset_info* using the criteria of the
         given *plugin*
 
@@ -245,15 +244,15 @@ class AssetManagerEngine(BaseEngine):
         *plugin* : Plugin definition, a dictionary with the plugin information.
         '''
         start_time = time.time()
-        status = constants.UNKNOWN_STATUS
+        status = constants.status.UNKNOWN_STATUS
         result = []
         message = None
 
-        plugin_type = constants.PLUGIN_AM_ACTION_TYPE
+        plugin_type = constants.status.PLUGIN_AM_ACTION_TYPE
         plugin_name = None
         if plugin:
             plugin_type = '{}.{}'.format(
-                constants.ASSET_MANAGER, plugin['type']
+                constants.status.ASSET_MANAGER, plugin['type']
             )
             plugin_name = plugin.get('name')
 
@@ -283,7 +282,7 @@ class AssetManagerEngine(BaseEngine):
             if plugin_result:
                 status = plugin_result['status']
                 result = plugin_result['result'].get(plugin['default_method'])
-            bool_status = constants.status_bool_mapping[status]
+            bool_status = constants.status.status_bool_mapping[status]
             if not bool_status:
                 message = "Error executing the plugin: {}".format(plugin)
                 self.logger.error(message)
@@ -338,32 +337,32 @@ class AssetManagerEngine(BaseEngine):
             try:
                 status, result = self.load_asset(asset_info, options, plugin)
             except Exception as e:
-                status = constants.ERROR_STATUS
+                status = constants.status.ERROR_STATUS
                 self.logger.exception(e)
                 self.logger.error(
                     "Error removing asset with version id {} \n error: {} "
                     "\n asset_info: {}".format(
-                        asset_info[asset_const.VERSION_ID], e, asset_info
+                        asset_info[constants.status.asset.VERSION_ID], e, asset_info
                     )
                 )
 
-            bool_status = constants.status_bool_mapping[status]
-            statuses[asset_info[asset_const.ASSET_INFO_ID]] = bool_status
-            results[asset_info[asset_const.ASSET_INFO_ID]] = result
+            bool_status = constants.status.status_bool_mapping[status]
+            statuses[asset_info[constants.status.asset.ASSET_INFO_ID]] = bool_status
+            results[asset_info[constants.status.asset.ASSET_INFO_ID]] = result
 
         return statuses, results
 
     def load_asset(self, asset_info, options=None, plugin=None):
         '''
         (Not implemented for python standalone mode)
-        Returns the :const:`~ftrack_connnect_pipeline.constants.status` and the
+        Returns the :const:`~ftrack_connnect_pipeline.constants.status.status` and the
         result of removing the given *asset_info*
 
         *asset_info* : :class:`~ftrack_framework_core.asset.FtrackAssetInfo`
         '''
 
         # Get the load plugin from the asset_info_options
-        load_plugin = asset_info[asset_const.ASSET_INFO_OPTIONS]
+        load_plugin = asset_info[constants.status.asset.ASSET_INFO_OPTIONS]
         plugin_data = load_plugin['settings']['data']
         plugin_options = load_plugin['settings']['options']
         plugin_options['asset_info'] = asset_info
@@ -386,7 +385,7 @@ class AssetManagerEngine(BaseEngine):
         }
 
         start_time = time.time()
-        status = constants.UNKNOWN_STATUS
+        status = constants.status.UNKNOWN_STATUS
         result = []
         message = None
 
@@ -414,7 +413,7 @@ class AssetManagerEngine(BaseEngine):
             if plugin_result:
                 status = plugin_result['status']
                 result = (plugin_result.get('result') or {}).get(plugin_method)
-            bool_status = constants.status_bool_mapping[status]
+            bool_status = constants.status.status_bool_mapping[status]
             if not bool_status:
                 message = "Error executing the plugin: {}".format(plugin)
                 self.logger.error(message)
@@ -448,7 +447,7 @@ class AssetManagerEngine(BaseEngine):
 
     def change_version(self, asset_info, options, plugin=None):
         '''
-        Returns the :const:`~ftrack_connnect_pipeline.constants.status` and the
+        Returns the :const:`~ftrack_connnect_pipeline.constants.status.status` and the
         result of changing the version of the given *asset_info* to the new
         version id passed in the given *options*
 
@@ -461,15 +460,15 @@ class AssetManagerEngine(BaseEngine):
         plugin information.
         '''
         start_time = time.time()
-        status = constants.UNKNOWN_STATUS
+        status = constants.status.UNKNOWN_STATUS
         result = {}
         message = None
 
-        plugin_type = constants.PLUGIN_AM_ACTION_TYPE
+        plugin_type = constants.status.PLUGIN_AM_ACTION_TYPE
         plugin_name = None
         if plugin:
             plugin_type = '{}.{}'.format(
-                constants.ASSET_MANAGER, plugin['type']
+                constants.status.ASSET_MANAGER, plugin['type']
             )
             plugin_name = plugin.get('name')
 
@@ -487,14 +486,14 @@ class AssetManagerEngine(BaseEngine):
 
         self.asset_info = asset_info
         dcc_object = self.DccObject(
-            from_id=asset_info[asset_const.ASSET_INFO_ID]
+            from_id=asset_info[constants.status.asset.ASSET_INFO_ID]
         )
         self.dcc_object = dcc_object
 
         # Get Component name from the original asset info
-        component_name = self.asset_info.get(asset_const.COMPONENT_NAME)
+        component_name = self.asset_info.get(constants.status.asset.COMPONENT_NAME)
         # Get the asset info options from the original asset info
-        asset_info_options = self.asset_info[asset_const.ASSET_INFO_OPTIONS]
+        asset_info_options = self.asset_info[constants.status.asset.ASSET_INFO_OPTIONS]
 
         remove_result = None
         remove_status = None
@@ -504,17 +503,17 @@ class AssetManagerEngine(BaseEngine):
                 asset_info=asset_info, options=None, plugin=None
             )
         except Exception as e:
-            remove_status = constants.ERROR_STATUS
+            remove_status = constants.status.ERROR_STATUS
             self.logger.exception(e)
             message = str(
                 "Error removing asset with version id {} \n error: {} "
                 "\n asset_info: {}".format(
-                    asset_info[asset_const.VERSION_ID], e, asset_info
+                    asset_info[constants.status.asset.VERSION_ID], e, asset_info
                 )
             )
             self.logger.error(message)
 
-        bool_status = constants.status_bool_mapping[remove_status]
+        bool_status = constants.status.status_bool_mapping[remove_status]
 
         if not bool_status:
             end_time = time.time()
@@ -570,17 +569,17 @@ class AssetManagerEngine(BaseEngine):
             # Use the original asset_info options to reload the new version
             # Collect asset_context_data and asset data
             asset_context_data = asset_info_options['context_data']
-            asset_context_data[asset_const.ASSET_ID] = asset_id
-            asset_context_data[asset_const.VERSION_NUMBER] = version_number
-            asset_context_data[asset_const.ASSET_NAME] = asset_name
-            asset_context_data[asset_const.ASSET_TYPE_NAME] = asset_type_name
-            asset_context_data[asset_const.VERSION_ID] = version_id
+            asset_context_data[constants.status.asset.ASSET_ID] = asset_id
+            asset_context_data[constants.status.asset.VERSION_NUMBER] = version_number
+            asset_context_data[constants.status.asset.ASSET_NAME] = asset_name
+            asset_context_data[constants.status.asset.ASSET_TYPE_NAME] = asset_type_name
+            asset_context_data[constants.status.asset.VERSION_ID] = version_id
 
             # Update asset_info_options
             asset_info_options['plugin_data'][0]['result'] = {
-                asset_const.COMPONENT_NAME: component_name,
-                asset_const.COMPONENT_ID: component_id,
-                asset_const.COMPONENT_PATH: component_path,
+                constants.status.asset.COMPONENT_NAME: component_name,
+                constants.status.asset.COMPONENT_ID: component_id,
+                constants.status.asset.COMPONENT_PATH: component_path,
             }
             asset_info_options['context_data'].update(
                 asset_context_data
@@ -588,7 +587,7 @@ class AssetManagerEngine(BaseEngine):
 
             # Align track/load mode
             run_method = asset_info_options['method']
-            if asset_info[asset_const.OBJECTS_LOADED]:
+            if asset_info[constants.status.asset.OBJECTS_LOADED]:
                 run_method_effective = 'init_and_load'
             else:
                 run_method_effective = 'init_nodes'
@@ -627,7 +626,7 @@ class AssetManagerEngine(BaseEngine):
             new_dcc_object = result_data['result'][
                 new_asset_info_options['pipeline']['method']
             ]['dcc_object']
-            new_asset_info[asset_const.REFERENCE_OBJECT] = new_dcc_object.name
+            new_asset_info[constants.status.asset.REFERENCE_OBJECT] = new_dcc_object.name
 
             self.asset_info = new_asset_info
             self.dcc_object = new_dcc_object
@@ -637,11 +636,11 @@ class AssetManagerEngine(BaseEngine):
             pass
 
         except Exception as e:
-            status = constants.ERROR_STATUS
+            status = constants.status.ERROR_STATUS
             message = str(
                 "Error changing version of asset with version id {} \n "
                 "error: {} \n asset_info: {}".format(
-                    asset_info[asset_const.VERSION_ID], e, asset_info
+                    asset_info[constants.status.asset.VERSION_ID], e, asset_info
                 )
             )
             self.logger.error(message)
@@ -660,11 +659,11 @@ class AssetManagerEngine(BaseEngine):
             return status, result
 
         if not new_asset_info:
-            status = constants.ERROR_STATUS
+            status = constants.status.ERROR_STATUS
         else:
-            status = constants.SUCCESS_STATUS
+            status = constants.status.SUCCESS_STATUS
 
-        result[asset_info[asset_const.ASSET_INFO_ID]] = new_asset_info
+        result[asset_info[constants.status.asset.ASSET_INFO_ID]] = new_asset_info
 
         end_time = time.time()
         total_time = end_time - start_time
@@ -697,38 +696,38 @@ class AssetManagerEngine(BaseEngine):
             try:
                 status, result = self.unload_asset(asset_info, options, plugin)
             except Exception as e:
-                status = constants.ERROR_STATUS
+                status = constants.status.ERROR_STATUS
                 self.logger.exception(e)
                 self.logger.error(
                     "Error removing asset with version id {} \n error: {} "
                     "\n asset_info: {}".format(
-                        asset_info[asset_const.VERSION_ID], e, asset_info
+                        asset_info[constants.status.asset.VERSION_ID], e, asset_info
                     )
                 )
 
-            bool_status = constants.status_bool_mapping[status]
-            statuses[asset_info[asset_const.ASSET_INFO_ID]] = bool_status
-            results[asset_info[asset_const.ASSET_INFO_ID]] = result
+            bool_status = constants.status.status_bool_mapping[status]
+            statuses[asset_info[constants.status.asset.ASSET_INFO_ID]] = bool_status
+            results[asset_info[constants.status.asset.ASSET_INFO_ID]] = result
 
         return statuses, results
 
     def unload_asset(self, asset_info, options=None, plugin=None):
         '''
         (Not implemented for python standalone mode)
-        Returns the :const:`~ftrack_connnect_pipeline.constants.status` and the
+        Returns the :const:`~ftrack_connnect_pipeline.constants.status.status` and the
         result of unloading the given *asset_info*.
 
         *asset_info* : :class:`~ftrack_framework_core.asset.FtrackAssetInfo`
         '''
 
         result = True
-        status = constants.SUCCESS_STATUS
+        status = constants.status.SUCCESS_STATUS
 
-        plugin_type = constants.PLUGIN_AM_ACTION_TYPE
+        plugin_type = constants.status.PLUGIN_AM_ACTION_TYPE
         plugin_name = None
         if plugin:
             plugin_type = '{}.{}'.format(
-                constants.ASSET_MANAGER, plugin['type']
+                constants.status.ASSET_MANAGER, plugin['type']
             )
             plugin_name = plugin.get('name')
 
@@ -766,38 +765,38 @@ class AssetManagerEngine(BaseEngine):
             try:
                 status, result = self.remove_asset(asset_info, options, plugin)
             except Exception as e:
-                status = constants.ERROR_STATUS
+                status = constants.status.ERROR_STATUS
                 self.logger.exception(e)
                 self.logger.error(
                     "Error removing asset with version id {} \n error: {} "
                     "\n asset_info: {}".format(
-                        asset_info[asset_const.VERSION_ID], e, asset_info
+                        asset_info[constants.status.asset.VERSION_ID], e, asset_info
                     )
                 )
 
-            bool_status = constants.status_bool_mapping[status]
-            statuses[asset_info[asset_const.ASSET_INFO_ID]] = bool_status
-            results[asset_info[asset_const.ASSET_INFO_ID]] = result
+            bool_status = constants.status.status_bool_mapping[status]
+            statuses[asset_info[constants.status.asset.ASSET_INFO_ID]] = bool_status
+            results[asset_info[constants.status.asset.ASSET_INFO_ID]] = result
 
         return statuses, results
 
     def remove_asset(self, asset_info, options=None, plugin=None):
         '''
         (Not implemented for python standalone mode)
-        Returns the :const:`~ftrack_connnect_pipeline.constants.status` and the
+        Returns the :const:`~ftrack_connnect_pipeline.constants.status.status.status` and the
         result of removing the given *asset_info*.
 
         *asset_info* : :class:`~ftrack_framework_core.asset.FtrackAssetInfo`
         '''
 
         result = True
-        status = constants.SUCCESS_STATUS
+        status = constants.status.status.SUCCESS_STATUS
 
-        plugin_type = constants.PLUGIN_AM_ACTION_TYPE
+        plugin_type = constants.status.PLUGIN_AM_ACTION_TYPE
         plugin_name = None
         if plugin:
             plugin_type = '{}.{}'.format(
-                constants.ASSET_MANAGER, plugin['type']
+                constants.status.ASSET_MANAGER, plugin['type']
             )
             plugin_name = plugin.get('name')
 
@@ -847,7 +846,7 @@ class AssetManagerEngine(BaseEngine):
                         'the method: {}'.format(method)
                     )
             else:
-                bool_status = constants.status_bool_mapping[status]
+                bool_status = constants.status.status_bool_mapping[status]
                 if not bool_status:
                     raise Exception(
                         'An error occurred during the execution of '
@@ -873,7 +872,7 @@ class AssetManagerEngine(BaseEngine):
             if plugin_result:
                 status = plugin_result['status']
                 result = plugin_result['result'].get(plugin['default_method'])
-            bool_status = constants.status_bool_mapping[status]
+            bool_status = constants.status.status_bool_mapping[status]
             if not bool_status:
                 raise Exception(
                     'An error occurred during the execution of the plugin {}'

@@ -4,7 +4,7 @@ import json
 from functools import partial
 
 from ftrack_framework_core import client
-from ftrack_framework_core import constants
+import ftrack_constants as constants
 
 
 class ResolverClient(client.Client):

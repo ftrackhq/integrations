@@ -9,7 +9,7 @@ from ftrack_framework_plugin import BasePlugin
 #TODO: double check we are allowed to do this, or we should not use constants
 #  here, or have host available in base plugin to be able to do something
 #  like: host.constants.stage_types.COLLECTOR
-from ftrack_framework_core.constants import asset as asset_constants
+import ftrack_constants.framework as constants
 
 
 #TODO: if we want to expose this to clients, this can be moved to
@@ -98,19 +98,19 @@ class BaseLoaderOpenerPlugin(BasePlugin):
         '''Alternative plugin method to init all the nodes in the scene but not
         need to load the assets'''
         if six.PY2:
-            options[asset_constants.ASSET_INFO_OPTIONS] = base64.b64encode(
+            options[constants.asset.ASSET_INFO_OPTIONS] = base64.b64encode(
                 self.json_data
             )
         else:
             input_bytes = self.json_data.encode('utf8')
-            options[asset_constants.ASSET_INFO_OPTIONS] = base64.b64encode(
+            options[constants.asset.ASSET_INFO_OPTIONS] = base64.b64encode(
                 input_bytes
             ).decode('ascii')
 
         # Get Asset version entity to generate asset info
         asset_version_entity = self.session.query(
             'select version from AssetVersion where id is "{}"'.format(
-                context_data[asset_constants.VERSION_ID]
+                context_data[constants.asset.VERSION_ID]
             )
         ).one()
 
@@ -123,13 +123,13 @@ class BaseLoaderOpenerPlugin(BasePlugin):
                 continue
             else:
                 component_name = collector['result'].get(
-                    asset_constants.COMPONENT_NAME
+                    constants.asset.COMPONENT_NAME
                 )
                 component_path = collector['result'].get(
-                    asset_constants.COMPONENT_PATH
+                    constants.asset.COMPONENT_PATH
                 )
                 component_id = collector['result'].get(
-                    asset_constants.COMPONENT_ID
+                    constants.asset.COMPONENT_ID
                 )
                 break
 
@@ -138,8 +138,8 @@ class BaseLoaderOpenerPlugin(BasePlugin):
             component_name=component_name,
             component_path=component_path,
             component_id=component_id,
-            load_mode=options.get(asset_constants.LOAD_MODE),
-            asset_info_options=options.get(asset_constants.ASSET_INFO_OPTIONS),
+            load_mode=options.get(constants.asset.LOAD_MODE),
+            asset_info_options=options.get(constants.asset.ASSET_INFO_OPTIONS),
         )
         self.ftrack_object_manager.create_new_dcc_object()
 
@@ -156,7 +156,7 @@ class BaseLoaderOpenerPlugin(BasePlugin):
         asset_info = options.get('asset_info')
         self.ftrack_object_manager.asset_info = asset_info
         self.ftrack_object_manager.create_dcc_object_from_asset_info_id(
-            asset_info[asset_constants.ASSET_INFO_ID]
+            asset_info[constants.asset.ASSET_INFO_ID]
         )
         # Remove asset_info from the options as it is not needed anymore
         options.pop('asset_info')

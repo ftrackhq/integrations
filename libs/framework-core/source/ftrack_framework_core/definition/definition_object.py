@@ -5,7 +5,7 @@ from collections.abc import MutableMapping, MutableSequence
 import copy
 import json
 
-from ftrack_framework_core import constants
+import ftrack_constants.framework as constants
 
 # TODO: rename this, this is not a definitionObject, maybe a definitionHelper, definitionWrapper, definitionAPI, definitionParser...
 class DefinitionObject(MutableMapping):
@@ -305,7 +305,7 @@ class DefinitionList(MutableSequence):
         )
         if issubclass(type(item), dict):
             def_type = item.get('type')
-            if def_type in constants.DEFINITION_TYPES:
+            if def_type in constants.definition.DEFINITION_TYPES:
                 item = DefinitionObject(item)
             else:
                 category = item.get('category')

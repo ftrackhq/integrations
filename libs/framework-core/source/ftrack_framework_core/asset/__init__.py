@@ -6,7 +6,7 @@ import unicodedata
 import re
 from ftrack_framework_core.asset.asset_info import FtrackAssetInfo
 from ftrack_framework_core.asset.dcc_object import DccObject
-from ftrack_framework_core.constants import asset as asset_const
+import ftrack_constants.framework as constants
 
 
 class FtrackObjectManager(object):
@@ -89,14 +89,14 @@ class FtrackObjectManager(object):
         '''
         Returns whether the objects are loaded in the scene or not.
         '''
-        return self.asset_info[asset_const.OBJECTS_LOADED]
+        return self.asset_info[constants.asset.OBJECTS_LOADED]
 
     @objects_loaded.setter
     def objects_loaded(self, value):
         '''
         Set the self :obj:`asset_info` as objects_loaded.
         '''
-        self.asset_info[asset_const.OBJECTS_LOADED] = value
+        self.asset_info[constants.asset.OBJECTS_LOADED] = value
         if self.dcc_object:
             self.dcc_object.objects_loaded = value
 
@@ -119,20 +119,20 @@ class FtrackObjectManager(object):
         '''
         Returns a name for the current self :obj:`dcc_object` based on
         the first 2 and last 2 characters of the
-        :const:`asset_const.ASSET_INFO_ID`
+        :const:`constants.asset.ASSET_INFO_ID`
         '''
         short_id = "{}{}".format(
-            self.asset_info[asset_const.ASSET_INFO_ID][:2],
-            self.asset_info[asset_const.ASSET_INFO_ID][-2:],
+            self.asset_info[constants.asset.ASSET_INFO_ID][:2],
+            self.asset_info[constants.asset.ASSET_INFO_ID][-2:],
         )
         # Make sure the name contains valid characters
-        name_value = self.asset_info[asset_const.CONTEXT_PATH]
+        name_value = self.asset_info[constants.asset.CONTEXT_PATH]
         name_value = unicodedata.normalize('NFKD', str(name_value)).encode(
             'ascii', 'ignore'
         )
         name_value = re.sub('[^\w\.-]', "_", name_value.decode('utf-8'))
 
-        dcc_object_name = asset_const.DCC_OBJECT_NAME.format(
+        dcc_object_name = constants.asset.DCC_OBJECT_NAME.format(
             name_value,
             short_id,
         )

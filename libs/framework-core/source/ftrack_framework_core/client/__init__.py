@@ -7,8 +7,11 @@ import uuid
 
 from six import string_types
 
+from ftrack_utils.framework.dependencies import registry
+from ftrack_framework_widget.dialog import Dialog as FrameworkDialog
+
 from ftrack_framework_core.client.host_connection import HostConnection
-from ftrack_framework_core import constants
+import ftrack_constants.framework as constants
 
 # TODO: add a dicover_uis widget and dialgos method.
 
@@ -45,7 +48,7 @@ class Client(object):
     '''
 
     # TODO: do we need to specify ui compatible types?
-    ui_types = [constants.UI_TYPE]
+    ui_types = constants.client.COMPATIBLE_UI_TYPES
     '''Compatible UI for this client.'''
 
     # TODO: Double check with the team if this is needed to have a singleton host
@@ -232,6 +235,7 @@ class Client(object):
     # Widget
     @property
     def dialogs(self):
+        '''Return Initalized dialogs'''
         return self.__dialogs_registry
 
     @property
@@ -243,6 +247,10 @@ class Client(object):
         self.set_active_dialog(self._dialog, value)
         self._dialog = value
 
+    @property
+    def discovered_framework_widgets(self):
+        '''Return discovered framework widgets'''
+        return self.__framework_widget_registry
 
     def __init__(
             self,
@@ -276,12 +284,10 @@ class Client(object):
         self._host_context_changed_subscribe_id = None
         self._definition = None
         self._engine_type = None
-        self.__framework_widget_registry = {}
+        self.__framework_widget_registry = []
         self.__dialogs_registry = {}
         self._dialog = None
         self._auto_connect_host = auto_connect_host
-
-        self.__plugins_registry = []
 
         # Register modules
         self._register_modules()
@@ -297,66 +303,26 @@ class Client(object):
         Register framework modules available.
         '''
         # We register the plugins first so they can subscribe to the discover event
-        self._register_framework_modules(
-            module_type='dialogs', callback=self._on_register_plugins_callback
+        registry.register_framework_modules_by_type(
+            event_manager=self.event_manager,
+            module_type='widgets',
+            callback=self._on_register_framework_widgets_callback
         )
 
-        if (
-                self.__plugins_registry and
-                self.__schemas_registry and
-                self.__definitions_registry
-        ):
+        if self.__framework_widget_registry:
             # Check that registry went correct
             return True
-        raise Exception(
-            'Error registring modules on host, please check logs'
-        )
+        self.logger.warning('No widgets found to register')
 
-    def _register_framework_modules(self, module_type, callback):
-        registry_result = []
-        # Look in all the depenency packages in the current python environment
-        for package in pkgutil.iter_modules():
-            # Pick only the that matches ftrack framework and the module type
-            is_type = all(
-                x in package.name.split("_") for x in [
-                    'ftrack', 'framework', module_type
-                ]
-            )
-            if not is_type:
-                continue
-            # Import the register module
-            register_module = getattr(
-                __import__(package.name, fromlist=['register']), 'register'
-            )
-            # Call the register method We pass the event manager and id
-            result = register_module.register(
-                self.event_manager, self.id, self.ftrack_object_manager
-            )
-
-            if type(result) == list:
-                # Result might be a list so extend the current registry list
-                registry_result.extend(result)
-                continue
-            # If result is just string, we append it to our registry
-            registry_result.append(result)
-
-        # Call the callback with the result
-        if registry_result:
-            callback(registry_result)
-        else:
-            self.logger.error(
-                "Couldn't find any {} module to register".format(module_type)
-            )
-
-    def _on_register_plugins_callback(self, registred_plugins):
+    def _on_register_framework_widgets_callback(self, registred_widgets):
         '''
         Callback of the :meth:`_register_framework_modules` of type plugins.
         We add all the *registred_plugins* into our
         :obj:`self.__plugins_registry`
         '''
-        registred_plugins = list(set(registred_plugins))
+        registred_widgets = list(set(registred_widgets))
 
-        self.__plugins_registry = registred_plugins
+        self.__framework_widget_registry = registred_widgets
 
     # Host
     def discover_hosts(self, time_out=3):
@@ -545,15 +511,48 @@ class Client(object):
     # UI
     # TODO: how we deal with the definition selector which receives a list of definitions
     # TODO: do the run_widget also
-    def run_dialog(self, dialog_class, dialog_options=None):
+    def run_dialog(self, dialog_name, dialog_class=None, dialog_options=None):
         # use dialog options to pass options to the dialog like for
         #  example: Dialog= WidgetDialog dialog_options= {definition_plugin: Context_selector}
         #  ---> So this will execute the widget dialog with the widget of the
         #  context_selector in it, it simulates a run_widget).
 
-        # TODO: activate the following check:
-        # if not isInstance(FrameworkDialog, dialog_widget):
-        #     return 'Not compatibleWidget'
+        if dialog_class:
+            if not isinstance(dialog_class, FrameworkDialog):
+                error_message = (
+                    'The provided class {} is not instance of the base framework '
+                    'widget. Please provide a supported widget.'.format(
+                        dialog_class
+                    )
+                )
+                self.logger.error(error_message)
+                raise Exception(error_message)
+
+            if dialog_class not in self.discovered_framework_widgets:
+                self.logger.warning(
+                    'Provided dialog_class {} not in the discovered framework '
+                    'widgets, registring...'.format(
+                        dialog_class
+                    )
+                )
+                self.__framework_widget_registry.append(dialog_class)
+
+        if dialog_name and not dialog_class:
+            for registred_dialog_class in self.discovered_framework_widgets:
+                if dialog_name == registred_dialog_class.name:
+                    dialog_class = registred_dialog_class
+                    break
+        if not dialog_class:
+            error_message = (
+                'Please provide a registrated dialog name.\n'
+                'Given name: {} \n'
+                'Registred widgets: {}'.format(
+                    dialog_name, self.discovered_framework_widgets
+                )
+            )
+            self.logger.error(error_message)
+            raise Exception(error_message)
+
         dialog = dialog_class(
             self.event_manager,
             self.id,

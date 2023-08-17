@@ -8,12 +8,14 @@ import socket
 import os
 import time
 
+from functools import partial
+
+from ftrack_utils.framework.dependencies import registry
+import ftrack_constants.framework as constants
+
 from ftrack_framework_core.definition import discover, validate, definition_object
 from ftrack_framework_core.host.engine import load_publish, asset_manager, resolver
 from ftrack_framework_core.asset import FtrackObjectManager
-from ftrack_framework_core import constants
-
-from functools import partial
 from ftrack_framework_core.log.log_item import LogItem
 from ftrack_framework_core.log import LogDB
 
@@ -55,7 +57,7 @@ class Host(object):
     # TODO: double_check host types and host type do we really need it?
     #  Maybe what we need is defnitions type? to specify which definitions we
     #  want to discover?
-    host_types = [constants.HOST_TYPE]
+    host_types = constants.host.COMPATIBLE_HOST_TYPES
     '''Compatible Host types for this HOST.'''
 
     # TODO: Engines Dictionary should come from constants.
@@ -65,11 +67,11 @@ class Host(object):
     #  be able to discover engines like the plugins and the definitions.
     #   THis should go to a configuration file
     engines = {
-        constants.PUBLISHER: load_publish.LoadPublishEngine,
-        constants.LOADER: load_publish.LoadPublishEngine,
-        constants.OPENER: load_publish.LoadPublishEngine,
-        constants.ASSET_MANAGER: asset_manager.AssetManagerEngine,
-        constants.RESOLVER: resolver.ResolverEngine,
+        constants.definition.PUBLISHER: load_publish.LoadPublishEngine,
+        constants.definition.LOADER: load_publish.LoadPublishEngine,
+        constants.definition.OPENER: load_publish.LoadPublishEngine,
+        constants.definition.ASSET_MANAGER: asset_manager.AssetManagerEngine,
+        constants.definition.RESOLVER: resolver.ResolverEngine,
     }
     '''Available engines for this host.'''
 
@@ -215,12 +217,16 @@ class Host(object):
         Register framework modules available.
         '''
         # We register the plugins first so they can subscribe to the discover event
-        self._register_framework_modules(
-            module_type='plugins', callback=self._on_register_plugins_callback
+        registry.register_framework_modules_by_type(
+            event_manager=self.event_manager,
+            module_type='plugins',
+            callback=self._on_register_plugins_callback
         )
         # Register the schemas befor the definitions
-        self._register_framework_modules(
-            module_type='schemas', callback=self._on_register_schemas_callback
+        registry.register_framework_modules_by_type(
+            event_manager=self.event_manager,
+            module_type='schemas',
+            callback=self._on_register_schemas_callback
         )
         # Make sure schemas are found
         if not self.schemas:
@@ -229,8 +235,10 @@ class Host(object):
             )
         # Register the definitions, passing the shcemas in the callback as are
         # needed to augment and validate the definitions.
-        self._register_framework_modules(
-            module_type='definitions', callback=partial(
+        registry.register_framework_modules_by_type(
+            event_manager=self.event_manager,
+            module_type='definitions',
+            callback=partial(
                 self._on_register_definitions_callback, self.schemas
             )
         )
@@ -246,42 +254,6 @@ class Host(object):
             'Error registring modules on host, please check logs'
         )
 
-    def _register_framework_modules(self, module_type, callback):
-        registry_result = []
-        # Look in all the depenency packages in the current python environment
-        for package in pkgutil.iter_modules():
-            # Pick only the that matches ftrack framework and the module type
-            is_type = all(
-                x in package.name.split("_") for x in [
-                    'ftrack', 'framework', module_type
-                ]
-            )
-            if not is_type:
-                continue
-            # Import the register module
-            register_module = getattr(
-                __import__(package.name, fromlist=['register']), 'register'
-            )
-            # Call the register method We pass the event manager and id
-            result = register_module.register(
-                self.event_manager, self.id, self.ftrack_object_manager
-            )
-
-            if type(result) == list:
-                # Result might be a list so extend the current registry list
-                registry_result.extend(result)
-                continue
-            # If result is just string, we append it to our registry
-            registry_result.append(result)
-
-        # Call the callback with the result
-        if registry_result:
-            callback(registry_result)
-        else:
-            self.logger.error(
-                "Couldn't find any {} module to register".format(module_type)
-            )
-
     def _on_register_plugins_callback(self, registred_plugins):
         '''
         Callback of the :meth:`_register_framework_modules` of type plugins.
@@ -289,8 +261,14 @@ class Host(object):
         :obj:`self.__plugins_registry`
         '''
         registred_plugins = list(set(registred_plugins))
+        initialized_plugins = []
+        # Init plugins
+        for plugin in registred_plugins:
+            initialized_plugins.append(
+                plugin(self.event_manager, self.id, self.ftrack_object_manager)
+            )
 
-        self.__plugins_registry = registred_plugins
+        self.__plugins_registry = initialized_plugins
 
     def _on_register_schemas_callback(self, schema_paths):
         '''

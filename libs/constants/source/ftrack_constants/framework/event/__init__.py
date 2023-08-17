@@ -9,7 +9,7 @@ LOCAL_EVENT_MODE = 0
 #: See event_table.md from :ref:`~framework_core.doc.developing.event_table.md` file for a better reference on eeach event.
 
 #: Base name for events
-_BASE_ = 'ftrack.integrations.framework'
+_BASE_ = 'ftrack.framework'
 
 #: Register definition topic event.
 DISCOVER_DEFINITION_TOPIC = '{}.discover.definition'.format(_BASE_)

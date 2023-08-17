@@ -2,15 +2,15 @@
 # :copyright: Copyright (c) 2014-2023 ftrack
 
 from ftrack_framework_plugin import BasePlugin
-from ftrack_framework_plugin import constants
+import ftrack_constants.framework as constants
 
 
 class CommonNonEmptyPublisherValidatorPlugin(BasePlugin):
     '''Publisher non empty validator plugin'''
 
     name = 'common_non_empty_publisher_validator'
-    host_type = constants.hosts.PYTHON_HOST_TYPE
-    plugin_type = constants.PLUGIN_VALIDATOR_TYPE
+    host_type = constants.host.PYTHON_HOST_TYPE
+    plugin_type = constants.plugin.PLUGIN_VALIDATOR_TYPE
 
     def register_methods(self):
         self.register_method(

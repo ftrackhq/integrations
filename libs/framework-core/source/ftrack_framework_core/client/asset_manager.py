@@ -3,7 +3,7 @@
 from functools import partial
 
 from ftrack_framework_core.client import Client
-from ftrack_framework_core import constants as core_constants
+import ftrack_constants.framework as constants
 
 
 # TODO: We have to align asset manager with the other clients, and move all the logic to the plugins.
@@ -12,7 +12,7 @@ class AssetManagerClient(Client):
     Asset Manager Client Base Class
     '''
 
-    definition_filters = [core_constants.ASSET_MANAGER]
+    definition_filters = [constants.definition.ASSET_MANAGER]
     '''Use only definitions that matches the definition_filters'''
 
     def __init__(self, event_manager, multithreading_enabled=True):
@@ -69,7 +69,7 @@ class AssetManagerClient(Client):
         plugin_type = None
         if plugin:
             plugin_type = '{}.{}'.format(
-                core_constants.ASSET_MANAGER, plugin['type']
+                constants.definition.ASSET_MANAGER, plugin['type']
             )
         data = {
             'method': 'discover_assets',
@@ -154,7 +154,7 @@ class AssetManagerClient(Client):
         plugin_type = None
         if plugin:
             plugin_type = '{}.{}'.format(
-                core_constants.ASSET_MANAGER, plugin['type']
+                constants.definition.ASSET_MANAGER, plugin['type']
             )
         data = {
             'method': 'update_assets',

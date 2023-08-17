@@ -3,28 +3,24 @@
 import os
 
 from ftrack_framework_plugin import BasePlugin
-from ftrack_framework_plugin import constants
-
-#TODO: double check if this is somethign that we like to allow, or we shouldn't
-# have any reference to core? (We are kind of cicling references here)
-from ftrack_framework_core.constants import asset as asset_constants
+import ftrack_constants.framework as constants
 
 
 class CommonContextLoaderCollectorPlugin(BasePlugin):
     '''Plugin that collects loader compatible component paths'''
 
     name = 'common_context_loader_collector'
-    host_type = constants.hosts.PYTHON_HOST_TYPE
-    plugin_type = constants.PLUGIN_COLLECTOR_TYPE
+    host_type = constants.host.PYTHON_HOST_TYPE
+    plugin_type = constants.plugin.PLUGIN_COLLECTOR_TYPE
 
     def register_methods(self):
         self.register_method(
             method_name='run',
             required_output_type=dict,
             required_output_value={
-                asset_constants.COMPONENT_NAME: None,
-                asset_constants.COMPONENT_PATH: None,
-                asset_constants.COMPONENT_ID: None,
+                constants.asset.COMPONENT_NAME: None,
+                constants.asset.COMPONENT_PATH: None,
+                constants.asset.COMPONENT_ID: None,
             }
         )
 
@@ -55,9 +51,9 @@ class CommonContextLoaderCollectorPlugin(BasePlugin):
                         )
                     )
                     continue
-                result[asset_constants.COMPONENT_NAME] = component['name']
-                result[asset_constants.COMPONENT_PATH] = component_path
-                result[asset_constants.COMPONENT_ID] = component['id']
+                result[constants.asset.COMPONENT_NAME] = component['name']
+                result[constants.asset.COMPONENT_PATH] = component_path
+                result[constants.asset.COMPONENT_ID] = component['id']
                 break
 
         return result

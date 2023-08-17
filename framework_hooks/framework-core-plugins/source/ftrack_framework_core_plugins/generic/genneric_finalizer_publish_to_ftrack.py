@@ -2,13 +2,12 @@
 # :copyright: Copyright (c) 2014-2023 ftrack
 
 from ftrack_framework_plugin.base_finalizer_plugin import BaseFinalizerPlugin
-from ftrack_framework_plugin import constants
-from ftrack_framework_core import constants as core_constants
+import ftrack_constants.framework as constants
 
 class GenericContextPassthroughPlugin(BaseFinalizerPlugin):
     name = 'generic_finalizer_publish_to_ftrack'
-    host_type = constants.hosts.PYTHON_HOST_TYPE
-    plugin_type = constants.PLUGIN_FINALIZER_TYPE
+    host_type = constants.host.PYTHON_HOST_TYPE
+    plugin_type = constants.plugin.PLUGIN_FINALIZER_TYPE
     '''Print given arguments'''
 
     def register_methods(self):
@@ -26,7 +25,7 @@ class GenericContextPassthroughPlugin(BaseFinalizerPlugin):
         # Return the exporter result
         publish_components = {}
         for step in self.plugin_data:
-            if step['type'] == core_constants.COMPONENT:
+            if step['type'] == constants.definition.COMPONENT:
                 component_name = step['name']
                 publish_components[component_name] =  []
                 for stage in step['result']:

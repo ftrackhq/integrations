@@ -1,5 +1,6 @@
 import os
-from ftrack_framework_core import constants, event
+import ftrack_constants as constants
+from ftrack_framework_core import event
 from ftrack_connect_pipeline_maya import host
 import ftrack_api
 
@@ -12,7 +13,7 @@ os.environ['FTRACK_EVENT_PLUGIN_PATH'] = (
 # Create a session and Event Manager
 session = ftrack_api.Session(auto_connect_event_hub=False)
 event_manager = event.EventManager(
-    session=session, mode=constants.LOCAL_EVENT_MODE
+    session=session, mode=constants.event.LOCAL_EVENT_MODE
 )
 
 # Init Maya host

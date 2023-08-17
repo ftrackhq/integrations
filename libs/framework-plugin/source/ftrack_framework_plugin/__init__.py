@@ -8,7 +8,7 @@ import time
 import uuid
 # TODO: move plugin constants to plugin repo
 #  Also create STTUS LIST
-from ftrack_framework_plugin import constants
+import ftrack_constants.framework as constants
 # TODO: double check if we really need the ftrackobject manager and the dcc, in case we need it, d
 from ftrack_framework_plugin import validation
 
@@ -211,6 +211,9 @@ class BasePlugin(object):
         self._plugin_widget_name = None
 
         self.register_methods()
+
+        # Subscribe to events
+        self._subscribe_events()
 
     # TODO: make this ABC
     def register_methods(self):
@@ -420,55 +423,12 @@ class BasePlugin(object):
             'plugin_widget_name': self.plugin_widget_name,
         }
 
-    def register(self):
-        '''
-        Register function of the plugin to regiter it self.
-
-        .. note::
-
-            This function subscribes the plugin to two
-            :class:`ftrack_api.event.base.Event` topics:
-
-            :const:`~ftrack_framework_core.constants.DISCOVER_PLUGIN_TOPIC`:
-            Topic to make the plugin discoverable for the host.
-
-            :const:`~ftrack_framework_core.constants.HOST_RUN_PLUGIN_TOPIC`:
-            Topic to execute the plugin
-        '''
-        if not isinstance(self.session, ftrack_api.Session):
-            # Exit to avoid registering this plugin again.
-            return
-
-        self.logger.debug(
-            'registering: {} for {}'.format(self.name, self.plugin_type)
-        )
-
-        # TODO: move the subscriptions to a standar subscription method?
+    def _subscribe_events(self):
         self.event_manager.subscribe.execute_plugin(
             self.host_type,
             self.name,
             callback=self._execute_callback
         )
-
-        # subscribe to discover the plugin
-        self.event_manager.subscribe.discover_plugin(
-            self.host_type,
-            self.name,
-            callback=self._discover_callback
-        )
-
-    def _discover_callback(self, event):
-        '''
-        Callback of
-        :const:`~ftrack_framework_core.constants.DISCOVER_PLUGIN_TOPIC`
-        Makes sure the plugin is discoverable for the host.
-
-        '''
-        if not isinstance(self.session, ftrack_api.Session):
-            # Exit to avoid registering this plugin again.
-            return False
-
-        return True
 
     def _validate_result(self, result):
         '''
@@ -569,4 +529,36 @@ class BasePlugin(object):
         self.event_manager.publish.notify_plugin_progress_client(
             self.provide_plugin_info()
         )
+
+    @classmethod
+    def register(cls, event_manager):
+        '''
+        Register function of the plugin to regiter it self.
+
+        .. note::
+
+            This function subscribes the plugin to two
+            :class:`ftrack_api.event.base.Event` topics:
+
+            :const:`~ftrack_framework_core.constants.DISCOVER_PLUGIN_TOPIC`:
+            Topic to make the plugin discoverable for the host.
+
+            :const:`~ftrack_framework_core.constants.HOST_RUN_PLUGIN_TOPIC`:
+            Topic to execute the plugin
+        '''
+        logger = logging.getLogger(
+            '{0}.{1}'.format(__name__, cls.__class__.__name__)
+        )
+        logger.debug(
+            'registering: {} for {}'.format(cls.name, cls.host_type)
+        )
+
+        # subscribe to discover the plugin
+        # subscribe to discover the plugin
+        event_manager.subscribe.discover_plugin(
+            cls.host_type,
+            cls.name,
+            callback=lambda event: True
+        )
+
 

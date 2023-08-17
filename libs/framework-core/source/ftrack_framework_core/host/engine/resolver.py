@@ -2,12 +2,12 @@
 # :copyright: Copyright (c) 2014-2023 ftrack
 import time
 
-from ftrack_framework_core import constants
+import ftrack_constants.framework as constants
 from ftrack_framework_core.host.engine import BaseEngine
 
 
 class ResolverEngine(BaseEngine):
-    engine_type = constants.RESOLVER
+    engine_type = constants.definition.RESOLVER
     '''Engine type for this engine class'''
 
     def __init__(self, event_manager, host_types, host_id, asset_type_name):
@@ -28,7 +28,7 @@ class ResolverEngine(BaseEngine):
         '''
 
         start_time = time.time()
-        status = constants.UNKNOWN_STATUS
+        status = constants.status.UNKNOWN_STATUS
         result = []
         message = None
 

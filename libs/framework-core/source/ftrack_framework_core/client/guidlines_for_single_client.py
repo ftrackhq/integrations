@@ -8,7 +8,6 @@ import uuid
 
 from six import string_types
 import ftrack_api
-from ftrack_framework_core import constants
 from ftrack_framework_core.log import LogDB
 from ftrack_framework_core.log.log_item import LogItem
 from ftrack_framework_core.definition import definition_object

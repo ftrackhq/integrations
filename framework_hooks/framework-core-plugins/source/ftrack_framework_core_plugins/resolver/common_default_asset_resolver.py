@@ -2,7 +2,7 @@
 # :copyright: Copyright (c) 2014-2023 ftrack
 
 from ftrack_framework_plugin import BasePlugin
-from ftrack_framework_plugin import constants
+import ftrack_constants.framework as constants
 
 # TODO: fully review this plugin, seems that there is a lot to improve in here,
 #  also, instead of having one method for each type, can we pass the type as
@@ -10,8 +10,8 @@ from ftrack_framework_plugin import constants
 
 class CommonDefaultAssetResolverPlugin(BasePlugin):
     name = 'common_default_asset_resolver'
-    host_type = constants.hosts.PYTHON_HOST_TYPE
-    plugin_type = constants.PLUGIN_RESOLVER_TYPE
+    host_type = constants.host.PYTHON_HOST_TYPE
+    plugin_type = constants.plugin.PLUGIN_RESOLVER_TYPE
 
     def register_methods(self):
         self.register_method(

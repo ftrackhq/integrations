@@ -5,7 +5,7 @@ import logging
 
 from Qt import QtCore, QtWidgets, QtGui, QtSvg
 
-from ftrack_qt import constants
+import ftrack_constants.framework as constants
 from ftrack_qt.widgets.icons import MaterialIcon
 
 logger = logging.getLogger(__name__)

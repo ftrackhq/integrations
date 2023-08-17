@@ -103,35 +103,6 @@ class Base(object):
         self.build()
         self.post_build()
         self.connect_focus_signal()
-
-    def register(self):
-        '''
-        Register function of the plugin to regiter it self.
-
-        .. note::
-
-            This function subscribes the plugin to two
-            :class:`ftrack_api.event.base.Event` topics:
-
-            :const:`~ftrack_framework_core.constants.DISCOVER_PLUGIN_TOPIC`:
-            Topic to make the plugin discoverable for the host.
-
-            :const:`~ftrack_framework_core.constants.HOST_RUN_PLUGIN_TOPIC`:
-            Topic to execute the plugin
-        '''
-        if not isinstance(self.session, ftrack_api.Session):
-            # Exit to avoid registering this plugin again.
-            return
-
-        self.logger.debug(
-            'registering: {} for {}'.format(self.name, self.widget_type)
-        )
-
-        # subscribe to discover the plugin
-        self.event_manager.subscribe.discover_widget(
-            self.ui_type,
-            self.name,
-        )
     def _subscribe_client_events(self):
         pass
 
@@ -165,6 +136,25 @@ class Base(object):
     def _on_focus_changed(self, old_widget, new_widget):
         pass
 
+    @classmethod
+    def register(cls, event_manager):
+        '''
+        Register function of the plugin to regiter it self.
+
+        '''
+        logger = logging.getLogger(
+            '{0}.{1}'.format(__name__, cls.__class__.__name__)
+        )
+        logger.debug(
+            'registering: {} for {}'.format(cls.name, cls.widget_type)
+        )
+
+        # subscribe to discover the plugin
+        event_manager.subscribe.discover_widget(
+            cls.ui_type,
+            cls.name,
+            callback=lambda event: True
+        )
 
 
 

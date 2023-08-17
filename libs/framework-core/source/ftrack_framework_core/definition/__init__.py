@@ -6,8 +6,10 @@ import logging
 from functools import partial
 
 import ftrack_api
+
+import ftrack_constants.framework as constants
+
 from ftrack_framework_core import event
-from ftrack_framework_core import constants
 
 logger = logging.getLogger(__name__)
 
@@ -45,7 +47,7 @@ class BaseDefinition(object):
         self._raw_data = []
         self._method = []
         self._event_manager = event.EventManager(
-            session=session, mode=constants.LOCAL_EVENT_MODE
+            session=session, mode=constants.event.LOCAL_EVENT_MODE
         )
 
     def register(self, path):

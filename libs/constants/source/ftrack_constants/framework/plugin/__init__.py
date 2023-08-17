@@ -28,6 +28,3 @@ PLUGIN_DISCOVER_TYPE = 'discover'
 PLUGIN_RESOLVER_TYPE = 'resolver'
 #: Generic plugin type. This type can be executed in any step/stage/definition
 PLUGIN_GENERIC_TYPE = 'generic'
-
-from ftrack_framework_plugin.constants import status
-from ftrack_framework_plugin.constants import hosts

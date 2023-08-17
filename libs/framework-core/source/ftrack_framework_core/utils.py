@@ -6,7 +6,7 @@ import appdirs
 import tempfile
 import six
 
-from ftrack_framework_core import constants as core_constants
+import ftrack_constants.framework as constants
 
 
 # TODO: better move it into utils folder and try to separate to common files?
@@ -104,7 +104,7 @@ def get_save_path(context_id, session, extension=None, temp=True):
         if save_path_base is None:
             save_path_base = os.path.join(
                 appdirs.user_data_dir('ftrack-connect', 'ftrack'),
-                core_constants.SNAPSHOT_COMPONENT_NAME,
+                constants.component.SNAPSHOT_COMPONENT_NAME,
                 server_folder_name,
             )
 

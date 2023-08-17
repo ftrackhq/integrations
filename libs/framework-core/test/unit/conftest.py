@@ -8,7 +8,7 @@ import json
 import functools
 
 from ftrack_framework_core import event
-from ftrack_framework_core import constants
+import ftrack_constants.framework as constants
 from ftrack_framework_core import host as test_host
 from ftrack_framework_core.definition import collect_and_validate
 

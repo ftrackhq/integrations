@@ -2,13 +2,13 @@
 # :copyright: Copyright (c) 2014-2023 ftrack
 
 from ftrack_framework_plugin import BasePlugin
-from ftrack_framework_plugin import constants
+import ftrack_constants.framework as constants
 
 
 class CommonPassthroughLoaderContextPlugin(BasePlugin):
     name = 'common_passthrough_loader_context'
-    host_type = constants.hosts.PYTHON_HOST_TYPE
-    plugin_type = constants.PLUGIN_CONTEXT_TYPE
+    host_type = constants.host.PYTHON_HOST_TYPE
+    plugin_type = constants.plugin.PLUGIN_CONTEXT_TYPE
     '''Option passthrough loader context plugin'''
 
     def register_methods(self):

@@ -3,15 +3,15 @@
 import os
 
 from ftrack_framework_plugin import BasePlugin
-from ftrack_framework_plugin import constants
+import ftrack_constants.framework as constants
 
 
 class CommonFileExistsPublisherValidatorPlugin(BasePlugin):
     '''Standalone publisher file validator plugin'''
 
     name = 'common_file_exists_publisher_validator'
-    host_type = constants.hosts.PYTHON_HOST_TYPE
-    plugin_type = constants.PLUGIN_VALIDATOR_TYPE
+    host_type = constants.host.PYTHON_HOST_TYPE
+    plugin_type = constants.plugin.PLUGIN_VALIDATOR_TYPE
 
     def register_methods(self):
         self.register_method(

@@ -5,9 +5,8 @@ import logging
 import ftrack_api
 import copy
 
-from ftrack_framework_core import constants
+import ftrack_constants.framework as constants
 from ftrack_framework_core.host.engine import BaseEngine
-from ftrack_framework_core.definition import definition_object
 
 # TODO: try to separate engine to its own library, like the definitions.
 # TODO: engines should be cfreated dependeant on the workflow of the schema, so this engine is for loader, publisher etc... but not for AM or resolver.
@@ -16,7 +15,7 @@ class LoadPublishEngine(BaseEngine):
     Base engine class.
     '''
 
-    engine_type = [constants.LOADER, constants.OPENER, constants.PUBLISHER]
+    engine_type = [constants.definition.LOADER, constants.definition.OPENER, constants.definition.PUBLISHER]
     '''Engine type for this engine class'''
 
     # TODO: double check if we really need to declare the init here.
@@ -317,11 +316,11 @@ class LoadPublishEngine(BaseEngine):
         context_data = None
         components_output = []
         finalizers_output = []
-        for step_group in constants.STEP_GROUPS:
+        for step_group in constants.definition.STEP_GROUPS:
             group_steps = definition_data[step_group]
             group_results = []
 
-            if step_group == constants.FINALIZERS:
+            if step_group == constants.definition.FINALIZERS:
                 group_results = copy.deepcopy(components_output)
 
             group_status = True
@@ -336,7 +335,7 @@ class LoadPublishEngine(BaseEngine):
                 step_type = step['type']
                 step_options = {}
 
-                if step_group == constants.COMPONENTS:
+                if step_group == constants.definition.COMPONENTS:
                     # TODO: This is wrong. Should already be defined in the options.
                     if 'file_formats' in step:
                         step_options['file_formats'] = step[
@@ -392,14 +391,14 @@ class LoadPublishEngine(BaseEngine):
                     )
                 )
 
-            if step_group == constants.CONTEXTS:
+            if step_group == constants.definition.CONTEXTS:
                 context_latest_step = group_results[-1]
                 context_latest_stage = context_latest_step.get('result')[-1]
                 context_data = {}
                 for context_plugin in context_latest_stage.get('result'):
                     context_data.update(context_plugin.get('plugin_method_result'))
 
-            elif step_group == constants.COMPONENTS:
+            elif step_group == constants.definition.COMPONENTS:
                 components_output = copy.deepcopy(group_results)
                 i = 0
                 for component_step in group_results:
@@ -415,9 +414,9 @@ class LoadPublishEngine(BaseEngine):
                             #  definition doesn't have exporters?
                             #  Example: the AM definition. Can't we make use of
                             #  the definition object to solve this kind of stuff?
-                            constants.IMPORTER,
-                            constants.EXPORTER,
-                            constants.POST_IMPORTER,
+                            constants.definition.IMPORTER,
+                            constants.definition.EXPORTER,
+                            constants.definition.POST_IMPORTER,
                         ]:
                             self.logger.debug(
                                 "Removing stage name {} of type {}".format(
@@ -429,7 +428,7 @@ class LoadPublishEngine(BaseEngine):
                                 component_stage
                             )
                     i += 1
-            elif step_group == constants.FINALIZERS:
+            elif step_group == constants.definition.FINALIZERS:
                 finalizers_output = group_results
 
         return finalizers_output

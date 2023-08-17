@@ -5,15 +5,15 @@ import shutil
 import tempfile
 
 from ftrack_framework_plugin import BasePlugin
-from ftrack_framework_plugin import constants
+import ftrack_constants.framework as constants
 
 
 class CommonFilePublisherExporterPlugin(BasePlugin):
     '''Standalone publisher file exporter plugin'''
 
     name = 'common_file_publisher_exporter'
-    host_type = constants.hosts.PYTHON_HOST_TYPE
-    plugin_type = constants.PLUGIN_EXPORTER_TYPE
+    host_type = constants.host.PYTHON_HOST_TYPE
+    plugin_type = constants.plugin.PLUGIN_EXPORTER_TYPE
 
     def register_methods(self):
         self.register_method(

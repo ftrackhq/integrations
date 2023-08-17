@@ -4,12 +4,11 @@ import traceback
 import os
 
 from ftrack_framework_plugin import BasePlugin
-from ftrack_framework_plugin import constants
+import ftrack_constants.framework as constants
 
 #TODO: double check we are allowed to do this, or we should not use constants
 #  here, or have host available in base plugin to be able to do something
 #  like: host.constants.stage_types.COLLECTOR
-from ftrack_framework_core import constants as core_constants
 
 
 #TODO: if we want to expose this to clients, this can be moved to

@@ -1,12 +1,5 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2014-2020 ftrack
-
-# TODO: re-check that all the constants in here are used. Remove the unused ones.
-
-#: Default ui type for ftrack_framework_core
-UI_TYPE = None
-#: Default host type for ftrack_framework_core
-HOST_TYPE = 'python'
+# :copyright: Copyright (c) 2014-2023 ftrack
 
 # Valid Categories
 #: Step Category.
@@ -52,7 +45,7 @@ IMPORTER = 'importer'
 #: Post_import component stage name.
 POST_IMPORTER = 'post_importer'
 
-# Common definition/client types.
+# Common definition types.
 SCHEMA = 'schema'
 #: Opener client and its definition.
 OPENER = 'opener'
@@ -68,11 +61,3 @@ RESOLVER = 'resolver'
 LOG_VIEWER = 'log_viewer'
 
 DEFINITION_TYPES = [OPENER, LOADER, PUBLISHER, ASSET_MANAGER, RESOLVER]
-
-# Misc
-SNAPSHOT_COMPONENT_NAME = 'snapshot'
-FTRACKREVIEW_COMPONENT_NAME = 'ftrackreview'
-
-# Avoid circular dependencies.
-from ftrack_framework_core.constants import event
-from ftrack_framework_core.constants import status
