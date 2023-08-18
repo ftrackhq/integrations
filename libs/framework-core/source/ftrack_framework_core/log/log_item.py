@@ -21,6 +21,7 @@ class LogItem(object):
         self.host_type = log_result.get('host_type')
         self.plugin_status = log_result.get('plugin_status')
         self.plugin_boolean_status = log_result.get('plugin_boolean_status')
+        self.plugin_method = log_result.get('plugin_method')
         self.plugin_method_result = log_result.get('plugin_method_result')
         self.plugin_result_registry = log_result.get('plugin_result_registry')
         self.plugin_execution_time = log_result.get('plugin_execution_time')

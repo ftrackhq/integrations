@@ -264,7 +264,7 @@ class Dialog(Base):
             self.client_id,
             self.context_id,
             plugin_definition,
-            dialog_run_plugin_method_callback=self._connect_run_plugin_method_callback,
+            dialog_connect_methods_callback=self._connect_dialog_methods_callback,
             dialog_property_getter_connection_callback=self._connect_dialog_property_getter_connection_callback,
         )
         self._register_widget(widget)
@@ -274,17 +274,20 @@ class Dialog(Base):
         if widget.id not in list(self.__framework_widget_registry.keys()):
             self.__framework_widget_registry[widget.id] = widget
 
-    def _connect_run_plugin_method_callback(
-            self, plugin_definition, plugin_method_name, plugin_widget_id
+    def _connect_dialog_methods_callback(
+            self, method_name, arguments=None, callback=None
     ):
-        # No callback as it is async so its returned by an event
-        self.run_plugin_method(
-            plugin_definition, plugin_method_name, plugin_widget_id
-        )
+        meth = getattr(self, method_name)
+        if not arguments:
+            arguments = {}
+        result = meth(**arguments)
+        # Callback maight not be available if its is an async method like run_plugin
+        if callback:
+            callback(result)
+        return result
 
     def _connect_dialog_property_getter_connection_callback(self, property_name):
         return self.__getattribute__(property_name)
-
 
     def run_plugin_method(
             self, plugin_definition, plugin_method_name, plugin_widget_id=None
@@ -292,15 +295,15 @@ class Dialog(Base):
         # No callback as it is returned by an event
         arguments = {
             "plugin_definition": plugin_definition,
-            "plugin_method": plugin_method_name,
+            "plugin_method_name": plugin_method_name,
             "engine_type": self.definition['_config']['engine_type'],
             'plugin_widget_id': plugin_widget_id
         }
         self.client_method_connection('run_plugin', arguments=arguments)
 
     def _on_client_notify_ui_run_plugin_result_callback(self, event):
-        plugin_info = event['data']
-        plugin_widget_id = plugin_info['widget_id']
+        plugin_info = event['data']['plugin_info']
+        plugin_widget_id = plugin_info['plugin_widget_id']
         widget = self.framework_widgets.get(plugin_widget_id)
         widget.run_plugin_callback(plugin_info)
 

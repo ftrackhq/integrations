@@ -48,6 +48,9 @@ class VerticalDialogDefinitionBase(Dialog, QtWidgets.QDialog):
         self._host_connection_selector = None
         self._definition_selector = None
         self._header = None
+        self._scroll_area = None
+        self._definition_widget = None
+        self._run_button = None
 
         QtWidgets.QDialog.__init__(self, parent=parent)
         Dialog.__init__(
@@ -100,8 +103,11 @@ class VerticalDialogDefinitionBase(Dialog, QtWidgets.QDialog):
         self._scroll_area.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
 
         self._definition_widget = QtWidgets.QWidget()
-        self._definition_widget_layout = QtWidgets.QVBoxLayout()
-        self._definition_widget.setLayout(self._definition_widget_layout)
+        _definition_widget_layout = QtWidgets.QVBoxLayout()
+        self._definition_widget.setLayout(_definition_widget_layout)
+
+        # TODO: modify this to pic the push button label from dialog options
+        self._run_button = QtWidgets.QPushButton('Run')
 
         self.layout().addWidget(self._header)
         self.layout().addWidget(self._context_selector, QtCore.Qt.AlignTop)
@@ -109,6 +115,7 @@ class VerticalDialogDefinitionBase(Dialog, QtWidgets.QDialog):
         self.layout().addWidget(self._definition_selector)
         self.layout().addWidget(self._scroll_area, 100)
         self._scroll_area.setWidget(self._definition_widget)
+        self.layout().addWidget(self._run_button)
 
     # TODO: this should be an ABC
     def post_build(self):
@@ -121,6 +128,8 @@ class VerticalDialogDefinitionBase(Dialog, QtWidgets.QDialog):
         # Connect definition selector signals
         self._definition_selector.current_item_changed.connect(self._on_definition_selected_callback)
         self._definition_selector.refresh_clicked.connect(self._on_refresh_definitions_callback)
+        # Connect run_definition button
+        self._run_button.clicked.connect(self._on_run_button_clicked)
 
         # Add host connection items
         self._add_host_connection_items()
@@ -248,6 +257,14 @@ class VerticalDialogDefinitionBase(Dialog, QtWidgets.QDialog):
                 definition_name
             )
 
+    def _on_run_button_clicked(self):
+        arguments = {
+            "definition": self.definition,
+            "engine_type": self.client_property_getter_connection('engine_type')
+
+        }
+        self.client_method_connection('run_definition', arguments=arguments)
+
     # TODO: This should be an ABC
     def sync_context(self):
         if self._context_selector.is_browsing:
@@ -341,4 +358,17 @@ class VerticalDialogDefinitionBase(Dialog, QtWidgets.QDialog):
     def build_definition_ui(self, definition):
         # Override this function to build your widgets.
         pass
+
+    def run_collectors(self, plugin_widget_id=None):
+        collector_plugins = self.definition.get_all(
+            category='plugin', type='collector'
+        )
+        for collector_plugin in collector_plugins:
+            arguments = {
+                "plugin_definition": collector_plugin,
+                "plugin_method_name": 'run',
+                "engine_type": self.definition['_config']['engine_type'],
+                'plugin_widget_id': plugin_widget_id
+            }
+            self.client_method_connection('run_plugin', arguments=arguments)
 

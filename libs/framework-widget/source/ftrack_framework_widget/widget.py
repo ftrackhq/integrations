@@ -12,7 +12,7 @@ class Widget(Base):
     # convenience for the user when creating its own plugin.
     name = None
     widget_type = 'framework_widget'
-    dialog_run_plugin_method_connection = None
+    dialog_method_connection = None
     dialog_property_getter_connection = None
 
     @property
@@ -62,7 +62,7 @@ class Widget(Base):
             client_id,
             context_id,
             plugin_definition,
-            dialog_run_plugin_method_callback,
+            dialog_connect_methods_callback,
             dialog_property_getter_connection_callback,
             parent=None
     ):
@@ -71,24 +71,26 @@ class Widget(Base):
         :class:`ftrack_api.session.Session`
         '''
 
+        self._context_id = context_id
+        self._plugin_definition = plugin_definition
+
+        self.connect_methods(dialog_connect_methods_callback)
+        self.connect_properties(
+            dialog_property_getter_connection_callback
+        )
+
         super(Widget, self).__init__(
             event_manager,
             client_id,
             parent
         )
-        self._context_id = context_id
-        self._plugin_definition = plugin_definition
-        # Augment definition with the widget ID:
-        self.plugin_definition.id = self.id
 
-        self.connect_methods(dialog_run_plugin_method_callback)
-        self.connect_properties(
-            dialog_property_getter_connection_callback
-        )
+        # Augment definition with the widget ID:
+        self.plugin_definition.widget_id = self.id
 
     def connect_methods(self, method):
         # TODO: should this be subscription events?
-        self.dialog_run_plugin_method_connection = method
+        self.dialog_method_connection = method
 
     def connect_properties(self, get_method):
         # TODO: should this be subscription events?
@@ -110,12 +112,13 @@ class Widget(Base):
         self._context_id = context_id
         self.on_context_updated()
 
-    def run_plugin_method(self, plugin_method):
-        self.dialog_run_plugin_method_connection(
-            self.plugin_definition,
-            plugin_method,
-            self.id
-        )
+    def run_plugin_method(self, plugin_method_name):
+        arguments = {
+            "plugin_definition": self.plugin_definition,
+            "plugin_method_name": plugin_method_name,
+            'plugin_widget_id': self.id
+        }
+        self.dialog_method_connection('run_plugin_method', arguments=arguments)
 
     # TODO: this should be an ABC
     def run_plugin_callback(self, plugin_info):

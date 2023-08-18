@@ -464,7 +464,7 @@ class Client(object):
 
     # Plugin
     def run_plugin(
-            self, plugin_definition, plugin_method, engine_type,
+            self, plugin_definition, plugin_method_name, engine_type,
             plugin_widget_id=None
     ):
         '''
@@ -481,7 +481,7 @@ class Client(object):
         self.event_manager.publish.host_run_plugin(
             self.host_id,
             plugin_definition,
-            plugin_method,
+            plugin_method_name,
             engine_type,
             plugin_widget_id,
             self._run_plugin_callback
@@ -511,6 +511,7 @@ class Client(object):
             "plugin_type: {} \n"
             "plugin_status: {} \n"
             "plugin_message: {} \n"
+            "plugin_method: {} \n"
             "plugin_method_result: {} \n"
             "plugin_context_data: {} \n"
             "plugin_data: {} \n"
@@ -519,6 +520,7 @@ class Client(object):
                 log_item.plugin_type,
                 log_item.plugin_status,
                 log_item.plugin_message,
+                log_item.plugin_method,
                 log_item.plugin_method_result,
                 log_item.plugin_context_data,
                 log_item.plugin_data,

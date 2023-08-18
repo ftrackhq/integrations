@@ -72,6 +72,8 @@ class AccordionHeaderWidget(QtWidgets.QFrame):
         self._header_content_widget = None
         self._arrow = None
         self._status = None
+        self._options_button = None
+        self._status_icon = None
 
         self.pre_build()
         self.build()
@@ -127,6 +129,8 @@ class AccordionHeaderWidget(QtWidgets.QFrame):
         self.layout().addWidget(self._checkbox)
         self.layout().addWidget(self._title_label)
         self.layout().addWidget(self._header_content_widget, 10)
+        self.layout().addWidget(self._options_button)
+        self.layout().addWidget(self._status_icon)
         self.layout().addWidget(self._arrow)
 
     def post_build(self):

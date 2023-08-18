@@ -133,7 +133,7 @@ class BaseEngine(object):
             break
 
         if not plugin_info['plugin_boolean_status']:
-            raise Exception(
+            self.logger.error(
                 "Plugin execution error.\n"
                 "Name {} \n"
                 "Status {} \n"

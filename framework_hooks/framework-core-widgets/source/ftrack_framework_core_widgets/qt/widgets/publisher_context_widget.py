@@ -14,13 +14,14 @@ class PublishContextWidget(Widget, QtWidgets.QWidget):
     '''Main class to represent a context widget on a publish process.'''
     name = 'publisher_context_selector'
     ui_type = 'qt'
+
     def __init__(
         self,
         event_manager,
         client_id,
         context_id,
         plugin_definition,
-        dialog_run_plugin_method_callback,
+        dialog_connect_methods_callback,
         dialog_property_getter_connection_callback,
         parent=None
     ):
@@ -31,13 +32,15 @@ class PublishContextWidget(Widget, QtWidgets.QWidget):
         self._asset_status_label = None
         self._status_selector = None
         self._comments_input = None
-        
-        super(PublishContextWidget, self).__init__(
+
+        QtWidgets.QWidget.__init__(self, parent=parent)
+        Widget.__init__(
+            self,
             event_manager,
             client_id,
             context_id,
             plugin_definition,
-            dialog_run_plugin_method_callback,
+            dialog_connect_methods_callback,
             dialog_property_getter_connection_callback,
             parent=parent
         )
@@ -122,7 +125,7 @@ class PublishContextWidget(Widget, QtWidgets.QWidget):
     def _on_status_changed(self, status):
         '''Updates the options dictionary with provided *status* when
         currentIndexChanged of status_selector event is triggered'''
-        status_id = self.status_selector.itemData(status)
+        status_id = self._status_selector.itemData(status)
         self.set_plugin_option('status_id', status_id)
 
     def _on_comment_updated(self):
@@ -136,7 +139,8 @@ class PublishContextWidget(Widget, QtWidgets.QWidget):
         asset_changed of asset_selector event is triggered'''
         self.set_plugin_option('asset_name', asset_name)
         self.set_plugin_option('is_valid_name', is_valid)
-        self.set_plugin_option('asset_id', asset_entity['id'])
+        if asset_entity:
+            self.set_plugin_option('asset_id', asset_entity['id'])
 
     def on_context_updated(self):
         definition = self.dialog_property_getter_connection('definition')

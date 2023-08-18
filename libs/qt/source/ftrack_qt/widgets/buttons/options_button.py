@@ -75,13 +75,13 @@ class OptionsButton(QtWidgets.QPushButton):
     def on_click_callback(self):
         # TODO: review this, isn't overly widget already checking for the main window??
         '''Callback on clicking the options button, show the publish options overlay'''
-        main_window = get_main_window_from_widget(self)
+        main_window = get_main_window_from_widget(self, 'base')
         if main_window:
             self._overlay_container.setParent(main_window)
         self._overlay_container.setVisible(True)
 
     def add_widget(self, widget, section_name):
-        if not section_name in self.__section_registry:
+        if section_name not in self.__section_registry:
             self._options_widget.layout().insertWidget(
                 self._options_widget.layout().count() - 1, LineWidget()
             )
@@ -101,7 +101,7 @@ class OptionsButton(QtWidgets.QPushButton):
             # TODO: create the section Widget
             self.__section_registry[section_name] = section_widget
 
-        self.__section_registry[section_name].insertWidget(
+        self.__section_registry[section_name].layout().insertWidget(
             self._options_widget.layout().count() - 1, LineWidget()
         )
         self.__section_registry[section_name].layout().insertWidget(
