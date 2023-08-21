@@ -220,7 +220,7 @@ class BasePlugin(object):
         self.register_method(
             method_name='run',
             required_output_type=dict,
-            required_output_value={'asd':'asd'}
+            required_output_value=None
         )
 
     def register_method(
@@ -322,7 +322,7 @@ class BasePlugin(object):
             # If status is already handled by the plugin we check if message is
             # also handled if not set a generic one
             if not self.message:
-                self.message = "Error executing plugin {} status {}".format(
+                self.message = "Error executing plugin: {} \n status {}".format(
                     e, self.status
                 )
             # If booth handled by the plugin, logger the message

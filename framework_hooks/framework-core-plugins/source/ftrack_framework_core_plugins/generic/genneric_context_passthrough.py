@@ -25,7 +25,9 @@ class GenericContextPassthroughPlugin(BasePlugin):
 
     def run(self, context_data=None, data=None, options=None):
         self.logger.debug("given options: {}".format(options))
-        required_output = copy.deepcopy(self.methods.get('run').get('required_output_value'))
+        required_output = copy.deepcopy(
+            self.methods.get('run').get('required_output_value')
+        )
         self.logger.debug("required_output: {}".format(required_output))
         required_output.update(options)
         return required_output
