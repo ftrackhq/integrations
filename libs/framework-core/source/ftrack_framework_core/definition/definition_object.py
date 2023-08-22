@@ -1,13 +1,16 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2014-2022 ftrack
+# :copyright: Copyright (c) 2014-2023 ftrack
 
 from collections.abc import MutableMapping, MutableSequence
 import copy
 import json
 
-from ftrack_framework_core import constants
+import ftrack_constants.framework as constants
 
-# TODO: rename this, this is not a definitionObject, maybe a definitionHelper, definitionWrapper, definitionAPI, definitionParser...
+# TODO: Evaluate if to rename this. maybe a definitionHelper, definitionWrapper,
+#  definitionAPI, definitionParser...
+
+
 class DefinitionObject(MutableMapping):
     '''Base DccObject class.'''
 
@@ -154,24 +157,7 @@ class Stage(DefinitionObject):
     def __init__(self, stage):
         super(Stage, self).__init__(stage)
 
-#TODO: Plugin schema has the following properties:
-#  category
-# type
-# name
-# description
-# plugin
-# widget
-# widget_ref
-# visible
-# optional
-# enabled
-# editable
-# options
-# default_method
-#  We can try to do the following: when user reads plugin, if it does somethiing
-#  like plugin_object = plugin['plugin'] it already returns the python plugin module, so it can
-#  do something like plugin_object.run() or at least be able to do:
-#  plugin_object_init = plugin_object.init() plugin_object_init.run()
+
 class Plugin(DefinitionObject):
     def __init__(self, plugin):
         super(Plugin, self).__init__(plugin)
@@ -183,15 +169,26 @@ class Plugin(DefinitionObject):
         # Convert options to options object
         if k == 'options':
             v = Options(v)
+        if k == 'data':
+            v = Data(v)
+        if k == 'context_data':
+            v = ContextData(v)
         super(Plugin, self).__setitem__(k, v)
-        # TODO: in here we may need to do:
-        #  if k == 'plugin': v = plugin_object(v) --> and this inits the plugin object.
-        #  No need to validate the discover plugin because it is already validated in the host when discovering the definitions, so if the code arrives here is because is already validated.
 
 
 class Options(DefinitionObject):
     def __init__(self, options):
         super(Options, self).__init__(options)
+
+
+class Data(DefinitionObject):
+    def __init__(self, data):
+        super(Data, self).__init__(data)
+
+
+class ContextData(DefinitionObject):
+    def __init__(self, context_data):
+        super(ContextData, self).__init__(context_data)
 
 
 class DefinitionList(MutableSequence):
@@ -293,7 +290,7 @@ class DefinitionList(MutableSequence):
         )
         if issubclass(type(item), dict):
             def_type = item.get('type')
-            if def_type in constants.DEFINITION_TYPES:
+            if def_type in constants.definition.DEFINITION_TYPES:
                 item = DefinitionObject(item)
             else:
                 category = item.get('category')

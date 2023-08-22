@@ -7,9 +7,8 @@ import os
 import logging
 import copy
 import python_jsonschema_objects as pjo
-from jsonref import JsonRef
 
-from ftrack_framework_core import constants
+import ftrack_constants.framework as constants
 from ftrack_framework_core.definition import definition_object
 
 logger = logging.getLogger(__name__)
@@ -25,7 +24,7 @@ def discover_definitions_plugins(definitions, event_manager, host_types):
     '''
 
     copy_data = copy.deepcopy(definitions)
-    for entry in constants.DEFINITION_TYPES:
+    for entry in constants.definition.DEFINITION_TYPES:
         for definition in definitions[entry]:
             is_valid = _discover_plugins(definition, event_manager, host_types)
             if not is_valid:
@@ -50,7 +49,6 @@ def _discover_plugins(definition, event_manager, host_types):
     *definitions* : List of definitions (opener, loader, publisher and so on).
 
     '''
-    #def_obj = definition_object.DefinitionObject(definition)
     plugins = definition.get_all(category='plugin')
     invalid_plugins = []
     for plugin in plugins:
@@ -78,7 +76,6 @@ def _discover_plugin(event_manager, host_types, plugin):
     plugin_result = {}
 
     for host_type in reversed(host_types):
-
         plugin_result = event_manager.publish.discover_plugin(
             host_type,
             plugin_name,
@@ -110,7 +107,7 @@ def filter_definitions_by_host(definitions, host_types):
     '''
     copy_data = copy.deepcopy(definitions)
     logger.debug('filtering definition for host_type: {}'.format(host_types))
-    for entry in constants.DEFINITION_TYPES:
+    for entry in constants.definition.DEFINITION_TYPES:
         for definition in definitions[entry]:
             # TODO: host_type should be replaced by a constant.
             if str(definition.get('host_type')) not in host_types:
@@ -133,7 +130,7 @@ def discover_definitions(definition_paths):
     '''
     definitions = {}
     for lookup_dir in definition_paths:
-        for file_type in constants.DEFINITION_TYPES:
+        for file_type in constants.definition.DEFINITION_TYPES:
             if file_type not in definitions.keys():
                 definitions[file_type] = []
             search_path = os.path.join(lookup_dir, file_type)
@@ -147,6 +144,7 @@ def discover_definitions(definition_paths):
 
     return definitions
 
+
 def discover_schemas(schema_paths):
     '''
     Collect all the schemas and definitions from the given
@@ -156,12 +154,12 @@ def discover_schemas(schema_paths):
     '''
     schemas = []
     for lookup_dir in schema_paths:
-        search_path = os.path.join(lookup_dir, constants.SCHEMA)
+        search_path = os.path.join(lookup_dir, constants.definition.SCHEMA)
         collected_files = _collect_json(search_path)
         schemas.extend(collected_files)
         logger.debug(
             'Found {} {} in path: {}'.format(
-                len(collected_files), constants.SCHEMA, search_path
+                len(collected_files), constants.definition.SCHEMA, search_path
             )
         )
 
@@ -198,6 +196,7 @@ def _collect_json(source_path):
     return loaded_jsons
 
 
+# TODO: remove this function as its not used anymore
 def resolve_schemas(schemas):
     '''
     Resolves the refs of the schemas in the given *data*
@@ -242,13 +241,13 @@ def augment_definition(definitions, schemas, session):
 
     # validate schema
     for schema in schemas:
-        for entry in constants.DEFINITION_TYPES:
+        for entry in constants.definition.DEFINITION_TYPES:
             if schema['title'].lower() == entry:
                 for definition in definitions[entry]:
                     copy_definitions[entry].remove(definition)
                     if schema['title'].lower() not in [
-                        constants.ASSET_MANAGER,
-                        constants.RESOLVER,
+                        constants.definition.ASSET_MANAGER,
+                        constants.definition.RESOLVER,
                     ]:
                         if (
                             definition.get('asset_type')
@@ -281,6 +280,8 @@ def augment_definition(definitions, schemas, session):
                         )
                     )
                 # Convert lists to DefinitionList
-                copy_definitions[entry] = definition_object.DefinitionList(copy_definitions[entry])
+                copy_definitions[entry] = definition_object.DefinitionList(
+                    copy_definitions[entry]
+                )
 
     return copy_definitions

@@ -1,11 +1,11 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2014-2020 ftrack
+# :copyright: Copyright (c) 2014-2023 ftrack
 
 import threading
 
 import logging
 import ftrack_api
-from ftrack_framework_core import constants
+import ftrack_constants.framework as constants
 import uuid
 
 logger = logging.getLogger(__name__)
@@ -181,8 +181,12 @@ class Publish(object):
         Common method that calls the private publish method from the
         event manager
         '''
-        publish_event = ftrack_api.event.base.Event(topic=event_topic, data=data)
-        publish_result = self.event_manager._publish(publish_event, callback=callback)
+        publish_event = ftrack_api.event.base.Event(
+            topic=event_topic, data=data
+        )
+        publish_result = self.event_manager._publish(
+            publish_event, callback=callback
+        )
         return publish_result
 
     def discover_host(self, callback=None):
@@ -195,7 +199,9 @@ class Publish(object):
         event_topic = constants.event.DISCOVER_HOST_TOPIC
         return self._publish_event(event_topic, data, callback)
 
-    def host_run_definition(self, host_id, definition, engine_type, callback=None):
+    def host_run_definition(
+        self, host_id, definition, engine_type, callback=None
+    ):
         '''
         Publish an event with topic
         :const:`~ftrack_framework_core.constants.event.HOST_RUN_DEFINITION_TOPIC`
@@ -208,7 +214,15 @@ class Publish(object):
         event_topic = constants.event.HOST_RUN_DEFINITION_TOPIC
         return self._publish_event(event_topic, data, callback)
 
-    def host_run_plugin(self, host_id, plugin_definition, plugin_method, engine_type, callback=None):
+    def host_run_plugin(
+        self,
+        host_id,
+        plugin_definition,
+        plugin_method,
+        engine_type,
+        plugin_widget_id=None,
+        callback=None,
+    ):
         '''
         Publish an event with topic
         :const:`~ftrack_framework_core.constants.event.HOST_RUN_PLUGIN_TOPIC`
@@ -218,34 +232,44 @@ class Publish(object):
             'plugin_definition': plugin_definition,
             'plugin_method': plugin_method,
             'engine_type': engine_type,
+            'plugin_widget_id': plugin_widget_id,
         }
         event_topic = constants.event.HOST_RUN_PLUGIN_TOPIC
         return self._publish_event(event_topic, data, callback)
 
     def execute_plugin(
-            self, plugin_name, plugin_default_method, plugin_method, host_type,
-            plugin_data, plugin_options, plugin_context_data, callback=None
+        self,
+        plugin_name,
+        plugin_default_method,
+        plugin_method,
+        host_type,
+        plugin_data,
+        plugin_options,
+        plugin_context_data,
+        plugin_widget_id=None,
+        plugin_widget_name=None,
+        callback=None,
     ):
         '''
         Publish an event with topic
         :const:`~ftrack_framework_core.constants.event.EXECUTE_PLUGIN_TOPIC`
         '''
         data = {
-                'plugin_name': plugin_name,
-                'plugin_default_method': plugin_default_method,
-                'plugin_method': plugin_method,
-                'host_type': host_type,
-                'plugin_data': plugin_data,
-                'plugin_options': plugin_options,
-                'plugin_context_data': plugin_context_data,
-            }
+            'plugin_name': plugin_name,
+            'plugin_default_method': plugin_default_method,
+            'plugin_method': plugin_method,
+            'host_type': host_type,
+            'plugin_data': plugin_data,
+            'plugin_options': plugin_options,
+            'plugin_context_data': plugin_context_data,
+            'plugin_widget_id': plugin_widget_id,
+            'plugin_widget_name': plugin_widget_name,
+        }
 
         event_topic = constants.event.EXECUTE_PLUGIN_TOPIC
         return self._publish_event(event_topic, data, callback)
 
-    def discover_plugin(
-            self, host_type, plugin_name, callback=None
-    ):
+    def discover_plugin(self, host_type, plugin_name, callback=None):
         '''
         Publish an event with topic
         :const:`~ftrack_framework_core.constants.event.DISCOVER_PLUGIN_TOPIC`
@@ -282,7 +306,9 @@ class Publish(object):
         event_topic = constants.event.CLIENT_CONTEXT_CHANGED_TOPIC
         return self._publish_event(event_topic, data, callback)
 
-    def client_launch_widget(self, host_id, widget_name, source=None, callback=None):
+    def client_launch_widget(
+        self, host_id, widget_name, source=None, callback=None
+    ):
         '''
         Publish an event with topic
         :const:`~ftrack_framework_core.constants.event.CLIENT_LAUNCH_WIDGET_TOPIC`
@@ -298,8 +324,7 @@ class Publish(object):
         event_topic = constants.event.CLIENT_LAUNCH_WIDGET_TOPIC
         return self._publish_event(event_topic, data, callback)
 
-    def notify_plugin_progress_client(
-            self, plugin_info, callback=None):
+    def notify_plugin_progress_client(self, plugin_info, callback=None):
         '''
         Publish an event with topic
         :const:`~ftrack_framework_core.constants.event.NOTIFY_PLUGIN_PROGRESS_TOPIC`
@@ -308,9 +333,16 @@ class Publish(object):
         return self._publish_event(event_topic, plugin_info, callback)
 
     def notify_definition_progress_client(
-            self, host_id, step_type, step_name, stage_name,
-            total_plugins, current_plugin_index, status,
-            results=None, callback=None
+        self,
+        host_id,
+        step_type,
+        step_name,
+        stage_name,
+        total_plugins,
+        current_plugin_index,
+        status,
+        results=None,
+        callback=None,
     ):
         '''
         Publish an event with topic
@@ -321,10 +353,10 @@ class Publish(object):
         data = {
             'host_id': host_id,
             'step_type': step_type,
-            'step_name': step_name,# Not used
+            'step_name': step_name,  # Not used
             'stage_name': stage_name,
             'total_plugins': total_plugins,
-            'current_plugin_index': current_plugin_index, # Not used
+            'current_plugin_index': current_plugin_index,  # Not used
             'status': status,
             'results': results,
         }
@@ -332,6 +364,7 @@ class Publish(object):
         event_topic = constants.event.NOTIFY_DEFINITION_PROGRESS_CLIENT_TOPIC
         return self._publish_event(event_topic, data, callback)
 
+    # TODO: if not used remove it. (Double check)
     def discover_definition(self, host_types, callback=None):
         '''
         Publish an event with topic
@@ -358,9 +391,105 @@ class Publish(object):
         event_topic = constants.event.HOST_LOG_ITEM_ADDED_TOPIC
         return self._publish_event(event_topic, data, callback)
 
+    def client_signal_context_changed(self, client_id, callback=None):
+        '''
+        Publish an event with topic
+        :const:`~ftrack_framework_core.constants.event.CLIENT_SIGNAL_CONTEXT_CHANGED_TOPIC`
+        '''
+        data = {
+            'client_id': client_id,
+        }
+
+        event_topic = constants.event.CLIENT_SIGNAL_CONTEXT_CHANGED_TOPIC
+        return self._publish_event(event_topic, data, callback)
+
+    def client_signal_hosts_discovered(self, client_id, callback=None):
+        '''
+        Publish an event with topic
+        :const:`~ftrack_framework_core.constants.event.CLIENT_SIGNAL_HOSTS_DISCOVERED_TOPIC`
+        '''
+        data = {
+            'client_id': client_id,
+        }
+
+        event_topic = constants.event.CLIENT_SIGNAL_HOSTS_DISCOVERED_TOPIC
+        return self._publish_event(event_topic, data, callback)
+
+    def client_signal_host_changed(self, client_id, callback=None):
+        '''
+        Publish an event with topic
+        :const:`~ftrack_framework_core.constants.event.CLIENT_SIGNAL_HOST_CHANGED_TOPIC`
+        '''
+        data = {
+            'client_id': client_id,
+        }
+
+        event_topic = constants.event.CLIENT_SIGNAL_HOST_CHANGED_TOPIC
+        return self._publish_event(event_topic, data, callback)
+
+    def client_signal_definition_changed(self, client_id, callback=None):
+        '''
+        Publish an event with topic
+        :const:`~ftrack_framework_core.constants.event.CLIENT_SIGNAL_DEFINITION_CHANGED_TOPIC`
+        '''
+        data = {
+            'client_id': client_id,
+        }
+
+        event_topic = constants.event.CLIENT_SIGNAL_DEFINITION_CHANGED_TOPIC
+        return self._publish_event(event_topic, data, callback)
+
+    def client_notify_ui_run_plugin_result(
+        self, client_id, plugin_info, callback=None
+    ):
+        '''
+        Publish an event with topic
+        :const:`~ftrack_framework_core.constants.event.CLIENT_NOTIFY_UI_RUN_PLUGIN_RESULT_TOPIC`
+        '''
+        data = {
+            'client_id': client_id,
+            'plugin_info': plugin_info,
+        }
+
+        event_topic = constants.event.CLIENT_NOTIFY_UI_RUN_PLUGIN_RESULT_TOPIC
+        return self._publish_event(event_topic, data, callback)
+
+    def client_notify_ui_run_definition_result(
+        self, client_id, definition_result, callback=None
+    ):
+        '''
+        Publish an event with topic
+        :const:`~ftrack_framework_core.constants.event.CLIENT_NOTIFY_UI_RUN_DEFINITION_RESULT_TOPIC`
+        '''
+        data = {
+            'client_id': client_id,
+            'definition_result': definition_result,
+        }
+
+        event_topic = (
+            constants.event.CLIENT_NOTIFY_UI_RUN_DEFINITION_RESULT_TOPIC
+        )
+        return self._publish_event(event_topic, data, callback)
+
+    def client_notify_ui_log_item_added(
+        self, client_id, log_item, callback=None
+    ):
+        '''
+        Publish an event with topic
+        :const:`~ftrack_framework_core.constants.event.CLIENT_NOTIFY_UI_LOG_ITEM_ADDED_TOPIC`
+        '''
+        data = {
+            'client_id': client_id,
+            'log_item': log_item,
+        }
+
+        event_topic = constants.event.CLIENT_NOTIFY_UI_LOG_ITEM_ADDED_TOPIC
+        return self._publish_event(event_topic, data, callback)
+
 
 class Subscribe(object):
     '''Class with all the events subscribed by the framework'''
+
     @property
     def event_manager(self):
         return self._event_manager
@@ -489,7 +618,7 @@ class Subscribe(object):
 
     def host_log_item_added(self, host_id, callback=None):
         '''
-        Publish an event with topic
+        Subscribe to an event with topic
         :const:`~ftrack_framework_core.constants.event.HOST_LOG_ITEM_ADDED_TOPIC`
         '''
         event_topic = '{} and data.host_id={}'.format(
@@ -497,3 +626,73 @@ class Subscribe(object):
         )
         return self._subscribe_event(event_topic, callback)
 
+    def client_signal_context_changed(self, client_id, callback=None):
+        '''
+        Subscribe to an event with topic
+        :const:`~ftrack_framework_core.constants.event.CLIENT_SIGNAL_CONTEXT_CHANGED_TOPIC`
+        '''
+        event_topic = '{} and data.client_id={}'.format(
+            constants.event.CLIENT_SIGNAL_CONTEXT_CHANGED_TOPIC, client_id
+        )
+        return self._subscribe_event(event_topic, callback)
+
+    def client_signal_hosts_discovered(self, client_id, callback=None):
+        '''
+        Subscribe to an event with topic
+        :const:`~ftrack_framework_core.constants.event.CLIENT_SIGNAL_HOSTS_DISCOVERED_TOPIC`
+        '''
+        event_topic = '{} and data.client_id={}'.format(
+            constants.event.CLIENT_SIGNAL_HOSTS_DISCOVERED_TOPIC, client_id
+        )
+        return self._subscribe_event(event_topic, callback)
+
+    def client_signal_host_changed(self, client_id, callback=None):
+        '''
+        Subscribe to an event with topic
+        :const:`~ftrack_framework_core.constants.event.CLIENT_SIGNAL_HOST_CHANGED_TOPIC`
+        '''
+        event_topic = '{} and data.client_id={}'.format(
+            constants.event.CLIENT_SIGNAL_HOST_CHANGED_TOPIC, client_id
+        )
+        return self._subscribe_event(event_topic, callback)
+
+    def client_signal_definition_changed(self, client_id, callback=None):
+        '''
+        Subscribe to an event with topic
+        :const:`~ftrack_framework_core.constants.event.CLIENT_SIGNAL_DEFINITION_CHANGED_TOPIC`
+        '''
+        event_topic = '{} and data.client_id={}'.format(
+            constants.event.CLIENT_SIGNAL_DEFINITION_CHANGED_TOPIC, client_id
+        )
+        return self._subscribe_event(event_topic, callback)
+
+    def client_notify_ui_run_plugin_result(self, client_id, callback=None):
+        '''
+        Subscribe to an event with topic
+        :const:`~ftrack_framework_core.constants.event.CLIENT_NOTIFY_UI_RUN_PLUGIN_RESULT_TOPIC`
+        '''
+        event_topic = '{} and data.client_id={}'.format(
+            constants.event.CLIENT_NOTIFY_UI_RUN_PLUGIN_RESULT_TOPIC, client_id
+        )
+        return self._subscribe_event(event_topic, callback)
+
+    def client_notify_ui_run_definition_result(self, client_id, callback=None):
+        '''
+        Subscribe to an event with topic
+        :const:`~ftrack_framework_core.constants.event.CLIENT_NOTIFY_UI_RUN_DEFINITION_RESULT_TOPIC`
+        '''
+        event_topic = '{} and data.client_id={}'.format(
+            constants.event.CLIENT_NOTIFY_UI_RUN_DEFINITION_RESULT_TOPIC,
+            client_id,
+        )
+        return self._subscribe_event(event_topic, callback)
+
+    def client_notify_ui_log_item_added(self, client_id, callback=None):
+        '''
+        Subscribe to an event with topic
+        :const:`~ftrack_framework_core.constants.event.CLIENT_NOTIFY_UI_LOG_ITEM_ADDED_TOPIC`
+        '''
+        event_topic = '{} and data.client_id={}'.format(
+            constants.event.CLIENT_NOTIFY_UI_LOG_ITEM_ADDED_TOPIC, client_id
+        )
+        return self._subscribe_event(event_topic, callback)

@@ -1,5 +1,5 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2014-2020 ftrack
+# :copyright: Copyright (c) 2014-2023 ftrack
 
 
 class LogItem(object):
@@ -13,7 +13,6 @@ class LogItem(object):
         '''
         self.date = log_result.get('date')
 
-        #self.widget_ref = log_result.get('widget_ref')
         self.host_id = log_result.get('host_id')
         self.plugin_name = log_result.get('plugin_name')
         self.plugin_type = log_result.get('plugin_type')
@@ -21,6 +20,7 @@ class LogItem(object):
         self.host_type = log_result.get('host_type')
         self.plugin_status = log_result.get('plugin_status')
         self.plugin_boolean_status = log_result.get('plugin_boolean_status')
+        self.plugin_method = log_result.get('plugin_method')
         self.plugin_method_result = log_result.get('plugin_method_result')
         self.plugin_result_registry = log_result.get('plugin_result_registry')
         self.plugin_execution_time = log_result.get('plugin_execution_time')
@@ -28,8 +28,10 @@ class LogItem(object):
         self.plugin_context_data = log_result.get('plugin_context_data')
         self.plugin_data = log_result.get('plugin_data')
         self.plugin_options = log_result.get('plugin_options')
+        self.plugin_widget_id = log_result.get('plugin_widget_id')
+        self.plugin_widget_name = log_result.get('plugin_widget_name')
 
-
+    # TODO: remove this properties if not needed.
     @property
     def execution_time(self):
         '''Return the duration of the log entry.'''

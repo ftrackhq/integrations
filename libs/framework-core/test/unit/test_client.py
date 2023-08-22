@@ -1,11 +1,11 @@
 import functools
 from ftrack_framework_core import client
-from ftrack_framework_core import constants
+import ftrack_constants.framework as constants
 
 
 def test_initialise(event_manager):
     client_connection = client.Client(event_manager)
-    assert client_connection.ui_types == [constants.UI_TYPE]
+    assert client_connection.ui_types == constants.client.COMPATIBLE_UI_TYPES
 
 
 def test_discover_host(host, event_manager):

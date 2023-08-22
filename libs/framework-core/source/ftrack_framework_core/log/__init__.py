@@ -1,5 +1,5 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2014-2021 ftrack
+# :copyright: Copyright (c) 2014-2023 ftrack
 
 import os
 import logging
@@ -21,6 +21,7 @@ class ResultEncoder(JSONEncoder):
 
     def default(self, obj):
         return str(obj)
+
 
 # TODO: review this class to make it easier to maintain.
 #  Define all keys in a common place.
@@ -70,11 +71,12 @@ class LogDB(object):
             cur.execute(
                 '''CREATE TABLE {0} (id INTEGER PRIMARY KEY,'''
                 ''' date int, plugin_status text, plugin_boolean_status bool, host_id text, plugin_name text,'''
-                ''' plugin_type text, plugin_id text, host_type text,'''
+                ''' plugin_type text, plugin_id text, host_type text, plugin_method text,'''
                 ''' plugin_method_result text, plugin_result_registry text,'''
                 ''' plugin_execution_time real,'''
                 ''' plugin_message text, plugin_context_data text,'''
-                ''' plugin_data text, plugin_options text)'''.format(
+                ''' plugin_data text, plugin_options text,'''
+                ''' plugin_widget_id text, plugin_widget_name text)'''.format(
                     self.table_name
                 )
             )
@@ -161,10 +163,11 @@ class LogDB(object):
 
             cur.execute(
                 '''INSERT INTO {0} (date,plugin_status,plugin_boolean_status,
-                host_id,plugin_name,plugin_type,plugin_id,host_type,
+                host_id,plugin_name,plugin_type,plugin_id,host_type,plugin_method,
                 plugin_method_result,plugin_result_registry,plugin_execution_time,
-                plugin_message,plugin_context_data,plugin_data,plugin_options) 
-                VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)'''.format(
+                plugin_message,plugin_context_data,plugin_data,plugin_options,
+                plugin_widget_id,plugin_widget_name) 
+                VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)'''.format(
                     self.table_name
                 ),
                 (
@@ -176,6 +179,7 @@ class LogDB(object):
                     log_item.plugin_type,
                     log_item.plugin_id,
                     log_item.host_type,
+                    log_item.plugin_method,
                     # TODO: Check previous versions to deal with Json in plugin result
                     str(log_item.plugin_method_result),
                     str(log_item.plugin_result_registry),
@@ -184,6 +188,8 @@ class LogDB(object):
                     str(log_item.plugin_context_data),
                     str(log_item.plugin_data),
                     str(log_item.plugin_options),
+                    str(log_item.plugin_widget_id),
+                    str(log_item.plugin_widget_name),
                 ),
             )
             self.connection.commit()
@@ -207,9 +213,10 @@ class LogDB(object):
             cur.execute(
                 ''' SELECT date,plugin_status,plugin_boolean_status,host_id,'''
                 '''plugin_name,plugin_type,'''
-                '''plugin_id,host_type,plugin_method_result,'''
+                '''plugin_id,host_type,plugin_method,plugin_method_result,'''
                 '''plugin_result_registry,plugin_execution_time,'''
                 '''plugin_message,plugin_context_data,plugin_data,plugin_options'''
+                '''plugin_widget_id,plugin_widget_name'''
                 ''' FROM {0} WHERE host_id=?;  '''.format(self.table_name),
                 (host_id,),
             )
@@ -226,14 +233,17 @@ class LogDB(object):
                             'plugin_type': t[5],
                             'plugin_id': t[6],
                             'host_type': t[7],
+                            'plugin_method': t[8],
                             # TODO: Check previous versions to deal with Json in plugin result
-                            'plugin_method_result': t[8],
-                            'plugin_result_registry': t[9],
-                            'plugin_execution_time': t[10],
-                            'plugin_message': t[11],
-                            'plugin_context_data': t[12],
-                            'plugin_data': t[13],
-                            'plugin_options': t[14],
+                            'plugin_method_result': t[9],
+                            'plugin_result_registry': t[10],
+                            'plugin_execution_time': t[11],
+                            'plugin_message': t[12],
+                            'plugin_context_data': t[13],
+                            'plugin_data': t[14],
+                            'plugin_options': t[15],
+                            'plugin_widget_id': t[16],
+                            'plugin_widget_name': t[17],
                         }
                     )
                 )
@@ -252,9 +262,9 @@ class LogDB(object):
             cur.execute(
                 ''' SELECT date,plugin_status,plugin_boolean_status,host_id,'''
                 '''plugin_name,plugin_type,'''
-                '''plugin_id,host_type,plugin_method_result,plugin_result_registry,'''
+                '''plugin_id,host_type,plugin_method,plugin_method_result,plugin_result_registry,'''
                 '''plugin_execution_time,plugin_message,plugin_context_data,'''
-                '''plugin_data,plugin_options '''
+                '''plugin_data,plugin_options,plugin_widget_id,plugin_widget_name'''
                 ''' FROM {0} WHERE host_id=? AND plugin_id=?;  '''.format(
                     self.table_name
                 ),
@@ -273,14 +283,17 @@ class LogDB(object):
                             'plugin_type': t[5],
                             'plugin_id': t[6],
                             'host_type': t[7],
+                            'plugin_method': t[8],
                             # TODO: Check previous versions to deal with Json in plugin result
-                            'plugin_method_result': t[8],
-                            'plugin_result_registry': t[9],
-                            'plugin_execution_time': t[10],
-                            'plugin_message': t[11],
-                            'plugin_context_data': t[12],
-                            'plugin_data': t[13],
-                            'plugin_options': t[14],
+                            'plugin_method_result': t[9],
+                            'plugin_result_registry': t[10],
+                            'plugin_execution_time': t[11],
+                            'plugin_message': t[12],
+                            'plugin_context_data': t[13],
+                            'plugin_data': t[14],
+                            'plugin_options': t[15],
+                            'plugin_widget_id': t[16],
+                            'plugin_widget_name': t[17],
                         }
                     )
                 )

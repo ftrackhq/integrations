@@ -1,0 +1,106 @@
+{
+  "type": "publisher",
+  "name": "File Publisher",
+  "asset_type": "script",
+  "host_type": "python",
+  "ui_type": "qt",
+  "task_type": "rendering",
+  "contexts": [
+    {
+      "name": "main",
+      "stages": [
+        {
+          "name": "context",
+          "plugins":[
+            {
+              "name": "context selector",
+              "plugin": "generic_context_passthrough",
+              "widget": "publisher_context_selector"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "components": [
+    {
+      "name": "file",
+      "stages": [
+        {
+          "name": "collector",
+          "plugins":[
+            {
+              "name": "collect file",
+              "plugin": "file_collector",
+              "widget": "file_browser_collector",
+              "options": {
+                "folder_path": null,
+                "file_name": null
+              }
+            }
+          ]
+        },
+        {
+          "name": "validator",
+          "plugins":[
+            {
+              "name": "validate file exists",
+              "plugin": "file_exists_validator",
+              "widget": "validator_check"
+            }
+          ]
+        },
+        {
+          "name": "exporter",
+          "plugins":[
+            {
+              "name": "Export file",
+              "plugin": "rename_file_exporter",
+              "widget": "file_exporter_options",
+              "options": {
+                "export_destination": "/Users/ftrack/Desktop/myPublishedFiile.png"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "finalizers": [
+    {
+      "name": "main",
+      "stages": [
+        {
+          "name": "pre_finalizer",
+          "visible": false,
+          "plugins":[
+            {
+              "name": "Pre publish to ftrack server",
+              "plugin": "generic_passthrough"
+            }
+          ]
+        },
+        {
+          "name": "finalizer",
+          "visible": false,
+          "plugins":[
+            {
+              "name": "Publish to ftrack server",
+              "plugin": "publish_to_ftrack"
+            }
+          ]
+        },
+        {
+          "name": "post_finalizer",
+          "visible": false,
+          "plugins":[
+            {
+              "name": "Post process publish",
+              "plugin": "generic_passthrough"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

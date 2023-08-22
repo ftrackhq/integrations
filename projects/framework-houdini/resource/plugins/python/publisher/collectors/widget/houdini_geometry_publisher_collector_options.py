@@ -1,5 +1,5 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2014-2021 ftrack
+# :copyright: Copyright (c) 2014-2023 ftrack
 
 from ftrack_framework_houdini import plugin
 from ftrack_framework_qt.plugin.widget.base_collector_widget import (

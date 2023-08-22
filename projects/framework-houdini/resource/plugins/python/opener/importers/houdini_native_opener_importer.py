@@ -1,5 +1,5 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2014-2022 ftrack
+# :copyright: Copyright (c) 2014-2023 ftrack
 
 from ftrack_framework_houdini import plugin
 from ftrack_framework_houdini.constants.asset import modes as load_const

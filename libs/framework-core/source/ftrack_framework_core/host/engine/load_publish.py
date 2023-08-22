@@ -1,28 +1,32 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2014-2020 ftrack
+# :copyright: Copyright (c) 2014-2023 ftrack
 
-import logging
-import ftrack_api
 import copy
 
-from ftrack_framework_core import constants
+import ftrack_constants.framework as constants
 from ftrack_framework_core.host.engine import BaseEngine
-from ftrack_framework_core.definition import definition_object
 
-# TODO: try to separate engine to its own library, like the definitions.
-# TODO: engines should be cfreated dependeant on the workflow of the schema, so this engine is for loader, publisher etc... but not for AM or resolver.
+
 class LoadPublishEngine(BaseEngine):
     '''
     Base engine class.
     '''
 
-    engine_type = [constants.LOADER, constants.OPENER, constants.PUBLISHER]
+    engine_type = [
+        constants.definition.LOADER,
+        constants.definition.OPENER,
+        constants.definition.PUBLISHER,
+    ]
     '''Engine type for this engine class'''
 
     # TODO: double check if we really need to declare the init here.
     def __init__(
-            self, event_manager, ftrack_object_manager, host_types, host_id,
-            asset_type_name
+        self,
+        event_manager,
+        ftrack_object_manager,
+        host_types,
+        host_id,
+        asset_type_name,
     ):
         '''
         Initialise HostConnection with instance of
@@ -35,10 +39,12 @@ class LoadPublishEngine(BaseEngine):
         type should be specified.
         '''
         super(LoadPublishEngine, self).__init__(
-            event_manager, ftrack_object_manager, host_types, host_id,
-            asset_type_name
+            event_manager,
+            ftrack_object_manager,
+            host_types,
+            host_id,
+            asset_type_name,
         )
-
 
     def run_plugin(
         self,
@@ -48,6 +54,8 @@ class LoadPublishEngine(BaseEngine):
         plugin_data=None,
         plugin_context_data=None,
         plugin_method=None,
+        plugin_widget_id=None,
+        plugin_widget_name=None,
     ):
         return super(LoadPublishEngine, self).run_plugin(
             plugin_name=plugin_name,
@@ -55,7 +63,9 @@ class LoadPublishEngine(BaseEngine):
             plugin_options=plugin_options,
             plugin_data=plugin_data,
             plugin_context_data=plugin_context_data,
-            plugin_method=plugin_method
+            plugin_method=plugin_method,
+            plugin_widget_id=plugin_widget_id,
+            plugin_widget_name=plugin_widget_name,
         )
 
     # Base functions for loader, opener and publisher
@@ -143,6 +153,8 @@ class LoadPublishEngine(BaseEngine):
                 plugin_context_data=stage_context,
                 # default_method is defined in the definitions
                 plugin_method=plugin_definition['default_method'],
+                plugin_widget_id=plugin_definition['widget_id'],
+                plugin_widget_name=plugin_definition['widget'],
             )
 
             bool_status = constants.status.status_bool_mapping[
@@ -295,8 +307,7 @@ class LoadPublishEngine(BaseEngine):
         )
         return step_status, step_results
 
-    # TODO: as a low priority task, try to improve this makeing a better use of the definition object, maybe extending the definition object as well to know how to run steps, stages and plugins.
-    # TODO: receive definition in here instead of data
+    # TODO: clean up this code and use definition object to simplify.
     def run_definition(self, definition_data):
         '''
         Runs the whole definition from the provided *data*.
@@ -311,11 +322,11 @@ class LoadPublishEngine(BaseEngine):
         context_data = None
         components_output = []
         finalizers_output = []
-        for step_group in constants.STEP_GROUPS:
+        for step_group in constants.definition.STEP_GROUPS:
             group_steps = definition_data[step_group]
             group_results = []
 
-            if step_group == constants.FINALIZERS:
+            if step_group == constants.definition.FINALIZERS:
                 group_results = copy.deepcopy(components_output)
 
             group_status = True
@@ -330,7 +341,7 @@ class LoadPublishEngine(BaseEngine):
                 step_type = step['type']
                 step_options = {}
 
-                if step_group == constants.COMPONENTS:
+                if step_group == constants.definition.COMPONENTS:
                     # TODO: This is wrong. Should already be defined in the options.
                     if 'file_formats' in step:
                         step_options['file_formats'] = step[
@@ -386,14 +397,16 @@ class LoadPublishEngine(BaseEngine):
                     )
                 )
 
-            if step_group == constants.CONTEXTS:
+            if step_group == constants.definition.CONTEXTS:
                 context_latest_step = group_results[-1]
                 context_latest_stage = context_latest_step.get('result')[-1]
                 context_data = {}
                 for context_plugin in context_latest_stage.get('result'):
-                    context_data.update(context_plugin.get('plugin_method_result'))
+                    context_data.update(
+                        context_plugin.get('plugin_method_result')
+                    )
 
-            elif step_group == constants.COMPONENTS:
+            elif step_group == constants.definition.COMPONENTS:
                 components_output = copy.deepcopy(group_results)
                 i = 0
                 for component_step in group_results:
@@ -409,9 +422,9 @@ class LoadPublishEngine(BaseEngine):
                             #  definition doesn't have exporters?
                             #  Example: the AM definition. Can't we make use of
                             #  the definition object to solve this kind of stuff?
-                            constants.IMPORTER,
-                            constants.EXPORTER,
-                            constants.POST_IMPORTER,
+                            constants.definition.IMPORTER,
+                            constants.definition.EXPORTER,
+                            constants.definition.POST_IMPORTER,
                         ]:
                             self.logger.debug(
                                 "Removing stage name {} of type {}".format(
@@ -423,7 +436,7 @@ class LoadPublishEngine(BaseEngine):
                                 component_stage
                             )
                     i += 1
-            elif step_group == constants.FINALIZERS:
+            elif step_group == constants.definition.FINALIZERS:
                 finalizers_output = group_results
 
         return finalizers_output

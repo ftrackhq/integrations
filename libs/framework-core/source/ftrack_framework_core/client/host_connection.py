@@ -1,5 +1,5 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2014-2020 ftrack
+# :copyright: Copyright (c) 2014-2023 ftrack
 
 import logging
 import copy
@@ -28,13 +28,13 @@ class HostConnection(object):
 
     @property
     def context_id(self):
-        '''Returns the current context id as fetched from the host'''
+        '''Returns the current context id fetched from the host'''
         return self._context_id
 
     @context_id.setter
     def context_id(self, value):
-        '''Set the context id for this host connection to *value*. Will notify the host and
-        other active host connection through an event, and tell the client through callback.
+        '''
+        Set the context id for this host connection to *value*.
         '''
         if value == self.context_id:
             return
@@ -52,7 +52,7 @@ class HostConnection(object):
 
     @property
     def definitions(self):
-        '''Returns the current definitions, filtered on discoverable.'''
+        '''Returns the discovered and filtered definitions'''
         context_identifiers = []
         # Find context identifiers (Based on the context id, are we in a task,
         # entity type, etc...)
@@ -148,8 +148,7 @@ class HostConnection(object):
         self._context_id = self._raw_host_data.get('context_id')
 
         self.event_manager.subscribe.host_context_changed(
-            self.host_id,
-            self._on_host_context_changed_callback
+            self.host_id, self._on_host_context_changed_callback
         )
 
     def _on_host_context_changed_callback(self, event):

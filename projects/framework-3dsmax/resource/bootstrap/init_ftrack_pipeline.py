@@ -1,5 +1,5 @@
 # file will be exec'd; there can be no encoding tag
-# :copyright: Copyright (c) 2014-2022 ftrack
+# :copyright: Copyright (c) 2014-2023 ftrack
 import logging
 
 from functools import partial

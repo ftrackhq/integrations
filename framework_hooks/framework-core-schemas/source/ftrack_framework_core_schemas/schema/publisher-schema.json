@@ -396,7 +396,7 @@
         "type",
         "default_method"
       ],
-      "order":["type", "category", "name", "description", "plugin", "widget", "options", "default_method"],
+      "order":["type", "category", "name", "description", "plugin", "widget", "widget_id", "context_data", "data", "options", "default_method"],
       "additionalProperties": false,
       "properties": {
         "category": {
@@ -423,13 +423,16 @@
           "type": "string"
         },
         "plugin": {
-          "type": "string"
+          "type": "string",
+          "default": ""
         },
         "widget": {
-          "type": "string"
+          "type": "string",
+          "default": ""
         },
-        "widget_ref": {
-          "type": "string"
+        "widget_id": {
+          "type": "string",
+          "default": ""
         },
         "visible": {
           "type": "boolean",
@@ -446,6 +449,14 @@
         "editable": {
           "type": "boolean",
           "default": true
+        },
+        "context_data": {
+          "type": "object",
+          "default": {}
+        },
+        "data": {
+          "type": "object",
+          "default": {}
         },
         "options": {
           "type": "object",

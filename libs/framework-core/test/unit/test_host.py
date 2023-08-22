@@ -1,6 +1,6 @@
 import functools
 from ftrack_framework_core import host
-from ftrack_framework_core import constants
+import ftrack_constants.framework as constants
 
 
 def test_initialise_host(event_manager):

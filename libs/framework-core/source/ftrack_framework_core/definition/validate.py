@@ -1,11 +1,12 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2014-2022 ftrack
+# :copyright: Copyright (c) 2014-2023 ftrack
 
 import logging
 
 from jsonschema import validate as _validate_jsonschema
 
 logger = logging.getLogger(__name__)
+
 
 def _get_schema(definition_type, schemas):
     '''
@@ -21,7 +22,6 @@ def _get_schema(definition_type, schemas):
     return None
 
 
-# TODO: this should be moved to validate folder with the definitions
 def validate_definition(schemas, definition):
     '''
     Validates the schema of the given *definition* from the given *schemas*
@@ -33,6 +33,3 @@ def validate_definition(schemas, definition):
     '''
     schema = _get_schema(definition['type'], schemas)
     _validate_jsonschema(definition, schema)
-
-
-
