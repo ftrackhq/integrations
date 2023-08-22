@@ -78,4 +78,3 @@ class StatusSelector(QtWidgets.QComboBox):
         '''
             % (self._status_colors.get(status_id) or '#303030',)
         )
-

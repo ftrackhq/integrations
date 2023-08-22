@@ -134,7 +134,9 @@ class ModalDialog(QtWidgets.QDialog):
 
     def get_approve_button(self):
         '''Build the approve button widget'''
-        button = QtWidgets.QPushButton('YES' if self._dialog_mode is True else 'OK')
+        button = QtWidgets.QPushButton(
+            'YES' if self._dialog_mode is True else 'OK'
+        )
         button.setMinimumSize(QtCore.QSize(40, 35))
         return button
 
@@ -165,4 +167,3 @@ class ModalDialog(QtWidgets.QDialog):
         if isinstance(self.parentWidget(), BaseDialog):
             self.parentWidget().darken = visible
         super(ModalDialog, self).setVisible(visible)
-

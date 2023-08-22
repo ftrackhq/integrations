@@ -6,6 +6,7 @@ from functools import partial
 from ftrack_framework_core import client
 import ftrack_constants as constants
 
+
 # TODO: remove Resolver client
 class ResolverClient(client.Client):
     '''

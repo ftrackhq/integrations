@@ -36,4 +36,3 @@ class FileDialog(QtWidgets.QFileDialog):
     def proces_path(self, file_path):
         '''Process returned path of the file dialog'''
         self._path = os.path.normpath(file_path)
-

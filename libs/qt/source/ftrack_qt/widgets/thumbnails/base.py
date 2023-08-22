@@ -172,4 +172,3 @@ class ThumbnailBase(QtWidgets.QLabel):
 
         self.logger.warning('There is no url image to download')
         return None
-

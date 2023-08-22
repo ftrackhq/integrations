@@ -95,12 +95,12 @@ class BasePlugin(object):
 
     @property
     def status(self):
-        ''' Current status of the plugin'''
+        '''Current status of the plugin'''
         return self._status
 
     @status.setter
     def status(self, value):
-        ''' Set new status to the plugin'''
+        '''Set new status to the plugin'''
         if value not in constants.status.STATUS_LIST:
             self.logger.error(
                 "Status {} is not recognized. Available statuses are: {}".format(
@@ -112,27 +112,27 @@ class BasePlugin(object):
 
     @property
     def message(self):
-        ''' Current message '''
+        '''Current message'''
         return self._message
 
     @message.setter
     def message(self, value):
-        ''' Set the current message'''
+        '''Set the current message'''
         self._message = value
 
     @property
     def boolean_status(self):
-        ''' Get the current boolean status of the plugin'''
+        '''Get the current boolean status of the plugin'''
         return constants.status.status_bool_mapping[self.status]
 
     @property
     def execution_time(self):
-        ''' Execution time of the plugin'''
+        '''Execution time of the plugin'''
         return self._execution_time
 
     @execution_time.setter
     def execution_time(self, value):
-        ''' Set the execution time of the plugin'''
+        '''Set the execution time of the plugin'''
         self._execution_time = value
 
     # TODO: Couble check if this is used and if not evaluate if to remove it
@@ -173,7 +173,7 @@ class BasePlugin(object):
 
     @property
     def plugin_widget_id(self):
-        ''' Return the widget id linked to the plugin'''
+        '''Return the widget id linked to the plugin'''
         return self._plugin_widget_id
 
     @property
@@ -221,11 +221,11 @@ class BasePlugin(object):
         self.register_method(
             method_name='run',
             required_output_type=dict,
-            required_output_value=None
+            required_output_value=None,
         )
 
     def register_method(
-            self, method_name, required_output_type, required_output_value
+        self, method_name, required_output_type, required_output_value
     ):
         '''
         Register given *method_name*, with the *required_output_type* and
@@ -234,7 +234,7 @@ class BasePlugin(object):
 
         self._methods[method_name] = {
             'required_output_type': required_output_type,
-            'required_output_value': required_output_value
+            'required_output_value': required_output_value,
         }
 
     # TODO: This should be ABC
@@ -246,10 +246,10 @@ class BasePlugin(object):
         return event
 
     def _execute_callback(self, event):
-        ''' Execute the method given in the *event* '''
+        '''Execute the method given in the *event*'''
         start_time = time.time()
 
-        #Reset all statuses
+        # Reset all statuses
         self.status = constants.status.DEFAULT_STATUS
         self.message = None
         self._method_result = None
@@ -280,9 +280,7 @@ class BasePlugin(object):
             if not self.message:
                 self.message = (
                     "Error executing pre_execute_callback_hook: {} \n "
-                    "status {}".format(
-                    e, self.status
-                    )
+                    "status {}".format(e, self.status)
                 )
             # If booth handled by the plugin, logger the message
             self.logger.error(self.message)
@@ -310,7 +308,10 @@ class BasePlugin(object):
             "context_data: {} \n "
             "data: {} \n "
             "options: {}".format(
-                self.method, self.context_data, self.plugin_data, self.plugin_options
+                self.method,
+                self.context_data,
+                self.plugin_data,
+                self.plugin_options,
             )
         )
         self.status = constants.status.RUNNING_STATUS
@@ -325,7 +326,7 @@ class BasePlugin(object):
             self.method_result = execute_fn(
                 context_data=self.context_data,
                 data=self.plugin_data,
-                options=self.plugin_options
+                options=self.plugin_options,
             )
         except Exception as e:
             if self.boolean_status:
@@ -333,8 +334,10 @@ class BasePlugin(object):
             # If status is already handled by the plugin we check if message is
             # also handled if not set a generic one
             if not self.message:
-                self.message = "Error executing plugin: {} \n status {}".format(
-                    e, self.status
+                self.message = (
+                    "Error executing plugin: {} \n status {}".format(
+                        e, self.status
+                    )
                 )
             # If booth handled by the plugin, logger the message
             self.logger.error(self.message)
@@ -376,9 +379,7 @@ class BasePlugin(object):
             if not self.message:
                 self.message = (
                     "Error executing post_execute_callback_hook: {} \n "
-                    "status {}".format(
-                    e, self.status
-                    )
+                    "status {}".format(e, self.status)
                 )
             # If booth handled by the plugin, logger the message
             self.logger.error(self.message)
@@ -418,7 +419,7 @@ class BasePlugin(object):
         return result
 
     def provide_plugin_info(self):
-        ''' Provide the entire plugin information '''
+        '''Provide the entire plugin information'''
         return {
             'host_id': self.host_id,
             'plugin_name': self.name,
@@ -432,7 +433,7 @@ class BasePlugin(object):
             'plugin_result_registry': self.result_registry,
             'plugin_execution_time': self.execution_time,
             'plugin_message': self.message,
-            'plugin_context_data':self.context_data,
+            'plugin_context_data': self.context_data,
             'plugin_data': self.plugin_data,
             'plugin_options': self.plugin_options,
             'plugin_widget_id': self.plugin_widget_id,
@@ -440,11 +441,9 @@ class BasePlugin(object):
         }
 
     def _subscribe_events(self):
-        ''' Method to subscribe to plugin events '''
+        '''Method to subscribe to plugin events'''
         self.event_manager.subscribe.execute_plugin(
-            self.host_type,
-            self.name,
-            callback=self._execute_callback
+            self.host_type, self.name, callback=self._execute_callback
         )
 
     def _validate_result(self, result):
@@ -452,8 +451,7 @@ class BasePlugin(object):
         Validates the *result* of the executed method.
         '''
         is_valid = validation.validate_output_type(
-            type(result),
-            self.methods[self.method].get('required_output_type')
+            type(result), self.methods[self.method].get('required_output_type')
         )
         if not is_valid:
             self.message = (
@@ -461,15 +459,14 @@ class BasePlugin(object):
                 'Result type: {} \n '
                 'Required type: {}'.format(
                     type(result),
-                    self.methods[self.method].get('required_output_type')
+                    self.methods[self.method].get('required_output_type'),
                 )
             )
             return is_valid
 
         if self.methods[self.method].get('required_output_value'):
             is_valid = validation.validate_output_value(
-                result,
-                self.methods[self.method].get('required_output_value')
+                result, self.methods[self.method].get('required_output_value')
             )
             if not is_valid:
                 self.message = (
@@ -477,7 +474,7 @@ class BasePlugin(object):
                     'Result: {} \n '
                     'Required output: {}'.format(
                         result,
-                        self.methods[self.method].get('required_output_value')
+                        self.methods[self.method].get('required_output_value'),
                     )
                 )
         return is_valid
@@ -546,15 +543,9 @@ class BasePlugin(object):
         logger = logging.getLogger(
             '{0}.{1}'.format(__name__, cls.__class__.__name__)
         )
-        logger.debug(
-            'registering: {} for {}'.format(cls.name, cls.host_type)
-        )
+        logger.debug('registering: {} for {}'.format(cls.name, cls.host_type))
 
         # subscribe to discover the plugin
         event_manager.subscribe.discover_plugin(
-            cls.host_type,
-            cls.name,
-            callback=lambda event: True
+            cls.host_type, cls.name, callback=lambda event: True
         )
-
-

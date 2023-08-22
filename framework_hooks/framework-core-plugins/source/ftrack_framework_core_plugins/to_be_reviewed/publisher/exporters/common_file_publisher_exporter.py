@@ -19,7 +19,7 @@ class CommonFilePublisherExporterPlugin(BasePlugin):
         self.register_method(
             method_name='run',
             required_output_type=list,
-            required_output_value=None
+            required_output_value=None,
         )
 
     def run(self, context_data=None, data=None, options=None):

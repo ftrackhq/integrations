@@ -8,6 +8,7 @@ import ftrack_constants.framework as constants
 #  also, instead of having one method for each type, can we pass the type as
 #  argument of the method?
 
+
 class CommonDefaultAssetResolverPlugin(BasePlugin):
     name = 'common_default_asset_resolver'
     host_type = constants.host.PYTHON_HOST_TYPE
@@ -17,7 +18,7 @@ class CommonDefaultAssetResolverPlugin(BasePlugin):
         self.register_method(
             method_name='run',
             required_output_type=dict,
-            required_output_value=None
+            required_output_value=None,
         )
 
     # Resolver config, loaded from options

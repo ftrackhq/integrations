@@ -12,6 +12,7 @@ import ftrack_constants.framework as constants
 #  always use the manager only try to review the well use of it. Maybe
 #  asset info or DCC object can be removed.
 
+
 class FtrackObjectManager(object):
     '''
     FtrackObjectManager class.
@@ -197,15 +198,15 @@ class FtrackObjectManager(object):
         return self.dcc_object
 
     def create_new_asset_info(
-            self,
-            asset_version_entity,
-            component_name,
-            component_path,
-            component_id,
-            load_mode,
-            asset_info_options,
-            objects_loaded,
-            reference_object
+        self,
+        asset_version_entity,
+        component_name,
+        component_path,
+        component_id,
+        load_mode,
+        asset_info_options,
+        objects_loaded,
+        reference_object,
     ):
         '''
         Creates a new dcc_object with a unique name.

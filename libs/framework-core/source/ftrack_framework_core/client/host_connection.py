@@ -148,8 +148,7 @@ class HostConnection(object):
         self._context_id = self._raw_host_data.get('context_id')
 
         self.event_manager.subscribe.host_context_changed(
-            self.host_id,
-            self._on_host_context_changed_callback
+            self.host_id, self._on_host_context_changed_callback
         )
 
     def _on_host_context_changed_callback(self, event):

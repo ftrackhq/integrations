@@ -8,9 +8,11 @@ from ftrack_framework_widget.widget import Widget
 
 from ftrack_qt.widgets.browsers import FileBrowser
 
+
 # TODO: review and docstring this code
 class FileBrowserWidget(Widget, QtWidgets.QWidget):
     '''Main class to represent a context widget on a publish process.'''
+
     name = 'file_browser_collector'
     ui_type = 'qt'
 
@@ -22,7 +24,7 @@ class FileBrowserWidget(Widget, QtWidgets.QWidget):
         plugin_definition,
         dialog_connect_methods_callback,
         dialog_property_getter_connection_callback,
-        parent=None
+        parent=None,
     ):
         '''initialise PublishContextWidget with *parent*, *session*, *data*,
         *name*, *description*, *options* and *context*
@@ -38,7 +40,7 @@ class FileBrowserWidget(Widget, QtWidgets.QWidget):
             plugin_definition,
             dialog_connect_methods_callback,
             dialog_property_getter_connection_callback,
-            parent=parent
+            parent=parent,
         )
 
     def pre_build(self):
@@ -49,7 +51,7 @@ class FileBrowserWidget(Widget, QtWidgets.QWidget):
         self.setSizePolicy(
             QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Fixed
         )
-    
+
     def build(self):
         '''build function widgets.'''
         # Create file browser

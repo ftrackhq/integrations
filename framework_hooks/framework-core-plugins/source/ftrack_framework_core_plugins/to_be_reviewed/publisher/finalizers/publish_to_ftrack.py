@@ -6,6 +6,7 @@ import traceback
 from ftrack_framework_plugin import BasePlugin
 import ftrack_constants.framework as constants
 
+
 # TODO: review and cleanup this code
 class PublishToFtrack(BasePlugin):
     name = 'publish_to_ftrack'
@@ -17,7 +18,7 @@ class PublishToFtrack(BasePlugin):
         self.register_method(
             method_name='run',
             required_output_type=dict,
-            required_output_value=None
+            required_output_value=None,
         )
 
     # TODO: review this code to check if the rollback works as it is.
@@ -31,7 +32,7 @@ class PublishToFtrack(BasePlugin):
         for step in self.plugin_data:
             if step['type'] == constants.definition.COMPONENT:
                 component_name = step['name']
-                publish_components[component_name] =  []
+                publish_components[component_name] = []
                 for stage in step['result']:
                     for plugin in stage['result']:
                         publish_components[component_name].append(
@@ -55,9 +56,7 @@ class PublishToFtrack(BasePlugin):
         # Get Context object
         context_object = self.session.query(
             'select name, parent, parent.name from Context where '
-            'id is "{}"'.format(
-                self.context_data['context_id']
-            )
+            'id is "{}"'.format(self.context_data['context_id'])
         ).one()
 
         # Get Asset type object
@@ -163,7 +162,9 @@ class PublishToFtrack(BasePlugin):
 
         return return_dict
 
-    def _create_new_asset(self, asset_name, asset_type_object, asset_parent_object):
+    def _create_new_asset(
+        self, asset_name, asset_type_object, asset_parent_object
+    ):
         asset_entity = self.session.create(
             'Asset',
             {
@@ -172,13 +173,11 @@ class PublishToFtrack(BasePlugin):
                 'parent': asset_parent_object,
             },
         )
-        self.logger.debug(
-            'Successfully created asset: {}'.format(asset_name)
-        )
+        self.logger.debug('Successfully created asset: {}'.format(asset_name))
         return asset_entity
 
     def _create_new_asset_version(
-            self, asset_entity, context_object, comment, status_object
+        self, asset_entity, context_object, comment, status_object
     ):
         asset_version_object = self.session.create(
             'AssetVersion',

@@ -6,13 +6,13 @@ import base64
 
 from ftrack_framework_plugin import BasePlugin
 
-#TODO: double check we are allowed to do this, or we should not use constants
+# TODO: double check we are allowed to do this, or we should not use constants
 #  here, or have host available in base plugin to be able to do something
 #  like: host.constants.stage_types.COLLECTOR
 import ftrack_constants.framework as constants
 
 
-#TODO: This is not a base plugin, this should simply be a plugin and should be
+# TODO: This is not a base plugin, this should simply be a plugin and should be
 # moved to the ftrack_core_plugins. We allways allow list of plugins, so this
 # one can be in that list and is not need to use it as base.
 # Also review code and test it.
@@ -59,10 +59,7 @@ class BaseLoaderOpenerPlugin(BasePlugin):
         self.register_method(
             method_name='init_nodes',
             required_output_type=dict,
-            required_output_value={
-                'asset_info': None,
-                'dcc_object': None
-            }
+            required_output_value={'asset_info': None, 'dcc_object': None},
         )
         self.register_method(
             method_name='load_asset',
@@ -70,16 +67,16 @@ class BaseLoaderOpenerPlugin(BasePlugin):
             required_output_value={
                 'asset_info': None,
                 'dcc_object': None,
-                'result': None
-            }
+                'result': None,
+            },
         )
         self.register_method(
             method_name='init_and_load',
             required_output_type=dict,
-            required_output_value=None
+            required_output_value=None,
         )
 
-    #TODO: make this one ABC just for this type
+    # TODO: make this one ABC just for this type
     def collect_current_objects(self):
         raise NotImplementedError
 
@@ -147,7 +144,7 @@ class BaseLoaderOpenerPlugin(BasePlugin):
 
         result = {
             'asset_info': self.ftrack_object_manager.asset_info,
-            'dcc_object': self.ftrack_object_manager.dcc_object
+            'dcc_object': self.ftrack_object_manager.dcc_object,
         }
         return result
 
@@ -166,9 +163,7 @@ class BaseLoaderOpenerPlugin(BasePlugin):
         # Execute the default(usually run) method to load the objects
         execute_fn = getattr(self, self.default_method)
         result = execute_fn(
-            context_data=context_data,
-            data=data,
-            options=options
+            context_data=context_data, data=data, options=options
         )
 
         #  Query all the objects from the scene
@@ -212,6 +207,3 @@ class BaseLoaderOpenerPlugin(BasePlugin):
         )
 
         return event
-
-
-

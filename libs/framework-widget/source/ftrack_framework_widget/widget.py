@@ -4,6 +4,7 @@ import uuid
 
 from ftrack_framework_widget import Base, active_widget
 
+
 # TODO: docstring this code
 class Widget(Base):
     '''Base Class to represent a Widget of the framework'''
@@ -58,29 +59,22 @@ class Widget(Base):
         self.plugin_definition.options.update(value)
 
     def __init__(
-            self,
-            event_manager,
-            client_id,
-            context_id,
-            plugin_definition,
-            dialog_connect_methods_callback,
-            dialog_property_getter_connection_callback,
-            parent=None
+        self,
+        event_manager,
+        client_id,
+        context_id,
+        plugin_definition,
+        dialog_connect_methods_callback,
+        dialog_property_getter_connection_callback,
+        parent=None,
     ):
-
         self._context_id = context_id
         self._plugin_definition = plugin_definition
 
         self.connect_methods(dialog_connect_methods_callback)
-        self.connect_properties(
-            dialog_property_getter_connection_callback
-        )
+        self.connect_properties(dialog_property_getter_connection_callback)
 
-        super(Widget, self).__init__(
-            event_manager,
-            client_id,
-            parent
-        )
+        super(Widget, self).__init__(event_manager, client_id, parent)
 
         # Augment definition with the widget ID:
         self.plugin_definition.widget_id = self.id
@@ -111,7 +105,7 @@ class Widget(Base):
         arguments = {
             "plugin_definition": self.plugin_definition,
             "plugin_method_name": plugin_method_name,
-            'plugin_widget_id': self.id
+            'plugin_widget_id': self.id,
         }
         self.dialog_method_connection('run_plugin_method', arguments=arguments)
 
@@ -128,8 +122,4 @@ class Widget(Base):
         pass
 
     def set_plugin_option(self, name, value):
-        self.plugin_options = {
-            name: value
-        }
-
-
+        self.plugin_options = {name: value}

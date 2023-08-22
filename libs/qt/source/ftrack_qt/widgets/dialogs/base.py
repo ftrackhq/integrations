@@ -31,4 +31,3 @@ class BaseDialog(QtWidgets.QDialog):
     def __init__(self, parent):
         super(BaseDialog, self).__init__(parent=parent)
         self._shaded_widget = None
-

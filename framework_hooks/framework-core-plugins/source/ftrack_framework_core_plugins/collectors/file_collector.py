@@ -6,6 +6,7 @@ import os
 from ftrack_framework_plugin import BasePlugin
 import ftrack_constants.framework as constants
 
+
 class FileCollectorPlugin(BasePlugin):
     name = 'file_collector'
     host_type = constants.host.PYTHON_HOST_TYPE
@@ -16,7 +17,7 @@ class FileCollectorPlugin(BasePlugin):
         self.register_method(
             method_name='run',
             required_output_type=str,
-            required_output_value=None
+            required_output_value=None,
         )
 
     def run(self, context_data=None, data=None, options=None):
@@ -29,9 +30,7 @@ class FileCollectorPlugin(BasePlugin):
             self.status = constants.status.ERROR_STATUS
             self.message = (
                 "Please provide folder_path and file_name in options. \n "
-                "options: {}".format(
-                    options
-                )
+                "options: {}".format(options)
             )
             return ''
 

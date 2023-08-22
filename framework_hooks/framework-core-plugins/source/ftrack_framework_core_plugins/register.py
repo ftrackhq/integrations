@@ -12,6 +12,3 @@ def register(event_manager):
     return registry.register_dependencies_from_directory(
         BasePlugin, current_dir, event_manager
     )
-
-
-

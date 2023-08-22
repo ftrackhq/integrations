@@ -5,6 +5,7 @@ import time
 import ftrack_constants.framework as constants
 from ftrack_framework_core.host.engine import BaseEngine
 
+
 # TODO: Create new Resolver engine, move all the logic to plugins, should just have
 #  the run_definition method.
 class ResolverEngine(BaseEngine):

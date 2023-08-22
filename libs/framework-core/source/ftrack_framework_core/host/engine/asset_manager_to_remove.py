@@ -151,12 +151,16 @@ class AssetManagerEngine(BaseEngine):
                 self.logger.error(
                     "Error selecting asset with version id {} \n error: {} "
                     "\n asset_info: {}".format(
-                        asset_info[constants.status.asset.VERSION_ID], e, asset_info
+                        asset_info[constants.status.asset.VERSION_ID],
+                        e,
+                        asset_info,
                     )
                 )
 
             bool_status = constants.status.status_bool_mapping[status]
-            statuses[asset_info[constants.status.asset.ASSET_INFO_ID]] = bool_status
+            statuses[
+                asset_info[constants.status.asset.ASSET_INFO_ID]
+            ] = bool_status
             results[asset_info[constants.status.asset.ASSET_INFO_ID]] = result
 
             i += 1
@@ -223,11 +227,15 @@ class AssetManagerEngine(BaseEngine):
                 self.logger.error(
                     "Error updating asset with version id {} \n error: {} "
                     "\n asset_info: {}".format(
-                        asset_info[constants.status.asset.VERSION_ID], e, asset_info
+                        asset_info[constants.status.asset.VERSION_ID],
+                        e,
+                        asset_info,
                     )
                 )
             bool_status = constants.status.status_bool_mapping[status]
-            statuses[asset_info[constants.status.asset.ASSET_INFO_ID]] = bool_status
+            statuses[
+                asset_info[constants.status.asset.ASSET_INFO_ID]
+            ] = bool_status
             results[asset_info[constants.status.asset.ASSET_INFO_ID]] = result
 
         return statuses, results
@@ -343,12 +351,16 @@ class AssetManagerEngine(BaseEngine):
                 self.logger.error(
                     "Error removing asset with version id {} \n error: {} "
                     "\n asset_info: {}".format(
-                        asset_info[constants.status.asset.VERSION_ID], e, asset_info
+                        asset_info[constants.status.asset.VERSION_ID],
+                        e,
+                        asset_info,
                     )
                 )
 
             bool_status = constants.status.status_bool_mapping[status]
-            statuses[asset_info[constants.status.asset.ASSET_INFO_ID]] = bool_status
+            statuses[
+                asset_info[constants.status.asset.ASSET_INFO_ID]
+            ] = bool_status
             results[asset_info[constants.status.asset.ASSET_INFO_ID]] = result
 
         return statuses, results
@@ -492,9 +504,13 @@ class AssetManagerEngine(BaseEngine):
         self.dcc_object = dcc_object
 
         # Get Component name from the original asset info
-        component_name = self.asset_info.get(constants.status.asset.COMPONENT_NAME)
+        component_name = self.asset_info.get(
+            constants.status.asset.COMPONENT_NAME
+        )
         # Get the asset info options from the original asset info
-        asset_info_options = self.asset_info[constants.status.asset.ASSET_INFO_OPTIONS]
+        asset_info_options = self.asset_info[
+            constants.status.asset.ASSET_INFO_OPTIONS
+        ]
 
         remove_result = None
         remove_status = None
@@ -509,7 +525,9 @@ class AssetManagerEngine(BaseEngine):
             message = str(
                 "Error removing asset with version id {} \n error: {} "
                 "\n asset_info: {}".format(
-                    asset_info[constants.status.asset.VERSION_ID], e, asset_info
+                    asset_info[constants.status.asset.VERSION_ID],
+                    e,
+                    asset_info,
                 )
             )
             self.logger.error(message)
@@ -571,9 +589,13 @@ class AssetManagerEngine(BaseEngine):
             # Collect asset_context_data and asset data
             asset_context_data = asset_info_options['context_data']
             asset_context_data[constants.status.asset.ASSET_ID] = asset_id
-            asset_context_data[constants.status.asset.VERSION_NUMBER] = version_number
+            asset_context_data[
+                constants.status.asset.VERSION_NUMBER
+            ] = version_number
             asset_context_data[constants.status.asset.ASSET_NAME] = asset_name
-            asset_context_data[constants.status.asset.ASSET_TYPE_NAME] = asset_type_name
+            asset_context_data[
+                constants.status.asset.ASSET_TYPE_NAME
+            ] = asset_type_name
             asset_context_data[constants.status.asset.VERSION_ID] = version_id
 
             # Update asset_info_options
@@ -582,9 +604,7 @@ class AssetManagerEngine(BaseEngine):
                 constants.status.asset.COMPONENT_ID: component_id,
                 constants.status.asset.COMPONENT_PATH: component_path,
             }
-            asset_info_options['context_data'].update(
-                asset_context_data
-            )
+            asset_info_options['context_data'].update(asset_context_data)
 
             # Align track/load mode
             run_method = asset_info_options['method']
@@ -611,7 +631,7 @@ class AssetManagerEngine(BaseEngine):
                 asset_info_options['host_type'],
                 asset_info_options['plugin_data'],
                 asset_info_options['options'],
-                asset_info_options['context_data']
+                asset_info_options['context_data'],
             )
 
             # Get the result
@@ -627,7 +647,9 @@ class AssetManagerEngine(BaseEngine):
             new_dcc_object = result_data['result'][
                 new_asset_info_options['pipeline']['method']
             ]['dcc_object']
-            new_asset_info[constants.status.asset.REFERENCE_OBJECT] = new_dcc_object.name
+            new_asset_info[
+                constants.status.asset.REFERENCE_OBJECT
+            ] = new_dcc_object.name
 
             self.asset_info = new_asset_info
             self.dcc_object = new_dcc_object
@@ -641,7 +663,9 @@ class AssetManagerEngine(BaseEngine):
             message = str(
                 "Error changing version of asset with version id {} \n "
                 "error: {} \n asset_info: {}".format(
-                    asset_info[constants.status.asset.VERSION_ID], e, asset_info
+                    asset_info[constants.status.asset.VERSION_ID],
+                    e,
+                    asset_info,
                 )
             )
             self.logger.error(message)
@@ -664,7 +688,9 @@ class AssetManagerEngine(BaseEngine):
         else:
             status = constants.status.SUCCESS_STATUS
 
-        result[asset_info[constants.status.asset.ASSET_INFO_ID]] = new_asset_info
+        result[
+            asset_info[constants.status.asset.ASSET_INFO_ID]
+        ] = new_asset_info
 
         end_time = time.time()
         total_time = end_time - start_time
@@ -702,12 +728,16 @@ class AssetManagerEngine(BaseEngine):
                 self.logger.error(
                     "Error removing asset with version id {} \n error: {} "
                     "\n asset_info: {}".format(
-                        asset_info[constants.status.asset.VERSION_ID], e, asset_info
+                        asset_info[constants.status.asset.VERSION_ID],
+                        e,
+                        asset_info,
                     )
                 )
 
             bool_status = constants.status.status_bool_mapping[status]
-            statuses[asset_info[constants.status.asset.ASSET_INFO_ID]] = bool_status
+            statuses[
+                asset_info[constants.status.asset.ASSET_INFO_ID]
+            ] = bool_status
             results[asset_info[constants.status.asset.ASSET_INFO_ID]] = result
 
         return statuses, results
@@ -771,12 +801,16 @@ class AssetManagerEngine(BaseEngine):
                 self.logger.error(
                     "Error removing asset with version id {} \n error: {} "
                     "\n asset_info: {}".format(
-                        asset_info[constants.status.asset.VERSION_ID], e, asset_info
+                        asset_info[constants.status.asset.VERSION_ID],
+                        e,
+                        asset_info,
                     )
                 )
 
             bool_status = constants.status.status_bool_mapping[status]
-            statuses[asset_info[constants.status.asset.ASSET_INFO_ID]] = bool_status
+            statuses[
+                asset_info[constants.status.asset.ASSET_INFO_ID]
+            ] = bool_status
             results[asset_info[constants.status.asset.ASSET_INFO_ID]] = result
 
         return statuses, results

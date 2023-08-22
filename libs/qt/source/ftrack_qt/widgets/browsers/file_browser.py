@@ -62,8 +62,7 @@ class FileBrowser(QtWidgets.QWidget):
         '''Browse button clicked signal'''
         start_dir = self._path_le.text() or Path.home()
         choosen_file_path = FileDialog(
-            start_dir=str(start_dir),
-            dialog_filter="*"
+            start_dir=str(start_dir), dialog_filter="*"
         )
         self.set_path(choosen_file_path.path)
         self.path_changed.emit(choosen_file_path.path)

@@ -4,10 +4,13 @@
 from Qt import QtWidgets, QtCore, QtGui
 
 from ftrack_qt.widgets.icons import (
-    ArrowMaterialIconWidget, MaterialIcon, StatusMaterialIconWidget
+    ArrowMaterialIconWidget,
+    MaterialIcon,
+    StatusMaterialIconWidget,
 )
 from ftrack_qt.widgets.lines import LineWidget
 from ftrack_qt.widgets.buttons import OptionsButton
+
 
 class AccordionHeaderWidget(QtWidgets.QFrame):
     '''Container for accordion header - holding checkbox, title, user content
@@ -41,16 +44,15 @@ class AccordionHeaderWidget(QtWidgets.QFrame):
     def collapsed(self):
         return self._collapsed
 
-
     def __init__(
-            self,
-            title=None,
-            checkable=False,
-            checked=True,
-            show_checkbox=False,
-            collapsable=True,
-            collapsed=True,
-            parent=None
+        self,
+        title=None,
+        checkable=False,
+        checked=True,
+        show_checkbox=False,
+        collapsable=True,
+        collapsed=True,
+        parent=None,
     ):
         '''
         Initialize header widget

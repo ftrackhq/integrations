@@ -138,7 +138,7 @@ class AccordionBaseWidget(QtWidgets.QFrame):
             checked=self.checked,
             show_checkbox=self.show_checkbox,
             collapsable=self.collapsable,
-            collapsed=self.collapsed
+            collapsed=self.collapsed,
         )
 
         # Add header to main widget
@@ -161,7 +161,9 @@ class AccordionBaseWidget(QtWidgets.QFrame):
             self._on_checkbox_status_changed
         )
         self._header_widget.clicked.connect(self._on_header_clicked)
-        self._header_widget.arrow_clicked.connect(self._on_header_arrow_clicked)
+        self._header_widget.arrow_clicked.connect(
+            self._on_header_arrow_clicked
+        )
         self._content_widget.setVisible(not self._collapsed)
         self._content_widget.setEnabled(self.checked)
 
@@ -182,7 +184,9 @@ class AccordionBaseWidget(QtWidgets.QFrame):
 
     def paint_title(self, color):
         '''Put a foreground *color* on header title label'''
-        self._header_widget._title_label.setStyleSheet("color: {}".format(color))
+        self._header_widget._title_label.setStyleSheet(
+            "color: {}".format(color)
+        )
 
     def set_indicator_color(self, color):
         '''Set the left indicator visibility depending on *color*'''
@@ -250,4 +254,3 @@ class AccordionBaseWidget(QtWidgets.QFrame):
                 'background',
                 'selected' if self._selected else 'transparent',
             )
-

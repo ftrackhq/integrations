@@ -8,6 +8,7 @@ from ftrack_qt.widgets.thumbnails import User as UserThumbnail
 # Cache of user names.
 NAME_CACHE = dict()
 
+
 class FtrackUser(QtWidgets.QFrame):
     '''Header user avatar widget'''
 

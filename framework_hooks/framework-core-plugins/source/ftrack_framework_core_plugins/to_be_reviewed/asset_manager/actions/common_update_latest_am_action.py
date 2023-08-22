@@ -4,6 +4,7 @@
 from ftrack_framework_plugin import BasePlugin
 import ftrack_constants.framework as constants
 
+
 class CommonUpdateLatestAssetManagerActionPlugin(BasePlugin):
     name = 'common_update_latest_am_action'
     host_type = constants.host.PYTHON_HOST_TYPE
@@ -13,7 +14,7 @@ class CommonUpdateLatestAssetManagerActionPlugin(BasePlugin):
         self.register_method(
             method_name='run',
             required_output_type=list,
-            required_output_value=None
+            required_output_value=None,
         )
 
     def run(self, context_data=None, data=None, options=None):
@@ -23,7 +24,6 @@ class CommonUpdateLatestAssetManagerActionPlugin(BasePlugin):
         #  Somehow we should expose to the user what the arguments are and how
         #  are they filled out. Maybe exposing the engine in the doc so the user
         #  can see what each argument contain?
-
 
         asset_info = FtrackAssetInfo(data)
 

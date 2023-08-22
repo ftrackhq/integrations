@@ -33,6 +33,3 @@ def validate_definition(schemas, definition):
     '''
     schema = _get_schema(definition['type'], schemas)
     _validate_jsonschema(definition, schema)
-
-
-

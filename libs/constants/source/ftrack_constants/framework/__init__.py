@@ -10,4 +10,3 @@ from ftrack_constants.framework import asset
 from ftrack_constants.framework import client
 from ftrack_constants.framework import host
 from ftrack_constants.framework import plugin
-

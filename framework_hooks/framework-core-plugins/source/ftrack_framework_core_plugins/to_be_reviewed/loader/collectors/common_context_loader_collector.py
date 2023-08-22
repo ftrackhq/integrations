@@ -21,7 +21,7 @@ class CommonContextLoaderCollectorPlugin(BasePlugin):
                 constants.asset.COMPONENT_NAME: None,
                 constants.asset.COMPONENT_PATH: None,
                 constants.asset.COMPONENT_ID: None,
-            }
+            },
         )
 
     def run(self, context_data=None, data=None, options=None):

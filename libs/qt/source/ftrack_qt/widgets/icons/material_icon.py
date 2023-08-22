@@ -58,4 +58,3 @@ class MaterialIcon(QtGui.QIcon):
                     'Unknown material icon resource: {}!'.format(resource_path)
                 )
         super(MaterialIcon, self).__init__(pixmap, parent=parent)
-

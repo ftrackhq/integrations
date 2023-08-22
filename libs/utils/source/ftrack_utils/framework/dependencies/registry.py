@@ -16,9 +16,8 @@ def register_framework_modules_by_type(event_manager, module_type, callback):
     for package in pkgutil.iter_modules():
         # Pick only the that matches ftrack framework and the module type
         is_type = all(
-            x in package.name.split("_") for x in [
-                'ftrack', 'framework', module_type
-            ]
+            x in package.name.split("_")
+            for x in ['ftrack', 'framework', module_type]
         )
         if not is_type:
             continue
@@ -45,7 +44,9 @@ def register_framework_modules_by_type(event_manager, module_type, callback):
         )
 
 
-def register_dependencies_from_directory(class_type, current_dir, event_manager):
+def register_dependencies_from_directory(
+    class_type, current_dir, event_manager
+):
     '''Register plugin to api_object.'''
 
     subfolders = fast_scandir(current_dir)

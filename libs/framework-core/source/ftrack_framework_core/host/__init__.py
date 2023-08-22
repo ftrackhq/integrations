@@ -12,8 +12,16 @@ from functools import partial
 from ftrack_utils.framework.dependencies import registry
 import ftrack_constants.framework as constants
 
-from ftrack_framework_core.definition import discover, validate, definition_object
-from ftrack_framework_core.host.engine import load_publish, asset_manager_to_remove, resolver_to_remove
+from ftrack_framework_core.definition import (
+    discover,
+    validate,
+    definition_object,
+)
+from ftrack_framework_core.host.engine import (
+    load_publish,
+    asset_manager_to_remove,
+    resolver_to_remove,
+)
 from ftrack_framework_core.asset import FtrackObjectManager
 from ftrack_framework_core.log.log_item import LogItem
 from ftrack_framework_core.log import LogDB
@@ -24,8 +32,9 @@ logger = logging.getLogger(__name__)
 #  1. Double check if this should better be part of the host class as a method.
 #  2. Rename it to discover_host_reply_callback or similar?
 
+
 def provide_host_information(
-        host_id, host_name, context_id, definitions, event
+    host_id, host_name, context_id, definitions, event
 ):
     '''
     Returns dictionary with host id, host name, context id and definition from
@@ -98,7 +107,7 @@ class Host(object):
         :class:`~ftrack_framework_core.asset.FtrackObjectManager`
         '''
         if not isinstance(
-                self._ftrack_object_manager, self.FtrackObjectManager
+            self._ftrack_object_manager, self.FtrackObjectManager
         ):
             self._ftrack_object_manager = self.FtrackObjectManager(
                 self.event_manager
@@ -130,8 +139,7 @@ class Host(object):
             'ftrack host context is now: {}'.format(self.context_id)
         )
         self.event_manager.publish.host_context_changed(
-            self.id,
-            self.context_id
+            self.id, self.context_id
         )
 
     @property
@@ -175,6 +183,7 @@ class Host(object):
         Returns the registred plugins`
         '''
         return self.__plugins_registry
+
     # TODO: we can create an engine registry
 
     def __init__(self, event_manager):
@@ -188,9 +197,7 @@ class Host(object):
             __name__ + '.' + self.__class__.__name__
         )
         # Create the host id
-        self._id = '{}-{}'.format(
-            '.'.join(self.host_types), uuid.uuid4().hex
-        )
+        self._id = '{}-{}'.format('.'.join(self.host_types), uuid.uuid4().hex)
 
         self.logger.debug('Initializing Host {}'.format(self))
 
@@ -220,13 +227,13 @@ class Host(object):
         registry.register_framework_modules_by_type(
             event_manager=self.event_manager,
             module_type='plugins',
-            callback=self._on_register_plugins_callback
+            callback=self._on_register_plugins_callback,
         )
         # Register the schemas befor the definitions
         registry.register_framework_modules_by_type(
             event_manager=self.event_manager,
             module_type='schemas',
-            callback=self._on_register_schemas_callback
+            callback=self._on_register_schemas_callback,
         )
         # Make sure schemas are found
         if not self.schemas:
@@ -240,19 +247,17 @@ class Host(object):
             module_type='definitions',
             callback=partial(
                 self._on_register_definitions_callback, self.schemas
-            )
+            ),
         )
 
         if (
-                self.__plugins_registry and
-                self.__schemas_registry and
-                self.__definitions_registry
+            self.__plugins_registry
+            and self.__schemas_registry
+            and self.__definitions_registry
         ):
             # Check that registry went correct
             return True
-        raise Exception(
-            'Error registring modules on host, please check logs'
-        )
+        raise Exception('Error registring modules on host, please check logs')
 
     def _on_register_plugins_callback(self, registred_plugins):
         '''
@@ -310,9 +315,7 @@ class Host(object):
         discovered_schemas = discover.discover_schemas(schema_paths)
 
         # resolve schemas
-        valid_schemas = discover.resolve_schemas(
-            discovered_schemas
-        )
+        valid_schemas = discover.resolve_schemas(discovered_schemas)
 
         end = time.time()
         logger.debug('Discover schemas run in: {}s'.format((end - start)))
@@ -328,7 +331,9 @@ class Host(object):
         start = time.time()
 
         # discover definitions
-        discovered_definitions = discover.discover_definitions(definition_paths)
+        discovered_definitions = discover.discover_definitions(
+            definition_paths
+        )
 
         # filter definitions
         discovered_definitions = discover.filter_definitions_by_host(
@@ -357,7 +362,7 @@ class Host(object):
 
     # Subscribe
     def _subscribe_events(self):
-        ''' Host subscription events to communicate with the client'''
+        '''Host subscription events to communicate with the client'''
         # Subscribe to topic
         # :const:`~ftrack_framework_core.constants.NOTIFY_PLUGIN_PROGRESS_TOPIC`
         # to receive client notifications from the host in :meth:`_notify_client_callback`
@@ -403,13 +408,10 @@ class Host(object):
         log_item = LogItem(plugin_info)
         self.logs.add_log_item(log_item)
         # Publish the event to notify client
-        self.event_manager.publish.host_log_item_added(
-            self.id,
-            log_item
-        )
+        self.event_manager.publish.host_log_item_added(self.id, log_item)
 
     def _client_context_change_callback(self, event):
-        ''' Callback when the client has changed context'''
+        '''Callback when the client has changed context'''
         context_id = event['data']['context_id']
         if context_id != self.context_id:
             self.context_id = context_id
@@ -435,15 +437,20 @@ class Host(object):
         if not Engine:
             raise Exception('No engine of type "{}" found'.format(engine_type))
         engine_runner = Engine(
-            self.event_manager, self.ftrack_object_manager, self.host_types,
-            self.id, asset_type_name
+            self.event_manager,
+            self.ftrack_object_manager,
+            self.host_types,
+            self.id,
+            asset_type_name,
         )
 
         try:
             validate.validate_definition(self.schemas, definition)
         except Exception as error:
             self.logger.error(
-                "Can't validate definition {} error: {}".format(definition, error)
+                "Can't validate definition {} error: {}".format(
+                    definition, error
+                )
             )
         runner_result = engine_runner.run_definition(definition)
 
@@ -467,8 +474,11 @@ class Host(object):
         if not Engine:
             raise Exception('No engine of type "{}" found'.format(engine_type))
         engine_runner = Engine(
-            self.event_manager, self.ftrack_object_manager, self.host_types,
-            self.id, None
+            self.event_manager,
+            self.ftrack_object_manager,
+            self.host_types,
+            self.id,
+            None,
         )
 
         runner_result = engine_runner.run_plugin(
@@ -493,7 +503,8 @@ class Host(object):
                 "Couldn't run plugin:\n "
                 "Definition: {}\n"
                 "Method: {}\n"
-                "Engine: {}\n".format(plugin_definition, plugin_method, engine_type)
+                "Engine: {}\n".format(
+                    plugin_definition, plugin_method, engine_type
+                )
             )
         return runner_result
-

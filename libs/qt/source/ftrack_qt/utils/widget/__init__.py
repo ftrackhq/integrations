@@ -7,6 +7,7 @@ from Qt import QtWidgets, QtCore, QtGui
 
 # TODO: check this utilities if they are really needed.
 
+
 def find_parent(widget, class_name):
     '''Recursively find upstream widget having class name
     containing *class_name*'''

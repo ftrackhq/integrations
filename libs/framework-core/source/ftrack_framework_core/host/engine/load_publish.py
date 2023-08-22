@@ -12,13 +12,21 @@ class LoadPublishEngine(BaseEngine):
     Base engine class.
     '''
 
-    engine_type = [constants.definition.LOADER, constants.definition.OPENER, constants.definition.PUBLISHER]
+    engine_type = [
+        constants.definition.LOADER,
+        constants.definition.OPENER,
+        constants.definition.PUBLISHER,
+    ]
     '''Engine type for this engine class'''
 
     # TODO: double check if we really need to declare the init here.
     def __init__(
-            self, event_manager, ftrack_object_manager, host_types, host_id,
-            asset_type_name
+        self,
+        event_manager,
+        ftrack_object_manager,
+        host_types,
+        host_id,
+        asset_type_name,
     ):
         '''
         Initialise HostConnection with instance of
@@ -31,10 +39,12 @@ class LoadPublishEngine(BaseEngine):
         type should be specified.
         '''
         super(LoadPublishEngine, self).__init__(
-            event_manager, ftrack_object_manager, host_types, host_id,
-            asset_type_name
+            event_manager,
+            ftrack_object_manager,
+            host_types,
+            host_id,
+            asset_type_name,
         )
-
 
     def run_plugin(
         self,
@@ -45,7 +55,7 @@ class LoadPublishEngine(BaseEngine):
         plugin_context_data=None,
         plugin_method=None,
         plugin_widget_id=None,
-        plugin_widget_name=None
+        plugin_widget_name=None,
     ):
         return super(LoadPublishEngine, self).run_plugin(
             plugin_name=plugin_name,
@@ -55,7 +65,7 @@ class LoadPublishEngine(BaseEngine):
             plugin_context_data=plugin_context_data,
             plugin_method=plugin_method,
             plugin_widget_id=plugin_widget_id,
-            plugin_widget_name=plugin_widget_name
+            plugin_widget_name=plugin_widget_name,
         )
 
     # Base functions for loader, opener and publisher
@@ -144,7 +154,7 @@ class LoadPublishEngine(BaseEngine):
                 # default_method is defined in the definitions
                 plugin_method=plugin_definition['default_method'],
                 plugin_widget_id=plugin_definition['widget_id'],
-                plugin_widget_name=plugin_definition['widget']
+                plugin_widget_name=plugin_definition['widget'],
             )
 
             bool_status = constants.status.status_bool_mapping[
@@ -392,7 +402,9 @@ class LoadPublishEngine(BaseEngine):
                 context_latest_stage = context_latest_step.get('result')[-1]
                 context_data = {}
                 for context_plugin in context_latest_stage.get('result'):
-                    context_data.update(context_plugin.get('plugin_method_result'))
+                    context_data.update(
+                        context_plugin.get('plugin_method_result')
+                    )
 
             elif step_group == constants.definition.COMPONENTS:
                 components_output = copy.deepcopy(group_results)

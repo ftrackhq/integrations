@@ -47,4 +47,3 @@ class AssetVersion(ThumbnailBase):
         else:
             scaled_pixmap = pixmap
         self.setPixmap(scaled_pixmap)
-

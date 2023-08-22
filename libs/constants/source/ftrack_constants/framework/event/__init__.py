@@ -29,7 +29,9 @@ EXECUTE_PLUGIN_TOPIC = '{}.execute.plugin'.format(_BASE_)
 NOTIFY_PLUGIN_PROGRESS_TOPIC = '{}.notify.plugin.progress'.format(_BASE_)
 #: Pipeline client progress notification topic event, used to communicate the result of
 #: the steps execution from host to the client.
-NOTIFY_DEFINITION_PROGRESS_CLIENT_TOPIC = '{}.client.notify.progress'.format(_BASE_)
+NOTIFY_DEFINITION_PROGRESS_CLIENT_TOPIC = '{}.client.notify.progress'.format(
+    _BASE_
+)
 # Launch a widget within a client
 CLIENT_LAUNCH_WIDGET_TOPIC = '{}.client.launch.widget'.format(_BASE_)
 # The main host context has changed, sent from host or host connection (change context)
@@ -39,16 +41,30 @@ CLIENT_CONTEXT_CHANGED_TOPIC = '{}.client.context.change'.format(_BASE_)
 # Host has added a new log item
 HOST_LOG_ITEM_ADDED_TOPIC = '{}.host.log.added'.format(_BASE_)
 # Client signal context changed
-CLIENT_SIGNAL_CONTEXT_CHANGED_TOPIC = '{}.client.signal.context.change'.format(_BASE_)
+CLIENT_SIGNAL_CONTEXT_CHANGED_TOPIC = '{}.client.signal.context.change'.format(
+    _BASE_
+)
 # Client signal host discovered
-CLIENT_SIGNAL_HOSTS_DISCOVERED_TOPIC = '{}.client.signal.host.discover'.format(_BASE_)
+CLIENT_SIGNAL_HOSTS_DISCOVERED_TOPIC = '{}.client.signal.host.discover'.format(
+    _BASE_
+)
 # Client signal host changed
-CLIENT_SIGNAL_HOST_CHANGED_TOPIC = '{}.client.signal.host.change'.format(_BASE_)
+CLIENT_SIGNAL_HOST_CHANGED_TOPIC = '{}.client.signal.host.change'.format(
+    _BASE_
+)
 # Client signal definition changed
-CLIENT_SIGNAL_DEFINITION_CHANGED_TOPIC = '{}.client.signal.definition.change'.format(_BASE_)
+CLIENT_SIGNAL_DEFINITION_CHANGED_TOPIC = (
+    '{}.client.signal.definition.change'.format(_BASE_)
+)
 # Client received plugin result
-CLIENT_NOTIFY_UI_RUN_PLUGIN_RESULT_TOPIC = '{}.client.notify.plugin.result'.format(_BASE_)
+CLIENT_NOTIFY_UI_RUN_PLUGIN_RESULT_TOPIC = (
+    '{}.client.notify.plugin.result'.format(_BASE_)
+)
 # Client received definition result
-CLIENT_NOTIFY_UI_RUN_DEFINITION_RESULT_TOPIC = '{}.client.notify.definition.result'.format(_BASE_)
+CLIENT_NOTIFY_UI_RUN_DEFINITION_RESULT_TOPIC = (
+    '{}.client.notify.definition.result'.format(_BASE_)
+)
 # Client received log item result
-CLIENT_NOTIFY_UI_LOG_ITEM_ADDED_TOPIC = '{}.client.notify.log_item'.format(_BASE_)
+CLIENT_NOTIFY_UI_LOG_ITEM_ADDED_TOPIC = '{}.client.notify.log_item'.format(
+    _BASE_
+)

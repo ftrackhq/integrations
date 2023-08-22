@@ -7,6 +7,7 @@ logger = logging.getLogger(__name__)
 
 # TODO: docstring this file
 
+
 def validate_output_type(result_type, required_type):
     if not result_type == required_type:
         return False
@@ -20,9 +21,13 @@ def validate_output_value(result, required_value):
     if type(result) == dict:
         if type(required_value) != dict:
             return False
-        valid_keys = validate_dict_keys(list(result.keys()), list(required_value.keys()))
+        valid_keys = validate_dict_keys(
+            list(result.keys()), list(required_value.keys())
+        )
         if any(required_value.values()):
-            valid_values = validate_dict_values(list(result.values()), list(required_value.values()))
+            valid_values = validate_dict_values(
+                list(result.values()), list(required_value.values())
+            )
         if valid_values and valid_keys:
             return True
     return result == required_value

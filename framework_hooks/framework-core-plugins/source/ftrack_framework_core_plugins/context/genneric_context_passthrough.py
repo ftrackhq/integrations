@@ -5,6 +5,7 @@ import copy
 from ftrack_framework_plugin import BasePlugin
 import ftrack_constants.framework as constants
 
+
 # tODO: review this code and rename plugin
 class GenericContextPassthroughPlugin(BasePlugin):
     name = 'generic_context_passthrough'
@@ -21,7 +22,7 @@ class GenericContextPassthroughPlugin(BasePlugin):
                 'asset_name': None,
                 'comment': None,
                 'status_id': None,
-            }
+            },
         )
 
     def run(self, context_data=None, data=None, options=None):

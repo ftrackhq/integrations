@@ -76,7 +76,6 @@ def _discover_plugin(event_manager, host_types, plugin):
     plugin_result = {}
 
     for host_type in reversed(host_types):
-
         plugin_result = event_manager.publish.discover_plugin(
             host_type,
             plugin_name,
@@ -145,6 +144,7 @@ def discover_definitions(definition_paths):
 
     return definitions
 
+
 def discover_schemas(schema_paths):
     '''
     Collect all the schemas and definitions from the given
@@ -194,6 +194,7 @@ def _collect_json(source_path):
             loaded_jsons.append(data_store)
 
     return loaded_jsons
+
 
 # TODO: remove this function as its not used anymore
 def resolve_schemas(schemas):
@@ -279,6 +280,8 @@ def augment_definition(definitions, schemas, session):
                         )
                     )
                 # Convert lists to DefinitionList
-                copy_definitions[entry] = definition_object.DefinitionList(copy_definitions[entry])
+                copy_definitions[entry] = definition_object.DefinitionList(
+                    copy_definitions[entry]
+                )
 
     return copy_definitions

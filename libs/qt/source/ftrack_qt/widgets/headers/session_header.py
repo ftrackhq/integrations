@@ -79,4 +79,3 @@ class SessionHeader(QtWidgets.QFrame):
 
     def add_widget(self, widget):
         self.content_container.layout().addWidget(widget)
-

@@ -45,6 +45,7 @@ class Client(object):
         '''Returns instance of
         :class:`~ftrack_framework_core.event.EventManager`'''
         return self._event_manager
+
     @property
     def session(self):
         '''
@@ -85,7 +86,10 @@ class Client(object):
             self._unsubscribe_host_context_changed()
             Client._host_connection = value
             return
-        if self.host_connection and value.host_id == self.host_connection.host_id:
+        if (
+            self.host_connection
+            and value.host_id == self.host_connection.host_id
+        ):
             return
 
         self.logger.debug('Setting new host connection: {}'.format(value))
@@ -94,7 +98,7 @@ class Client(object):
         # Subscribe log item added
         self.event_manager.subscribe.host_log_item_added(
             self.host_connection.host_id,
-            callback=self.on_log_item_added_callback
+            callback=self.on_log_item_added_callback,
         )
         # Clean up host_context_change_subscription in case exists
         self._unsubscribe_host_context_changed()
@@ -102,8 +106,11 @@ class Client(object):
         # the host_connection. This is because we want to let the client know
         # that host changed context but also update the host connection to the
         # new context.
-        self._host_context_changed_subscribe_id = self.event_manager.subscribe.host_context_changed(
-            self.host_connection.host_id, self._host_context_changed_callback
+        self._host_context_changed_subscribe_id = (
+            self.event_manager.subscribe.host_context_changed(
+                self.host_connection.host_id,
+                self._host_context_changed_callback,
+            )
         )
         # Feed change of host and context to client
         self.on_host_changed(self.host_connection)
@@ -137,12 +144,12 @@ class Client(object):
 
     @property
     def host_context_changed_subscribe_id(self):
-        ''' The subscription id of the host context changed event '''
+        '''The subscription id of the host context changed event'''
         return self._host_context_changed_subscribe_id
 
     @property
     def definitions(self):
-        ''' Returns all available definitions from the current host_ connection '''
+        '''Returns all available definitions from the current host_ connection'''
         if not self.host_connection:
             raise Exception('No host connection available')
         return self.host_connection.definitions
@@ -164,7 +171,9 @@ class Client(object):
                 "Please set the host connection before setting a definition"
             )
             return
-        if value and not self.definitions[value.type].get_first(name=value.name):
+        if value and not self.definitions[value.type].get_first(
+            name=value.name
+        ):
             self.logger.error(
                 "Invalid definition, choose one from : {}".format(
                     self.definitions
@@ -211,7 +220,7 @@ class Client(object):
     @dialog.setter
     def dialog(self, value):
         # TODO: Check value is type of framework dialog
-        ''' Set the given *value* as the current active dialog'''
+        '''Set the given *value* as the current active dialog'''
         self.set_active_dialog(self._dialog, value)
         self._dialog = value
 
@@ -221,11 +230,11 @@ class Client(object):
         return self.__framework_widget_registry
 
     def __init__(
-            self,
-            event_manager,
-            auto_discover_host=True,
-            auto_connect_host=True,
-            multithreading_enabled=True
+        self,
+        event_manager,
+        auto_discover_host=True,
+        auto_connect_host=True,
+        multithreading_enabled=True,
     ):
         '''
         Initialise Client with instance of
@@ -271,7 +280,7 @@ class Client(object):
         registry.register_framework_modules_by_type(
             event_manager=self.event_manager,
             module_type='widgets',
-            callback=self._on_register_framework_widgets_callback
+            callback=self._on_register_framework_widgets_callback,
         )
 
         if self.__framework_widget_registry:
@@ -304,7 +313,7 @@ class Client(object):
         #             )
         #         )
 
-        #self.__framework_widget_registry = discovered_widgets
+        # self.__framework_widget_registry = discovered_widgets
         self.__framework_widget_registry = registred_widgets
 
     # Host
@@ -337,7 +346,9 @@ class Client(object):
                 self.logger.warning('Could not discover any host.')
                 break
 
-            self.event_manager.publish.discover_host(callback=self._host_discovered_callback)
+            self.event_manager.publish.discover_host(
+                callback=self._host_discovered_callback
+            )
 
         # Feed host connections to the client
         self.on_hosts_discovered(self.host_connections)
@@ -355,8 +366,8 @@ class Client(object):
         for reply_data in event['data']:
             host_connection = HostConnection(self.event_manager, reply_data)
             if (
-                    host_connection
-                    and host_connection not in self.host_connections
+                host_connection
+                and host_connection not in self.host_connections
             ):
                 self.host_connections.append(host_connection)
 
@@ -403,7 +414,7 @@ class Client(object):
 
     # Definition
     def on_definition_changed(self, definition):
-        ''' Callback, definition has been changed in the client'''
+        '''Callback, definition has been changed in the client'''
         # Emit signal to widget
         self.event_manager.publish.client_signal_definition_changed(self.id)
 
@@ -416,7 +427,7 @@ class Client(object):
             self.host_id,
             definition.to_dict(),
             engine_type,
-            self._run_definition_callback
+            self._run_definition_callback,
         )
 
     # TODO: this should be ABC method
@@ -425,14 +436,16 @@ class Client(object):
         self.logger.debug("_run_definition_callback event: {}".format(event))
         # Publish event to widget
         self.event_manager.publish.client_notify_ui_run_definition_result(
-            self.id,
-            event['data'][0]
+            self.id, event['data'][0]
         )
 
     # Plugin
     def run_plugin(
-            self, plugin_definition, plugin_method_name, engine_type,
-            plugin_widget_id=None
+        self,
+        plugin_definition,
+        plugin_method_name,
+        engine_type,
+        plugin_widget_id=None,
     ):
         '''
         Publish event to tell the host to run the given *plugin_method_name*
@@ -445,7 +458,7 @@ class Client(object):
             plugin_method_name,
             engine_type,
             plugin_widget_id,
-            self._run_plugin_callback
+            self._run_plugin_callback,
         )
 
     #  converted to ABC method.
@@ -454,8 +467,7 @@ class Client(object):
         self.logger.debug("_run_plugin_callback event: {}".format(event))
         # Publish event to widget
         self.event_manager.publish.client_notify_ui_run_plugin_result(
-            self.id,
-            event['data'][0]
+            self.id, event['data'][0]
         )
 
     # TODO: This should be an ABC
@@ -488,13 +500,12 @@ class Client(object):
         )
         # Publish event to widget
         self.event_manager.publish.client_notify_ui_log_item_added(
-            self.id,
-            event['data']['log_item']
+            self.id, event['data']['log_item']
         )
 
     # UI
     def run_dialog(self, dialog_name, dialog_class=None, dialog_options=None):
-        ''' Function to show a framework dialog from the client '''
+        '''Function to show a framework dialog from the client'''
         # use dialog options to pass options to the dialog like for
         #  example: Dialog= WidgetDialog dialog_options= {definition_plugin: Context_selector}
         #  ---> So this will execute the widget dialog with the widget of the
@@ -515,9 +526,7 @@ class Client(object):
             if dialog_class not in self.discovered_framework_widgets:
                 self.logger.warning(
                     'Provided dialog_class {} not in the discovered framework '
-                    'widgets, registring...'.format(
-                        dialog_class
-                    )
+                    'widgets, registring...'.format(dialog_class)
                 )
                 self.__framework_widget_registry.append(dialog_class)
 
@@ -543,7 +552,7 @@ class Client(object):
             connect_methods_callback=self._connect_methods_callback,
             connect_setter_property_callback=self._connect_setter_property_callback,
             connect_getter_property_callback=self._connect_getter_property_callback,
-            dialog_options=dialog_options
+            dialog_options=dialog_options,
         )
         # Append dialog to dialogs
         self._register_dialog(dialog)
@@ -551,16 +560,18 @@ class Client(object):
         self.dialog.show()
 
     def _register_dialog(self, dialog):
-        ''' Register the given initialized *dialog* to the dialogs registry'''
+        '''Register the given initialized *dialog* to the dialogs registry'''
         if dialog.id not in list(self.__dialogs_registry.keys()):
             self.__dialogs_registry[dialog.id] = dialog
 
     def set_active_dialog(self, old_dialog, new_dialog):
-        ''' Remove focus from the *old_dialog* and set the *new_dialog*'''
+        '''Remove focus from the *old_dialog* and set the *new_dialog*'''
         for dialog in list(self.dialogs.values()):
             dialog.change_focus(old_dialog, new_dialog)
 
-    def _connect_methods_callback(self, method_name, arguments=None, callback=None):
+    def _connect_methods_callback(
+        self, method_name, arguments=None, callback=None
+    ):
         '''
         Callback from the dialog to execute the given *method_name* from the
         client with the given *arguments* call the given *callback* once we have
@@ -586,5 +597,3 @@ class Client(object):
         Callback from the dialog, return the value of the given *property_name*
         '''
         return self.__getattribute__(property_name)
-
-

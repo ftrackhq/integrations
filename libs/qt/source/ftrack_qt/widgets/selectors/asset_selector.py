@@ -328,7 +328,9 @@ class AssetSelector(QtWidgets.QWidget):
             # Deselected, give focus to new asset input
             self.updateWidget.emit(None)
         else:
-            self._current_asset_changed(self._asset_list.assets[selected_index])
+            self._current_asset_changed(
+                self._asset_list.assets[selected_index]
+            )
 
     def _current_asset_changed(self, item=None):
         '''An existing asset *item* has been selected, or None if current is de-selected.'''

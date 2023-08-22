@@ -59,7 +59,7 @@ class Dialog(Base):
     @host_connection.setter
     def host_connection(self, value):
         '''
-         Set the *value* as current host_connection id in client
+        Set the *value* as current host_connection id in client
         '''
         self.client_property_setter_connection('host_connection', value)
 
@@ -77,7 +77,9 @@ class Dialog(Base):
         Available plugins in the current definition
         '''
         if not self.definition:
-            self.logger.warning("Please set a definition before quering plugins")
+            self.logger.warning(
+                "Please set a definition before quering plugins"
+            )
             return None
         return self.definition.get_all(category='plugin')
 
@@ -94,16 +96,15 @@ class Dialog(Base):
         )
 
     def __init__(
-            self,
-            event_manager,
-            client_id,
-            connect_methods_callback,
-            connect_setter_property_callback,
-            connect_getter_property_callback,
-            dialog_options,
-            parent=None
+        self,
+        event_manager,
+        client_id,
+        connect_methods_callback,
+        connect_setter_property_callback,
+        connect_getter_property_callback,
+        dialog_options,
+        parent=None,
     ):
-
         # Set properties to 0
         self._definitions = None
         self._host_connections = None
@@ -116,8 +117,7 @@ class Dialog(Base):
         # Connect client methods and properties
         self.connect_methods(connect_methods_callback)
         self.connect_properties(
-            connect_setter_property_callback,
-            connect_getter_property_callback
+            connect_setter_property_callback, connect_getter_property_callback
         )
         self._dialog_options = dialog_options
 
@@ -139,34 +139,31 @@ class Dialog(Base):
         self.client_property_getter_connection = get_method
 
     def _subscribe_client_events(self):
-        ''' Subscribe to all client events and signals'''
+        '''Subscribe to all client events and signals'''
         self.event_manager.subscribe.client_signal_context_changed(
-            self.client_id,
-            callback=self._on_client_context_changed_callback
+            self.client_id, callback=self._on_client_context_changed_callback
         )
         self.event_manager.subscribe.client_signal_hosts_discovered(
-            self.client_id,
-            callback=self._on_client_hosts_discovered_callback
+            self.client_id, callback=self._on_client_hosts_discovered_callback
         )
         self.event_manager.subscribe.client_signal_host_changed(
-            self.client_id,
-            callback=self._on_client_host_changed_callback
+            self.client_id, callback=self._on_client_host_changed_callback
         )
         self.event_manager.subscribe.client_signal_definition_changed(
             self.client_id,
-            callback=self._on_client_definition_changed_callback
+            callback=self._on_client_definition_changed_callback,
         )
         self.event_manager.subscribe.client_notify_ui_run_plugin_result(
             self.client_id,
-            callback=self._on_client_notify_ui_run_plugin_result_callback
+            callback=self._on_client_notify_ui_run_plugin_result_callback,
         )
         self.event_manager.subscribe.client_notify_ui_run_definition_result(
             self.client_id,
-            callback=self._on_client_notify_ui_run_definition_result_callback
+            callback=self._on_client_notify_ui_run_definition_result_callback,
         )
         self.event_manager.subscribe.client_notify_ui_log_item_added(
             self.client_id,
-            callback=self._on_client_notify_ui_log_item_added_callback
+            callback=self._on_client_notify_ui_log_item_added_callback,
         )
 
     # TODO: this should be an ABC
@@ -285,8 +282,9 @@ class Dialog(Base):
                 'The provided widget {} for plugin {} is not registred '
                 'Please provide a registred widget.\n '
                 'Registreated widgets: {}'.format(
-                    plugin_definition.widget, plugin_definition.plugin,
-                    self.discovered_framework_widgets
+                    plugin_definition.widget,
+                    plugin_definition.plugin,
+                    self.discovered_framework_widgets,
                 )
             )
             self.logger.error(error_message)
@@ -310,7 +308,7 @@ class Dialog(Base):
             self.__framework_widget_registry[widget.id] = widget
 
     def _connect_dialog_methods_callback(
-            self, method_name, arguments=None, callback=None
+        self, method_name, arguments=None, callback=None
     ):
         '''Enables widgets call dialog methods'''
         meth = getattr(self, method_name)
@@ -322,12 +320,14 @@ class Dialog(Base):
             callback(result)
         return result
 
-    def _connect_dialog_property_getter_connection_callback(self, property_name):
+    def _connect_dialog_property_getter_connection_callback(
+        self, property_name
+    ):
         '''Enables widgets to call dialog properties'''
         return self.__getattribute__(property_name)
 
     def run_plugin_method(
-            self, plugin_definition, plugin_method_name, plugin_widget_id=None
+        self, plugin_definition, plugin_method_name, plugin_widget_id=None
     ):
         '''
         Dialog tell client to run the *plugin_method_name* from the
@@ -340,7 +340,7 @@ class Dialog(Base):
             "plugin_definition": plugin_definition,
             "plugin_method_name": plugin_method_name,
             "engine_type": self.definition['_config']['engine_type'],
-            'plugin_widget_id': plugin_widget_id
+            'plugin_widget_id': plugin_widget_id,
         }
         self.client_method_connection('run_plugin', arguments=arguments)
 
@@ -368,7 +368,3 @@ class Dialog(Base):
         '''
         log_item = event['data']['log_item']
         # TODO: do something with the log_item
-
-
-
-

@@ -17,12 +17,12 @@ class FileExistsValidatorPlugin(BasePlugin):
         self.register_method(
             method_name='run',
             required_output_type=bool,
-            required_output_value=True
+            required_output_value=True,
         )
         self.register_method(
             method_name='validate',
             required_output_type=bool,
-            required_output_value=True
+            required_output_value=True,
         )
 
     def validate(self, context_data=None, data=None, options=None):
@@ -37,7 +37,6 @@ class FileExistsValidatorPlugin(BasePlugin):
         return exists
 
     def run(self, context_data=None, data=None, options=None):
-
         self.logger.debug("given context_data: {}".format(context_data))
         self.logger.debug("given data: {}".format(data))
         self.logger.debug("given options: {}".format(options))
@@ -45,5 +44,7 @@ class FileExistsValidatorPlugin(BasePlugin):
         #  the data from previous executed plugins, but maybe we can convert them
         #  to definition objects or somehow should be easier to get the result
         #  that the client want.
-        collector_result = data[0]['result'][0]['result'][0]['plugin_method_result']
-        return self.validate(data={'collector_result':collector_result})
+        collector_result = data[0]['result'][0]['result'][0][
+            'plugin_method_result'
+        ]
+        return self.validate(data={'collector_result': collector_result})

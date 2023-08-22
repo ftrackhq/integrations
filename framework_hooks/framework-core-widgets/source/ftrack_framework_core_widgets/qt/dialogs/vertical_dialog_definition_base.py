@@ -10,6 +10,7 @@ from ftrack_qt.widgets.selectors import ListSelector
 from ftrack_qt.widgets.headers import SessionHeader
 from ftrack_qt.widgets.selectors import ContextSelector
 
+
 # TODO: review and docstring this code
 class VerticalDialogDefinitionBase(Dialog, QtWidgets.QDialog):
     '''Base Class to represent a Plugin'''
@@ -21,6 +22,7 @@ class VerticalDialogDefinitionBase(Dialog, QtWidgets.QDialog):
     @property
     def definition_widget(self):
         return self._definition_widget
+
     @property
     def filtred_definitions(self):
         if not self.definition_filter:
@@ -31,14 +33,14 @@ class VerticalDialogDefinitionBase(Dialog, QtWidgets.QDialog):
         return definitions
 
     def __init__(
-            self,
-            event_manager,
-            client_id,
-            connect_methods_callback,
-            connect_setter_property_callback,
-            connect_getter_property_callback,
-            dialog_options,
-            parent=None
+        self,
+        event_manager,
+        client_id,
+        connect_methods_callback,
+        connect_setter_property_callback,
+        connect_getter_property_callback,
+        dialog_options,
+        parent=None,
     ):
         '''
         Initialise BasePlugin with instance of
@@ -61,7 +63,7 @@ class VerticalDialogDefinitionBase(Dialog, QtWidgets.QDialog):
             connect_setter_property_callback,
             connect_getter_property_callback,
             dialog_options,
-            parent
+            parent,
         )
 
     # TODO: this should be an ABC
@@ -76,14 +78,13 @@ class VerticalDialogDefinitionBase(Dialog, QtWidgets.QDialog):
         # Create the header
         self._header = SessionHeader(self.session)
         # TODO: implement progress widget.
-        #self._progress_widget = ProgressWidget
-        #self._header.add_widget(self._progress_widget)
+        # self._progress_widget = ProgressWidget
+        # self._header.add_widget(self._progress_widget)
 
         # TODO: we have to update the signals from the context selector to
         #  identify that are our signals and not qt signals. So make them snake case
         self._context_selector = ContextSelector(
-            self.session,
-            enble_context_change=True
+            self.session, enble_context_change=True
         )
         # Set context from client:
         self._on_client_context_changed_callback()
@@ -95,7 +96,9 @@ class VerticalDialogDefinitionBase(Dialog, QtWidgets.QDialog):
         self._scroll_area = QtWidgets.QScrollArea()
         self._scroll_area.setStyle(QtWidgets.QStyleFactory.create("plastique"))
         self._scroll_area.setWidgetResizable(True)
-        self._scroll_area.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
+        self._scroll_area.setHorizontalScrollBarPolicy(
+            QtCore.Qt.ScrollBarAlwaysOff
+        )
 
         self._definition_widget = QtWidgets.QWidget()
         _definition_widget_layout = QtWidgets.QVBoxLayout()
@@ -116,13 +119,23 @@ class VerticalDialogDefinitionBase(Dialog, QtWidgets.QDialog):
     def post_build(self):
         super(VerticalDialogDefinitionBase, self).post_build()
         # Connect context selector signals
-        self._context_selector.context_changed.connect(self._on_context_selected_callback)
+        self._context_selector.context_changed.connect(
+            self._on_context_selected_callback
+        )
         # Connect host selector signals
-        self._host_connection_selector.current_item_changed.connect(self._on_host_selected_callback)
-        self._host_connection_selector.refresh_clicked.connect(self._on_refresh_hosts_callback)
+        self._host_connection_selector.current_item_changed.connect(
+            self._on_host_selected_callback
+        )
+        self._host_connection_selector.refresh_clicked.connect(
+            self._on_refresh_hosts_callback
+        )
         # Connect definition selector signals
-        self._definition_selector.current_item_changed.connect(self._on_definition_selected_callback)
-        self._definition_selector.refresh_clicked.connect(self._on_refresh_definitions_callback)
+        self._definition_selector.current_item_changed.connect(
+            self._on_definition_selected_callback
+        )
+        self._definition_selector.refresh_clicked.connect(
+            self._on_refresh_definitions_callback
+        )
         # Connect run_definition button
         self._run_button.clicked.connect(self._on_run_button_clicked)
 
@@ -131,10 +144,13 @@ class VerticalDialogDefinitionBase(Dialog, QtWidgets.QDialog):
 
     def show(self):
         QtWidgets.QDialog.show(self)
+
     # TODO: this should be an ABC
     def connect_focus_signal(self):
         # Update the is_active property.
-        QtWidgets.QApplication.instance().focusChanged.connect(self._on_focus_changed)
+        QtWidgets.QApplication.instance().focusChanged.connect(
+            self._on_focus_changed
+        )
 
     def _add_host_connection_items(self):
         for host_connection in self.host_connections:
@@ -210,19 +226,25 @@ class VerticalDialogDefinitionBase(Dialog, QtWidgets.QDialog):
         self._add_definition_items()
 
     def _on_client_context_changed_callback(self, event=None):
-        super(VerticalDialogDefinitionBase, self)._on_client_context_changed_callback()
+        super(
+            VerticalDialogDefinitionBase, self
+        )._on_client_context_changed_callback()
         self._context_selector.context_id = self.context_id
 
     # TODO: This should be an ABC
     def _on_client_hosts_discovered_callback(self, event=None):
-        super(VerticalDialogDefinitionBase, self)._on_client_hosts_discovered_callback()
+        super(
+            VerticalDialogDefinitionBase, self
+        )._on_client_hosts_discovered_callback()
 
     # TODO: This should be an ABC
     def _on_client_host_changed_callback(self, event=None):
-        super(VerticalDialogDefinitionBase, self)._on_client_host_changed_callback()
+        super(
+            VerticalDialogDefinitionBase, self
+        )._on_client_host_changed_callback()
         if (
-                self._host_connection_selector.current_item_text() !=
-                self.host_connection.host_id
+            self._host_connection_selector.current_item_text()
+            != self.host_connection.host_id
         ):
             self._host_connection_selector.set_current_item(
                 self.host_connection.host_id
@@ -230,28 +252,26 @@ class VerticalDialogDefinitionBase(Dialog, QtWidgets.QDialog):
 
     # TODO: This should be an ABC
     def _on_client_definition_changed_callback(self, event=None):
-        super(VerticalDialogDefinitionBase, self)._on_client_definition_changed_callback()
+        super(
+            VerticalDialogDefinitionBase, self
+        )._on_client_definition_changed_callback()
         definition_name = None
         if self.definition:
             definition_name = self.definition.name
         if (
-                self._definition_selector.current_item_index() in [0, -1] and
-                not definition_name
+            self._definition_selector.current_item_index() in [0, -1]
+            and not definition_name
         ):
             return
-        if (
-                self._definition_selector.current_item_text() !=
-                definition_name
-        ):
-            self._definition_selector.set_current_item(
-                definition_name
-            )
+        if self._definition_selector.current_item_text() != definition_name:
+            self._definition_selector.set_current_item(definition_name)
 
     def _on_run_button_clicked(self):
         arguments = {
             "definition": self.definition,
-            "engine_type": self.client_property_getter_connection('engine_type')
-
+            "engine_type": self.client_property_getter_connection(
+                'engine_type'
+            ),
         }
         self.client_method_connection('run_definition', arguments=arguments)
 
@@ -263,9 +283,9 @@ class VerticalDialogDefinitionBase(Dialog, QtWidgets.QDialog):
             result = self.show_message_dialog(
                 title='Context out of sync!',
                 message='Selected context is not the current context, '
-                        'do you want to update UI to syc with the current context?',
+                'do you want to update UI to syc with the current context?',
                 button_1_text='Update',
-                button_2_text='Keep Current'
+                button_2_text='Keep Current',
             )
             if result == 1:
                 self._on_client_context_changed_callback()
@@ -276,17 +296,21 @@ class VerticalDialogDefinitionBase(Dialog, QtWidgets.QDialog):
     # TODO: This should be an ABC
     def sync_host_connection(self):
         if (
-                not self.host_connection.host_id and
-                self._host_connection_selector.current_item_index() not in [0,-1]
+            not self.host_connection.host_id
+            and self._host_connection_selector.current_item_index()
+            not in [0, -1]
         ):
             return
-        if self.host_connection.host_id != self._host_connection_selector.current_item_text():
+        if (
+            self.host_connection.host_id
+            != self._host_connection_selector.current_item_text()
+        ):
             result = self.show_message_dialog(
                 title='Host connection out of sync!',
                 message='Selected host connection is not the current host_connection, '
-                        'do you want to update UI to syc with the current one?',
+                'do you want to update UI to syc with the current one?',
                 button_1_text='Update',
-                button_2_text='Keep Current'
+                button_2_text='Keep Current',
             )
             if result == 1:
                 self._on_client_host_changed_callback()
@@ -299,13 +323,18 @@ class VerticalDialogDefinitionBase(Dialog, QtWidgets.QDialog):
     def sync_definition(self):
         sync = False
         if not self.definition:
-            if self._definition_selector.current_item_index() not in [0,-1]:
+            if self._definition_selector.current_item_index() not in [0, -1]:
                 sync = True
         else:
-            if self.definition.name != self._definition_selector.current_item_text():
+            if (
+                self.definition.name
+                != self._definition_selector.current_item_text()
+            ):
                 match = False
                 for definition_list in self.filtred_definitions:
-                    definition = definition_list.get_first(name=self.definition.name)
+                    definition = definition_list.get_first(
+                        name=self.definition.name
+                    )
                     if definition:
                         match = True
                         break
@@ -322,9 +351,9 @@ class VerticalDialogDefinitionBase(Dialog, QtWidgets.QDialog):
             result = self.show_message_dialog(
                 title='Current definition is out of sync!',
                 message='Selected definition is not the current definition, '
-                        'do you want to update UI to syc with the current one?',
+                'do you want to update UI to syc with the current one?',
                 button_1_text='Update',
-                button_2_text='Keep Current'
+                button_2_text='Keep Current',
             )
             if result == 1:
                 self._on_client_definition_changed_callback()
@@ -333,9 +362,10 @@ class VerticalDialogDefinitionBase(Dialog, QtWidgets.QDialog):
                     self._definition_selector.current_item_text()
                 )
 
-
     # TODO: maybe move this to a utils and standarize icon.
-    def show_message_dialog(self, title, message, button_1_text, button_2_text):
+    def show_message_dialog(
+        self, title, message, button_1_text, button_2_text
+    ):
         message_box = QtWidgets.QMessageBox()
         message_box.setWindowTitle(title)
         message_box.setText(message)
@@ -358,7 +388,6 @@ class VerticalDialogDefinitionBase(Dialog, QtWidgets.QDialog):
                 "plugin_definition": collector_plugin,
                 "plugin_method_name": 'run',
                 "engine_type": self.definition['_config']['engine_type'],
-                'plugin_widget_id': plugin_widget_id
+                'plugin_widget_id': plugin_widget_id,
             }
             self.client_method_connection('run_plugin', arguments=arguments)
-

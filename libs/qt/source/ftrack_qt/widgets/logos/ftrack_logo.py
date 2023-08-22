@@ -3,6 +3,7 @@
 
 from Qt import QtCore, QtWidgets, QtGui
 
+
 class FtrackLogo(QtWidgets.QLabel):
     '''Header logo widget'''
 

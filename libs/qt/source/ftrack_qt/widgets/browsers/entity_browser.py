@@ -1,7 +1,7 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2023 ftrack
 
-#TODO: review this widget code and try to simplify it. Review all the utilities
+# TODO: review this widget code and try to simplify it. Review all the utilities
 # as well in the same moment, I think we can simplify it a lot.
 
 from functools import partial
@@ -18,10 +18,13 @@ from ftrack_qt.widgets.icons import MaterialIcon
 from ftrack_qt.widgets.dialogs import ModalDialog
 from ftrack_qt.utils.layout import recursive_clear_layout
 from ftrack_qt.utils.widget import (
-    set_property, center_widget, InputEventBlockingWidget
+    set_property,
+    center_widget,
+    InputEventBlockingWidget,
 )
 
 from ftrack_utils.threading import BaseThread
+
 
 class EntityBrowser(ModalDialog):
     '''
@@ -596,9 +599,9 @@ class EntityBrowserNavigator(InputEventBlockingWidget):
                 if self.entity:
                     l_arrow = QtWidgets.QLabel()
                     l_arrow.setPixmap(
-                        MaterialIcon(
-                            'chevron-right', color='#676B70'
-                        ).pixmap(QtCore.QSize(16, 16))
+                        MaterialIcon('chevron-right', color='#676B70').pixmap(
+                            QtCore.QSize(16, 16)
+                        )
                     )
                     l_arrow.setMinimumSize(QtCore.QSize(16, 16))
                     self.layout().addWidget(l_arrow)

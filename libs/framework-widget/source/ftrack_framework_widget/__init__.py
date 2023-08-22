@@ -8,14 +8,20 @@ import uuid
 def active_widget(func):
     def wrapper(self, *args, **kwargs):
         '''If self.active in class execute the function'''
-        print ("Gettting the variable self.active from class".format(self.is_active))
+        print(
+            "Gettting the variable self.active from class".format(
+                self.is_active
+            )
+        )
         if self.is_active:
             return func(self, *args, **kwargs)
+
     return wrapper
 
 
 # TODO: is there any better name for the base class? I don't want to call it
 #  BaseWidget to not mix it with the Widget.
+
 
 # Docstring this class
 class Base(object):
@@ -72,12 +78,7 @@ class Base(object):
         '''
         self._is_active = value
 
-    def __init__(
-            self,
-            event_manager,
-            client_id,
-            parent=None
-    ):
+    def __init__(self, event_manager, client_id, parent=None):
         '''
         Initialise BasePlugin with instance of
         :class:`ftrack_api.session.Session`
@@ -105,7 +106,7 @@ class Base(object):
         self.connect_focus_signal()
 
     def _subscribe_client_events(self):
-        ''' Make the dialog subscribe to client events'''
+        '''Make the dialog subscribe to client events'''
         pass
 
     # TODO: this should be an ABC
@@ -123,7 +124,7 @@ class Base(object):
     # TODO: This should be an ABC
     def show(self):
         pass
-        #self._on_focus_changed(None, self)
+        # self._on_focus_changed(None, self)
 
     # TODO: This should be an ABC
     def connect_focus_signal(self):
@@ -157,8 +158,3 @@ class Base(object):
         #     cls.name,
         #     callback=lambda event: True
         # )
-
-
-
-
-

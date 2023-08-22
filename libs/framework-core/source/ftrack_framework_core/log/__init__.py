@@ -189,7 +189,7 @@ class LogDB(object):
                     str(log_item.plugin_data),
                     str(log_item.plugin_options),
                     str(log_item.plugin_widget_id),
-                    str(log_item.plugin_widget_name)
+                    str(log_item.plugin_widget_name),
                 ),
             )
             self.connection.commit()
@@ -293,7 +293,7 @@ class LogDB(object):
                             'plugin_data': t[14],
                             'plugin_options': t[15],
                             'plugin_widget_id': t[16],
-                            'plugin_widget_name': t[17]
+                            'plugin_widget_name': t[17],
                         }
                     )
                 )

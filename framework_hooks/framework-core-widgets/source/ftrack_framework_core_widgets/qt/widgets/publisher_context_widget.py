@@ -9,9 +9,11 @@ from ftrack_qt.widgets.selectors import AssetSelector
 from ftrack_qt.widgets.selectors import StatusSelector
 from ftrack_qt.widgets.lines import LineWidget
 
+
 # TODO: review and docstring this code
 class PublishContextWidget(Widget, QtWidgets.QWidget):
     '''Main class to represent a context widget on a publish process.'''
+
     name = 'publisher_context_selector'
     ui_type = 'qt'
 
@@ -23,7 +25,7 @@ class PublishContextWidget(Widget, QtWidgets.QWidget):
         plugin_definition,
         dialog_connect_methods_callback,
         dialog_property_getter_connection_callback,
-        parent=None
+        parent=None,
     ):
         '''initialise PublishContextWidget with *parent*, *session*, *data*,
         *name*, *description*, *options* and *context*
@@ -42,7 +44,7 @@ class PublishContextWidget(Widget, QtWidgets.QWidget):
             plugin_definition,
             dialog_connect_methods_callback,
             dialog_property_getter_connection_callback,
-            parent=parent
+            parent=parent,
         )
 
     def pre_build(self):
@@ -53,7 +55,7 @@ class PublishContextWidget(Widget, QtWidgets.QWidget):
         self.setSizePolicy(
             QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Fixed
         )
-    
+
     def build(self):
         '''build function widgets.'''
 
@@ -102,7 +104,7 @@ class PublishContextWidget(Widget, QtWidgets.QWidget):
         self._comments_input = QtWidgets.QTextEdit()
         self._comments_input.setMaximumHeight(40)
         self._comments_input.setPlaceholderText("Type a description...")
-        
+
         comments_layout.addWidget(comment_label)
         comments_layout.addWidget(self._comments_input)
 
@@ -147,5 +149,3 @@ class PublishContextWidget(Widget, QtWidgets.QWidget):
         asset_type_name = definition.asset_type
         self._asset_selector.set_context(self.context_id, asset_type_name)
         self.set_plugin_option('context_id', self.context_id)
-
-

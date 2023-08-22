@@ -11,7 +11,9 @@ from ftrack_qt.widgets.thumbnails import Context
 from ftrack_utils.threading import BaseThread
 from ftrack_qt.widgets.buttons import CircularButton
 from ftrack_qt.widgets.browsers import EntityBrowser
+
 # TODO: this code has to be reviewed
+
 
 class ContextSelector(QtWidgets.QFrame):
     '''Widget representing the current context by showing entity info, and a button enabling change of context'''
@@ -71,6 +73,7 @@ class ContextSelector(QtWidgets.QFrame):
                 browsing = True
                 break
         return browsing
+
     @property
     def browse_context_id(self):
         '''Return the browse context id'''

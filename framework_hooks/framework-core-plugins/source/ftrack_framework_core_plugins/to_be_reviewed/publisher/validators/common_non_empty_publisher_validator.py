@@ -16,7 +16,7 @@ class CommonNonEmptyPublisherValidatorPlugin(BasePlugin):
         self.register_method(
             method_name='run',
             required_output_type=list,
-            required_output_value=True
+            required_output_value=True,
         )
 
     def run(self, context_data=None, data=None, options=None):

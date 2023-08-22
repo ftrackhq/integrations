@@ -7,9 +7,11 @@ from Qt import QtWidgets, QtCore, QtGui
 
 from ftrack_framework_widget.widget import Widget
 
+
 # TODO: review and docstring this code
 class FileExportOptionsWidget(Widget, QtWidgets.QWidget):
     '''Main class to represent a context widget on a publish process.'''
+
     name = 'file_exporter_options'
     ui_type = 'qt'
 
@@ -21,7 +23,7 @@ class FileExportOptionsWidget(Widget, QtWidgets.QWidget):
         plugin_definition,
         dialog_connect_methods_callback,
         dialog_property_getter_connection_callback,
-        parent=None
+        parent=None,
     ):
         '''initialise PublishContextWidget with *parent*, *session*, *data*,
         *name*, *description*, *options* and *context*
@@ -37,7 +39,7 @@ class FileExportOptionsWidget(Widget, QtWidgets.QWidget):
             plugin_definition,
             dialog_connect_methods_callback,
             dialog_property_getter_connection_callback,
-            parent=parent
+            parent=parent,
         )
 
     def pre_build(self):
@@ -48,20 +50,18 @@ class FileExportOptionsWidget(Widget, QtWidgets.QWidget):
         self.setSizePolicy(
             QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Fixed
         )
-    
+
     def build(self):
         '''build function widgets.'''
         # Create options:
         for option, value in self.plugin_options.items():
-            h_layout =  QtWidgets.QHBoxLayout()
+            h_layout = QtWidgets.QHBoxLayout()
             option_widget = QtWidgets.QLabel(option)
             value_widget = None
             if type(value) == str:
                 value_widget = QtWidgets.QLineEdit(value)
                 value_widget.textChanged.connect(
-                    partial(
-                        self._on_option_changed, option
-                    )
+                    partial(self._on_option_changed, option)
                 )
             elif type(value) == bool:
                 # TODO: implement

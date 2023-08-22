@@ -202,12 +202,14 @@ class FtrackAssetInfo(dict):
         asset_info_data = {
             constants.asset.ASSET_INFO_ID: uuid.uuid4().hex,
             constants.asset.ASSET_NAME: asset_version_entity['asset']['name'],
-            constants.asset.ASSET_TYPE_NAME: asset_version_entity['asset']['type'][
-                'name'
-            ],
+            constants.asset.ASSET_TYPE_NAME: asset_version_entity['asset'][
+                'type'
+            ]['name'],
             constants.asset.VERSION_ID: asset_version_entity['id'],
             constants.asset.ASSET_ID: asset_version_entity['asset']['id'],
-            constants.asset.VERSION_NUMBER: int(asset_version_entity['version']),
+            constants.asset.VERSION_NUMBER: int(
+                asset_version_entity['version']
+            ),
             constants.asset.IS_LATEST_VERSION: asset_version_entity[
                 constants.asset.IS_LATEST_VERSION
             ],

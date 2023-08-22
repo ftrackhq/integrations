@@ -20,7 +20,7 @@ class CommonPassthroughLoaderContextPlugin(BasePlugin):
                 'asset_name': None,
                 'comment': None,
                 'status_id': None,
-            }
+            },
         )
 
     def run(self, context_data=None, data=None, options=None):
@@ -28,4 +28,3 @@ class CommonPassthroughLoaderContextPlugin(BasePlugin):
         output = self.methods['run'].get('required_output_value')
         output.update(options)
         return output
-

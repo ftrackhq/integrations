@@ -42,9 +42,9 @@ class OverlayWidget(QtWidgets.QFrame):
 
         # TODO: fix close button once style in place
         self.close_btn = QtWidgets.QPushButton('cloase', parent=self)
-        #self.close_btn.setIcon(MaterialIcon('close', color='#D3d4D6'))
-        #self.close_btn.setObjectName('borderless')
-        #self.close_btn.setFixedSize(24, 24)
+        # self.close_btn.setIcon(MaterialIcon('close', color='#D3d4D6'))
+        # self.close_btn.setObjectName('borderless')
+        # self.close_btn.setFixedSize(24, 24)
         self.close_btn.clicked.connect(self.close)
 
         self.widget = QtWidgets.QFrame(parent=self)

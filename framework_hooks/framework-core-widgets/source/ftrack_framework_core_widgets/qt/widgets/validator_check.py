@@ -13,6 +13,7 @@ from ftrack_qt.widgets.icons import StatusMaterialIconWidget
 # TODO: review and docstring this code
 class ValidatorCheckWidget(Widget, QtWidgets.QWidget):
     '''Main class to represent a context widget on a publish process.'''
+
     name = 'validator_check'
     ui_type = 'qt'
 
@@ -24,7 +25,7 @@ class ValidatorCheckWidget(Widget, QtWidgets.QWidget):
         plugin_definition,
         dialog_connect_methods_callback,
         dialog_property_getter_connection_callback,
-        parent=None
+        parent=None,
     ):
         '''initialise PublishContextWidget with *parent*, *session*, *data*,
         *name*, *description*, *options* and *context*
@@ -42,7 +43,7 @@ class ValidatorCheckWidget(Widget, QtWidgets.QWidget):
             plugin_definition,
             dialog_connect_methods_callback,
             dialog_property_getter_connection_callback,
-            parent=parent
+            parent=parent,
         )
 
     def pre_build(self):
@@ -53,7 +54,7 @@ class ValidatorCheckWidget(Widget, QtWidgets.QWidget):
         self.setSizePolicy(
             QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Fixed
         )
-    
+
     def build(self):
         '''build function widgets.'''
 
@@ -61,9 +62,7 @@ class ValidatorCheckWidget(Widget, QtWidgets.QWidget):
         self._validator_status_icon = StatusMaterialIconWidget('check')
         self._validator_status_icon.setObjectName('borderless')
         self._check_button = QtWidgets.QPushButton('check_validator')
-        self._validator_status_icon.set_status(
-            constants.status.DEFAULT_STATUS
-        )
+        self._validator_status_icon.set_status(constants.status.DEFAULT_STATUS)
 
         # Add the widgets to the layout
         self.layout().addWidget(self._validator_name_label)
@@ -80,13 +79,9 @@ class ValidatorCheckWidget(Widget, QtWidgets.QWidget):
         currentIndexChanged of status_selector event is triggered'''
         # This is async, so once the result arrive to the run_plugin_callback,
         # we set the status
-        arguments = {"plugin_widget_id":self.id}
-        self.dialog_method_connection(
-            'run_collectors', arguments=arguments
-        )
-        self._validator_status_icon.set_status(
-            constants.status.RUNNING_STATUS
-        )
+        arguments = {"plugin_widget_id": self.id}
+        self.dialog_method_connection('run_collectors', arguments=arguments)
+        self._validator_status_icon.set_status(constants.status.RUNNING_STATUS)
 
     def run_plugin_callback(self, plugin_info):
         # In case we have run the collectors
@@ -94,8 +89,8 @@ class ValidatorCheckWidget(Widget, QtWidgets.QWidget):
             self.validate_collector_result(plugin_info['plugin_method_result'])
         # We have run the validate method
         if (
-                plugin_info['plugin_widget_id'] == self.id and
-                plugin_info['plugin_method'] == 'validate'
+            plugin_info['plugin_widget_id'] == self.id
+            and plugin_info['plugin_method'] == 'validate'
         ):
             if plugin_info['plugin_method_result']:
                 self._validator_status_icon.set_status(

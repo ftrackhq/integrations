@@ -3,6 +3,7 @@
 
 import threading
 
+
 class BaseThread(threading.Thread):
     '''Thread helper class providing callback functionality'''
 

@@ -14,12 +14,13 @@ class CommonTestAssetManagerDiscoverPlugin(BasePlugin):
         self.register_method(
             method_name='run',
             required_output_type=dict,
-            required_output_value={'asset_name':None, 'asset_type_name':None}
+            required_output_value={
+                'asset_name': None,
+                'asset_type_name': None,
+            },
         )
 
     def run(self, context_data=None, data=None, options=None):
         '''This just an test example of an asset manager discovery plugin'''
         filter = {'asset_name': 'torso', 'asset_type_name': 'geo'}
         return filter
-
-
