@@ -5,6 +5,7 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+# TODO: docstring this file
 
 def validate_output_type(result_type, required_type):
     if not result_type == required_type:

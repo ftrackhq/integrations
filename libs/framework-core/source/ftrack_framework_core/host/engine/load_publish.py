@@ -1,15 +1,12 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2014-2020 ftrack
+# :copyright: Copyright (c) 2014-2023 ftrack
 
-import logging
-import ftrack_api
 import copy
 
 import ftrack_constants.framework as constants
 from ftrack_framework_core.host.engine import BaseEngine
 
-# TODO: try to separate engine to its own library, like the definitions.
-# TODO: engines should be cfreated dependeant on the workflow of the schema, so this engine is for loader, publisher etc... but not for AM or resolver.
+
 class LoadPublishEngine(BaseEngine):
     '''
     Base engine class.
@@ -300,8 +297,7 @@ class LoadPublishEngine(BaseEngine):
         )
         return step_status, step_results
 
-    # TODO: as a low priority task, try to improve this makeing a better use of the definition object, maybe extending the definition object as well to know how to run steps, stages and plugins.
-    # TODO: receive definition in here instead of data
+    # TODO: clean up this code and use definition object to simplify.
     def run_definition(self, definition_data):
         '''
         Runs the whole definition from the provided *data*.

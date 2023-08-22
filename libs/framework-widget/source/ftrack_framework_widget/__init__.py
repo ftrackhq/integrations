@@ -4,8 +4,6 @@
 import logging
 import uuid
 
-import ftrack_api
-
 
 def active_widget(func):
     def wrapper(self, *args, **kwargs):
@@ -15,13 +13,15 @@ def active_widget(func):
             return func(self, *args, **kwargs)
     return wrapper
 
+
+# TODO: is there any better name for the base class? I don't want to call it
+#  BaseWidget to not mix it with the Widget.
+
+# Docstring this class
 class Base(object):
     '''Base Class to represent a Plugin'''
 
-    # We Define name, plugin_type and host_type as class variables for
-    # convenience for the user when creating its own plugin.
     name = None
-    # TODO: framework_dialog and framework_widget for the child classes
     widget_type = 'framework_base'
     ui_type = 'all'
 
@@ -103,7 +103,9 @@ class Base(object):
         self.build()
         self.post_build()
         self.connect_focus_signal()
+
     def _subscribe_client_events(self):
+        ''' Make the dialog subscribe to client events'''
         pass
 
     # TODO: this should be an ABC
@@ -120,7 +122,6 @@ class Base(object):
 
     # TODO: This should be an ABC
     def show(self):
-        # TODO: Find a way to simulate a pyside signal
         pass
         #self._on_focus_changed(None, self)
 
@@ -139,8 +140,7 @@ class Base(object):
     @classmethod
     def register(cls, event_manager):
         '''
-        Register function of the plugin to regiter it self.
-
+        Register function to discover widgets.
         '''
         logger = logging.getLogger(
             '{0}.{1}'.format(__name__, cls.__class__.__name__)
@@ -150,7 +150,7 @@ class Base(object):
         )
 
         # TODO: evaluate if it's worth implementing the discover widget event
-        #  or it's not necesary
+        #  or it's not necesary.
         # subscribe to discover the widget
         # event_manager.subscribe.discover_widget(
         #     cls.ui_type,

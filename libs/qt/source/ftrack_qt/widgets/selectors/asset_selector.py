@@ -7,7 +7,7 @@ import logging
 
 from Qt import QtWidgets, QtCore, QtGui
 
-from ftrack_framework_core import utils as core_utils
+import ftrack_utils.string as string_utils
 
 from ftrack_utils.threading import BaseThread
 from ftrack_qt.widgets.thumbnails import AssetVersion
@@ -53,7 +53,7 @@ class AssetListItem(QtWidgets.QFrame):
 
         self.layout().addStretch()
 
-        self.setToolTip(core_utils.str_context(self.asset['parent']))
+        self.setToolTip(string_utils.str_context(self.asset['parent']))
 
 
 class AssetList(QtWidgets.QListWidget):

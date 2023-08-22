@@ -49,7 +49,6 @@ def _discover_plugins(definition, event_manager, host_types):
     *definitions* : List of definitions (opener, loader, publisher and so on).
 
     '''
-    #def_obj = definition_object.DefinitionObject(definition)
     plugins = definition.get_all(category='plugin')
     invalid_plugins = []
     for plugin in plugins:
@@ -196,7 +195,7 @@ def _collect_json(source_path):
 
     return loaded_jsons
 
-
+# TODO: remove this function as its not used anymore
 def resolve_schemas(schemas):
     '''
     Resolves the refs of the schemas in the given *data*

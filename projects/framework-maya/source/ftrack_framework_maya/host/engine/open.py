@@ -1,5 +1,5 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2014-2020 ftrack
+# :copyright: Copyright (c) 2014-2023 ftrack
 
 from ftrack_framework_core import constants as core_constants
 from ftrack_framework_core.host.engine import OpenerEngine

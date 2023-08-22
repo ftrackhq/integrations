@@ -1,5 +1,5 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2014-2020 ftrack
+# :copyright: Copyright (c) 2014-2023 ftrack
 
 
 class LogItem(object):
@@ -13,7 +13,6 @@ class LogItem(object):
         '''
         self.date = log_result.get('date')
 
-        #self.widget_ref = log_result.get('widget_ref')
         self.host_id = log_result.get('host_id')
         self.plugin_name = log_result.get('plugin_name')
         self.plugin_type = log_result.get('plugin_type')
@@ -33,6 +32,7 @@ class LogItem(object):
         self.plugin_widget_name = log_result.get('plugin_widget_name')
 
 
+    # TODO: remove this properties if not needed.
     @property
     def execution_time(self):
         '''Return the duration of the log entry.'''
@@ -42,3 +42,4 @@ class LogItem(object):
     def execution_time(self, value):
         '''Set the duration of the log entry.'''
         self._execution_time = value
+

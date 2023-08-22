@@ -1,5 +1,5 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2014-2020 ftrack
+# :copyright: Copyright (c) 2014-2023 ftrack
 
 
 import os
@@ -8,7 +8,7 @@ import logging.config
 import appdirs
 import errno
 
-# TODO: at some point clean this up and standarize logings
+# TODO: Clean this up and standarize logings
 
 
 def get_log_directory():

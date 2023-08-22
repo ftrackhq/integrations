@@ -4,9 +4,9 @@ import uuid
 
 from ftrack_framework_widget import Base, active_widget
 
-
+# TODO: docstring this code
 class Widget(Base):
-    '''Base Class to represent a Plugin'''
+    '''Base Class to represent a Widget of the framework'''
 
     # We Define name, plugin_type and host_type as class variables for
     # convenience for the user when creating its own plugin.
@@ -18,6 +18,7 @@ class Widget(Base):
     @property
     def context_id(self):
         return self._context_id
+
     @property
     def plugin_definition(self):
         return self._plugin_definition
@@ -66,10 +67,6 @@ class Widget(Base):
             dialog_property_getter_connection_callback,
             parent=None
     ):
-        '''
-        Initialise BasePlugin with instance of
-        :class:`ftrack_api.session.Session`
-        '''
 
         self._context_id = context_id
         self._plugin_definition = plugin_definition
@@ -89,11 +86,9 @@ class Widget(Base):
         self.plugin_definition.widget_id = self.id
 
     def connect_methods(self, method):
-        # TODO: should this be subscription events?
         self.dialog_method_connection = method
 
     def connect_properties(self, get_method):
-        # TODO: should this be subscription events?
         self.dialog_property_getter_connection = get_method
 
     # TODO: this should be an ABC
@@ -127,7 +122,6 @@ class Widget(Base):
         method_result = plugin_info['plugin_method_result']
         print('executed_method'.format(executed_method))
         print('method_result'.format(method_result))
-        # TODO: Implement this as you want in each widget.
 
     # TODO: this should be an ABC
     def on_context_updated(self):

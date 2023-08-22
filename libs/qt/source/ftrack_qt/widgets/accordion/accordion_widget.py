@@ -10,7 +10,6 @@ from ftrack_qt.widgets.headers import AccordionHeaderWidget
 class AccordionBaseWidget(QtWidgets.QFrame):
     '''A utility accordion widget providing a header which can be expanded to show content'''
 
-    # TODO: double check when and if we need this signals.
     clicked = QtCore.Signal(object)  # Emitted when accordion is clicked
     doubleClicked = QtCore.Signal(
         object

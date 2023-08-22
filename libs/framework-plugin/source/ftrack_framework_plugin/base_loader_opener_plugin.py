@@ -12,11 +12,10 @@ from ftrack_framework_plugin import BasePlugin
 import ftrack_constants.framework as constants
 
 
-#TODO: if we want to expose this to clients, this can be moved to
-# framework_core_plugins same for the finalizer one.
-
-# TODO: double check this code and try to not have a base, simply make it a
-#  plugin that is why we have a list of plugins.
+#TODO: This is not a base plugin, this should simply be a plugin and should be
+# moved to the ftrack_core_plugins. We allways allow list of plugins, so this
+# one can be in that list and is not need to use it as base.
+# Also review code and test it.
 class BaseLoaderOpenerPlugin(BasePlugin):
     '''Base Class to represent a Plugin'''
 

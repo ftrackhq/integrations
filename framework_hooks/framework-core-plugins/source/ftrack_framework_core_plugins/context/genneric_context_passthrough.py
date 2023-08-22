@@ -5,6 +5,7 @@ import copy
 from ftrack_framework_plugin import BasePlugin
 import ftrack_constants.framework as constants
 
+# tODO: review this code and rename plugin
 class GenericContextPassthroughPlugin(BasePlugin):
     name = 'generic_context_passthrough'
     host_type = constants.host.PYTHON_HOST_TYPE

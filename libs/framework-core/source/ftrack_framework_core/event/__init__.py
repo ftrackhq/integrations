@@ -1,5 +1,5 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2014-2020 ftrack
+# :copyright: Copyright (c) 2014-2023 ftrack
 
 import threading
 
@@ -339,6 +339,7 @@ class Publish(object):
         event_topic = constants.event.NOTIFY_DEFINITION_PROGRESS_CLIENT_TOPIC
         return self._publish_event(event_topic, data, callback)
 
+    # TODO: if not used remove it. (Double check)
     def discover_definition(self, host_types, callback=None):
         '''
         Publish an event with topic
@@ -414,12 +415,42 @@ class Publish(object):
         return self._publish_event(event_topic, data, callback)
 
     def client_notify_ui_run_plugin_result(self, client_id, plugin_info, callback=None):
+        '''
+        Publish an event with topic
+        :const:`~ftrack_framework_core.constants.event.CLIENT_NOTIFY_UI_RUN_PLUGIN_RESULT_TOPIC`
+        '''
         data = {
             'client_id': client_id,
             'plugin_info': plugin_info,
         }
 
         event_topic = constants.event.CLIENT_NOTIFY_UI_RUN_PLUGIN_RESULT_TOPIC
+        return self._publish_event(event_topic, data, callback)
+
+    def client_notify_ui_run_definition_result(self, client_id, definition_result, callback=None):
+        '''
+        Publish an event with topic
+        :const:`~ftrack_framework_core.constants.event.CLIENT_NOTIFY_UI_RUN_DEFINITION_RESULT_TOPIC`
+        '''
+        data = {
+            'client_id': client_id,
+            'definition_result': definition_result,
+        }
+
+        event_topic = constants.event.CLIENT_NOTIFY_UI_RUN_DEFINITION_RESULT_TOPIC
+        return self._publish_event(event_topic, data, callback)
+
+    def client_notify_ui_log_item_added(self, client_id, log_item, callback=None):
+        '''
+        Publish an event with topic
+        :const:`~ftrack_framework_core.constants.event.CLIENT_NOTIFY_UI_LOG_ITEM_ADDED_TOPIC`
+        '''
+        data = {
+            'client_id': client_id,
+            'log_item': log_item,
+        }
+
+        event_topic = constants.event.CLIENT_NOTIFY_UI_LOG_ITEM_ADDED_TOPIC
         return self._publish_event(event_topic, data, callback)
 
 
@@ -602,7 +633,34 @@ class Subscribe(object):
         return self._subscribe_event(event_topic, callback)
 
     def client_notify_ui_run_plugin_result(self, client_id, callback=None):
+        '''
+        Subscribe to an event with topic
+        :const:`~ftrack_framework_core.constants.event.CLIENT_NOTIFY_UI_RUN_PLUGIN_RESULT_TOPIC`
+        '''
         event_topic = '{} and data.client_id={}'.format(
             constants.event.CLIENT_NOTIFY_UI_RUN_PLUGIN_RESULT_TOPIC, client_id
         )
         return self._subscribe_event(event_topic, callback)
+
+    def client_notify_ui_run_definition_result(self, client_id, callback=None):
+        '''
+        Subscribe to an event with topic
+        :const:`~ftrack_framework_core.constants.event.CLIENT_NOTIFY_UI_RUN_DEFINITION_RESULT_TOPIC`
+        '''
+        event_topic = '{} and data.client_id={}'.format(
+            constants.event.CLIENT_NOTIFY_UI_RUN_DEFINITION_RESULT_TOPIC,
+            client_id
+        )
+        return self._subscribe_event(event_topic, callback)
+
+    def client_notify_ui_log_item_added(self, client_id, callback=None):
+        '''
+        Subscribe to an event with topic
+        :const:`~ftrack_framework_core.constants.event.CLIENT_NOTIFY_UI_LOG_ITEM_ADDED_TOPIC`
+        '''
+        event_topic = '{} and data.client_id={}'.format(
+            constants.event.CLIENT_NOTIFY_UI_LOG_ITEM_ADDED_TOPIC,
+            client_id
+        )
+        return self._subscribe_event(event_topic, callback)
+

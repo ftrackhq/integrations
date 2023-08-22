@@ -1,21 +1,14 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2014-2020 ftrack
+# :copyright: Copyright (c) 2014-2023 ftrack
 
-import functools
 import logging
-import ftrack_api
 import time
 import uuid
-# TODO: move plugin constants to plugin repo
-#  Also create STTUS LIST
 import ftrack_constants.framework as constants
-# TODO: double check if we really need the ftrackobject manager and the dcc, in case we need it, d
+
 from ftrack_framework_plugin import validation
 
-# TODO: We will not have the plugins separated, all them will inherit from the
-#  basePlugin and will pass the type, we will only check if the type is valid.
-#  Overrides will be exposed in the core_plugins library.
-# TODO: also the plugins will have the attribute widget, that the user can override but we will not have the widget type of plugin.
+
 class BasePlugin(object):
     '''Base Class to represent a Plugin'''
 
@@ -62,21 +55,22 @@ class BasePlugin(object):
     @property
     def host_id(self):
         '''
-        Type of the plugin
+        host id
         '''
         return self._host_id
 
     @property
     def method_result(self):
         '''
-        Type of the plugin
+        Result of the current method
         '''
         return self._method_result
 
     @method_result.setter
     def method_result(self, value):
         '''
-        Type of the plugin
+        Set the result of the current method and registry it to the
+        registrated results.
         '''
         is_valid = self._validate_result(value)
         if not is_valid:
@@ -88,23 +82,25 @@ class BasePlugin(object):
     @property
     def result_registry(self):
         '''
-        Type of the plugin
+        Return the registry of all method results
         '''
         return self._result_registry
 
     @result_registry.setter
     def result_registry(self, value):
         '''
-        Type of the plugin
+        Add new result to the current method
         '''
         self._result_registry[self.method] = value
 
     @property
     def status(self):
+        ''' Current status of the plugin'''
         return self._status
 
     @status.setter
     def status(self, value):
+        ''' Set new status to the plugin'''
         if value not in constants.status.STATUS_LIST:
             self.logger.error(
                 "Status {} is not recognized. Available statuses are: {}".format(
@@ -116,29 +112,33 @@ class BasePlugin(object):
 
     @property
     def message(self):
+        ''' Current message '''
         return self._message
 
     @message.setter
     def message(self, value):
+        ''' Set the current message'''
         self._message = value
 
     @property
     def boolean_status(self):
+        ''' Get the current boolean status of the plugin'''
         return constants.status.status_bool_mapping[self.status]
 
     @property
     def execution_time(self):
+        ''' Execution time of the plugin'''
         return self._execution_time
 
     @execution_time.setter
     def execution_time(self, value):
+        ''' Set the execution time of the plugin'''
         self._execution_time = value
 
-    # TODO: is this used?
+    # TODO: Couble check if this is used and if not evaluate if to remove it
     @property
     def raw_plugin_data(self):
-        # TODO: fix this docstring
-        '''Returns the current context id'''
+        # TODO: create docstring in case is used
         return self._raw_plugin_data
 
     @property
@@ -148,7 +148,7 @@ class BasePlugin(object):
 
     @property
     def default_method(self):
-        '''Returns the default executable methodof the plugin'''
+        '''Returns the default executable method of the plugin'''
         return self._default_method
 
     @property
@@ -158,32 +158,29 @@ class BasePlugin(object):
 
     @property
     def context_data(self):
-        '''List all available executable methods'''
+        '''Return the context data of the plugin'''
         return self._context_data
 
     @property
     def plugin_data(self):
-        '''List all available executable methods'''
+        '''Return the plugin data of the plugin'''
         return self._plugin_data
 
     @property
     def plugin_options(self):
-        '''List all available executable methods'''
+        '''Return the context options of the plugin'''
         return self._plugin_options
 
     @property
     def plugin_widget_id(self):
-        '''List all available executable methods'''
+        ''' Return the widget id linked to the plugin'''
         return self._plugin_widget_id
 
     @property
     def plugin_widget_name(self):
-        '''List all available executable methods'''
+        '''Return the widget name linked to the plugin'''
         return self._plugin_widget_name
 
-    # TODO: should we pass the host itself instead of the event_manager? so if
-    #  user wants, he can query stuff from core using host, like:
-    #  host.constants.asset_Name
     def __init__(self, event_manager, host_id, ftrack_object_manager):
         '''
         Initialise BasePlugin with instance of
@@ -217,6 +214,10 @@ class BasePlugin(object):
 
     # TODO: make this ABC
     def register_methods(self):
+        '''
+        Function to registry all the executable methods of the plugin by the
+        engine
+        '''
         self.register_method(
             method_name='run',
             required_output_type=dict,
@@ -226,6 +227,11 @@ class BasePlugin(object):
     def register_method(
             self, method_name, required_output_type, required_output_value
     ):
+        '''
+        Register given *method_name*, with the *required_output_type* and
+        *required_output_value*. To be executed by the engine.
+        '''
+
         self._methods[method_name] = {
             'required_output_type': required_output_type,
             'required_output_value': required_output_value
@@ -233,9 +239,14 @@ class BasePlugin(object):
 
     # TODO: This should be ABC
     def pre_execute_callback_hook(self, event):
+        '''
+        Method executed before calling the method given in the *event*
+        should allways return the event.
+        '''
         return event
 
     def _execute_callback(self, event):
+        ''' Execute the method given in the *event* '''
         start_time = time.time()
 
         #Reset all statuses
@@ -400,9 +411,14 @@ class BasePlugin(object):
 
     # TODO: This should be ABC
     def post_execute_callback_hook(self, result):
+        '''
+        Method executed after the execute method, the given *result* is the
+        result of the executed method
+        '''
         return result
 
     def provide_plugin_info(self):
+        ''' Provide the entire plugin information '''
         return {
             'host_id': self.host_id,
             'plugin_name': self.name,
@@ -424,6 +440,7 @@ class BasePlugin(object):
         }
 
     def _subscribe_events(self):
+        ''' Method to subscribe to plugin events '''
         self.event_manager.subscribe.execute_plugin(
             self.host_type,
             self.name,
@@ -432,12 +449,7 @@ class BasePlugin(object):
 
     def _validate_result(self, result):
         '''
-        Validates the *result* of the :meth:`run` of the plugin using the
-        :obj:`validator` and the :meth:`validator.validate_result_type`,
-        :meth:`validator.validate_required_output`,
-        :meth:`validator.validate_result_value`
-
-        Returns a status and string message
+        Validates the *result* of the executed method.
         '''
         is_valid = validation.validate_output_type(
             type(result),
@@ -470,11 +482,12 @@ class BasePlugin(object):
                 )
         return is_valid
 
-    # This is the previous _parse_run_event, but cleaned up
+    # TODO: review this method code and double check if its needed and can be standarized.
     def get_previous_stage_data(self, plugin_data, stage_name):
         '''
-        Parse plugin_data to return only the previous given stage_name data
+        Parse *plugin_data* and returns the result of the given *stage_name*
         '''
+        # This is the previous _parse_run_event, but cleaned up
         collector_result = []
         component_step = plugin_data[-1]
         for component_stage in component_step.get("result"):
@@ -483,6 +496,8 @@ class BasePlugin(object):
                 break
         return collector_result
 
+    # TODO: evaluate if we want to pass pre-defined methods like run, fetch and
+    #  validate.
     # TODO: this should be an ABC method
     def run(self, context_data=None, data=None, options=None):
         '''
@@ -506,26 +521,19 @@ class BasePlugin(object):
     # TODO: this should be an ABC method
     def fetch(self, context_data=None, data=None, options=None):
         '''
-        Runs the current plugin with , *context_data* , *data* and *options*.
-
-
-        *context_data* provides a mapping with the asset_name, context_id, asset_type_name,
-        comment and status_id of the asset that we are working on.
-
-        *data* a list of data coming from previous collector or empty list
-
-        *options* a dictionary of options passed from outside.
-
-        .. note::
-
-            This function is meant to be ran as an alternative of the default run
-            function. Usually to fetch information for the widget or to test the
-            plugin.
-
+        Pre defined method to fetch data
         '''
         raise NotImplementedError('Missing fetch method.')
 
+    # TODO: this should be an ABC method
+    def validate(self, context_data=None, data=None, options=None):
+        '''
+        Pre defined method to validate data
+        '''
+        raise NotImplementedError('Missing validate method.')
+
     def _notify_client(self):
+        '''Publish an event with the plugin info to be picked by the client'''
         self.event_manager.publish.notify_plugin_progress_client(
             self.provide_plugin_info()
         )
@@ -533,18 +541,7 @@ class BasePlugin(object):
     @classmethod
     def register(cls, event_manager):
         '''
-        Register function of the plugin to regiter it self.
-
-        .. note::
-
-            This function subscribes the plugin to two
-            :class:`ftrack_api.event.base.Event` topics:
-
-            :const:`~ftrack_framework_core.constants.DISCOVER_PLUGIN_TOPIC`:
-            Topic to make the plugin discoverable for the host.
-
-            :const:`~ftrack_framework_core.constants.HOST_RUN_PLUGIN_TOPIC`:
-            Topic to execute the plugin
+        Register function for the plugin to be discovered.
         '''
         logger = logging.getLogger(
             '{0}.{1}'.format(__name__, cls.__class__.__name__)

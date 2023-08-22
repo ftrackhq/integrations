@@ -1,12 +1,12 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2014-2020 ftrack
+# :copyright: Copyright (c) 2014-2023 ftrack
 from functools import partial
 
 from ftrack_framework_core.client import Client
 import ftrack_constants.framework as constants
 
 
-# TODO: We have to align asset manager with the other clients, and move all the logic to the plugins.
+# TODO: Remove asset manager client
 class AssetManagerClient(Client):
     '''
     Asset Manager Client Base Class

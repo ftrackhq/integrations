@@ -4,6 +4,7 @@
 from ftrack_framework_plugin import BasePlugin
 import ftrack_constants.framework as constants
 
+# tODO: review this code
 class GenericPassthroughPlugin(BasePlugin):
     name = 'generic_passthrough'
     host_type = constants.host.PYTHON_HOST_TYPE

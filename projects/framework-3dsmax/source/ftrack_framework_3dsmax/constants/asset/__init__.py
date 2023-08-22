@@ -1,5 +1,5 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2014-2022 ftrack
+# :copyright: Copyright (c) 2014-2023 ftrack
 
 FTRACK_PLUGIN_ID = (0x5C8D275E, 0x677D591C)
 FTRACK_PLUGIN_TYPE = 'FtrackAssetHelper'

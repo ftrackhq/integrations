@@ -1,5 +1,5 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2014-2020 ftrack
+# :copyright: Copyright (c) 2014-2023 ftrack
 import copy
 import time
 
@@ -10,7 +10,8 @@ from ftrack_framework_core.asset.asset_info import FtrackAssetInfo
 import ftrack_api
 
 
-# TODO: Move all the logic to its own definition and plugins.
+# TODO: Create new AM engine, move all the logic to plugins, should just have
+#  the run_definition method.
 class AssetManagerEngine(BaseEngine):
     '''
     Base Asset Manager Engine class.

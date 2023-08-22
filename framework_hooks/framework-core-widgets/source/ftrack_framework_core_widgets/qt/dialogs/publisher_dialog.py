@@ -4,7 +4,7 @@
 from ftrack_framework_core_widgets.qt.dialogs.vertical_dialog_definition_base import VerticalDialogDefinitionBase
 from ftrack_qt.widgets.accordion import AccordionBaseWidget
 
-
+# TODO: review and docstring this code
 class PublisherDialog(VerticalDialogDefinitionBase):
     '''Base Class to represent a Plugin'''
 

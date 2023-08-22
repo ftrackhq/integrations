@@ -8,8 +8,6 @@ from ftrack_framework_widget import Base, active_widget
 class Dialog(Base):
     '''Base Class to represent a Plugin'''
 
-    # We Define name, plugin_type and host_type as class variables for
-    # convenience for the user when creating its own plugin.
     name = None
     widget_type = 'framework_dialog'
     client_method_connection = None
@@ -19,63 +17,64 @@ class Dialog(Base):
     @property
     def definitions(self):
         '''
-        Dependency framework widgets
+        Available definitions in client
         '''
         return self.client_property_getter_connection('definitions')
 
     @property
     def definition(self):
         '''
-        Dependency framework widgets
+        Current definition in client
         '''
         return self.client_property_getter_connection('definition')
 
     @definition.setter
     def definition(self, value):
         '''
-        Dependency framework widgets
+        Set the *value* as current definition in client
         '''
         self.client_property_setter_connection('definition', value)
 
     @property
     def context_id(self):
         '''
-        Dependency framework widgets
+        Current context id in client
         '''
         return self.client_property_getter_connection('context_id')
 
     @context_id.setter
     def context_id(self, value):
         '''
-        Dependency framework widgets
+        Set the *value* as current context id in client
         '''
         self.client_property_setter_connection('context_id', value)
 
     @property
     def host_connection(self):
         '''
-        Dependency framework widgets
+        Current host connection in client
         '''
         return self.client_property_getter_connection('host_connection')
 
     @host_connection.setter
     def host_connection(self, value):
         '''
-        Dependency framework widgets
+         Set the *value* as current host_connection id in client
         '''
         self.client_property_setter_connection('host_connection', value)
 
     @property
     def host_connections(self):
         '''
-        Dependency framework widgets
+        Available host_connections in client
         '''
         return self.client_property_getter_connection('host_connections')
 
+    # TODO: evaluate if used and if needed
     @property
     def plugins(self):
         '''
-        Dependency framework widgets
+        Available plugins in the current definition
         '''
         if not self.definition:
             self.logger.warning("Please set a definition before quering plugins")
@@ -104,10 +103,6 @@ class Dialog(Base):
             dialog_options,
             parent=None
     ):
-        '''
-        Initialise BasePlugin with instance of
-        :class:`ftrack_api.session.Session`
-        '''
 
         # Set properties to 0
         self._definitions = None
@@ -119,7 +114,6 @@ class Dialog(Base):
         # TODO: implement dialog_options
 
         # Connect client methods and properties
-        # TODO: should this be by events?
         self.connect_methods(connect_methods_callback)
         self.connect_properties(
             connect_setter_property_callback,
@@ -130,15 +124,22 @@ class Dialog(Base):
         super(Dialog, self).__init__(event_manager, client_id, parent)
 
     def connect_methods(self, method):
-        # TODO: should this be subscription events?
+        '''
+        Connect the client callback method for the dialog to be able to execute
+        client methods.
+        '''
         self.client_method_connection = method
 
     def connect_properties(self, set_method, get_method):
-        # TODO: should this be subscription events?
+        '''
+        Connect the client setter and getter properties for the dialog to be
+        able to call them.
+        '''
         self.client_property_setter_connection = set_method
         self.client_property_getter_connection = get_method
 
     def _subscribe_client_events(self):
+        ''' Subscribe to all client events and signals'''
         self.event_manager.subscribe.client_signal_context_changed(
             self.client_id,
             callback=self._on_client_context_changed_callback
@@ -151,11 +152,6 @@ class Dialog(Base):
             self.client_id,
             callback=self._on_client_host_changed_callback
         )
-        # TODO: I think this one is not needed as when host is changed new definitions are discovered. And if context id is changed also new definitions are discovered.
-        # self.event_manager.subscribe.client_notify_definitions_discovered(
-        #     self.client_id,
-        #     callback=self._on_client_context_changed_callback
-        # )
         self.event_manager.subscribe.client_signal_definition_changed(
             self.client_id,
             callback=self._on_client_definition_changed_callback
@@ -163,6 +159,14 @@ class Dialog(Base):
         self.event_manager.subscribe.client_notify_ui_run_plugin_result(
             self.client_id,
             callback=self._on_client_notify_ui_run_plugin_result_callback
+        )
+        self.event_manager.subscribe.client_notify_ui_run_definition_result(
+            self.client_id,
+            callback=self._on_client_notify_ui_run_definition_result_callback
+        )
+        self.event_manager.subscribe.client_notify_ui_log_item_added(
+            self.client_id,
+            callback=self._on_client_notify_ui_log_item_added_callback
         )
 
     # TODO: this should be an ABC
@@ -180,27 +184,49 @@ class Dialog(Base):
     # TODO: this should be an ABC
     @active_widget
     def _on_client_context_changed_callback(self, event=None):
-        '''Will only run if the widget is active'''
+        '''
+        Will only run if the widget is active
+        Callback for when context has changed in client.
+        '''
         for id, widget in self.framework_widgets.items():
             widget.update_context(self.context_id)
 
     # TODO: This should be an ABC
     @active_widget
     def _on_client_hosts_discovered_callback(self, event=None):
+        '''
+        Will only run if the widget is active
+        Callback for when new host has been discovered in client.
+        '''
+        # TODO: raise not implemented error
         pass
 
     # TODO: This should be an ABC
     @active_widget
     def _on_client_host_changed_callback(self, event=None):
-        # TODO: carefully, here we should update definitions!
+        '''
+        Will only run if the widget is active
+        Callback for when host has changed in the client.
+        '''
+        # TODO: raise not implemented error
         pass
 
     # TODO: This should be an ABC
     @active_widget
     def _on_client_definition_changed_callback(self, event=None):
+        '''
+        Will only run if the widget is active
+        Callback for when definition has changed in the client.
+        '''
+        # TODO: raise not implemented error
         pass
 
     def _on_focus_changed(self, old_widget, new_widget):
+        '''
+        Set the *new_widget* as active and syncronizs the context, host and
+        definition with the client.
+        '''
+        # TODO: evaluate if this should be implemented in the widget
         if self == old_widget:
             self.is_active = False
         elif self == new_widget:
@@ -225,6 +251,7 @@ class Dialog(Base):
                 equal self.context_Selector.current_text() to self.context_id or
                 the other way around depending on the confirmation widget response
         '''
+        # TODO: raise not implemented error
         pass
 
     # TODO: this should be an ABC
@@ -232,6 +259,7 @@ class Dialog(Base):
         '''
         Check if UI selected host_connection is not sync with the client and sync them.
         '''
+        # TODO: raise not implemented error
         pass
 
     # TODO: this should be an ABC
@@ -240,9 +268,13 @@ class Dialog(Base):
         Check if UI selected definition is not sync with the client and sync them.
         We usually want to keep the selected Definition
         '''
+        # TODO: raise not implemented error
         pass
 
     def init_framework_widget(self, plugin_definition):
+        '''
+        Method to initialize a framework widget given in the *plugin_definition*
+        '''
         widget_class = None
         for widget in self.discovered_framework_widgets:
             if widget.name == plugin_definition.widget:
@@ -271,12 +303,16 @@ class Dialog(Base):
         return widget
 
     def _register_widget(self, widget):
+        '''
+        Registers the initialized *widget* to the dialog registry.
+        '''
         if widget.id not in list(self.__framework_widget_registry.keys()):
             self.__framework_widget_registry[widget.id] = widget
 
     def _connect_dialog_methods_callback(
             self, method_name, arguments=None, callback=None
     ):
+        '''Enables widgets call dialog methods'''
         meth = getattr(self, method_name)
         if not arguments:
             arguments = {}
@@ -287,11 +323,18 @@ class Dialog(Base):
         return result
 
     def _connect_dialog_property_getter_connection_callback(self, property_name):
+        '''Enables widgets to call dialog properties'''
         return self.__getattribute__(property_name)
 
     def run_plugin_method(
             self, plugin_definition, plugin_method_name, plugin_widget_id=None
     ):
+        '''
+        Dialog tell client to run the *plugin_method_name* from the
+        *plugin_definition* .
+        Provides a *plugin_widget_id* if its a widget who wants to execute the
+        method.
+        '''
         # No callback as it is returned by an event
         arguments = {
             "plugin_definition": plugin_definition,
@@ -302,10 +345,29 @@ class Dialog(Base):
         self.client_method_connection('run_plugin', arguments=arguments)
 
     def _on_client_notify_ui_run_plugin_result_callback(self, event):
+        '''
+        Client has notified the dialog about a result of a plugin method,
+        now the dialog notifies the widget that has executed the method.
+        '''
         plugin_info = event['data']['plugin_info']
         plugin_widget_id = plugin_info['plugin_widget_id']
         widget = self.framework_widgets.get(plugin_widget_id)
         widget.run_plugin_callback(plugin_info)
+
+    def _on_client_notify_ui_run_definition_result_callback(self, event):
+        '''
+        Client notifies the dialog that definition has been executed and passes
+        the result in the *event*
+        '''
+        definition_result = event['data']['definition_result']
+        # TODO: do something with the result
+
+    def _on_client_notify_ui_log_item_added_callback(self, event):
+        '''
+        Client notifiies dialog that a new log item has been added.
+        '''
+        log_item = event['data']['log_item']
+        # TODO: do something with the log_item
 
 
 

@@ -9,7 +9,7 @@ from ftrack_qt.widgets.selectors import AssetSelector
 from ftrack_qt.widgets.selectors import StatusSelector
 from ftrack_qt.widgets.lines import LineWidget
 
-
+# TODO: review and docstring this code
 class PublishContextWidget(Widget, QtWidgets.QWidget):
     '''Main class to represent a context widget on a publish process.'''
     name = 'publisher_context_selector'

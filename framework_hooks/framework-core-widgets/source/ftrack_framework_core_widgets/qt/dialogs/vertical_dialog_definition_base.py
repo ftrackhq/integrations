@@ -10,7 +10,7 @@ from ftrack_qt.widgets.selectors import ListSelector
 from ftrack_qt.widgets.headers import SessionHeader
 from ftrack_qt.widgets.selectors import ContextSelector
 
-
+# TODO: review and docstring this code
 class VerticalDialogDefinitionBase(Dialog, QtWidgets.QDialog):
     '''Base Class to represent a Plugin'''
 
@@ -75,14 +75,12 @@ class VerticalDialogDefinitionBase(Dialog, QtWidgets.QDialog):
         super(VerticalDialogDefinitionBase, self).build()
         # Create the header
         self._header = SessionHeader(self.session)
-        # TODO: implement progress widget. I think client should communicate the
-        #  progress to the UI with an ftrack event. And we use the widget dialog
-        #  id to identify which widget(or widgets) should be aware of it.
+        # TODO: implement progress widget.
         #self._progress_widget = ProgressWidget
         #self._header.add_widget(self._progress_widget)
 
         # TODO: we have to update the signals from the context selector to
-        #  identify that are our signals and not qt signals.
+        #  identify that are our signals and not qt signals. So make them snake case
         self._context_selector = ContextSelector(
             self.session,
             enble_context_change=True
@@ -94,9 +92,6 @@ class VerticalDialogDefinitionBase(Dialog, QtWidgets.QDialog):
 
         self._definition_selector = ListSelector("Definitions")
 
-        # ToDO: add the run definition button
-
-        # TODO: add scroll area where to put the publisher widget.
         self._scroll_area = QtWidgets.QScrollArea()
         self._scroll_area.setStyle(QtWidgets.QStyleFactory.create("plastique"))
         self._scroll_area.setWidgetResizable(True)
@@ -145,7 +140,6 @@ class VerticalDialogDefinitionBase(Dialog, QtWidgets.QDialog):
         for host_connection in self.host_connections:
             self._host_connection_selector.add_item(host_connection.host_id)
 
-        # TODO: deactivate the signal momentanetly to avoid re-selecting the host
         if self.host_connection:
             # Prevent the sync calling on creation as host might be already set.
             self._on_client_host_changed_callback()
@@ -212,9 +206,6 @@ class VerticalDialogDefinitionBase(Dialog, QtWidgets.QDialog):
         #  thn re-select the same host instead of discovering hosts again?
         self.definition = None
         self._definition_selector.clear_items()
-        # TODO: evealuate if this should be an event,
-        #  like client_run_method_topic where we pass the method,
-        #  arguments and callback. In that case we will need to pass a client id.
         self.client_method_connection('discover_hosts')
         self._add_definition_items()
 
@@ -224,7 +215,6 @@ class VerticalDialogDefinitionBase(Dialog, QtWidgets.QDialog):
 
     # TODO: This should be an ABC
     def _on_client_hosts_discovered_callback(self, event=None):
-        # TODO: for host_id in host_connection if host_id not in host_selector items, add it.
         super(VerticalDialogDefinitionBase, self)._on_client_hosts_discovered_callback()
 
     # TODO: This should be an ABC

@@ -1,5 +1,5 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2014-2021 ftrack
+# :copyright: Copyright (c) 2014-2023 ftrack
 
 import os
 import logging
@@ -21,6 +21,7 @@ class ResultEncoder(JSONEncoder):
 
     def default(self, obj):
         return str(obj)
+
 
 # TODO: review this class to make it easier to maintain.
 #  Define all keys in a common place.

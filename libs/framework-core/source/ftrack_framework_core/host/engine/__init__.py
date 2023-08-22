@@ -1,5 +1,5 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2014-2020 ftrack
+# :copyright: Copyright (c) 2014-2023 ftrack
 
 import logging
 
@@ -20,8 +20,8 @@ def getEngine(baseClass, engineType):
         if match:
             return match
 
-# TODO: try to separate engine to its own library, like the definitions.
-# TODO: engines should be cfreated dependeant on the workflow of the schema, so this engine is for loader, publisher etc... but not for AM or resolver.
+
+# TODO: separate engines to its own module
 class BaseEngine(object):
     '''
     Base engine class.

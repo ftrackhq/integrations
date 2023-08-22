@@ -2,7 +2,6 @@
 # :copyright: Copyright (c) 2014-2023 ftrack
 
 import uuid
-import pkgutil
 import logging
 import socket
 import os
@@ -25,8 +24,6 @@ logger = logging.getLogger(__name__)
 #  1. Double check if this should better be part of the host class as a method.
 #  2. Rename it to discover_host_reply_callback or similar?
 
-# TODO: update schemas to have description instead of name in the plugin section,
-#  so we don't confuse it with the plugin name which is the current plugin key.
 def provide_host_information(
         host_id, host_name, context_id, definitions, event
 ):
@@ -121,7 +118,10 @@ class Host(object):
 
     @context_id.setter
     def context_id(self, value):
-        '''Set the context id to *value* and send event to clients (through host connections)'''
+        '''
+        Set the context id to *value* and send event to clients
+        (through host connections)
+        '''
         if value == self.context_id:
             return
         # Storing a context in the environment variable to be picked by connect
@@ -150,7 +150,7 @@ class Host(object):
 
     @property
     def logs(self):
-        '''Returns the current host name'''
+        '''Returns the current logs'''
         if not self._logs:
             self._logs = LogDB(self._id)
         return self._logs
@@ -172,7 +172,7 @@ class Host(object):
     @property
     def plugins(self):
         '''
-        Returns the registred definitions`
+        Returns the registred plugins`
         '''
         return self.__plugins_registry
     # TODO: we can create an engine registry
@@ -214,7 +214,7 @@ class Host(object):
     # Register
     def _register_modules(self):
         '''
-        Register framework modules available.
+        Register available framework modules.
         '''
         # We register the plugins first so they can subscribe to the discover event
         registry.register_framework_modules_by_type(
@@ -297,17 +297,12 @@ class Host(object):
             definition_paths, self.host_types, schemas
         )
 
-        #TODO: can we convert definitions to FtrackDefinitionObject in here and
-        # pass it through the event? or better to revceive it as json in client
-        # and convert it in there?
-
         self.__definitions_registry = definitions
 
     # Discover
     def _discover_schemas(self, schema_paths):
         '''
-        Collects all json files from the given *definition_paths* that match
-        the given *host_types*
+        Discover all available and calid schemas in the given *schema_paths*
         '''
         start = time.time()
 
@@ -322,18 +317,13 @@ class Host(object):
         end = time.time()
         logger.debug('Discover schemas run in: {}s'.format((end - start)))
 
-        # TODO: re-activate this when schema augmentation is solved
-        # for key, value in list(valid_schemas.items()):
-        #     logger.warning(
-        #         'Schemas : {} : {}'.format(key, len(value))
-        #     )
-
         return valid_schemas
 
     def _discover_definitions(self, definition_paths, host_types, schemas):
         '''
-        Collects all json files from the given *definition_paths* that match
-        the given *host_types*
+        Discover all the available and valid definitions in the given
+        *definition_paths* compatible with the given *host_types* and given
+        *schemas*
         '''
         start = time.time()
 
@@ -367,7 +357,7 @@ class Host(object):
 
     # Subscribe
     def _subscribe_events(self):
-
+        ''' Host subscription events to communicate with the client'''
         # Subscribe to topic
         # :const:`~ftrack_framework_core.constants.NOTIFY_PLUGIN_PROGRESS_TOPIC`
         # to receive client notifications from the host in :meth:`_notify_client_callback`
@@ -410,7 +400,6 @@ class Host(object):
         '''
         # Get the plugin info dictionary and add it to the logDB
         plugin_info = event['data']
-        # TODO: double check this works, maybe need to modify LogItem
         log_item = LogItem(plugin_info)
         self.logs.add_log_item(log_item)
         # Publish the event to notify client
@@ -420,12 +409,13 @@ class Host(object):
         )
 
     def _client_context_change_callback(self, event):
+        ''' Callback when the client has changed context'''
         context_id = event['data']['context_id']
         if context_id != self.context_id:
             self.context_id = context_id
 
     # Run
-    # TODO: this should be ABC?
+    # TODO: this should be ABC
     def run_definition_callback(self, event):
         '''
         Runs the data with the defined engine type of the given *event*
@@ -438,12 +428,11 @@ class Host(object):
 
         definition = event['data']['definition']
         engine_type = event['data']['engine_type']
-        # TODO: Double check if we want to pass the asset type in the definition or should it be defined in the context plugin???
+        # TODO: Double check the asset_type_name workflow, it isn't clean.
         asset_type_name = definition.get('asset_type')
 
         Engine = self.engines.get(engine_type)
         if not Engine:
-            # TODO: should we have our own exceptions? So they automatically registers to log as well.
             raise Exception('No engine of type "{}" found'.format(engine_type))
         engine_runner = Engine(
             self.event_manager, self.ftrack_object_manager, self.host_types,
@@ -462,15 +451,11 @@ class Host(object):
             self.logger.error("Couldn't run definition {}".format(definition))
         return runner_result
 
-    # TODO: this should be ABC?
+    # TODO: this should be ABC
     def run_plugin_callback(self, event):
         '''
-        Runs the data with the defined engine type of the givent *event*
-
-        Returns result of the engine run.
-
-        *event* : Published from the client host connection at
-        :meth:`~ftrack_framework_core.client.HostConnection.run`
+        Runs the plugin_definition in the given *event* with the engine type
+        set in the *event*
         '''
 
         plugin_definition = event['data']['plugin_definition']

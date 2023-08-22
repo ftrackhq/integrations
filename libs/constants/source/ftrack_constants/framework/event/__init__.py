@@ -1,5 +1,5 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2014-2020 ftrack
+# :copyright: Copyright (c) 2014-2023 ftrack
 
 #: Run the events of the session in remote mode
 REMOTE_EVENT_MODE = 1
@@ -46,5 +46,9 @@ CLIENT_SIGNAL_HOSTS_DISCOVERED_TOPIC = '{}.client.signal.host.discover'.format(_
 CLIENT_SIGNAL_HOST_CHANGED_TOPIC = '{}.client.signal.host.change'.format(_BASE_)
 # Client signal definition changed
 CLIENT_SIGNAL_DEFINITION_CHANGED_TOPIC = '{}.client.signal.definition.change'.format(_BASE_)
-# Client receivet plugin result
+# Client received plugin result
 CLIENT_NOTIFY_UI_RUN_PLUGIN_RESULT_TOPIC = '{}.client.notify.plugin.result'.format(_BASE_)
+# Client received definition result
+CLIENT_NOTIFY_UI_RUN_DEFINITION_RESULT_TOPIC = '{}.client.notify.definition.result'.format(_BASE_)
+# Client received log item result
+CLIENT_NOTIFY_UI_LOG_ITEM_ADDED_TOPIC = '{}.client.notify.log_item'.format(_BASE_)

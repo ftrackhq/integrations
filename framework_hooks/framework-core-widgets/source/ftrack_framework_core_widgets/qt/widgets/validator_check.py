@@ -10,7 +10,7 @@ from ftrack_framework_widget.widget import Widget
 from ftrack_qt.widgets.icons import StatusMaterialIconWidget
 
 
-# TODO: review this code
+# TODO: review and docstring this code
 class ValidatorCheckWidget(Widget, QtWidgets.QWidget):
     '''Main class to represent a context widget on a publish process.'''
     name = 'validator_check'

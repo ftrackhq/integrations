@@ -1,5 +1,5 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2014-2022 ftrack
+# :copyright: Copyright (c) 2014-2023 ftrack
 
 import logging
 import unicodedata
@@ -8,6 +8,9 @@ from ftrack_framework_core.asset.asset_info import FtrackAssetInfo
 from ftrack_framework_core.asset.dcc_object import DccObject
 import ftrack_constants.framework as constants
 
+# TODO: review asset_info ftrack object_manager and dcc_object, we should
+#  always use the manager only try to review the well use of it. Maybe
+#  asset info or DCC object can be removed.
 
 class FtrackObjectManager(object):
     '''
@@ -192,6 +195,7 @@ class FtrackObjectManager(object):
         self.dcc_object = dcc_object
 
         return self.dcc_object
+
     def create_new_asset_info(
             self,
             asset_version_entity,

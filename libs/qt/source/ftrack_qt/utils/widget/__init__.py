@@ -5,6 +5,8 @@ import shiboken2
 
 from Qt import QtWidgets, QtCore, QtGui
 
+# TODO: check this utilities if they are really needed.
+
 def find_parent(widget, class_name):
     '''Recursively find upstream widget having class name
     containing *class_name*'''
@@ -29,6 +31,7 @@ def get_main_window_from_widget(widget, class_name):
 
     return main_window
 
+
 def set_property(widget, name, value):
     '''Update property *name* to *value* for *widget*, and polish afterwards.'''
     widget.setProperty(name, value)
@@ -38,6 +41,7 @@ def set_property(widget, name, value):
         widget.style().unpolish(widget)
         widget.style().polish(widget)
     widget.update()
+
 
 def center_widget(widget, width=None, height=None):
     '''Returns a widget that is *widget* centered horizontally and vertically'''
