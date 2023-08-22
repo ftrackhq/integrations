@@ -104,17 +104,13 @@ class AssetManagerClient(Client):
 
     def discover_assets(self, plugin=None):
         '''
-        Calls the :meth:`ftrack_framework_core.client.HostConnection.run`
-        to run the method
-        :meth:`ftrack_framework_core.host.engine.AssetManagerEngine.discover_assets`
+        Runs the provided *plugin* or the first discover plugin in the list, to
+        discover assets.
 
         Callback received at :meth:`_asset_discovered_callback`
 
-        *plugin* : Optional plugin to be run in the method.
-        (Not implremented yet)
         '''
         self._reset_asset_list()
-        plugin_type = None
         if not plugin:
             # Use the first discover plugin in the list
             plugin = self.menu_action_plugins['discover'][0]
@@ -165,22 +161,30 @@ class AssetManagerClient(Client):
 
     # Select
 
-    def select_assets(self, asset_info_list):
+    def select_assets(self, asset_info_list, plugin):
         '''
-        Calls the :meth:`~ftrack_framework_core.client.HostConnection.run`
-        to run the method
-        :meth:`~ftrack_framework_core.host.engine.AssetManagerEngine.select_assets`
-        To select the assets of the given *asset_info_list*
+        Select the assets of the given *asset_info_list*, by running the *plugin*.
 
         *asset_info_list* : Should a list pf be instances of
         :class:`~ftrack_framework_core.asset.FtrackAssetInfo`
         '''
+        if not plugin:
+            # Use the first discover plugin in the list
+            plugin = self.menu_action_plugins['discover'][0]
+        plugin_type = '{}.{}'.format('asset_manager', plugin['type'])
+        plugin['plugin_data'] = asset_info_list
         data = {
-            'method': 'select_assets',
-            'plugin': None,
-            'assets': asset_info_list,
+            'plugin': plugin,
+            'plugin_type': plugin_type,
         }
         self.host_connection.run(data, self.engine_type)
+
+    def select_asset(self, plugin, asset_info):
+        '''
+        *asset_info* : Should a list pf be instances of
+        :class:`~ftrack_framework_core.asset.FtrackAssetInfo`
+        '''
+        self.select_assets([asset_info], plugin)
 
     # Update
 

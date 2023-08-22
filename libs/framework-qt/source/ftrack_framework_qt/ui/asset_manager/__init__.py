@@ -54,13 +54,6 @@ class AssetManagerWidget(AssetManagerBaseWidget):
     stopBusyIndicator = QtCore.Signal()  # Stop spinner and hide it
 
     DEFAULT_ACTIONS = {
-        'select': [
-            {
-                'ui_callback': 'ctx_select',
-                'name': 'select_asset',
-                'label': 'Select asset(s)',
-            }
-        ],
         'load': [
             {
                 'ui_callback': 'ctx_load',

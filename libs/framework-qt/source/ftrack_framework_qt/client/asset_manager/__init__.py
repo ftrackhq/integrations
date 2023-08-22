@@ -297,7 +297,7 @@ class QtAssetManagerClientWidget(QtAssetManagerClient, QtWidgets.QFrame):
 
     # Select
 
-    def _on_select_assets(self, asset_info_list):
+    def _on_select_assets(self, asset_info_list, plugin):
         '''
         Triggered when select action is clicked on the ui.
         '''
@@ -307,7 +307,7 @@ class QtAssetManagerClientWidget(QtAssetManagerClient, QtWidgets.QFrame):
                 name='select_assets_thread',
                 target=self.select_assets,
                 callback=self._assets_selected,
-                target_args=[asset_info_list],
+                target_args=[asset_info_list, plugin],
             ).start()
         else:
             self._assets_selected(self.select_assets(asset_info_list))

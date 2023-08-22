@@ -6,9 +6,16 @@
     "actions":{
         "discover":[
             {
-                "label": "Refresh",
                 "name": "discover",
+                "label": "Refresh",
                 "plugin": "nuke_discover_am_action"
+            }
+        ],
+        "select":[
+            {
+                "name": "select_asset",
+                "label": "Select asset(s)",
+                "plugin": "nuke_select_am_action"
             }
         ],
         "update":[
