@@ -204,7 +204,9 @@ def resolve_schemas(schemas):
     *data* : Dictionary of json definitions and schemas generated at
     :func:`discover_definitions`
     '''
-    # TODO: double check this: We have a problem with the definitions augment, need to doublecheck what is going on, if we resolve schemas before augmenting the definitions it doesn’t work.
+    # TODO: double check this: We have a problem with the definitions augment,
+    #  need to doublecheck what is going on, if we resolve schemas before
+    #  augmenting the definitions it doesn’t work.
     return schemas
     # schemas = [
     #     JsonRef.replace_refs(schema) for schema in schemas
@@ -214,10 +216,10 @@ def resolve_schemas(schemas):
 
 def _augment_definition(schema, definition, type):
     '''
-    Augments the given *definition* ot he given *type* with the
+    Augments the given *definition* of the given *type* with the
     given *schema*
     '''
-    # TODO: double check if there is a more comprensive way to augment definitions
+    # TODO: double check if there is a more comprehensive way to augment definitions
     builder = pjo.ObjectBuilder(schema)
     ns = builder.build_classes(standardize_names=False)
     ObjectBuilder = getattr(ns, type.capitalize())
@@ -228,7 +230,7 @@ def _augment_definition(schema, definition, type):
 
 def augment_definition(definitions, schemas, session):
     '''
-    Validates and aguments the definitions and the schemas from the given *data*
+    Validates and augments the definitions and the schemas from the given *data*
 
     *data* : Dictionary of json definitions and schemas generated at
     :func:`discover_definitions`
@@ -263,7 +265,7 @@ def augment_definition(definitions, schemas, session):
                             continue
 
                     try:
-                        augumented_valid_data = _augment_definition(
+                        augmented_valid_data = _augment_definition(
                             schema, definition, entry
                         )
                     except Exception as error:
@@ -276,7 +278,7 @@ def augment_definition(definitions, schemas, session):
                         continue
                     copy_definitions[entry].append(
                         definition_object.DefinitionObject(
-                            augumented_valid_data
+                            augmented_valid_data
                         )
                     )
                 # Convert lists to DefinitionList

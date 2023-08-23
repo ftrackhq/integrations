@@ -278,7 +278,7 @@ class HoudiniAssetManagerEngine(AssetManagerEngine):
         )
         self.dcc_object = dcc_object
 
-        # Remove the the loaded nodes
+        # Remove the loaded nodes
         for node in houdini_utils.get_connected_objects(dcc_object.name):
             self.logger.debug("Removing object: {}".format(node))
             try:

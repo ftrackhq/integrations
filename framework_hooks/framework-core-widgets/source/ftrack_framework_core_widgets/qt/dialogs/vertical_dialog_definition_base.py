@@ -24,7 +24,7 @@ class VerticalDialogDefinitionBase(Dialog, QtWidgets.QDialog):
         return self._definition_widget
 
     @property
-    def filtred_definitions(self):
+    def filtered_definitions(self):
         if not self.definition_filter:
             return list(self.definitions.values())
         definitions = []
@@ -163,7 +163,7 @@ class VerticalDialogDefinitionBase(Dialog, QtWidgets.QDialog):
     def _add_definition_items(self):
         if not self.host_connection:
             return
-        for definition_list in self.filtred_definitions:
+        for definition_list in self.filtered_definitions:
             for definition in definition_list:
                 self._definition_selector.add_item(definition.name)
 
@@ -209,7 +209,7 @@ class VerticalDialogDefinitionBase(Dialog, QtWidgets.QDialog):
                 return
 
         definition = None
-        for definition_list in self.filtred_definitions:
+        for definition_list in self.filtered_definitions:
             definition = definition_list.get_first(name=item_text)
             if definition:
                 break
@@ -290,7 +290,7 @@ class VerticalDialogDefinitionBase(Dialog, QtWidgets.QDialog):
             if result == 1:
                 self._on_client_context_changed_callback()
             elif result == 0:
-                # TODO: missing the on conecxt selection changed. Update this oonce added.
+                # TODO: missing the on context selection changed. Update this once added.
                 self.context_id = self._context_selector.context_id
 
     # TODO: This should be an ABC
@@ -308,7 +308,7 @@ class VerticalDialogDefinitionBase(Dialog, QtWidgets.QDialog):
             result = self.show_message_dialog(
                 title='Host connection out of sync!',
                 message='Selected host connection is not the current host_connection, '
-                'do you want to update UI to syc with the current one?',
+                'do you want to update UI to sync with the current one?',
                 button_1_text='Update',
                 button_2_text='Keep Current',
             )
@@ -331,7 +331,7 @@ class VerticalDialogDefinitionBase(Dialog, QtWidgets.QDialog):
                 != self._definition_selector.current_item_text()
             ):
                 match = False
-                for definition_list in self.filtred_definitions:
+                for definition_list in self.filtered_definitions:
                     definition = definition_list.get_first(
                         name=self.definition.name
                     )
@@ -351,7 +351,7 @@ class VerticalDialogDefinitionBase(Dialog, QtWidgets.QDialog):
             result = self.show_message_dialog(
                 title='Current definition is out of sync!',
                 message='Selected definition is not the current definition, '
-                'do you want to update UI to syc with the current one?',
+                'do you want to update UI to sync with the current one?',
                 button_1_text='Update',
                 button_2_text='Keep Current',
             )

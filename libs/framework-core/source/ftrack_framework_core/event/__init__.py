@@ -119,7 +119,7 @@ class EventManager(object):
             self._connect()
             self._wait()
 
-        # Initialize Publish and subscrive classes to be able to provide
+        # Initialize Publish and subscribe classes to be able to provide
         # predefined events.
         self._publish_class = Publish(self)
         self._subscribe_class = Subscribe(self)

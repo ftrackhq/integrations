@@ -42,7 +42,7 @@ The host:
 Client
 ------
 
-The :term:`Client` is the the user facing component that communicates with host through
+The :term:`Client` is the user facing component that communicates with host through
 the host connection over the ftrack event system.
 
 Clients are categorised into the engine types, see below.

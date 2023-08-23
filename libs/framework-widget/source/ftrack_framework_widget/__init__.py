@@ -151,7 +151,7 @@ class Base(object):
         )
 
         # TODO: evaluate if it's worth implementing the discover widget event
-        #  or it's not necesary.
+        #  or it's not necessary.
         # subscribe to discover the widget
         # event_manager.subscribe.discover_widget(
         #     cls.ui_type,

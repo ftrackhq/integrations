@@ -13,14 +13,14 @@ import ftrack_constants.framework as constants
 
 
 # TODO: This is not a base plugin, this should simply be a plugin and should be
-# moved to the ftrack_core_plugins. We allways allow list of plugins, so this
+# moved to the ftrack_core_plugins. We always allow list of plugins, so this
 # one can be in that list and is not need to use it as base.
 # Also review code and test it.
 class BaseLoaderOpenerPlugin(BasePlugin):
     '''Base Class to represent a Plugin'''
 
     # We Define name, plugin_type and host_type as class variables for
-    # conviniance for the user when crreating its own plugin.
+    # convenience for the user when creating its own plugin.
     name = None
     plugin_type = None
     host_type = None
@@ -195,8 +195,9 @@ class BaseLoaderOpenerPlugin(BasePlugin):
         # Collect old objects in the scene
         self._old_objects = self.collect_current_objects()
 
-        # TODO: double check if we need this here because seems that in previous code we were not using the context_data, data amd options from the previous
-        prevoius_collector_result = self.get_previous_stage_data(
+        # TODO: double check if we need this here because seems that in previous
+        #  code we were not using the context_data, data amd options from the previous
+        previous_collector_result = self.get_previous_stage_data(
             self.plugin_data, 'collector'
         )
 
