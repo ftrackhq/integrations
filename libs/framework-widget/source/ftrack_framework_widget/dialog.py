@@ -234,18 +234,18 @@ class Dialog(Base):
         else:
             self.is_active = False
         if self.is_active:
-            # Syncronize context with client
+            # Synchronize context with client
             self.sync_context()
-            # Syncronize Host connection with client
+            # Synchronize Host connection with client
             self.sync_host_connection()
-            # Syncronize definitiion with client
+            # Synchronize definition with client
             self.sync_definition()
 
     # TODO: this should be an ABC
     def sync_context(self):
         '''
         Check if selected UI context_id is not sync with the client and sync them.
-        Pseudo code example PySide UI:
+        Pseudocode example PySide UI:
             if self.context_id not is self.context_Selector.current_text():
                 raise confirmation widget to decide which one to keep
                 equal self.context_Selector.current_text() to self.context_id or
@@ -282,9 +282,9 @@ class Dialog(Base):
                 break
         if not widget_class:
             error_message = (
-                'The provided widget {} for plugin {} is not registred '
-                'Please provide a registred widget.\n '
-                'Registreated widgets: {}'.format(
+                'The provided widget {} for plugin {} is not registered '
+                'Please provide a registered widget.\n '
+                'Registered widgets: {}'.format(
                     plugin_definition.widget,
                     plugin_definition.plugin,
                     self.discovered_framework_widgets,
@@ -318,7 +318,7 @@ class Dialog(Base):
         if not arguments:
             arguments = {}
         result = meth(**arguments)
-        # Callback maight not be available if its is an async method like run_plugin
+        # Callback might not be available if its is an async method like run_plugin
         if callback:
             callback(result)
         return result

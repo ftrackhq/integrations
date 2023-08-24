@@ -51,7 +51,7 @@ def register_dependencies_from_directory(
 
     subfolders = fast_scandir(current_dir)
 
-    registred_widgets = []
+    registered_widgets = []
     for loader, module_name, is_pkg in pkgutil.walk_packages(subfolders):
         _module = loader.find_module(module_name).load_module(module_name)
         cls_members = inspect.getmembers(_module, inspect.isclass)
@@ -61,7 +61,7 @@ def register_dependencies_from_directory(
                 continue
             if class_type not in inspect.getmro(obj):
                 logger.debug(
-                    "Not registring {} because is not type of {}".format(
+                    "Not registering {} because is not type of {}".format(
                         name, class_type
                     )
                 )
@@ -69,13 +69,13 @@ def register_dependencies_from_directory(
             try:
                 # Call the register classmethod so we don't init the widget here
                 obj.register(event_manager)
-                registred_widgets.append(obj)
+                registered_widgets.append(obj)
             except Exception as e:
                 logger.warning(
                     "Couldn't register plugin {} \n error: {}".format(name, e)
                 )
                 continue
-            logger.debug("Plugin {} registred".format(name))
+            logger.debug("Plugin {} registered".format(name))
             success_registry = True
 
         if not success_registry:
@@ -83,4 +83,4 @@ def register_dependencies_from_directory(
                 "No framework compatible plugin found in module {} "
                 "in path{}".format(module_name, loader.path)
             )
-    return registred_widgets
+    return registered_widgets

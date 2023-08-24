@@ -54,14 +54,14 @@ def provide_host_information(
         'definitions': definitions,
     }
     # TODO: we could pass the engines as well so client knows what engines do we
-    #  have available. Re-evaluate this as it might not be necesary as the engine
+    #  have available. Re-evaluate this as it might not be necessary as the engine
     #  is always given by the definition....
     return host_dict
 
 
 class Host(object):
     # TODO: double_check host types and host type do we really need it?
-    #  Maybe what we need is defnitions type? to specify which definitions we
+    #  Maybe what we need is definitions type? to specify which definitions we
     #  want to discover?
     host_types = [constants.host.PYTHON_HOST_TYPE]
     '''Compatible Host types for this HOST.'''
@@ -116,7 +116,7 @@ class Host(object):
 
     @property
     def context_id(self):
-        '''Return the the default context id set at host launch'''
+        '''Return the default context id set at host launch'''
         # We get the host id from the env variable in case we start from C2
         # TODO: connect3 pass context id when init host, so no need to store it
         #  in an env variable
@@ -166,21 +166,21 @@ class Host(object):
     @property
     def schemas(self):
         '''
-        Returns the registred schemas`
+        Returns the registered schemas`
         '''
         return self.__schemas_registry
 
     @property
     def definitions(self):
         '''
-        Returns the registred definitions`
+        Returns the registered definitions`
         '''
         return self.__definitions_registry
 
     @property
     def plugins(self):
         '''
-        Returns the registred plugins`
+        Returns the registered plugins`
         '''
         return self.__plugins_registry
 
@@ -257,18 +257,18 @@ class Host(object):
         ):
             # Check that registry went correct
             return True
-        raise Exception('Error registring modules on host, please check logs')
+        raise Exception('Error registering modules on host, please check logs')
 
-    def _on_register_plugins_callback(self, registred_plugins):
+    def _on_register_plugins_callback(self, registered_plugins):
         '''
         Callback of the :meth:`_register_framework_modules` of type plugins.
-        We add all the *registred_plugins* into our
+        We add all the *registered_plugins* into our
         :obj:`self.__plugins_registry`
         '''
-        registred_plugins = list(set(registred_plugins))
+        registered_plugins = list(set(registered_plugins))
         initialized_plugins = []
         # Init plugins
-        for plugin in registred_plugins:
+        for plugin in registered_plugins:
             initialized_plugins.append(
                 plugin(self.event_manager, self.id, self.ftrack_object_manager)
             )
@@ -486,12 +486,12 @@ class Host(object):
             plugin_default_method=plugin_definition.get('default_method'),
             # plugin_data will usually be None, but can be defined in the
             # definition
-            # I have registred data in the publisher schema
+            # I have registered data in the publisher schema
             plugin_data=plugin_definition.get('data'),
             plugin_options=plugin_definition.get('options'),
             # plugin_context_data will usually be None, but can be defined in the
             # definition
-            # I have registred context_data i nthe schema
+            # I have registered context_data in the schema
             plugin_context_data=plugin_definition.get('context_data'),
             plugin_method=plugin_method,
             plugin_widget_id=plugin_widget_id,
