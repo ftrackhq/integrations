@@ -1,11 +1,13 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2023 ftrack
 
+from Qt import QtCore
+
 from ftrack_framework_core_widgets.qt.dialogs.vertical_dialog_definition_base import (
     VerticalDialogDefinitionBase,
 )
 from ftrack_qt.widgets.accordion import AccordionBaseWidget
-
+from ftrack_qt.ui import theme
 
 # TODO: review and docstring this code
 class PublisherDialog(VerticalDialogDefinitionBase):
@@ -14,6 +16,7 @@ class PublisherDialog(VerticalDialogDefinitionBase):
     name = 'framework_publisher_dialog'
     definition_filter = ['publisher']
     ui_type = 'qt'
+    docked = True
 
     def __init__(
         self,
@@ -39,6 +42,11 @@ class PublisherDialog(VerticalDialogDefinitionBase):
             dialog_options,
             parent,
         )
+        # Apply theme and with DCC specific properties
+        theme.applyTheme(self, self.theme)
+        self.setProperty('background', self.style)
+        self.setProperty('docked', 'true' if self.docked else 'false')
+        self.setAttribute(QtCore.Qt.WA_DeleteOnClose, True)
 
     # TODO: this should be an ABC
     def pre_build(self):
