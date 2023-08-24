@@ -1,5 +1,5 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2014-2022 ftrack
+# :copyright: Copyright (c) 2014-2023 ftrack
 
 from ftrack_framework_maya import plugin
 from ftrack_framework_qt.plugin.widget.base_collector_widget import (
@@ -13,7 +13,7 @@ class MayaGenericPublisherCollectorOptionsWidget(BaseCollectorWidget):
     '''Generic/template for Maya publisher collector plugin option user input'''
 
     # Run fetch function on widget initialization
-    auto_fetch_on_init = True
+    auto_fetch_on_init = False
 
     def __init__(
         self,

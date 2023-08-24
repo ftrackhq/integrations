@@ -1,5 +1,5 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2019 ftrack
+# :copyright: Copyright (c) 2014-2023 ftrack
 
 import logging
 import functools
@@ -218,16 +218,14 @@ def initialise():
         cmds.menuItem(
             parent=ftrack_menu,
             label=label,
-            # TODO: call the events.publish.launch_client here instead the host.launch_client
-            command=(functools.partial(host.launch_client, widget_name)),
+            # TODO: double check this as its only implemented in maya, or at least compare to 3dsmax, is not duing it this way, fins a common way and align it.
+            command=(functools.partial(event_manager.publish.client_launch_widget, host.host_id, widget_name)),
             image=":/{}.png".format(image),
         )
 
     # Listen to widget launch events
-    session.event_hub.subscribe(
-        'topic={} and data.pipeline.host_id={}'.format(
-            core_constants.PIPELINE_CLIENT_LAUNCH, host.host_id
-        ),
+    event_manager.subscribe.client_launch_widget(
+        host.host_id,
         functools.partial(
             _open_widget, event_manager, asset_list_model, widgets
         ),

@@ -1,8 +1,9 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2014-2022 ftrack
+# :copyright: Copyright (c) 2014-2023 ftrack
 
 import logging
-import ftrack_api
+
+from ftrack_framework_core import constants as core_constants
 from ftrack_framework_qt import constants as qt_constants
 from ftrack_framework_nuke import constants as nuke_constants
 from ftrack_framework_core.host import Host
@@ -16,10 +17,11 @@ class NukeHost(Host):
     host_types = [qt_constants.HOST_TYPE, nuke_constants.HOST_TYPE]
     # Define the Nuke engines to be run during the run function
     engines = {
-        'asset_manager': host_engine.NukeAssetManagerEngine,
-        'loader': host_engine.NukeLoaderEngine,
-        'opener': host_engine.NukeOpenerEngine,
-        'publisher': host_engine.NukePublisherEngine,
+        core_constants.PUBLISHER: host_engine.NukePublisherEngine,
+        core_constants.LOADER: host_engine.NukeLoaderEngine,
+        core_constants.OPENER: host_engine.NukeOpenerEngine,
+        core_constants.ASSET_MANAGER: host_engine.NukeAssetManagerEngine,
+        core_constants.RESOLVER: host_engine.NukeResolverEngine,
     }
 
     def __init__(self, event_manager):

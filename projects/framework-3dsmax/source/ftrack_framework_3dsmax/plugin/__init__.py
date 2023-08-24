@@ -1,5 +1,5 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2014-2022 ftrack
+# :copyright: Copyright (c) 2014-2023 ftrack
 
 from ftrack_framework_core import plugin
 from ftrack_framework_qt import plugin as pluginWidget
@@ -35,3 +35,4 @@ from ftrack_framework_3dsmax.plugin.load import *
 from ftrack_framework_3dsmax.plugin.open import *
 from ftrack_framework_3dsmax.plugin.publish import *
 from ftrack_framework_3dsmax.plugin.asset_manager import *
+from ftrack_framework_3dsmax.plugin.resolver import *

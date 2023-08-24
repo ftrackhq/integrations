@@ -7,8 +7,15 @@
 *************
 Release Notes
 *************
+.. release:: 1.1.2
+    :date: 2023-08-1
 
-.. release:: upcoming
+    .. change:: changed
+
+        First release from monorepo CI
+
+.. release:: 1.1.0
+    :date: 2023-07-31
 
     .. change:: new
         :tags: launchers

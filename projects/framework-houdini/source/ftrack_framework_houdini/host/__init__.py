@@ -1,8 +1,9 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2014-2021 ftrack
+# :copyright: Copyright (c) 2014-2023 ftrack
 
 import logging
 
+from ftrack_framework_core import constants as core_constants
 from ftrack_framework_qt import constants as qt_constants
 from ftrack_framework_houdini import constants as houdini_constants
 from ftrack_framework_core.host import Host
@@ -17,10 +18,11 @@ class HoudiniHost(Host):
 
     # Define the Houdini engines to be run during the run function
     engines = {
-        'asset_manager': host_engine.HoudiniAssetManagerEngine,
-        'opener': host_engine.HoudiniOpenerEngine,
-        'loader': host_engine.HoudiniLoaderEngine,
-        'publisher': host_engine.HoudiniPublisherEngine,
+        core_constants.PUBLISHER: host_engine.HoudiniPublisherEngine,
+        core_constants.LOADER: host_engine.HoudiniLoaderEngine,
+        core_constants.OPENER: host_engine.HoudiniOpenerEngine,
+        core_constants.ASSET_MANAGER: host_engine.HoudiniAssetManagerEngine,
+        core_constants.RESOLVER: host_engine.HoudiniResolverEngine,
     }
 
     def __init__(self, event_manager):

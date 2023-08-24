@@ -1,5 +1,5 @@
 # file will be exec'd; there can be no encoding tag
-# :copyright: Copyright (c) 2014-2022 ftrack
+# :copyright: Copyright (c) 2014-2023 ftrack
 import logging
 
 from functools import partial
@@ -228,10 +228,8 @@ def initialise():
     rt.menuMan.updateMenuBar()
 
     # Listen to widget launch events
-    session.event_hub.subscribe(
-        'topic={} and data.pipeline.host_id={}'.format(
-            core_constants.PIPELINE_CLIENT_LAUNCH, host.host_id
-        ),
+    event_manager.subscribe.client_launch_widget(
+        host.host_id,
         partial(
             _open_widget,
             event_manager,

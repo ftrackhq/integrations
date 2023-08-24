@@ -21,7 +21,7 @@ jobs:
     with:
       full_release: false
       check_changed: true
-      version: "0.0.0dev${{ github.event.number }}"
+      version: "v0.0.0dev${{ github.event.number }}"
 
   # Create a pre-release for the packages that have changed.
   pre-release:

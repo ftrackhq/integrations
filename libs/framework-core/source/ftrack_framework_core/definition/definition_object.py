@@ -1,11 +1,14 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2014-2022 ftrack
+# :copyright: Copyright (c) 2014-2023 ftrack
 
 from collections.abc import MutableMapping, MutableSequence
 import copy
 import json
 
-from ftrack_framework_core import constants
+import ftrack_constants.framework as constants
+
+# TODO: Evaluate if to rename this. maybe a definitionHelper, definitionWrapper,
+#  definitionAPI, definitionParser...
 
 
 class DefinitionObject(MutableMapping):
@@ -166,12 +169,26 @@ class Plugin(DefinitionObject):
         # Convert options to options object
         if k == 'options':
             v = Options(v)
+        if k == 'data':
+            v = Data(v)
+        if k == 'context_data':
+            v = ContextData(v)
         super(Plugin, self).__setitem__(k, v)
 
 
 class Options(DefinitionObject):
     def __init__(self, options):
         super(Options, self).__init__(options)
+
+
+class Data(DefinitionObject):
+    def __init__(self, data):
+        super(Data, self).__init__(data)
+
+
+class ContextData(DefinitionObject):
+    def __init__(self, context_data):
+        super(ContextData, self).__init__(context_data)
 
 
 class DefinitionList(MutableSequence):
@@ -273,7 +290,7 @@ class DefinitionList(MutableSequence):
         )
         if issubclass(type(item), dict):
             def_type = item.get('type')
-            if def_type in constants.DEFINITION_TYPES:
+            if def_type in constants.definition.DEFINITION_TYPES:
                 item = DefinitionObject(item)
             else:
                 category = item.get('category')

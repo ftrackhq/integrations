@@ -1,5 +1,5 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2014-2022 ftrack
+# :copyright: Copyright (c) 2014-2023 ftrack
 
 import nuke
 from ftrack_framework_core import plugin
@@ -39,3 +39,4 @@ from ftrack_framework_nuke.plugin.load import *
 from ftrack_framework_nuke.plugin.open import *
 from ftrack_framework_nuke.plugin.publish import *
 from ftrack_framework_nuke.plugin.asset_manager import *
+from ftrack_framework_nuke.plugin.resolver import *

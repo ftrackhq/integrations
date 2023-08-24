@@ -1,5 +1,5 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2016 ftrack
+# :copyright: Copyright (c) 2014-2023 ftrack
 
 import os
 import sys
@@ -52,12 +52,14 @@ def on_launch_ftrack_framework_core(session, event):
         plugin_base_dir, 'resource', 'definitions'
     )
 
+    # TODO: fix this as are all in different paths now
     core_base_data['integration']['env'] = {
         'PYTHONPATH.prepend': python_dependencies,
         'FTRACK_EVENT_PLUGIN_PATH.prepend': os.path.pathsep.join(
             [core_plugins_path, core_definitions_path]
         ),
         'FTRACK_DEFINITION_PATH.prepend': core_definitions_path,
+        #'FTRACK_SCHEMA_PATH.prepend': core_schemas_path,
     }
 
     return core_base_data

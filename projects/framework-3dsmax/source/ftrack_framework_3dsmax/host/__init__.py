@@ -1,8 +1,9 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2014-2022 ftrack
-
+# :copyright: Copyright (c) 2014-2023 ftrack
 import logging
+
 from ftrack_framework_core.host import Host
+from ftrack_framework_core import constants as core_constants
 from ftrack_framework_qt import constants as qt_constants
 from ftrack_framework_3dsmax import constants as max_constants
 from ftrack_framework_3dsmax.host import engine as host_engine
@@ -18,10 +19,11 @@ class MaxHost(Host):
     host_types = [qt_constants.HOST_TYPE, max_constants.HOST_TYPE]
     # Define the Max engines to be run during the run function
     engines = {
-        'asset_manager': host_engine.MaxAssetManagerEngine,
-        'loader': host_engine.MaxLoaderEngine,
-        'opener': host_engine.MaxOpenerEngine,
-        'publisher': host_engine.MaxPublisherEngine,
+        core_constants.PUBLISHER: host_engine.MaxPublisherEngine,
+        core_constants.LOADER: host_engine.MaxLoaderEngine,
+        core_constants.OPENER: host_engine.MaxOpenerEngine,
+        core_constants.ASSET_MANAGER: host_engine.MaxAssetManagerEngine,
+        core_constants.RESOLVER: host_engine.MaxResolverEngine,
     }
 
     def __init__(self, event_manager):

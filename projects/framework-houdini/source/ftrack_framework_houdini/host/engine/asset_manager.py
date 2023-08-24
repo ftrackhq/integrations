@@ -1,5 +1,5 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2014-2022 ftrack
+# :copyright: Copyright (c) 2014-2023 ftrack
 
 import time
 import hou
@@ -14,7 +14,7 @@ from ftrack_framework_houdini.asset.dcc_object import HoudiniDccObject
 
 
 class HoudiniAssetManagerEngine(AssetManagerEngine):
-    engine_type = 'asset_manager'
+    engine_type = core_constants.ASSET_MANAGER
 
     FtrackObjectManager = HoudiniFtrackObjectManager
     '''FtrackObjectManager class to use'''
@@ -78,7 +78,9 @@ class HoudiniAssetManagerEngine(AssetManagerEngine):
         result_data['result'] = result
         result_data['execution_time'] = total_time
 
-        self._notify_client(plugin, result_data)
+        self.event_manager.publish.notify_plugin_progress_client(
+            self.host_id, **result_data
+        )
 
         return status, result
 
@@ -146,7 +148,9 @@ class HoudiniAssetManagerEngine(AssetManagerEngine):
                 result_data['execution_time'] = total_time
                 result_data['message'] = result['message'] = message
 
-                self._notify_client(plugin, result_data)
+                self.event_manager.publish.notify_plugin_progress_client(
+            self.host_id, **result_data
+        )
                 return status, result
 
         end_time = time.time()
@@ -156,7 +160,9 @@ class HoudiniAssetManagerEngine(AssetManagerEngine):
         result_data['result'] = result
         result_data['execution_time'] = total_time
 
-        self._notify_client(plugin, result_data)
+        self.event_manager.publish.notify_plugin_progress_client(
+            self.host_id, **result_data
+        )
 
         return status, result
 
@@ -219,7 +225,9 @@ class HoudiniAssetManagerEngine(AssetManagerEngine):
                 result_data['execution_time'] = total_time
                 result_data['message'] = message
 
-                self._notify_client(plugin, result_data)
+                self.event_manager.publish.notify_plugin_progress_client(
+            self.host_id, **result_data
+        )
                 return status, result
 
         self.ftrack_object_manager.objects_loaded = False
@@ -231,7 +239,9 @@ class HoudiniAssetManagerEngine(AssetManagerEngine):
         result_data['result'] = result
         result_data['execution_time'] = total_time
 
-        self._notify_client(plugin, result_data)
+        self.event_manager.publish.notify_plugin_progress_client(
+            self.host_id, **result_data
+        )
 
         return status, result
 
@@ -268,7 +278,7 @@ class HoudiniAssetManagerEngine(AssetManagerEngine):
         )
         self.dcc_object = dcc_object
 
-        # Remove the the loaded nodes
+        # Remove the loaded nodes
         for node in houdini_utils.get_connected_objects(dcc_object.name):
             self.logger.debug("Removing object: {}".format(node))
             try:
@@ -295,7 +305,9 @@ class HoudiniAssetManagerEngine(AssetManagerEngine):
                 result_data['execution_time'] = total_time
                 result_data['message'] = message
 
-                self._notify_client(plugin, result_data)
+                self.event_manager.publish.notify_plugin_progress_client(
+            self.host_id, **result_data
+        )
                 return status, result
 
         # Remove the ftrack node
@@ -322,7 +334,9 @@ class HoudiniAssetManagerEngine(AssetManagerEngine):
                 result_data['execution_time'] = total_time
                 result_data['message'] = result['message'] = message
 
-                self._notify_client(plugin, result_data)
+                self.event_manager.publish.notify_plugin_progress_client(
+            self.host_id, **result_data
+        )
 
                 return status, result
 
@@ -333,6 +347,8 @@ class HoudiniAssetManagerEngine(AssetManagerEngine):
         result_data['result'] = result
         result_data['execution_time'] = total_time
 
-        self._notify_client(plugin, result_data)
+        self.event_manager.publish.notify_plugin_progress_client(
+            self.host_id, **result_data
+        )
 
         return status, result

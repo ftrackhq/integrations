@@ -1,5 +1,5 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2014-2022 ftrack
+# :copyright: Copyright (c) 2014-2023 ftrack
 
 import os
 
@@ -51,12 +51,15 @@ class MayaNativeLoaderImporterPlugin(plugin.MayaLoaderImporterPlugin):
         for component_path in paths_to_import:
             self.logger.debug('Loading path {}'.format(component_path))
 
-            if maya_options.get('ns') == 'file_name':
-                maya_options['ns'] = os.path.basename(component_path).split(
-                    "."
-                )[0]
+            if maya_options.get('ns') == 'asset_name':
+                asset_name = 'NoNameFound'
+                asset = self.session.query('select ancestors from Asset where id is {}'.format(self.asset_info['asset_id'])).first()
+                for ancestor in asset['ancestors']:
+                    if ancestor.entity_type == 'AssetBuild':
+                        asset_name = ancestor['name']
+                maya_options['ns'] = asset_name
             elif maya_options.get('ns') == 'component':
-                maya_options['ns'] = data[0].get('name')
+                maya_options['ns'] = self.asset_info['component_name']
 
             if component_path.lower().endswith('.fbx'):
                 cmds.loadPlugin('fbxmaya.so', qt=1)

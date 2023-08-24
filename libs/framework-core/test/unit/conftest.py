@@ -8,7 +8,7 @@ import json
 import functools
 
 from ftrack_framework_core import event
-from ftrack_framework_core import constants
+import ftrack_constants.framework as constants
 from ftrack_framework_core import host as test_host
 from ftrack_framework_core.definition import collect_and_validate
 
@@ -184,7 +184,7 @@ def event_manager(session):
 
     event_manager.subscribe(
         '{} and data.pipeline.type=definition'.format(
-            constants.PIPELINE_REGISTER_TOPIC
+            constants.DISCOVER_DEFINITION_TOPIC
         ),
         callback,
     )

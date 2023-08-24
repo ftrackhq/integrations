@@ -3,6 +3,7 @@
 
 import logging
 from ftrack_connect_pipeline.host import Host
+from ftrack_framework_core import constants as core_constants
 from ftrack_connect_pipeline_qt import constants as qt_constants
 from {{cookiecutter.package_name}} import constants as {{cookiecutter.host_type}}_constants
 from {{cookiecutter.package_name}}.host import engine as host_engine
@@ -18,10 +19,11 @@ class {{cookiecutter.host_type_capitalized}}Host(Host):
     host_types = [qt_constants.HOST_TYPE, {{cookiecutter.host_type}}_constants.HOST_TYPE]
     # Define the {{cookiecutter.host_type_capitalized}} engines to be run during the run function
     engines = {
-        'asset_manager': host_engine.{{cookiecutter.host_type_capitalized}}AssetManagerEngine,
-        'loader': host_engine.{{cookiecutter.host_type_capitalized}}LoaderEngine,
-        'opener': host_engine.{{cookiecutter.host_type_capitalized}}OpenerEngine,
-        'publisher': host_engine.{{cookiecutter.host_type_capitalized}}PublisherEngine,
+        core_constants.PUBLISHER: host_engine.{{cookiecutter.host_type_capitalized}}PublisherEngine,
+        core_constants.LOADER: host_engine.{{cookiecutter.host_type_capitalized}}LoaderEngine,
+        core_constants.OPENER: host_engine.{{cookiecutter.host_type_capitalized}}OpenerEngine,
+        core_constants.ASSET_MANAGER: host_engine.{{cookiecutter.host_type_capitalized}}AssetManagerEngine,
+        core_constants.RESOLVER: host_engine.{{cookiecutter.host_type_capitalized}}ResolverEngine,
     }
 
     def __init__(self, event_manager):

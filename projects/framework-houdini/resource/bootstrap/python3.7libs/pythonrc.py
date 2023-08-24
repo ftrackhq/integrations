@@ -1,5 +1,5 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2014-2021 ftrack
+# :copyright: Copyright (c) 2014-2023 ftrack
 
 import os
 import tempfile
@@ -114,12 +114,11 @@ def init():
     asset_list_model = AssetListModel(event_manager)
 
     # Listen to widget launch events
-    session.event_hub.subscribe(
-        'topic={} and data.pipeline.host_id={}'.format(
-            core_constants.PIPELINE_CLIENT_LAUNCH, host.host_id
-        ),
+    event_manager.subscribe.client_launch_widget(
+        host.host_id,
         functools.partial(_open_widget, event_manager, asset_list_model),
     )
+
 
     # Install dummy event filter to prevent Houdini from crashing during widget
     # build.
@@ -131,10 +130,11 @@ def init():
         # Continue execution if this fails
         logger.error(error)
 
-
+# TODO: please double check this, seems to be a bit hacky....
 def launchWidget(widget_name):
     '''Send an event to launch the widget'''
-    host.launch_client(widget_name)
+    global host
+    event_manager.publish.client_launch_widget(host.host_id, widget_name)
 
 
 def _open_widget(event_manager, asset_list_model, event):

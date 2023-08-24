@@ -1,0 +1,30 @@
+{
+    "type": "asset_manager",
+    "name": "default",
+    "host_type": "nuke",
+    "ui_type": "qt",
+    "actions":{
+        "discover":[
+            {
+                "name": "discover",
+                "label": "Refresh",
+                "plugin": "nuke_discover_am_action"
+            }
+        ],
+        "select":[
+            {
+                "name": "select_asset",
+                "label": "Select asset(s)",
+                "plugin": "nuke_select_am_action"
+            }
+        ],
+        "update":[
+            {
+                "label": "Update to latest",
+                "name": "update_to_latest",
+                "plugin": "common_update_latest_am_action",
+                "options": {"clear_selection":  false}
+            }
+        ]
+    }
+}

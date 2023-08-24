@@ -1,5 +1,5 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2014 ftrack
+# :copyright: Copyright (c) 2014-2023 ftrack
 
 from ftrack_connect.qt import QtCore, QtWidgets, QtGui
 

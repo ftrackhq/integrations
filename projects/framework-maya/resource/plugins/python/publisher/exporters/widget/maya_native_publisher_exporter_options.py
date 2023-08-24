@@ -1,5 +1,5 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2014-2022 ftrack
+# :copyright: Copyright (c) 2014-2023 ftrack
 
 import ftrack_api
 
@@ -37,12 +37,12 @@ class MayaNativePublisherExporterOptionsWidget(DynamicWidget):
     def define_options(self):
         '''Default renderable options for dynamic widget'''
         return {
-            'constructionHistory': False,
-            'channels': False,
-            'preserveReferences': False,
-            'shader': False,
-            'constraints': False,
-            'expressions': False,
+            'constructionHistory': True,
+            'channels': True,
+            'preserveReferences': True,
+            'shader': True,
+            'constraints': True,
+            'expressions': True,
             'type': [
                 {
                     'label': 'mayaBinary (.mb)',

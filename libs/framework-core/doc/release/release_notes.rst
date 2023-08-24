@@ -7,6 +7,13 @@
 Release Notes
 *************
 
+.. release:: 1.3.2
+    :date: 2023-08-1
+
+    .. change:: changed
+
+        First release from monorepo CI
+
 .. release:: 1.3.1
     :date: 2023-06-15
 

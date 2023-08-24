@@ -1,5 +1,5 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2014-2022 ftrack
+# :copyright: Copyright (c) 2014-2023 ftrack
 
 from ftrack_framework_maya import plugin
 from ftrack_framework_qt.plugin.widget.load_widget import (
@@ -50,20 +50,20 @@ class MayaNativeLoaderImporterOptionsWidget(LoadBaseWidget):
         self.namespace_options_gb = group_box.GroupBox('Namespace Options')
         namespace_lay = QtWidgets.QVBoxLayout()
         self.namespace_bg = QtWidgets.QButtonGroup(self)
-        file_name_rb = QtWidgets.QRadioButton('file_name')
+        self.asset_name_rb = QtWidgets.QRadioButton('asset_name')
         component_rb = QtWidgets.QRadioButton('component')
         custom_name_lay = QtWidgets.QHBoxLayout()
         self.custom_name_rb = QtWidgets.QRadioButton('custom')
         self.custom_name_le = QtWidgets.QLineEdit()
 
-        self.namespace_bg.addButton(file_name_rb)
+        self.namespace_bg.addButton(self.asset_name_rb)
         self.namespace_bg.addButton(component_rb)
         self.namespace_bg.addButton(self.custom_name_rb)
 
         custom_name_lay.addWidget(self.custom_name_rb)
         custom_name_lay.addWidget(self.custom_name_le)
 
-        namespace_lay.addWidget(file_name_rb)
+        namespace_lay.addWidget(self.asset_name_rb)
         namespace_lay.addWidget(component_rb)
         namespace_lay.addLayout(custom_name_lay)
 
@@ -104,8 +104,8 @@ class MayaNativeLoaderImporterOptionsWidget(LoadBaseWidget):
             self.default_options.get('preserve_references', False)
         )
         self._on_set_preserve_ref(self.preserve_ref_cb.isChecked())
-
-        custom = True
+        self.asset_name_rb.setChecked(True)
+        custom = False
         for button in self.namespace_bg.buttons():
             if button.text() == self.default_options.get('namespace_option'):
                 button.setChecked(True)

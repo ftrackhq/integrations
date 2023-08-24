@@ -1,5 +1,5 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2019 ftrack
+# :copyright: Copyright (c) 2014-2023 ftrack
 
 from ftrack_framework_maya import utils as maya_utils
 

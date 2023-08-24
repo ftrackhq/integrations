@@ -1,5 +1,5 @@
 import pytest
-from ftrack_framework_core import constants
+import ftrack_constants.framework as constants
 from ftrack_framework_core import event
 
 

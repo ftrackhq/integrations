@@ -19,7 +19,7 @@ from ftrack_framework_unreal.asset.dcc_object import UnrealDccObject
 
 
 class UnrealAssetManagerEngine(AssetManagerEngine):
-    engine_type = 'asset_manager'
+    engine_type = core_constants.ASSET_MANAGER
 
     FtrackObjectManager = UnrealFtrackObjectManager
     '''FtrackObjectManager class to use'''
@@ -82,7 +82,9 @@ class UnrealAssetManagerEngine(AssetManagerEngine):
         result_data['result'] = result
         result_data['execution_time'] = total_time
 
-        self._notify_client(plugin, result_data)
+        self.event_manager.publish.notify_plugin_progress_client(
+            self.host_id, **result_data
+        )
 
         return status, result
 
@@ -151,7 +153,9 @@ class UnrealAssetManagerEngine(AssetManagerEngine):
             result_data['execution_time'] = total_time
             result_data['message'] = message
 
-            self._notify_client(plugin, result_data)
+            self.event_manager.publish.notify_plugin_progress_client(
+            self.host_id, **result_data
+        )
             return status, result
 
         end_time = time.time()
@@ -161,7 +165,9 @@ class UnrealAssetManagerEngine(AssetManagerEngine):
         result_data['result'] = result
         result_data['execution_time'] = total_time
 
-        self._notify_client(plugin, result_data)
+        self.event_manager.publish.notify_plugin_progress_client(
+            self.host_id, **result_data
+        )
 
         return status, result
 
@@ -295,7 +301,9 @@ class UnrealAssetManagerEngine(AssetManagerEngine):
             result_data['execution_time'] = total_time
             result_data['message'] = message
 
-            self._notify_client(plugin, result_data)
+            self.event_manager.publish.notify_plugin_progress_client(
+            self.host_id, **result_data
+        )
             return status, result
 
         # Change version
@@ -313,7 +321,9 @@ class UnrealAssetManagerEngine(AssetManagerEngine):
             result_data['execution_time'] = total_time
             result_data['message'] = message
 
-            self._notify_client(plugin, result_data)
+            self.event_manager.publish.notify_plugin_progress_client(
+            self.host_id, **result_data
+        )
             return status, result
 
         # Consolidate new nodes and remove temp ones
@@ -390,7 +400,9 @@ class UnrealAssetManagerEngine(AssetManagerEngine):
         result_data['execution_time'] = total_time
         result_data['message'] = message
 
-        self._notify_client(plugin, result_data)
+        self.event_manager.publish.notify_plugin_progress_client(
+            self.host_id, **result_data
+        )
 
         return status, result
 
@@ -463,7 +475,9 @@ class UnrealAssetManagerEngine(AssetManagerEngine):
                 result_data['execution_time'] = total_time
                 result_data['message'] = message
 
-                self._notify_client(plugin, result_data)
+                self.event_manager.publish.notify_plugin_progress_client(
+            self.host_id, **result_data
+        )
                 return status, result
 
         self.ftrack_object_manager.objects_loaded = False
@@ -475,7 +489,9 @@ class UnrealAssetManagerEngine(AssetManagerEngine):
         result_data['result'] = result
         result_data['execution_time'] = total_time
 
-        self._notify_client(plugin, result_data)
+        self.event_manager.publish.notify_plugin_progress_client(
+            self.host_id, **result_data
+        )
 
         return status, result
 
@@ -548,7 +564,9 @@ class UnrealAssetManagerEngine(AssetManagerEngine):
                 result_data['execution_time'] = total_time
                 result_data['message'] = message
 
-                self._notify_client(plugin, result_data)
+                self.event_manager.publish.notify_plugin_progress_client(
+            self.host_id, **result_data
+        )
                 return status, result
 
         if unreal_utils.ftrack_node_exists(self.dcc_object.name):
@@ -573,7 +591,9 @@ class UnrealAssetManagerEngine(AssetManagerEngine):
                 result_data['execution_time'] = total_time
                 result_data['message'] = message
 
-                self._notify_client(plugin, result_data)
+                self.event_manager.publish.notify_plugin_progress_client(
+            self.host_id, **result_data
+        )
 
                 return status, result
 
@@ -584,6 +604,8 @@ class UnrealAssetManagerEngine(AssetManagerEngine):
         result_data['result'] = result
         result_data['execution_time'] = total_time
 
-        self._notify_client(plugin, result_data)
+        self.event_manager.publish.notify_plugin_progress_client(
+            self.host_id, **result_data
+        )
 
         return status, result

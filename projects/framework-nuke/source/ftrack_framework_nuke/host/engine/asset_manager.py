@@ -1,5 +1,5 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2014-2022 ftrack
+# :copyright: Copyright (c) 2014-2023 ftrack
 
 import time
 import nuke
@@ -13,7 +13,7 @@ from ftrack_framework_nuke.asset.dcc_object import NukeDccObject
 
 
 class NukeAssetManagerEngine(AssetManagerEngine):
-    engine_type = 'asset_manager'
+    engine_type = core_constants.ASSET_MANAGER
 
     FtrackObjectManager = NukeFtrackObjectManager
     '''FtrackObjectManager class to use'''
@@ -28,6 +28,65 @@ class NukeAssetManagerEngine(AssetManagerEngine):
         super(NukeAssetManagerEngine, self).__init__(
             event_manager, host_types, host_id, asset_type_name=asset_type_name
         )
+    #
+    # @nuke_utils.run_in_main_thread
+    # def discover_assets(self, assets=None, options=None, plugin=None):
+    #     '''
+    #     Discover all the assets in the scene:
+    #     Returns status and result
+    #     '''
+    #     start_time = time.time()
+    #     status = core_constants.UNKNOWN_STATUS
+    #     result = []
+    #     message = None
+    #
+    #     result_data = {
+    #         'plugin_name': None,
+    #         'plugin_type': core_constants.PLUGIN_AM_ACTION_TYPE,
+    #         'method': 'discover_assets',
+    #         'status': status,
+    #         'result': result,
+    #         'execution_time': 0,
+    #         'message': message,
+    #     }
+    #
+    #     ftrack_asset_node_names = [
+    #         node.name() for node in nuke_utils.get_nodes_with_ftrack_tab()
+    #     ]
+    #     ftrack_asset_info_list = []
+    #
+    #     if ftrack_asset_node_names:
+    #         for node_name in ftrack_asset_node_names:
+    #             param_dict = self.DccObject.dictionary_from_object(node_name)
+    #             # avoid read and write nodes containing the old ftrack tab
+    #             # without information
+    #             if not param_dict:
+    #                 continue
+    #             node_asset_info = FtrackAssetInfo(param_dict)
+    #             ftrack_asset_info_list.append(node_asset_info)
+    #
+    #         if not ftrack_asset_info_list:
+    #             status = core_constants.ERROR_STATUS
+    #         else:
+    #             status = core_constants.SUCCESS_STATUS
+    #     else:
+    #         self.logger.debug("No assets in the scene")
+    #         status = core_constants.SUCCESS_STATUS
+    #
+    #     result = ftrack_asset_info_list
+    #
+    #     end_time = time.time()
+    #     total_time = end_time - start_time
+    #
+    #     result_data['status'] = status
+    #     result_data['result'] = result
+    #     result_data['execution_time'] = total_time
+    #
+    #     self.event_manager.publish.notify_plugin_progress_client(
+    #         self.host_id, **result_data
+    #     )
+    #
+    #     return status, result
     #
     # @nuke_utils.run_in_main_thread
     # def select_asset(self, asset_info, options=None, plugin=None):
@@ -103,7 +162,9 @@ class NukeAssetManagerEngine(AssetManagerEngine):
     #             result_data['execution_time'] = total_time
     #             result_data['message'] = message
     #
-    #             self._notify_client(plugin, result_data)
+    #             self.event_manager.publish.notify_plugin_progress_client(
+    #         self.host_id, **result_data
+    #     )
     #             return status, result
     #
     #     try:
@@ -127,7 +188,9 @@ class NukeAssetManagerEngine(AssetManagerEngine):
     #         result_data['execution_time'] = total_time
     #         result_data['message'] = message
     #
-    #         self._notify_client(plugin, result_data)
+    #         self.event_manager.publish.notify_plugin_progress_client(
+    #         self.host_id, **result_data
+    #     )
     #         return status, result
     #
     #     end_time = time.time()
@@ -137,7 +200,9 @@ class NukeAssetManagerEngine(AssetManagerEngine):
     #     result_data['result'] = result
     #     result_data['execution_time'] = total_time
     #
-    #     self._notify_client(plugin, result_data)
+    #     self.event_manager.publish.notify_plugin_progress_client(
+    #         self.host_id, **result_data
+    #     )
     #     return status, result
     #
     # @nuke_utils.run_in_main_thread
@@ -201,7 +266,9 @@ class NukeAssetManagerEngine(AssetManagerEngine):
             result_data['execution_time'] = total_time
             result_data['message'] = message
 
-            self._notify_client(plugin, result_data)
+            self.event_manager.publish.notify_plugin_progress_client(
+            self.host_id, **result_data
+        )
             return status, result
 
         if ftrack_node.Class() == 'BackdropNode':
@@ -245,7 +312,9 @@ class NukeAssetManagerEngine(AssetManagerEngine):
                     result_data['execution_time'] = total_time
                     result_data['message'] = message
 
-                    self._notify_client(plugin, result_data)
+                    self.event_manager.publish.notify_plugin_progress_client(
+            self.host_id, **result_data
+        )
                     return status, result
 
         bool_status = core_constants.status_bool_mapping[status]
@@ -258,7 +327,9 @@ class NukeAssetManagerEngine(AssetManagerEngine):
             result_data['execution_time'] = total_time
             result_data['message'] = message
 
-            self._notify_client(plugin, result_data)
+            self.event_manager.publish.notify_plugin_progress_client(
+            self.host_id, **result_data
+        )
             return status, result
 
         self.ftrack_object_manager.objects_loaded = False
@@ -270,7 +341,9 @@ class NukeAssetManagerEngine(AssetManagerEngine):
         result_data['result'] = result
         result_data['execution_time'] = total_time
 
-        self._notify_client(plugin, result_data)
+        self.event_manager.publish.notify_plugin_progress_client(
+            self.host_id, **result_data
+        )
 
         return status, result
 
@@ -321,7 +394,9 @@ class NukeAssetManagerEngine(AssetManagerEngine):
             result_data['execution_time'] = total_time
             result_data['message'] = message
 
-            self._notify_client(plugin, result_data)
+            self.event_manager.publish.notify_plugin_progress_client(
+            self.host_id, **result_data
+        )
             return status, result
 
         if ftrack_node.Class() == 'BackdropNode':
@@ -372,7 +447,9 @@ class NukeAssetManagerEngine(AssetManagerEngine):
                     result_data['execution_time'] = total_time
                     result_data['message'] = message
 
-                    self._notify_client(plugin, result_data)
+                    self.event_manager.publish.notify_plugin_progress_client(
+            self.host_id, **result_data
+        )
                     return status, result
 
         try:
@@ -398,7 +475,9 @@ class NukeAssetManagerEngine(AssetManagerEngine):
             result_data['execution_time'] = total_time
             result_data['message'] = message
 
-            self._notify_client(plugin, result_data)
+            self.event_manager.publish.notify_plugin_progress_client(
+            self.host_id, **result_data
+        )
             return status, result
 
         end_time = time.time()
@@ -408,6 +487,8 @@ class NukeAssetManagerEngine(AssetManagerEngine):
         result_data['result'] = result
         result_data['execution_time'] = total_time
 
-        self._notify_client(plugin, result_data)
+        self.event_manager.publish.notify_plugin_progress_client(
+            self.host_id, **result_data
+        )
 
         return status, result
