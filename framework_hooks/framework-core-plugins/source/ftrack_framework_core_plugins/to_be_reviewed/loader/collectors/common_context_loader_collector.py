@@ -25,7 +25,8 @@ class CommonContextLoaderCollectorPlugin(BasePlugin):
         )
 
     def run(self, context_data=None, data=None, options=None):
-        '''Retrieve a list of component paths based on version id given in *context_data* matching file_type given in *options*'''
+        '''Retrieve a list of component paths based on version id given in
+        *context_data* matching file_type given in *options*'''
 
         version_id = context_data.get('version_id', [])
 

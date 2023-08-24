@@ -241,7 +241,7 @@ class BasePlugin(object):
     def pre_execute_callback_hook(self, event):
         '''
         Method executed before calling the method given in the *event*
-        should allways return the event.
+        should always return the event.
         '''
         return event
 
@@ -366,7 +366,7 @@ class BasePlugin(object):
         self.message = None
         try:
             # We are not setting the post_execute_result as the result for now
-            # because is a free method that maight not validate.
+            # because is a free method that might not validate.
             post_execute_result = self.post_execute_callback_hook(
                 self.method_result
             )

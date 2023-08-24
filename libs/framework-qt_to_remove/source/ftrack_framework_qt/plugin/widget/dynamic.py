@@ -132,7 +132,7 @@ class DynamicWidget(BaseOptionsWidget):
 
     def update(self, options, ignore=None):
         '''Combine supplied options from definition, with UI defined options. Ignore the options keys
-        provided in *ignore* list, managed by the the child options widget.'''
+        provided in *ignore* list, managed by the child options widget.'''
         # Preprocess, the list values supplied in definitions must override UI defined options
         for key, value in self.options.items():
             if key in (ignore or []):

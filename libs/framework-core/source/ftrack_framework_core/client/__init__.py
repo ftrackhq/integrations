@@ -240,7 +240,7 @@ class Client(object):
         Initialise Client with instance of
         :class:`~ftrack_framework_core.event.EventManager`
         '''
-        # TODO: double check logger initalization and standarze it around all files.
+        # TODO: double check logger initialization and standardize it around all files.
         # Setting logger
         self.logger = logging.getLogger(
             __name__ + '.' + self.__class__.__name__
@@ -288,17 +288,17 @@ class Client(object):
             return True
         self.logger.warning('No widgets found to register')
 
-    def _on_register_framework_widgets_callback(self, registred_widgets):
+    def _on_register_framework_widgets_callback(self, registered_widgets):
         '''
         Callback of the :meth:`_register_framework_modules` of type plugins.
-        We add all the *registred_plugins* into our
+        We add all the *registered_plugins* into our
         :obj:`self.__plugins_registry`
         '''
         # TODO: evaluate if we want to discover the widget by event, so we
-        #  filter out all the registred widgets that are not ui_type compatible.
+        #  filter out all the registered widgets that are not ui_type compatible.
         # discovered_widgets = []
-        registred_widgets = list(set(registred_widgets))
-        # for widget in registred_widgets:
+        registered_widgets = list(set(registered_widgets))
+        # for widget in registered_widgets:
         #     result = self.event_manager.publish.discover_widget(
         #         self.ui_types,
         #         widget.name,
@@ -307,14 +307,14 @@ class Client(object):
         #         discovered_widgets.append(widget)
         #     else:
         #         self.logger.warning(
-        #             " The widget {} hasn't been registred. "
+        #             " The widget {} hasn't been registered. "
         #             "Check compatible UI types: {}".format(
         #                 widget.name, self.ui_types
         #             )
         #         )
 
         # self.__framework_widget_registry = discovered_widgets
-        self.__framework_widget_registry = registred_widgets
+        self.__framework_widget_registry = registered_widgets
 
     # Host
     def discover_hosts(self, time_out=3):
@@ -526,20 +526,20 @@ class Client(object):
             if dialog_class not in self.discovered_framework_widgets:
                 self.logger.warning(
                     'Provided dialog_class {} not in the discovered framework '
-                    'widgets, registring...'.format(dialog_class)
+                    'widgets, registering...'.format(dialog_class)
                 )
                 self.__framework_widget_registry.append(dialog_class)
 
         if dialog_name and not dialog_class:
-            for registred_dialog_class in self.discovered_framework_widgets:
-                if dialog_name == registred_dialog_class.name:
-                    dialog_class = registred_dialog_class
+            for registered_dialog_class in self.discovered_framework_widgets:
+                if dialog_name == registered_dialog_class.name:
+                    dialog_class = registered_dialog_class
                     break
         if not dialog_class:
             error_message = (
                 'Please provide a registrated dialog name.\n'
                 'Given name: {} \n'
-                'Registred widgets: {}'.format(
+                'registered widgets: {}'.format(
                     dialog_name, self.discovered_framework_widgets
                 )
             )

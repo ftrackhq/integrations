@@ -120,7 +120,7 @@ class BaseEngine(object):
         *data* : data to pass to the plugin.
 
         *context_data* : result of the context plugin containing the context_id,
-        aset_name... Or None
+        asset_name... Or None
 
         *method* : Method of the plugin to be executed.
 

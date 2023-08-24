@@ -213,7 +213,7 @@ class FtrackReBuildServerTrackDialog(QtWidgets.QDialog, FtrackBase):
 
     @property
     def data(self):
-        '''Return the the collected data from widget.'''
+        '''Return the collected data from widget.'''
         return self._result_data
 
     def accept_test(self):
