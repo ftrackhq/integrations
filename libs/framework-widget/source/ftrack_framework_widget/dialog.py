@@ -2,10 +2,10 @@
 # :copyright: Copyright (c) 2014-2023 ftrack
 import uuid
 
-from ftrack_framework_widget import Base, active_widget
+from ftrack_framework_widget import BaseUI, active_widget
 
 
-class Dialog(Base):
+class FrameworkDialog(BaseUI):
     '''Base Class to represent a Plugin'''
 
     name = None
@@ -124,7 +124,7 @@ class Dialog(Base):
         )
         self._dialog_options = dialog_options
 
-        super(Dialog, self).__init__(event_manager, client_id, parent)
+        super(FrameworkDialog, self).__init__(event_manager, client_id, parent)
 
     def connect_methods(self, method):
         '''
@@ -156,15 +156,15 @@ class Dialog(Base):
             self.client_id,
             callback=self._on_client_definition_changed_callback,
         )
-        self.event_manager.subscribe.client_notify_ui_run_plugin_result(
+        self.event_manager.subscribe.client_notify_run_plugin_result(
             self.client_id,
             callback=self._on_client_notify_ui_run_plugin_result_callback,
         )
-        self.event_manager.subscribe.client_notify_ui_run_definition_result(
+        self.event_manager.subscribe.client_notify_run_definition_result(
             self.client_id,
             callback=self._on_client_notify_ui_run_definition_result_callback,
         )
-        self.event_manager.subscribe.client_notify_ui_log_item_added(
+        self.event_manager.subscribe.client_notify_log_item_added(
             self.client_id,
             callback=self._on_client_notify_ui_log_item_added_callback,
         )

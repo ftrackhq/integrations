@@ -2,11 +2,11 @@
 # :copyright: Copyright (c) 2014-2023 ftrack
 import uuid
 
-from ftrack_framework_widget import Base, active_widget
+from ftrack_framework_widget import BaseUI, active_widget
 
 
 # TODO: docstring this code
-class Widget(Base):
+class FrameworkWidget(BaseUI):
     '''Base Class to represent a Widget of the framework'''
 
     # We Define name, plugin_type and host_type as class variables for
@@ -74,7 +74,7 @@ class Widget(Base):
         self.connect_methods(dialog_connect_methods_callback)
         self.connect_properties(dialog_property_getter_connection_callback)
 
-        super(Widget, self).__init__(event_manager, client_id, parent)
+        super(FrameworkWidget, self).__init__(event_manager, client_id, parent)
 
         # Augment definition with the widget ID:
         self.plugin_definition.widget_id = self.id

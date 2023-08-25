@@ -24,11 +24,11 @@ def active_widget(func):
 
 
 # Docstring this class
-class Base(object):
+class BaseUI(object):
     '''Base Class to represent a Plugin'''
 
     name = None
-    widget_type = 'framework_base'
+    widget_type = 'framework_ui_base'
     ui_type = 'all'
 
     def __repr__(self):
@@ -150,11 +150,7 @@ class Base(object):
             'registering: {} for {}'.format(cls.name, cls.widget_type)
         )
 
-        # TODO: evaluate if it's worth implementing the discover widget event
-        #  or it's not necessary.
         # subscribe to discover the widget
-        # event_manager.subscribe.discover_widget(
-        #     cls.ui_type,
-        #     cls.name,
-        #     callback=lambda event: True
-        # )
+        event_manager.subscribe.discover_widget(
+            cls.ui_type, cls.name, callback=lambda event: True
+        )
