@@ -97,6 +97,10 @@ class FrameworkWidget(BaseUI):
     def post_build(self):
         pass
 
+    # TODO: this should be an ABC
+    def show(self):
+        pass
+
     def update_context(self, context_id):
         self._context_id = context_id
         self.on_context_updated()

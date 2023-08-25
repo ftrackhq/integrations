@@ -13,6 +13,7 @@ class FrameworkDialog(BaseUI):
     client_method_connection = None
     client_property_setter_connection = None
     client_property_getter_connection = None
+    definition_type_filter = None
 
     @property
     def definitions(self):
@@ -20,6 +21,18 @@ class FrameworkDialog(BaseUI):
         Available definitions in client
         '''
         return self.client_property_getter_connection('definitions')
+
+    @property
+    def filtered_definitions(self):
+        '''
+        Return definitions of types that match the definition_type_filter
+        '''
+        if not self.definition_type_filter:
+            return list(self.definitions.values())
+        definitions = []
+        for definition_type in self.definition_type_filter:
+            definitions.append(self.definitions.get(definition_type))
+        return definitions
 
     @property
     def definition(self):
@@ -176,6 +189,10 @@ class FrameworkDialog(BaseUI):
 
     # TODO: this should be an ABC
     def post_build(self):
+        pass
+
+    # TODO: this should be an ABC
+    def show(self):
         pass
 
     # TODO: this should be an ABC
