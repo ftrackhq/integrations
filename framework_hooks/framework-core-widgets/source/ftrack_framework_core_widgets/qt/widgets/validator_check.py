@@ -5,13 +5,13 @@ from Qt import QtWidgets, QtCore, QtGui
 
 import ftrack_constants.framework as constants
 
-from ftrack_framework_widget.widget import Widget
+from ftrack_framework_widget.widget import FrameworkWidget
 
 from ftrack_qt.widgets.icons import StatusMaterialIconWidget
 
 
 # TODO: review and docstring this code
-class ValidatorCheckWidget(Widget, QtWidgets.QWidget):
+class ValidatorCheckWidget(FrameworkWidget, QtWidgets.QWidget):
     '''Main class to represent a context widget on a publish process.'''
 
     name = 'validator_check'
@@ -35,7 +35,7 @@ class ValidatorCheckWidget(Widget, QtWidgets.QWidget):
         self._check_button = None
 
         QtWidgets.QWidget.__init__(self, parent=parent)
-        Widget.__init__(
+        FrameworkWidget.__init__(
             self,
             event_manager,
             client_id,

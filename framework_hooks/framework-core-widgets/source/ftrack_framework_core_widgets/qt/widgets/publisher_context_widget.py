@@ -3,7 +3,7 @@
 
 from Qt import QtWidgets, QtCore, QtGui
 
-from ftrack_framework_widget.widget import Widget
+from ftrack_framework_widget.widget import FrameworkWidget
 
 from ftrack_qt.widgets.selectors import AssetSelector
 from ftrack_qt.widgets.selectors import StatusSelector
@@ -11,7 +11,7 @@ from ftrack_qt.widgets.lines import LineWidget
 
 
 # TODO: review and docstring this code
-class PublishContextWidget(Widget, QtWidgets.QWidget):
+class PublishContextWidget(FrameworkWidget, QtWidgets.QWidget):
     '''Main class to represent a context widget on a publish process.'''
 
     name = 'publisher_context_selector'
@@ -36,7 +36,7 @@ class PublishContextWidget(Widget, QtWidgets.QWidget):
         self._comments_input = None
 
         QtWidgets.QWidget.__init__(self, parent=parent)
-        Widget.__init__(
+        FrameworkWidget.__init__(
             self,
             event_manager,
             client_id,

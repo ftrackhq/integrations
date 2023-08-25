@@ -8,7 +8,7 @@ import uuid
 from six import string_types
 
 from ftrack_utils.framework.dependencies import registry
-from ftrack_framework_widget.dialog import Dialog as FrameworkDialog
+from ftrack_framework_widget.dialog import FrameworkDialog
 import ftrack_constants.framework as constants
 
 from ftrack_framework_core.client.host_connection import HostConnection
@@ -21,6 +21,7 @@ class Client(object):
     Base client class.
     '''
 
+    # tODO: evaluate if to use compatible UI types in here or directly add the list of ui types
     ui_types = constants.client.COMPATIBLE_UI_TYPES
     '''Compatible UI for this client.'''
 
@@ -294,27 +295,32 @@ class Client(object):
         We add all the *registered_plugins* into our
         :obj:`self.__plugins_registry`
         '''
-        # TODO: evaluate if we want to discover the widget by event, so we
-        #  filter out all the registered widgets that are not ui_type compatible.
-        # discovered_widgets = []
-        registered_widgets = list(set(registered_widgets))
-        # for widget in registered_widgets:
-        #     result = self.event_manager.publish.discover_widget(
-        #         self.ui_types,
-        #         widget.name,
-        #     )
-        #     if result:
-        #         discovered_widgets.append(widget)
-        #     else:
-        #         self.logger.warning(
-        #             " The widget {} hasn't been registered. "
-        #             "Check compatible UI types: {}".format(
-        #                 widget.name, self.ui_types
-        #             )
-        #         )
 
-        # self.__framework_widget_registry = discovered_widgets
-        self.__framework_widget_registry = registered_widgets
+        discovered_widgets = []
+        registered_widgets = list(set(registered_widgets))
+        for widget in registered_widgets:
+            # TODO: to support self.ui_types in the event manager we have to ask
+            #  for a python API modification in the backend to support the
+            #  operator "in" for lists
+
+            result = None
+            for ui_type in self.ui_types:
+                result = self.event_manager.publish.discover_widget(
+                    ui_type,
+                    widget.name,
+                )
+                if result:
+                    discovered_widgets.append(widget)
+                    break
+            if not result:
+                self.logger.warning(
+                    " The widget {} hasn't been registered. "
+                    "Check compatible UI types: {}".format(
+                        widget.name, self.ui_types
+                    )
+                )
+
+        self.__framework_widget_registry = discovered_widgets
 
     # Host
     def discover_hosts(self, time_out=3):
@@ -435,7 +441,7 @@ class Client(object):
         '''Callback of the :meth:`~ftrack_framework_core.client.run_definition'''
         self.logger.debug("_run_definition_callback event: {}".format(event))
         # Publish event to widget
-        self.event_manager.publish.client_notify_ui_run_definition_result(
+        self.event_manager.publish.client_notify_run_definition_result(
             self.id, event['data'][0]
         )
 
@@ -466,7 +472,7 @@ class Client(object):
         '''Callback of the :meth:`~ftrack_framework_core.client.run_plugin'''
         self.logger.debug("_run_plugin_callback event: {}".format(event))
         # Publish event to widget
-        self.event_manager.publish.client_notify_ui_run_plugin_result(
+        self.event_manager.publish.client_notify_run_plugin_result(
             self.id, event['data'][0]
         )
 
@@ -499,7 +505,7 @@ class Client(object):
             )
         )
         # Publish event to widget
-        self.event_manager.publish.client_notify_ui_log_item_added(
+        self.event_manager.publish.client_notify_log_item_added(
             self.id, event['data']['log_item']
         )
 
