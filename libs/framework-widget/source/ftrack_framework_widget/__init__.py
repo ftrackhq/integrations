@@ -152,7 +152,5 @@ class BaseUI(object):
 
         # subscribe to discover the widget
         event_manager.subscribe.discover_widget(
-            cls.ui_type,
-            cls.name,
-            callback=lambda event: True
+            cls.ui_type, cls.name, callback=lambda event: True
         )

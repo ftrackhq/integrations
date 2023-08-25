@@ -17,6 +17,7 @@ import ftrack_constants.framework as constants
 #  one can be in that list and is not need to use it as base.
 #  Also review code and test it.
 
+
 class BaseLoaderOpenerPlugin(BasePlugin):
     '''Base Class to represent a Plugin'''
 

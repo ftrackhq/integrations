@@ -67,6 +67,4 @@ CLIENT_NOTIFY_RUN_DEFINITION_RESULT_TOPIC = (
     '{}.client.notify.definition.result'.format(_BASE_)
 )
 # Client received log item result
-CLIENT_NOTIFY_LOG_ITEM_ADDED_TOPIC = '{}.client.notify.log_item'.format(
-    _BASE_
-)
+CLIENT_NOTIFY_LOG_ITEM_ADDED_TOPIC = '{}.client.notify.log_item'.format(_BASE_)

@@ -479,14 +479,10 @@ class Publish(object):
             'definition_result': definition_result,
         }
 
-        event_topic = (
-            constants.event.CLIENT_NOTIFY_RUN_DEFINITION_RESULT_TOPIC
-        )
+        event_topic = constants.event.CLIENT_NOTIFY_RUN_DEFINITION_RESULT_TOPIC
         return self._publish_event(event_topic, data, callback)
 
-    def client_notify_log_item_added(
-        self, client_id, log_item, callback=None
-    ):
+    def client_notify_log_item_added(self, client_id, log_item, callback=None):
         '''
         Publish an event with topic
         :const:`~ftrack_framework_core.constants.event.CLIENT_NOTIFY_LOG_ITEM_ADDED_TOPIC`

@@ -72,7 +72,9 @@ def register_dependencies_from_directory(
                 registered_dependencies.append(obj)
             except Exception as e:
                 logger.warning(
-                    "Couldn't register dependency {} \n error: {}".format(name, e)
+                    "Couldn't register dependency {} \n error: {}".format(
+                        name, e
+                    )
                 )
                 continue
             logger.debug("Dependency {} registered".format(name))

@@ -406,8 +406,7 @@ class AssetManagerWidget(AssetManagerBaseWidget):
         # TODO: move this to the events module
         self.client_notification_subscribe_id = (
             self.event_manager.subscribe.notify_plugin_progress_client(
-                self.host_connection.host_id,
-                self._update_widget
+                self.host_connection.host_id, self._update_widget
             )
         )
 
