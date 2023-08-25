@@ -27,8 +27,10 @@ class PublisherDialog(FrameworkDialog, ScrollDefinitionsDialog):
     @property
     def definition_names(self):
         names = []
-        for definition in self.filtered_definitions:
-            names.append(definition.name)
+        for definitions in self.filtered_definitions:
+            print(definitions)
+            for definition in definitions:
+                names.append(definition.name)
         return names
 
     def __init__(
@@ -46,17 +48,7 @@ class PublisherDialog(FrameworkDialog, ScrollDefinitionsDialog):
         :class:`ftrack_api.session.Session`
         '''
 
-        super(PublisherDialog, self).__init__(
-            event_manager,
-            client_id,
-            connect_methods_callback,
-            connect_setter_property_callback,
-            connect_getter_property_callback,
-            dialog_options,
-            parent,
-        )
-
-        ScrollDefinitionsDialog.__init__(self, session=self.session, parent=parent)
+        ScrollDefinitionsDialog.__init__(self, session=event_manager.session, parent=parent)
         FrameworkDialog.__init__(
             self,
             event_manager,
@@ -68,45 +60,51 @@ class PublisherDialog(FrameworkDialog, ScrollDefinitionsDialog):
             parent,
         )
 
+        self._set_scroll_dialog_connections()
+
     # TODO: this should be an ABC
     def pre_build(self):
-        super(PublisherDialog, self).pre_build()
+        ScrollDefinitionsDialog.pre_build(self)
+        FrameworkDialog.pre_build(self)
 
     # TODO: this should be an ABC
     def build(self):
         self.run_button_title = 'Publish'
-        super(PublisherDialog, self).build()
+        ScrollDefinitionsDialog.build(self)
+        FrameworkDialog.build(self)
 
     # TODO: this should be an ABC
     def post_build(self):
+        ScrollDefinitionsDialog.post_build(self)
+        FrameworkDialog.post_build(self)
+
+    def _set_scroll_dialog_connections(self):
         # Set context from client:
         self._on_client_context_changed_callback()
 
-        super(PublisherDialog, self).post_build()
         # Add host connection items
-        ScrollDefinitionsDialog.add_host_connection_items(
-            self, self.host_connections_ids
-        )
+        self.add_host_connection_items(self.host_connections_ids)
+
         if self.host_connection:
             # Prevent the sync calling on creation as host might be already set.
             self._on_client_host_changed_callback()
 
-        ScrollDefinitionsDialog.context_changed.connect(
+        self.selected_context_changed.connect(
             self._on_ui_context_changed_callback
         )
-        ScrollDefinitionsDialog.host_changed.connect(
+        self.selected_host_changed.connect(
             self._on_ui_host_changed_callback
         )
-        ScrollDefinitionsDialog.definition_changed.connect(
+        self.selected_definition_changed.connect(
             self._on_ui_definition_changed_callback
         )
-        ScrollDefinitionsDialog.refresh_hosts.connect(
+        self.refresh_hosts_clicked.connect(
             self._on_ui_refresh_hosts_callback
         )
-        ScrollDefinitionsDialog.refresh_definitions.connect(
+        self.refresh_definitions_clicked.connect(
             self._on_ui_refresh_definitions_callback
         )
-        ScrollDefinitionsDialog.run_button_clicked.connect(
+        self.run_button_clicked.connect(
             self._on_ui_run_button_clicked_callback
         )
 
@@ -124,7 +122,7 @@ class PublisherDialog(FrameworkDialog, ScrollDefinitionsDialog):
     # TODO: This should be an ABC
     def _on_client_context_changed_callback(self, event=None):
         super(PublisherDialog, self)._on_client_context_changed_callback(event)
-        ScrollDefinitionsDialog.context_id = self.context_id
+        self.selected_context_id = self.context_id
 
     # TODO: This should be an ABC
     def _on_client_hosts_discovered_callback(self, event=None):
@@ -133,7 +131,7 @@ class PublisherDialog(FrameworkDialog, ScrollDefinitionsDialog):
     # TODO: This should be an ABC
     def _on_client_host_changed_callback(self, event=None):
         super(PublisherDialog, self)._on_client_host_changed_callback(event)
-        ScrollDefinitionsDialog.host_connection_id = self.host_connection.host_id
+        self.selected_host_connection_id = self.host_connection.host_id
         self.add_definition_items(self.definition_names)
 
     # TODO: This should be an ABC
@@ -142,16 +140,16 @@ class PublisherDialog(FrameworkDialog, ScrollDefinitionsDialog):
         definition_name = None
         if self.definition:
             definition_name = self.definition.name
-        ScrollDefinitionsDialog.definition_name = definition_name
+        self.selected_definition_name = definition_name
         self.build_definition_ui(self.definition)
 
         # TODO: This should be an ABC
 
     # TODO: This should be an ABC
     def sync_context(self):
-        if ScrollDefinitionsDialog.is_browsing_context:
+        if self.is_browsing_context:
             return
-        if self.context_id != ScrollDefinitionsDialog.context_id:
+        if self.context_id != self.selected_context_id:
             result = self.show_message_dialog(
                 title='Context out of sync!',
                 message='Selected context is not the current context, '
@@ -163,14 +161,14 @@ class PublisherDialog(FrameworkDialog, ScrollDefinitionsDialog):
                 self._on_client_context_changed_callback()
             elif result == 0:
                 self._on_ui_context_changed_callback(
-                    ScrollDefinitionsDialog.context_id
+                    self.selected_context_id
                 )
 
     # TODO: This should be an ABC
     def sync_host_connection(self):
         if (
                 self.host_connection.host_id
-                != ScrollDefinitionsDialog.host_connection_id
+                != self.selected_host_connection_id
         ):
             result = self.show_message_dialog(
                 title='Host connection out of sync!',
@@ -183,18 +181,18 @@ class PublisherDialog(FrameworkDialog, ScrollDefinitionsDialog):
                 self._on_client_host_changed_callback()
             elif result == 0:
                 self._on_ui_host_changed_callback(
-                    ScrollDefinitionsDialog.host_connection.id
+                    self.selected_host_connection_id
                 )
 
     # TODO: This should be an ABC
     def sync_definition(self):
         sync = False
-        if not self.definition and ScrollDefinitionsDialog.definition_name:
+        if not self.definition and self.selected_definition_name:
             sync = True
         else:
             if (
                     self.definition.name
-                    != ScrollDefinitionsDialog.definition_name
+                    != self.selected_definition_name
             ):
                 match = False
                 for definition_list in self.filtered_definitions:
@@ -209,7 +207,7 @@ class PublisherDialog(FrameworkDialog, ScrollDefinitionsDialog):
                     # Automatically sync current definition to client as the current
                     # definition is not available for this UI.
                     self._on_ui_definition_changed_callback(
-                        ScrollDefinitionsDialog.definition_name
+                        self.selected_definition_name
                     )
                     return
         if sync:
@@ -224,7 +222,7 @@ class PublisherDialog(FrameworkDialog, ScrollDefinitionsDialog):
                 self._on_client_definition_changed_callback()
             elif result == 0:
                 self._on_ui_definition_changed_callback(
-                    ScrollDefinitionsDialog.definition_name
+                    self.selected_definition_name
                 )
 
     # TODO: maybe move this to a utils and standarize icon.
@@ -257,11 +255,11 @@ class PublisherDialog(FrameworkDialog, ScrollDefinitionsDialog):
 
     def _on_ui_refresh_hosts_callback(self):
         self.client_method_connection('discover_hosts')
-        ScrollDefinitionsDialog.add_host_connection_items(self.host_connections_ids)
+        self.add_host_connection_items(self.host_connections_ids)
 
     def _on_ui_refresh_definitions_callback(self):
         self.client_method_connection('discover_hosts')
-        ScrollDefinitionsDialog.add_definition_items(self.definition_names)
+        self.add_definition_items(self.definition_names)
 
     def build_definition_ui(self, definition):
         # Build context widgets

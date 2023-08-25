@@ -10,11 +10,11 @@ from ftrack_qt.widgets.selectors import ContextSelector
 
 class ScrollDefinitionsDialog(QtWidgets.QDialog):
     '''Base Class to represent a Plugin'''
-    context_changed = QtCore.Signal(object)
-    host_changed = QtCore.Signal(object)
-    definition_changed = QtCore.Signal(object)
-    refresh_hosts = QtCore.Signal()
-    refresh_definitions = QtCore.Signal()
+    selected_context_changed = QtCore.Signal(object)
+    selected_host_changed = QtCore.Signal(object)
+    selected_definition_changed = QtCore.Signal(object)
+    refresh_hosts_clicked = QtCore.Signal()
+    refresh_definitions_clicked = QtCore.Signal()
     run_button_clicked = QtCore.Signal()
 
     @property
@@ -33,14 +33,14 @@ class ScrollDefinitionsDialog(QtWidgets.QDialog):
         self._run_button_title = str(value)
 
     @property
-    def context_id(self):
+    def selected_context_id(self):
         '''Return the selected context id in the context sleector'''
         return self._context_selector.context_id
 
-    @context_id.setter
-    def context_id(self, value):
+    @selected_context_id.setter
+    def selected_context_id(self, value):
         '''Set the given *value* as the selected context id'''
-        if self.context_id != value:
+        if self.selected_context_id != value:
             self._context_selector.context_id = value
 
     @property
@@ -51,16 +51,16 @@ class ScrollDefinitionsDialog(QtWidgets.QDialog):
         return self._context_selector.is_browsing
 
     @property
-    def host_connection_id(self):
+    def selected_host_connection_id(self):
         ''' Return the selected host connection id '''
         if self._host_connection_selector.current_item_index() in [0, -1]:
             return None
         return self._host_connection_selector.current_item_text()
 
-    @host_connection_id.setter
-    def host_connection_id(self, value):
+    @selected_host_connection_id.setter
+    def selected_host_connection_id(self, value):
         ''' Set the given *value* as selected host_connection_id '''
-        if self.host_connection_id != value:
+        if self.selected_host_connection_id != value:
             self._definition_selector.clear_items()
             if not value:
                 self._host_connection_selector.set_current_item_index(0)
@@ -68,16 +68,16 @@ class ScrollDefinitionsDialog(QtWidgets.QDialog):
             self._host_connection_selector.set_current_item(value)
 
     @property
-    def definition_name(self):
+    def selected_definition_name(self):
         ''' Return the selected definition name '''
         if self._definition_selector.current_item_index() in [0, -1]:
             return None
         return self._definition_selector.current_item_text()
 
-    @definition_name.setter
-    def definition_name(self, value):
+    @selected_definition_name.setter
+    def selected_definition_name(self, value):
         '''Set the given *value* as the selected definition name'''
-        if self.definition_name != value:
+        if self.selected_definition_name != value:
             if not value:
                 self._definition_selector.set_current_item_index(0)
                 return
@@ -100,13 +100,17 @@ class ScrollDefinitionsDialog(QtWidgets.QDialog):
         self._run_button = None
         self._run_button_title = 'Run'
 
+        self.pre_build()
+        self.build()
+        self.post_build()
+
     def pre_build(self):
         main_layout = QtWidgets.QVBoxLayout()
         self.setLayout(main_layout)
 
     def build(self):
         # Create the header
-        self._header = SessionHeader(self.session)
+        self._header = SessionHeader(self._session)
         # TODO: implement progress widget.
         # self._progress_widget = ProgressWidget
         # self._header.add_widget(self._progress_widget)
@@ -114,7 +118,7 @@ class ScrollDefinitionsDialog(QtWidgets.QDialog):
         # TODO: we have to update the signals from the context selector to
         #  identify that are our signals and not qt signals. So make them snake case
         self._context_selector = ContextSelector(
-            self.session, enble_context_change=True
+            self._session, enble_context_change=True
         )
 
         self._host_connection_selector = ListSelector("Host Selector")
@@ -144,7 +148,6 @@ class ScrollDefinitionsDialog(QtWidgets.QDialog):
 
     def post_build(self):
         '''Set up all the signals '''
-        super(ScrollDefinitionsDialog, self).post_build()
         # Connect context selector signals
         self._context_selector.context_changed.connect(
             self._on_context_selected_callback
@@ -180,7 +183,7 @@ class ScrollDefinitionsDialog(QtWidgets.QDialog):
         ''' Emit signal with the new context_id'''
         if not context_id:
             return
-        self.context_changed.emit(context_id)
+        self.selected_context_changed.emit(context_id)
 
     def _on_host_selected_callback(self, item_text):
         '''
@@ -189,29 +192,29 @@ class ScrollDefinitionsDialog(QtWidgets.QDialog):
 
         if not item_text:
             return
-        self.host_changed.emit(item_text)
+        self.selected_host_changed.emit(item_text)
 
     def _on_refresh_hosts_callback(self):
         '''Clean up hast and emit signal to refresh hosts'''
-        self.host_connection_id = None
-        self.host_changed.emit(None)
+        self.selected_host_connection_id = None
+        self.selected_host_changed.emit(None)
         self._host_connection_selector.clear_items()
-        self.refresh_hosts.emit()
+        self.refresh_hosts_clicked.emit()
 
     def _on_definition_selected_callback(self, item_text):
         '''Emit signal with the new selected definition'''
         if not item_text:
             return
-        self.definition_changed.emit(item_text)
+        self.selected_definition_changed.emit(item_text)
 
     def _on_refresh_definitions_callback(self):
         ''' Clean up definitions and emit signal to refresh them'''
         # TODO: double think if definitions can be refreshed? maybe we should
         #  thn re-select the same host instead of discovering hosts again?
-        self.definition_name = None
-        self.definition_changed.emit(None)
+        self.selected_definition_name = None
+        self.selected_definition_changed.emit(None)
         self._definition_selector.clear_items()
-        self.refresh_definitions.emit()
+        self.refresh_definitions_clicked.emit()
 
     def _on_run_button_clicked(self):
         '''Emit signal of run button.'''
