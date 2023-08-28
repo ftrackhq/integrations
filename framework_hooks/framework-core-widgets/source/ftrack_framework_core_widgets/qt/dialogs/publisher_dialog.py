@@ -19,7 +19,7 @@ class PublisherDialog(FrameworkDialog, ScrollDefinitionsDialog):
 
     @property
     def host_connections_ids(self):
-        ''' Returns available host id in the client'''
+        '''Returns available host id in the client'''
         ids = []
         for host_connection in self.host_connections:
             ids.append(host_connection.host_id)
@@ -27,7 +27,7 @@ class PublisherDialog(FrameworkDialog, ScrollDefinitionsDialog):
 
     @property
     def definition_names(self):
-        ''' Returns available definition names in the client'''
+        '''Returns available definition names in the client'''
         names = []
         for definitions in self.filtered_definitions:
             print(definitions)
@@ -46,7 +46,9 @@ class PublisherDialog(FrameworkDialog, ScrollDefinitionsDialog):
         parent=None,
     ):
         # As a mixing class we have to initialize the parents separately
-        ScrollDefinitionsDialog.__init__(self, session=event_manager.session, parent=parent)
+        ScrollDefinitionsDialog.__init__(
+            self, session=event_manager.session, parent=parent
+        )
         FrameworkDialog.__init__(
             self,
             event_manager,
@@ -63,20 +65,20 @@ class PublisherDialog(FrameworkDialog, ScrollDefinitionsDialog):
         self._set_scroll_dialog_connections()
 
     def pre_build(self):
-        ''' Pre Build method of the widget '''
+        '''Pre Build method of the widget'''
         super(PublisherDialog, self).pre_build()
 
     def build(self):
-        ''' Build method of the widget '''
+        '''Build method of the widget'''
         self.run_button_title = 'Publish'
         super(PublisherDialog, self).build()
 
     def post_build(self):
-        ''' Post Build method of the widget '''
+        '''Post Build method of the widget'''
         super(PublisherDialog, self).post_build()
 
     def _set_scroll_dialog_connections(self):
-        ''' Create all the connections to communicate to the scroll widget '''
+        '''Create all the connections to communicate to the scroll widget'''
         # Set context from client:
         self._on_client_context_changed_callback()
 
@@ -90,15 +92,11 @@ class PublisherDialog(FrameworkDialog, ScrollDefinitionsDialog):
         self.selected_context_changed.connect(
             self._on_ui_context_changed_callback
         )
-        self.selected_host_changed.connect(
-            self._on_ui_host_changed_callback
-        )
+        self.selected_host_changed.connect(self._on_ui_host_changed_callback)
         self.selected_definition_changed.connect(
             self._on_ui_definition_changed_callback
         )
-        self.refresh_hosts_clicked.connect(
-            self._on_ui_refresh_hosts_callback
-        )
+        self.refresh_hosts_clicked.connect(self._on_ui_refresh_hosts_callback)
         self.refresh_definitions_clicked.connect(
             self._on_ui_refresh_definitions_callback
         )
@@ -108,12 +106,12 @@ class PublisherDialog(FrameworkDialog, ScrollDefinitionsDialog):
 
     # TODO: this should be an ABC
     def show_ui(self):
-        ''' Override Show method of the base framework dialog  '''
+        '''Override Show method of the base framework dialog'''
         ScrollDefinitionsDialog.show(self)
 
     # TODO: this should be an ABC
     def connect_focus_signal(self):
-        ''' Connect signal when the current dialog gets focus'''
+        '''Connect signal when the current dialog gets focus'''
         # Update the is_active property.
         QtWidgets.QApplication.instance().focusChanged.connect(
             self._on_focus_changed
@@ -121,18 +119,20 @@ class PublisherDialog(FrameworkDialog, ScrollDefinitionsDialog):
 
     # TODO: This should be an ABC
     def _on_client_context_changed_callback(self, event=None):
-        ''' Client context has been changed '''
+        '''Client context has been changed'''
         super(PublisherDialog, self)._on_client_context_changed_callback(event)
         self.selected_context_id = self.context_id
 
     # TODO: This should be an ABC
     def _on_client_hosts_discovered_callback(self, event=None):
-        ''' Client new hosts has been discovered '''
-        super(PublisherDialog, self)._on_client_hosts_discovered_callback(event)
+        '''Client new hosts has been discovered'''
+        super(PublisherDialog, self)._on_client_hosts_discovered_callback(
+            event
+        )
 
     # TODO: This should be an ABC
     def _on_client_host_changed_callback(self, event=None):
-        ''' Client host has been changed '''
+        '''Client host has been changed'''
         super(PublisherDialog, self)._on_client_host_changed_callback(event)
         if not self.host_connection:
             self.selected_host_connection_id = None
@@ -142,8 +142,10 @@ class PublisherDialog(FrameworkDialog, ScrollDefinitionsDialog):
 
     # TODO: This should be an ABC
     def _on_client_definition_changed_callback(self, event=None):
-        ''' Client definition has been changed '''
-        super(PublisherDialog, self)._on_client_definition_changed_callback(event)
+        '''Client definition has been changed'''
+        super(PublisherDialog, self)._on_client_definition_changed_callback(
+            event
+        )
         definition_name = None
         if self.definition:
             definition_name = self.definition.name
@@ -163,16 +165,14 @@ class PublisherDialog(FrameworkDialog, ScrollDefinitionsDialog):
             message_dialog = MessageBoxDialog(
                 title='Context out of sync!',
                 message='Selected context is not the current context, '
-                        'do you want to update UI to syc with the current context?',
+                'do you want to update UI to syc with the current context?',
                 button_1_text='Update',
                 button_2_text='Keep Current',
             )
             if message_dialog.result == 0:
                 self._on_client_context_changed_callback()
             elif message_dialog.result == 1:
-                self._on_ui_context_changed_callback(
-                    self.selected_context_id
-                )
+                self._on_ui_context_changed_callback(self.selected_context_id)
 
     # TODO: This should be an ABC
     def sync_host_connection(self):
@@ -180,14 +180,11 @@ class PublisherDialog(FrameworkDialog, ScrollDefinitionsDialog):
         Client host has been changed and doesn't match the ui host when
         focus is back to the current UI
         '''
-        if (
-                self.host_connection.host_id
-                != self.selected_host_connection_id
-        ):
+        if self.host_connection.host_id != self.selected_host_connection_id:
             message_dialog = MessageBoxDialog(
                 title='Host connection out of sync!',
                 message='Selected host connection is not the current host_connection, '
-                        'do you want to update UI to sync with the current one?',
+                'do you want to update UI to sync with the current one?',
                 button_1_text='Update',
                 button_2_text='Keep Current',
             )
@@ -211,10 +208,7 @@ class PublisherDialog(FrameworkDialog, ScrollDefinitionsDialog):
             else:
                 sync = False
         else:
-            if (
-                    self.definition.name
-                    != self.selected_definition_name
-            ):
+            if self.definition.name != self.selected_definition_name:
                 match = False
                 for definition_list in self.filtered_definitions:
                     definition = definition_list.get_first(
@@ -235,7 +229,7 @@ class PublisherDialog(FrameworkDialog, ScrollDefinitionsDialog):
             message_dialog = MessageBoxDialog(
                 title='Current definition is out of sync!',
                 message='Selected definition is not the current definition, '
-                        'do you want to update UI to sync with the current one?',
+                'do you want to update UI to sync with the current one?',
                 button_1_text='Update',
                 button_2_text='Keep Current',
             )
