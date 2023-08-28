@@ -10,9 +10,10 @@ from ftrack_qt.widgets.selectors import ListSelector
 from ftrack_qt.widgets.headers import SessionHeader
 from ftrack_qt.widgets.selectors import ContextSelector
 
+from ftrack_qt.widgets.dialogs.base import BaseDialog
 
 # TODO: review and docstring this code
-class VerticalDialogDefinitionBase(Dialog, QtWidgets.QDialog):
+class VerticalDialogDefinitionBase(Dialog, BaseDialog):
     '''Base Class to represent a Plugin'''
 
     name = 'framework_definition_dialog'
@@ -54,7 +55,7 @@ class VerticalDialogDefinitionBase(Dialog, QtWidgets.QDialog):
         self._definition_widget = None
         self._run_button = None
 
-        QtWidgets.QDialog.__init__(self, parent=parent)
+        BaseDialog.__init__(self, dialog_options, parent=parent)
         Dialog.__init__(
             self,
             event_manager,

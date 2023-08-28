@@ -9,11 +9,11 @@ from Qt import QtWidgets, QtCore, QtGui
 
 from ftrack_qt.widgets.dialogs import BaseDialog
 from ftrack_qt.utils.widget import center_widget
-from ftrack_qt import theme
+from ftrack_qt.widgets.dialogs.base import BaseDialog
 
 
 # TODO: Review and simplify this code
-class ModalDialog(QtWidgets.QDialog):
+class ModalDialog(BaseDialog):
     '''
     A styled modal ftrack dialog box/prompt, intended to live on top of a base dialog or DCC app and
     waits for user input by default
@@ -36,19 +36,13 @@ class ModalDialog(QtWidgets.QDialog):
         :param title: The text to show in dialog title bar
         :param modal: The dialog should be modal
         '''
-        super(ModalDialog, self).__init__(parent=parent)
+        super(ModalDialog, self).__init__(None, parent=parent)
 
         self.setParent(parent)
 
         self._message = message or question
         self._title = title or 'ftrack'
         self._dialog_mode = None
-
-        self.setWindowFlags(QtCore.Qt.Tool)
-        theme.applyTheme(self, 'dark')
-        if self.get_theme_background_style():
-            self.setProperty('background', self.get_theme_background_style())
-        self.setAttribute(QtCore.Qt.WA_DeleteOnClose, True)
 
         # None; A utility dialog not waiting for user input
         # True; A modal dialog waiting for user Yes or No input click

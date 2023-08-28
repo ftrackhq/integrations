@@ -5,12 +5,25 @@ from Qt import QtWidgets, QtCore, QtGui
 
 from ftrack_qt.widgets.overlay import ShadedWidget
 
+from ftrack_constants.qt import DEFAULT_BACKGROUND_STYLE
+from ftrack_qt.utils.theme import theme
 
 class BaseDialog(QtWidgets.QDialog):
     '''
-    A basic dialog window, intended to live on top of DCC app main window (assembler, change context, entity browser,..)
-    Becomes shaded when a modal dialog is put in front of it.
+    The base dialog -intended to live docked, on top of DCC app main window or os
+    a modal dialog in general.
+
+    To be inherited by publisher, assembler and other dialogs.
+
+    Designed to become shaded when another (modal) dialog is put in front of it,
+    for visiblity.
     '''
+
+    DEFAULT_STYLE = 'ftrack'
+
+    # Allow child classes to override the default theme and background style
+    theme = None
+    background_style = None
 
     @property
     def darken(self):
@@ -28,6 +41,15 @@ class BaseDialog(QtWidgets.QDialog):
             if self._shaded_widget:
                 self._shaded_widget.close()
 
-    def __init__(self, parent):
+    def __init__(self, dialog_options=None, parent=None):
         super(BaseDialog, self).__init__(parent=parent)
+        self._darken = False
         self._shaded_widget = None
+
+        # Apply theme and with DCC specific properties
+        self.setWindowFlags(QtCore.Qt.Tool)
+        theme.apply_theme(self, theme=(dialog_options or {}).get('theme', self.theme))
+        self.setProperty('background', (dialog_options or {}).get('background_style', self.background_style) or
+                         DEFAULT_BACKGROUND_STYLE)
+        self.setProperty('docked', 'true' if (dialog_options or {}).get('docked', False) else 'false')
+        self.setAttribute(QtCore.Qt.WA_DeleteOnClose, True)

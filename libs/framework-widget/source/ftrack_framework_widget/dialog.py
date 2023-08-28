@@ -13,9 +13,6 @@ class Dialog(Base):
     client_method_connection = None
     client_property_setter_connection = None
     client_property_getter_connection = None
-    theme = 'dark'
-    style = 'ftrack'
-    docked = False
 
     @property
     def definitions(self):

@@ -5,14 +5,18 @@ import sys
 from Qt import QtCore, QtWidgets, QtGui
 
 
-def applyFont(font=':/ftrack/font/main'):
-    '''Add application font.'''
+from ftrack_constants.qt import DEFAULT_THEME
+
+def apply_font(font=':/ftrack/font/main'):
+    '''Add application *font*.'''
     QtGui.QFontDatabase.addApplicationFont(font)
 
 
-def applyTheme(widget, theme='dark'):
+def apply_theme(widget, theme=None):
     '''Apply *theme* to *widget* - load stylesheet from resource file and apply'''
-    applyFont()
+    apply_font()
+    if theme is None:
+        theme = DEFAULT_THEME
     theme_path = ':/ftrack/style/{0}'.format(theme)
     fileObject = QtCore.QFile(theme_path)
     if fileObject.exists():
@@ -23,7 +27,7 @@ def applyTheme(widget, theme='dark'):
         widget.setStyleSheet(styleSheetContent)
     else:
         sys.stderr.write(
-            'ftrack theme "{}" could not be found! Make sure to import ui/resource.py.\n'.format(
+            'ftrack theme "{}" could not be found! Make sure to import resource.py from ftrack_style library.\n'.format(
                 theme_path
             )
         )

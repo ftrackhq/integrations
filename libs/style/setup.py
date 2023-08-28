@@ -16,7 +16,7 @@ from setuptools.command.test import test as TestCommand
 import setuptools
 from distutils.spawn import find_executable
 
-PLUGIN_NAME = 'ftrack-qt-{0}'
+PLUGIN_NAME = 'ftrack-style-{0}'
 
 ROOT_PATH = os.path.dirname(os.path.realpath(__file__))
 
@@ -29,7 +29,7 @@ RESOURCE_PATH = os.path.join(ROOT_PATH, 'resource')
 STYLE_PATH = os.path.join(RESOURCE_PATH, 'style')
 
 RESOURCE_TARGET_PATH = os.path.join(
-    SOURCE_PATH, 'ftrack_qt', 'ui', 'resource.py'
+    SOURCE_PATH, 'ftrack_style', 'resource.py'
 )
 
 BOOTSTRAP_PATH = os.path.join(RESOURCE_PATH, 'bootstrap')
@@ -55,7 +55,7 @@ SETUP_REQUIRES = [
 
 def get_version():
     '''Read version from _version.py, updated by CI based on monorepo package tag'''
-    version_path = os.path.join(SOURCE_PATH, 'ftrack_qt', '_version.py')
+    version_path = os.path.join(SOURCE_PATH, 'ftrack_style', '_version.py')
     with open(version_path, 'r') as file_handle:
         for line in file_handle.readlines():
             if line.find('__version__') > -1:
@@ -243,10 +243,10 @@ class PyTest(TestCommand):
 # Configuration.
 setup(
     name='ftrack-framework-qt',
-    description='ftrack qt pipeline integration framework.',
+    description='ftrack integration style library.',
     long_description=open(README_PATH).read(),
     keywords='ftrack',
-    url='https://github.com/ftrackhq/integrations/libs/framework-qt',
+    url='https://github.com/ftrackhq/integrations/libs/style',
     author='ftrack',
     author_email='support@ftrack.com',
     license='Apache License (2.0)',
