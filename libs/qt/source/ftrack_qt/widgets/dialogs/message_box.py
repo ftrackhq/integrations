@@ -14,7 +14,7 @@ class MessageBoxDialog(QtWidgets.QMessageBox):
         return self._result
 
     def __init__(
-            self, title, message, button_1_text, button_2_text, parent=None
+        self, title, message, button_1_text, button_2_text, parent=None
     ):
         super(MessageBoxDialog, self).__init__(parent=parent)
         self.setWindowTitle(title)

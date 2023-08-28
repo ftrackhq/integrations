@@ -10,6 +10,7 @@ from ftrack_qt.widgets.selectors import ContextSelector
 
 class ScrollDefinitionsDialog(QtWidgets.QDialog):
     '''Base Class to represent a Plugin'''
+
     selected_context_changed = QtCore.Signal(object)
     selected_host_changed = QtCore.Signal(object)
     selected_definition_changed = QtCore.Signal(object)
@@ -19,12 +20,12 @@ class ScrollDefinitionsDialog(QtWidgets.QDialog):
 
     @property
     def definition_widget(self):
-        ''' Return the definition widget of the dialog'''
+        '''Return the definition widget of the dialog'''
         return self._definition_widget
 
     @property
     def run_button_title(self):
-        ''' Return the label of the run button'''
+        '''Return the label of the run button'''
         return self._run_button_title
 
     @run_button_title.setter
@@ -52,14 +53,14 @@ class ScrollDefinitionsDialog(QtWidgets.QDialog):
 
     @property
     def selected_host_connection_id(self):
-        ''' Return the selected host connection id '''
+        '''Return the selected host connection id'''
         if self._host_connection_selector.current_item_index() in [0, -1]:
             return None
         return self._host_connection_selector.current_item_text()
 
     @selected_host_connection_id.setter
     def selected_host_connection_id(self, value):
-        ''' Set the given *value* as selected host_connection_id '''
+        '''Set the given *value* as selected host_connection_id'''
         if not self.selected_host_connection_id and not value:
             self._definition_selector.clear_items()
             self.clear_definition_ui()
@@ -73,7 +74,7 @@ class ScrollDefinitionsDialog(QtWidgets.QDialog):
 
     @property
     def selected_definition_name(self):
-        ''' Return the selected definition name '''
+        '''Return the selected definition name'''
         if self._definition_selector.current_item_index() in [0, -1]:
             return None
         return self._definition_selector.current_item_text()
@@ -154,7 +155,7 @@ class ScrollDefinitionsDialog(QtWidgets.QDialog):
         self.layout().addWidget(self._run_button)
 
     def post_build(self):
-        '''Set up all the signals '''
+        '''Set up all the signals'''
         # Connect context selector signals
         self._context_selector.context_changed.connect(
             self._on_context_selected_callback
@@ -177,7 +178,7 @@ class ScrollDefinitionsDialog(QtWidgets.QDialog):
         self._run_button.clicked.connect(self._on_run_button_clicked)
 
     def add_host_connection_items(self, host_connections_ids):
-        ''' Add given host_connections in the host_connection selector'''
+        '''Add given host_connections in the host_connection selector'''
         for host_connection_id in host_connections_ids:
             self._host_connection_selector.add_item(host_connection_id)
 
@@ -187,7 +188,7 @@ class ScrollDefinitionsDialog(QtWidgets.QDialog):
             self._definition_selector.add_item(definition_name)
 
     def _on_context_selected_callback(self, context_id):
-        ''' Emit signal with the new context_id'''
+        '''Emit signal with the new context_id'''
         if not context_id:
             return
         self.selected_context_changed.emit(context_id)
@@ -215,7 +216,7 @@ class ScrollDefinitionsDialog(QtWidgets.QDialog):
         self.selected_definition_changed.emit(self.selected_definition_name)
 
     def _on_refresh_definitions_callback(self):
-        ''' Clean up definitions and emit signal to refresh them'''
+        '''Clean up definitions and emit signal to refresh them'''
         # TODO: double think if definitions can be refreshed? maybe we should
         #  thn re-select the same host instead of discovering hosts again?
         self.selected_definition_name = None
@@ -228,9 +229,6 @@ class ScrollDefinitionsDialog(QtWidgets.QDialog):
         self.run_button_clicked.emit()
 
     def clear_definition_ui(self):
-        ''' Remove all widgets from the definition_widget layout'''
+        '''Remove all widgets from the definition_widget layout'''
         for i in reversed(range(self._definition_widget.layout().count())):
             self._definition_widget.layout().itemAt(i).widget().deleteLater()
-
-
-
