@@ -60,8 +60,12 @@ class ScrollDefinitionsDialog(QtWidgets.QDialog):
     @selected_host_connection_id.setter
     def selected_host_connection_id(self, value):
         ''' Set the given *value* as selected host_connection_id '''
+        if not self.selected_host_connection_id and not value:
+            self._definition_selector.clear_items()
+            self.clear_definition_ui()
         if self.selected_host_connection_id != value:
             self._definition_selector.clear_items()
+            self.clear_definition_ui()
             if not value:
                 self._host_connection_selector.set_current_item_index(0)
                 return
@@ -77,7 +81,10 @@ class ScrollDefinitionsDialog(QtWidgets.QDialog):
     @selected_definition_name.setter
     def selected_definition_name(self, value):
         '''Set the given *value* as the selected definition name'''
+        if not self.selected_definition_name and not value:
+            self.clear_definition_ui()
         if self.selected_definition_name != value:
+            self.clear_definition_ui()
             if not value:
                 self._definition_selector.set_current_item_index(0)
                 return
@@ -192,7 +199,7 @@ class ScrollDefinitionsDialog(QtWidgets.QDialog):
 
         if not item_text:
             return
-        self.selected_host_changed.emit(item_text)
+        self.selected_host_changed.emit(self.selected_host_connection_id)
 
     def _on_refresh_hosts_callback(self):
         '''Clean up hast and emit signal to refresh hosts'''
@@ -205,7 +212,7 @@ class ScrollDefinitionsDialog(QtWidgets.QDialog):
         '''Emit signal with the new selected definition'''
         if not item_text:
             return
-        self.selected_definition_changed.emit(item_text)
+        self.selected_definition_changed.emit(self.selected_definition_name)
 
     def _on_refresh_definitions_callback(self):
         ''' Clean up definitions and emit signal to refresh them'''
@@ -219,5 +226,11 @@ class ScrollDefinitionsDialog(QtWidgets.QDialog):
     def _on_run_button_clicked(self):
         '''Emit signal of run button.'''
         self.run_button_clicked.emit()
+
+    def clear_definition_ui(self):
+        ''' Remove all widgets from the definition_widget layout'''
+        for i in reversed(range(self._definition_widget.layout().count())):
+            self._definition_widget.layout().itemAt(i).widget().deleteLater()
+
 
 

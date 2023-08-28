@@ -86,6 +86,7 @@ class Client(object):
             # Clean up host_context_change_subscription in case exists
             self._unsubscribe_host_context_changed()
             Client._host_connection = value
+            self.on_host_changed(self.host_connection)
             return
         if (
             self.host_connection
@@ -563,7 +564,7 @@ class Client(object):
         # Append dialog to dialogs
         self._register_dialog(dialog)
         self.dialog = dialog
-        self.dialog.show()
+        self.dialog.show_ui()
 
     def _register_dialog(self, dialog):
         '''Register the given initialized *dialog* to the dialogs registry'''

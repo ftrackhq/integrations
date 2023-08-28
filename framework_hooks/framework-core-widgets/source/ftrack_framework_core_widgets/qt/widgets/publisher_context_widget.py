@@ -47,6 +47,10 @@ class PublishContextWidget(FrameworkWidget, QtWidgets.QWidget):
             parent=parent,
         )
 
+        self.pre_build()
+        self.build()
+        self.post_build()
+
     def pre_build(self):
         layout = QtWidgets.QVBoxLayout()
         layout.setContentsMargins(0, 0, 0, 0)
@@ -117,7 +121,6 @@ class PublishContextWidget(FrameworkWidget, QtWidgets.QWidget):
 
     def post_build(self):
         '''hook events'''
-        super(PublishContextWidget, self).post_build()
         self._asset_selector.assetChanged.connect(self._on_asset_changed)
         self._comments_input.textChanged.connect(self._on_comment_updated)
         self._status_selector.currentIndexChanged.connect(

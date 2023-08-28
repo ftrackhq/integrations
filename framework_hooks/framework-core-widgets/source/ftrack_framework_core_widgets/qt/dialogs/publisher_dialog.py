@@ -6,19 +6,20 @@ from Qt import QtWidgets, QtCore
 from ftrack_framework_widget.dialog import FrameworkDialog
 
 from ftrack_qt.widgets.dialogs import ScrollDefinitionsDialog
+from ftrack_qt.widgets.dialogs import MessageBoxDialog
 from ftrack_qt.widgets.accordion import AccordionBaseWidget
 
 
-# TODO: review and docstring this code
 class PublisherDialog(FrameworkDialog, ScrollDefinitionsDialog):
-    '''Base Class to represent a Plugin'''
+    '''Default Framework Publisher widget'''
 
     name = 'framework_publisher_dialog'
-    definition_filter = ['publisher']
+    definition_type_filter = ['publisher']
     ui_type = 'qt'
 
     @property
     def host_connections_ids(self):
+        ''' Returns available host id in the client'''
         ids = []
         for host_connection in self.host_connections:
             ids.append(host_connection.host_id)
@@ -26,6 +27,7 @@ class PublisherDialog(FrameworkDialog, ScrollDefinitionsDialog):
 
     @property
     def definition_names(self):
+        ''' Returns available definition names in the client'''
         names = []
         for definitions in self.filtered_definitions:
             print(definitions)
@@ -43,11 +45,7 @@ class PublisherDialog(FrameworkDialog, ScrollDefinitionsDialog):
         dialog_options,
         parent=None,
     ):
-        '''
-        Initialise BasePlugin with instance of
-        :class:`ftrack_api.session.Session`
-        '''
-
+        # As a mixing class we have to initialize the parents separately
         ScrollDefinitionsDialog.__init__(self, session=event_manager.session, parent=parent)
         FrameworkDialog.__init__(
             self,
@@ -59,26 +57,26 @@ class PublisherDialog(FrameworkDialog, ScrollDefinitionsDialog):
             dialog_options,
             parent,
         )
-
+        # This is in a separated method and not in the post_build because the
+        # BaseFrameworkDialog should be initialized before starting with these
+        # connections.
         self._set_scroll_dialog_connections()
 
-    # TODO: this should be an ABC
     def pre_build(self):
-        ScrollDefinitionsDialog.pre_build(self)
-        FrameworkDialog.pre_build(self)
+        ''' Pre Build method of the widget '''
+        super(PublisherDialog, self).pre_build()
 
-    # TODO: this should be an ABC
     def build(self):
+        ''' Build method of the widget '''
         self.run_button_title = 'Publish'
-        ScrollDefinitionsDialog.build(self)
-        FrameworkDialog.build(self)
+        super(PublisherDialog, self).build()
 
-    # TODO: this should be an ABC
     def post_build(self):
-        ScrollDefinitionsDialog.post_build(self)
-        FrameworkDialog.post_build(self)
+        ''' Post Build method of the widget '''
+        super(PublisherDialog, self).post_build()
 
     def _set_scroll_dialog_connections(self):
+        ''' Create all the connections to communicate to the scroll widget '''
         # Set context from client:
         self._on_client_context_changed_callback()
 
@@ -109,11 +107,13 @@ class PublisherDialog(FrameworkDialog, ScrollDefinitionsDialog):
         )
 
     # TODO: this should be an ABC
-    def show(self):
+    def show_ui(self):
+        ''' Override Show method of the base framework dialog  '''
         ScrollDefinitionsDialog.show(self)
 
     # TODO: this should be an ABC
     def connect_focus_signal(self):
+        ''' Connect signal when the current dialog gets focus'''
         # Update the is_active property.
         QtWidgets.QApplication.instance().focusChanged.connect(
             self._on_focus_changed
@@ -121,74 +121,95 @@ class PublisherDialog(FrameworkDialog, ScrollDefinitionsDialog):
 
     # TODO: This should be an ABC
     def _on_client_context_changed_callback(self, event=None):
+        ''' Client context has been changed '''
         super(PublisherDialog, self)._on_client_context_changed_callback(event)
         self.selected_context_id = self.context_id
 
     # TODO: This should be an ABC
     def _on_client_hosts_discovered_callback(self, event=None):
+        ''' Client new hosts has been discovered '''
         super(PublisherDialog, self)._on_client_hosts_discovered_callback(event)
 
     # TODO: This should be an ABC
     def _on_client_host_changed_callback(self, event=None):
+        ''' Client host has been changed '''
         super(PublisherDialog, self)._on_client_host_changed_callback(event)
+        if not self.host_connection:
+            self.selected_host_connection_id = None
+            return
         self.selected_host_connection_id = self.host_connection.host_id
         self.add_definition_items(self.definition_names)
 
     # TODO: This should be an ABC
     def _on_client_definition_changed_callback(self, event=None):
+        ''' Client definition has been changed '''
         super(PublisherDialog, self)._on_client_definition_changed_callback(event)
         definition_name = None
         if self.definition:
             definition_name = self.definition.name
         self.selected_definition_name = definition_name
-        self.build_definition_ui(self.definition)
-
-        # TODO: This should be an ABC
+        if self.selected_definition_name:
+            self.build_definition_ui(self.definition)
 
     # TODO: This should be an ABC
     def sync_context(self):
+        '''
+        Client context has been changed and doesn't match the ui context when
+        focus is back to the current UI
+        '''
         if self.is_browsing_context:
             return
         if self.context_id != self.selected_context_id:
-            result = self.show_message_dialog(
+            message_dialog = MessageBoxDialog(
                 title='Context out of sync!',
                 message='Selected context is not the current context, '
                         'do you want to update UI to syc with the current context?',
                 button_1_text='Update',
                 button_2_text='Keep Current',
             )
-            if result == 1:
+            if message_dialog.result == 0:
                 self._on_client_context_changed_callback()
-            elif result == 0:
+            elif message_dialog.result == 1:
                 self._on_ui_context_changed_callback(
                     self.selected_context_id
                 )
 
     # TODO: This should be an ABC
     def sync_host_connection(self):
+        '''
+        Client host has been changed and doesn't match the ui host when
+        focus is back to the current UI
+        '''
         if (
                 self.host_connection.host_id
                 != self.selected_host_connection_id
         ):
-            result = self.show_message_dialog(
+            message_dialog = MessageBoxDialog(
                 title='Host connection out of sync!',
                 message='Selected host connection is not the current host_connection, '
                         'do you want to update UI to sync with the current one?',
                 button_1_text='Update',
                 button_2_text='Keep Current',
             )
-            if result == 1:
+            if message_dialog.result == 0:
                 self._on_client_host_changed_callback()
-            elif result == 0:
+            elif message_dialog.result == 1:
                 self._on_ui_host_changed_callback(
                     self.selected_host_connection_id
                 )
 
     # TODO: This should be an ABC
     def sync_definition(self):
+        '''
+        Client definition has been changed and doesn't match the ui definition when
+        focus is back to the current UI
+        '''
         sync = False
-        if not self.definition and self.selected_definition_name:
-            sync = True
+        if not self.definition:
+            if self.selected_definition_name:
+                sync = True
+            else:
+                sync = False
         else:
             if (
                     self.definition.name
@@ -211,55 +232,44 @@ class PublisherDialog(FrameworkDialog, ScrollDefinitionsDialog):
                     )
                     return
         if sync:
-            result = self.show_message_dialog(
+            message_dialog = MessageBoxDialog(
                 title='Current definition is out of sync!',
                 message='Selected definition is not the current definition, '
                         'do you want to update UI to sync with the current one?',
                 button_1_text='Update',
                 button_2_text='Keep Current',
             )
-            if result == 1:
+            if message_dialog.result == 0:
                 self._on_client_definition_changed_callback()
-            elif result == 0:
+            elif message_dialog.result == 1:
                 self._on_ui_definition_changed_callback(
                     self.selected_definition_name
                 )
-
-    # TODO: maybe move this to a utils and standarize icon.
-    def show_message_dialog(
-            self, title, message, button_1_text, button_2_text
-    ):
-        message_box = QtWidgets.QMessageBox()
-        message_box.setWindowTitle(title)
-        message_box.setText(message)
-        message_box.setIcon(QtWidgets.QMessageBox.Question)
-        message_box.addButton(button_1_text, QtWidgets.QMessageBox.YesRole)
-        message_box.addButton(button_2_text, QtWidgets.QMessageBox.NoRole)
-        result = message_box.exec_()
-        return result
 
     def _on_ui_context_changed_callback(self, context_id):
         self.context_id = context_id
 
     def _on_ui_host_changed_callback(self, host_id):
+        if not host_id:
+            self.host_connection = None
+            return
         for host_connection in self.host_connections:
             if host_connection.host_id == host_id:
                 self.host_connection = host_connection
-                self.add_definition_items(self.definition_names)
 
     def _on_ui_definition_changed_callback(self, definition_name):
+        if not definition_name:
+            self.definition = None
+            return
         for definition_list in self.filtered_definitions:
             definition = definition_list.get_first(name=definition_name)
             self.definition = definition
-            self.build_definition_ui(self.definition)
 
     def _on_ui_refresh_hosts_callback(self):
         self.client_method_connection('discover_hosts')
-        self.add_host_connection_items(self.host_connections_ids)
 
     def _on_ui_refresh_definitions_callback(self):
         self.client_method_connection('discover_hosts')
-        self.add_definition_items(self.definition_names)
 
     def build_definition_ui(self, definition):
         # Build context widgets

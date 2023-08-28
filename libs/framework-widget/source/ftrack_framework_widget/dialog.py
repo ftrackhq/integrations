@@ -125,13 +125,12 @@ class FrameworkDialog(BaseUI):
         self._host_connection = None
         self.__framework_widget_registry = {}
 
-        # TODO: implement dialog_options
-
         # Connect client methods and properties
         self.connect_methods(connect_methods_callback)
         self.connect_properties(
             connect_setter_property_callback, connect_getter_property_callback
         )
+        # TODO: implement dialog_options
         self._dialog_options = dialog_options
 
         super(FrameworkDialog, self).__init__(event_manager, client_id, parent)
@@ -180,19 +179,12 @@ class FrameworkDialog(BaseUI):
         )
 
     # TODO: this should be an ABC
-    def pre_build(self):
+    def constructor(self):
+        # TODO: evaluate if we need this, maybe is up to the user to construct the UI, so we don't need to provide a constructor method at all?
         pass
 
     # TODO: this should be an ABC
-    def build(self):
-        pass
-
-    # TODO: this should be an ABC
-    def post_build(self):
-        pass
-
-    # TODO: this should be an ABC
-    def show(self):
+    def show_ui(self):
         pass
 
     # TODO: this should be an ABC
