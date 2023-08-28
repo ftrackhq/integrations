@@ -179,11 +179,6 @@ class FrameworkDialog(BaseUI):
         )
 
     # TODO: this should be an ABC
-    def constructor(self):
-        # TODO: evaluate if we need this, maybe is up to the user to construct the UI, so we don't need to provide a constructor method at all?
-        pass
-
-    # TODO: this should be an ABC
     def show_ui(self):
         pass
 

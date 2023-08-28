@@ -101,11 +101,6 @@ class BaseUI(object):
         '''Make the dialog subscribe to client events'''
         pass
 
-    # TODO: this should be an ABC
-    def constructor(self):
-        '''Set the build process'''
-        pass
-
     # TODO: This should be an ABC
     def show_ui(self):
         pass

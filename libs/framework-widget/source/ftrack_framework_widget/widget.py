@@ -86,10 +86,6 @@ class FrameworkWidget(BaseUI):
         self.dialog_property_getter_connection = get_method
 
     # TODO: this should be an ABC
-    def constructor(self):
-        pass
-
-    # TODO: this should be an ABC
     def show_ui(self):
         pass
 
