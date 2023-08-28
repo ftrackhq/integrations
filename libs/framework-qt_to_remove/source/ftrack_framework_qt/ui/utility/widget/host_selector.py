@@ -65,7 +65,9 @@ class HostSelector(QtWidgets.QWidget):
         '''Add the host(connections) to combobox. If only one, select it (default behaviour)'''
         for host_connection in host_connections:
             self.host_combobox.addItem(
-                '{}({})'.format(host_connection.host_name, host_connection.host_id),
+                '{}({})'.format(
+                    host_connection.host_name, host_connection.host_id
+                ),
                 host_connection,
             )
         if self.host_combobox.count() == 2:

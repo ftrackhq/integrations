@@ -4,7 +4,7 @@
 from Qt import QtWidgets, QtCore
 
 
-from ftrack_framework_widget.dialog import Dialog
+from ftrack_framework_widget.dialog import FrameworkDialog
 
 from ftrack_qt.widgets.selectors import ListSelector
 from ftrack_qt.widgets.headers import SessionHeader
@@ -13,7 +13,8 @@ from ftrack_qt.widgets.selectors import ContextSelector
 from ftrack_qt.widgets.dialogs.base import BaseDialog
 
 # TODO: review and docstring this code
-class VerticalDialogDefinitionBase(Dialog, BaseDialog):
+class VerticalDialogDefinitionBase(FrameworkDialog, BaseDialog):
+
     '''Base Class to represent a Plugin'''
 
     name = 'framework_definition_dialog'
@@ -56,7 +57,7 @@ class VerticalDialogDefinitionBase(Dialog, BaseDialog):
         self._run_button = None
 
         BaseDialog.__init__(self, dialog_options, parent=parent)
-        Dialog.__init__(
+        FrameworkDialog.__init__(
             self,
             event_manager,
             client_id,

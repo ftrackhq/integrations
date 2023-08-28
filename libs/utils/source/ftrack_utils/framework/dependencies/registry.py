@@ -47,11 +47,11 @@ def register_framework_modules_by_type(event_manager, module_type, callback):
 def register_dependencies_from_directory(
     class_type, current_dir, event_manager
 ):
-    '''Register plugin to api_object.'''
+    '''Register Dependency to api_object.'''
 
     subfolders = fast_scandir(current_dir)
 
-    registered_widgets = []
+    registered_dependencies = []
     for loader, module_name, is_pkg in pkgutil.walk_packages(subfolders):
         _module = loader.find_module(module_name).load_module(module_name)
         cls_members = inspect.getmembers(_module, inspect.isclass)
@@ -67,20 +67,22 @@ def register_dependencies_from_directory(
                 )
                 continue
             try:
-                # Call the register classmethod so we don't init the widget here
+                # Call the register classmethod. We don't init the widget here
                 obj.register(event_manager)
-                registered_widgets.append(obj)
+                registered_dependencies.append(obj)
             except Exception as e:
                 logger.warning(
-                    "Couldn't register plugin {} \n error: {}".format(name, e)
+                    "Couldn't register dependency {} \n error: {}".format(
+                        name, e
+                    )
                 )
                 continue
-            logger.debug("Plugin {} registered".format(name))
+            logger.debug("Dependency {} registered".format(name))
             success_registry = True
 
         if not success_registry:
             logger.warning(
-                "No framework compatible plugin found in module {} "
+                "No framework compatible dependency found in module {} "
                 "in path{}".format(module_name, loader.path)
             )
-    return registered_widgets
+    return registered_dependencies

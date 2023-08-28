@@ -3,12 +3,12 @@
 
 import os
 
-from ftrack_framework_widget.widget import Base
+from ftrack_framework_widget.widget import BaseUI
 from ftrack_utils.framework.dependencies import registry
 
 
 def register(event_manager):
     current_dir = os.path.dirname(__file__)
     return registry.register_dependencies_from_directory(
-        Base, current_dir, event_manager
+        BaseUI, current_dir, event_manager
     )
