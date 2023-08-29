@@ -13,6 +13,7 @@ class FrameworkDialog(BaseUI):
     client_method_connection = None
     client_property_setter_connection = None
     client_property_getter_connection = None
+    definition_type_filter = None
 
     @property
     def definitions(self):
@@ -20,6 +21,18 @@ class FrameworkDialog(BaseUI):
         Available definitions in client
         '''
         return self.client_property_getter_connection('definitions')
+
+    @property
+    def filtered_definitions(self):
+        '''
+        Return definitions of types that match the definition_type_filter
+        '''
+        if not self.definition_type_filter:
+            return list(self.definitions.values())
+        definitions = []
+        for definition_type in self.definition_type_filter:
+            definitions.append(self.definitions.get(definition_type))
+        return definitions
 
     @property
     def definition(self):
@@ -112,13 +125,12 @@ class FrameworkDialog(BaseUI):
         self._host_connection = None
         self.__framework_widget_registry = {}
 
-        # TODO: implement dialog_options
-
         # Connect client methods and properties
         self.connect_methods(connect_methods_callback)
         self.connect_properties(
             connect_setter_property_callback, connect_getter_property_callback
         )
+        # TODO: implement dialog_options
         self._dialog_options = dialog_options
 
         super(FrameworkDialog, self).__init__(event_manager, client_id, parent)
@@ -167,15 +179,7 @@ class FrameworkDialog(BaseUI):
         )
 
     # TODO: this should be an ABC
-    def pre_build(self):
-        pass
-
-    # TODO: this should be an ABC
-    def build(self):
-        pass
-
-    # TODO: this should be an ABC
-    def post_build(self):
+    def show_ui(self):
         pass
 
     # TODO: this should be an ABC

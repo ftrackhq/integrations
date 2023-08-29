@@ -8,11 +8,6 @@ import uuid
 def active_widget(func):
     def wrapper(self, *args, **kwargs):
         '''If self.active in class execute the function'''
-        print(
-            "Gettting the variable self.active from class".format(
-                self.is_active
-            )
-        )
         if self.is_active:
             return func(self, *args, **kwargs)
 
@@ -100,36 +95,21 @@ class BaseUI(object):
         # Subscribe to client events
         self._subscribe_client_events()
 
-        self.pre_build()
-        self.build()
-        self.post_build()
         self.connect_focus_signal()
 
     def _subscribe_client_events(self):
         '''Make the dialog subscribe to client events'''
         pass
 
-    # TODO: this should be an ABC
-    def pre_build(self):
-        pass
-
-    # TODO: this should be an ABC
-    def build(self):
-        pass
-
-    # TODO: this should be an ABC
-    def post_build(self):
-        pass
-
     # TODO: This should be an ABC
-    def show(self):
+    def show_ui(self):
         pass
         # self._on_focus_changed(None, self)
 
     # TODO: This should be an ABC
     def connect_focus_signal(self):
         # TODO: Find a way to simulate a pyside connection, so every time that
-        #  show() is called, we connect it to on_focus_changed
+        #  show_ui() is called, we connect it to on_focus_changed
         pass
 
     def change_focus(self, old_widget, new_widget):

@@ -42,6 +42,10 @@ class FileExportOptionsWidget(FrameworkWidget, QtWidgets.QWidget):
             parent=parent,
         )
 
+        self.pre_build()
+        self.build()
+        self.post_build()
+
     def pre_build(self):
         layout = QtWidgets.QVBoxLayout()
         layout.setContentsMargins(0, 0, 0, 0)
@@ -81,7 +85,7 @@ class FileExportOptionsWidget(FrameworkWidget, QtWidgets.QWidget):
 
     def post_build(self):
         '''hook events'''
-        super(FileExportOptionsWidget, self).post_build()
+        pass
 
     def _on_option_changed(self, option, value):
         self.set_plugin_option(option, value)
