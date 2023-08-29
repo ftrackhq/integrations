@@ -6,7 +6,7 @@ from Qt import QtWidgets, QtCore
 from ftrack_framework_widget.dialog import FrameworkDialog
 
 from ftrack_qt.widgets.dialogs import ScrollDefinitionsDialog
-from ftrack_qt.widgets.dialogs import MessageBoxDialog
+from ftrack_qt.widgets.dialogs import ModalDialog
 from ftrack_qt.widgets.accordion import AccordionBaseWidget
 
 
@@ -45,6 +45,21 @@ class PublisherDialog(FrameworkDialog, ScrollDefinitionsDialog):
         dialog_options,
         parent=None,
     ):
+        '''
+        Initialize Mixin clas publisher dialog. It will load the qt dialog and
+        mix it with the framework dialog.
+        *event_manager*: instance of
+        :class:`~ftrack_framework_core.event.EventManager`
+        *client_id*: Id of the client that initializes the current dialog
+        *connect_methods_callback*: Client callback method for the dialog to be
+        able to execute client methods.
+        *connect_setter_property_callback*: Client callback property setter for
+        the dialog to be able to read client properties.
+        *connect_getter_property_callback*: Client callback property getter for
+        the dialog to be able to write client properties.
+        *dialog_options*: Dictionary of arguments passed to configure the
+        current dialog.
+        '''
         # As a mixing class we have to initialize the parents separately
         ScrollDefinitionsDialog.__init__(
             self, session=event_manager.session, parent=parent
@@ -162,16 +177,16 @@ class PublisherDialog(FrameworkDialog, ScrollDefinitionsDialog):
         if self.is_browsing_context:
             return
         if self.context_id != self.selected_context_id:
-            message_dialog = MessageBoxDialog(
+            result = ModalDialog(
                 title='Context out of sync!',
                 message='Selected context is not the current context, '
                 'do you want to update UI to syc with the current context?',
-                button_1_text='Update',
-                button_2_text='Keep Current',
+                question=True,
+                modal=True,
             )
-            if message_dialog.result == 0:
+            if result:
                 self._on_client_context_changed_callback()
-            elif message_dialog.result == 1:
+            else:
                 self._on_ui_context_changed_callback(self.selected_context_id)
 
     # TODO: This should be an ABC
@@ -181,16 +196,16 @@ class PublisherDialog(FrameworkDialog, ScrollDefinitionsDialog):
         focus is back to the current UI
         '''
         if self.host_connection.host_id != self.selected_host_connection_id:
-            message_dialog = MessageBoxDialog(
+            result = ModalDialog(
                 title='Host connection out of sync!',
                 message='Selected host connection is not the current host_connection, '
-                'do you want to update UI to sync with the current one?',
-                button_1_text='Update',
-                button_2_text='Keep Current',
+                        'do you want to update UI to sync with the current one?',
+                question=True,
+                modal=True,
             )
-            if message_dialog.result == 0:
+            if result:
                 self._on_client_host_changed_callback()
-            elif message_dialog.result == 1:
+            else:
                 self._on_ui_host_changed_callback(
                     self.selected_host_connection_id
                 )
@@ -226,24 +241,26 @@ class PublisherDialog(FrameworkDialog, ScrollDefinitionsDialog):
                     )
                     return
         if sync:
-            message_dialog = MessageBoxDialog(
+            result = ModalDialog(
                 title='Current definition is out of sync!',
                 message='Selected definition is not the current definition, '
-                'do you want to update UI to sync with the current one?',
-                button_1_text='Update',
-                button_2_text='Keep Current',
+                        'do you want to update UI to sync with the current one?',
+                question=True,
+                modal=True,
             )
-            if message_dialog.result == 0:
+            if result:
                 self._on_client_definition_changed_callback()
-            elif message_dialog.result == 1:
+            else:
                 self._on_ui_definition_changed_callback(
                     self.selected_definition_name
                 )
 
     def _on_ui_context_changed_callback(self, context_id):
+        ''' Context has been changed in the ui. Passing it to the client '''
         self.context_id = context_id
 
     def _on_ui_host_changed_callback(self, host_id):
+        ''' Host has been changed in the ui. Passing it to the client '''
         if not host_id:
             self.host_connection = None
             return
@@ -252,6 +269,7 @@ class PublisherDialog(FrameworkDialog, ScrollDefinitionsDialog):
                 self.host_connection = host_connection
 
     def _on_ui_definition_changed_callback(self, definition_name):
+        ''' Definition has been changed in the ui. Passing it to the client '''
         if not definition_name:
             self.definition = None
             return
@@ -260,12 +278,21 @@ class PublisherDialog(FrameworkDialog, ScrollDefinitionsDialog):
             self.definition = definition
 
     def _on_ui_refresh_hosts_callback(self):
+        '''
+        Refresh host button has been clicked in the UI,
+        Call the discover_host in the client
+        '''
         self.client_method_connection('discover_hosts')
 
     def _on_ui_refresh_definitions_callback(self):
+        '''
+        Refresh definitions button has been clicked in the UI,
+        Call the discover_host in the client
+        '''
         self.client_method_connection('discover_hosts')
 
     def build_definition_ui(self, definition):
+        ''' A definition has been selected, build the definition widget. '''
         # Build context widgets
         context_plugins = definition.get_all(category='plugin', type='context')
         for context_plugin in context_plugins:
@@ -305,6 +332,10 @@ class PublisherDialog(FrameworkDialog, ScrollDefinitionsDialog):
             self._definition_widget.layout().addWidget(step_accordion_widget)
 
     def _on_ui_run_button_clicked_callback(self):
+        '''
+        Run button from the UI has been clicked.
+        Tell client to run the current definition
+        '''
         arguments = {
             "definition": self.definition,
             "engine_type": self.client_property_getter_connection(
@@ -314,6 +345,11 @@ class PublisherDialog(FrameworkDialog, ScrollDefinitionsDialog):
         self.client_method_connection('run_definition', arguments=arguments)
 
     def run_collectors(self, plugin_widget_id=None):
+        '''
+        Run all the collector plugins of the current definition.
+        If *plugin_widget_id* is given, a signal with the result of the plugins
+        will be emitted to be picked by that widget id.
+        '''
         collector_plugins = self.definition.get_all(
             category='plugin', type='collector'
         )
