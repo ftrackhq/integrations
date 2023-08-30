@@ -510,6 +510,18 @@ class Client(object):
             self.id, event['data']['log_item']
         )
 
+    def reset_definition(self, definition_name, definition_type):
+        '''
+        Ask host connection to reset values of a specific definition
+        '''
+        self.host_connection.reset_definition(definition_name, definition_type)
+
+    def reset_all_definitions(self):
+        '''
+        Ask host connection to reset values of all definitions
+        '''
+        self.host_connection.reset_all_definitions()
+
     # UI
     def run_dialog(self, dialog_name, dialog_class=None, dialog_options=None):
         '''Function to show a framework dialog from the client'''
