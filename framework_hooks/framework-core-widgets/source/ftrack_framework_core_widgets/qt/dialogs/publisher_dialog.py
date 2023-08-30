@@ -62,12 +62,14 @@ class PublisherDialog(FrameworkDialog, ScrollDefinitionsDialog):
         current dialog.
         '''
         # As a mixing class we have to initialize the parents separately
-        ScrollDefinitionsDialog.__init__(self,
+        ScrollDefinitionsDialog.__init__(
+            self,
             theme=(dialog_options or {}).get('theme'),
             background_style=(dialog_options or {}).get('background_style'),
             docked=(dialog_options or {}).get('docked'),
             session=event_manager.session,
-            parent=parent)
+            parent=parent,
+        )
         FrameworkDialog.__init__(
             self,
             event_manager,
@@ -205,7 +207,7 @@ class PublisherDialog(FrameworkDialog, ScrollDefinitionsDialog):
                 self,
                 title='Host connection out of sync!',
                 message='Selected host connection is not the current host_connection, '
-                        'do you want to update UI to sync with the current one?',
+                'do you want to update UI to sync with the current one?',
                 question=True,
                 modal=True,
             )
@@ -251,7 +253,7 @@ class PublisherDialog(FrameworkDialog, ScrollDefinitionsDialog):
                 self,
                 title='Current definition is out of sync!',
                 message='Selected definition is not the current definition, '
-                        'do you want to update UI to sync with the current one?',
+                'do you want to update UI to sync with the current one?',
                 question=True,
                 modal=True,
             )
@@ -263,11 +265,11 @@ class PublisherDialog(FrameworkDialog, ScrollDefinitionsDialog):
                 )
 
     def _on_ui_context_changed_callback(self, context_id):
-        ''' Context has been changed in the ui. Passing it to the client '''
+        '''Context has been changed in the ui. Passing it to the client'''
         self.context_id = context_id
 
     def _on_ui_host_changed_callback(self, host_id):
-        ''' Host has been changed in the ui. Passing it to the client '''
+        '''Host has been changed in the ui. Passing it to the client'''
         if not host_id:
             self.host_connection = None
             return
@@ -276,7 +278,7 @@ class PublisherDialog(FrameworkDialog, ScrollDefinitionsDialog):
                 self.host_connection = host_connection
 
     def _on_ui_definition_changed_callback(self, definition_name):
-        ''' Definition has been changed in the ui. Passing it to the client '''
+        '''Definition has been changed in the ui. Passing it to the client'''
         if not definition_name:
             self.definition = None
             return
@@ -299,7 +301,7 @@ class PublisherDialog(FrameworkDialog, ScrollDefinitionsDialog):
         self.client_method_connection('discover_hosts')
 
     def build_definition_ui(self, definition):
-        ''' A definition has been selected, build the definition widget. '''
+        '''A definition has been selected, build the definition widget.'''
         # Build context widgets
         context_plugins = definition.get_all(category='plugin', type='context')
         for context_plugin in context_plugins:
@@ -349,7 +351,7 @@ class PublisherDialog(FrameworkDialog, ScrollDefinitionsDialog):
             title='TEST TITLE!',
             message='A test question',
             question=True,
-            modal=True
+            modal=True,
         ):
             return
 

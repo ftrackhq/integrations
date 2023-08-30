@@ -53,7 +53,11 @@ class MayaNativeLoaderImporterPlugin(plugin.MayaLoaderImporterPlugin):
 
             if maya_options.get('ns') == 'asset_name':
                 asset_name = 'NoNameFound'
-                asset = self.session.query('select ancestors from Asset where id is {}'.format(self.asset_info['asset_id'])).first()
+                asset = self.session.query(
+                    'select ancestors from Asset where id is {}'.format(
+                        self.asset_info['asset_id']
+                    )
+                ).first()
                 for ancestor in asset['ancestors']:
                     if ancestor.entity_type == 'AssetBuild':
                         asset_name = ancestor['name']

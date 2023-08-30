@@ -93,7 +93,14 @@ class ScrollDefinitionsDialog(StyledDialog):
                 return
             self._definition_selector.set_current_item(value)
 
-    def __init__(self, session, theme=None, background_style=None, docked=False, parent=None):
+    def __init__(
+        self,
+        session,
+        theme=None,
+        background_style=None,
+        docked=False,
+        parent=None,
+    ):
         '''
         Initialise BasePlugin with instance of
         :class:`ftrack_api.session.Session`
@@ -102,7 +109,8 @@ class ScrollDefinitionsDialog(StyledDialog):
             theme=theme,
             background_style=background_style,
             docked=docked,
-            parent=parent)
+            parent=parent,
+        )
 
         self._session = session
         self._context_selector = None

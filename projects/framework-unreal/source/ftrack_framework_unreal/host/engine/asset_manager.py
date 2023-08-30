@@ -154,8 +154,8 @@ class UnrealAssetManagerEngine(AssetManagerEngine):
             result_data['message'] = message
 
             self.event_manager.publish.notify_plugin_progress_client(
-            self.host_id, **result_data
-        )
+                self.host_id, **result_data
+            )
             return status, result
 
         end_time = time.time()
@@ -302,8 +302,8 @@ class UnrealAssetManagerEngine(AssetManagerEngine):
             result_data['message'] = message
 
             self.event_manager.publish.notify_plugin_progress_client(
-            self.host_id, **result_data
-        )
+                self.host_id, **result_data
+            )
             return status, result
 
         # Change version
@@ -322,8 +322,8 @@ class UnrealAssetManagerEngine(AssetManagerEngine):
             result_data['message'] = message
 
             self.event_manager.publish.notify_plugin_progress_client(
-            self.host_id, **result_data
-        )
+                self.host_id, **result_data
+            )
             return status, result
 
         # Consolidate new nodes and remove temp ones
@@ -476,8 +476,8 @@ class UnrealAssetManagerEngine(AssetManagerEngine):
                 result_data['message'] = message
 
                 self.event_manager.publish.notify_plugin_progress_client(
-            self.host_id, **result_data
-        )
+                    self.host_id, **result_data
+                )
                 return status, result
 
         self.ftrack_object_manager.objects_loaded = False
@@ -565,8 +565,8 @@ class UnrealAssetManagerEngine(AssetManagerEngine):
                 result_data['message'] = message
 
                 self.event_manager.publish.notify_plugin_progress_client(
-            self.host_id, **result_data
-        )
+                    self.host_id, **result_data
+                )
                 return status, result
 
         if unreal_utils.ftrack_node_exists(self.dcc_object.name):
@@ -592,8 +592,8 @@ class UnrealAssetManagerEngine(AssetManagerEngine):
                 result_data['message'] = message
 
                 self.event_manager.publish.notify_plugin_progress_client(
-            self.host_id, **result_data
-        )
+                    self.host_id, **result_data
+                )
 
                 return status, result
 

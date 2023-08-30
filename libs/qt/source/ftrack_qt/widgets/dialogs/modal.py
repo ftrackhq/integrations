@@ -65,9 +65,11 @@ class ModalDialog(StyledDialog):
         )
 
     def __new__(
-            cls, *args, **kwargs,
-        ):
-        ''' Override class instantiation to return exec_() if message is given'''
+        cls,
+        *args,
+        **kwargs,
+    ):
+        '''Override class instantiation to return exec_() if message is given'''
         instance = StyledDialog.__new__(cls, *args, **kwargs)
         if cls == ModalDialog:
             # Not inherited, so return exec_()
@@ -75,7 +77,6 @@ class ModalDialog(StyledDialog):
             return instance.exec_()
         else:
             return instance
-
 
     def get_theme_background_style(self):
         return 'ftrack-modal'
@@ -153,14 +154,13 @@ class ModalDialog(StyledDialog):
             self.setMaximumHeight(100)
         self.resize(250, 100)
 
-
     def setWindowTitle(self, title):
         '''(Override) Set the dialog title'''
         super(ModalDialog, self).setWindowTitle(title)
         self._title_label.setText(title.upper())
 
     def setVisible(self, visible):
-        '''(Override) Set visible'''
+        '''(Override) Set visible, and darken parent if available.'''
         if isinstance(self.parentWidget(), StyledDialog):
             self.parentWidget().darken = visible
         super(ModalDialog, self).setVisible(visible)

@@ -7,6 +7,7 @@ from Qt import QtCore, QtWidgets, QtGui
 
 from ftrack_constants.qt.theme import DEFAULT_THEME
 
+
 def apply_font(font=':/ftrack/font/main'):
     '''Add application *font*.'''
     QtGui.QFontDatabase.addApplicationFont(font)

@@ -8,6 +8,7 @@ from ftrack_qt.widgets.overlay import ShadedWidget
 from ftrack_constants.qt.theme import DEFAULT_BACKGROUND_STYLE
 from ftrack_qt.utils.theme import apply_theme
 
+
 class StyledDialog(QtWidgets.QDialog):
     '''
     The base dialog -intended to live docked, on top of DCC app main window or os
@@ -41,7 +42,9 @@ class StyledDialog(QtWidgets.QDialog):
             if self._shaded_widget:
                 self._shaded_widget.close()
 
-    def __init__(self, theme=None, background_style=None, docked=False, parent=None):
+    def __init__(
+        self, theme=None, background_style=None, docked=False, parent=None
+    ):
         super(StyledDialog, self).__init__(parent=parent)
         self._darken = False
         self._shaded_widget = None
@@ -49,8 +52,11 @@ class StyledDialog(QtWidgets.QDialog):
         # Apply theme and with DCC specific properties
         self.setWindowFlags(QtCore.Qt.Tool)
         apply_theme(self, theme=theme or self.theme)
-        self.setProperty('background', background_style or self.background_style or
-                         DEFAULT_BACKGROUND_STYLE)
+        self.setProperty(
+            'background',
+            background_style
+            or self.background_style
+            or DEFAULT_BACKGROUND_STYLE,
+        )
         self.setProperty('docked', 'true' if docked else 'false')
         self.setAttribute(QtCore.Qt.WA_DeleteOnClose, True)
-
