@@ -43,6 +43,10 @@ class FileBrowserWidget(FrameworkWidget, QtWidgets.QWidget):
             parent=parent,
         )
 
+        self.pre_build()
+        self.build()
+        self.post_build()
+
     def pre_build(self):
         layout = QtWidgets.QVBoxLayout()
         layout.setContentsMargins(0, 0, 0, 0)
@@ -60,7 +64,6 @@ class FileBrowserWidget(FrameworkWidget, QtWidgets.QWidget):
 
     def post_build(self):
         '''hook events'''
-        super(FileBrowserWidget, self).post_build()
         self._file_browser.path_changed.connect(self._on_path_changed)
 
     def _on_path_changed(self, file_path):

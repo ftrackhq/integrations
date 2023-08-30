@@ -46,6 +46,10 @@ class ValidatorCheckWidget(FrameworkWidget, QtWidgets.QWidget):
             parent=parent,
         )
 
+        self.pre_build()
+        self.build()
+        self.post_build()
+
     def pre_build(self):
         layout = QtWidgets.QHBoxLayout()
         layout.setContentsMargins(0, 0, 0, 0)
@@ -71,7 +75,6 @@ class ValidatorCheckWidget(FrameworkWidget, QtWidgets.QWidget):
 
     def post_build(self):
         '''hook events'''
-        super(ValidatorCheckWidget, self).post_build()
         self._check_button.clicked.connect(self._on_check_clicked)
 
     def _on_check_clicked(self):

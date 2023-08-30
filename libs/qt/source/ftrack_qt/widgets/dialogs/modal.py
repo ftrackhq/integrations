@@ -22,53 +22,60 @@ class ModalDialog(StyledDialog):
         self,
         parent,
         message=None,
-        question=None,
+        question=False,
         title=None,
-        modal=None,
+        modal=True,
     ):
         '''
-        Initialize modal dialog
+        Initialize a modal dialog either with a message/prompt, or as a base
+        for a custom modal dialog.
 
-        :param parent: The parent dialog or frame
-        :param message: The message to show in dialog, makes dialog on only have an OK button
-        :param question: The question to show, makes dialog behave like a prompt with Yes+No buttons (default)
+        :param parent: The parent dialog or frame, required.
+        :param message: The message or question to show in dialog, if not given it
+        is assumed dialog will be further customised (f.e.x. the entity browser)
+        :param question: If true, makes dialog behave like a prompt with Yes+No buttons
         :param title: The text to show in dialog title bar
-        :param modal: The dialog should be modal
+        :param modal: The dialog should be modal, default is True
         '''
         super(ModalDialog, self).__init__(None, parent=parent)
 
         self.setParent(parent)
 
-        self._message = message or question
+        self._message = message
         self._title = title or 'ftrack'
-        self._dialog_mode = None
+        self._question = question
+        self._modal = modal
 
-        # None; A utility dialog not waiting for user input
-        # True; A modal dialog waiting for user Yes or No input click
-        # False; A modal dialog waiting for user OK input click
-        if question:
-            self._dialog_mode = True
-        elif message:
-            self._dialog_mode = False
+        self._approve_button = None
+        self._deny_button = None
 
         self.pre_build()
         self.build()
         self.post_build()
 
-        if not modal is None:
+        if modal is True:
             self.setModal(modal)
         self.setWindowFlags(
             QtCore.Qt.SplashScreen
             | (
                 QtCore.Qt.WindowStaysOnTopHint
-                if modal is True or (modal is None and message)
+                if modal is True or message is not None
                 else 0
             )
         )
 
-        if self._dialog_mode is False:
-            # Wait for confirmation
-            self.exec_()
+    def __new__(
+            cls, *args, **kwargs,
+        ):
+        ''' Override class instantiation to return exec_() if message is given'''
+        instance = StyledDialog.__new__(cls, *args, **kwargs)
+        if cls == ModalDialog:
+            # Not inherited, so return exec_()
+            instance.__init__(*args, **kwargs)
+            return instance.exec_()
+        else:
+            return instance
+
 
     def get_theme_background_style(self):
         return 'ftrack-modal'
@@ -88,12 +95,7 @@ class ModalDialog(StyledDialog):
 
         self.layout().setSpacing(5)
 
-        widget = QtWidgets.QWidget()
-        widget.setLayout(QtWidgets.QVBoxLayout())
-
-        widget.layout().addWidget(self.get_content_widget())
-
-        self.layout().addWidget(widget, 100)
+        self.layout().addWidget(self.get_content_widget(), 100)
 
         buttonbar = QtWidgets.QWidget()
         buttonbar.setLayout(QtWidgets.QHBoxLayout())
@@ -102,7 +104,7 @@ class ModalDialog(StyledDialog):
 
         buttonbar.layout().addWidget(QtWidgets.QLabel(), 100)
         self._approve_button = self.get_approve_button()
-        if not self._dialog_mode is False:
+        if self._question:
             self._deny_button = self.get_deny_button()
         else:
             self._deny_button = None
@@ -120,7 +122,8 @@ class ModalDialog(StyledDialog):
         self.layout().addWidget(buttonbar, 1)
 
     def get_content_widget(self):
-        '''Create dialog main content widget, can be overridden by custom dialogs'''
+        '''Create dialog main content widget, can be overridden to provide
+        custom styled modal dialogs'''
         label = QtWidgets.QLabel(self._message)
         label.setObjectName('h3')
         return center_widget(label)
@@ -128,7 +131,7 @@ class ModalDialog(StyledDialog):
     def get_approve_button(self):
         '''Build the approve button widget'''
         button = QtWidgets.QPushButton(
-            'YES' if self._dialog_mode is True else 'OK'
+            'YES' if self._question is True else 'OK'
         )
         button.setMinimumSize(QtCore.QSize(40, 35))
         return button
@@ -145,10 +148,11 @@ class ModalDialog(StyledDialog):
         if self._deny_button:
             self._deny_button.clicked.connect(self.reject)
 
-        self.setWindowTitle(self._title)
-        self.resize(250, 100)
-        if not self._dialog_mode is None:
+        self.setWindowTitle(self._title or '')
+        if self._message is not None:
             self.setMaximumHeight(100)
+        self.resize(250, 100)
+
 
     def setWindowTitle(self, title):
         '''(Override) Set the dialog title'''

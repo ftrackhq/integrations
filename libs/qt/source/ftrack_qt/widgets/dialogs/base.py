@@ -6,7 +6,7 @@ from Qt import QtWidgets, QtCore, QtGui
 from ftrack_qt.widgets.overlay import ShadedWidget
 
 from ftrack_constants.qt.theme import DEFAULT_BACKGROUND_STYLE
-from ftrack_qt.utils import theme
+from ftrack_qt.utils.theme import apply_theme
 
 class StyledDialog(QtWidgets.QDialog):
     '''
@@ -16,7 +16,7 @@ class StyledDialog(QtWidgets.QDialog):
     To be inherited by publisher, assembler and other dialogs.
 
     Designed to become shaded when another (modal) dialog is put in front of it,
-    for visiblity.
+    for visibility.
     '''
 
     DEFAULT_STYLE = 'ftrack'
@@ -48,7 +48,7 @@ class StyledDialog(QtWidgets.QDialog):
 
         # Apply theme and with DCC specific properties
         self.setWindowFlags(QtCore.Qt.Tool)
-        theme.apply_theme(self, theme=theme or self.theme)
+        apply_theme(self, theme=theme or self.theme)
         self.setProperty('background', background_style or self.background_style or
                          DEFAULT_BACKGROUND_STYLE)
         self.setProperty('docked', 'true' if docked else 'false')
