@@ -7,13 +7,12 @@ from functools import partial
 
 from Qt import QtWidgets, QtCore, QtGui
 
-from ftrack_qt.widgets.dialogs import BaseDialog
 from ftrack_qt.utils.widget import center_widget
-from ftrack_qt.widgets.dialogs.base import BaseDialog
+from ftrack_qt.widgets.dialogs import StyledDialog
 
 
 # TODO: Review and simplify this code
-class ModalDialog(BaseDialog):
+class ModalDialog(StyledDialog):
     '''
     A styled modal ftrack dialog box/prompt, intended to live on top of a base dialog or DCC app and
     waits for user input by default
@@ -158,6 +157,6 @@ class ModalDialog(BaseDialog):
 
     def setVisible(self, visible):
         '''(Override) Set visible'''
-        if isinstance(self.parentWidget(), BaseDialog):
+        if isinstance(self.parentWidget(), StyledDialog):
             self.parentWidget().darken = visible
         super(ModalDialog, self).setVisible(visible)

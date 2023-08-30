@@ -10,10 +10,11 @@ from ftrack_qt.widgets.selectors import ListSelector
 from ftrack_qt.widgets.headers import SessionHeader
 from ftrack_qt.widgets.selectors import ContextSelector
 
-from ftrack_qt.widgets.dialogs.base import BaseDialog
+from ftrack_qt.widgets.dialogs import StyledDialog
+
 
 # TODO: review and docstring this code
-class VerticalDialogDefinitionBase(FrameworkDialog, BaseDialog):
+class VerticalDialogDefinitionBase(FrameworkDialog, StyledDialog):
 
     '''Base Class to represent a Plugin'''
 
@@ -56,7 +57,11 @@ class VerticalDialogDefinitionBase(FrameworkDialog, BaseDialog):
         self._definition_widget = None
         self._run_button = None
 
-        BaseDialog.__init__(self, dialog_options, parent=parent)
+        StyledDialog.__init__(self,
+            theme=dialog_options.get('theme'),
+            background_style=dialog_options.get('background_style'),
+            docked=dialog_options.get('docked'),
+            parent=parent)
         FrameworkDialog.__init__(
             self,
             event_manager,

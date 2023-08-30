@@ -3,7 +3,7 @@
 
 # DO NOT REMOVE UNUSED IMPORT - important to keep this in order to have resources
 # initialised properly for applying style and providing images & fonts.
-from ftrack_style import (
+from ftrack_qt_style import (
     resource,
 )
 

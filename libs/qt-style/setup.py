@@ -1,12 +1,8 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2019-2023 ftrack
 
-
 import os
-import sys
 import re
-import shutil
-import subprocess
 import fileinput
 import sys
 import subprocess
@@ -16,31 +12,26 @@ from setuptools.command.test import test as TestCommand
 import setuptools
 from distutils.spawn import find_executable
 
-PLUGIN_NAME = 'ftrack-style-{0}'
+PLUGIN_NAME = 'ftrack-qt-style-{0}'
 
 ROOT_PATH = os.path.dirname(os.path.realpath(__file__))
+
+MONOREPO_ROOT_PATH = os.path.dirname(os.path.dirname(ROOT_PATH))
 
 SOURCE_PATH = os.path.join(ROOT_PATH, 'source')
 
 README_PATH = os.path.join(ROOT_PATH, 'README.md')
 
-RESOURCE_PATH = os.path.join(ROOT_PATH, 'resource')
+RESOURCE_PATH = os.path.join(MONOREPO_ROOT_PATH, 'resource')
 
 STYLE_PATH = os.path.join(RESOURCE_PATH, 'style')
 
 RESOURCE_TARGET_PATH = os.path.join(
-    SOURCE_PATH, 'ftrack_style', 'resource.py'
+    SOURCE_PATH, 'ftrack_qt_style', 'resource.py'
 )
-
-BOOTSTRAP_PATH = os.path.join(RESOURCE_PATH, 'bootstrap')
-
-PLUGINS_PATH = os.path.join(RESOURCE_PATH, 'plugins')
-
-DEFINITIONS_PATH = os.path.join(RESOURCE_PATH, 'definitions')
 
 HOOK_PATH = os.path.join(ROOT_PATH, 'hook')
 
-BUILD_PATH = os.path.join(ROOT_PATH, 'build')
 
 SETUP_REQUIRES = [
     'PySide2 == 5.12.6',
@@ -55,7 +46,7 @@ SETUP_REQUIRES = [
 
 def get_version():
     '''Read version from _version.py, updated by CI based on monorepo package tag'''
-    version_path = os.path.join(SOURCE_PATH, 'ftrack_style', '_version.py')
+    version_path = os.path.join(SOURCE_PATH, 'ftrack_qt_style', '_version.py')
     with open(version_path, 'r') as file_handle:
         for line in file_handle.readlines():
             if line.find('__version__') > -1:
@@ -64,8 +55,6 @@ def get_version():
 
 
 VERSION = get_version()
-
-STAGING_PATH = os.path.join(BUILD_PATH, PLUGIN_NAME.format(VERSION))
 
 
 # Custom commands.
@@ -156,8 +145,8 @@ class BuildResources(setuptools.Command):
                 self.resource_target_path,
                 self.resource_source_path,
             ]
-            print('running : {}'.format(cmd))
-            subprocess.check_call(cmd)
+            print('Running : {} in {}'.format(cmd, STYLE_PATH))
+            subprocess.check_call(cmd, cwd=STYLE_PATH)
 
         except (subprocess.CalledProcessError, OSError):
             raise RuntimeError(
@@ -167,60 +156,6 @@ class BuildResources(setuptools.Command):
             )
 
         self._replace_imports_()
-
-
-class BuildPlugin(setuptools.Command):
-    '''Build plugin.'''
-
-    description = 'Download dependencies and build plugin .'
-
-    user_options = []
-
-    def initialize_options(self):
-        pass
-
-    def finalize_options(self):
-        pass
-
-    def run(self):
-        raise Exception(
-            'This is a library and not to be built as a Connect plugin.'
-        )
-
-        self.run_command('build_resources')
-
-        '''Run the build step.'''
-        # Clean staging path
-        shutil.rmtree(STAGING_PATH, ignore_errors=True)
-
-        # plugins
-        shutil.copytree(
-            PLUGINS_PATH, os.path.join(STAGING_PATH, 'resource', 'plugins')
-        )
-
-        # Copy plugin files
-        shutil.copytree(HOOK_PATH, os.path.join(STAGING_PATH, 'hook'))
-        dependencies_path = os.path.join(STAGING_PATH, 'dependencies')
-
-        os.makedirs(dependencies_path)
-
-        subprocess.check_call(
-            [
-                sys.executable,
-                '-m',
-                'pip',
-                'install',
-                '.',
-                '--target',
-                dependencies_path,
-            ]
-        )
-
-        shutil.make_archive(
-            STAGING_PATH,
-            'zip',
-            STAGING_PATH,
-        )
 
 
 # Custom commands.
@@ -242,11 +177,11 @@ class PyTest(TestCommand):
 
 # Configuration.
 setup(
-    name='ftrack-framework-qt',
-    description='ftrack integration style library.',
+    name='ftrack-qt-style',
+    description='ftrack integration Qt style library.',
     long_description=open(README_PATH).read(),
     keywords='ftrack',
-    url='https://github.com/ftrackhq/integrations/libs/style',
+    url='https://github.com/ftrackhq/integrations/libs/qt-style',
     author='ftrack',
     author_email='support@ftrack.com',
     license='Apache License (2.0)',
@@ -262,7 +197,6 @@ setup(
     tests_require=['pytest >= 2.3.5, < 3'],
     cmdclass={
         'test': PyTest,
-        'build_plugin': BuildPlugin,
         'build_resources': BuildResources,
     },
     zip_safe=False,
