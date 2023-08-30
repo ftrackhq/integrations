@@ -6,9 +6,9 @@ import logging
 
 # TODO: verify that we use this instead of constants
 #  This works, the problem is that you already have to had imported the modules
-#  with the subclasses before in that moment, getEngine will work, so this can
+#  with the subclasses before in that moment, get_engine will work, so this can
 #  be useful for later when splitting the engines
-def getEngine(baseClass, engineType):
+def get_engine(baseClass, engineType):
     '''
     Returns the Class or Subclass of the given *baseClass* that matches the
     name of the given *engineType*
@@ -17,7 +17,7 @@ def getEngine(baseClass, engineType):
         # TODO: make this read multiple types so engine type can be a list
         if engineType == subclass.__name__:
             return subclass
-        match = getEngine(subclass, engineType)
+        match = get_engine(subclass, engineType)
         if match:
             return match
 

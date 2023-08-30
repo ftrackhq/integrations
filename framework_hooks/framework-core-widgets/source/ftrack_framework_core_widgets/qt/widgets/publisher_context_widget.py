@@ -3,7 +3,7 @@
 
 from Qt import QtWidgets, QtCore, QtGui
 
-from ftrack_framework_widget.widget import Widget
+from ftrack_framework_widget.widget import FrameworkWidget
 
 from ftrack_qt.widgets.selectors import AssetSelector
 from ftrack_qt.widgets.selectors import StatusSelector
@@ -11,7 +11,7 @@ from ftrack_qt.widgets.lines import LineWidget
 
 
 # TODO: review and docstring this code
-class PublishContextWidget(Widget, QtWidgets.QWidget):
+class PublishContextWidget(FrameworkWidget, QtWidgets.QWidget):
     '''Main class to represent a context widget on a publish process.'''
 
     name = 'publisher_context_selector'
@@ -36,7 +36,7 @@ class PublishContextWidget(Widget, QtWidgets.QWidget):
         self._comments_input = None
 
         QtWidgets.QWidget.__init__(self, parent=parent)
-        Widget.__init__(
+        FrameworkWidget.__init__(
             self,
             event_manager,
             client_id,
@@ -46,6 +46,10 @@ class PublishContextWidget(Widget, QtWidgets.QWidget):
             dialog_property_getter_connection_callback,
             parent=parent,
         )
+
+        self.pre_build()
+        self.build()
+        self.post_build()
 
     def pre_build(self):
         layout = QtWidgets.QVBoxLayout()
@@ -117,7 +121,6 @@ class PublishContextWidget(Widget, QtWidgets.QWidget):
 
     def post_build(self):
         '''hook events'''
-        super(PublishContextWidget, self).post_build()
         self._asset_selector.assetChanged.connect(self._on_asset_changed)
         self._comments_input.textChanged.connect(self._on_comment_updated)
         self._status_selector.currentIndexChanged.connect(

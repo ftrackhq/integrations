@@ -15,6 +15,8 @@ _BASE_ = 'ftrack.framework'
 DISCOVER_DEFINITION_TOPIC = '{}.discover.definition'.format(_BASE_)
 #: Discover plugin topic event, used to discover the plugins.
 DISCOVER_PLUGIN_TOPIC = '{}.discover.plugin'.format(_BASE_)
+#: Discover widget topic event, used to discover the widgets of specific UI type.
+DISCOVER_WIDGET_TOPIC = '{}.discover.widget'.format(_BASE_)
 #: Discover host topic event, used to discover available hosts.
 DISCOVER_HOST_TOPIC = '{}.host.discover.host'.format(_BASE_)
 #: Pipeline host run plugin topic event, used to communicate between client and
@@ -29,7 +31,7 @@ EXECUTE_PLUGIN_TOPIC = '{}.execute.plugin'.format(_BASE_)
 NOTIFY_PLUGIN_PROGRESS_TOPIC = '{}.notify.plugin.progress'.format(_BASE_)
 #: Pipeline client progress notification topic event, used to communicate the result of
 #: the steps execution from host to the client.
-NOTIFY_DEFINITION_PROGRESS_CLIENT_TOPIC = '{}.client.notify.progress'.format(
+NOTIFY_DEFINITION_PROGRESS_TOPIC = '{}.notify.definition.progress'.format(
     _BASE_
 )
 # Launch a widget within a client
@@ -57,14 +59,12 @@ CLIENT_SIGNAL_DEFINITION_CHANGED_TOPIC = (
     '{}.client.signal.definition.change'.format(_BASE_)
 )
 # Client received plugin result
-CLIENT_NOTIFY_UI_RUN_PLUGIN_RESULT_TOPIC = (
+CLIENT_NOTIFY_RUN_PLUGIN_RESULT_TOPIC = (
     '{}.client.notify.plugin.result'.format(_BASE_)
 )
 # Client received definition result
-CLIENT_NOTIFY_UI_RUN_DEFINITION_RESULT_TOPIC = (
+CLIENT_NOTIFY_RUN_DEFINITION_RESULT_TOPIC = (
     '{}.client.notify.definition.result'.format(_BASE_)
 )
 # Client received log item result
-CLIENT_NOTIFY_UI_LOG_ITEM_ADDED_TOPIC = '{}.client.notify.log_item'.format(
-    _BASE_
-)
+CLIENT_NOTIFY_LOG_ITEM_ADDED_TOPIC = '{}.client.notify.log_item'.format(_BASE_)

@@ -5,11 +5,11 @@ from functools import partial
 
 from Qt import QtWidgets, QtCore, QtGui
 
-from ftrack_framework_widget.widget import Widget
+from ftrack_framework_widget.widget import FrameworkWidget
 
 
 # TODO: review and docstring this code
-class FileExportOptionsWidget(Widget, QtWidgets.QWidget):
+class FileExportOptionsWidget(FrameworkWidget, QtWidgets.QWidget):
     '''Main class to represent a context widget on a publish process.'''
 
     name = 'file_exporter_options'
@@ -31,7 +31,7 @@ class FileExportOptionsWidget(Widget, QtWidgets.QWidget):
         self._file_browser = None
 
         QtWidgets.QWidget.__init__(self, parent=parent)
-        Widget.__init__(
+        FrameworkWidget.__init__(
             self,
             event_manager,
             client_id,
@@ -41,6 +41,10 @@ class FileExportOptionsWidget(Widget, QtWidgets.QWidget):
             dialog_property_getter_connection_callback,
             parent=parent,
         )
+
+        self.pre_build()
+        self.build()
+        self.post_build()
 
     def pre_build(self):
         layout = QtWidgets.QVBoxLayout()
@@ -81,7 +85,7 @@ class FileExportOptionsWidget(Widget, QtWidgets.QWidget):
 
     def post_build(self):
         '''hook events'''
-        super(FileExportOptionsWidget, self).post_build()
+        pass
 
     def _on_option_changed(self, option, value):
         self.set_plugin_option(option, value)

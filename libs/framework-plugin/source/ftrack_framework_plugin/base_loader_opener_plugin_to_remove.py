@@ -13,9 +13,11 @@ import ftrack_constants.framework as constants
 
 
 # TODO: This is not a base plugin, this should simply be a plugin and should be
-# moved to the ftrack_core_plugins. We always allow list of plugins, so this
-# one can be in that list and is not need to use it as base.
-# Also review code and test it.
+#  moved to the ftrack_core_plugins. We always allow list of plugins, so this
+#  one can be in that list and is not need to use it as base.
+#  Also review code and test it.
+
+
 class BaseLoaderOpenerPlugin(BasePlugin):
     '''Base Class to represent a Plugin'''
 
@@ -189,7 +191,7 @@ class BaseLoaderOpenerPlugin(BasePlugin):
 
     # TODO: This should be ABC
     def pre_execute_callback_hook(self, event):
-        if not self.method in ['init_nodes', 'load_asset', 'init_and_load']:
+        if self.method not in ['init_nodes', 'load_asset', 'init_and_load']:
             return event
 
         # Collect old objects in the scene

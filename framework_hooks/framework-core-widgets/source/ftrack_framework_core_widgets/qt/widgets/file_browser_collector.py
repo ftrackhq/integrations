@@ -4,13 +4,13 @@ import os.path
 
 from Qt import QtWidgets, QtCore, QtGui
 
-from ftrack_framework_widget.widget import Widget
+from ftrack_framework_widget.widget import FrameworkWidget
 
 from ftrack_qt.widgets.browsers import FileBrowser
 
 
 # TODO: review and docstring this code
-class FileBrowserWidget(Widget, QtWidgets.QWidget):
+class FileBrowserWidget(FrameworkWidget, QtWidgets.QWidget):
     '''Main class to represent a context widget on a publish process.'''
 
     name = 'file_browser_collector'
@@ -32,7 +32,7 @@ class FileBrowserWidget(Widget, QtWidgets.QWidget):
         self._file_browser = None
 
         QtWidgets.QWidget.__init__(self, parent=parent)
-        Widget.__init__(
+        FrameworkWidget.__init__(
             self,
             event_manager,
             client_id,
@@ -42,6 +42,10 @@ class FileBrowserWidget(Widget, QtWidgets.QWidget):
             dialog_property_getter_connection_callback,
             parent=parent,
         )
+
+        self.pre_build()
+        self.build()
+        self.post_build()
 
     def pre_build(self):
         layout = QtWidgets.QVBoxLayout()
@@ -60,7 +64,6 @@ class FileBrowserWidget(Widget, QtWidgets.QWidget):
 
     def post_build(self):
         '''hook events'''
-        super(FileBrowserWidget, self).post_build()
         self._file_browser.path_changed.connect(self._on_path_changed)
 
     def _on_path_changed(self, file_path):
