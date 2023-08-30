@@ -37,7 +37,7 @@ class ModalDialog(StyledDialog):
         :param title: The text to show in dialog title bar
         :param modal: The dialog should be modal, default is True
         '''
-        super(ModalDialog, self).__init__(None, parent=parent)
+        super(ModalDialog, self).__init__(parent=parent)
 
         self.setParent(parent)
 
@@ -46,6 +46,7 @@ class ModalDialog(StyledDialog):
         self._question = question
         self._modal = modal
 
+        self._title_label = None
         self._approve_button = None
         self._deny_button = None
 
@@ -53,13 +54,13 @@ class ModalDialog(StyledDialog):
         self.build()
         self.post_build()
 
-        if modal is True:
+        if modal:
             self.setModal(modal)
         self.setWindowFlags(
             QtCore.Qt.SplashScreen
             | (
                 QtCore.Qt.WindowStaysOnTopHint
-                if modal is True or message is not None
+                if modal is True or message
                 else 0
             )
         )
@@ -130,7 +131,8 @@ class ModalDialog(StyledDialog):
         return center_widget(label)
 
     def get_approve_button(self):
-        '''Build the approve button widget'''
+        '''Build the approve button widget, can be overridden to provide a
+        custom approve button.'''
         button = QtWidgets.QPushButton(
             'YES' if self._question is True else 'OK'
         )
@@ -138,7 +140,8 @@ class ModalDialog(StyledDialog):
         return button
 
     def get_deny_button(self):
-        '''Build the deny (No) button widget'''
+        '''Build the deny (No) button widget, can be overridden to provide a
+        custom deny button.'''
         button = QtWidgets.QPushButton('NO')
         button.setMinimumSize(QtCore.QSize(40, 35))
         return button
@@ -150,7 +153,7 @@ class ModalDialog(StyledDialog):
             self._deny_button.clicked.connect(self.reject)
 
         self.setWindowTitle(self._title or '')
-        if self._message is not None:
+        if self._message:
             self.setMaximumHeight(100)
         self.resize(250, 100)
 

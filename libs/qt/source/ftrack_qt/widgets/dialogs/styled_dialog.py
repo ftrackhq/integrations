@@ -42,16 +42,14 @@ class StyledDialog(QtWidgets.QDialog):
             if self._shaded_widget:
                 self._shaded_widget.close()
 
-    def __init__(
-        self, theme=None, background_style=None, docked=False, parent=None
-    ):
+    def __init__(self, background_style=None, docked=False, parent=None):
         super(StyledDialog, self).__init__(parent=parent)
         self._darken = False
         self._shaded_widget = None
 
         # Apply theme and with DCC specific properties
         self.setWindowFlags(QtCore.Qt.Tool)
-        apply_theme(self, theme=theme or self.theme)
+        apply_theme(self, self.theme)
         self.setProperty(
             'background',
             background_style

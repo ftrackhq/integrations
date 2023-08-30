@@ -64,7 +64,6 @@ class PublisherDialog(FrameworkDialog, ScrollDefinitionsDialog):
         # As a mixing class we have to initialize the parents separately
         ScrollDefinitionsDialog.__init__(
             self,
-            theme=(dialog_options or {}).get('theme'),
             background_style=(dialog_options or {}).get('background_style'),
             docked=(dialog_options or {}).get('docked'),
             session=event_manager.session,
@@ -345,15 +344,6 @@ class PublisherDialog(FrameworkDialog, ScrollDefinitionsDialog):
         Run button from the UI has been clicked.
         Tell client to run the current definition
         '''
-
-        if ModalDialog(
-            self,
-            title='TEST TITLE!',
-            message='A test question',
-            question=True,
-            modal=True,
-        ):
-            return
 
         arguments = {
             "definition": self.definition,

@@ -28,7 +28,6 @@ def apply_theme(widget, theme=None):
         widget.setStyleSheet(styleSheetContent)
     else:
         sys.stderr.write(
-            'ftrack theme "{}" could not be found! Make sure to import resource.py from ftrack_qt_style library.\n'.format(
-                theme_path
-            )
+            'ftrack theme "{}" could not be found! Make sure to import '
+            'resource.py from ftrack_qt_style library.\n'.format(theme_path)
         )

@@ -96,7 +96,6 @@ class ScrollDefinitionsDialog(StyledDialog):
     def __init__(
         self,
         session,
-        theme=None,
         background_style=None,
         docked=False,
         parent=None,
@@ -106,7 +105,6 @@ class ScrollDefinitionsDialog(StyledDialog):
         :class:`ftrack_api.session.Session`
         '''
         super(ScrollDefinitionsDialog, self).__init__(
-            theme=theme,
             background_style=background_style,
             docked=docked,
             parent=parent,
