@@ -79,7 +79,7 @@ class HostConnection(object):
 
     @property
     def _available_filtered_host_definitions(self):
-        ''' Return available filtered host definitions'''
+        '''Return available filtered host definitions'''
         definitions = {}
         if self.context_identifiers:
             definitions = self._filter_definitions_by_context_identifier(
@@ -170,7 +170,9 @@ class HostConnection(object):
                     type_result.append(definition)
 
             # Convert the result to definition List
-            result[schema_title] = definition_object.DefinitionList(type_result)
+            result[schema_title] = definition_object.DefinitionList(
+                type_result
+            )
         return copy.deepcopy(result)
 
     def reset_definition(self, definition_name, definition_type):
@@ -183,23 +185,21 @@ class HostConnection(object):
             name=definition_name
         )
         # Get the original definition
-        origin_definition = self._raw_host_data['definitions'][definition_type].get_first(
-            name=definition_name
-        )
+        origin_definition = self._raw_host_data['definitions'][
+            definition_type
+        ].get_first(name=definition_name)
         if not mod_definition:
             self.logger.warning(
                 'Host connection doesnt have a matching definition of type: {} '
                 'and name: {} in the definitions property.'.format(
-                    definition_type,
-                    definition_name
+                    definition_type, definition_name
                 )
             )
         if not origin_definition:
             self.logger.warning(
                 'Host connection doesnt have a matching definition of type: {} '
                 'and name: {} in the available definitions'.format(
-                    definition_type,
-                    definition_name
+                    definition_type, definition_name
                 )
             )
         # Set the current definition = to the original one
@@ -213,7 +213,7 @@ class HostConnection(object):
             )
 
     def reset_all_definitions(self):
-        ''' Reset all definitions to its original values sent from host'''
+        '''Reset all definitions to its original values sent from host'''
         self._definitions = self._available_filtered_host_definitions
 
     def _add_new_definitions(self):
@@ -230,7 +230,9 @@ class HostConnection(object):
             self._definitions = self._available_filtered_host_definitions
             return
 
-        for schema_title in list(self._available_filtered_host_definitions.keys()):
+        for schema_title in list(
+            self._available_filtered_host_definitions.keys()
+        ):
             # Add new definitions
             for definition in self._available_filtered_host_definitions[
                 schema_title
@@ -238,7 +240,9 @@ class HostConnection(object):
                 if schema_title not in list(self._definitions.keys()):
                     # No schemas of that type exists in the current definitions,
                     # copy them all
-                    self._definitions[schema_title] = self._available_filtered_host_definitions[schema_title]
+                    self._definitions[
+                        schema_title
+                    ] = self._available_filtered_host_definitions[schema_title]
                     break
                 exist = self._definitions[schema_title].get_first(
                     name=definition.name
@@ -250,17 +254,16 @@ class HostConnection(object):
             # Purge not available definitions
             for definition in self._definitions.get(schema_title, []):
                 if schema_title not in list(
-                        self._available_filtered_host_definitions.keys()
+                    self._available_filtered_host_definitions.keys()
                 ):
                     # No schemas of that type exists in the available definitions,
                     # remove them all
-                    self._definitions[schema_title] = definition_object.DefinitionList([])
+                    self._definitions[
+                        schema_title
+                    ] = definition_object.DefinitionList([])
                     break
                 exist = self._available_filtered_host_definitions[
                     schema_title
-                ].get_first(
-                    name=definition.name
-                )
+                ].get_first(name=definition.name)
                 if not exist:
                     self._definitions[schema_title].remove(definition)
-
