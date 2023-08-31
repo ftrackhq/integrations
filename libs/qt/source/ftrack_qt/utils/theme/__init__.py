@@ -4,8 +4,7 @@ import sys
 
 from Qt import QtCore, QtWidgets, QtGui
 
-
-from ftrack_constants.qt.theme import DEFAULT_THEME
+import ftrack_constants.qt as qt_constants
 
 
 def apply_font(font=':/ftrack/font/main'):
@@ -17,7 +16,7 @@ def apply_theme(widget, theme=None):
     '''Apply *theme* to *widget* - load stylesheet from resource file and apply'''
     apply_font()
     if theme is None:
-        theme = DEFAULT_THEME
+        theme = qt_constants.theme.DEFAULT_THEME
     theme_path = ':/ftrack/style/{0}'.format(theme)
     fileObject = QtCore.QFile(theme_path)
     if fileObject.exists():

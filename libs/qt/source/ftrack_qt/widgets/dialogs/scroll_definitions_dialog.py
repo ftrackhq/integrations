@@ -96,19 +96,13 @@ class ScrollDefinitionsDialog(StyledDialog):
     def __init__(
         self,
         session,
-        background_style=None,
-        docked=False,
         parent=None,
     ):
         '''
         Initialise BasePlugin with instance of
         :class:`ftrack_api.session.Session`
         '''
-        super(ScrollDefinitionsDialog, self).__init__(
-            background_style=background_style,
-            docked=docked,
-            parent=parent,
-        )
+        super(ScrollDefinitionsDialog, self).__init__(parent=parent)
 
         self._session = session
         self._context_selector = None

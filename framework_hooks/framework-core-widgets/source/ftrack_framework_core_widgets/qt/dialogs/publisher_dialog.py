@@ -64,8 +64,6 @@ class PublisherDialog(FrameworkDialog, ScrollDefinitionsDialog):
         # As a mixing class we have to initialize the parents separately
         ScrollDefinitionsDialog.__init__(
             self,
-            background_style=(dialog_options or {}).get('background_style'),
-            docked=(dialog_options or {}).get('docked'),
             session=event_manager.session,
             parent=parent,
         )
