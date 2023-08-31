@@ -11,31 +11,22 @@ from ftrack_qt.utils.widget import center_widget
 from ftrack_qt.widgets.dialogs import StyledDialog
 
 
-# TODO: Review and simplify this code
 class ModalDialog(StyledDialog):
     '''
     A styled modal ftrack dialog box/prompt, intended to live on top of a base dialog or DCC app and
     waits for user input by default
     '''
 
-    def __init__(
-        self,
-        parent,
-        message=None,
-        question=False,
-        title=None,
-        modal=True,
-    ):
+    def __init__(self, parent, message=None, question=False, title=None):
         '''
         Initialize a modal dialog either with a message/prompt, or as a base
-        for a custom modal dialog.
+        for a custom modal dialog, that stays on top of the parent window.
 
         :param parent: The parent dialog or frame, required.
         :param message: The message or question to show in dialog, if not given it
         is assumed dialog will be further customised (f.e.x. the entity browser)
         :param question: If true, makes dialog behave like a prompt with Yes+No buttons
         :param title: The text to show in dialog title bar
-        :param modal: The dialog should be modal, default is True
         '''
         super(ModalDialog, self).__init__(parent=parent)
 
@@ -44,7 +35,6 @@ class ModalDialog(StyledDialog):
         self._message = message
         self._title = title or 'ftrack'
         self._question = question
-        self._modal = modal
 
         self._title_label = None
         self._approve_button = None
@@ -54,30 +44,10 @@ class ModalDialog(StyledDialog):
         self.build()
         self.post_build()
 
-        if modal:
-            self.setModal(modal)
+        self.setModal(True)
         self.setWindowFlags(
-            QtCore.Qt.SplashScreen
-            | (
-                QtCore.Qt.WindowStaysOnTopHint
-                if modal is True or message
-                else 0
-            )
+            QtCore.Qt.SplashScreen | QtCore.Qt.WindowStaysOnTopHint
         )
-
-    def __new__(
-        cls,
-        *args,
-        **kwargs,
-    ):
-        '''Override class instantiation to return exec_() if message is given'''
-        instance = StyledDialog.__new__(cls, *args, **kwargs)
-        if cls == ModalDialog:
-            # Not inherited, so return exec_()
-            instance.__init__(*args, **kwargs)
-            return instance.exec_()
-        else:
-            return instance
 
     def get_theme_background_style(self):
         return 'ftrack-modal'
@@ -123,6 +93,7 @@ class ModalDialog(StyledDialog):
 
         self.layout().addWidget(buttonbar, 1)
 
+    # TODO: This should be an ABC
     def get_content_widget(self):
         '''Create dialog main content widget, can be overridden to provide
         custom styled modal dialogs'''
@@ -130,6 +101,7 @@ class ModalDialog(StyledDialog):
         label.setObjectName('h3')
         return center_widget(label)
 
+    # TODO: This should be an ABC
     def get_approve_button(self):
         '''Build the approve button widget, can be overridden to provide a
         custom approve button.'''
@@ -139,6 +111,7 @@ class ModalDialog(StyledDialog):
         button.setMinimumSize(QtCore.QSize(40, 35))
         return button
 
+    # TODO: This should be an ABC
     def get_deny_button(self):
         '''Build the deny (No) button widget, can be overridden to provide a
         custom deny button.'''

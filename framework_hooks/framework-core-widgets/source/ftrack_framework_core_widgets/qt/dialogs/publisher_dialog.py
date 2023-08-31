@@ -188,8 +188,7 @@ class PublisherDialog(FrameworkDialog, ScrollDefinitionsDialog):
                 message='Selected context is not the current context, '
                 'do you want to update UI to syc with the current context?',
                 question=True,
-                modal=True,
-            )
+            ).exec_()
             if result:
                 self._on_client_context_changed_callback()
             else:
@@ -208,8 +207,7 @@ class PublisherDialog(FrameworkDialog, ScrollDefinitionsDialog):
                 message='Selected host connection is not the current host_connection, '
                 'do you want to update UI to sync with the current one?',
                 question=True,
-                modal=True,
-            )
+            ).exec_()
             if result:
                 self._on_client_host_changed_callback()
             else:
@@ -254,8 +252,7 @@ class PublisherDialog(FrameworkDialog, ScrollDefinitionsDialog):
                 message='Selected definition is not the current definition, '
                 'do you want to update UI to sync with the current one?',
                 question=True,
-                modal=True,
-            )
+            ).exec_()
             if result:
                 self._on_client_definition_changed_callback()
             else:
