@@ -129,6 +129,7 @@ def init():
         # Continue execution if this fails
         logger.error(error)
 
+
 # TODO: please double check this, seems to be a bit hacky....
 def launchWidget(widget_name):
     '''Send an event to launch the widget'''

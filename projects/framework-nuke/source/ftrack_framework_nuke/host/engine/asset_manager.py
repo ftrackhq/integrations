@@ -163,8 +163,8 @@ class NukeAssetManagerEngine(AssetManagerEngine):
                 result_data['message'] = message
 
                 self.event_manager.publish.notify_plugin_progress_client(
-            self.host_id, **result_data
-        )
+                    self.host_id, **result_data
+                )
                 return status, result
 
         try:
@@ -189,8 +189,8 @@ class NukeAssetManagerEngine(AssetManagerEngine):
             result_data['message'] = message
 
             self.event_manager.publish.notify_plugin_progress_client(
-            self.host_id, **result_data
-        )
+                self.host_id, **result_data
+            )
             return status, result
 
         end_time = time.time()
@@ -267,8 +267,8 @@ class NukeAssetManagerEngine(AssetManagerEngine):
             result_data['message'] = message
 
             self.event_manager.publish.notify_plugin_progress_client(
-            self.host_id, **result_data
-        )
+                self.host_id, **result_data
+            )
             return status, result
 
         if ftrack_node.Class() == 'BackdropNode':
@@ -313,8 +313,8 @@ class NukeAssetManagerEngine(AssetManagerEngine):
                     result_data['message'] = message
 
                     self.event_manager.publish.notify_plugin_progress_client(
-            self.host_id, **result_data
-        )
+                        self.host_id, **result_data
+                    )
                     return status, result
 
         bool_status = core_constants.status_bool_mapping[status]
@@ -328,8 +328,8 @@ class NukeAssetManagerEngine(AssetManagerEngine):
             result_data['message'] = message
 
             self.event_manager.publish.notify_plugin_progress_client(
-            self.host_id, **result_data
-        )
+                self.host_id, **result_data
+            )
             return status, result
 
         self.ftrack_object_manager.objects_loaded = False
@@ -395,8 +395,8 @@ class NukeAssetManagerEngine(AssetManagerEngine):
             result_data['message'] = message
 
             self.event_manager.publish.notify_plugin_progress_client(
-            self.host_id, **result_data
-        )
+                self.host_id, **result_data
+            )
             return status, result
 
         if ftrack_node.Class() == 'BackdropNode':
@@ -448,8 +448,8 @@ class NukeAssetManagerEngine(AssetManagerEngine):
                     result_data['message'] = message
 
                     self.event_manager.publish.notify_plugin_progress_client(
-            self.host_id, **result_data
-        )
+                        self.host_id, **result_data
+                    )
                     return status, result
 
         try:
@@ -476,8 +476,8 @@ class NukeAssetManagerEngine(AssetManagerEngine):
             result_data['message'] = message
 
             self.event_manager.publish.notify_plugin_progress_client(
-            self.host_id, **result_data
-        )
+                self.host_id, **result_data
+            )
             return status, result
 
         end_time = time.time()
