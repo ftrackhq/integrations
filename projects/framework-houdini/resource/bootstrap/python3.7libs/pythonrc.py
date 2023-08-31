@@ -119,7 +119,6 @@ def init():
         functools.partial(_open_widget, event_manager, asset_list_model),
     )
 
-
     # Install dummy event filter to prevent Houdini from crashing during widget
     # build.
     QtCore.QCoreApplication.instance().installEventFilter(EventFilterWidget())
@@ -129,6 +128,7 @@ def init():
     except Exception as error:
         # Continue execution if this fails
         logger.error(error)
+
 
 # TODO: please double check this, seems to be a bit hacky....
 def launchWidget(widget_name):

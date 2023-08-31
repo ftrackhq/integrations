@@ -149,8 +149,8 @@ class HoudiniAssetManagerEngine(AssetManagerEngine):
                 result_data['message'] = result['message'] = message
 
                 self.event_manager.publish.notify_plugin_progress_client(
-            self.host_id, **result_data
-        )
+                    self.host_id, **result_data
+                )
                 return status, result
 
         end_time = time.time()
@@ -226,8 +226,8 @@ class HoudiniAssetManagerEngine(AssetManagerEngine):
                 result_data['message'] = message
 
                 self.event_manager.publish.notify_plugin_progress_client(
-            self.host_id, **result_data
-        )
+                    self.host_id, **result_data
+                )
                 return status, result
 
         self.ftrack_object_manager.objects_loaded = False
@@ -306,8 +306,8 @@ class HoudiniAssetManagerEngine(AssetManagerEngine):
                 result_data['message'] = message
 
                 self.event_manager.publish.notify_plugin_progress_client(
-            self.host_id, **result_data
-        )
+                    self.host_id, **result_data
+                )
                 return status, result
 
         # Remove the ftrack node
@@ -335,8 +335,8 @@ class HoudiniAssetManagerEngine(AssetManagerEngine):
                 result_data['message'] = result['message'] = message
 
                 self.event_manager.publish.notify_plugin_progress_client(
-            self.host_id, **result_data
-        )
+                    self.host_id, **result_data
+                )
 
                 return status, result
 
