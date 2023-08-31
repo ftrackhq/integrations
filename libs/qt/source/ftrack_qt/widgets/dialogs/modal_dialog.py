@@ -28,7 +28,7 @@ class ModalDialog(StyledDialog):
         :param question: If true, makes dialog behave like a prompt with Yes+No buttons
         :param title: The text to show in dialog title bar
         '''
-        super(ModalDialog, self).__init__(parent=parent)
+        super(ModalDialog, self).__init__(background_style='ftrack-modal', parent=parent)
 
         self.setParent(parent)
 
@@ -48,9 +48,6 @@ class ModalDialog(StyledDialog):
         self.setWindowFlags(
             QtCore.Qt.SplashScreen | QtCore.Qt.WindowStaysOnTopHint
         )
-
-    def get_theme_background_style(self):
-        return 'ftrack-modal'
 
     def pre_build(self):
         self.setLayout(QtWidgets.QVBoxLayout())
