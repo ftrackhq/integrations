@@ -19,7 +19,6 @@
 | Subscibe(BaseWidget)            | CLIENT_SIGNAL_CONTEXT_CHANGED_TOPIC       | Publish(client) | Context has been changed, this is just a signal, no data is emitted, needs client_id.    |
 | Subscibe(BaseWidget)            | CLIENT_SIGNAL_HOSTS_DISCOVERED_TOPIC      | Publish(client) | Hosts has been discovered, this is just a signal, no data is emitted, needs client_id.   |
 | Subscibe(BaseWidget)            | CLIENT_SIGNAL_HOST_CHANGED_TOPIC          | Publish(client) | Host has been changed, this is just a signal, no data is emitted, needs client_id.       |
-| Subscibe(BaseWidget)            | CLIENT_SIGNAL_DEFINITION_CHANGED_TOPIC    | Publish(client) | Definition has been changed, this is just a signal, no data is emitted, needs client_id. |
 | Subscibe(BaseWidget)            | CLIENT_NOTIFY_RUN_PLUGIN_RESULT_TOPIC     | Publish(client) | Plugin has been executed, and this provides the result to the UI.                        |
 | Subscibe(BaseWidget)            | CLIENT_NOTIFY_RUN_DEFINITION_RESULT_TOPIC | Publish(client) | Definition has been executed, and this provides the result to the UI.                    |
 | Subscibe(BaseWidget)            | CLIENT_NOTIFY_LOG_ITEM_ADDED_TOPIC        | Publish(client) | LOG item added in the host, and client send the log item to the UI                       |
