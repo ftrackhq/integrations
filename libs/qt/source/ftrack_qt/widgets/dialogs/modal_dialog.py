@@ -7,6 +7,8 @@ from functools import partial
 
 from Qt import QtWidgets, QtCore, QtGui
 
+import ftrack_constants.qt as qt_constants
+
 from ftrack_qt.utils.widget import center_widget
 from ftrack_qt.widgets.dialogs import StyledDialog
 
@@ -16,6 +18,8 @@ class ModalDialog(StyledDialog):
     A styled modal ftrack dialog box/prompt, intended to live on top of a base dialog or DCC app and
     waits for user input by default
     '''
+
+    background_style = qt_constants.theme.DEFAULT_MODAL_DIALOG_STYLE
 
     def __init__(self, parent, message=None, question=False, title=None):
         '''
@@ -28,7 +32,7 @@ class ModalDialog(StyledDialog):
         :param question: If true, makes dialog behave like a prompt with Yes+No buttons
         :param title: The text to show in dialog title bar
         '''
-        super(ModalDialog, self).__init__(background_style='ftrack-modal', parent=parent)
+        super(ModalDialog, self).__init__(parent=parent)
 
         self.setParent(parent)
 

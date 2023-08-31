@@ -5,7 +5,7 @@ from Qt import QtWidgets, QtCore, QtGui
 
 from ftrack_qt.widgets.overlay import ShadedWidget
 
-from ftrack_constants.qt.theme import DEFAULT_BACKGROUND_STYLE
+import ftrack_constants.qt as qt_constants
 from ftrack_qt.utils.theme import apply_theme
 
 
@@ -20,11 +20,12 @@ class StyledDialog(QtWidgets.QDialog):
     for visibility.
     '''
 
-    DEFAULT_STYLE = 'ftrack'
+    DEFAULT_STYLE = qt_constants.theme.DEFAULT_STYLE
 
     # Allow child classes to override the default theme and background style
-    theme = None
-    background_style = None
+    theme = qt_constants.theme.DEFAULT_THEME
+    background_style = qt_constants.theme.DEFAULT_BACKGROUND_STYLE
+    docked = False
 
     @property
     def darken(self):
@@ -47,14 +48,15 @@ class StyledDialog(QtWidgets.QDialog):
         self._darken = False
         self._shaded_widget = None
 
+        if background_style:
+            self.background_style = background_style
+
+        if docked:
+            self.docked = docked
+
         # Apply theme and with DCC specific properties
         self.setWindowFlags(QtCore.Qt.Tool)
         apply_theme(self, self.theme)
-        self.setProperty(
-            'background',
-            background_style
-            or self.background_style
-            or DEFAULT_BACKGROUND_STYLE,
-        )
-        self.setProperty('docked', 'true' if docked else 'false')
+        self.setProperty('background', self.background_style)
+        self.setProperty('docked', 'true' if self.docked else 'false')
         self.setAttribute(QtCore.Qt.WA_DeleteOnClose, True)
