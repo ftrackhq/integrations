@@ -108,7 +108,7 @@ class EntityBrowser(ModalDialog):
     @mode.setter
     def mode(self, value):
         '''Set the entity browser mode to value'''
-        if not value in [
+        if value not in [
             EntityBrowser.MODE_ENTITY,
             EntityBrowser.MODE_CONTEXT,
             EntityBrowser.MODE_TASK,
@@ -144,7 +144,7 @@ class EntityBrowser(ModalDialog):
         self.mode = mode or EntityBrowser.MODE_TASK
 
         super(EntityBrowser, self).__init__(
-            parent, title=title or 'ftrack Entity Browser'
+            parent, question=True, title=title or 'ftrack Entity Browser'
         )
 
         if entity:

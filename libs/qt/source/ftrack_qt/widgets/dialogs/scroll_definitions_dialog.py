@@ -7,8 +7,10 @@ from ftrack_qt.widgets.selectors import ListSelector
 from ftrack_qt.widgets.headers import SessionHeader
 from ftrack_qt.widgets.selectors import ContextSelector
 
+from ftrack_qt.widgets.dialogs import StyledDialog
 
-class ScrollDefinitionsDialog(QtWidgets.QDialog):
+
+class ScrollDefinitionsDialog(StyledDialog):
     '''Base Class to represent a Plugin'''
 
     selected_context_changed = QtCore.Signal(object)
@@ -91,7 +93,11 @@ class ScrollDefinitionsDialog(QtWidgets.QDialog):
                 return
             self._definition_selector.set_current_item(value)
 
-    def __init__(self, session, parent=None):
+    def __init__(
+        self,
+        session,
+        parent=None,
+    ):
         '''
         Initialise BasePlugin with instance of
         :class:`ftrack_api.session.Session`
