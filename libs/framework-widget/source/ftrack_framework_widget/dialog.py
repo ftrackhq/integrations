@@ -1,12 +1,14 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2023 ftrack
-import uuid
 
 from ftrack_framework_widget import BaseUI, active_widget
 
 
 class FrameworkDialog(BaseUI):
-    '''Base Class to represent a Plugin'''
+    '''
+    Base Class to represent a FrameworkDilog, all the dialogs executed by the
+    UI should inherit from here.
+    '''
 
     name = None
     widget_type = 'framework_dialog'
@@ -111,7 +113,7 @@ class FrameworkDialog(BaseUI):
 
     @property
     def framework_widgets(self):
-        '''Return Initalized framework widgets'''
+        '''Return initialized framework widgets'''
         return self.__framework_widget_registry
 
     @property
@@ -189,6 +191,11 @@ class FrameworkDialog(BaseUI):
 
     # TODO: this should be an ABC
     def show_ui(self):
+        '''
+        To be overriden by the implemented dialog. Should execute the dialog:
+        Pseudocode example PySide UI:
+        self.show()
+        '''
         pass
 
     # TODO: this should be an ABC
@@ -252,10 +259,10 @@ class FrameworkDialog(BaseUI):
         '''
         Check if selected UI context_id is not sync with the client and sync them.
         Pseudocode example PySide UI:
-            if self.context_id not is self.context_Selector.current_text():
-                raise confirmation widget to decide which one to keep
-                equal self.context_Selector.current_text() to self.context_id or
-                the other way around depending on the confirmation widget response
+        if self.context_id not is self.context_Selector.current_text():
+            raise confirmation widget to decide which one to keep
+            equal self.context_Selector.current_text() to self.context_id or
+            the other way around depending on the confirmation widget response
         '''
         # TODO: raise not implemented error
         pass
