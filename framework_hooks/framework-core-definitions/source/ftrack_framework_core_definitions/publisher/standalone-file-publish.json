@@ -5,6 +5,7 @@
   "host_type": "python",
   "ui_type": "qt",
   "task_type": "rendering",
+  "engine_name": "load_publish",
   "contexts": [
     {
       "name": "main",

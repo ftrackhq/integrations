@@ -156,50 +156,6 @@ class Client(object):
             raise Exception('No host connection available')
         return self.host_connection.definitions
 
-    @property
-    def definition(self):
-        '''Returns the current selected definition.'''
-        return self._definition
-
-    @definition.setter
-    def definition(self, value):
-        '''
-        Set the given *value* as definition if value.name found in
-        self.definitions
-        '''
-
-        if not self.host_connection:
-            self.logger.error(
-                "Please set the host connection before setting a definition"
-            )
-            return
-        if value and not self.definitions[value.type].get_first(
-            name=value.name
-        ):
-            self.logger.error(
-                "Invalid definition, choose one from : {}".format(
-                    self.definitions
-                )
-            )
-            return
-
-        self._definition = value
-        if value:
-            # Automatically set the engine of the definition
-            self.engine_type = self._definition['_config']['engine_type']
-        self.on_definition_changed(self.definition)
-
-    @property
-    def engine_type(self):
-        '''Return the current engine type'''
-        return self._engine_type
-
-    @engine_type.setter
-    def engine_type(self, value):
-        '''Set the current engine_type'''
-        # TODO: add a checker to check that value is a valid engine
-        self._engine_type = value
-
     # TODO: double check how we enable disbale multithreading,
     #  I think we can improve it and make it simpler, take a look at the
     #  active_ui decorator that I created, maybe we can use soemthing similar.
@@ -259,8 +215,6 @@ class Client(object):
 
         # Setting init variables to 0
         self._host_context_changed_subscribe_id = None
-        self._definition = None
-        self._engine_type = None
         self.__framework_widget_registry = []
         self.__dialogs_registry = {}
         self._dialog = None
@@ -420,12 +374,7 @@ class Client(object):
             self._host_context_changed_subscribe_id = None
 
     # Definition
-    def on_definition_changed(self, definition):
-        '''Callback, definition has been changed in the client'''
-        # Emit signal to widget
-        self.event_manager.publish.client_signal_definition_changed(self.id)
-
-    def run_definition(self, definition, engine_type, engine_name):
+    def run_definition(self, definition):
         '''
         Publish event to tell the host to run the given *definition* with the
         given *engine*.
@@ -433,8 +382,6 @@ class Client(object):
         self.event_manager.publish.host_run_definition(
             self.host_id,
             definition.to_dict(),
-            engine_type,
-            engine_name,
             self._run_definition_callback,
         )
 
@@ -512,6 +459,18 @@ class Client(object):
         self.event_manager.publish.client_notify_log_item_added(
             self.id, event['data']['log_item']
         )
+
+    def reset_definition(self, definition_name, definition_type):
+        '''
+        Ask host connection to reset values of a specific definition
+        '''
+        self.host_connection.reset_definition(definition_name, definition_type)
+
+    def reset_all_definitions(self):
+        '''
+        Ask host connection to reset values of all definitions
+        '''
+        self.host_connection.reset_all_definitions()
 
     # UI
     def run_dialog(self, dialog_name, dialog_class=None, dialog_options=None):

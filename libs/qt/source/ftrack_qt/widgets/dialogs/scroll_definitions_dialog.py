@@ -210,9 +210,7 @@ class ScrollDefinitionsDialog(StyledDialog):
 
     def _on_refresh_hosts_callback(self):
         '''Clean up hast and emit signal to refresh hosts'''
-        self.selected_host_connection_id = None
         self.selected_host_changed.emit(None)
-        self._host_connection_selector.clear_items()
         self.refresh_hosts_clicked.emit()
 
     def _on_definition_selected_callback(self, item_text):
@@ -225,9 +223,7 @@ class ScrollDefinitionsDialog(StyledDialog):
         '''Clean up definitions and emit signal to refresh them'''
         # TODO: double think if definitions can be refreshed? maybe we should
         #  thn re-select the same host instead of discovering hosts again?
-        self.selected_definition_name = None
         self.selected_definition_changed.emit(None)
-        self._definition_selector.clear_items()
         self.refresh_definitions_clicked.emit()
 
     def _on_run_button_clicked(self):

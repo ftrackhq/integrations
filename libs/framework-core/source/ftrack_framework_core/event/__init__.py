@@ -200,7 +200,7 @@ class Publish(object):
         return self._publish_event(event_topic, data, callback)
 
     def host_run_definition(
-        self, host_id, definition, engine_type, engine_name, callback=None
+        self, host_id, definition, callback=None
     ):
         '''
         Publish an event with topic
@@ -208,9 +208,7 @@ class Publish(object):
         '''
         data = {
             'host_id': host_id,
-            'definition': definition,
-            'engine_type': engine_type,
-            'engine_name': engine_name,
+            'definition': definition
         }
         event_topic = constants.event.HOST_RUN_DEFINITION_TOPIC
         return self._publish_event(event_topic, data, callback)
@@ -296,6 +294,19 @@ class Publish(object):
         }
 
         event_topic = constants.event.DISCOVER_WIDGET_TOPIC
+        return self._publish_event(event_topic, data, callback)
+
+    def discover_engine(self, engine_type, engine_name, callback=None):
+        '''
+        Publish an event with topic
+        :const:`~ftrack_framework_core.constants.event.DISCOVER_ENGINE_TOPIC`
+        '''
+        data = {
+            'engine_type': engine_type,
+            'engine_name': engine_name,
+        }
+
+        event_topic = constants.event.DISCOVER_ENGINE_TOPIC
         return self._publish_event(event_topic, data, callback)
 
     def host_context_changed(self, host_id, context_id, callback=None):
@@ -443,18 +454,6 @@ class Publish(object):
         event_topic = constants.event.CLIENT_SIGNAL_HOST_CHANGED_TOPIC
         return self._publish_event(event_topic, data, callback)
 
-    def client_signal_definition_changed(self, client_id, callback=None):
-        '''
-        Publish an event with topic
-        :const:`~ftrack_framework_core.constants.event.CLIENT_SIGNAL_DEFINITION_CHANGED_TOPIC`
-        '''
-        data = {
-            'client_id': client_id,
-        }
-
-        event_topic = constants.event.CLIENT_SIGNAL_DEFINITION_CHANGED_TOPIC
-        return self._publish_event(event_topic, data, callback)
-
     def client_notify_run_plugin_result(
         self, client_id, plugin_info, callback=None
     ):
@@ -581,6 +580,19 @@ class Subscribe(object):
         )
         return self._subscribe_event(event_topic, callback)
 
+    def discover_engine(self, engine_type, engine_name, callback=None):
+        '''
+        Subscribe to an event with topic
+        :const:`~ftrack_framework_core.constants.event.DISCOVER_ENGINE_TOPIC`
+        '''
+        event_topic = (
+            '{} and data.engine_type={}'
+            ' and data.engine_name={}'.format(
+                constants.event.DISCOVER_ENGINE_TOPIC, engine_type, engine_name
+            )
+        )
+        return self._subscribe_event(event_topic, callback)
+
     def host_context_changed(self, host_id, callback=None):
         '''
         Subscribe to an event with topic
@@ -678,16 +690,6 @@ class Subscribe(object):
         '''
         event_topic = '{} and data.client_id={}'.format(
             constants.event.CLIENT_SIGNAL_HOST_CHANGED_TOPIC, client_id
-        )
-        return self._subscribe_event(event_topic, callback)
-
-    def client_signal_definition_changed(self, client_id, callback=None):
-        '''
-        Subscribe to an event with topic
-        :const:`~ftrack_framework_core.constants.event.CLIENT_SIGNAL_DEFINITION_CHANGED_TOPIC`
-        '''
-        event_topic = '{} and data.client_id={}'.format(
-            constants.event.CLIENT_SIGNAL_DEFINITION_CHANGED_TOPIC, client_id
         )
         return self._subscribe_event(event_topic, callback)
 

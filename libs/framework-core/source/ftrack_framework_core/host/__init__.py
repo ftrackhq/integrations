@@ -15,12 +15,6 @@ import ftrack_constants.framework as constants
 from ftrack_framework_core.definition import (
     discover,
     validate,
-    definition_object,
-)
-from ftrack_framework_core.host.engine import (
-    load_publish,
-    asset_manager_to_remove,
-    resolver_to_remove,
 )
 from ftrack_framework_core.asset import FtrackObjectManager
 from ftrack_framework_core.log.log_item import LogItem
@@ -65,21 +59,6 @@ class Host(object):
     #  want to discover?
     host_types = [constants.host.PYTHON_HOST_TYPE]
     '''Compatible Host types for this HOST.'''
-
-    # TODO: Engines Dictionary should come from constants.
-    #  Should be something CLIENT_NAME:ENGINE:NAME and in here we any have
-    #  engines = constant.ENGINES_DICT
-    #  Also user should be able to easily create new engine, so maybe we should
-    #  be able to discover engines like the plugins and the definitions.
-    #   THis should go to a configuration file
-    engines = {
-        constants.definition.PUBLISHER: load_publish.LoadPublishEngine,
-        constants.definition.LOADER: load_publish.LoadPublishEngine,
-        constants.definition.OPENER: load_publish.LoadPublishEngine,
-        constants.definition.ASSET_MANAGER: asset_manager_to_remove.AssetManagerEngine,
-        constants.definition.RESOLVER: resolver_to_remove.ResolverEngine,
-    }
-    '''Available engines for this host.'''
 
     FtrackObjectManager = FtrackObjectManager
     '''FtrackObjectManager class to use'''
@@ -217,7 +196,7 @@ class Host(object):
         self.__definitions_registry = {}
         self.__schemas_registry = []
         self.__plugins_registry = []
-        self.__engines_registry = []
+        self.__engines_registry = {}
 
         # Register modules
         self._register_modules()
@@ -322,14 +301,25 @@ class Host(object):
 
     def _on_register_engines_callback(self, registred_engines):
         registred_engines = list(set(registred_engines))
-        initialized_enignes = []
         # Init engines
         for engine in registred_engines:
-            initialized_enignes.append(
-                engine(self.event_manager, self.id, self.ftrack_object_manager)
-            )
+            initialized_enigne = engine(
+                    self.event_manager,
+                    self.ftrack_object_manager,
+                    self.host_types,
+                    self.id
+                )
+            for engine_type in initialized_enigne.engine_types:
+                if engine_type not in list(self.__engines_registry.keys()):
+                    self.__engines_registry[engine_type] = {}
+                self.__engines_registry[engine_type].update(
+                    {initialized_enigne.name: initialized_enigne}
+                )
 
-        self.__engines_registry = initialized_enignes
+        for key, value in list(self.__engines_registry.items()):
+            self.logger.warning(
+                'Valid engines : {} : {}'.format(key, len(value))
+            )
 
     # Discover
     def _discover_schemas(self, schema_paths):
@@ -456,7 +446,8 @@ class Host(object):
         '''
 
         definition = event['data']['definition']
-        engine_type = event['data']['engine_type']
+        engine_type = definition['engine_type']
+        engine_name = definition['engine_name']
         # TODO: Double check the asset_type_name workflow, it isn't clean.
         asset_type_name = definition.get('asset_type')
 

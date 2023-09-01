@@ -4,7 +4,7 @@
 import copy
 
 import ftrack_constants.framework as constants
-from ftrack_framework_core.host.engine import BaseEngine
+from ftrack_framework_engine import BaseEngine
 
 
 class LoadPublishEngine(BaseEngine):
@@ -12,7 +12,8 @@ class LoadPublishEngine(BaseEngine):
     Base engine class.
     '''
 
-    engine_type = [
+    name = 'load_publish'
+    engine_types = [
         constants.definition.LOADER,
         constants.definition.OPENER,
         constants.definition.PUBLISHER,
@@ -26,7 +27,7 @@ class LoadPublishEngine(BaseEngine):
         ftrack_object_manager,
         host_types,
         host_id,
-        asset_type_name,
+        asset_type_name=None,
     ):
         '''
         Initialise HostConnection with instance of

@@ -3,27 +3,6 @@
   "type": "object",
   "additionalProperties": false,
   "definitions": {
-    "Config": {
-      "title": "Config",
-      "type": "object",
-      "required": [
-        "engine_type",
-        "type"
-      ],
-      "order":["type", "engine_type"],
-      "additionalProperties": false,
-      "properties": {
-        "type": {
-          "type": "string",
-          "pattern": "^config$",
-          "default": "config"
-        },
-        "engine_type": {
-          "type": "string",
-          "default": "publisher"
-        }
-      }
-    },
     "Stage": {
       "title": "Stage",
       "type": "object",
@@ -579,7 +558,8 @@
     "components",
     "finalizers",
     "type",
-    "_config"
+    "engine_type",
+    "engine_name"
   ],
   "order":[
     "type", "name", "asset_type", "task_type", "host_type", "ui_type", "discoverable" ,"contexts", "components", "finalizers"
@@ -646,10 +626,14 @@
       "maxItems": 1,
       "uniqueItems": true
     },
-    "_config": {
-      "$ref": "#/definitions/Config",
-      "default": {}
-    }
+    "engine_type": {
+          "type": "string",
+          "default": "publisher"
+        },
+    "engine_name": {
+          "type": "string",
+          "default": null
+        }
   }
 }
 

@@ -1,12 +1,14 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2023 ftrack
-import uuid
 
 from ftrack_framework_widget import BaseUI, active_widget
 
 
 class FrameworkDialog(BaseUI):
-    '''Base Class to represent a Plugin'''
+    '''
+    Base Class to represent a FrameworkDilog, all the dialogs executed by the
+    UI should inherit from here.
+    '''
 
     name = None
     widget_type = 'framework_dialog'
@@ -36,17 +38,30 @@ class FrameworkDialog(BaseUI):
 
     @property
     def definition(self):
-        '''
-        Current definition in client
-        '''
-        return self.client_property_getter_connection('definition')
+        '''Returns the current selected definition.'''
+        return self._definition
 
     @definition.setter
     def definition(self, value):
         '''
-        Set the *value* as current definition in client
+        Set the given *value* as definition if value.name found in
+        self.definitions
         '''
-        self.client_property_setter_connection('definition', value)
+
+        if value and not self.definitions[value.type].get_first(
+            name=value.name
+        ):
+            self.logger.error(
+                "Invalid definition, choose one from : {}".format(
+                    self.definitions
+                )
+            )
+            return
+
+        self._definition = value
+        # Call _on_definition_changed_callback to let the UI know that a new
+        # definition has been set.
+        self._on_definition_changed_callback()
 
     @property
     def context_id(self):
@@ -98,7 +113,7 @@ class FrameworkDialog(BaseUI):
 
     @property
     def framework_widgets(self):
-        '''Return Initalized framework widgets'''
+        '''Return initialized framework widgets'''
         return self.__framework_widget_registry
 
     @property
@@ -161,10 +176,6 @@ class FrameworkDialog(BaseUI):
         self.event_manager.subscribe.client_signal_host_changed(
             self.client_id, callback=self._on_client_host_changed_callback
         )
-        self.event_manager.subscribe.client_signal_definition_changed(
-            self.client_id,
-            callback=self._on_client_definition_changed_callback,
-        )
         self.event_manager.subscribe.client_notify_run_plugin_result(
             self.client_id,
             callback=self._on_client_notify_ui_run_plugin_result_callback,
@@ -180,6 +191,11 @@ class FrameworkDialog(BaseUI):
 
     # TODO: this should be an ABC
     def show_ui(self):
+        '''
+        To be overriden by the implemented dialog. Should execute the dialog:
+        Pseudocode example PySide UI:
+        self.show()
+        '''
         pass
 
     # TODO: this should be an ABC
@@ -213,11 +229,9 @@ class FrameworkDialog(BaseUI):
         pass
 
     # TODO: This should be an ABC
-    @active_widget
-    def _on_client_definition_changed_callback(self, event=None):
+    def _on_definition_changed_callback(self):
         '''
-        Will only run if the widget is active
-        Callback for when definition has changed in the client.
+        Callback for when definition has changed.
         '''
         # TODO: raise not implemented error
         pass
@@ -239,18 +253,16 @@ class FrameworkDialog(BaseUI):
             self.sync_context()
             # Synchronize Host connection with client
             self.sync_host_connection()
-            # Synchronize definition with client
-            self.sync_definition()
 
     # TODO: this should be an ABC
     def sync_context(self):
         '''
         Check if selected UI context_id is not sync with the client and sync them.
         Pseudocode example PySide UI:
-            if self.context_id not is self.context_Selector.current_text():
-                raise confirmation widget to decide which one to keep
-                equal self.context_Selector.current_text() to self.context_id or
-                the other way around depending on the confirmation widget response
+        if self.context_id not is self.context_Selector.current_text():
+            raise confirmation widget to decide which one to keep
+            equal self.context_Selector.current_text() to self.context_id or
+            the other way around depending on the confirmation widget response
         '''
         # TODO: raise not implemented error
         pass
@@ -259,15 +271,6 @@ class FrameworkDialog(BaseUI):
     def sync_host_connection(self):
         '''
         Check if UI selected host_connection is not sync with the client and sync them.
-        '''
-        # TODO: raise not implemented error
-        pass
-
-    # TODO: this should be an ABC
-    def sync_definition(self):
-        '''
-        Check if UI selected definition is not sync with the client and sync them.
-        We usually want to keep the selected Definition
         '''
         # TODO: raise not implemented error
         pass
@@ -343,7 +346,8 @@ class FrameworkDialog(BaseUI):
         arguments = {
             "plugin_definition": plugin_definition,
             "plugin_method_name": plugin_method_name,
-            "engine_type": self.definition['_config']['engine_type'],
+            "engine_type": self.definition.engine_type,
+            "engine_name": self.definition.engine_name,
             'plugin_widget_id': plugin_widget_id,
         }
         self.client_method_connection('run_plugin', arguments=arguments)

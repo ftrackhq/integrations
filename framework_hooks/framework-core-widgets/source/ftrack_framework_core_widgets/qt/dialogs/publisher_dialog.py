@@ -159,11 +159,9 @@ class PublisherDialog(FrameworkDialog, ScrollDefinitionsDialog):
         self.add_definition_items(self.definition_names)
 
     # TODO: This should be an ABC
-    def _on_client_definition_changed_callback(self, event=None):
-        '''Client definition has been changed'''
-        super(PublisherDialog, self)._on_client_definition_changed_callback(
-            event
-        )
+    def _on_definition_changed_callback(self):
+        '''The selected definition has been changed'''
+        super(PublisherDialog, self)._on_definition_changed_callback()
         definition_name = None
         if self.definition:
             definition_name = self.definition.name
@@ -213,51 +211,6 @@ class PublisherDialog(FrameworkDialog, ScrollDefinitionsDialog):
                     self.selected_host_connection_id
                 )
 
-    # TODO: This should be an ABC
-    def sync_definition(self):
-        '''
-        Client definition has been changed and doesn't match the ui definition when
-        focus is back to the current UI
-        '''
-        sync = False
-        if not self.definition:
-            if self.selected_definition_name:
-                sync = True
-            else:
-                sync = False
-        else:
-            if self.definition.name != self.selected_definition_name:
-                match = False
-                for definition_list in self.filtered_definitions:
-                    definition = definition_list.get_first(
-                        name=self.definition.name
-                    )
-                    if definition:
-                        match = True
-                        sync = True
-                        break
-                if not match:
-                    # Automatically sync current definition to client as the current
-                    # definition is not available for this UI.
-                    self._on_ui_definition_changed_callback(
-                        self.selected_definition_name
-                    )
-                    return
-        if sync:
-            result = ModalDialog(
-                self,
-                title='Current definition is out of sync!',
-                message='Selected definition is not the current definition, '
-                'do you want to update UI to sync with the current one?',
-                question=True,
-            ).exec_()
-            if result:
-                self._on_client_definition_changed_callback()
-            else:
-                self._on_ui_definition_changed_callback(
-                    self.selected_definition_name
-                )
-
     def _on_ui_context_changed_callback(self, context_id):
         '''Context has been changed in the ui. Passing it to the client'''
         self.context_id = context_id
@@ -272,7 +225,7 @@ class PublisherDialog(FrameworkDialog, ScrollDefinitionsDialog):
                 self.host_connection = host_connection
 
     def _on_ui_definition_changed_callback(self, definition_name):
-        '''Definition has been changed in the ui. Passing it to the client'''
+        '''Definition has been changed in the ui.'''
         if not definition_name:
             self.definition = None
             return
@@ -342,9 +295,8 @@ class PublisherDialog(FrameworkDialog, ScrollDefinitionsDialog):
 
         arguments = {
             "definition": self.definition,
-            "engine_type": self.client_property_getter_connection(
-                'engine_type'
-            ),
+            "engine_type": self.definition.engine_type,
+            "engine_name": self.definition.engine_name,
         }
         self.client_method_connection('run_definition', arguments=arguments)
 
@@ -361,7 +313,8 @@ class PublisherDialog(FrameworkDialog, ScrollDefinitionsDialog):
             arguments = {
                 "plugin_definition": collector_plugin,
                 "plugin_method_name": 'run',
-                "engine_type": self.definition['_config']['engine_type'],
+                "engine_type": self.definition.engine_type,
+                "engine_name": self.definition.engine_name,
                 'plugin_widget_id': plugin_widget_id,
             }
             self.client_method_connection('run_plugin', arguments=arguments)
