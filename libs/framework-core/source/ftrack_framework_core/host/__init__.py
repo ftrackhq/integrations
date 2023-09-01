@@ -184,6 +184,13 @@ class Host(object):
         '''
         return self.__plugins_registry
 
+    @property
+    def engines(self):
+        '''
+        Returns the registered engines`
+        '''
+        return self.__engines_registry
+
     # TODO: we can create an engine registry
 
     def __init__(self, event_manager):
@@ -210,6 +217,7 @@ class Host(object):
         self.__definitions_registry = {}
         self.__schemas_registry = []
         self.__plugins_registry = []
+        self.__engines_registry = []
 
         # Register modules
         self._register_modules()
@@ -229,7 +237,7 @@ class Host(object):
             module_type='plugins',
             callback=self._on_register_plugins_callback,
         )
-        # Register the schemas befor the definitions
+        # Register the schemas before the definitions
         registry.register_framework_modules_by_type(
             event_manager=self.event_manager,
             module_type='schemas',
@@ -240,7 +248,7 @@ class Host(object):
             raise Exception(
                 'No schemas found. Please register valid schemas first.'
             )
-        # Register the definitions, passing the shcemas in the callback as are
+        # Register the definitions, passing the schemas in the callback as are
         # needed to augment and validate the definitions.
         registry.register_framework_modules_by_type(
             event_manager=self.event_manager,
@@ -250,10 +258,18 @@ class Host(object):
             ),
         )
 
+        # Register engines
+        registry.register_framework_modules_by_type(
+            event_manager=self.event_manager,
+            module_type='engines',
+            callback=self._on_register_engines_callback
+        )
+
         if (
             self.__plugins_registry
             and self.__schemas_registry
             and self.__definitions_registry
+            and self.__engines_registry
         ):
             # Check that registry went correct
             return True
@@ -303,6 +319,8 @@ class Host(object):
         )
 
         self.__definitions_registry = definitions
+
+    def _on_register_engines_callback(self, registred_engines):
 
     # Discover
     def _discover_schemas(self, schema_paths):
