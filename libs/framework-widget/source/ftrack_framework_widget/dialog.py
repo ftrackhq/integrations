@@ -47,7 +47,7 @@ class FrameworkDialog(BaseUI):
         '''
 
         if value and not self.definitions[value.type].get_first(
-                name=value.name
+            name=value.name
         ):
             self.logger.error(
                 "Invalid definition, choose one from : {}".format(
