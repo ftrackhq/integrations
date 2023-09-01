@@ -39,6 +39,7 @@ class HostConnection(object):
         if value == self.context_id:
             return
         self._context_id = value
+        self._check_context_identifiers()
         # Every time we set context_id, we add definitions and filter them out.
         self._add_new_definitions()
 
@@ -55,27 +56,9 @@ class HostConnection(object):
     @property
     def context_identifiers(self):
         '''
-        Find context identifiers (Based on the context id, are we in a task,
-        entity type, etc...)
+        Return context identifiers
         '''
-        if not self.context_id:
-            return
-        context_identifiers = []
-        if self.context_id:
-            entity = self.session.query(
-                'TypedContext where id is {}'.format(self.context_id)
-            ).first()
-            if entity:
-                # Task, Asset,...
-                context_identifiers.append(entity.get('context_type').lower())
-                if 'type' in entity:
-                    # Modeling, animation...
-                    context_identifiers.append(
-                        entity['type'].get('name').lower()
-                    )
-                # Name of the task or the project
-                context_identifiers.append(entity.get('name').lower())
-        return context_identifiers
+        return self._context_identifiers
 
     @property
     def _available_filtered_host_definitions(self):
@@ -122,6 +105,7 @@ class HostConnection(object):
 
         self._definitions = {}
         self._context_id = None
+        self._context_identifiers = []
 
         self._event_manager = event_manager
         self._raw_host_data = copy_data
@@ -134,6 +118,32 @@ class HostConnection(object):
     def _on_host_context_changed_callback(self, event):
         '''Set the new context ID based on data provided in *event*'''
         self.context_id = event['data']['context_id']
+
+    def _check_context_identifiers(self):
+        '''
+        Find context identifiers (Based on the context id, are we in a task,
+        entity type, etc...)
+        '''
+
+        if not self.context_id:
+            return
+        context_identifiers = []
+        if self.context_id:
+            entity = self.session.query(
+                'TypedContext where id is {}'.format(self.context_id)
+            ).first()
+            if entity:
+                # Task, Asset,...
+                context_identifiers.append(entity.get('context_type').lower())
+                if 'type' in entity:
+                    # Modeling, animation...
+                    context_identifiers.append(
+                        entity['type'].get('name').lower()
+                    )
+                # Name of the task or the project
+                context_identifiers.append(entity.get('name').lower())
+        self._context_identifiers = context_identifiers
+        return context_identifiers
 
     def _filter_definitions_by_context_identifier(self, context_identifiers):
         '''Filter *definitions* on *context_identifiers* and discoverable.'''
@@ -174,47 +184,6 @@ class HostConnection(object):
                 type_result
             )
         return copy.deepcopy(result)
-
-    def reset_definition(self, definition_name, definition_type):
-        '''
-        If definition of the given *definition_type* and with the given
-        *definition_name* is found, set the original values to it
-        '''
-        # Get the current definition
-        mod_definition = self._definitions[definition_type].get_first(
-            name=definition_name
-        )
-        # Get the original definition
-        origin_definition = self._raw_host_data['definitions'][
-            definition_type
-        ].get_first(name=definition_name)
-        if not mod_definition:
-            self.logger.warning(
-                'Host connection doesnt have a matching definition of type: {} '
-                'and name: {} in the definitions property.'.format(
-                    definition_type, definition_name
-                )
-            )
-        if not origin_definition:
-            self.logger.warning(
-                'Host connection doesnt have a matching definition of type: {} '
-                'and name: {} in the available definitions'.format(
-                    definition_type, definition_name
-                )
-            )
-        # Set the current definition = to the original one
-        if mod_definition and origin_definition:
-            # Get the index first to be able to re-set the original definition
-            # in to the same position in the list
-            index = self._definitions[definition_type].index(mod_definition)
-            self._definitions[definition_type].pop(index)
-            self._definitions[definition_type].insert(
-                index, copy.deepcopy(origin_definition)
-            )
-
-    def reset_all_definitions(self):
-        '''Reset all definitions to its original values sent from host'''
-        self._definitions = self._available_filtered_host_definitions
 
     def _add_new_definitions(self):
         '''
@@ -267,3 +236,46 @@ class HostConnection(object):
                 ].get_first(name=definition.name)
                 if not exist:
                     self._definitions[schema_title].remove(definition)
+
+    def reset_definition(self, definition_name, definition_type):
+        '''
+        If definition of the given *definition_type* and with the given
+        *definition_name* is found, set the original values to it
+        '''
+        # Get the current definition
+        mod_definition = self._definitions[definition_type].get_first(
+            name=definition_name
+        )
+        # Get the original definition
+        origin_definition = self._raw_host_data['definitions'][
+            definition_type
+        ].get_first(name=definition_name)
+        if not mod_definition:
+            self.logger.warning(
+                'Host connection doesnt have a matching definition of type: {} '
+                'and name: {} in the definitions property.'.format(
+                    definition_type, definition_name
+                )
+            )
+        if not origin_definition:
+            self.logger.warning(
+                'Host connection doesnt have a matching definition of type: {} '
+                'and name: {} in the available definitions'.format(
+                    definition_type, definition_name
+                )
+            )
+        # Set the current definition = to the original one
+        if mod_definition and origin_definition:
+            # Get the index first to be able to re-set the original definition
+            # in to the same position in the list
+            index = self._definitions[definition_type].index(mod_definition)
+            self._definitions[definition_type].pop(index)
+            self._definitions[definition_type].insert(
+                index, copy.deepcopy(origin_definition)
+            )
+
+    def reset_all_definitions(self):
+        '''Reset all definitions to its original values sent from host'''
+        self._definitions = self._available_filtered_host_definitions
+
+
