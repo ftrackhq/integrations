@@ -321,6 +321,15 @@ class Host(object):
         self.__definitions_registry = definitions
 
     def _on_register_engines_callback(self, registred_engines):
+        registred_engines = list(set(registred_engines))
+        initialized_enignes = []
+        # Init engines
+        for engine in registred_engines:
+            initialized_enignes.append(
+                engine(self.event_manager, self.id, self.ftrack_object_manager)
+            )
+
+        self.__engines_registry = initialized_enignes
 
     # Discover
     def _discover_schemas(self, schema_paths):
@@ -451,16 +460,17 @@ class Host(object):
         # TODO: Double check the asset_type_name workflow, it isn't clean.
         asset_type_name = definition.get('asset_type')
 
-        Engine = self.engines.get(engine_type)
-        if not Engine:
-            raise Exception('No engine of type "{}" found'.format(engine_type))
-        engine_runner = Engine(
-            self.event_manager,
-            self.ftrack_object_manager,
-            self.host_types,
-            self.id,
-            asset_type_name,
-        )
+        engine = None
+        try:
+            engine = self.engines[engine_type].get(engine_name)
+        except Exception:
+            raise Exception(
+                'No engine of type "{}" with name "{}" found'.format(
+                    engine_type, engine_name
+                )
+            )
+        # TODO: review asset_type_name in the specific task
+        engine.asset_type_name = asset_type_name
 
         try:
             validate.validate_definition(self.schemas, definition)
@@ -470,11 +480,11 @@ class Host(object):
                     definition, error
                 )
             )
-        runner_result = engine_runner.run_definition(definition)
+        engine_result = engine.run_definition(definition)
 
-        if not runner_result:
+        if not engine_result:
             self.logger.error("Couldn't run definition {}".format(definition))
-        return runner_result
+        return engine_result
 
     # TODO: this should be ABC
     def run_plugin_callback(self, event):
@@ -486,20 +496,22 @@ class Host(object):
         plugin_definition = event['data']['plugin_definition']
         plugin_method = event['data']['plugin_method']
         engine_type = event['data']['engine_type']
+        engine_name = event['data']['engine_name']
         plugin_widget_id = event['data']['plugin_widget_id']
 
-        Engine = self.engines.get(engine_type)
-        if not Engine:
-            raise Exception('No engine of type "{}" found'.format(engine_type))
-        engine_runner = Engine(
-            self.event_manager,
-            self.ftrack_object_manager,
-            self.host_types,
-            self.id,
-            None,
-        )
+        engine = None
+        try:
+            engine = self.engines[engine_type].get(engine_name)
+        except Exception:
+            raise Exception(
+                'No engine of type "{}" with name "{}" found'.format(
+                    engine_type, engine_name
+                )
+            )
+        # TODO: review asset_type_name in the specific task
+        engine.asset_type_name = None
 
-        runner_result = engine_runner.run_plugin(
+        engine_result = engine.run_plugin(
             plugin_name=plugin_definition.get('plugin'),
             plugin_default_method=plugin_definition.get('default_method'),
             # plugin_data will usually be None, but can be defined in the
@@ -516,13 +528,14 @@ class Host(object):
             plugin_widget_name=plugin_definition.get('widget'),
         )
 
-        if not runner_result:
+        if not engine_result:
             self.logger.error(
                 "Couldn't run plugin:\n "
                 "Definition: {}\n"
                 "Method: {}\n"
-                "Engine: {}\n".format(
-                    plugin_definition, plugin_method, engine_type
+                "Engine type: {}\n"
+                "Engine name: {}\n".format(
+                    plugin_definition, plugin_method, engine_type, engine_name
                 )
             )
-        return runner_result
+        return engine_result

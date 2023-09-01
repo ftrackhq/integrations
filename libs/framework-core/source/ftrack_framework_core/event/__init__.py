@@ -200,7 +200,7 @@ class Publish(object):
         return self._publish_event(event_topic, data, callback)
 
     def host_run_definition(
-        self, host_id, definition, engine_type, callback=None
+        self, host_id, definition, engine_type, engine_name, callback=None
     ):
         '''
         Publish an event with topic
@@ -210,6 +210,7 @@ class Publish(object):
             'host_id': host_id,
             'definition': definition,
             'engine_type': engine_type,
+            'engine_name': engine_name,
         }
         event_topic = constants.event.HOST_RUN_DEFINITION_TOPIC
         return self._publish_event(event_topic, data, callback)
@@ -220,6 +221,7 @@ class Publish(object):
         plugin_definition,
         plugin_method,
         engine_type,
+        engine_name,
         plugin_widget_id=None,
         callback=None,
     ):
@@ -232,6 +234,7 @@ class Publish(object):
             'plugin_definition': plugin_definition,
             'plugin_method': plugin_method,
             'engine_type': engine_type,
+            'engine_name': engine_name,
             'plugin_widget_id': plugin_widget_id,
         }
         event_topic = constants.event.HOST_RUN_PLUGIN_TOPIC

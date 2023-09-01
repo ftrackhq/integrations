@@ -425,7 +425,7 @@ class Client(object):
         # Emit signal to widget
         self.event_manager.publish.client_signal_definition_changed(self.id)
 
-    def run_definition(self, definition, engine_type):
+    def run_definition(self, definition, engine_type, engine_name):
         '''
         Publish event to tell the host to run the given *definition* with the
         given *engine*.
@@ -434,6 +434,7 @@ class Client(object):
             self.host_id,
             definition.to_dict(),
             engine_type,
+            engine_name,
             self._run_definition_callback,
         )
 
@@ -452,6 +453,7 @@ class Client(object):
         plugin_definition,
         plugin_method_name,
         engine_type,
+        engine_name,
         plugin_widget_id=None,
     ):
         '''
@@ -464,6 +466,7 @@ class Client(object):
             plugin_definition,
             plugin_method_name,
             engine_type,
+            engine_name,
             plugin_widget_id,
             self._run_plugin_callback,
         )
