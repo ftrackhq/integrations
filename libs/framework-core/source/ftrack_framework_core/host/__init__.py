@@ -241,7 +241,7 @@ class Host(object):
         registry.register_framework_modules_by_type(
             event_manager=self.event_manager,
             module_type='engines',
-            callback=self._on_register_engines_callback
+            callback=self._on_register_engines_callback,
         )
 
         if (
@@ -304,11 +304,11 @@ class Host(object):
         # Init engines
         for engine in registred_engines:
             initialized_enigne = engine(
-                    self.event_manager,
-                    self.ftrack_object_manager,
-                    self.host_types,
-                    self.id
-                )
+                self.event_manager,
+                self.ftrack_object_manager,
+                self.host_types,
+                self.id,
+            )
             for engine_type in initialized_enigne.engine_types:
                 if engine_type not in list(self.__engines_registry.keys()):
                     self.__engines_registry[engine_type] = {}

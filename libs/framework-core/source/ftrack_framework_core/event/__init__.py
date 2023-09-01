@@ -199,17 +199,12 @@ class Publish(object):
         event_topic = constants.event.DISCOVER_HOST_TOPIC
         return self._publish_event(event_topic, data, callback)
 
-    def host_run_definition(
-        self, host_id, definition, callback=None
-    ):
+    def host_run_definition(self, host_id, definition, callback=None):
         '''
         Publish an event with topic
         :const:`~ftrack_framework_core.constants.event.HOST_RUN_DEFINITION_TOPIC`
         '''
-        data = {
-            'host_id': host_id,
-            'definition': definition
-        }
+        data = {'host_id': host_id, 'definition': definition}
         event_topic = constants.event.HOST_RUN_DEFINITION_TOPIC
         return self._publish_event(event_topic, data, callback)
 
