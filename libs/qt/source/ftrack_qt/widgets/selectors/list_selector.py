@@ -97,6 +97,9 @@ class ListSelector(QtWidgets.QWidget):
                 self._combo_box_selector.setCurrentIndex(index)
                 break
 
+    def set_current_item_index(self, item_index):
+        self._combo_box_selector.setCurrentIndex(item_index)
+
     def current_item_text(self):
         return self._combo_box_selector.currentText()
 
