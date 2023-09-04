@@ -67,7 +67,7 @@ class StyledDialog(QtWidgets.QDialog):
         #  to put a normal window on top of it. By default, tool windows will
         #  disappear when the application is inactive. This can be controlled by
         #  the WA_MacAlwaysShowToolWindow attribute. "
-        #self.setWindowFlags(QtCore.Qt.Tool)
+        # self.setWindowFlags(QtCore.Qt.Tool)
 
         apply_theme(self, self.theme)
         self.setProperty('background', self.background_style)
