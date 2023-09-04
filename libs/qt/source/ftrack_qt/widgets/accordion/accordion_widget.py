@@ -5,15 +5,16 @@ from Qt import QtWidgets, QtCore, QtGui
 
 from ftrack_qt.utils.widget import set_property
 from ftrack_qt.widgets.headers import AccordionHeaderWidget
+from ftrack_qt.widgets.selectors import ListSelector2Item
 
-
-class AccordionBaseWidget(QtWidgets.QFrame):
-    '''A utility accordion widget providing a header which can be expanded to show content'''
+class AccordionWidget(QtWidgets.QFrame, ListSelector2Item):
+    '''A utility accordion widget providing a header which can be expanded to show content.
+    Designed to be inherited and extended.'''
 
     clicked = QtCore.Signal(object)  # Emitted when accordion is clicked
-    doubleClicked = QtCore.Signal(
+    double_clicked = QtCore.Signal(
         object
-    )  # Emitted when accordion is double clicked
+    )  # Emitted when accordion is double-clicked
 
     @property
     def title(self):
@@ -87,7 +88,8 @@ class AccordionBaseWidget(QtWidgets.QFrame):
         :param docked: Flag telling if accordion is docked in DCC or within an ftrack dialog - drives the style
         :param parent:  the parent dialog or frame
         '''
-        super(AccordionBaseWidget, self).__init__(parent=parent)
+        super(AccordionWidget, self).__init__(parent=parent)
+        super(ListSelector2Item, self).__init__()
 
         self._indicator_widget = None
         self._header_widget = None
@@ -230,7 +232,7 @@ class AccordionBaseWidget(QtWidgets.QFrame):
         '''(Override)'''
         self.clicked.emit(event)
         self.on_click(event)
-        return super(AccordionBaseWidget, self).mousePressEvent(event)
+        return super(AccordionWidget, self).mousePressEvent(event)
 
     def on_click(self, event):
         '''Callback on accordion user click, to be overridden by child'''
@@ -238,9 +240,9 @@ class AccordionBaseWidget(QtWidgets.QFrame):
 
     def mouseDoubleClickEvent(self, event):
         '''(Override)'''
-        self.doubleClicked.emit(event)
+        self.double_clicked.emit(event)
         self.on_double_click(event)
-        return super(AccordionBaseWidget, self).mouseDoubleClickEvent(event)
+        return super(AccordionWidget, self).mouseDoubleClickEvent(event)
 
     def on_double_click(self, event):
         '''Callback on accordion user double click, to be overridden by child'''
@@ -254,3 +256,7 @@ class AccordionBaseWidget(QtWidgets.QFrame):
                 'background',
                 'selected' if self._selected else 'transparent',
             )
+
+    def matches(self, text):
+        '''Return True if the accordion title matches *text*.'''
+        return (self.title or '').lower().startswith(text.lower())

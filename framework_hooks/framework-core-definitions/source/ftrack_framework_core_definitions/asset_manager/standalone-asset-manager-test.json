@@ -6,13 +6,15 @@
     "actions":{
         "update":[
             {
-                "name": "Update to latest",
+                "name": "update",
+                "label": "Update to latest",
                 "plugin": "common_update_latest_am_action",
                 "options": {"clear_selection":  false}
             }
         ], "discover":[
             {
-                "name": "Discover assets",
+                "name": "discover",
+                "label": "Discover assets",
                 "plugin": "common_discover_am_action",
                 "options": {}
             }

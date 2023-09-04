@@ -64,6 +64,17 @@ def center_widget(widget, width=None, height=None):
     return v_container
 
 
+def clear_layout(layout):
+    '''Recursively remove all widgets from the *layout*'''
+    while layout is not None and layout.count():
+        item = layout.takeAt(0)
+        widget = item.widget()
+        if widget is not None:
+            widget.deleteLater()
+        else:
+            clear_layout(item.layout())
+
+
 class InputEventBlockingWidget(QtWidgets.QWidget):
     '''Conditional input event blocking widget'''
 

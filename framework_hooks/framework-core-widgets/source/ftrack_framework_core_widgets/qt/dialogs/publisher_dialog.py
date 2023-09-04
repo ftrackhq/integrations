@@ -7,7 +7,7 @@ from ftrack_framework_widget.dialog import FrameworkDialog
 
 from ftrack_qt.widgets.dialogs import ScrollDefinitionsDialog
 from ftrack_qt.widgets.dialogs import ModalDialog
-from ftrack_qt.widgets.accordion import AccordionBaseWidget
+from ftrack_qt.widgets.accordion import AccordionWidget
 
 
 class PublisherDialog(FrameworkDialog, ScrollDefinitionsDialog):
@@ -259,7 +259,7 @@ class PublisherDialog(FrameworkDialog, ScrollDefinitionsDialog):
         component_steps = definition.get_all(category='step', type='component')
         for step in component_steps:
             # TODO: add a key visible in the definition to hide the step if wanted.
-            step_accordion_widget = AccordionBaseWidget(
+            step_accordion_widget = AccordionWidget(
                 selectable=False,
                 show_checkbox=True,
                 checkable=not step.optional,

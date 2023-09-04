@@ -78,11 +78,11 @@ NewAssetInput[status='unfocused'] QFrame {
     border: 1px dashed $border-color;
 }
 
-AccordionBaseWidget {
+AccordionWidget {
     border-top: 1px dashed $border-color;
 }
 
-AccordionBaseWidget[first='true'] {
+AccordionWidget[first='true'] {
 }
 
 PublisherAccordionStepWidgetObject {
@@ -106,7 +106,7 @@ NavigationEntityButton[first='true'] {
     border: 1px solid $border-color;
 }
 
-NavigationEntityButton:hover, EntityWidget:hover, AccordionBaseWidget:hover {
+NavigationEntityButton:hover, EntityWidget:hover, AccordionWidget:hover {
     background: $background-selected;
 }
 

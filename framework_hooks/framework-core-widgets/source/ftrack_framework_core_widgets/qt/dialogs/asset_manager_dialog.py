@@ -6,8 +6,9 @@ from Qt import QtWidgets, QtCore
 from ftrack_framework_widget.dialog import FrameworkDialog
 
 from ftrack_qt.widgets.selectors import ListSelector
-from ftrack_qt.widgets.dialogs import StyledDialog, AssetManagerBrowser, ModalDialog
-
+from ftrack_qt.widgets.dialogs import StyledDialog, ModalDialog
+from ftrack_qt.widgets.browsers import AssetManagerBrowser
+from ftrack_qt.model.asset_list import AssetListModel
 
 class AssetManagerDialog(FrameworkDialog, StyledDialog):
     '''Default Framework Asset Manager widget'''
@@ -79,29 +80,32 @@ class AssetManagerDialog(FrameworkDialog, StyledDialog):
             dialog_options,
             parent,
         )
+        self.selected_host_connection_id = None
         self._asset_manager_browser = None
+        self._asset_list_model = (dialog_options or {}).get('model')
+        if self._asset_list_model is None:
+            self.logger.warning('No global asset list model provided, creating.')
+            self._asset_list_model = AssetListModel()
+        self._in_assembler = (dialog_options or {}).get('assembler') is True
 
     def pre_build(self):
         '''Pre-build method of the widget'''
         main_layout = QtWidgets.QVBoxLayout()
         self.setLayout(main_layout)
-        self.asset_manager_browser = AssetManagerBrowser()
+        self.asset_manager_browser = AssetManagerBrowser(
+            self._in_assembler,
+            self.event_manager,
+            self._asset_list_model
+        )
 
     def build(self):
         '''Build method of the widget'''
 
         self._host_connection_selector = ListSelector("Host Selector")
 
-        self._scroll_area = QtWidgets.QScrollArea()
-        self._scroll_area.setStyle(QtWidgets.QStyleFactory.create("plastique"))
-        self._scroll_area.setWidgetResizable(True)
-        self._scroll_area.setHorizontalScrollBarPolicy(
-            QtCore.Qt.ScrollBarAlwaysOff
-        )
-
         self.layout().addWidget(self._header)
         self.layout().addWidget(self._host_connection_selector)
-        self.layout().addWidget(self._scroll_area, 100)
+        self.layout().addWidget(self.asset_manager_browser, 100)
 
     def post_build(self):
         '''Post Build method of the widget'''
@@ -122,7 +126,6 @@ class AssetManagerDialog(FrameworkDialog, StyledDialog):
         for host_connection in self.host_connections:
             if host_connection.host_id == item_text:
                 self.host_connection = host_connection
-
 
     # TODO: this should be an ABC
     def show_ui(self):
@@ -194,37 +197,23 @@ class AssetManagerDialog(FrameworkDialog, StyledDialog):
         '''A definition has been selected, providing the required plugins to drive the asset manager.
         Now build the UI'''
 
+        menu_action_plugins = definition.get('actions')
+        self.asset_manager_browser.create_actions(menu_action_plugins, self)
 
-        self.scroll.setWidget(self.asset_manager_browser)
 
-    def _on_ui_run_button_clicked_callback(self):
-        '''
-        Run button from the UI has been clicked.
-        Tell client to run the current definition
-        '''
+    # Handle asset actions
 
-        arguments = {
-            "definition": self.definition,
-            "engine_type": self.client_property_getter_connection(
-                'engine_type'
-            ),
-        }
-        self.client_method_connection('run_definition', arguments=arguments)
+    def check_selection(self, selected_assets):
+        '''Check if *selected_assets* is empty and show dialog message'''
+        if len(selected_assets) == 0:
+            ModalDialog(
+                self._client,
+                title='Error!',
+                message="Please select at least one asset!",
+            ).exec_()
+            return False
+        else:
+            return True
 
-    def run_collectors(self, plugin_widget_id=None):
-        '''
-        Run all the collector plugins of the current definition.
-        If *plugin_widget_id* is given, a signal with the result of the plugins
-        will be emitted to be picked by that widget id.
-        '''
-        collector_plugins = self.definition.get_all(
-            category='plugin', type='collector'
-        )
-        for collector_plugin in collector_plugins:
-            arguments = {
-                "plugin_definition": collector_plugin,
-                "plugin_method_name": 'run',
-                "engine_type": self.definition['_config']['engine_type'],
-                'plugin_widget_id': plugin_widget_id,
-            }
-            self.client_method_connection('run_plugin', arguments=arguments)
+    def ctx_discover(self, selected_assets, plugin):
+        print('@@@ ctx_discover: {}'.format(plugin))

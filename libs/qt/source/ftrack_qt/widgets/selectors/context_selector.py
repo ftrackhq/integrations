@@ -10,7 +10,6 @@ from ftrack_qt.widgets.info import EntityInfo
 from ftrack_qt.widgets.thumbnails import Context
 from ftrack_utils.threading import BaseThread
 from ftrack_qt.widgets.buttons import CircularButton
-from ftrack_qt.widgets.browsers import EntityBrowser
 
 # TODO: this code has to be reviewed
 
@@ -126,6 +125,7 @@ class ContextSelector(QtWidgets.QFrame):
         self.setLayout(layout)
 
     def build(self):
+        '''Build the widget'''
         self.thumbnail_widget = Context(self.session)
 
         self.thumbnail_widget.setMinimumWidth(50)
@@ -152,6 +152,8 @@ class ContextSelector(QtWidgets.QFrame):
         self.layout().addWidget(self.entity_browse_button)
 
         # Build entity browser:
+        from ftrack_qt.widgets.browsers import EntityBrowser # Prevent circular import
+
         self.entity_browser = EntityBrowser(
             self.parent(),
             self.session,
