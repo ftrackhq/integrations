@@ -3,48 +3,91 @@
 
 from Qt import QtWidgets, QtCore
 
-
-from ftrack_framework_widget.dialog import Dialog
+from ftrack_framework_widget.dialog import FrameworkDialog
 
 from ftrack_qt.widgets.selectors import ListSelector
-from ftrack_qt.widgets.headers import SessionHeader
-from ftrack_qt.widgets.selectors import ContextSelector
+from ftrack_qt.widgets.dialogs import StyledDialog, ModalDialog
+from ftrack_qt.widgets.accordion import AccordionBaseWidget
 
 
-class AssetManagerDialog(Dialog, QtWidgets.QFrame):
-    '''Framework asset manager dialog'''
+class AssetManagerDialog(FrameworkDialog, StyledDialog):
+    '''Default Framework Asset Manager widget'''
 
     name = 'framework_asset_manager_dialog'
-    definition_filter = ['asset_manager']
+    definition_type_filter = ['asset_manager']
     ui_type = 'qt'
+    docked = True
 
-    # TODO: this should be an ABC
+    selected_host_changed = QtCore.Signal(object)
+
+    @property
+    def host_connections_ids(self):
+        '''Returns available host id in the client'''
+        ids = []
+        for host_connection in self.host_connections:
+            ids.append(host_connection.host_id)
+        return ids
+
+    @property
+    def definition_names(self):
+        '''Returns available definition names in the client'''
+        names = []
+        for definitions in self.filtered_definitions:
+            print(definitions)
+            for definition in definitions:
+                names.append(definition.name)
+        return names
+
+    def __init__(
+        self,
+        event_manager,
+        client_id,
+        connect_methods_callback,
+        connect_setter_property_callback,
+        connect_getter_property_callback,
+        dialog_options,
+        parent=None,
+    ):
+        '''
+        Initialize Mixin class asset manager dialog. It will load the qt dialog and
+        mix it with the framework dialog.
+        *event_manager*: instance of
+        :class:`~ftrack_framework_core.event.EventManager`
+        *client_id*: Id of the client that initializes the current dialog
+        *connect_methods_callback*: Client callback method for the dialog to be
+        able to execute client methods.
+        *connect_setter_property_callback*: Client callback property setter for
+        the dialog to be able to read client properties.
+        *connect_getter_property_callback*: Client callback property getter for
+        the dialog to be able to write client properties.
+        *dialog_options*: Dictionary of arguments passed to configure the
+        current dialog.
+        '''
+        # As a mixing class we have to initialize the parents separately
+        StyledDialog.__init__(
+            self,
+            parent=parent,
+        )
+        FrameworkDialog.__init__(
+            self,
+            event_manager,
+            client_id,
+            connect_methods_callback,
+            connect_setter_property_callback,
+            connect_getter_property_callback,
+            dialog_options,
+            parent,
+        )
+
     def pre_build(self):
-        super(AssetManagerDialog, self).pre_build()
+        '''Pre build method of the widget'''
         main_layout = QtWidgets.QVBoxLayout()
         self.setLayout(main_layout)
 
-    # TODO: this should be an ABC
     def build(self):
-        super(AssetManagerDialog, self).build()
-        # Create the header
-        self._header = SessionHeader(self.session)
-
-        # TODO: implement progress widget.
-        # self._progress_widget = ProgressWidget
-        # self._header.add_widget(self._progress_widget)
-
-        # TODO: we have to update the signals from the context selector to
-        #  identify that are our signals and not qt signals. So make them snake case
-        self._context_selector = ContextSelector(
-            self.session, enble_context_change=True
-        )
-        # Set context from client:
-        self._on_client_context_changed_callback()
+        '''Build method of the widget'''
 
         self._host_connection_selector = ListSelector("Host Selector")
-
-        self._definition_selector = ListSelector("Definitions")
 
         self._scroll_area = QtWidgets.QScrollArea()
         self._scroll_area.setStyle(QtWidgets.QStyleFactory.create("plastique"))
@@ -53,173 +96,198 @@ class AssetManagerDialog(Dialog, QtWidgets.QFrame):
             QtCore.Qt.ScrollBarAlwaysOff
         )
 
-        self._definition_widget = QtWidgets.QWidget()
-        _definition_widget_layout = QtWidgets.QVBoxLayout()
-        self._definition_widget.setLayout(_definition_widget_layout)
-
-        # TODO: modify this to pic the push button label from dialog options
-        self._run_button = QtWidgets.QPushButton('Run')
-
         self.layout().addWidget(self._header)
-        self.layout().addWidget(self._context_selector, QtCore.Qt.AlignTop)
         self.layout().addWidget(self._host_connection_selector)
-        self.layout().addWidget(self._definition_selector)
         self.layout().addWidget(self._scroll_area, 100)
-        self._scroll_area.setWidget(self._definition_widget)
-        self.layout().addWidget(self._run_button)
+        #self._scroll_area.setWidget(self._definition_widget)
 
-    # TODO: this should be an ABC
     def post_build(self):
-        super(AssetManagerDialog, self).post_build()
-        # Connect context selector signals
-        self._context_selector.context_changed.connect(
-            self._on_context_selected_callback
-        )
+        '''Post Build method of the widget'''
         # Connect host selector signals
         self._host_connection_selector.current_item_changed.connect(
             self._on_host_selected_callback
         )
-        self._host_connection_selector.refresh_clicked.connect(
-            self._on_refresh_hosts_callback
-        )
-        # Connect definition selector signals
-        self._definition_selector.current_item_changed.connect(
-            self._on_definition_selected_callback
-        )
-        self._definition_selector.refresh_clicked.connect(
-            self._on_refresh_definitions_callback
-        )
-        # Connect run_definition button
-        self._run_button.clicked.connect(self._on_run_button_clicked)
 
-        # Add host connection items
-        self._add_host_connection_items()
+    def _on_host_selected_callback(self, item_text):
+        '''
+        Emit signal with the new selected host_id
+        '''
 
-    def show(self):
-        QtWidgets.QDialog.show(self)
+        if not item_text:
+            self.host_connection = None
+            return
+
+        for host_connection in self.host_connections:
+            if host_connection.host_id == item_text:
+                self.host_connection = host_connection
+
+
+    # TODO: this should be an ABC
+    def show_ui(self):
+        '''Override Show method of the base framework dialog'''
+        self.show()
 
     # TODO: this should be an ABC
     def connect_focus_signal(self):
+        '''Connect signal when the current dialog gets focus'''
         # Update the is_active property.
         QtWidgets.QApplication.instance().focusChanged.connect(
             self._on_focus_changed
         )
 
-    def _add_host_connection_items(self):
-        for host_connection in self.host_connections:
-            self._host_connection_selector.add_item(host_connection.host_id)
-
-        if self.host_connection:
-            # Prevent the sync calling on creation as host might be already set.
-            self._on_client_host_changed_callback()
-
-    def _add_definition_items(self):
-        if not self.host_connection:
-            return
-        for definition_list in self.filtered_definitions:
-            for definition in definition_list:
-                self._definition_selector.add_item(definition.name)
-
-    def _on_context_selected_callback(self, context_id):
-        if not context_id:
-            return
-        if self.context_id != context_id:
-            self.context_id = context_id
-
-    def _on_host_selected_callback(self, item_text):
-        '''
-        Get the definition with the given *item* name from the filtered definitions
-        '''
-        if not item_text:
-            return
-        self._definition_selector.clear_items()
-        match = False
-        if self.host_connection != item_text:
-            for host_connection in self.host_connections:
-                if host_connection.host_id == item_text:
-                    self.host_connection = host_connection
-                    match = True
-                    break
-        else:
-            match = True
-
-        if match:
-            self._add_definition_items()
-
-    def _on_refresh_hosts_callback(self):
-        self._definition_selector.clear_items()
-        self.host_connection = None
-        self._host_connection_selector.clear_items()
-        self.client_method_connection('discover_hosts')
-        self._add_host_connection_items()
-
-    def _on_definition_selected_callback(self, item_text):
-        '''
-        Get the definition with the given *item* name from the filtered definitions
-        '''
-        if self.definition:
-            if self.definition.name == item_text:
-                return
-
-        definition = None
-        for definition_list in self.filtered_definitions:
-            definition = definition_list.get_first(name=item_text)
-            if definition:
-                break
-        self.definition = definition
-        if definition:
-            self.build_definition_ui(self.definition)
-
-    def _on_refresh_definitions_callback(self):
-        # TODO: double think if definitions can be refreshed? maybe we should
-        #  thn re-select the same host instead of discovering hosts again?
-        self.definition = None
-        self._definition_selector.clear_items()
-        self.client_method_connection('discover_hosts')
-        self._add_definition_items()
-
+    # TODO: This should be an ABC
     def _on_client_context_changed_callback(self, event=None):
-        super(
-            AssetManagerDialog, self
-        )._on_client_context_changed_callback()
-        self._context_selector.context_id = self.context_id
+        '''Client context has been changed'''
+        super(AssetManagerDialog, self)._on_client_context_changed_callback(event)
+        self.selected_context_id = self.context_id
 
     # TODO: This should be an ABC
     def _on_client_hosts_discovered_callback(self, event=None):
-        super(
-            AssetManagerDialog, self
-        )._on_client_hosts_discovered_callback()
+        '''Client new hosts has been discovered'''
+        super(AssetManagerDialog, self)._on_client_hosts_discovered_callback(
+            event
+        )
 
     # TODO: This should be an ABC
     def _on_client_host_changed_callback(self, event=None):
-        super(
-            AssetManagerDialog, self
-        )._on_client_host_changed_callback()
-        if (
-            self._host_connection_selector.current_item_text()
-            != self.host_connection.host_id
-        ):
-            self._host_connection_selector.set_current_item(
-                self.host_connection.host_id
-            )
+        '''Client host has been changed, pick the single definition (should be just one)'''
+        super(AssetManagerDialog, self)._on_client_host_changed_callback(event)
+        if not self.host_connection:
+            self.selected_host_connection_id = None
+            return
+        self.selected_host_connection_id = self.host_connection.host_id
+        assert (len(self.definition_names) > 0), ('No asset manager definitions are aviailable!')
+        if len(self.definition_names) > 1:
+            self.logger.warning('More than one asset manager definitions found ({})!'.format(
+                len(self.definition_names)))
+
+        self.add_definition_items(self.definition_names)
 
     # TODO: This should be an ABC
     def _on_client_definition_changed_callback(self, event=None):
-        super(
-            AssetManagerDialog, self
-        )._on_client_definition_changed_callback()
+        '''Client definition has been changed'''
+        super(AssetManagerDialog, self)._on_client_definition_changed_callback(
+            event
+        )
         definition_name = None
         if self.definition:
             definition_name = self.definition.name
-        if (
-            self._definition_selector.current_item_index() in [0, -1]
-            and not definition_name
-        ):
-            return
-        if self._definition_selector.current_item_text() != definition_name:
-            self._definition_selector.set_current_item(definition_name)
+        self.selected_definition_name = definition_name
+        if self.selected_definition_name:
+            self.build_definition_ui(self.definition)
 
-    def _on_run_button_clicked(self):
+    # TODO: This should be an ABC
+    def sync_host_connection(self):
+        '''
+        Client host has been changed and doesn't match the ui host when
+        focus is back to the current UI
+        '''
+        if self.host_connection.host_id != self.selected_host_connection_id:
+            result = ModalDialog(
+                self,
+                title='Host connection out of sync!',
+                message='Selected host connection is not the current host_connection, '
+                'do you want to update UI to sync with the current one?',
+                question=True,
+            ).exec_()
+            if result:
+                self._on_client_host_changed_callback()
+            else:
+                self._on_ui_host_changed_callback(
+                    self.selected_host_connection_id
+                )
+
+    # TODO: This should be an ABC
+    def sync_definition(self):
+        '''
+        Client definition has been changed and doesn't match the ui definition when
+        focus is back to the current UI
+        '''
+        sync = False
+        if not self.definition:
+            if self.selected_definition_name:
+                sync = True
+            else:
+                sync = False
+        else:
+            if self.definition.name != self.selected_definition_name:
+                match = False
+                for definition_list in self.filtered_definitions:
+                    definition = definition_list.get_first(
+                        name=self.definition.name
+                    )
+                    if definition:
+                        match = True
+                        sync = True
+                        break
+                if not match:
+                    # Automatically sync current definition to client as the current
+                    # definition is not available for this UI.
+                    self._on_ui_definition_changed_callback(
+                        self.selected_definition_name
+                    )
+                    return
+        if sync:
+            result = ModalDialog(
+                self,
+                title='Current definition is out of sync!',
+                message='Selected definition is not the current definition, '
+                'do you want to update UI to sync with the current one?',
+                question=True,
+            ).exec_()
+            if result:
+                self._on_client_definition_changed_callback()
+            else:
+                self._on_ui_definition_changed_callback(
+                    self.selected_definition_name
+                )
+
+    def build_definition_ui(self, definition):
+        '''A definition has been selected, build the definition widget.'''
+        # Build context widgets
+        context_plugins = definition.get_all(category='plugin', type='context')
+        for context_plugin in context_plugins:
+            if not context_plugin.widget:
+                continue
+            context_widget = self.init_framework_widget(context_plugin)
+            self.definition_widget.layout().addWidget(context_widget)
+        # Build component widgets
+        component_steps = definition.get_all(category='step', type='component')
+        for step in component_steps:
+            # TODO: add a key visible in the definition to hide the step if wanted.
+            step_accordion_widget = AccordionBaseWidget(
+                selectable=False,
+                show_checkbox=True,
+                checkable=not step.optional,
+                title=step.name,
+                selected=False,
+                checked=step.enabled,
+                collapsable=True,
+                collapsed=True,
+            )
+            step_plugins = step.get_all(category='plugin')
+            for step_plugin in step_plugins:
+                if not step_plugin.widget:
+                    continue
+                widget = self.init_framework_widget(step_plugin)
+                if step_plugin.type == 'collector':
+                    step_accordion_widget.add_widget(widget)
+                if step_plugin.type == 'validator':
+                    step_accordion_widget.add_option_widget(
+                        widget, section_name='Validators'
+                    )
+                if step_plugin.type == 'exporter':
+                    step_accordion_widget.add_option_widget(
+                        widget, section_name='Exporters'
+                    )
+            self._definition_widget.layout().addWidget(step_accordion_widget)
+
+    def _on_ui_run_button_clicked_callback(self):
+        '''
+        Run button from the UI has been clicked.
+        Tell client to run the current definition
+        '''
+
         arguments = {
             "definition": self.definition,
             "engine_type": self.client_property_getter_connection(
@@ -228,111 +296,12 @@ class AssetManagerDialog(Dialog, QtWidgets.QFrame):
         }
         self.client_method_connection('run_definition', arguments=arguments)
 
-    # TODO: This should be an ABC
-    def sync_context(self):
-        if self._context_selector.is_browsing:
-            return
-        if self.context_id != self._context_selector.context_id:
-            result = self.show_message_dialog(
-                title='Context out of sync!',
-                message='Selected context is not the current context, '
-                'do you want to update UI to syc with the current context?',
-                button_1_text='Update',
-                button_2_text='Keep Current',
-            )
-            if result == 1:
-                self._on_client_context_changed_callback()
-            elif result == 0:
-                # TODO: missing the on context selection changed. Update this once added.
-                self.context_id = self._context_selector.context_id
-
-    # TODO: This should be an ABC
-    def sync_host_connection(self):
-        if (
-            not self.host_connection.host_id
-            and self._host_connection_selector.current_item_index()
-            not in [0, -1]
-        ):
-            return
-        if (
-            self.host_connection.host_id
-            != self._host_connection_selector.current_item_text()
-        ):
-            result = self.show_message_dialog(
-                title='Host connection out of sync!',
-                message='Selected host connection is not the current host_connection, '
-                'do you want to update UI to sync with the current one?',
-                button_1_text='Update',
-                button_2_text='Keep Current',
-            )
-            if result == 1:
-                self._on_client_host_changed_callback()
-            elif result == 0:
-                self._on_host_selected_callback(
-                    self._host_connection_selector.current_item_text()
-                )
-
-    # TODO: This should be an ABC
-    def sync_definition(self):
-        sync = False
-        if not self.definition:
-            if self._definition_selector.current_item_index() not in [0, -1]:
-                sync = True
-        else:
-            if (
-                self.definition.name
-                != self._definition_selector.current_item_text()
-            ):
-                match = False
-                for definition_list in self.filtered_definitions:
-                    definition = definition_list.get_first(
-                        name=self.definition.name
-                    )
-                    if definition:
-                        match = True
-                        break
-                if not match:
-                    # Automatically sync current definition to client as the current
-                    # definition is not available for this UI.
-                    self._on_definition_selected_callback(
-                        self._definition_selector.current_item_text()
-                    )
-                    return
-                if match:
-                    sync = True
-        if sync:
-            result = self.show_message_dialog(
-                title='Current definition is out of sync!',
-                message='Selected definition is not the current definition, '
-                'do you want to update UI to sync with the current one?',
-                button_1_text='Update',
-                button_2_text='Keep Current',
-            )
-            if result == 1:
-                self._on_client_definition_changed_callback()
-            elif result == 0:
-                self._on_definition_selected_callback(
-                    self._definition_selector.current_item_text()
-                )
-
-    # TODO: maybe move this to a utils and standarize icon.
-    def show_message_dialog(
-        self, title, message, button_1_text, button_2_text
-    ):
-        message_box = QtWidgets.QMessageBox()
-        message_box.setWindowTitle(title)
-        message_box.setText(message)
-        message_box.setIcon(QtWidgets.QMessageBox.Question)
-        message_box.addButton(button_1_text, QtWidgets.QMessageBox.YesRole)
-        message_box.addButton(button_2_text, QtWidgets.QMessageBox.NoRole)
-        result = message_box.exec_()
-        return result
-
-    def build_definition_ui(self, definition):
-        # Override this function to build your widgets.
-        pass
-
     def run_collectors(self, plugin_widget_id=None):
+        '''
+        Run all the collector plugins of the current definition.
+        If *plugin_widget_id* is given, a signal with the result of the plugins
+        will be emitted to be picked by that widget id.
+        '''
         collector_plugins = self.definition.get_all(
             category='plugin', type='collector'
         )

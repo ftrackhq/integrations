@@ -11,7 +11,8 @@ from ftrack_qt.widgets.dialogs import StyledDialog
 
 
 class ScrollDefinitionsDialog(StyledDialog):
-    '''Base Class to represent a Plugin'''
+    '''Base Class to represent dialog with host, context and definition selectors, plus
+    scroll content and a button.'''
 
     selected_context_changed = QtCore.Signal(object)
     selected_host_changed = QtCore.Signal(object)

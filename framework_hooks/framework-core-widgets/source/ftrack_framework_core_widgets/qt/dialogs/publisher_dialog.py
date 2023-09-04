@@ -31,7 +31,6 @@ class PublisherDialog(FrameworkDialog, ScrollDefinitionsDialog):
         '''Returns available definition names in the client'''
         names = []
         for definitions in self.filtered_definitions:
-            print(definitions)
             for definition in definitions:
                 names.append(definition.name)
         return names
