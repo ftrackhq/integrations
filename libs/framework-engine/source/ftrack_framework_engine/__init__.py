@@ -4,31 +4,13 @@
 import logging
 
 
-# TODO: verify that we use this instead of constants
-#  This works, the problem is that you already have to had imported the modules
-#  with the subclasses before in that moment, get_engine will work, so this can
-#  be useful for later when splitting the engines
-def get_engine(baseClass, engineType):
-    '''
-    Returns the Class or Subclass of the given *baseClass* that matches the
-    name of the given *engineType*
-    '''
-    for subclass in baseClass.__subclasses__():
-        # TODO: make this read multiple types so engine type can be a list
-        if engineType == subclass.__name__:
-            return subclass
-        match = get_engine(subclass, engineType)
-        if match:
-            return match
-
-
-# TODO: separate engines to its own module
 class BaseEngine(object):
     '''
     Base engine class.
     '''
 
-    engine_type = ['base']
+    name = None
+    engine_types = ['base']
     '''Engine type for this engine class'''
 
     @property
@@ -68,7 +50,7 @@ class BaseEngine(object):
         ftrack_object_manager,
         host_types,
         host_id,
-        asset_type_name,
+        asset_type_name=None,
     ):
         '''
         Initialise HostConnection with instance of
@@ -174,3 +156,21 @@ class BaseEngine(object):
         raise NotImplementedError
         # TODO: We can convert definition to a definition object and execute all
         #  plugins as default behaviour....
+
+    @classmethod
+    def register(cls, event_manager):
+        '''
+        Register function for the engine to be discovered.
+        '''
+        logger = logging.getLogger(
+            '{0}.{1}'.format(__name__, cls.__class__.__name__)
+        )
+
+        # subscribe to discover the engine for each compatible type
+        for engine_type in cls.engine_types:
+            logger.debug(
+                'registering: {} for {}'.format(cls.name, engine_type)
+            )
+            event_manager.subscribe.discover_engine(
+                engine_type, cls.name, callback=lambda event: True
+            )

@@ -17,6 +17,8 @@ DISCOVER_DEFINITION_TOPIC = '{}.discover.definition'.format(_BASE_)
 DISCOVER_PLUGIN_TOPIC = '{}.discover.plugin'.format(_BASE_)
 #: Discover widget topic event, used to discover the widgets of specific UI type.
 DISCOVER_WIDGET_TOPIC = '{}.discover.widget'.format(_BASE_)
+#: Discover engine topic event, used to discover the engines.
+DISCOVER_ENGINE_TOPIC = '{}.discover.engine'.format(_BASE_)
 #: Discover host topic event, used to discover available hosts.
 DISCOVER_HOST_TOPIC = '{}.host.discover.host'.format(_BASE_)
 #: Pipeline host run plugin topic event, used to communicate between client and
