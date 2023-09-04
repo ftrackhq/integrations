@@ -15,10 +15,11 @@ class EllipseThumbnailBase(ThumbnailBase):
         painter = QtGui.QPainter(self)
         painter.setRenderHints(QtGui.QPainter.Antialiasing, True)
 
-        brush = QtGui.QBrush(self.pixmap())
+        brush = QtGui.QBrush()
 
         painter.setBrush(brush)
 
         painter.setPen(QtGui.QPen(QtGui.QColor(0, 0, 0, 0)))
 
         painter.drawEllipse(QtCore.QRectF(0, 0, self.width(), self.height()))
+
