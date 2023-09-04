@@ -55,7 +55,20 @@ class StyledDialog(QtWidgets.QDialog):
             self.docked = docked
 
         # Apply theme and with DCC specific properties
-        self.setWindowFlags(QtCore.Qt.Tool)
+        # TODO: This has been deactivated as it makes the filebrowser dialog
+        #  crash after selecting a file. If this needs to be activated in the
+        #  future for DCC reasons: 1- Double check file browser dialog still
+        #  working after selecting a file in standalone ui mode. 2- if not
+        #  working, find another way to simulate the tool property in PySide2.
+        #  Tool property documentation:
+        #  https://doc.qt.io/qtforpython-5/PySide2/QtCore/Qt.html#:~:text=Qt.Tool-,Indicates,-that%20the%20widget
+        #  probably the reason of the crashing remains in here: " This means that
+        #  the window lives on a level above normal windows making it impossible
+        #  to put a normal window on top of it. By default, tool windows will
+        #  disappear when the application is inactive. This can be controlled by
+        #  the WA_MacAlwaysShowToolWindow attribute. "
+        #self.setWindowFlags(QtCore.Qt.Tool)
+
         apply_theme(self, self.theme)
         self.setProperty('background', self.background_style)
         self.setProperty('docked', 'true' if self.docked else 'false')
