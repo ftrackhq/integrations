@@ -14,10 +14,6 @@ def active_widget(func):
     return wrapper
 
 
-# TODO: is there any better name for the base class? I don't want to call it
-#  BaseWidget to not mix it with the Widget.
-
-
 # Docstring this class
 class BaseUI(object):
     '''Base Class to represent a Plugin'''
