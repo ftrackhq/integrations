@@ -6,8 +6,7 @@ from Qt import QtWidgets, QtCore
 from ftrack_framework_widget.dialog import FrameworkDialog
 
 from ftrack_qt.widgets.selectors import ListSelector
-from ftrack_qt.widgets.dialogs import StyledDialog, ModalDialog
-from ftrack_qt.widgets.accordion import AccordionBaseWidget
+from ftrack_qt.widgets.dialogs import StyledDialog, AssetManagerBrowser, ModalDialog
 
 
 class AssetManagerDialog(FrameworkDialog, StyledDialog):
@@ -29,14 +28,16 @@ class AssetManagerDialog(FrameworkDialog, StyledDialog):
         return ids
 
     @property
-    def definition_names(self):
-        '''Returns available definition names in the client'''
-        names = []
-        for definitions in self.filtered_definitions:
-            print(definitions)
-            for definition in definitions:
-                names.append(definition.name)
-        return names
+    def asset_manager_browser(self):
+        '''Returns the current asset manager widget'''
+        return self._asset_manager_browser
+
+    @asset_manager_browser.setter
+    def asset_manager_browser(self, value):
+        '''
+        Updates the current asset manager widget with the given *value*
+        '''
+        self._asset_manager_browser = value
 
     def __init__(
         self,
@@ -78,11 +79,13 @@ class AssetManagerDialog(FrameworkDialog, StyledDialog):
             dialog_options,
             parent,
         )
+        self._asset_manager_browser = None
 
     def pre_build(self):
-        '''Pre build method of the widget'''
+        '''Pre-build method of the widget'''
         main_layout = QtWidgets.QVBoxLayout()
         self.setLayout(main_layout)
+        self.asset_manager_browser = AssetManagerBrowser()
 
     def build(self):
         '''Build method of the widget'''
@@ -99,7 +102,6 @@ class AssetManagerDialog(FrameworkDialog, StyledDialog):
         self.layout().addWidget(self._header)
         self.layout().addWidget(self._host_connection_selector)
         self.layout().addWidget(self._scroll_area, 100)
-        #self._scroll_area.setWidget(self._definition_widget)
 
     def post_build(self):
         '''Post Build method of the widget'''
@@ -164,7 +166,8 @@ class AssetManagerDialog(FrameworkDialog, StyledDialog):
 
         for definition_list in self.filtered_definitions:
             self.definition = definition_list.get_first(name=definition_name)
-        self.build_asset_manager_ui()
+
+        self.build_asset_manager_ui(self.definition)
 
     # TODO: This should be an ABC
     def sync_host_connection(self):
@@ -187,48 +190,12 @@ class AssetManagerDialog(FrameworkDialog, StyledDialog):
                     self.selected_host_connection_id
                 )
 
-
     def build_asset_manager_ui(self, definition):
         '''A definition has been selected, providing the required plugins to drive the asset manager.
         Now build the UI'''
 
-        # Build context widgets
-        context_plugins = definition.get_all(category='plugin', type='context')
-        for context_plugin in context_plugins:
-            if not context_plugin.widget:
-                continue
-            context_widget = self.init_framework_widget(context_plugin)
-            self.definition_widget.layout().addWidget(context_widget)
-        # Build component widgets
-        component_steps = definition.get_all(category='step', type='component')
-        for step in component_steps:
-            # TODO: add a key visible in the definition to hide the step if wanted.
-            step_accordion_widget = AccordionBaseWidget(
-                selectable=False,
-                show_checkbox=True,
-                checkable=not step.optional,
-                title=step.name,
-                selected=False,
-                checked=step.enabled,
-                collapsable=True,
-                collapsed=True,
-            )
-            step_plugins = step.get_all(category='plugin')
-            for step_plugin in step_plugins:
-                if not step_plugin.widget:
-                    continue
-                widget = self.init_framework_widget(step_plugin)
-                if step_plugin.type == 'collector':
-                    step_accordion_widget.add_widget(widget)
-                if step_plugin.type == 'validator':
-                    step_accordion_widget.add_option_widget(
-                        widget, section_name='Validators'
-                    )
-                if step_plugin.type == 'exporter':
-                    step_accordion_widget.add_option_widget(
-                        widget, section_name='Exporters'
-                    )
-            self._definition_widget.layout().addWidget(step_accordion_widget)
+
+        self.scroll.setWidget(self.asset_manager_browser)
 
     def _on_ui_run_button_clicked_callback(self):
         '''
