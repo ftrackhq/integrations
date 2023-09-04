@@ -156,25 +156,15 @@ class AssetManagerDialog(FrameworkDialog, StyledDialog):
             self.selected_host_connection_id = None
             return
         self.selected_host_connection_id = self.host_connection.host_id
-        assert (len(self.definition_names) > 0), ('No asset manager definitions are aviailable!')
+        assert (len(self.definition_names) > 0), 'No asset manager definitions are aviailable!'
         if len(self.definition_names) > 1:
             self.logger.warning('More than one asset manager definitions found ({})!'.format(
                 len(self.definition_names)))
+        definition_name = self.definition_names[0]
 
-        self.add_definition_items(self.definition_names)
-
-    # TODO: This should be an ABC
-    def _on_client_definition_changed_callback(self, event=None):
-        '''Client definition has been changed'''
-        super(AssetManagerDialog, self)._on_client_definition_changed_callback(
-            event
-        )
-        definition_name = None
-        if self.definition:
-            definition_name = self.definition.name
-        self.selected_definition_name = definition_name
-        if self.selected_definition_name:
-            self.build_definition_ui(self.definition)
+        for definition_list in self.filtered_definitions:
+            self.definition = definition_list.get_first(name=definition_name)
+        self.build_asset_manager_ui()
 
     # TODO: This should be an ABC
     def sync_host_connection(self):
@@ -197,53 +187,11 @@ class AssetManagerDialog(FrameworkDialog, StyledDialog):
                     self.selected_host_connection_id
                 )
 
-    # TODO: This should be an ABC
-    def sync_definition(self):
-        '''
-        Client definition has been changed and doesn't match the ui definition when
-        focus is back to the current UI
-        '''
-        sync = False
-        if not self.definition:
-            if self.selected_definition_name:
-                sync = True
-            else:
-                sync = False
-        else:
-            if self.definition.name != self.selected_definition_name:
-                match = False
-                for definition_list in self.filtered_definitions:
-                    definition = definition_list.get_first(
-                        name=self.definition.name
-                    )
-                    if definition:
-                        match = True
-                        sync = True
-                        break
-                if not match:
-                    # Automatically sync current definition to client as the current
-                    # definition is not available for this UI.
-                    self._on_ui_definition_changed_callback(
-                        self.selected_definition_name
-                    )
-                    return
-        if sync:
-            result = ModalDialog(
-                self,
-                title='Current definition is out of sync!',
-                message='Selected definition is not the current definition, '
-                'do you want to update UI to sync with the current one?',
-                question=True,
-            ).exec_()
-            if result:
-                self._on_client_definition_changed_callback()
-            else:
-                self._on_ui_definition_changed_callback(
-                    self.selected_definition_name
-                )
 
-    def build_definition_ui(self, definition):
-        '''A definition has been selected, build the definition widget.'''
+    def build_asset_manager_ui(self, definition):
+        '''A definition has been selected, providing the required plugins to drive the asset manager.
+        Now build the UI'''
+
         # Build context widgets
         context_plugins = definition.get_all(category='plugin', type='context')
         for context_plugin in context_plugins:
