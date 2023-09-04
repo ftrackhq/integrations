@@ -295,7 +295,8 @@ class PublisherDialog(FrameworkDialog, ScrollDefinitionsDialog):
 
         arguments = {
             "definition": self.definition,
-            "engine_type": self.definition['_config']['engine_type'],
+            "engine_type": self.definition.engine_type,
+            "engine_name": self.definition.engine_name,
         }
         self.client_method_connection('run_definition', arguments=arguments)
 
@@ -312,7 +313,8 @@ class PublisherDialog(FrameworkDialog, ScrollDefinitionsDialog):
             arguments = {
                 "plugin_definition": collector_plugin,
                 "plugin_method_name": 'run',
-                "engine_type": self.definition['_config']['engine_type'],
+                "engine_type": self.definition.engine_type,
+                "engine_name": self.definition.engine_name,
                 'plugin_widget_id': plugin_widget_id,
             }
             self.client_method_connection('run_plugin', arguments=arguments)

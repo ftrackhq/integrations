@@ -199,18 +199,12 @@ class Publish(object):
         event_topic = constants.event.DISCOVER_HOST_TOPIC
         return self._publish_event(event_topic, data, callback)
 
-    def host_run_definition(
-        self, host_id, definition, engine_type, callback=None
-    ):
+    def host_run_definition(self, host_id, definition, callback=None):
         '''
         Publish an event with topic
         :const:`~ftrack_framework_core.constants.event.HOST_RUN_DEFINITION_TOPIC`
         '''
-        data = {
-            'host_id': host_id,
-            'definition': definition,
-            'engine_type': engine_type,
-        }
+        data = {'host_id': host_id, 'definition': definition}
         event_topic = constants.event.HOST_RUN_DEFINITION_TOPIC
         return self._publish_event(event_topic, data, callback)
 
@@ -220,6 +214,7 @@ class Publish(object):
         plugin_definition,
         plugin_method,
         engine_type,
+        engine_name,
         plugin_widget_id=None,
         callback=None,
     ):
@@ -232,6 +227,7 @@ class Publish(object):
             'plugin_definition': plugin_definition,
             'plugin_method': plugin_method,
             'engine_type': engine_type,
+            'engine_name': engine_name,
             'plugin_widget_id': plugin_widget_id,
         }
         event_topic = constants.event.HOST_RUN_PLUGIN_TOPIC
@@ -293,6 +289,19 @@ class Publish(object):
         }
 
         event_topic = constants.event.DISCOVER_WIDGET_TOPIC
+        return self._publish_event(event_topic, data, callback)
+
+    def discover_engine(self, engine_type, engine_name, callback=None):
+        '''
+        Publish an event with topic
+        :const:`~ftrack_framework_core.constants.event.DISCOVER_ENGINE_TOPIC`
+        '''
+        data = {
+            'engine_type': engine_type,
+            'engine_name': engine_name,
+        }
+
+        event_topic = constants.event.DISCOVER_ENGINE_TOPIC
         return self._publish_event(event_topic, data, callback)
 
     def host_context_changed(self, host_id, context_id, callback=None):
@@ -562,6 +571,19 @@ class Subscribe(object):
             '{} and data.ui_type={}'
             ' and data.widget_name={}'.format(
                 constants.event.DISCOVER_WIDGET_TOPIC, ui_type, widget_name
+            )
+        )
+        return self._subscribe_event(event_topic, callback)
+
+    def discover_engine(self, engine_type, engine_name, callback=None):
+        '''
+        Subscribe to an event with topic
+        :const:`~ftrack_framework_core.constants.event.DISCOVER_ENGINE_TOPIC`
+        '''
+        event_topic = (
+            '{} and data.engine_type={}'
+            ' and data.engine_name={}'.format(
+                constants.event.DISCOVER_ENGINE_TOPIC, engine_type, engine_name
             )
         )
         return self._subscribe_event(event_topic, callback)

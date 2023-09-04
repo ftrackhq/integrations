@@ -15,12 +15,6 @@ import ftrack_constants.framework as constants
 from ftrack_framework_core.definition import (
     discover,
     validate,
-    definition_object,
-)
-from ftrack_framework_core.host.engine import (
-    load_publish,
-    asset_manager_to_remove,
-    resolver_to_remove,
 )
 from ftrack_framework_core.asset import FtrackObjectManager
 from ftrack_framework_core.log.log_item import LogItem
@@ -65,21 +59,6 @@ class Host(object):
     #  want to discover?
     host_types = [constants.host.PYTHON_HOST_TYPE]
     '''Compatible Host types for this HOST.'''
-
-    # TODO: Engines Dictionary should come from constants.
-    #  Should be something CLIENT_NAME:ENGINE:NAME and in here we any have
-    #  engines = constant.ENGINES_DICT
-    #  Also user should be able to easily create new engine, so maybe we should
-    #  be able to discover engines like the plugins and the definitions.
-    #   THis should go to a configuration file
-    engines = {
-        constants.definition.PUBLISHER: load_publish.LoadPublishEngine,
-        constants.definition.LOADER: load_publish.LoadPublishEngine,
-        constants.definition.OPENER: load_publish.LoadPublishEngine,
-        constants.definition.ASSET_MANAGER: asset_manager_to_remove.AssetManagerEngine,
-        constants.definition.RESOLVER: resolver_to_remove.ResolverEngine,
-    }
-    '''Available engines for this host.'''
 
     FtrackObjectManager = FtrackObjectManager
     '''FtrackObjectManager class to use'''
@@ -184,6 +163,13 @@ class Host(object):
         '''
         return self.__plugins_registry
 
+    @property
+    def engines(self):
+        '''
+        Returns the registered engines`
+        '''
+        return self.__engines_registry
+
     # TODO: we can create an engine registry
 
     def __init__(self, event_manager):
@@ -210,6 +196,7 @@ class Host(object):
         self.__definitions_registry = {}
         self.__schemas_registry = []
         self.__plugins_registry = []
+        self.__engines_registry = {}
 
         # Register modules
         self._register_modules()
@@ -229,7 +216,7 @@ class Host(object):
             module_type='plugins',
             callback=self._on_register_plugins_callback,
         )
-        # Register the schemas befor the definitions
+        # Register the schemas before the definitions
         registry.register_framework_modules_by_type(
             event_manager=self.event_manager,
             module_type='schemas',
@@ -240,7 +227,7 @@ class Host(object):
             raise Exception(
                 'No schemas found. Please register valid schemas first.'
             )
-        # Register the definitions, passing the shcemas in the callback as are
+        # Register the definitions, passing the schemas in the callback as are
         # needed to augment and validate the definitions.
         registry.register_framework_modules_by_type(
             event_manager=self.event_manager,
@@ -250,10 +237,18 @@ class Host(object):
             ),
         )
 
+        # Register engines
+        registry.register_framework_modules_by_type(
+            event_manager=self.event_manager,
+            module_type='engines',
+            callback=self._on_register_engines_callback,
+        )
+
         if (
             self.__plugins_registry
             and self.__schemas_registry
             and self.__definitions_registry
+            and self.__engines_registry
         ):
             # Check that registry went correct
             return True
@@ -303,6 +298,28 @@ class Host(object):
         )
 
         self.__definitions_registry = definitions
+
+    def _on_register_engines_callback(self, registred_engines):
+        registred_engines = list(set(registred_engines))
+        # Init engines
+        for engine in registred_engines:
+            initialized_enigne = engine(
+                self.event_manager,
+                self.ftrack_object_manager,
+                self.host_types,
+                self.id,
+            )
+            for engine_type in initialized_enigne.engine_types:
+                if engine_type not in list(self.__engines_registry.keys()):
+                    self.__engines_registry[engine_type] = {}
+                self.__engines_registry[engine_type].update(
+                    {initialized_enigne.name: initialized_enigne}
+                )
+
+        for key, value in list(self.__engines_registry.items()):
+            self.logger.warning(
+                'Valid engines : {} : {}'.format(key, len(value))
+            )
 
     # Discover
     def _discover_schemas(self, schema_paths):
@@ -429,20 +446,22 @@ class Host(object):
         '''
 
         definition = event['data']['definition']
-        engine_type = event['data']['engine_type']
+        engine_type = definition['engine_type']
+        engine_name = definition['engine_name']
         # TODO: Double check the asset_type_name workflow, it isn't clean.
         asset_type_name = definition.get('asset_type')
 
-        Engine = self.engines.get(engine_type)
-        if not Engine:
-            raise Exception('No engine of type "{}" found'.format(engine_type))
-        engine_runner = Engine(
-            self.event_manager,
-            self.ftrack_object_manager,
-            self.host_types,
-            self.id,
-            asset_type_name,
-        )
+        engine = None
+        try:
+            engine = self.engines[engine_type].get(engine_name)
+        except Exception:
+            raise Exception(
+                'No engine of type "{}" with name "{}" found'.format(
+                    engine_type, engine_name
+                )
+            )
+        # TODO: review asset_type_name in the specific task
+        engine.asset_type_name = asset_type_name
 
         try:
             validate.validate_definition(self.schemas, definition)
@@ -452,11 +471,11 @@ class Host(object):
                     definition, error
                 )
             )
-        runner_result = engine_runner.run_definition(definition)
+        engine_result = engine.run_definition(definition)
 
-        if not runner_result:
+        if not engine_result:
             self.logger.error("Couldn't run definition {}".format(definition))
-        return runner_result
+        return engine_result
 
     # TODO: this should be ABC
     def run_plugin_callback(self, event):
@@ -468,20 +487,22 @@ class Host(object):
         plugin_definition = event['data']['plugin_definition']
         plugin_method = event['data']['plugin_method']
         engine_type = event['data']['engine_type']
+        engine_name = event['data']['engine_name']
         plugin_widget_id = event['data']['plugin_widget_id']
 
-        Engine = self.engines.get(engine_type)
-        if not Engine:
-            raise Exception('No engine of type "{}" found'.format(engine_type))
-        engine_runner = Engine(
-            self.event_manager,
-            self.ftrack_object_manager,
-            self.host_types,
-            self.id,
-            None,
-        )
+        engine = None
+        try:
+            engine = self.engines[engine_type].get(engine_name)
+        except Exception:
+            raise Exception(
+                'No engine of type "{}" with name "{}" found'.format(
+                    engine_type, engine_name
+                )
+            )
+        # TODO: review asset_type_name in the specific task
+        engine.asset_type_name = None
 
-        runner_result = engine_runner.run_plugin(
+        engine_result = engine.run_plugin(
             plugin_name=plugin_definition.get('plugin'),
             plugin_default_method=plugin_definition.get('default_method'),
             # plugin_data will usually be None, but can be defined in the
@@ -498,13 +519,14 @@ class Host(object):
             plugin_widget_name=plugin_definition.get('widget'),
         )
 
-        if not runner_result:
+        if not engine_result:
             self.logger.error(
                 "Couldn't run plugin:\n "
                 "Definition: {}\n"
                 "Method: {}\n"
-                "Engine: {}\n".format(
-                    plugin_definition, plugin_method, engine_type
+                "Engine type: {}\n"
+                "Engine name: {}\n".format(
+                    plugin_definition, plugin_method, engine_type, engine_name
                 )
             )
-        return runner_result
+        return engine_result

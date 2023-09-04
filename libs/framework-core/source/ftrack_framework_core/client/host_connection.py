@@ -277,5 +277,3 @@ class HostConnection(object):
     def reset_all_definitions(self):
         '''Reset all definitions to its original values sent from host'''
         self._definitions = self._available_filtered_host_definitions
-
-
