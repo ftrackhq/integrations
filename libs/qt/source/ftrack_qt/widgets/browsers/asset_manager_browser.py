@@ -11,7 +11,7 @@ from ftrack_utils.string import str_version
 
 from ftrack_qt.widgets.dialogs import ModalDialog
 from ftrack_qt.widgets.search import SearchBox
-from ftrack_qt.widgets.selectors import ListSelector2
+from ftrack_qt.widgets.selectors import ListSelector
 from ftrack_qt.widgets.accordion import AccordionWidget
 from ftrack_qt.widgets.buttons import ApproveButton, CircularButton
 from ftrack_qt.widgets.overlay import BusyIndicator
@@ -23,6 +23,7 @@ from ftrack_qt.widgets.lines import LineWidget
 
 logger = logging.getLogger(__name__)
 
+
 class AssetManagerBrowser(QtWidgets.QWidget):
     '''Widget for browsing amd modifying assets loaded within a DCC'''
 
@@ -31,15 +32,8 @@ class AssetManagerBrowser(QtWidgets.QWidget):
     change_asset_version = QtCore.Signal(
         object, object
     )  # User has requested a change of asset version
-    select_assets = QtCore.Signal(object, object)  # Select assets in DCC
-    remove_assets = QtCore.Signal(object, object)  # Remove assets from DCC
-    update_assets = QtCore.Signal(
-        object, object
-    )  # Update DCC assets to latest version
-    load_assets = QtCore.Signal(object, object)  # Load assets into DCC
-    unload_assets = QtCore.Signal(object, object)  # Unload assets from DCC
-
-    stopBusyIndicator = QtCore.Signal()  # Stop spinner and hide it
+    on_config = QtCore.Signal() # User has requested to configure assets
+    stop_busy_indicator = QtCore.Signal()  # Stop spinner and hide it
 
     @property
     def event_manager(self):
@@ -59,6 +53,7 @@ class AssetManagerBrowser(QtWidgets.QWidget):
 
         self._callback_handler = None
         self._action_widgets = None
+        self._config_button = None
 
         self.pre_build()
         self.build()
@@ -70,7 +65,7 @@ class AssetManagerBrowser(QtWidgets.QWidget):
         self.layout().setContentsMargins(0, 0, 0, 0)
         self.layout().setSpacing(0)
 
-        self._asset_list = ListSelector2(
+        self._asset_list = ListSelector(
             self._asset_list_model,
             self._build_asset_widget
         )
@@ -96,7 +91,6 @@ class AssetManagerBrowser(QtWidgets.QWidget):
         row1.layout().addWidget(QtWidgets.QLabel(), 10)
 
         self._config_button = ApproveButton('ADD / REMOVE ASSETS')
-        self._config_button.clicked.connect(self._on_config)
         row1.layout().addWidget(self._config_button)
 
         layout.addWidget(row1)
@@ -166,7 +160,6 @@ class AssetManagerBrowser(QtWidgets.QWidget):
         self._search = SearchBox(
             collapsed=self._in_assembler, collapsable=self._in_assembler
         )
-        self._search.input_updated.connect(self._on_search)
         return self._search
 
     def build(self):
@@ -192,6 +185,16 @@ class AssetManagerBrowser(QtWidgets.QWidget):
         '''Post Build ui method for events connections.'''
         self._rebuild_button.clicked.connect(self._on_rebuild)
         self._asset_list.rebuilt.connect(self._on_asset_list_refreshed)
+        if self._config_button:
+            self._config_button.clicked.connect(self._on_config)
+        self._search.input_updated.connect(self._on_search)
+
+    def _on_asset_list_refreshed(self):
+        pass
+
+    def _on_config(self):
+        '''Callback when user wants to open the assembler'''
+        self.on_config.emit()
 
     def _on_rebuild(self):
         '''Query DCC for scene assets by running the discover action.'''

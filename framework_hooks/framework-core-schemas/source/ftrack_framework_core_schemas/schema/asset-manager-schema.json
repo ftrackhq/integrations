@@ -90,9 +90,6 @@
         "type": {
           "pattern": "^action$",
           "default": "action"
-        },
-        "label": {
-          "type": "string"
         }
       }
     },

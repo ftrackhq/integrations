@@ -3,7 +3,7 @@
 
 from Qt import QtWidgets, QtCore
 
-from ftrack_qt.widgets.selectors import ListSelector
+from ftrack_qt.widgets.selectors import DropdownSelector
 from ftrack_qt.widgets.headers import SessionHeader
 from ftrack_qt.widgets.selectors import ContextSelector
 
@@ -38,7 +38,7 @@ class ScrollDefinitionsDialog(StyledDialog):
 
     @property
     def selected_context_id(self):
-        '''Return the selected context id in the context sleector'''
+        '''Return the selected context id in the context selector'''
         return self._context_selector.context_id
 
     @selected_context_id.setter
@@ -50,7 +50,7 @@ class ScrollDefinitionsDialog(StyledDialog):
     @property
     def is_browsing_context(self):
         '''
-        Return if context selector is currently working on seting up a context
+        Return if context selector is currently working on setting up a context
         '''
         return self._context_selector.is_browsing
 
@@ -136,9 +136,9 @@ class ScrollDefinitionsDialog(StyledDialog):
             self._session, enble_context_change=True
         )
 
-        self._host_connection_selector = ListSelector("Host Selector")
+        self._host_connection_selector = DropdownSelector("Host Selector")
 
-        self._definition_selector = ListSelector("Definitions")
+        self._definition_selector = DropdownSelector("Definitions")
 
         self._scroll_area = QtWidgets.QScrollArea()
         self._scroll_area.setStyle(QtWidgets.QStyleFactory.create("plastique"))

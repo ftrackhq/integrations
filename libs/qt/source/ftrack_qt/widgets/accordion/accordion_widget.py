@@ -5,9 +5,9 @@ from Qt import QtWidgets, QtCore, QtGui
 
 from ftrack_qt.utils.widget import set_property
 from ftrack_qt.widgets.headers import AccordionHeaderWidget
-from ftrack_qt.widgets.selectors import ListSelector2Item
+from ftrack_qt.widgets.selectors import ListSelectorItem
 
-class AccordionWidget(QtWidgets.QFrame, ListSelector2Item):
+class AccordionWidget(QtWidgets.QFrame, ListSelectorItem):
     '''A utility accordion widget providing a header which can be expanded to show content.
     Designed to be inherited and extended.'''
 
@@ -89,7 +89,7 @@ class AccordionWidget(QtWidgets.QFrame, ListSelector2Item):
         :param parent:  the parent dialog or frame
         '''
         super(AccordionWidget, self).__init__(parent=parent)
-        super(ListSelector2Item, self).__init__()
+        super(ListSelectorItem, self).__init__()
 
         self._indicator_widget = None
         self._header_widget = None

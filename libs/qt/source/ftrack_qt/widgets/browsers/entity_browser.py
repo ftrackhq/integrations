@@ -177,7 +177,7 @@ class EntityBrowser(ModalDialog):
         self._content_widget.layout().addWidget(toolbar)
 
         self._search = SearchBox(collapsed=False, collapsable=False)
-        self._search.inputUpdated.connect(self._on_search)
+        self._search.input_updated.connect(self._on_search)
         self._content_widget.layout().addWidget(self._search)
 
         self._scroll = QtWidgets.QScrollArea()

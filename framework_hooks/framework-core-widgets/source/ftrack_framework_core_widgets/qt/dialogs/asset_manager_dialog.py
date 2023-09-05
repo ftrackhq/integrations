@@ -3,9 +3,11 @@
 
 from Qt import QtWidgets, QtCore
 
+import ftrack_constants.framework.definition
 from ftrack_framework_widget.dialog import FrameworkDialog
 
-from ftrack_qt.widgets.selectors import ListSelector
+from ftrack_qt.widgets.headers import SessionHeader
+from ftrack_qt.widgets.selectors import DropdownSelector
 from ftrack_qt.widgets.dialogs import StyledDialog, ModalDialog
 from ftrack_qt.widgets.browsers import AssetManagerBrowser
 from ftrack_qt.model.asset_list import AssetListModel
@@ -88,20 +90,28 @@ class AssetManagerDialog(FrameworkDialog, StyledDialog):
             self._asset_list_model = AssetListModel()
         self._in_assembler = (dialog_options or {}).get('assembler') is True
 
+        self.pre_build()
+        self.build()
+        self.post_build()
+
+        self.add_host_connection_items(self.host_connections_ids)
+
     def pre_build(self):
         '''Pre-build method of the widget'''
         main_layout = QtWidgets.QVBoxLayout()
         self.setLayout(main_layout)
+
+    def build(self):
+        '''Build method of the widget'''
+        self._header = SessionHeader(self._session)
+
+        self._host_connection_selector = DropdownSelector("Host Selector")
+
         self.asset_manager_browser = AssetManagerBrowser(
             self._in_assembler,
             self.event_manager,
             self._asset_list_model
         )
-
-    def build(self):
-        '''Build method of the widget'''
-
-        self._host_connection_selector = ListSelector("Host Selector")
 
         self.layout().addWidget(self._header)
         self.layout().addWidget(self._host_connection_selector)
@@ -113,12 +123,28 @@ class AssetManagerDialog(FrameworkDialog, StyledDialog):
         self._host_connection_selector.current_item_changed.connect(
             self._on_host_selected_callback
         )
+        self._host_connection_selector.refresh_clicked.connect(
+            self._on_refresh_hosts_callback
+        )
+        self._asset_manager_browser.on_config.connect(self._on_open_assembler_callback)
+
+    def add_host_connection_items(self, host_connections_ids):
+        '''Add given host_connections in the host_connection selector'''
+        for host_connection_id in host_connections_ids:
+            self._host_connection_selector.add_item(host_connection_id)
+
+    def _on_refresh_hosts_callback(self):
+        '''
+        Refresh host button has been clicked in the UI,
+        Call the discover_host in the client
+        '''
+        self.client_method_connection('discover_hosts')
 
     def _on_host_selected_callback(self, item_text):
         '''
-        Emit signal with the new selected host_id
+        Handle host selection
         '''
-
+        print('@@@ _on_host_selected_callback:{}'.format(item_text))
         if not item_text:
             self.host_connection = None
             return
@@ -127,7 +153,13 @@ class AssetManagerDialog(FrameworkDialog, StyledDialog):
             if host_connection.host_id == item_text:
                 self.host_connection = host_connection
 
-    # TODO: this should be an ABC
+    def _on_open_assembler_callback(self, event):
+        '''Open the assembler dialog'''
+        self.event_manager.publish.client_launch_widget(
+            self.selected_host_connection_id,
+            ftrack_constants.framework.definition.LOADER
+        )
+
     def show_ui(self):
         '''Override Show method of the base framework dialog'''
         self.show()
@@ -165,6 +197,7 @@ class AssetManagerDialog(FrameworkDialog, StyledDialog):
         if len(self.definition_names) > 1:
             self.logger.warning('More than one asset manager definitions found ({})!'.format(
                 len(self.definition_names)))
+
         definition_name = self.definition_names[0]
 
         for definition_list in self.filtered_definitions:
@@ -189,7 +222,7 @@ class AssetManagerDialog(FrameworkDialog, StyledDialog):
             if result:
                 self._on_client_host_changed_callback()
             else:
-                self._on_ui_host_changed_callback(
+                self._on_host_selected_callback(
                     self.selected_host_connection_id
                 )
 
