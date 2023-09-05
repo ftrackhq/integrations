@@ -1,3 +1,5 @@
 from ftrack_qt.widgets.browsers.entity_browser import EntityBrowser
 from ftrack_qt.widgets.browsers.file_browser import FileBrowser
-from ftrack_qt.widgets.browsers.asset_manager_browser import AssetManagerBrowser
+from ftrack_qt.widgets.browsers.asset_manager_browser import (
+    AssetManagerBrowser,
+)

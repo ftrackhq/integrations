@@ -32,7 +32,7 @@ class AssetManagerBrowser(QtWidgets.QWidget):
     change_asset_version = QtCore.Signal(
         object, object
     )  # User has requested a change of asset version
-    on_config = QtCore.Signal() # User has requested to configure assets
+    on_config = QtCore.Signal()  # User has requested to configure assets
     stop_busy_indicator = QtCore.Signal()  # Stop spinner and hide it
 
     @property
@@ -45,7 +45,9 @@ class AssetManagerBrowser(QtWidgets.QWidget):
         '''Returns Session'''
         return self.event_manager.session
 
-    def __init__(self, in_assembler, event_manager, asset_list_model, parent=None):
+    def __init__(
+        self, in_assembler, event_manager, asset_list_model, parent=None
+    ):
         super(AssetManagerBrowser, self).__init__(parent=parent)
         self._event_manager = event_manager
         self._asset_list_model = asset_list_model
@@ -66,8 +68,7 @@ class AssetManagerBrowser(QtWidgets.QWidget):
         self.layout().setSpacing(0)
 
         self._asset_list = ListSelector(
-            self._asset_list_model,
-            self._build_asset_widget
+            self._asset_list_model, self._build_asset_widget
         )
 
     def _build_asset_widget(self, index, asset_info):
@@ -149,7 +150,7 @@ class AssetManagerBrowser(QtWidgets.QWidget):
 
         layout.addWidget(row2)
 
-    def build_header(self, layout):
+    def _build_header(self, layout):
         '''(Override)'''
         self._build_docked_header(
             layout
@@ -168,7 +169,7 @@ class AssetManagerBrowser(QtWidgets.QWidget):
         self._header.setLayout(QtWidgets.QVBoxLayout())
         self._header.layout().setContentsMargins(1, 1, 1, 10)
         self._header.layout().setSpacing(4)
-        self.build_header(self._header.layout())
+        self._build_header(self._header.layout())
         self.layout().addWidget(self._header)
 
         self._scroll_area = QtWidgets.QScrollArea()
@@ -196,31 +197,40 @@ class AssetManagerBrowser(QtWidgets.QWidget):
         '''Callback when user wants to open the assembler'''
         self.on_config.emit()
 
+    def rebuild(self):
+        '''Rebuild the asset list - (re-)discover DCC assets.'''
+        self._rebuild_button.click()
+
     def _on_rebuild(self):
         '''Query DCC for scene assets by running the discover action.'''
-        for action_type, action_widgets in list(self.action_widgets.items()):
+        for action_type, action_widgets in list(self._action_widgets.items()):
             if action_type == 'discover':
                 for action_widget in action_widgets:
-                    action_widget.trigger()
+                    self._context_menu_triggered(action_widget)
+                    # action_widget.trigger()
                     return
                 break
         logger.warning('No discover action found for asset manager!')
 
     def create_actions(self, actions, callback_handler):
-        ''' Dynamically register asset manager actions from definition *actions*, when
+        '''Dynamically register asset manager actions from definition *actions*, when
         selected *callback_handler*, the method identified with ui_callback action property
-        will be called with the selected asset infos and the plugin as arguments.'''
+        will be called with the selected asset infos and the plugin as arguments.
+        '''
 
         self._callback_handler = callback_handler
 
         self._action_widgets = {}
 
         for action_type, actions in list(actions.items()):
-            if action_type not in list(self.action_widgets.keys()):
-                self.action_widgets[action_type] = []
+            if action_type not in list(self._action_widgets.keys()):
+                self._action_widgets[action_type] = []
             for action in actions:
                 action_widget = QtWidgets.QAction(
-                    action['label'] if len(action['label'] or '') > 0 else action['name'], self
+                    action['label']
+                    if len(action['label'] or '') > 0
+                    else action['name'],
+                    self,
                 )
                 action_widget.setData(action)
                 self._action_widgets[action_type].append(action_widget)
@@ -239,7 +249,7 @@ class AssetManagerBrowser(QtWidgets.QWidget):
 
         menu = QtWidgets.QMenu(self)
         self.action_type_menu = {}
-        for action_type, action_widgets in list(self.action_widgets.items()):
+        for action_type, action_widgets in list(self._action_widgets.items()):
             if not self._in_assembler and action_type == 'remove':
                 continue  # Can only remove asset when in assembler
             if action_type not in list(self.action_type_menu.keys()):
@@ -260,12 +270,16 @@ class AssetManagerBrowser(QtWidgets.QWidget):
         plugin = action.data()
         # plugin['name'].replace(' ', '_')
         ui_callback = plugin['ui_callback']
-        if hasattr(self, ui_callback):
+        if hasattr(self._callback_handler, ui_callback):
             callback_fn = getattr(self._callback_handler, ui_callback)
             callback_fn(self._asset_list.selection(), plugin)
         else:
-            logger.warning('Callback handler have no method for for ui_callback: {}!'.format(ui_callback))
-            
+            logger.warning(
+                'Callback handler have no method for for ui_callback: {}!'.format(
+                    ui_callback
+                )
+            )
+
     def _on_change_asset_version(self, asset_info, version_entity):
         '''
         Triggered when a version of the asset has changed on the
@@ -288,11 +302,6 @@ class AssetWidget(AccordionWidget):
     '''Minimal widget representation of an asset(asset_info)'''
 
     change_asset_version = QtCore.Signal(object, object)  # User change version
-
-    @property
-    def index(self):
-        '''Return the index this asset has in list'''
-        return self._index
 
     @property
     def options_widget(self):
@@ -418,9 +427,7 @@ class AssetWidget(AccordionWidget):
                     'There is a newer version available for this asset, right click and run "Update" to update it.'
                 )
         self.set_indicator_color(indicator_color)
-        self._component_path = (
-            asset_info[asset_const.COMPONENT_NAME] or '?.?'
-        )
+        self._component_path = asset_info[asset_const.COMPONENT_NAME] or '?.?'
         self._component_and_version_header_widget.set_component_filename(
             self._component_path
         )
@@ -431,16 +438,12 @@ class AssetWidget(AccordionWidget):
             self._is_latest_version
         )
         self._load_mode = asset_info[asset_const.LOAD_MODE]
-        self._asset_info_options = asset_info[
-            asset_const.ASSET_INFO_OPTIONS
-        ]
+        self._asset_info_options = asset_info[asset_const.ASSET_INFO_OPTIONS]
         # Info
         self._published_by = version['user']
         self._published_date = version['date']
         # Deps
-        self._version_dependency_ids = asset_info[
-            asset_const.DEPENDENCY_IDS
-        ]
+        self._version_dependency_ids = asset_info[asset_const.DEPENDENCY_IDS]
 
     def matches(self, search_text):
         '''Do a simple match if this search text matches any asset attributes'''

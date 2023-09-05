@@ -31,8 +31,8 @@ class NukeSelectAssetManagerActionPlugin(plugin.AssetManagerActionPlugin):
             nuke_utils.clean_selection()
 
         for asset_info in data:
-
             import nuke
+
             nuke.tprint('@@@ asset_info: {}'.format(asset_info))
 
             dcc_object = self.DccObject(
@@ -46,8 +46,12 @@ class NukeSelectAssetManagerActionPlugin(plugin.AssetManagerActionPlugin):
             ftrack_node = nuke.toNode(self.dcc_object.name)
 
             parented_nodes = ftrack_node.getNodes()
-            parented_nodes_names = [x.knob('name').value() for x in parented_nodes]
-            nodes_to_select_str = ftrack_node.knob(asset_const.ASSET_LINK).value()
+            parented_nodes_names = [
+                x.knob('name').value() for x in parented_nodes
+            ]
+            nodes_to_select_str = ftrack_node.knob(
+                asset_const.ASSET_LINK
+            ).value()
             nodes_to_select = parented_nodes_names
             if len(nodes_to_select_str) > 0:
                 nodes_to_select = set(
@@ -66,19 +70,17 @@ class NukeSelectAssetManagerActionPlugin(plugin.AssetManagerActionPlugin):
                         )
                     )
                     self.logger.error(message)
-                    return False, {
-                        "message": message
-                    }
+                    return False, {"message": message}
 
             try:
                 ftrack_node['selected'].setValue(True)
                 result.append(str(ftrack_node))
             except Exception as error:
-                message = 'Could not select the dcc_object, error: {}'.format(error)
+                message = 'Could not select the dcc_object, error: {}'.format(
+                    error
+                )
                 self.logger.error(message)
-                return False, {
-                    "message": message
-                }
+                return False, {"message": message}
 
         return result
 

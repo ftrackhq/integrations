@@ -70,30 +70,31 @@ class AssetManagerClient(Client):
 
         '''
         self._reset_asset_list()
-# <<<<<<< HEAD:libs/framework-core/source/ftrack_framework_core/client/asset_manager.py
-#         if not plugin:
-#             # Use the first discover plugin in the list
-#             plugin = self.menu_action_plugins['discover'][0]
-#         plugin_type = '{}.{}'.format('asset_manager', plugin['type'])
-# =======
-#         plugin_type = None
-#         if plugin:
-#             plugin_type = '{}.{}'.format(
-#                 constants.definition.ASSET_MANAGER, plugin['type']
-#             )
-# >>>>>>> backlog/framework-refactor/story:libs/framework-core/source/ftrack_framework_core/client/asset_manager_to_remove.py
-#         data = {
-#             'plugin': plugin,
-#             'plugin_type': plugin_type,
-#         }
-# <<<<<<< HEAD:libs/framework-core/source/ftrack_framework_core/client/asset_manager.py
-#
-#         self.host_connection.run(
-# =======
-#         self.host_connection.run_definition(
-# >>>>>>> backlog/framework-refactor/story:libs/framework-core/source/ftrack_framework_core/client/asset_manager_to_remove.py
-#             data, self.engine_type, callback=self._asset_discovered_callback
-#         )
+
+    # <<<<<<< HEAD:libs/framework-core/source/ftrack_framework_core/client/asset_manager.py
+    #         if not plugin:
+    #             # Use the first discover plugin in the list
+    #             plugin = self.menu_action_plugins['discover'][0]
+    #         plugin_type = '{}.{}'.format('asset_manager', plugin['type'])
+    # =======
+    #         plugin_type = None
+    #         if plugin:
+    #             plugin_type = '{}.{}'.format(
+    #                 constants.definition.ASSET_MANAGER, plugin['type']
+    #             )
+    # >>>>>>> backlog/framework-refactor/story:libs/framework-core/source/ftrack_framework_core/client/asset_manager_to_remove.py
+    #         data = {
+    #             'plugin': plugin,
+    #             'plugin_type': plugin_type,
+    #         }
+    # <<<<<<< HEAD:libs/framework-core/source/ftrack_framework_core/client/asset_manager.py
+    #
+    #         self.host_connection.run(
+    # =======
+    #         self.host_connection.run_definition(
+    # >>>>>>> backlog/framework-refactor/story:libs/framework-core/source/ftrack_framework_core/client/asset_manager_to_remove.py
+    #             data, self.engine_type, callback=self._asset_discovered_callback
+    #         )
 
     def _asset_discovered_callback(self, event):
         '''Callback of the :meth:`discover_assets`'''

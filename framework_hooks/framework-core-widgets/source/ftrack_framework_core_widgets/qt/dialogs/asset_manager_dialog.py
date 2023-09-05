@@ -11,6 +11,8 @@ from ftrack_qt.widgets.selectors import DropdownSelector
 from ftrack_qt.widgets.dialogs import StyledDialog, ModalDialog
 from ftrack_qt.widgets.browsers import AssetManagerBrowser
 from ftrack_qt.model.asset_list import AssetListModel
+from ftrack_qt.utils.layout import recursive_clear_layout
+
 
 class AssetManagerDialog(FrameworkDialog, StyledDialog):
     '''Default Framework Asset Manager widget'''
@@ -29,6 +31,34 @@ class AssetManagerDialog(FrameworkDialog, StyledDialog):
         for host_connection in self.host_connections:
             ids.append(host_connection.host_id)
         return ids
+
+    @property
+    def selected_host_connection_id(self):
+        '''Return the selected host connection id'''
+        if self._host_connection_selector.current_item_index() in [0, -1]:
+            return None
+        return self._host_connection_selector.current_item_text()
+
+    @selected_host_connection_id.setter
+    def selected_host_connection_id(self, value):
+        '''Set the given *value* as selected host_connection_id'''
+        if not self.selected_host_connection_id and not value:
+            self._asset_list_model.reset()
+        if self.selected_host_connection_id != value:
+            self._asset_list_model.reset()
+            if not value:
+                self._host_connection_selector.set_current_item_index(0)
+                return
+            self._host_connection_selector.set_current_item(value)
+
+    @property
+    def definition_names(self):
+        '''Returns available definition names in the client'''
+        names = []
+        for definitions in self.filtered_definitions:
+            for definition in definitions:
+                names.append(definition.name)
+        return names
 
     @property
     def asset_manager_browser(self):
@@ -82,11 +112,12 @@ class AssetManagerDialog(FrameworkDialog, StyledDialog):
             dialog_options,
             parent,
         )
-        self.selected_host_connection_id = None
         self._asset_manager_browser = None
         self._asset_list_model = (dialog_options or {}).get('model')
         if self._asset_list_model is None:
-            self.logger.warning('No global asset list model provided, creating.')
+            self.logger.warning(
+                'No global asset list model provided, creating.'
+            )
             self._asset_list_model = AssetListModel()
         self._in_assembler = (dialog_options or {}).get('assembler') is True
 
@@ -96,6 +127,10 @@ class AssetManagerDialog(FrameworkDialog, StyledDialog):
 
         self.add_host_connection_items(self.host_connections_ids)
 
+        if self.host_connection:
+            # Prevent the sync calling on creation as host might be already set.
+            self._on_client_host_changed_callback()
+
     def pre_build(self):
         '''Pre-build method of the widget'''
         main_layout = QtWidgets.QVBoxLayout()
@@ -103,14 +138,12 @@ class AssetManagerDialog(FrameworkDialog, StyledDialog):
 
     def build(self):
         '''Build method of the widget'''
-        self._header = SessionHeader(self._session)
+        self._header = SessionHeader(self.session)
 
         self._host_connection_selector = DropdownSelector("Host Selector")
 
         self.asset_manager_browser = AssetManagerBrowser(
-            self._in_assembler,
-            self.event_manager,
-            self._asset_list_model
+            self._in_assembler, self.event_manager, self._asset_list_model
         )
 
         self.layout().addWidget(self._header)
@@ -126,38 +159,15 @@ class AssetManagerDialog(FrameworkDialog, StyledDialog):
         self._host_connection_selector.refresh_clicked.connect(
             self._on_refresh_hosts_callback
         )
-        self._asset_manager_browser.on_config.connect(self._on_open_assembler_callback)
-
-    def add_host_connection_items(self, host_connections_ids):
-        '''Add given host_connections in the host_connection selector'''
-        for host_connection_id in host_connections_ids:
-            self._host_connection_selector.add_item(host_connection_id)
-
-    def _on_refresh_hosts_callback(self):
-        '''
-        Refresh host button has been clicked in the UI,
-        Call the discover_host in the client
-        '''
-        self.client_method_connection('discover_hosts')
-
-    def _on_host_selected_callback(self, item_text):
-        '''
-        Handle host selection
-        '''
-        print('@@@ _on_host_selected_callback:{}'.format(item_text))
-        if not item_text:
-            self.host_connection = None
-            return
-
-        for host_connection in self.host_connections:
-            if host_connection.host_id == item_text:
-                self.host_connection = host_connection
+        self.asset_manager_browser.on_config.connect(
+            self._on_open_assembler_callback
+        )
 
     def _on_open_assembler_callback(self, event):
         '''Open the assembler dialog'''
         self.event_manager.publish.client_launch_widget(
             self.selected_host_connection_id,
-            ftrack_constants.framework.definition.LOADER
+            ftrack_constants.framework.definition.LOADER,
         )
 
     def show_ui(self):
@@ -172,11 +182,10 @@ class AssetManagerDialog(FrameworkDialog, StyledDialog):
             self._on_focus_changed
         )
 
-    # TODO: This should be an ABC
-    def _on_client_context_changed_callback(self, event=None):
-        '''Client context has been changed'''
-        super(AssetManagerDialog, self)._on_client_context_changed_callback(event)
-        self.selected_context_id = self.context_id
+    def add_host_connection_items(self, host_connections_ids):
+        '''Add given host_connections in the host_connection selector'''
+        for host_connection_id in host_connections_ids:
+            self._host_connection_selector.add_item(host_connection_id)
 
     # TODO: This should be an ABC
     def _on_client_hosts_discovered_callback(self, event=None):
@@ -184,6 +193,16 @@ class AssetManagerDialog(FrameworkDialog, StyledDialog):
         super(AssetManagerDialog, self)._on_client_hosts_discovered_callback(
             event
         )
+
+    def _on_host_selected_callback(self, item_text):
+        '''Handle host selection'''
+        if not item_text:
+            self.host_connection = None
+            return
+
+        for host_connection in self.host_connections:
+            if host_connection.host_id == item_text:
+                self.host_connection = host_connection
 
     # TODO: This should be an ABC
     def _on_client_host_changed_callback(self, event=None):
@@ -193,10 +212,15 @@ class AssetManagerDialog(FrameworkDialog, StyledDialog):
             self.selected_host_connection_id = None
             return
         self.selected_host_connection_id = self.host_connection.host_id
-        assert (len(self.definition_names) > 0), 'No asset manager definitions are aviailable!'
+        assert (
+            len(self.definition_names) > 0
+        ), 'No asset manager definitions are aviailable!'
         if len(self.definition_names) > 1:
-            self.logger.warning('More than one asset manager definitions found ({})!'.format(
-                len(self.definition_names)))
+            self.logger.warning(
+                'More than one asset manager definitions found ({})!'.format(
+                    len(self.definition_names)
+                )
+            )
 
         definition_name = self.definition_names[0]
 
@@ -204,6 +228,13 @@ class AssetManagerDialog(FrameworkDialog, StyledDialog):
             self.definition = definition_list.get_first(name=definition_name)
 
         self.build_asset_manager_ui(self.definition)
+
+    def _on_refresh_hosts_callback(self):
+        '''
+        Refresh host button has been clicked in the UI,
+        Call the discover_host in the client
+        '''
+        self.client_method_connection('discover_hosts')
 
     # TODO: This should be an ABC
     def sync_host_connection(self):
@@ -232,7 +263,7 @@ class AssetManagerDialog(FrameworkDialog, StyledDialog):
 
         menu_action_plugins = definition.get('actions')
         self.asset_manager_browser.create_actions(menu_action_plugins, self)
-
+        self.asset_manager_browser.rebuild()
 
     # Handle asset actions
 

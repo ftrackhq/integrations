@@ -74,12 +74,8 @@ class ListSelector(QtWidgets.QWidget):
         for row in range(self.model.rowCount()):
             index = self.model.createIndex(row, 0, self.model)
             item_data = self.model.data(index)
-            item_widget = self._item_factory(
-                index, item_data
-            )
-            set_property(
-                item_widget, 'first', 'true' if row == 0 else 'false'
-            )
+            item_widget = self._item_factory(index, item_data)
+            set_property(item_widget, 'first', 'true' if row == 0 else 'false')
             self.layout().addWidget(item_widget)
             item_widget.clicked.connect(
                 partial(self.asset_clicked, item_widget)
@@ -105,7 +101,7 @@ class ListSelector(QtWidgets.QWidget):
     def selection(self, as_widgets=False):
         '''Return list of asset infos or asset widgets if *as_widgets* is True'''
         result = []
-        for widget in self.assets:
+        for widget in self.items:
             if widget.selected:
                 if as_widgets:
                     result.append(widget)
@@ -184,12 +180,33 @@ class ListSelector(QtWidgets.QWidget):
 
 
 class ListSelectorItem(object):
-    ''' Base class for an item in the list selector. '''
+    '''Base class for an item in the list selector.'''
 
-    #TODO This should be an ABC
+    @property
+    def index(self):
+        '''Return the index this asset has in list'''
+        return self._index
+
+    @index.setter
+    def index(self, value):
+        '''Set the index this asset has in list'''
+        self._index = value
+
+    @property
+    def selected(self):
+        '''Return if item is selected or not'''
+        return self._selected
+
+    @selected.setter
+    def selected(self, value):
+        '''Set if item is selected or not'''
+        self._selected = value
+
+    # TODO This should be an ABC
     def matches(self, text):
         '''Return True if this item matches *text*'''
         raise NotImplementedError()
 
     def __init__(self):
-        self.selected = False
+        self._selected = False
+        self._index = None
