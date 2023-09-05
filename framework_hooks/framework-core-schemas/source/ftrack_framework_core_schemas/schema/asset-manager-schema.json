@@ -3,31 +3,113 @@
   "type": "object",
   "additionalProperties": false,
   "definitions": {
-    "Config": {
-      "title": "Config",
+    "Step": {
+      "title": "Step",
       "type": "object",
       "required": [
-        "engine_type",
-        "type"
+        "name",
+        "stages",
+        "category",
+        "type",
+        "stage_order"
       ],
-      "order":["type", "engine_type"],
+      "order":["category", "type", "name", "stages", "stage_order" ],
       "additionalProperties": false,
       "properties": {
-        "type": {
+        "category": {
           "type": "string",
-          "pattern": "^config$",
-          "default": "config"
+          "pattern": "^step$",
+          "default": "step"
         },
-        "engine_type": {
+        "type": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "widget_ref": {
+          "type": "string"
+        },
+        "optional": {
+          "type": "boolean",
+          "default": false
+        },
+        "enabled": {
+          "type": "boolean",
+          "default": true
+        },
+        "stages": {
+          "type": "array",
+          "maxItems": 3,
+          "uniqueItems": true,
+          "items": {}
+        },
+        "stage_order": {
+          "type": "array",
+          "items": {"type": "string"},
+          "default": []
+        }
+      }
+    },
+    "Stage": {
+      "title": "Stage",
+      "type": "object",
+      "required": [
+        "name",
+        "plugins",
+        "category",
+        "type"
+      ],
+      "order":["category", "type", "name", "plugins"],
+      "additionalProperties": false,
+      "properties": {
+        "category": {
           "type": "string",
-          "default": "asset_manager"
+          "pattern": "^stage$",
+          "default": "stage"
+        },
+        "type": {
+          "type": "string"
+        },
+        "visible": {
+          "type": "boolean",
+          "default": true
+        },
+        "enabled": {
+          "type": "boolean",
+          "default": true
+        },
+        "optional": {
+          "type": "boolean",
+          "default": false
+        },
+        "widget_ref": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string",
+          "enum": [
+            "collector",
+            "validator",
+            "exporter",
+            "context",
+            "finalizer",
+            "pre_finalizer",
+            "post_finalizer"
+          ]
+        },
+        "plugins": {
+          "type": "array",
+          "items": {"$ref": "#/definitions/Plugin"},
+          "default": [],
+          "minItems": 1,
+          "uniqueItems": true
         }
       }
     },
     "Plugin": {
       "title": "Plugin",
       "type": "object",
-      "additionalProperties": false,
       "required": [
         "name",
         "plugin",
@@ -35,7 +117,8 @@
         "type",
         "default_method"
       ],
-      "order":["type", "category", "name", "description", "plugin", "widget", "options", "default_method"],
+      "order":["type", "category", "name", "description", "plugin", "widget", "widget_id", "context_data", "data", "options", "default_method"],
+      "additionalProperties": false,
       "properties": {
         "category": {
           "type": "string",
@@ -44,8 +127,15 @@
         },
         "type": {
           "type": "string",
-          "pattern": "^base$",
-          "default": "base"
+          "enum": [
+            "collector",
+            "validator",
+            "exporter",
+            "context",
+            "finalizer",
+            "pre_finalizer",
+            "post_finalizer"
+          ]
         },
         "name": {
           "type": "string"
@@ -54,21 +144,40 @@
           "type": "string"
         },
         "plugin": {
-          "type": "string"
+          "type": "string",
+          "default": ""
         },
         "widget": {
-          "type": "string"
+          "type": "string",
+          "default": ""
         },
-        "widget_ref": {
-          "type": "string"
+        "widget_id": {
+          "type": "string",
+          "default": ""
         },
         "visible": {
+          "type": "boolean",
+          "default": true
+        },
+        "optional": {
+          "type": "boolean",
+          "default": false
+        },
+        "enabled": {
           "type": "boolean",
           "default": true
         },
         "editable": {
           "type": "boolean",
           "default": true
+        },
+        "context_data": {
+          "type": "object",
+          "default": {}
+        },
+        "data": {
+          "type": "object",
+          "default": {}
         },
         "options": {
           "type": "object",
@@ -80,166 +189,97 @@
         }
       }
     },
-    "ActionPlugin": {
+    "ActionStep": {
       "allOf": [
         {
-          "$ref": "#/definitions/Plugin"
+          "$ref": "#/definitions/Step"
         }
       ],
       "properties": {
+        "stages": {
+          "type": "array",
+          "maxItems": 2,
+          "uniqueItems": true,
+          "items": {
+            "oneOf":[
+                      {"$ref": "#/definitions/DiscoverStage"},
+                      {"$ref": "#/definitions/Stage"}
+                  ]
+          }
+        },
         "type": {
+          "type": "string",
           "pattern": "^action$",
           "default": "action"
-        },
-        "label": {
-          "type": "string"
         }
       }
     },
-    "Action": {
-      "title": "Action",
-      "type": "object",
-      "required": [
-        "discover",
-        "load",
-        "select",
-        "update",
-        "unload",
-        "remove"
+    "DiscoverStage": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/Stage"
+        }
       ],
-      "order":[
-        "discover",
-        "load",
-        "select",
-        "update",
-        "unload",
-        "remove"
-      ],
-      "additionalProperties": false,
       "properties": {
-        "discover": {
-          "type": "array",
-          "default": [],
+        "name": {
+          "default": "discover"
+        },
+        "plugins": {
           "items": {
-            "allOf": [{"$ref": "#/definitions/ActionPlugin"}],
+            "allOf": [
+              {
+                "$ref": "#/definitions/Plugin"
+              }
+            ],
             "properties": {
               "type": {
-                "pattern": "^action$",
-                "default": "action"
-              },
-              "ui_callback": {
-                "type": "string",
-                "default": "ctx_discover"
+                "pattern": "^discover$",
+                "default": "discover"
               }
             }
-          }
-        },
-        "load": {
-          "type": "array",
-          "default": [],
-          "items": {
-            "allOf": [{"$ref": "#/definitions/ActionPlugin"}],
-            "properties": {
-              "type": {
-                "pattern": "^action$",
-                "default": "action"
-              },
-              "ui_callback": {
-                "type": "string",
-                "default": "ctx_discover"
-              }
-            }
-          }
-        },
-        "select": {
-          "type": "array",
-          "default": [],
-          "items": {
-            "allOf": [{"$ref": "#/definitions/ActionPlugin"}],
-            "properties": {
-              "type": {
-                "pattern": "^action$",
-                "default": "action"
-              },
-              "ui_callback": {
-                "type": "string",
-                "default": "ctx_select"
-              }
-            }
-          }
-        },
-        "update": {
-          "type": "array",
-          "items": {
-            "allOf": [{"$ref": "#/definitions/ActionPlugin"}],
-            "properties": {
-                "type": {
-                  "pattern": "^action$",
-                  "default": "action"
-                },
-                "ui_callback": {
-                  "type": "string",
-                  "default": "ctx_update"
-                }
-              }
           },
-          "minItems": 1
-        },
-        "unload": {
           "type": "array",
           "default": [],
-          "items": {
-            "allOf": [{"$ref": "#/definitions/ActionPlugin"}],
-            "properties": {
-              "type": {
-                "pattern": "^action$",
-                "default": "action"
-              },
-              "ui_callback": {
-                "type": "string",
-                "default": "ctx_unload"
-              }
-            }
-          }
+          "minItems": 1,
+          "uniqueItems": true
         },
-        "remove": {
-          "type": "array",
-          "default": [],
-          "items": {
-            "allOf": [{"$ref": "#/definitions/ActionPlugin"}],
-            "properties": {
-                "type": {
-                  "pattern": "^action$",
-                  "default": "action"
-                },
-                "ui_callback": {
-                  "type": "string",
-                  "default": "ctx_remove"
-                }
-              }
-          }
+        "type": {
+          "type": "string",
+          "pattern": "^discover$",
+          "default": "discover"
         }
       }
     }
   },
   "required": [
     "name",
+    "asset_type",
     "host_type",
-    "type",
     "actions",
-    "_config"
+    "type",
+    "engine_type",
+    "engine_name"
   ],
   "order":[
-    "type", "name", "host_type", "actions"
+    "type", "name", "asset_type", "task_type", "host_type", "ui_type", "discoverable" ,"actions"
   ],
   "properties": {
     "type": {
       "type": "string",
       "pattern": "^asset_manager$",
-      "default": "asset_manager$"
+      "default": "asset_manager"
     },
     "name": {
-      "type": "string"
+      "type": "string",
+      "default": null
+    },
+    "asset_type": {
+      "type": "string",
+      "default": null
+    },
+    "task_type": {
+      "type": "string",
+      "default": null
     },
     "host_type": {
       "type": "string",
@@ -247,28 +287,33 @@
     },
     "ui_type": {
       "type": "string",
-      "default": null
+      "default": ""
     },
-    "discover": {
+    "discoverable": {
       "type": "array",
-      "items": {
-        "allOf": [{"$ref": "#/definitions/Plugin"}],
-        "properties": {
-            "type": {
-              "pattern": "^discover$",
-              "default": "discover"
-            }
-          }
-      },
-      "minItems": 0,
-      "maxItems": 1
+      "items": {"type": "string"},
+      "default": [
+        "Task"
+      ]
     },
     "actions": {
-      "$ref": "#/definitions/Action"
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/ActionStep"
+      },
+      "default": [],
+      "minItems": 1,
+      "maxItems": 1,
+      "uniqueItems": true
     },
-    "_config": {
-      "$ref": "#/definitions/Config",
-      "default": {}
-    }
+    "engine_type": {
+          "type": "string",
+          "default": "asset_manager"
+        },
+    "engine_name": {
+          "type": "string",
+          "default": null
+        }
   }
 }
+

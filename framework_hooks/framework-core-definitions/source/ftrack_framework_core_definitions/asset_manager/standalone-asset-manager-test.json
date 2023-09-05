@@ -1,23 +1,51 @@
 {
-    "type": "asset_manager",
-    "name": "default",
-    "host_type": "python",
-    "ui_type": "qt",
-    "actions":{
-        "update":[
-            {
-                "name": "update",
-                "label": "Update to latest",
-                "plugin": "common_update_latest_am_action",
-                "options": {"clear_selection":  false}
-            }
-        ], "discover":[
-            {
-                "name": "discover",
-                "label": "Discover assets",
-                "plugin": "common_discover_am_action",
-                "options": {}
-            }
-        ]
-    }
+  "type": "asset_manager",
+  "name": "Asset Manager",
+  "host_type": "python",
+  "ui_type": "qt",
+  "engine_name": "asset_manager",
+  "actions": [
+      {
+          "name": "discovery",
+          "stages": [
+              {
+                  "name": "discover",
+                  "plugins":[
+                      {
+                          "name": "Discover assets",
+                          "plugin": "common_discover_am_action",
+                          "options": {}
+                      }
+                  ]
+              }
+          ]
+      },
+      {
+          "name": "asset",
+          "stages": [
+              {
+                  "name": "update",
+                  "plugins":[
+                      {
+                          "name": "Update to latest",
+                          "plugin": "common_update_latest_am_action",
+                          "type": "update",
+                          "options": {"clear_selection":  false}
+                      }
+                  ]
+              },
+              {
+                  "name": "select",
+                  "plugins":[
+                      {
+                          "name": "Select Asset",
+                          "plugin": "your_selection_plugin",
+                          "type": "select",
+                          "options": {"clear_selection":  false}
+                      }
+                  ]
+              }
+          ]
+      }
+  ]
 }
