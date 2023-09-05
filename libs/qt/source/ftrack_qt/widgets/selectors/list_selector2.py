@@ -8,7 +8,11 @@ from Qt import QtWidgets, QtCore
 
 from ftrack_qt.utils.widget import clear_layout, set_property
 
-
+# TODO: This widget is bit difficult to understand, shoudn't it be a
+#  QListWidget? So basically this one initializes the item_widget with the
+#  model.data, right? So I will specialize a bit more the name, somethig like
+#  widget list selector or similar. Also generalize the names, don't tight them
+#  into asset, this widget should be totally reusable.
 class ListSelector2(QtWidgets.QWidget):
     '''Generic searchable list widget extending the capabilities and mitigating shortcomings
     of QListWidget. Used when listing complex items in a list such as DCC assets and
@@ -44,6 +48,8 @@ class ListSelector2(QtWidgets.QWidget):
         '''
         super(ListSelector2, self).__init__(parent=parent)
         self._model = model
+        # TODO: remove item factory we will pass the asset_item_widget in here
+        #  that will arribe with a generic name like item_widget
         self._item_factory = item_factory
 
         self.was_clicked = False
@@ -182,7 +188,7 @@ class ListSelector2(QtWidgets.QWidget):
         '''(Override) Consume this event, so parent client does not de-select all'''
         pass
 
-
+# TODO: can we remove this and instead just add the matches method in the accordion widget?
 class ListSelector2Item(object):
     ''' Base class for an item in the list selector. '''
 

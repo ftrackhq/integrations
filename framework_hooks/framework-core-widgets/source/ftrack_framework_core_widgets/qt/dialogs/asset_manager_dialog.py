@@ -80,12 +80,25 @@ class AssetManagerDialog(FrameworkDialog, StyledDialog):
             dialog_options,
             parent,
         )
+        # TODO: convert this to a property and align the code to scroll_definitions_dialog
         self.selected_host_connection_id = None
         self._asset_manager_browser = None
+        # TODO: instead of passing the model around, We get the discovered assets
+        #  from the discover plugin, we store those asset_info in the result of the
+        #  plugin registry. So when Assembler opens, it checks if the discover plugin
+        #  of the AM has been run: if has results, pick the results and generate
+        #  the model from those results.
+        #  If not result: run discover AM plugin and check results again. So _asset_list_model will not apear at all in this dialog, we will simply pass asste_infos around until they arrive to the
         self._asset_list_model = (dialog_options or {}).get('model')
+        # TODO: if not
         if self._asset_list_model is None:
             self.logger.warning('No global asset list model provided, creating.')
             self._asset_list_model = AssetListModel()
+        # TODO: maybe not need to pass in assembler? so the asset_manager_dialog
+        #  is never used inside the assembler, but the AssetManagerBrowser can
+        #  be initialized in the assembler, so then, just set the argument
+        #  in_assembler of the assetmbler to default as False, and when you
+        #  initialize the browser in the assembler you pass the argument as True.
         self._in_assembler = (dialog_options or {}).get('assembler') is True
 
     def pre_build(self):

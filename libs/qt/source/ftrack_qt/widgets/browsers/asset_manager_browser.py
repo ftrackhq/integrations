@@ -22,7 +22,11 @@ from ftrack_qt.widgets.info import EntityInfo
 from ftrack_qt.widgets.lines import LineWidget
 
 logger = logging.getLogger(__name__)
-
+# TODO: I would remove the in_assembler argument, instead, I would create a
+#  new widget, in a new file, that inherits from this one, and creates the
+#  header and the searchbar and name it something generic like
+#  HeaderAssetManagerBrowser or a similar name to identify that one is to be
+#  parented to another widget and the other one not.
 class AssetManagerBrowser(QtWidgets.QWidget):
     '''Widget for browsing amd modifying assets loaded within a DCC'''
 
@@ -280,7 +284,10 @@ class AssetManagerBrowser(QtWidgets.QWidget):
         '''Filter asset list, only show assets matching *text*.'''
         self._asset_list.refresh(text)
 
-
+# TODO: this should be renamed to AssetItemWidget or AssetInfoWidget and should
+#  be moved to ftrack_framework_core_widgets/qt/widgets and will be a mixin of
+#  FrameworkWidget and AccordionWidget also this will be defined in the definition,
+#  the widget of the discover_plugin will point to this one.
 class AssetWidget(AccordionWidget):
     '''Minimal widget representation of an asset(asset_info)'''
 
@@ -629,7 +636,9 @@ class AssetWidget(AccordionWidget):
                     current_version['version']
                 )
 
-
+# TODO: if this is 100% needed and can't be created directly inside the asset
+#  widget and can be used generally for other stuf. Then generalize this widget
+#  (So remove asset from it) and move it to the correct folder
 class AssetVersionStatusWidget(QtWidgets.QFrame):
     '''Widget representing static asset state'''
 
@@ -664,7 +673,7 @@ class AssetVersionStatusWidget(QtWidgets.QFrame):
             )
         )
 
-
+# TODO: Remove this one, instead, create a QCombo box when is needed
 class AssetVersionSelector(QtWidgets.QComboBox):
     '''Widget representing dynamic asset state modifiable by user'''
 
@@ -673,7 +682,7 @@ class AssetVersionSelector(QtWidgets.QComboBox):
         self.setMinimumHeight(22)
         self.setMaximumHeight(22)
 
-
+# TODO: move this widget in the right folder for a general use.
 class ComponentAndVersionWidget(QtWidgets.QWidget):
     '''Widget representing the asset component and version'''
 

@@ -6,7 +6,8 @@ from Qt import QtWidgets, QtCore, QtGui
 from ftrack_qt.utils.widget import set_property
 from ftrack_qt.widgets.headers import AccordionHeaderWidget
 from ftrack_qt.widgets.selectors import ListSelector2Item
-
+# TODO: I wouldn't inherit from ListSelector2Item, instead I would just add the
+#  matches method in here and that is all.
 class AccordionWidget(QtWidgets.QFrame, ListSelector2Item):
     '''A utility accordion widget providing a header which can be expanded to show content.
     Designed to be inherited and extended.'''

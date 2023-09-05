@@ -151,6 +151,9 @@ class ContextSelector(QtWidgets.QFrame):
         self.layout().addWidget(QtWidgets.QLabel(), 10)
         self.layout().addWidget(self.entity_browse_button)
 
+        # TODO: why are we having circular imports? Can we try to clean it up to
+        #  avoid them? Basically Entity browser code has to be clean up and
+        #  split into correct files, will that avoid circular imports?
         # Build entity browser:
         from ftrack_qt.widgets.browsers import EntityBrowser # Prevent circular import
 

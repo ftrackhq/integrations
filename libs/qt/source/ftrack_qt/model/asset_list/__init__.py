@@ -10,7 +10,8 @@ import logging
 
 from ftrack_constants.framework import asset as asset_const
 
-
+# TODO: I think is better to move this to qt/widgets/models folder and rename it
+#  to asset_info_list_model
 class AssetListModel(QtCore.QAbstractTableModel):
     '''Custom asset list model holding asset info data'''
 
