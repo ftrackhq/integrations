@@ -104,6 +104,34 @@ class LoadPublishEngine(BaseEngine):
         *step_type* : Type of the step.
         '''
 
+        plugins = stage.get_all(category='plugins')
+        for plugin_definition in plugins:
+            if not plugin_definition.enabled:
+                self.logger.debug(
+                    'Skipping step {} as it has been disabled'.format(
+                        plugin_definition.name
+                    )
+                )
+                continue
+            plugin_data = copy.deepcopy(stage_data)
+            # TODO: maybe create a step registry to registry the result and the status of each executed step.
+            status, result = self.run_plugin(
+                plugin_name=plugin_definition.plugin,
+                plugin_default_method=plugin_definition.default_method,
+                # We don't want to pass the information of the previous plugin,
+                # so that is why we only pass the data of the previous stage.
+                plugin_data=copy.deepcopy(stage_data),
+                # From the definition + stage_options
+                plugin_options=plugin_definition.options
+                # Data from the plugin context
+                plugin_context_data=stage_context,
+                # default_method is defined in the definitions
+                plugin_method=plugin_definition['default_method'],
+                plugin_widget_id=plugin_definition['widget_id'],
+                plugin_widget_name=plugin_definition['widget'],
+            )
+
+
         stage_status = True
         stage_results = []
 
@@ -212,6 +240,20 @@ class LoadPublishEngine(BaseEngine):
         *step_type* : Type of the step.
         '''
 
+        stages = step.get_all(category='stages')
+        for stage_definition in stages:
+            if not stage_definition.enabled:
+                self.logger.debug(
+                    'Skipping step {} as it has been disabled'.format(
+                        stage_definition.name
+                    )
+                )
+                continue
+            stage_data = copy.deepcopy(previous_stage_results)
+            # TODO: maybe create a step registry to registry the result and the status of each executed step.
+            status, result = self.run_stage(stage_definition, stage_data)
+
+
         step_status = True
         step_results = []
 
@@ -309,7 +351,7 @@ class LoadPublishEngine(BaseEngine):
         return step_status, step_results
 
     # TODO: clean up this code and use definition object to simplify.
-    def run_definition(self, definition_data):
+    def run_definition(self, definition):
         '''
         Runs the whole definition from the provided *data*.
         Call the method :meth:`run_step` for each context, component and
@@ -319,6 +361,22 @@ class LoadPublishEngine(BaseEngine):
         :meth:`~ftrack_framework_core.client.HostConnection.run` Should be a
         valid definition.
         '''
+
+        steps = definition.get_all(category='step')
+        for step_definition in steps:
+            if not step_definition.enabled:
+                self.logger.debug(
+                    'Skipping step {} as it has been disabled'.format(
+                        step_definition.name
+                    )
+                )
+                continue
+            step_data = copy.deepcopy(previous_step_results)
+            # TODO: maybe create a step registry to registry the result and the status of each executed step.
+            status, result = self.run_step(step_definition, step_data)
+
+
+
         # TODO: we should use definition object in here to clean this up
         context_data = None
         components_output = []
