@@ -70,7 +70,7 @@ class BasePlugin(object):
     def method_result(self, value):
         '''
         Set the result of the current method and registry it to the
-        registrated results.
+        registered results.
         '''
         is_valid = self._validate_result(value)
         if not is_valid:

@@ -10,8 +10,7 @@ from ftrack_qt.widgets.headers import SessionHeader
 from ftrack_qt.widgets.selectors import DropdownSelector
 from ftrack_qt.widgets.dialogs import StyledDialog, ModalDialog
 from ftrack_qt.widgets.browsers import AssetManagerBrowser
-from ftrack_qt.model.asset_list import AssetListModel
-from ftrack_qt.utils.layout import recursive_clear_layout
+from ftrack_qt.widgets.model import AssetInfoListModel
 
 
 class AssetManagerDialog(FrameworkDialog, StyledDialog):
@@ -118,7 +117,7 @@ class AssetManagerDialog(FrameworkDialog, StyledDialog):
             self.logger.warning(
                 'No global asset list model provided, creating.'
             )
-            self._asset_list_model = AssetListModel()
+            self._asset_list_model = AssetInfoListModel()
         self._in_assembler = (dialog_options or {}).get('assembler') is True
 
         self.pre_build()

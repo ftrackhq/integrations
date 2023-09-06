@@ -506,7 +506,7 @@ class Client(object):
                     break
         if not dialog_class:
             error_message = (
-                'Please provide a registrated dialog name.\n'
+                'Please provide a registered dialog name.\n'
                 'Given name: {} \n'
                 'registered widgets: {}'.format(
                     dialog_name, self.discovered_framework_widgets

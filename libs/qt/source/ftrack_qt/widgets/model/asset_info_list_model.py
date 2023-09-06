@@ -11,7 +11,7 @@ import logging
 from ftrack_constants.framework import asset as asset_const
 
 
-class AssetListModel(QtCore.QAbstractTableModel):
+class AssetInfoListModel(QtCore.QAbstractTableModel):
     '''Custom asset list model holding asset info data'''
 
     __asset_entities_list = []  # Model data storage
@@ -25,7 +25,7 @@ class AssetListModel(QtCore.QAbstractTableModel):
         self.logger = logging.getLogger(
             __name__ + '.' + self.__class__.__name__
         )
-        super(AssetListModel, self).__init__()
+        super(AssetInfoListModel, self).__init__()
 
     def reset(self):
         '''Empty model'''
