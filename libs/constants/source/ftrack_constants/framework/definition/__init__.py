@@ -61,3 +61,19 @@ RESOLVER = 'resolver'
 LOG_VIEWER = 'log_viewer'
 
 DEFINITION_TYPES = [OPENER, LOADER, PUBLISHER, ASSET_MANAGER, RESOLVER]
+
+STEP_INFO = {
+    "name": None,
+    "result": [],
+    "status": None,
+    "category": None,
+    "type": None
+}
+
+STAGE_INFO = {
+    "name": None,
+    "result": [],
+    "status": None,
+    "category": None,
+    "type": None
+}

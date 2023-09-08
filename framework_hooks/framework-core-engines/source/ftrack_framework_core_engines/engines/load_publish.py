@@ -54,6 +54,12 @@ class LoadPublishEngine(BaseEngine):
             asset_type_name,
         )
         self._context_data = []
+        self._registry = {}
+
+    def _update_registry(
+            self, step_name, stage_name, plugin_name, plugin_result
+    ):
+        self._registry[step_name][stage_name][plugin_name] = plugin_result
 
     def run_plugin(
         self,
@@ -81,14 +87,8 @@ class LoadPublishEngine(BaseEngine):
 
     def run_stage(
         self,
-        stage_name,
-        plugins,
-        stage_context,
-        stage_options,
-        stage_data,
-        plugins_order=None,
-        step_type=None,
-        step_name=None,
+        stage_definition,
+        step_name
     ):
         '''
         Returns the bool status and the result list of dictionaries of executing
@@ -112,7 +112,8 @@ class LoadPublishEngine(BaseEngine):
         *step_type* : Type of the step.
         '''
 
-        plugins = stage.get_all(category='plugins')
+        plugins = stage_definition.get_all(category='plugins')
+        status = True
         for plugin_definition in plugins:
             if not plugin_definition.enabled:
                 self.logger.debug(
@@ -136,8 +137,16 @@ class LoadPublishEngine(BaseEngine):
                     results=None,
                 )
 
-            plugin_data = copy.deepcopy(stage_data)
-            # TODO: maybe create a step registry to registry the result and the status of each executed step.
+            # Pass all previous stage executed plugins result
+            plugin_data = copy.deepcopy(
+                self._registry[step_name]
+            )
+            # If finalizer add all component results.
+            if step_name == 'finalizer':
+                plugin_data['component'] =  copy.deepcopy(
+                    self._registry['component']
+                )
+
             plugin_info = self.run_plugin(
                 plugin_name=plugin_definition.plugin,
                 plugin_default_method=plugin_definition.default_method,
@@ -154,45 +163,33 @@ class LoadPublishEngine(BaseEngine):
                 plugin_widget_id=plugin_definition.widget_id,
                 plugin_widget_name=plugin_definition.widget,
             )
-            bool_status = constants.status.status_bool_mapping[
+
+            self._update_registry(
+                step_name,
+                stage_definition.name,
+                plugin_name=plugin_info['plugin_name'],
+                plugin_result=plugin_info['plugin_method_result']
+            )
+            status = constants.status.status_bool_mapping[
                 plugin_info['plugin_status']
             ]
-            if not bool_status:
-                # TODO: carefull, this is a lstatus for the entire stage execution.
-                self.update_stage(stage_name, "status", False)
-                stage_status = False
-                result = plugin_info['plugin_method_result']
-                # We log a warning if a plugin on the stage failed.
+            if not status:
+                # We log an error if a plugin on the stage failed.
                 self.logger.error(
-                    "Execution of the plugin {} failed.".format(
-                        plugin_definition.plugin
+                    "Execution of the plugin {} in stage {} of step {} "
+                    "failed. Stopping run definition".format(
+                        plugin_definition.plugin,
+                        stage_definition.name,
+                        step_name
                     )
                 )
-            # TODO: carefull, this is a list of results for each plugin, so we are appending to that list
-            self.update_stage(stage_name, "results", plugin_info)
-            # stage_info = {
-            #                 "name": stage_name,
-            #                 "result": stage_result,
-            #                 "status": stage_status,
-            #                 "category": category,
-            #                 "type": type,
-            #             }
-
+                break
 
         # Return status of the stage execution
-        return self.stage_registry['status']
+        return status
 
 
-    def run_step(
-        self,
-        step_name,
-        stages,
-        step_context,
-        step_options,
-        step_data,
-        stages_order,
-        step_type,
-    ):
+    def run_step(self, step_definition):
         '''
         Returns the bool status and the result list of dictionaries of executing
         all the stages in the step.
@@ -215,6 +212,8 @@ class LoadPublishEngine(BaseEngine):
         *step_type* : Type of the step.
         '''
 
+        status = True
+        stages = step_definition.get_all(category='plugins')
         for stage_definition in stages:
             # We don't need the stage order because the stage order is given by
             # order in the definition and that is a list so its already sorted.
@@ -225,40 +224,9 @@ class LoadPublishEngine(BaseEngine):
                     )
                 )
                 continue
-            stage_data = copy.deepcopy(previous_stage_results)
-            # TODO: maybe create a step registry to registry the result and the status of each executed step.
-            status = self.run_stage(stage_definition, stage_data)
+            status = self.run_stage(stage_definition, step_definition.name)
             if not status:
-                # TODO: carefull, this is a lstatus for the entire stage execution.
-                self.update_step(
-                    step_definition.name,
-                    "status",
-                    constants.status.ERROR_STATUS
-                )
-                self.logger.error(
-                    "Execution of the stage {} failed.".format(stage_definition.name)
-                )
                 break
-
-            # TODO: carefull, this is a list of results for each plugin, so we are appending to that list
-            self.update_step(step_definition.name, "results", self.stage_registry.results)
-            # stage_info = {
-            #                 "name": stage_name,
-            #                 "result": stage_result,
-            #                 "status": stage_status,
-            #                 "category": category,
-            #                 "type": type,
-            #             }
-
-        bool_status = constants.status.status_bool_mapping[
-            self.step_registry['status']
-        ]
-        if bool_status:
-            self.update_step(
-                step_definition.name,
-                "status",
-                constants.status.SUCCESS_STATUS)
-
         self.event_manager.publish.notify_definition_progress_client(
             host_id=self.host_id,
             step_type=step_type,
@@ -271,7 +239,7 @@ class LoadPublishEngine(BaseEngine):
         )
 
         # Return status of the stage execution
-        return self.step_registry['status']
+        return status
 
     # TODO: clean up this code and use definition object to simplify.
     def run_definition(self, definition):
@@ -285,6 +253,7 @@ class LoadPublishEngine(BaseEngine):
         valid definition.
         '''
 
+        status = True
         steps = definition.get_all(category='step')
         for step_definition in steps:
             if not step_definition.enabled:
@@ -294,15 +263,12 @@ class LoadPublishEngine(BaseEngine):
                     )
                 )
                 continue
-            step_data = None
-            if step_definition.name == 'finalizer':
-                step_data = self.step_registry['component'].result
 
-            # TODO: maybe create a step registry to registry the result and the status of each executed step.
-            status, result = self.run_step(step_definition, step_data)
-            if step_definition.name == 'context':
-                self._context_data = self.step_registry[step_definition.name].result
-                step_data = None
+            status = self.run_step(step_definition)
+            if not status:
+                break
+        if not status:
+            pass
 
 
 
