@@ -3,27 +3,6 @@
   "type": "object",
   "additionalProperties": false,
   "definitions": {
-    "Config": {
-      "title": "Config",
-      "type": "object",
-      "required": [
-        "engine_type",
-        "type"
-      ],
-      "order":["type", "engine_type"],
-      "additionalProperties": false,
-      "properties": {
-        "type": {
-          "type": "string",
-          "pattern": "^config$",
-          "default": "config"
-        },
-        "engine_type": {
-          "type": "string",
-          "default": "asset_manager"
-        }
-      }
-    },
     "Plugin": {
       "title": "Plugin",
       "type": "object",
@@ -224,10 +203,11 @@
     "host_type",
     "type",
     "actions",
-    "_config"
+    "engine_type",
+    "engine_name"
   ],
   "order":[
-    "type", "name", "host_type", "actions"
+    "type", "name", "host_type", "actions", "engine_type",  "engine_name"
   ],
   "properties": {
     "type": {
@@ -246,6 +226,14 @@
       "type": "string",
       "default": null
     },
+    "engine_type": {
+      "type": "string",
+      "default": "asset_manager"
+    },
+    "engine_name": {
+      "type": "string",
+      "default": "asset_manager"
+    },
     "discover": {
       "type": "array",
       "items": {
@@ -262,10 +250,6 @@
     },
     "actions": {
       "$ref": "#/definitions/Action"
-    },
-    "_config": {
-      "$ref": "#/definitions/Config",
-      "default": {}
     }
   }
 }

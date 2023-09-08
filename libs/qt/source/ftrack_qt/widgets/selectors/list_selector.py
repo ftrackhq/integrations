@@ -14,7 +14,7 @@ class ListSelector(QtWidgets.QWidget):
     of QListWidget. Used when listing complex items in a list such as DCC assets and
     assembler components for load.'''
 
-    _last_clicked = None  # The asset last clicked, used for SHIFT+ selections
+    _last_clicked = None  # The item last clicked, used for SHIFT+ selections
 
     selection_updated = QtCore.Signal(
         object
@@ -35,9 +35,9 @@ class ListSelector(QtWidgets.QWidget):
 
     def __init__(self, model, item_factory, parent=None):
         '''
-        Initialize asset list widget
+        Initialize item list widget
 
-        :param model: :class:`~ftrack_qt.model.asset_list.AssetListModel` instance
+        :param model: :class:`QtCore.QAbstractTableModel` instance
         :param item_factory: function that should return a widget for each item in model,
             must inherit from :class:`~ftrack_qt.widgets.selectors.ListSelectorItem` and QWidget.
         :param parent:  The parent dialog or frame
@@ -75,16 +75,23 @@ class ListSelector(QtWidgets.QWidget):
             index = self.model.createIndex(row, 0, self.model)
             item_data = self.model.data(index)
             item_widget = self._item_factory(index, item_data)
+            assert isinstance(item_widget, ListSelectorItem), (
+                'Item factory must return a widget that inherits from '
+                'ListSelectorItem'
+            )
+            # Styling:
             set_property(item_widget, 'first', 'true' if row == 0 else 'false')
             self.layout().addWidget(item_widget)
             item_widget.clicked.connect(
-                partial(self.asset_clicked, item_widget)
+                partial(self.item_clicked, item_widget)
             )
+        # Filler
+        self.layout().addWidget(QtWidgets.QWidget(), 100)
         self.refresh()
         self.rebuilt.emit()
 
     def refresh(self, search_text=None):
-        '''Update asset list depending on search text'''
+        '''Update list depending on search text'''
         if search_text is None:
             search_text = self.prev_search_text
         for item_widget in self.items:
@@ -99,7 +106,7 @@ class ListSelector(QtWidgets.QWidget):
             self.prev_search_text = text
 
     def selection(self, as_widgets=False):
-        '''Return list of asset infos or asset widgets if *as_widgets* is True'''
+        '''Return list of data items, or item widgets if *as_widgets* is True'''
         result = []
         for widget in self.items:
             if widget.selected:
@@ -114,21 +121,22 @@ class ListSelector(QtWidgets.QWidget):
         return result
 
     def clear_selection(self):
-        '''De-select all assets'''
+        '''De-select all items'''
         if not shiboken2.isValid(self):
             return
-        selection_asset_data_changed = False
-        for asset_widget in self.assets:
-            if asset_widget.set_selected(False):
-                selection_asset_data_changed = True
-        if selection_asset_data_changed:
+        selection_item_data_changed = False
+        for item_widget in self.items:
+            if item_widget.selected:
+                item_widget.selected = True
+                selection_item_data_changed = True
+        if selection_item_data_changed:
             selection = self.selection()
             if selection is not None:
-                self.selectionUpdated.emit(selection)
+                self.selection_updated.emit(selection)
 
-    def asset_clicked(self, asset_widget, event):
-        '''An asset were clicked in list, evaluate selection.'''
-        selection_asset_data_changed = False
+    def item_clicked(self, item_widget, event):
+        '''An item were clicked in list, evaluate selection.'''
+        selection_item_data_changed = False
         modifiers = QtWidgets.QApplication.keyboardModifiers()
         if event.button() == QtCore.Qt.RightButton:
             return
@@ -139,38 +147,42 @@ class ListSelector(QtWidgets.QWidget):
             and platform.system() == 'Darwin'
         ):
             # Toggle selection
-            if not asset_widget.selected:
-                if asset_widget.set_selected(True):
-                    selection_asset_data_changed = True
+            if not item_widget.selected:
+                if not item_widget.selected:
+                    item_widget.selected = True
+                    selection_item_data_changed = True
             else:
-                if asset_widget.set_selected(False):
-                    selection_asset_data_changed = True
+                if not item_widget.selected:
+                    item_widget.selected = False
+                    selection_item_data_changed = True
         elif modifiers == QtCore.Qt.ShiftModifier:
             # Select in betweens
             if self._last_clicked:
                 start_row = min(
-                    self._last_clicked.index.row(), asset_widget.index.row()
+                    self._last_clicked.index.row(), item_widget.index.row()
                 )
                 end_row = max(
-                    self._last_clicked.index.row(), asset_widget.index.row()
+                    self._last_clicked.index.row(), item_widget.index.row()
                 )
-                for widget in self.assets:
+                for widget in self.items:
                     if start_row <= widget.index.row() <= end_row:
-                        if widget.set_selected(True):
-                            selection_asset_data_changed = True
+                        if not widget.selected:
+                            widget.selected = True
+                            selection_item_data_changed = True
         else:
             self.clear_selection()
-            if asset_widget.set_selected(True):
-                selection_asset_data_changed = True
-        self._last_clicked = asset_widget
-        if selection_asset_data_changed:
+            if not item_widget.selected:
+                item_widget.selected = True
+                selection_item_data_changed = True
+        self._last_clicked = item_widget
+        if selection_item_data_changed:
             selection = self.selection()
             if selection is not None:
-                self.selectionUpdated.emit(selection)
+                self.selection_updated.emit(selection)
 
     def get_widget(self, index):
-        '''Return the asset widget representation at *index*'''
-        for widget in self.assets:
+        '''Return the item widget representation at *index*'''
+        for widget in self.items:
             if widget.index.row() == index.row():
                 return widget
 
@@ -182,14 +194,21 @@ class ListSelector(QtWidgets.QWidget):
 class ListSelectorItem(object):
     '''Base class for an item in the list selector.'''
 
+    clicked = QtCore.Signal(object)
+    # Emitted when item is clicked
+
+    double_clicked = QtCore.Signal(
+        object
+    )  # Emitted when item is double-clicked
+
     @property
     def index(self):
-        '''Return the index this asset has in list'''
+        '''Return the index this item has in list'''
         return self._index
 
     @index.setter
     def index(self, value):
-        '''Set the index this asset has in list'''
+        '''Set the index this item has in list'''
         self._index = value
 
     @property

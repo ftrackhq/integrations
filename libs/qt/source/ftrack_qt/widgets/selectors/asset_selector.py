@@ -402,3 +402,12 @@ class AssetSelector(QtWidgets.QWidget):
         else:
             set_property(self._new_asset_input.name, 'input', 'invalid')
         return is_valid_bool
+
+
+class AssetVersionSelector(QtWidgets.QComboBox):
+    '''Widget representing dynamic asset state modifiable by user'''
+
+    def __init__(self):
+        super(AssetVersionSelector, self).__init__()
+        self.setMinimumHeight(22)
+        self.setMaximumHeight(22)

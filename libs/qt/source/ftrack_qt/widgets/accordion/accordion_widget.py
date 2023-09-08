@@ -4,18 +4,17 @@
 from Qt import QtWidgets, QtCore, QtGui
 
 from ftrack_qt.utils.widget import set_property
-from ftrack_qt.widgets.headers import AccordionHeaderWidget
+from ftrack_qt.widgets.headers import (
+    AccordionHeaderWidget,
+    PublisherAccordionHeaderWidget,
+    AssetAccordionHeaderWidget,
+)
 from ftrack_qt.widgets.selectors import ListSelectorItem
 
 
 class AccordionWidget(QtWidgets.QFrame, ListSelectorItem):
     '''A utility accordion widget providing a header which can be expanded to show content.
-    Designed to be inherited and extended.'''
-
-    clicked = QtCore.Signal(object)  # Emitted when accordion is clicked
-    double_clicked = QtCore.Signal(
-        object
-    )  # Emitted when accordion is double-clicked
+    Designed to be inherited, extended and put into a ListSelector widget.'''
 
     @property
     def title(self):
@@ -63,6 +62,16 @@ class AccordionWidget(QtWidgets.QFrame, ListSelectorItem):
     def checked(self):
         '''(Checkable) Return True if checked'''
         return self._checked
+
+    @property
+    def header_widget(self):
+        '''Return the header widget'''
+        return self._header_widget
+
+    @property
+    def content_widget(self):
+        '''Return the content widget'''
+        return self._content_widget
 
     def __init__(
         self,
@@ -118,6 +127,17 @@ class AccordionWidget(QtWidgets.QFrame, ListSelectorItem):
         self.layout().setContentsMargins(0, 0, 0, 0)
         self.layout().setSpacing(0)
 
+    def build_header(self):
+        '''Build the header widget, to be overridden'''
+        return AccordionHeaderWidget(
+            title=self.title,
+            checkable=self.checkable,
+            checked=self.checked,
+            show_checkbox=self.show_checkbox,
+            collapsable=self.collapsable,
+            collapsed=self.collapsed,
+        )
+
     def build(self):
         # Create the indicator widget
         self._indicator_widget = QtWidgets.QFrame()
@@ -135,14 +155,7 @@ class AccordionWidget(QtWidgets.QFrame, ListSelectorItem):
         main_widget.layout().setSpacing(1)
 
         # Create Header
-        self._header_widget = AccordionHeaderWidget(
-            title=self.title,
-            checkable=self.checkable,
-            checked=self.checked,
-            show_checkbox=self.show_checkbox,
-            collapsable=self.collapsable,
-            collapsed=self.collapsed,
-        )
+        self._header_widget = self.build_header()
 
         # Add header to main widget
         main_widget.layout().addWidget(self._header_widget)
@@ -169,9 +182,6 @@ class AccordionWidget(QtWidgets.QFrame, ListSelectorItem):
         )
         self._content_widget.setVisible(not self._collapsed)
         self._content_widget.setEnabled(self.checked)
-
-    def add_option_widget(self, widget, section_name):
-        self._header_widget.add_option_widget(widget, section_name)
 
     def add_widget(self, widget):
         '''Add widget to content'''

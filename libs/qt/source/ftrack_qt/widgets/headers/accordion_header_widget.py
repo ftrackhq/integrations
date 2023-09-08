@@ -5,11 +5,7 @@ from Qt import QtWidgets, QtCore, QtGui
 
 from ftrack_qt.widgets.icons import (
     ArrowMaterialIconWidget,
-    MaterialIcon,
-    StatusMaterialIconWidget,
 )
-from ftrack_qt.widgets.lines import LineWidget
-from ftrack_qt.widgets.buttons import OptionsButton
 
 
 class AccordionHeaderWidget(QtWidgets.QFrame):
@@ -73,9 +69,6 @@ class AccordionHeaderWidget(QtWidgets.QFrame):
         self._title_label = None
         self._header_content_widget = None
         self._arrow = None
-        self._status = None
-        self._options_button = None
-        self._status_icon = None
 
         self.pre_build()
         self.build()
@@ -86,6 +79,16 @@ class AccordionHeaderWidget(QtWidgets.QFrame):
         self.setLayout(QtWidgets.QHBoxLayout())
         self.layout().setContentsMargins(2, 0, 5, 0)
         self.layout().setSpacing(10)
+
+    def build_content(self):
+        '''Additional header custom content, to be implemented by subclass'''
+        result = QtWidgets.QWidget()
+        content_layout = QtWidgets.QHBoxLayout()
+        content_layout.setContentsMargins(0, 0, 0, 0)
+        content_layout.setSpacing(0)
+        result.setLayout(content_layout)
+
+        return result
 
     def build(self):
         # Create checkbox
@@ -101,27 +104,7 @@ class AccordionHeaderWidget(QtWidgets.QFrame):
             self._title_label.hide()
 
         # Create Content
-        self._header_content_widget = QtWidgets.QWidget()
-        content_layout = QtWidgets.QHBoxLayout()
-        content_layout.setContentsMargins(0, 0, 0, 0)
-        content_layout.setSpacing(0)
-        self._header_content_widget.setLayout(content_layout)
-
-        # Add Status label widget in context Widget
-        self._status_label = QtWidgets.QLabel()
-        self._status_label.setObjectName('color-primary')
-        content_layout.addWidget(self._status_label)
-        content_layout.addStretch()
-        content_layout.addWidget(LineWidget(horizontal=True))
-        # add options widget
-        self._options_button = OptionsButton(
-            self.title, MaterialIcon('settings', color='gray')
-        )
-        self._options_button.setObjectName('borderless')
-        content_layout.addWidget(LineWidget(horizontal=True))
-        # add status icon
-        self._status_icon = StatusMaterialIconWidget('check')
-        self._status_icon.setObjectName('borderless')
+        self._header_content_widget = self.build_content()
 
         # Create Arrow
         self._arrow = ArrowMaterialIconWidget(None)
@@ -131,22 +114,10 @@ class AccordionHeaderWidget(QtWidgets.QFrame):
         self.layout().addWidget(self._checkbox)
         self.layout().addWidget(self._title_label)
         self.layout().addWidget(self._header_content_widget, 10)
-        self.layout().addWidget(self._options_button)
-        self.layout().addWidget(self._status_icon)
         self.layout().addWidget(self._arrow)
 
     def post_build(self):
-        self._checkbox.stateChanged.connect(self._on_checkbox_status_changed)
         self._arrow.clicked.connect(self._on_arrow_clicked)
-
-    def add_option_widget(self, widget, section_name):
-        self._options_button.add_widget(widget, section_name)
-
-    def _on_checkbox_status_changed(self):
-        self._checked = self._checkbox.isChecked()
-        self._title_label.setEnabled(self._checked)
-        self._header_content_widget.setEnabled(self._checked)
-        self.checkbox_status_changed.emit(self._checked)
 
     def _on_arrow_clicked(self, event):
         self.arrow_clicked.emit(event)

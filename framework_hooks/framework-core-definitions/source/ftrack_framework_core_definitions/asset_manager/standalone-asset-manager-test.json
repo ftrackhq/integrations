@@ -8,7 +8,7 @@
             {
                 "name": "discover",
                 "label": "Discover assets",
-                "plugin": "common_discover_am_action",
+                "plugin": "common_test_am_discover_action",
                 "options": {}
             }
         ],

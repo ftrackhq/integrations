@@ -10,7 +10,6 @@ from ftrack_qt.widgets.headers import SessionHeader
 from ftrack_qt.widgets.selectors import DropdownSelector
 from ftrack_qt.widgets.dialogs import StyledDialog, ModalDialog
 from ftrack_qt.widgets.browsers import AssetManagerBrowser
-from ftrack_qt.widgets.model import AssetInfoListModel
 
 
 class AssetManagerDialog(FrameworkDialog, StyledDialog):
@@ -20,8 +19,6 @@ class AssetManagerDialog(FrameworkDialog, StyledDialog):
     definition_type_filter = ['asset_manager']
     ui_type = 'qt'
     docked = True
-
-    selected_host_changed = QtCore.Signal(object)
 
     @property
     def host_connections_ids(self):
@@ -42,9 +39,9 @@ class AssetManagerDialog(FrameworkDialog, StyledDialog):
     def selected_host_connection_id(self, value):
         '''Set the given *value* as selected host_connection_id'''
         if not self.selected_host_connection_id and not value:
-            self._asset_list_model.reset()
+            self.asset_manager_browser.reset()
         if self.selected_host_connection_id != value:
-            self._asset_list_model.reset()
+            self.asset_manager_browser.reset()
             if not value:
                 self._host_connection_selector.set_current_item_index(0)
                 return
@@ -112,13 +109,7 @@ class AssetManagerDialog(FrameworkDialog, StyledDialog):
             parent,
         )
         self._asset_manager_browser = None
-        self._asset_list_model = (dialog_options or {}).get('model')
-        if self._asset_list_model is None:
-            self.logger.warning(
-                'No global asset list model provided, creating.'
-            )
-            self._asset_list_model = AssetInfoListModel()
-        self._in_assembler = (dialog_options or {}).get('assembler') is True
+        self._plugin_run_callback = None
 
         self.pre_build()
         self.build()
@@ -141,9 +132,7 @@ class AssetManagerDialog(FrameworkDialog, StyledDialog):
 
         self._host_connection_selector = DropdownSelector("Host Selector")
 
-        self.asset_manager_browser = AssetManagerBrowser(
-            self._in_assembler, self.event_manager, self._asset_list_model
-        )
+        self.asset_manager_browser = AssetManagerBrowser(self)
 
         self.layout().addWidget(self._header)
         self.layout().addWidget(self._host_connection_selector)
@@ -160,6 +149,9 @@ class AssetManagerDialog(FrameworkDialog, StyledDialog):
         )
         self.asset_manager_browser.on_config.connect(
             self._on_open_assembler_callback
+        )
+        self.asset_manager_browser.run_plugin.connect(
+            self._on_run_plugin_callback
         )
 
     def _on_open_assembler_callback(self, event):
@@ -228,6 +220,27 @@ class AssetManagerDialog(FrameworkDialog, StyledDialog):
 
         self.build_asset_manager_ui(self.definition)
 
+    def _on_run_plugin_callback(
+        self, plugin_definition, plugin_method_name, plugin_run_callback
+    ):
+        '''Asset manager browser requests running a defined in *plugin_definition*,
+        running *plugin_run_callback* with the result when the plugin is finished.
+        '''
+        self._plugin_run_callback = plugin_run_callback
+        self.run_plugin_method(plugin_definition, plugin_method_name)
+
+    def _on_client_notify_ui_run_plugin_result_callback(self, event):
+        '''
+        (Override) Pass plugin result on to asset manager
+        '''
+        plugin_info = event['data']['plugin_info']
+        if not self._plugin_run_callback:
+            self.logger.warning(
+                'No callback registered for handling plugin result!'
+            )
+            return
+        self._plugin_run_callback(plugin_info)
+
     def _on_refresh_hosts_callback(self):
         '''
         Refresh host button has been clicked in the UI,
@@ -259,24 +272,6 @@ class AssetManagerDialog(FrameworkDialog, StyledDialog):
     def build_asset_manager_ui(self, definition):
         '''A definition has been selected, providing the required plugins to drive the asset manager.
         Now build the UI'''
-
         menu_action_plugins = definition.get('actions')
-        self.asset_manager_browser.create_actions(menu_action_plugins, self)
+        self.asset_manager_browser.create_actions(menu_action_plugins)
         self.asset_manager_browser.rebuild()
-
-    # Handle asset actions
-
-    def check_selection(self, selected_assets):
-        '''Check if *selected_assets* is empty and show dialog message'''
-        if len(selected_assets) == 0:
-            ModalDialog(
-                self._client,
-                title='Error!',
-                message="Please select at least one asset!",
-            ).exec_()
-            return False
-        else:
-            return True
-
-    def ctx_discover(self, selected_assets, plugin):
-        print('@@@ ctx_discover: {}'.format(plugin))

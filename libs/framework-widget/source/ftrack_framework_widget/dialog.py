@@ -6,7 +6,7 @@ from ftrack_framework_widget import BaseUI, active_widget
 
 class FrameworkDialog(BaseUI):
     '''
-    Base Class to represent a FrameworkDilog, all the dialogs executed by the
+    Base Class to represent a FrameworkDialog, all the dialogs executed by the
     UI should inherit from here.
     '''
 

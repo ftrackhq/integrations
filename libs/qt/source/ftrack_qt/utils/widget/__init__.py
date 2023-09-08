@@ -54,7 +54,7 @@ def center_widget(widget, width=None, height=None):
     h_container.setLayout(QtWidgets.QHBoxLayout())
     h_container.layout().addWidget(QtWidgets.QLabel(), 100)
     h_container.layout().addWidget(widget)
-    if not width is None and not height is None:
+    if width is not None and height is not None:
         widget.setMaximumSize(QtCore.QSize(width, height))
         widget.setMinimumSize(QtCore.QSize(width, height))
     h_container.layout().addWidget(QtWidgets.QLabel(), 100)
