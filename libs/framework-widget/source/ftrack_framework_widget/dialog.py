@@ -275,7 +275,7 @@ class FrameworkDialog(BaseUI):
         # TODO: raise not implemented error
         pass
 
-    def init_framework_widget(self, plugin_definition):
+    def init_framework_widget(self, plugin_definition, register=True):
         '''
         Method to initialize a framework widget given in the *plugin_definition*
         '''
@@ -304,7 +304,8 @@ class FrameworkDialog(BaseUI):
             dialog_connect_methods_callback=self._connect_dialog_methods_callback,
             dialog_property_getter_connection_callback=self._connect_dialog_property_getter_connection_callback,
         )
-        self._register_widget(widget)
+        if register:
+            self._register_widget(widget)
         return widget
 
     def _register_widget(self, widget):

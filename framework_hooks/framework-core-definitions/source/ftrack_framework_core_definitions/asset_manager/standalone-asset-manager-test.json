@@ -3,21 +3,26 @@
     "name": "default",
     "host_type": "python",
     "ui_type": "qt",
-    "actions":{
-        "discover":[
-            {
-                "name": "discover",
-                "label": "Discover assets",
-                "plugin": "common_test_am_discover_action",
-                "options": {}
-            }
-        ],
+    "discover":[
+        {
+            "description": "discover",
+            "plugin": "common_test_am_discover",
+            "widget": "generic_asset_item",
+            "options": {}
+        }
+    ],
+    "actions": {
         "update":[
             {
-                "name": "update",
-                "label": "Update to latest",
+                "description": "Update to latest",
                 "plugin": "common_update_latest_am_action",
                 "options": {"clear_selection":  false}
+            }
+        ],
+        "select":[
+            {
+                "description": "Select",
+                "plugin": "common_test_select_am_action"
             }
         ]
     }

@@ -4,6 +4,8 @@ import json
 
 from Qt import QtWidgets, QtCore, QtGui
 
+from ftrack_framework_widget.widget import FrameworkWidget
+
 from ftrack_constants.framework import asset as asset_const
 
 from ftrack_utils.string import str_version
@@ -19,9 +21,12 @@ from ftrack_qt.widgets.lines import LineWidget
 from ftrack_qt.widgets.dialogs import ModalDialog
 
 
-# TODO: Remove this when we decided to go for asset item as FrameworkWidget instance.
-class AssetAccordionWidget(AccordionWidget):
-    '''Accordion widget tailored for presenting an asset (data: asset_info)'''
+class GenericAssetItem(FrameworkWidget, AccordionWidget):
+    '''Accordion widget tailored for presenting an asset (component entity),
+    driven by DCC compatible asset_info data type.'''
+
+    name = 'generic_asset_item'
+    ui_type = 'qt'
 
     change_asset_version = QtCore.Signal(object, object)  # User change version
 
@@ -34,22 +39,40 @@ class AssetAccordionWidget(AccordionWidget):
     def session(self):
         return self._event_manager.session
 
-    def __init__(self, index, event_manager, parent=None):
+    def __init__(self,
+        event_manager,
+        client_id,
+        context_id,
+        plugin_definition,
+        dialog_connect_methods_callback,
+        dialog_property_getter_connection_callback,
+        parent = None
+    ):
         '''
-        Initialize asset widget
+        Initialize asset item widget
 
         :param index: The index this asset has in list
         :param parent: The parent dialog or frame
         '''
-        self._event_manager = event_manager
-        self.index = index
         self._version_id = None
-        super(AssetAccordionWidget, self).__init__(
+        AccordionWidget.__init__(
+            self,
             selectable=True,
             show_checkbox=False,
             checked=False,
             parent=parent,
         )
+        FrameworkWidget.__init__(
+            self,
+            event_manager,
+            client_id,
+            context_id,
+            plugin_definition,
+            dialog_connect_methods_callback,
+            dialog_property_getter_connection_callback,
+            parent=parent,
+        )
+
 
     def build_header(self):
         '''(Override) Provide an extended header with options and status icon'''
@@ -64,7 +87,7 @@ class AssetAccordionWidget(AccordionWidget):
 
     def build(self):
         '''(Override) Initialize the accordion content'''
-        super(AssetAccordionWidget, self).build()
+        super(GenericAssetItem, self).build()
         self.content_widget.layout().setContentsMargins(10, 2, 10, 2)
         self.content_widget.layout().setSpacing(5)
 
@@ -323,3 +346,4 @@ class AssetAccordionWidget(AccordionWidget):
                 self._component_and_version_widget.set_version(
                     current_version['version']
                 )
+

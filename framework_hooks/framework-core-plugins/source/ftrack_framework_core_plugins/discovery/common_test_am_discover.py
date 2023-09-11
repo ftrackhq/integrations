@@ -8,7 +8,7 @@ from ftrack_framework_core.asset.asset_info import FtrackAssetInfo
 
 
 class CommonTestAssetManagerDiscoverPlugin(BasePlugin):
-    name = 'common_test_am_discover_action'
+    name = 'common_test_am_discover'
     host_type = constants.host.PYTHON_HOST_TYPE
     plugin_type = constants.plugin.PLUGIN_DISCOVER_TYPE
 
@@ -29,6 +29,7 @@ class CommonTestAssetManagerDiscoverPlugin(BasePlugin):
         # filter = {'asset_name': 'torso', 'asset_type_name': 'geo'}
         # return filter
 
+        # Select first 5 components of type fbx, abc,
         component_name = 'fbx'
 
         asset_versions_entities = []

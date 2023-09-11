@@ -39,20 +39,26 @@ class AssetManagerBrowser(QtWidgets.QWidget):
     # Run plugin with *plugin_definition*, *plugin_method_nam* and *callback*
 
     @property
+    def framework_dialog(self):
+        '''Returns framework_dialog'''
+        return self._framework_dialog
+
+    @property
     def event_manager(self):
         '''Returns event_manager'''
-        return self._event_manager
+        return self.framework_dialog.event_manager
 
     @property
     def session(self):
         '''Returns Session'''
         return self.event_manager.session
 
-    def __init__(self, event_manager, parent=None):
-        '''Instantiate the browser with *event_manager*'''
+    def __init__(self, framework_dialog, parent=None):
+        '''Instantiate the browser within parent *framework_dialog*'''
         super(AssetManagerBrowser, self).__init__(parent=parent)
-        self._event_manager = event_manager
+        self._framework_dialog = framework_dialog
         self._asset_list_model = AssetInfoListModel()
+        self._discovery_plugin_definition = None
 
         self._action_widgets = None
         self._config_button = None
@@ -69,7 +75,9 @@ class AssetManagerBrowser(QtWidgets.QWidget):
 
     def _build_asset_widget(self, index, asset_info):
         '''Factory creating an asset widget for *index* and *asset_info*.'''
-        result = AssetAccordionWidget(index, self.event_manager)
+        #result = AssetAccordionWidget(index, self.event_manager)
+        result = self.framework_dialog.init_framework_widget(self._discovery_plugin_definition)
+        result.index = index
         result.set_asset_info(asset_info)
         result.change_asset_version.connect(self._on_change_asset_version)
         return result
@@ -156,16 +164,12 @@ class AssetManagerBrowser(QtWidgets.QWidget):
         '''Rebuild the asset list - (re-)discover DCC assets.'''
         self._rebuild_button.click()
 
-    def _on_rebuild(self):
-        '''Query DCC for scene assets by running the discover action.'''
-        for action_type, action_widgets in list(self._action_widgets.items()):
-            if action_type == 'discover':
-                for action_widget in action_widgets:
-                    self._context_menu_triggered(action_widget)
-                    # action_widget.trigger()
-                    return
-                break
-        logger.warning('No discover action found for asset manager!')
+    def setup_discovery(self, discovery_plugins):
+        '''Setup discovery plugins from *discovery_plugins*.'''
+        for plugin in discovery_plugins:
+            self._discovery_plugin_definition = plugin
+            return
+        raise Exception('No discovery plugin found!')
 
     def create_actions(self, actions):
         '''Dynamically register asset manager actions from definition *actions*.
@@ -188,6 +192,13 @@ class AssetManagerBrowser(QtWidgets.QWidget):
                 action_widget.setData(action)
                 self._action_widgets[action_type].append(action_widget)
 
+    def _on_rebuild(self):
+        '''Query DCC for scene assets by running the discover action.'''
+        if not self._discovery_plugin_definition:
+            raise Exception('No discovery plugin setup!')
+        self._run_plugin(self._discovery_plugin_definition.to_dict())
+        logger.warning('No discover action found for asset manager!')
+
     def contextMenuEvent(self, event):
         '''(Override) Executes the context menu'''
         # Anything selected?
@@ -205,12 +216,17 @@ class AssetManagerBrowser(QtWidgets.QWidget):
         for action_type, action_widgets in list(self._action_widgets.items()):
             if action_type == 'remove' and not self.remove_enabled:
                 continue  # Can only remove asset when in assembler
-            if action_type not in list(self.action_type_menu.keys()):
-                type_menu = QtWidgets.QMenu(action_type.title(), self)
-                menu.addMenu(type_menu)
-                self.action_type_menu[action_type] = type_menu
-            for action_widget in action_widgets:
-                self.action_type_menu[action_type].addAction(action_widget)
+            if len(action_widgets) == 0:
+                continue
+            elif len(action_widgets) == 1:
+                menu.addAction(action_widgets[0])
+            else:
+                if action_type not in list(self.action_type_menu.keys()):
+                    type_menu = QtWidgets.QMenu(action_type.title(), self)
+                    menu.addMenu(type_menu)
+                    self.action_type_menu[action_type] = type_menu
+                for action_widget in action_widgets:
+                    self.action_type_menu[action_type].addAction(action_widget)
         menu.triggered.connect(self._context_menu_triggered)
 
         # add other required actions
@@ -220,8 +236,10 @@ class AssetManagerBrowser(QtWidgets.QWidget):
         '''
         Find and call the clicked function on the menu
         '''
-        plugin = action.data()
-        # plugin['name'].replace(' ', '_')
+        self._run_plugin(action.data())
+
+    def _run_plugin(self, plugin):
+        ''' Run the plugin with the given *plugin* definition. '''
         ui_callback = plugin['ui_callback']
         if hasattr(self, ui_callback):
             callback_fn = getattr(self, ui_callback)
@@ -250,16 +268,26 @@ class AssetManagerBrowser(QtWidgets.QWidget):
     # Discover
 
     def ctx_discover(self, selected_assets, plugin_definition):
+
         self.run_plugin.emit(
             plugin_definition, 'run', self._assets_discovered_callback
         )
 
     def _assets_discovered_callback(self, plugin_info):
+        print('@@@ _assets_discovered_callback: {}'.format(json.dumps(plugin_info, indent=2)))
         asset_entities_list = []
         for ftrack_asset in plugin_info['plugin_method_result']:
             asset_entities_list.append(ftrack_asset)
 
         self.set_asset_list(asset_entities_list)
+
+    # Update to latest version
+
+    # TODO: Implement
+
+    # Select
+
+
 
     def _on_change_asset_version(self, asset_info, version_entity):
         '''

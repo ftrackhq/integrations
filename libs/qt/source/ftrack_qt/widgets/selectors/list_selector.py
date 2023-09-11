@@ -226,6 +226,6 @@ class ListSelectorItem(object):
         '''Return True if this item matches *text*'''
         raise NotImplementedError()
 
-    def __init__(self):
+    def __init__(self, index):
+        self._index = index
         self._selected = False
-        self._index = None

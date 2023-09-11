@@ -83,6 +83,7 @@ class AccordionWidget(QtWidgets.QFrame, ListSelectorItem):
         checked=True,
         collapsable=True,
         collapsed=True,
+        index=None,
         parent=None,
     ):
         '''
@@ -98,8 +99,8 @@ class AccordionWidget(QtWidgets.QFrame, ListSelectorItem):
         :param docked: Flag telling if accordion is docked in DCC or within an ftrack dialog - drives the style
         :param parent:  the parent dialog or frame
         '''
-        super(AccordionWidget, self).__init__(parent=parent)
-        super(ListSelectorItem, self).__init__()
+        QtWidgets.QFrame.__init__(self, parent=parent)
+        ListSelectorItem.__init__(self, index)
 
         self._indicator_widget = None
         self._header_widget = None

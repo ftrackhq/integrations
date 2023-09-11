@@ -272,6 +272,8 @@ class AssetManagerDialog(FrameworkDialog, StyledDialog):
     def build_asset_manager_ui(self, definition):
         '''A definition has been selected, providing the required plugins to drive the asset manager.
         Now build the UI'''
+        discovery_plugins = definition.get('discover')
+        self.asset_manager_browser.setup_discovery(discovery_plugins)
         menu_action_plugins = definition.get('actions')
         self.asset_manager_browser.create_actions(menu_action_plugins)
         self.asset_manager_browser.rebuild()
