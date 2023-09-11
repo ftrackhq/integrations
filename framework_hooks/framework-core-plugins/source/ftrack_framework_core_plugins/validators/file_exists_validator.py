@@ -37,14 +37,13 @@ class FileExistsValidatorPlugin(BasePlugin):
         return exists
 
     def run(self, context_data=None, data=None, options=None):
-        self.logger.debug("given context_data: {}".format(context_data))
-        self.logger.debug("given data: {}".format(data))
-        self.logger.debug("given options: {}".format(options))
-        # TODO: fix run definitions to be able to pass clear data. We need all
-        #  the data from previous executed plugins, but maybe we can convert them
-        #  to definition objects or somehow should be easier to get the result
-        #  that the client want.
-        collector_result = data[0]['result'][0]['result'][0][
-            'plugin_method_result'
-        ]
+        # Pick plugins from previous collector stage
+        collector_plugins = []
+        for value in data.values():
+            collector_plugins.append(value.get('collector'))
+        # Pick result of collector plugins.
+        collector_result = []
+        for plugin in collector_plugins:
+            collector_result.extend(list(plugin.values()))
+
         return self.validate(data={'collector_result': collector_result})

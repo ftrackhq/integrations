@@ -360,27 +360,25 @@ class Publish(object):
         step_type,
         step_name,
         stage_name,
+        plugin_name,
         total_plugins,
         current_plugin_index,
         status,
-        results=None,
         callback=None,
     ):
         '''
         Publish an event with topic
         :const:`~ftrack_framework_core.constants.event.NOTIFY_DEFINITION_PROGRESS_TOPIC`
         '''
-        # TODO: call this from a new launch_assembler method in the opener
-        #  client or in any other place. The data needed is like the following:
         data = {
             'host_id': host_id,
             'step_type': step_type,
-            'step_name': step_name,  # Not used
+            'step_name': step_name,
             'stage_name': stage_name,
+            'plugin_name': plugin_name,
             'total_plugins': total_plugins,
-            'current_plugin_index': current_plugin_index,  # Not used
+            'current_plugin_index': current_plugin_index,
             'status': status,
-            'results': results,
         }
 
         event_topic = constants.event.NOTIFY_DEFINITION_PROGRESS_TOPIC

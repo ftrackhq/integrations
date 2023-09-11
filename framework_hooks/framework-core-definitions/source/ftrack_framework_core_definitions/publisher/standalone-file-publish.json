@@ -59,7 +59,7 @@
               "plugin": "rename_file_exporter",
               "widget": "file_exporter_options",
               "options": {
-                "export_destination": "/Users/ftrack/Desktop/myPublishedFiile.png"
+                "export_destinations": "/Users/ftrack/Desktop/myPublishedFiile.png"
               }
             }
           ]

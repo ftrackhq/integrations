@@ -19,15 +19,43 @@ class RenameExporterPlugin(BasePlugin):
             required_output_type=str,
             required_output_value=None,
         )
+        self.register_method(
+            method_name='rename',
+            required_output_type=None,
+            required_output_value=None,
+        )
+
+    def rename(self, context_data=None, data=None, options=None):
+        export_destinations = data['export_destinations']
+        collector_result = data['collector_result']
+        renamed = []
+        i = 0
+        for destination in export_destinations:
+            renamed.append(shutil.copy(collector_result[i], destination))
+            i += 0
+        return renamed
 
     def run(self, context_data=None, data=None, options=None):
         self.logger.debug("given context_data: {}".format(context_data))
         self.logger.debug("given data: {}".format(data))
         self.logger.debug("given options: {}".format(options))
-        # TODO: Duplicate and rename provided file
-        collector_result = data[0]['result'][0]['result'][0][
-            'plugin_method_result'
-        ]
-        export_destination = options['export_destination']
-        shutil.copy(collector_result, export_destination)
-        return export_destination
+
+        # Pick plugins from previous collector stage
+        collector_plugins = []
+        for value in data.values():
+            collector_plugins.append(value.get('collector'))
+        # Pick result of collector plugins.
+        collector_result = []
+        for plugin in collector_plugins:
+            collector_result.extend(list(plugin.values()))
+
+        export_destinations = options['export_destinations']
+        if type(export_destinations) == str:
+            export_destinations = list(export_destinations)
+
+        return self.rename(
+            data={
+                'collector_result': collector_result,
+                'export_destinations': export_destinations
+            }
+        )

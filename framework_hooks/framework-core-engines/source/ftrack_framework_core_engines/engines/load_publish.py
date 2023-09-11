@@ -57,9 +57,15 @@ class LoadPublishEngine(BaseEngine):
         self._registry = {}
 
     def _update_registry(
-            self, step_name, stage_name, plugin_name, plugin_result
+            self, step_type, step_name, stage_name, plugin_name, plugin_result
     ):
-        self._registry[step_name][stage_name][plugin_name] = plugin_result
+        if not self._registry.get(step_type):
+            self._registry[step_type] = {}
+        if not self._registry[step_type].get(step_name):
+            self._registry[step_type][step_name] = {}
+        if not self._registry[step_type][step_name].get(stage_name):
+            self._registry[step_type][step_name][stage_name] = {}
+        self._registry[step_type][step_name][stage_name][plugin_name] = plugin_result
 
     def run_plugin(
         self,
@@ -88,32 +94,22 @@ class LoadPublishEngine(BaseEngine):
     def run_stage(
         self,
         stage_definition,
+        step_type,
         step_name
     ):
         '''
-        Returns the bool status and the result list of dictionaries of executing
-        all the plugins in the stage.
-        This function executes all the defined plugins for this stage using
-        the :meth:`_run_plugin`
+        Returns the bool status of running all the plugins in the given
+        *stage_definition*.
 
-        *stage_name* : Name of the stage that's executing.
+        *stage_definition* : :obj:`~ftrack_framework_core.definition.Stage`
 
-        *plugins* : List of plugins that has to execute.
-
-        *stage_context* : Context dictionary with the result of the context
-        plugin containing the context_id, aset_name... Or None
-
-        *stage_options* : Options dictionary to be passed to each plugin.
-
-        *stage_data* : Data list of dictionaries to be passed to each stage.
-
-        *plugins_order* : Order of the plugins to be executed.
-
-        *step_type* : Type of the step.
+        *step_type* : Type of the parent step
+        *step_name* : Name of the parent step
         '''
 
-        plugins = stage_definition.get_all(category='plugins')
+        plugins = stage_definition.get_all(category='plugin')
         status = True
+        i = 0
         for plugin_definition in plugins:
             if not plugin_definition.enabled:
                 self.logger.debug(
@@ -123,28 +119,25 @@ class LoadPublishEngine(BaseEngine):
                 )
                 continue
 
-                # TODO: clean up this and provide a definition_info dictionary like
-                #  we do with the plugins. Probably the definition_object should be
-                #  the one that has the definition info? or maybe just the engine.
-                self.event_manager.publish.notify_definition_progress_client(
-                    host_id=self.host_id,
-                    step_type=step_type,
-                    step_name=step_name,
-                    stage_name=stage_name,
-                    total_plugins=len(plugins),
-                    current_plugin_index=i,
-                    status=constants.status.RUNNING_STATUS,
-                    results=None,
-                )
+            self.event_manager.publish.notify_definition_progress_client(
+                host_id=self.host_id,
+                step_type=step_type,
+                step_name=step_name,
+                stage_name=stage_definition.name,
+                plugin_name=plugin_definition.name,
+                total_plugins=len(plugins),
+                current_plugin_index=i,
+                status=constants.status.RUNNING_STATUS
+            )
 
             # Pass all previous stage executed plugins result
             plugin_data = copy.deepcopy(
-                self._registry[step_name]
+                self._registry.get(step_type)
             )
             # If finalizer add all component results.
-            if step_name == 'finalizer':
-                plugin_data['component'] =  copy.deepcopy(
-                    self._registry['component']
+            if step_type == 'finalizer':
+                plugin_data['component'] = copy.deepcopy(
+                    self._registry.get('component')
                 )
 
             plugin_info = self.run_plugin(
@@ -152,7 +145,6 @@ class LoadPublishEngine(BaseEngine):
                 plugin_default_method=plugin_definition.default_method,
                 # We don't want to pass the information of the previous plugin,
                 # so that is why we only pass the data of the previous stage.
-                # TODO: Instead of using stage data implement the self stage_registry or something like that, same for context data
                 plugin_data=plugin_data,
                 # From the definition + stage_options
                 plugin_options=plugin_definition.options,
@@ -164,11 +156,25 @@ class LoadPublishEngine(BaseEngine):
                 plugin_widget_name=plugin_definition.widget,
             )
 
-            self._update_registry(
-                step_name,
-                stage_definition.name,
-                plugin_name=plugin_info['plugin_name'],
-                plugin_result=plugin_info['plugin_method_result']
+            if step_type == 'context':
+                self._context_data.append(plugin_info['plugin_method_result'])
+            else:
+                self._update_registry(
+                    step_type,
+                    step_name,
+                    stage_definition.name,
+                    plugin_name=plugin_info['plugin_name'],
+                    plugin_result=plugin_info['plugin_method_result']
+                )
+            self.event_manager.publish.notify_definition_progress_client(
+                host_id=self.host_id,
+                step_type=step_type,
+                step_name=step_name,
+                stage_name=stage_definition.name,
+                plugin_name=plugin_definition.name,
+                total_plugins=len(plugins),
+                current_plugin_index=i,
+                status=plugin_info['plugin_status']
             )
             status = constants.status.status_bool_mapping[
                 plugin_info['plugin_status']
@@ -184,36 +190,20 @@ class LoadPublishEngine(BaseEngine):
                     )
                 )
                 break
+            i += 1
 
         # Return status of the stage execution
         return status
 
-
     def run_step(self, step_definition):
         '''
-        Returns the bool status and the result list of dictionaries of executing
-        all the stages in the step.
-        This function executes all the defined stages for for this step using
-        the :meth:`run_stage` with the given *stage_order*.
-
-        *step_name* : Name of the step that's executing.
-
-        *stages* : List of stages that has to execute.
-
-        *step_context* : Context dictionary with the result of the context
-        plugin containing the context_id, aset_name... Or None
-
-        *step_options* : Options dictionary to be passed to each stage.
-
-        *step_data* : Data list of dictionaries to be passed to each stage.
-
-        *stages_order* : Order of the stages to be executed.
-
-        *step_type* : Type of the step.
+        Returns the bool status of running all the stages in the given
+        *step_definition*.
+        *step_definition* : :obj:`~ftrack_framework_core.definition.Step`
         '''
 
         status = True
-        stages = step_definition.get_all(category='plugins')
+        stages = step_definition.get_all(category='stage')
         for stage_definition in stages:
             # We don't need the stage order because the stage order is given by
             # order in the definition and that is a list so its already sorted.
@@ -224,35 +214,20 @@ class LoadPublishEngine(BaseEngine):
                     )
                 )
                 continue
-            status = self.run_stage(stage_definition, step_definition.name)
+            status = self.run_stage(
+                stage_definition, step_definition.type, step_definition.name
+            )
             if not status:
                 break
-        self.event_manager.publish.notify_definition_progress_client(
-            host_id=self.host_id,
-            step_type=step_type,
-            step_name=step_name,
-            stage_name=stage_name,
-            total_plugins=None,
-            current_plugin_index=None,
-            status=constants.status.ERROR_STATUS,
-            results=step_results,
-        )
 
         # Return status of the stage execution
         return status
 
-    # TODO: clean up this code and use definition object to simplify.
     def run_definition(self, definition):
         '''
-        Runs the whole definition from the provided *data*.
-        Call the method :meth:`run_step` for each context, component and
-        finalizer steps.
-
-        *data* : pipeline['data'] provided from the client host connection at
-        :meth:`~ftrack_framework_core.client.HostConnection.run` Should be a
-        valid definition.
+        Runs all the steps in the given *definition*.
+        *definition* : :obj:`~ftrack_framework_core.definition.DefinitionObject`
         '''
-
         status = True
         steps = definition.get_all(category='step')
         for step_definition in steps:
@@ -267,23 +242,5 @@ class LoadPublishEngine(BaseEngine):
             status = self.run_step(step_definition)
             if not status:
                 break
-        if not status:
-            pass
-
-
-
-        # TODO:
-        #  Context step:
-        #      context_data = None,
-        #      data = previous context step
-        #          plugins results
-        #  Components step:
-        #      context_data = result of all context step
-        #          (So dictionary with all context plugins)
-        #      data = Previous component step results
-        #  Finalizer step:
-        #      context_data = result of all context step
-        #          (So dictionary with all context plugins)
-        #      data = Importer, exporter and post_import results of the
-        #          component step + Previous finalizer step results
+        return status
 
