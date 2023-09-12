@@ -21,7 +21,7 @@ class DefinitionObject(MutableMapping):
         given *kwargs*.
         '''
         # Example kwargs --> type=context, name=main
-        results = []
+        results = DefinitionList([])
         match = True
         for k, v in kwargs.items():
             # If key not in self or v not match to the k value jump out

@@ -294,9 +294,7 @@ class PublisherDialog(FrameworkDialog, ScrollDefinitionsDialog):
         '''
 
         arguments = {
-            "definition": self.definition,
-            "engine_type": self.definition.engine_type,
-            "engine_name": self.definition.engine_name,
+            "definition": self.definition
         }
         self.client_method_connection('run_definition', arguments=arguments)
 

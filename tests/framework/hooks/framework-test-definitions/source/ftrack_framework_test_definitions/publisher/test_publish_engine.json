@@ -1,6 +1,6 @@
 {
   "type": "publisher",
-  "name": "File Publisher",
+  "name": "Test Publisher",
   "asset_type": "script",
   "host_type": "python",
   "ui_type": "qt",
@@ -65,6 +65,46 @@
           ]
         }
       ]
+    },
+    {
+      "name": "Test_component",
+      "stages": [
+        {
+          "name": "collector",
+          "plugins":[
+            {
+              "name": "Test Data",
+              "plugin": "test_data",
+              "options": {}
+            },
+            {
+              "name": "Test Data two",
+              "plugin": "test_data_2",
+              "options": {}
+            }
+          ]
+        },
+        {
+          "name": "validator",
+          "plugins":[
+            {
+              "name": "Test Data",
+              "plugin": "test_validator",
+              "options": {}
+            }
+          ]
+        },
+        {
+          "name": "exporter",
+          "plugins":[
+            {
+              "name": "Test Data",
+              "plugin": "test_data",
+              "options": {}
+            }
+          ]
+        }
+      ]
     }
   ],
   "finalizers": [
@@ -76,8 +116,9 @@
           "visible": false,
           "plugins":[
             {
-              "name": "Pre publish to ftrack server",
-              "plugin": "generic_passthrough"
+              "name": "Test Data",
+              "plugin": "test_data",
+              "options": {}
             }
           ]
         },
@@ -96,8 +137,9 @@
           "visible": false,
           "plugins":[
             {
-              "name": "Post process publish",
-              "plugin": "generic_passthrough"
+              "name": "Test Data",
+              "plugin": "test_data",
+              "options": {}
             }
           ]
         }
