@@ -75,8 +75,10 @@ class AssetManagerBrowser(QtWidgets.QWidget):
 
     def _build_asset_widget(self, index, asset_info):
         '''Factory creating an asset widget for *index* and *asset_info*.'''
-        #result = AssetAccordionWidget(index, self.event_manager)
-        result = self.framework_dialog.init_framework_widget(self._discovery_plugin_definition)
+        # result = AssetAccordionWidget(index, self.event_manager)
+        result = self.framework_dialog.init_framework_widget(
+            self._discovery_plugin_definition
+        )
         result.index = index
         result.set_asset_info(asset_info)
         result.change_asset_version.connect(self._on_change_asset_version)
@@ -150,15 +152,13 @@ class AssetManagerBrowser(QtWidgets.QWidget):
             self._config_button.clicked.connect(self._on_config)
         self._search.input_updated.connect(self._on_search)
 
+    # Rebuild and Discovery
+
     def reset(self):
         self._asset_list_model.reset()
 
     def _on_asset_list_refreshed(self):
         pass
-
-    def _on_config(self):
-        '''Callback when user wants to open the assembler'''
-        self.on_config.emit()
 
     def rebuild(self):
         '''Rebuild the asset list - (re-)discover DCC assets.'''
@@ -170,6 +170,20 @@ class AssetManagerBrowser(QtWidgets.QWidget):
             self._discovery_plugin_definition = plugin
             return
         raise Exception('No discovery plugin found!')
+
+    def _on_rebuild(self):
+        '''Query DCC for scene assets by running the discover action.'''
+        if not self._discovery_plugin_definition:
+            raise Exception('No discovery plugin have been setup!')
+        self._run_callback(self._discovery_plugin_definition)
+
+    def set_asset_list(self, asset_entities_list):
+        '''Clear model and add asset entities, will trigger list to be rebuilt.'''
+        self._asset_list_model.reset()
+        if asset_entities_list and 0 < len(asset_entities_list):
+            self._asset_list.model.insertRows(0, asset_entities_list)
+
+    # Actions
 
     def create_actions(self, actions):
         '''Dynamically register asset manager actions from definition *actions*.
@@ -184,20 +198,11 @@ class AssetManagerBrowser(QtWidgets.QWidget):
                 self._action_widgets[action_type] = []
             for action in actions:
                 action_widget = QtWidgets.QAction(
-                    action['label']
-                    if len(action['label'] or '') > 0
-                    else action['name'],
+                    action['name'],
                     self,
                 )
                 action_widget.setData(action)
                 self._action_widgets[action_type].append(action_widget)
-
-    def _on_rebuild(self):
-        '''Query DCC for scene assets by running the discover action.'''
-        if not self._discovery_plugin_definition:
-            raise Exception('No discovery plugin setup!')
-        self._run_plugin(self._discovery_plugin_definition.to_dict())
-        logger.warning('No discover action found for asset manager!')
 
     def contextMenuEvent(self, event):
         '''(Override) Executes the context menu'''
@@ -236,10 +241,10 @@ class AssetManagerBrowser(QtWidgets.QWidget):
         '''
         Find and call the clicked function on the menu
         '''
-        self._run_plugin(action.data())
+        self._run_callback(action.data())
 
-    def _run_plugin(self, plugin):
-        ''' Run the plugin with the given *plugin* definition. '''
+    def _run_callback(self, plugin):
+        '''Run the plugin with the given *plugin* definition.'''
         ui_callback = plugin['ui_callback']
         if hasattr(self, ui_callback):
             callback_fn = getattr(self, ui_callback)
@@ -253,11 +258,11 @@ class AssetManagerBrowser(QtWidgets.QWidget):
 
     # Handle asset actions
 
-    def check_selection(self, selected_assets):
+    def _check_selection(self, selected_assets):
         '''Check if *selected_assets* is empty and show dialog message'''
         if len(selected_assets) == 0:
             ModalDialog(
-                self._client,
+                self,
                 title='Error!',
                 message="Please select at least one asset!",
             ).exec_()
@@ -265,29 +270,63 @@ class AssetManagerBrowser(QtWidgets.QWidget):
         else:
             return True
 
+    def _run_plugin(self, plugin_definition, callback, selected_assets=None):
+        '''Emit run_plugin signal with *plugin_definition* and *callback*, providing
+        *selected_assets* as data if given.'''
+        # TODO: check why action arrive as dict and not expected DefinitionList object?
+        plugin_config = (
+            plugin_definition.to_dict()
+            if not isinstance(plugin_definition, dict)
+            else plugin_definition
+        )
+
+        method = 'run'
+        if selected_assets:
+            if len(selected_assets) > 1:
+                method = 'run_multiple'
+                plugin_config['data'] = selected_assets
+            else:
+                plugin_config['data'] = selected_assets[0]
+        self.run_plugin.emit(plugin_config, method, callback)
+
     # Discover
 
     def ctx_discover(self, selected_assets, plugin_definition):
-
-        self.run_plugin.emit(
-            plugin_definition, 'run', self._assets_discovered_callback
-        )
+        self._run_plugin(plugin_definition, self._assets_discovered_callback)
 
     def _assets_discovered_callback(self, plugin_info):
-        print('@@@ _assets_discovered_callback: {}'.format(json.dumps(plugin_info, indent=2)))
+        print(
+            '@@@ _assets_discovered_callback: {}'.format(
+                json.dumps(plugin_info, indent=2)
+            )
+        )
         asset_entities_list = []
         for ftrack_asset in plugin_info['plugin_method_result']:
             asset_entities_list.append(ftrack_asset)
 
         self.set_asset_list(asset_entities_list)
 
-    # Update to latest version
-
-    # TODO: Implement
-
     # Select
 
+    def ctx_select(self, selected_assets, plugin_definition):
+        '''Select the *selected_assets* in the DCC by running plugin defined
+        with *plugin_definition*.'''
+        if not self._check_selection(selected_assets):
+            return
+        self._run_plugin(
+            plugin_definition, self._assets_selected_callback, selected_assets
+        )
 
+    def _assets_selected_callback(self, plugin_info):
+        print(
+            '@@@ _assets_selected_callback: {}'.format(
+                json.dumps(plugin_info, indent=2)
+            )
+        )
+
+    # Update to latest
+
+    # Change version
 
     def _on_change_asset_version(self, asset_info, version_entity):
         '''
@@ -296,11 +335,13 @@ class AssetManagerBrowser(QtWidgets.QWidget):
         '''
         self.change_asset_version.emit(asset_info.copy(), version_entity['id'])
 
-    def set_asset_list(self, asset_entities_list):
-        '''Clear model and add asset entities, will trigger list to be rebuilt.'''
-        self._asset_list_model.reset()
-        if asset_entities_list and 0 < len(asset_entities_list):
-            self._asset_list.model.insertRows(0, asset_entities_list)
+    # Unload
+
+    # Load
+
+    def _on_config(self):
+        '''Callback when user wants to open the assembler'''
+        self.on_config.emit()
 
     def _on_search(self, text):
         '''Filter asset list, only show assets matching *text*.'''

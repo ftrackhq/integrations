@@ -373,7 +373,7 @@ class FrameworkDialog(BaseUI):
 
     def _on_client_notify_ui_log_item_added_callback(self, event):
         '''
-        Client notifiies dialog that a new log item has been added.
+        Client notifies dialog that a new log item has been added.
         '''
         log_item = event['data']['log_item']
         # TODO: do something with the log_item

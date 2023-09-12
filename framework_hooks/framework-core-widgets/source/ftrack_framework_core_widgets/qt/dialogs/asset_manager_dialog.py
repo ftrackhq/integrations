@@ -274,6 +274,6 @@ class AssetManagerDialog(FrameworkDialog, StyledDialog):
         Now build the UI'''
         discovery_plugins = definition.get('discover')
         self.asset_manager_browser.setup_discovery(discovery_plugins)
-        menu_action_plugins = definition.get('actions')
+        menu_action_plugins = definition['actions']
         self.asset_manager_browser.create_actions(menu_action_plugins)
         self.asset_manager_browser.rebuild()

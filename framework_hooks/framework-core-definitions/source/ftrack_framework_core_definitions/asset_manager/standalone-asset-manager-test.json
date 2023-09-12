@@ -5,7 +5,7 @@
     "ui_type": "qt",
     "discover":[
         {
-            "description": "discover",
+            "name": "discover",
             "plugin": "common_test_am_discover",
             "widget": "generic_asset_item",
             "options": {}
@@ -14,14 +14,14 @@
     "actions": {
         "update":[
             {
-                "description": "Update to latest",
+                "name": "Update to latest",
                 "plugin": "common_update_latest_am_action",
                 "options": {"clear_selection":  false}
             }
         ],
         "select":[
             {
-                "description": "Select",
+                "name": "Select",
                 "plugin": "common_test_select_am_action"
             }
         ]

@@ -127,7 +127,7 @@ class ListSelector(QtWidgets.QWidget):
         selection_item_data_changed = False
         for item_widget in self.items:
             if item_widget.selected:
-                item_widget.selected = True
+                item_widget.selected = False
                 selection_item_data_changed = True
         if selection_item_data_changed:
             selection = self.selection()

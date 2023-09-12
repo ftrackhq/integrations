@@ -29,40 +29,37 @@ class CommonTestAssetManagerDiscoverPlugin(BasePlugin):
         # filter = {'asset_name': 'torso', 'asset_type_name': 'geo'}
         # return filter
 
-        # Select first 5 components of type fbx, abc,
-        component_name = 'fbx'
-
-        asset_versions_entities = []
-        for v in self.session.query(
-            'select id, components, components.name, components.id, version, '
-            'asset , asset.name, asset.type.name from AssetVersion where '
-            'asset_id != None and (asset.type.name=animation or asset.type.name=geometry) limit 3'.format()
-        ):
-            # if not v['asset']['type']['name'].lower() in ['animation','geometry']:
-            #    continue
-            do_add = True
-            for ev in asset_versions_entities:
-                if ev['asset']['id'] == v['asset']['id']:
-                    do_add = False
-                    break
-            if do_add:
-                asset_versions_entities.append(v)
-                if 10 == len(asset_versions_entities):
-                    break
+        # Select random asset from anim and geo
+        component_names = ['game', 'cache']
+        count = 5
+        chunk_size = 3
 
         ftrack_asset_info_list = []
         status = constants.status.SUCCESS_STATUS
 
-        if asset_versions_entities:
-            for version in asset_versions_entities:
-                asset_info = FtrackAssetInfo.create(version, component_name)
-                ftrack_asset_info_list.append(asset_info)
+        tail = 0
+        while len(ftrack_asset_info_list) < count:
+            for asset_version_entity in self.session.query(
+                'select id, components, components.name, components.id, version, '
+                'asset , asset.name, asset.type.name from AssetVersion where '
+                'asset_id != None and (asset.type.name=animation or asset.type.name=geometry) '
+                'limit {} offset {}'.format(chunk_size, tail)
+            ):
+                for component in asset_version_entity['components']:
+                    if component['name'] in component_names:
+                        asset_info = FtrackAssetInfo.create(
+                            asset_version_entity, component_id=component['id']
+                        )
+                        ftrack_asset_info_list.append(asset_info)
+                        if len(ftrack_asset_info_list) >= count:
+                            break
+                if len(ftrack_asset_info_list) >= count:
+                    break
+            tail += chunk_size
 
-            if not ftrack_asset_info_list:
-                status = constants.status.ERROR_STATUS
-
-        else:
-            self.logger.debug("No assets in the scene")
+        if not ftrack_asset_info_list:
+            status = constants.status.ERROR_STATUS
+            self.logger.debug("No discoverable assets in ftrack!")
 
         print(
             'Discover returning {} discovered asset(s)'.format(

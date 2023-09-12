@@ -39,14 +39,15 @@ class GenericAssetItem(FrameworkWidget, AccordionWidget):
     def session(self):
         return self._event_manager.session
 
-    def __init__(self,
+    def __init__(
+        self,
         event_manager,
         client_id,
         context_id,
         plugin_definition,
         dialog_connect_methods_callback,
         dialog_property_getter_connection_callback,
-        parent = None
+        parent=None,
     ):
         '''
         Initialize asset item widget
@@ -72,7 +73,6 @@ class GenericAssetItem(FrameworkWidget, AccordionWidget):
             dialog_property_getter_connection_callback,
             parent=parent,
         )
-
 
     def build_header(self):
         '''(Override) Provide an extended header with options and status icon'''
@@ -100,7 +100,9 @@ class GenericAssetItem(FrameworkWidget, AccordionWidget):
             )
         ).one()
         # Calculate path
-        parent_path = [link['name'] for link in version['task']['link']]
+        parent_path = ''
+        if version['task'] and version['task']['link']:
+            parent_path = [link['name'] for link in version['task']['link']]
         self.header_widget.path_widget.setText(' / '.join(parent_path))
         self.header_widget.asset_name_widget.setText(
             '{} '.format(asset_info[asset_const.ASSET_NAME])
@@ -346,4 +348,3 @@ class GenericAssetItem(FrameworkWidget, AccordionWidget):
                 self._component_and_version_widget.set_version(
                     current_version['version']
                 )
-

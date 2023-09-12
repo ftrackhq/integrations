@@ -144,9 +144,9 @@ class FtrackAssetInfo(dict):
     def create(
         cls,
         asset_version_entity,
-        component_name,
-        component_path=None,
         component_id=None,
+        component_name=None,
+        component_path=None,
         load_mode=None,
         asset_info_options=None,
         objects_loaded=False,
@@ -158,11 +158,11 @@ class FtrackAssetInfo(dict):
 
         *asset_version_entity* : :class:`ftrack_api.entity.asset_version.AssetVersion`
 
-        *component_name* : Component name
+        *component_id* : Component id, must be supplied or component_name.
+
+        *component_name* : Component name, must be supplied or component_id.
 
         *component_path* : Component path
-
-        *component_id* : Component id
 
         *load_mode* : Load mode
 
@@ -187,17 +187,30 @@ class FtrackAssetInfo(dict):
         # Pick location
         location = asset_version_entity.session.pick_location()
 
-        # Pick component
-        if not component_path or not component_id:
+        assert (
+            component_id or component_name
+        ), 'Need component id or name supplied to identify and create asset info'
+
+        # Resolve component
+        if not component_path or not component_id or not component_name:
             for component in asset_version_entity['components']:
-                if component['name'] == component_name:
-                    if location.get_component_availability(component) == 100.0:
-                        component_path = location.get_filesystem_path(
-                            component
-                        )
-                        if component_path:
-                            component_id = component['id']
-                            break
+                if (
+                    component_name and component['name'] == component_name
+                ) or (component_id and component['id'] == component_id):
+                    if not component_path:
+                        # Pick component path based on availability at current location
+                        if (
+                            location.get_component_availability(component)
+                            == 100.0
+                        ):
+                            component_path = location.get_filesystem_path(
+                                component
+                            )
+                    if not component_id:
+                        component_id = component['id']
+                    if not component_name:
+                        component_name = component['name']
+                    break
 
         asset_info_data = {
             constants.asset.ASSET_INFO_ID: uuid.uuid4().hex,
