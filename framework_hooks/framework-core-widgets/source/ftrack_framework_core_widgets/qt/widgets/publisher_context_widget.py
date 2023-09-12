@@ -72,9 +72,6 @@ class PublishContextWidget(FrameworkWidget, QtWidgets.QWidget):
         # set the current context
         self.on_context_updated()
 
-        self.layout().addLayout(asset_layout)
-        self.layout().addWidget(LineWidget())
-
         # Build version and comment widget
         version_and_comment = QtWidgets.QWidget()
         version_and_comment.setLayout(QtWidgets.QVBoxLayout())
