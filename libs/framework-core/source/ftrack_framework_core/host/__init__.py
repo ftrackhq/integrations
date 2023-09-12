@@ -15,7 +15,7 @@ import ftrack_constants.framework as constants
 from ftrack_framework_core.definition import (
     discover,
     validate,
-    definition_object
+    definition_object,
 )
 from ftrack_framework_core.asset import FtrackObjectManager
 from ftrack_framework_core.log.log_item import LogItem

@@ -36,13 +36,14 @@ class PublishToFtrack(BasePlugin):
                 continue
             # Get the exporter result
             exporter_results = []
-            for plugin, values in components[component_name]['exporter'].items():
+            for plugin, values in components[component_name][
+                'exporter'
+            ].items():
                 if type(values) != list:
                     values = [values]
                 exporter_results.extend(values)
 
             publish_components[component_name] = exporter_results
-
 
         # TODO: implement version_dependencies
         version_dependencies = []

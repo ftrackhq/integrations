@@ -22,11 +22,10 @@ class LoadPublishEngine(BaseEngine):
 
     @property
     def context_data(self):
-        ''' List of all the context plugins results.'''
+        '''List of all the context plugins results.'''
         if not self._context_data:
             return None
         return self._context_data
-
 
     # TODO: double check if we really need to declare the init here.
     def __init__(
@@ -58,7 +57,7 @@ class LoadPublishEngine(BaseEngine):
         self._registry = {}
 
     def _update_registry(
-            self, step_type, step_name, stage_name, plugin_name, plugin_result
+        self, step_type, step_name, stage_name, plugin_name, plugin_result
     ):
         '''
         Function to update the self._registry variable with the result of
@@ -76,7 +75,9 @@ class LoadPublishEngine(BaseEngine):
         #  or add the description if the plugin to the dictionary (But I would
         #  try to avoid that to not make it more complex. So I'll go for the
         #  first option)
-        self._registry[step_type][step_name][stage_name][plugin_name] = plugin_result
+        self._registry[step_type][step_name][stage_name][
+            plugin_name
+        ] = plugin_result
 
     def run_plugin(
         self,
@@ -89,7 +90,7 @@ class LoadPublishEngine(BaseEngine):
         plugin_widget_id=None,
         plugin_widget_name=None,
     ):
-        ''' Call the run_plugin method from the base engine '''
+        '''Call the run_plugin method from the base engine'''
         return super(LoadPublishEngine, self).run_plugin(
             plugin_name=plugin_name,
             plugin_default_method=plugin_default_method,
@@ -101,12 +102,7 @@ class LoadPublishEngine(BaseEngine):
             plugin_widget_name=plugin_widget_name,
         )
 
-    def run_stage(
-        self,
-        stage_definition,
-        step_type,
-        step_name
-    ):
+    def run_stage(self, stage_definition, step_type, step_name):
         '''
         Returns the bool status of running all the plugins in the given
         *stage_definition*.
@@ -137,20 +133,16 @@ class LoadPublishEngine(BaseEngine):
                 plugin_name=plugin_definition.name,
                 total_plugins=len(plugins),
                 current_plugin_index=i,
-                status=constants.status.RUNNING_STATUS
+                status=constants.status.RUNNING_STATUS,
             )
 
             plugin_data = {}
             # If finalizer add all registry.
             if step_type == 'finalizer':
-                plugin_data = copy.deepcopy(
-                    self._registry
-                )
+                plugin_data = copy.deepcopy(self._registry)
             else:
                 # Pass all previous stage executed plugins result
-                plugin_data = copy.deepcopy(
-                    self._registry.get(step_type)
-                )
+                plugin_data = copy.deepcopy(self._registry.get(step_type))
 
             plugin_info = self.run_plugin(
                 plugin_name=plugin_definition.plugin,
@@ -176,7 +168,7 @@ class LoadPublishEngine(BaseEngine):
                     step_name,
                     stage_definition.name,
                     plugin_name=plugin_info['plugin_name'],
-                    plugin_result=plugin_info['plugin_method_result']
+                    plugin_result=plugin_info['plugin_method_result'],
                 )
             self.event_manager.publish.notify_definition_progress_client(
                 host_id=self.host_id,
@@ -186,7 +178,7 @@ class LoadPublishEngine(BaseEngine):
                 plugin_name=plugin_definition.name,
                 total_plugins=len(plugins),
                 current_plugin_index=i,
-                status=plugin_info['plugin_status']
+                status=plugin_info['plugin_status'],
             )
             status = constants.status.status_bool_mapping[
                 plugin_info['plugin_status']
@@ -198,7 +190,7 @@ class LoadPublishEngine(BaseEngine):
                     "failed. Stopping run definition".format(
                         plugin_definition.plugin,
                         stage_definition.name,
-                        step_name
+                        step_name,
                     )
                 )
                 break
@@ -273,4 +265,3 @@ class LoadPublishEngine(BaseEngine):
             if not status:
                 break
         return status
-

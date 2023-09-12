@@ -56,6 +56,6 @@ class RenameExporterPlugin(BasePlugin):
         return self.rename(
             data={
                 'collector_result': collector_result,
-                'export_destinations': export_destinations
+                'export_destinations': export_destinations,
             }
         )
