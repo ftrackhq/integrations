@@ -16,7 +16,7 @@ class RenameExporterPlugin(BasePlugin):
     def register_methods(self):
         self.register_method(
             method_name='run',
-            required_output_type=str,
+            required_output_type=list,
             required_output_value=None,
         )
         self.register_method(
@@ -51,7 +51,7 @@ class RenameExporterPlugin(BasePlugin):
 
         export_destinations = options['export_destinations']
         if type(export_destinations) == str:
-            export_destinations = list(export_destinations)
+            export_destinations = [export_destinations]
 
         return self.rename(
             data={

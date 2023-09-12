@@ -65,6 +65,11 @@ class LoadPublishEngine(BaseEngine):
             self._registry[step_type][step_name] = {}
         if not self._registry[step_type][step_name].get(stage_name):
             self._registry[step_type][step_name][stage_name] = {}
+        # TODO: if the plugin is defined twice in the same stage, the result
+        #  will be overrided. To avoid this, we could make the plugin name unic
+        #  or add the description if the plugin to the dictionary (But I would
+        #  try to avoid that to not make it more complex. So I'll go for the
+        #  first option)
         self._registry[step_type][step_name][stage_name][plugin_name] = plugin_result
 
     def run_plugin(
@@ -130,14 +135,16 @@ class LoadPublishEngine(BaseEngine):
                 status=constants.status.RUNNING_STATUS
             )
 
-            # Pass all previous stage executed plugins result
-            plugin_data = copy.deepcopy(
-                self._registry.get(step_type)
-            )
-            # If finalizer add all component results.
+            plugin_data = {}
+            # If finalizer add all registry.
             if step_type == 'finalizer':
-                plugin_data['component'] = copy.deepcopy(
-                    self._registry.get('component')
+                plugin_data = copy.deepcopy(
+                    self._registry
+                )
+            else:
+                # Pass all previous stage executed plugins result
+                plugin_data = copy.deepcopy(
+                    self._registry.get(step_type)
                 )
 
             plugin_info = self.run_plugin(

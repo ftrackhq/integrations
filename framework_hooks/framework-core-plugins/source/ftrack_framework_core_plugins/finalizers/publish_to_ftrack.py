@@ -26,24 +26,29 @@ class PublishToFtrack(BasePlugin):
         self.logger.debug("given context_data: {}".format(context_data))
         self.logger.debug("given data: {}".format(data))
         self.logger.debug("given options: {}".format(options))
-        # TODO: Make it easier to get the exporter result.
-        # Return the exporter result
+
+        # Get components to publish
+        components = data.get('component')
+        component_names = list(components.keys())
         publish_components = {}
-        for step in self.plugin_data:
-            if step['type'] == constants.definition.COMPONENT:
-                component_name = step['name']
-                publish_components[component_name] = []
-                for stage in step['result']:
-                    for plugin in stage['result']:
-                        publish_components[component_name].append(
-                            plugin['plugin_method_result']
-                        )
+        for component_name in component_names:
+            if not components[component_name].get('exporter'):
+                continue
+            # Get the exporter result
+            exporter_results = []
+            for plugin, values in components[component_name]['exporter'].items():
+                if type(values) != []:
+                    values = [values]
+                exporter_results.extend(values)
+
+            publish_components[component_name] = exporter_results
+
 
         # TODO: implement version_dependencies
         version_dependencies = []
-        comment = context_data['comment']
-        status_id = context_data['status_id']
-        asset_name = context_data['asset_name']
+        comment = context_data[0]['comment']
+        status_id = context_data[0]['status_id']
+        asset_name = context_data[0]['asset_name']
         # TODO: Discuss with the team, how we pass the asset type, in the
         #  definition or in the context plugin? Right now only capable of publishing script asset type
         asset_type_name = 'script'  # self.context_data['asset_type_name']
@@ -56,7 +61,7 @@ class PublishToFtrack(BasePlugin):
         # Get Context object
         context_object = self.session.query(
             'select name, parent, parent.name from Context where '
-            'id is "{}"'.format(self.context_data['context_id'])
+            'id is "{}"'.format(self.context_data[0]['context_id'])
         ).one()
 
         # Get Asset type object
@@ -150,7 +155,7 @@ class PublishToFtrack(BasePlugin):
 
         self.logger.debug(
             "publishing: {} to {} as {}".format(
-                self.plugin_data, self.context_data, asset_entity_object
+                asset_entity_object, self.context_data[0], asset_entity_object
             )
         )
 
