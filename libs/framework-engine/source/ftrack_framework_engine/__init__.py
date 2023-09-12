@@ -107,6 +107,11 @@ class BaseEngine(object):
         *method* : Method of the plugin to be executed.
 
         '''
+        # TODO: Evaluate if plugin_data should better be defined in the
+        #  schema, so it can be augmented as well as the options.
+        #  (Same for context_data) So basically all the info that the plugin
+        #  needs is allways kept in the definition.
+
         plugin_info = None
 
         for host_type in reversed(self._host_types):
@@ -143,7 +148,7 @@ class BaseEngine(object):
         return plugin_info
 
     # TODO: This should be an ABC
-    def run_definition(self, definition_data):
+    def run_definition(self, definition):
         '''
         Runs the whole definition from the provided *data*.
         Call the method :meth:`run_step` for each context, component and

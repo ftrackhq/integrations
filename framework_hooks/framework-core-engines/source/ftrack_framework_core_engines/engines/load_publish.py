@@ -20,6 +20,13 @@ class LoadPublishEngine(BaseEngine):
     ]
     '''Engine type for this engine class'''
 
+    @property
+    def context_data(self):
+        '''List of all the context plugins results.'''
+        if not self._context_data:
+            return None
+        return self._context_data
+
     # TODO: double check if we really need to declare the init here.
     def __init__(
         self,
@@ -46,6 +53,36 @@ class LoadPublishEngine(BaseEngine):
             host_id,
             asset_type_name,
         )
+        self._context_data = []
+        self._registry = {}
+
+    def reset_registry(self):
+        ''' Sets the context_data and registry variables to 0 '''
+        self._context_data = []
+        self._registry = {}
+
+    def _update_registry(
+        self, step_type, step_name, stage_name, plugin_name, plugin_result
+    ):
+        '''
+        Function to update the self._registry variable with the result of
+        all the runned plugins.
+        '''
+
+        if not self._registry.get(step_type):
+            self._registry[step_type] = {}
+        if not self._registry[step_type].get(step_name):
+            self._registry[step_type][step_name] = {}
+        if not self._registry[step_type][step_name].get(stage_name):
+            self._registry[step_type][step_name][stage_name] = {}
+        # TODO: if the plugin is defined twice in the same stage, the result
+        #  will be overrided. To avoid this, we could make the plugin name unic
+        #  or add the description if the plugin to the dictionary (But I would
+        #  try to avoid that to not make it more complex. So I'll go for the
+        #  first option)
+        self._registry[step_type][step_name][stage_name][
+            plugin_name
+        ] = plugin_result
 
     def run_plugin(
         self,
@@ -58,6 +95,7 @@ class LoadPublishEngine(BaseEngine):
         plugin_widget_id=None,
         plugin_widget_name=None,
     ):
+        '''Call the run_plugin method from the base engine'''
         return super(LoadPublishEngine, self).run_plugin(
             plugin_name=plugin_name,
             plugin_default_method=plugin_default_method,
@@ -69,375 +107,169 @@ class LoadPublishEngine(BaseEngine):
             plugin_widget_name=plugin_widget_name,
         )
 
-    # Base functions for loader, opener and publisher
-
-    def run_stage(
-        self,
-        stage_name,
-        plugins,
-        stage_context,
-        stage_options,
-        stage_data,
-        plugins_order=None,
-        step_type=None,
-        step_name=None,
-    ):
+    def run_stage(self, stage_definition, step_type, step_name):
         '''
-        Returns the bool status and the result list of dictionaries of executing
-        all the plugins in the stage.
-        This function executes all the defined plugins for this stage using
-        the :meth:`_run_plugin`
+        Returns the bool status of running all the plugins in the given
+        *stage_definition*.
 
-        *stage_name* : Name of the stage that's executing.
+        *stage_definition* : :obj:`~ftrack_framework_core.definition.Stage`
 
-        *plugins* : List of plugins that has to execute.
-
-        *stage_context* : Context dictionary with the result of the context
-        plugin containing the context_id, aset_name... Or None
-
-        *stage_options* : Options dictionary to be passed to each plugin.
-
-        *stage_data* : Data list of dictionaries to be passed to each stage.
-
-        *plugins_order* : Order of the plugins to be executed.
-
-        *step_type* : Type of the step.
+        *step_type* : Type of the parent step
+        *step_name* : Name of the parent step
         '''
 
-        stage_status = True
-        stage_results = []
-
-        i = 1
+        plugins = stage_definition.get_all(category='plugin')
+        status = True
+        i = 0
         for plugin_definition in plugins:
-            plugin_name = plugin_definition['plugin']
-            plugin_enabled = plugin_definition['enabled']
-
-            if not plugin_enabled:
+            if not plugin_definition.enabled:
                 self.logger.debug(
-                    'Skipping plugin {} as it has been disabled'.format(
-                        plugin_name
+                    'Skipping step {} as it has been disabled'.format(
+                        plugin_definition.name
                     )
                 )
                 continue
 
-            # TODO: clean up this and provide a definition_info dictionary like
-            #  we do with the plugins. Probably the definition_object should be
-            #  the one that has the definition info? or maybe just the engine.
             self.event_manager.publish.notify_definition_progress_client(
                 host_id=self.host_id,
                 step_type=step_type,
                 step_name=step_name,
-                stage_name=stage_name,
+                stage_name=stage_definition.name,
+                plugin_name=plugin_definition.name,
                 total_plugins=len(plugins),
                 current_plugin_index=i,
                 status=constants.status.RUNNING_STATUS,
-                results=None,
             )
 
-            result = None
-            plugin_options = plugin_definition['options']
-            # Update the plugin_options with the stage_options.
-            plugin_options.update(stage_options)
-            category = plugin_definition['category']
-            type = plugin_definition['type']
-            default_method = plugin_definition['default_method']
+            plugin_data = {}
+            # If finalizer add all registry.
+            if step_type == 'finalizer':
+                plugin_data = copy.deepcopy(self._registry)
+            else:
+                # Pass all previous stage executed plugins result
+                plugin_data = copy.deepcopy(self._registry.get(step_type))
 
-            plugin_result = self.run_plugin(
-                plugin_name=plugin_definition['plugin'],
-                plugin_default_method=plugin_definition['default_method'],
-                # We don't want to pass the information of the previous plugin, so that
-                # is why we only pass the data of the previous stage.
-                plugin_data=copy.deepcopy(stage_data),
+            plugin_info = self.run_plugin(
+                plugin_name=plugin_definition.plugin,
+                plugin_default_method=plugin_definition.default_method,
+                # We don't want to pass the information of the previous plugin,
+                # so that is why we only pass the data of the previous stage.
+                plugin_data=plugin_data,
                 # From the definition + stage_options
-                plugin_options=plugin_options,
+                plugin_options=plugin_definition.options,
                 # Data from the plugin context
-                plugin_context_data=stage_context,
+                plugin_context_data=self.context_data,
                 # default_method is defined in the definitions
-                plugin_method=plugin_definition['default_method'],
-                plugin_widget_id=plugin_definition['widget_id'],
-                plugin_widget_name=plugin_definition['widget'],
+                plugin_method=plugin_definition.default_method,
+                plugin_widget_id=plugin_definition.widget_id,
+                plugin_widget_name=plugin_definition.widget,
             )
 
-            bool_status = constants.status.status_bool_mapping[
-                plugin_result['plugin_status']
+            if step_type == 'context':
+                self._context_data.append(plugin_info['plugin_method_result'])
+            else:
+                self._update_registry(
+                    step_type,
+                    step_name,
+                    stage_definition.name,
+                    plugin_name=plugin_info['plugin_name'],
+                    plugin_result=plugin_info['plugin_method_result'],
+                )
+            self.event_manager.publish.notify_definition_progress_client(
+                host_id=self.host_id,
+                step_type=step_type,
+                step_name=step_name,
+                stage_name=stage_definition.name,
+                plugin_name=plugin_definition.name,
+                total_plugins=len(plugins),
+                current_plugin_index=i,
+                status=plugin_info['plugin_status'],
+            )
+            status = constants.status.status_bool_mapping[
+                plugin_info['plugin_status']
             ]
-            if not bool_status:
-                stage_status = False
-                result = plugin_result['plugin_method_result']
-                # We log a warning if a plugin on the stage failed.
+            if not status:
+                # We log an error if a plugin on the stage failed.
                 self.logger.error(
-                    "Execution of the plugin {} failed.".format(plugin_name)
+                    "Execution of the plugin {} in stage {} of step {} "
+                    "failed. Stopping run definition".format(
+                        plugin_definition.plugin,
+                        stage_definition.name,
+                        step_name,
+                    )
                 )
-            # TODO: deactivating this for now, I think is not needed.
-            # else:
-            #     if plugin_result['plugin_method_result']:
-            #         result = plugin_result['plugin_result_registry'].get(default_method)
-            #         if step_type == constants.CONTEXT:
-            #             # tODO: review this when testing, I think we can remove it.
-            #             result['asset_type_name'] = self.asset_type_name
-
-            stage_results.append(plugin_result)
+                break
             i += 1
-        return stage_status, stage_results
 
-    def run_step(
-        self,
-        step_name,
-        stages,
-        step_context,
-        step_options,
-        step_data,
-        stages_order,
-        step_type,
-    ):
+        # Return status of the stage execution
+        return status
+
+    def run_step(self, step_definition):
         '''
-        Returns the bool status and the result list of dictionaries of executing
-        all the stages in the step.
-        This function executes all the defined stages for for this step using
-        the :meth:`run_stage` with the given *stage_order*.
-
-        *step_name* : Name of the step that's executing.
-
-        *stages* : List of stages that has to execute.
-
-        *step_context* : Context dictionary with the result of the context
-        plugin containing the context_id, aset_name... Or None
-
-        *step_options* : Options dictionary to be passed to each stage.
-
-        *step_data* : Data list of dictionaries to be passed to each stage.
-
-        *stages_order* : Order of the stages to be executed.
-
-        *step_type* : Type of the step.
+        Returns the bool status of running all the stages in the given
+        *step_definition*.
+        *step_definition* : :obj:`~ftrack_framework_core.definition.Step`
         '''
 
-        step_status = True
-        step_results = []
-
-        # data will be, the previous step data, plus the current step dictionary
-        # plus the stage result filled on every loop
-        data = step_data
-        # TODO: should this come from constants as well?
-        current_step_dict = {
-            "name": step_name,
-            "result": step_results,
-            "type": step_type,
-        }
-        data.append(current_step_dict)
-
-        for stage in stages:
-            for stage_name in stages_order:
-                if stage_name != stage['name']:
-                    continue
-
-                stage_enabled = stage['enabled']
-                stage_plugins = stage['plugins']
-                category = stage['category']
-                type = stage['type']
-
-                if not stage_plugins:
-                    continue
-
-                if not stage_enabled:
-                    self.logger.debug(
-                        'Skipping stage {} as it has been disabled'.format(
-                            stage_name
-                        )
+        status = True
+        stages = step_definition.get_all(category='stage')
+        for stage_definition in stages:
+            # We don't need the stage order because the stage order is given by
+            # order in the definition and that is a list so its already sorted.
+            if not stage_definition.enabled:
+                self.logger.debug(
+                    'Skipping step {} as it has been disabled'.format(
+                        stage_definition.name
                     )
-                    continue
-
-                stage_status, stage_result = self.run_stage(
-                    stage_name=stage_name,
-                    plugins=stage_plugins,
-                    stage_context=step_context,
-                    stage_options=step_options,
-                    stage_data=data,
-                    plugins_order=None,
-                    step_type=step_type,
-                    step_name=step_name,
                 )
-                if not stage_status:
-                    step_status = False
-                    # Log an error if the execution of a stage has failed.
-                    self.logger.error(
-                        "Execution of the stage {} failed.".format(stage_name)
-                    )
+                continue
+            status = self.run_stage(
+                stage_definition, step_definition.type, step_definition.name
+            )
+            if not status:
+                break
 
-                # TODO: this should also be defined in constants
-                stage_dict = {
-                    "name": stage_name,
-                    "result": stage_result,
-                    "status": stage_status,
-                    "category": category,
-                    "type": type,
-                }
+        # Return status of the stage execution
+        return status
 
-                step_results.append(stage_dict)
-
-                status = constants.status.SUCCESS_STATUS
-                # We stop the loop if the stage failed. To raise an error on
-                # run_definitions
-                if not step_status:
-                    status = constants.status.ERROR_STATUS
-
-                self.event_manager.publish.notify_definition_progress_client(
-                    host_id=self.host_id,
-                    step_type=step_type,
-                    step_name=step_name,
-                    stage_name=stage_name,
-                    total_plugins=None,
-                    current_plugin_index=None,
-                    status=constants.status.ERROR_STATUS,
-                    results=step_results,
-                )
-
-                bool_status = constants.status.status_bool_mapping[status]
-                if not bool_status:
-                    return step_status, step_results
-
-        self.event_manager.publish.notify_definition_progress_client(
-            host_id=self.host_id,
-            step_type=step_type,
-            step_name=step_name,
-            stage_name=None,
-            total_plugins=None,
-            current_plugin_index=None,
-            status=constants.status.SUCCESS_STATUS,
-            results=step_results,
-        )
-        return step_status, step_results
-
-    # TODO: clean up this code and use definition object to simplify.
-    def run_definition(self, definition_data):
+    def run_definition(self, definition):
         '''
-        Runs the whole definition from the provided *data*.
-        Call the method :meth:`run_step` for each context, component and
-        finalizer steps.
+        Runs all the steps in the given *definition*.
+        *definition* : :obj:`~ftrack_framework_core.definition.DefinitionObject`
 
-        *data* : pipeline['data'] provided from the client host connection at
-        :meth:`~ftrack_framework_core.client.HostConnection.run` Should be a
-        valid definition.
+        # Data Workflow:
+        #  Context step:
+        #      context_data = None,
+        #      data = previous context step
+        #          plugins results
+        #      Return: Set the context_data property. (It will be a list of all
+        #              the results)
+        #  Components step:
+        #      context_data = result of all context step (self.context_data)
+        #          (List with the result of all the context plugins)
+        #      data = Previous component step results
+        #  Finalizer step:
+        #      context_data = result of all context step (self.context_data)
+        #          (List with the result of all the context plugins)
+        #      data = The entire registry: Previous component step results +
+        #             previous finalizer step results.
+
         '''
-        # TODO: we should use definition object in here to clean this up
-        context_data = None
-        components_output = []
-        finalizers_output = []
-        for step_group in constants.definition.STEP_GROUPS:
-            group_steps = definition_data[step_group]
-            group_results = []
 
-            if step_group == constants.definition.FINALIZERS:
-                group_results = copy.deepcopy(components_output)
+        self.reset_registry()
 
-            group_status = True
-
-            for step in group_steps:
-                # TODO: bare in mind that this is a definitionObject, so we can make use of it like step.name
-                step_name = step['name']
-                step_stages = step['stages']
-                step_enabled = step['enabled']
-                step_stage_order = step['stage_order']
-                step_category = step['category']
-                step_type = step['type']
-                step_options = {}
-
-                if step_group == constants.definition.COMPONENTS:
-                    # TODO: This is wrong. Should already be defined in the options.
-                    if 'file_formats' in step:
-                        step_options['file_formats'] = step[
-                            'file_formats'
-                        ]  # Pass on to collector
-
-                if not step_enabled:
-                    self.logger.debug(
-                        'Skipping step {} as it has been disabled'.format(
-                            step_name
-                        )
-                    )
-                    continue
-
-                step_data = copy.deepcopy(group_results)
-
-                step_status, step_result = self.run_step(
-                    step_name=step_name,
-                    stages=step_stages,
-                    step_context=context_data,
-                    step_options=step_options,
-                    step_data=step_data,
-                    stages_order=step_stage_order,
-                    step_type=step_type,
-                )
-
-                if not step_status:
-                    group_status = False
-                    # Log an error if the execution of a step has failed.
-                    self.logger.error(
-                        "Execution of the step {} failed.".format(step_name)
-                    )
-
-                # TODO: this should be defined in constnats
-                step_dict = {
-                    "name": step_name,
-                    "result": step_result,
-                    "status": step_status,
-                    "category": step_category,
-                    "type": step_type,
-                }
-
-                group_results.append(step_dict)
-                # Stop if context results are false to raise a proper error.
-                if not group_status:
-                    break
-
-            if not group_status:
-                raise Exception(
-                    'An error occurred during the execution of the a {} and '
-                    'can not continue, please, check the plugin logs'.format(
-                        step_group
+        status = True
+        steps = definition.get_all(category='step')
+        for step_definition in steps:
+            if not step_definition.enabled:
+                self.logger.debug(
+                    'Skipping step {} as it has been disabled'.format(
+                        step_definition.name
                     )
                 )
+                continue
 
-            if step_group == constants.definition.CONTEXTS:
-                context_latest_step = group_results[-1]
-                context_latest_stage = context_latest_step.get('result')[-1]
-                context_data = {}
-                for context_plugin in context_latest_stage.get('result'):
-                    context_data.update(
-                        context_plugin.get('plugin_method_result')
-                    )
-
-            elif step_group == constants.definition.COMPONENTS:
-                components_output = copy.deepcopy(group_results)
-                i = 0
-                for component_step in group_results:
-                    for component_stage in component_step.get("result"):
-                        self.logger.debug(
-                            "Checking stage name {} of type {}".format(
-                                component_stage.get("name"),
-                                component_stage.get("type"),
-                            )
-                        )
-                        if not component_stage.get("type") in [
-                            # TODO: re-evaluate this kind of things, what if the
-                            #  definition doesn't have exporters?
-                            #  Example: the AM definition. Can't we make use of
-                            #  the definition object to solve this kind of stuff?
-                            constants.definition.IMPORTER,
-                            constants.definition.EXPORTER,
-                            constants.definition.POST_IMPORTER,
-                        ]:
-                            self.logger.debug(
-                                "Removing stage name {} of type {}".format(
-                                    component_stage.get("name"),
-                                    component_stage.get("type"),
-                                )
-                            )
-                            components_output[i]['result'].remove(
-                                component_stage
-                            )
-                    i += 1
-            elif step_group == constants.definition.FINALIZERS:
-                finalizers_output = group_results
-
-        return finalizers_output
+            status = self.run_step(step_definition)
+            if not status:
+                break
+        return status

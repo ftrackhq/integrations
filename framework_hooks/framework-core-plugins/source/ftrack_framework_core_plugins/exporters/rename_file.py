@@ -16,18 +16,54 @@ class RenameExporterPlugin(BasePlugin):
     def register_methods(self):
         self.register_method(
             method_name='run',
-            required_output_type=str,
+            required_output_type=list,
+            required_output_value=None,
+        )
+        self.register_method(
+            method_name='rename',
+            required_output_type=None,
             required_output_value=None,
         )
 
+    def rename(self, context_data=None, data=None, options=None):
+        '''
+        Expects export_destinations list and collector_result list in the given
+        *data*. This method will rename the collector_result items to the
+        export_definitions items.
+        '''
+        export_destinations = data['export_destinations']
+        collector_result = data['collector_result']
+        renamed = []
+        i = 0
+        for destination in export_destinations:
+            renamed.append(shutil.copy(collector_result[i], destination))
+            i += 0
+        return renamed
+
     def run(self, context_data=None, data=None, options=None):
-        self.logger.debug("given context_data: {}".format(context_data))
-        self.logger.debug("given data: {}".format(data))
-        self.logger.debug("given options: {}".format(options))
-        # TODO: Duplicate and rename provided file
-        collector_result = data[0]['result'][0]['result'][0][
-            'plugin_method_result'
-        ]
-        export_destination = options['export_destination']
-        shutil.copy(collector_result, export_destination)
-        return export_destination
+        '''
+        Expects a dictionary with the previous collected data from the
+        collector plugin in the given *data*. Also expects to have
+        export_destinations list defined in the given *options*
+        This method will return the result of the rename method.
+        '''
+
+        # Pick plugins from previous collector stage
+        collector_plugins = []
+        for value in data.values():
+            collector_plugins.append(value.get('collector'))
+        # Pick result of collector plugins.
+        collector_result = []
+        for plugin in collector_plugins:
+            collector_result.extend(list(plugin.values()))
+
+        export_destinations = options['export_destinations']
+        if type(export_destinations) == str:
+            export_destinations = [export_destinations]
+
+        return self.rename(
+            data={
+                'collector_result': collector_result,
+                'export_destinations': export_destinations,
+            }
+        )

@@ -23,27 +23,36 @@ class PublishToFtrack(BasePlugin):
 
     # TODO: review this code to check if the rollback works as it is.
     def run(self, context_data=None, data=None, options=None):
-        self.logger.debug("given context_data: {}".format(context_data))
-        self.logger.debug("given data: {}".format(data))
-        self.logger.debug("given options: {}".format(options))
-        # TODO: Make it easier to get the exporter result.
-        # Return the exporter result
+        '''
+        This method expects to receive a dictionary in the given *data* with all
+        the previous steps plugin results. Will look for all the components
+        exporter plugins in the given *data* and will publish the result to its
+        component name in ftrack.
+        '''
+
+        # Get components to publish
+        components = data.get('component')
+        component_names = list(components.keys())
         publish_components = {}
-        for step in self.plugin_data:
-            if step['type'] == constants.definition.COMPONENT:
-                component_name = step['name']
-                publish_components[component_name] = []
-                for stage in step['result']:
-                    for plugin in stage['result']:
-                        publish_components[component_name].append(
-                            plugin['plugin_method_result']
-                        )
+        for component_name in component_names:
+            if not components[component_name].get('exporter'):
+                continue
+            # Get the exporter result
+            exporter_results = []
+            for plugin, values in components[component_name][
+                'exporter'
+            ].items():
+                if type(values) != list:
+                    values = [values]
+                exporter_results.extend(values)
+
+            publish_components[component_name] = exporter_results
 
         # TODO: implement version_dependencies
         version_dependencies = []
-        comment = context_data['comment']
-        status_id = context_data['status_id']
-        asset_name = context_data['asset_name']
+        comment = context_data[0]['comment']
+        status_id = context_data[0]['status_id']
+        asset_name = context_data[0]['asset_name']
         # TODO: Discuss with the team, how we pass the asset type, in the
         #  definition or in the context plugin? Right now only capable of publishing script asset type
         asset_type_name = 'script'  # self.context_data['asset_type_name']
@@ -56,7 +65,7 @@ class PublishToFtrack(BasePlugin):
         # Get Context object
         context_object = self.session.query(
             'select name, parent, parent.name from Context where '
-            'id is "{}"'.format(self.context_data['context_id'])
+            'id is "{}"'.format(self.context_data[0]['context_id'])
         ).one()
 
         # Get Asset type object
@@ -136,7 +145,7 @@ class PublishToFtrack(BasePlugin):
             tb = traceback.format_exc()
             self.status = constants.status.EXCEPTION_STATUS
             self.message = (
-                "Error occurred during the post_execute_callback_hook, trying "
+                "Error occurred during the run method, trying "
                 "to create a new version and components of the finalizer_plugin: "
                 "{} \n error: {}".format(self.name, str(tb))
             )
@@ -150,7 +159,7 @@ class PublishToFtrack(BasePlugin):
 
         self.logger.debug(
             "publishing: {} to {} as {}".format(
-                self.plugin_data, self.context_data, asset_entity_object
+                asset_entity_object, self.context_data[0], asset_entity_object
             )
         )
 
