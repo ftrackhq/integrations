@@ -15,7 +15,9 @@ class EllipseThumbnailBase(ThumbnailBase):
         painter = QtGui.QPainter(self)
         painter.setRenderHints(QtGui.QPainter.Antialiasing, True)
 
-        brush = QtGui.QBrush()
+        # TODO: when no image this raises an error because of the assigning of
+        #  the empty pixmap. Find another way to solve this.
+        brush = QtGui.QBrush(self.pixmap())
 
         painter.setBrush(brush)
 
