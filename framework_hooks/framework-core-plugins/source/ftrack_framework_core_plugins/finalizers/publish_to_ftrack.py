@@ -37,7 +37,7 @@ class PublishToFtrack(BasePlugin):
             # Get the exporter result
             exporter_results = []
             for plugin, values in components[component_name]['exporter'].items():
-                if type(values) != []:
+                if type(values) != list:
                     values = [values]
                 exporter_results.extend(values)
 
@@ -141,7 +141,7 @@ class PublishToFtrack(BasePlugin):
             tb = traceback.format_exc()
             self.status = constants.status.EXCEPTION_STATUS
             self.message = (
-                "Error occurred during the post_execute_callback_hook, trying "
+                "Error occurred during the run method, trying "
                 "to create a new version and components of the finalizer_plugin: "
                 "{} \n error: {}".format(self.name, str(tb))
             )
