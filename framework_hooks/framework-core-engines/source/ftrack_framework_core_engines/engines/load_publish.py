@@ -56,6 +56,11 @@ class LoadPublishEngine(BaseEngine):
         self._context_data = []
         self._registry = {}
 
+    def reset_registry(self):
+        ''' Sets the context_data and registry variables to 0 '''
+        self._context_data = []
+        self._registry = {}
+
     def _update_registry(
         self, step_type, step_name, stage_name, plugin_name, plugin_result
     ):
@@ -250,6 +255,9 @@ class LoadPublishEngine(BaseEngine):
         #             previous finalizer step results.
 
         '''
+
+        self.reset_registry()
+
         status = True
         steps = definition.get_all(category='step')
         for step_definition in steps:
