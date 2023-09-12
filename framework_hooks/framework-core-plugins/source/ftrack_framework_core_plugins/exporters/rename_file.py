@@ -26,6 +26,11 @@ class RenameExporterPlugin(BasePlugin):
         )
 
     def rename(self, context_data=None, data=None, options=None):
+        '''
+        Expects export_destinations list and collector_result list in the given
+        *data*. This method will rename the collector_result items to the
+        export_definitions items.
+        '''
         export_destinations = data['export_destinations']
         collector_result = data['collector_result']
         renamed = []
@@ -36,9 +41,12 @@ class RenameExporterPlugin(BasePlugin):
         return renamed
 
     def run(self, context_data=None, data=None, options=None):
-        self.logger.debug("given context_data: {}".format(context_data))
-        self.logger.debug("given data: {}".format(data))
-        self.logger.debug("given options: {}".format(options))
+        '''
+        Expects a dictionary with the previous collected data from the
+        collector plugin in the given *data*. Also expects to have
+        export_destinations list defined in the given *options*
+        This method will return the result of the rename method.
+        '''
 
         # Pick plugins from previous collector stage
         collector_plugins = []

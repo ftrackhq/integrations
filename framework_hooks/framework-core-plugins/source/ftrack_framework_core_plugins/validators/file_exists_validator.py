@@ -26,6 +26,10 @@ class FileExistsValidatorPlugin(BasePlugin):
         )
 
     def validate(self, context_data=None, data=None, options=None):
+        '''
+        Expects a list of file paths in the given *data* dictionary in the
+        collector_result key.
+        '''
         collector_result = data['collector_result']
         if type(collector_result) == str:
             collector_result = [data['collector_result']]
@@ -37,6 +41,10 @@ class FileExistsValidatorPlugin(BasePlugin):
         return exists
 
     def run(self, context_data=None, data=None, options=None):
+        '''
+        Expects previous collector result in the given *data*.
+        Return the value of validate method.
+        '''
         # Pick plugins from previous collector stage
         collector_plugins = []
         for value in data.values():

@@ -23,9 +23,12 @@ class PublishToFtrack(BasePlugin):
 
     # TODO: review this code to check if the rollback works as it is.
     def run(self, context_data=None, data=None, options=None):
-        self.logger.debug("given context_data: {}".format(context_data))
-        self.logger.debug("given data: {}".format(data))
-        self.logger.debug("given options: {}".format(options))
+        '''
+        This method expects to receive a dictionary in the given *data* with all
+        the previous steps plugin results. Will look for all the components
+        exporter plugins in the given *data* and will publish the result to its
+        component name in ftrack.
+        '''
 
         # Get components to publish
         components = data.get('component')

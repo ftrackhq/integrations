@@ -21,9 +21,10 @@ class FileCollectorPlugin(BasePlugin):
         )
 
     def run(self, context_data=None, data=None, options=None):
-        self.logger.debug("given context_data: {}".format(context_data))
-        self.logger.debug("given data: {}".format(data))
-        self.logger.debug("given options: {}".format(options))
+        '''
+        Get folder_path and file_name from the given *options* and return the
+        join full path.
+        '''
         folder_path = options.get('folder_path')
         file_name = options.get('file_name')
         if not folder_path or not file_name:
