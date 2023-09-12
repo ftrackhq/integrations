@@ -22,6 +22,7 @@ class LoadPublishEngine(BaseEngine):
 
     @property
     def context_data(self):
+        ''' List of all the context plugins results.'''
         if not self._context_data:
             return None
         return self._context_data
@@ -59,6 +60,11 @@ class LoadPublishEngine(BaseEngine):
     def _update_registry(
             self, step_type, step_name, stage_name, plugin_name, plugin_result
     ):
+        '''
+        Function to update the self._registry variable with the result of
+        all the runned plugins.
+        '''
+
         if not self._registry.get(step_type):
             self._registry[step_type] = {}
         if not self._registry[step_type].get(step_name):
@@ -83,6 +89,7 @@ class LoadPublishEngine(BaseEngine):
         plugin_widget_id=None,
         plugin_widget_name=None,
     ):
+        ''' Call the run_plugin method from the base engine '''
         return super(LoadPublishEngine, self).run_plugin(
             plugin_name=plugin_name,
             plugin_default_method=plugin_default_method,
@@ -93,8 +100,6 @@ class LoadPublishEngine(BaseEngine):
             plugin_widget_id=plugin_widget_id,
             plugin_widget_name=plugin_widget_name,
         )
-
-    # Base functions for loader, opener and publisher
 
     def run_stage(
         self,
@@ -234,6 +239,24 @@ class LoadPublishEngine(BaseEngine):
         '''
         Runs all the steps in the given *definition*.
         *definition* : :obj:`~ftrack_framework_core.definition.DefinitionObject`
+
+        # Data Workflow:
+        #  Context step:
+        #      context_data = None,
+        #      data = previous context step
+        #          plugins results
+        #      Return: Set the context_data property. (It will be a list of all
+        #              the results)
+        #  Components step:
+        #      context_data = result of all context step (self.context_data)
+        #          (List with the result of all the context plugins)
+        #      data = Previous component step results
+        #  Finalizer step:
+        #      context_data = result of all context step (self.context_data)
+        #          (List with the result of all the context plugins)
+        #      data = The entire registry: Previous component step results +
+        #             previous finalizer step results.
+
         '''
         status = True
         steps = definition.get_all(category='step')
