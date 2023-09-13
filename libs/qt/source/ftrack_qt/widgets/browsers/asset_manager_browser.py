@@ -36,7 +36,10 @@ class AssetManagerBrowser(QtWidgets.QWidget):
     # Stop spinner and hide it
 
     run_plugin = QtCore.Signal(object, object, object)
-    # Run plugin with *plugin_definition*, *plugin_method_nam* and *callback*
+    # Run plugin with *plugin_configuration*, *plugin_method_name* and *callback*
+
+    run_action = QtCore.Signal(object, object)
+    # Run action(step) with action *context_data* and *callback*
 
     @property
     def framework_dialog(self):
@@ -165,7 +168,7 @@ class AssetManagerBrowser(QtWidgets.QWidget):
         self._rebuild_button.click()
 
     def setup_discovery(self, discovery_plugins):
-        '''Setup discovery plugins from *discovery_plugins*.'''
+        '''Setup discovery plugins from *discovery_plugins*, consider only one plugin for now.'''
         for plugin in discovery_plugins:
             self._discovery_plugin_definition = plugin
             return
@@ -188,21 +191,25 @@ class AssetManagerBrowser(QtWidgets.QWidget):
     def create_actions(self, actions):
         '''Dynamically register asset manager actions from definition *actions*.
         When an action is selected, the method identified with ui_callback action property
-        will be called with the selected asset infos and the plugin as arguments.
+        will be called with the selected asset infos and the step configuration as arguments.
         '''
 
         self._action_widgets = {}
+        self._change_version_action = None
 
-        for action_type, actions in list(actions.items()):
+        for action in actions:
+            action_type = action['type']
+            if len(action['ui_callback'] or '') == 0:
+                self._change_version_action = action
+                continue  # Do not have change version action in the menu
             if action_type not in list(self._action_widgets.keys()):
                 self._action_widgets[action_type] = []
-            for action in actions:
-                action_widget = QtWidgets.QAction(
-                    action['name'],
-                    self,
-                )
-                action_widget.setData(action)
-                self._action_widgets[action_type].append(action_widget)
+            action_widget = QtWidgets.QAction(
+                action['name'],
+                self,
+            )
+            action_widget.setData(action)
+            self._action_widgets[action_type].append(action_widget)
 
     def contextMenuEvent(self, event):
         '''(Override) Executes the context menu'''
@@ -243,12 +250,12 @@ class AssetManagerBrowser(QtWidgets.QWidget):
         '''
         self._run_callback(action.data())
 
-    def _run_callback(self, plugin):
-        '''Run the plugin with the given *plugin* definition.'''
-        ui_callback = plugin['ui_callback']
+    def _run_callback(self, configuration):
+        '''Run the plugin with the given *step_configuration* definition.'''
+        ui_callback = configuration['ui_callback']
         if hasattr(self, ui_callback):
             callback_fn = getattr(self, ui_callback)
-            callback_fn(self._asset_list.selection(), plugin)
+            callback_fn(self._asset_list.selection(), configuration)
         else:
             logger.warning(
                 'Asset manager browser have no method for for ui_callback: {}!'.format(
@@ -270,7 +277,7 @@ class AssetManagerBrowser(QtWidgets.QWidget):
         else:
             return True
 
-    def _run_plugin(self, plugin_definition, callback, selected_assets=None):
+    def _run_plugin(self, plugin_definition, callback):
         '''Emit run_plugin signal with *plugin_definition* and *callback*, providing
         *selected_assets* as data if given.'''
         # TODO: check why action arrive as dict and not expected DefinitionList object?
@@ -280,14 +287,12 @@ class AssetManagerBrowser(QtWidgets.QWidget):
             else plugin_definition
         )
 
-        method = 'run'
-        if selected_assets:
-            if len(selected_assets) > 1:
-                method = 'run_multiple'
-                plugin_config['data'] = selected_assets
-            else:
-                plugin_config['data'] = selected_assets[0]
-        self.run_plugin.emit(plugin_config, method, callback)
+        self.run_plugin.emit(plugin_config, 'run', callback)
+
+    def _run_action(self, context_data, callback):
+        '''Emit run_action signal providing *context_data* if given, running *callback* when done.'''
+
+        self.run_action.emit(context_data, callback)
 
     # Discover
 
@@ -308,14 +313,16 @@ class AssetManagerBrowser(QtWidgets.QWidget):
 
     # Select
 
-    def ctx_select(self, selected_assets, plugin_definition):
-        '''Select the *selected_assets* in the DCC by running plugin defined
-        with *plugin_definition*.'''
+    def ctx_select(self, selected_assets, action_configuration):
+        '''Select the *selected_assets* in the DCC by action
+        defined with *action_configuration*.'''
         if not self._check_selection(selected_assets):
             return
-        self._run_plugin(
-            plugin_definition, self._assets_selected_callback, selected_assets
-        )
+        context_data = {
+            "action": action_configuration['type'],
+            "assets": selected_assets,
+        }
+        self._run_action(context_data, self._assets_selected_callback)
 
     def _assets_selected_callback(self, plugin_info):
         print(
@@ -326,18 +333,106 @@ class AssetManagerBrowser(QtWidgets.QWidget):
 
     # Update to latest
 
+    def ctx_update(self, selected_assets, action_configuration):
+        '''Update *selected_assets* in the DCC to latest version by action
+        defined with *action_configuration*.'''
+        if not self._check_selection(selected_assets):
+            return
+        context_data = {
+            "action": action_configuration['type'],
+            "assets": selected_assets,
+        }
+        self._run_action(context_data, self._assets_updated_callback)
+
+    def _assets_updated_callback(self, plugin_info):
+        print(
+            '@@@ _assets_updated_callback: {}'.format(
+                json.dumps(plugin_info, indent=2)
+            )
+        )
+
     # Change version
 
     def _on_change_asset_version(self, asset_info, version_entity):
         '''
         Triggered when a version of the asset has changed on the
-        :obj:`version_cb_delegate`. Prompt user.
+        :obj:`version_cb_delegate`. Change version.
         '''
-        self.change_asset_version.emit(asset_info.copy(), version_entity['id'])
+        context_data = {
+            'action': self._change_version_action['type'],
+            'assets': [asset_info],
+            'new_version_id': version_entity['id'],
+        }
+        self._run_action(context_data, self._change_version_callback)
+
+    def _change_version_callback(self, plugin_info):
+        print(
+            '@@@ _change_version_callback: {}'.format(
+                json.dumps(plugin_info, indent=2)
+            )
+        )
 
     # Unload
 
+    def ctx_unload(self, selected_assets, action_configuration):
+        '''Unload *selected_assets* in the DCC to latest version by action
+        defined with *action_configuration*.'''
+        if not self._check_selection(selected_assets):
+            return
+        context_data = {
+            "action": action_configuration['type'],
+            "assets": selected_assets,
+        }
+        self._run_action(context_data, self._assets_unload_callback)
+
+    def _assets_unload_callback(self, plugin_info):
+        print(
+            '@@@ _assets_unload_callback: {}'.format(
+                json.dumps(plugin_info, indent=2)
+            )
+        )
+
     # Load
+
+    def ctx_load(self, selected_assets, action_configuration):
+        '''Unload *selected_assets* in the DCC to latest version by action
+        defined with *action_configuration*.'''
+        if not self._check_selection(selected_assets):
+            return
+        context_data = {
+            "action": action_configuration['type'],
+            "assets": selected_assets,
+        }
+        self._run_action(context_data, self._assets_load_callback)
+
+    def _assets_load_callback(self, plugin_info):
+        print(
+            '@@@ _assets_load_callback: {}'.format(
+                json.dumps(plugin_info, indent=2)
+            )
+        )
+
+    # Remove
+
+    def ctx_remove(self, selected_assets, action_configuration):
+        '''Remove *selected_assets* in the DCC to latest version by action
+        defined with *action_configuration*.'''
+        if not self._check_selection(selected_assets):
+            return
+        context_data = {
+            "action": action_configuration['type'],
+            "assets": selected_assets,
+        }
+        self._run_action(context_data, self._assets_remove_callback)
+
+    def _assets_remove_callback(self, plugin_info):
+        print(
+            '@@@ _assets_remove_callback: {}'.format(
+                json.dumps(plugin_info, indent=2)
+            )
+        )
+
+    # Misc
 
     def _on_config(self):
         '''Callback when user wants to open the assembler'''

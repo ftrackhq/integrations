@@ -110,6 +110,7 @@ class AssetManagerDialog(FrameworkDialog, StyledDialog):
         )
         self._asset_manager_browser = None
         self._plugin_run_callback = None
+        self._action_run_callback = None
 
         self.pre_build()
         self.build()
@@ -152,6 +153,9 @@ class AssetManagerDialog(FrameworkDialog, StyledDialog):
         )
         self.asset_manager_browser.run_plugin.connect(
             self._on_run_plugin_callback
+        )
+        self.asset_manager_browser.run_action.connect(
+            self._on_run_action_callback
         )
 
     def _on_open_assembler_callback(self, event):
@@ -205,7 +209,7 @@ class AssetManagerDialog(FrameworkDialog, StyledDialog):
         self.selected_host_connection_id = self.host_connection.host_id
         assert (
             len(self.definition_names) > 0
-        ), 'No asset manager definitions are aviailable!'
+        ), 'No asset manager definitions are available!'
         if len(self.definition_names) > 1:
             self.logger.warning(
                 'More than one asset manager definitions found ({})!'.format(
@@ -221,13 +225,24 @@ class AssetManagerDialog(FrameworkDialog, StyledDialog):
         self.build_asset_manager_ui(self.definition)
 
     def _on_run_plugin_callback(
-        self, plugin_definition, plugin_method_name, plugin_run_callback
+        self, plugin_configuration, plugin_method_name, plugin_run_callback
     ):
         '''Asset manager browser requests running a defined in *plugin_definition*,
         running *plugin_run_callback* with the result when the plugin is finished.
         '''
         self._plugin_run_callback = plugin_run_callback
-        self.run_plugin_method(plugin_definition, plugin_method_name)
+        self.run_plugin_method(plugin_configuration, plugin_method_name)
+
+    def _on_run_action_callback(self, context_data, action_run_callback):
+        '''Asset manager browser requests running an action defined in *data*,
+        running *plugin_run_callback* with the result when the plugin is finished.
+        '''
+        self._action_run_callback = action_run_callback
+        arguments = {
+            "definition": self.definition,
+            "context_data": context_data,
+        }
+        self.client_method_connection('run_definition', arguments=arguments)
 
     def _on_client_notify_ui_run_plugin_result_callback(self, event):
         '''
@@ -272,7 +287,7 @@ class AssetManagerDialog(FrameworkDialog, StyledDialog):
     def build_asset_manager_ui(self, definition):
         '''A definition has been selected, providing the required plugins to drive the asset manager.
         Now build the UI'''
-        discovery_plugins = definition.get('discover')
+        discovery_plugins = definition.get('discovery')
         self.asset_manager_browser.setup_discovery(discovery_plugins)
         menu_action_plugins = definition['actions']
         self.asset_manager_browser.create_actions(menu_action_plugins)

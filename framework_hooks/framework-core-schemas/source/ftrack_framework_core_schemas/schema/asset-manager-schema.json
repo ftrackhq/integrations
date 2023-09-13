@@ -3,6 +3,106 @@
   "type": "object",
   "additionalProperties": false,
   "definitions": {
+    "Step": {
+      "title": "Step",
+      "type": "object",
+      "required": [
+        "name",
+        "stages",
+        "category",
+        "type",
+        "stage_order"
+      ],
+      "order":["category", "type", "name", "stages", "stage_order" ],
+      "properties": {
+        "category": {
+          "type": "string",
+          "pattern": "^step$",
+          "default": "step"
+        },
+        "type": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "widget_ref": {
+          "type": "string"
+        },
+        "optional": {
+          "type": "boolean",
+          "default": false
+        },
+        "enabled": {
+          "type": "boolean",
+          "default": true
+        },
+        "stages": {
+          "type": "array",
+          "maxItems": 3,
+          "uniqueItems": true,
+          "items": {}
+        },
+        "stage_order": {
+          "type": "array",
+          "items": {"type": "string"},
+          "default": []
+        }
+      }
+    },
+    "Stage": {
+      "title": "Stage",
+      "type": "object",
+      "required": [
+        "name",
+        "plugins",
+        "category",
+        "type"
+      ],
+      "order":["category", "type", "name", "plugins"],
+      "properties": {
+        "category": {
+          "type": "string",
+          "pattern": "^stage$",
+          "default": "stage"
+        },
+        "name": {
+          "type": "string"
+        },
+        "visible": {
+          "type": "boolean",
+          "default": true
+        },
+        "enabled": {
+          "type": "boolean",
+          "default": true
+        },
+        "optional": {
+          "type": "boolean",
+          "default": false
+        },
+        "widget_ref": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "select",
+            "query",
+            "unload",
+            "load",
+            "remove"
+          ]
+        },
+        "plugins": {
+          "type": "array",
+          "items": {"$ref": "#/definitions/Plugin"},
+          "default": [],
+          "minItems": 1,
+          "uniqueItems": true
+        }
+      }
+    },
     "Plugin": {
       "title": "Plugin",
       "type": "object",
@@ -12,9 +112,10 @@
         "plugin",
         "category",
         "type",
-        "default_method"
+        "default_method",
+        "enabled"
       ],
-      "order":["type", "category", "name", "description", "plugin", "widget", "options", "default_method"],
+      "order":["type", "category", "name", "description", "plugin", "widget", "widget_id","options", "default_method", "enabled"],
       "properties": {
         "category": {
           "type": "string",
@@ -36,10 +137,12 @@
           "type": "string"
         },
         "widget": {
-          "type": "string"
+          "type": "string",
+          "default": ""
         },
-        "widget_ref": {
-          "type": "string"
+        "widget_id": {
+          "type": "string",
+          "default": ""
         },
         "visible": {
           "type": "boolean",
@@ -56,10 +159,14 @@
         "default_method": {
           "type": "string",
           "default": "run"
+        },
+        "enabled": {
+          "type": "boolean",
+          "default": true
         }
       }
     },
-    "ActionPlugin": {
+    "DiscoveryPlugin": {
       "allOf": [
         {
           "$ref": "#/definitions/Plugin"
@@ -67,114 +174,369 @@
       ],
       "properties": {
         "type": {
-          "pattern": "^action$",
-          "default": "action"
+          "pattern": "^discover$",
+          "default": "discover"
+        },
+        "ui_callback": {
+          "type": "string",
+          "default": "ctx_discover"
         }
       }
     },
-    "Action": {
-      "title": "Action",
-      "type": "object",
-      "required": [
-        "load",
-        "select",
-        "update",
-        "unload",
-        "remove"
+    "ActionStage": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/Stage"
+        }
+      ]
+    },
+    "SelectStage": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/ActionStage"
+        }
       ],
-      "order":[
-        "load",
-        "select",
-        "update",
-        "unload",
-        "remove"
-      ],
-      "additionalProperties": false,
       "properties": {
-        "select": {
+        "type": {
+          "pattern": "^select"
+        },
+        "plugins": {
           "type": "array",
-          "default": [],
           "items": {
-            "allOf": [{"$ref": "#/definitions/ActionPlugin"}],
+            "allOf": [
+              {
+                "$ref": "#/definitions/Plugin"
+              }
+            ],
             "properties": {
-              "type": {
-                "pattern": "^action$",
-                "default": "action"
-              },
-              "ui_callback": {
-                "type": "string",
-                "default": "ctx_select"
+              "name": {
+                "pattern": "^select$",
+                "default": "select"
               }
             }
-          }
-        },
-        "update": {
-          "type": "array",
-          "items": {
-            "allOf": [{"$ref": "#/definitions/ActionPlugin"}],
-            "properties": {
-                "type": {
-                  "pattern": "^action$",
-                  "default": "action"
-                },
-                "ui_callback": {
-                  "type": "string",
-                  "default": "ctx_update"
-                }
-              }
           },
-          "minItems": 1
-        },
-        "unload": {
-          "type": "array",
           "default": [],
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "name": {
+          "type": "string",
+          "default": "select"
+        }
+      }
+    },
+    "QueryStage": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/ActionStage"
+        }
+      ],
+      "properties": {
+        "type": {
+          "pattern": "^query$"
+        },
+        "plugins": {
+          "type": "array",
           "items": {
-            "allOf": [{"$ref": "#/definitions/ActionPlugin"}],
+            "allOf": [
+              {
+                "$ref": "#/definitions/Plugin"
+              }
+            ],
             "properties": {
-              "type": {
-                "pattern": "^action$",
-                "default": "action"
-              },
-              "ui_callback": {
-                "type": "string",
-                "default": "ctx_unload"
+              "name": {
+                "pattern": "^query$",
+                "default": "query"
               }
             }
-          }
-        },
-        "load": {
-          "type": "array",
+          },
           "default": [],
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "name": {
+          "type": "string",
+          "default": "query"
+        }
+      }
+    },
+    "UnloadStage": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/ActionStage"
+        }
+      ],
+      "properties": {
+        "type": {
+          "pattern": "^unload$"
+        },
+        "plugins": {
+          "type": "array",
           "items": {
-            "allOf": [{"$ref": "#/definitions/ActionPlugin"}],
+            "allOf": [
+              {
+                "$ref": "#/definitions/Plugin"
+              }
+            ],
             "properties": {
-              "type": {
-                "pattern": "^action$",
-                "default": "action"
-              },
-              "ui_callback": {
-                "type": "string",
-                "default": "ctx_load"
+              "name": {
+                "pattern": "^unload$",
+                "default": "unload"
               }
             }
-          }
-        },
-        "remove": {
-          "type": "array",
+          },
           "default": [],
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "name": {
+          "type": "string",
+          "pattern": "^unload$",
+          "default": "unload"
+        }
+      }
+    },
+    "LoadStage": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/ActionStage"
+        }
+      ],
+      "properties": {
+        "type": {
+          "pattern": "^load$"
+        },
+        "plugins": {
+          "type": "array",
           "items": {
-            "allOf": [{"$ref": "#/definitions/ActionPlugin"}],
-            "properties": {
-                "type": {
-                  "pattern": "^action$",
-                  "default": "action"
-                },
-                "ui_callback": {
-                  "type": "string",
-                  "default": "ctx_remove"
-                }
+            "allOf": [
+              {
+                "$ref": "#/definitions/Plugin"
               }
+            ],
+            "properties": {
+              "name": {
+                "pattern": "^load$",
+                "default": "load"
+              }
+            }
+          },
+          "default": [],
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "name": {
+          "type": "string",
+          "pattern": "^load$",
+          "default": "load"
+        }
+      }
+    },
+    "RemoveStage": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/ActionStage"
+        }
+      ],
+      "properties": {
+        "type": {
+          "pattern": "^remove$"
+        },
+        "plugins": {
+          "type": "array",
+          "items": {
+            "allOf": [
+              {
+                "$ref": "#/definitions/Plugin"
+              }
+            ],
+            "properties": {
+              "name": {
+                "pattern": "^remove$",
+                "default": "remove"
+              }
+            }
+          },
+          "default": [],
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "name": {
+          "type": "string",
+          "pattern": "^remove$",
+          "default": "remove"
+        }
+      }
+    },
+    "ActionStep": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/Step"
+        }
+      ],
+      "properties": {
+        "ui_callback": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "ui_callback"
+      ]
+    },
+    "SelectAction": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/ActionStep"
+        }
+      ],
+      "properties": {
+        "type": {
+          "pattern": "^select$"
+        },
+        "ui_callback": {
+          "default": "ctx_select"
+        },
+        "stages": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "oneOf":[
+              {"$ref": "#/definitions/SelectStage"}
+            ]
           }
+        }
+      }
+    },
+    "UpdateAction": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/ActionStep"
+        }
+      ],
+      "properties": {
+        "type": {
+          "pattern": "^update$"
+        },
+        "ui_callback": {
+          "default": "ctx_update"
+        },
+        "stages": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "oneOf":[
+              {"$ref": "#/definitions/QueryStage"},
+              {"$ref": "#/definitions/RemoveStage"},
+              {"$ref": "#/definitions/LoadStage"}
+            ]
+          },
+          "minItems": 1,
+          "maxItems": 3
+        }
+      }
+    },
+    "ChangeVersionAction": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/ActionStep"
+        }
+      ],
+      "properties": {
+        "type": {
+          "pattern": "^change_version$"
+        },
+        "ui_callback": {
+          "default": ""
+        },
+        "stages": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "oneOf":[
+              {"$ref": "#/definitions/RemoveStage"},
+              {"$ref": "#/definitions/LoadStage"}
+            ]
+          },
+          "minItems": 1,
+          "maxItems": 2
+        }
+      }
+    },
+    "UnloadAction": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/ActionStep"
+        }
+      ],
+      "properties": {
+        "type": {
+          "pattern": "^unload$"
+        },
+        "ui_callback": {
+          "default": "ctx_unload"
+        },
+        "stages": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "oneOf":[
+              {"$ref": "#/definitions/UnloadStage"}
+            ]
+          },
+          "minItems": 1,
+          "maxItems": 1
+        }
+      }
+    },
+    "LoadAction": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/ActionStep"
+        }
+      ],
+      "properties": {
+        "type": {
+          "pattern": "^load$"
+        },
+        "ui_callback": {
+          "default": "ctx_load"
+        },
+        "stages": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "oneOf":[
+              {"$ref": "#/definitions/LoadStage"}
+            ]
+          },
+          "minItems": 1,
+          "maxItems": 1
+        }
+      }
+    },
+    "RemoveAction": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/ActionStep"
+        }
+      ],
+      "properties": {
+        "type": {
+          "pattern": "^remove$"
+        },
+        "ui_callback": {
+          "default": "ctx_remove"
+        },
+        "stages": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "oneOf":[
+              {"$ref": "#/definitions/RemoveStage"}
+            ]
+          },
+          "minItems": 1,
+          "maxItems": 1
         }
       }
     }
@@ -184,12 +546,12 @@
     "host_type",
     "type",
     "actions",
-    "discover",
+    "discovery",
     "engine_type",
     "engine_name"
   ],
   "order":[
-    "type", "name", "host_type", "actions", "engine_type",  "engine_name"
+    "type", "name", "host_type", "discovery", "actions", "engine_type",  "engine_name"
   ],
   "properties": {
     "type": {
@@ -216,26 +578,27 @@
       "type": "string",
       "default": "asset_manager"
     },
-    "discover": {
+    "discovery": {
       "type": "array",
       "items": {
-        "allOf": [{"$ref": "#/definitions/ActionPlugin"}],
-        "properties": {
-            "type": {
-              "pattern": "^discover$",
-              "default": "discover"
-            },
-            "ui_callback": {
-              "type": "string",
-              "default": "ctx_discover"
-            }
-          }
+        "allOf": [{"$ref": "#/definitions/DiscoveryPlugin"}]
       },
-      "minItems": 0,
+      "minItems": 1,
       "maxItems": 1
     },
     "actions": {
-      "$ref": "#/definitions/Action"
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "oneOf":[
+          {"$ref": "#/definitions/SelectAction"},
+          {"$ref": "#/definitions/UpdateAction"},
+          {"$ref": "#/definitions/ChangeVersionAction"},
+          {"$ref": "#/definitions/UnloadAction"},
+          {"$ref": "#/definitions/LoadAction"},
+          {"$ref": "#/definitions/RemoveAction"}
+        ]
+      }
     }
   }
 }

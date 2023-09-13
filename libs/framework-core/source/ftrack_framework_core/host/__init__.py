@@ -473,7 +473,8 @@ class Host(object):
                 )
             )
         engine_result = engine.run_definition(
-            definition_object.DefinitionObject(definition)
+            definition_object.DefinitionObject(definition),
+            context_data=event['data'].get('context_data'),
         )
 
         if not engine_result:

@@ -33,7 +33,12 @@ def discover_definitions_plugins(definitions, event_manager, host_types):
                         definition['name'], host_types
                     )
                 )
-                copy_data[entry].remove(definition)
+                # Remove invalid definition from result
+                for definition_copy in copy_data[entry]:
+                    if definition_copy['name'] == definition['name']:
+                        copy_data[entry].remove(definition_copy)
+                        break
+
     return copy_data
 
 

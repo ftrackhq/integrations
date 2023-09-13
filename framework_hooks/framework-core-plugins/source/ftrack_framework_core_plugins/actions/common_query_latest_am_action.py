@@ -4,9 +4,11 @@
 from ftrack_framework_plugin import BasePlugin
 import ftrack_constants.framework as constants
 
+from ftrack_framework_core.asset.asset_info import FtrackAssetInfo
 
-class CommonUpdateLatestAssetManagerActionPlugin(BasePlugin):
-    name = 'common_update_latest_am_action'
+
+class CommonQueryLatestAssetManagerActionPlugin(BasePlugin):
+    name = 'common_query_latest_am_action'
     host_type = constants.host.PYTHON_HOST_TYPE
     plugin_type = constants.plugin.PLUGIN_ACTION_TYPE
 
@@ -18,14 +20,14 @@ class CommonUpdateLatestAssetManagerActionPlugin(BasePlugin):
         )
 
     def run(self, context_data=None, data=None, options=None):
-        '''Retrieve the latest version based on asset info passed with *data*'''
+        '''Retrieve the latest version based on asset info passed in *context_data*'''
         # TODO: no need to convert or pass the asset info, we can simply query
         #  data.get('asset_id') and data.get('component_name')
         #  Somehow we should expose to the user what the arguments are and how
         #  are they filled out. Maybe exposing the engine in the doc so the user
         #  can see what each argument contain?
 
-        asset_info = FtrackAssetInfo(data)
+        asset_info = FtrackAssetInfo(context_data['asset_info'])
 
         query = (
             'select is_latest_version, id, asset, components, components.name, '

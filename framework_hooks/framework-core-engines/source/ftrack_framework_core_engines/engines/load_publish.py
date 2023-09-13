@@ -57,7 +57,7 @@ class LoadPublishEngine(BaseEngine):
         self._registry = {}
 
     def reset_registry(self):
-        ''' Sets the context_data and registry variables to 0 '''
+        '''Sets the context_data and registry variables to 0'''
         self._context_data = []
         self._registry = {}
 
@@ -232,9 +232,9 @@ class LoadPublishEngine(BaseEngine):
         # Return status of the stage execution
         return status
 
-    def run_definition(self, definition):
+    def run_definition(self, definition, data=None):
         '''
-        Runs all the steps in the given *definition*.
+        (Override) Runs all the steps in the given *definition*.
         *definition* : :obj:`~ftrack_framework_core.definition.DefinitionObject`
 
         # Data Workflow:

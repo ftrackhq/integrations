@@ -3,7 +3,7 @@
     "name": "default",
     "host_type": "python",
     "ui_type": "qt",
-    "discover":[
+    "discovery":[
         {
             "name": "discover",
             "plugin": "common_test_am_discover",
@@ -11,19 +11,109 @@
             "options": {}
         }
     ],
-    "actions": {
-        "update":[
-            {
-                "name": "Update to latest",
-                "plugin": "common_update_latest_am_action",
-                "options": {"clear_selection":  false}
-            }
-        ],
-        "select":[
-            {
-                "name": "Select",
-                "plugin": "common_test_select_am_action"
-            }
-        ]
-    }
+    "actions": [
+        {
+            "name": "Select",
+            "type": "select",
+            "stages": [
+                {
+                    "type": "select",
+                    "plugins":[
+                          {
+                              "plugin": "common_test_select_am_action"
+                          }
+                    ]
+                }
+            ]
+        },{
+            "name": "Update to latest",
+            "type": "update",
+            "stages": [
+                {
+                    "type": "query",
+                    "plugins":[
+                          {
+                              "plugin": "common_query_latest_am_action"
+                          }
+                    ]
+                },
+                {
+                    "type": "remove",
+                    "plugins":[
+                          {
+                              "plugin": "common_test_remove_am_action"
+                          }
+                    ]
+                },
+                {
+                    "type": "load",
+                    "plugins":[
+                          {
+                              "plugin": "common_test_load_am_action"
+                          }
+                    ]
+                }
+            ]
+        },{
+            "name": "Change version",
+            "type": "change_version",
+            "stages": [
+                {
+                    "type": "remove",
+                    "plugins":[
+                          {
+                              "plugin": "common_test_remove_am_action"
+                          }
+                    ]
+                },
+                {
+                    "type": "load",
+                    "plugins":[
+                          {
+                              "plugin": "common_test_load_am_action"
+                          }
+                    ]
+                }
+            ]
+        },{
+            "name": "Unload",
+            "type": "unload",
+            "stages": [
+                {
+                    "type": "unload",
+                    "plugins":[
+                          {
+                              "plugin": "common_test_unload_am_action"
+                          }
+                    ]
+                }
+            ]
+        },{
+            "name": "Load",
+            "type": "load",
+            "stages": [
+                {
+                    "type": "load",
+                    "plugins":[
+                          {
+                              "plugin": "common_test_load_am_action"
+                          }
+                    ]
+                }
+            ]
+        },{
+            "name": "Remove",
+            "type": "remove",
+            "stages": [
+                {
+                    "type": "remove",
+                    "plugins":[
+                          {
+                              "plugin": "common_test_remove_am_action"
+                          }
+                    ]
+                }
+            ]
+        }
+    ]
 }

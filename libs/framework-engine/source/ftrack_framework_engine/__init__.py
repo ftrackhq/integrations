@@ -148,9 +148,10 @@ class BaseEngine(object):
         return plugin_info
 
     # TODO: This should be an ABC
-    def run_definition(self, definition):
+    def run_definition(self, definition, data=None):
         '''
-        Runs the whole definition from the provided *data*.
+        Runs the whole definition from the provided *definition* passing on
+        additional *data*.
         Call the method :meth:`run_step` for each context, component and
         finalizer steps.
 

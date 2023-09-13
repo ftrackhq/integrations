@@ -292,9 +292,7 @@ class PublisherDialog(FrameworkDialog, ScrollDefinitionsDialog):
         Tell client to run the current definition
         '''
 
-        arguments = {
-            "definition": self.definition
-        }
+        arguments = {"definition": self.definition}
         self.client_method_connection('run_definition', arguments=arguments)
 
     def run_collectors(self, plugin_widget_id=None):

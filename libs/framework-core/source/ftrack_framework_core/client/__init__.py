@@ -374,7 +374,7 @@ class Client(object):
             self._host_context_changed_subscribe_id = None
 
     # Definition
-    def run_definition(self, definition):
+    def run_definition(self, definition, context_data=None):
         '''
         Publish event to tell the host to run the given *definition* with the
         given *engine*.
@@ -382,7 +382,8 @@ class Client(object):
         self.event_manager.publish.host_run_definition(
             self.host_id,
             definition.to_dict(),
-            self._run_definition_callback,
+            context_data=context_data,
+            callback=self._run_definition_callback,
         )
 
     # TODO: this should be ABC method
