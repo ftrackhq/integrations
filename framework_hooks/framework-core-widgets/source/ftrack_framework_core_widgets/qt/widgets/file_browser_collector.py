@@ -7,10 +7,15 @@ from Qt import QtWidgets, QtCore, QtGui
 from ftrack_framework_widget.widget import FrameworkWidget
 
 from ftrack_qt.widgets.browsers import FileBrowser
+from ftrack_qt.utils.mixin import QWidgetABCMixin
 
 
 # TODO: review and docstring this code
-class FileBrowserWidget(FrameworkWidget, QtWidgets.QWidget):
+class FileBrowserWidget(
+    FrameworkWidget,
+    QtWidgets.QWidget,
+    metaclass=QWidgetABCMixin
+):
     '''Main class to represent a context widget on a publish process.'''
 
     name = 'file_browser_collector'

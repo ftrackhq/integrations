@@ -3,6 +3,7 @@
 
 import logging
 import uuid
+from abc import ABC
 
 
 def active_widget(func):
@@ -15,7 +16,7 @@ def active_widget(func):
 
 
 # Docstring this class
-class BaseUI(object):
+class BaseUI(ABC):
     '''Base Class to represent a Plugin'''
 
     name = None
@@ -97,12 +98,10 @@ class BaseUI(object):
         '''Make the dialog subscribe to client events'''
         pass
 
-    # TODO: This should be an ABC
     def show_ui(self):
         pass
         # self._on_focus_changed(None, self)
 
-    # TODO: This should be an ABC
     def connect_focus_signal(self):
         # TODO: Find a way to simulate a pyside connection, so every time that
         #  show_ui() is called, we connect it to on_focus_changed

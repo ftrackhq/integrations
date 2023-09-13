@@ -7,10 +7,15 @@ from ftrack_framework_widget.dialog import FrameworkDialog
 
 from ftrack_qt.widgets.dialogs import ScrollDefinitionsDialog
 from ftrack_qt.widgets.dialogs import ModalDialog
+from ftrack_qt.utils.mixin import QWidgetABCMixin
 from ftrack_qt.widgets.accordion import AccordionBaseWidget
 
 
-class PublisherDialog(FrameworkDialog, ScrollDefinitionsDialog):
+class PublisherDialog(
+    FrameworkDialog,
+    ScrollDefinitionsDialog,
+    metaclass=QWidgetABCMixin
+):
     '''Default Framework Publisher widget'''
 
     name = 'framework_publisher_dialog'
@@ -122,12 +127,10 @@ class PublisherDialog(FrameworkDialog, ScrollDefinitionsDialog):
             self._on_ui_run_button_clicked_callback
         )
 
-    # TODO: this should be an ABC
     def show_ui(self):
         '''Override Show method of the base framework dialog'''
         ScrollDefinitionsDialog.show(self)
 
-    # TODO: this should be an ABC
     def connect_focus_signal(self):
         '''Connect signal when the current dialog gets focus'''
         # Update the is_active property.
@@ -135,20 +138,17 @@ class PublisherDialog(FrameworkDialog, ScrollDefinitionsDialog):
             self._on_focus_changed
         )
 
-    # TODO: This should be an ABC
     def _on_client_context_changed_callback(self, event=None):
         '''Client context has been changed'''
         super(PublisherDialog, self)._on_client_context_changed_callback(event)
         self.selected_context_id = self.context_id
 
-    # TODO: This should be an ABC
     def _on_client_hosts_discovered_callback(self, event=None):
         '''Client new hosts has been discovered'''
         super(PublisherDialog, self)._on_client_hosts_discovered_callback(
             event
         )
 
-    # TODO: This should be an ABC
     def _on_client_host_changed_callback(self, event=None):
         '''Client host has been changed'''
         super(PublisherDialog, self)._on_client_host_changed_callback(event)
@@ -158,7 +158,6 @@ class PublisherDialog(FrameworkDialog, ScrollDefinitionsDialog):
         self.selected_host_connection_id = self.host_connection.host_id
         self.add_definition_items(self.definition_names)
 
-    # TODO: This should be an ABC
     def _on_definition_changed_callback(self):
         '''The selected definition has been changed'''
         super(PublisherDialog, self)._on_definition_changed_callback()
@@ -169,7 +168,6 @@ class PublisherDialog(FrameworkDialog, ScrollDefinitionsDialog):
         if self.selected_definition_name:
             self.build_definition_ui(self.definition)
 
-    # TODO: This should be an ABC
     def sync_context(self):
         '''
         Client context has been changed and doesn't match the ui context when
@@ -190,7 +188,6 @@ class PublisherDialog(FrameworkDialog, ScrollDefinitionsDialog):
             else:
                 self._on_ui_context_changed_callback(self.selected_context_id)
 
-    # TODO: This should be an ABC
     def sync_host_connection(self):
         '''
         Client host has been changed and doesn't match the ui host when

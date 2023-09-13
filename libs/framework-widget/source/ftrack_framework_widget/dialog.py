@@ -1,6 +1,8 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2023 ftrack
 
+from abc import abstractmethod
+
 from ftrack_framework_widget import BaseUI, active_widget
 
 
@@ -189,7 +191,7 @@ class FrameworkDialog(BaseUI):
             callback=self._on_client_notify_ui_log_item_added_callback,
         )
 
-    # TODO: this should be an ABC
+    @abstractmethod
     def show_ui(self):
         '''
         To be overriden by the implemented dialog. Should execute the dialog:
@@ -198,7 +200,11 @@ class FrameworkDialog(BaseUI):
         '''
         pass
 
-    # TODO: this should be an ABC
+    @abstractmethod
+    def connect_focus_signal(self):
+        pass
+
+    @abstractmethod
     @active_widget
     def _on_client_context_changed_callback(self, event=None):
         '''
@@ -208,7 +214,7 @@ class FrameworkDialog(BaseUI):
         for id, widget in self.framework_widgets.items():
             widget.update_context(self.context_id)
 
-    # TODO: This should be an ABC
+    @abstractmethod
     @active_widget
     def _on_client_hosts_discovered_callback(self, event=None):
         '''
@@ -218,7 +224,7 @@ class FrameworkDialog(BaseUI):
         # TODO: raise not implemented error
         pass
 
-    # TODO: This should be an ABC
+    @abstractmethod
     @active_widget
     def _on_client_host_changed_callback(self, event=None):
         '''
@@ -228,7 +234,8 @@ class FrameworkDialog(BaseUI):
         # TODO: raise not implemented error
         pass
 
-    # TODO: This should be an ABC
+    @abstractmethod
+    @active_widget
     def _on_definition_changed_callback(self):
         '''
         Callback for when definition has changed.
@@ -254,7 +261,7 @@ class FrameworkDialog(BaseUI):
             # Synchronize Host connection with client
             self.sync_host_connection()
 
-    # TODO: this should be an ABC
+    @abstractmethod
     def sync_context(self):
         '''
         Check if selected UI context_id is not sync with the client and sync them.
@@ -267,7 +274,7 @@ class FrameworkDialog(BaseUI):
         # TODO: raise not implemented error
         pass
 
-    # TODO: this should be an ABC
+    @abstractmethod
     def sync_host_connection(self):
         '''
         Check if UI selected host_connection is not sync with the client and sync them.

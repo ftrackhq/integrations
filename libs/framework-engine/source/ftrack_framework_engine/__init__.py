@@ -3,8 +3,10 @@
 
 import logging
 
+from abc import ABC, abstractmethod
 
-class BaseEngine(object):
+
+class BaseEngine(ABC):
     '''
     Base engine class.
     '''
@@ -75,7 +77,7 @@ class BaseEngine(object):
         # TODO: double check why and when we need the asset_type_name
         self.asset_type_name = asset_type_name
 
-    # TODO: this should be an ABC
+    @abstractmethod
     def run_plugin(
         self,
         plugin_name,
@@ -147,7 +149,7 @@ class BaseEngine(object):
             )
         return plugin_info
 
-    # TODO: This should be an ABC
+    @abstractmethod
     def run_definition(self, definition):
         '''
         Runs the whole definition from the provided *data*.
