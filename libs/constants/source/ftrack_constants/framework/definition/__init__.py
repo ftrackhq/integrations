@@ -67,7 +67,7 @@ STEP_INFO = {
     "result": [],
     "status": None,
     "category": None,
-    "type": None
+    "type": None,
 }
 
 STAGE_INFO = {
@@ -75,5 +75,5 @@ STAGE_INFO = {
     "result": [],
     "status": None,
     "category": None,
-    "type": None
+    "type": None,
 }

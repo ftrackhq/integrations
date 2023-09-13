@@ -56,7 +56,7 @@ class LoadPublishEngine(BaseEngine):
         self._registry = {}
 
     def reset_registry(self):
-        ''' Sets the context_data and registry variables to 0 '''
+        '''Sets the context_data and registry variables to 0'''
         self._context_data = []
         self._registry = {}
 

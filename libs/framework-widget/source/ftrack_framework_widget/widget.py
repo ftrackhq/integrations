@@ -134,11 +134,15 @@ class FrameworkWidget(BaseUI):
         method_result = plugin_info['plugin_method_result']
         print('executed_method'.format(executed_method))
         print('method_result'.format(method_result))
-        raise NotImplementedError("This method should be implemented by the inheriting class")
+        raise NotImplementedError(
+            "This method should be implemented by the inheriting class"
+        )
 
     def on_context_updated(self):
         '''Called when context of the widget has been updated'''
-        raise NotImplementedError("This method should be implemented by the inheriting class")
+        raise NotImplementedError(
+            "This method should be implemented by the inheriting class"
+        )
 
     def set_plugin_option(self, name, value):
         '''

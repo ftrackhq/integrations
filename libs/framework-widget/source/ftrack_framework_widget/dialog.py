@@ -195,10 +195,14 @@ class FrameworkDialog(BaseUI):
         Pseudocode example PySide UI:
         self.show()
         '''
-        raise NotImplementedError("This method should be implemented by the inheriting class")
+        raise NotImplementedError(
+            "This method should be implemented by the inheriting class"
+        )
 
     def connect_focus_signal(self):
-        raise NotImplementedError("This method should be implemented by the inheriting class")
+        raise NotImplementedError(
+            "This method should be implemented by the inheriting class"
+        )
 
     @active_widget
     def _on_client_context_changed_callback(self, event=None):
@@ -215,7 +219,9 @@ class FrameworkDialog(BaseUI):
         Will only run if the widget is active
         Callback for when new host has been discovered in client.
         '''
-        raise NotImplementedError("This method should be implemented by the inheriting class")
+        raise NotImplementedError(
+            "This method should be implemented by the inheriting class"
+        )
 
     @active_widget
     def _on_client_host_changed_callback(self, event=None):
@@ -223,14 +229,18 @@ class FrameworkDialog(BaseUI):
         Will only run if the widget is active
         Callback for when host has changed in the client.
         '''
-        raise NotImplementedError("This method should be implemented by the inheriting class")
+        raise NotImplementedError(
+            "This method should be implemented by the inheriting class"
+        )
 
     @active_widget
     def _on_definition_changed_callback(self):
         '''
         Callback for when definition has changed.
         '''
-        raise NotImplementedError("This method should be implemented by the inheriting class")
+        raise NotImplementedError(
+            "This method should be implemented by the inheriting class"
+        )
 
     def _on_focus_changed(self, old_widget, new_widget):
         '''
@@ -259,13 +269,17 @@ class FrameworkDialog(BaseUI):
             equal self.context_Selector.current_text() to self.context_id or
             the other way around depending on the confirmation widget response
         '''
-        raise NotImplementedError("This method should be implemented by the inheriting class")
+        raise NotImplementedError(
+            "This method should be implemented by the inheriting class"
+        )
 
     def sync_host_connection(self):
         '''
         Check if UI selected host_connection is not sync with the client and sync them.
         '''
-        raise NotImplementedError("This method should be implemented by the inheriting class")
+        raise NotImplementedError(
+            "This method should be implemented by the inheriting class"
+        )
 
     def init_framework_widget(self, plugin_definition):
         '''

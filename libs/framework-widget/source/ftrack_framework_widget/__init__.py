@@ -109,7 +109,9 @@ class BaseUI(object):
         self._on_focus_changed(old_widget, new_widget)
 
     def _on_focus_changed(self, old_widget, new_widget):
-        raise NotImplementedError("This method should be implemented by the inheriting class")
+        raise NotImplementedError(
+            "This method should be implemented by the inheriting class"
+        )
 
     @classmethod
     def register(cls, event_manager):
