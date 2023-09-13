@@ -1,8 +1,6 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2023 ftrack
 
-from abc import abstractmethod
-
 from ftrack_framework_widget import BaseUI, active_widget
 
 
@@ -126,7 +124,6 @@ class FrameworkWidget(BaseUI):
         }
         self.dialog_method_connection('run_plugin_method', arguments=arguments)
 
-    @abstractmethod
     def run_plugin_callback(self, plugin_info):
         '''
         Called when a result of an executed plugin is published. It provides
@@ -137,11 +134,11 @@ class FrameworkWidget(BaseUI):
         method_result = plugin_info['plugin_method_result']
         print('executed_method'.format(executed_method))
         print('method_result'.format(method_result))
+        raise NotImplementedError("This method should be implemented by the inheriting class")
 
-    @abstractmethod
     def on_context_updated(self):
         '''Called when context of the widget has been updated'''
-        pass
+        raise NotImplementedError("This method should be implemented by the inheriting class")
 
     def set_plugin_option(self, name, value):
         '''

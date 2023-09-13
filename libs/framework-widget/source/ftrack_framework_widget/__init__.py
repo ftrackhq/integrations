@@ -3,7 +3,6 @@
 
 import logging
 import uuid
-from abc import ABC
 
 
 def active_widget(func):
@@ -16,7 +15,7 @@ def active_widget(func):
 
 
 # Docstring this class
-class BaseUI(ABC):
+class BaseUI(object):
     '''Base Class to represent a Plugin'''
 
     name = None
@@ -100,7 +99,6 @@ class BaseUI(ABC):
 
     def show_ui(self):
         pass
-        # self._on_focus_changed(None, self)
 
     def connect_focus_signal(self):
         # TODO: Find a way to simulate a pyside connection, so every time that
@@ -111,7 +109,7 @@ class BaseUI(ABC):
         self._on_focus_changed(old_widget, new_widget)
 
     def _on_focus_changed(self, old_widget, new_widget):
-        pass
+        raise NotImplementedError("This method should be implemented by the inheriting class")
 
     @classmethod
     def register(cls, event_manager):

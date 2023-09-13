@@ -7,15 +7,10 @@ from ftrack_framework_widget.dialog import FrameworkDialog
 
 from ftrack_qt.widgets.dialogs import ScrollDefinitionsDialog
 from ftrack_qt.widgets.dialogs import ModalDialog
-from ftrack_qt.utils.mixin import QWidgetABCMixin
 from ftrack_qt.widgets.accordion import AccordionBaseWidget
 
 
-class PublisherDialog(
-    FrameworkDialog,
-    ScrollDefinitionsDialog,
-    metaclass=QWidgetABCMixin
-):
+class PublisherDialog(FrameworkDialog, ScrollDefinitionsDialog):
     '''Default Framework Publisher widget'''
 
     name = 'framework_publisher_dialog'

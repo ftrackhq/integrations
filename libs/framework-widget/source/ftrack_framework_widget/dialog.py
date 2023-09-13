@@ -1,8 +1,6 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2023 ftrack
 
-from abc import abstractmethod
-
 from ftrack_framework_widget import BaseUI, active_widget
 
 
@@ -191,20 +189,17 @@ class FrameworkDialog(BaseUI):
             callback=self._on_client_notify_ui_log_item_added_callback,
         )
 
-    @abstractmethod
     def show_ui(self):
         '''
         To be overriden by the implemented dialog. Should execute the dialog:
         Pseudocode example PySide UI:
         self.show()
         '''
-        pass
+        raise NotImplementedError("This method should be implemented by the inheriting class")
 
-    @abstractmethod
     def connect_focus_signal(self):
-        pass
+        raise NotImplementedError("This method should be implemented by the inheriting class")
 
-    @abstractmethod
     @active_widget
     def _on_client_context_changed_callback(self, event=None):
         '''
@@ -214,34 +209,28 @@ class FrameworkDialog(BaseUI):
         for id, widget in self.framework_widgets.items():
             widget.update_context(self.context_id)
 
-    @abstractmethod
     @active_widget
     def _on_client_hosts_discovered_callback(self, event=None):
         '''
         Will only run if the widget is active
         Callback for when new host has been discovered in client.
         '''
-        # TODO: raise not implemented error
-        pass
+        raise NotImplementedError("This method should be implemented by the inheriting class")
 
-    @abstractmethod
     @active_widget
     def _on_client_host_changed_callback(self, event=None):
         '''
         Will only run if the widget is active
         Callback for when host has changed in the client.
         '''
-        # TODO: raise not implemented error
-        pass
+        raise NotImplementedError("This method should be implemented by the inheriting class")
 
-    @abstractmethod
     @active_widget
     def _on_definition_changed_callback(self):
         '''
         Callback for when definition has changed.
         '''
-        # TODO: raise not implemented error
-        pass
+        raise NotImplementedError("This method should be implemented by the inheriting class")
 
     def _on_focus_changed(self, old_widget, new_widget):
         '''
@@ -261,7 +250,6 @@ class FrameworkDialog(BaseUI):
             # Synchronize Host connection with client
             self.sync_host_connection()
 
-    @abstractmethod
     def sync_context(self):
         '''
         Check if selected UI context_id is not sync with the client and sync them.
@@ -271,16 +259,13 @@ class FrameworkDialog(BaseUI):
             equal self.context_Selector.current_text() to self.context_id or
             the other way around depending on the confirmation widget response
         '''
-        # TODO: raise not implemented error
-        pass
+        raise NotImplementedError("This method should be implemented by the inheriting class")
 
-    @abstractmethod
     def sync_host_connection(self):
         '''
         Check if UI selected host_connection is not sync with the client and sync them.
         '''
-        # TODO: raise not implemented error
-        pass
+        raise NotImplementedError("This method should be implemented by the inheriting class")
 
     def init_framework_widget(self, plugin_definition):
         '''

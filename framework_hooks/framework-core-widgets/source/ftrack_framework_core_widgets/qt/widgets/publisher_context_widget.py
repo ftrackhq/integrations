@@ -8,15 +8,10 @@ from ftrack_framework_widget.widget import FrameworkWidget
 from ftrack_qt.widgets.selectors import AssetSelector
 from ftrack_qt.widgets.selectors import StatusSelector
 from ftrack_qt.widgets.lines import LineWidget
-from ftrack_qt.utils.mixin import QWidgetABCMixin
 
 
 # TODO: review and docstring this code
-class PublishContextWidget(
-    FrameworkWidget,
-    QtWidgets.QWidget,
-    metaclass=QWidgetABCMixin
-):
+class PublishContextWidget(FrameworkWidget, QtWidgets.QWidget):
     '''Main class to represent a context widget on a publish process.'''
 
     name = 'publisher_context_selector'
