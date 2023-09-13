@@ -15,6 +15,7 @@ import ftrack_constants.framework as constants
 from ftrack_framework_core.definition import (
     discover,
     validate,
+    definition_object,
 )
 from ftrack_framework_core.asset import FtrackObjectManager
 from ftrack_framework_core.log.log_item import LogItem
@@ -471,7 +472,9 @@ class Host(object):
                     definition, error
                 )
             )
-        engine_result = engine.run_definition(definition)
+        engine_result = engine.run_definition(
+            definition_object.DefinitionObject(definition)
+        )
 
         if not engine_result:
             self.logger.error("Couldn't run definition {}".format(definition))

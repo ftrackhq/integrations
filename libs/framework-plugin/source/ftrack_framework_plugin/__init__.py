@@ -479,20 +479,6 @@ class BasePlugin(object):
                 )
         return is_valid
 
-    # TODO: review this method code and double check if its needed and can be standarized.
-    def get_previous_stage_data(self, plugin_data, stage_name):
-        '''
-        Parse *plugin_data* and returns the result of the given *stage_name*
-        '''
-        # This is the previous _parse_run_event, but cleaned up
-        collector_result = []
-        component_step = plugin_data[-1]
-        for component_stage in component_step.get("result"):
-            if component_stage.get("name") == stage_name:
-                collector_result = component_stage.get("result")
-                break
-        return collector_result
-
     # TODO: evaluate if we want to pass pre-defined methods like run, fetch and
     #  validate.
     # TODO: this should be an ABC method

@@ -406,6 +406,10 @@ class Client(object):
         '''
         Publish event to tell the host to run the given *plugin_method_name*
         of the *plugin_definition* with the given *engine*.
+
+        Result of the executed plugin method specified in the
+        *plugin_definition* will be passed to
+        :meth:`~ftrack_framework_core.client._run_plugin_callback`.
         '''
 
         self.event_manager.publish.host_run_plugin(
@@ -420,7 +424,12 @@ class Client(object):
 
     #  converted to ABC method.
     def _run_plugin_callback(self, event):
-        '''Callback of the :meth:`~ftrack_framework_core.client.run_plugin'''
+        '''
+        Callback of the :meth:`~ftrack_framework_core.client.run_plugin
+        This method publish the client_notify_run_plugin_result.
+        As example, this event is subscribed by the FrameworkDialog so this can
+        get the results.
+        '''
         self.logger.debug("_run_plugin_callback event: {}".format(event))
         # Publish event to widget
         self.event_manager.publish.client_notify_run_plugin_result(
