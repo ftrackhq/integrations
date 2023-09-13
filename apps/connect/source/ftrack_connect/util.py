@@ -2,8 +2,12 @@
 # :copyright: Copyright (c) 2016 ftrack
 
 import os
+from queue import SimpleQueue
 import subprocess
 import sys
+import threading
+
+import requests
 
 from ftrack_connect.qt import QtCore
 
@@ -82,3 +86,28 @@ def invoke_in_main_thread(fn, *args, **kwargs):
     QtCore.QCoreApplication.postEvent(
         _invoker, InvokeEvent(fn, *args, **kwargs)
     )
+
+class UrlLatencyChecker:
+    def __init__(self, urls: list[str]):
+        self.urls = urls
+    
+    @staticmethod
+    def _send_request(url: str):
+        resp = requests.head(url)
+        resp.raise_for_status()
+        resp.close()
+    
+    def _check(cls, url: str, q: SimpleQueue):
+        cls._send_request(url)
+
+        q.put_nowait(url)
+
+    def run(self) -> str:
+        q = SimpleQueue()
+
+        for url in self.urls:
+            t = threading.Thread(target=self._check, args=(url, q), daemon=True)
+            t.start()
+        
+        url = q.get()
+        return url

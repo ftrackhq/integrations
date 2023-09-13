@@ -12,9 +12,7 @@ import weakref
 from operator import itemgetter
 import appdirs
 import time
-import urllib.request
 import zipfile
-import json
 import tempfile
 from ftrack_connect.qt import QtCore, QtWidgets, QtGui
 from functools import partial
@@ -41,6 +39,7 @@ from ftrack_connect.ui.widget import configure_scenario as _scenario_widget
 from ftrack_connect import usage
 import ftrack_connect.ui.config
 from ftrack_connect.asynchronous import asynchronous
+from ftrack_connect.config import get_plugins_url
 
 
 class ConnectWidgetPlugin(object):
@@ -117,11 +116,6 @@ class WelcomePlugin(ConnectWidget):
     # local variables for finding and installing plugin manager.
     install_path = appdirs.user_data_dir('ftrack-connect-plugins', 'ftrack')
 
-    json_config_url = os.environ.get(
-        'FTRACK_CONNECT_JSON_PLUGINS_URL',
-        'https://download.ftrack.com/ftrack-connect/plugins.json',
-    )
-
     def download_plugins(self, source_paths):
         '''Download plugins from provided *source_paths* item.'''
         temp_paths = []
@@ -129,47 +123,55 @@ class WelcomePlugin(ConnectWidget):
             "Downloaded 0/{} plugins.".format(len(source_paths))
         )
         i = 1
-        for source_path in source_paths:
-            zip_name = os.path.basename(source_path)
-            save_path = tempfile.gettempdir()
-            temp_path = os.path.join(save_path, zip_name)
-            logging.debug(
-                'Downloading {} to {}'.format(source_path, temp_path)
-            )
 
-            with urllib.request.urlopen(source_path) as dl_file:
-                with open(temp_path, 'wb') as out_file:
-                    out_file.write(dl_file.read())
-            temp_paths.append(temp_path)
-            self.overlay.setMessage(
-                "Downloaded {}/{} plugins.".format(i, len(source_paths))
-            )
-            i += 1
+        with requests.Session() as session:
+            for source_path in source_paths:
+                zip_name = os.path.basename(source_path)
+                save_path = tempfile.gettempdir()
+                temp_path = os.path.join(save_path, zip_name)
+                logging.debug(
+                    'Downloading {} to {}'.format(source_path, temp_path)
+                )
+
+                with session.get(source_path, stream=True) as resp:
+                    with open(temp_path, 'wb') as out_file:
+                        for chunk in resp.iter_content():
+                            out_file.write(chunk)
+
+                temp_paths.append(temp_path)
+                self.overlay.setMessage(
+                    "Downloaded {}/{} plugins.".format(i, len(source_paths))
+                )
+                i += 1
         return temp_paths
 
     def discover_plugins(self, plugin_names=None):
         '''Provide urls where to download the given *plugin_names* if
         *plugin_names* not provided, check for all plugins'''
-        with urllib.request.urlopen(self.json_config_url) as url:
-            data = json.loads(url.read().decode())
-            plugins_url = []
-            if plugin_names:
-                for plugin_name in plugin_names:
-                    plugins_url.extend(
-                        [
-                            plugin_url
-                            for plugin_url in data.get('integrations')
-                            if plugin_name in plugin_url
-                        ]
-                    )
-            else:
-                plugins_url = data.get('integrations')
+        json_config_url = get_plugins_url()
+        logging.info('using plugins url: %s', json_config_url)
 
-            if not plugins_url:
-                self.install_button.setVisible(False)
-                self.install_plug_man_button.setVisible(False)
+        with requests.get(json_config_url) as resp:
+            data = resp.json()
 
-            return plugins_url
+        plugins_url = []
+        all_urls = data.get('integrations', [])
+
+        if plugin_names:
+            for plugin_name in plugin_names:
+                plugins_url = [
+                    plugin_url
+                    for plugin_url in all_urls
+                    if plugin_name in plugin_url
+                ]
+        else:
+            plugins_url = all_urls
+
+        if not plugins_url:
+            self.install_button.setVisible(False)
+            self.install_plug_man_button.setVisible(False)
+
+        return plugins_url
 
     @asynchronous
     def install_plugins(self, plugin_names=None):
