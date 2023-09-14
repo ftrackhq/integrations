@@ -29,196 +29,195 @@ class NukeAssetManagerEngine(AssetManagerEngine):
             event_manager, host_types, host_id, asset_type_name=asset_type_name
         )
 
-    #
-    # @nuke_utils.run_in_main_thread
-    # def discover_assets(self, assets=None, options=None, plugin=None):
-    #     '''
-    #     Discover all the assets in the scene:
-    #     Returns status and result
-    #     '''
-    #     start_time = time.time()
-    #     status = core_constants.UNKNOWN_STATUS
-    #     result = []
-    #     message = None
-    #
-    #     result_data = {
-    #         'plugin_name': None,
-    #         'plugin_type': core_constants.PLUGIN_AM_ACTION_TYPE,
-    #         'method': 'discover_assets',
-    #         'status': status,
-    #         'result': result,
-    #         'execution_time': 0,
-    #         'message': message,
-    #     }
-    #
-    #     ftrack_asset_node_names = [
-    #         node.name() for node in nuke_utils.get_nodes_with_ftrack_tab()
-    #     ]
-    #     ftrack_asset_info_list = []
-    #
-    #     if ftrack_asset_node_names:
-    #         for node_name in ftrack_asset_node_names:
-    #             param_dict = self.DccObject.dictionary_from_object(node_name)
-    #             # avoid read and write nodes containing the old ftrack tab
-    #             # without information
-    #             if not param_dict:
-    #                 continue
-    #             node_asset_info = FtrackAssetInfo(param_dict)
-    #             ftrack_asset_info_list.append(node_asset_info)
-    #
-    #         if not ftrack_asset_info_list:
-    #             status = core_constants.ERROR_STATUS
-    #         else:
-    #             status = core_constants.SUCCESS_STATUS
-    #     else:
-    #         self.logger.debug("No assets in the scene")
-    #         status = core_constants.SUCCESS_STATUS
-    #
-    #     result = ftrack_asset_info_list
-    #
-    #     end_time = time.time()
-    #     total_time = end_time - start_time
-    #
-    #     result_data['status'] = status
-    #     result_data['result'] = result
-    #     result_data['execution_time'] = total_time
-    #
-    #     self.event_manager.publish.notify_plugin_progress_client(
-    #         self.host_id, **result_data
-    #     )
-    #
-    #     return status, result
-    #
-    # @nuke_utils.run_in_main_thread
-    # def select_asset(self, asset_info, options=None, plugin=None):
-    #     '''
-    #     Selects the given *asset_info* from the scene.
-    #     *options* can contain clear_selection to clear the selection before
-    #     select the given *asset_info*.
-    #     Returns status and result
-    #     '''
-    #     start_time = time.time()
-    #     status = core_constants.UNKNOWN_STATUS
-    #     result = []
-    #     message = None
-    #
-    #     plugin_type = core_constants.PLUGIN_AM_ACTION_TYPE
-    #     plugin_name = None
-    #     if plugin:
-    #         plugin_type = '{}.{}'.format('asset_manager', plugin['type'])
-    #         plugin_name = plugin.get('name')
-    #
-    #     result_data = {
-    #         'plugin_name': plugin_name,
-    #         'plugin_type': plugin_type,
-    #         'method': 'select_asset',
-    #         'status': status,
-    #         'result': result,
-    #         'execution_time': 0,
-    #         'message': message,
-    #     }
-    #
-    #     self.asset_info = asset_info
-    #     dcc_object = self.DccObject(
-    #         from_id=asset_info[asset_const.ASSET_INFO_ID]
-    #     )
-    #     self.dcc_object = dcc_object
-    #
-    #     if options.get('clear_selection'):
-    #         nuke_utils.clean_selection()
-    #
-    #     ftrack_node = nuke.toNode(self.dcc_object.name)
-    #
-    #     parented_nodes = ftrack_node.getNodes()
-    #     parented_nodes_names = [x.knob('name').value() for x in parented_nodes]
-    #     nodes_to_select_str = ftrack_node.knob(asset_const.ASSET_LINK).value()
-    #     nodes_to_select = parented_nodes_names
-    #     if len(nodes_to_select_str) > 0:
-    #         nodes_to_select = set(
-    #             nodes_to_select + nodes_to_select_str.split(";")
-    #         )
-    #
-    #     for node_name in nodes_to_select:
-    #         try:
-    #             node_to_select = nuke.toNode(node_name)
-    #             node_to_select['selected'].setValue(True)
-    #             result.append(str(node_name))
-    #             status = core_constants.SUCCESS_STATUS
-    #         except Exception as error:
-    #             message = str(
-    #                 'Could not select the node {}, error: {}'.format(
-    #                     str(node_name), error
-    #                 )
-    #             )
-    #             self.logger.error(message)
-    #             status = core_constants.ERROR_STATUS
-    #
-    #         bool_status = core_constants.status_bool_mapping[status]
-    #         if not bool_status:
-    #             end_time = time.time()
-    #             total_time = end_time - start_time
-    #
-    #             result_data['status'] = status
-    #             result_data['result'] = result
-    #             result_data['execution_time'] = total_time
-    #             result_data['message'] = message
-    #
-    #             self.event_manager.publish.notify_plugin_progress_client(
-    #         self.host_id, **result_data
-    #     )
-    #             return status, result
-    #
-    #     try:
-    #         ftrack_node['selected'].setValue(True)
-    #         result.append(str(ftrack_node))
-    #         status = core_constants.SUCCESS_STATUS
-    #     except Exception as error:
-    #         message = str(
-    #             'Could not select the dcc_object, error: {}'.format(error)
-    #         )
-    #         self.logger.error(message)
-    #         status = core_constants.ERROR_STATUS
-    #
-    #     bool_status = core_constants.status_bool_mapping[status]
-    #     if not bool_status:
-    #         end_time = time.time()
-    #         total_time = end_time - start_time
-    #
-    #         result_data['status'] = status
-    #         result_data['result'] = result
-    #         result_data['execution_time'] = total_time
-    #         result_data['message'] = message
-    #
-    #         self.event_manager.publish.notify_plugin_progress_client(
-    #         self.host_id, **result_data
-    #     )
-    #         return status, result
-    #
-    #     end_time = time.time()
-    #     total_time = end_time - start_time
-    #
-    #     result_data['status'] = status
-    #     result_data['result'] = result
-    #     result_data['execution_time'] = total_time
-    #
-    #     self.event_manager.publish.notify_plugin_progress_client(
-    #         self.host_id, **result_data
-    #     )
-    #     return status, result
-    #
-    # @nuke_utils.run_in_main_thread
-    # def select_assets(self, assets, options=None, plugin=None):
-    #     '''
-    #     Returns status dictionary and results dictionary keyed by the id for
-    #     executing the :meth:`select_asset` for all the
-    #     :class:`~ftrack_framework_core.asset.FtrackAssetInfo` in the given
-    #     *assets* list.
-    #
-    #     *assets*: List of :class:`~ftrack_framework_core.asset.FtrackAssetInfo`
-    #     '''
-    #     return super(NukeAssetManagerEngine, self).select_assets(
-    #         assets=assets, options=options, plugin=plugin
-    #     )
+    @nuke_utils.run_in_main_thread
+    def discover_assets(self, assets=None, options=None, plugin=None):
+        '''
+        Discover all the assets in the scene:
+        Returns status and result
+        '''
+        start_time = time.time()
+        status = core_constants.UNKNOWN_STATUS
+        result = []
+        message = None
+
+        result_data = {
+            'plugin_name': None,
+            'plugin_type': core_constants.PLUGIN_AM_ACTION_TYPE,
+            'method': 'discover_assets',
+            'status': status,
+            'result': result,
+            'execution_time': 0,
+            'message': message,
+        }
+
+        ftrack_asset_node_names = [
+            node.name() for node in nuke_utils.get_nodes_with_ftrack_tab()
+        ]
+        ftrack_asset_info_list = []
+
+        if ftrack_asset_node_names:
+            for node_name in ftrack_asset_node_names:
+                param_dict = self.DccObject.dictionary_from_object(node_name)
+                # avoid read and write nodes containing the old ftrack tab
+                # without information
+                if not param_dict:
+                    continue
+                node_asset_info = FtrackAssetInfo(param_dict)
+                ftrack_asset_info_list.append(node_asset_info)
+
+            if not ftrack_asset_info_list:
+                status = core_constants.ERROR_STATUS
+            else:
+                status = core_constants.SUCCESS_STATUS
+        else:
+            self.logger.debug("No assets in the scene")
+            status = core_constants.SUCCESS_STATUS
+
+        result = ftrack_asset_info_list
+
+        end_time = time.time()
+        total_time = end_time - start_time
+
+        result_data['status'] = status
+        result_data['result'] = result
+        result_data['execution_time'] = total_time
+
+        self.event_manager.publish.notify_plugin_progress_client(
+            self.host_id, **result_data
+        )
+
+        return status, result
+
+    @nuke_utils.run_in_main_thread
+    def select_asset(self, asset_info, options=None, plugin=None):
+        '''
+        Selects the given *asset_info* from the scene.
+        *options* can contain clear_selection to clear the selection before
+        select the given *asset_info*.
+        Returns status and result
+        '''
+        start_time = time.time()
+        status = core_constants.UNKNOWN_STATUS
+        result = []
+        message = None
+
+        plugin_type = core_constants.PLUGIN_AM_ACTION_TYPE
+        plugin_name = None
+        if plugin:
+            plugin_type = '{}.{}'.format('asset_manager', plugin['type'])
+            plugin_name = plugin.get('name')
+
+        result_data = {
+            'plugin_name': plugin_name,
+            'plugin_type': plugin_type,
+            'method': 'select_asset',
+            'status': status,
+            'result': result,
+            'execution_time': 0,
+            'message': message,
+        }
+
+        self.asset_info = asset_info
+        dcc_object = self.DccObject(
+            from_id=asset_info[asset_const.ASSET_INFO_ID]
+        )
+        self.dcc_object = dcc_object
+
+        if options.get('clear_selection'):
+            nuke_utils.clean_selection()
+
+        ftrack_node = nuke.toNode(self.dcc_object.name)
+
+        parented_nodes = ftrack_node.getNodes()
+        parented_nodes_names = [x.knob('name').value() for x in parented_nodes]
+        nodes_to_select_str = ftrack_node.knob(asset_const.ASSET_LINK).value()
+        nodes_to_select = parented_nodes_names
+        if len(nodes_to_select_str) > 0:
+            nodes_to_select = set(
+                nodes_to_select + nodes_to_select_str.split(";")
+            )
+
+        for node_name in nodes_to_select:
+            try:
+                node_to_select = nuke.toNode(node_name)
+                node_to_select['selected'].setValue(True)
+                result.append(str(node_name))
+                status = core_constants.SUCCESS_STATUS
+            except Exception as error:
+                message = str(
+                    'Could not select the node {}, error: {}'.format(
+                        str(node_name), error
+                    )
+                )
+                self.logger.error(message)
+                status = core_constants.ERROR_STATUS
+
+            bool_status = core_constants.status_bool_mapping[status]
+            if not bool_status:
+                end_time = time.time()
+                total_time = end_time - start_time
+
+                result_data['status'] = status
+                result_data['result'] = result
+                result_data['execution_time'] = total_time
+                result_data['message'] = message
+
+                self.event_manager.publish.notify_plugin_progress_client(
+                    self.host_id, **result_data
+                )
+                return status, result
+
+        try:
+            ftrack_node['selected'].setValue(True)
+            result.append(str(ftrack_node))
+            status = core_constants.SUCCESS_STATUS
+        except Exception as error:
+            message = str(
+                'Could not select the dcc_object, error: {}'.format(error)
+            )
+            self.logger.error(message)
+            status = core_constants.ERROR_STATUS
+
+        bool_status = core_constants.status_bool_mapping[status]
+        if not bool_status:
+            end_time = time.time()
+            total_time = end_time - start_time
+
+            result_data['status'] = status
+            result_data['result'] = result
+            result_data['execution_time'] = total_time
+            result_data['message'] = message
+
+            self.event_manager.publish.notify_plugin_progress_client(
+                self.host_id, **result_data
+            )
+            return status, result
+
+        end_time = time.time()
+        total_time = end_time - start_time
+
+        result_data['status'] = status
+        result_data['result'] = result
+        result_data['execution_time'] = total_time
+
+        self.event_manager.publish.notify_plugin_progress_client(
+            self.host_id, **result_data
+        )
+        return status, result
+
+    @nuke_utils.run_in_main_thread
+    def select_assets(self, assets, options=None, plugin=None):
+        '''
+        Returns status dictionary and results dictionary keyed by the id for
+        executing the :meth:`select_asset` for all the
+        :class:`~ftrack_framework_core.asset.FtrackAssetInfo` in the given
+        *assets* list.
+
+        *assets*: List of :class:`~ftrack_framework_core.asset.FtrackAssetInfo`
+        '''
+        return super(NukeAssetManagerEngine, self).select_assets(
+            assets=assets, options=options, plugin=plugin
+        )
 
     @nuke_utils.run_in_main_thread
     def unload_asset(self, asset_info, options=None, plugin=None):
