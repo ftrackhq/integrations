@@ -31,7 +31,7 @@ class CommonTestAssetManagerDiscoverPlugin(BasePlugin):
 
         # Select random asset from anim and geo
         component_names = ['game', 'cache']
-        count = 5
+        count = 3
         chunk_size = 3
 
         ftrack_asset_info_list = []

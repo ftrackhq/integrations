@@ -289,9 +289,8 @@ class AssetManagerBrowser(QtWidgets.QWidget):
 
         self.run_plugin.emit(plugin_config, 'run', callback)
 
-    def _run_action(self, context_data, callback):
+    def _run_action(self, context_data, callback=None):
         '''Emit run_action signal providing *context_data* if given, running *callback* when done.'''
-
         self.run_action.emit(context_data, callback)
 
     # Discover
@@ -300,11 +299,7 @@ class AssetManagerBrowser(QtWidgets.QWidget):
         self._run_plugin(plugin_definition, self._assets_discovered_callback)
 
     def _assets_discovered_callback(self, plugin_info):
-        print(
-            '@@@ _assets_discovered_callback: {}'.format(
-                json.dumps(plugin_info, indent=2)
-            )
-        )
+        '''Callback for when assets have been discovered.'''
         asset_entities_list = []
         for ftrack_asset in plugin_info['plugin_method_result']:
             asset_entities_list.append(ftrack_asset)
@@ -322,14 +317,7 @@ class AssetManagerBrowser(QtWidgets.QWidget):
             "action": action_configuration['type'],
             "assets": selected_assets,
         }
-        self._run_action(context_data, self._assets_selected_callback)
-
-    def _assets_selected_callback(self, plugin_info):
-        print(
-            '@@@ _assets_selected_callback: {}'.format(
-                json.dumps(plugin_info, indent=2)
-            )
-        )
+        self._run_action(context_data)
 
     # Update to latest
 
@@ -345,6 +333,7 @@ class AssetManagerBrowser(QtWidgets.QWidget):
         self._run_action(context_data, self._assets_updated_callback)
 
     def _assets_updated_callback(self, plugin_info):
+        '''Callback for when assets have been updated, new asset info provided in *plugin_info*.'''
         print(
             '@@@ _assets_updated_callback: {}'.format(
                 json.dumps(plugin_info, indent=2)

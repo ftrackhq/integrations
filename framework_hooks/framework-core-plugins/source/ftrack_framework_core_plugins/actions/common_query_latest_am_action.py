@@ -20,24 +20,27 @@ class CommonQueryLatestAssetManagerActionPlugin(BasePlugin):
         )
 
     def run(self, context_data=None, data=None, options=None):
-        '''Retrieve the latest version based on asset info passed in *context_data*'''
-        # TODO: no need to convert or pass the asset info, we can simply query
-        #  data.get('asset_id') and data.get('component_name')
-        #  Somehow we should expose to the user what the arguments are and how
-        #  are they filled out. Maybe exposing the engine in the doc so the user
-        #  can see what each argument contain?
+        '''Query the latest version based on asset info passed in *context_data*'''
 
         asset_info = FtrackAssetInfo(context_data['asset_info'])
+
+        asset_id = asset_info[constants.asset.ASSET_ID]
+        component_name = asset_info[constants.asset.COMPONENT_NAME]
 
         query = (
             'select is_latest_version, id, asset, components, components.name, '
             'components.id, version, asset , asset.name, asset.type.name from '
-            'AssetVersion where asset.id is "{}" and components.name is "{}"'
-            'and is_latest_version is "True"'
+            'AssetVersion where asset.id is "{}" and components.name is "{}" '
+            'and is_latest_version is "True" '
         ).format(
             asset_info[constants.asset.ASSET_ID],
             asset_info[constants.asset.COMPONENT_NAME],
         )
-        latest_version = self.session.query(query).one()
+        print('@@@ query: {}'.format(query))
+        latest_version = self.session.query(query).first()
 
-        return [latest_version['id']]
+        if latest_version:
+            return [latest_version['id']]
+        else:
+            return False, {'message': 'No latest version found for asset_id: {}, '
+                                      'component_name: {}'.format(asset_id, component_name)}

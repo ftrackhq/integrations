@@ -99,7 +99,6 @@ class AssetManagerEngine(BaseEngine):
         *step_type* : Type of the parent step
         *step_name* : Name of the parent step
         '''
-        print('@@@ step_type: {}'.format(step_type))
         plugins = stage_definition.get_all(category='plugin')
         status = constants.status.SUCCESS_STATUS
         i = 0

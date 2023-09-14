@@ -233,17 +233,6 @@ class AssetManagerDialog(FrameworkDialog, StyledDialog):
         self._plugin_run_callback = plugin_run_callback
         self.run_plugin_method(plugin_configuration, plugin_method_name)
 
-    def _on_run_action_callback(self, context_data, action_run_callback):
-        '''Asset manager browser requests running an action defined in *data*,
-        running *plugin_run_callback* with the result when the plugin is finished.
-        '''
-        self._action_run_callback = action_run_callback
-        arguments = {
-            "definition": self.definition,
-            "context_data": context_data,
-        }
-        self.client_method_connection('run_definition', arguments=arguments)
-
     def _on_client_notify_ui_run_plugin_result_callback(self, event):
         '''
         (Override) Pass plugin result on to asset manager
@@ -255,6 +244,28 @@ class AssetManagerDialog(FrameworkDialog, StyledDialog):
             )
             return
         self._plugin_run_callback(plugin_info)
+
+    def _on_run_action_callback(self, context_data, action_run_callback):
+        '''Asset manager browser requests running an action defined in *data*,
+        running *plugin_run_callback* with the result when the plugin is finished.
+        '''
+        self._action_run_callback = action_run_callback
+        arguments = {
+            "definition": self.definition,
+            "context_data": context_data,
+        }
+        self.client_method_connection('run_definition', arguments=arguments)
+
+    def _on_client_notify_ui_run_definition_result_callback(self, event):
+        '''
+        Client notifies the dialog that definition has been executed and passes
+        the result in the *event*
+        '''
+        definition_result = event['data']['definition_result']
+        if self._action_run_callback:
+            self._action_run_callback(definition_result)
+        else:
+            self.logger.debug('No callback registered for handling definition result!')
 
     def _on_refresh_hosts_callback(self):
         '''

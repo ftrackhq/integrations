@@ -139,8 +139,11 @@ class ListSelector(QtWidgets.QWidget):
         selection_item_data_changed = False
         modifiers = QtWidgets.QApplication.keyboardModifiers()
         if event.button() == QtCore.Qt.RightButton:
-            return
-        if (
+            # Select the current if nothing is selected
+            if len(self.selection()) == 0:
+                item_widget.selected = True
+                selection_item_data_changed = True
+        elif (
             modifiers == QtCore.Qt.Key_Meta and platform.system() != 'Darwin'
         ) or (
             modifiers == QtCore.Qt.ControlModifier
