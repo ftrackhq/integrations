@@ -132,7 +132,7 @@ class AssetManagerEngine(BaseEngine):
                 # so that is why we only pass the data of the previous stage.
                 plugin_data=plugin_data,
                 # From the definition + stage_options
-                plugin_options=plugin_definition.options,
+                plugin_options=plugin_definition.options.to_dict(),
                 # Data from the plugin context
                 plugin_context_data=self.context_data,
                 # default_method is defined in the definitions

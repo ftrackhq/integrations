@@ -36,11 +36,12 @@ class CommonQueryLatestAssetManagerActionPlugin(BasePlugin):
             asset_info[constants.asset.ASSET_ID],
             asset_info[constants.asset.COMPONENT_NAME],
         )
-        print('@@@ query: {}'.format(query))
         latest_version = self.session.query(query).first()
 
         if latest_version:
             return [latest_version['id']]
         else:
-            return False, {'message': 'No latest version found for asset_id: {}, '
-                                      'component_name: {}'.format(asset_id, component_name)}
+            return False, {
+                'message': 'No latest version found for asset_id: {}, '
+                'component_name: {}'.format(asset_id, component_name)
+            }

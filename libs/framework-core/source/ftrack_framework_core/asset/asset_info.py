@@ -140,6 +140,13 @@ class FtrackAssetInfo(dict):
             value = new_value
         return value
 
+    def to_dict(self):
+        '''Return dictionary type base on current data'''
+        new_mapping = {}
+        for k, v in list(self.items()):
+            new_mapping[k] = v
+        return new_mapping
+
     @classmethod
     def create(
         cls,

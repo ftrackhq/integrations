@@ -451,6 +451,21 @@ class Publish(object):
         event_topic = constants.event.CLIENT_SIGNAL_HOST_CHANGED_TOPIC
         return self._publish_event(event_topic, data, callback)
 
+    def client_notify_run_plugin_progress(
+        self, client_id, plugin_info, callback=None
+    ):
+        '''
+        Publish an event with topic
+        :const:`~ftrack_framework_core.constants.event.CLIENT_NOTIFY_RUN_PLUGIN_PROGRESS_TOPIC`
+        '''
+        data = {
+            'client_id': client_id,
+            'plugin_info': plugin_info,
+        }
+
+        event_topic = constants.event.CLIENT_NOTIFY_RUN_PLUGIN_PROGRESS_TOPIC
+        return self._publish_event(event_topic, data, callback)
+
     def client_notify_run_plugin_result(
         self, client_id, plugin_info, callback=None
     ):
@@ -687,6 +702,16 @@ class Subscribe(object):
         '''
         event_topic = '{} and data.client_id={}'.format(
             constants.event.CLIENT_SIGNAL_HOST_CHANGED_TOPIC, client_id
+        )
+        return self._subscribe_event(event_topic, callback)
+
+    def client_notify_run_plugin_progress(self, client_id, callback=None):
+        '''
+        Subscribe to an event with topic
+        :const:`~ftrack_framework_core.constants.event.CLIENT_NOTIFY_RUN_PLUGIN_PROGRESS_TOPIC`
+        '''
+        event_topic = '{} and data.client_id={}'.format(
+            constants.event.CLIENT_NOTIFY_RUN_PLUGIN_PROGRESS_TOPIC, client_id
         )
         return self._subscribe_event(event_topic, callback)
 

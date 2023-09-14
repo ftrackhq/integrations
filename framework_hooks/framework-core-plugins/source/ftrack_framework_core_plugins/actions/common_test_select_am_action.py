@@ -10,7 +10,7 @@ from ftrack_framework_core.asset.asset_info import FtrackAssetInfo
 class CommonTestAssetManagerSelectActionPlugin(BasePlugin):
     name = 'common_test_select_am_action'
     host_type = constants.host.PYTHON_HOST_TYPE
-    plugin_type = constants.plugin.PLUGIN_DISCOVER_TYPE
+    plugin_type = constants.plugin.PLUGIN_ACTION_TYPE
 
     def register_methods(self):
         self.register_method(

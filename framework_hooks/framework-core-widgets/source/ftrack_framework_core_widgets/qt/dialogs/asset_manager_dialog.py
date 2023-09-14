@@ -3,7 +3,9 @@
 
 from Qt import QtWidgets, QtCore
 
-import ftrack_constants.framework.definition
+from ftrack_constants.framework import status
+from ftrack_constants.framework import definition
+from ftrack_utils.threading import BaseThread, multithreading_enabled
 from ftrack_framework_widget.dialog import FrameworkDialog
 
 from ftrack_qt.widgets.headers import SessionHeader
@@ -109,8 +111,7 @@ class AssetManagerDialog(FrameworkDialog, StyledDialog):
             parent,
         )
         self._asset_manager_browser = None
-        self._plugin_run_callback = None
-        self._action_run_callback = None
+        self._action_type = None
 
         self.pre_build()
         self.build()
@@ -152,17 +153,17 @@ class AssetManagerDialog(FrameworkDialog, StyledDialog):
             self._on_open_assembler_callback
         )
         self.asset_manager_browser.run_plugin.connect(
-            self._on_run_plugin_callback
+            self._on_am_run_plugin_callback
         )
         self.asset_manager_browser.run_action.connect(
-            self._on_run_action_callback
+            self._on_am_run_action_callback
         )
 
     def _on_open_assembler_callback(self, event):
         '''Open the assembler dialog'''
         self.event_manager.publish.client_launch_widget(
             self.selected_host_connection_id,
-            ftrack_constants.framework.definition.LOADER,
+            definition.LOADER,
         )
 
     def show_ui(self):
@@ -224,48 +225,70 @@ class AssetManagerDialog(FrameworkDialog, StyledDialog):
 
         self.build_asset_manager_ui(self.definition)
 
-    def _on_run_plugin_callback(
-        self, plugin_configuration, plugin_method_name, plugin_run_callback
+    def _on_am_run_plugin_callback(
+        self, plugin_configuration, plugin_method_name
     ):
         '''Asset manager browser requests running a defined in *plugin_definition*,
         running *plugin_run_callback* with the result when the plugin is finished.
         '''
-        self._plugin_run_callback = plugin_run_callback
-        self.run_plugin_method(plugin_configuration, plugin_method_name)
+        if multithreading_enabled:
+            BaseThread(
+                name='{}_ui_thread'.format(plugin_configuration['plugin']),
+                target=self.run_plugin_method,
+                target_args=[plugin_configuration, plugin_method_name],
+            ).start()
+        else:
+            self.run_plugin_method(plugin_configuration, plugin_method_name)
+
+    def _on_client_notify_ui_run_plugin_progress_callback(self, event):
+        '''
+        (Override) Capture plugin progress error messages and relay to asset manager, may
+        be run async so emit signal to run in main UI thread.
+        '''
+        plugin_info = event['data']['plugin_info']
+        self.asset_manager_browser.client_notify_ui_run_plugin_progress.emit(
+            plugin_info
+        )
 
     def _on_client_notify_ui_run_plugin_result_callback(self, event):
         '''
-        (Override) Pass plugin result on to asset manager
+        (Override) Pass plugin result exec result on to asset manager. Most likely
+        called async from separate thread, emit signal to run in main UI thread.
         '''
         plugin_info = event['data']['plugin_info']
-        if not self._plugin_run_callback:
-            self.logger.warning(
-                'No callback registered for handling plugin result!'
-            )
-            return
-        self._plugin_run_callback(plugin_info)
+        self.asset_manager_browser.client_notify_ui_run_plugin_result.emit(
+            plugin_info
+        )
 
-    def _on_run_action_callback(self, context_data, action_run_callback):
+    def _on_am_run_action_callback(self, context_data):
         '''Asset manager browser requests running an action defined in *data*,
         running *plugin_run_callback* with the result when the plugin is finished.
         '''
-        self._action_run_callback = action_run_callback
+        self._action_type = context_data['action']
         arguments = {
             "definition": self.definition,
             "context_data": context_data,
         }
-        self.client_method_connection('run_definition', arguments=arguments)
+        if multithreading_enabled:
+            BaseThread(
+                name='am_{}_ui_thread'.format(context_data['action']),
+                target=self.client_method_connection,
+                target_args=['run_definition', arguments],
+            ).start()
+        else:
+            self.client_method_connection(
+                'run_definition', arguments=arguments
+            )
 
     def _on_client_notify_ui_run_definition_result_callback(self, event):
         '''
-        Client notifies the dialog that definition has been executed and passes
+        (Override) Client notifies the dialog that definition has been executed and passes
         the result in the *event*
         '''
-        definition_result = event['data']['definition_result']
-        if self._action_run_callback:
-            self._action_run_callback(definition_result)
-        else:
-            self.logger.debug('No callback registered for handling definition result!')
+        action_result = event['data']['definition_result']
+        self.asset_manager_browser.client_notify_ui_run_action_result.emit(
+            self._action_type, action_result
+        )
 
     def _on_refresh_hosts_callback(self):
         '''

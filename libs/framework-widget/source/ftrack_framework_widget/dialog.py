@@ -176,6 +176,10 @@ class FrameworkDialog(BaseUI):
         self.event_manager.subscribe.client_signal_host_changed(
             self.client_id, callback=self._on_client_host_changed_callback
         )
+        self.event_manager.subscribe.client_notify_run_plugin_progress(
+            self.client_id,
+            callback=self._on_client_notify_ui_run_plugin_progress_callback,
+        )
         self.event_manager.subscribe.client_notify_run_plugin_result(
             self.client_id,
             callback=self._on_client_notify_ui_run_plugin_result_callback,
@@ -352,6 +356,13 @@ class FrameworkDialog(BaseUI):
             'plugin_widget_id': plugin_widget_id,
         }
         self.client_method_connection('run_plugin', arguments=arguments)
+
+    def _on_client_notify_ui_run_plugin_progress_callback(self, plugin_info):
+        '''
+        Client has notified the dialog about progress of a plugin execution,
+        with information provided in *plugin_info*. T be overriden by dialog
+        to provide progress and error feedback.
+        '''
 
     def _on_client_notify_ui_run_plugin_result_callback(self, event):
         '''

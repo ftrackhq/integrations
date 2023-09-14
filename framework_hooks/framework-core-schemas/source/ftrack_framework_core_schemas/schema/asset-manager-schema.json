@@ -106,7 +106,6 @@
     "Plugin": {
       "title": "Plugin",
       "type": "object",
-      "additionalProperties": false,
       "required": [
         "name",
         "plugin",
@@ -123,9 +122,7 @@
           "default": "plugin"
         },
         "type": {
-          "type": "string",
-          "pattern": "^base$",
-          "default": "base"
+          "type": "string"
         },
         "name": {
           "type": "string"
@@ -143,10 +140,6 @@
         "widget_id": {
           "type": "string",
           "default": ""
-        },
-        "visible": {
-          "type": "boolean",
-          "default": true
         },
         "editable": {
           "type": "boolean",
@@ -183,6 +176,19 @@
         }
       }
     },
+    "ActionPlugin": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/Plugin"
+        }
+      ],
+      "properties": {
+        "type": {
+          "pattern": "^action$",
+          "default": "action"
+        }
+      }
+    },
     "ActionStage": {
       "allOf": [
         {
@@ -205,7 +211,7 @@
           "items": {
             "allOf": [
               {
-                "$ref": "#/definitions/Plugin"
+                "$ref": "#/definitions/ActionPlugin"
               }
             ],
             "properties": {
@@ -240,7 +246,7 @@
           "items": {
             "allOf": [
               {
-                "$ref": "#/definitions/Plugin"
+                "$ref": "#/definitions/ActionPlugin"
               }
             ],
             "properties": {
@@ -275,7 +281,7 @@
           "items": {
             "allOf": [
               {
-                "$ref": "#/definitions/Plugin"
+                "$ref": "#/definitions/ActionPlugin"
               }
             ],
             "properties": {
@@ -311,7 +317,7 @@
           "items": {
             "allOf": [
               {
-                "$ref": "#/definitions/Plugin"
+                "$ref": "#/definitions/ActionPlugin"
               }
             ],
             "properties": {
@@ -347,7 +353,7 @@
           "items": {
             "allOf": [
               {
-                "$ref": "#/definitions/Plugin"
+                "$ref": "#/definitions/ActionPlugin"
               }
             ],
             "properties": {

@@ -72,9 +72,20 @@ class BasePlugin(object):
         Set the result of the current method and registry it to the
         registered results.
         '''
-        is_valid = self._validate_result(value)
-        if not is_valid:
-            self.status = constants.status.EXCEPTION_STATUS
+        # An user message returned by the plugin?
+        if (
+            isinstance(value, tuple)
+            and len(value) == 2
+            and value[0] is False
+            and isinstance(value[1], dict)
+            and value[1].get('message')
+        ):
+            self.status = constants.status.ERROR_STATUS
+            self.message = value[1].get('message')
+        else:
+            is_valid = self._validate_result(value)
+            if not is_valid:
+                self.status = constants.status.EXCEPTION_STATUS
 
         self._method_result = value
         self.result_registry = value
@@ -343,7 +354,12 @@ class BasePlugin(object):
             self.logger.error(self.message)
             self._notify_client()
             return self.provide_plugin_info()
-
+        else:
+            if not self.boolean_status:
+                # Plugin returned an error with user message
+                self.logger.error(self.message)
+                self._notify_client()
+                return self.provide_plugin_info()
         # print plugin error handled by the plugin
         if not self.boolean_status:
             # Generic message printing the result in case no message is provided.
@@ -357,7 +373,7 @@ class BasePlugin(object):
             return self.provide_plugin_info()
 
         # Notify client
-        self.message = "Plugin executed succesfully, result: {}".format(
+        self.message = "Plugin executed successfully, result: {}".format(
             self.method_result
         )
         self._notify_client()

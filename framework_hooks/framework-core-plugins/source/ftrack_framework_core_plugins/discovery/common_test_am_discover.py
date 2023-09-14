@@ -1,8 +1,10 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2023 ftrack
+import random
 
 from ftrack_framework_plugin import BasePlugin
 import ftrack_constants.framework as constants
+from ftrack_constants.framework import asset as asset_const
 
 from ftrack_framework_core.asset.asset_info import FtrackAssetInfo
 
@@ -50,6 +52,8 @@ class CommonTestAssetManagerDiscoverPlugin(BasePlugin):
                         asset_info = FtrackAssetInfo.create(
                             asset_version_entity, component_id=component['id']
                         )
+                        if random.randint(0, 1) == 0:
+                            asset_info[asset_const.OBJECTS_LOADED] = True
                         ftrack_asset_info_list.append(asset_info)
                         if len(ftrack_asset_info_list) >= count:
                             break

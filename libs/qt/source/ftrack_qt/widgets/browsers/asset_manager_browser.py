@@ -5,7 +5,8 @@ import logging
 
 from Qt import QtWidgets, QtCore, QtGui
 
-from ftrack_qt.widgets.accordion import AssetAccordionWidget
+from ftrack_constants.framework import status
+from ftrack_constants.framework import asset as asset_const
 from ftrack_qt.widgets.model import AssetInfoListModel
 from ftrack_qt.widgets.dialogs import ModalDialog
 from ftrack_qt.widgets.search import SearchBox
@@ -32,14 +33,20 @@ class AssetManagerBrowser(QtWidgets.QWidget):
     on_config = QtCore.Signal()
     # User has requested to configure assets
 
-    stop_busy_indicator = QtCore.Signal()
-    # Stop spinner and hide it
+    run_plugin = QtCore.Signal(object, object)
+    # Run plugin with *plugin_configuration* and *plugin_method_name*.
 
-    run_plugin = QtCore.Signal(object, object, object)
-    # Run plugin with *plugin_configuration*, *plugin_method_name* and *callback*
+    run_action = QtCore.Signal(object)
+    # Run action(step) with action *context_data*
 
-    run_action = QtCore.Signal(object, object)
-    # Run action(step) with action *context_data* and *callback*
+    client_notify_ui_run_plugin_progress = QtCore.Signal(object)
+    # Plugin run progress has been updated with *plugin_info* provided
+
+    client_notify_ui_run_plugin_result = QtCore.Signal(object)
+    # Plugin run result has been updated with *plugin_info* provided
+
+    client_notify_ui_run_action_result = QtCore.Signal(object, object)
+    # Definition run result has been updated with *action_type* and *definition_result* provided
 
     @property
     def framework_dialog(self):
@@ -56,12 +63,41 @@ class AssetManagerBrowser(QtWidgets.QWidget):
         '''Returns Session'''
         return self.event_manager.session
 
+    @property
+    def busy(self):
+        '''Returns true if the browser is in busy mode'''
+        return self._busy_widget.isVisible()
+
+    @busy.setter
+    def busy(self, value):
+        '''Enter busy mode if *value* is True - start spinner and show it.
+        If *value* is false, stop and hide the spinner'''
+        if value:
+            self._busy_widget.start()
+            self._rebuild_button.setVisible(False)
+            self._busy_widget.setVisible(True)
+        else:
+            self._busy_widget.stop()
+            self._busy_widget.setVisible(False)
+            self._rebuild_button.setVisible(True)
+
+    @property
+    def error_message(self):
+        '''Return the most recent error message provided by plugin run progress'''
+        return self._error_message
+
+    @error_message.setter
+    def error_message(self, value):
+        '''Set the most recent error message provided by plugin run progress'''
+        self._error_message = value
+
     def __init__(self, framework_dialog, parent=None):
         '''Instantiate the browser within parent *framework_dialog*'''
         super(AssetManagerBrowser, self).__init__(parent=parent)
         self._framework_dialog = framework_dialog
         self._asset_list_model = AssetInfoListModel()
         self._discovery_plugin_definition = None
+        self._error_message = None
 
         self._action_widgets = None
         self._config_button = None
@@ -154,6 +190,15 @@ class AssetManagerBrowser(QtWidgets.QWidget):
         if self._config_button:
             self._config_button.clicked.connect(self._on_config)
         self._search.input_updated.connect(self._on_search)
+        self.client_notify_ui_run_plugin_progress.connect(
+            self._on_client_notify_ui_run_plugin_progress
+        )
+        self.client_notify_ui_run_plugin_result.connect(
+            self._on_client_notify_ui_run_plugin_result
+        )
+        self.client_notify_ui_run_action_result.connect(
+            self._on_client_notify_ui_run_action_result
+        )
 
     # Rebuild and Discovery
 
@@ -212,7 +257,9 @@ class AssetManagerBrowser(QtWidgets.QWidget):
             self._action_widgets[action_type].append(action_widget)
 
     def contextMenuEvent(self, event):
-        '''(Override) Executes the context menu'''
+        '''(Override) Executes the context menu, if not busy'''
+        if self.busy:
+            return
         # Anything selected?
         widget_deselect = None
         if len(self._asset_list.selection()) == 0:
@@ -226,7 +273,7 @@ class AssetManagerBrowser(QtWidgets.QWidget):
         menu = QtWidgets.QMenu(self)
         self.action_type_menu = {}
         for action_type, action_widgets in list(self._action_widgets.items()):
-            if action_type == 'remove' and not self.remove_enabled:
+            if action_type == 'remove' and not self.remove_enabled and False:
                 continue  # Can only remove asset when in assembler
             if len(action_widgets) == 0:
                 continue
@@ -277,8 +324,8 @@ class AssetManagerBrowser(QtWidgets.QWidget):
         else:
             return True
 
-    def _run_plugin(self, plugin_definition, callback):
-        '''Emit run_plugin signal with *plugin_definition* and *callback*, providing
+    def _run_plugin(self, plugin_definition):
+        '''Emit run_plugin signal with *plugin_definition*, providing
         *selected_assets* as data if given.'''
         # TODO: check why action arrive as dict and not expected DefinitionList object?
         plugin_config = (
@@ -286,25 +333,113 @@ class AssetManagerBrowser(QtWidgets.QWidget):
             if not isinstance(plugin_definition, dict)
             else plugin_definition
         )
+        self.error_message = None
+        self.run_plugin.emit(plugin_config, 'run')
 
-        self.run_plugin.emit(plugin_config, 'run', callback)
+    def _run_action(self, context_data):
+        '''Emit run_action signal providing *context_data* if given.'''
+        self.busy = True
+        self.error_message = None
+        self.run_action.emit(context_data)
 
-    def _run_action(self, context_data, callback=None):
-        '''Emit run_action signal providing *context_data* if given, running *callback* when done.'''
-        self.run_action.emit(context_data, callback)
+    def _on_client_notify_ui_run_plugin_progress(self, plugin_info):
+        '''Handle progress notification from running plugin.'''
+        plugin_status = plugin_info['plugin_status']
+        if plugin_status in [status.ERROR_STATUS, status.EXCEPTION_STATUS]:
+            self.busy = False
+            # Store plugin error message
+            plugin_method_result = plugin_info['plugin_method_result']
+            if (
+                isinstance(plugin_method_result, tuple)
+                and len(plugin_method_result) == 2
+                and isinstance(plugin_method_result[1], dict)
+                and 'message' in plugin_method_result[1]
+            ):
+                self.error_message = plugin_method_result[1]['message']
+            elif 'plugin_message' in plugin_info:
+                self.error_message = plugin_info['plugin_message']
+            if plugin_info['plugin_type'] != 'action':
+                # Show error message
+                ModalDialog(
+                    self,
+                    title='{} failed!'.format(
+                        plugin_info['plugin_type'].title()
+                    ),
+                    message=self.error_message
+                    + "\n\nPlease check the log viewer / "
+                    "file logs for more details.",
+                ).exec_()
+        elif (
+            plugin_status == status.SUCCESS_STATUS
+            and plugin_info['plugin_type'] == 'action'
+        ):
+            # Updated asset info arrives from executing plugin(s) within action, update asset list model
+            result = plugin_info['plugin_method_result']
+            if isinstance(result, list):
+                # Multiple assets - result from discovery
+                asset_entities_list = result
+                self.set_asset_list(asset_entities_list)
+            elif isinstance(result, dict):
+                # Single assets - result from asset add or modification
+                asset_info = result
+                index = self._asset_list_model.getIndex(
+                    asset_info[asset_const.ASSET_INFO_ID]
+                )
+                if index:
+                    self._asset_list_model.setData(index, asset_info)
+                else:
+                    # Not found, add to model
+                    # TODO: Support remove of assets
+                    self._asset_list_model.insertRows(
+                        self._asset_list_model.rowCount(), asset_info
+                    )
+            elif isinstance(result, bool):
+                # Remove asset
+                asset_info = plugin_info['plugin_context_data']['asset_info']
+                index = self._asset_list_model.getIndex(
+                    asset_info[asset_const.ASSET_INFO_ID]
+                )
+                if index:
+                    self._asset_list_model.removeRows(index, 1)
+
+    def _on_client_notify_ui_run_plugin_result(self, plugin_info):
+        '''Handle result notification from running plugin.'''
+        plugin_status = plugin_info['plugin_status']
+        self.busy = False
+        if plugin_status == status.SUCCESS_STATUS:
+            # Updated asset infos arrives from single plugin run, update asset list model
+            result = plugin_info['plugin_method_result']
+            if isinstance(result, list):
+                # Multiple assets - result from discovery
+                asset_entities_list = result
+                self.set_asset_list(asset_entities_list)
+
+    def _on_client_notify_ui_run_action_result(
+        self, action_type, action_result
+    ):
+        '''Handle result notification from definition/action run.'''
+        self.busy = False
+        error_message = None
+        if action_result != status.SUCCESS_STATUS:
+            error_message = self.error_message
+            if not error_message:
+                # Provide a generic error message based on action performed
+                if action_type == 'select':
+                    error_message = 'Could not select asset(s)!'
+                elif action_type == 'update':
+                    error_message = (
+                        'Could not update asset(s) to latest version!'
+                    )
+        if error_message:
+            ModalDialog(self, message=error_message).exec_()
 
     # Discover
 
     def ctx_discover(self, selected_assets, plugin_definition):
-        self._run_plugin(plugin_definition, self._assets_discovered_callback)
-
-    def _assets_discovered_callback(self, plugin_info):
-        '''Callback for when assets have been discovered.'''
-        asset_entities_list = []
-        for ftrack_asset in plugin_info['plugin_method_result']:
-            asset_entities_list.append(ftrack_asset)
-
-        self.set_asset_list(asset_entities_list)
+        '''Discover *selected_assets* in the DCC by action, result will be returned through
+        plugin result notify event.'''
+        self.busy = True
+        self._run_plugin(plugin_definition)
 
     # Select
 
@@ -330,15 +465,7 @@ class AssetManagerBrowser(QtWidgets.QWidget):
             "action": action_configuration['type'],
             "assets": selected_assets,
         }
-        self._run_action(context_data, self._assets_updated_callback)
-
-    def _assets_updated_callback(self, plugin_info):
-        '''Callback for when assets have been updated, new asset info provided in *plugin_info*.'''
-        print(
-            '@@@ _assets_updated_callback: {}'.format(
-                json.dumps(plugin_info, indent=2)
-            )
-        )
+        self._run_action(context_data)
 
     # Change version
 
@@ -352,14 +479,7 @@ class AssetManagerBrowser(QtWidgets.QWidget):
             'assets': [asset_info],
             'new_version_id': version_entity['id'],
         }
-        self._run_action(context_data, self._change_version_callback)
-
-    def _change_version_callback(self, plugin_info):
-        print(
-            '@@@ _change_version_callback: {}'.format(
-                json.dumps(plugin_info, indent=2)
-            )
-        )
+        self._run_action(context_data)
 
     # Unload
 
@@ -372,14 +492,7 @@ class AssetManagerBrowser(QtWidgets.QWidget):
             "action": action_configuration['type'],
             "assets": selected_assets,
         }
-        self._run_action(context_data, self._assets_unload_callback)
-
-    def _assets_unload_callback(self, plugin_info):
-        print(
-            '@@@ _assets_unload_callback: {}'.format(
-                json.dumps(plugin_info, indent=2)
-            )
-        )
+        self._run_action(context_data)
 
     # Load
 
@@ -392,14 +505,7 @@ class AssetManagerBrowser(QtWidgets.QWidget):
             "action": action_configuration['type'],
             "assets": selected_assets,
         }
-        self._run_action(context_data, self._assets_load_callback)
-
-    def _assets_load_callback(self, plugin_info):
-        print(
-            '@@@ _assets_load_callback: {}'.format(
-                json.dumps(plugin_info, indent=2)
-            )
-        )
+        self._run_action(context_data)
 
     # Remove
 
@@ -412,14 +518,7 @@ class AssetManagerBrowser(QtWidgets.QWidget):
             "action": action_configuration['type'],
             "assets": selected_assets,
         }
-        self._run_action(context_data, self._assets_remove_callback)
-
-    def _assets_remove_callback(self, plugin_info):
-        print(
-            '@@@ _assets_remove_callback: {}'.format(
-                json.dumps(plugin_info, indent=2)
-            )
-        )
+        self._run_action(context_data)
 
     # Misc
 

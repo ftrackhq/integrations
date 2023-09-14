@@ -102,6 +102,11 @@ class Client(object):
             self.host_connection.host_id,
             callback=self.on_log_item_added_callback,
         )
+        # Subscribe plugin progress
+        self.event_manager.subscribe.notify_plugin_progress_client(
+            self.host_connection.host_id,
+            callback=self._on_plugin_progress_callback,
+        )
         # Clean up host_context_change_subscription in case exists
         self._unsubscribe_host_context_changed()
         # Subscribe to host_context_change even though we already subscribed in
@@ -468,6 +473,14 @@ class Client(object):
         # Publish event to widget
         self.event_manager.publish.client_notify_log_item_added(
             self.id, event['data']['log_item']
+        )
+
+    def _on_plugin_progress_callback(self, event):
+        '''Relay plugin progress to widgets'''
+        # Publish event to widget
+        plugin_info = event['data']
+        self.event_manager.publish.client_notify_run_plugin_progress(
+            self.id, plugin_info
         )
 
     def reset_definition(self, definition_name, definition_type):

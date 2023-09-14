@@ -60,6 +60,10 @@ CLIENT_SIGNAL_HOST_CHANGED_TOPIC = '{}.client.signal.host.change'.format(
 CLIENT_SIGNAL_DEFINITION_CHANGED_TOPIC = (
     '{}.client.signal.definition.change'.format(_BASE_)
 )
+# Client received plugin progress
+CLIENT_NOTIFY_RUN_PLUGIN_PROGRESS_TOPIC = (
+    '{}.client.notify.plugin.progress'.format(_BASE_)
+)
 # Client received plugin result
 CLIENT_NOTIFY_RUN_PLUGIN_RESULT_TOPIC = (
     '{}.client.notify.plugin.result'.format(_BASE_)
