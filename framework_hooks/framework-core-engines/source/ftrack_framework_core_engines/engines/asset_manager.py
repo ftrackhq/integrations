@@ -196,10 +196,7 @@ class AssetManagerEngine(BaseEngine):
                         )
                         # Signal to the caller that the plugin did not return a newer version - skip asset
                         return constants.status.DEFAULT_STATUS
-                elif (
-                    step_type == 'change_version'
-                    and stage_definition.type == 'remove'
-                ):
+                elif stage_definition.type == 'remove':
                     # TODO: Asset removed, prepare load - the asset info with new version
                     # Implement this in DCC where we have proper loaded asset info to work with
                     pass

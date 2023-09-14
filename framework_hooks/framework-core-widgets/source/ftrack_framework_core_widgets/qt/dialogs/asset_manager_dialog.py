@@ -170,7 +170,6 @@ class AssetManagerDialog(FrameworkDialog, StyledDialog):
         '''Override Show method of the base framework dialog'''
         self.show()
 
-    # TODO: this should be an ABC
     def connect_focus_signal(self):
         '''Connect signal when the current dialog gets focus'''
         # Update the is_active property.
@@ -183,7 +182,6 @@ class AssetManagerDialog(FrameworkDialog, StyledDialog):
         for host_connection_id in host_connections_ids:
             self._host_connection_selector.add_item(host_connection_id)
 
-    # TODO: This should be an ABC
     def _on_client_hosts_discovered_callback(self, event=None):
         '''Client new hosts has been discovered'''
         super(AssetManagerDialog, self)._on_client_hosts_discovered_callback(
@@ -228,12 +226,12 @@ class AssetManagerDialog(FrameworkDialog, StyledDialog):
     def _on_am_run_plugin_callback(
         self, plugin_configuration, plugin_method_name
     ):
-        '''Asset manager browser requests running a defined in *plugin_definition*,
-        running *plugin_run_callback* with the result when the plugin is finished.
+        '''Asset manager browser requests running a plugin defined in
+        *plugin_definition*, method *plugin_method_name*.
         '''
         if multithreading_enabled:
             BaseThread(
-                name='{}_ui_thread'.format(plugin_configuration['plugin']),
+                name='am_{}_ui_thread'.format(plugin_configuration['plugin']),
                 target=self.run_plugin_method,
                 target_args=[plugin_configuration, plugin_method_name],
             ).start()
@@ -242,8 +240,9 @@ class AssetManagerDialog(FrameworkDialog, StyledDialog):
 
     def _on_client_notify_ui_run_plugin_progress_callback(self, event):
         '''
-        (Override) Capture plugin progress error messages and relay to asset manager, may
-        be run async so emit signal to run in main UI thread.
+        (Override) Capture plugin run progress and relay to asset manager, may
+        be run async so emit signal to run in main UI thread instead of a direct
+        call.
         '''
         plugin_info = event['data']['plugin_info']
         self.asset_manager_browser.client_notify_ui_run_plugin_progress.emit(
@@ -252,8 +251,9 @@ class AssetManagerDialog(FrameworkDialog, StyledDialog):
 
     def _on_client_notify_ui_run_plugin_result_callback(self, event):
         '''
-        (Override) Pass plugin result exec result on to asset manager. Most likely
-        called async from separate thread, emit signal to run in main UI thread.
+        (Override) Pass plugin result run result on to asset manager. Most likely
+        called async from separate thread, emit signal to run in main UI thread
+        instead of a direct call.
         '''
         plugin_info = event['data']['plugin_info']
         self.asset_manager_browser.client_notify_ui_run_plugin_result.emit(
@@ -261,8 +261,8 @@ class AssetManagerDialog(FrameworkDialog, StyledDialog):
         )
 
     def _on_am_run_action_callback(self, context_data):
-        '''Asset manager browser requests running an action defined in *data*,
-        running *plugin_run_callback* with the result when the plugin is finished.
+        '''Asset manager browser requests running an action (definition step)
+        defined in *context_data*.
         '''
         self._action_type = context_data['action']
         arguments = {
@@ -283,7 +283,8 @@ class AssetManagerDialog(FrameworkDialog, StyledDialog):
     def _on_client_notify_ui_run_definition_result_callback(self, event):
         '''
         (Override) Client notifies the dialog that definition has been executed and passes
-        the result in the *event*
+        the result in the *event*. Relay event to asset manager, may be run async so emit
+        signal to run in main UI thread instead of a direct call.
         '''
         action_result = event['data']['definition_result']
         self.asset_manager_browser.client_notify_ui_run_action_result.emit(

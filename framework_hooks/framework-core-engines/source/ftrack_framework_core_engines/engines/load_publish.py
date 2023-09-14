@@ -232,9 +232,10 @@ class LoadPublishEngine(BaseEngine):
         # Return status of the stage execution
         return status
 
-    def run_definition(self, definition, data=None):
+    def run_definition(self, definition, context_data=None):
         '''
-        (Override) Runs all the steps in the given *definition*.
+        (Override) Runs all the steps in the given *definition*, giving optional
+        starter *context_data*.
         *definition* : :obj:`~ftrack_framework_core.definition.DefinitionObject`
 
         # Data Workflow:
