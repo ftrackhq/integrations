@@ -38,7 +38,7 @@ class AssetManagerWidget(AssetManagerBaseWidget):
     '''Asset manager widget that lives within the asset manager client'''
 
     refresh = QtCore.Signal()  # Refresh asset list from model
-    rebuild = QtCore.Signal(object)  # Fetch assets from DCC and update model
+    rebuild = QtCore.Signal()  # Fetch assets from DCC and update model
 
     changeAssetVersion = QtCore.Signal(
         object, object
@@ -54,27 +54,10 @@ class AssetManagerWidget(AssetManagerBaseWidget):
     stopBusyIndicator = QtCore.Signal()  # Stop spinner and hide it
 
     DEFAULT_ACTIONS = {
-        'load': [
-            {
-                'ui_callback': 'ctx_load',
-                'name': 'load_asset',
-                'label': 'Load assets(s)',
-            }
-        ],
-        'unload': [
-            {
-                'ui_callback': 'ctx_unload',
-                'name': 'unload_asset',
-                'label': 'Unload assets(s)',
-            }
-        ],
-        'remove': [
-            {
-                'ui_callback': 'ctx_remove',
-                'name': 'remove_asset',
-                'label': 'Remove assets(s)',
-            }
-        ],
+        'select': [{'ui_callback': 'ctx_select', 'name': 'select_asset'}],
+        'remove': [{'ui_callback': 'ctx_remove', 'name': 'remove_asset'}],
+        'load': [{'ui_callback': 'ctx_load', 'name': 'load_asset'}],
+        'unload': [{'ui_callback': 'ctx_unload', 'name': 'unload_asset'}],
     }
 
     @property
@@ -252,7 +235,9 @@ class AssetManagerWidget(AssetManagerBaseWidget):
             if action_type not in list(self.action_widgets.keys()):
                 self.action_widgets[action_type] = []
             for action in actions:
-                action_widget = QtWidgets.QAction(action['label'], self)
+                action_widget = QtWidgets.QAction(
+                    action['name'].replace('_', ' ').title(), self
+                )
                 action_widget.setData(action)
                 self.action_widgets[action_type].append(action_widget)
 
@@ -273,17 +258,12 @@ class AssetManagerWidget(AssetManagerBaseWidget):
         for action_type, action_widgets in list(self.action_widgets.items()):
             if not self._is_assembler and action_type == 'remove':
                 continue  # Can only remove from is_assembler
-            if len(action_widgets) > 1:
-                # Add a menu for this action type
-                if action_type not in list(self.action_type_menu.keys()):
-                    type_menu = QtWidgets.QMenu(action_type.title(), self)
-                    self.menu.addMenu(type_menu)
-                    self.action_type_menu[action_type] = type_menu
-                for action_widget in action_widgets:
-                    self.action_type_menu[action_type].addAction(action_widget)
-            else:
-                # Add the action directly to the menu
-                self.menu.addAction(action_widgets[0])
+            if action_type not in list(self.action_type_menu.keys()):
+                type_menu = QtWidgets.QMenu(action_type.title(), self)
+                self.menu.addMenu(type_menu)
+                self.action_type_menu[action_type] = type_menu
+            for action_widget in action_widgets:
+                self.action_type_menu[action_type].addAction(action_widget)
         self.menu.triggered.connect(self.menu_triggered)
 
         # add other required actions
@@ -312,11 +292,14 @@ class AssetManagerWidget(AssetManagerBaseWidget):
         else:
             return True
 
-    def ctx_discover(self, plugin):
+    def ctx_select(self, plugin):
         '''
-        Triggered when discover action menu been clicked.
+        Triggered when select action menu been clicked.
+        Emits select_asset signal.
         '''
-        self.rebuild.emit(plugin)
+        selection = self._asset_list.selection()
+        if self.check_selection(selection):
+            self.selectAssets.emit(selection, plugin)
 
     def ctx_load(self, plugin):
         '''
@@ -339,15 +322,6 @@ class AssetManagerWidget(AssetManagerBaseWidget):
                 )
             else:
                 self.loadAssets.emit(selection, plugin)
-
-    def ctx_select(self, plugin):
-        '''
-        Triggered when select action menu been clicked.
-        Emits select_asset signal.
-        '''
-        selection = self._asset_list.selection()
-        if self.check_selection(selection):
-            self.selectAssets.emit(selection, plugin)
 
     def ctx_update(self, plugin):
         '''
@@ -423,7 +397,7 @@ class AssetManagerWidget(AssetManagerBaseWidget):
         # Check if this is a asset discover notification
         if event['data']['pipeline'].get('method') == 'discover_assets':
             # This could be executed async, rebuild asset list through signal
-            self.rebuild.emit(None)
+            self.rebuild.emit()
 
     def _listen_widget_updates(self):
         '''Subscribe to the NOTIFY_PLUGIN_PROGRESS_TOPIC topic to call the
@@ -453,7 +427,7 @@ class AssetManagerWidget(AssetManagerBaseWidget):
 
     def _on_rebuild(self):
         '''Query DCC for scene assets.'''
-        self.rebuild.emit(None)  # To be picked up by AM
+        self.rebuild.emit()  # To be picked up by AM
 
     def _on_config(self):
         '''Callback when user wants to open the assembler'''

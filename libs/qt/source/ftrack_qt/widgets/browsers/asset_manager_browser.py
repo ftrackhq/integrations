@@ -273,7 +273,7 @@ class AssetManagerBrowser(QtWidgets.QWidget):
         menu = QtWidgets.QMenu(self)
         self.action_type_menu = {}
         for action_type, action_widgets in list(self._action_widgets.items()):
-            if action_type == 'remove' and not self.remove_enabled and False:
+            if action_type == 'remove' and not self.remove_enabled:
                 continue  # Can only remove asset when in assembler
             if len(action_widgets) == 0:
                 continue

@@ -281,7 +281,8 @@ class FrameworkDialog(BaseUI):
 
     def init_framework_widget(self, plugin_definition, register=True):
         '''
-        Method to initialize a framework widget given in the *plugin_definition*
+        Method to initialize a framework widget given in the *plugin_definition*, will
+        register the widget in the widget registry dict if *register* is True.
         '''
         widget_class = None
         for widget in self.discovered_framework_widgets:

@@ -257,11 +257,10 @@ class QtAssetManagerClientWidget(QtAssetManagerClient, QtWidgets.QFrame):
         self._asset_list_model.reset()
 
     # TODO: This should be inherit from a base framework widget and should be ABC method
-    def rebuild(self, plugin=None):
+    def rebuild(self):
         '''
-        Do a deep async refresh of the ui - running the discover_assets() to locate
-        all asset within the DCC. Allow this to execute in a separate thread as
-        it does not alter the DCC internal state (read only)
+        Do a deep async refresh of the ui - running the discover_assets() to locate all asset within the DCC. Allow this
+        to execute in a separate thread as it does not alter the DCC internal state (read only)
         '''
         if not self.host_connection:
             return
@@ -270,10 +269,10 @@ class QtAssetManagerClientWidget(QtAssetManagerClient, QtWidgets.QFrame):
             BaseThread(
                 name='discover_assets_thread',
                 target=self.discover_assets,
-                target_args=[plugin] if plugin else (),
+                target_args=()
             ).start()
         else:
-            self.discover_assets(plugin)
+            self.discover_assets()
 
     def _asset_discovered_callback(self, event):
         '''
@@ -297,7 +296,7 @@ class QtAssetManagerClientWidget(QtAssetManagerClient, QtWidgets.QFrame):
 
     # Select
 
-    def _on_select_assets(self, asset_info_list, plugin):
+    def _on_select_assets(self, asset_info_list):
         '''
         Triggered when select action is clicked on the ui.
         '''
@@ -307,7 +306,7 @@ class QtAssetManagerClientWidget(QtAssetManagerClient, QtWidgets.QFrame):
                 name='select_assets_thread',
                 target=self.select_assets,
                 callback=self._assets_selected,
-                target_args=[asset_info_list, plugin],
+                target_args=[asset_info_list],
             ).start()
         else:
             self._assets_selected(self.select_assets(asset_info_list))
