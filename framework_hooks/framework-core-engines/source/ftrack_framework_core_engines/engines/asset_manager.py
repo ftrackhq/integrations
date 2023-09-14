@@ -177,7 +177,6 @@ class AssetManagerEngine(BaseEngine):
             if step_type in ['update', 'change_version']:
                 if stage_definition.type == 'query':
                     # Check if the plugin returned a new version
-                    print('@@@ plugin_result: {}'.format(plugin_result))
                     if len(plugin_result or []) != 1:
                         self.logger.error(
                             'Query plugin should return one version'
