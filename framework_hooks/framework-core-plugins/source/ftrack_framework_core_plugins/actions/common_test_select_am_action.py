@@ -35,7 +35,7 @@ class CommonTestAssetManagerSelectActionPlugin(BasePlugin):
             return True
         else:
             return False, {
-                'message': 'Could not mock select asset(s) {}!'.format(
+                'message': 'Could not mock select asset: {}!'.format(
                     context_data
                 )
             }

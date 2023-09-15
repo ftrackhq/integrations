@@ -44,5 +44,5 @@ class CommonTestAssetManagerLoadActionPlugin(BasePlugin):
         else:
             return False, {
                 'message': error_message
-                or 'Could not load asset(s) {}!'.format(context_data)
+                or 'Could not load asset: {}!'.format(context_data)
             }

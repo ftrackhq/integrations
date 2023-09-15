@@ -236,8 +236,8 @@ class AssetManagerEngine(BaseEngine):
 
     def run_definition(self, definition, context_data=None):
         '''
-        (Override) Runs the action step type outlined in *data*, within the given *definition*
-        on the list of assets provided in *data*.
+        (Override) Runs the action step type outlined in *context_data*, within
+        the given *definition* on the list of assets provided in *data*.
         *definition* : :obj:`~ftrack_framework_core.definition.DefinitionObject`
 
         '''

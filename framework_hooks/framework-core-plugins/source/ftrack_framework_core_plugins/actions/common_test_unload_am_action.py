@@ -44,5 +44,5 @@ class CommonTestAssetManagerUnloadActionPlugin(BasePlugin):
         else:
             return False, {
                 'message': error_message
-                or 'Could not unload asset(s) {}!'.format(context_data)
+                or 'Could not unload asset: {}!'.format(context_data)
             }

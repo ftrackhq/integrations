@@ -34,7 +34,7 @@ class CommonTestAssetManagerRemoveActionPlugin(BasePlugin):
             return True
         else:
             return False, {
-                'message': 'Could not mock remove asset(s) {}!'.format(
+                'message': 'Could not mock remove asset: {}!'.format(
                     context_data
                 )
             }
