@@ -1,6 +1,6 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2023 ftrack
-
+import os.path
 import shutil
 
 from ftrack_framework_plugin import BasePlugin
@@ -36,7 +36,7 @@ class RenameExporterPlugin(BasePlugin):
         renamed = []
         i = 0
         for destination in export_destinations:
-            renamed.append(shutil.copy(collector_result[i], destination))
+            renamed.append(shutil.copy(collector_result[i], os.path.expanduser(destination)))
             i += 0
         return renamed
 

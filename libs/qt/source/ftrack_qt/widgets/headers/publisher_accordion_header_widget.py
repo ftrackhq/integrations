@@ -3,6 +3,8 @@
 
 from Qt import QtWidgets, QtCore, QtGui
 
+from ftrack_qt.widgets.lines import LineWidget
+from ftrack_qt.widgets.buttons.options_button import OptionsButton
 from ftrack_qt.widgets.headers import (
     AccordionHeaderWidget,
 )
