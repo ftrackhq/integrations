@@ -171,7 +171,7 @@ class HostConnection(object):
                     self.logger.debug(
                         'Excluding definition {} - context identifiers {} '
                         'does not match schema discoverable: {}.'.format(
-                            definition.get('name'),
+                            definition.get('tool_title'),
                             context_identifiers,
                             discoverable,
                         )
@@ -214,7 +214,7 @@ class HostConnection(object):
                     ] = self._available_filtered_host_definitions[schema_title]
                     break
                 exist = self._definitions[schema_title].get_first(
-                    name=definition.name
+                    tool_title=definition.tool_title
                 )
                 if not exist:
                     self._definitions[schema_title].append(definition)
@@ -233,7 +233,7 @@ class HostConnection(object):
                     break
                 exist = self._available_filtered_host_definitions[
                     schema_title
-                ].get_first(name=definition.name)
+                ].get_first(tool_title=definition.tool_title)
                 if not exist:
                     self._definitions[schema_title].remove(definition)
 
@@ -244,12 +244,12 @@ class HostConnection(object):
         '''
         # Get the current definition
         mod_definition = self._definitions[definition_type].get_first(
-            name=definition_name
+            tool_title=definition_name
         )
         # Get the original definition
         origin_definition = self._raw_host_data['definitions'][
             definition_type
-        ].get_first(name=definition_name)
+        ].get_first(tool_title=definition_name)
         if not mod_definition:
             self.logger.warning(
                 'Host connection doesnt have a matching definition of type: {} '

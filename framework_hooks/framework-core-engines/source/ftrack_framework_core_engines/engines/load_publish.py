@@ -125,7 +125,7 @@ class LoadPublishEngine(BaseEngine):
             if not plugin_definition.enabled:
                 self.logger.debug(
                     'Skipping step {} as it has been disabled'.format(
-                        plugin_definition.name
+                        plugin_definition.plugin_name
                     )
                 )
                 continue
@@ -134,8 +134,8 @@ class LoadPublishEngine(BaseEngine):
                 host_id=self.host_id,
                 step_type=step_type,
                 step_name=step_name,
-                stage_name=stage_definition.name,
-                plugin_name=plugin_definition.name,
+                stage_name=stage_definition.stage_name,
+                plugin_name=plugin_definition.plugin_name,
                 total_plugins=len(plugins),
                 current_plugin_index=i,
                 status=constants.status.RUNNING_STATUS,
@@ -150,7 +150,7 @@ class LoadPublishEngine(BaseEngine):
                 plugin_data = copy.deepcopy(self._registry.get(step_type))
 
             plugin_info = self.run_plugin(
-                plugin_name=plugin_definition.plugin,
+                plugin_name=plugin_definition.plugin_name,
                 plugin_default_method=plugin_definition.default_method,
                 # We don't want to pass the information of the previous plugin,
                 # so that is why we only pass the data of the previous stage.
@@ -162,7 +162,7 @@ class LoadPublishEngine(BaseEngine):
                 # default_method is defined in the definitions
                 plugin_method=plugin_definition.default_method,
                 plugin_widget_id=plugin_definition.widget_id,
-                plugin_widget_name=plugin_definition.widget,
+                plugin_widget_name=plugin_definition.widget_name,
             )
 
             if step_type == 'context':
@@ -171,7 +171,7 @@ class LoadPublishEngine(BaseEngine):
                 self._update_registry(
                     step_type,
                     step_name,
-                    stage_definition.name,
+                    stage_definition.stage_name,
                     plugin_name=plugin_info['plugin_name'],
                     plugin_result=plugin_info['plugin_method_result'],
                 )
@@ -179,8 +179,8 @@ class LoadPublishEngine(BaseEngine):
                 host_id=self.host_id,
                 step_type=step_type,
                 step_name=step_name,
-                stage_name=stage_definition.name,
-                plugin_name=plugin_definition.name,
+                stage_name=stage_definition.stage_name,
+                plugin_name=plugin_definition.plugin_name,
                 total_plugins=len(plugins),
                 current_plugin_index=i,
                 status=plugin_info['plugin_status'],
@@ -193,8 +193,8 @@ class LoadPublishEngine(BaseEngine):
                 self.logger.error(
                     "Execution of the plugin {} in stage {} of step {} "
                     "failed. Stopping run definition".format(
-                        plugin_definition.plugin,
-                        stage_definition.name,
+                        plugin_definition.plugin_name,
+                        stage_definition.stage_name,
                         step_name,
                     )
                 )
@@ -219,12 +219,14 @@ class LoadPublishEngine(BaseEngine):
             if not stage_definition.enabled:
                 self.logger.debug(
                     'Skipping step {} as it has been disabled'.format(
-                        stage_definition.name
+                        stage_definition.stage_name
                     )
                 )
                 continue
             status = self.run_stage(
-                stage_definition, step_definition.type, step_definition.name
+                stage_definition,
+                step_definition.step_type,
+                step_definition.step_name
             )
             if not status:
                 break
@@ -260,11 +262,23 @@ class LoadPublishEngine(BaseEngine):
 
         status = True
         steps = definition.get_all(category='step')
+
+        # Check that definition contains at least the required step types
+        step_types = []
+        required_step_types = ['context', 'finalizer', 'component']
+        for step in steps:
+            step_types.append(step.step_type)
+        if not set(required_step_types).issubset(step_types):
+            raise Exception(
+                "Given definition is not supported by this engine. "
+                "Required steps {} are not in the steps of this "
+                "definition: {}".format(required_step_types, step_types)
+            )
         for step_definition in steps:
             if not step_definition.enabled:
                 self.logger.debug(
                     'Skipping step {} as it has been disabled'.format(
-                        step_definition.name
+                        step_definition.step_name
                     )
                 )
                 continue

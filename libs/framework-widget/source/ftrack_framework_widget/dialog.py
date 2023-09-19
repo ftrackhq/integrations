@@ -48,8 +48,8 @@ class FrameworkDialog(BaseUI):
         self.definitions
         '''
 
-        if value and not self.definitions[value.type].get_first(
-            name=value.name
+        if value and not self.definitions[value.tool_type].get_first(
+            tool_title=value.tool_title
         ):
             self.logger.error(
                 "Invalid definition, choose one from : {}".format(
@@ -281,7 +281,7 @@ class FrameworkDialog(BaseUI):
         '''
         widget_class = None
         for widget in self.discovered_framework_widgets:
-            if widget.name == plugin_definition.widget:
+            if widget.name == plugin_definition.widget_name:
                 widget_class = widget
                 break
         if not widget_class:
@@ -289,8 +289,8 @@ class FrameworkDialog(BaseUI):
                 'The provided widget {} for plugin {} is not registered '
                 'Please provide a registered widget.\n '
                 'Registered widgets: {}'.format(
-                    plugin_definition.widget,
-                    plugin_definition.plugin,
+                    plugin_definition.widget_name,
+                    plugin_definition.plugin_name,
                     self.discovered_framework_widgets,
                 )
             )

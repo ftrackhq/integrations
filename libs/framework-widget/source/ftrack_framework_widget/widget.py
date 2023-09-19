@@ -27,7 +27,7 @@ class FrameworkWidget(BaseUI):
     @property
     def plugin_name(self):
         '''Name of the current plugin'''
-        return self.plugin_definition.plugin
+        return self.plugin_definition.plugin_name
 
     @property
     def plugin_context_data(self):

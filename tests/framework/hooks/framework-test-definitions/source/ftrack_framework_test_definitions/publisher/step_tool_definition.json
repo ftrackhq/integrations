@@ -1,6 +1,6 @@
 {
   "tool_type": "publisher",
-  "tool_title": "File Publisher",
+  "tool_title": "Step Tool",
   "host_type": "python",
   "ui_type": "qt",
   "engine_name": "load_publish",
@@ -14,13 +14,12 @@
       "enabled": true,
       "stages": [
         {
-          "stage_type": "context",
+          "stage_type": "collector",
           "stage_name": "context",
           "optional": false,
           "enabled": true,
           "plugins": [
             {
-                "plugin_type": "context",
                 "plugin_title": "context selector",
                 "plugin_name": "generic_context_passthrough",
                 "widget_name": "publisher_context_selector"
@@ -42,7 +41,6 @@
           "enabled": true,
           "plugins": [
             {
-              "plugin_type": "collector",
               "plugin_title": "collect file",
               "plugin_name": "file_collector",
               "widget_name": "file_browser_collector",
@@ -60,7 +58,6 @@
           "enabled": true,
           "plugins": [
             {
-              "plugin_type": "validator",
               "plugin_title": "validate file exists",
               "plugin_name": "file_exists_validator",
               "widget_name": "validator_check"
@@ -74,7 +71,6 @@
           "enabled": true,
           "plugins": [
             {
-              "plugin_type": "exporter",
               "plugin_title": "Export file",
               "plugin_name": "rename_file_exporter",
               "widget_name": "file_exporter_options",
@@ -100,7 +96,6 @@
           "visible": false,
           "plugins": [
             {
-              "plugin_type": "pre_finalizer",
               "plugin_title": "Pre publish to ftrack server",
               "plugin_name": "generic_passthrough"
             }
@@ -114,7 +109,6 @@
           "visible": false,
           "plugins": [
             {
-              "plugin_type": "finalizer",
               "plugin_title": "Publish to ftrack server",
               "plugin_name": "publish_to_ftrack"
             }
@@ -128,7 +122,6 @@
           "visible": false,
           "plugins": [
             {
-              "plugin_type": "post_finalizer",
               "plugin_title": "Post process publish",
               "plugin_name": "generic_passthrough"
             }
