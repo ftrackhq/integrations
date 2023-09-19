@@ -135,8 +135,7 @@ def discover_definitions(definition_paths):
                 logger.error(
                     "Not registring definition as is missing "
                     "tool_type key. Directory: {}, definition: {}".format(
-                        lookup_dir,
-                        definition
+                        lookup_dir, definition
                     )
                 )
                 continue
@@ -144,9 +143,7 @@ def discover_definitions(definition_paths):
                 definitions[definition['tool_type']] = []
             definitions[definition['tool_type']].append(definition)
         logger.debug(
-            'Found {} in path: {}'.format(
-                len(collected_files), lookup_dir
-            )
+            'Found {} in path: {}'.format(len(collected_files), lookup_dir)
         )
 
     return definitions
@@ -166,9 +163,7 @@ def discover_schemas(schema_paths):
             schemas[json_schema['title']] = json_schema
         logger.debug(
             'Found {} {} in path: {}'.format(
-                len(collected_files),
-                constants.definition.SCHEMA,
-                lookup_dir
+                len(collected_files), constants.definition.SCHEMA, lookup_dir
             )
         )
 
@@ -238,8 +233,7 @@ def _augment_definition(definition, schemas):
     # Convert the current schema to pjo objectBuilder and resolve references
     # with the other schemas.
     builder = pjo.ObjectBuilder(
-        schemas[validation_schema_title],
-        resolved=schemas
+        schemas[validation_schema_title], resolved=schemas
     )
     # Build the object to obtain a pythonic object from the schema.ns will
     # contain things like ns.Publisher ns.title, etc...
@@ -279,9 +273,7 @@ def augment_definition(definitions, schemas):
                 )
                 continue
             copy_definitions[tool_type].append(
-                definition_object.DefinitionObject(
-                    augmented_valid_data
-                )
+                definition_object.DefinitionObject(augmented_valid_data)
             )
             # Convert lists to DefinitionList
         copy_definitions[tool_type] = definition_object.DefinitionList(

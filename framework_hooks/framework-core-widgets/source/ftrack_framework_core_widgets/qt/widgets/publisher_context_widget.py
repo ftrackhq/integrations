@@ -148,6 +148,6 @@ class PublishContextWidget(FrameworkWidget, QtWidgets.QWidget):
         definition = self.dialog_property_getter_connection('definition')
         # TODO: modify context selector to select asset_type as asset_type is
         #  not in definition anymore.
-        asset_type_name = "script"#definition.asset_type
+        asset_type_name = "script"  # definition.asset_type
         self._asset_selector.set_context(self.context_id, asset_type_name)
         self.set_plugin_option('context_id', self.context_id)

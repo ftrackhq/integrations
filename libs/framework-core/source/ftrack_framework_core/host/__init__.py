@@ -451,7 +451,7 @@ class Host(object):
         engine_name = definition['engine_name']
         # TODO: Double check the asset_type_name workflow, it isn't clean.
         # TODO: pick asset type from context plugin and not from definition
-        asset_type_name = "script"#definition.get('asset_type')
+        asset_type_name = "script"  # definition.get('asset_type')
 
         engine = None
         try:

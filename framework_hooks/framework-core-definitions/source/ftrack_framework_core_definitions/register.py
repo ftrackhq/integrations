@@ -5,6 +5,7 @@ import os
 import logging
 
 from ftrack_utils.directories.scan_dir import fast_scandir
+
 logger = logging.getLogger('ftrack_framework_definition.register')
 
 

@@ -32,8 +32,7 @@ def validate_definition(schemas, definition):
     *definition* : Definition to be validated against the schema.
     '''
     builder = pjo.ObjectBuilder(
-        schemas[definition['validation_schema']],
-        resolved=schemas
+        schemas[definition['validation_schema']], resolved=schemas
     )
     # TODO: Double check if we get the ABCMeta error validating the definiition.
     #  If that occurs is because the pjo library gets corrupted when it executes

@@ -250,14 +250,18 @@ class PublisherDialog(FrameworkDialog, ScrollDefinitionsDialog):
     def build_definition_ui(self, definition):
         '''A definition has been selected, build the definition widget.'''
         # Build context widgets
-        context_plugins = definition.get_all(category='plugin', plugin_type='context')
+        context_plugins = definition.get_all(
+            category='plugin', plugin_type='context'
+        )
         for context_plugin in context_plugins:
             if not context_plugin.widget_name:
                 continue
             context_widget = self.init_framework_widget(context_plugin)
             self.definition_widget.layout().addWidget(context_widget)
         # Build component widgets
-        component_steps = definition.get_all(category='step', step_type='component')
+        component_steps = definition.get_all(
+            category='step', step_type='component'
+        )
         for step in component_steps:
             # TODO: add a key visible in the definition to hide the step if wanted.
             step_accordion_widget = AccordionBaseWidget(
@@ -293,9 +297,7 @@ class PublisherDialog(FrameworkDialog, ScrollDefinitionsDialog):
         Tell client to run the current definition
         '''
 
-        arguments = {
-            "definition": self.definition
-        }
+        arguments = {"definition": self.definition}
         self.client_method_connection('run_definition', arguments=arguments)
 
     def run_collectors(self, plugin_widget_id=None):

@@ -57,7 +57,7 @@ class LoadPublishEngine(BaseEngine):
         self._registry = {}
 
     def reset_registry(self):
-        ''' Sets the context_data and registry variables to 0 '''
+        '''Sets the context_data and registry variables to 0'''
         self._context_data = []
         self._registry = {}
 
@@ -226,7 +226,7 @@ class LoadPublishEngine(BaseEngine):
             status = self.run_stage(
                 stage_definition,
                 step_definition.step_type,
-                step_definition.step_name
+                step_definition.step_name,
             )
             if not status:
                 break
