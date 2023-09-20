@@ -18,7 +18,7 @@ class LoadPublishEngine(BaseEngine):
         constants.definition.OPENER,
         constants.definition.PUBLISHER,
     ]
-    '''Engine type for this engine class'''
+    '''Suported engine types for this engine class'''
 
     @property
     def context_data(self):
@@ -27,7 +27,6 @@ class LoadPublishEngine(BaseEngine):
             return None
         return self._context_data
 
-    # TODO: double check if we really need to declare the init here.
     def __init__(
         self,
         event_manager,
@@ -57,7 +56,7 @@ class LoadPublishEngine(BaseEngine):
         self._registry = {}
 
     def reset_registry(self):
-        ''' Sets the context_data and registry variables to 0 '''
+        '''Sets the context_data and registry variables to 0'''
         self._context_data = []
         self._registry = {}
 
