@@ -107,15 +107,6 @@ class FrameworkWidget(BaseUI):
         '''
         self.dialog_property_getter_connection = get_method
 
-    # TODO: this should be an ABC
-    def show_ui(self):
-        '''
-        To be overriden by the implemented widget. Should show the widget:
-        Pseudocode example PySide UI:
-        self.show()
-        '''
-        pass
-
     def update_context(self, context_id):
         '''Updates the widget context_id with the given *context_id*'''
         self._context_id = context_id
@@ -133,7 +124,6 @@ class FrameworkWidget(BaseUI):
         }
         self.dialog_method_connection('run_plugin_method', arguments=arguments)
 
-    # TODO: this should be an ABC
     def run_plugin_callback(self, plugin_info):
         '''
         Called when a result of an executed plugin is published. It provides
@@ -144,11 +134,15 @@ class FrameworkWidget(BaseUI):
         method_result = plugin_info['plugin_method_result']
         print('executed_method'.format(executed_method))
         print('method_result'.format(method_result))
+        raise NotImplementedError(
+            "This method should be implemented by the inheriting class"
+        )
 
-    # TODO: this should be an ABC
     def on_context_updated(self):
         '''Called when context of the widget has been updated'''
-        pass
+        raise NotImplementedError(
+            "This method should be implemented by the inheriting class"
+        )
 
     def set_plugin_option(self, name, value):
         '''

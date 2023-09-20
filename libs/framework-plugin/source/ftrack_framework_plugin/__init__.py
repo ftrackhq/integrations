@@ -4,12 +4,14 @@
 import logging
 import time
 import uuid
+from abc import ABC, abstractmethod
+
 import ftrack_constants.framework as constants
 
 from ftrack_framework_plugin import validation
 
 
-class BasePlugin(object):
+class BasePlugin(ABC):
     '''Base Class to represent a Plugin'''
 
     # We Define name, plugin_type and host_type as class variables for
@@ -135,7 +137,7 @@ class BasePlugin(object):
         '''Set the execution time of the plugin'''
         self._execution_time = value
 
-    # TODO: Couble check if this is used and if not evaluate if to remove it
+    # TODO: Double check if this is used and if not evaluate if to remove it
     @property
     def raw_plugin_data(self):
         # TODO: create docstring in case is used
@@ -212,7 +214,7 @@ class BasePlugin(object):
         # Subscribe to events
         self._subscribe_events()
 
-    # TODO: make this ABC
+    @abstractmethod
     def register_methods(self):
         '''
         Function to registry all the executable methods of the plugin by the
@@ -237,7 +239,6 @@ class BasePlugin(object):
             'required_output_value': required_output_value,
         }
 
-    # TODO: This should be ABC
     def pre_execute_callback_hook(self, event):
         '''
         Method executed before calling the method given in the *event*
@@ -410,7 +411,6 @@ class BasePlugin(object):
         self._notify_client()
         return self.provide_plugin_info()
 
-    # TODO: This should be ABC
     def post_execute_callback_hook(self, result):
         '''
         Method executed after the execute method, the given *result* is the
@@ -479,41 +479,19 @@ class BasePlugin(object):
                 )
         return is_valid
 
-    # TODO: evaluate if we want to pass pre-defined methods like run, fetch and
-    #  validate.
-    # TODO: this should be an ABC method
     def run(self, context_data=None, data=None, options=None):
         '''
-        Runs the current plugin with , *context_data* , *data* and *options*.
+        Example default method with , *context_data* , *data* and *options*.
 
         *context_data* provides a mapping with the asset_name, context_id, asset_type_name,
         comment and status_id of the asset that we are working on.
 
-        *data* a list of data coming from previous collector or empty list
+        *data* Data to be used in the plugin
 
-        *options* a dictionary of options passed from outside.
-
-        .. note::
-
-            Use always self.exporters as a base to return the values,
-            don't override self.exporters as it contains the _required_output
+        *options* Options to pass to the plugin
 
         '''
         raise NotImplementedError('Missing run method.')
-
-    # TODO: this should be an ABC method
-    def fetch(self, context_data=None, data=None, options=None):
-        '''
-        Pre defined method to fetch data
-        '''
-        raise NotImplementedError('Missing fetch method.')
-
-    # TODO: this should be an ABC method
-    def validate(self, context_data=None, data=None, options=None):
-        '''
-        Pre defined method to validate data
-        '''
-        raise NotImplementedError('Missing validate method.')
 
     def _notify_client(self):
         '''Publish an event with the plugin info to be picked by the client'''

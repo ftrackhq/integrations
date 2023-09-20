@@ -24,4 +24,3 @@ class EllipseThumbnailBase(ThumbnailBase):
         painter.setPen(QtGui.QPen(QtGui.QColor(0, 0, 0, 0)))
 
         painter.drawEllipse(QtCore.QRectF(0, 0, self.width(), self.height()))
-
