@@ -399,7 +399,7 @@ class Client(object):
     # Plugin
     def run_plugin(
         self,
-        plugin_tool_config,
+        plugin_config,
         plugin_method_name,
         engine_type,
         engine_name,
@@ -407,16 +407,16 @@ class Client(object):
     ):
         '''
         Publish event to tell the host to run the given *plugin_method_name*
-        of the *plugin_tool_config* with the given *engine*.
+        of the *plugin_config* with the given *engine*.
 
         Result of the executed plugin method specified in the
-        *plugin_tool_config* will be passed to
+        *plugin_config* will be passed to
         :meth:`~ftrack_framework_core.client._run_plugin_callback`.
         '''
 
         self.event_manager.publish.host_run_plugin(
             self.host_id,
-            plugin_tool_config,
+            plugin_config,
             plugin_method_name,
             engine_type,
             engine_name,

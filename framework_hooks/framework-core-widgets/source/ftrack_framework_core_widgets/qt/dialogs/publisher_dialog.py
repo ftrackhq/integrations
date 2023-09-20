@@ -303,7 +303,7 @@ class PublisherDialog(FrameworkDialog, ScrollToolConfigsDialog):
         )
         for collector_plugin in collector_plugins:
             arguments = {
-                "plugin_tool_config": collector_plugin,
+                "plugin_config": collector_plugin,
                 "plugin_method_name": 'run',
                 "engine_type": self.tool_config.engine_type,
                 "engine_name": self.tool_config.engine_name,

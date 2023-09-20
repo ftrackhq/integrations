@@ -211,7 +211,7 @@ class Publish(object):
     def host_run_plugin(
         self,
         host_id,
-        plugin_tool_config,
+        plugin_config,
         plugin_method,
         engine_type,
         engine_name,
@@ -224,7 +224,7 @@ class Publish(object):
         '''
         data = {
             'host_id': host_id,
-            'plugin_tool_config': plugin_tool_config,
+            'plugin_config': plugin_config,
             'plugin_method': plugin_method,
             'engine_type': engine_type,
             'engine_name': engine_name,

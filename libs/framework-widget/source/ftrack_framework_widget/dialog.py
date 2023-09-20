@@ -281,13 +281,13 @@ class FrameworkDialog(BaseUI):
             "This method should be implemented by the inheriting class"
         )
 
-    def init_framework_widget(self, plugin_tool_config):
+    def init_framework_widget(self, plugin_config):
         '''
-        Method to initialize a framework widget given in the *plugin_tool_config*
+        Method to initialize a framework widget given in the *plugin_config*
         '''
         widget_class = None
         for widget in self.discovered_framework_widgets:
-            if widget.name == plugin_tool_config.widget_name:
+            if widget.name == plugin_config.widget_name:
                 widget_class = widget
                 break
         if not widget_class:
@@ -295,8 +295,8 @@ class FrameworkDialog(BaseUI):
                 'The provided widget {} for plugin {} is not registered '
                 'Please provide a registered widget.\n '
                 'Registered widgets: {}'.format(
-                    plugin_tool_config.widget_name,
-                    plugin_tool_config.plugin_name,
+                    plugin_config.widget_name,
+                    plugin_config.plugin_name,
                     self.discovered_framework_widgets,
                 )
             )
@@ -306,7 +306,7 @@ class FrameworkDialog(BaseUI):
             self.event_manager,
             self.client_id,
             self.context_id,
-            plugin_tool_config,
+            plugin_config,
             dialog_connect_methods_callback=self._connect_dialog_methods_callback,
             dialog_property_getter_connection_callback=self._connect_dialog_property_getter_connection_callback,
         )
@@ -340,17 +340,17 @@ class FrameworkDialog(BaseUI):
         return self.__getattribute__(property_name)
 
     def run_plugin_method(
-        self, plugin_tool_config, plugin_method_name, plugin_widget_id=None
+        self, plugin_config, plugin_method_name, plugin_widget_id=None
     ):
         '''
         Dialog tell client to run the *plugin_method_name* from the
-        *plugin_tool_config* .
+        *plugin_config* .
         Provides a *plugin_widget_id* if its a widget who wants to execute the
         method.
         '''
         # No callback as it is returned by an event
         arguments = {
-            "plugin_tool_config": plugin_tool_config,
+            "plugin_config": plugin_config,
             "plugin_method_name": plugin_method_name,
             "engine_type": self.tool_config.engine_type,
             "engine_name": self.tool_config.engine_name,

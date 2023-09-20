@@ -484,11 +484,11 @@ class Host(object):
     # TODO: this should be ABC
     def run_plugin_callback(self, event):
         '''
-        Runs the plugin_tool_config in the given *event* with the engine type
+        Runs the plugin_config in the given *event* with the engine type
         set in the *event*
         '''
 
-        plugin_tool_config = event['data']['plugin_tool_config']
+        plugin_config = event['data']['plugin_config']
         plugin_method = event['data']['plugin_method']
         engine_type = event['data']['engine_type']
         engine_name = event['data']['engine_name']
@@ -507,20 +507,20 @@ class Host(object):
         engine.asset_type_name = None
 
         engine_result = engine.run_plugin(
-            plugin_name=plugin_tool_config.get('plugin_name'),
-            plugin_default_method=plugin_tool_config.get('default_method'),
+            plugin_name=plugin_config.get('plugin_name'),
+            plugin_default_method=plugin_config.get('default_method'),
             # plugin_data will usually be None, but can be defined in the
             # tool_config
             # I have registered data in the publisher schema
-            plugin_data=plugin_tool_config.get('data'),
-            plugin_options=plugin_tool_config.get('options'),
+            plugin_data=plugin_config.get('data'),
+            plugin_options=plugin_config.get('options'),
             # plugin_context_data will usually be None, but can be defined in the
             # tool_config
             # I have registered context_data in the schema
-            plugin_context_data=plugin_tool_config.get('context_data'),
+            plugin_context_data=plugin_config.get('context_data'),
             plugin_method=plugin_method,
             plugin_widget_id=plugin_widget_id,
-            plugin_widget_name=plugin_tool_config.get('widget_name'),
+            plugin_widget_name=plugin_config.get('widget_name'),
         )
 
         if not engine_result:
@@ -530,7 +530,7 @@ class Host(object):
                 "Method: {}\n"
                 "Engine type: {}\n"
                 "Engine name: {}\n".format(
-                    plugin_tool_config, plugin_method, engine_type, engine_name
+                    plugin_config, plugin_method, engine_type, engine_name
                 )
             )
         return engine_result
