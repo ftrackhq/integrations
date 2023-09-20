@@ -468,7 +468,7 @@ class Host(object):
         try:
             validate.validate_definition(self.schemas, definition)
         except Exception as error:
-            self.logger.error(
+            raise Exception(
                 "Can't validate definition {} error: {}".format(
                     definition, error
                 )
