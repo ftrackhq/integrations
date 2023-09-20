@@ -332,7 +332,6 @@ class Client(object):
             ):
                 self.host_connections.append(host_connection)
 
-    # TODO: this should be an ABC
     def on_hosts_discovered(self, host_connections):
         '''
         Callback, hosts has been discovered.
@@ -389,9 +388,12 @@ class Client(object):
     def _run_definition_callback(self, event):
         '''Callback of the :meth:`~ftrack_framework_core.client.run_definition'''
         self.logger.debug("_run_definition_callback event: {}".format(event))
+        result = event['data']
+        if type(event['data']) == list():
+            result = event['data'][0]
         # Publish event to widget
         self.event_manager.publish.client_notify_run_definition_result(
-            self.id, event['data'][0]
+            self.id, event['data']
         )
 
     # Plugin
@@ -436,7 +438,6 @@ class Client(object):
             self.id, event['data'][0]
         )
 
-    # TODO: This should be an ABC
     def on_log_item_added_callback(self, event):
         '''
         Called when a log item has added in the host.

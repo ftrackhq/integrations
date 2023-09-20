@@ -4,9 +4,7 @@
 import os
 import logging
 
-from ftrack_utils.directories.scan_dir import fast_scandir
-
-logger = logging.getLogger('ftrack_framework_definition.register')
+logger = logging.getLogger('ftrack_framework_schema.register')
 
 
 # TODO: maybe use the utility here as well to align with widgets and plugins so
@@ -17,5 +15,4 @@ def register(event_manager):
     # We just need to pass the location of this file in order to register
     # definitions.
     current_dir = os.path.dirname(__file__)
-    subfolders = fast_scandir(current_dir)
-    return subfolders
+    return current_dir

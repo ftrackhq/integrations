@@ -33,7 +33,7 @@ class PublisherDialog(FrameworkDialog, ScrollDefinitionsDialog):
         for definitions in self.filtered_definitions:
             print(definitions)
             for definition in definitions:
-                names.append(definition.name)
+                names.append(definition.tool_title)
         return names
 
     def __init__(
@@ -158,7 +158,7 @@ class PublisherDialog(FrameworkDialog, ScrollDefinitionsDialog):
         super(PublisherDialog, self)._on_definition_changed_callback()
         definition_name = None
         if self.definition:
-            definition_name = self.definition.name
+            definition_name = self.definition.tool_title
         self.selected_definition_name = definition_name
         if self.selected_definition_name:
             self.build_definition_ui(self.definition)
@@ -222,7 +222,7 @@ class PublisherDialog(FrameworkDialog, ScrollDefinitionsDialog):
             self.definition = None
             return
         for definition_list in self.filtered_definitions:
-            definition = definition_list.get_first(name=definition_name)
+            definition = definition_list.get_first(tool_title=definition_name)
             self.definition = definition
 
     def _on_ui_refresh_hosts_callback(self):
@@ -242,21 +242,25 @@ class PublisherDialog(FrameworkDialog, ScrollDefinitionsDialog):
     def build_definition_ui(self, definition):
         '''A definition has been selected, build the definition widget.'''
         # Build context widgets
-        context_plugins = definition.get_all(category='plugin', type='context')
+        context_plugins = definition.get_all(
+            category='plugin', plugin_type='context'
+        )
         for context_plugin in context_plugins:
-            if not context_plugin.widget:
+            if not context_plugin.widget_name:
                 continue
             context_widget = self.init_framework_widget(context_plugin)
             self.definition_widget.layout().addWidget(context_widget)
         # Build component widgets
-        component_steps = definition.get_all(category='step', type='component')
+        component_steps = definition.get_all(
+            category='step', step_type='component'
+        )
         for step in component_steps:
             # TODO: add a key visible in the definition to hide the step if wanted.
             step_accordion_widget = AccordionBaseWidget(
                 selectable=False,
                 show_checkbox=True,
                 checkable=not step.optional,
-                title=step.name,
+                title=step.step_name,
                 selected=False,
                 checked=step.enabled,
                 collapsable=True,
@@ -264,16 +268,16 @@ class PublisherDialog(FrameworkDialog, ScrollDefinitionsDialog):
             )
             step_plugins = step.get_all(category='plugin')
             for step_plugin in step_plugins:
-                if not step_plugin.widget:
+                if not step_plugin.widget_name:
                     continue
                 widget = self.init_framework_widget(step_plugin)
-                if step_plugin.type == 'collector':
+                if step_plugin.plugin_type == 'collector':
                     step_accordion_widget.add_widget(widget)
-                if step_plugin.type == 'validator':
+                if step_plugin.plugin_type == 'validator':
                     step_accordion_widget.add_option_widget(
                         widget, section_name='Validators'
                     )
-                if step_plugin.type == 'exporter':
+                if step_plugin.plugin_type == 'exporter':
                     step_accordion_widget.add_option_widget(
                         widget, section_name='Exporters'
                     )
@@ -295,7 +299,7 @@ class PublisherDialog(FrameworkDialog, ScrollDefinitionsDialog):
         will be emitted to be picked by that widget id.
         '''
         collector_plugins = self.definition.get_all(
-            category='plugin', type='collector'
+            category='plugin', plugin_type='collector'
         )
         for collector_plugin in collector_plugins:
             arguments = {

@@ -4,6 +4,8 @@
 import os
 import logging
 
+from ftrack_utils.directories.scan_dir import fast_scandir
+
 logger = logging.getLogger('ftrack_framework_schemas.register')
 
 
@@ -15,4 +17,5 @@ def register(event_manager):
     # We just need to pass the location of this file in order to register
     # schemas.
     current_dir = os.path.dirname(__file__)
-    return current_dir
+    subfolders = fast_scandir(current_dir)
+    return subfolders

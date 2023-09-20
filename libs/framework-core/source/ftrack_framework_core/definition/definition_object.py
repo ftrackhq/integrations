@@ -289,8 +289,8 @@ class DefinitionList(MutableSequence):
             [(cls.__name__, cls) for cls in DefinitionObject.__subclasses__()]
         )
         if issubclass(type(item), dict):
-            def_type = item.get('type')
-            if def_type in constants.definition.DEFINITION_TYPES:
+            def_type = item.get('tool_type')
+            if def_type:
                 item = DefinitionObject(item)
             else:
                 category = item.get('category')

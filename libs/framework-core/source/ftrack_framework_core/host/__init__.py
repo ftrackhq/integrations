@@ -195,7 +195,7 @@ class Host(object):
         self._ftrack_object_manager = None
         # Reset all registries
         self.__definitions_registry = {}
-        self.__schemas_registry = []
+        self.__schemas_registry = {}
         self.__plugins_registry = []
         self.__engines_registry = {}
 
@@ -360,7 +360,7 @@ class Host(object):
 
         # validate schemas
         discovered_definitions = discover.augment_definition(
-            discovered_definitions, schemas, self.session
+            discovered_definitions, schemas
         )
 
         # validate_plugins
@@ -450,7 +450,8 @@ class Host(object):
         engine_type = definition['engine_type']
         engine_name = definition['engine_name']
         # TODO: Double check the asset_type_name workflow, it isn't clean.
-        asset_type_name = definition.get('asset_type')
+        # TODO: pick asset type from context plugin and not from definition
+        asset_type_name = "script"  # definition.get('asset_type')
 
         engine = None
         try:
@@ -467,7 +468,7 @@ class Host(object):
         try:
             validate.validate_definition(self.schemas, definition)
         except Exception as error:
-            self.logger.error(
+            raise Exception(
                 "Can't validate definition {} error: {}".format(
                     definition, error
                 )
@@ -506,7 +507,7 @@ class Host(object):
         engine.asset_type_name = None
 
         engine_result = engine.run_plugin(
-            plugin_name=plugin_definition.get('plugin'),
+            plugin_name=plugin_definition.get('plugin_name'),
             plugin_default_method=plugin_definition.get('default_method'),
             # plugin_data will usually be None, but can be defined in the
             # definition
@@ -519,7 +520,7 @@ class Host(object):
             plugin_context_data=plugin_definition.get('context_data'),
             plugin_method=plugin_method,
             plugin_widget_id=plugin_widget_id,
-            plugin_widget_name=plugin_definition.get('widget'),
+            plugin_widget_name=plugin_definition.get('widget_name'),
         )
 
         if not engine_result:

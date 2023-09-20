@@ -94,7 +94,6 @@ class ModalDialog(StyledDialog):
 
         self.layout().addWidget(buttonbar, 1)
 
-    # TODO: This should be an ABC
     def get_content_widget(self):
         '''Create dialog main content widget, can be overridden to provide
         custom styled modal dialogs'''
@@ -102,7 +101,6 @@ class ModalDialog(StyledDialog):
         label.setObjectName('h3')
         return center_widget(label)
 
-    # TODO: This should be an ABC
     def get_approve_button(self):
         '''Build the approve button widget, can be overridden to provide a
         custom approve button.'''
@@ -112,7 +110,6 @@ class ModalDialog(StyledDialog):
         button.setMinimumSize(QtCore.QSize(40, 35))
         return button
 
-    # TODO: This should be an ABC
     def get_deny_button(self):
         '''Build the deny (No) button widget, can be overridden to provide a
         custom deny button.'''
