@@ -2,7 +2,7 @@
   "title": "Publisher",
   "type": "object",
   "additionalProperties": false,
-  "definitions": {
+  "tool_configs": {
     "Config": {
       "title": "Config",
       "type": "object",
@@ -63,7 +63,7 @@
         "plugins": {
           "type": "array",
           "items": {
-            "$ref": "#/definitions/Plugin"
+            "$ref": "#/tool_configs/Plugin"
           },
           "default": [],
           "minItems": 1,
@@ -150,7 +150,7 @@
           "maxItems": 3,
           "uniqueItems": true,
           "items": {
-            "$ref": "#/definitions/Stage"
+            "$ref": "#/tool_configs/Stage"
             }
           }
         }
@@ -192,22 +192,22 @@
       "default": null
     },
     "contexts": {
-      "$ref": "#/definitions/Stage"
+      "$ref": "#/tool_configs/Stage"
     },
     "components": {
       "type": "array",
       "items": {
-        "$ref": "#/definitions/Component"
+        "$ref": "#/tool_configs/Component"
       },
       "default": [],
       "minItems": 1,
       "uniqueItems": true
     },
     "finalizers": {
-      "$ref": "#/definitions/Stage"
+      "$ref": "#/tool_configs/Stage"
     },
     "_config": {
-      "$ref": "#/definitions/Config",
+      "$ref": "#/tool_configs/Config",
       "default": {}
     }
   }

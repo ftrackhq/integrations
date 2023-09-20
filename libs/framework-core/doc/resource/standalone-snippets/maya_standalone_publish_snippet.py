@@ -6,8 +6,8 @@ import ftrack_api
 
 # Set the minimum required Environment variables.
 os.environ['FTRACK_EVENT_PLUGIN_PATH'] = (
-    '<path-to-your-repo-folder>/ftrack-connect-pipeline-definition/resource/plugins:'
-    '<path-to-your-repo-folder>/ftrack-connect-pipeline-definition/resource/definitions:'
+    '<path-to-your-repo-folder>/ftrack-connect-pipeline-tool_config/resource/plugins:'
+    '<path-to-your-repo-folder>/ftrack-connect-pipeline-tool_config/resource/tool_configs:'
 )
 
 # Create a session and Event Manager
@@ -39,21 +39,21 @@ client_connection.change_host(client_connection.host_connections[0])
 host_class.context_id = '<your-context-id>'
 # client_connection.context_id = '<your-context-id>'
 
-# Select the File Publisher definition
-definition = client_connection.host_connection.definitions[
+# Select the File Publisher tool_config
+tool_config = client_connection.host_connection.tool_configs[
     'publisher'
 ].get_all(name='Geometry Publisher')[0]
 
-# Assign the definition to the client
-client_connection.change_definition(definition)
+# Assign the tool_config to the client
+client_connection.change_tool_config(tool_config)
 
 # Make the desired changes:
-collector_plugins = definition.get_all(
+collector_plugins = tool_config.get_all(
     category='plugin', type='collector', name='Geometry Collector'
 )
 collector_plugins[0].options.collected_objects = ['pCube']
 collector_plugins[1].options.collected_objects = ['pCube']
 collector_plugins[2].options.collected_objects = ['pCube']
 
-# Execute the definition.
-client_connection.run_definition()
+# Execute the tool_config.
+client_connection.run_tool_config()

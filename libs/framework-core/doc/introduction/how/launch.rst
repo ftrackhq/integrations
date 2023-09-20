@@ -16,7 +16,7 @@ Standalone
 ##########
 
 In standalone mode, outside the DCC application, the launch is identical. Instead
-of targeting the DCC host when it comes to loading definitions, the "python" host
+of targeting the DCC host when it comes to loading tool_configs, the "python" host
 type is instead used.
 
 

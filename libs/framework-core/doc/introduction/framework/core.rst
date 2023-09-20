@@ -32,9 +32,9 @@ To use the Framework, a :term:`host` must be instantiated with an :term:`event m
 The host:
 
  * Loads the supplied context(task) from the FTRACK_CONTEXTID environment variable.
- * Discovers and validates each definition against its :term:`schema`.
+ * Discovers and validates each tool_config against its :term:`schema`.
  * Serves each :term:`Client` with data, handles context change.
- * Run definitions by instantiating an :term:`Engine`.
+ * Run tool_configs by instantiating an :term:`Engine`.
  * Manages logging by listening to client notifications.
 
 .. _client:
@@ -47,8 +47,8 @@ the host connection over the ftrack event system.
 
 Clients are categorised into the engine types, see below.
 
-Clients reads the definition and context from the host, and then commands the host
-to run the augmented definition and its plugins with options collected from the user.
+Clients reads the tool_config and context from the host, and then commands the host
+to run the augmented tool_config and its plugins with options collected from the user.
 
 .. _engine:
 

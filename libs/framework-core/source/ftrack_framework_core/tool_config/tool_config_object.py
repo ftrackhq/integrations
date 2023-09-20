@@ -7,11 +7,11 @@ import json
 
 import ftrack_constants.framework as constants
 
-# TODO: Evaluate if to rename this. maybe a definitionHelper, definitionWrapper,
-#  definitionAPI, definitionParser...
+# TODO: Evaluate if to rename this. maybe a tool_configHelper, tool_configWrapper,
+#  tool_configAPI, tool_configParser...
 
 
-class DefinitionObject(MutableMapping):
+class ToolConfigObject(MutableMapping):
     '''Base DccObject class.'''
 
     def get_all(self, first=False, **kwargs):
@@ -21,7 +21,7 @@ class DefinitionObject(MutableMapping):
         given *kwargs*.
         '''
         # Example kwargs --> type=context, name=main
-        results = DefinitionList([])
+        results = Tool_configList([])
         match = True
         for k, v in kwargs.items():
             # If key not in self or v not match to the k value jump out
@@ -34,11 +34,11 @@ class DefinitionObject(MutableMapping):
         # Append the object to the all matching results
         elif match:
             results.append(self)
-        # Recursively iterate over all the values in case we have DefinitionList or
-        # DefinitionObjects to look into them
+        # Recursively iterate over all the values in case we have Tool_configList or
+        # ToolConfigObjects to look into them
         for v in self.mapping.values():
-            if issubclass(type(v), DefinitionList) or issubclass(
-                type(v), DefinitionObject
+            if issubclass(type(v), Tool_configList) or issubclass(
+                type(v), ToolConfigObject
             ):
                 # Call the get_all function of the current object
                 result = v.get_all(first=first, **kwargs)
@@ -54,12 +54,12 @@ class DefinitionObject(MutableMapping):
         '''
         return self.get_all(first=True, **kwargs) or None
 
-    def __init__(self, definition):
+    def __init__(self, tool_config):
         '''
-        Convert the given definition to a DefinitionObject
+        Convert the given tool_config to a ToolConfigObject
         '''
-        super(DefinitionObject, self).__setattr__('mapping', {})
-        self.update(definition)
+        super(ToolConfigObject, self).__setattr__('mapping', {})
+        self.update(tool_config)
 
     def __getattr__(self, k):
         return self.mapping[k]
@@ -78,9 +78,9 @@ class DefinitionObject(MutableMapping):
         '''
         Sets the given *v* into the given *k*
         '''
-        # If list convert to definition list
+        # If list convert to tool_config list
         if type(v) == list:
-            v = DefinitionList(v)
+            v = Tool_configList(v)
 
         # If dictionary and valid category, convert to category object
         elif issubclass(type(v), dict):
@@ -93,7 +93,7 @@ class DefinitionObject(MutableMapping):
         compatible category
         '''
         classes = dict(
-            [(cls.__name__, cls) for cls in DefinitionObject.__subclasses__()]
+            [(cls.__name__, cls) for cls in ToolConfigObject.__subclasses__()]
         )
         if issubclass(type(item), dict):
             category = item.get('category')
@@ -136,9 +136,9 @@ class DefinitionObject(MutableMapping):
         '''Return dictionary type base on current data'''
         new_mapping = {}
         for k, v in self.mapping.items():
-            if issubclass(type(v), DefinitionObject):
+            if issubclass(type(v), ToolConfigObject):
                 v = v.to_dict()
-            if issubclass(type(v), DefinitionList):
+            if issubclass(type(v), Tool_configList):
                 v = v.to_list()
             new_mapping[k] = v
         return new_mapping
@@ -148,17 +148,17 @@ class DefinitionObject(MutableMapping):
         return json.dumps(self.to_dict(), indent=indent)
 
 
-class Step(DefinitionObject):
+class Step(ToolConfigObject):
     def __init__(self, step):
         super(Step, self).__init__(step)
 
 
-class Stage(DefinitionObject):
+class Stage(ToolConfigObject):
     def __init__(self, stage):
         super(Stage, self).__init__(stage)
 
 
-class Plugin(DefinitionObject):
+class Plugin(ToolConfigObject):
     def __init__(self, plugin):
         super(Plugin, self).__init__(plugin)
 
@@ -176,22 +176,22 @@ class Plugin(DefinitionObject):
         super(Plugin, self).__setitem__(k, v)
 
 
-class Options(DefinitionObject):
+class Options(ToolConfigObject):
     def __init__(self, options):
         super(Options, self).__init__(options)
 
 
-class Data(DefinitionObject):
+class Data(ToolConfigObject):
     def __init__(self, data):
         super(Data, self).__init__(data)
 
 
-class ContextData(DefinitionObject):
+class ContextData(ToolConfigObject):
     def __init__(self, context_data):
         super(ContextData, self).__init__(context_data)
 
 
-class DefinitionList(MutableSequence):
+class Tool_configList(MutableSequence):
     def get_all(self, first=False, **kwargs):
         '''
         Return all items that match key and values from the given *kwargs*.
@@ -200,8 +200,8 @@ class DefinitionList(MutableSequence):
         # Recursively iterate over all items in the internal list to check if
         # they match the kwargs
         for item in self.list:
-            if issubclass(type(item), DefinitionList) or issubclass(
-                type(item), DefinitionObject
+            if issubclass(type(item), Tool_configList) or issubclass(
+                type(item), ToolConfigObject
             ):
                 result = item.get_all(first=first, **kwargs)
                 # Return the first value that matches if first is true
@@ -221,8 +221,8 @@ class DefinitionList(MutableSequence):
         '''
         Init the list given the *iterable* values
         '''
-        # We use the category to identify the type of definition list in
-        # the definition object
+        # We use the category to identify the type of tool_config list in
+        # the tool_config object
         self.category = None
         self.list = list()
         self.extend(iterable)
@@ -269,9 +269,9 @@ class DefinitionList(MutableSequence):
         '''Return dictionary type base on current data'''
         new_list = []
         for item in self.list:
-            if issubclass(type(item), DefinitionObject):
+            if issubclass(type(item), ToolConfigObject):
                 item = item.to_dict()
-            if issubclass(type(item), DefinitionList):
+            if issubclass(type(item), Tool_configList):
                 item = item.to_list()
             new_list.append(item)
         return new_list
@@ -286,12 +286,12 @@ class DefinitionList(MutableSequence):
         compatible category
         '''
         classes = dict(
-            [(cls.__name__, cls) for cls in DefinitionObject.__subclasses__()]
+            [(cls.__name__, cls) for cls in ToolConfigObject.__subclasses__()]
         )
         if issubclass(type(item), dict):
             def_type = item.get('tool_type')
             if def_type:
-                item = DefinitionObject(item)
+                item = ToolConfigObject(item)
             else:
                 category = item.get('category')
                 if category:

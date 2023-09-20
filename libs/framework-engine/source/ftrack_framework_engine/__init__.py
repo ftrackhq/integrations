@@ -94,7 +94,7 @@ class BaseEngine(ABC):
         :meth:`run_event` using the given *plugin*, *plugin_type*,
         *options*, *data*, *context_data*, *method*
 
-        *plugin* : Plugin definition, a dictionary with the plugin information.
+        *plugin* : Plugin tool_config, a dictionary with the plugin information.
 
         *plugin_type* : Type of plugin.
 
@@ -112,7 +112,7 @@ class BaseEngine(ABC):
         # TODO: Evaluate if plugin_data should better be defined in the
         #  schema, so it can be augmented as well as the options.
         #  (Same for context_data) So basically all the info that the plugin
-        #  needs is allways kept in the definition.
+        #  needs is allways kept in the tool_config.
 
         plugin_info = None
 
@@ -150,18 +150,18 @@ class BaseEngine(ABC):
         return plugin_info
 
     @abstractmethod
-    def run_definition(self, definition):
+    def run_tool_config(self, tool_config):
         '''
-        Runs the whole definition from the provided *data*.
+        Runs the whole tool_config from the provided *data*.
         Call the method :meth:`run_step` for each context, component and
         finalizer steps.
 
         *data* : pipeline['data'] provided from the client host connection at
         :meth:`~ftrack_framework_core.client.HostConnection.run` Should be a
-        valid definition.
+        valid tool_config.
         '''
         raise NotImplementedError
-        # TODO: We can convert definition to a definition object and execute all
+        # TODO: We can convert tool_config to a tool_config object and execute all
         #  plugins as default behaviour....
 
     @classmethod

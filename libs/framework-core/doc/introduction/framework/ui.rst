@@ -31,10 +31,10 @@ Structure:
 Description of main submodules:
 
  * **client**; Contains client UI implementations.
- * **plugin**; Contain bases for definition plugin widgets
+ * **plugin**; Contain bases for tool_config plugin widgets
  * **assembler**; The assembler/loader widget.
  * **asset_manager**; The asset manager widget.
- * **factory**; Contains widgets and logic for generating the publisher and parts of the loader, factorised from the definition.
+ * **factory**; Contains widgets and logic for generating the publisher and parts of the loader, factorised from the tool_config.
  * **log_viewer**; The log viewer widget.
  * **utility**; Utility widgets such as the entity browser, context selectors and so on.
 
@@ -49,7 +49,7 @@ The folder contains associated fonts, images and stylesheets.
 plugins
 -------
 
-Contains the base classes for the UI plugin widgets referenced within the DCC definitions.
+Contains the base classes for the UI plugin widgets referenced within the DCC tool_configs.
 
 
 
