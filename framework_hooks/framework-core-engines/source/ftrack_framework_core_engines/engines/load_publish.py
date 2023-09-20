@@ -14,9 +14,9 @@ class LoadPublishEngine(BaseEngine):
 
     name = 'load_publish'
     engine_types = [
-        constants.tool_config.LOADER,
-        constants.tool_config.OPENER,
-        constants.tool_config.PUBLISHER,
+        constants.tools.types.LOADER,
+        constants.tools.types.OPENER,
+        constants.tools.types.PUBLISHER,
     ]
     '''Suported engine types for this engine class'''
 
