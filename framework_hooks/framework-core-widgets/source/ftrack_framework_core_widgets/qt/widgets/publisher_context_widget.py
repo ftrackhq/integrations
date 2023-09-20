@@ -22,7 +22,7 @@ class PublishContextWidget(FrameworkWidget, QtWidgets.QWidget):
         event_manager,
         client_id,
         context_id,
-        plugin_definition,
+        plugin_tool_config,
         dialog_connect_methods_callback,
         dialog_property_getter_connection_callback,
         parent=None,
@@ -41,7 +41,7 @@ class PublishContextWidget(FrameworkWidget, QtWidgets.QWidget):
             event_manager,
             client_id,
             context_id,
-            plugin_definition,
+            plugin_tool_config,
             dialog_connect_methods_callback,
             dialog_property_getter_connection_callback,
             parent=parent,
@@ -145,9 +145,9 @@ class PublishContextWidget(FrameworkWidget, QtWidgets.QWidget):
             self.set_plugin_option('asset_id', asset_entity['id'])
 
     def on_context_updated(self):
-        definition = self.dialog_property_getter_connection('definition')
+        tool_config = self.dialog_property_getter_connection('tool_config')
         # TODO: modify context selector to select asset_type as asset_type is
-        #  not in definition anymore.
-        asset_type_name = "script"  # definition.asset_type
+        #  not in tool_config anymore.
+        asset_type_name = "script"  # tool_config.asset_type
         self._asset_selector.set_context(self.context_id, asset_type_name)
         self.set_plugin_option('context_id', self.context_id)

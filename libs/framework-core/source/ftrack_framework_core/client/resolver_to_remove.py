@@ -13,7 +13,7 @@ class ResolverClient(client.Client):
     Asset Resolver Client Base Class
     '''
 
-    definition_filters = [constants.RESOLVER]
+    tool_config_filters = [constants.RESOLVER]
 
     def __init__(self, event_manager):
         '''
@@ -23,23 +23,23 @@ class ResolverClient(client.Client):
         super(ResolverClient, self).__init__(event_manager)
 
     def on_host_changed(self, host_connection):
-        '''Asset manager host has been selected, fetch definition. Return False if no definitions.'''
+        '''Asset manager host has been selected, fetch tool_config. Return False if no tool_configs.'''
 
         self.schemas = [
             schema
-            for schema in self.host_connection.definitions['schema']
-            if schema.get('title').lower() in self.definition_filters
+            for schema in self.host_connection.tool_configs['schema']
+            if schema.get('title').lower() in self.tool_config_filters
         ]
 
         # Only one schema available for now
         schema = self.schemas[0]
         schema_title = schema.get('title').lower()
-        definitions = self.host_connection.definitions.get(schema_title)
-        if len(definitions) > 0:
-            # Only one definition for now, we don't have a definition schema on the AM
-            self.change_definition(definitions[0], schema)
+        tool_configs = self.host_connection.tool_configs.get(schema_title)
+        if len(tool_configs) > 0:
+            # Only one tool_config for now, we don't have a tool_config schema on the AM
+            self.change_tool_config(tool_configs[0], schema)
 
-            self.resolver_plugins = self.definition['resolvers'].get(
+            self.resolver_plugins = self.tool_config['resolvers'].get(
                 'resolve_dependencies'
             )
             return True

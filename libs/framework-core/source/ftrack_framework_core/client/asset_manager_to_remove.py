@@ -12,8 +12,8 @@ class AssetManagerClient(Client):
     Asset Manager Client Base Class
     '''
 
-    definition_filters = [constants.definition.ASSET_MANAGER]
-    '''Use only definitions that matches the definition_filters'''
+    tool_config_filters = [constants.tool_config.ASSET_MANAGER]
+    '''Use only tool_configs that matches the tool_config_filters'''
 
     def __init__(self, event_manager, multithreading_enabled=True):
         '''Initialise AssetManagerClient with instance of
@@ -25,25 +25,25 @@ class AssetManagerClient(Client):
         self._reset_asset_list()
 
     def on_host_changed(self, host_connection):
-        '''Asset manager host has been selected, fetch definition. Return False if no definitions.'''
+        '''Asset manager host has been selected, fetch tool_config. Return False if no tool_configs.'''
 
         self.schemas = [
             schema
-            for schema in self.host_connection.definitions['schema']
-            if schema.get('title').lower() in self.definition_filters
+            for schema in self.host_connection.tool_configs['schema']
+            if schema.get('title').lower() in self.tool_config_filters
         ]
 
         # Only one schema available for now, we Don't have a schema selector
         # on the AM
         schema = self.schemas[0]
         schema_title = schema.get('title').lower()
-        definitions = self.host_connection.definitions.get(schema_title)
-        if len(definitions) > 0:
-            # Only one definition for now, we don't have a definition schema on the AM
-            self.change_definition(definitions[0], schema)
+        tool_configs = self.host_connection.tool_configs.get(schema_title)
+        if len(tool_configs) > 0:
+            # Only one tool_config for now, we don't have a tool_config schema on the AM
+            self.change_tool_config(tool_configs[0], schema)
 
-            self.menu_action_plugins = self.definition.get('actions')
-            self.discover_plugins = self.definition.get('discover')
+            self.menu_action_plugins = self.tool_config.get('actions')
+            self.discover_plugins = self.tool_config.get('discover')
             return True
         else:
             return False
@@ -69,14 +69,14 @@ class AssetManagerClient(Client):
         plugin_type = None
         if plugin:
             plugin_type = '{}.{}'.format(
-                constants.definition.ASSET_MANAGER, plugin['type']
+                constants.tool_config.ASSET_MANAGER, plugin['type']
             )
         data = {
             'method': 'discover_assets',
             'plugin': plugin,
             'plugin_type': plugin_type,
         }
-        self.host_connection.run_definition(
+        self.host_connection.run_tool_config(
             data, self.engine_type, callback=self._asset_discovered_callback
         )
 
@@ -104,7 +104,7 @@ class AssetManagerClient(Client):
             'plugin': None,
             'assets': asset_info_list,
         }
-        self.host_connection.run_definition(
+        self.host_connection.run_tool_config(
             data, self.engine_type, callback=self._load_assets_callback
         )
 
@@ -132,7 +132,7 @@ class AssetManagerClient(Client):
             'plugin': None,
             'assets': asset_info_list,
         }
-        self.host_connection.run_definition(data, self.engine_type)
+        self.host_connection.run_tool_config(data, self.engine_type)
 
     # Update
 
@@ -148,13 +148,13 @@ class AssetManagerClient(Client):
         *asset_info_list* : Should a list pf be instances of
         :class:`~ftrack_framework_core.asset.FtrackAssetInfo`
 
-        *plugin* : The plugin definition of the plugin to run during the update_assets
+        *plugin* : The plugin tool_config of the plugin to run during the update_assets
         method
         '''
         plugin_type = None
         if plugin:
             plugin_type = '{}.{}'.format(
-                constants.definition.ASSET_MANAGER, plugin['type']
+                constants.tool_config.ASSET_MANAGER, plugin['type']
             )
         data = {
             'method': 'update_assets',
@@ -162,7 +162,7 @@ class AssetManagerClient(Client):
             'assets': asset_info_list,
             'plugin_type': plugin_type,
         }
-        self.host_connection.run_definition(
+        self.host_connection.run_tool_config(
             data, self.engine_type, callback=self._update_assets_callback
         )
 
@@ -196,7 +196,7 @@ class AssetManagerClient(Client):
             'assets': asset_info,
             'options': {'new_version_id': new_version_id},
         }
-        self.host_connection.run_definition(
+        self.host_connection.run_tool_config(
             data, self.engine_type, callback=self._change_version_callback
         )
 
@@ -227,7 +227,7 @@ class AssetManagerClient(Client):
             'plugin': None,
             'assets': asset_info_list,
         }
-        self.host_connection.run_definition(
+        self.host_connection.run_tool_config(
             data, self.engine_type, callback=self._unload_assets_callback
         )
 
@@ -258,7 +258,7 @@ class AssetManagerClient(Client):
             'plugin': None,
             'assets': asset_info_list,
         }
-        self.host_connection.run_definition(
+        self.host_connection.run_tool_config(
             data, self.engine_type, callback=self._remove_assets_callback
         )
 

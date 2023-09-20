@@ -17,7 +17,7 @@ Neither were there any possibility to run the integrations in remote mode or eas
 customise the look and feel.
 
 The new DCC Framework addresses this by providing a modular approach, configurable
-through the pipeline definitions and plugins.
+through the pipeline tool_configs and plugins.
 
 
 

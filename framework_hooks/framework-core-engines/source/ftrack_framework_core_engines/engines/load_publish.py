@@ -14,9 +14,9 @@ class LoadPublishEngine(BaseEngine):
 
     name = 'load_publish'
     engine_types = [
-        constants.definition.LOADER,
-        constants.definition.OPENER,
-        constants.definition.PUBLISHER,
+        constants.tool_config.LOADER,
+        constants.tool_config.OPENER,
+        constants.tool_config.PUBLISHER,
     ]
     '''Suported engine types for this engine class'''
 
@@ -106,35 +106,35 @@ class LoadPublishEngine(BaseEngine):
             plugin_widget_name=plugin_widget_name,
         )
 
-    def run_stage(self, stage_definition, step_type, step_name):
+    def run_stage(self, stage_tool_config, step_type, step_name):
         '''
         Returns the bool status of running all the plugins in the given
-        *stage_definition*.
+        *stage_tool_config*.
 
-        *stage_definition* : :obj:`~ftrack_framework_core.definition.Stage`
+        *stage_tool_config* : :obj:`~ftrack_framework_core.tool_config.Stage`
 
         *step_type* : Type of the parent step
         *step_name* : Name of the parent step
         '''
 
-        plugins = stage_definition.get_all(category='plugin')
+        plugins = stage_tool_config.get_all(category='plugin')
         status = True
         i = 0
-        for plugin_definition in plugins:
-            if not plugin_definition.enabled:
+        for plugin_tool_config in plugins:
+            if not plugin_tool_config.enabled:
                 self.logger.debug(
                     'Skipping step {} as it has been disabled'.format(
-                        plugin_definition.plugin_name
+                        plugin_tool_config.plugin_name
                     )
                 )
                 continue
 
-            self.event_manager.publish.notify_definition_progress_client(
+            self.event_manager.publish.notify_tool_config_progress_client(
                 host_id=self.host_id,
                 step_type=step_type,
                 step_name=step_name,
-                stage_name=stage_definition.stage_name,
-                plugin_name=plugin_definition.plugin_name,
+                stage_name=stage_tool_config.stage_name,
+                plugin_name=plugin_tool_config.plugin_name,
                 total_plugins=len(plugins),
                 current_plugin_index=i,
                 status=constants.status.RUNNING_STATUS,
@@ -149,19 +149,19 @@ class LoadPublishEngine(BaseEngine):
                 plugin_data = copy.deepcopy(self._registry.get(step_type))
 
             plugin_info = self.run_plugin(
-                plugin_name=plugin_definition.plugin_name,
-                plugin_default_method=plugin_definition.default_method,
+                plugin_name=plugin_tool_config.plugin_name,
+                plugin_default_method=plugin_tool_config.default_method,
                 # We don't want to pass the information of the previous plugin,
                 # so that is why we only pass the data of the previous stage.
                 plugin_data=plugin_data,
-                # From the definition + stage_options
-                plugin_options=plugin_definition.options,
+                # From the tool_config + stage_options
+                plugin_options=plugin_tool_config.options,
                 # Data from the plugin context
                 plugin_context_data=self.context_data,
-                # default_method is defined in the definitions
-                plugin_method=plugin_definition.default_method,
-                plugin_widget_id=plugin_definition.widget_id,
-                plugin_widget_name=plugin_definition.widget_name,
+                # default_method is defined in the tool_configs
+                plugin_method=plugin_tool_config.default_method,
+                plugin_widget_id=plugin_tool_config.widget_id,
+                plugin_widget_name=plugin_tool_config.widget_name,
             )
 
             if step_type == 'context':
@@ -170,16 +170,16 @@ class LoadPublishEngine(BaseEngine):
                 self._update_registry(
                     step_type,
                     step_name,
-                    stage_definition.stage_name,
+                    stage_tool_config.stage_name,
                     plugin_name=plugin_info['plugin_name'],
                     plugin_result=plugin_info['plugin_method_result'],
                 )
-            self.event_manager.publish.notify_definition_progress_client(
+            self.event_manager.publish.notify_tool_config_progress_client(
                 host_id=self.host_id,
                 step_type=step_type,
                 step_name=step_name,
-                stage_name=stage_definition.stage_name,
-                plugin_name=plugin_definition.plugin_name,
+                stage_name=stage_tool_config.stage_name,
+                plugin_name=plugin_tool_config.plugin_name,
                 total_plugins=len(plugins),
                 current_plugin_index=i,
                 status=plugin_info['plugin_status'],
@@ -191,9 +191,9 @@ class LoadPublishEngine(BaseEngine):
                 # We log an error if a plugin on the stage failed.
                 self.logger.error(
                     "Execution of the plugin {} in stage {} of step {} "
-                    "failed. Stopping run definition".format(
-                        plugin_definition.plugin_name,
-                        stage_definition.stage_name,
+                    "failed. Stopping run tool_config".format(
+                        plugin_tool_config.plugin_name,
+                        stage_tool_config.stage_name,
                         step_name,
                     )
                 )
@@ -203,29 +203,29 @@ class LoadPublishEngine(BaseEngine):
         # Return status of the stage execution
         return status
 
-    def run_step(self, step_definition):
+    def run_step(self, step_tool_config):
         '''
         Returns the bool status of running all the stages in the given
-        *step_definition*.
-        *step_definition* : :obj:`~ftrack_framework_core.definition.Step`
+        *step_tool_config*.
+        *step_tool_config* : :obj:`~ftrack_framework_core.tool_config.Step`
         '''
 
         status = True
-        stages = step_definition.get_all(category='stage')
-        for stage_definition in stages:
+        stages = step_tool_config.get_all(category='stage')
+        for stage_tool_config in stages:
             # We don't need the stage order because the stage order is given by
-            # order in the definition and that is a list so its already sorted.
-            if not stage_definition.enabled:
+            # order in the tool_config and that is a list so its already sorted.
+            if not stage_tool_config.enabled:
                 self.logger.debug(
                     'Skipping step {} as it has been disabled'.format(
-                        stage_definition.stage_name
+                        stage_tool_config.stage_name
                     )
                 )
                 continue
             status = self.run_stage(
-                stage_definition,
-                step_definition.step_type,
-                step_definition.step_name,
+                stage_tool_config,
+                step_tool_config.step_type,
+                step_tool_config.step_name,
             )
             if not status:
                 break
@@ -233,10 +233,10 @@ class LoadPublishEngine(BaseEngine):
         # Return status of the stage execution
         return status
 
-    def run_definition(self, definition):
+    def run_tool_config(self, tool_config):
         '''
-        Runs all the steps in the given *definition*.
-        *definition* : :obj:`~ftrack_framework_core.definition.DefinitionObject`
+        Runs all the steps in the given *tool_config*.
+        *tool_config* : :obj:`~ftrack_framework_core.tool_config.Tool_configObject`
 
         # Data Workflow:
         #  Context step:
@@ -260,29 +260,29 @@ class LoadPublishEngine(BaseEngine):
         self.reset_registry()
 
         status = True
-        steps = definition.get_all(category='step')
+        steps = tool_config.get_all(category='step')
 
-        # Check that definition contains at least the required step types
+        # Check that tool_config contains at least the required step types
         step_types = []
         required_step_types = ['context', 'finalizer', 'component']
         for step in steps:
             step_types.append(step.step_type)
         if not set(required_step_types).issubset(step_types):
             raise Exception(
-                "Given definition is not supported by this engine. "
+                "Given tool_config is not supported by this engine. "
                 "Required steps {} are not in the steps of this "
-                "definition: {}".format(required_step_types, step_types)
+                "tool_config: {}".format(required_step_types, step_types)
             )
-        for step_definition in steps:
-            if not step_definition.enabled:
+        for step_tool_config in steps:
+            if not step_tool_config.enabled:
                 self.logger.debug(
                     'Skipping step {} as it has been disabled'.format(
-                        step_definition.step_name
+                        step_tool_config.step_name
                     )
                 )
                 continue
 
-            status = self.run_step(step_definition)
+            status = self.run_step(step_tool_config)
             if not status:
                 break
         return status

@@ -65,7 +65,7 @@ Add Slack finaliser to publishers
 
 Finally we augment the publishers that we wish to use.
 
-**mypipeline/projects/framework-maya/resource/definitions/publisher/geometry-maya-publish.json**
+**mypipeline/projects/framework-maya/resource/tool_configs/publisher/geometry-maya-publish.json**
 
 ..  code-block:: json
     :linenos:

@@ -12,10 +12,10 @@ from functools import partial
 from ftrack_utils.framework.dependencies import registry
 import ftrack_constants.framework as constants
 
-from ftrack_framework_core.definition import (
+from ftrack_framework_core.tool_config import (
     discover,
     validate,
-    definition_object,
+    tool_config_object,
 )
 from ftrack_framework_core.asset import FtrackObjectManager
 from ftrack_framework_core.log.log_item import LogItem
@@ -29,15 +29,15 @@ logger = logging.getLogger(__name__)
 
 
 def provide_host_information(
-    host_id, host_name, context_id, definitions, event
+    host_id, host_name, context_id, tool_configs, event
 ):
     '''
-    Returns dictionary with host id, host name, context id and definition from
-    the given *id*, *definitions* and *name*.
+    Returns dictionary with host id, host name, context id and tool_config from
+    the given *id*, *tool_configs* and *name*.
 
     *id* : Host id
 
-    *definitions* : Dictionary with a valid definitions
+    *tool_configs* : Dictionary with a valid tool_configs
 
     *name* : Host name
     '''
@@ -46,17 +46,17 @@ def provide_host_information(
         'host_id': host_id,
         'host_name': host_name,
         'context_id': context_id,
-        'definitions': definitions,
+        'tool_configs': tool_configs,
     }
     # TODO: we could pass the engines as well so client knows what engines do we
     #  have available. Re-evaluate this as it might not be necessary as the engine
-    #  is always given by the definition....
+    #  is always given by the tool_config....
     return host_dict
 
 
 class Host(object):
     # TODO: double_check host types and host type do we really need it?
-    #  Maybe what we need is definitions type? to specify which definitions we
+    #  Maybe what we need is tool_configs type? to specify which tool_configs we
     #  want to discover?
     host_types = [constants.host.PYTHON_HOST_TYPE]
     '''Compatible Host types for this HOST.'''
@@ -151,11 +151,11 @@ class Host(object):
         return self.__schemas_registry
 
     @property
-    def definitions(self):
+    def tool_configs(self):
         '''
-        Returns the registered definitions`
+        Returns the registered tool_configs`
         '''
-        return self.__definitions_registry
+        return self.__tool_configs_registry
 
     @property
     def plugins(self):
@@ -194,7 +194,7 @@ class Host(object):
         self._event_manager = event_manager
         self._ftrack_object_manager = None
         # Reset all registries
-        self.__definitions_registry = {}
+        self.__tool_configs_registry = {}
         self.__schemas_registry = {}
         self.__plugins_registry = []
         self.__engines_registry = {}
@@ -217,7 +217,7 @@ class Host(object):
             module_type='plugins',
             callback=self._on_register_plugins_callback,
         )
-        # Register the schemas before the definitions
+        # Register the schemas before the tool_configs
         registry.register_framework_modules_by_type(
             event_manager=self.event_manager,
             module_type='schemas',
@@ -228,13 +228,13 @@ class Host(object):
             raise Exception(
                 'No schemas found. Please register valid schemas first.'
             )
-        # Register the definitions, passing the schemas in the callback as are
-        # needed to augment and validate the definitions.
+        # Register the tool_configs, passing the schemas in the callback as are
+        # needed to augment and validate the tool_configs.
         registry.register_framework_modules_by_type(
             event_manager=self.event_manager,
-            module_type='definitions',
+            module_type='tool_configs',
             callback=partial(
-                self._on_register_definitions_callback, self.schemas
+                self._on_register_tool_configs_callback, self.schemas
             ),
         )
 
@@ -248,7 +248,7 @@ class Host(object):
         if (
             self.__plugins_registry
             and self.__schemas_registry
-            and self.__definitions_registry
+            and self.__tool_configs_registry
             and self.__engines_registry
         ):
             # Check that registry went correct
@@ -284,21 +284,21 @@ class Host(object):
 
         self.__schemas_registry = schemas
 
-    def _on_register_definitions_callback(self, schemas, definition_paths):
+    def _on_register_tool_configs_callback(self, schemas, tool_config_paths):
         '''
-        Callback of the :meth:`_register_framework_modules` of type definitions.
-        We will discover valid definitions from all given *definition_paths*
+        Callback of the :meth:`_register_framework_modules` of type tool_configs.
+        We will discover valid tool_configs from all given *tool_config_paths*
         based on the given *schemas* and will convert the valid ones to a
-        DefinitionObject. Valid definitions will be added to
-        :obj:`self.__definition_registry`
+        ToolConfigObject. Valid tool_configs will be added to
+        :obj:`self.__tool_config_registry`
         '''
-        definition_paths = list(set(definition_paths))
+        tool_config_paths = list(set(tool_config_paths))
 
-        definitions = self._discover_definitions(
-            definition_paths, self.host_types, schemas
+        tool_configs = self._discover_tool_configs(
+            tool_config_paths, self.host_types, schemas
         )
 
-        self.__definitions_registry = definitions
+        self.__tool_configs_registry = tool_configs
 
     def _on_register_engines_callback(self, registred_engines):
         registred_engines = list(set(registred_engines))
@@ -340,43 +340,43 @@ class Host(object):
 
         return valid_schemas
 
-    def _discover_definitions(self, definition_paths, host_types, schemas):
+    def _discover_tool_configs(self, tool_config_paths, host_types, schemas):
         '''
-        Discover all the available and valid definitions in the given
-        *definition_paths* compatible with the given *host_types* and given
+        Discover all the available and valid tool_configs in the given
+        *tool_config_paths* compatible with the given *host_types* and given
         *schemas*
         '''
         start = time.time()
 
-        # discover definitions
-        discovered_definitions = discover.discover_definitions(
-            definition_paths
+        # discover tool_configs
+        discovered_tool_configs = discover.discover_tool_configs(
+            tool_config_paths
         )
 
-        # filter definitions
-        discovered_definitions = discover.filter_definitions_by_host(
-            discovered_definitions, host_types
+        # filter tool_configs
+        discovered_tool_configs = discover.filter_tool_configs_by_host(
+            discovered_tool_configs, host_types
         )
 
         # validate schemas
-        discovered_definitions = discover.augment_definition(
-            discovered_definitions, schemas
+        discovered_tool_configs = discover.augment_tool_config(
+            discovered_tool_configs, schemas
         )
 
         # validate_plugins
-        validated_definitions = discover.discover_definitions_plugins(
-            discovered_definitions, self.event_manager, self.host_types
+        validated_tool_configs = discover.discover_tool_configs_plugins(
+            discovered_tool_configs, self.event_manager, self.host_types
         )
 
         end = time.time()
-        logger.debug('Discover definitions run in: {}s'.format((end - start)))
+        logger.debug('Discover tool_configs run in: {}s'.format((end - start)))
 
-        for key, value in list(validated_definitions.items()):
+        for key, value in list(validated_tool_configs.items()):
             logger.warning(
-                'Valid definitions : {} : {}'.format(key, len(value))
+                'Valid tool_configs : {} : {}'.format(key, len(value))
             )
 
-        return validated_definitions
+        return validated_tool_configs
 
     # Subscribe
     def _subscribe_events(self):
@@ -399,14 +399,14 @@ class Host(object):
             self.id,
             self.name,
             self.context_id,
-            self.definitions,
+            self.tool_configs,
         )
         self.event_manager.subscribe.discover_host(
             callback=discover_host_callback_reply
         )
-        # Subscribe to run definition
-        self.event_manager.subscribe.host_run_definition(
-            self.id, self.run_definition_callback
+        # Subscribe to run tool_config
+        self.event_manager.subscribe.host_run_tool_config(
+            self.id, self.run_tool_config_callback
         )
         # Subscribe to run plugin
         self.event_manager.subscribe.host_run_plugin(
@@ -436,7 +436,7 @@ class Host(object):
 
     # Run
     # TODO: this should be ABC
-    def run_definition_callback(self, event):
+    def run_tool_config_callback(self, event):
         '''
         Runs the data with the defined engine type of the given *event*
 
@@ -446,12 +446,12 @@ class Host(object):
         :meth:`~ftrack_framework_core.client.HostConnection.run`
         '''
 
-        definition = event['data']['definition']
-        engine_type = definition['engine_type']
-        engine_name = definition['engine_name']
+        tool_config = event['data']['tool_config']
+        engine_type = tool_config['engine_type']
+        engine_name = tool_config['engine_name']
         # TODO: Double check the asset_type_name workflow, it isn't clean.
-        # TODO: pick asset type from context plugin and not from definition
-        asset_type_name = "script"  # definition.get('asset_type')
+        # TODO: pick asset type from context plugin and not from tool_config
+        asset_type_name = "script"  # tool_config.get('asset_type')
 
         engine = None
         try:
@@ -466,29 +466,29 @@ class Host(object):
         engine.asset_type_name = asset_type_name
 
         try:
-            validate.validate_definition(self.schemas, definition)
+            validate.validate_tool_config(self.schemas, tool_config)
         except Exception as error:
             raise Exception(
-                "Can't validate definition {} error: {}".format(
-                    definition, error
+                "Can't validate tool_config {} error: {}".format(
+                    tool_config, error
                 )
             )
-        engine_result = engine.run_definition(
-            definition_object.DefinitionObject(definition)
+        engine_result = engine.run_tool_config(
+            tool_config_object.ToolConfigObject(tool_config)
         )
 
         if not engine_result:
-            self.logger.error("Couldn't run definition {}".format(definition))
+            self.logger.error("Couldn't run tool_config {}".format(tool_config))
         return engine_result
 
     # TODO: this should be ABC
     def run_plugin_callback(self, event):
         '''
-        Runs the plugin_definition in the given *event* with the engine type
+        Runs the plugin_tool_config in the given *event* with the engine type
         set in the *event*
         '''
 
-        plugin_definition = event['data']['plugin_definition']
+        plugin_tool_config = event['data']['plugin_tool_config']
         plugin_method = event['data']['plugin_method']
         engine_type = event['data']['engine_type']
         engine_name = event['data']['engine_name']
@@ -507,30 +507,30 @@ class Host(object):
         engine.asset_type_name = None
 
         engine_result = engine.run_plugin(
-            plugin_name=plugin_definition.get('plugin_name'),
-            plugin_default_method=plugin_definition.get('default_method'),
+            plugin_name=plugin_tool_config.get('plugin_name'),
+            plugin_default_method=plugin_tool_config.get('default_method'),
             # plugin_data will usually be None, but can be defined in the
-            # definition
+            # tool_config
             # I have registered data in the publisher schema
-            plugin_data=plugin_definition.get('data'),
-            plugin_options=plugin_definition.get('options'),
+            plugin_data=plugin_tool_config.get('data'),
+            plugin_options=plugin_tool_config.get('options'),
             # plugin_context_data will usually be None, but can be defined in the
-            # definition
+            # tool_config
             # I have registered context_data in the schema
-            plugin_context_data=plugin_definition.get('context_data'),
+            plugin_context_data=plugin_tool_config.get('context_data'),
             plugin_method=plugin_method,
             plugin_widget_id=plugin_widget_id,
-            plugin_widget_name=plugin_definition.get('widget_name'),
+            plugin_widget_name=plugin_tool_config.get('widget_name'),
         )
 
         if not engine_result:
             self.logger.error(
                 "Couldn't run plugin:\n "
-                "Definition: {}\n"
+                "Tool_config: {}\n"
                 "Method: {}\n"
                 "Engine type: {}\n"
                 "Engine name: {}\n".format(
-                    plugin_definition, plugin_method, engine_type, engine_name
+                    plugin_tool_config, plugin_method, engine_type, engine_name
                 )
             )
         return engine_result

@@ -20,19 +20,19 @@ class FrameworkWidget(BaseUI):
         return self._context_id
 
     @property
-    def plugin_definition(self):
-        '''Definition of the current plugin'''
-        return self._plugin_definition
+    def plugin_tool_config(self):
+        '''tool_config of the current plugin'''
+        return self._plugin_tool_config
 
     @property
     def plugin_name(self):
         '''Name of the current plugin'''
-        return self.plugin_definition.plugin_name
+        return self.plugin_tool_config.plugin_name
 
     @property
     def plugin_context_data(self):
         '''context_data value of the current plugin'''
-        return self.plugin_definition.context_data
+        return self.plugin_tool_config.context_data
 
     @plugin_context_data.setter
     def plugin_context_data(self, value):
@@ -41,12 +41,12 @@ class FrameworkWidget(BaseUI):
         '''
         if type(value) != dict:
             return
-        self.plugin_definition.context_data.update(value)
+        self.plugin_tool_config.context_data.update(value)
 
     @property
     def plugin_data(self):
         '''data value of the current plugin'''
-        return self.plugin_definition.data
+        return self.plugin_tool_config.data
 
     @plugin_data.setter
     def plugin_data(self, value):
@@ -55,12 +55,12 @@ class FrameworkWidget(BaseUI):
         '''
         if type(value) != dict:
             return
-        self.plugin_definition.data.update(value)
+        self.plugin_tool_config.data.update(value)
 
     @property
     def plugin_options(self):
         '''options value of the current plugin'''
-        return self.plugin_definition.options
+        return self.plugin_tool_config.options
 
     @plugin_options.setter
     def plugin_options(self, value):
@@ -69,20 +69,20 @@ class FrameworkWidget(BaseUI):
         '''
         if type(value) != dict:
             return
-        self.plugin_definition.options.update(value)
+        self.plugin_tool_config.options.update(value)
 
     def __init__(
         self,
         event_manager,
         client_id,
         context_id,
-        plugin_definition,
+        plugin_tool_config,
         dialog_connect_methods_callback,
         dialog_property_getter_connection_callback,
         parent=None,
     ):
         self._context_id = context_id
-        self._plugin_definition = plugin_definition
+        self._plugin_tool_config = plugin_tool_config
 
         # Connect dialog methods and properties
         self.connect_methods(dialog_connect_methods_callback)
@@ -90,8 +90,8 @@ class FrameworkWidget(BaseUI):
 
         super(FrameworkWidget, self).__init__(event_manager, client_id, parent)
 
-        # Augment definition with the widget ID:
-        self.plugin_definition.widget_id = self.id
+        # Augment tool_config with the widget ID:
+        self.plugin_tool_config.widget_id = self.id
 
     def connect_methods(self, method):
         '''
@@ -115,10 +115,10 @@ class FrameworkWidget(BaseUI):
     def run_plugin_method(self, plugin_method_name):
         '''
         Call the run_plugin_method from the dialog with the current
-        plugin_definition, id and the given *plugin_method_name* as arguments
+        plugin_tool_config, id and the given *plugin_method_name* as arguments
         '''
         arguments = {
-            "plugin_definition": self.plugin_definition,
+            "plugin_tool_config": self.plugin_tool_config,
             "plugin_method_name": plugin_method_name,
             'plugin_widget_id': self.id,
         }
