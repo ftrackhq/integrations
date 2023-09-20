@@ -332,7 +332,6 @@ class Client(object):
             ):
                 self.host_connections.append(host_connection)
 
-    # TODO: this should be an ABC
     def on_hosts_discovered(self, host_connections):
         '''
         Callback, hosts has been discovered.
@@ -436,7 +435,6 @@ class Client(object):
             self.id, event['data'][0]
         )
 
-    # TODO: This should be an ABC
     def on_log_item_added_callback(self, event):
         '''
         Called when a log item has added in the host.
