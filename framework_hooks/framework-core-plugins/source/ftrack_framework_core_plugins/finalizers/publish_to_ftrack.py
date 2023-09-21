@@ -54,7 +54,7 @@ class PublishToFtrack(BasePlugin):
         status_id = context_data[0]['status_id']
         asset_name = context_data[0]['asset_name']
         # TODO: Discuss with the team, how we pass the asset type, in the
-        #  definition or in the context plugin? Right now only capable of publishing script asset type
+        #  tool_config or in the context plugin? Right now only capable of publishing script asset type
         asset_type_name = 'script'  # self.context_data['asset_type_name']
 
         # Get Status object

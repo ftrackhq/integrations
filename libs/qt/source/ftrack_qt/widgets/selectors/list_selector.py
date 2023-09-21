@@ -30,7 +30,7 @@ class ListSelector(QtWidgets.QWidget):
 
     def __init__(self, label, parent=None):
         '''
-        Initialize DefinitionSelector widget
+        Initialize tool_configselector widget
 
         :param parent: The parent dialog or frame
         '''

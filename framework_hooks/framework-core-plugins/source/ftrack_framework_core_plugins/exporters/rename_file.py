@@ -29,7 +29,7 @@ class RenameExporterPlugin(BasePlugin):
         '''
         Expects export_destinations list and collector_result list in the given
         *data*. This method will rename the collector_result items to the
-        export_definitions items.
+        export_tool_configs items.
         '''
         export_destinations = data['export_destinations']
         collector_result = data['collector_result']

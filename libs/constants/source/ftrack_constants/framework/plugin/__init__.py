@@ -26,5 +26,5 @@ PLUGIN_ACTION_TYPE = 'action'
 PLUGIN_DISCOVER_TYPE = 'discover'
 #: Generic plugin type for resolver plugins
 PLUGIN_RESOLVER_TYPE = 'resolver'
-#: Generic plugin type. This type can be executed in any step/stage/definition
+#: Generic plugin type. This type can be executed in any step/stage/tool_config
 PLUGIN_GENERIC_TYPE = 'generic'

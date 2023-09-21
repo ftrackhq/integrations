@@ -10,20 +10,20 @@ from ftrack_qt.widgets.selectors import ContextSelector
 from ftrack_qt.widgets.dialogs import StyledDialog
 
 
-class ScrollDefinitionsDialog(StyledDialog):
+class ScrollToolConfigsDialog(StyledDialog):
     '''Base Class to represent a Plugin'''
 
     selected_context_changed = QtCore.Signal(object)
     selected_host_changed = QtCore.Signal(object)
-    selected_definition_changed = QtCore.Signal(object)
+    selected_tool_config_changed = QtCore.Signal(object)
     refresh_hosts_clicked = QtCore.Signal()
-    refresh_definitions_clicked = QtCore.Signal()
+    refresh_tool_configs_clicked = QtCore.Signal()
     run_button_clicked = QtCore.Signal()
 
     @property
-    def definition_widget(self):
-        '''Return the definition widget of the dialog'''
-        return self._definition_widget
+    def tool_config_widget(self):
+        '''Return the tool_config widget of the dialog'''
+        return self._tool_config_widget
 
     @property
     def run_button_title(self):
@@ -64,34 +64,34 @@ class ScrollDefinitionsDialog(StyledDialog):
     def selected_host_connection_id(self, value):
         '''Set the given *value* as selected host_connection_id'''
         if not self.selected_host_connection_id and not value:
-            self._definition_selector.clear_items()
-            self.clear_definition_ui()
+            self._tool_config_selector.clear_items()
+            self.clear_tool_config_ui()
         if self.selected_host_connection_id != value:
-            self._definition_selector.clear_items()
-            self.clear_definition_ui()
+            self._tool_config_selector.clear_items()
+            self.clear_tool_config_ui()
             if not value:
                 self._host_connection_selector.set_current_item_index(0)
                 return
             self._host_connection_selector.set_current_item(value)
 
     @property
-    def selected_definition_name(self):
-        '''Return the selected definition name'''
-        if self._definition_selector.current_item_index() in [0, -1]:
+    def selected_tool_config_name(self):
+        '''Return the selected tool_config name'''
+        if self._tool_config_selector.current_item_index() in [0, -1]:
             return None
-        return self._definition_selector.current_item_text()
+        return self._tool_config_selector.current_item_text()
 
-    @selected_definition_name.setter
-    def selected_definition_name(self, value):
-        '''Set the given *value* as the selected definition name'''
-        if not self.selected_definition_name and not value:
-            self.clear_definition_ui()
-        if self.selected_definition_name != value:
-            self.clear_definition_ui()
+    @selected_tool_config_name.setter
+    def selected_tool_config_name(self, value):
+        '''Set the given *value* as the selected tool_config name'''
+        if not self.selected_tool_config_name and not value:
+            self.clear_tool_config_ui()
+        if self.selected_tool_config_name != value:
+            self.clear_tool_config_ui()
             if not value:
-                self._definition_selector.set_current_item_index(0)
+                self._tool_config_selector.set_current_item_index(0)
                 return
-            self._definition_selector.set_current_item(value)
+            self._tool_config_selector.set_current_item(value)
 
     def __init__(
         self,
@@ -102,15 +102,15 @@ class ScrollDefinitionsDialog(StyledDialog):
         Initialise BasePlugin with instance of
         :class:`ftrack_api.session.Session`
         '''
-        super(ScrollDefinitionsDialog, self).__init__(parent=parent)
+        super(ScrollToolConfigsDialog, self).__init__(parent=parent)
 
         self._session = session
         self._context_selector = None
         self._host_connection_selector = None
-        self._definition_selector = None
+        self._tool_config_selector = None
         self._header = None
         self._scroll_area = None
-        self._definition_widget = None
+        self._tool_config_widget = None
         self._run_button = None
         self._run_button_title = 'Run'
 
@@ -137,7 +137,7 @@ class ScrollDefinitionsDialog(StyledDialog):
 
         self._host_connection_selector = ListSelector("Host Selector")
 
-        self._definition_selector = ListSelector("Definitions")
+        self._tool_config_selector = ListSelector("tool_configs")
 
         self._scroll_area = QtWidgets.QScrollArea()
         self._scroll_area.setStyle(QtWidgets.QStyleFactory.create("plastique"))
@@ -146,18 +146,18 @@ class ScrollDefinitionsDialog(StyledDialog):
             QtCore.Qt.ScrollBarAlwaysOff
         )
 
-        self._definition_widget = QtWidgets.QWidget()
-        _definition_widget_layout = QtWidgets.QVBoxLayout()
-        self._definition_widget.setLayout(_definition_widget_layout)
+        self._tool_config_widget = QtWidgets.QWidget()
+        _tool_config_widget_layout = QtWidgets.QVBoxLayout()
+        self._tool_config_widget.setLayout(_tool_config_widget_layout)
 
         self._run_button = QtWidgets.QPushButton(self._run_button_title)
 
         self.layout().addWidget(self._header)
         self.layout().addWidget(self._context_selector, QtCore.Qt.AlignTop)
         self.layout().addWidget(self._host_connection_selector)
-        self.layout().addWidget(self._definition_selector)
+        self.layout().addWidget(self._tool_config_selector)
         self.layout().addWidget(self._scroll_area, 100)
-        self._scroll_area.setWidget(self._definition_widget)
+        self._scroll_area.setWidget(self._tool_config_widget)
         self.layout().addWidget(self._run_button)
 
     def post_build(self):
@@ -173,14 +173,14 @@ class ScrollDefinitionsDialog(StyledDialog):
         self._host_connection_selector.refresh_clicked.connect(
             self._on_refresh_hosts_callback
         )
-        # Connect definition selector signals
-        self._definition_selector.current_item_changed.connect(
-            self._on_definition_selected_callback
+        # Connect tool_config selector signals
+        self._tool_config_selector.current_item_changed.connect(
+            self._on_tool_config_selected_callback
         )
-        self._definition_selector.refresh_clicked.connect(
-            self._on_refresh_definitions_callback
+        self._tool_config_selector.refresh_clicked.connect(
+            self._on_refresh_tool_configs_callback
         )
-        # Connect run_definition button
+        # Connect run_tool_config button
         self._run_button.clicked.connect(self._on_run_button_clicked)
 
     def add_host_connection_items(self, host_connections_ids):
@@ -188,10 +188,10 @@ class ScrollDefinitionsDialog(StyledDialog):
         for host_connection_id in host_connections_ids:
             self._host_connection_selector.add_item(host_connection_id)
 
-    def add_definition_items(self, definition_names):
-        '''Add given definitions to definition selector'''
-        for definition_name in definition_names:
-            self._definition_selector.add_item(definition_name)
+    def add_tool_config_items(self, tool_config_names):
+        '''Add given tool_configs to tool_config selector'''
+        for tool_config_name in tool_config_names:
+            self._tool_config_selector.add_item(tool_config_name)
 
     def _on_context_selected_callback(self, context_id):
         '''Emit signal with the new context_id'''
@@ -213,24 +213,24 @@ class ScrollDefinitionsDialog(StyledDialog):
         self.selected_host_changed.emit(None)
         self.refresh_hosts_clicked.emit()
 
-    def _on_definition_selected_callback(self, item_text):
-        '''Emit signal with the new selected definition'''
+    def _on_tool_config_selected_callback(self, item_text):
+        '''Emit signal with the new selected tool_config'''
         if not item_text:
             return
-        self.selected_definition_changed.emit(self.selected_definition_name)
+        self.selected_tool_config_changed.emit(self.selected_tool_config_name)
 
-    def _on_refresh_definitions_callback(self):
-        '''Clean up definitions and emit signal to refresh them'''
-        # TODO: double think if definitions can be refreshed? maybe we should
+    def _on_refresh_tool_configs_callback(self):
+        '''Clean up tool_configs and emit signal to refresh them'''
+        # TODO: double think if tool_configs can be refreshed? maybe we should
         #  thn re-select the same host instead of discovering hosts again?
-        self.selected_definition_changed.emit(None)
-        self.refresh_definitions_clicked.emit()
+        self.selected_tool_config_changed.emit(None)
+        self.refresh_tool_configs_clicked.emit()
 
     def _on_run_button_clicked(self):
         '''Emit signal of run button.'''
         self.run_button_clicked.emit()
 
-    def clear_definition_ui(self):
-        '''Remove all widgets from the definition_widget layout'''
-        for i in reversed(range(self._definition_widget.layout().count())):
-            self._definition_widget.layout().itemAt(i).widget().deleteLater()
+    def clear_tool_config_ui(self):
+        '''Remove all widgets from the tool_config_widget layout'''
+        for i in reversed(range(self._tool_config_widget.layout().count())):
+            self._tool_config_widget.layout().itemAt(i).widget().deleteLater()

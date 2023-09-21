@@ -2,7 +2,7 @@
   "title": "Package",
   "type": "object",
   "additionalProperties": false,
-  "definitions": {
+  "tool_configs": {
     "PackageComponent": {
       "title": "PackageComponent",
       "type": "object",
@@ -59,7 +59,7 @@
     "components": {
       "type": "array",
       "items": {
-        "$ref": "#/definitions/PackageComponent"
+        "$ref": "#/tool_configs/PackageComponent"
       },
       "minItems": 1
     }

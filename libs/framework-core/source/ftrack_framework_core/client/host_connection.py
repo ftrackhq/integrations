@@ -4,7 +4,7 @@
 import logging
 import copy
 
-from ftrack_framework_core.definition import definition_object
+from ftrack_framework_core.tool_config import tool_config_object
 
 
 class HostConnection(object):
@@ -40,8 +40,8 @@ class HostConnection(object):
             return
         self._context_id = value
         self._check_context_identifiers()
-        # Every time we set context_id, we add definitions and filter them out.
-        self._add_new_definitions()
+        # Every time we set context_id, we add tool_configs and filter them out.
+        self._add_new_tool_configs()
 
     @property
     def host_id(self):
@@ -61,21 +61,21 @@ class HostConnection(object):
         return self._context_identifiers
 
     @property
-    def _available_filtered_host_definitions(self):
-        '''Return available filtered host definitions'''
-        definitions = {}
+    def _available_filtered_host_tool_configs(self):
+        '''Return available filtered host tool_configs'''
+        tool_configs = {}
         if self.context_identifiers:
-            definitions = self._filter_definitions_by_context_identifier(
+            tool_configs = self._filter_tool_configs_by_context_identifier(
                 self.context_identifiers
             )
         else:
-            definitions = copy.deepcopy(self._raw_host_data['definitions'])
-        return definitions
+            tool_configs = copy.deepcopy(self._raw_host_data['tool_configs'])
+        return tool_configs
 
     @property
-    def definitions(self):
-        '''Returns the discovered and filtered definitions'''
-        return self._definitions
+    def tool_configs(self):
+        '''Returns the discovered and filtered tool_configs'''
+        return self._tool_configs
 
     def __del__(self):
         self.logger.debug('Closing {}'.format(self))
@@ -103,7 +103,7 @@ class HostConnection(object):
 
         copy_data = copy.deepcopy(host_data)
 
-        self._definitions = {}
+        self._tool_configs = {}
         self._context_id = None
         self._context_identifiers = []
 
@@ -145,15 +145,15 @@ class HostConnection(object):
         self._context_identifiers = context_identifiers
         return context_identifiers
 
-    def _filter_definitions_by_context_identifier(self, context_identifiers):
-        '''Filter *definitions* on *context_identifiers* and discoverable.'''
+    def _filter_tool_configs_by_context_identifier(self, context_identifiers):
+        '''Filter *tool_configs* on *context_identifiers* and discoverable.'''
         result = {}
-        # Filter out definitions that doesn't match the context identifiers.
-        for schema_title in self._raw_host_data['definitions'].keys():
+        # Filter out tool_configs that doesn't match the context identifiers.
+        for schema_title in self._raw_host_data['tool_configs'].keys():
             type_result = []
-            for definition in self._raw_host_data['definitions'][schema_title]:
+            for tool_config in self._raw_host_data['tool_configs'][schema_title]:
                 match = False
-                discoverable = definition.get('discoverable')
+                discoverable = tool_config.get('discoverable')
                 if not discoverable:
                     # Append if not discoverable, because that means should be
                     # discovered always as the Asset Manager or the logger
@@ -163,117 +163,117 @@ class HostConnection(object):
                     # once found
                     for discover_name in discoverable:
                         if discover_name.lower() in context_identifiers:
-                            # Add definition as it matches
+                            # Add tool_config as it matches
                             match = True
                             break
 
                 if not match:
                     self.logger.debug(
-                        'Excluding definition {} - context identifiers {} '
+                        'Excluding tool_config {} - context identifiers {} '
                         'does not match schema discoverable: {}.'.format(
-                            definition.get('tool_title'),
+                            tool_config.get('tool_title'),
                             context_identifiers,
                             discoverable,
                         )
                     )
                 if match:
-                    type_result.append(definition)
+                    type_result.append(tool_config)
 
-            # Convert the result to definition List
-            result[schema_title] = definition_object.DefinitionList(
+            # Convert the result to tool_config List
+            result[schema_title] = tool_config_object.Tool_configList(
                 type_result
             )
         return copy.deepcopy(result)
 
-    def _add_new_definitions(self):
+    def _add_new_tool_configs(self):
         '''
-        Add new definitions compatible with the new context,
+        Add new tool_configs compatible with the new context,
         also purge the non-compatible ones
         '''
-        if not self._available_filtered_host_definitions:
+        if not self._available_filtered_host_tool_configs:
             return
 
-        # If definitions haven't been set avoid the loops and set all available
-        # definitions
-        if not self._definitions:
-            self._definitions = self._available_filtered_host_definitions
+        # If tool_configs haven't been set avoid the loops and set all available
+        # tool_configs
+        if not self._tool_configs:
+            self._tool_configs = self._available_filtered_host_tool_configs
             return
 
         for schema_title in list(
-            self._available_filtered_host_definitions.keys()
+            self._available_filtered_host_tool_configs.keys()
         ):
-            # Add new definitions
-            for definition in self._available_filtered_host_definitions[
+            # Add new tool_configs
+            for tool_config in self._available_filtered_host_tool_configs[
                 schema_title
             ]:
-                if schema_title not in list(self._definitions.keys()):
-                    # No schemas of that type exists in the current definitions,
+                if schema_title not in list(self._tool_configs.keys()):
+                    # No schemas of that type exists in the current tool_configs,
                     # copy them all
-                    self._definitions[
+                    self._tool_configs[
                         schema_title
-                    ] = self._available_filtered_host_definitions[schema_title]
+                    ] = self._available_filtered_host_tool_configs[schema_title]
                     break
-                exist = self._definitions[schema_title].get_first(
-                    tool_title=definition.tool_title
+                exist = self._tool_configs[schema_title].get_first(
+                    tool_title=tool_config.tool_title
                 )
                 if not exist:
-                    self._definitions[schema_title].append(definition)
+                    self._tool_configs[schema_title].append(tool_config)
 
-        for schema_title in list(self._definitions.keys()):
-            # Purge not available definitions
-            for definition in self._definitions.get(schema_title, []):
+        for schema_title in list(self._tool_configs.keys()):
+            # Purge not available tool_configs
+            for tool_config in self._tool_configs.get(schema_title, []):
                 if schema_title not in list(
-                    self._available_filtered_host_definitions.keys()
+                    self._available_filtered_host_tool_configs.keys()
                 ):
-                    # No schemas of that type exists in the available definitions,
+                    # No schemas of that type exists in the available tool_configs,
                     # remove them all
-                    self._definitions[
+                    self._tool_configs[
                         schema_title
-                    ] = definition_object.DefinitionList([])
+                    ] = tool_config_object.Tool_configList([])
                     break
-                exist = self._available_filtered_host_definitions[
+                exist = self._available_filtered_host_tool_configs[
                     schema_title
-                ].get_first(tool_title=definition.tool_title)
+                ].get_first(tool_title=tool_config.tool_title)
                 if not exist:
-                    self._definitions[schema_title].remove(definition)
+                    self._tool_configs[schema_title].remove(tool_config)
 
-    def reset_definition(self, definition_name, definition_type):
+    def reset_tool_config(self, tool_config_name, tool_config_type):
         '''
-        If definition of the given *definition_type* and with the given
-        *definition_name* is found, set the original values to it
+        If tool_config of the given *tool_config_type* and with the given
+        *tool_config_name* is found, set the original values to it
         '''
-        # Get the current definition
-        mod_definition = self._definitions[definition_type].get_first(
-            tool_title=definition_name
+        # Get the current tool_config
+        mod_tool_config = self._tool_configs[tool_config_type].get_first(
+            tool_title=tool_config_name
         )
-        # Get the original definition
-        origin_definition = self._raw_host_data['definitions'][
-            definition_type
-        ].get_first(tool_title=definition_name)
-        if not mod_definition:
+        # Get the original tool_config
+        origin_tool_config = self._raw_host_data['tool_configs'][
+            tool_config_type
+        ].get_first(tool_title=tool_config_name)
+        if not mod_tool_config:
             self.logger.warning(
-                'Host connection doesnt have a matching definition of type: {} '
-                'and name: {} in the definitions property.'.format(
-                    definition_type, definition_name
+                'Host connection doesnt have a matching tool_config of type: {} '
+                'and name: {} in the tool_configs property.'.format(
+                    tool_config_type, tool_config_name
                 )
             )
-        if not origin_definition:
+        if not origin_tool_config:
             self.logger.warning(
-                'Host connection doesnt have a matching definition of type: {} '
-                'and name: {} in the available definitions'.format(
-                    definition_type, definition_name
+                'Host connection doesnt have a matching tool_config of type: {} '
+                'and name: {} in the available tool_configs'.format(
+                    tool_config_type, tool_config_name
                 )
             )
-        # Set the current definition = to the original one
-        if mod_definition and origin_definition:
-            # Get the index first to be able to re-set the original definition
+        # Set the current tool_config = to the original one
+        if mod_tool_config and origin_tool_config:
+            # Get the index first to be able to re-set the original tool_config
             # in to the same position in the list
-            index = self._definitions[definition_type].index(mod_definition)
-            self._definitions[definition_type].pop(index)
-            self._definitions[definition_type].insert(
-                index, copy.deepcopy(origin_definition)
+            index = self._tool_configs[tool_config_type].index(mod_tool_config)
+            self._tool_configs[tool_config_type].pop(index)
+            self._tool_configs[tool_config_type].insert(
+                index, copy.deepcopy(origin_tool_config)
             )
 
-    def reset_all_definitions(self):
-        '''Reset all definitions to its original values sent from host'''
-        self._definitions = self._available_filtered_host_definitions
+    def reset_all_tool_configs(self):
+        '''Reset all tool_configs to its original values sent from host'''
+        self._tool_configs = self._available_filtered_host_tool_configs

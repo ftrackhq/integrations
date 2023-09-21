@@ -13,6 +13,6 @@ def register(event_manager):
     '''Register plugin to api_object.'''
 
     # We just need to pass the location of this file in order to register
-    # definitions.
+    # tool_configs.
     current_dir = os.path.dirname(__file__)
     return current_dir

@@ -13,11 +13,12 @@ logger = logging.getLogger(__name__)
 def register_framework_modules_by_type(event_manager, module_type, callback):
     registry_result = []
     # Look in all the depenency packages in the current python environment
+    module_type_composed_name = module_type.split("_")
     for package in pkgutil.iter_modules():
         # Pick only the that matches ftrack framework and the module type
         is_type = all(
             x in package.name.split("_")
-            for x in ['ftrack', 'framework', module_type]
+            for x in ['ftrack', 'framework'] + module_type_composed_name
         )
         if not is_type:
             continue
