@@ -219,6 +219,12 @@ def build_sphinx(args):
 
 def get_version():
     '''Read version from _version.py, updated by CI based on monorepo package tag'''
+    if 'POETRY_DYNAMIC_VERSIONING_BYPASS' in os.environ:
+        result = os.environ['POETRY_DYNAMIC_VERSIONING_BYPASS']
+        if result.startswith('v'):
+            return result[1:]
+        else:
+            return result
     version_path = os.path.join(SOURCE_PATH, '_version.py')
     with open(version_path, 'r') as file_handle:
         for line in file_handle.readlines():
