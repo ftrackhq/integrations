@@ -11,8 +11,8 @@ LOCAL_EVENT_MODE = 0
 #: Base name for events
 _BASE_ = 'ftrack.framework'
 
-#: Register tool_config topic event.
-DISCOVER_TOOL_CONFIG_TOPIC = '{}.discover.tool_config'.format(_BASE_)
+#: Register definition topic event.
+DISCOVER_DEFINITION_TOPIC = '{}.discover.definition'.format(_BASE_)
 #: Discover plugin topic event, used to discover the plugins.
 DISCOVER_PLUGIN_TOPIC = '{}.discover.plugin'.format(_BASE_)
 #: Discover widget topic event, used to discover the widgets of specific UI type.
@@ -23,7 +23,7 @@ DISCOVER_ENGINE_TOPIC = '{}.discover.engine'.format(_BASE_)
 DISCOVER_HOST_TOPIC = '{}.host.discover.host'.format(_BASE_)
 #: Pipeline host run plugin topic event, used to communicate between client and
 #: host, by the host connection to make the host run the plugin.
-HOST_RUN_TOOL_CONFIG_TOPIC = '{}.host.run.tool_config'.format(_BASE_)
+HOST_RUN_DEFINITION_TOPIC = '{}.host.run.definition'.format(_BASE_)
 #: Run plugin topic event used to tell host from the client to run plugin.
 HOST_RUN_PLUGIN_TOPIC = '{}.host.run.plugin'.format(_BASE_)
 #: Execute plugin topic event used from the engine to tell the plugin to run.
@@ -33,11 +33,11 @@ EXECUTE_PLUGIN_TOPIC = '{}.execute.plugin'.format(_BASE_)
 NOTIFY_PLUGIN_PROGRESS_TOPIC = '{}.notify.plugin.progress'.format(_BASE_)
 #: Pipeline client progress notification topic event, used to communicate the result of
 #: the steps execution from host to the client.
-NOTIFY_TOOL_CONFIG_PROGRESS_TOPIC = '{}.notify.tool_config.progress'.format(
+NOTIFY_DEFINITION_PROGRESS_TOPIC = '{}.notify.definition.progress'.format(
     _BASE_
 )
 # Launch a widget within a client
-CLIENT_LAUNCH_WIDGET_TOPIC = '{}.client.launch.widget'.format(_BASE_)
+CLIENT_LAUNCH_TOOL_TOPIC = '{}.client.launch.tool'.format(_BASE_)
 # The main host context has changed, sent from host or host connection (change context)
 HOST_CONTEXT_CHANGED_TOPIC = '{}.host.context.change'.format(_BASE_)
 # The host connection context has changed, sent from host connection to clients
@@ -56,17 +56,17 @@ CLIENT_SIGNAL_HOSTS_DISCOVERED_TOPIC = '{}.client.signal.host.discover'.format(
 CLIENT_SIGNAL_HOST_CHANGED_TOPIC = '{}.client.signal.host.change'.format(
     _BASE_
 )
-# Client signal tool_config changed
-CLIENT_SIGNAL_TOOL_CONFIG_CHANGED_TOPIC = (
-    '{}.client.signal.tool_config.change'.format(_BASE_)
+# Client signal definition changed
+CLIENT_SIGNAL_DEFINITION_CHANGED_TOPIC = (
+    '{}.client.signal.definition.change'.format(_BASE_)
 )
 # Client received plugin result
 CLIENT_NOTIFY_RUN_PLUGIN_RESULT_TOPIC = (
     '{}.client.notify.plugin.result'.format(_BASE_)
 )
-# Client received tool_config result
-CLIENT_NOTIFY_RUN_TOOL_CONFIG_RESULT_TOPIC = (
-    '{}.client.notify.tool_config.result'.format(_BASE_)
+# Client received definition result
+CLIENT_NOTIFY_RUN_DEFINITION_RESULT_TOPIC = (
+    '{}.client.notify.definition.result'.format(_BASE_)
 )
 # Client received log item result
 CLIENT_NOTIFY_LOG_ITEM_ADDED_TOPIC = '{}.client.notify.log_item'.format(_BASE_)
