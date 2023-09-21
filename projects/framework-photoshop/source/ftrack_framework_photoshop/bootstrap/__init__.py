@@ -17,7 +17,7 @@ configure_logging(
 
 logger = logging.getLogger('ftrack_framework_photoshop.bootstrap')
 
-logger.info('Initializing Photoshop Framework POC')
+logger.info('Initializing Photoshop Framework integration')
 
 photoshop_session_id = os.environ.get('FTRACK_INTEGRATION_SESSION_ID')
 assert (
@@ -40,6 +40,7 @@ if use_uxp:
         photoshop_session_id, int(photoshop_version)
     )
 else:
+
     from ftrack_framework_photoshop.app.cep_app import CEPPhotoshopApplication
 
     app = CEPPhotoshopApplication(

@@ -49,18 +49,6 @@ function initializeSession(appVersion) {
             "topic="+TOPIC_PONG,
             handleEvent
         );
-        session.eventHub.subscribe(
-            "topic="+TOPIC_DOCUMENT_GET,
-            handleEvent
-        );
-        session.eventHub.subscribe(
-            "topic="+TOPIC_DOCUMENT_SAVE,
-            handleEvent
-        );
-        session.eventHub.subscribe(
-            "topic="+TOPIC_DOCUMENT_EXPORT,
-            handleEvent
-        );
 
         // Settle down - wait for standalone process to start listening. Then send
         // a ping to the standalone process to connect.

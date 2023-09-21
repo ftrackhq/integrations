@@ -12,6 +12,8 @@ import signal
 
 from Qt import QtWidgets, QtCore
 
+import ftrack_api
+
 from ftrack_constants import framework as constants
 from ftrack_framework_photoshop import constants as photoshop_constants
 from ftrack_qt import event as qt_event
@@ -71,7 +73,6 @@ class BasePhotoshopApplication(QtWidgets.QApplication):
     def __init__(self, integration_session_id, photoshop_version):
         super(BasePhotoshopApplication, self).__init__()
 
-        self.openClient.connect(self._open_widget)
         self._integration_session_id = integration_session_id
         self._photoshop_version = photoshop_version
         self._event_manager = None

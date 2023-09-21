@@ -8,6 +8,7 @@ Designed to be shared across a Monorepo
 
 Version history:
 
+0.4.0, Henrik Norin, 23.09.21; Build within Monorepo, refactored framework
 0.3.1, Henrik Norin, 23.08.29; CEP build updates
 0.3.0, Henrik Norin, 23.07.06; Support for building CEP extension
 0.2.0, Henrik Norin, 23.04.17; Supply resource folder on plugin build
@@ -25,7 +26,7 @@ import subprocess
 from distutils.spawn import find_executable
 import fileinput
 
-__version__ = '0.3.1'
+__version__ = '0.3.2'
 
 ROOT_PATH = os.path.realpath(os.getcwd())
 BUILD_PATH = os.path.join(ROOT_PATH, "dist")
@@ -136,24 +137,53 @@ def build_plugin(args):
     os.makedirs(dependencies_path)
 
     logging.info('Collecting Framework dependencies')
-    framework_dependency_folders = []
+    framework_dependency_packages = []
     for lib in os.listdir(os.path.join(MONOREPO_PATH, 'libs')):
         lib_path = os.path.join(MONOREPO_PATH, 'libs', lib)
         if not os.path.isdir(lib_path) or lib.find('to_remove') > -1:
             continue
-        source_path = os.path.join(MONOREPO_PATH, 'libs', lib, 'source')
-        framework_dependency_folders.append(os.path.join(source_path, find_python_source(source_path)))
+        framework_dependency_packages.append(os.path.join(MONOREPO_PATH, 'libs', lib))
     # Pick up hooks
     for hook in os.listdir(os.path.join(MONOREPO_PATH, 'framework_hooks')):
         hook_path = os.path.join(MONOREPO_PATH, 'framework_hooks', hook)
         if not os.path.isdir(hook_path):
             continue
         if hook.find('-core-') > -1 or hook.find(DCC_NAME) > -1:
-            source_path = os.path.join(hook_path, 'source')
-            framework_dependency_folders.append(os.path.join(source_path, find_python_source(source_path)))
-    for folder in framework_dependency_folders:
-        logging.info('Copying {}'.format(folder))
-        shutil.copytree(folder, os.path.join(dependencies_path, os.path.basename(folder)))
+            framework_dependency_packages.append(hook_path)
+
+    for dependency_path in framework_dependency_packages:
+        if os.path.exists(os.path.join(dependency_path, 'setup.py')):
+            logging.info('Building {}'.format(os.path.basename(dependency_path)))
+            os.chdir(dependency_path)
+            restore_build_file = False
+            PATH_BUILD = os.path.join(dependency_path, 'BUILD')
+            if os.path.exists(PATH_BUILD):
+                restore_build_file = True
+                os.rename(PATH_BUILD, PATH_BUILD + '_')
+
+            subprocess.check_call(
+                [
+                    sys.executable,
+                    '-m',
+                    'pip',
+                    'install',
+                    '.',
+                    '--target',
+                    dependencies_path,
+                ]
+            )
+
+            shutil.rmtree(os.path.join(dependency_path, 'build'))
+
+            if restore_build_file:
+                os.rename(PATH_BUILD + '_', PATH_BUILD)
+        else:
+            source_path = os.path.join(dependency_path, 'source')
+            if not os.path.exists(source_path):
+                continue
+            source_path = find_python_source(source_path)
+            logging.info('Copying {}'.format(source_path))
+            shutil.copytree(source_path, os.path.join(dependencies_path, os.path.basename(source_path)))
 
     logging.info('Collecting dependencies from wheel')
     subprocess.check_call(
