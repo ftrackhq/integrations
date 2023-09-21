@@ -17,4 +17,3 @@ RESOLVER = 'resolver'
 CHANGE_CONTEXT = 'change_context'
 # Log viewer  tool type
 LOG_VIEWER = 'log_viewer'
-

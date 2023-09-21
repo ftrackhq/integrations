@@ -222,7 +222,9 @@ class PublisherDialog(FrameworkDialog, ScrollToolConfigsDialog):
             self.tool_config = None
             return
         for tool_config_list in self.filtered_tool_configs:
-            tool_config = tool_config_list.get_first(tool_title=tool_config_name)
+            tool_config = tool_config_list.get_first(
+                tool_title=tool_config_name
+            )
             self.tool_config = tool_config
 
     def _on_ui_refresh_hosts_callback(self):

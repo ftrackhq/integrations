@@ -26,7 +26,9 @@ def discover_tool_configs_plugins(tool_configs, event_manager, host_types):
     copy_data = copy.deepcopy(tool_configs)
     for tool_type, tool_configs in tool_configs.items():
         for tool_config in tool_configs:
-            is_valid = _discover_plugins(tool_config, event_manager, host_types)
+            is_valid = _discover_plugins(
+                tool_config, event_manager, host_types
+            )
             if not is_valid:
                 logger.warning(
                     'tool_config {} not valid for host types {}'.format(
@@ -264,7 +266,9 @@ def augment_tool_config(tool_configs, schemas):
             # augmented one
             copy_tool_configs[tool_type].remove(tool_config)
             try:
-                augmented_valid_data = _augment_tool_config(tool_config, schemas)
+                augmented_valid_data = _augment_tool_config(
+                    tool_config, schemas
+                )
             except Exception as error:
                 logger.error(
                     '{} does not match any schema. {}'.format(
