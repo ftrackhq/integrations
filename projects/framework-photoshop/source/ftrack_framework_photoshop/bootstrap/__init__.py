@@ -29,3 +29,4 @@ assert (
 ), 'Photoshop integration requires FTRACK_PHOTOSHOP_VERSION passed as environment variable!'
 
 # TODO: Spawn standalone QApplication
+raise Exception('Photoshop CEP integration not implemented yet!')
