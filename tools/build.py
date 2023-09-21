@@ -33,6 +33,10 @@ RESOURCE_PATH = os.path.join(ROOT_PATH, "resource")
 STYLE_PATH = os.path.join(RESOURCE_PATH, "style")
 CEP_PATH = os.path.join(ROOT_PATH, "source", "cep")
 
+POETRY_CONFIG_PATH = os.path.join(ROOT_PATH, 'pyproject.toml')
+if not os.path.exists(POETRY_CONFIG_PATH):
+    raise Exception('Missing "pyproject.toml" file, this tool can only be run'
+                    'from a Poetry project!')
 PROJECT_NAME = None
 with open(os.path.join(ROOT_PATH, 'pyproject.toml')) as f:
     for line in f:
@@ -40,7 +44,14 @@ with open(os.path.join(ROOT_PATH, 'pyproject.toml')) as f:
             PROJECT_NAME = line.split('=')[1].strip().strip('"')
             break
 
+DCC_NAME = PROJECT_NAME.split('-')[-1]
+
 SOURCE_PATH = os.path.join(ROOT_PATH, "source", PROJECT_NAME.replace('-', '_'))
+
+
+SOURCE_PATH = os.path.join(ROOT_PATH, "source", PROJECT_NAME.replace('-', '_'))
+
+MONOREPO_PATH = os.path.realpath(os.path.join(ROOT_PATH, '..', '..'))
 
 ZXPSIGN_CMD = 'ZXPSignCmd'
 
@@ -56,9 +67,28 @@ def clean(args):
     logging.info('Cleaning up {}'.format(BUILD_PATH))
     shutil.rmtree(BUILD_PATH, ignore_errors=True)
 
+def find_python_source(source_path):
+    ''' Find a python package in *source_path* '''
+    candidate = None
+    for filename in os.listdir(source_path):
+        pkg_path = os.path.join(source_path, filename)
+        if os.path.isfile(pkg_path):
+            continue
+        if os.path.exists(os.path.join(pkg_path, '__init__.py')):
+            return pkg_path
+        elif filename.startswith('ftrack_'):
+            candidate = pkg_path
+    if candidate:
+        return candidate
+    raise Exception('No Python source package found @ "{}"'.format(source_path))
+
 
 def build_plugin(args):
-    '''Build the Connect plugin archive ready to be deployed in the Plugin manager'''
+    '''
+    Build the Connect plugin archive ready to be deployed in the Plugin manager.
+
+    Collects all the library and hook dependencies for an integration or component.
+    '''
 
     if not os.path.exists(BUILD_PATH):
         raise Exception('Please build the project - missing "dist/" folder!')
@@ -76,7 +106,7 @@ def build_plugin(args):
         break
 
     if not VERSION:
-        raise Exception('Could not locate a built python wheel!')
+        raise Exception('Could not locate a built python wheel! Please build with Poetry.')
 
     STAGING_PATH = os.path.join(
         BUILD_PATH, '{}-{}'.format(PROJECT_NAME, VERSION)
@@ -93,15 +123,39 @@ def build_plugin(args):
     shutil.copytree(HOOK_PATH, os.path.join(STAGING_PATH, 'hook'))
 
     # Copy resources
-    logging.info('Copying resources')
-    shutil.copytree(RESOURCE_PATH, os.path.join(STAGING_PATH, 'resource'))
 
-    # Build dependencies
+    if os.path.exists(RESOURCE_PATH):
+        logging.info('Copying resources')
+        shutil.copytree(RESOURCE_PATH, os.path.join(STAGING_PATH, 'resource'))
+    else:
+        logging.warning('No resources to copy.')
+
+    # Collect dependencies
     dependencies_path = os.path.join(STAGING_PATH, 'dependencies')
 
     os.makedirs(dependencies_path)
 
-    logging.info('Collecting dependencies')
+    logging.info('Collecting Framework dependencies')
+    framework_dependency_folders = []
+    for lib in os.listdir(os.path.join(MONOREPO_PATH, 'libs')):
+        lib_path = os.path.join(MONOREPO_PATH, 'libs', lib)
+        if not os.path.isdir(lib_path) or lib.find('to_remove') > -1:
+            continue
+        source_path = os.path.join(MONOREPO_PATH, 'libs', lib, 'source')
+        framework_dependency_folders.append(os.path.join(source_path, find_python_source(source_path)))
+    # Pick up hooks
+    for hook in os.listdir(os.path.join(MONOREPO_PATH, 'framework_hooks')):
+        hook_path = os.path.join(MONOREPO_PATH, 'framework_hooks', hook)
+        if not os.path.isdir(hook_path):
+            continue
+        if hook.find('-core-') > -1 or hook.find(DCC_NAME) > -1:
+            source_path = os.path.join(hook_path, 'source')
+            framework_dependency_folders.append(os.path.join(source_path, find_python_source(source_path)))
+    for folder in framework_dependency_folders:
+        logging.info('Copying {}'.format(folder))
+        shutil.copytree(folder, os.path.join(dependencies_path, os.path.basename(folder)))
+
+    logging.info('Collecting dependencies from wheel')
     subprocess.check_call(
         [
             sys.executable,
@@ -300,16 +354,6 @@ def build_cep(args):
         BUILD_PATH,
         'ftrack_framework_adobe_prototype_{}.zxp'.format(VERSION),
     )
-
-    # Generate auto update xml
-    # update_staging_path = os.path.join(STAGING_PATH, 'update.xml')
-    # with open(UPDATE_PATH, 'r') as f_src:
-    #    with open(update_staging_path, 'w') as f_dst:
-    #        f_dst.write(f_src.read().
-    #                    replace('<%= bundle.version %>', VERSION).
-    #                    replace('<%= download_url %>', os.path.basename(extension_output_path)).
-    #                    replace('<%= bundle.description %>', 'ftrack connect extension for Adobe Creative Cloud.')
-    #                    )
 
     # Create and sign extension
     if os.path.exists(extension_output_path):

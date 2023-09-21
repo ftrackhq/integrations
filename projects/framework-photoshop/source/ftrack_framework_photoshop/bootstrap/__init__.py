@@ -29,8 +29,6 @@ assert (
     photoshop_version
 ), 'Photoshop integration requires FTRACK_PHOTOSHOP_VERSION passed as environment variable!'
 
-# TODO: Spawn standalone QApplication
-
 use_uxp = (os.environ.get('FTRACK_PHOTOSHOP_UXP') or '').lower() in ['true', '1']
 
 # Init QApplication
@@ -70,4 +68,3 @@ while True:
                 logger.warning(
                     'Photoshop is not responding but process is still there, panel temporarily closed?'
                 )
-
