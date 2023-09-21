@@ -150,11 +150,11 @@ class Client(object):
         return self._host_context_changed_subscribe_id
 
     @property
-    def definitions(self):
-        '''Returns all available definitions from the current host_ connection'''
+    def tool_configs(self):
+        '''Returns all available tool_configs from the current host_ connection'''
         if not self.host_connection:
             raise Exception('No host connection available')
-        return self.host_connection.definitions
+        return self.host_connection.tool_configs
 
     # TODO: double check how we enable disbale multithreading,
     #  I think we can improve it and make it simpler, take a look at the
@@ -372,34 +372,34 @@ class Client(object):
             )
             self._host_context_changed_subscribe_id = None
 
-    # Definition
-    def run_definition(self, definition):
+    # Tool_config
+    def run_tool_config(self, tool_config):
         '''
-        Publish event to tell the host to run the given *definition* with the
+        Publish event to tell the host to run the given *tool_config* with the
         given *engine*.
         '''
-        self.event_manager.publish.host_run_definition(
+        self.event_manager.publish.host_run_tool_config(
             self.host_id,
-            definition.to_dict(),
-            self._run_definition_callback,
+            tool_config.to_dict(),
+            self._run_tool_config_callback,
         )
 
     # TODO: this should be ABC method
-    def _run_definition_callback(self, event):
-        '''Callback of the :meth:`~ftrack_framework_core.client.run_definition'''
-        self.logger.debug("_run_definition_callback event: {}".format(event))
+    def _run_tool_config_callback(self, event):
+        '''Callback of the :meth:`~ftrack_framework_core.client.run_tool_config'''
+        self.logger.debug("_run_tool_config_callback event: {}".format(event))
         result = event['data']
         if type(event['data']) == list():
             result = event['data'][0]
         # Publish event to widget
-        self.event_manager.publish.client_notify_run_definition_result(
+        self.event_manager.publish.client_notify_run_tool_config_result(
             self.id, event['data']
         )
 
     # Plugin
     def run_plugin(
         self,
-        plugin_definition,
+        plugin_config,
         plugin_method_name,
         engine_type,
         engine_name,
@@ -407,16 +407,16 @@ class Client(object):
     ):
         '''
         Publish event to tell the host to run the given *plugin_method_name*
-        of the *plugin_definition* with the given *engine*.
+        of the *plugin_config* with the given *engine*.
 
         Result of the executed plugin method specified in the
-        *plugin_definition* will be passed to
+        *plugin_config* will be passed to
         :meth:`~ftrack_framework_core.client._run_plugin_callback`.
         '''
 
         self.event_manager.publish.host_run_plugin(
             self.host_id,
-            plugin_definition,
+            plugin_config,
             plugin_method_name,
             engine_type,
             engine_name,
@@ -470,23 +470,23 @@ class Client(object):
             self.id, event['data']['log_item']
         )
 
-    def reset_definition(self, definition_name, definition_type):
+    def reset_tool_config(self, tool_config_name, tool_config_type):
         '''
-        Ask host connection to reset values of a specific definition
+        Ask host connection to reset values of a specific tool_config
         '''
-        self.host_connection.reset_definition(definition_name, definition_type)
+        self.host_connection.reset_tool_config(tool_config_name, tool_config_type)
 
-    def reset_all_definitions(self):
+    def reset_all_tool_configs(self):
         '''
-        Ask host connection to reset values of all definitions
+        Ask host connection to reset values of all tool_configs
         '''
-        self.host_connection.reset_all_definitions()
+        self.host_connection.reset_all_tool_configs()
 
     # UI
     def run_dialog(self, dialog_name, dialog_class=None, dialog_options=None):
         '''Function to show a framework dialog from the client'''
         # use dialog options to pass options to the dialog like for
-        #  example: Dialog= WidgetDialog dialog_options= {definition_plugin: Context_selector}
+        #  example: Dialog= WidgetDialog dialog_options= {tool_config_plugin: Context_selector}
         #  ---> So this will execute the widget dialog with the widget of the
         #  context_selector in it, it simulates a run_widget).
         #  Or any other kind of option like docked or not

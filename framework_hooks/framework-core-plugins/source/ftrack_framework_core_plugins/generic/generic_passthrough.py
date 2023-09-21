@@ -12,7 +12,7 @@ class GenericPassthroughPlugin(BasePlugin):
     '''Empty/passthrough loader finalizer plugin'''
 
     # TODO: we should not have passthrough plugins. Instead if a plugin is not
-    #  defined in a definition, just go to the next step.
+    #  defined in a tool_config, just go to the next step.
     #  (There should be a task to implement this.)
     def register_methods(self):
         self.register_method(

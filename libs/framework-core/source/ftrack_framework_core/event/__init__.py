@@ -328,22 +328,22 @@ class Publish(object):
         event_topic = constants.event.CLIENT_CONTEXT_CHANGED_TOPIC
         return self._publish_event(event_topic, data, callback)
 
-    def client_launch_widget(
-        self, host_id, widget_name, source=None, callback=None
+    def client_launch_tool(
+        self, host_id, tool_name, source=None, callback=None
     ):
         '''
         Publish an event with topic
-        :const:`~ftrack_framework_core.constants.event.CLIENT_LAUNCH_WIDGET_TOPIC`
+        :const:`~ftrack_framework_core.constants.event.CLIENT_LAUNCH_TOOL_TOPIC`
         '''
         # TODO: call this from a new launch_assembler method in the opener
         #  client or in any other place. The data needed is like the following:
         data = {
             'host_id': host_id,
-            'name': widget_name,
+            'name': tool_name,
             'source': source,
         }
 
-        event_topic = constants.event.CLIENT_LAUNCH_WIDGET_TOPIC
+        event_topic = constants.event.CLIENT_LAUNCH_TOOL_TOPIC
         return self._publish_event(event_topic, data, callback)
 
     def notify_plugin_progress_client(self, plugin_info, callback=None):
@@ -606,13 +606,13 @@ class Subscribe(object):
         )
         return self._subscribe_event(event_topic, callback)
 
-    def client_launch_widget(self, host_id, callback=None):
+    def client_launch_tool(self, host_id, callback=None):
         '''
         Subscribe to an event with topic
-        :const:`~ftrack_framework_core.constants.event.CLIENT_LAUNCH_WIDGET_TOPIC`
+        :const:`~ftrack_framework_core.constants.event.CLIENT_LAUNCH_TOOL_TOPIC`
         '''
         event_topic = '{} and data.host_id={}'.format(
-            constants.event.CLIENT_LAUNCH_WIDGET_TOPIC, host_id
+            constants.event.CLIENT_LAUNCH_TOOL_TOPIC, host_id
         )
         return self._subscribe_event(event_topic, callback)
 

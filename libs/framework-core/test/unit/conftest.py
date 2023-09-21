@@ -10,7 +10,7 @@ import functools
 from ftrack_framework_core import event
 import ftrack_constants.framework as constants
 from ftrack_framework_core import host as test_host
-from ftrack_framework_core.definition import collect_and_validate
+from ftrack_framework_core.tool_config import collect_and_validate
 
 
 def _temporary_file(request, **kwargs):
@@ -166,25 +166,25 @@ def event_manager(session):
         session, mode=constants.LOCAL_EVENT_MODE
     )
 
-    def register_definitions(session, event):
+    def register_tool_configs(session, event):
         host_type = event['data']['pipeline']['host_type']
 
         dir = os.path.abspath(
             os.path.join(
-                os.path.dirname(__file__), '..', 'fixtures', 'definitions'
+                os.path.dirname(__file__), '..', 'fixtures', 'tool_configs'
             )
         )
 
         print(dir)
-        # collect definitions
+        # collect tool_configs
         data = collect_and_validate(session, dir, host_type)
         return data
 
-    callback = functools.partial(register_definitions, event_manager.session)
+    callback = functools.partial(register_tool_configs, event_manager.session)
 
     event_manager.subscribe(
-        '{} and data.pipeline.type=definition'.format(
-            constants.DISCOVER_DEFINITION_TOPIC
+        '{} and data.pipeline.type=tool_config'.format(
+            constants.DISCOVER_TOOL_CONFIG_TOPIC
         ),
         callback,
     )
