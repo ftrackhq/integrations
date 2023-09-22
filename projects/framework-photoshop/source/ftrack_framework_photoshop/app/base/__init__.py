@@ -26,7 +26,7 @@ logger = logging.getLogger(__name__)
 
 
 class BasePhotoshopApplication(QtWidgets.QApplication):
-    ''' Base Photoshop standalone background application.'''
+    '''Base Photoshop standalone background application.'''
 
     _instance = None
 
@@ -79,6 +79,8 @@ class BasePhotoshopApplication(QtWidgets.QApplication):
         self._remote_event_manager = None
         self._photoshop_pid = -1
         self._connected = False
+        self._remote_subscriber_id = None
+        self._event_replies = {}
 
         BasePhotoshopApplication._instance = self
 
@@ -91,32 +93,26 @@ class BasePhotoshopApplication(QtWidgets.QApplication):
     # PID
 
     def _probe_photoshop_pid(self):
-        ''' List processes using 'ps' to find photoshop pid '''
+        '''List processes using 'ps' to find photoshop pid'''
         PS_EXECUTABLE = "Adobe Photoshop {}".format(
             str(self._photoshop_version)
         )
 
-        logger.info(
-            'Probing PID (executable: {}).'.format(
-                PS_EXECUTABLE
-            )
-        )
+        logger.info('Probing PID (executable: {}).'.format(PS_EXECUTABLE))
 
         if sys.platform == 'darwin':
-            for line in subprocess.check_output(["ps", "-ef"]).decode('utf-8').split("\n"):
+            for line in (
+                subprocess.check_output(["ps", "-ef"])
+                .decode('utf-8')
+                .split("\n")
+            ):
                 if line.find('MacOS/{}'.format(PS_EXECUTABLE)) > -1:
                     # Expect:
                     #   501 21270     1   0  3:05PM ??         0:36.85 /Applications/Adobe Photoshop 2022/Adobe Photoshop 2022.app/Contents/MacOS/Adobe Photoshop 2022
                     pid = int(re.split(" +", line)[2])
-                    logger.info(
-                        'Got Photoshop PID: {}'.format(
-                            pid
-                        )
-                    )
+                    logger.info('Got Photoshop PID: {}'.format(pid))
                     return pid
-        logger.warning(
-            'Photoshop not found running!'
-        )
+        logger.warning('Photoshop not found running!')
         return -1
 
     # Event
@@ -154,33 +150,31 @@ class BasePhotoshopApplication(QtWidgets.QApplication):
             )
 
     def send_event(
-        self, topic, pipeline_data, fetch_reply=False, timeout=None
+        self, topic, framework_data, fetch_reply=False, timeout=None
     ):
-        if pipeline_data is None:
-            pipeline_data = dict()
+        if framework_data is None:
+            framework_data = dict()
         if timeout is None:
             timeout = 10
-        pipeline_data['integration_session_id'] = self.integration_session_id
+        framework_data['integration_session_id'] = self.integration_session_id
 
-        event = ftrack_api.event.base.Event(
-            topic=topic, data={'pipeline': pipeline_data}
-        )
+        event = ftrack_api.event.base.Event(topic=topic, data=framework_data)
 
         logger.info(
             "Sending PS event: {} (fetch_reply: {})".format(event, fetch_reply)
         )
 
         subscriber_id = None
-        self._replies[event['id']] = None
+        self._event_replies[event['id']] = None
 
         def handle_reply(reply_event):
             logger.info("Handle reply: {}".format(reply_event))
 
-            self._replies[event['id']] = reply_event
+            self._event_replies[event['id']] = reply_event
 
         if fetch_reply:
             # Temp subscribe for response
-            subscriber_id = self.remote_event_manager.subscribe(
+            subscriber_id = self.remote_event_manager._subscribe(
                 'ftrack.* and source.applicationId=ftrack.api.javascript and data.pipeline.integration_session_id={} '
                 'and data.pipeline.reply_to_event={}'.format(
                     self.integration_session_id, event['id']
@@ -188,13 +182,13 @@ class BasePhotoshopApplication(QtWidgets.QApplication):
                 handle_reply,
             )
         try:
-            self.remote_event_manager.publish(event)
+            self.remote_event_manager._publish(event)
             if fetch_reply:
                 # Wait for response, block
                 waited = 0
                 if timeout is None:
                     timeout = 10
-                while self._replies[event['id']] is None:
+                while self._event_replies[event['id']] is None:
                     time.sleep(0.1)
                     waited += 100
                     if waited > timeout * 1000:
@@ -209,23 +203,24 @@ class BasePhotoshopApplication(QtWidgets.QApplication):
                                 waited / 1000, event['id']
                             )
                         )
-                return self._replies[event['id']]['data']['pipeline']
+                return self._event_replies[event['id']]['data']['pipeline']
         finally:
             if subscriber_id:
-                self.remote_event_manager.unsubscribe(subscriber_id)
-            if event['id'] in self._replies:
-                del self._replies[event['id']]
+                self.remote_event_manager.session.event_hub.unsubscribe(
+                    subscriber_id
+                )
+            if event['id'] in self._event_replies:
+                del self._event_replies[event['id']]
 
-    def send_event_with_reply(self, topic, pipeline_data, timeout=None):
+    def send_event_with_reply(self, topic, framework_data, timeout=None):
         return self.send_event(
-            topic, pipeline_data, fetch_reply=True, timeout=timeout
+            topic, framework_data, fetch_reply=True, timeout=timeout
         )
-
 
     # Lifecycle
 
     def _initialise(self):
-        ''' Initialise Photoshop standalone integration'''
+        '''Initialise Photoshop standalone integration'''
 
         logger.info(
             'Setting up photoshop standalone integration (session id: {})...'.format(
@@ -252,15 +247,14 @@ class BasePhotoshopApplication(QtWidgets.QApplication):
         time.sleep(0.5)
 
         def on_exit():
-            logger.info('Photoshop pipeline exit')
+            logger.info('Photoshop exit')
 
         atexit.register(on_exit)
 
     def _connect(self):
-        ''' Connect with DCC over remote event hub, needs to be implemented by
-         Photoshop plugin dependent subclass implementation '''
+        '''Connect with DCC over remote event hub, needs to be implemented by
+        Photoshop plugin dependent subclass implementation'''
         raise NotImplemented()
-
 
     def _spawn_event_listener(self):
         # Create a session and Event Manager
@@ -277,28 +271,21 @@ class BasePhotoshopApplication(QtWidgets.QApplication):
             )
         )
 
-        self.remote_event_manager.subscribe(
-            'ftrack.pipeline.* and source.applicationId=ftrack.api.javascript and data.pipeline.integration_session_id={}'.format(
+        self._remote_subscriber_id = self.remote_event_manager._subscribe(
+            'ftrack.framework.* and source.applicationId=ftrack.api.javascript and data.integration_session_id={}'.format(
                 self.integration_session_id
             ),
             self.handle_remote_event,
         )
 
-        # print('@@@ Debug threads:')
-        # for threadId, stack in list(sys._current_frames().items()):
-        #    print('@@@  Thread ID: {}'.format(threadId))
-        #    for filename, lineno, name, line in traceback.extract_stack(stack):
-        #        print('@@@   File: "%s", line %d, in %s' % (filename, lineno, name))
-
-        # DEBUG
+        # DEBUG events during dev, will be removed
         def handle_event_debug(event):
             logger.warning("DEBUG event: {}".format(event))
 
-        self.remote_event_manager.subscribe(
+        self.remote_event_manager._subscribe(
             'ftrack.*',
             handle_event_debug,
         )
-
 
     def check_responding(self):
         '''Check if Photoshop is alive, send ping'''
@@ -323,4 +310,12 @@ class BasePhotoshopApplication(QtWidgets.QApplication):
 
     def terminate(self):
         logger.info("Terminating Photoshop standalone framework integration")
+        if self._remote_subscriber_id:
+            try:
+                self.remote_event_manager.session.event_hub.unsubscribe(
+                    self._remote_subscriber_id
+                )
+            except:
+                logger.warning(traceback.format_exc())
+
         os.kill(os.getpid(), signal.SIGKILL)

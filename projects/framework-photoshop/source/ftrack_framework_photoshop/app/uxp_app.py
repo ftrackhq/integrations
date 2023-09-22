@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 
 
 class UXPPhotoshopApplication(BasePhotoshopApplication):
-    ''' Photoshop standalone background application for UXP.'''
+    '''Photoshop standalone background application for UXP.'''
 
     def _connect(self):
         '''(Override)'''
@@ -72,9 +72,7 @@ class UXPPhotoshopApplication(BasePhotoshopApplication):
                         "Timeout waiting for Photoshop plugin to load!"
                     )
                 if phase == PHASE_WAIT_PLUGIN_LOAD:
-                    for root, dirnames, filenames in os.walk(
-                        plugin_data_base
-                    ):
+                    for root, dirnames, filenames in os.walk(plugin_data_base):
                         # 24/Developer/ftrack-framework-photoshop/PluginData/env
                         for dirname in dirnames:
                             if dirname.startswith(
@@ -166,4 +164,3 @@ class UXPPhotoshopApplication(BasePhotoshopApplication):
 
         # Send a ping event to Photoshop to let it know we are ready
         self.send_event_with_reply(photoshop_constants.TOPIC_PING, {})
-        

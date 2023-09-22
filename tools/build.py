@@ -36,8 +36,10 @@ CEP_PATH = os.path.join(ROOT_PATH, "source", "cep")
 
 POETRY_CONFIG_PATH = os.path.join(ROOT_PATH, 'pyproject.toml')
 if not os.path.exists(POETRY_CONFIG_PATH):
-    raise Exception('Missing "pyproject.toml" file, this tool can only be run'
-                    'from a Poetry project!')
+    raise Exception(
+        'Missing "pyproject.toml" file, this tool can only be run'
+        'from a Poetry project!'
+    )
 PROJECT_NAME = None
 with open(os.path.join(ROOT_PATH, 'pyproject.toml')) as f:
     for line in f:
@@ -68,8 +70,9 @@ def clean(args):
     logging.info('Cleaning up {}'.format(BUILD_PATH))
     shutil.rmtree(BUILD_PATH, ignore_errors=True)
 
+
 def find_python_source(source_path):
-    ''' Find a python package in *source_path* '''
+    '''Find a python package in *source_path*'''
     candidate = None
     for filename in os.listdir(source_path):
         pkg_path = os.path.join(source_path, filename)
@@ -81,7 +84,9 @@ def find_python_source(source_path):
             candidate = pkg_path
     if candidate:
         return candidate
-    raise Exception('No Python source package found @ "{}"'.format(source_path))
+    raise Exception(
+        'No Python source package found @ "{}"'.format(source_path)
+    )
 
 
 def build_plugin(args):
@@ -93,6 +98,12 @@ def build_plugin(args):
 
     if not os.path.exists(BUILD_PATH):
         raise Exception('Please build the project - missing "dist/" folder!')
+
+    logging.info('*' * 100)
+    logging.info(
+        'Remember to build the plugin with Poetry (poetry build) before building the Connect plugin!'
+    )
+    logging.info('*' * 100)
 
     # Find wheel and read the version
     wheel_path = None
@@ -107,7 +118,9 @@ def build_plugin(args):
         break
 
     if not VERSION:
-        raise Exception('Could not locate a built python wheel! Please build with Poetry.')
+        raise Exception(
+            'Could not locate a built python wheel! Please build with Poetry.'
+        )
 
     STAGING_PATH = os.path.join(
         BUILD_PATH, '{}-{}'.format(PROJECT_NAME, VERSION)
@@ -142,7 +155,9 @@ def build_plugin(args):
         lib_path = os.path.join(MONOREPO_PATH, 'libs', lib)
         if not os.path.isdir(lib_path) or lib.find('to_remove') > -1:
             continue
-        framework_dependency_packages.append(os.path.join(MONOREPO_PATH, 'libs', lib))
+        framework_dependency_packages.append(
+            os.path.join(MONOREPO_PATH, 'libs', lib)
+        )
     # Pick up hooks
     for hook in os.listdir(os.path.join(MONOREPO_PATH, 'framework_hooks')):
         hook_path = os.path.join(MONOREPO_PATH, 'framework_hooks', hook)
@@ -153,7 +168,9 @@ def build_plugin(args):
 
     for dependency_path in framework_dependency_packages:
         if os.path.exists(os.path.join(dependency_path, 'setup.py')):
-            logging.info('Building {}'.format(os.path.basename(dependency_path)))
+            logging.info(
+                'Building {}'.format(os.path.basename(dependency_path))
+            )
             os.chdir(dependency_path)
             restore_build_file = False
             PATH_BUILD = os.path.join(dependency_path, 'BUILD')
@@ -183,7 +200,10 @@ def build_plugin(args):
                 continue
             source_path = find_python_source(source_path)
             logging.info('Copying {}'.format(source_path))
-            shutil.copytree(source_path, os.path.join(dependencies_path, os.path.basename(source_path)))
+            shutil.copytree(
+                source_path,
+                os.path.join(dependencies_path, os.path.basename(source_path)),
+            )
 
     logging.info('Collecting dependencies from wheel')
     subprocess.check_call(
@@ -317,6 +337,18 @@ def get_version():
     raise ValueError('Could not find version in {0}'.format(version_path))
 
 
+def parse_and_copy(source_path, target_path, version):
+    '''Copies the single file pointed out by *source_path* to *target_path* and
+    replaces version expression to supplied *version*.'''
+    with open(source_path, 'r') as f_src:
+        with open(target_path, 'w') as f_dst:
+            f_dst.write(
+                f_src.read().replace(
+                    '{{FTRACK_FRAMEWORK_PHOTOSHOP_VERSION}}', version
+                )
+            )
+
+
 def build_cep(args):
     '''Wrapper for building docs for preview'''
 
@@ -349,11 +381,18 @@ def build_cep(args):
     os.makedirs(STAGING_PATH)
 
     # Copy files
-    for filename in ["index.html", "index.js", "ps.jsx", "favicon.ico"]:
+    for filename in ["index.html", "index.js"]:
+        parse_and_copy(
+            os.path.join(CEP_PATH, filename),
+            os.path.join(STAGING_PATH, filename),
+            VERSION,
+        )
+    for filename in ["ps.jsx", "favicon.ico"]:
         shutil.copy(
             os.path.join(CEP_PATH, filename),
             os.path.join(STAGING_PATH, filename),
         )
+
     # Copy dirs
     for filename in ["lib", "icons", "css"]:
         logging.info(
@@ -372,13 +411,7 @@ def build_cep(args):
     manifest_staging_path = os.path.join(STAGING_PATH, 'CSXS', 'manifest.xml')
     if not os.path.exists(os.path.dirname(manifest_staging_path)):
         os.makedirs(os.path.dirname(manifest_staging_path))
-    with open(MANIFEST_PATH, 'r') as f_src:
-        with open(manifest_staging_path, 'w') as f_dst:
-            f_dst.write(
-                f_src.read().replace(
-                    '{{FTRACK_FRAMEWORK_PHOTOSHOP_VERSION}}', VERSION
-                )
-            )
+    parse_and_copy(MANIFEST_PATH, manifest_staging_path, VERSION)
 
     extension_output_path = os.path.join(
         BUILD_PATH,

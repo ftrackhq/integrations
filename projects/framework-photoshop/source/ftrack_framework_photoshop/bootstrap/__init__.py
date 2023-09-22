@@ -29,23 +29,20 @@ assert (
     photoshop_version
 ), 'Photoshop integration requires FTRACK_PHOTOSHOP_VERSION passed as environment variable!'
 
-use_uxp = (os.environ.get('FTRACK_PHOTOSHOP_UXP') or '').lower() in ['true', '1']
+use_uxp = (os.environ.get('FTRACK_PHOTOSHOP_UXP') or '').lower() in [
+    'true',
+    '1',
+]
 
 # Init QApplication
 if use_uxp:
-
     from ftrack_framework_photoshop.app.uxp_app import UXPPhotoshopApplication
 
-    app = UXPPhotoshopApplication(
-        photoshop_session_id, int(photoshop_version)
-    )
+    app = UXPPhotoshopApplication(photoshop_session_id, int(photoshop_version))
 else:
-
     from ftrack_framework_photoshop.app.cep_app import CEPPhotoshopApplication
 
-    app = CEPPhotoshopApplication(
-        photoshop_session_id, int(photoshop_version)
-    )
+    app = CEPPhotoshopApplication(photoshop_session_id, int(photoshop_version))
 
 # Run until it's closed, or CTRL+C
 active_time = 0
