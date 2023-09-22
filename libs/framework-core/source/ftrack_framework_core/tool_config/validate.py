@@ -29,7 +29,7 @@ def validate_tool_config(schemas, tool_config):
 
     *schemas* : List of schemas.
 
-    *tool_config* : Tool_config to be validated against the schema.
+    *tool_config* : Tool config to be validated against the schema.
     '''
     # builder = pjo.ObjectBuilder(
     #     schemas[tool_config['validation_schema']], resolved=schemas

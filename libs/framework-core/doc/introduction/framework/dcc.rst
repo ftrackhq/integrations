@@ -32,7 +32,7 @@ the bootstrap script(s).
 resource
 ========
 
-The resource folder contains the bootstrap scripts, tool_config configurations and the associated plugins.
+The resource folder contains the bootstrap scripts, tool config configurations and the associated plugins.
 
 
 bootstrap
@@ -44,7 +44,7 @@ spawning the :term:`host` and :term:`client` widgets through the main DCC menu.
 tool_configs
 -----------
 
-The tool_config pipeline module is were the each :term:`tool_config`, :term:`schema` and
+The tool config pipeline module is were the each :term:`tool config`, :term:`schema` and
 Framework :term:`plugin` are stored.
 
 As mentioned previously, the new Framework is designed to make it easy to write
@@ -54,7 +54,7 @@ which Framework plugins (loaders and publishers) to run for a certain ftrack ass
 This module is were you most likely do customisations in order to tailor the Framework
 to the studio needs.
 
-This directory contains the :term:`tool_config` JSON configuration files for each
+This directory contains the :term:`tool config` JSON configuration files for each
 :term:`engine` and :term:`host type`.
 
 We have highlighted some file of importance, leaving out built-in tool_configs that
@@ -320,7 +320,7 @@ The Framework tool_config for loading geometry asset versions into Maya:
 
 Attributes:
 
- * **type**; Tool_config type, binds to the host engine names.
+ * **type**; Tool config type, binds to the host engine names.
  * **name**; The name of the tool_config should be kept unique within the pipeline.
  * **host_type**; The type of host this tool_config should  be available to, basically the name of the DCC application.
  * **context**; Section that defines the plugin to use when selecting context (Task) and the asset version to load.
