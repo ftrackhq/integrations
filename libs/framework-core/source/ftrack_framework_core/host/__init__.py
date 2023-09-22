@@ -478,7 +478,9 @@ class Host(object):
         )
 
         if not engine_result:
-            self.logger.error("Couldn't run tool_config {}".format(tool_config))
+            self.logger.error(
+                "Couldn't run tool_config {}".format(tool_config)
+            )
         return engine_result
 
     # TODO: this should be ABC
@@ -526,7 +528,7 @@ class Host(object):
         if not engine_result:
             self.logger.error(
                 "Couldn't run plugin:\n "
-                "Tool_config: {}\n"
+                "Tool config: {}\n"
                 "Method: {}\n"
                 "Engine type: {}\n"
                 "Engine name: {}\n".format(

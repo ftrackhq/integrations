@@ -372,7 +372,7 @@ class Client(object):
             )
             self._host_context_changed_subscribe_id = None
 
-    # Tool_config
+    # Tool config
     def run_tool_config(self, tool_config):
         '''
         Publish event to tell the host to run the given *tool_config* with the
@@ -474,7 +474,9 @@ class Client(object):
         '''
         Ask host connection to reset values of a specific tool_config
         '''
-        self.host_connection.reset_tool_config(tool_config_name, tool_config_type)
+        self.host_connection.reset_tool_config(
+            tool_config_name, tool_config_type
+        )
 
     def reset_all_tool_configs(self):
         '''
