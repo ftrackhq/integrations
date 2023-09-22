@@ -46,7 +46,7 @@ This serves as an example on how to implement your own loader that is not part o
 the framework but required in production.
 
 
-Tool_config
+Tool config
 ----------
 
 Reviewable Quicktimes are most likely published with render (asset type), from Nuke
@@ -60,7 +60,7 @@ Studio or similar tool. This is why we implement an new *render loader* tool_con
     :emphasize-lines: 3,4,26-27,43-46
 
 
-Tool_config breakdown:
+Tool config breakdown:
 
  * *name*; We follow the Framework naming convention here.
  * *asset_type*: Change here if quicktimes are published onto a different custom asset type than *render*.

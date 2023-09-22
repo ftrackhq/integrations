@@ -151,7 +151,9 @@ class HostConnection(object):
         # Filter out tool_configs that doesn't match the context identifiers.
         for schema_title in self._raw_host_data['tool_configs'].keys():
             type_result = []
-            for tool_config in self._raw_host_data['tool_configs'][schema_title]:
+            for tool_config in self._raw_host_data['tool_configs'][
+                schema_title
+            ]:
                 match = False
                 discoverable = tool_config.get('discoverable')
                 if not discoverable:
@@ -211,7 +213,9 @@ class HostConnection(object):
                     # copy them all
                     self._tool_configs[
                         schema_title
-                    ] = self._available_filtered_host_tool_configs[schema_title]
+                    ] = self._available_filtered_host_tool_configs[
+                        schema_title
+                    ]
                     break
                 exist = self._tool_configs[schema_title].get_first(
                     tool_title=tool_config.tool_title
