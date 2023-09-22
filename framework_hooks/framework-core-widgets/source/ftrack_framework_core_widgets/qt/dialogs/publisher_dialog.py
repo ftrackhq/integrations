@@ -28,7 +28,7 @@ class PublisherDialog(FrameworkDialog, ScrollToolConfigsDialog):
 
     @property
     def tool_config_names(self):
-        '''Returns available tool_config names in the client'''
+        '''Returns available tool config names in the client'''
         names = []
         for tool_configs in self.filtered_tool_configs:
             print(tool_configs)
@@ -154,7 +154,7 @@ class PublisherDialog(FrameworkDialog, ScrollToolConfigsDialog):
         self.add_tool_config_items(self.tool_config_names)
 
     def _on_tool_config_changed_callback(self):
-        '''The selected tool_config has been changed'''
+        '''The selected tool config has been changed'''
         super(PublisherDialog, self)._on_tool_config_changed_callback()
         tool_config_name = None
         if self.tool_config:
@@ -217,7 +217,7 @@ class PublisherDialog(FrameworkDialog, ScrollToolConfigsDialog):
                 self.host_connection = host_connection
 
     def _on_ui_tool_config_changed_callback(self, tool_config_name):
-        '''Tool_config has been changed in the ui.'''
+        '''Tool config has been changed in the ui.'''
         if not tool_config_name:
             self.tool_config = None
             return
@@ -242,7 +242,7 @@ class PublisherDialog(FrameworkDialog, ScrollToolConfigsDialog):
         self.client_method_connection('discover_hosts')
 
     def build_tool_config_ui(self, tool_config):
-        '''A tool_config has been selected, build the tool_config widget.'''
+        '''A tool config has been selected, build the tool config widget.'''
         # Build context widgets
         context_plugins = tool_config.get_all(
             category='plugin', plugin_type='context'
@@ -257,7 +257,7 @@ class PublisherDialog(FrameworkDialog, ScrollToolConfigsDialog):
             category='step', step_type='component'
         )
         for step in component_steps:
-            # TODO: add a key visible in the tool_config to hide the step if wanted.
+            # TODO: add a key visible in the tool config to hide the step if wanted.
             step_accordion_widget = AccordionBaseWidget(
                 selectable=False,
                 show_checkbox=True,
@@ -288,7 +288,7 @@ class PublisherDialog(FrameworkDialog, ScrollToolConfigsDialog):
     def _on_ui_run_button_clicked_callback(self):
         '''
         Run button from the UI has been clicked.
-        Tell client to run the current tool_config
+        Tell client to run the current tool config
         '''
 
         arguments = {"tool_config": self.tool_config}

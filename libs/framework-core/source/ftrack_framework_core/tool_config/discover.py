@@ -164,8 +164,8 @@ def discover_schemas(schema_paths):
         for json_schema in collected_files:
             schemas[json_schema['title']] = json_schema
         logger.debug(
-            'Found {} {} in path: {}'.format(
-                len(collected_files), constants.tool_config.SCHEMA, lookup_dir
+            'Found {} schema(s) in path: {}'.format(
+                len(collected_files), lookup_dir
             )
         )
 

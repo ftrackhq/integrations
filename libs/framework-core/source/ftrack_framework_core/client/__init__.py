@@ -372,7 +372,7 @@ class Client(object):
             )
             self._host_context_changed_subscribe_id = None
 
-    # Tool_config
+    # Tool config
     def run_tool_config(self, tool_config):
         '''
         Publish event to tell the host to run the given *tool_config* with the
