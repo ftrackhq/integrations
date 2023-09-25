@@ -1,5 +1,5 @@
-ftrack connect pipeline photoshop
-#################################
+ftrack Photoshop integration
+############################
 
 Community owned Photoshop integration for ftrack.
 
