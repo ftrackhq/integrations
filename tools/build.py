@@ -35,8 +35,10 @@ CEP_PATH = os.path.join(ROOT_PATH, "source", "cep")
 
 POETRY_CONFIG_PATH = os.path.join(ROOT_PATH, 'pyproject.toml')
 if not os.path.exists(POETRY_CONFIG_PATH):
-    raise Exception('Missing "pyproject.toml" file, this tool can only be run'
-                    'from a Poetry project!')
+    raise Exception(
+        'Missing "pyproject.toml" file, this tool can only be run'
+        'from a Poetry project!'
+    )
 PROJECT_NAME = None
 with open(os.path.join(ROOT_PATH, 'pyproject.toml')) as f:
     for line in f:
@@ -63,8 +65,9 @@ def clean(args):
     logging.info('Cleaning up {}'.format(BUILD_PATH))
     shutil.rmtree(BUILD_PATH, ignore_errors=True)
 
+
 def find_python_source(source_path):
-    ''' Find a python package in *source_path* '''
+    '''Find a python package in *source_path*'''
     candidate = None
     for filename in os.listdir(source_path):
         pkg_path = os.path.join(source_path, filename)
@@ -76,7 +79,10 @@ def find_python_source(source_path):
             candidate = pkg_path
     if candidate:
         return candidate
-    raise Exception('No Python source package found @ "{}"'.format(source_path))
+    raise Exception(
+        'No Python source package found @ "{}"'.format(source_path)
+    )
+
 
 def build_plugin(args):
     '''
@@ -101,7 +107,9 @@ def build_plugin(args):
         break
 
     if not VERSION:
-        raise Exception('Could not locate a built python wheel! Please build with Poetry.')
+        raise Exception(
+            'Could not locate a built python wheel! Please build with Poetry.'
+        )
 
     STAGING_PATH = os.path.join(
         BUILD_PATH, '{}-{}'.format(PROJECT_NAME, VERSION)
@@ -136,7 +144,9 @@ def build_plugin(args):
         if not os.path.isdir(lib_path) or lib.find('to_remove') > -1:
             continue
         source_path = os.path.join(MONOREPO_PATH, 'libs', lib, 'source')
-        framework_dependency_folders.append(os.path.join(source_path, find_python_source(source_path)))
+        framework_dependency_folders.append(
+            os.path.join(source_path, find_python_source(source_path))
+        )
     # Pick up hooks
     for hook in os.listdir(os.path.join(MONOREPO_PATH, 'framework_hooks')):
         hook_path = os.path.join(MONOREPO_PATH, 'framework_hooks', hook)
@@ -144,10 +154,14 @@ def build_plugin(args):
             continue
         if hook.find('-core-') > -1 or hook.find(DCC_NAME) > -1:
             source_path = os.path.join(hook_path, 'source')
-            framework_dependency_folders.append(os.path.join(source_path, find_python_source(source_path)))
+            framework_dependency_folders.append(
+                os.path.join(source_path, find_python_source(source_path))
+            )
     for folder in framework_dependency_folders:
         logging.info('Copying {}'.format(folder))
-        shutil.copytree(folder, os.path.join(dependencies_path, os.path.basename(folder)))
+        shutil.copytree(
+            folder, os.path.join(dependencies_path, os.path.basename(folder))
+        )
 
     logging.info('Collecting dependencies from wheel')
     subprocess.check_call(
