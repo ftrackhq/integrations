@@ -14,7 +14,7 @@ configure_logging(
 )
 
 
-logger = logging.getLogger('ftrack_connect_pipeline_photoshop.bootstrap')
+logger = logging.getLogger('ftrack_framework_photoshop.bootstrap')
 
 logger.info('Initializing Photoshop Framework POC')
 
