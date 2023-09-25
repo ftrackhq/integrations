@@ -180,6 +180,7 @@ class ApplicationStore(object):
         variant='',
         description=None,
         integrations=None,
+        standalone_module=None,
     ):
         '''
         Return list of applications found in filesystem matching *expression*.
@@ -305,6 +306,10 @@ class ApplicationStore(object):
                             'description': description,
                             'integrations': integrations or {},
                         }
+                        if standalone_module:
+                            application[
+                                'standalone_module'
+                            ] = standalone_module
 
                         applications.append(application)
 
@@ -513,74 +518,106 @@ class ApplicationLauncher(object):
             application = launchData['application']
             options['env'] = environment
 
+            enable_app_bundle_launch = (
+                True  # Allow .app to be launched directly on Mac
+            )
+            launch_with_terminal = (
+                False  # Launch script with terminal on Mac (console launch)
+            )
+            command_prefix = None  # Additional commands to prepend
+
+            # Enforce launch architecture
+            if 'FTRACK_LAUNCH_ARCH' in environment:
+                if self.current_os != 'darwin':
+                    self.logger.warning(
+                        'Specific arch launch only supported on Mac OS'
+                    )
+                else:
+                    command_prefix = [
+                        'arch',
+                        '-{}'.format(environment['FTRACK_LAUNCH_ARCH']),
+                    ]
+
+                    # This does not work on app bundle, need to be expanded to the executable inside
+                    enable_app_bundle_launch = False
+
             if (os.environ.get('FTRACK_CONNECT_CONSOLE') or '') in [
                 '1',
                 'true',
             ]:
-                if self.current_os == 'darwin':
-                    p_script_path = os.path.join(
-                        os.environ['TMPDIR'], 'ftrack'
-                    )
-                    if not os.path.exists(p_script_path):
-                        os.makedirs(p_script_path)
-                    script_path = tempfile.NamedTemporaryFile(
-                        delete=False, dir=p_script_path, suffix='.command'
-                    ).name
-
-                    with open(script_path, "w") as f:
-                        f.write('#!/bin/bash\n')
-
-                        for key, value in options['env'].items():
-                            f.write('export {}="{}"\n'.format(key, value))
-
-                        app_package = command[0]
-                        if app_package.lower().endswith('.app'):
-                            # And app bundle, need to launch the executable inside. Discover from
-                            # plist.
-                            fetch_next_string = False
-                            executable_filename = None
-                            with open(
-                                os.path.join(
-                                    app_package, 'Contents', 'Info.plist'
-                                ),
-                                'r',
-                            ) as plist:
-                                for line in plist.read().split('\n'):
-                                    if line.find('CFBundleExecutable') > -1:
-                                        fetch_next_string = True
-                                    elif fetch_next_string:
-                                        # <string>Nuke13.0</string>
-                                        executable_filename = line[
-                                            line.find('>')
-                                            + 1 : line.rfind('<')
-                                        ]
-                                        break
-                            if executable_filename:
-                                command[0] = os.path.join(
-                                    app_package,
-                                    'Contents',
-                                    'MacOS',
-                                    executable_filename,
-                                )
-
-                        commandline = ' '.join(
-                            '"{}"'.format(c) for c in command
-                        )
-
-                        f.write('{}\n'.format(commandline))
-
-                        f.write(
-                            'sleep 10\n'
-                        )  # Keep console open for 10 seconds, to enable traceback readouts
-
-                    os.system('chmod 755 {}'.format(script_path))
-
-                    command = ['open', '-a', 'Terminal', script_path]
-
-                else:
+                if self.current_os != 'darwin':
                     self.logger.warning(
                         'Console launch only supported on Mac OS'
                     )
+                else:
+                    enable_app_bundle_launch = False
+                    launch_with_terminal = True
+
+            if not enable_app_bundle_launch and command[0].lower().endswith(
+                '.app'
+            ):
+                p_script_path = os.path.join(os.environ['TMPDIR'], 'ftrack')
+                if not os.path.exists(p_script_path):
+                    os.makedirs(p_script_path)
+                script_path = tempfile.NamedTemporaryFile(
+                    delete=False, dir=p_script_path, suffix='.command'
+                ).name
+
+                with open(script_path, "w") as f:
+                    f.write('#!/bin/bash\n')
+
+                    for key, value in options['env'].items():
+                        f.write('export {}="{}"\n'.format(key, value))
+
+                    app_package = command[0]
+                    if app_package.lower().endswith('.app'):
+                        # And app bundle, need to launch the executable inside. Discover from
+                        # plist.
+                        fetch_next_string = False
+                        executable_filename = None
+                        with open(
+                            os.path.join(
+                                app_package, 'Contents', 'Info.plist'
+                            ),
+                            'r',
+                        ) as plist:
+                            for line in plist.read().split('\n'):
+                                if line.find('CFBundleExecutable') > -1:
+                                    fetch_next_string = True
+                                elif fetch_next_string:
+                                    # <string>Nuke13.0</string>
+                                    executable_filename = line[
+                                        line.find('>') + 1 : line.rfind('<')
+                                    ]
+                                    break
+                        if executable_filename:
+                            command[0] = os.path.join(
+                                app_package,
+                                'Contents',
+                                'MacOS',
+                                executable_filename,
+                            )
+
+                    if command_prefix:
+                        command = command_prefix + command
+
+                    commandline = ' '.join('"{}"'.format(c) for c in command)
+
+                    f.write('{}\n'.format(commandline))
+
+                    f.write(
+                        'sleep 10\n'
+                    )  # Keep console open for 10 seconds, to enable traceback readouts
+
+                os.system('chmod 755 {}'.format(script_path))
+
+                if launch_with_terminal:
+                    command = ['open', '-a', 'Terminal', script_path]
+                else:
+                    command = ['open', script_path]
+            else:
+                if command_prefix:
+                    command = command_prefix + command
 
             self.logger.debug(
                 'Launching {0} with options {1}'.format(command, options)
@@ -606,6 +643,48 @@ class ApplicationLauncher(object):
                     applicationIdentifier, process.pid
                 )
             )
+
+            # Check if a standalone framework helper process should be launched
+
+            if 'standalone_module' in application:
+                self.logger.info(
+                    'Launching standalone framework helper for {0}, module: {1}'.format(
+                        applicationIdentifier, application['standalone_module']
+                    )
+                )
+
+                standalone_python_interpreter_path = sys.argv[0]
+
+                command = [
+                    standalone_python_interpreter_path,
+                    "--run-framework-standalone",
+                    application['standalone_module'],
+                ]
+
+                # Append PID to environment for framework to use.
+                environment['FTRACK_APPLICATION_PID'] = str(process.pid)
+
+                try:
+                    process = subprocess.Popen(command, **options)
+                except (OSError, TypeError):
+                    self.logger.exception(
+                        'Standalone framework helper process for {0} could not '
+                        'be started with command "{1}".'.format(
+                            applicationIdentifier, command
+                        )
+                    )
+
+                    success = False
+                    message = (
+                        'Standalone framework helper process for {0} could '
+                        'not be started.'.format(application['label'])
+                    )
+
+                else:
+                    self.logger.debug(
+                        'Standalone framework helper process for {0} started. '
+                        '(pid={1})'.format(applicationIdentifier, process.pid)
+                    )
 
         return {'success': success, 'message': message}
 
