@@ -67,7 +67,7 @@ class EntityBrowser(dialog.ModalDialog):
         self._entity = value
         self.intermediate_entity = value
         if self._external_navigator is not None:
-            self._external_navigator.refreshNavigator.emit()
+            self._external_navigator.refresh_navigator.emit()
         if (value or {}).get('id') != (prev_entity or {}).get('id'):
             if prev_entity is not None:
                 self.entityChanged.emit(value)
@@ -475,7 +475,7 @@ class EntityBrowserNavigator(InputEventBlockingWidget):
 
     @property
     def entity(self):
-        '''Retreive the entity browsed in navigator'''
+        '''Retrieve the entity browsed in navigator'''
         return (
             self._entity_browser.intermediate_entity
             if self._is_browser
@@ -807,7 +807,7 @@ class EntityWidget(QtWidgets.QFrame):
             # Widget has been destroyed
             return
         return super(EntityWidget, self).mouseDoubleClickEvent(event)
-        self.doubleClicked.emit()
+        self.double_clicked.emit()
 
 
 class AddContextButton(CircularButton):

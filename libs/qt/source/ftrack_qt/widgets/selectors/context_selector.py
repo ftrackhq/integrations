@@ -10,7 +10,6 @@ from ftrack_qt.widgets.info import EntityInfo
 from ftrack_qt.widgets.thumbnails import Context
 from ftrack_utils.threading import BaseThread
 from ftrack_qt.widgets.buttons import CircularButton
-from ftrack_qt.widgets.browsers import EntityBrowser
 
 # TODO: this code has to be reviewed
 
@@ -18,10 +17,10 @@ from ftrack_qt.widgets.browsers import EntityBrowser
 class ContextSelector(QtWidgets.QFrame):
     '''Widget representing the current context by showing entity info, and a button enabling change of context'''
 
-    changeContextClicked = QtCore.Signal()
+    change_context_clicked = QtCore.Signal()
     entity_changed = QtCore.Signal(object)
     context_changed = QtCore.Signal(object)
-    entityFound = QtCore.Signal(object)
+    entity_found = QtCore.Signal(object)
     disable_thumbnail = False
 
     @property
@@ -62,14 +61,14 @@ class ContextSelector(QtWidgets.QFrame):
             target_args=[value],
         )
         self.__thread_registry.append(thread)
-        self._borwsing_context = True
+        self._browsing_context = True
         thread.start()
 
     @property
     def is_browsing(self):
         browsing = False
         for thread in self.__thread_registry:
-            if thread.is_alive() or self._borwsing_context:
+            if thread.is_alive() or self._browsing_context:
                 browsing = True
                 break
         return browsing
@@ -84,10 +83,15 @@ class ContextSelector(QtWidgets.QFrame):
         '''Set the initial browse context id'''
         self._browse_context_id = value
 
+    @property
+    def entity_browser(self):
+        '''Return the entity browser'''
+        return self._entity_browser
+
     def __init__(
         self,
         session,
-        enble_context_change=False,
+        enable_context_change=False,
         select_task=True,
         browse_context_id=None,
         parent=None,
@@ -96,7 +100,8 @@ class ContextSelector(QtWidgets.QFrame):
         Initialise ContextSelector widget
 
         :param session: :class:`ftrack_api.session.Session`
-        :param enble_context_change:  If set to to True, this contest selection is allowed to spawn the entity browser and change global context.
+        :param enable_context_change:  If setto True, this contest selection is allowed to spawn the entity browser
+            and change global context.
         :param select_task: If true. only tasks can be selected in the entity browser. If false, any context can be selected.
         :param browse_context_id: If set, the entity browser will be opened with this context id as the root.
         :param parent: The parent dialog or frame
@@ -106,14 +111,15 @@ class ContextSelector(QtWidgets.QFrame):
 
         self.logger = logging.getLogger(__name__)
 
-        self._enble_context_change = enble_context_change
+        self._enable_context_change = enable_context_change
         self._select_task = select_task
         self._browse_context_id = browse_context_id
         self._entity = None
         self._context_id = None
         self.session = session
         self.__thread_registry = []
-        self._borwsing_context = False
+        self._browsing_context = False
+        self._entity_browser = None
 
         self.pre_build()
         self.build()
@@ -152,7 +158,11 @@ class ContextSelector(QtWidgets.QFrame):
         self.layout().addWidget(self.entity_browse_button)
 
         # Build entity browser:
-        self.entity_browser = EntityBrowser(
+        from ftrack_qt.widgets.browsers import (
+            EntityBrowser,
+        )  # Prevent circular import
+
+        self._entity_browser = EntityBrowser(
             self.parent(),
             self.session,
             title='CHOOSE TASK (WORKING CONTEXT)'
@@ -180,7 +190,7 @@ class ContextSelector(QtWidgets.QFrame):
         self.entity_browse_button.clicked.connect(
             self._on_entity_browse_button_clicked
         )
-        self.entityFound.connect(self._on_entity_found)
+        self.entity_found.connect(self._on_entity_found)
         self.setMaximumHeight(50)
 
     def reset(self, entity=None):
@@ -200,22 +210,22 @@ class ContextSelector(QtWidgets.QFrame):
         '''(Run in background thread) Entity found callback'''
         if not shiboken2.isValid(self):
             # Widget has been closed while entity fetched
-            self._borwsing_context = False
+            self._browsing_context = False
             return
-        self.entityFound.emit(entity)
+        self.entity_found.emit(entity)
 
     def _on_entity_found(self, entity):
         '''Entity found callback, set entity'''
         self.entity = entity
-        self._borwsing_context = False
+        self._browsing_context = False
 
     def _on_entity_browse_button_clicked(self):
         '''Handle entity browse button clicked'''
 
-        if self._enble_context_change:
+        if self._enable_context_change:
             # Launch browser.
             if self.entity_browser.exec_():
                 self.entity = self.entity_browser.entity
         else:
             # Let client decide what to do when user wants to change context
-            self.changeContextClicked.emit()
+            self.change_context_clicked.emit()

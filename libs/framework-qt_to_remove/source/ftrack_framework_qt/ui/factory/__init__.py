@@ -754,7 +754,7 @@ class WidgetFactoryBase(QtWidgets.QWidget):
                 return self._step_objs_ref[data['widget_ref']]
 
     def query_asset_version_from_version_id(self, version_id):
-        '''Retreive asset version from ftrack based on its *version_id*'''
+        '''Retrieve asset version from ftrack based on its *version_id*'''
         asset_version_entity = self.session.query(
             'select components, components.name '
             'from AssetVersion where id is {}'.format(version_id)

@@ -11,7 +11,7 @@ from ftrack_qt.widgets.accordion import AccordionBaseWidget
 
 
 class PublisherDialog(FrameworkDialog, ScrollToolConfigsDialog):
-    '''Default Framework Publisher widget'''
+    '''Default Framework Publisher dialog'''
 
     name = 'framework_publisher_dialog'
     tool_config_type_filter = ['publisher']
@@ -47,7 +47,7 @@ class PublisherDialog(FrameworkDialog, ScrollToolConfigsDialog):
         parent=None,
     ):
         '''
-        Initialize Mixin clas publisher dialog. It will load the qt dialog and
+        Initialize Mixin class publisher dialog. It will load the qt dialog and
         mix it with the framework dialog.
         *event_manager*: instance of
         :class:`~ftrack_framework_core.event.EventManager`
@@ -175,7 +175,7 @@ class PublisherDialog(FrameworkDialog, ScrollToolConfigsDialog):
                 self,
                 title='Context out of sync!',
                 message='Selected context is not the current context, '
-                'do you want to update UI to syc with the current context?',
+                'do you want to update UI to sync with the current context?',
                 question=True,
             ).exec_()
             if result:

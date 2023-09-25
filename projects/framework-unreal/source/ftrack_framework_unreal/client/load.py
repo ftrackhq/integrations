@@ -173,7 +173,7 @@ class UnrealQtAssemblerClientWidget(load.QtAssemblerClientWidget):
             self.change_definition
         )
 
-        self.context_selector.changeContextClicked.connect(
+        self.context_selector.change_context_clicked.connect(
             self._launch_context_selector
         )
         self._tab_widget.currentChanged.connect(self._on_tab_changed)

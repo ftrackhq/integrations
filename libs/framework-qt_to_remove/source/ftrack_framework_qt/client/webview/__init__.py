@@ -105,7 +105,7 @@ class QtWebViewClientWidget(Client, dialog.Dialog):
         super(QtWebViewClientWidget, self).show()
 
     def get_url(self):
-        '''Retreive the URL of content to view'''
+        '''Retrieve the URL of content to view'''
         raise NotImplementedError()
 
     def closeEvent(self, e):
