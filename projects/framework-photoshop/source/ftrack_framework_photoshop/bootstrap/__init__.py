@@ -16,8 +16,6 @@ configure_logging(
 
 logger = logging.getLogger('ftrack_framework_photoshop.bootstrap')
 
-logger.info('Initializing Photoshop Framework POC')
-
 photoshop_session_id = os.environ.get('FTRACK_INTEGRATION_SESSION_ID')
 assert (
     photoshop_session_id
