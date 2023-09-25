@@ -175,6 +175,10 @@ function showChangeContext() {
     launchTool('change_context');
 }
 
+function launchPublisher() {
+    launchTool('publisher');
+}
+
 // Utility
 
 function sleep(ms) {
