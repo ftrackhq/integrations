@@ -49,7 +49,7 @@ class ScrollToolConfigsDialog(StyledDialog):
     @property
     def is_browsing_context(self):
         '''
-        Return if context selector is currently working on seting up a context
+        Return if context selector is currently working on setting up a context
         '''
         return self._context_selector.is_browsing
 
@@ -129,10 +129,8 @@ class ScrollToolConfigsDialog(StyledDialog):
         # self._progress_widget = ProgressWidget
         # self._header.add_widget(self._progress_widget)
 
-        # TODO: we have to update the signals from the context selector to
-        #  identify that are our signals and not qt signals. So make them snake case
         self._context_selector = ContextSelector(
-            self._session, enble_context_change=True
+            self._session, enable_context_change=True
         )
 
         self._host_connection_selector = ListSelector("Host Selector")

@@ -244,8 +244,8 @@ class FrameworkDialog(BaseUI):
 
     def _on_focus_changed(self, old_widget, new_widget):
         '''
-        Set the *new_widget* as active and syncronizs the context, host and
-        tool_config with the client.
+        Set the *new_widget* as active and synchronize the context, host and
+        tool config with the client.
         '''
         # TODO: evaluate if this should be implemented in the widget
         if self == old_widget:

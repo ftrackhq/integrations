@@ -78,7 +78,7 @@ class ContextSelector(QtWidgets.QFrame):
     def __init__(
         self,
         session,
-        enble_context_change=False,
+        enable_context_change=False,
         select_task=True,
         browse_context_id=None,
         parent=None,
@@ -87,7 +87,7 @@ class ContextSelector(QtWidgets.QFrame):
         Initialise ContextSelector widget
 
         :param session: :class:`ftrack_api.session.Session`
-        :param enble_context_change:  If set to to True, this contest selection is allowed to spawn the entity browser and change global context.
+        :param enable_context_change:  If set to to True, this contest selection is allowed to spawn the entity browser and change global context.
         :param select_task: If true. only tasks can be selected in the entity browser. If false, any context can be selected.
         :param browse_context_id: If set, the entity browser will be opened with this context id as the root.
         :param parent: The parent dialog or frame
@@ -97,7 +97,7 @@ class ContextSelector(QtWidgets.QFrame):
 
         self.logger = logging.getLogger(__name__)
 
-        self._enble_context_change = enble_context_change
+        self._enable_context_change = enable_context_change
         self._select_task = select_task
         self._browse_context_id = browse_context_id
         self._entity = None
@@ -214,7 +214,7 @@ class ContextSelector(QtWidgets.QFrame):
     def _on_entity_browse_button_clicked(self):
         '''Handle entity browse button clicked'''
 
-        if self._enble_context_change:
+        if self._enable_context_change:
             # Launch browser.
             if self.entity_browser.exec_():
                 self.entity = self.entity_browser.entity
