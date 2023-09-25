@@ -22,7 +22,7 @@ class ScrollToolConfigsDialog(StyledDialog):
 
     @property
     def tool_config_widget(self):
-        '''Return the tool_config widget of the dialog'''
+        '''Return the tool config widget of the dialog'''
         return self._tool_config_widget
 
     @property
@@ -76,14 +76,14 @@ class ScrollToolConfigsDialog(StyledDialog):
 
     @property
     def selected_tool_config_name(self):
-        '''Return the selected tool_config name'''
+        '''Return the selected tool config name'''
         if self._tool_config_selector.current_item_index() in [0, -1]:
             return None
         return self._tool_config_selector.current_item_text()
 
     @selected_tool_config_name.setter
     def selected_tool_config_name(self, value):
-        '''Set the given *value* as the selected tool_config name'''
+        '''Set the given *value* as the selected tool config name'''
         if not self.selected_tool_config_name and not value:
             self.clear_tool_config_ui()
         if self.selected_tool_config_name != value:
@@ -137,7 +137,7 @@ class ScrollToolConfigsDialog(StyledDialog):
 
         self._host_connection_selector = ListSelector("Host Selector")
 
-        self._tool_config_selector = ListSelector("tool_configs")
+        self._tool_config_selector = ListSelector("Configs")
 
         self._scroll_area = QtWidgets.QScrollArea()
         self._scroll_area.setStyle(QtWidgets.QStyleFactory.create("plastique"))
@@ -189,7 +189,7 @@ class ScrollToolConfigsDialog(StyledDialog):
             self._host_connection_selector.add_item(host_connection_id)
 
     def add_tool_config_items(self, tool_config_names):
-        '''Add given tool_configs to tool_config selector'''
+        '''Add given tool_configs to tool config selector'''
         for tool_config_name in tool_config_names:
             self._tool_config_selector.add_item(tool_config_name)
 
@@ -214,7 +214,7 @@ class ScrollToolConfigsDialog(StyledDialog):
         self.refresh_hosts_clicked.emit()
 
     def _on_tool_config_selected_callback(self, item_text):
-        '''Emit signal with the new selected tool_config'''
+        '''Emit signal with the new selected tool config'''
         if not item_text:
             return
         self.selected_tool_config_changed.emit(self.selected_tool_config_name)

@@ -53,10 +53,10 @@ Glossary
          * `ftrack_framework_maya <https://ftrackhq.github.io/integrations/projects/framework-maya/>`_
          * Source code: `<https://github.com/ftrackhq/integrations/projects/framework-maya>`_
 
-    Tool_config
+    Tool config
         A :term:`JSON` configuration file defining :term:`Framework` :term:`engine` behaviour -
         which plugins and widgets to use. Is validated against a :term:`schema`.
-        Example of a tool_config is the *Maya Geometry* publisher. Tool_configs lives within
+        Example of a tool config is the *Maya Geometry* publisher. Tool_configs lives within
         the resource/tool_configs folder within each framework plugin.
 
     Engine
@@ -84,7 +84,7 @@ Glossary
 
     Host type
         The host type is the actual DCC type and is used to identify a DCC module
-        and bind a tool_config to the DCC application. An example host types value
+        and bind a tool config to the DCC application. An example host types value
         is **maya**.
 
     JSON
@@ -102,7 +102,7 @@ Glossary
         A module designed to be discovered by the :term:`ftrack Python API`. Plugins
         designed to be discovered by Connect is called Connect plugins and are main
         components of the :term:`Framework`. Framework plugins resides within the
-        tool_config module and are referenced from the with the :term:`tool_config` JSON
+        tool config module and are referenced from the with the :term:`tool config` JSON
         configurations.
 
     Plugin manager
@@ -131,6 +131,6 @@ Glossary
 
     Schema
         A :term:`JSON` configuration defining the strict structure and syntax of
-        a :term:`tool_config` for use with an :term:`engine`.
+        a :term:`tool config` for use with an :term:`engine`.
 
 

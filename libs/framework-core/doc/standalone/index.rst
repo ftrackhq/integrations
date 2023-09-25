@@ -18,7 +18,7 @@ Python Example
 
 This is an example on how to run the framework in a python console without
 Connect or any DCC running on the background, this way the framework is able to
-discover any tool_config where the host type is python.
+discover any tool config where the host type is python.
 
 **mypipeline/standalone-snippets/python_standalone_publish_snippet.py**
 

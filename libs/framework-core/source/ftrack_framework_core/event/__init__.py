@@ -328,24 +328,6 @@ class Publish(object):
         event_topic = constants.event.CLIENT_CONTEXT_CHANGED_TOPIC
         return self._publish_event(event_topic, data, callback)
 
-    def client_launch_widget(
-        self, host_id, widget_name, source=None, callback=None
-    ):
-        '''
-        Publish an event with topic
-        :const:`~ftrack_framework_core.constants.event.CLIENT_LAUNCH_WIDGET_TOPIC`
-        '''
-        # TODO: call this from a new launch_assembler method in the opener
-        #  client or in any other place. The data needed is like the following:
-        data = {
-            'host_id': host_id,
-            'name': widget_name,
-            'source': source,
-        }
-
-        event_topic = constants.event.CLIENT_LAUNCH_WIDGET_TOPIC
-        return self._publish_event(event_topic, data, callback)
-
     def notify_plugin_progress_client(self, plugin_info, callback=None):
         '''
         Publish an event with topic
@@ -474,7 +456,9 @@ class Publish(object):
             'tool_config_result': tool_config_result,
         }
 
-        event_topic = constants.event.CLIENT_NOTIFY_RUN_TOOL_CONFIG_RESULT_TOPIC
+        event_topic = (
+            constants.event.CLIENT_NOTIFY_RUN_TOOL_CONFIG_RESULT_TOPIC
+        )
         return self._publish_event(event_topic, data, callback)
 
     def client_notify_log_item_added(self, client_id, log_item, callback=None):
@@ -603,16 +587,6 @@ class Subscribe(object):
         '''
         event_topic = '{} and data.host_id={}'.format(
             constants.event.CLIENT_CONTEXT_CHANGED_TOPIC, host_id
-        )
-        return self._subscribe_event(event_topic, callback)
-
-    def client_launch_widget(self, host_id, callback=None):
-        '''
-        Subscribe to an event with topic
-        :const:`~ftrack_framework_core.constants.event.CLIENT_LAUNCH_WIDGET_TOPIC`
-        '''
-        event_topic = '{} and data.host_id={}'.format(
-            constants.event.CLIENT_LAUNCH_WIDGET_TOPIC, host_id
         )
         return self._subscribe_event(event_topic, callback)
 

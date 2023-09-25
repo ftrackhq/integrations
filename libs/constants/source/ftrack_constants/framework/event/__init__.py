@@ -11,7 +11,7 @@ LOCAL_EVENT_MODE = 0
 #: Base name for events
 _BASE_ = 'ftrack.framework'
 
-#: Register tool_config topic event.
+#: Register tool config topic event.
 DISCOVER_TOOL_CONFIG_TOPIC = '{}.discover.tool_config'.format(_BASE_)
 #: Discover plugin topic event, used to discover the plugins.
 DISCOVER_PLUGIN_TOPIC = '{}.discover.plugin'.format(_BASE_)
@@ -36,8 +36,6 @@ NOTIFY_PLUGIN_PROGRESS_TOPIC = '{}.notify.plugin.progress'.format(_BASE_)
 NOTIFY_TOOL_CONFIG_PROGRESS_TOPIC = '{}.notify.tool_config.progress'.format(
     _BASE_
 )
-# Launch a widget within a client
-CLIENT_LAUNCH_WIDGET_TOPIC = '{}.client.launch.widget'.format(_BASE_)
 # The main host context has changed, sent from host or host connection (change context)
 HOST_CONTEXT_CHANGED_TOPIC = '{}.host.context.change'.format(_BASE_)
 # The host connection context has changed, sent from host connection to clients
@@ -56,7 +54,7 @@ CLIENT_SIGNAL_HOSTS_DISCOVERED_TOPIC = '{}.client.signal.host.discover'.format(
 CLIENT_SIGNAL_HOST_CHANGED_TOPIC = '{}.client.signal.host.change'.format(
     _BASE_
 )
-# Client signal tool_config changed
+# Client signal tool config changed
 CLIENT_SIGNAL_TOOL_CONFIG_CHANGED_TOPIC = (
     '{}.client.signal.tool_config.change'.format(_BASE_)
 )
@@ -64,7 +62,7 @@ CLIENT_SIGNAL_TOOL_CONFIG_CHANGED_TOPIC = (
 CLIENT_NOTIFY_RUN_PLUGIN_RESULT_TOPIC = (
     '{}.client.notify.plugin.result'.format(_BASE_)
 )
-# Client received tool_config result
+# Client received tool config result
 CLIENT_NOTIFY_RUN_TOOL_CONFIG_RESULT_TOPIC = (
     '{}.client.notify.tool_config.result'.format(_BASE_)
 )
