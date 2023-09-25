@@ -6,8 +6,8 @@
 
 var csInterface = new CSInterface();
 
-const TOPIC_PING = "ftrack.pipeline.ping";
-const TOPIC_PONG = "ftrack.pipeline.pong";
+const TOPIC_PING = "ftrack.framework.ping";
+const TOPIC_PONG = "ftrack.framework.pong";
 
 
 var env = {};
@@ -104,27 +104,25 @@ function initializeIntegration() {
 
 // Events
 
-function createEvent(topic, pipeline_data) {
-    pipeline_data.integration_session_id = adobe_id;
-    let event = new ftrack.Event(topic, {
-        pipeline: pipeline_data
-    });
+function createEvent(topic, framework_data) {
+    framework_data.integration_session_id = adobe_id;
+    let event = new ftrack.Event(topic, framework_data);
     return event;
 }
 
-function sendEvent(topic, pipeline_data, reply_to_event) {
+function sendEvent(topic, framework_data, reply_to_event) {
     if (reply_to_event !== undefined) {
-        pipeline_data.reply_to_event = reply_to_event;
+        framework_data.reply_to_event = reply_to_event;
     }
-    let event = createEvent(topic, pipeline_data);
+    let event = createEvent(topic, framework_data);
     console.log("Publishing event: "+JSON.stringify(event));
     session.eventHub.publish(event);
 }
 
 function handleEvent(event) {
 
-    if (event.source == undefined || event.data.pipeline == undefined || event.source.applicationId === 'ftrack.api.javascript' ||
-        event.data.pipeline.integration_session_id == undefined || event.data.pipeline.integration_session_id != adobe_id) {
+    if (event.source == undefined || event.data == undefined || event.source.applicationId === 'ftrack.api.javascript' ||
+        event.data.integration_session_id == undefined || event.data.integration_session_id != adobe_id) {
         return;
     }
 
