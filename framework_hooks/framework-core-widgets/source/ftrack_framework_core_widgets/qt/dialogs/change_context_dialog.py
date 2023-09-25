@@ -10,12 +10,11 @@ from ftrack_qt.widgets.browsers import EntityBrowser
 
 
 class ChangeContextDialog(FrameworkDialog, EntityBrowser):
-    ''' Default Framework change context dialog. '''
+    '''Default Framework change context dialog.'''
 
     name = 'framework_change_context_dialog'
     ui_type = 'qt'
     docked = False
-
 
     def __init__(
         self,
@@ -64,7 +63,6 @@ class ChangeContextDialog(FrameworkDialog, EntityBrowser):
             mode=EntityBrowser.MODE_TASK,
             title='CHOOSE TASK (WORKING CONTEXT)',
         )
-        print('@@@ host_connection: {}'.format(self.host_connection))
 
     def connect_focus_signal(self):
         '''Connect signal when the current dialog gets focus'''
@@ -74,7 +72,7 @@ class ChangeContextDialog(FrameworkDialog, EntityBrowser):
         )
 
     def sync_context(self):
-        ''' Always accept new context set elsewhere, should not be possible
+        '''Always accept new context set elsewhere, should not be possible
         as this should be a modal dialog blocking other UI:s'''
         self._on_client_context_changed_callback()
 
@@ -83,11 +81,8 @@ class ChangeContextDialog(FrameworkDialog, EntityBrowser):
 
     def _on_client_context_changed_callback(self, event=None):
         '''Client context has been changed'''
-        print('@@@ _on_client_context_changed_callback: context_id: {}'.format(self.context_id))
         self.entity_id = self.context_id
 
     def show_ui(self):
-        print('@@@ show_ui'.format())
         if self.exec_():
             self.context_id = self.entity_id
-

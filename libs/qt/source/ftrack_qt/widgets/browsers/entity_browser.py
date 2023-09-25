@@ -41,14 +41,14 @@ class EntityBrowser(ModalDialog):
     entity_changed = QtCore.Signal(
         object
     )  # External; a new context has been set
-    rebuild_entity_browser = QtCore.Signal()  # Entity browser content should be rebuilt
+    rebuild_entity_browser = (
+        QtCore.Signal()
+    )  # Entity browser content should be rebuilt
     entities_fetched = QtCore.Signal(
         object
     )  # The entities beneath entity has been fetched
 
-    working = (
-        False  # Flag preventing multiple user operations at the same time
-    )
+    working = False  # Flag preventing multiple user operations while background work is being done
 
     @property
     def entity(self):
@@ -147,6 +147,9 @@ class EntityBrowser(ModalDialog):
         self._rebuild_button = None
         self._search = None
         self._scroll = None
+        self._content_widget = None
+        self._entity_widgets = None
+        self._busy_indicator = None
 
         super(EntityBrowser, self).__init__(
             parent, question=True, title=title or 'ftrack Entity Browser'
@@ -227,7 +230,9 @@ class EntityBrowser(ModalDialog):
 
     def create_navigator(self):
         '''Create and return an external navigator widget, to be used in another widget'''
-        self._external_navigator = EntityBrowserNavigator(self, is_external=True)
+        self._external_navigator = EntityBrowserNavigator(
+            self, is_external=True
+        )
         self._external_navigator.change_entity.connect(self._browse_parent)
         self._external_navigator.add_entity.connect(self._add_entity)
         self._external_navigator.remove_entity.connect(self._set_parent_entity)
@@ -283,12 +288,13 @@ class EntityBrowser(ModalDialog):
         return context_entity
 
     def rebuild(self):
+        '''Rebuild the entity browser content in a background thread to enable busy widget.'''
 
         if self.working:
             return
 
         self.working = True
-        self.entity_widgets = []
+        self._entity_widgets = []
 
         self._busy_indicator = BusyIndicator(False)
 
@@ -307,7 +313,7 @@ class EntityBrowser(ModalDialog):
         thread.start()
 
     def _fetch_entities_async(self):
-        '''(Run in background thread) Fetch projects/child entities'''
+        '''(Run in background thread) Fetch projects/child entities from ftrack'''
 
         signal_emitted = False
         try:
@@ -343,7 +349,7 @@ class EntityBrowser(ModalDialog):
 
             self._scroll.setWidget(entities_widget)
 
-            self.entity_widgets = []
+            self._entity_widgets = []
             if (
                 self.intermediate_entity is not None
                 and self.intermediate_entity.get('parent') is not None
@@ -360,7 +366,7 @@ class EntityBrowser(ModalDialog):
                         self.intermediate_entity['parent'],
                     )
                 )
-                parent_entity_widget.doubleClicked.connect(
+                parent_entity_widget.double_clicked.connect(
                     partial(
                         self._entity_selected,
                         self.intermediate_entity['parent'],
@@ -368,17 +374,17 @@ class EntityBrowser(ModalDialog):
                     )
                 )
                 entities_widget.layout().addWidget(parent_entity_widget)
-                self.entity_widgets.append(parent_entity_widget)
+                self._entity_widgets.append(parent_entity_widget)
             for entity in entities:
                 entity_widget = EntityWidget(entity, False, self)
                 entity_widget.clicked.connect(
                     partial(self._entity_selected, entity)
                 )
-                entity_widget.doubleClicked.connect(
+                entity_widget.double_clicked.connect(
                     partial(self._entity_selected, entity, True)
                 )
                 entities_widget.layout().addWidget(entity_widget)
-                self.entity_widgets.append(entity_widget)
+                self._entity_widgets.append(entity_widget)
                 if self.SHOW_CHILDREN:
                     for sub_entity in entity['children']:
                         if sub_entity.entity_type == 'Task':
@@ -391,7 +397,7 @@ class EntityBrowser(ModalDialog):
                             entities_widget.layout().addWidget(
                                 sub_entity_widget
                             )
-                            self.entity_widgets.append(sub_entity_widget)
+                            self._entity_widgets.append(sub_entity_widget)
 
             entities_widget.layout().addWidget(QtWidgets.QLabel(), 100)
 
@@ -401,7 +407,7 @@ class EntityBrowser(ModalDialog):
     def refresh(self):
         '''Filter visible entities on search.'''
         text = self._search.text.lower()
-        for entity_widget in self.entity_widgets:
+        for entity_widget in self._entity_widgets:
             entity_widget.setVisible(
                 len(text) == 0
                 or entity_widget.entity['name'].lower().find(text) > -1
@@ -410,7 +416,7 @@ class EntityBrowser(ModalDialog):
     def _entity_selected(self, entity, double_click=False):
         '''User has selected an entity'''
         self._selected_entity = entity
-        for entity_widget in self.entity_widgets:
+        for entity_widget in self._entity_widgets:
             set_property(
                 entity_widget,
                 "background",
@@ -541,7 +547,7 @@ class EntityBrowserNavigator(InputEventBlockingWidget):
         self.rebuild_navigator.connect(self.rebuild)
 
     def refresh(self):
-        '''Rebuild the navigator'''
+        '''Rebuild the navigator using a background thread to enable busy widget.'''
 
         self.working = True
 
@@ -659,6 +665,8 @@ class NavigationEntityButton(QtWidgets.QFrame):
     def __init__(self, link_entity, parent=None):
         super(NavigationEntityButton, self).__init__(parent=parent)
         self.link_entity = link_entity
+        self.remove_button = None
+
         self.pre_build()
         self.build()
         self.post_build()
@@ -699,6 +707,7 @@ class NavigationEntityButton(QtWidgets.QFrame):
         self.setMaximumHeight(25)
 
     def mousePressEvent(self, event):
+        '''(Override)'''
         self.clicked.emit()
         return super(NavigationEntityButton, self).mousePressEvent(event)
 
@@ -707,7 +716,7 @@ class EntityWidget(QtWidgets.QFrame):
     '''A button representing a context within the navigator.'''
 
     clicked = QtCore.Signal()
-    doubleClicked = QtCore.Signal()
+    double_clicked = QtCore.Signal()
 
     def __init__(
         self, entity, is_sub_task, entity_browser, parent=None, is_parent=False
@@ -717,6 +726,8 @@ class EntityWidget(QtWidgets.QFrame):
         self.is_parent = is_parent
         self.is_sub_task = is_sub_task
         self._entity_browser = entity_browser
+        self._thumbnail_widget = None
+
         self.pre_build()
         self.build()
         self.post_build()
@@ -809,13 +820,14 @@ class EntityWidget(QtWidgets.QFrame):
         return retval
 
     def mouseDoubleClickEvent(self, event):
+        '''(Override)'''
         if not shiboken2.isValid(self) or not shiboken2.isValid(
             super(EntityWidget, self)
         ):
             # Widget has been destroyed
             return
+        self.double_clicked.emit()
         return super(EntityWidget, self).mouseDoubleClickEvent(event)
-        self.doubleClicked.emit()
 
 
 class AddContextButton(CircularButton):

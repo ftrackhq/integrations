@@ -158,7 +158,9 @@ class ContextSelector(QtWidgets.QFrame):
         self.layout().addWidget(self.entity_browse_button)
 
         # Build entity browser:
-        from ftrack_qt.widgets.browsers import EntityBrowser # Prevent circular import
+        from ftrack_qt.widgets.browsers import (
+            EntityBrowser,
+        )  # Prevent circular import
 
         self._entity_browser = EntityBrowser(
             self.parent(),
