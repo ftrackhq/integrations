@@ -13,7 +13,7 @@ Release Notes
     .. change:: changed
         :tags: launchers, core
 
-        Added photoshop framework launcher; Standalone framework helper process support; Added support launching in Rosetta mode.
+        Added photoshop framework launcher; Standalone framework helper process support; Added support for launching in Rosetta mode.
 
 .. release:: 1.1.2
     :date: 2023-08-1

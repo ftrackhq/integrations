@@ -1,10 +1,10 @@
 {
     "priority":100,
     "context": ["Task"],
-    "identifier": "ftrack-connect-launch-photoshop-prototype",
+    "identifier": "ftrack-connect-launch-photoshop",
     "applicationIdentifier":"photoshop_{variant}",
     "integrations": {
-        "pipeline":[
+        "framework":[
             "ftrack-framework-photoshop"
         ]
     },
