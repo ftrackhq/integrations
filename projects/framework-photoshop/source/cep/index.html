@@ -22,7 +22,27 @@
     </div>
 
     <div id="content" style="visibility: hidden; display: none;">
-      <!-- TODO: Implement content -->
+      
+      <!-- Context widget -->
+      <table cellspacing="1" cellpadding="2" class="context">
+        <tr height="50px">
+          <td width="65px">
+            <img class="ftrack-context-thumbnail" src="./icons/thumbnail.png" border="0" id="context_thumbnail" />
+          </td>
+          <td width=100%>
+            <span class="ftrack-context-name" id="context_name">&lt;task name&gt;</span><br>
+            <span class="ftrack-context-path" id="context_path">&lt;task path&gt;</span>
+          </td>
+          <td width="30px">
+            <button class="ftrack-context" onclick="openContext()"><img src="./icons/open_in_new.png" border="0" /></button>
+          </td>
+          <td width="30px">
+            <button class="ftrack-context" onclick="showChangeContext()"><img src="./icons/swap_horiz.png" border="0" /></button>
+          </td>
+        </tr>
+      </table>
+
+      <!-- TODO: Implement publisher launch widget -->
     </div>
 
     <p class="footer">

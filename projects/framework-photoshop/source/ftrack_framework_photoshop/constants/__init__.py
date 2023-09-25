@@ -5,3 +5,5 @@ from ftrack_constants.framework import event
 
 TOPIC_PING = "{}.ping".format(event._BASE_)
 TOPIC_PONG = "{}.pong".format(event._BASE_)
+
+TOPIC_TOOL_LAUNCH = "{}.tool.launch".format(event._BASE_)

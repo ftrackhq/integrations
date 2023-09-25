@@ -8,12 +8,17 @@ var csInterface = new CSInterface();
 
 const TOPIC_PING = "ftrack.framework.ping";
 const TOPIC_PONG = "ftrack.framework.pong";
-
+const TOPIC_TOOL_LAUNCH = "ftrack.framework.tool.launch";
 
 var env = {};
 var session = undefined;
 var adobe_id = undefined;
 var connected = false;
+
+// Context
+var context_id = undefined;
+var project_id = undefined;
+
 
 function showElement(element_id, show) {
     document.getElementById(element_id).style.visibility = show?"visible":"hidden";
@@ -134,7 +139,12 @@ function handleEvent(event) {
             showElement("content", true); 
             alert("ftrack Photoshop Integration successfully initialized\n\nIMPORTANT NOTE: This is a prototype and not intended for production use. Please submit bug reports and feedback to support@ftrack.com.");
         }
-        // TODO: Display context info
+        // Assume context thumbnail URL, name and path returned back
+        context_id = event.data.pipeline.context_id;
+        document.getElementById("context_thumbnail").src = event.data.pipeline.context_thumbnail;
+        document.getElementById("context_name").innerHTML = event.data.pipeline.context_name;
+        document.getElementById("context_path").innerHTML = event.data.pipeline.context_path;
+        project_id = event.data.pipeline.project_id;
     } else if (event.topic == TOPIC_PING) {
         // Tell integration we are still here
         sendEvent(TOPIC_PONG, {}, event.id);
@@ -143,7 +153,25 @@ function handleEvent(event) {
 
 // Tools
 
-// TODO: Implement tool launchers
+function launchTool(tool_name) {
+
+    if (!connected) {
+        error("[ERROR] Not connected to ftrack server, can't launch "+tool_name+" tool!");
+        return;
+    }
+    sendEvent(TOPIC_TOOL_LAUNCH,{
+        name: tool_name
+    });
+}
+
+function openContext() {
+    let task_url = session.serverUrl+"/#slideEntityId="+context_id+"&slideEntityType=task&view=tasks&itemId=projects&entityId="+project_id+"&entityType=show";
+    csInterface.openURLInDefaultBrowser(task_url);
+}
+
+function showChangeContext() {
+    launchTool('change_context');
+}
 
 // Utility
 

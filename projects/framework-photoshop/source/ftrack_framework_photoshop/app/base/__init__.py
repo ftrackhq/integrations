@@ -28,6 +28,8 @@ logger = logging.getLogger(__name__)
 class BasePhotoshopApplication(QtWidgets.QApplication):
     '''Base Photoshop standalone background application.'''
 
+    launch_tool = QtCore.Signal(object) # Launch a tool(dialog)
+
     _instance = None
 
     @property
@@ -53,6 +55,10 @@ class BasePhotoshopApplication(QtWidgets.QApplication):
     @property
     def connected(self):
         return self._connected
+
+    @property
+    def client(self):
+        return self._client
 
     @connected.setter
     def connected(self, value):
@@ -81,6 +87,8 @@ class BasePhotoshopApplication(QtWidgets.QApplication):
         self._connected = False
         self._remote_subscriber_id = None
         self._event_replies = {}
+
+        self.launch_tool.connect(self._launch_tool)
 
         BasePhotoshopApplication._instance = self
 
@@ -148,6 +156,8 @@ class BasePhotoshopApplication(QtWidgets.QApplication):
                     'project_id': task['project_id'],
                 },
             )
+        elif topic == photoshop_constants.TOPIC_TOOL_LAUNCH:
+            self.launch_tool.emit(event['data']['name'])
 
     def send_event(
         self, topic, framework_data, fetch_reply=False, timeout=None
@@ -286,6 +296,10 @@ class BasePhotoshopApplication(QtWidgets.QApplication):
             'ftrack.*',
             handle_event_debug,
         )
+
+    def _launch_tool(self, tool_name):
+        if tool_name == constants.tools.types.CHANGE_CONTEXT:
+            self.client.run_dialog(dialog_name='framework_change_context_dialog')
 
     def check_responding(self):
         '''Check if Photoshop is alive, send ping'''
