@@ -4,7 +4,7 @@
     "identifier": "ftrack-framework-launch-photoshop",
     "applicationIdentifier":"photoshop_{variant}",
     "integrations": {
-        "pipeline":[
+        "framework":[
             "ftrack-framework-photoshop"
         ]
     },
