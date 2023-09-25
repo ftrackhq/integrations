@@ -211,7 +211,7 @@ class Publish(object):
     def host_run_plugin(
         self,
         host_id,
-        plugin_definition,
+        plugin_config,
         plugin_method,
         engine_type,
         engine_name,
@@ -224,7 +224,7 @@ class Publish(object):
         '''
         data = {
             'host_id': host_id,
-            'plugin_definition': plugin_definition,
+            'plugin_config': plugin_config,
             'plugin_method': plugin_method,
             'engine_type': engine_type,
             'engine_name': engine_name,
@@ -326,24 +326,6 @@ class Publish(object):
             'context_id': context_id,
         }
         event_topic = constants.event.CLIENT_CONTEXT_CHANGED_TOPIC
-        return self._publish_event(event_topic, data, callback)
-
-    def client_launch_tool(
-        self, host_id, tool_name, source=None, callback=None
-    ):
-        '''
-        Publish an event with topic
-        :const:`~ftrack_framework_core.constants.event.CLIENT_LAUNCH_TOOL_TOPIC`
-        '''
-        # TODO: call this from a new launch_assembler method in the opener
-        #  client or in any other place. The data needed is like the following:
-        data = {
-            'host_id': host_id,
-            'name': tool_name,
-            'source': source,
-        }
-
-        event_topic = constants.event.CLIENT_LAUNCH_TOOL_TOPIC
         return self._publish_event(event_topic, data, callback)
 
     def notify_plugin_progress_client(self, plugin_info, callback=None):
@@ -605,16 +587,6 @@ class Subscribe(object):
         '''
         event_topic = '{} and data.host_id={}'.format(
             constants.event.CLIENT_CONTEXT_CHANGED_TOPIC, host_id
-        )
-        return self._subscribe_event(event_topic, callback)
-
-    def client_launch_tool(self, host_id, callback=None):
-        '''
-        Subscribe to an event with topic
-        :const:`~ftrack_framework_core.constants.event.CLIENT_LAUNCH_TOOL_TOPIC`
-        '''
-        event_topic = '{} and data.host_id={}'.format(
-            constants.event.CLIENT_LAUNCH_TOOL_TOPIC, host_id
         )
         return self._subscribe_event(event_topic, callback)
 
