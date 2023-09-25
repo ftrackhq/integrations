@@ -13,5 +13,5 @@ PUBLISHER = 'publisher'
 ASSET_MANAGER = 'asset_manager'
 #: Resolver tool type
 RESOLVER = 'resolver'
-# Log viewer  tool type
+#: Log viewer  tool type
 LOG_VIEWER = 'log_viewer'
