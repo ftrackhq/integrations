@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "ftrack-framework-photoshop"
 version = "0.0.0"
-description='ftrack Connect framework Adobe Photoshop integration'
+description='ftrack Adobe Photoshop integration'
 authors = ["ftrack Integrations Team <integrations@backlight.co>"]
 readme = "README.md"
 packages = [{include = "ftrack_framework_photoshop", from = "source"}]

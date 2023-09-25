@@ -137,7 +137,9 @@ function handleEvent(event) {
             connected = true;
             showElement("connecting", false); 
             showElement("content", true); 
-            alert("ftrack Photoshop Integration successfully initialized\n\nIMPORTANT NOTE: This is a prototype and not intended for production use. Please submit bug reports and feedback to support@ftrack.com.");
+            alert("ftrack Photoshop Integration successfully initialized\n\nIMPORTANT NOTE: "+
+            "This is an alpha and not intended for production use. Please submit bug reports "+
+            "and feedback to support@ftrack.com.");
         }
         // Assume context thumbnail URL, name and path returned back
         context_id = event.data.pipeline.context_id;

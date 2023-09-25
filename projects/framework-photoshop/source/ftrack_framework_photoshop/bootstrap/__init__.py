@@ -9,15 +9,12 @@ from ftrack_framework_core.configure_logging import configure_logging
 
 
 configure_logging(
-    'ftrack_connect_pipeline_photoshop',
-    extra_modules=['ftrack_connect_pipeline', 'ftrack_connect_pipeline_qt'],
+    'ftrack_framework_photoshop',
     propagate=False,
 )
 
 
 logger = logging.getLogger('ftrack_framework_photoshop.bootstrap')
-
-logger.info('Initializing Photoshop Framework integration')
 
 photoshop_session_id = os.environ.get('FTRACK_INTEGRATION_SESSION_ID')
 assert (
