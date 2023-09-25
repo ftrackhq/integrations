@@ -132,7 +132,9 @@ function handleEvent(event) {
             connected = true;
             showElement("connecting", false); 
             showElement("content", true); 
-            alert("ftrack Photoshop Integration successfully initialized\n\nIMPORTANT NOTE: This is a prototype and not intended for production use. Please submit bug reports and feedback to support@ftrack.com.");
+            alert("ftrack Photoshop Integration successfully initialized\n\nIMPORTANT NOTE: "+
+            "This is an alpha and not intended for production use. Please submit bug reports "+
+            "and feedback to support@ftrack.com.");
         }
         // TODO: Display context info
     } else if (event.topic == TOPIC_PING) {
