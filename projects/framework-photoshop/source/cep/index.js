@@ -142,11 +142,11 @@ function handleEvent(event) {
             "and feedback to support@ftrack.com.");
         }
         // Assume context thumbnail URL, name and path returned back
-        context_id = event.data.pipeline.context_id;
-        document.getElementById("context_thumbnail").src = event.data.pipeline.context_thumbnail;
-        document.getElementById("context_name").innerHTML = event.data.pipeline.context_name;
-        document.getElementById("context_path").innerHTML = event.data.pipeline.context_path;
-        project_id = event.data.pipeline.project_id;
+        context_id = event.data.context_id;
+        document.getElementById("context_thumbnail").src = event.data.context_thumbnail;
+        document.getElementById("context_name").innerHTML = event.data.context_name;
+        document.getElementById("context_path").innerHTML = event.data.context_path;
+        project_id = event.data.project_id;
     } else if (event.topic == TOPIC_PING) {
         // Tell integration we are still here
         sendEvent(TOPIC_PONG, {}, event.id);

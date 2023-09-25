@@ -28,7 +28,7 @@ logger = logging.getLogger(__name__)
 class BasePhotoshopApplication(QtWidgets.QApplication):
     '''Base Photoshop standalone background application.'''
 
-    launch_tool = QtCore.Signal(object) # Launch a tool(dialog)
+    launch_tool = QtCore.Signal(object)  # Launch a tool(dialog)
 
     _instance = None
 
@@ -139,7 +139,7 @@ class BasePhotoshopApplication(QtWidgets.QApplication):
         if topic == photoshop_constants.TOPIC_PING:
             self.connected = True
             # Send pong back with current context data
-            context_id = os.getenv('FTRACK_CONTEXTID')
+            context_id = self.client.context_id
             task = self.session.query(
                 'Task where id={}'.format(context_id)
             ).one()
