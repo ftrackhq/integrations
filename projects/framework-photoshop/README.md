@@ -20,7 +20,7 @@ Community owned Photoshop integration for ftrack.
 
 As monorepo tags are not interpreted by Poetry, set the version manually for now:
 
-    $ export POETRY_DYNAMIC_VERSIONING_BYPASS="v0.4.0a7"
+    $ export POETRY_DYNAMIC_VERSIONING_BYPASS="v0.4.0"
 
 To build the plugin from source, run:
 
@@ -31,8 +31,8 @@ To build the plugin from source, run:
 Until we have a proper CI/CD enabled build with Pants, use the temporary 
 build script:
 
-    $ python <path-to-monorepo>/tools/build.py build_plugin
+    $ python <path-to-monorepo>/tests/build.py build_plugin
 
 ## Build docs
 
-    $ python deploy.py build_sphinx
+    $ python <path-to-monorepo>/tests/build.py build_sphinx
