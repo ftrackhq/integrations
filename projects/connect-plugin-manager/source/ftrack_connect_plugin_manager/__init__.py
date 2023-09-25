@@ -15,6 +15,7 @@ import json
 from ftrack_connect.qt import QtWidgets, QtCore, QtGui
 import qtawesome as qta
 
+from ftrack_connect.config import get_plugins_url
 from ftrack_connect.ui.widget.overlay import BlockingOverlay
 
 
@@ -140,17 +141,10 @@ class PluginProcessor(QtCore.QObject):
 
 
 class DndPluginList(QtWidgets.QFrame):
-    default_json_config_url = (
-        'https://download.ftrack.com/ftrack-connect/plugins.json'
-    )
     plugin_re = re.compile('(?P<name>(([A-Za-z-3-4]+)))-(?P<version>(\w.+))')
 
     def __init__(self, session, parent=None):
         super(DndPluginList, self).__init__(parent=parent)
-
-        self.json_config_url = os.environ.get(
-            'FTRACK_CONNECT_JSON_PLUGINS_URL', self.default_json_config_url
-        )
 
         self.default_plugin_directory = appdirs.user_data_dir(
             'ftrack-connect-plugins', 'ftrack'
@@ -291,7 +285,9 @@ class DndPluginList(QtWidgets.QFrame):
     def populate_download_plugins(self):
         '''Populate model with remotely configured plugins.'''
 
-        response = urlopen(self.json_config_url)
+        json_config_url = get_plugins_url()
+        logging.info('using plugins url: %s', json_config_url)
+        response = urlopen(json_config_url)
         response_json = json.loads(response.read())
 
         for link in response_json['integrations']:
