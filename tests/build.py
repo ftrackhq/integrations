@@ -173,27 +173,29 @@ def build_plugin(args):
             )
             os.chdir(dependency_path)
             restore_build_file = False
-            PATH_BUILD = os.path.join(dependency_path, 'BUILD')
-            if os.path.exists(PATH_BUILD):
-                restore_build_file = True
-                os.rename(PATH_BUILD, PATH_BUILD + '_')
+            try:
+                PATH_BUILD = os.path.join(dependency_path, 'BUILD')
+                if os.path.exists(PATH_BUILD):
+                    restore_build_file = True
+                    os.rename(PATH_BUILD, PATH_BUILD + '_')
 
-            subprocess.check_call(
-                [
-                    sys.executable,
-                    '-m',
-                    'pip',
-                    'install',
-                    '.',
-                    '--target',
-                    dependencies_path,
-                ]
-            )
+                subprocess.check_call(
+                    [
+                        sys.executable,
+                        '-m',
+                        'pip',
+                        'install',
+                        '.',
+                        '--target',
+                        dependencies_path,
+                    ]
+                )
 
-            shutil.rmtree(os.path.join(dependency_path, 'build'))
-
-            if restore_build_file:
-                os.rename(PATH_BUILD + '_', PATH_BUILD)
+                shutil.rmtree(os.path.join(dependency_path, 'build'))
+            finally:
+                # Always restore file of interrupted (CTRL+C)
+                if restore_build_file:
+                    os.rename(PATH_BUILD + '_', PATH_BUILD)
         else:
             source_path = os.path.join(dependency_path, 'source')
             if not os.path.exists(source_path):

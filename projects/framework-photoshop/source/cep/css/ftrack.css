@@ -17,7 +17,6 @@ table.context {
   margin-left: 2px;
 }
 
-
 img.ftrack-context-thumbnail {
   width: 64;
   height: 50;
@@ -69,6 +68,9 @@ button.ftrack-context img {
 }
 
 
+table.launchers {
+  width: 100%;
+}
 
 button.ftrack-launcher {
   font-size: 15px;

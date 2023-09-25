@@ -6,9 +6,20 @@
 
 var csInterface = new CSInterface();
 
+function jsx_callback(){
+    console.log("ps.jsx loaded");
+}
+
+jsx.evalFile('./ps.jsx', jsx_callback);
+
 const TOPIC_PING = "ftrack.framework.ping";
 const TOPIC_PONG = "ftrack.framework.pong";
 const TOPIC_TOOL_LAUNCH = "ftrack.framework.tool.launch";
+const TOPIC_DOCUMENT_GET = "ftrack.framework.document.get";
+const TOPIC_DOCUMENT_DATA = "ftrack.framework.document.data";
+const TOPIC_ACK = "ftrack.framework.ack";
+const TOPIC_DOCUMENT_SAVE = "ftrack.framework.document.save";
+const TOPIC_DOCUMENT_EXPORT = "ftrack.framework.document.export";
 
 var env = {};
 var session = undefined;
@@ -150,6 +161,36 @@ function handleEvent(event) {
     } else if (event.topic == TOPIC_PING) {
         // Tell integration we are still here
         sendEvent(TOPIC_PONG, {}, event.id);
+    } else if (event.topic == TOPIC_DOCUMENT_GET) {
+        try {
+            csInterface.evalScript('getDocumentData()', function (result) {
+                sendEvent(TOPIC_DOCUMENT_DATA, {
+                    result: JSON.parse(result)
+                }, event.id);
+            });
+        } catch (e) {
+            alert("[ERROR] Failed to get PS document data! "+e);
+        }
+    } else if (event.topic == TOPIC_DOCUMENT_SAVE) {
+        try {
+            csInterface.evalScript('saveDocument("'+event.data.pipeline.path+'")', function (result) {
+                sendEvent(TOPIC_ACK, {
+                    result: result
+                }, event.id);
+            });
+        } catch (e) {
+            alert("[ERROR] Failed to save PS document! "+e);
+        }
+    } else if (event.topic == TOPIC_DOCUMENT_EXPORT) {
+        try {
+            csInterface.evalScript('exportDocument("'+event.data.pipeline.path+'", "'+event.data.pipeline.format+'")', function (result) {
+                sendEvent(TOPIC_ACK, {
+                    result: result
+                }, event.id);
+            });
+        } catch (e) {
+            alert("[ERROR] Failed to export PS document! "+e);
+        }
     }
 }
 

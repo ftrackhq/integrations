@@ -7,3 +7,5 @@ TOPIC_PING = "{}.ping".format(event._BASE_)
 TOPIC_PONG = "{}.pong".format(event._BASE_)
 
 TOPIC_TOOL_LAUNCH = "{}.tool.launch".format(event._BASE_)
+
+TOPIC_DOCUMENT_GET = "{}.document.get".format(event._BASE_)

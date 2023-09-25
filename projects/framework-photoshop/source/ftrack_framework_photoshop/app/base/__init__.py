@@ -98,6 +98,12 @@ class BasePhotoshopApplication(QtWidgets.QApplication):
             logger.warning(traceback.format_exc())
             self.terminate()
 
+    @staticmethod
+    def instance():
+        '''Return instance of standaalone application, to be used by integration
+        plugins'''
+        return BasePhotoshopApplication._instance
+
     # PID
 
     def _probe_photoshop_pid(self):
@@ -299,7 +305,11 @@ class BasePhotoshopApplication(QtWidgets.QApplication):
 
     def _launch_tool(self, tool_name):
         if tool_name == constants.tools.types.CHANGE_CONTEXT:
-            self.client.run_dialog(dialog_name='framework_change_context_dialog')
+            self.client.run_dialog(
+                dialog_name='framework_change_context_dialog'
+            )
+        elif tool_name == constants.tools.types.PUBLISHER:
+            self.client.run_dialog(dialog_name='framework_publisher_dialog')
 
     def check_responding(self):
         '''Check if Photoshop is alive, send ping'''
