@@ -37,7 +37,7 @@ NOTIFY_TOOL_CONFIG_PROGRESS_TOPIC = '{}.notify.tool_config.progress'.format(
     _BASE_
 )
 # Launch a widget within a client
-CLIENT_LAUNCH_TOOL_TOPIC = '{}.client.launch.tool'.format(_BASE_)
+CLIENT_LAUNCH_WIDGET_TOPIC = '{}.client.launch.widget'.format(_BASE_)
 # The main host context has changed, sent from host or host connection (change context)
 HOST_CONTEXT_CHANGED_TOPIC = '{}.host.context.change'.format(_BASE_)
 # The host connection context has changed, sent from host connection to clients
