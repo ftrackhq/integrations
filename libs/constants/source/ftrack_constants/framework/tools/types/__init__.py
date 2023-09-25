@@ -5,9 +5,9 @@
 
 #: Opener tool type
 OPENER = 'opener'
-# Loader tool type
+#: Loader tool type
 LOADER = 'loader'
-# Publisher tool type
+#: Publisher tool type
 PUBLISHER = 'publisher'
 #: Asset manager tool type
 ASSET_MANAGER = 'asset_manager'
