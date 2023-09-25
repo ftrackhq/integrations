@@ -118,7 +118,6 @@ class ModalDialog(StyledDialog):
         return button
 
     def post_build(self):
-        print('@@@ ModalDialog:post_build ENTER'.format())
         if self._approve_button:
             self._approve_button.clicked.connect(partial(self.done, 1))
         if self._deny_button:
@@ -128,7 +127,6 @@ class ModalDialog(StyledDialog):
         if self._message:
             self.setMaximumHeight(100)
         self.resize(250, 100)
-        print('@@@ ModalDialog:post_build EXIT'.format())
 
     def setWindowTitle(self, title):
         '''(Override) Set the dialog title'''
