@@ -63,4 +63,3 @@ while True:
                 logger.warning(
                     'Photoshop is not responding but process is still there, panel temporarily closed?'
                 )
-
