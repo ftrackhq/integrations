@@ -108,7 +108,7 @@ def on_launch_pipeline_photoshop(session, event):
 
 
 def update_uxp_plugin():
-    ''' Install or update the UXP plugin'''
+    '''Install or update the UXP plugin'''
 
     from ftrack_framework_photoshop import (
         __version__ as integration_version,
@@ -119,12 +119,16 @@ def update_uxp_plugin():
     )
 
     if platform.system() == 'Darwin':
-        path_uxp_tool = "/Library/Application Support/Adobe/Adobe Desktop Common/RemoteComponents/UPI/" \
-                        "UnifiedPluginInstallerAgent/UnifiedPluginInstallerAgent.app/Contents/MacOS/" \
-                        "UnifiedPluginInstallerAgent"
+        path_uxp_tool = (
+            "/Library/Application Support/Adobe/Adobe Desktop Common/RemoteComponents/UPI/"
+            "UnifiedPluginInstallerAgent/UnifiedPluginInstallerAgent.app/Contents/MacOS/"
+            "UnifiedPluginInstallerAgent"
+        )
         if not os.path.exists(path_uxp_tool):
             logger.warning(
-                "Could not find UXP tool @ {}, required for installing UXP plugin.".format(path_uxp_tool)
+                "Could not find UXP tool @ {}, required for installing UXP plugin.".format(
+                    path_uxp_tool
+                )
             )
             return
         output = subprocess.check_output(
