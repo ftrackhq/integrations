@@ -150,7 +150,7 @@ def update_uxp_plugin():
         )
     )
 
-    if found_version is None or found_version != integration_version:
+    if not found_version or found_version != integration_version:
         if found_version:
             # Uninstall previous version
             logger.info("Uninstalling previous version")
