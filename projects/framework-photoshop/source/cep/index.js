@@ -171,7 +171,7 @@ function openContext() {
     csInterface.openURLInDefaultBrowser(task_url);
 }
 
-function showChangeContext() {
+function launchChangeContext() {
     launchTool('change_context');
 }
 
