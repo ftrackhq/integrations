@@ -2,7 +2,7 @@
 # :copyright: Copyright (c) 2016 ftrack
 
 import os
-from queue import SimpleQueue
+from queue import SimpleQueue, Empty
 import subprocess
 import sys
 import threading
@@ -88,6 +88,8 @@ def invoke_in_main_thread(fn, *args, **kwargs):
     )
 
 class UrlLatencyChecker:
+    MAX_TIMEOUT = 10
+
     def __init__(self, urls: list[str]):
         self.urls = urls
     
@@ -109,5 +111,7 @@ class UrlLatencyChecker:
             t = threading.Thread(target=self._check, args=(url, q), daemon=True)
             t.start()
         
-        url = q.get()
-        return url
+        try:
+            return q.get(timeout=self.MAX_TIMEOUT)
+        except Empty:
+            return self.urls[0]
