@@ -250,7 +250,7 @@ class BasePhotoshopApplication(QtWidgets.QApplication):
             session=session, mode=constants.event.LOCAL_EVENT_MODE
         )
 
-        self._host = host.Host(self.event_manager)
+        self._host = host.Host(self.event_manager, host_types=['photoshop'])
 
         self._client = client.Client(self.event_manager)
 
