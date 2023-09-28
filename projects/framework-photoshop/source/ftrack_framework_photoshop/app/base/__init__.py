@@ -191,8 +191,8 @@ class BasePhotoshopApplication(QtWidgets.QApplication):
         if fetch_reply:
             # Temp subscribe for response
             subscriber_id = self.remote_event_manager._subscribe(
-                'ftrack.* and source.applicationId=ftrack.api.javascript and data.pipeline.integration_session_id={} '
-                'and data.pipeline.reply_to_event={}'.format(
+                'ftrack.* and source.applicationId=ftrack.api.javascript and data.integration_session_id={} '
+                'and data.reply_to_event={}'.format(
                     self.integration_session_id, event['id']
                 ),
                 handle_reply,
@@ -219,7 +219,7 @@ class BasePhotoshopApplication(QtWidgets.QApplication):
                                 waited / 1000, event['id']
                             )
                         )
-                return self._event_replies[event['id']]['data']['pipeline']
+                return self._event_replies[event['id']]['data']
         finally:
             if subscriber_id:
                 self.remote_event_manager.session.event_hub.unsubscribe(
@@ -250,7 +250,7 @@ class BasePhotoshopApplication(QtWidgets.QApplication):
             session=session, mode=constants.event.LOCAL_EVENT_MODE
         )
 
-        self._host = host.Host(self.event_manager, host_types=['photoshop'])
+        self._host = host.Host(self.event_manager, host_types=host.Host.host_types+['photoshop'])
 
         self._client = client.Client(self.event_manager)
 
