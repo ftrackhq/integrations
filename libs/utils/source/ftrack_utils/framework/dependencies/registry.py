@@ -68,8 +68,7 @@ def register_dependencies_from_directory(
                 continue
             try:
                 # Call the register classmethod. We don't init the widget here
-                if obj.register(event_manager) is not False:
-                    registered_dependencies.append(obj)
+                registered_dependencies.append(obj)
             except Exception as e:
                 logger.warning(
                     "Couldn't register dependency {} \n error: {}".format(
