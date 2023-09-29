@@ -59,26 +59,17 @@ def register_dependencies_from_directory(
         for name, obj in cls_members:
             if obj == class_type:
                 continue
-            mro = inspect.getmro(obj)
-            if class_type not in mro:
+            if class_type not in inspect.getmro(obj):
                 logger.debug(
                     "Not registering {} because it is not type of {}".format(
                         name, class_type
                     )
                 )
                 continue
-            elif len(mro) <= 3:
-                # getmembers of a module also returns base classes (FrameworkWidget), ignore them
-                logger.debug(
-                    "Not registering {} because it is a base class".format(
-                        name
-                    )
-                )
-                continue
             try:
                 # Call the register classmethod. We don't init the widget here
-                obj.register(event_manager)
-                registered_dependencies.append(obj)
+                if obj.register(event_manager) is not False:
+                    registered_dependencies.append(obj)
             except Exception as e:
                 logger.warning(
                     "Couldn't register dependency {} \n error: {}".format(

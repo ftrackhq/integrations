@@ -116,8 +116,13 @@ class BaseUI(object):
     @classmethod
     def register(cls, event_manager):
         '''
-        Register function to discover widgets.
+        Register function to discover widget by class *cls*. Returns False if the
+        class is not registerable.
         '''
+        if not hasattr(cls, 'name') or cls.name is None:
+            # Can only register widgets that have a name, not base classes
+            return False
+
         logger = logging.getLogger(
             '{0}.{1}'.format(__name__, cls.__class__.__name__)
         )
