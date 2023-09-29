@@ -8,6 +8,8 @@ import sys
 import appdirs
 import errno
 
+from ftrack_utils.modules.scan_modules import scan_framework_modules
+
 
 def get_log_directory():
     '''Get log directory.
@@ -34,7 +36,7 @@ def get_log_directory():
 
 def configure_logging(
     logger_name,
-    scan_framework_modules=True,
+    add_extra_framework_modules=True,
     level=None,
     logging_format=None,
     extra_modules=None,
@@ -42,8 +44,8 @@ def configure_logging(
     propagate=True,
 ):
     '''Configure `logger_name` loggers with console and file handler, will scan
-    sys path and log framework modules to file if *scan_framework_modules* is set
-    to true.
+    sys path and log framework modules to file if *add_extra_framework_modules* is set
+    to true (default).
 
     Optionally specify log *level* (default WARNING)
 
@@ -74,19 +76,9 @@ def configure_logging(
 
     extra_modules = extra_modules or []
 
-    if scan_framework_modules:
+    if add_extra_framework_modules:
         # Scan sys path for ftrack_framework* modules to file log
-        for path in sys.path:
-            if os.path.exists(path):
-                for fn in os.listdir(path):
-                    if fn.find('-') > -1:
-                        continue
-                    fn = fn.lower()
-                    if not fn.startswith('ftrack_framework'):
-                        # Allow utils and constants to be logged.
-                        if fn not in ['ftrack_utils', 'ftrack_constants']:
-                            continue
-                    extra_modules.append(fn)
+        extra_modules.extend(scan_framework_modules())
 
     # Cast to list in case is a tuple.
     modules = []

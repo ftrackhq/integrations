@@ -121,7 +121,9 @@ class BaseUI(object):
         logger = logging.getLogger(
             '{0}.{1}'.format(__name__, cls.__class__.__name__)
         )
-        logger.debug('registering: {} for {}'.format(cls.name, cls.widget_type))
+        logger.debug(
+            'registering: {} for {}'.format(cls.name, cls.widget_type)
+        )
 
         # subscribe to discover the widget
         event_manager.subscribe.discover_widget(
