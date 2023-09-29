@@ -119,7 +119,7 @@ class BaseUI(object):
         Register function to discover widget by class *cls*. Returns False if the
         class is not registerable.
         '''
-        if not hasattr(cls, 'name') or cls.name is None:
+        if not hasattr(cls, 'name') or not cls.name:
             # Can only register widgets that have a name, not base classes
             return False
 
