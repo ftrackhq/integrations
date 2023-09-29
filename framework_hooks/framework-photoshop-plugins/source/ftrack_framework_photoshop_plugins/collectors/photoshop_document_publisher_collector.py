@@ -19,13 +19,13 @@ class PhotoshopDocumentPublisherCollectorPlugin(BasePlugin):
     def register_methods(self):
         self.register_method(
             method_name='run',
-            required_output_type=dict,
+            required_output_type=list,
             required_output_value=None,
         )
 
     def run(self, context_data=None, data=None, options=None):
         export_option = options.get("export")
-        if export_option and isinstance(export_option, list):
+        if export_option and not isinstance(export_option, str):
             export_option = export_option[0]
         export_object = []
         if export_option == 'document':
@@ -80,4 +80,6 @@ class PhotoshopDocumentPublisherCollectorPlugin(BasePlugin):
                     "document with a name before publish"
                 }
             export_object = [document_data]
+        else:
+            raise Exception('Only "document" export option is supported')
         return export_object

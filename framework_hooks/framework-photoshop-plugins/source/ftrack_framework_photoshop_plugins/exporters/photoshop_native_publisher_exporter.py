@@ -39,12 +39,11 @@ class PhotoshopNativePublisherExporterPlugin(BasePlugin):
             delete=False, suffix=self.extension
         ).name
 
+        is_document_publish = True
         collected_objects = []
-        is_document_publish = False
-        for collector in data:
-            collected_objects.extend(collector['result'])
-            if collector.get('options', {}).get('export') == 'document':
-                is_document_publish = True
+        for value in list(data.values()):
+            for collector_result in list(value['collector'].values()):
+                collected_objects.extend(collector_result)
 
         if is_document_publish:
             # Copy entire document

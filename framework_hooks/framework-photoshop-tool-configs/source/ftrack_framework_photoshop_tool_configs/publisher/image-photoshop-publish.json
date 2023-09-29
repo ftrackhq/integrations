@@ -81,6 +81,57 @@
       ]
     },
     {
+      "step_type": "component",
+      "step_name": "reviewable",
+      "optional": true,
+      "enabled": true,
+      "stages": [
+        {
+          "stage_type": "collector",
+          "stage_name": "collector",
+          "optional": false,
+          "enabled": true,
+          "plugins": [
+            {
+              "plugin_type": "collector",
+              "plugin_title": "collect file",
+              "plugin_name": "photoshop_document_publisher_collector",
+              "options": {
+                "export": ["document"]
+              }
+            }
+          ]
+        },
+        {
+          "stage_type": "validator",
+          "stage_name": "validator",
+          "optional": false,
+          "enabled": true,
+          "plugins": [
+            {
+              "plugin_type": "validator",
+              "plugin_title": "validate document",
+              "plugin_name": "photoshop_document_publisher_validator",
+              "widget_name": "validator_check"
+            }
+          ]
+        },
+        {
+          "stage_type": "exporter",
+          "stage_name": "exporter",
+          "optional": false,
+          "enabled": true,
+          "plugins": [
+            {
+              "plugin_type": "exporter",
+              "plugin_title": "Export file",
+              "plugin_name": "photoshop_image_publisher_exporter"
+            }
+          ]
+        }
+      ]
+    },
+    {
       "step_type": "finalizer",
       "step_name": "main",
       "optional": false,

@@ -124,6 +124,7 @@ class PublisherDialog(FrameworkDialog, ScrollToolConfigsDialog):
 
     def show_ui(self):
         '''Override Show method of the base framework dialog'''
+        self.raise_()
         ScrollToolConfigsDialog.show(self)
         self.activateWindow()
         self.setWindowState(self.windowState() & ~QtCore.Qt.WindowMinimized | QtCore.Qt.WindowActive)
