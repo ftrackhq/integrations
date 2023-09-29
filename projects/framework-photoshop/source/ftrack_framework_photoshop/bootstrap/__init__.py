@@ -9,6 +9,7 @@ from ftrack_framework_core.configure_logging import configure_logging
 
 configure_logging(
     'ftrack_framework_photoshop',
+    extra_modules=["ftrack_qt"],
     propagate=False,
 )
 
