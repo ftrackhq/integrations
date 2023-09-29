@@ -57,7 +57,7 @@ def configure_logging(
         logging_format
         or '%(levelname)s - %(threadName)s - %(asctime)s - %(name)s - %(message)s'
     )
-    level = level or logging.WARNING
+    level = level or logging.INFO
 
     log_directory = get_log_directory()
     logfile = os.path.join(log_directory, '{0}.log'.format(logger_name))
