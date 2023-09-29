@@ -90,7 +90,7 @@ class TestProjectPublisherContextOptionsWidget(BaseOptionsWidget):
 
         self._project_context_selector = ContextSelector(
             self.session,
-            enable_context_change=True,
+            enble_context_change=True,
             select_task=False,
             browse_context_id=project_context_id,
         )
@@ -128,10 +128,10 @@ class TestProjectPublisherContextOptionsWidget(BaseOptionsWidget):
         # Fetch the Unreal project context id
         self.project_context_id = '52c53ce8-7ac7-11ed-aa03-a662eeb18ccf'  # unreal_utils.get_project_context_id()
 
-        self._project_context_selector.entity_changed.connect(
+        self._project_context_selector.entityChanged.connect(
             self.on_project_context_changed
         )
-        self._parent_context_selector.change_context_clicked.connect(
+        self._parent_context_selector.changeContextClicked.connect(
             self.on_change_parent_context_clicked
         )
         self.asset_selector.assetChanged.connect(self._on_asset_changed)
