@@ -51,7 +51,6 @@ def register_dependencies_from_directory(
     '''Register Dependency to api_object.'''
 
     subfolders = fast_scandir(current_dir)
-
     registered_dependencies = []
     for loader, module_name, is_pkg in pkgutil.walk_packages(subfolders):
         _module = loader.find_module(module_name).load_module(module_name)
@@ -60,10 +59,19 @@ def register_dependencies_from_directory(
         for name, obj in cls_members:
             if obj == class_type:
                 continue
-            if class_type not in inspect.getmro(obj):
+            mro = inspect.getmro(obj)
+            if class_type not in mro:
                 logger.debug(
-                    "Not registering {} because is not type of {}".format(
+                    "Not registering {} because it is not type of {}".format(
                         name, class_type
+                    )
+                )
+                continue
+            elif len(mro) <= 3:
+                # getmembers of a module also returns base classes (FrameworkWidget), ignore them
+                logger.debug(
+                    "Not registering {} because it is a base class".format(
+                        name
                     )
                 )
                 continue
