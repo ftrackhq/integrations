@@ -121,13 +121,7 @@ class BaseUI(object):
         logger = logging.getLogger(
             '{0}.{1}'.format(__name__, cls.__class__.__name__)
         )
-        name = cls.name
-        if name is None:
-            # Name is not accessible at this point, fall back on class name
-            # for now until we have a solution
-            # TODO: Get widget registry logging to work with class name attribute
-            name = str(cls)
-        logger.debug('registering: {} for {}'.format(name, cls.widget_type))
+        logger.debug('registering: {} for {}'.format(cls.name, cls.widget_type))
 
         # subscribe to discover the widget
         event_manager.subscribe.discover_widget(
