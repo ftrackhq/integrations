@@ -13,18 +13,7 @@ configure_logging(
     propagate=False,
 )
 
-
 logger = logging.getLogger('ftrack_framework_photoshop.bootstrap')
-
-photoshop_session_id = os.environ.get('FTRACK_INTEGRATION_SESSION_ID')
-assert (
-    photoshop_session_id
-), 'Photoshop integration requires a FTRACK_INTEGRATION_SESSION_ID passed as environment variable!'
-
-photoshop_version = os.environ.get('FTRACK_PHOTOSHOP_VERSION')
-assert (
-    photoshop_version
-), 'Photoshop integration requires FTRACK_PHOTOSHOP_VERSION passed as environment variable!'
 
 use_uxp = (os.environ.get('FTRACK_PHOTOSHOP_UXP') or '').lower() in [
     'true',
@@ -35,11 +24,11 @@ use_uxp = (os.environ.get('FTRACK_PHOTOSHOP_UXP') or '').lower() in [
 if use_uxp:
     from ftrack_framework_photoshop.app.uxp_app import UXPPhotoshopApplication
 
-    app = UXPPhotoshopApplication(photoshop_session_id, int(photoshop_version))
+    app = UXPPhotoshopApplication()
 else:
     from ftrack_framework_photoshop.app.cep_app import CEPPhotoshopApplication
 
-    app = CEPPhotoshopApplication(photoshop_session_id, int(photoshop_version))
+    app = CEPPhotoshopApplication()
 
 # Run until it's closed, or CTRL+C
 active_time = 0

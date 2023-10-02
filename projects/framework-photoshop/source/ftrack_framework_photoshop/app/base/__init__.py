@@ -16,9 +16,8 @@ import ftrack_api
 
 from ftrack_constants import framework as constants
 from ftrack_framework_photoshop import constants as photoshop_constants
-from ftrack_qt import event as qt_event
 from ftrack_framework_core import host
-from ftrack_framework_core import event as event
+from ftrack_framework_core.event import EventManager
 from ftrack_framework_core import client
 
 
@@ -26,36 +25,44 @@ logger = logging.getLogger(__name__)
 
 
 class BasePhotoshopApplication(QtWidgets.QApplication):
-    '''Base Photoshop standalone background application.'''
+    '''Base Photoshop standalone background GUI application.'''
 
     _instance = None
 
     @property
     def integration_session_id(self):
+        '''Return integration session id.'''
         return self._integration_session_id
 
     @property
     def photoshop_version(self):
+        '''Return Photoshop version.'''
         return self._photoshop_version
 
     @property
     def event_manager(self):
+        '''Return event manager.'''
         return self._event_manager
 
     @property
     def session(self):
+        '''Return session.'''
         return self.event_manager.session
 
     @property
     def remote_event_manager(self):
+        '''Return remote event manager, to plugins and other parts of the framework that
+        needs to send events to Photoshop.'''
         return self._remote_event_manager
 
     @property
     def connected(self):
+        '''Return True if connected to Photoshop.'''
         return self._connected
 
     @connected.setter
     def connected(self, value):
+        '''Set connected state to *value*.'''
         self._connected = value
         if self.connect:
             logger.info(
@@ -70,11 +77,23 @@ class BasePhotoshopApplication(QtWidgets.QApplication):
                 self._photoshop_pid > 0
             ), "Could not find Photoshop PID among running processes!"
 
-    def __init__(self, integration_session_id, photoshop_version):
+    def __init__(self):
         super(BasePhotoshopApplication, self).__init__()
 
-        self._integration_session_id = integration_session_id
-        self._photoshop_version = photoshop_version
+        self._photoshop_session_id = os.environ.get(
+            'FTRACK_INTEGRATION_SESSION_ID'
+        )
+        assert (
+            self._photoshop_session_id
+        ), 'Photoshop integration requires a FTRACK_INTEGRATION_SESSION_ID passed as environment variable!'
+
+        photoshop_version = os.environ.get('FTRACK_PHOTOSHOP_VERSION')
+        assert (
+            photoshop_version
+        ), 'Photoshop integration requires FTRACK_PHOTOSHOP_VERSION passed as environment variable!'
+
+        self._photoshop_version = int(photoshop_version)
+
         self._event_manager = None
         self._remote_event_manager = None
         self._photoshop_pid = -1
@@ -117,7 +136,8 @@ class BasePhotoshopApplication(QtWidgets.QApplication):
 
     # Event
 
-    def handle_remote_event(self, event):
+    def handle_remote_event_callback(self, event):
+        '''Handle incoming remote *event* from Photoshop'''
         eid = event['id']
         topic = event['topic']
         event_data = event['data']
@@ -128,7 +148,7 @@ class BasePhotoshopApplication(QtWidgets.QApplication):
             )
         )
 
-        if topic == photoshop_constants.TOPIC_PING:
+        if topic == photoshop_constants.TOPIC_INTEGRATION_ALIVE:
             self.connected = True
             # Send pong back with current context data
             context_id = os.getenv('FTRACK_CONTEXTID')
@@ -136,7 +156,7 @@ class BasePhotoshopApplication(QtWidgets.QApplication):
                 'Task where id={}'.format(context_id)
             ).one()
             self.send_event(
-                photoshop_constants.TOPIC_PONG,
+                photoshop_constants.TOPIC_CONTEXT_DATA,
                 {
                     'context_id': context_id,
                     'context_name': task['name'],
@@ -152,6 +172,9 @@ class BasePhotoshopApplication(QtWidgets.QApplication):
     def send_event(
         self, topic, framework_data, fetch_reply=False, timeout=None
     ):
+        '''Send event with *topic*, having *framework_data* as payload, with optional *timeout* in seconds. If
+        *fetch_reply* is True, wait for a reply to the event and return the reply payload.
+        '''
         if framework_data is None:
             framework_data = dict()
         if timeout is None:
@@ -167,7 +190,7 @@ class BasePhotoshopApplication(QtWidgets.QApplication):
         subscriber_id = None
         self._event_replies[event['id']] = None
 
-        def handle_reply(reply_event):
+        def handle_reply_callback(reply_event):
             logger.info("Handle reply: {}".format(reply_event))
 
             self._event_replies[event['id']] = reply_event
@@ -175,11 +198,11 @@ class BasePhotoshopApplication(QtWidgets.QApplication):
         if fetch_reply:
             # Temp subscribe for response
             subscriber_id = self.remote_event_manager._subscribe(
-                'ftrack.* and source.applicationId=ftrack.api.javascript and data.pipeline.integration_session_id={} '
+                'ftrack.* and source.applicationId=ftrack.api.javascript and data.integration_session_id={} '
                 'and data.pipeline.reply_to_event={}'.format(
                     self.integration_session_id, event['id']
                 ),
-                handle_reply,
+                handle_reply_callback,
             )
         try:
             self.remote_event_manager._publish(event)
@@ -213,6 +236,7 @@ class BasePhotoshopApplication(QtWidgets.QApplication):
                 del self._event_replies[event['id']]
 
     def send_event_with_reply(self, topic, framework_data, timeout=None):
+        '''Send event with *topic*, having *framework_data* as payload, with optional *timeout* in seconds.'''
         return self.send_event(
             topic, framework_data, fetch_reply=True, timeout=timeout
         )
@@ -230,7 +254,7 @@ class BasePhotoshopApplication(QtWidgets.QApplication):
 
         session = ftrack_api.Session(auto_connect_event_hub=False)
 
-        self._event_manager = qt_event.QEventManager(
+        self._event_manager = EventManager(
             session=session, mode=constants.event.LOCAL_EVENT_MODE
         )
 
@@ -261,7 +285,7 @@ class BasePhotoshopApplication(QtWidgets.QApplication):
 
         remote_session = ftrack_api.Session(auto_connect_event_hub=True)
 
-        self._remote_event_manager = event.EventManager(
+        self._remote_event_manager = EventManager(
             session=remote_session, mode=constants.event.REMOTE_EVENT_MODE
         )
 
@@ -275,23 +299,25 @@ class BasePhotoshopApplication(QtWidgets.QApplication):
             'ftrack.framework.* and source.applicationId=ftrack.api.javascript and data.integration_session_id={}'.format(
                 self.integration_session_id
             ),
-            self.handle_remote_event,
+            self.handle_remote_event_callback,
         )
 
         # DEBUG events during dev, will be removed
-        def handle_event_debug(event):
+        def handle_event_debug_callback(event):
             logger.warning("DEBUG event: {}".format(event))
 
         self.remote_event_manager._subscribe(
             'ftrack.*',
-            handle_event_debug,
+            handle_event_debug_callback,
         )
 
     def check_responding(self):
         '''Check if Photoshop is alive, send ping'''
         logger.info("Checking if PS is still alive...")
         try:
-            self.send_event_with_reply(photoshop_constants.TOPIC_PING, {})
+            self.send_event_with_reply(
+                photoshop_constants.TOPIC_INTEGRATION_ALIVE, {}
+            )
         except:
             logger.warning(traceback.format_exc())
             return False
@@ -309,6 +335,7 @@ class BasePhotoshopApplication(QtWidgets.QApplication):
         return pid == self._photoshop_pid
 
     def terminate(self):
+        '''Terminate Photoshop standalone integration process'''
         logger.info("Terminating Photoshop standalone framework integration")
         if self._remote_subscriber_id:
             try:

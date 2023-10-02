@@ -44,7 +44,7 @@
             </MaxSize>
           </Geometry>
           <Icons>
-            <Icon Type="Normal">./icons/ftrack-logo-48.png</Icon>
+            <Icon Type="Normal">./image/ftrack-logo-48.png</Icon>
           </Icons>
         </UI>
       </DispatchInfo>

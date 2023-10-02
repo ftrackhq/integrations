@@ -3,5 +3,6 @@
 
 from ftrack_constants.framework import event
 
-TOPIC_PING = "{}.ping".format(event._BASE_)
-TOPIC_PONG = "{}.pong".format(event._BASE_)
+TOPIC_INTEGRATION_ALIVE = "{}.integration-alive".format(event._BASE_)
+TOPIC_ACK = "{}.ack".format(event._BASE_)
+TOPIC_CONTEXT_DATA = "{}.context-data".format(event._BASE_)
