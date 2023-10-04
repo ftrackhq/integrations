@@ -5,16 +5,17 @@ import os
 import time
 import logging
 
-from ftrack_framework_photoshop.app.base import BasePhotoshopApplication
-from ftrack_framework_photoshop import constants as photoshop_constants
+from ftrack_framework_photoshop.remote_connection.base import (
+    BasePhotoshopRemoteConnection,
+)
 
 logger = logging.getLogger(__name__)
 
 
-class UXPPhotoshopApplication(BasePhotoshopApplication):
-    '''Photoshop standalone background application for UXP.'''
+class UXBasePhotoshopRemoteConnection(BasePhotoshopRemoteConnection):
+    '''Photoshop remote connection for UXP.'''
 
-    def _connect(self):
+    def connect(self):
         '''(Override)'''
 
         # Store env in plugin data folder for pickup
@@ -158,9 +159,8 @@ class UXPPhotoshopApplication(BasePhotoshopApplication):
 
         self._spawn_event_listener()
 
-    def _initialise(self):
-        '''(Override)'''
-        super(UXPPhotoshopApplication, self)._initialise()
+        # Wait for Photoshop to get ready to receive events
+        time.sleep(0.5)
 
         # Send a ping event to Photoshop to let it know we are ready
-        self.send_event_with_reply(photoshop_constants.TOPIC_PING, {})
+        self.event_manager.publish.remote_alive(self.integration_session_id)

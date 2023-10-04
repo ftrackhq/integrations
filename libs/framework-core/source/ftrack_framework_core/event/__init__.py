@@ -59,6 +59,11 @@ class EventManager(object):
         return self._session
 
     @property
+    def remote(self):
+        '''Return the remote variant of the event manager'''
+        return self._remote_event_manager
+
+    @property
     def connected(self):
         _connected = False
         try:
@@ -107,7 +112,12 @@ class EventManager(object):
             # self.logger.debug('Starting new hub thread for {}'.format(self))
             self._event_hub_thread.start()
 
-    def __init__(self, session, mode=constants.event.LOCAL_EVENT_MODE):
+    def __init__(
+        self,
+        session,
+        mode=constants.event.LOCAL_EVENT_MODE,
+        remote_session=None,
+    ):
         self.logger = logging.getLogger(
             __name__ + '.' + self.__class__.__name__
         )
@@ -118,6 +128,12 @@ class EventManager(object):
             # TODO: Bring this back when API event hub properly can differentiate between local and remote mode
             self._connect()
             self._wait()
+        elif remote_session:
+            # Create a remote event manager to be able to publish events over server
+            # TODO: Remove when API event hub properly can differentiate between local and remote mode
+            self._remote_event_manager = EventManager(
+                session=remote_session, mode=constants.event.REMOTE_EVENT_MODE
+            )
 
         # Initialize Publish and subscribe classes to be able to provide
         # predefined events.
@@ -126,8 +142,8 @@ class EventManager(object):
 
         # self.logger.debug('Initialising {}'.format(self))
 
-    def _publish(self, event, callback=None, mode=None):
-        '''Emit *event* and provide *callback* function.'''
+    def publish_event(self, event, callback=None, mode=None):
+        '''Emit *event* and provide *callback* function, in local or remote *mode*.'''
 
         mode = mode or self.mode
 
@@ -155,7 +171,7 @@ class EventManager(object):
         else:
             self.session.event_hub.publish(event, on_reply=callback)
 
-    def _subscribe(self, topic, callback):
+    def subscribe_topic(self, topic, callback):
         subscribe_id = self.session.event_hub.subscribe(
             'topic={}'.format(topic), callback
         )
@@ -176,7 +192,7 @@ class Publish(object):
         super(Publish, self).__init__()
         self._event_manager = event_manager
 
-    def _publish_event(self, event_topic, data, callback):
+    def _publish_event(self, event_topic, data, callback, mode=None):
         '''
         Common method that calls the private publish method from the
         event manager
@@ -184,7 +200,20 @@ class Publish(object):
         publish_event = ftrack_api.event.base.Event(
             topic=event_topic, data=data
         )
-        publish_result = self.event_manager._publish(
+        publish_result = self.event_manager.publish_event(
+            publish_event, callback=callback, mode=mode
+        )
+        return publish_result
+
+    def _publish_remote_event(self, event_topic, data, callback):
+        '''
+        Common method that calls the private publish method from the
+        remote event manager
+        '''
+        publish_event = ftrack_api.event.base.Event(
+            topic=event_topic, data=data
+        )
+        publish_result = self.event_manager.remote.publish_event(
             publish_event, callback=callback
         )
         return publish_result
@@ -474,6 +503,32 @@ class Publish(object):
         event_topic = constants.event.CLIENT_NOTIFY_LOG_ITEM_ADDED_TOPIC
         return self._publish_event(event_topic, data, callback)
 
+    def remote_alive(self, integration_session_id, callback=None):
+        '''
+        Publish an event with topic
+        :const:`~ftrack_framework_core.constants.event.REMOTE_ALIVE_TOPIC`
+        supplying *dcc_id*.
+        '''
+        data = {
+            'integration_session_id': integration_session_id,
+        }
+
+        event_topic = constants.event.REMOTE_ALIVE_TOPIC
+        return self._publish_remote_event(event_topic, data, callback)
+
+    def remote_context_data(
+        self, integration_session_id, context_data, callback=None
+    ):
+        '''
+        Publish an event with topic
+        :const:`~ftrack_framework_core.constants.event.REMOTE_ALIVE_TOPIC`
+        supplying *dcc_id* and *context_data*.
+        '''
+        context_data['integration_session_id'] = integration_session_id
+
+        event_topic = constants.event.REMOTE_CONTEXT_DATA
+        return self._publish_remote_event(event_topic, context_data, callback)
+
 
 class Subscribe(object):
     '''Class with all the events subscribed by the framework'''
@@ -488,7 +543,15 @@ class Subscribe(object):
 
     def _subscribe_event(self, event_topic, callback):
         '''Common method that calls the private subscribe method from the event manager'''
-        return self.event_manager._subscribe(event_topic, callback=callback)
+        return self.event_manager.subscribe_topic(
+            event_topic, callback=callback
+        )
+
+    def _subscribe_remote_event(self, event_topic, callback):
+        '''Common method that calls the private subscribe method from the event manager'''
+        return self.event_manager.remote.subscribe_topic(
+            event_topic, callback=callback
+        )
 
     def discover_host(self, callback):
         '''
@@ -690,3 +753,16 @@ class Subscribe(object):
             constants.event.CLIENT_NOTIFY_LOG_ITEM_ADDED_TOPIC, client_id
         )
         return self._subscribe_event(event_topic, callback)
+
+    def remote_alive(self, integration_session_id, callback=None):
+        '''
+        Subscribe to an event with topic
+        :const:`~ftrack_framework_core.constants.event.REMOTE_ALIVE_TOPIC`and *integration_session_id*
+        '''
+        event_topic = (
+            '{} and source.applicationId=ftrack.api.javascript '
+            'and data.integration_session_id={}'.format(
+                constants.event.REMOTE_ALIVE_TOPIC, integration_session_id
+            )
+        )
+        return self._subscribe_remote_event(event_topic, callback)

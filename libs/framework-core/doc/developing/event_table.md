@@ -1,7 +1,7 @@
 # Integrations Framework Events Table
 | Host                                        | Event                               | Client                                                | Event Description                                                                                                                                                               |
 |---------------------------------------------|-------------------------------------|-------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| Publish(host)                               | DISCOVER_TOOL_CONFIG_TOPIC          | Subscribe(*Tool config Base)                           | Any tool config should be subscribed to this event to be discovered by the host. * Tool config Base its not the client neither the host, its a separate module.                 |
+| Publish(host)                               | DISCOVER_TOOL_CONFIG_TOPIC          | Subscribe(*Tool config Base)                          | Any tool config should be subscribed to this event to be discovered by the host. * Tool config Base its not the client neither the host, its a separate module.                 |
 | Publish(validation)                         | DISCOVER_PLUGIN_TOPIC               | Subscribe(*Plugin Base)                               | Any plugin should be subscribed to this event to be discovered by the host. * Plugin Base its not the client neither the host, its a separate module.                           |
 | Publish(host)                               | DISCOVER_ENGINE_TOPIC               | Subscribe(*Engine Base)                               | Any engine should be subscribed to this event to be discovered by the host. * Engine Base its not the client neither the host, its a separate module.                           |
 | Subscribe(host)                             | DISCOVER_HOST_TOPIC                 | Publish(client)                                       | The client publish an event and waits for a reply in host, can't do it the other way around because host is initialized first and we can't have a list of all published events. |
@@ -9,21 +9,28 @@
 | Subscribe(host)                             | HOST_RUN_PLUGIN_TOPIC               | Publish(Host connection)                              | Host connection emits this event to tell the host to run the provided plugin, on behalf of the client.                                                                          |
 | Publish(AM engine)<br/>Publish(enigne base) | EXECUTE_PLUGIN_TOPIC                | Subscribe(*Plugin Base)<br/>Publish(qt/ui/factory)    | Any plugin should be subscribed to this event to be executed by the engine. * Plugin Base its not the client neither the host, its a separate module.                           |
 | Subscribe(host)<br/>Publish(engine)         | NOTIFY_PLUGIN_PROGRESS_TOPIC        | Publish(*Plugin Base)                                 | Plugin emits the results of running a plugin (Previously named PIPELINE_CLIENT_NOTIFICATION)                                                                                    |
-| Publish(enigne base)                        | NOTIFY_TOOL_CONFIG_PROGRESS_TOPIC   | Subscribe(qt/ui/factory)                              | Engine notifies client on the plugin execution progress                                                                                                                         |
+| Publish(engine base)                        | NOTIFY_TOOL_CONFIG_PROGRESS_TOPIC   | Subscribe(qt/ui/factory)                              | Engine notifies client on the plugin execution progress                                                                                                                         |
 | Publish(host)                               | HOST_CONTEXT_CHANGED_TOPIC          | Subscribe(Host connection)<br/>Subscribe(client)      | Event emitted every time host changes the context                                                                                                                               |
 | Subscribe(host)                             | CLIENT_CONTEXT_CHANGED_TOPIC        | Publish(Host connection)                              | Context has been changed in the client side, needs to communicate this to the host.                                                                                             |
 | Publish(host)                               | HOST_LOG_ITEM_ADDED_TOPIC           | Subscribe(client)                                     | New log item has been added                                                                                                                                                     |
 
-| UI                              | Event                                     | Client          | Event Description                                                                        |
-|---------------------------------|-------------------------------------------|-----------------|------------------------------------------------------------------------------------------|
-| Subscibe(BaseWidget)            | CLIENT_SIGNAL_CONTEXT_CHANGED_TOPIC       | Publish(client) | Context has been changed, this is just a signal, no data is emitted, needs client_id.    |
-| Subscibe(BaseWidget)            | CLIENT_SIGNAL_HOSTS_DISCOVERED_TOPIC      | Publish(client) | Hosts has been discovered, this is just a signal, no data is emitted, needs client_id.   |
-| Subscibe(BaseWidget)            | CLIENT_SIGNAL_HOST_CHANGED_TOPIC          | Publish(client) | Host has been changed, this is just a signal, no data is emitted, needs client_id.       |
-| Subscibe(BaseWidget)            | CLIENT_NOTIFY_RUN_PLUGIN_RESULT_TOPIC     | Publish(client) | Plugin has been executed, and this provides the result to the UI.                        |
-| Subscibe(BaseWidget)            | CLIENT_NOTIFY_RUN_TOOL_CONFIG_RESULT_TOPIC | Publish(client) | Tool config has been executed, and this provides the result to the UI.                    |
-| Subscibe(BaseWidget)            | CLIENT_NOTIFY_LOG_ITEM_ADDED_TOPIC        | Publish(client) | LOG item added in the host, and client send the log item to the UI                       |
-| Subscibe(BaseWidget)            | DISCOVER_WIDGET_TOPIC                     | Publish(client) | Compatible widgets for the defined UI types in the client will be discovered             |
+| UI                              | Event                                     | Client          | Event Description                                                                         |
+|---------------------------------|-------------------------------------------|-----------------|-------------------------------------------------------------------------------------------|
+| Subscribe(BaseWidget)           | CLIENT_SIGNAL_CONTEXT_CHANGED_TOPIC       | Publish(client) | Context has been changed, this is just a signal, no data is emitted, needs client_id.     |
+| Subscribe(BaseWidget)           | CLIENT_SIGNAL_HOSTS_DISCOVERED_TOPIC      | Publish(client) | Hosts has been discovered, this is just a signal, no data is emitted, needs client_id.    |
+| Subscribe(BaseWidget)           | CLIENT_SIGNAL_HOST_CHANGED_TOPIC          | Publish(client) | Host has been changed, this is just a signal, no data is emitted, needs client_id.        |
+| Subscribe(BaseWidget)           | CLIENT_NOTIFY_RUN_PLUGIN_RESULT_TOPIC     | Publish(client) | Plugin has been executed, and this provides the result to the UI.                         |
+| Subscribe(BaseWidget)           | CLIENT_NOTIFY_RUN_TOOL_CONFIG_RESULT_TOPIC| Publish(client) | Tool config has been executed, and this provides the result to the UI.                    |
+| Subscribe(BaseWidget)           | CLIENT_NOTIFY_LOG_ITEM_ADDED_TOPIC        | Publish(client) | LOG item added in the host, and client send the log item to the UI                        |
+| Subscribe(BaseWidget)           | DISCOVER_WIDGET_TOPIC                     | Publish(client) | Compatible widgets for the defined UI types in the client will be discovered              |
 
+| Remote(JS) | Event                       | RemoteConnection | Event Description                                                                       |
+|------------|-----------------------------|------------------|-----------------------------------------------------------------------------------------|
+| Publish    | REMOTE_ALIVE_TOPIC          | Subscribe        | Remote JS integration<>Python communication; Connection and alive check                 |
+| Subscribe  | REMOTE_ALIVE_TOPIC          | Publish          | Remote JS integration<>Python communication; Connection and alive check                 |
+| Publish    | REMOTE_ALIVE_ACK_TOPIC      | Subscribe        | Remote JS integration<>Python communication; Connection and alive check acknowledgement |
+| Subscribe  | REMOTE_ALIVE_ACK_TOPIC      | Publish          | Remote JS integration<>Python communication; Connection and alive check acknowledgement |
+| Subscribe  | REMOTE_CONTEXT_DATA         | Publish          | Remote JS integration<>Python communication; Context data                               |
 
 
 

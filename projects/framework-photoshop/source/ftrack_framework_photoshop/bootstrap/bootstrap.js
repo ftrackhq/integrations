@@ -5,7 +5,7 @@
 */
 
 var event_manager = undefined;
-var adobe_id = undefined;
+var integration_session_id = undefined;
 var connected = false;
 
 function initializeIntegration() {
@@ -13,7 +13,6 @@ function initializeIntegration() {
     try {
         var csInterface = new CSInterface();
         var env = {};
-
 
         // Get app version
 
@@ -47,14 +46,14 @@ function initializeIntegration() {
             }
         });
     } catch (e) {
-        error("[INTERNAL ERROR] Failed to initialise integration! "+e);
+        error("[INTERNAL ERROR] Failed to initialise integration! "+e+" Details: "+e.stack);
     }
 }
 
 
 function initializeSession(env, appVersion) {
     try {
-        adobe_id = env.FTRACK_INTEGRATION_SESSION_ID;
+        integration_session_id = env.FTRACK_INTEGRATION_SESSION_ID;
 
         var session = new ftrack.Session(
             env.FTRACK_SERVER,
@@ -63,35 +62,41 @@ function initializeSession(env, appVersion) {
             { autoConnectEventHub: true }
         );
 
-        event_manager = new EventManager(session, adobe_id);
+        event_manager = new EventManager(session);
 
-        // Subscribe to events
+        //  Subscribe to events
         event_manager.subscribe(
-            TOPIC_CONTEXT_DATA,
-            handleContextData
+            REMOTE_ALIVE_TOPIC,
+            handleIntegrationAlive
         );
         event_manager.subscribe(
-            TOPIC_INTEGRATION_ALIVE,
-            handleIntegrationAlive
+            REMOTE_CONTEXT_DATA,
+            handleContextData
         );
 
         // Settle down - wait for standalone process to start listening. Then send
         // a ping to the standalone process to connect.
         sleep(500).then(() => {
             try {
-                event_manager.publish(TOPIC_INTEGRATION_ALIVE, {"version": appVersion});
+                event_manager.publish(REMOTE_ALIVE_TOPIC,
+                    {
+                        "version": appVersion,
+                        "integration_session_id": integration_session_id
+                    }
+                );
             } catch (e) {
-                error("[INTERNAL ERROR] Failed to publish integration alive event! "+e);
+                error("[INTERNAL ERROR] Failed to publish integration alive event! "+e+" Details: "+e.stack);
             }
         });
 
     } catch (e) {
-        error("[INTERNAL ERROR] Failed to initialise ftrack session! "+e);
+        error("[INTERNAL ERROR] Failed to initialise ftrack session! "+e+" Details: "+e.stack);
     }
 }
 
 function handleContextData(event) {
-
+    if (event.data.integration_session_id != integration_session_id)
+        return;
     if (!connected) {
         connected = true;
         showElement("connecting", false);
@@ -100,12 +105,14 @@ function handleContextData(event) {
         "This is an alpha and not intended for production use. Please submit bug reports "+
         "and feedback to support@ftrack.com.");
     }
-    // TODO: Display context info
+    // TODO: Display received context info
 }
 
 function handleIntegrationAlive(event) {
+    if (event.data.integration_session_id != integration_session_id)
+        return;
     // Tell integration we are still here by sending reply back
-    sendEvent(TOPIC_ACK, {}, event.id);
+    event_manager.publish(TOPIC_ACK, {}, event.id);
 }
 
 

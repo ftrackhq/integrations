@@ -448,7 +448,7 @@ def build_cep(args):
 
     extension_output_path = os.path.join(
         BUILD_PATH,
-        'ftrack_framework_adobe_prototype_{}.zxp'.format(VERSION),
+        'ftrack_framework_adobe_{}.zxp'.format(VERSION),
     )
 
     # Create and sign extension
