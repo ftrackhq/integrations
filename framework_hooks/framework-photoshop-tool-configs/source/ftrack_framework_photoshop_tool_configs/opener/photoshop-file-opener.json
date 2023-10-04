@@ -22,8 +22,7 @@
             {
                 "plugin_type": "context",
                 "plugin_title": "context selector",
-                "plugin_name": "generic_context_passthrough",
-                "widget_name": "opener_context_selector"
+                "plugin_name": "generic_context_passthrough"
             }
           ]
         }
@@ -44,8 +43,7 @@
             {
               "plugin_type": "collector",
               "plugin_title": "collect file",
-              "plugin_name": "component_path_collector",
-              "widget_name": "file_browser_collector",
+              "plugin_name": "component_path_collector"
             }
           ]
         },
@@ -71,7 +69,7 @@
             {
               "plugin_type": "post_importer",
               "plugin_title": "Set up scene",
-              "plugin_name": "setup_photoshop_scene",
+              "plugin_name": "setup_photoshop_scene"
             }
           ]
         }
