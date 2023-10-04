@@ -87,6 +87,63 @@
       ]
     },
     {
+      "step_type": "component",
+      "step_name": "file_two",
+      "optional": false,
+      "enabled": true,
+      "stages": [
+        {
+          "stage_type": "collector",
+          "stage_name": "collector",
+          "optional": false,
+          "enabled": true,
+          "plugins": [
+            {
+              "plugin_type": "collector",
+              "plugin_title": "collect file",
+              "plugin_name": "file_collector",
+              "widget_name": "file_browser_collector",
+              "options": {
+                "folder_path": "/Users/ftrack/Desktop",
+                "file_name": "file_collector_test.png"
+              }
+            }
+          ]
+        },
+        {
+          "stage_type": "validator",
+          "stage_name": "validator",
+          "optional": false,
+          "enabled": true,
+          "plugins": [
+            {
+              "plugin_type": "validator",
+              "plugin_title": "validate file exists",
+              "plugin_name": "file_exists_validator",
+              "widget_name": "validator_check"
+            }
+          ]
+        },
+        {
+          "stage_type": "exporter",
+          "stage_name": "exporter",
+          "optional": false,
+          "enabled": true,
+          "plugins": [
+            {
+              "plugin_type": "exporter",
+              "plugin_title": "Export file",
+              "plugin_name": "rename_file_exporter",
+              "widget_name": "file_exporter_options",
+              "options": {
+                "export_destinations": "/Users/ftrack/Desktop/myPublishedFiile.png"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
       "step_type": "finalizer",
       "step_name": "main",
       "optional": false,
