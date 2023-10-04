@@ -421,11 +421,16 @@ def build_cep(args):
     # Copy js lib files
     for js_file in [
         os.path.join(
-            MONOREPO_PATH, "libs", "constants", "source", "constants.js"
+            MONOREPO_PATH, "projects", "framework-photoshop-js", "utils.js"
         ),
-        os.path.join(MONOREPO_PATH, "libs", "utils", "source", "utils.js"),
         os.path.join(
-            MONOREPO_PATH, "libs", "framework-core", "source", "core.js"
+            MONOREPO_PATH,
+            "projects",
+            "framework-photoshop-js",
+            "event-constants.js",
+        ),
+        os.path.join(
+            MONOREPO_PATH, "projects", "framework-photoshop-js", "core.js"
         ),
     ]:
         parse_and_copy(
@@ -433,9 +438,10 @@ def build_cep(args):
             os.path.join(STAGING_PATH, "lib", os.path.basename(js_file)),
             VERSION,
         )
-    # Copy main bootstrap js
     parse_and_copy(
-        os.path.join(SOURCE_PATH, "bootstrap", "bootstrap.js"),
+        os.path.join(
+            MONOREPO_PATH, "projects", "framework-photoshop-js", "bootstrap.js"
+        ),
         os.path.join(STAGING_PATH, "bootstrap.js"),
         VERSION,
     )
