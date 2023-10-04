@@ -20,7 +20,7 @@ Community owned Photoshop integration for ftrack.
 
 As monorepo tags are not interpreted by Poetry, set the version manually for now:
 
-    $ export POETRY_DYNAMIC_VERSIONING_BYPASS="v0.4.0"
+    $ export POETRY_DYNAMIC_VERSIONING_BYPASS="v0.4.0a7"
 
 To build the plugin from source, run:
 
