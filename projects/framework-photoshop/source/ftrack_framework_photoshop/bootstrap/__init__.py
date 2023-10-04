@@ -92,26 +92,18 @@ photoshop_connection.probe_photoshop_pid()
 
 # Run until it's closed, or CTRL+C
 active_time = 0
-connect_wait_time = 0
 while True:
     app.processEvents()
     time.sleep(0.01)
     active_time += 10
-    if not photoshop_connection.connected:
-        connect_wait_time += 10
     # Failsafe check if PS is still alive
     if active_time % 1000 == 0:
         print('.', end='', flush=True)
     if active_time % (60 * 1000) == 0:
         if not photoshop_connection.connected:
-            if connect_wait_time > 5 * 60 * 1000:  # Wait 5 minutes
+            if not photoshop_connection.check_running():
                 logger.warning(
-                    'Photoshop connection timed out, shutting down!'
-                )
-                photoshop_connection.terminate()
-            elif not photoshop_connection.check_running():
-                logger.warning(
-                    'Photoshop is not connecting and process gone, shutting down!'
+                    'Photoshop never connected and process gone, shutting down!'
                 )
                 photoshop_connection.terminate()
         else:
