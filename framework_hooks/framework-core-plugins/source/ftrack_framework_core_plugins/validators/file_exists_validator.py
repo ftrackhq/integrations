@@ -48,7 +48,7 @@ class FileExistsValidatorPlugin(BasePlugin):
         # Pick plugins from previous collector stage
         collector_plugins = []
         for key, value in data[self.plugin_step_name]['collector'].items():
-            collector_plugins.append({key:value})
+            collector_plugins.append({key: value})
         # Pick result of collector plugins.
         collector_result = []
         for plugin in collector_plugins:

@@ -94,7 +94,7 @@ class LoadPublishEngine(BaseEngine):
         plugin_widget_id=None,
         plugin_widget_name=None,
         plugin_step_name=None,
-        plugin_stage_name=None
+        plugin_stage_name=None,
     ):
         '''Call the run_plugin method from the base engine'''
         return super(LoadPublishEngine, self).run_plugin(
@@ -107,7 +107,7 @@ class LoadPublishEngine(BaseEngine):
             plugin_widget_id=plugin_widget_id,
             plugin_widget_name=plugin_widget_name,
             plugin_step_name=plugin_step_name,
-            plugin_stage_name=plugin_stage_name
+            plugin_stage_name=plugin_stage_name,
         )
 
     def run_stage(self, stage_config, step_type, step_name):
@@ -167,7 +167,7 @@ class LoadPublishEngine(BaseEngine):
                 plugin_widget_id=plugin_config.widget_id,
                 plugin_widget_name=plugin_config.widget_name,
                 plugin_step_name=step_name,
-                plugin_stage_name=stage_config.stage_name
+                plugin_stage_name=stage_config.stage_name,
             )
 
             if step_type == 'context':

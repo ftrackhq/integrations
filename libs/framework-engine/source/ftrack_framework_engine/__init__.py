@@ -89,7 +89,7 @@ class BaseEngine(ABC):
         plugin_widget_id=None,
         plugin_widget_name=None,
         plugin_step_name=None,
-        plugin_stage_name=None
+        plugin_stage_name=None,
     ):
         '''
         Returns the result of running the plugin with the event returned from
@@ -130,7 +130,7 @@ class BaseEngine(ABC):
                 plugin_widget_id=plugin_widget_id,
                 plugin_widget_name=plugin_widget_name,
                 plugin_step_name=plugin_step_name,
-                plugin_stage_name=plugin_stage_name
+                plugin_stage_name=plugin_stage_name,
             )[0]
             break
 
