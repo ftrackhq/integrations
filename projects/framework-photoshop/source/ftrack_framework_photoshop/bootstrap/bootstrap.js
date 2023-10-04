@@ -112,7 +112,7 @@ function handleIntegrationAlive(event) {
     if (event.data.integration_session_id != integration_session_id)
         return;
     // Tell integration we are still here by sending reply back
-    event_manager.publish(TOPIC_ACK, {}, event.id);
+    event_manager.publish(REMOTE_ALIVE_ACK_TOPIC, {}, event.id);
 }
 
 

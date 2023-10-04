@@ -1,6 +1,7 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2023 ftrack
 import logging
+import time
 import traceback
 import sys
 import subprocess
@@ -124,6 +125,7 @@ class BasePhotoshopRemoteConnection(object):
 
     def _on_remote_alive_ack_callback(self, event):
         logger.info('Got reply for integration alive event: {}'.format(event))
+        self._is_alive = True
 
     # PID
 
@@ -171,10 +173,21 @@ class BasePhotoshopRemoteConnection(object):
             )
         )
         try:
+            self._is_alive = False
             self.event_manager.publish.remote_alive(
                 self.integration_session_id,
                 callback=self._on_remote_alive_ack_callback,
             )
+            waited = 0
+            while not self._is_alive:
+                time.sleep(0.01)
+                waited += 10
+                if waited > 10*1000:
+                    logger.warning('Timeout waiting for integration alive event reply! Waited {}s'.format(waited/1000))
+                    return False
+                if waited % 1000 == 0:
+                    print('-', end='', flush=True)
+            return True
         except:
             logger.warning(traceback.format_exc())
             return False
