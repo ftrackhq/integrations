@@ -16,6 +16,6 @@ const REMOTE_ALIVE_TOPIC = _BASE_ + ".remote.alive";
 const REMOTE_ALIVE_ACK_TOPIC = _BASE_ + ".remote.alive.ack";
 // Sent back to standalone process to acknowledge receipt of event REMOTE_ALIVE_TOPIC
 
-const REMOTE_CONTEXT_DATA = _BASE_ + ".remote.context.data";
+const REMOTE_CONTEXT_DATA_TOPIC = _BASE_ + ".remote.context.data";
 // Return event from standalone process on REMOTE_ALIVE_TOPIC event sent from integration,
 // contains context data.

@@ -70,7 +70,7 @@ function initializeSession(env, appVersion) {
             handleIntegrationAlive
         );
         event_manager.subscribe(
-            REMOTE_CONTEXT_DATA,
+            REMOTE_CONTEXT_DATA_TOPIC,
             handleContextData
         );
 

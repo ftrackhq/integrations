@@ -530,7 +530,7 @@ class Publish(object):
         '''
         context_data['integration_session_id'] = integration_session_id
 
-        event_topic = constants.event.REMOTE_CONTEXT_DATA
+        event_topic = constants.event.REMOTE_CONTEXT_DATA_TOPIC
         return self._publish_remote_event(event_topic, context_data, callback)
 
 

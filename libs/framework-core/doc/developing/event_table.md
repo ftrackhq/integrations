@@ -30,7 +30,7 @@
 | Subscribe  | REMOTE_ALIVE_TOPIC          | Publish          | Remote JS integration<>Python communication; Connection and alive check                 |
 | Publish    | REMOTE_ALIVE_ACK_TOPIC      | Subscribe        | Remote JS integration<>Python communication; Connection and alive check acknowledgement |
 | Subscribe  | REMOTE_ALIVE_ACK_TOPIC      | Publish          | Remote JS integration<>Python communication; Connection and alive check acknowledgement |
-| Subscribe  | REMOTE_CONTEXT_DATA         | Publish          | Remote JS integration<>Python communication; Context data                               |
+| Subscribe  | REMOTE_CONTEXT_DATA_TOPIC   | Publish          | Remote JS integration<>Python communication; Context data                               |
 
 
 

@@ -78,4 +78,4 @@ REMOTE_ALIVE_TOPIC = "{}.remote.alive".format(_BASE_)
 REMOTE_ALIVE_ACK_TOPIC = "{}.remote.alive.ack".format(_BASE_)
 
 # Remote JS integration<>Python communication; Context data
-REMOTE_CONTEXT_DATA = "{}.remote.context.data".format(_BASE_)
+REMOTE_CONTEXT_DATA_TOPIC = "{}.remote.context.data".format(_BASE_)
