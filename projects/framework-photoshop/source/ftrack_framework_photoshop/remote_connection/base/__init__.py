@@ -28,9 +28,13 @@ class BasePhotoshopRemoteConnection(object):
         return self._photoshop_version
 
     @property
+    def client(self):
+        return self._client
+
+    @property
     def event_manager(self):
         '''Return event manager.'''
-        return self._event_manager
+        return self.client.event_manager
 
     @property
     def session(self):
@@ -38,10 +42,9 @@ class BasePhotoshopRemoteConnection(object):
         return self.event_manager.session
 
     @property
-    def remote_event_manager(self):
-        '''Return remote event manager, to plugins and other parts of the framework that
-        needs to send events to Photoshop.'''
-        return self._remote_event_manager
+    def photoshop_version(self):
+        '''Return Photoshop version.'''
+        return self._photoshop_version
 
     @property
     def connected(self):
@@ -59,7 +62,7 @@ class BasePhotoshopRemoteConnection(object):
                 )
             )
 
-    def __init__(self, event_manager):
+    def __init__(self, client, photoshop_version):
         super(BasePhotoshopRemoteConnection, self).__init__()
 
         self._integration_session_id = os.environ.get(
@@ -69,65 +72,39 @@ class BasePhotoshopRemoteConnection(object):
             self._integration_session_id
         ), 'Photoshop integration requires a FTRACK_INTEGRATION_SESSION_ID passed as environment variable!'
 
-        photoshop_version = os.environ.get('FTRACK_PHOTOSHOP_VERSION')
-        assert (
-            photoshop_version
-        ), 'Photoshop integration requires FTRACK_PHOTOSHOP_VERSION passed as environment variable!'
-
-        self._photoshop_version = int(photoshop_version)
-
-        self._event_manager = event_manager
+        self._client = client
+        self._photoshop_version = photoshop_version
         self._photoshop_pid = -1
         self._connected = False
-        self._remote_subscriber_id = None
-        self._event_replies = {}
 
         self._initialise()
 
     def _initialise(self):
         '''Initialise the Photoshop connection'''
 
-        self.event_manager.subscribe.remote_alive(
-            self.integration_session_id, self._on_remote_alive_callback
-        )
-
-    # Event handling
-
-    def _on_remote_alive_callback(self, event):
-        # DEBUG, to be removed
-        eid = event['id']
-        topic = event['topic']
-        event_data = event['data']
-        source = event.get('source')
-        logger.info(
-            'Processing incoming PS event: {} ({}), data: {}, source: {}'.format(
-                topic, eid, event_data, source
-            )
-        )
-
-        self.connected = True
-        # Send acknowledgment back with current context data
-        context_id = os.getenv('FTRACK_CONTEXTID')
-        task = self.session.query('Task where id={}'.format(context_id)).one()
-        self.event_manager.publish.remote_context_data(
+        self.event_manager.subscribe.discover_remote_integration(
             self.integration_session_id,
-            {
-                'context_id': context_id,
-                'context_name': task['name'],
-                'context_type': task['type']['name'],
-                'context_path': " / ".join(
-                    [d["name"] for d in task["link"][:-1]]
-                ),
-                'context_thumbnail': task['thumbnail_url']['url'],
-                'project_id': task['project_id'],
-            },
+            self._on_discover_remote_integration_callback,
         )
 
-    def _on_remote_alive_ack_callback(self, event):
-        logger.info('Got reply for integration alive event: {}'.format(event))
-        self._is_alive = True
-
-    # PID
+    def _on_discover_remote_integration_callback(self, event):
+        '''Callback for discover_remote_integration *event*, sends
+        back context data'''
+        if not self.connected:
+            self.connected = True
+            logger.info("Connected to Photoshop.")
+        # Send acknowledgment back with current context data
+        context_id = self.client.context_id
+        task = self.session.query('Task where id={}'.format(context_id)).one()
+        self.event_manager.publish.remote_integration_context_data(
+            self.integration_session_id,
+            context_id,
+            task['name'],
+            task['type']['name'],
+            ' / '.join([d["name"] for d in task["link"][:-1]]),
+            task['thumbnail_url']['url'],
+            task['project_id'],
+        )
 
     def probe_photoshop_pid(self):
         '''List processes using 'ps' to find photoshop pid'''
@@ -174,9 +151,9 @@ class BasePhotoshopRemoteConnection(object):
         )
         try:
             self._is_alive = False
-            self.event_manager.publish.remote_alive(
+            self.event_manager.publish.discover_remote_integration(
                 self.integration_session_id,
-                callback=self._on_remote_alive_ack_callback,
+                callback=self._on_check_response_callback,
             )
             waited = 0
             while not self._is_alive:
@@ -197,6 +174,15 @@ class BasePhotoshopRemoteConnection(object):
             return False
         return True
 
+    def _on_check_response_callback(self, event):
+        '''Call back for alive check.'''
+        logger.info(
+            'Got reply for integration discovery response event: {}'.format(
+                event
+            )
+        )
+        self._is_alive = True
+
     def check_running(self):
         '''Check if PID is running'''
         logger.info(
@@ -211,12 +197,5 @@ class BasePhotoshopRemoteConnection(object):
     def terminate(self):
         '''Terminate Photoshop standalone integration process'''
         logger.info("Terminating Photoshop standalone framework integration")
-        if self._remote_subscriber_id:
-            try:
-                self.remote_event_manager.session.event_hub.unsubscribe(
-                    self._remote_subscriber_id
-                )
-            except:
-                logger.warning(traceback.format_exc())
 
         os.kill(os.getpid(), signal.SIGKILL)

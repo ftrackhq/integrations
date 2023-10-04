@@ -70,12 +70,12 @@ CLIENT_NOTIFY_RUN_TOOL_CONFIG_RESULT_TOPIC = (
 # Client received log item result
 CLIENT_NOTIFY_LOG_ITEM_ADDED_TOPIC = '{}.client.notify.log_item'.format(_BASE_)
 
-
 # Remote JS integration<>Python communication; Connection and alive check
-REMOTE_ALIVE_TOPIC = "{}.remote.alive".format(_BASE_)
+DISCOVER_REMOTE_INTEGRATION_TOPIC = "{}.discover.remote.integration".format(
+    _BASE_
+)
 
-# Remote JS integration<>Python communication; Connection and alive check acknowledgement
-REMOTE_ALIVE_ACK_TOPIC = "{}.remote.alive.ack".format(_BASE_)
-
-# Remote JS integration<>Python communication; Context data
-REMOTE_CONTEXT_DATA_TOPIC = "{}.remote.context.data".format(_BASE_)
+# Remote JS integration<>Python communication; Provide context data to JS
+REMOTE_INTEGRATION_CONTEXT_DATA_TOPIC = (
+    "{}.remote.integration.context.data".format(_BASE_)
+)

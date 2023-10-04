@@ -142,7 +142,7 @@ class EventManager(object):
 
         # self.logger.debug('Initialising {}'.format(self))
 
-    def publish_event(self, event, callback=None, mode=None):
+    def _publish(self, event, callback=None, mode=None):
         '''Emit *event* and provide *callback* function, in local or remote *mode*.'''
 
         mode = mode or self.mode
@@ -171,7 +171,7 @@ class EventManager(object):
         else:
             self.session.event_hub.publish(event, on_reply=callback)
 
-    def subscribe_topic(self, topic, callback):
+    def _subscribe(self, topic, callback):
         subscribe_id = self.session.event_hub.subscribe(
             'topic={}'.format(topic), callback
         )
@@ -200,7 +200,7 @@ class Publish(object):
         publish_event = ftrack_api.event.base.Event(
             topic=event_topic, data=data
         )
-        publish_result = self.event_manager.publish_event(
+        publish_result = self.event_manager._publish(
             publish_event, callback=callback, mode=mode
         )
         return publish_result
@@ -213,7 +213,7 @@ class Publish(object):
         publish_event = ftrack_api.event.base.Event(
             topic=event_topic, data=data
         )
-        publish_result = self.event_manager.remote.publish_event(
+        publish_result = self.event_manager.remote._publish(
             publish_event, callback=callback
         )
         return publish_result
@@ -507,31 +507,49 @@ class Publish(object):
         event_topic = constants.event.CLIENT_NOTIFY_LOG_ITEM_ADDED_TOPIC
         return self._publish_event(event_topic, data, callback)
 
-    def remote_alive(self, integration_session_id, callback=None):
+    def discover_remote_integration(
+        self, integration_session_id, callback=None
+    ):
         '''
-        Publish an event with topic
-        :const:`~ftrack_framework_core.constants.event.REMOTE_ALIVE_TOPIC`
-        supplying *dcc_id*.
+        Publish a remote event with topic
+        :const:`~ftrack_framework_core.constants.event.DISCOVER_REMOTE_INTEGRATION_TOPIC`
+        supplying *integration_session_id*.
         '''
         data = {
             'integration_session_id': integration_session_id,
         }
 
-        event_topic = constants.event.REMOTE_ALIVE_TOPIC
+        event_topic = constants.event.DISCOVER_REMOTE_INTEGRATION_TOPIC
         return self._publish_remote_event(event_topic, data, callback)
 
-    def remote_context_data(
-        self, integration_session_id, context_data, callback=None
+    def remote_integration_context_data(
+        self,
+        integration_session_id,
+        context_id,
+        task_name,
+        task_type_name,
+        context_path,
+        thumbnail_url,
+        project_id,
+        callback=None,
     ):
         '''
         Publish an event with topic
-        :const:`~ftrack_framework_core.constants.event.REMOTE_ALIVE_TOPIC`
-        supplying *dcc_id* and *context_data*.
+        :const:`~ftrack_framework_core.constants.event.REMOTE_INTEGRATION_CONTEXT_DATA_TOPIC`
+        supplying *integration_session_id* and *context_data*.
         '''
-        context_data['integration_session_id'] = integration_session_id
+        data = {
+            'integration_session_id': integration_session_id,
+            'context_id': context_id,
+            'context_name': task_name,
+            'context_type': task_type_name,
+            'context_path': context_path,
+            'context_thumbnail': thumbnail_url,
+            'project_id': project_id,
+        }
 
-        event_topic = constants.event.REMOTE_CONTEXT_DATA_TOPIC
-        return self._publish_remote_event(event_topic, context_data, callback)
+        event_topic = constants.event.REMOTE_INTEGRATION_CONTEXT_DATA_TOPIC
+        return self._publish_remote_event(event_topic, data, callback)
 
 
 class Subscribe(object):
@@ -547,13 +565,11 @@ class Subscribe(object):
 
     def _subscribe_event(self, event_topic, callback):
         '''Common method that calls the private subscribe method from the event manager'''
-        return self.event_manager.subscribe_topic(
-            event_topic, callback=callback
-        )
+        return self.event_manager._subscribe(event_topic, callback=callback)
 
     def _subscribe_remote_event(self, event_topic, callback):
         '''Common method that calls the private subscribe method from the event manager'''
-        return self.event_manager.remote.subscribe_topic(
+        return self.event_manager.remote._subscribe(
             event_topic, callback=callback
         )
 
@@ -758,15 +774,19 @@ class Subscribe(object):
         )
         return self._subscribe_event(event_topic, callback)
 
-    def remote_alive(self, integration_session_id, callback=None):
+    def discover_remote_integration(
+        self, integration_session_id, callback=None
+    ):
         '''
         Subscribe to an event with topic
-        :const:`~ftrack_framework_core.constants.event.REMOTE_ALIVE_TOPIC`and *integration_session_id*
+        :const:`~ftrack_framework_core.constants.event.DISCOVER_REMOTE_INTEGRATION_TOPIC`
+        and *integration_session_id*
         '''
         event_topic = (
             '{} and source.applicationId=ftrack.api.javascript '
             'and data.integration_session_id={}'.format(
-                constants.event.REMOTE_ALIVE_TOPIC, integration_session_id
+                constants.event.DISCOVER_REMOTE_INTEGRATION_TOPIC,
+                integration_session_id,
             )
         )
         return self._subscribe_remote_event(event_topic, callback)

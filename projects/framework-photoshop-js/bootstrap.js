@@ -9,7 +9,7 @@ var integration_session_id = undefined;
 var connected = false;
 
 function initializeIntegration() {
-
+    /* Initialise the Photoshop JS integration part. */
     try {
         var csInterface = new CSInterface();
         var env = {};
@@ -52,6 +52,7 @@ function initializeIntegration() {
 
 
 function initializeSession(env, appVersion) {
+    /* Initialise the ftrack API session. */
     try {
         integration_session_id = env.FTRACK_INTEGRATION_SESSION_ID;
 
@@ -65,28 +66,18 @@ function initializeSession(env, appVersion) {
         event_manager = new EventManager(session);
 
         //  Subscribe to events
-        event_manager.subscribe(
-            REMOTE_ALIVE_TOPIC,
-            handleIntegrationAlive
+        event_manager.subscribe.discover_remote_integration(
+            handleIntegrationDiscoverCallback
         );
-        event_manager.subscribe(
-            REMOTE_CONTEXT_DATA_TOPIC,
-            handleContextData
+        event_manager.subscribe.integration_context_data(
+            handleIntegrationContextDataCallback
+
         );
 
         // Settle down - wait for standalone process to start listening. Then send
         // a ping to the standalone process to connect.
         sleep(500).then(() => {
-            try {
-                event_manager.publish(REMOTE_ALIVE_TOPIC,
-                    {
-                        "version": appVersion,
-                        "integration_session_id": integration_session_id
-                    }
-                );
-            } catch (e) {
-                error("[INTERNAL ERROR] Failed to publish integration alive event! "+e+" Details: "+e.stack);
-            }
+            connect(appVersion);
         });
 
     } catch (e) {
@@ -94,7 +85,29 @@ function initializeSession(env, appVersion) {
     }
 }
 
-function handleContextData(event) {
+function connect(appVersion) {
+    /* Initiate connection with standalone Python part. */
+    try {
+        event_manager.publish.discover_remote_integration(
+            prepareEventData({
+                "version": appVersion,
+            })
+        );
+    } catch (e) {
+        error("[INTERNAL ERROR] Failed to publish integration discovery event! "+e+" Details: "+e.stack);
+    }
+}
+
+// Event
+
+function prepareEventData(data) {
+    /* Append integration session id to event data */
+    data["integration_session_id"] = integration_session_id;
+    return data;
+}
+
+function handleIntegrationContextDataCallback(event) {
+    /* Standalone process has sent context data */
     if (event.data.integration_session_id != integration_session_id)
         return;
     if (!connected) {
@@ -108,11 +121,11 @@ function handleContextData(event) {
     // TODO: Display received context info
 }
 
-function handleIntegrationAlive(event) {
-    if (event.data.integration_session_id != integration_session_id)
+function handleIntegrationDiscoverCallback(event) {
+    /* Tell integration we are still here by sending reply back */
+    if (event.data.integration_session_id !== integration_session_id)
         return;
-    // Tell integration we are still here by sending reply back
-    event_manager.publish(REMOTE_ALIVE_ACK_TOPIC, {}, event.id);
+    event_manager.publish_reply(event, prepareEventData({}));
 }
 
 

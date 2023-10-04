@@ -24,13 +24,11 @@
 | Subscribe(BaseWidget)           | CLIENT_NOTIFY_LOG_ITEM_ADDED_TOPIC        | Publish(client) | LOG item added in the host, and client send the log item to the UI                        |
 | Subscribe(BaseWidget)           | DISCOVER_WIDGET_TOPIC                     | Publish(client) | Compatible widgets for the defined UI types in the client will be discovered              |
 
-| Remote(JS) | Event                       | RemoteConnection | Event Description                                                                       |
-|------------|-----------------------------|------------------|-----------------------------------------------------------------------------------------|
-| Publish    | REMOTE_ALIVE_TOPIC          | Subscribe        | Remote JS integration<>Python communication; Connection and alive check                 |
-| Subscribe  | REMOTE_ALIVE_TOPIC          | Publish          | Remote JS integration<>Python communication; Connection and alive check                 |
-| Publish    | REMOTE_ALIVE_ACK_TOPIC      | Subscribe        | Remote JS integration<>Python communication; Connection and alive check acknowledgement |
-| Subscribe  | REMOTE_ALIVE_ACK_TOPIC      | Publish          | Remote JS integration<>Python communication; Connection and alive check acknowledgement |
-| Subscribe  | REMOTE_CONTEXT_DATA_TOPIC   | Publish          | Remote JS integration<>Python communication; Context data                               |
+| Remote(JS) | Event                                 | RemoteConnection | Event Description                                                                   |
+|------------|---------------------------------------|------------------|-------------------------------------------------------------------------------------|
+| Publish    | DISCOVER_REMOTE_INTEGRATION_TOPIC     | Subscribe        | Remote JS integration<>Python communication; Discovery and alive check              |
+| Subscribe  | DISCOVER_REMOTE_INTEGRATION_TOPIC     | Publish          | Remote JS integration<>Python communication; Discovery and alive check              |
+| Subscribe  | REMOTE_INTEGRATION_CONTEXT_DATA_TOPIC | Publish          | Remote JS integration<>Python communication; Provide context data to JS integration |
 
 
 

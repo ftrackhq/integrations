@@ -8,14 +8,10 @@
 
 const _BASE_ = "ftrack.framework"
 
-const REMOTE_ALIVE_TOPIC = _BASE_ + ".remote.alive";
+const DISCOVER_REMOTE_INTEGRATION_TOPIC = _BASE_ + ".discover.remote.integration";
 // Sent from integration to standalone process to initiate connection.
 // Sent from standalone process to integration on connect (uxp) and to check if
 // integration is alive.
 
-const REMOTE_ALIVE_ACK_TOPIC = _BASE_ + ".remote.alive.ack";
-// Sent back to standalone process to acknowledge receipt of event REMOTE_ALIVE_TOPIC
-
-const REMOTE_CONTEXT_DATA_TOPIC = _BASE_ + ".remote.context.data";
-// Return event from standalone process on REMOTE_ALIVE_TOPIC event sent from integration,
-// contains context data.
+const REMOTE_INTEGRATION_CONTEXT_DATA_TOPIC = _BASE_ + ".remote.integration.context.data";
+// Sent back from standalone process to integration supplying context data.

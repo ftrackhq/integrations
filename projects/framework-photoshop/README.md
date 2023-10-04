@@ -36,3 +36,39 @@ build script:
 ## Build docs
 
     $ python <path-to-monorepo>/tests/build.py build_sphinx
+
+
+
+# Development
+
+
+## CEP plugin
+
+To enable live development, first allow unsigned extensions:
+
+    $ defaults write com.adobe.CSXS.8 PlayerDebugMode 1
+
+
+Build and install ZXP extension and then open up permissions on folder:
+
+    $ sudo chmod -R 777 "/library/application support/adobe/cep/extensions/com.ftrack.framework.photoshop.panel"
+
+You are now ready to do live changes to extension, remember to sync back changes to
+source folder before committing.
+
+
+### CEP plugin build
+
+Set variables:
+
+    FTRACK_ADOBE_CERTIFICATE_PASSWORD=<Adobe exchange vault entry>
+
+Create Adobe extension:
+
+    $ python tests/build.py build_cep
+
+
+### CEP plugin install
+
+Use "Extension Manager" tool provided here: https://install.anastasiy.com/ to install 
+the built xzp plugin. Remember to remove previous ftrack extensions.

@@ -13,7 +13,8 @@ class CEPBasePhotoshopRemoteConnection(BasePhotoshopRemoteConnection):
     '''Photoshop remote connection legacy CEP framework.'''
 
     def connect(self):
-        '''(Override)'''
+        '''(Override) We can't make an active connection to Photoshop, wait
+        for it to connect to us instead.'''
 
         logger.info(
             "Waiting for Photoshop {} to dial in...".format(

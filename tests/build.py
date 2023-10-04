@@ -430,7 +430,10 @@ def build_cep(args):
             "event-constants.js",
         ),
         os.path.join(
-            MONOREPO_PATH, "projects", "framework-photoshop-js", "core.js"
+            MONOREPO_PATH,
+            "projects",
+            "framework-photoshop-js",
+            "events-core.js",
         ),
     ]:
         parse_and_copy(
