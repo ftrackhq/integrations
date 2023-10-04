@@ -1,0 +1,131 @@
+{
+  "tool_type": "opener",
+  "tool_title": "File Opener",
+  "host_type": "python",
+  "ui_type": "qt",
+  "engine_name": "load_publish",
+  "engine_type": "opener",
+  "validation_schema": "ToolSchema",
+  "steps":[
+    {
+      "step_type": "context",
+      "step_name": "main",
+      "optional": false,
+      "enabled": true,
+      "stages": [
+        {
+          "stage_type": "context",
+          "stage_name": "context",
+          "optional": false,
+          "enabled": true,
+          "plugins": [
+            {
+                "plugin_type": "context",
+                "plugin_title": "context selector",
+                "plugin_name": "generic_context_passthrough",
+                "widget_name": "opener_context_selector"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "step_type": "component",
+      "step_name": "snapshot",
+      "optional": false,
+      "enabled": true,
+      "stages": [
+        {
+          "stage_type": "collector",
+          "stage_name": "collector",
+          "optional": false,
+          "enabled": true,
+          "plugins": [
+            {
+              "plugin_type": "collector",
+              "plugin_title": "collect file",
+              "plugin_name": "component_path_collector",
+              "widget_name": "file_browser_collector",
+            }
+          ]
+        },
+        {
+          "stage_type": "importer",
+          "stage_name": "importer",
+          "optional": false,
+          "enabled": true,
+          "plugins": [
+            {
+              "plugin_type": "importer",
+              "plugin_title": "open PS file",
+              "plugin_name": "photoshop_file_opener"
+            }
+          ]
+        },
+        {
+          "stage_type": "post_importer",
+          "stage_name": "post_importer",
+          "optional": false,
+          "enabled": true,
+          "plugins": [
+            {
+              "plugin_type": "post_importer",
+              "plugin_title": "Set up scene",
+              "plugin_name": "setup_photoshop_scene",
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "step_type": "finalizer",
+      "step_name": "main",
+      "optional": false,
+      "enabled": true,
+      "stages": [
+        {
+          "stage_type": "pre_finalizer",
+          "stage_name": "pre_finalizer",
+          "optional": false,
+          "enabled": true,
+          "visible": false,
+          "plugins": [
+            {
+              "plugin_type": "pre_finalizer",
+              "plugin_title": "Pre finalizer process",
+              "plugin_name": "generic_passthrough"
+            }
+          ]
+        },
+        {
+          "stage_type": "finalizer",
+          "stage_name": "finalizer",
+          "optional": false,
+          "enabled": true,
+          "visible": false,
+          "plugins": [
+            {
+              "plugin_type": "finalizer",
+              "plugin_title": "Finalizer process",
+              "plugin_name": "generic_passthrough"
+            }
+          ]
+        },
+        {
+          "stage_type": "post_finalizer",
+          "stage_name": "post_finalizer",
+          "optional": false,
+          "enabled": true,
+          "visible": false,
+          "plugins": [
+            {
+              "plugin_type": "post_finalizer",
+              "plugin_title": "Post process publish",
+              "plugin_name": "generic_passthrough"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
