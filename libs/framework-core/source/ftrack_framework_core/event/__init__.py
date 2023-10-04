@@ -273,6 +273,8 @@ class Publish(object):
         plugin_context_data,
         plugin_widget_id=None,
         plugin_widget_name=None,
+        plugin_step_name=None,
+        plugin_stage_name=None,
         callback=None,
     ):
         '''
@@ -289,6 +291,8 @@ class Publish(object):
             'plugin_context_data': plugin_context_data,
             'plugin_widget_id': plugin_widget_id,
             'plugin_widget_name': plugin_widget_name,
+            'plugin_step_name': plugin_step_name,
+            'plugin_stage_name': plugin_stage_name,
         }
 
         event_topic = constants.event.EXECUTE_PLUGIN_TOPIC
