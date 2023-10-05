@@ -21,7 +21,11 @@ INCLUDE_PACKAGES = [
 
 for _package in INCLUDE_PACKAGES:
     ftrack_package = "ftrack_" + _package.split("/")[-1].replace("-", "_")
-    sys.path.append(os.path.join(ROOT_INTEGRATIONS_FOLDER, _package, "source", ftrack_package))
+    sys.path.append(
+        os.path.join(
+            ROOT_INTEGRATIONS_FOLDER, _package, "source", ftrack_package
+        )
+    )
 
 from ftrack_framework_core import host, event
 import ftrack_constants.framework as constants
@@ -35,12 +39,15 @@ host_class = host.Host(event_manager)
 
 
 from ftrack_framework_core import client
+
 client_class = client.Client(event_manager)
 
 # Get all publisher tool_configs
 publisher_tool_configs = client_class.tool_configs['publisher']
 # Get the desired tool_config
-file_publisher_definiton = publisher_tool_configs.get_first(tool_title='File Publisher')
+file_publisher_definiton = publisher_tool_configs.get_first(
+    tool_title='File Publisher'
+)
 # Setup Context plugin options
 context_selector_plugin = file_publisher_definiton.get_first(
     category='plugin', plugin_type='context', plugin_title='context selector'
@@ -49,7 +56,9 @@ context_selector_plugin = file_publisher_definiton.get_first(
 context_selector_plugin.options['context_id'] = client_class.context_id
 context_selector_plugin.options['asset_name'] = 'file_test'
 context_selector_plugin.options['comment'] = 'This is a test from standalone'
-context_selector_plugin.options['status_id'] = '44ddd0fe-4164-11df-9218-0019bb4983d8'
+context_selector_plugin.options[
+    'status_id'
+] = '44ddd0fe-4164-11df-9218-0019bb4983d8'
 
 # Configure the collector
 file_collector_plugin = file_publisher_definiton.get_first(
@@ -60,6 +69,4 @@ file_collector_plugin.options['folder_path'] = '/Users/ftrack/Desktop'
 file_collector_plugin.options['file_name'] = 'file_collector_test.png'
 # Provide folder_path and file_name to publish
 
-client_class.run_tool_config(
-    file_publisher_definiton
-)
+client_class.run_tool_config(file_publisher_definiton)

@@ -23,7 +23,11 @@ INCLUDE_PACKAGES = [
 
 for _package in INCLUDE_PACKAGES:
     ftrack_package = "ftrack_" + _package.split("/")[-1].replace("-", "_")
-    sys.path.append(os.path.join(ROOT_INTEGRATIONS_FOLDER, _package, "source", ftrack_package))
+    sys.path.append(
+        os.path.join(
+            ROOT_INTEGRATIONS_FOLDER, _package, "source", ftrack_package
+        )
+    )
 
 from ftrack_framework_core import host, event
 import ftrack_constants.framework as constants
@@ -37,6 +41,7 @@ host_class = host.Host(event_manager)
 
 
 from ftrack_framework_core import client
+
 client_class = client.Client(event_manager)
 
 app = QtWidgets.QApplication.instance()
