@@ -405,18 +405,17 @@ def build_cep(args):
     )
 
     # Copy static libraries
-    for filename in ["lib"]:
-        logging.info(
-            "Copying {}>{}".format(
-                os.path.join(CEP_PATH, filename),
-                os.path.join(STAGING_PATH, filename),
-            )
+    logging.info(
+        "Copying {}>{}".format(
+            os.path.join(CEP_PATH, "libraries"),
+            os.path.join(STAGING_PATH, "lib"),
         )
-        shutil.copytree(
-            os.path.join(CEP_PATH, filename),
-            os.path.join(STAGING_PATH, filename),
-            symlinks=True,
-        )
+    )
+    shutil.copytree(
+        os.path.join(CEP_PATH, "libraries"),
+        os.path.join(STAGING_PATH, "lib"),
+        symlinks=True,
+    )
 
     # Copy js lib files
     for js_file in [
