@@ -7,6 +7,7 @@ import logging
 import ftrack_api
 import ftrack_constants.framework as constants
 import uuid
+import time
 
 logger = logging.getLogger(__name__)
 
@@ -205,7 +206,7 @@ class Publish(object):
         )
         return publish_result
 
-    def _publish_remote_event(self, event_topic, data, callback):
+    def _publish_remote_event(self, event_topic, data, callback, fetch_reply =False):
         '''
         Common method that calls the private publish method from the
         remote event manager
@@ -213,9 +214,40 @@ class Publish(object):
         publish_event = ftrack_api.event.base.Event(
             topic=event_topic, data=data
         )
+
+        # TODO: Make this thread safe in case multiple calls arrive here at the same time
+        self._reply_event = None
+
+        def default_callback(event):
+            self._reply_event = event
+
+        if fetch_reply:
+            callback = default_callback
+
+        # TODO: _publish does not return anything, so we shouldn't return the result
         publish_result = self.event_manager.remote._publish(
             publish_event, callback=callback
         )
+
+        if fetch_reply:
+            waited = 0
+            while not self._reply_event :
+                time.sleep(0.01)
+                waited += 10
+                # TODO: Move this timeout to property that can be set on event manager init
+                if waited > 10 * 1000: # Wait 10s for reply
+                    raise Exception('Timeout waiting remote integration event reply! '
+                                    'Waited {}s'.format(
+                        waited / 1000
+                    ))
+                if waited % 1000 == 0:
+                    logger.info(
+                        "Waited {}s for {} reply".format(
+                            waited / 1000, event_topic
+                        )
+                    )
+            return self._reply_event
+
         return publish_result
 
     def discover_host(self, callback=None):
@@ -508,19 +540,20 @@ class Publish(object):
         return self._publish_event(event_topic, data, callback)
 
     def discover_remote_integration(
-        self, integration_session_id, callback=None
+        self, integration_session_id, callback=None, fetch_reply=False
     ):
         '''
         Publish a remote event with topic
         :const:`~ftrack_framework_core.constants.event.DISCOVER_REMOTE_INTEGRATION_TOPIC`
-        supplying *integration_session_id*.
+        supplying *integration_session_id*, calling *callback* with reply. If *fetch_reply* is
+        True, the reply is awaited and returned.
         '''
         data = {
             'integration_session_id': integration_session_id,
         }
 
         event_topic = constants.event.DISCOVER_REMOTE_INTEGRATION_TOPIC
-        return self._publish_remote_event(event_topic, data, callback)
+        return self._publish_remote_event(event_topic, data, callback, fetch_reply=fetch_reply)
 
     def remote_integration_context_data(
         self,
@@ -550,6 +583,29 @@ class Publish(object):
 
         event_topic = constants.event.REMOTE_INTEGRATION_CONTEXT_DATA_TOPIC
         return self._publish_remote_event(event_topic, data, callback)
+
+    def remote_integration_rpc(self,
+                               integration_session_id,
+                               function,
+                               *args,
+                               callback=None,
+                               fetch_reply=False,
+                               **kwargs):
+        '''
+        Publish an event with topic
+        :const:`~ftrack_framework_core.constants.event.REMOTE_INTEGRATION_RPC_TOPIC`
+        supplying *integration_session_id* and function name with arguments.
+        If *fetch_reply* is True, the reply is awaited and returned.
+        '''
+        data = {
+            'integration_session_id': integration_session_id,
+            'function': function,
+            'args': args,
+            'kwargs': kwargs,
+        }
+
+        event_topic = constants.event.REMOTE_INTEGRATION_RPC_TOPIC
+        return self._publish_remote_event(event_topic, data, callback, fetch_reply=fetch_reply)
 
 
 class Subscribe(object):

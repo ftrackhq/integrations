@@ -1,4 +1,8 @@
-#publish_launcher {
+#launchers {
+  width: 100%;
+}
+
+#publisher_launcher {
   font-size: 15px;
   font-weight: 500;
   width: 100%;
@@ -11,11 +15,11 @@
   color: #ffdd86;
 }
 
-#publish_launcher:hover {
+#publisher_launcher:hover {
   background-color: rgba(255, 221, 134, 25%);
 }
 
-#publisher_image {
+#publisher_launcherr_image {
   width: 12px;
   height: 16px;
   min-width: 12px;

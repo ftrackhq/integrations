@@ -1,12 +1,10 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2023 ftrack
 import tempfile
+import os
 
 from ftrack_framework_plugin import BasePlugin
 import ftrack_constants.framework as constants
-
-from ftrack_framework_photoshop.app.base import BasePhotoshopApplication
-from ftrack_framework_photoshop import constants as photoshop_constants
 
 
 class PhotoshopDocumentPublisherCollectorPlugin(BasePlugin):
@@ -30,11 +28,12 @@ class PhotoshopDocumentPublisherCollectorPlugin(BasePlugin):
         export_object = []
         if export_option == 'document':
             # Fetch document name from Photoshop
-            document_data = (
-                BasePhotoshopApplication.instance().send_event_with_reply(
-                    photoshop_constants.TOPIC_DOCUMENT_GET, {}
-                )['result']
-            )
+            document_data = self.event_manager.remote_integration_rpc(
+                os.environ.get(
+                    'FTRACK_INTEGRATION_SESSION_ID'
+                ),
+                "getDocument"
+            )['result']
 
             self.logger.debug("Got PS document data: {}".format(document_data))
 
@@ -53,22 +52,20 @@ class PhotoshopDocumentPublisherCollectorPlugin(BasePlugin):
                 temp_path = tempfile.NamedTemporaryFile(
                     delete=False, suffix='.psd'
                 ).name
-                save_result = (
-                    BasePhotoshopApplication.instance()
-                    .instance()
-                    .send_event_with_reply(
-                        photoshop_constants.TOPIC_DOCUMENT_SAVE,
-                        {'path': temp_path},
-                    )['result']
-                )
+                save_result = self.event_manager.remote_integration_rpc(
+                    os.environ.get(
+                        'FTRACK_INTEGRATION_SESSION_ID'
+                    ),
+                    "saveDocument", temp_path
+                )['result']
                 if save_result == 'true':
-                    document_data = (
-                        BasePhotoshopApplication.instance()
-                        .instance()
-                        .send_event_with_reply(
-                            photoshop_constants.TOPIC_DOCUMENT_GET, {}
-                        )['result']
-                    )
+                    # Now re-fetch document data
+                    document_data = self.event_manager.remote_integration_rpc(
+                        os.environ.get(
+                            'FTRACK_INTEGRATION_SESSION_ID'
+                        ),
+                        "getDocument"
+                    )['result']
                     document_path = (
                         document_data.get('full_path')
                         if document_data

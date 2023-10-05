@@ -395,9 +395,10 @@ def build_cep(args):
             VERSION,
         )
     # Copy images
-    for filename in ["favicon.ico", "ftrack-logo-48.png", "loader.gif"]:
+    for filename in ["favicon.ico", "ftrack-logo-48.png", "loader.gif",
+                     "publish.png"]:
         shutil.copy(
-            os.path.join(STYLE_PATH, "image", filename),
+            os.path.join(STYLE_PATH, "image", "js", filename),
             os.path.join(STAGING_PATH, "image", filename),
         )
 
@@ -448,6 +449,13 @@ def build_cep(args):
             MONOREPO_PATH, "projects", "framework-photoshop-js", "bootstrap.js"
         ),
         os.path.join(STAGING_PATH, "bootstrap.js"),
+        VERSION,
+    )
+    parse_and_copy(
+        os.path.join(
+            MONOREPO_PATH, "projects", "framework-photoshop-js", "ps.jsx"
+        ),
+        os.path.join(STAGING_PATH, "ps.jsx"),
         VERSION,
     )
 

@@ -150,38 +150,21 @@ class BasePhotoshopRemoteConnection(object):
             )
         )
         try:
-            self._is_alive = False
-            self.event_manager.publish.discover_remote_integration(
+            # Send event and wait for reply sync
+            event = self.event_manager.publish.discover_remote_integration(
                 self.integration_session_id,
-                callback=self._on_check_response_callback,
+                fetch_reply=True,
             )
-            waited = 0
-            while not self._is_alive:
-                time.sleep(0.01)
-                waited += 10
-                if waited > 10 * 1000:
-                    logger.warning(
-                        'Timeout waiting for integration alive event reply! Waited {}s'.format(
-                            waited / 1000
-                        )
-                    )
-                    return False
-                if waited % 1000 == 0:
-                    print('-', end='', flush=True)
+            logger.info(
+                'Got reply for integration discovery response event: {}'.format(
+                    event
+                )
+            )
             return True
         except:
             logger.warning(traceback.format_exc())
             return False
         return True
-
-    def _on_check_response_callback(self, event):
-        '''Call back for alive check.'''
-        logger.info(
-            'Got reply for integration discovery response event: {}'.format(
-                event
-            )
-        )
-        self._is_alive = True
 
     def check_running(self):
         '''Check if PID is running'''

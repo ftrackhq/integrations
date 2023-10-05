@@ -1,13 +1,10 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2023 ftrack
 import tempfile
-import shutil
+import os
 
 from ftrack_framework_plugin import BasePlugin
 import ftrack_constants.framework as constants
-
-from ftrack_framework_photoshop.app.base import BasePhotoshopApplication
-from ftrack_framework_photoshop import constants as photoshop_constants
 
 
 class PhotoshopNativePublisherExporterPlugin(BasePlugin):
@@ -58,12 +55,11 @@ class PhotoshopNativePublisherExporterPlugin(BasePlugin):
                 )
             )
 
-            result = BasePhotoshopApplication.instance().send_event_with_reply(
-                photoshop_constants.TOPIC_DOCUMENT_EXPORT,
-                {
-                    'path': new_file_path,
-                    'format': self.extension.replace('.', ''),
-                },
+            result = self.event_manager.remote_integration_rpc(
+                os.environ.get(
+                    'FTRACK_INTEGRATION_SESSION_ID'
+                ),
+                "exportDocument", new_file_path, self.extension.replace('.', '')
             )['result']
 
             if result != 'true':

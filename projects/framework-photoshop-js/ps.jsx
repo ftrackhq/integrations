@@ -1,3 +1,9 @@
+/*
+ftrack Photoshop Framework integration CEP interface
+
+Copyright (c) 2014-2023 ftrack
+*/
+
 #target photoshop
 
 function debugPS() {

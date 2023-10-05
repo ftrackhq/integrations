@@ -8,6 +8,16 @@ var event_manager = undefined;
 var integration_session_id = undefined;
 var connected = false;
 
+try {
+    function jsx_callback(){
+        alert("ps.jsx loaded");
+    }
+
+    jsx.evalFile('./ps.jsx', jsx_callback);
+} catch (e) {
+    error("[INTERNAL ERROR] Failed to resource "+e+" Details: "+e.stack);
+}
+
 function initializeIntegration() {
     /* Initialise the Photoshop JS integration part. */
     try {
@@ -71,7 +81,9 @@ function initializeSession(env, appVersion) {
         );
         event_manager.subscribe.integration_context_data(
             handleIntegrationContextDataCallback
-
+        );
+        event_manager.subscribe.remote_integration_rpc(
+            handleRemoteIntegrationRPCCallback
         );
 
         // Settle down - wait for standalone process to start listening. Then send
@@ -128,11 +140,53 @@ function handleIntegrationDiscoverCallback(event) {
     event_manager.publish_reply(event, prepareEventData({}));
 }
 
+function replyRPCCallback(event, result) {
+    /* Reply to RPC call from standalone process event with result */
+    event_manager.publish_reply(event, prepareEventData(
+    {
+        "result": result
+    }
+    ));
+}
+
+function handleRemoteIntegrationRPCCallback(event) {
+    /* Handle RPC calls from standalone process - run function with arguments
+     supplied in event and return the result.*/
+    try {
+        if (event.data.integration_session_id !== integration_session_id)
+            return;
+        let function_name = event.data.function;
+        let args = event.data.args;
+        let kwargs = event.data.kwargs;
+
+        window[function_name](
+            replyRPCCallback.bind(event),
+            ...args,
+            ...kwargs
+        );
+    } catch (e) {
+        error("[INTERNAL ERROR] Failed to run RPC call! "+e+" Details: "+e.stack);
+    }
+ }
+
 // Tool launch
 
 function launchPublisher() {
-
+    event_manager.publish.remote_integration_run_dialog(
+        prepareEventData({
+            "dialog_name": "framework_publisher_dialog",
+        })
+    );
 }
 
+// Photoshop CEP interface functions
+
+function getDocumentData(callback) {
+    /* Get document data from Photoshop and return to callback.*/
+    var result = undefined;
+    csInterface.evalScript('getDocumentData()', function (result) {
+        callback(JSON.parse(result));
+    });
+}
 
 initializeIntegration();

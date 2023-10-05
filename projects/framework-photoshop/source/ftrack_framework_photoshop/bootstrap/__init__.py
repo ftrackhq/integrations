@@ -4,8 +4,9 @@ import os
 import logging
 import time
 import sys
+from functools import partial
 
-from Qt import QtWidgets
+from Qt import QtWidgets, QtCore
 
 import ftrack_api
 
@@ -24,19 +25,53 @@ configure_logging(
 
 logger = logging.getLogger('ftrack_framework_photoshop.bootstrap')
 
+event_manager = None
+photoshop_connection = None
+
 # Create Qt application
 app = QtWidgets.QApplication.instance()
 
 if not app:
     app = QtWidgets.QApplication(sys.argv)
 
-photoshop_connection = None
+
+class Launcher(QtWidgets.QWidget):
+    # Class for handling remote dialog and widget launch
+
+    remote_integration_run_dialog = QtCore.Signal(object)  # Launch a tool(dialog)
+
+    @property
+    def client(self):
+        return self._client
+
+    def __init__(self, client, parent=None):
+        super(Launcher, self).__init__(parent=parent)
+
+        self._client = client
+        self.remote_integration_run_dialog.connect(
+            self._remote_integration_run_dialog_callback
+        )
+
+    def _remote_integration_run_dialog_callback(client, event):
+        '''Callback for remote integration run dialog event.'''
+
+        print(event_manager.remote_integration_rpc(
+            os.environ.get(
+                'FTRACK_INTEGRATION_SESSION_ID'
+            ),
+            "getDocument"
+        ))
+
+        return
+        self.client.run_dialog(
+            event['data']['dialog_name']
+        )
 
 
 def initialise():
     '''Initialise Photoshop Framework Python standalone part.'''
 
-    global photoshop_connection
+    global photoshop_connection, event_manager
 
     session = ftrack_api.Session(auto_connect_event_hub=False)
 
@@ -48,9 +83,14 @@ def initialise():
         remote_session=remote_session,
     )
 
-    Host(event_manager)
+    Host(event_manager, host_types=[
+        constants.host.PYTHON_HOST_TYPE,
+        'photoshop'])
 
     client = Client(event_manager)
+
+    # Create launcher
+    Launcher(client)
 
     # Create remote connection
 

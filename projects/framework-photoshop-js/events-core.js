@@ -69,6 +69,11 @@ class Publish {
         this.event_manager._publish(event_topic, data);
     }
 
+    remote_integration_run_dialog(data) {
+        let event_topic = REMOTE_INTEGRATION_RUN_DIALOG_TOPIC;
+        this.event_manager._publish(event_topic, data);
+    }
+
 };
 
 class Subscribe {
@@ -92,6 +97,11 @@ class Subscribe {
 
     integration_context_data(callback) {
         let event_topic = REMOTE_INTEGRATION_CONTEXT_DATA_TOPIC;
+        this.event_manager._subscribe(event_topic, callback);
+    }
+
+    remote_integration_rpc(callback) {
+        let event_topic = REMOTE_INTEGRATION_RPC_TOPIC;
         this.event_manager._subscribe(event_topic, callback);
     }
 
