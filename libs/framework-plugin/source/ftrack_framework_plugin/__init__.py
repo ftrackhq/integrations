@@ -183,6 +183,16 @@ class BasePlugin(ABC):
         '''Return the widget name linked to the plugin'''
         return self._plugin_widget_name
 
+    @property
+    def plugin_step_name(self):
+        '''Return Current step name where plugin is been executed'''
+        return self._plugin_step_name
+
+    @property
+    def plugin_stage_name(self):
+        '''Return Current stage name where plugin is been executed'''
+        return self._plugin_stage_name
+
     def __init__(self, event_manager, host_id, ftrack_object_manager):
         '''
         Initialise BasePlugin with instance of
@@ -208,6 +218,8 @@ class BasePlugin(ABC):
         self._method_result = None
         self._plugin_widget_id = None
         self._plugin_widget_name = None
+        self._plugin_step_name = None
+        self._plugin_stage_name = None
 
         self.register_methods()
 
@@ -263,6 +275,9 @@ class BasePlugin(ABC):
         self._plugin_options = event['data'].get('plugin_options')
         self._plugin_widget_id = event['data'].get('plugin_widget_id')
         self._plugin_widget_name = event['data'].get('plugin_widget_name')
+
+        self._plugin_step_name = event['data'].get('plugin_step_name')
+        self._plugin_stage_name = event['data'].get('plugin_stage_name')
 
         # Pre execute callback hook
         self.message = "Execute pre_execute_callback"

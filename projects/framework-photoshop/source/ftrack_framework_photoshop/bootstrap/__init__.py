@@ -1,65 +1,120 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2023 ftrack
-
 import os
 import logging
 import time
+import sys
+
+from Qt import QtWidgets
+
+import ftrack_api
+
+from ftrack_constants import framework as constants
+from ftrack_framework_core.host import Host
+from ftrack_framework_core.event import EventManager
+from ftrack_framework_core.client import Client
 
 from ftrack_framework_core.configure_logging import configure_logging
 
-
 configure_logging(
     'ftrack_framework_photoshop',
+    extra_modules=["ftrack_qt"],
     propagate=False,
 )
 
-
 logger = logging.getLogger('ftrack_framework_photoshop.bootstrap')
 
-photoshop_session_id = os.environ.get('FTRACK_INTEGRATION_SESSION_ID')
-assert (
-    photoshop_session_id
-), 'Photoshop integration requires a FTRACK_INTEGRATION_SESSION_ID passed as environment variable!'
+# Create Qt application
+app = QtWidgets.QApplication.instance()
 
-photoshop_version = os.environ.get('FTRACK_PHOTOSHOP_VERSION')
-assert (
-    photoshop_version
-), 'Photoshop integration requires FTRACK_PHOTOSHOP_VERSION passed as environment variable!'
+if not app:
+    app = QtWidgets.QApplication(sys.argv)
 
-use_uxp = (os.environ.get('FTRACK_PHOTOSHOP_UXP') or '').lower() in [
-    'true',
-    '1',
-]
+photoshop_connection = None
 
-# Init QApplication
-if use_uxp:
-    from ftrack_framework_photoshop.app.uxp_app import UXPPhotoshopApplication
 
-    app = UXPPhotoshopApplication(photoshop_session_id, int(photoshop_version))
-else:
-    from ftrack_framework_photoshop.app.cep_app import CEPPhotoshopApplication
+def initialise():
+    '''Initialise Photoshop Framework Python standalone part.'''
 
-    app = CEPPhotoshopApplication(photoshop_session_id, int(photoshop_version))
+    global photoshop_connection
 
-# Run until it's closed, or CTRL+C
-active_time = 0
+    session = ftrack_api.Session(auto_connect_event_hub=False)
 
-while True:
-    app.processEvents()
-    time.sleep(0.01)
-    active_time += 10
-    # Failsafe check if PS is still alive
-    if active_time % 1000 == 0:
-        print('.', end='', flush=True)
-    if active_time % (60 * 1000) == 0:
-        # Check if Photoshop still is with us
-        if not app.check_responding():
-            if not app.check_alive():
-                logger.warning(
-                    'Photoshop is not responding and process gone, shutting down!'
+    remote_session = ftrack_api.Session(auto_connect_event_hub=True)
+
+    event_manager = EventManager(
+        session=session,
+        mode=constants.event.LOCAL_EVENT_MODE,
+        remote_session=remote_session,
+    )
+
+    Host(event_manager)
+
+    client = Client(event_manager)
+
+    # Create remote connection
+
+    from ftrack_framework_photoshop.remote_connection.cep_connection import (
+        CEPBasePhotoshopRemoteConnection,
+    )
+
+    photoshop_version = os.environ.get('FTRACK_PHOTOSHOP_VERSION')
+    assert (
+        photoshop_version
+    ), 'Photoshop integration requires FTRACK_PHOTOSHOP_VERSION passed as environment variable!'
+
+    photoshop_connection = CEPBasePhotoshopRemoteConnection(
+        client, int(photoshop_version)
+    )
+
+    # Connect with Photoshop
+    photoshop_connection.connect()
+
+    # Wait for Photoshop to get ready to receive events
+    time.sleep(0.5)
+
+    # Probe and store Photoshop PID
+    photoshop_connection.probe_photoshop_pid()
+
+
+def run():
+    '''Run Photoshop Framework Python standalone part as long as Photoshop is alive.'''
+
+    # Run until it's closed, or CTRL+C
+    active_time = 0
+    while True:
+        app.processEvents()
+        time.sleep(0.01)
+        active_time += 10
+        # Failsafe check if PS is still alive
+        if active_time % 10000 == 0:
+            logger.info(
+                "Integration alive has been for {}s, connected: {}".format(
+                    active_time / 1000, photoshop_connection.connected
                 )
-                app.terminate()
+            )
+        if active_time % (10 * 1000) == 0:
+            if not photoshop_connection.connected:
+                # Check if Photoshop still is running
+                if not photoshop_connection.check_running():
+                    logger.warning(
+                        'Photoshop never connected and process gone, shutting down!'
+                    )
+                    photoshop_connection.terminate()
             else:
-                logger.warning(
-                    'Photoshop is not responding but process is still there, panel temporarily closed?'
-                )
+                # Check if Photoshop panel is alive
+                if not photoshop_connection.check_responding():
+                    if not photoshop_connection.check_running():
+                        logger.warning(
+                            'Photoshop is not responding and process gone, shutting down!'
+                        )
+                        photoshop_connection.terminate()
+                    else:
+                        logger.warning(
+                            'Photoshop is not responding but process is still there, panel temporarily closed?'
+                        )
+
+
+initialise()
+run()
+

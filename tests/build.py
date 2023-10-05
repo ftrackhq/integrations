@@ -8,6 +8,7 @@ Designed to be shared across a Monorepo
 
 Version history:
 
+0.4.1, Henrik Norin, 23.10.02; Redone Photoshop CEP build
 0.4.0, Henrik Norin, 23.09.21; Build within Monorepo, refactored framework
 0.3.1, Henrik Norin, 23.08.29; CEP build updates
 0.3.0, Henrik Norin, 23.07.06; Support for building CEP extension
@@ -26,13 +27,12 @@ import subprocess
 from distutils.spawn import find_executable
 import fileinput
 
-__version__ = '0.3.2'
+__version__ = '0.4.1'
 
 ROOT_PATH = os.path.realpath(os.getcwd())
 BUILD_PATH = os.path.join(ROOT_PATH, "dist")
 RESOURCE_PATH = os.path.join(ROOT_PATH, "resource")
-STYLE_PATH = os.path.join(RESOURCE_PATH, "style")
-CEP_PATH = os.path.join(ROOT_PATH, "source", "cep")
+CEP_PATH = os.path.join(ROOT_PATH, "resource", "cep")
 
 POETRY_CONFIG_PATH = os.path.join(ROOT_PATH, 'pyproject.toml')
 if not os.path.exists(POETRY_CONFIG_PATH):
@@ -55,6 +55,9 @@ SOURCE_PATH = os.path.join(ROOT_PATH, "source", PROJECT_NAME.replace('-', '_'))
 SOURCE_PATH = os.path.join(ROOT_PATH, "source", PROJECT_NAME.replace('-', '_'))
 
 MONOREPO_PATH = os.path.realpath(os.path.join(ROOT_PATH, '..', '..'))
+
+STYLE_PATH = os.path.join(MONOREPO_PATH, "resource", "style")
+
 
 ZXPSIGN_CMD = 'ZXPSignCmd'
 
@@ -173,29 +176,29 @@ def build_plugin(args):
             )
             os.chdir(dependency_path)
             restore_build_file = False
-            try:
-                PATH_BUILD = os.path.join(dependency_path, 'BUILD')
-                if os.path.exists(PATH_BUILD):
-                    restore_build_file = True
-                    os.rename(PATH_BUILD, PATH_BUILD + '_')
 
-                subprocess.check_call(
-                    [
-                        sys.executable,
-                        '-m',
-                        'pip',
-                        'install',
-                        '.',
-                        '--target',
-                        dependencies_path,
-                    ]
-                )
+            PATH_BUILD = os.path.join(dependency_path, 'BUILD')
+            if os.path.exists(PATH_BUILD):
+                restore_build_file = True
+                os.rename(PATH_BUILD, PATH_BUILD + '_')
 
-                shutil.rmtree(os.path.join(dependency_path, 'build'))
-            finally:
-                # Always restore file of interrupted (CTRL+C)
-                if restore_build_file:
-                    os.rename(PATH_BUILD + '_', PATH_BUILD)
+            subprocess.check_call(
+                [
+                    sys.executable,
+                    '-m',
+                    'pip',
+                    'install',
+                    '.',
+                    '--target',
+                    dependencies_path,
+                ]
+            )
+
+            shutil.rmtree(os.path.join(dependency_path, 'build'))
+
+            if restore_build_file:
+                os.rename(PATH_BUILD + '_', PATH_BUILD)
+
         else:
             source_path = os.path.join(dependency_path, 'source')
             if not os.path.exists(source_path):
@@ -380,34 +383,73 @@ def build_cep(args):
 
     # Clean staging path
     shutil.rmtree(STAGING_PATH, ignore_errors=True)
-    os.makedirs(STAGING_PATH)
+    os.makedirs(os.path.join(STAGING_PATH))
+    os.makedirs(os.path.join(STAGING_PATH, "image"))
+    os.makedirs(os.path.join(STAGING_PATH, "css"))
 
-    # Copy files
-    for filename in ["index.html", "index.js"]:
+    # Copy html
+    for filename in ["index.html"]:
         parse_and_copy(
             os.path.join(CEP_PATH, filename),
             os.path.join(STAGING_PATH, filename),
             VERSION,
         )
-    for filename in ["ps.jsx", "favicon.ico"]:
+    # Copy images
+    for filename in ["favicon.ico", "ftrack-logo-48.png", "loader.gif"]:
         shutil.copy(
-            os.path.join(CEP_PATH, filename),
-            os.path.join(STAGING_PATH, filename),
+            os.path.join(STYLE_PATH, "image", filename),
+            os.path.join(STAGING_PATH, "image", filename),
         )
 
-    # Copy dirs
-    for filename in ["lib", "icons", "css"]:
-        logging.info(
-            "Copying {}>{}".format(
-                os.path.join(CEP_PATH, filename),
-                os.path.join(STAGING_PATH, filename),
-            )
+    # Copy style
+    shutil.copy(
+        os.path.join(STYLE_PATH, "style_dark.css"),
+        os.path.join(STAGING_PATH, "css", "style_dark.css"),
+    )
+
+    # Copy static libraries
+    logging.info(
+        "Copying {}>{}".format(
+            os.path.join(CEP_PATH, "libraries"),
+            os.path.join(STAGING_PATH, "lib"),
         )
-        shutil.copytree(
-            os.path.join(CEP_PATH, filename),
-            os.path.join(STAGING_PATH, filename),
-            symlinks=True,
+    )
+    shutil.copytree(
+        os.path.join(CEP_PATH, "libraries"),
+        os.path.join(STAGING_PATH, "lib"),
+        symlinks=True,
+    )
+
+    # Copy framework js lib files
+    for js_file in [
+        os.path.join(
+            MONOREPO_PATH, "projects", "framework-photoshop-js", "utils.js"
+        ),
+        os.path.join(
+            MONOREPO_PATH,
+            "projects",
+            "framework-photoshop-js",
+            "event-constants.js",
+        ),
+        os.path.join(
+            MONOREPO_PATH,
+            "projects",
+            "framework-photoshop-js",
+            "events-core.js",
+        ),
+    ]:
+        parse_and_copy(
+            js_file,
+            os.path.join(STAGING_PATH, "lib", os.path.basename(js_file)),
+            VERSION,
         )
+    parse_and_copy(
+        os.path.join(
+            MONOREPO_PATH, "projects", "framework-photoshop-js", "bootstrap.js"
+        ),
+        os.path.join(STAGING_PATH, "bootstrap.js"),
+        VERSION,
+    )
 
     # Transfer manifest xml, store version
     manifest_staging_path = os.path.join(STAGING_PATH, 'CSXS', 'manifest.xml')
@@ -417,7 +459,7 @@ def build_cep(args):
 
     extension_output_path = os.path.join(
         BUILD_PATH,
-        'ftrack_framework_adobe_prototype_{}.zxp'.format(VERSION),
+        'ftrack_framework_adobe_{}.zxp'.format(VERSION),
     )
 
     # Create and sign extension
