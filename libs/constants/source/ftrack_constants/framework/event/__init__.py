@@ -79,3 +79,8 @@ DISCOVER_REMOTE_INTEGRATION_TOPIC = "{}.discover.remote.integration".format(
 REMOTE_INTEGRATION_CONTEXT_DATA_TOPIC = (
     "{}.remote.integration.context.data".format(_BASE_)
 )
+
+# Remote JS integration<>Python communication; Launch tool
+REMOTE_INTEGRATION_LAUNCH_TOOL_TOPIC = (
+    "{}.remote.integration.launch.tool".format(_BASE_)
+)

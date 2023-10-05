@@ -128,5 +128,11 @@ function handleIntegrationDiscoverCallback(event) {
     event_manager.publish_reply(event, prepareEventData({}));
 }
 
+// Tool launch
+
+function launchPublisher() {
+
+}
+
 
 initializeIntegration();
