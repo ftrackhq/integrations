@@ -279,6 +279,20 @@ class BasePlugin(ABC):
         self._plugin_step_name = event['data'].get('plugin_step_name')
         self._plugin_stage_name = event['data'].get('plugin_stage_name')
 
+        # Check method is registred
+        if self.method not in self.methods.keys():
+            self._status = constants.status.EXCEPTION_STATUS
+            self.message = (
+                "Method {} is not registred.\n Registred methods: {}".format(
+                    self.method, self.methods.keys()
+                )
+            )
+            # If booth handled by the plugin, logger the message
+            self.logger.error(self.message)
+            self._notify_client()
+            return self.provide_plugin_info()
+
+
         # Pre execute callback hook
         self.message = "Execute pre_execute_callback"
         self._notify_client()

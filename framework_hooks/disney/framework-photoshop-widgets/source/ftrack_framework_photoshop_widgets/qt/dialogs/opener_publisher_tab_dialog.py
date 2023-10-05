@@ -19,13 +19,8 @@ class OpenerPublisherTabDialog(FrameworkDialog, TabConfigsDialog):
     docked = True
 
     @property
-    def opener_tool_config(self):
-        ''' Return the used opener_tool_config'''
-        return self._opener_tool_config
-    @property
-    def publisher_tool_config(self):
-        ''' Return the used publisher_tool_config'''
-        return self._publisher_tool_config
+    def tab_tool_config_mapping(self):
+        return self._tab_tool_config_mapping
 
     @property
     def host_connections_ids(self):
@@ -86,38 +81,69 @@ class OpenerPublisherTabDialog(FrameworkDialog, TabConfigsDialog):
             dialog_options,
             parent,
         )
-        self._opener_tool_config = None
-        self._publisher_tool_config = None
+        self._asset_collector_widget = None
+        self._tab_tool_config_mapping = {}
         # This is in a separated method and not in the post_build because the
         # BaseFrameworkDialog should be initialized before starting with these
         # connections.
         self._set_tab_tool_config_dialog_connections()
 
-        self.pre_build()
-        self.build()
-        self.post_build()
+        self._pre_select_tool_configs()
+        self._build_tabs()
 
-    def pre_build(self):
+    def _pre_select_tool_configs(self):
         '''Pre Build method of the widget'''
         # Pre-select desired tool-configs
-        opener_tool_configs = self.filtered_tool_configs.get('opener')
+        opener_tool_configs = self.filtered_tool_configs['opener']
         if opener_tool_configs:
             # Pick the first tool config available
-            self._opener_tool_config = opener_tool_configs[0]
+            self._tab_tool_config_mapping['open'] = opener_tool_configs[0]
+            if not self.tool_config:
+                self.tool_config =  self._tab_tool_config_mapping['open']
 
-        publisher_tool_configs = self.filtered_tool_configs.get('publisher')
+        publisher_tool_configs = self.filtered_tool_configs['publisher']
         if publisher_tool_configs:
             # Pick the first tool config available
-            self._publisher_tool_config = publisher_tool_configs[0]
+            self._tab_tool_config_mapping['save'] = opener_tool_configs[0]
+            if not self.tool_config:
+                self.tool_config = self._tab_tool_config_mapping['save']
 
-    def build(self):
+    def _build_tabs(self):
         '''Build method of the widget'''
-        if self._opener_tool_config:
-            self._open_list_widget = QtWidgets.QListWidget()
+        if self._tab_tool_config_mapping['open']:
+            self._open_widget = self._build_open_widget()# QtWidgets.QWidget()
+            self.add_tool_config_tab("Open", self._open_widget)
+            for widget in self.framework_widgets.values():
+                if widget.name == 'asset_version_browser_collector':
+                    self._asset_collector_widget = widget
+                    widget.fetch_asset_versions()
 
-    def post_build(self):
-        '''Post Build method of the widget'''
-        pass
+        if self._tab_tool_config_mapping['save']:
+            self._publish_widget = QtWidgets.QWidget()
+            self.add_tool_config_tab("Save", self._publish_widget)
+
+    def _build_open_widget(self):
+        main_widget = QtWidgets.QWidget()
+        main_layout = QtWidgets.QVBoxLayout()
+        main_widget.setLayout(main_layout)
+
+        # Build Collector widget
+        collector_plugins = self.tab_tool_config_mapping['open'].get_all(
+            category='plugin', plugin_type='collector'
+        )
+        for collector_plugin_config in collector_plugins:
+            if not collector_plugin_config.widget_name:
+                continue
+            collector_widget = self.init_framework_widget(
+                collector_plugin_config
+            )
+            main_widget.layout().addWidget(collector_widget)
+
+        open_button = QtWidgets.QPushButton('Open')
+
+        main_widget.layout().addWidget(open_button)
+
+        return main_widget
 
     def _set_tab_tool_config_dialog_connections(self):
         '''Create all the connections to communicate to the scroll widget'''
@@ -135,6 +161,8 @@ class OpenerPublisherTabDialog(FrameworkDialog, TabConfigsDialog):
             self._on_ui_context_changed_callback
         )
         self.selected_host_changed.connect(self._on_ui_host_changed_callback)
+
+        self.selected_tab_changed.connect(self._on_selected_tab_changed_callback)
 
         self.refresh_hosts_clicked.connect(self._on_ui_refresh_hosts_callback)
 
@@ -167,7 +195,10 @@ class OpenerPublisherTabDialog(FrameworkDialog, TabConfigsDialog):
             self.selected_host_connection_id = None
             return
         self.selected_host_connection_id = self.host_connection.host_id
-        self.add_tool_config_items(self.tool_config_names)
+
+    def _on_selected_tab_changed_callback(self, tab_name):
+        self.tool_config = self.tab_tool_config_mapping.get(tab_name.lower())
+
 
     def sync_context(self):
         '''
@@ -293,14 +324,23 @@ class OpenerPublisherTabDialog(FrameworkDialog, TabConfigsDialog):
     #                 )
     #         self._tool_config_widget.layout().addWidget(step_accordion_widget)
     #
-    # def _on_ui_run_button_clicked_callback(self):
-    #     '''
-    #     Run button from the UI has been clicked.
-    #     Tell client to run the current tool config
-    #     '''
-    #
-    #     arguments = {"tool_config": self.tool_config}
-    #     self.client_method_connection('run_tool_config', arguments=arguments)
+    def _on_ui_open_button_clicked_callback(self):
+        '''
+        Run button from the UI has been clicked.
+        Tell client to run the current tool config
+        '''
+        succeed = self._asset_collector_widget.select_assets()
+        if not succeed:
+            ModalDialog(
+                self,
+                title='No assets selected!',
+                message='Please select the desired assets to open',
+                question=False,
+            ).exec_()
+            return
+
+        arguments = {"tool_config": self.tool_config}
+        self.client_method_connection('run_tool_config', arguments=arguments)
     #
     # def run_collectors(self, plugin_widget_id=None):
     #     '''

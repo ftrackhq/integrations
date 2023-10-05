@@ -19,21 +19,26 @@ class ComponentPathCollectorPlugin(BasePlugin):
             required_output_type=str,
             required_output_value=None,
         )
+        self.register_method(
+            method_name='fetch',
+            required_output_type=list,
+            required_output_value=None,
+        )
 
+    def fetch(self, context_data=None, data=None, options=None):
+        latest_asset_versions = self.session.query(
+            "select asset from AssetVersion where task_id is {} and "
+            "is_latest_version is True".format(
+                context_data.context_id
+            )
+        )
+
+        return list(latest_asset_versions)
     def run(self, context_data=None, data=None, options=None):
         '''
-        Get folder_path and file_name from the given *options* and return the
-        join full path.
+        From open snapshot component from the given asset_versions
         '''
+        asset_versions = options.get('asset_versions')
+        for asset_version in asset_versions:
+            # TODO: pick the path from the snapshot component
         return ""
-        # folder_path = options.get('folder_path')
-        # file_name = options.get('file_name')
-        # if not folder_path or not file_name:
-        #     self.status = constants.status.ERROR_STATUS
-        #     self.message = (
-        #         "Please provide folder_path and file_name in options. \n "
-        #         "options: {}".format(options)
-        #     )
-        #     return ''
-        #
-        # return os.path.join(folder_path, file_name)

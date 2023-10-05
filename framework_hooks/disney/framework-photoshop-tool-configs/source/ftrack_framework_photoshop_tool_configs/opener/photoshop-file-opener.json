@@ -43,7 +43,8 @@
             {
               "plugin_type": "collector",
               "plugin_title": "collect file",
-              "plugin_name": "component_path_collector"
+              "plugin_name": "component_path_collector",
+              "widget_name": "asset_version_browser_collector"
             }
           ]
         },
