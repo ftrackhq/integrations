@@ -44,8 +44,8 @@ class EventManager {
         this.session.eventHub.publish(event);
     }
 
-    publish_reply(surce_event, data) {
-        this.session.eventHub.publishReply(surce_event, data);
+    publish_reply(source_event, data) {
+        this.session.eventHub.publishReply(source_event, data);
     }
 };
 

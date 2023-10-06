@@ -219,19 +219,24 @@ class Publish(object):
         self._reply_event = None
 
         def default_callback(event):
+            if callback:
+                callback(event)
             self._reply_event = event
 
         if fetch_reply:
-            callback = default_callback
+            callback_effective = default_callback
+        else:
+            callback_effective = callback
 
         # TODO: _publish does not return anything, so we shouldn't return the result
         publish_result = self.event_manager.remote._publish(
-            publish_event, callback=callback
+            publish_event, callback=callback_effective
         )
 
         if fetch_reply:
             waited = 0
-            while not self._reply_event :
+            while not self._reply_event:
+                print("#", end='')
                 time.sleep(0.01)
                 waited += 10
                 # TODO: Move this timeout to property that can be set on event manager init
@@ -246,7 +251,7 @@ class Publish(object):
                             waited / 1000, event_topic
                         )
                     )
-            return self._reply_event
+            return self._reply_event['data']
 
         return publish_result
 
@@ -842,6 +847,21 @@ class Subscribe(object):
             '{} and source.applicationId=ftrack.api.javascript '
             'and data.integration_session_id={}'.format(
                 constants.event.DISCOVER_REMOTE_INTEGRATION_TOPIC,
+                integration_session_id,
+            )
+        )
+        return self._subscribe_remote_event(event_topic, callback)
+
+    def remote_integration_run_dialog(self, integration_session_id, callback=None):
+        '''
+        Subscribe to an event with topic
+        :const:`~ftrack_framework_core.constants.event.REMOTE_INTEGRATION_RUN_DIALOG_TOPIC`
+        and *integration_session_id*
+        '''
+        event_topic = (
+            '{} and source.applicationId=ftrack.api.javascript '
+            'and data.integration_session_id={}'.format(
+                constants.event.REMOTE_INTEGRATION_RUN_DIALOG_TOPIC,
                 integration_session_id,
             )
         )

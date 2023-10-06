@@ -5,6 +5,7 @@ import os
 
 from ftrack_framework_plugin import BasePlugin
 import ftrack_constants.framework as constants
+from ftrack_utils.framework import get_integration_session_id
 
 
 class PhotoshopNativePublisherExporterPlugin(BasePlugin):
@@ -56,13 +57,11 @@ class PhotoshopNativePublisherExporterPlugin(BasePlugin):
             )
 
             result = self.event_manager.remote_integration_rpc(
-                os.environ.get(
-                    'FTRACK_INTEGRATION_SESSION_ID'
-                ),
+                get_integration_session_id(),
                 "exportDocument", new_file_path, self.extension.replace('.', '')
             )['result']
 
-            if result != 'true':
+            if not result:
                 return False, {"message": "Document JPG export failed!"}
 
         else:

@@ -4,13 +4,15 @@
  Copyright (c) 2014-2023 ftrack
 */
 
+var csInterface = new CSInterface();
+
 var event_manager = undefined;
 var integration_session_id = undefined;
 var connected = false;
 
 try {
     function jsx_callback(){
-        alert("ps.jsx loaded");
+        console.log("ps.jsx loaded");
     }
 
     jsx.evalFile('./ps.jsx', jsx_callback);
@@ -21,7 +23,6 @@ try {
 function initializeIntegration() {
     /* Initialise the Photoshop JS integration part. */
     try {
-        var csInterface = new CSInterface();
         var env = {};
 
         // Get app version
@@ -140,14 +141,25 @@ function handleIntegrationDiscoverCallback(event) {
     event_manager.publish_reply(event, prepareEventData({}));
 }
 
-function replyRPCCallback(event, result) {
-    /* Reply to RPC call from standalone process event with result */
-    event_manager.publish_reply(event, prepareEventData(
-    {
-        "result": result
-    }
-    ));
+// Tool launch
+
+function launchPublisher() {
+    event_manager.publish.remote_integration_run_dialog(
+        prepareEventData({
+            "dialog_name": "framework_publisher_dialog"
+        })
+    );
 }
+
+// RPC - extendscript calls
+
+// Whitelisted functions, add entrypoints from ps.jsx here
+const RPC_ALLOWED_FUNCTIONS = [
+    "getDocumentPath",
+    "getDocumentData",
+    "saveDocument",
+    "exportDocument"
+];
 
 function handleRemoteIntegrationRPCCallback(event) {
     /* Handle RPC calls from standalone process - run function with arguments
@@ -156,37 +168,37 @@ function handleRemoteIntegrationRPCCallback(event) {
         if (event.data.integration_session_id !== integration_session_id)
             return;
         let function_name = event.data.function;
-        let args = event.data.args;
-        let kwargs = event.data.kwargs;
-
-        window[function_name](
-            replyRPCCallback.bind(event),
-            ...args,
-            ...kwargs
-        );
+        if (!RPC_ALLOWED_FUNCTIONS.includes(function_name)) {
+            event_manager.publish_reply(event, prepareEventData(
+                {
+                    "result": {"message": "Function '"+function_name+"' not allowed"}
+                }
+            ));
+            return;
+        }
+        let s_args = event.data.args.join(',');
+        csInterface.evalScript(function_name+'('+s_args+')', function (result) {
+            try {
+                // String is the evalScript type, decode
+                if (result.startsWith("{"))
+                    result = JSON.parse(result);
+                else if (result === "true")
+                    result = true;
+                else if (result === "false")
+                    result = false;
+                event_manager.publish_reply(event, prepareEventData(
+                    {
+                        "result": result
+                    }
+                ));
+            } catch (e) {
+                error("[INTERNAL ERROR] Failed to run RPC call! "+e+" Details: "+e.stack);
+            }
+        });
     } catch (e) {
         error("[INTERNAL ERROR] Failed to run RPC call! "+e+" Details: "+e.stack);
     }
  }
 
-// Tool launch
-
-function launchPublisher() {
-    event_manager.publish.remote_integration_run_dialog(
-        prepareEventData({
-            "dialog_name": "framework_publisher_dialog",
-        })
-    );
-}
-
-// Photoshop CEP interface functions
-
-function getDocumentData(callback) {
-    /* Get document data from Photoshop and return to callback.*/
-    var result = undefined;
-    csInterface.evalScript('getDocumentData()', function (result) {
-        callback(JSON.parse(result));
-    });
-}
 
 initializeIntegration();

@@ -1,7 +1,6 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2023 ftrack
 import logging
-import time
 import traceback
 import sys
 import subprocess
@@ -9,18 +8,13 @@ import re
 import os
 import signal
 
-from ftrack_constants import framework as constants
+from ftrack_utils.framework import get_integration_session_id
 
 logger = logging.getLogger(__name__)
 
 
 class BasePhotoshopRemoteConnection(object):
     '''Base Photoshop remote connection.'''
-
-    @property
-    def integration_session_id(self):
-        '''Return integration session id.'''
-        return self._integration_session_id
 
     @property
     def photoshop_version(self):
@@ -47,6 +41,11 @@ class BasePhotoshopRemoteConnection(object):
         return self._photoshop_version
 
     @property
+    def photoshop_pid(self):
+        '''Return Photoshop PID.'''
+        return self._photoshop_pid
+
+    @property
     def connected(self):
         '''Return True if connected to Photoshop.'''
         return self._connected
@@ -65,11 +64,8 @@ class BasePhotoshopRemoteConnection(object):
     def __init__(self, client, photoshop_version):
         super(BasePhotoshopRemoteConnection, self).__init__()
 
-        self._integration_session_id = os.environ.get(
-            'FTRACK_INTEGRATION_SESSION_ID'
-        )
         assert (
-            self._integration_session_id
+            get_integration_session_id()
         ), 'Photoshop integration requires a FTRACK_INTEGRATION_SESSION_ID passed as environment variable!'
 
         self._client = client
@@ -83,7 +79,7 @@ class BasePhotoshopRemoteConnection(object):
         '''Initialise the Photoshop connection'''
 
         self.event_manager.subscribe.discover_remote_integration(
-            self.integration_session_id,
+            get_integration_session_id(),
             self._on_discover_remote_integration_callback,
         )
 
@@ -97,7 +93,7 @@ class BasePhotoshopRemoteConnection(object):
         context_id = self.client.context_id
         task = self.session.query('Task where id={}'.format(context_id)).one()
         self.event_manager.publish.remote_integration_context_data(
-            self.integration_session_id,
+            get_integration_session_id(),
             context_id,
             task['name'],
             task['type']['name'],
@@ -152,7 +148,7 @@ class BasePhotoshopRemoteConnection(object):
         try:
             # Send event and wait for reply sync
             event = self.event_manager.publish.discover_remote_integration(
-                self.integration_session_id,
+                get_integration_session_id(),
                 fetch_reply=True,
             )
             logger.info(

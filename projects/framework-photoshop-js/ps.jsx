@@ -17,14 +17,14 @@ function getDocumentPath() {
         f.close();
         return result;
     } catch (e) {
-        return undefined;
+        return "";
     }
 }
 
 function getDocumentData() {
      if (documents.length == 0) {
         // No document open
-        return undefined;
+        return '{}';
     }
 
     var full_path = getDocumentPath();
@@ -37,12 +37,13 @@ function getDocumentData() {
         '"height":"'+activeDoc.height+'",'+
         '"resolution":"'+activeDoc.resolution+'"';
 
-    if (full_path != undefined) {
+    if (full_path.length > 0) {
         // It has been saved somewhere
         result += ',"path":"'+activeDoc.path+'",'+
-            '"full_path":"'+full_path+'",'+
-            '"saved":'+(activeDoc.saved?'true':'false');
+            '"full_path":"'+full_path+'"';
+
     }
+    result += ',"saved":'+(activeDoc.saved?'true':'false');
 
     return result + '}';
 
@@ -52,24 +53,24 @@ function saveDocument(temp_path) {
     try {
         if (documents.length == 0) {
             // No document open
-            return undefined;
+            return "false";
         }
         // Has been saved?
         var full_path = getDocumentPath();
-        if (full_path == undefined) {
+        if (full_path === "") {
             app.activeDocument.saveAs(new File(temp_path));
         } else
            app.activeDocument.save();
-        return true;
+        return "true";
     } catch (e) {
         alert(e);
-        return false;
+        return "false";
     }
 }
 
-function exportDocument(output_path, format){
-    if (documents.length == 0){
-        return false;
+function exportDocument(output_path, format) {
+    if (documents.length == 0) {
+        return "false";
     }
     var options;
     if (format == 'jpg') {
@@ -89,9 +90,9 @@ function exportDocument(output_path, format){
     }
     try {
         app.activeDocument.saveAs(new File(output_path), options, true);
-        return true;
+        return "true";
     } catch (e) {
         alert(e);
-        return false;
+        return "false";
     }
 }

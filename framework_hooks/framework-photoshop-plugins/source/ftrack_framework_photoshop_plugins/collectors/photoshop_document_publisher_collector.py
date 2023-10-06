@@ -5,7 +5,7 @@ import os
 
 from ftrack_framework_plugin import BasePlugin
 import ftrack_constants.framework as constants
-
+from ftrack_utils.framework import get_integration_session_id
 
 class PhotoshopDocumentPublisherCollectorPlugin(BasePlugin):
     '''Collects the current document data from Photoshop'''
@@ -29,9 +29,7 @@ class PhotoshopDocumentPublisherCollectorPlugin(BasePlugin):
         if export_option == 'document':
             # Fetch document name from Photoshop
             document_data = self.event_manager.remote_integration_rpc(
-                os.environ.get(
-                    'FTRACK_INTEGRATION_SESSION_ID'
-                ),
+                get_integration_session_id(),
                 "getDocument"
             )['result']
 
@@ -53,18 +51,14 @@ class PhotoshopDocumentPublisherCollectorPlugin(BasePlugin):
                     delete=False, suffix='.psd'
                 ).name
                 save_result = self.event_manager.remote_integration_rpc(
-                    os.environ.get(
-                        'FTRACK_INTEGRATION_SESSION_ID'
-                    ),
+                    get_integration_session_id(),
                     "saveDocument", temp_path
                 )['result']
-                if save_result == 'true':
+                if save_result:
                     # Now re-fetch document data
                     document_data = self.event_manager.remote_integration_rpc(
-                        os.environ.get(
-                            'FTRACK_INTEGRATION_SESSION_ID'
-                        ),
-                        "getDocument"
+                        get_integration_session_id(),
+                        "getDocumentData"
                     )['result']
                     document_path = (
                         document_data.get('full_path')
