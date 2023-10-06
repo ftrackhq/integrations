@@ -122,7 +122,7 @@ class TabConfigsDialog(StyledDialog):
         for host_connection_id in host_connections_ids:
             self._host_connection_selector.add_item(host_connection_id)
 
-    def add_tool_config_tab(self, tab_title, widget):
+    def add_tab(self, tab_title, widget):
         self._tab_widget.addTab(widget, tab_title)
 
     def _on_context_selected_callback(self, context_id):

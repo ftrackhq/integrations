@@ -18,8 +18,8 @@ class OpenerPublisherTabDialog(FrameworkDialog, TabConfigsDialog):
     docked = True
 
     @property
-    def tab_tool_config_mapping(self):
-        return self._tab_tool_config_mapping
+    def tab_mapping(self):
+        return self._tab_mapping
 
     @property
     def host_connections_ids(self):
@@ -81,11 +81,11 @@ class OpenerPublisherTabDialog(FrameworkDialog, TabConfigsDialog):
             parent,
         )
         self._asset_collector_widget = None
-        self._tab_tool_config_mapping = {}
+        self._tab_mapping = {}
         # This is in a separated method and not in the post_build because the
         # BaseFrameworkDialog should be initialized before starting with these
         # connections.
-        self._set_tab_tool_config_dialog_connections()
+        self._set_tab_dialog_connections()
 
         self._pre_select_tool_configs()
         self._build_tabs()
@@ -96,31 +96,31 @@ class OpenerPublisherTabDialog(FrameworkDialog, TabConfigsDialog):
         opener_tool_configs = self.filtered_tool_configs['opener']
         if opener_tool_configs:
             # Pick the first tool config available
-            self._tab_tool_config_mapping['open'] = opener_tool_configs[0]
+            self._tab_mapping['open'] = opener_tool_configs[0]
             if not self.tool_config:
-                self.tool_config = self._tab_tool_config_mapping['open']
+                self.tool_config = self._tab_mapping['open']
 
         publisher_tool_configs = self.filtered_tool_configs['publisher']
         if publisher_tool_configs:
             # Pick the first tool config available
-            self._tab_tool_config_mapping['save'] = opener_tool_configs[0]
+            self._tab_mapping['save'] = opener_tool_configs[0]
             if not self.tool_config:
-                self.tool_config = self._tab_tool_config_mapping['save']
+                self.tool_config = self._tab_mapping['save']
 
     def _build_tabs(self):
         '''Build Open and save tabs'''
-        if self._tab_tool_config_mapping['open']:
+        if self._tab_mapping['open']:
             self._open_widget = self._build_open_widget()
-            self.add_tool_config_tab("Open", self._open_widget)
+            self.add_tab("Open", self._open_widget)
             for widget in self.framework_widgets.values():
                 if widget.name == 'asset_version_browser_collector':
                     self._asset_collector_widget = widget
                     widget.fetch_asset_versions()
 
-        if self._tab_tool_config_mapping['save']:
+        if self._tab_mapping['save']:
             # TODO: to be implemented
             self._publish_widget = QtWidgets.QWidget()
-            self.add_tool_config_tab("Save", self._publish_widget)
+            self.add_tab("Save", self._publish_widget)
 
     def _build_open_widget(self):
         '''Open tab widget creation'''
@@ -129,7 +129,7 @@ class OpenerPublisherTabDialog(FrameworkDialog, TabConfigsDialog):
         main_widget.setLayout(main_layout)
 
         # Build Collector widget
-        collector_plugins = self.tab_tool_config_mapping['open'].get_all(
+        collector_plugins = self.tab_mapping['open'].get_all(
             category='plugin', plugin_type='collector'
         )
         for collector_plugin_config in collector_plugins:
@@ -148,7 +148,7 @@ class OpenerPublisherTabDialog(FrameworkDialog, TabConfigsDialog):
 
         return main_widget
 
-    def _set_tab_tool_config_dialog_connections(self):
+    def _set_tab_dialog_connections(self):
         '''Create all the connections to communicate to the TabConfigsDialog'''
         # Set context from client:
         self._on_client_context_changed_callback()
@@ -206,7 +206,7 @@ class OpenerPublisherTabDialog(FrameworkDialog, TabConfigsDialog):
         self.selected_host_connection_id = self.host_connection.host_id
 
     def _on_selected_tab_changed_callback(self, tab_name):
-        self.tool_config = self.tab_tool_config_mapping.get(tab_name.lower())
+        self.tool_config = self.tab_mapping.get(tab_name.lower())
 
     def sync_context(self):
         '''
