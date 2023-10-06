@@ -29,16 +29,6 @@ class OpenerPublisherTabDialog(FrameworkDialog, TabConfigsDialog):
             ids.append(host_connection.host_id)
         return ids
 
-    @property
-    def tool_config_names(self):
-        '''Returns available tool config names in the client'''
-        names = []
-        for tool_configs in self.filtered_tool_configs:
-            print(tool_configs)
-            for tool_config in tool_configs:
-                names.append(tool_config.tool_title)
-        return names
-
     def __init__(
         self,
         event_manager,
