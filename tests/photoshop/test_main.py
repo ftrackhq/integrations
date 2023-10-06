@@ -33,11 +33,7 @@ def javascript_process(integration_session_id):
     finally:
         os.killpg(process.pid, signal.SIGINT)
         stdout, _ = process.communicate()
-
-        # # Decode the stdout to a string
-        output = stdout.decode('utf-8')
-
-        # print(output)
+        print(stdout)
 
 
 @pytest.fixture(scope='session', autouse=True)
@@ -55,7 +51,7 @@ def setup_and_teardown():
     for line in iter(process.stdout.readline, b''):
         print(line.decode().strip())
 
-    process.wait()  # Wait for npm install to finish
+    process.wait()
 
     yield
 
