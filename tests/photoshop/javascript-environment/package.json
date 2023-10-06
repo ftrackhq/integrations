@@ -1,0 +1,15 @@
+{
+    "name": "your-project-name",
+    "version": "1.0.0",
+    "description": "Your project description",
+    "main": "index.js",
+    "scripts": {
+        "concat": "node concatFiles.js",
+        "start": "npm run concat && nodemon output.js"
+    },
+    "dependencies": {
+        "@ftrack/api": "1.8.1",
+        "node-fetch": "^2.7.0",
+        "nodemon": "^2.0.12"
+    }
+}
