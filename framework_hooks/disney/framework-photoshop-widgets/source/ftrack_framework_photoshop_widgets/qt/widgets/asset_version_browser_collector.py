@@ -1,15 +1,14 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2023 ftrack
-import os.path
-
-from Qt import QtWidgets, QtCore, QtGui
 
 from ftrack_framework_widget.widget import FrameworkWidget
 
-from ftrack_qt.widgets.views import AssetTableView
+from ftrack_qt.widgets.views import GenericTableView
+from ftrack_qt.widgets.delegate import AssetVersionComboBoxDelegate
+
 
 # TODO: review and docstring this code
-class AssetVersionBrowserWidget(FrameworkWidget, AssetTableView):
+class AssetVersionBrowserWidget(FrameworkWidget, GenericTableView):
     '''Main class to represent a context widget on a publish process.'''
 
     name = 'asset_version_browser_collector'
@@ -17,7 +16,8 @@ class AssetVersionBrowserWidget(FrameworkWidget, AssetTableView):
 
     @property
     def selected_assets(self):
-        return self._on_select_assets()
+        return self._on_select_items()
+
     def __init__(
         self,
         event_manager,
@@ -37,7 +37,9 @@ class AssetVersionBrowserWidget(FrameworkWidget, AssetTableView):
             'date': 'date'
         }
 
-        AssetTableView.__init__(self, column_mapping=column_mapping, parent=parent)
+        self._version_cb_delegate = None
+
+        GenericTableView.__init__(self, column_mapping=column_mapping, parent=parent)
         FrameworkWidget.__init__(
             self,
             event_manager,
@@ -49,17 +51,34 @@ class AssetVersionBrowserWidget(FrameworkWidget, AssetTableView):
             parent=parent,
         )
 
+    def build(self):
+        '''
+        Override build method of GenericTableView to propagate a delegate item
+        in the versions column
+        '''
+        super(AssetVersionBrowserWidget, self).build()
+        self._version_cb_delegate = AssetVersionComboBoxDelegate(self)
+        version_column_index = self.table_model.headers.index('version')
+        self.setItemDelegateForColumn(
+            version_column_index, self._version_cb_delegate
+        )
+        self.table_model.set_editable_column(version_column_index)
 
-    # def post_build(self):
-    #     '''hook events'''
-    #     self._file_browser.path_changed.connect(self._on_path_changed)
+    def post_build(self):
+        '''Perform post-construction operations.'''
+        self._version_cb_delegate.index_changed.connect(
+            self._on_asset_change_version
+        )
+
+    def _on_asset_change_version(self, index, value):
+        self.table_model.data_items[index.row()] = value
 
     def fetch_asset_versions(self):
         self.plugin_context_data = {'context_id': self.context_id}
         self.run_plugin_method('fetch')
 
     def run_plugin_callback(self, plugin_info):
-        # Check is the result of the dessired method
+        # Check is the result of the desired method
         if not (
             plugin_info['plugin_widget_id'] == self.id
             and plugin_info['plugin_method'] == 'fetch'
@@ -68,10 +87,10 @@ class AssetVersionBrowserWidget(FrameworkWidget, AssetTableView):
         if plugin_info['plugin_method_result']:
             self.set_data_items(plugin_info['plugin_method_result'])
 
-    def _on_select_assets(self):
+    def _on_select_items(self):
         '''Updates the option dictionary with provided *asset_name* when
         asset_changed of asset_selector event is triggered'''
-        selected_asset_versions = super(AssetVersionBrowserWidget, self)._on_select_assets()
+        selected_asset_versions = super(AssetVersionBrowserWidget, self)._on_select_items()
         if not selected_asset_versions:
             return False
         asset_versions = []

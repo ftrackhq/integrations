@@ -387,8 +387,10 @@ class BasePlugin(ABC):
             return self.provide_plugin_info()
 
         # Notify client
-        self.message = "Plugin executed succesfully, result: {}".format(
-            self.method_result
+        self.message = "Plugin executed succesfully, result: {} \n " \
+                       "execution messages: {}".format(
+            self.method_result,
+            self.message
         )
         self._notify_client()
         # Post execute callback hook

@@ -47,6 +47,7 @@ class ComponentPathCollectorPlugin(BasePlugin):
         containing 'asset_version_id' and 'component_name' for the desired
         assets to open.
         '''
+        unresolved_asset_messages = []
         collected_paths = []
         asset_versions = options.get('asset_versions')
         for asset_version_dict in asset_versions:
@@ -56,20 +57,24 @@ class ComponentPathCollectorPlugin(BasePlugin):
                     asset_version_dict['asset_version_id'],
                     asset_version_dict['component_name']
                 )
-            ).one()
+            ).first()
             if not component:
-                self.message = (
+                message = (
                     'Component name {} not available for '
                     'asset version id {}'.format(
                         asset_version_dict['component_name'],
                         asset_version_dict['asset_version_id']
                     )
                 )
-                self.logger.warning(self.message)
+                self.logger.warning(message)
+                unresolved_asset_messages.append(message)
                 continue
             location = self.session.pick_location()
             component_path = location.get_filesystem_path(component)
             collected_paths.append(component_path)
+        if not collected_paths:
+            self.message = "\n".join(unresolved_asset_messages)
+            self.status = constants.status.ERROR_STATUS
 
         return collected_paths
 

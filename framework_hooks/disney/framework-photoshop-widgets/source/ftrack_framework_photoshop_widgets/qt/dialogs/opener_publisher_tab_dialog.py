@@ -7,7 +7,6 @@ from ftrack_framework_widget.dialog import FrameworkDialog
 
 from ftrack_qt.widgets.dialogs import TabConfigsDialog
 from ftrack_qt.widgets.dialogs import ModalDialog
-from ftrack_qt.widgets.accordion import AccordionBaseWidget
 
 
 class OpenerPublisherTabDialog(FrameworkDialog, TabConfigsDialog):
@@ -92,7 +91,7 @@ class OpenerPublisherTabDialog(FrameworkDialog, TabConfigsDialog):
         self._build_tabs()
 
     def _pre_select_tool_configs(self):
-        '''Pre Build method of the widget'''
+        '''Pre select the desired tool configs'''
         # Pre-select desired tool-configs
         opener_tool_configs = self.filtered_tool_configs['opener']
         if opener_tool_configs:
@@ -109,9 +108,9 @@ class OpenerPublisherTabDialog(FrameworkDialog, TabConfigsDialog):
                 self.tool_config = self._tab_tool_config_mapping['save']
 
     def _build_tabs(self):
-        '''Build method of the widget'''
+        '''Build Open and save tabs'''
         if self._tab_tool_config_mapping['open']:
-            self._open_widget = self._build_open_widget()# QtWidgets.QWidget()
+            self._open_widget = self._build_open_widget()
             self.add_tool_config_tab("Open", self._open_widget)
             for widget in self.framework_widgets.values():
                 if widget.name == 'asset_version_browser_collector':
@@ -119,10 +118,12 @@ class OpenerPublisherTabDialog(FrameworkDialog, TabConfigsDialog):
                     widget.fetch_asset_versions()
 
         if self._tab_tool_config_mapping['save']:
+            # TODO: to be implemented
             self._publish_widget = QtWidgets.QWidget()
             self.add_tool_config_tab("Save", self._publish_widget)
 
     def _build_open_widget(self):
+        ''' Open tab widget creation '''
         main_widget = QtWidgets.QWidget()
         main_layout = QtWidgets.QVBoxLayout()
         main_widget.setLayout(main_layout)
@@ -148,7 +149,7 @@ class OpenerPublisherTabDialog(FrameworkDialog, TabConfigsDialog):
         return main_widget
 
     def _set_tab_tool_config_dialog_connections(self):
-        '''Create all the connections to communicate to the scroll widget'''
+        '''Create all the connections to communicate to the TabConfigsDialog'''
         # Set context from client:
         self._on_client_context_changed_callback()
 
@@ -200,7 +201,6 @@ class OpenerPublisherTabDialog(FrameworkDialog, TabConfigsDialog):
 
     def _on_selected_tab_changed_callback(self, tab_name):
         self.tool_config = self.tab_tool_config_mapping.get(tab_name.lower())
-
 
     def sync_context(self):
         '''
@@ -254,19 +254,6 @@ class OpenerPublisherTabDialog(FrameworkDialog, TabConfigsDialog):
         for host_connection in self.host_connections:
             if host_connection.host_id == host_id:
                 self.host_connection = host_connection
-    # TODO: every time whe change tab, we setup a self.tool_conifg.
-    #  Use this as example:
-
-    # def _on_ui_tool_config_changed_callback(self, tool_config_name):
-    #     '''Tool config has been changed in the ui.'''
-    #     if not tool_config_name:
-    #         self.tool_config = None
-    #         return
-    #     for tool_config_list in self.filtered_tool_configs:
-    #         tool_config = tool_config_list.get_first(
-    #             tool_title=tool_config_name
-    #         )
-    #         self.tool_config = tool_config
 
     def _on_ui_refresh_hosts_callback(self):
         '''
@@ -282,53 +269,9 @@ class OpenerPublisherTabDialog(FrameworkDialog, TabConfigsDialog):
         '''
         self.client_method_connection('discover_hosts')
 
-    # def build_tool_config_ui(self, tool_config):
-    #     '''A tool config has been selected, build the tool config widget.'''
-    #     # Build context widgets
-    #     context_plugins = tool_config.get_all(
-    #         category='plugin', plugin_type='context'
-    #     )
-    #     for context_plugin in context_plugins:
-    #         if not context_plugin.widget_name:
-    #             continue
-    #         context_widget = self.init_framework_widget(context_plugin)
-    #         self.tool_config_widget.layout().addWidget(context_widget)
-    #     # Build component widgets
-    #     component_steps = tool_config.get_all(
-    #         category='step', step_type='component'
-    #     )
-    #     for step in component_steps:
-    #         # TODO: add a key visible in the tool config to hide the step if wanted.
-    #         step_accordion_widget = AccordionBaseWidget(
-    #             selectable=False,
-    #             show_checkbox=True,
-    #             checkable=not step.optional,
-    #             title=step.step_name,
-    #             selected=False,
-    #             checked=step.enabled,
-    #             collapsable=True,
-    #             collapsed=True,
-    #         )
-    #         step_plugins = step.get_all(category='plugin')
-    #         for step_plugin in step_plugins:
-    #             if not step_plugin.widget_name:
-    #                 continue
-    #             widget = self.init_framework_widget(step_plugin)
-    #             if step_plugin.plugin_type == 'collector':
-    #                 step_accordion_widget.add_widget(widget)
-    #             if step_plugin.plugin_type == 'validator':
-    #                 step_accordion_widget.add_option_widget(
-    #                     widget, section_name='Validators'
-    #                 )
-    #             if step_plugin.plugin_type == 'exporter':
-    #                 step_accordion_widget.add_option_widget(
-    #                     widget, section_name='Exporters'
-    #                 )
-    #         self._tool_config_widget.layout().addWidget(step_accordion_widget)
-    #
     def _on_ui_open_button_clicked_callback(self):
         '''
-        Run button from the UI has been clicked.
+        Open button from the UI has been clicked.
         Tell client to run the current tool config
         '''
         selected_assets = self._asset_collector_widget.selected_assets
@@ -343,22 +286,3 @@ class OpenerPublisherTabDialog(FrameworkDialog, TabConfigsDialog):
 
         arguments = {"tool_config": self.tool_config}
         self.client_method_connection('run_tool_config', arguments=arguments)
-    #
-    # def run_collectors(self, plugin_widget_id=None):
-    #     '''
-    #     Run all the collector plugins of the current tool_config.
-    #     If *plugin_widget_id* is given, a signal with the result of the plugins
-    #     will be emitted to be picked by that widget id.
-    #     '''
-    #     collector_plugins = self.tool_config.get_all(
-    #         category='plugin', plugin_type='collector'
-    #     )
-    #     for collector_plugin in collector_plugins:
-    #         arguments = {
-    #             "plugin_config": collector_plugin,
-    #             "plugin_method_name": 'run',
-    #             "engine_type": self.tool_config.engine_type,
-    #             "engine_name": self.tool_config.engine_name,
-    #             'plugin_widget_id': plugin_widget_id,
-    #         }
-    #         self.client_method_connection('run_plugin', arguments=arguments)

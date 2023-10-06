@@ -4,8 +4,8 @@
 from Qt import QtWidgets, QtCore, QtGui
 
 
-class AssetTableModel(QtCore.QAbstractTableModel):
-    '''Model representing AssetManager.'''
+class GenericTableModel(QtCore.QAbstractTableModel):
+    '''Table model for generic data'''
 
     DATA_ROLE = QtCore.Qt.UserRole + 1
 
@@ -24,13 +24,16 @@ class AssetTableModel(QtCore.QAbstractTableModel):
         return self._headers
 
     def __init__(self, column_mapping, parent=None):
-        '''Initialise Model.'''
-        super(AssetTableModel, self).__init__(parent=parent)
+        '''
+        Initialise Model.
+        *column_mapping*: is a dictionary to map data item keys to header titles
+        '''
+        super(GenericTableModel, self).__init__(parent=parent)
 
         self._column_mapping = column_mapping
         self._headers = list(self._column_mapping.keys())
         self._data_items = []
-        self._editable_columns=[]
+        self._editable_columns = []
 
     def set_data_items(self, data_items):
         '''
@@ -42,6 +45,7 @@ class AssetTableModel(QtCore.QAbstractTableModel):
         self.endResetModel()
 
     def set_editable_column(self, column_index):
+        '''Sets the given *column_index* as editable'''
         if column_index not in self._editable_columns:
             self._editable_columns.append(column_index)
 
@@ -103,6 +107,7 @@ class AssetTableModel(QtCore.QAbstractTableModel):
         return None
 
     def flags(self, index):
+        ''' Set :obj:`self._editable_columns` editable '''
         if index.column() in self._editable_columns:
             return QtCore.Qt.ItemIsEditable | QtCore.Qt.ItemIsEnabled
         else:
