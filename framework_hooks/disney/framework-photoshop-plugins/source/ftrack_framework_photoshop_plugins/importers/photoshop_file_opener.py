@@ -25,15 +25,5 @@ class PSFileOpenerPlugin(BasePlugin):
         Get folder_path and file_name from the given *options* and return the
         join full path.
         '''
+        # TODO: to be implemented
         return ""
-        # folder_path = options.get('folder_path')
-        # file_name = options.get('file_name')
-        # if not folder_path or not file_name:
-        #     self.status = constants.status.ERROR_STATUS
-        #     self.message = (
-        #         "Please provide folder_path and file_name in options. \n "
-        #         "options: {}".format(options)
-        #     )
-        #     return ''
-        #
-        # return os.path.join(folder_path, file_name)
