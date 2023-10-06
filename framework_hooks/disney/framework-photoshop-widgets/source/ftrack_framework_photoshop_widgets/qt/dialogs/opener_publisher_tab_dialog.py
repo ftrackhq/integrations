@@ -119,7 +119,7 @@ class OpenerPublisherTabDialog(FrameworkDialog, TabConfigsDialog):
 
         if self._tab_tool_config_mapping['save']:
             # TODO: to be implemented
-            self._publish_widget = QtWidgets.QWidget()
+            self._publish_widget = QtWidgets.QWidget()#self._build_publish_widget()
             self.add_tool_config_tab("Save", self._publish_widget)
 
     def _build_open_widget(self):
@@ -147,6 +147,35 @@ class OpenerPublisherTabDialog(FrameworkDialog, TabConfigsDialog):
         main_widget.layout().addWidget(open_button)
 
         return main_widget
+
+    # def _build_publish_widget(self):
+    #     '''Open tab widget creation'''
+    #     main_widget = QtWidgets.QWidget()
+    #     main_layout = QtWidgets.QVBoxLayout()
+    #     main_widget.setLayout(main_layout)
+    #
+    #     # Build Collector widget
+    #     context_plugins = self.tab_tool_config_mapping['publish'].get_all(
+    #         category='plugin', plugin_type='context'
+    #     )
+    #     for context_plugin_config in context_plugins:
+    #         if not context_plugin_config.widget_name:
+    #             continue
+    #         context_widget = self.init_framework_widget(
+    #             context_plugin_config
+    #         )
+    #         main_widget.layout().addWidget(context_widget)
+    #
+    #     # TODO: version up could execute a plugin defined in plugins of the tool-config
+    #     version_up_button = QtWidgets.QPushButton('Version Up')
+    #     # TODO: review executes the entire tool-config steps/stages
+    #     review_button = QtWidgets.QPushButton('Review')
+    #
+    #     review_button.clicked.connect(self._on_ui_open_button_clicked_callback)
+    #
+    #     main_widget.layout().addWidget(version_up_button)
+    #
+    #     return main_widget
 
     def _set_tab_tool_config_dialog_connections(self):
         '''Create all the connections to communicate to the TabConfigsDialog'''
