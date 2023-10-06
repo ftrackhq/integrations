@@ -28,7 +28,7 @@ class PhotoshopDocumentPublisherCollectorPlugin(BasePlugin):
         export_object = []
         if export_option == 'document':
             # Fetch document name from Photoshop
-            document_data = self.event_manager.remote_integration_rpc(
+            document_data = self.event_manager.publish.remote_integration_rpc(
                 get_integration_session_id(),
                 "getDocument"
             )['result']
@@ -50,13 +50,13 @@ class PhotoshopDocumentPublisherCollectorPlugin(BasePlugin):
                 temp_path = tempfile.NamedTemporaryFile(
                     delete=False, suffix='.psd'
                 ).name
-                save_result = self.event_manager.remote_integration_rpc(
+                save_result = self.event_manager.publish.remote_integration_rpc(
                     get_integration_session_id(),
                     "saveDocument", temp_path
                 )['result']
                 if save_result:
                     # Now re-fetch document data
-                    document_data = self.event_manager.remote_integration_rpc(
+                    document_data = self.event_manager.publish.remote_integration_rpc(
                         get_integration_session_id(),
                         "getDocumentData"
                     )['result']

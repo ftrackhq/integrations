@@ -56,7 +56,7 @@ class PhotoshopNativePublisherExporterPlugin(BasePlugin):
                 )
             )
 
-            result = self.event_manager.remote_integration_rpc(
+            result = self.event_manager.publish.remote_integration_rpc(
                 get_integration_session_id(),
                 "exportDocument", new_file_path, self.extension.replace('.', '')
             )['result']
