@@ -7,11 +7,11 @@ from ftrack_framework_plugin import BasePlugin
 import ftrack_constants.framework as constants
 
 
-class PSFileOpenerPlugin(BasePlugin):
-    name = 'photoshop_file_opener'
+class PSDocumentOpenerPlugin(BasePlugin):
+    name = 'photoshop_document_opener'
     host_type = constants.host.PYTHON_HOST_TYPE
     plugin_type = constants.plugin.PLUGIN_IMPORTER_TYPE
-    '''Return the full path of the file passed in the options'''
+    '''Return the full path of the document passed in the options'''
 
     def register_methods(self):
         self.register_method(

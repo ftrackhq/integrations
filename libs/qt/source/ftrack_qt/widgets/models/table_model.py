@@ -4,7 +4,7 @@
 from Qt import QtWidgets, QtCore, QtGui
 
 
-class GenericTableModel(QtCore.QAbstractTableModel):
+class TableModel(QtCore.QAbstractTableModel):
     '''Table model for generic data'''
 
     DATA_ROLE = QtCore.Qt.UserRole + 1
@@ -28,7 +28,7 @@ class GenericTableModel(QtCore.QAbstractTableModel):
         Initialise Model.
         *column_mapping*: is a dictionary to map data item keys to header titles
         '''
-        super(GenericTableModel, self).__init__(parent=parent)
+        super(TableModel, self).__init__(parent=parent)
 
         self._column_mapping = column_mapping
         self._headers = list(self._column_mapping.keys())

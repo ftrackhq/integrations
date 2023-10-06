@@ -5,17 +5,17 @@ from Qt import QtWidgets, QtCore
 
 from ftrack_framework_widget.dialog import FrameworkDialog
 
-from ftrack_qt.widgets.dialogs import TabConfigsDialog
+from ftrack_qt.widgets.dialogs import TabDialog
 from ftrack_qt.widgets.dialogs import ModalDialog
 
 
-class OpenerPublisherTabDialog(FrameworkDialog, TabConfigsDialog):
+class OpenerPublisherTabDialog(FrameworkDialog, TabDialog):
     '''Default Framework Publisher widget'''
 
     name = 'framework_opener_publisher_tab_dialog'
     tool_config_type_filter = ['publisher', 'opener']
     ui_type = 'qt'
-    docked = True
+    docked = False
 
     @property
     def tab_mapping(self):
@@ -55,7 +55,7 @@ class OpenerPublisherTabDialog(FrameworkDialog, TabConfigsDialog):
         current dialog.
         '''
         # As a mixing class we have to initialize the parents separately
-        TabConfigsDialog.__init__(
+        TabDialog.__init__(
             self,
             session=event_manager.session,
             parent=parent,
@@ -139,7 +139,7 @@ class OpenerPublisherTabDialog(FrameworkDialog, TabConfigsDialog):
         return main_widget
 
     def _set_tab_dialog_connections(self):
-        '''Create all the connections to communicate to the TabConfigsDialog'''
+        '''Create all the connections to communicate to the TabDialog'''
         # Set context from client:
         self._on_client_context_changed_callback()
 
@@ -163,7 +163,7 @@ class OpenerPublisherTabDialog(FrameworkDialog, TabConfigsDialog):
 
     def show_ui(self):
         '''Override Show method of the base framework dialog'''
-        TabConfigsDialog.show(self)
+        TabDialog.show(self)
 
     def connect_focus_signal(self):
         '''Connect signal when the current dialog gets focus'''

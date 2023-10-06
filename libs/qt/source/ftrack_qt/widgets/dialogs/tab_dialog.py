@@ -10,7 +10,7 @@ from ftrack_qt.widgets.selectors import ContextSelector
 from ftrack_qt.widgets.dialogs import StyledDialog
 
 
-class TabConfigsDialog(StyledDialog):
+class TabDialog(StyledDialog):
     '''Base Class to represent a Plugin'''
 
     selected_context_changed = QtCore.Signal(object)
@@ -63,7 +63,7 @@ class TabConfigsDialog(StyledDialog):
         Initialise BasePlugin with instance of
         :class:`ftrack_api.session.Session`
         '''
-        super(TabConfigsDialog, self).__init__(parent=parent)
+        super(TabDialog, self).__init__(parent=parent)
 
         self._session = session
         self._context_selector = None

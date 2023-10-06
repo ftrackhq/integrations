@@ -3,10 +3,10 @@
 
 from Qt import QtWidgets, QtCore, QtGui
 
-from ftrack_qt.widgets.models import GenericTableModel
+from ftrack_qt.widgets.models import TableModel
 
 
-class GenericTableView(QtWidgets.QTableView):
+class TableView(QtWidgets.QTableView):
     '''Generic table view to represent an item.'''
 
     @property
@@ -14,11 +14,11 @@ class GenericTableView(QtWidgets.QTableView):
         return self._generic_model
 
     def __init__(self, column_mapping=None, parent=None):
-        '''Initialise GenericTableView with *column_mapping*
+        '''Initialise TableView with *column_mapping*
 
         *column_mapping*: Is a dictionary to map data item keys to header titles
         '''
-        super(GenericTableView, self).__init__(parent=parent)
+        super(TableView, self).__init__(parent=parent)
 
         self._column_mapping = column_mapping
         self._generic_model = None
@@ -39,7 +39,7 @@ class GenericTableView(QtWidgets.QTableView):
 
     def build(self):
         '''Build widgets and parent them.'''
-        self._generic_model = GenericTableModel(
+        self._generic_model = TableModel(
             column_mapping=self._column_mapping, parent=self
         )
 
