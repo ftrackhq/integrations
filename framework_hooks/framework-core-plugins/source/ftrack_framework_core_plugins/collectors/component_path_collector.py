@@ -56,9 +56,9 @@ class ComponentPathCollectorPlugin(BasePlugin):
                     asset_version_dict['asset_version_id'],
                     asset_version_dict['component_name']
                 )
-            )
+            ).one()
             if not component:
-                self.message = ( self.message + "\n" +
+                self.message = (
                     'Component name {} not available for '
                     'asset version id {}'.format(
                         asset_version_dict['component_name'],
