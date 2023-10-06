@@ -141,6 +141,8 @@ class OpenerPublisherTabDialog(FrameworkDialog, TabConfigsDialog):
 
         open_button = QtWidgets.QPushButton('Open')
 
+        open_button.clicked.connect(self._on_ui_open_button_clicked_callback)
+
         main_widget.layout().addWidget(open_button)
 
         return main_widget
@@ -329,7 +331,7 @@ class OpenerPublisherTabDialog(FrameworkDialog, TabConfigsDialog):
         Run button from the UI has been clicked.
         Tell client to run the current tool config
         '''
-        selected_assets = self._asset_collector_widget.selected_assets()
+        selected_assets = self._asset_collector_widget.selected_assets
         if not selected_assets:
             ModalDialog(
                 self,
