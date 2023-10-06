@@ -10,9 +10,8 @@ from ftrack_qt.widgets.selectors import StatusSelector
 from ftrack_qt.widgets.lines import LineWidget
 
 
-# TODO: review and docstring this code
 class PhotoshopPublishContextWidget(FrameworkWidget, QtWidgets.QWidget):
-    '''Main class to represent a context widget on a publish process.'''
+    '''Main class to represent a context widget on a photoshop publisher '''
 
     name = 'photoshop_publisher_context_selector'
     ui_type = 'qt'
@@ -27,13 +26,9 @@ class PhotoshopPublishContextWidget(FrameworkWidget, QtWidgets.QWidget):
         dialog_property_getter_connection_callback,
         parent=None,
     ):
-        '''initialise PublishContextWidget with *parent*, *session*, *data*,
-        *name*, *description*, *options* and *context*
-        '''
-        self._asset_selector = None
-        self._asset_status_label = None
-        self._status_selector = None
-        self._comments_input = None
+        '''initialise PhotoshopPublishContextWidget'''
+        self._description_input = None
+        self._note_input = None
 
         QtWidgets.QWidget.__init__(self, parent=parent)
         FrameworkWidget.__init__(
@@ -63,91 +58,52 @@ class PhotoshopPublishContextWidget(FrameworkWidget, QtWidgets.QWidget):
     def build(self):
         '''build function widgets.'''
 
-        asset_layout = QtWidgets.QVBoxLayout()
-        asset_layout.setAlignment(QtCore.Qt.AlignTop)
+        # Build description widget
+        description_layout = QtWidgets.QHBoxLayout()
+        description_layout.setContentsMargins(0, 0, 0, 0)
 
-        # Create asset
-        self._asset_selector = AssetSelector(self.session)
-        asset_layout.addWidget(self._asset_selector)
-        # set the current context
-        self.on_context_updated()
+        description_label = QtWidgets.QLabel('Description')
+        description_label.setObjectName('gray')
+        description_label.setAlignment(QtCore.Qt.AlignTop)
+        self._description_input = QtWidgets.QLineEdit()
+        self._description_input.setMaximumHeight(40)
+        self._description_input.setPlaceholderText("Type a description...")
 
-        # Build version and comment widget
-        version_and_comment = QtWidgets.QWidget()
-        version_and_comment.setLayout(QtWidgets.QVBoxLayout())
-        version_and_comment.layout().addWidget(
-            QtWidgets.QLabel('Version information')
-        )
-        # Build status selector
+        description_layout.addWidget(description_label)
+        description_layout.addWidget(self._description_input)
 
-        status_layout = QtWidgets.QHBoxLayout()
-        status_layout.setAlignment(QtCore.Qt.AlignTop)
+        # Build notes widget
+        notes_layout = QtWidgets.QHBoxLayout()
+        notes_layout.setContentsMargins(0, 0, 0, 0)
 
-        self._asset_status_label = QtWidgets.QLabel("Status")
-        self._asset_status_label.setObjectName('gray')
+        notes_label = QtWidgets.QLabel('Note')
+        notes_label.setObjectName('gray')
+        notes_label.setAlignment(QtCore.Qt.AlignTop)
+        self._note_input = QtWidgets.QTextEdit()
+        self._note_input.setMaximumHeight(40)
+        self._note_input.setPlaceholderText("Type a Note...")
 
-        self._status_selector = StatusSelector(self.session, self.context_id)
-
-        status_layout.addWidget(self._asset_status_label)
-        status_layout.addWidget(self._status_selector, 10)
-
-        status_layout.addStretch()
-
-        version_and_comment.layout().addLayout(status_layout)
-
-        # Build comments widget
-        comments_layout = QtWidgets.QHBoxLayout()
-        comments_layout.setContentsMargins(0, 0, 0, 0)
-
-        comment_label = QtWidgets.QLabel('Description')
-        comment_label.setObjectName('gray')
-        comment_label.setAlignment(QtCore.Qt.AlignTop)
-        self._comments_input = QtWidgets.QTextEdit()
-        self._comments_input.setMaximumHeight(40)
-        self._comments_input.setPlaceholderText("Type a description...")
-
-        comments_layout.addWidget(comment_label)
-        comments_layout.addWidget(self._comments_input)
-
-        version_and_comment.layout().addLayout(comments_layout)
+        notes_layout.addWidget(notes_label)
+        notes_layout.addWidget(self._note_input)
 
         # Add the widgets to the layout
-        self.layout().addLayout(asset_layout)
-        self.layout().addWidget(LineWidget())
-        self.layout().addWidget(version_and_comment)
+        self.layout().addLayout(description_layout)
+        self.layout().addLayout(notes_layout)
 
     def post_build(self):
         '''hook events'''
-        self._asset_selector.assetChanged.connect(self._on_asset_changed)
-        self._comments_input.textChanged.connect(self._on_comment_updated)
-        self._status_selector.currentIndexChanged.connect(
-            self._on_status_changed
-        )
+        self._description_input.textChanged.connect(self._on_description_updated)
+        self._note_input.textChanged.connect(self._on_note_updated)
 
-    def _on_status_changed(self, status):
-        '''Updates the options dictionary with provided *status* when
-        currentIndexChanged of status_selector event is triggered'''
-        status_id = self._status_selector.itemData(status)
-        self.set_plugin_option('status_id', status_id)
-
-    def _on_comment_updated(self):
+    def _on_description_updated(self):
         '''Updates the option dictionary with current text when
         textChanged of comments_input event is triggered'''
-        current_text = self.comments_input.toPlainText()
-        self.set_plugin_option('comment', current_text)
+        current_text = self._description_input.toPlainText()
+        self.set_plugin_option('description', current_text)
 
-    def _on_asset_changed(self, asset_name, asset_entity, is_valid):
-        '''Updates the option dictionary with provided *asset_name* when
-        asset_changed of asset_selector event is triggered'''
-        self.set_plugin_option('asset_name', asset_name)
-        self.set_plugin_option('is_valid_name', is_valid)
-        if asset_entity:
-            self.set_plugin_option('asset_id', asset_entity['id'])
+    def _on_note_updated(self):
+        '''Updates the option dictionary with current text when
+        textChanged of comments_input event is triggered'''
+        current_text = self._note_input.toPlainText()
+        self.set_plugin_option('note', current_text)
 
-    def on_context_updated(self):
-        tool_config = self.dialog_property_getter_connection('tool_config')
-        # TODO: modify context selector to select asset_type as asset_type is
-        #  not in tool config anymore.
-        asset_type_name = "script"  # tool_config.asset_type
-        self._asset_selector.set_context(self.context_id, asset_type_name)
-        self.set_plugin_option('context_id', self.context_id)
