@@ -147,4 +147,3 @@ class TabConfigsDialog(StyledDialog):
 
     def _on_tab_changed_callback(self, index):
         self.selected_tab_changed.emit(self._tab_widget.tabText(index))
-

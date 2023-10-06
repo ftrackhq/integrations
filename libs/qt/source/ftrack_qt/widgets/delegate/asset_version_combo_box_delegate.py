@@ -12,6 +12,7 @@ class AssetVersionComboBoxDelegate(QtWidgets.QItemDelegate):
     QItemDelegate that provides a combo box to select versions of an
     asset_version
     '''
+
     index_changed = QtCore.Signal(object, object)
 
     def __init__(self, parent=None):

@@ -84,6 +84,7 @@ class GenericTableModel(QtCore.QAbstractTableModel):
                     if len(keys) == 1:
                         return _item[keys[0]]
                     return get_recursive_keys(_item[keys[0]], keys[1:])
+
                 return get_recursive_keys(
                     item, self._column_mapping[column_name]
                 )
@@ -100,14 +101,14 @@ class GenericTableModel(QtCore.QAbstractTableModel):
     def headerData(self, col, orientation, role):
         '''Provide header data'''
         if (
-            orientation == QtCore.Qt.Horizontal and
-            role == QtCore.Qt.DisplayRole
+            orientation == QtCore.Qt.Horizontal
+            and role == QtCore.Qt.DisplayRole
         ):
             return self._headers[col].capitalize()
         return None
 
     def flags(self, index):
-        ''' Set :obj:`self._editable_columns` editable '''
+        '''Set :obj:`self._editable_columns` editable'''
         if index.column() in self._editable_columns:
             return QtCore.Qt.ItemIsEditable | QtCore.Qt.ItemIsEnabled
         else:

@@ -34,12 +34,14 @@ class AssetVersionBrowserWidget(FrameworkWidget, GenericTableView):
         column_mapping = {
             'name': ['asset', 'name'],
             'version': 'version',
-            'date': 'date'
+            'date': 'date',
         }
 
         self._version_cb_delegate = None
 
-        GenericTableView.__init__(self, column_mapping=column_mapping, parent=parent)
+        GenericTableView.__init__(
+            self, column_mapping=column_mapping, parent=parent
+        )
         FrameworkWidget.__init__(
             self,
             event_manager,
@@ -90,7 +92,9 @@ class AssetVersionBrowserWidget(FrameworkWidget, GenericTableView):
     def _on_select_items(self):
         '''Updates the option dictionary with provided *asset_name* when
         asset_changed of asset_selector event is triggered'''
-        selected_asset_versions = super(AssetVersionBrowserWidget, self)._on_select_items()
+        selected_asset_versions = super(
+            AssetVersionBrowserWidget, self
+        )._on_select_items()
         if not selected_asset_versions:
             return False
         asset_versions = []
@@ -101,7 +105,7 @@ class AssetVersionBrowserWidget(FrameworkWidget, GenericTableView):
             component = 'snapshot'
             asset_version_dict = {
                 'asset_version_id': id,
-                'component_name': component
+                'component_name': component,
             }
             asset_versions.append(asset_version_dict)
 

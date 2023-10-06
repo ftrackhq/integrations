@@ -33,9 +33,7 @@ class GenericTableView(QtWidgets.QTableView):
 
         self.verticalHeader().hide()
 
-        self.setSelectionBehavior(
-            QtWidgets.QAbstractItemView.SelectRows
-        )
+        self.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectRows)
 
         self.horizontalHeader().setStretchLastSection(True)
 
@@ -65,5 +63,3 @@ class GenericTableView(QtWidgets.QTableView):
                 self.model().data(index, self.model().DATA_ROLE)
             )
         return selected_items
-
-

@@ -98,7 +98,7 @@ class OpenerPublisherTabDialog(FrameworkDialog, TabConfigsDialog):
             # Pick the first tool config available
             self._tab_tool_config_mapping['open'] = opener_tool_configs[0]
             if not self.tool_config:
-                self.tool_config =  self._tab_tool_config_mapping['open']
+                self.tool_config = self._tab_tool_config_mapping['open']
 
         publisher_tool_configs = self.filtered_tool_configs['publisher']
         if publisher_tool_configs:
@@ -123,7 +123,7 @@ class OpenerPublisherTabDialog(FrameworkDialog, TabConfigsDialog):
             self.add_tool_config_tab("Save", self._publish_widget)
 
     def _build_open_widget(self):
-        ''' Open tab widget creation '''
+        '''Open tab widget creation'''
         main_widget = QtWidgets.QWidget()
         main_layout = QtWidgets.QVBoxLayout()
         main_widget.setLayout(main_layout)
@@ -165,7 +165,9 @@ class OpenerPublisherTabDialog(FrameworkDialog, TabConfigsDialog):
         )
         self.selected_host_changed.connect(self._on_ui_host_changed_callback)
 
-        self.selected_tab_changed.connect(self._on_selected_tab_changed_callback)
+        self.selected_tab_changed.connect(
+            self._on_selected_tab_changed_callback
+        )
 
         self.refresh_hosts_clicked.connect(self._on_ui_refresh_hosts_callback)
 
@@ -182,18 +184,22 @@ class OpenerPublisherTabDialog(FrameworkDialog, TabConfigsDialog):
 
     def _on_client_context_changed_callback(self, event=None):
         '''Client context has been changed'''
-        super(OpenerPublisherTabDialog, self)._on_client_context_changed_callback(event)
+        super(
+            OpenerPublisherTabDialog, self
+        )._on_client_context_changed_callback(event)
         self.selected_context_id = self.context_id
 
     def _on_client_hosts_discovered_callback(self, event=None):
         '''Client new hosts has been discovered'''
-        super(OpenerPublisherTabDialog, self)._on_client_hosts_discovered_callback(
-            event
-        )
+        super(
+            OpenerPublisherTabDialog, self
+        )._on_client_hosts_discovered_callback(event)
 
     def _on_client_host_changed_callback(self, event=None):
         '''Client host has been changed'''
-        super(OpenerPublisherTabDialog, self)._on_client_host_changed_callback(event)
+        super(OpenerPublisherTabDialog, self)._on_client_host_changed_callback(
+            event
+        )
         if not self.host_connection:
             self.selected_host_connection_id = None
             return

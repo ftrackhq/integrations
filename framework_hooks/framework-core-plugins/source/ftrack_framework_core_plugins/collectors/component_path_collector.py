@@ -32,9 +32,7 @@ class ComponentPathCollectorPlugin(BasePlugin):
         '''
         latest_asset_versions = self.session.query(
             "select asset from AssetVersion where task_id is {} and "
-            "is_latest_version is True".format(
-                context_data['context_id']
-            )
+            "is_latest_version is True".format(context_data['context_id'])
         )
 
         return list(latest_asset_versions)
@@ -55,7 +53,7 @@ class ComponentPathCollectorPlugin(BasePlugin):
                 "select id from Component where version_id is {} "
                 "and name is {}".format(
                     asset_version_dict['asset_version_id'],
-                    asset_version_dict['component_name']
+                    asset_version_dict['component_name'],
                 )
             ).first()
             if not component:
@@ -63,7 +61,7 @@ class ComponentPathCollectorPlugin(BasePlugin):
                     'Component name {} not available for '
                     'asset version id {}'.format(
                         asset_version_dict['component_name'],
-                        asset_version_dict['asset_version_id']
+                        asset_version_dict['asset_version_id'],
                     )
                 )
                 self.logger.warning(message)
@@ -77,4 +75,3 @@ class ComponentPathCollectorPlugin(BasePlugin):
             self.status = constants.status.ERROR_STATUS
 
         return collected_paths
-
