@@ -329,8 +329,8 @@ class OpenerPublisherTabDialog(FrameworkDialog, TabConfigsDialog):
         Run button from the UI has been clicked.
         Tell client to run the current tool config
         '''
-        succeed = self._asset_collector_widget.select_assets()
-        if not succeed:
+        selected_assets = self._asset_collector_widget.selected_assets()
+        if not selected_assets:
             ModalDialog(
                 self,
                 title='No assets selected!',

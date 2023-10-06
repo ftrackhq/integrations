@@ -10,7 +10,7 @@ from ftrack_qt.widgets.delegate import AssetVersionComboBoxDelegate
 class AssetTableView(QtWidgets.QTableView):
     '''Table view representing an asset version.'''
 
-    def __init__(self, column_mapping=[], parent=None):
+    def __init__(self, column_mapping=None, parent=None):
         '''Initialise AssetManagerTableView with *event_manager*
 
         *event_manager* should be the
@@ -19,7 +19,7 @@ class AssetTableView(QtWidgets.QTableView):
         '''
         super(AssetTableView, self).__init__(parent=parent)
 
-        self._column_mapping= column_mapping
+        self._column_mapping = column_mapping
         self._asset_model = None
         self._version_cb_delegate = None
 
@@ -70,17 +70,13 @@ class AssetTableView(QtWidgets.QTableView):
         '''
         self._asset_model.set_data_items(data_items)
 
-    def select_assets(self):
-        selected_asset_versions = []
+    def _on_select_assets(self):
+        selected_assets = []
         index_list = self.selectionModel().selectedRows()
         for index in index_list:
-            selected_asset_versions.append(
+            selected_assets.append(
                 self.model().data(index, self.model().DATA_ROLE)
             )
-        if not selected_asset_versions:
-            return False
+        return selected_assets
 
-        self.set_plugin_option('asset_versions', selected_asset_versions)
-
-        return True
 

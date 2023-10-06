@@ -16,7 +16,7 @@ class ComponentPathCollectorPlugin(BasePlugin):
     def register_methods(self):
         self.register_method(
             method_name='run',
-            required_output_type=str,
+            required_output_type=list,
             required_output_value=None,
         )
         self.register_method(
@@ -26,19 +26,50 @@ class ComponentPathCollectorPlugin(BasePlugin):
         )
 
     def fetch(self, context_data=None, data=None, options=None):
+        '''
+        Return all AssetVersion entities available on the given context id
+        *context_data*: expects a dictionary with the desired 'context_id'
+        '''
         latest_asset_versions = self.session.query(
             "select asset from AssetVersion where task_id is {} and "
             "is_latest_version is True".format(
-                context_data.context_id
+                context_data['context_id']
             )
         )
 
         return list(latest_asset_versions)
+
     def run(self, context_data=None, data=None, options=None):
         '''
-        From open snapshot component from the given asset_versions
+        Return location path from the given *options['asset_versions']*.
+
+        *options*: ['asset_versions']: expected a list of dictionaries
+        containing 'asset_version_id' and 'component_name' for the desired
+        assets to open.
         '''
+        collected_paths = []
         asset_versions = options.get('asset_versions')
-        for asset_version in asset_versions:
-            # TODO: pick the path from the snapshot component
-        return ""
+        for asset_version_dict in asset_versions:
+            component = self.session.query(
+                "select id from Component where version_id is {} "
+                "and name is {}".format(
+                    asset_version_dict['asset_version_id'],
+                    asset_version_dict['component_name']
+                )
+            )
+            if not component:
+                self.message = ( self.message + "\n" +
+                    'Component name {} not available for '
+                    'asset version id {}'.format(
+                        asset_version_dict['component_name'],
+                        asset_version_dict['asset_version_id']
+                    )
+                )
+                self.logger.warning(self.message)
+                continue
+            location = self.session.pick_location()
+            component_path = location.get_filesystem_path(component)
+            collected_paths.append(component_path)
+
+        return collected_paths
+
