@@ -90,7 +90,7 @@ class TestProjectPublisherContextOptionsWidget(BaseOptionsWidget):
 
         self._project_context_selector = ContextSelector(
             self.session,
-            enable_context_change=True,
+            enble_context_change=True,
             select_task=False,
             browse_context_id=project_context_id,
         )

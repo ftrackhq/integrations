@@ -113,7 +113,7 @@ class QtOpenerClientWidget(QtOpenerClient, dialog.Dialog):
         self.layout().addWidget(line.Line(style='solid'))
 
         self.context_selector = ContextSelector(
-            self.session, enable_context_change=True
+            self.session, enble_context_change=True
         )
         self.layout().addWidget(self.context_selector, QtCore.Qt.AlignTop)
 

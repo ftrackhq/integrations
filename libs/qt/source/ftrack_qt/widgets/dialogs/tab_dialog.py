@@ -89,7 +89,7 @@ class TabDialog(StyledDialog):
         # TODO: we have to update the signals from the context selector to
         #  identify that are our signals and not qt signals. So make them snake case
         self._context_selector = ContextSelector(
-            self._session, enble_context_change=True
+            self._session, enable_context_change=True
         )
 
         self._host_connection_selector = ListSelector("Host Selector")
