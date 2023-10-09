@@ -263,7 +263,7 @@ class QtAssemblerClientWidget(QtLoaderClient, dialog.Dialog):
             self.change_definition
         )
 
-        self.context_selector.change_context_clicked.connect(
+        self.context_selector.changeContextClicked.connect(
             self._launch_context_selector
         )
         self._tab_widget.currentChanged.connect(self._on_tab_changed)

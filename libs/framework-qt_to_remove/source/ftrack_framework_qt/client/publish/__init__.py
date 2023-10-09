@@ -164,7 +164,7 @@ class QtPublisherClientWidget(QtPublisherClient, QtWidgets.QFrame):
         )
 
         self.run_button.clicked.connect(self.run)
-        self.context_selector.change_context_clicked.connect(
+        self.context_selector.changeContextClicked.connect(
             self._launch_context_selector
         )
         self.widget_factory.widgetAssetUpdated.connect(

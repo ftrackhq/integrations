@@ -123,7 +123,6 @@ class PublisherDialog(FrameworkDialog, ScrollToolConfigsDialog):
 
     def show_ui(self):
         '''Override Show method of the base framework dialog'''
-        self.setWindowFlags(QtCore.Qt.Tool | QtCore.Qt.WindowStaysOnTopHint)
         ScrollToolConfigsDialog.show(self)
         self.raise_()
         self.activateWindow()
@@ -292,7 +291,13 @@ class PublisherDialog(FrameworkDialog, ScrollToolConfigsDialog):
                         widget, section_name='Exporters'
                     )
             self._tool_config_widget.layout().addWidget(step_accordion_widget)
-        self._tool_config_widget.layout().addWidget(QtWidgets.QLabel(), 100)
+        spacer = QtWidgets.QSpacerItem(
+            1,
+            1,
+            QtWidgets.QSizePolicy.Minimum,
+            QtWidgets.QSizePolicy.Expanding,
+        )
+        self._tool_config_widget.layout().addItem(spacer)
 
     def _on_ui_run_button_clicked_callback(self):
         '''

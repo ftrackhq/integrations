@@ -5,7 +5,6 @@ import logging
 import time
 import uuid
 from abc import ABC, abstractmethod
-import traceback
 
 import ftrack_constants.framework as constants
 
@@ -359,7 +358,7 @@ class BasePlugin(ABC):
                 options=self.plugin_options,
             )
         except Exception as e:
-            self.logger.warning(traceback.format_exc())
+            self.logger.exception(e)
             if self.boolean_status:
                 self._status = constants.status.EXCEPTION_STATUS
             # If status is already handled by the plugin we check if message is
@@ -431,7 +430,7 @@ class BasePlugin(ABC):
             self._notify_client()
             return self.provide_plugin_info()
 
-        self.message = "Post execute plugin succesfully, result: {}".format(
+        self.message = "Post execute plugin successfully, result: {}".format(
             post_execute_result
         )
         self.status = constants.status.SUCCESS_STATUS

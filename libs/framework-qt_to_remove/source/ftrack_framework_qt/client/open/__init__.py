@@ -154,7 +154,7 @@ class QtOpenerClientWidget(QtOpenerClient, dialog.Dialog):
     def post_build(self):
         self.host_selector.hostChanged.connect(self.change_host)
         self.contextChanged.connect(self.on_context_changed_sync)
-        self.context_selector.entity_changed.connect(
+        self.context_selector.entityChanged.connect(
             self._on_context_selector_context_changed
         )
         self.definition_selector.definitionChanged.connect(

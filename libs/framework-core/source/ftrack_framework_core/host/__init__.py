@@ -173,7 +173,7 @@ class Host(object):
 
     # TODO: we can create an engine registry
 
-    def __init__(self, event_manager, host_types=None):
+    def __init__(self, event_manager):
         '''
         Initialise Host with instance of
         :class:`~ftrack_framework_core.event.EventManager`
@@ -183,8 +183,6 @@ class Host(object):
         self.logger = logging.getLogger(
             __name__ + '.' + self.__class__.__name__
         )
-        if host_types:
-            self.host_types = host_types
         # Create the host id
         self._id = '{}-{}'.format('.'.join(self.host_types), uuid.uuid4().hex)
 

@@ -8,6 +8,7 @@ Designed to be shared across a Monorepo
 
 Version history:
 
+0.4.2, Henrik Norin, 23.10.09; Support for additional hook include folder
 0.4.1, Henrik Norin, 23.10.02; Redone Photoshop CEP build
 0.4.0, Henrik Norin, 23.09.21; Build within Monorepo, refactored framework
 0.3.1, Henrik Norin, 23.08.29; CEP build updates
@@ -168,6 +169,21 @@ def build_plugin(args):
             continue
         if hook.find('-core-') > -1 or hook.find(DCC_NAME) > -1:
             framework_dependency_packages.append(hook_path)
+
+    if args.include:
+        include_path = os.path.join(MONOREPO_PATH, args.include)
+        if not os.path.exists(include_path):
+            # Might be an absolute path
+            include_path = args.include
+        if not os.path.isdir(include_path):
+            raise Exception('Include path "{}" is not a folder!'.format(include_path))
+        logging.info('Searching additional include path for dependencies: {}'.format(include_path))
+        for hook in os.listdir(include_path):
+            hook_path = os.path.join(include_path, hook)
+            if not os.path.isdir(hook_path):
+                continue
+            if hook.find('-core-') > -1 or hook.find(DCC_NAME) > -1:
+                framework_dependency_packages.append(hook_path)
 
     for dependency_path in framework_dependency_packages:
         if os.path.exists(os.path.join(dependency_path, 'setup.py')):
@@ -507,6 +523,10 @@ if __name__ == '__main__':
         'ftrack Integration deployment script v{} [{}]'.format(
             __version__, PROJECT_NAME
         )
+    )
+
+    parser.add_argument(
+        '--include', help='Additional folder to include.'
     )
 
     parser.add_argument(

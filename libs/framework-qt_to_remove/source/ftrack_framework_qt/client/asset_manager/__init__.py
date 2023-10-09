@@ -178,7 +178,7 @@ class QtAssetManagerClientWidget(QtAssetManagerClient, QtWidgets.QFrame):
 
         if not self.is_assembler:
             self.header.publishClicked.connect(self._launch_publisher)
-            self.context_selector.change_context_clicked.connect(
+            self.context_selector.changeContextClicked.connect(
                 self._launch_context_selector
             )
 

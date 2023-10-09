@@ -119,7 +119,7 @@ class BaseEngine(ABC):
         plugin_info = None
 
         for host_type in reversed(self._host_types):
-            for plugin_info in self.event_manager.publish.execute_plugin(
+            plugin_info = self.event_manager.publish.execute_plugin(
                 plugin_name,
                 plugin_default_method,
                 plugin_method,
@@ -131,9 +131,7 @@ class BaseEngine(ABC):
                 plugin_widget_name=plugin_widget_name,
                 plugin_step_name=plugin_step_name,
                 plugin_stage_name=plugin_stage_name,
-            ):
-                if plugin_info:
-                    break
+            )[0]
             if plugin_info:
                 break
 

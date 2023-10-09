@@ -128,10 +128,10 @@ class TestProjectPublisherContextOptionsWidget(BaseOptionsWidget):
         # Fetch the Unreal project context id
         self.project_context_id = '52c53ce8-7ac7-11ed-aa03-a662eeb18ccf'  # unreal_utils.get_project_context_id()
 
-        self._project_context_selector.entity_changed.connect(
+        self._project_context_selector.entityChanged.connect(
             self.on_project_context_changed
         )
-        self._parent_context_selector.change_context_clicked.connect(
+        self._parent_context_selector.changeContextClicked.connect(
             self.on_change_parent_context_clicked
         )
         self.asset_selector.assetChanged.connect(self._on_asset_changed)
@@ -201,7 +201,7 @@ class TestProjectPublisherContextOptionsWidget(BaseOptionsWidget):
     def _on_comment_updated(self):
         '''Updates the option dictionary with current text when
         textChanged of comments_input event is triggered'''
-        current_text = self.comments_input.toPlainText()
+        current_text = self.comments_input.text()
         self.set_option_result(current_text, key='comment')
 
     def _on_asset_changed(self, asset_name, asset_entity, is_valid):

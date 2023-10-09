@@ -167,7 +167,7 @@ function handleRemoteIntegrationRPCCallback(event) {
     try {
         if (event.data.integration_session_id !== integration_session_id)
             return;
-        let function_name = event.data.function;
+        let function_name = event.data.function_name;
         if (!RPC_ALLOWED_FUNCTIONS.includes(function_name)) {
             event_manager.publish_reply(event, prepareEventData(
                 {

@@ -52,37 +52,46 @@ class PublishToFtrack(BasePlugin):
         version_dependencies = []
         comment = context_data[0]['comment']
         status_id = context_data[0]['status_id']
-        asset_name = context_data[0]['asset_name']
         # TODO: Discuss with the team, how we pass the asset type, in the
         #  tool_config or in the context plugin? Right now only capable of publishing script asset type
-        asset_type_name = 'script'  # self.context_data['asset_type_name']
+        if 'asset_id' in context_data[0]:
+            # An explicit asset is provided
+            asset_entity_object = self.session.query(
+                'Asset where id is "{}"'.format(
+                    context_data[0]['asset_id']
+                )
+            ).first()
+        else:
+            # Query/identify asset
+            asset_type_name = self.context_data[0].get('asset_type_name') or 'script'
+            asset_name = context_data[0].get('asset_name') or asset_type_name
 
-        # Get Status object
-        status_object = self.session.query(
-            'Status where id is "{}"'.format(status_id)
-        ).one()
+            # Get Status object
+            status_object = self.session.query(
+                'Status where id is "{}"'.format(status_id)
+            ).one()
 
-        # Get Context object
-        context_object = self.session.query(
-            'select name, parent, parent.name from Context where '
-            'id is "{}"'.format(self.context_data[0]['context_id'])
-        ).one()
+            # Get Context object
+            context_object = self.session.query(
+                'select name, parent, parent.name from Context where '
+                'id is "{}"'.format(self.context_data[0]['context_id'])
+            ).one()
 
-        # Get Asset type object
-        asset_type_object = self.session.query(
-            'AssetType where short is "{}"'.format(asset_type_name)
-        ).first()
+            # Get Asset type object
+            asset_type_object = self.session.query(
+                'AssetType where short is "{}"'.format(asset_type_name)
+            ).first()
 
-        # Get Asset parent object
-        asset_parent_object = context_object['parent']
+            # Get Asset parent object
+            asset_parent_object = context_object['parent']
 
-        # Get Asset entity object
-        asset_entity_object = self.session.query(
-            'Asset where name is "{}" and type.short is "{}" and '
-            'parent.id is "{}"'.format(
-                asset_name, asset_type_name, asset_parent_object['id']
-            )
-        ).first()
+            # Get Asset entity object
+            asset_entity_object = self.session.query(
+                'Asset where name is "{}" and type.short is "{}" and '
+                'parent.id is "{}"'.format(
+                    asset_name, asset_type_name, asset_parent_object['id']
+                )
+            ).first()
 
         # Create asset object if not exist
         if not asset_entity_object:

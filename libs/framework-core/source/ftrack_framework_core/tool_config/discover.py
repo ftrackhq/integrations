@@ -139,7 +139,7 @@ def discover_tool_configs(tool_config_paths):
         for tool_config in collected_files:
             if not tool_config.get('tool_type'):
                 logger.error(
-                    "Not registering tool_config as is missing "
+                    "Not registering tool config as is missing "
                     "tool_type key. Directory: {}, tool_config: {}".format(
                         lookup_dir, tool_config
                     )

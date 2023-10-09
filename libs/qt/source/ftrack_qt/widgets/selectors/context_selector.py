@@ -132,6 +132,10 @@ class ContextSelector(QtWidgets.QFrame):
         self.setLayout(layout)
 
     def build(self):
+        from ftrack_qt.widgets.browsers import (
+            EntityBrowser,
+        )  # Prevent circular import
+
         self.thumbnail_widget = Context(self.session)
 
         self.thumbnail_widget.setMinimumWidth(50)
@@ -158,9 +162,6 @@ class ContextSelector(QtWidgets.QFrame):
         self.layout().addWidget(self.entity_browse_button)
 
         # Build entity browser:
-        from ftrack_qt.widgets.browsers import (
-            EntityBrowser,
-        )  # Prevent circular import
 
         self._entity_browser = EntityBrowser(
             self.parent(),

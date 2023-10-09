@@ -595,23 +595,23 @@ class Publish(object):
     def remote_integration_rpc(
         self,
         integration_session_id,
-        function,
-        *args,
+        function_name,
+        args=None,
         callback=None,
         fetch_reply=False
     ):
         '''
         Publish an event with topic
         :const:`~ftrack_framework_core.constants.event.REMOTE_INTEGRATION_RPC_TOPIC`
-        supplying *integration_session_id*, to run remote *function* with *args*,
-        calling *callback* providing the reply.
+        supplying *integration_session_id*, to run remote *function_name* with
+        arguments in *args* list, calling *callback* providing the reply.
 
         If *fetch_reply* is True, the reply is awaited and returned.
         '''
         data = {
             'integration_session_id': integration_session_id,
-            'function': function,
-            'args': args
+            'function_name': function_name,
+            'args': args or []
         }
 
         event_topic = constants.event.REMOTE_INTEGRATION_RPC_TOPIC

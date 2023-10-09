@@ -279,7 +279,7 @@ class AssemblerBrowserWidget(AssemblerBaseWidget):
         '''(Override)'''
         super(AssemblerBrowserWidget, self).post_build()
         self._rebuild_button.clicked.connect(self.rebuild)
-        self._entity_browser.entity_changed.connect(self.rebuild)
+        self._entity_browser.entityChanged.connect(self.rebuild)
         self.componentsFetched.connect(self._on_components_fetched)
         self.allVersionsFetched.connect(self._on_all_versions_fetched)
         self._search.inputUpdated.connect(self._on_search)

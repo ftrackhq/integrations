@@ -11,9 +11,8 @@ class PhotoshopNativePublisherExporterPlugin(BasePlugin):
     '''Save Photoshop document to temp location for publish'''
 
     name = 'photoshop_native_publisher_exporter'
-    host_type = 'photoshop'
+    host_type = constants.host.PYTHON_HOST_TYPE
     plugin_type = constants.plugin.PLUGIN_EXPORTER_TYPE
-    extension = '.psd'
 
     def register_methods(self):
         self.register_method(
@@ -36,29 +35,23 @@ class PhotoshopNativePublisherExporterPlugin(BasePlugin):
         '''
 
         new_file_path = tempfile.NamedTemporaryFile(
-            delete=False, suffix=self.extension
+            delete=False, suffix='.psd'
         ).name
 
-        is_document_publish = True
         collected_objects = []
         for collector_result in list(
             data[self.plugin_step_name]['collector'].values()
         ):
             collected_objects.extend(collector_result)
 
-        if is_document_publish:
-            # Copy entire document
-            document_data = collected_objects[0]
-            document_path = document_data.get('full_path')
+        # Copy entire document
+        document_data = collected_objects[0]
+        document_path = document_data.get('full_path')
 
-            self.logger.debug(
-                "Copying Photoshop document from {} to {}".format(
-                    document_path, new_file_path
-                )
+        self.logger.debug(
+            "Copying Photoshop document from {} to {}".format(
+                document_path, new_file_path
             )
-            shutil.copy(document_path, new_file_path)
-        else:
-            raise Exception(
-                'Subset (layer) save of the document not supported!'
-            )
+        )
+        shutil.copy(document_path, new_file_path)
         return [new_file_path]

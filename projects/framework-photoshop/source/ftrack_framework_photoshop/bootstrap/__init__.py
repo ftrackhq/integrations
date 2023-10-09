@@ -11,7 +11,7 @@ from Qt import QtWidgets, QtCore
 import ftrack_api
 
 from ftrack_constants import framework as constants
-from ftrack_utils.framework import get_integration_session_id
+from ftrack_utils.framework.remote import get_integration_session_id
 from ftrack_framework_core.host import Host
 from ftrack_framework_core.event import EventManager
 from ftrack_framework_core.client import Client
@@ -87,8 +87,7 @@ def initialise():
     )
 
     Host(
-        event_manager,
-        host_types=[constants.host.PYTHON_HOST_TYPE, 'photoshop'],
+        event_manager
     )
 
     client = Client(event_manager)

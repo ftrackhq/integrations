@@ -8,7 +8,7 @@ import re
 import os
 import signal
 
-from ftrack_utils.framework import get_integration_session_id
+from ftrack_utils.framework.remote import get_integration_session_id
 
 logger = logging.getLogger(__name__)
 
