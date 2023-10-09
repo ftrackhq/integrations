@@ -7,6 +7,7 @@ from ftrack_framework_plugin import BasePlugin
 import ftrack_constants.framework as constants
 from ftrack_utils.framework import get_integration_session_id
 
+
 class PhotoshopDocumentPublisherCollectorPlugin(BasePlugin):
     '''Collects the current document data from Photoshop'''
 
@@ -29,15 +30,16 @@ class PhotoshopDocumentPublisherCollectorPlugin(BasePlugin):
         if export_option == 'document':
             # Fetch document name from Photoshop
             document_data = self.event_manager.publish.remote_integration_rpc(
-                get_integration_session_id(),
-                "getDocumentData"
+                get_integration_session_id(), "getDocumentData"
             )['result']
 
             self.logger.debug("Got PS document data: {}".format(document_data))
 
             if len(document_data or {}) == 0:
-                self.message = "Error exporting the scene: Please have an " \
-                               "active work document before you can publish"
+                self.message = (
+                    "Error exporting the scene: Please have an "
+                    "active work document before you can publish"
+                )
                 self.status = constants.STATUS_ERROR
                 return []
             document_path = (
@@ -55,24 +57,33 @@ class PhotoshopDocumentPublisherCollectorPlugin(BasePlugin):
                 temp_path = tempfile.NamedTemporaryFile(
                     delete=False, suffix='.psd'
                 ).name
-                save_result = self.event_manager.publish.remote_integration_rpc(
-                    get_integration_session_id(),
-                    "saveDocument", temp_path, fetch_reply=True
-                )['result']
+                save_result = (
+                    self.event_manager.publish.remote_integration_rpc(
+                        get_integration_session_id(),
+                        "saveDocument",
+                        temp_path,
+                        fetch_reply=True,
+                    )['result']
+                )
                 if save_result:
                     # Now re-fetch document data
-                    document_data = self.event_manager.publish.remote_integration_rpc(
-                        get_integration_session_id(),
-                        "getDocumentData", fetch_reply=True
-                    )['result']
+                    document_data = (
+                        self.event_manager.publish.remote_integration_rpc(
+                            get_integration_session_id(),
+                            "getDocumentData",
+                            fetch_reply=True,
+                        )['result']
+                    )
                     document_path = (
                         document_data.get('full_path')
                         if document_data
                         else None
                     )
             if len(document_path or '') == 0:
-                self.message = "Error exporting the scene: Please save the " \
-                               "document with a name before publish"
+                self.message = (
+                    "Error exporting the scene: Please save the "
+                    "document with a name before publish"
+                )
 
                 self.status = constants.STATUS_ERROR
                 return []

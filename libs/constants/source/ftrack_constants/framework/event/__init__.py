@@ -86,6 +86,4 @@ REMOTE_INTEGRATION_RUN_DIALOG_TOPIC = (
 )
 
 # Remote integration<>Python communication; Run JS function with arguments
-REMOTE_INTEGRATION_RPC_TOPIC = (
-    "{}.remote.integration.rpc".format(_BASE_)
-)
+REMOTE_INTEGRATION_RPC_TOPIC = "{}.remote.integration.rpc".format(_BASE_)

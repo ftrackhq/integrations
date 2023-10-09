@@ -293,7 +293,6 @@ class BasePlugin(ABC):
             self._notify_client()
             return self.provide_plugin_info()
 
-
         # Pre execute callback hook
         self.message = "Execute pre_execute_callback"
         self._notify_client()
@@ -389,10 +388,9 @@ class BasePlugin(ABC):
             return self.provide_plugin_info()
 
         # Notify client
-        self.message = "Plugin executed succesfully, result: {} \n " \
-                       "execution messages: {}".format(
-            self.method_result,
-            self.message
+        self.message = (
+            "Plugin executed succesfully, result: {} \n "
+            "execution messages: {}".format(self.method_result, self.message)
         )
         self._notify_client()
         # Post execute callback hook

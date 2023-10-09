@@ -42,7 +42,9 @@ class PhotoshopNativePublisherExporterPlugin(BasePlugin):
 
         is_document_publish = True
         collected_objects = []
-        for collector_result in list(data[self.plugin_step_name]['collector'].values()):
+        for collector_result in list(
+            data[self.plugin_step_name]['collector'].values()
+        ):
             collected_objects.extend(collector_result)
 
         if is_document_publish:
@@ -57,8 +59,10 @@ class PhotoshopNativePublisherExporterPlugin(BasePlugin):
 
             result = self.event_manager.publish.remote_integration_rpc(
                 get_integration_session_id(),
-                "exportDocument", new_file_path, self.extension.replace('.', ''),
-                fetch_reply=True
+                "exportDocument",
+                new_file_path,
+                self.extension.replace('.', ''),
+                fetch_reply=True,
             )['result']
 
             if result is False:

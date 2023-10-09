@@ -395,8 +395,12 @@ def build_cep(args):
             VERSION,
         )
     # Copy images
-    for filename in ["favicon.ico", "ftrack-logo-48.png", "loader.gif",
-                     "publish.png"]:
+    for filename in [
+        "favicon.ico",
+        "ftrack-logo-48.png",
+        "loader.gif",
+        "publish.png",
+    ]:
         shutil.copy(
             os.path.join(STYLE_PATH, "image", "js", filename),
             os.path.join(STAGING_PATH, "image", filename),

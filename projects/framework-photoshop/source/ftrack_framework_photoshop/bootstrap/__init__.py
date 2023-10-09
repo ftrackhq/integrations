@@ -38,7 +38,9 @@ if not app:
 class Launcher(QtWidgets.QWidget):
     # Class for handling remote dialog and widget launch
 
-    remote_integration_run_dialog = QtCore.Signal(object)  # Launch a tool(dialog)
+    remote_integration_run_dialog = QtCore.Signal(
+        object
+    )  # Launch a tool(dialog)
 
     @property
     def client(self):
@@ -56,18 +58,17 @@ class Launcher(QtWidgets.QWidget):
             self._remote_integration_run_dialog_callback
         )
         self.event_manager.subscribe.remote_integration_run_dialog(
-            get_integration_session_id(), self._remote_integration_run_dialog_callback_async
+            get_integration_session_id(),
+            self._remote_integration_run_dialog_callback_async,
         )
 
     def _remote_integration_run_dialog_callback_async(self, event):
-        ''' Remote event callback, emit signal to run dialog in main Qt thread.'''
+        '''Remote event callback, emit signal to run dialog in main Qt thread.'''
         self.remote_integration_run_dialog.emit(event)
 
     def _remote_integration_run_dialog_callback(self, event):
         '''Callback for remote integration run dialog event.'''
-        self.client.run_dialog(
-            event['data']['dialog_name']
-        )
+        self.client.run_dialog(event['data']['dialog_name'])
 
 
 def initialise():
@@ -85,9 +86,10 @@ def initialise():
         remote_session=remote_session,
     )
 
-    Host(event_manager, host_types=[
-        constants.host.PYTHON_HOST_TYPE,
-        'photoshop'])
+    Host(
+        event_manager,
+        host_types=[constants.host.PYTHON_HOST_TYPE, 'photoshop'],
+    )
 
     client = Client(event_manager)
 
@@ -161,4 +163,3 @@ def run():
 
 initialise()
 run()
-

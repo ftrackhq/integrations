@@ -206,7 +206,9 @@ class Publish(object):
         )
         return publish_result
 
-    def _publish_remote_event(self, event_topic, data, callback, fetch_reply =False):
+    def _publish_remote_event(
+        self, event_topic, data, callback, fetch_reply=False
+    ):
         '''
         Common method that calls the private publish method from the
         remote event manager
@@ -240,11 +242,11 @@ class Publish(object):
                 time.sleep(0.01)
                 waited += 10
                 # TODO: Move this timeout to property that can be set on event manager init
-                if waited > 10 * 1000: # Wait 10s for reply
-                    raise Exception('Timeout waiting remote integration event reply! '
-                                    'Waited {}s'.format(
-                        waited / 1000
-                    ))
+                if waited > 10 * 1000:  # Wait 10s for reply
+                    raise Exception(
+                        'Timeout waiting remote integration event reply! '
+                        'Waited {}s'.format(waited / 1000)
+                    )
                 if waited % 1000 == 0:
                     logger.info(
                         "Waited {}s for {} reply".format(
@@ -558,7 +560,9 @@ class Publish(object):
         }
 
         event_topic = constants.event.DISCOVER_REMOTE_INTEGRATION_TOPIC
-        return self._publish_remote_event(event_topic, data, callback, fetch_reply=fetch_reply)
+        return self._publish_remote_event(
+            event_topic, data, callback, fetch_reply=fetch_reply
+        )
 
     def remote_integration_context_data(
         self,
@@ -589,13 +593,15 @@ class Publish(object):
         event_topic = constants.event.REMOTE_INTEGRATION_CONTEXT_DATA_TOPIC
         return self._publish_remote_event(event_topic, data, callback)
 
-    def remote_integration_rpc(self,
-                               integration_session_id,
-                               function,
-                               *args,
-                               callback=None,
-                               fetch_reply=False,
-                               **kwargs):
+    def remote_integration_rpc(
+        self,
+        integration_session_id,
+        function,
+        *args,
+        callback=None,
+        fetch_reply=False,
+        **kwargs
+    ):
         '''
         Publish an event with topic
         :const:`~ftrack_framework_core.constants.event.REMOTE_INTEGRATION_RPC_TOPIC`
@@ -610,7 +616,9 @@ class Publish(object):
         }
 
         event_topic = constants.event.REMOTE_INTEGRATION_RPC_TOPIC
-        return self._publish_remote_event(event_topic, data, callback, fetch_reply=fetch_reply)
+        return self._publish_remote_event(
+            event_topic, data, callback, fetch_reply=fetch_reply
+        )
 
 
 class Subscribe(object):
@@ -852,7 +860,9 @@ class Subscribe(object):
         )
         return self._subscribe_remote_event(event_topic, callback)
 
-    def remote_integration_run_dialog(self, integration_session_id, callback=None):
+    def remote_integration_run_dialog(
+        self, integration_session_id, callback=None
+    ):
         '''
         Subscribe to an event with topic
         :const:`~ftrack_framework_core.constants.event.REMOTE_INTEGRATION_RUN_DIALOG_TOPIC`

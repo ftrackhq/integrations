@@ -127,7 +127,10 @@ class PublisherDialog(FrameworkDialog, ScrollToolConfigsDialog):
         ScrollToolConfigsDialog.show(self)
         self.raise_()
         self.activateWindow()
-        self.setWindowState(self.windowState() & ~QtCore.Qt.WindowMinimized | QtCore.Qt.WindowActive)
+        self.setWindowState(
+            self.windowState() & ~QtCore.Qt.WindowMinimized
+            | QtCore.Qt.WindowActive
+        )
 
     def connect_focus_signal(self):
         '''Connect signal when the current dialog gets focus'''

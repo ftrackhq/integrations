@@ -23,7 +23,9 @@ class PhotoshopDocumentPublisherValidatorPlugin(BasePlugin):
         '''Validate that there are collected objects in *data* and they have a value'''
 
         collected_objects = []
-        for collector_result in list(data[self.plugin_step_name]['collector'].values()):
+        for collector_result in list(
+            data[self.plugin_step_name]['collector'].values()
+        ):
             collected_objects.extend(collector_result)
 
         # Make sure exactly one document is collected
