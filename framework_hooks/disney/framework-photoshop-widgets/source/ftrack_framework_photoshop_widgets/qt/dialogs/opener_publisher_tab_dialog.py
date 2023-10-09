@@ -151,9 +151,7 @@ class OpenerPublisherTabDialog(FrameworkDialog, TabDialog):
         for context_plugin_config in context_plugins:
             if not context_plugin_config.widget_name:
                 continue
-            context_widget = self.init_framework_widget(
-                context_plugin_config
-            )
+            context_widget = self.init_framework_widget(context_plugin_config)
             main_widget.layout().addWidget(context_widget)
 
         buttons_layout = QtWidgets.QHBoxLayout()
@@ -162,7 +160,9 @@ class OpenerPublisherTabDialog(FrameworkDialog, TabDialog):
         # TODO: review executes the entire tool-config steps/stages
         review_button = QtWidgets.QPushButton('Send to Review')
 
-        review_button.clicked.connect(self._on_ui_review_button_clicked_callback)
+        review_button.clicked.connect(
+            self._on_ui_review_button_clicked_callback
+        )
 
         # buttons_layout.addWidget(version_up_button)
         buttons_layout.addWidget(review_button)

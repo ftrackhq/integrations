@@ -11,7 +11,7 @@ from ftrack_qt.widgets.lines import LineWidget
 
 
 class PhotoshopPublishContextWidget(FrameworkWidget, QtWidgets.QWidget):
-    '''Main class to represent a context widget on a photoshop publisher '''
+    '''Main class to represent a context widget on a photoshop publisher'''
 
     name = 'photoshop_publisher_context_selector'
     ui_type = 'qt'
@@ -92,7 +92,9 @@ class PhotoshopPublishContextWidget(FrameworkWidget, QtWidgets.QWidget):
 
     def post_build(self):
         '''hook events'''
-        self._description_input.textChanged.connect(self._on_description_updated)
+        self._description_input.textChanged.connect(
+            self._on_description_updated
+        )
         self._note_input.textChanged.connect(self._on_note_updated)
 
     def _on_description_updated(self):
@@ -106,4 +108,3 @@ class PhotoshopPublishContextWidget(FrameworkWidget, QtWidgets.QWidget):
         textChanged of comments_input event is triggered'''
         current_text = self._note_input.toPlainText()
         self.set_plugin_option('note', current_text)
-
