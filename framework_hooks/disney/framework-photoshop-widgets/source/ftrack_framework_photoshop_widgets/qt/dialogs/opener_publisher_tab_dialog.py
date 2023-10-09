@@ -5,18 +5,21 @@ from Qt import QtWidgets, QtCore
 
 from ftrack_framework_widget.dialog import FrameworkDialog
 
-from ftrack_qt.widgets.dialogs import ScrollToolConfigsDialog
+from ftrack_qt.widgets.dialogs import TabDialog
 from ftrack_qt.widgets.dialogs import ModalDialog
-from ftrack_qt.widgets.accordion import AccordionBaseWidget
 
 
-class PublisherDialog(FrameworkDialog, ScrollToolConfigsDialog):
+class OpenerPublisherTabDialog(FrameworkDialog, TabDialog):
     '''Default Framework Publisher widget'''
 
-    name = 'framework_publisher_dialog'
-    tool_config_type_filter = ['publisher']
+    name = 'framework_opener_publisher_tab_dialog'
+    tool_config_type_filter = ['publisher', 'opener']
     ui_type = 'qt'
-    docked = True
+    docked = False
+
+    @property
+    def tab_mapping(self):
+        return self._tab_mapping
 
     @property
     def host_connections_ids(self):
@@ -25,15 +28,6 @@ class PublisherDialog(FrameworkDialog, ScrollToolConfigsDialog):
         for host_connection in self.host_connections:
             ids.append(host_connection.host_id)
         return ids
-
-    @property
-    def tool_config_names(self):
-        '''Returns available tool config names in the client'''
-        names = []
-        for tool_configs in self.filtered_tool_configs.values():
-            for tool_config in tool_configs:
-                names.append(tool_config.tool_title)
-        return names
 
     def __init__(
         self,
@@ -61,7 +55,7 @@ class PublisherDialog(FrameworkDialog, ScrollToolConfigsDialog):
         current dialog.
         '''
         # As a mixing class we have to initialize the parents separately
-        ScrollToolConfigsDialog.__init__(
+        TabDialog.__init__(
             self,
             session=event_manager.session,
             parent=parent,
@@ -76,26 +70,76 @@ class PublisherDialog(FrameworkDialog, ScrollToolConfigsDialog):
             dialog_options,
             parent,
         )
+        self._asset_collector_widget = None
+        self._tab_mapping = {}
         # This is in a separated method and not in the post_build because the
         # BaseFrameworkDialog should be initialized before starting with these
         # connections.
-        self._set_scroll_dialog_connections()
+        self._set_tab_dialog_connections()
 
-    def pre_build(self):
-        '''Pre Build method of the widget'''
-        super(PublisherDialog, self).pre_build()
+        self._pre_select_tool_configs()
+        self._build_tabs()
 
-    def build(self):
-        '''Build method of the widget'''
-        self.run_button_title = 'Publish'
-        super(PublisherDialog, self).build()
+    def _pre_select_tool_configs(self):
+        '''Pre select the desired tool configs'''
+        # Pre-select desired tool-configs
+        opener_tool_configs = self.filtered_tool_configs['opener']
+        if opener_tool_configs:
+            # Pick the first tool config available
+            self._tab_mapping['open'] = opener_tool_configs[0]
+            if not self.tool_config:
+                self.tool_config = self._tab_mapping['open']
 
-    def post_build(self):
-        '''Post Build method of the widget'''
-        super(PublisherDialog, self).post_build()
+        publisher_tool_configs = self.filtered_tool_configs['publisher']
+        if publisher_tool_configs:
+            # Pick the first tool config available
+            self._tab_mapping['save'] = opener_tool_configs[0]
+            if not self.tool_config:
+                self.tool_config = self._tab_mapping['save']
 
-    def _set_scroll_dialog_connections(self):
-        '''Create all the connections to communicate to the scroll widget'''
+    def _build_tabs(self):
+        '''Build Open and save tabs'''
+        if self._tab_mapping['open']:
+            self._open_widget = self._build_open_widget()
+            self.add_tab("Open", self._open_widget)
+            for widget in self.framework_widgets.values():
+                if widget.name == 'asset_version_browser_collector':
+                    self._asset_collector_widget = widget
+                    widget.fetch_asset_versions()
+
+        if self._tab_mapping['save']:
+            # TODO: to be implemented
+            self._publish_widget = QtWidgets.QWidget()
+            self.add_tab("Save", self._publish_widget)
+
+    def _build_open_widget(self):
+        '''Open tab widget creation'''
+        main_widget = QtWidgets.QWidget()
+        main_layout = QtWidgets.QVBoxLayout()
+        main_widget.setLayout(main_layout)
+
+        # Build Collector widget
+        collector_plugins = self.tab_mapping['open'].get_all(
+            category='plugin', plugin_type='collector'
+        )
+        for collector_plugin_config in collector_plugins:
+            if not collector_plugin_config.widget_name:
+                continue
+            collector_widget = self.init_framework_widget(
+                collector_plugin_config
+            )
+            main_widget.layout().addWidget(collector_widget)
+
+        open_button = QtWidgets.QPushButton('Open')
+
+        open_button.clicked.connect(self._on_ui_open_button_clicked_callback)
+
+        main_widget.layout().addWidget(open_button)
+
+        return main_widget
+
+    def _set_tab_dialog_connections(self):
+        '''Create all the connections to communicate to the TabDialog'''
         # Set context from client:
         self._on_client_context_changed_callback()
 
@@ -110,20 +154,16 @@ class PublisherDialog(FrameworkDialog, ScrollToolConfigsDialog):
             self._on_ui_context_changed_callback
         )
         self.selected_host_changed.connect(self._on_ui_host_changed_callback)
-        self.selected_tool_config_changed.connect(
-            self._on_ui_tool_config_changed_callback
+
+        self.selected_tab_changed.connect(
+            self._on_selected_tab_changed_callback
         )
+
         self.refresh_hosts_clicked.connect(self._on_ui_refresh_hosts_callback)
-        self.refresh_tool_configs_clicked.connect(
-            self._on_ui_refresh_tool_configs_callback
-        )
-        self.run_button_clicked.connect(
-            self._on_ui_run_button_clicked_callback
-        )
 
     def show_ui(self):
         '''Override Show method of the base framework dialog'''
-        ScrollToolConfigsDialog.show(self)
+        TabDialog.show(self)
 
     def connect_focus_signal(self):
         '''Connect signal when the current dialog gets focus'''
@@ -134,33 +174,29 @@ class PublisherDialog(FrameworkDialog, ScrollToolConfigsDialog):
 
     def _on_client_context_changed_callback(self, event=None):
         '''Client context has been changed'''
-        super(PublisherDialog, self)._on_client_context_changed_callback(event)
+        super(
+            OpenerPublisherTabDialog, self
+        )._on_client_context_changed_callback(event)
         self.selected_context_id = self.context_id
 
     def _on_client_hosts_discovered_callback(self, event=None):
         '''Client new hosts has been discovered'''
-        super(PublisherDialog, self)._on_client_hosts_discovered_callback(
-            event
-        )
+        super(
+            OpenerPublisherTabDialog, self
+        )._on_client_hosts_discovered_callback(event)
 
     def _on_client_host_changed_callback(self, event=None):
         '''Client host has been changed'''
-        super(PublisherDialog, self)._on_client_host_changed_callback(event)
+        super(OpenerPublisherTabDialog, self)._on_client_host_changed_callback(
+            event
+        )
         if not self.host_connection:
             self.selected_host_connection_id = None
             return
         self.selected_host_connection_id = self.host_connection.host_id
-        self.add_tool_config_items(self.tool_config_names)
 
-    def _on_tool_config_changed_callback(self):
-        '''The selected tool config has been changed'''
-        super(PublisherDialog, self)._on_tool_config_changed_callback()
-        tool_config_name = None
-        if self.tool_config:
-            tool_config_name = self.tool_config.tool_title
-        self.selected_tool_config_name = tool_config_name
-        if self.selected_tool_config_name:
-            self.build_tool_config_ui(self.tool_config)
+    def _on_selected_tab_changed_callback(self, tab_name):
+        self.tool_config = self.tab_mapping.get(tab_name.lower())
 
     def sync_context(self):
         '''
@@ -215,19 +251,6 @@ class PublisherDialog(FrameworkDialog, ScrollToolConfigsDialog):
             if host_connection.host_id == host_id:
                 self.host_connection = host_connection
 
-    def _on_ui_tool_config_changed_callback(self, tool_config_name):
-        '''Tool config has been changed in the ui.'''
-        if not tool_config_name:
-            self.tool_config = None
-            return
-        for tool_config_list in self.filtered_tool_configs.values():
-            tool_config = tool_config_list.get_first(
-                tool_title=tool_config_name
-            )
-            if not tool_config:
-                continue
-            self.tool_config = tool_config
-
     def _on_ui_refresh_hosts_callback(self):
         '''
         Refresh host button has been clicked in the UI,
@@ -242,74 +265,20 @@ class PublisherDialog(FrameworkDialog, ScrollToolConfigsDialog):
         '''
         self.client_method_connection('discover_hosts')
 
-    def build_tool_config_ui(self, tool_config):
-        '''A tool config has been selected, build the tool config widget.'''
-        # Build context widgets
-        context_plugins = tool_config.get_all(
-            category='plugin', plugin_type='context'
-        )
-        for context_plugin in context_plugins:
-            if not context_plugin.widget_name:
-                continue
-            context_widget = self.init_framework_widget(context_plugin)
-            self.tool_config_widget.layout().addWidget(context_widget)
-        # Build component widgets
-        component_steps = tool_config.get_all(
-            category='step', step_type='component'
-        )
-        for step in component_steps:
-            # TODO: add a key visible in the tool config to hide the step if wanted.
-            step_accordion_widget = AccordionBaseWidget(
-                selectable=False,
-                show_checkbox=True,
-                checkable=not step.optional,
-                title=step.step_name,
-                selected=False,
-                checked=step.enabled,
-                collapsable=True,
-                collapsed=True,
-            )
-            step_plugins = step.get_all(category='plugin')
-            for step_plugin in step_plugins:
-                if not step_plugin.widget_name:
-                    continue
-                widget = self.init_framework_widget(step_plugin)
-                if step_plugin.plugin_type == 'collector':
-                    step_accordion_widget.add_widget(widget)
-                if step_plugin.plugin_type == 'validator':
-                    step_accordion_widget.add_option_widget(
-                        widget, section_name='Validators'
-                    )
-                if step_plugin.plugin_type == 'exporter':
-                    step_accordion_widget.add_option_widget(
-                        widget, section_name='Exporters'
-                    )
-            self._tool_config_widget.layout().addWidget(step_accordion_widget)
-
-    def _on_ui_run_button_clicked_callback(self):
+    def _on_ui_open_button_clicked_callback(self):
         '''
-        Run button from the UI has been clicked.
+        Open button from the UI has been clicked.
         Tell client to run the current tool config
         '''
+        selected_assets = self._asset_collector_widget.selected_assets
+        if not selected_assets:
+            ModalDialog(
+                self,
+                title='No assets selected!',
+                message='Please select the desired assets to open',
+                question=False,
+            ).exec_()
+            return
 
         arguments = {"tool_config": self.tool_config}
         self.client_method_connection('run_tool_config', arguments=arguments)
-
-    def run_collectors(self, plugin_widget_id=None):
-        '''
-        Run all the collector plugins of the current tool_config.
-        If *plugin_widget_id* is given, a signal with the result of the plugins
-        will be emitted to be picked by that widget id.
-        '''
-        collector_plugins = self.tool_config.get_all(
-            category='plugin', plugin_type='collector'
-        )
-        for collector_plugin in collector_plugins:
-            arguments = {
-                "plugin_config": collector_plugin,
-                "plugin_method_name": 'run',
-                "engine_type": self.tool_config.engine_type,
-                "engine_name": self.tool_config.engine_name,
-                'plugin_widget_id': plugin_widget_id,
-            }
-            self.client_method_connection('run_plugin', arguments=arguments)
