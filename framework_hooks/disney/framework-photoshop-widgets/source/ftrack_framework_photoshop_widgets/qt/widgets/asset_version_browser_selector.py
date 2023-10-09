@@ -11,7 +11,7 @@ from ftrack_qt.widgets.delegate import AssetVersionComboBoxDelegate
 class AssetVersionBrowserWidget(FrameworkWidget, TableView):
     '''Main class to represent a context widget on a publish process.'''
 
-    name = 'asset_version_browser_collector'
+    name = 'asset_version_browser_selector'
     ui_type = 'qt'
 
     @property
@@ -75,16 +75,17 @@ class AssetVersionBrowserWidget(FrameworkWidget, TableView):
 
     def fetch_asset_versions(self):
         self.plugin_context_data = {'context_id': self.context_id}
-        self.run_plugin_method('fetch')
+        self.run_plugin_method('run')
 
     def run_plugin_callback(self, plugin_info):
-        # Check is the result of the desired method
-        if not (
-            plugin_info['plugin_widget_id'] == self.id
-            and plugin_info['plugin_method'] == 'fetch'
-        ):
+        # Check the result of the desired method
+        if plugin_info['plugin_widget_id'] != self.id:
             return
-        if plugin_info['plugin_method_result']:
+
+        if (
+                plugin_info['plugin_method'] == 'run'
+                and plugin_info['plugin_method_result']
+        ):
             self.set_data_items(plugin_info['plugin_method_result'])
 
     def _on_select_items(self):
@@ -109,3 +110,6 @@ class AssetVersionBrowserWidget(FrameworkWidget, TableView):
 
         self.set_plugin_option('asset_versions', asset_versions)
         return asset_versions
+
+    def fetch(self):
+        self.fetch_asset_versions()

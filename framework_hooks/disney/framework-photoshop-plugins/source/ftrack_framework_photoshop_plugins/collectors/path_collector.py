@@ -1,14 +1,12 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2023 ftrack
 
-import os
-
 from ftrack_framework_plugin import BasePlugin
 import ftrack_constants.framework as constants
 
 
-class ComponentPathCollectorPlugin(BasePlugin):
-    name = 'component_path_collector'
+class PathCollectorPlugin(BasePlugin):
+    name = 'path_collector'
     host_type = constants.host.PYTHON_HOST_TYPE
     plugin_type = constants.plugin.PLUGIN_COLLECTOR_TYPE
     '''Return the full path of the file passed in the options'''
@@ -19,35 +17,27 @@ class ComponentPathCollectorPlugin(BasePlugin):
             required_output_type=list,
             required_output_value=None,
         )
-        self.register_method(
-            method_name='fetch',
-            required_output_type=list,
-            required_output_value=None,
-        )
-
-    def fetch(self, context_data=None, data=None, options=None):
-        '''
-        Return all AssetVersion entities available on the given context id
-        *context_data*: expects a dictionary with the desired 'context_id'
-        '''
-        latest_asset_versions = self.session.query(
-            "select asset from AssetVersion where task_id is {} and "
-            "is_latest_version is True".format(context_data['context_id'])
-        )
-
-        return list(latest_asset_versions)
 
     def run(self, context_data=None, data=None, options=None):
         '''
-        Return location path from the given *options['asset_versions']*.
+        Return location path from the given *options['selected_assets']*.
+        '''
+        fetcher = options.get('fetcher')
+        if fetcher == 'ftrack_assets_fetcher':
+            return self.collect_from_ftrack_location(
+                options.get('selected_assets')
+            )
 
-        *options*: ['asset_versions']: expected a list of dictionaries
+    def collect_from_ftrack_location(self, asset_versions):
+        '''
+        Return location path from the given list of *asset_versions*.
+
+        *asset_versions*: expected a list of dictionaries
         containing 'asset_version_id' and 'component_name' for the desired
         assets to open.
         '''
         unresolved_asset_messages = []
         collected_paths = []
-        asset_versions = options.get('asset_versions')
         for asset_version_dict in asset_versions:
             component = self.session.query(
                 "select id from Component where version_id is {} "

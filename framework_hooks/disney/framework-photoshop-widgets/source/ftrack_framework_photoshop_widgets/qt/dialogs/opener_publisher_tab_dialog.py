@@ -70,7 +70,10 @@ class OpenerPublisherTabDialog(FrameworkDialog, TabDialog):
             dialog_options,
             parent,
         )
-        self._asset_collector_widget = None
+        self._opener_fetch_widget = None
+        self._fetch_combo_box = None
+        self._opener_fetch_layout = None
+
         self._tab_mapping = {}
         # This is in a separated method and not in the post_build because the
         # BaseFrameworkDialog should be initialized before starting with these
@@ -102,13 +105,8 @@ class OpenerPublisherTabDialog(FrameworkDialog, TabDialog):
         if self._tab_mapping['open']:
             self._open_widget = self._build_open_widget()
             self.add_tab("Open", self._open_widget)
-            for widget in self.framework_widgets.values():
-                if widget.name == 'asset_version_browser_collector':
-                    self._asset_collector_widget = widget
-                    widget.fetch_asset_versions()
 
         if self._tab_mapping['save']:
-            # TODO: to be implemented
             self._publish_widget = self._build_publish_widget()
             self.add_tab("Save", self._publish_widget)
 
@@ -118,26 +116,30 @@ class OpenerPublisherTabDialog(FrameworkDialog, TabDialog):
         main_layout = QtWidgets.QVBoxLayout()
         main_widget.setLayout(main_layout)
 
-        # TODO: You could build different collectors depending on a selected
-        #  combo box in here. IMO the most simplistic way of doing it would be
-        #  that the combo box reads all "fetch" type plugins available in the
-        #  standalone plugins list of the tool config, then depending on the
-        #  selection of the combo box, he initialize a specific widget that
-        #  represents that plugin and it does the fetch with the available
-        #  assets or templates or whatever. Then once open button is cliecked,
-        #  we pick the selected objects from the fetch widget and pass them as
-        #  options of the opener collector plugin in the tool_config.
-        # Build Collector widget
+        # Example QCombo box implementation
+        self._fetch_combo_box = QtWidgets.QComboBox()
+        # Pick all plugins of the same type
         collector_plugins = self.tab_mapping['open'].get_all(
-            category='plugin', plugin_type='collector'
+            category='plugin', plugin_type='fetch'
         )
+        # Add all plugin titles to the combo box and set the current
+        # plugin_config as data of the item
         for collector_plugin_config in collector_plugins:
-            if not collector_plugin_config.widget_name:
-                continue
-            collector_widget = self.init_framework_widget(
-                collector_plugin_config
+            self._fetch_combo_box.addItem(
+                collector_plugin_config.plugin_title, collector_plugin_config
             )
-            main_widget.layout().addWidget(collector_widget)
+        main_widget.layout().addWidget(self._fetch_combo_box)
+
+        self._opener_fetch_layout = QtWidgets.QVBoxLayout()
+        main_widget.layout().addLayout(self._opener_fetch_layout)
+
+        # Connect the combo box on change signal to the init opener
+        self._fetch_combo_box.currentIndexChanged.connect(
+            self._on_opener_fetch_plugin_changed
+        )
+
+        # Init opener fetch widget
+        self._on_opener_fetch_plugin_changed(self._fetch_combo_box.currentIndex())
 
         open_button = QtWidgets.QPushButton('Open')
 
@@ -146,6 +148,21 @@ class OpenerPublisherTabDialog(FrameworkDialog, TabDialog):
         main_widget.layout().addWidget(open_button)
 
         return main_widget
+
+    def _on_opener_fetch_plugin_changed(self, index):
+        plugin_config = self._fetch_combo_box.itemData(index)
+        # Unregister the widget to be deleted
+        self.unregister_widget(plugin_config.widget_name)
+        # Delete the widget if already exist
+        if self._opener_fetch_layout.count() >= 1:
+            self._opener_fetch_layout.itemAt(0).widget().deleteLater()
+        # Create the new widget
+        self._opener_fetch_widget = self.init_framework_widget(
+            plugin_config
+        )
+        self._opener_fetch_layout.addWidget(self._opener_fetch_widget)
+        # Fetch the widget
+        self._opener_fetch_widget.fetch()
 
     def _build_publish_widget(self):
         '''Open tab widget creation'''
@@ -164,22 +181,22 @@ class OpenerPublisherTabDialog(FrameworkDialog, TabDialog):
             main_widget.layout().addWidget(context_widget)
 
         buttons_layout = QtWidgets.QHBoxLayout()
-        # TODO: version up could execute a plugin defined in plugins of the tool-config
-        # version_up_button = QtWidgets.QPushButton('Version Up')
-        # TODO: review executes the entire tool-config steps/stages
+
+        # We create the version Up Button that will execute the
+        # version up plugin
+        version_up_button = QtWidgets.QPushButton('Version Up')
+        version_up_button.clicked.connect(
+            self._on_ui_version_up_button_clicked_callback
+        )
+        buttons_layout.addWidget(version_up_button)
+
+        # send to review executes the entire tool-config steps/stages
         review_button = QtWidgets.QPushButton('Send to Review')
-
-        # TODO: to implement the version_up button, I would create a standalone
-        #  plugin in the tool_config and this would be executed when the
-        #  version up button is clicked.
-        #  Using the self.client_method_connection('run_plugin', arguments=arguments)
-
         review_button.clicked.connect(
             self._on_ui_review_button_clicked_callback
         )
-
-        # buttons_layout.addWidget(version_up_button)
         buttons_layout.addWidget(review_button)
+
         main_widget.layout().addLayout(buttons_layout)
 
         return main_widget
@@ -316,7 +333,7 @@ class OpenerPublisherTabDialog(FrameworkDialog, TabDialog):
         Open button from the UI has been clicked.
         Tell client to run the current tool config
         '''
-        selected_assets = self._asset_collector_widget.selected_assets
+        selected_assets = self._opener_fetch_widget.selected_assets
         if not selected_assets:
             ModalDialog(
                 self,
@@ -326,6 +343,17 @@ class OpenerPublisherTabDialog(FrameworkDialog, TabDialog):
             ).exec_()
             return
 
+        # Pass the result of the fetch plugin to the collector plugin options.
+        collector_plugins = self.tool_config.get_all(
+            category='plugin', plugin_type='collector'
+        )
+        for plugin_config in collector_plugins:
+            plugin_config.options.update(
+                {
+                    'fetcher': self._opener_fetch_widget.name,
+                    'selected_assets': selected_assets
+                }
+            )
         self._run_tool_config()
 
     def _on_ui_review_button_clicked_callback(self):
@@ -334,6 +362,29 @@ class OpenerPublisherTabDialog(FrameworkDialog, TabDialog):
         Tell client to run the current tool config
         '''
         self._run_tool_config()
+
+    def _on_ui_version_up_button_clicked_callback(self):
+        '''
+        Run all the collector plugins of the current tool_config.
+        If *plugin_widget_id* is given, a signal with the result of the plugins
+        will be emitted to be picked by that widget id.
+        '''
+
+        version_up_plugin_config = self.tab_mapping['save'].get_first(
+            category='plugin',
+            plugin_type='file_management',
+            plugin_name='photoshop_local_version_up_document'
+        )
+        arguments = {
+            "plugin_config": version_up_plugin_config,
+            "plugin_method_name": 'run',
+            "engine_type": self.tool_config.engine_type,
+            "engine_name": self.tool_config.engine_name,
+            'plugin_widget_id': None,
+        }
+        self.client_method_connection('run_plugin', arguments=arguments)
+        # Re-implement _on_client_notify_ui_run_plugin_result_callback from
+        # dialog in case we are interested on the result of this plugin execution.
 
     def _run_tool_config(self):
         '''

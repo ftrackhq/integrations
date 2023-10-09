@@ -320,6 +320,15 @@ class FrameworkDialog(BaseUI):
         if widget.id not in list(self.__framework_widget_registry.keys()):
             self.__framework_widget_registry[widget.id] = widget
 
+    def unregister_widget(self, widget_name):
+        '''
+        Remove the given *widget_name* from the registered widgets.
+        '''
+        for widget_id, widget in self.framework_widgets.items():
+            if widget_name == widget.name:
+                self.__framework_widget_registry.pop(widget_id)
+                break
+
     def _connect_dialog_methods_callback(
         self, method_name, arguments=None, callback=None
     ):
@@ -365,6 +374,9 @@ class FrameworkDialog(BaseUI):
         '''
         plugin_info = event['data']['plugin_info']
         plugin_widget_id = plugin_info['plugin_widget_id']
+        if not plugin_widget_id:
+            self.logger.info("Widget id not provided")
+            return
         widget = self.framework_widgets.get(plugin_widget_id)
         if not widget:
             self.logger.error(

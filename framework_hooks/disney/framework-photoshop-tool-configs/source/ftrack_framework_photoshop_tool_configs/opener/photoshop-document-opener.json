@@ -42,9 +42,8 @@
           "plugins": [
             {
               "plugin_type": "collector",
-              "plugin_title": "collect file",
-              "plugin_name": "component_path_collector",
-              "widget_name": "asset_version_browser_collector"
+              "plugin_title": "collect document",
+              "plugin_name": "path_collector"
             }
           ]
         },
@@ -125,6 +124,14 @@
           ]
         }
       ]
+    }
+  ],
+  "plugins": [
+    {
+      "plugin_type": "fetch",
+      "plugin_title": "Fetch from ftrack",
+      "plugin_name": "ftrack_assets_fetcher",
+      "widget_name": "asset_version_browser_selector"
     }
   ]
 }

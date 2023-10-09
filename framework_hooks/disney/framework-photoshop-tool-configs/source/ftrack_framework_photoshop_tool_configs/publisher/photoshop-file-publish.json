@@ -136,5 +136,12 @@
         }
       ]
     }
+  ],
+  "plugins": [
+    {
+      "plugin_type": "file_management",
+      "plugin_title": "Local version up",
+      "plugin_name": "photoshop_local_version_up_document"
+    }
   ]
 }
