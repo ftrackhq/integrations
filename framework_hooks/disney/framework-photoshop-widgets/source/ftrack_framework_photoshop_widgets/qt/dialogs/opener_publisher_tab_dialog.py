@@ -145,7 +145,7 @@ class OpenerPublisherTabDialog(FrameworkDialog, TabDialog):
         main_widget.setLayout(main_layout)
 
         # Build Collector widget
-        context_plugins = self.tab_tool_config_mapping['save'].get_all(
+        context_plugins = self.tab_mapping['save'].get_all(
             category='plugin', plugin_type='context'
         )
         for context_plugin_config in context_plugins:
