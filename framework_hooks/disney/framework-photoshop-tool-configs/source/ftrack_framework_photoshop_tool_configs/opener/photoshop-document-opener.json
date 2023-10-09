@@ -128,7 +128,7 @@
   ],
   "plugins": [
     {
-      "plugin_type": "fetch",
+      "plugin_type": "fetcher",
       "plugin_title": "Fetch from ftrack",
       "plugin_name": "ftrack_assets_fetcher",
       "widget_name": "asset_version_browser_selector"

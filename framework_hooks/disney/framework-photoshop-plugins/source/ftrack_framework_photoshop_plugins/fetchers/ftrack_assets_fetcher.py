@@ -8,7 +8,7 @@ import ftrack_constants.framework as constants
 class FtrackAssetsFetcherPlugin(BasePlugin):
     name = 'ftrack_assets_fetcher'
     host_type = constants.host.PYTHON_HOST_TYPE
-    plugin_type = constants.plugin.PLUGIN_COLLECTOR_TYPE
+    plugin_type = 'fetcher'
     '''Return the full path of the file passed in the options'''
 
     def register_methods(self):
