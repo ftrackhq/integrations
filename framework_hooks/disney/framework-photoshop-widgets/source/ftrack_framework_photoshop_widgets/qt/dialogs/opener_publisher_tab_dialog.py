@@ -5,21 +5,21 @@ from Qt import QtWidgets, QtCore
 
 from ftrack_framework_widget.dialog import FrameworkDialog
 
-from ftrack_qt.widgets.dialogs import TabConfigsDialog
+from ftrack_qt.widgets.dialogs import TabDialog
 from ftrack_qt.widgets.dialogs import ModalDialog
 
 
-class OpenerPublisherTabDialog(FrameworkDialog, TabConfigsDialog):
+class OpenerPublisherTabDialog(FrameworkDialog, TabDialog):
     '''Default Framework Publisher widget'''
 
     name = 'framework_opener_publisher_tab_dialog'
     tool_config_type_filter = ['publisher', 'opener']
     ui_type = 'qt'
-    docked = True
+    docked = False
 
     @property
-    def tab_tool_config_mapping(self):
-        return self._tab_tool_config_mapping
+    def tab_mapping(self):
+        return self._tab_mapping
 
     @property
     def host_connections_ids(self):
@@ -28,16 +28,6 @@ class OpenerPublisherTabDialog(FrameworkDialog, TabConfigsDialog):
         for host_connection in self.host_connections:
             ids.append(host_connection.host_id)
         return ids
-
-    @property
-    def tool_config_names(self):
-        '''Returns available tool config names in the client'''
-        names = []
-        for tool_configs in self.filtered_tool_configs:
-            print(tool_configs)
-            for tool_config in tool_configs:
-                names.append(tool_config.tool_title)
-        return names
 
     def __init__(
         self,
@@ -65,7 +55,7 @@ class OpenerPublisherTabDialog(FrameworkDialog, TabConfigsDialog):
         current dialog.
         '''
         # As a mixing class we have to initialize the parents separately
-        TabConfigsDialog.__init__(
+        TabDialog.__init__(
             self,
             session=event_manager.session,
             parent=parent,
@@ -81,11 +71,11 @@ class OpenerPublisherTabDialog(FrameworkDialog, TabConfigsDialog):
             parent,
         )
         self._asset_collector_widget = None
-        self._tab_tool_config_mapping = {}
+        self._tab_mapping = {}
         # This is in a separated method and not in the post_build because the
         # BaseFrameworkDialog should be initialized before starting with these
         # connections.
-        self._set_tab_tool_config_dialog_connections()
+        self._set_tab_dialog_connections()
 
         self._pre_select_tool_configs()
         self._build_tabs()
@@ -96,31 +86,31 @@ class OpenerPublisherTabDialog(FrameworkDialog, TabConfigsDialog):
         opener_tool_configs = self.filtered_tool_configs['opener']
         if opener_tool_configs:
             # Pick the first tool config available
-            self._tab_tool_config_mapping['open'] = opener_tool_configs[0]
+            self._tab_mapping['open'] = opener_tool_configs[0]
             if not self.tool_config:
-                self.tool_config = self._tab_tool_config_mapping['open']
+                self.tool_config = self._tab_mapping['open']
 
         publisher_tool_configs = self.filtered_tool_configs['publisher']
         if publisher_tool_configs:
             # Pick the first tool config available
-            self._tab_tool_config_mapping['save'] = publisher_tool_configs[0]
+            self._tab_mapping['save'] = publisher_tool_configs[0]
             if not self.tool_config:
-                self.tool_config = self._tab_tool_config_mapping['save']
+                self.tool_config = self._tab_mapping['save']
 
     def _build_tabs(self):
         '''Build Open and save tabs'''
-        if self._tab_tool_config_mapping['open']:
+        if self._tab_mapping['open']:
             self._open_widget = self._build_open_widget()
-            self.add_tool_config_tab("Open", self._open_widget)
+            self.add_tab("Open", self._open_widget)
             for widget in self.framework_widgets.values():
                 if widget.name == 'asset_version_browser_collector':
                     self._asset_collector_widget = widget
                     widget.fetch_asset_versions()
 
-        if self._tab_tool_config_mapping['save']:
+        if self._tab_mapping['save']:
             # TODO: to be implemented
             self._publish_widget = self._build_publish_widget()
-            self.add_tool_config_tab("Save", self._publish_widget)
+            self.add_tab("Save", self._publish_widget)
 
     def _build_open_widget(self):
         '''Open tab widget creation'''
@@ -129,7 +119,7 @@ class OpenerPublisherTabDialog(FrameworkDialog, TabConfigsDialog):
         main_widget.setLayout(main_layout)
 
         # Build Collector widget
-        collector_plugins = self.tab_tool_config_mapping['open'].get_all(
+        collector_plugins = self.tab_mapping['open'].get_all(
             category='plugin', plugin_type='collector'
         )
         for collector_plugin_config in collector_plugins:
@@ -180,8 +170,8 @@ class OpenerPublisherTabDialog(FrameworkDialog, TabConfigsDialog):
 
         return main_widget
 
-    def _set_tab_tool_config_dialog_connections(self):
-        '''Create all the connections to communicate to the TabConfigsDialog'''
+    def _set_tab_dialog_connections(self):
+        '''Create all the connections to communicate to the TabDialog'''
         # Set context from client:
         self._on_client_context_changed_callback()
 
@@ -205,7 +195,7 @@ class OpenerPublisherTabDialog(FrameworkDialog, TabConfigsDialog):
 
     def show_ui(self):
         '''Override Show method of the base framework dialog'''
-        TabConfigsDialog.show(self)
+        TabDialog.show(self)
 
     def connect_focus_signal(self):
         '''Connect signal when the current dialog gets focus'''
@@ -238,7 +228,7 @@ class OpenerPublisherTabDialog(FrameworkDialog, TabConfigsDialog):
         self.selected_host_connection_id = self.host_connection.host_id
 
     def _on_selected_tab_changed_callback(self, tab_name):
-        self.tool_config = self.tab_tool_config_mapping.get(tab_name.lower())
+        self.tool_config = self.tab_mapping.get(tab_name.lower())
 
     def sync_context(self):
         '''

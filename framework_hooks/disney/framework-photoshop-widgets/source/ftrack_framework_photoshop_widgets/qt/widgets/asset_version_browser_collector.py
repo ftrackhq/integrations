@@ -3,12 +3,12 @@
 
 from ftrack_framework_widget.widget import FrameworkWidget
 
-from ftrack_qt.widgets.views import GenericTableView
+from ftrack_qt.widgets.views import TableView
 from ftrack_qt.widgets.delegate import AssetVersionComboBoxDelegate
 
 
 # TODO: review and docstring this code
-class AssetVersionBrowserWidget(FrameworkWidget, GenericTableView):
+class AssetVersionBrowserWidget(FrameworkWidget, TableView):
     '''Main class to represent a context widget on a publish process.'''
 
     name = 'asset_version_browser_collector'
@@ -39,7 +39,7 @@ class AssetVersionBrowserWidget(FrameworkWidget, GenericTableView):
 
         self._version_cb_delegate = None
 
-        GenericTableView.__init__(
+        TableView.__init__(
             self, column_mapping=column_mapping, parent=parent
         )
         FrameworkWidget.__init__(
@@ -55,7 +55,7 @@ class AssetVersionBrowserWidget(FrameworkWidget, GenericTableView):
 
     def build(self):
         '''
-        Override build method of GenericTableView to propagate a delegate item
+        Override build method of TableView to propagate a delegate item
         in the versions column
         '''
         super(AssetVersionBrowserWidget, self).build()

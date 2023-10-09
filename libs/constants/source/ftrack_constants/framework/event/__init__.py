@@ -6,7 +6,8 @@ REMOTE_EVENT_MODE = 1
 #: Run the events of the session in local mode
 LOCAL_EVENT_MODE = 0
 
-#: See event_table.md from :ref:`~framework_core.doc.developing.event_table.md` file for a better reference on eeach event.
+#: See event_table.md from :ref:`~framework_core.doc.developing.event_table.md` file for a
+# better reference on each event.
 
 #: Base name for events
 _BASE_ = 'ftrack.framework'
@@ -68,3 +69,13 @@ CLIENT_NOTIFY_RUN_TOOL_CONFIG_RESULT_TOPIC = (
 )
 # Client received log item result
 CLIENT_NOTIFY_LOG_ITEM_ADDED_TOPIC = '{}.client.notify.log_item'.format(_BASE_)
+
+# Remote JS integration<>Python communication; Connection and alive check
+DISCOVER_REMOTE_INTEGRATION_TOPIC = "{}.discover.remote.integration".format(
+    _BASE_
+)
+
+# Remote JS integration<>Python communication; Provide context data to JS
+REMOTE_INTEGRATION_CONTEXT_DATA_TOPIC = (
+    "{}.remote.integration.context.data".format(_BASE_)
+)
