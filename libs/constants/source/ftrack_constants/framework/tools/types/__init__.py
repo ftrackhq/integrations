@@ -13,7 +13,5 @@ PUBLISHER = 'publisher'
 ASSET_MANAGER = 'asset_manager'
 #: Resolver tool type
 RESOLVER = 'resolver'
-#: Change context tool type
-CHANGE_CONTEXT = 'change_context'
 #: Log viewer  tool type
 LOG_VIEWER = 'log_viewer'
