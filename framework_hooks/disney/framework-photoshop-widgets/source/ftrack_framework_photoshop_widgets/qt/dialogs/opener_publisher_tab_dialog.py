@@ -118,6 +118,15 @@ class OpenerPublisherTabDialog(FrameworkDialog, TabDialog):
         main_layout = QtWidgets.QVBoxLayout()
         main_widget.setLayout(main_layout)
 
+        # TODO: You could build different collectors depending on a selected
+        #  combo box in here. IMO the most simplistic way of doing it would be
+        #  that the combo box reads all "fetch" type plugins available in the
+        #  standalone plugins list of the tool config, then depending on the
+        #  selection of the combo box, he initialize a specific widget that
+        #  represents that plugin and it does the fetch with the available
+        #  assets or templates or whatever. Then once open button is cliecked,
+        #  we pick the selected objects from the fetch widget and pass them as
+        #  options of the opener collector plugin in the tool_config.
         # Build Collector widget
         collector_plugins = self.tab_mapping['open'].get_all(
             category='plugin', plugin_type='collector'
@@ -159,6 +168,11 @@ class OpenerPublisherTabDialog(FrameworkDialog, TabDialog):
         # version_up_button = QtWidgets.QPushButton('Version Up')
         # TODO: review executes the entire tool-config steps/stages
         review_button = QtWidgets.QPushButton('Send to Review')
+
+        # TODO: to implement the version_up button, I would create a standalone
+        #  plugin in the tool_config and this would be executed when the
+        #  version up button is clicked.
+        #  Using the self.client_method_connection('run_plugin', arguments=arguments)
 
         review_button.clicked.connect(
             self._on_ui_review_button_clicked_callback
