@@ -93,7 +93,7 @@ class OpenerPublisherTabDialog(FrameworkDialog, TabDialog):
         publisher_tool_configs = self.filtered_tool_configs['publisher']
         if publisher_tool_configs:
             # Pick the first tool config available
-            self._tab_mapping['save'] = opener_tool_configs[0]
+            self._tab_mapping['save'] = publisher_tool_configs[0]
             if not self.tool_config:
                 self.tool_config = self._tab_mapping['save']
 
@@ -109,7 +109,7 @@ class OpenerPublisherTabDialog(FrameworkDialog, TabDialog):
 
         if self._tab_mapping['save']:
             # TODO: to be implemented
-            self._publish_widget = QtWidgets.QWidget()
+            self._publish_widget = self._build_publish_widget()
             self.add_tab("Save", self._publish_widget)
 
     def _build_open_widget(self):
@@ -135,6 +135,38 @@ class OpenerPublisherTabDialog(FrameworkDialog, TabDialog):
         open_button.clicked.connect(self._on_ui_open_button_clicked_callback)
 
         main_widget.layout().addWidget(open_button)
+
+        return main_widget
+
+    def _build_publish_widget(self):
+        '''Open tab widget creation'''
+        main_widget = QtWidgets.QWidget()
+        main_layout = QtWidgets.QVBoxLayout()
+        main_widget.setLayout(main_layout)
+
+        # Build Collector widget
+        context_plugins = self.tab_mapping['save'].get_all(
+            category='plugin', plugin_type='context'
+        )
+        for context_plugin_config in context_plugins:
+            if not context_plugin_config.widget_name:
+                continue
+            context_widget = self.init_framework_widget(context_plugin_config)
+            main_widget.layout().addWidget(context_widget)
+
+        buttons_layout = QtWidgets.QHBoxLayout()
+        # TODO: version up could execute a plugin defined in plugins of the tool-config
+        # version_up_button = QtWidgets.QPushButton('Version Up')
+        # TODO: review executes the entire tool-config steps/stages
+        review_button = QtWidgets.QPushButton('Send to Review')
+
+        review_button.clicked.connect(
+            self._on_ui_review_button_clicked_callback
+        )
+
+        # buttons_layout.addWidget(version_up_button)
+        buttons_layout.addWidget(review_button)
+        main_widget.layout().addLayout(buttons_layout)
 
         return main_widget
 
@@ -280,5 +312,19 @@ class OpenerPublisherTabDialog(FrameworkDialog, TabDialog):
             ).exec_()
             return
 
+        self._run_tool_config()
+
+    def _on_ui_review_button_clicked_callback(self):
+        '''
+        Open button from the UI has been clicked.
+        Tell client to run the current tool config
+        '''
+        self._run_tool_config()
+
+    def _run_tool_config(self):
+        '''
+        Open button from the UI has been clicked.
+        Tell client to run the current tool config
+        '''
         arguments = {"tool_config": self.tool_config}
         self.client_method_connection('run_tool_config', arguments=arguments)

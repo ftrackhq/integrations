@@ -39,9 +39,7 @@ class AssetVersionBrowserWidget(FrameworkWidget, TableView):
 
         self._version_cb_delegate = None
 
-        TableView.__init__(
-            self, column_mapping=column_mapping, parent=parent
-        )
+        TableView.__init__(self, column_mapping=column_mapping, parent=parent)
         FrameworkWidget.__init__(
             self,
             event_manager,
