@@ -8,6 +8,8 @@ Designed to be shared across a Monorepo
 
 Version history:
 
+0.4.1, Henrik Norin, 23.10.02; Redone Photoshop CEP build
+0.4.0, Henrik Norin, 23.09.21; Build within Monorepo, refactored framework
 0.3.1, Henrik Norin, 23.08.29; CEP build updates
 0.3.0, Henrik Norin, 23.07.06; Support for building CEP extension
 0.2.0, Henrik Norin, 23.04.17; Supply resource folder on plugin build
@@ -25,13 +27,12 @@ import subprocess
 from distutils.spawn import find_executable
 import fileinput
 
-__version__ = '0.3.1'
+__version__ = '0.4.1'
 
 ROOT_PATH = os.path.realpath(os.getcwd())
 BUILD_PATH = os.path.join(ROOT_PATH, "dist")
 RESOURCE_PATH = os.path.join(ROOT_PATH, "resource")
-STYLE_PATH = os.path.join(RESOURCE_PATH, "style")
-CEP_PATH = os.path.join(ROOT_PATH, "source", "cep")
+CEP_PATH = os.path.join(ROOT_PATH, "resource", "cep")
 
 POETRY_CONFIG_PATH = os.path.join(ROOT_PATH, 'pyproject.toml')
 if not os.path.exists(POETRY_CONFIG_PATH):
@@ -45,11 +46,18 @@ with open(os.path.join(ROOT_PATH, 'pyproject.toml')) as f:
         if line.startswith('name = '):
             PROJECT_NAME = line.split('=')[1].strip().strip('"')
             break
+
 DCC_NAME = PROJECT_NAME.split('-')[-1]
 
 SOURCE_PATH = os.path.join(ROOT_PATH, "source", PROJECT_NAME.replace('-', '_'))
 
+
+SOURCE_PATH = os.path.join(ROOT_PATH, "source", PROJECT_NAME.replace('-', '_'))
+
 MONOREPO_PATH = os.path.realpath(os.path.join(ROOT_PATH, '..', '..'))
+
+STYLE_PATH = os.path.join(MONOREPO_PATH, "resource", "style")
+
 
 ZXPSIGN_CMD = 'ZXPSignCmd'
 
@@ -93,6 +101,12 @@ def build_plugin(args):
 
     if not os.path.exists(BUILD_PATH):
         raise Exception('Please build the project - missing "dist/" folder!')
+
+    logging.info('*' * 100)
+    logging.info(
+        'Remember to build the plugin with Poetry (poetry build) before building the Connect plugin!'
+    )
+    logging.info('*' * 100)
 
     # Find wheel and read the version
     wheel_path = None
@@ -138,14 +152,13 @@ def build_plugin(args):
     os.makedirs(dependencies_path)
 
     logging.info('Collecting Framework dependencies')
-    framework_dependency_folders = []
+    framework_dependency_packages = []
     for lib in os.listdir(os.path.join(MONOREPO_PATH, 'libs')):
         lib_path = os.path.join(MONOREPO_PATH, 'libs', lib)
         if not os.path.isdir(lib_path) or lib.find('to_remove') > -1:
             continue
-        source_path = os.path.join(MONOREPO_PATH, 'libs', lib, 'source')
-        framework_dependency_folders.append(
-            os.path.join(source_path, find_python_source(source_path))
+        framework_dependency_packages.append(
+            os.path.join(MONOREPO_PATH, 'libs', lib)
         )
     # Pick up hooks
     for hook in os.listdir(os.path.join(MONOREPO_PATH, 'framework_hooks')):
@@ -153,15 +166,46 @@ def build_plugin(args):
         if not os.path.isdir(hook_path):
             continue
         if hook.find('-core-') > -1 or hook.find(DCC_NAME) > -1:
-            source_path = os.path.join(hook_path, 'source')
-            framework_dependency_folders.append(
-                os.path.join(source_path, find_python_source(source_path))
+            framework_dependency_packages.append(hook_path)
+
+    for dependency_path in framework_dependency_packages:
+        if os.path.exists(os.path.join(dependency_path, 'setup.py')):
+            logging.info(
+                'Building {}'.format(os.path.basename(dependency_path))
             )
-    for folder in framework_dependency_folders:
-        logging.info('Copying {}'.format(folder))
-        shutil.copytree(
-            folder, os.path.join(dependencies_path, os.path.basename(folder))
-        )
+            os.chdir(dependency_path)
+            restore_build_file = False
+            PATH_BUILD = os.path.join(dependency_path, 'BUILD')
+            if os.path.exists(PATH_BUILD):
+                restore_build_file = True
+                os.rename(PATH_BUILD, PATH_BUILD + '_')
+
+            subprocess.check_call(
+                [
+                    sys.executable,
+                    '-m',
+                    'pip',
+                    'install',
+                    '.',
+                    '--target',
+                    dependencies_path,
+                ]
+            )
+
+            shutil.rmtree(os.path.join(dependency_path, 'build'))
+
+            if restore_build_file:
+                os.rename(PATH_BUILD + '_', PATH_BUILD)
+        else:
+            source_path = os.path.join(dependency_path, 'source')
+            if not os.path.exists(source_path):
+                continue
+            source_path = find_python_source(source_path)
+            logging.info('Copying {}'.format(source_path))
+            shutil.copytree(
+                source_path,
+                os.path.join(dependencies_path, os.path.basename(source_path)),
+            )
 
     logging.info('Collecting dependencies from wheel')
     subprocess.check_call(
@@ -295,6 +339,18 @@ def get_version():
     raise ValueError('Could not find version in {0}'.format(version_path))
 
 
+def parse_and_copy(source_path, target_path, version):
+    '''Copies the single file pointed out by *source_path* to *target_path* and
+    replaces version expression to supplied *version*.'''
+    with open(source_path, 'r') as f_src:
+        with open(target_path, 'w') as f_dst:
+            f_dst.write(
+                f_src.read().replace(
+                    '{{FTRACK_FRAMEWORK_PHOTOSHOP_VERSION}}', version
+                )
+            )
+
+
 def build_cep(args):
     '''Wrapper for building docs for preview'''
 
@@ -324,43 +380,83 @@ def build_cep(args):
 
     # Clean staging path
     shutil.rmtree(STAGING_PATH, ignore_errors=True)
-    os.makedirs(STAGING_PATH)
+    os.makedirs(os.path.join(STAGING_PATH))
+    os.makedirs(os.path.join(STAGING_PATH, "image"))
+    os.makedirs(os.path.join(STAGING_PATH, "css"))
 
-    # Copy files
-    for filename in ["index.html", "index.js", "ps.jsx", "favicon.ico"]:
+    # Copy html
+    for filename in ["index.html"]:
+        parse_and_copy(
+            os.path.join(CEP_PATH, filename),
+            os.path.join(STAGING_PATH, filename),
+            VERSION,
+        )
+    # Copy images
+    for filename in ["favicon.ico", "ftrack-logo-48.png", "loader.gif"]:
         shutil.copy(
-            os.path.join(CEP_PATH, filename),
-            os.path.join(STAGING_PATH, filename),
+            os.path.join(STYLE_PATH, "image", filename),
+            os.path.join(STAGING_PATH, "image", filename),
         )
-    # Copy dirs
-    for filename in ["lib", "icons", "css"]:
-        logging.info(
-            "Copying {}>{}".format(
-                os.path.join(CEP_PATH, filename),
-                os.path.join(STAGING_PATH, filename),
-            )
+
+    # Copy style
+    shutil.copy(
+        os.path.join(STYLE_PATH, "style_dark.css"),
+        os.path.join(STAGING_PATH, "css", "style_dark.css"),
+    )
+
+    # Copy static libraries
+    logging.info(
+        "Copying {}>{}".format(
+            os.path.join(CEP_PATH, "libraries"),
+            os.path.join(STAGING_PATH, "lib"),
         )
-        shutil.copytree(
-            os.path.join(CEP_PATH, filename),
-            os.path.join(STAGING_PATH, filename),
-            symlinks=True,
+    )
+    shutil.copytree(
+        os.path.join(CEP_PATH, "libraries"),
+        os.path.join(STAGING_PATH, "lib"),
+        symlinks=True,
+    )
+
+    # Copy js lib files
+    for js_file in [
+        os.path.join(
+            MONOREPO_PATH, "projects", "framework-photoshop-js", "utils.js"
+        ),
+        os.path.join(
+            MONOREPO_PATH,
+            "projects",
+            "framework-photoshop-js",
+            "event-constants.js",
+        ),
+        os.path.join(
+            MONOREPO_PATH,
+            "projects",
+            "framework-photoshop-js",
+            "events-core.js",
+        ),
+    ]:
+        parse_and_copy(
+            js_file,
+            os.path.join(STAGING_PATH, "lib", os.path.basename(js_file)),
+            VERSION,
         )
+    parse_and_copy(
+        os.path.join(
+            MONOREPO_PATH, "projects", "framework-photoshop-js", "bootstrap.js"
+        ),
+        os.path.join(STAGING_PATH, "bootstrap.js"),
+        VERSION,
+    )
 
     # Transfer manifest xml, store version
     manifest_staging_path = os.path.join(STAGING_PATH, 'CSXS', 'manifest.xml')
     if not os.path.exists(os.path.dirname(manifest_staging_path)):
         os.makedirs(os.path.dirname(manifest_staging_path))
-    with open(MANIFEST_PATH, 'r') as f_src:
-        with open(manifest_staging_path, 'w') as f_dst:
-            f_dst.write(
-                f_src.read().replace(
-                    '{{FTRACK_FRAMEWORK_PHOTOSHOP_VERSION}}', VERSION
-                )
-            )
+    parse_and_copy(MANIFEST_PATH, manifest_staging_path, VERSION)
 
     extension_output_path = os.path.join(
         BUILD_PATH,
-        'ftrack_framework_adobe_prototype_{}.zxp'.format(VERSION),
+        'ftrack_framework_adobe_{}.zxp'.format(VERSION),
     )
 
     # Create and sign extension

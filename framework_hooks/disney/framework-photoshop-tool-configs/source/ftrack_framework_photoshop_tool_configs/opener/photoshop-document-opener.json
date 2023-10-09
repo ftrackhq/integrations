@@ -1,6 +1,6 @@
 {
   "tool_type": "opener",
-  "tool_title": "File Opener",
+  "tool_title": "Document Opener",
   "host_type": "python",
   "ui_type": "qt",
   "engine_name": "load_publish",
@@ -56,8 +56,8 @@
           "plugins": [
             {
               "plugin_type": "importer",
-              "plugin_title": "open PS file",
-              "plugin_name": "photoshop_file_opener"
+              "plugin_title": "open PS document",
+              "plugin_name": "photoshop_document_opener"
             }
           ]
         },
@@ -69,8 +69,8 @@
           "plugins": [
             {
               "plugin_type": "post_importer",
-              "plugin_title": "Set up scene",
-              "plugin_name": "setup_photoshop_scene"
+              "plugin_title": "Set up document",
+              "plugin_name": "setup_photoshop_document"
             }
           ]
         }
