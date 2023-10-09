@@ -124,11 +124,11 @@ class PublisherDialog(FrameworkDialog, ScrollToolConfigsDialog):
 
     def show_ui(self):
         '''Override Show method of the base framework dialog'''
-        self.raise_()
+        self.setWindowFlags(QtCore.Qt.Tool | QtCore.Qt.WindowStaysOnTopHint)
         ScrollToolConfigsDialog.show(self)
+        self.raise_()
         self.activateWindow()
         self.setWindowState(self.windowState() & ~QtCore.Qt.WindowMinimized | QtCore.Qt.WindowActive)
-        self.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint)
 
     def connect_focus_signal(self):
         '''Connect signal when the current dialog gets focus'''
