@@ -42,9 +42,8 @@ class PhotoshopNativePublisherExporterPlugin(BasePlugin):
 
         is_document_publish = True
         collected_objects = []
-        for value in list(data.values()):
-            for collector_result in list(value['collector'].values()):
-                collected_objects.extend(collector_result)
+        for collector_result in list(data[self.plugin_step_name]['collector'].values()):
+            collected_objects.extend(collector_result)
 
         if is_document_publish:
             # Export entire document
@@ -58,11 +57,17 @@ class PhotoshopNativePublisherExporterPlugin(BasePlugin):
 
             result = self.event_manager.publish.remote_integration_rpc(
                 get_integration_session_id(),
-                "exportDocument", new_file_path, self.extension.replace('.', '')
+                "exportDocument", new_file_path, self.extension.replace('.', ''),
+                fetch_reply=True
             )['result']
 
-            if not result:
+            if result is False:
                 return False, {"message": "Document JPG export failed!"}
+            elif isinstance(result, str):
+                self.message = "Error exporting image: {}".format(result)
+
+                self.status = constants.STATUS_ERROR
+                return []
 
         else:
             raise Exception(

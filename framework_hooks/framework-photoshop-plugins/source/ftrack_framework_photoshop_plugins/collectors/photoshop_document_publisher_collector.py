@@ -30,11 +30,16 @@ class PhotoshopDocumentPublisherCollectorPlugin(BasePlugin):
             # Fetch document name from Photoshop
             document_data = self.event_manager.publish.remote_integration_rpc(
                 get_integration_session_id(),
-                "getDocument"
+                "getDocumentData"
             )['result']
 
             self.logger.debug("Got PS document data: {}".format(document_data))
 
+            if len(document_data or {}) == 0:
+                self.message = "Error exporting the scene: Please have an " \
+                               "active work document before you can publish"
+                self.status = constants.STATUS_ERROR
+                return []
             document_path = (
                 document_data.get('full_path') if document_data else None
             )
@@ -52,13 +57,13 @@ class PhotoshopDocumentPublisherCollectorPlugin(BasePlugin):
                 ).name
                 save_result = self.event_manager.publish.remote_integration_rpc(
                     get_integration_session_id(),
-                    "saveDocument", temp_path
+                    "saveDocument", temp_path, fetch_reply=True
                 )['result']
                 if save_result:
                     # Now re-fetch document data
                     document_data = self.event_manager.publish.remote_integration_rpc(
                         get_integration_session_id(),
-                        "getDocumentData"
+                        "getDocumentData", fetch_reply=True
                     )['result']
                     document_path = (
                         document_data.get('full_path')
@@ -66,10 +71,11 @@ class PhotoshopDocumentPublisherCollectorPlugin(BasePlugin):
                         else None
                     )
             if len(document_path or '') == 0:
-                return False, {
-                    "message": "Error exporting the scene: Please save the "
-                    "document with a name before publish"
-                }
+                self.message = "Error exporting the scene: Please save the " \
+                               "document with a name before publish"
+
+                self.status = constants.STATUS_ERROR
+                return []
             export_object = [document_data]
         else:
             raise Exception('Only "document" export option is supported')

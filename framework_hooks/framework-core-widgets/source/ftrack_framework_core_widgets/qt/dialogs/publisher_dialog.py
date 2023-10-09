@@ -128,6 +128,7 @@ class PublisherDialog(FrameworkDialog, ScrollToolConfigsDialog):
         ScrollToolConfigsDialog.show(self)
         self.activateWindow()
         self.setWindowState(self.windowState() & ~QtCore.Qt.WindowMinimized | QtCore.Qt.WindowActive)
+        self.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint)
 
     def connect_focus_signal(self):
         '''Connect signal when the current dialog gets focus'''
@@ -287,6 +288,7 @@ class PublisherDialog(FrameworkDialog, ScrollToolConfigsDialog):
                         widget, section_name='Exporters'
                     )
             self._tool_config_widget.layout().addWidget(step_accordion_widget)
+        self._tool_config_widget.layout().addWidget(QtWidgets.QLabel(), 100)
 
     def _on_ui_run_button_clicked_callback(self):
         '''

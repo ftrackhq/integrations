@@ -176,7 +176,17 @@ function handleRemoteIntegrationRPCCallback(event) {
             ));
             return;
         }
-        let s_args = event.data.args.join(',');
+        // Build args, quoute strings
+        let s_args = '';
+        let idx = 0;
+        while (idx < event.data.args.length) {
+            let value = event.data.args[idx];
+            if (typeof value === 'string')
+                value = '"' + value + '"';
+            s_args += (s_args.length>0?",":"") + value;
+            idx++;
+        }
+
         csInterface.evalScript(function_name+'('+s_args+')', function (result) {
             try {
                 // String is the evalScript type, decode

@@ -6,10 +6,6 @@ Copyright (c) 2014-2023 ftrack
 
 #target photoshop
 
-function debugPS() {
-    return app.activeDocument;
-}
-
 function getDocumentPath() {
     try {
         var f = new File(app.activeDocument.fullName);
@@ -70,29 +66,30 @@ function saveDocument(temp_path) {
 
 function exportDocument(output_path, format) {
     if (documents.length == 0) {
+        // No document open
         return "false";
     }
-    var options;
-    if (format == 'jpg') {
-        options = new JPEGSaveOptions();
-        options.quality = 12;
-        options.embedColorProfile = true;
-        options.formatOptions = FormatOptions.PROGRESSIVE;
-        if (options.formatOptions == FormatOptions.PROGRESSIVE) {
-            options.scans = 5;
-        }
-        options.matte = MatteType.NONE;
-    }
-    if (format == 'png') {
-        options = new PNGSaveOptions();
-        options.interlaced = true;
-        options.transparency = true;
-    }
     try {
+        var options;
+        if (format == 'jpg') {
+            options = new JPEGSaveOptions();
+            options.quality = 12;
+            options.embedColorProfile = true;
+            options.formatOptions = FormatOptions.PROGRESSIVE;
+            if (options.formatOptions == FormatOptions.PROGRESSIVE) {
+                options.scans = 5;
+            }
+            options.matte = MatteType.NONE;
+        } else if (format == 'png') {
+            options = new PNGSaveOptions();
+            options.interlaced = true;
+            options.transparency = true;
+        } else {
+            return "Unknown export format: "+format
+        }
         app.activeDocument.saveAs(new File(output_path), options, true);
         return "true";
     } catch (e) {
-        alert(e);
-        return "false";
+        return "An error occurred: "+e+" Details: "+e.stack;
     }
 }

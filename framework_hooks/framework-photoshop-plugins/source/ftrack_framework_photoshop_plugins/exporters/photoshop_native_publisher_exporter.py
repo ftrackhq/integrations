@@ -41,9 +41,8 @@ class PhotoshopNativePublisherExporterPlugin(BasePlugin):
 
         is_document_publish = True
         collected_objects = []
-        for value in list(data.values()):
-            for collector_result in list(value['collector'].values()):
-                collected_objects.extend(collector_result)
+        for collector_result in list(data[self.plugin_step_name]['collector'].values()):
+            collected_objects.extend(collector_result)
 
         if is_document_publish:
             # Copy entire document
