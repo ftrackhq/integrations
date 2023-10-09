@@ -1,5 +1,7 @@
 /*
-ftrack Photoshop Framework integration CEP interface
+ftrack Photoshop Framework integration CEP interface functions
+
+Exposed by RPC call event to Python standalone host.
 
 Copyright (c) 2014-2023 ftrack
 */
@@ -7,6 +9,9 @@ Copyright (c) 2014-2023 ftrack
 #target photoshop
 
 function getDocumentPath() {
+    /*
+     * Returns the path of the document, or an empty string if it has not been saved
+    */
     try {
         var f = new File(app.activeDocument.fullName);
         var result = f.fsName;
@@ -18,6 +23,9 @@ function getDocumentPath() {
 }
 
 function getDocumentData() {
+    /*
+     * Returns a JSON string with the document data, or an empty string if there is no document open.
+    */
      if (documents.length == 0) {
         // No document open
         return '{}';
@@ -46,6 +54,10 @@ function getDocumentData() {
 }
 
 function saveDocument(temp_path) {
+    /*
+     * Saves the document to the given temp_path, return "true" if successful,
+     * "false" otherwise.
+    */
     try {
         if (documents.length == 0) {
             // No document open
@@ -65,6 +77,10 @@ function saveDocument(temp_path) {
 }
 
 function exportDocument(output_path, format) {
+    /*
+     * Exports the document to the given output_path, return "true" if successful,
+     * "false" otherwise.
+    */
     if (documents.length == 0) {
         // No document open
         return "false";

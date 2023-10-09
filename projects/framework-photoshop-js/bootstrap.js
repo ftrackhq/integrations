@@ -176,7 +176,7 @@ function handleRemoteIntegrationRPCCallback(event) {
             ));
             return;
         }
-        // Build args, quoute strings
+        // Build args, quote strings
         let s_args = '';
         let idx = 0;
         while (idx < event.data.args.length) {

@@ -238,7 +238,6 @@ class Publish(object):
         if fetch_reply:
             waited = 0
             while not self._reply_event:
-                print("#", end='')
                 time.sleep(0.01)
                 waited += 10
                 # TODO: Move this timeout to property that can be set on event manager init
