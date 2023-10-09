@@ -30,8 +30,7 @@ class PublisherDialog(FrameworkDialog, ScrollToolConfigsDialog):
     def tool_config_names(self):
         '''Returns available tool config names in the client'''
         names = []
-        for tool_configs in self.filtered_tool_configs:
-            print(tool_configs)
+        for tool_configs in self.filtered_tool_configs.values():
             for tool_config in tool_configs:
                 names.append(tool_config.tool_title)
         return names
@@ -225,10 +224,12 @@ class PublisherDialog(FrameworkDialog, ScrollToolConfigsDialog):
         if not tool_config_name:
             self.tool_config = None
             return
-        for tool_config_list in self.filtered_tool_configs:
+        for tool_config_list in self.filtered_tool_configs.values():
             tool_config = tool_config_list.get_first(
                 tool_title=tool_config_name
             )
+            if not tool_config:
+                continue
             self.tool_config = tool_config
 
     def _on_ui_refresh_hosts_callback(self):

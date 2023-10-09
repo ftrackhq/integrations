@@ -31,9 +31,9 @@ class FrameworkDialog(BaseUI):
         '''
         if not self.tool_config_type_filter:
             return list(self.tool_configs.values())
-        tool_configs = []
+        tool_configs = {}
         for tool_config_type in self.tool_config_type_filter:
-            tool_configs.append(self.tool_configs.get(tool_config_type))
+            tool_configs[tool_config_type] = self.tool_configs.get(tool_config_type)
         return tool_configs
 
     @property
@@ -366,6 +366,14 @@ class FrameworkDialog(BaseUI):
         plugin_info = event['data']['plugin_info']
         plugin_widget_id = plugin_info['plugin_widget_id']
         widget = self.framework_widgets.get(plugin_widget_id)
+        if not widget:
+            self.logger.error(
+                "Widget is not registred : {}\n"
+                "Registry: {}".format(
+                    widget, self.framework_widgets.keys()
+                )
+            )
+            return
         widget.run_plugin_callback(plugin_info)
 
     def _on_client_notify_ui_run_tool_config_result_callback(self, event):
