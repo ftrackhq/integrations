@@ -1,6 +1,6 @@
 {
   "tool_type": "publisher",
-  "tool_title": "PS File Publisher",
+  "tool_title": "Document Publisher",
   "host_type": "python",
   "ui_type": "qt",
   "engine_name": "load_publish",
