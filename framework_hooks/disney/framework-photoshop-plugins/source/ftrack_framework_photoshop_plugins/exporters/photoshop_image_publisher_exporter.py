@@ -56,7 +56,7 @@ class PhotoshopImagePublisherExporterPlugin(BasePlugin):
             fetch_reply=True,
         )['result']
 
-        if result is False:
+        if not result:
             self.message = "Document JPG export failed!"
             self.status = constants.STATUS_ERROR
             return []
