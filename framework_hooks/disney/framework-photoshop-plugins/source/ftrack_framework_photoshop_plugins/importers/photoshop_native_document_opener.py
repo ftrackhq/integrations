@@ -10,7 +10,7 @@ from ftrack_utils.framework.remote import get_integration_session_id
 
 
 class PSDocumentOpenerPlugin(BasePlugin):
-    name = 'photoshop_document_opener'
+    name = 'photoshop_native_document_opener'
     host_type = constants.host.PYTHON_HOST_TYPE
     plugin_type = constants.plugin.PLUGIN_IMPORTER_TYPE
     '''Return the full path of the document passed in the options'''

@@ -57,7 +57,7 @@
             {
               "plugin_type": "importer",
               "plugin_title": "open PS document",
-              "plugin_name": "photoshop_document_opener"
+              "plugin_name": "photoshop_native_document_opener"
             }
           ]
         },
