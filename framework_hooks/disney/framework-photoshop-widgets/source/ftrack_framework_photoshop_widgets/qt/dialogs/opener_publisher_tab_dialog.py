@@ -131,7 +131,7 @@ class OpenerPublisherTabDialog(FrameworkDialog, TabDialog):
             )
             main_widget.layout().addWidget(collector_widget)
 
-        open_button = QtWidgets.QPushButton('Open')
+        open_button = QtWidgets.QPushButton('OPEN')
 
         open_button.clicked.connect(self._on_ui_open_button_clicked_callback)
 
@@ -197,6 +197,12 @@ class OpenerPublisherTabDialog(FrameworkDialog, TabDialog):
     def show_ui(self):
         '''Override Show method of the base framework dialog'''
         TabDialog.show(self)
+        self.raise_()
+        self.activateWindow()
+        self.setWindowState(
+            self.windowState() & ~QtCore.Qt.WindowMinimized
+            | QtCore.Qt.WindowActive
+        )
 
     def connect_focus_signal(self):
         '''Connect signal when the current dialog gets focus'''
