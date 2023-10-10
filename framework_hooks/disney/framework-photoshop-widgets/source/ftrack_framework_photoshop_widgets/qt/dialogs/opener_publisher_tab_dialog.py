@@ -87,14 +87,18 @@ class OpenerPublisherTabDialog(FrameworkDialog, TabDialog):
         opener_tool_configs = self.filtered_tool_configs['opener']
         if opener_tool_configs:
             # Pick the first tool config available
-            self._tab_mapping['open'] = opener_tool_configs[0]
+            self._tab_mapping['open'] = opener_tool_configs.get_first(
+                tool_title="Document Opener"
+            )
             if not self.tool_config:
                 self.tool_config = self._tab_mapping['open']
 
         publisher_tool_configs = self.filtered_tool_configs['publisher']
         if publisher_tool_configs:
             # Pick the first tool config available
-            self._tab_mapping['save'] = publisher_tool_configs[0]
+            self._tab_mapping['save'] = publisher_tool_configs.get_first(
+                tool_title="Document Publisher"
+            )
             if not self.tool_config:
                 self.tool_config = self._tab_mapping['save']
 
@@ -197,6 +201,12 @@ class OpenerPublisherTabDialog(FrameworkDialog, TabDialog):
     def show_ui(self):
         '''Override Show method of the base framework dialog'''
         TabDialog.show(self)
+        self.raise_()
+        self.activateWindow()
+        self.setWindowState(
+            self.windowState() & ~QtCore.Qt.WindowMinimized
+            | QtCore.Qt.WindowActive
+        )
 
     def connect_focus_signal(self):
         '''Connect signal when the current dialog gets focus'''
