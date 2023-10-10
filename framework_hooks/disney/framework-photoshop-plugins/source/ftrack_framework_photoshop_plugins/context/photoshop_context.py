@@ -53,7 +53,7 @@ class PhotoshopContextPlugin(BasePlugin):
             ).one()['id']
         if not options.get('asset_id'):
             # Create new or load existing asset
-            if 'asset_type_name' not in options:
+            if not options.get('asset_type_name'):
                 self.message = (
                     "Context error: need to specify asset_type_name in options "
                     "to enable evaluation of asset"
