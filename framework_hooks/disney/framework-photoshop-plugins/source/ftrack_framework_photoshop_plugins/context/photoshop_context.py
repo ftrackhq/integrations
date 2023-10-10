@@ -39,7 +39,7 @@ class PhotoshopContextPlugin(BasePlugin):
             self.status = constants.status.ERROR_STATUS
             return []
         context_id = required_output['context_id']
-        if options.get('status_id') is None:
+        if not options.get('status_id'):
             # Fixed status
             if 'status_name' not in options:
                 self.message = (
