@@ -8,7 +8,6 @@ from ftrack_utils.framework.remote import get_integration_session_id
 
 
 class PhotoshopNativeOpenerFinalizer(BasePlugin):
-
     name = 'photoshop_native_opener_finalizer'
     host_type = constants.host.PYTHON_HOST_TYPE
     plugin_type = constants.plugin.PLUGIN_FINALIZER_TYPE
@@ -24,14 +23,16 @@ class PhotoshopNativeOpenerFinalizer(BasePlugin):
     def run(self, context_data=None, data=None, options=None):
         '''
         Tell Photoshop to rename the newly opened snapshot to a temp path, to
-        protect original publisher file from being overwritten.
+        protect original published file from being overwritten.
         '''
 
         temp_path = tempfile.NamedTemporaryFile(
             delete=False, suffix='.psd'
         ).name
 
-        self.logger.debug('Telling Photoshop to save document to: {}'.format(temp_path))
+        self.logger.debug(
+            'Telling Photoshop to save document to: {}'.format(temp_path)
+        )
 
         result = self.event_manager.publish.remote_integration_rpc(
             get_integration_session_id(),
@@ -49,7 +50,3 @@ class PhotoshopNativeOpenerFinalizer(BasePlugin):
             self.status = constants.status.ERROR_STATUS
             return {}
         return {}
-
-
-
-

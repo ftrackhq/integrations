@@ -53,7 +53,8 @@ class PhotoshopImagePublisherExporterPlugin(BasePlugin):
 
         result = self.event_manager.publish.remote_integration_rpc(
             get_integration_session_id(),
-            "exportDocument", [new_file_path, extension.replace('.', '')],
+            "exportDocument",
+            [new_file_path, extension.replace('.', '')],
             fetch_reply=True,
         )['result']
 

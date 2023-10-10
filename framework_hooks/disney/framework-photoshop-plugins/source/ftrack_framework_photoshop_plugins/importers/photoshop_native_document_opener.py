@@ -18,8 +18,8 @@ class PSDocumentOpenerPlugin(BasePlugin):
     def register_methods(self):
         self.register_method(
             method_name='run',
-            required_output_type=bool,
-            required_output_value=True,
+            required_output_type=str,
+            required_output_value=None,
         )
 
     def run(self, context_data=None, data=None, options=None):
@@ -36,14 +36,17 @@ class PSDocumentOpenerPlugin(BasePlugin):
         document_path = collected_objects[0]
 
         if not os.path.exists(document_path):
-            self.message = "Document '{}' does not exist!".format(document_path)
+            self.message = "Document '{}' does not exist!".format(
+                document_path
+            )
             self.status = constants.STATUS_ERROR
             return []
 
         result = self.event_manager.publish.remote_integration_rpc(
             get_integration_session_id(),
-            "openDocument", [document_path],
-            fetch_reply=True
+            "openDocument",
+            [document_path],
+            fetch_reply=True,
         )['result']
 
         if result is False:
@@ -55,4 +58,4 @@ class PSDocumentOpenerPlugin(BasePlugin):
             self.status = constants.STATUS_ERROR
             return []
 
-        return result
+        return str(result)

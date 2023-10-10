@@ -51,7 +51,7 @@
           "plugins":[
             {
               "name": "maya",
-                "plugin": "common_passthrough_opener_post_importer"
+              "plugin": "common_passthrough_opener_post_importer"
             }
           ]
         }
