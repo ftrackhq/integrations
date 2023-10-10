@@ -39,7 +39,7 @@ class PSDocumentOpenerPlugin(BasePlugin):
             self.message = "Document '{}' does not exist!".format(
                 document_path
             )
-            self.status = constants.STATUS_ERROR
+            self.status = constants.status.ERROR_STATUS
             return []
 
         result = self.event_manager.publish.remote_integration_rpc(
@@ -49,13 +49,13 @@ class PSDocumentOpenerPlugin(BasePlugin):
             fetch_reply=True,
         )['result']
 
-        if result is False:
+        if not result:
             self.message = "Document open failed!"
-            self.status = constants.STATUS_ERROR
+            self.status = constants.status.ERROR_STATUS
             return []
         elif isinstance(result, str):
             self.message = "Error opening document: {}".format(result)
-            self.status = constants.STATUS_ERROR
+            self.status = constants.status.ERROR_STATUS
             return []
 
         return str(result)

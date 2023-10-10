@@ -49,4 +49,4 @@ class PhotoshopNativeOpenerFinalizer(BasePlugin):
             self.message = "Could not save document to temp: {}".format(result)
             self.status = constants.status.ERROR_STATUS
             return {}
-        return {}
+        return {'path': temp_path}
