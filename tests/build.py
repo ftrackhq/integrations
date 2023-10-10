@@ -176,8 +176,14 @@ def build_plugin(args):
             # Might be an absolute path
             include_path = args.include
         if not os.path.isdir(include_path):
-            raise Exception('Include path "{}" is not a folder!'.format(include_path))
-        logging.info('Searching additional include path for dependencies: {}'.format(include_path))
+            raise Exception(
+                'Include path "{}" is not a folder!'.format(include_path)
+            )
+        logging.info(
+            'Searching additional include path for dependencies: {}'.format(
+                include_path
+            )
+        )
         for hook in os.listdir(include_path):
             hook_path = os.path.join(include_path, hook)
             if not os.path.isdir(hook_path):
@@ -525,9 +531,7 @@ if __name__ == '__main__':
         )
     )
 
-    parser.add_argument(
-        '--include', help='Additional folder to include.'
-    )
+    parser.add_argument('--include', help='Additional folder to include.')
 
     parser.add_argument(
         'command',

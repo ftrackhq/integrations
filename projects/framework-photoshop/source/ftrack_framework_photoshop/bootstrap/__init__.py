@@ -86,9 +86,7 @@ def initialise():
         remote_session=remote_session,
     )
 
-    Host(
-        event_manager
-    )
+    Host(event_manager)
 
     client = Client(event_manager)
 

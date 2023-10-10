@@ -598,7 +598,7 @@ class Publish(object):
         function_name,
         args=None,
         callback=None,
-        fetch_reply=False
+        fetch_reply=False,
     ):
         '''
         Publish an event with topic
@@ -611,7 +611,7 @@ class Publish(object):
         data = {
             'integration_session_id': integration_session_id,
             'function_name': function_name,
-            'args': args or []
+            'args': args or [],
         }
 
         event_topic = constants.event.REMOTE_INTEGRATION_RPC_TOPIC

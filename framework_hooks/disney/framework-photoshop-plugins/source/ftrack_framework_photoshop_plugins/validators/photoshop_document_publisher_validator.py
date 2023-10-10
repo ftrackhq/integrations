@@ -61,5 +61,3 @@ class PhotoshopDocumentPublisherValidatorPlugin(BasePlugin):
             collector_result.extend(list(plugin.values()))
 
         return self.validate(data={'collector_result': collector_result})
-
-

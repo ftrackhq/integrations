@@ -68,15 +68,15 @@ class PublishToFtrack(BasePlugin):
         if 'asset_id' in context_data[0]:
             # An explicit asset is provided
             asset_entity_object = self.session.query(
-                'Asset where id is "{}"'.format(
-                    context_data[0]['asset_id']
-                )
+                'Asset where id is "{}"'.format(context_data[0]['asset_id'])
             ).first()
         else:
             # Query/identify asset
             # TODO, remove the script later one once this changes are implemented
             #  in the generic context plugin
-            asset_type_name = self.context_data[0].get('asset_type_name') or 'script'
+            asset_type_name = (
+                self.context_data[0].get('asset_type_name') or 'script'
+            )
             asset_name = context_data[0].get('asset_name') or asset_type_name
 
             # Get Asset type object
