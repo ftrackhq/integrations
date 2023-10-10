@@ -33,6 +33,7 @@ class PSDocumentOpenerPlugin(BasePlugin):
         ):
             collected_objects.extend(collector_result)
 
+        # TODO: Support open of multiple documents
         document_path = collected_objects[0]
 
         if not os.path.exists(document_path):
@@ -48,6 +49,8 @@ class PSDocumentOpenerPlugin(BasePlugin):
             [document_path],
             fetch_reply=True,
         )['result']
+        # Expect boolean result from Photoshop, or a string with error message
+        # if an exception occurs.
 
         if not result:
             self.message = "Document open failed!"

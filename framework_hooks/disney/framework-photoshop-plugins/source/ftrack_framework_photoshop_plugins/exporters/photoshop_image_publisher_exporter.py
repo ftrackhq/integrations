@@ -57,6 +57,8 @@ class PhotoshopImagePublisherExporterPlugin(BasePlugin):
             [new_file_path, extension.replace('.', '')],
             fetch_reply=True,
         )['result']
+        # Expect boolean result from Photoshop, or a string with error message
+        # if an exception occurs during export.
 
         if not result:
             self.message = "Document JPG export failed!"
