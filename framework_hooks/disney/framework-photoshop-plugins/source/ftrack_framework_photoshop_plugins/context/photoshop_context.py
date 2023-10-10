@@ -60,7 +60,7 @@ class PhotoshopContextPlugin(BasePlugin):
                     "Context error: need to specify asset_type_name in options "
                     "to enable evaluation of asset"
                 )
-               self.status = constants.status.ERROR_STATUS
+                self.status = constants.status.ERROR_STATUS
                 return []
             asset_type_name = options['asset_type_name']
             asset_name = options.get('asset_name') or asset_type_name

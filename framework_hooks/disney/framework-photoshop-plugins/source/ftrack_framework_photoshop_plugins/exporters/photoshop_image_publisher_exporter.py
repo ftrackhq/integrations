@@ -59,11 +59,11 @@ class PhotoshopImagePublisherExporterPlugin(BasePlugin):
 
         if not result:
             self.message = "Document JPG export failed!"
-             self.status = constants.status.ERROR_STATUS
+            self.status = constants.status.ERROR_STATUS
             return []
         elif isinstance(result, str):
             self.message = "Error exporting image: {}".format(result)
-             self.status = constants.status.ERROR_STATUS
+            self.status = constants.status.ERROR_STATUS
             return []
 
         return [new_file_path]
