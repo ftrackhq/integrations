@@ -7,7 +7,7 @@ import ftrack_constants.framework as constants
 from ftrack_utils.framework.remote import get_integration_session_id
 
 
-class PhotoshopNativeOpenerFinalizer(BasePlugin):
+class PhotoshopOpenerFinalizer(BasePlugin):
     name = 'photoshop_opener_finalizer'
     host_type = constants.host.PYTHON_HOST_TYPE
     plugin_type = constants.plugin.PLUGIN_FINALIZER_TYPE
@@ -19,7 +19,6 @@ class PhotoshopNativeOpenerFinalizer(BasePlugin):
             required_output_value=None,
         )
 
-    # TODO: review this code to check if the rollback works as it is.
     def run(self, context_data=None, data=None, options=None):
         '''
         Tell Photoshop to rename the newly opened snapshot to a temp path, to
