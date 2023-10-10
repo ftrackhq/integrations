@@ -20,11 +20,6 @@ class PhotoshopNativePublisherExporterPlugin(BasePlugin):
             required_output_type=list,
             required_output_value=None,
         )
-        self.register_method(
-            method_name='rename',
-            required_output_type=None,
-            required_output_value=None,
-        )
 
     def run(self, context_data=None, data=None, options=None):
         '''

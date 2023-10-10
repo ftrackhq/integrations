@@ -28,6 +28,9 @@ class PhotoshopDocumentPublisherCollectorPlugin(BasePlugin):
             get_integration_session_id(), "getDocumentData", fetch_reply=True
         )['result']
 
+        # TODO: Write an endpoint to check if document exists and is saved, calling
+        # get document data only once is not enough.
+
         self.logger.debug("Got PS document data: {}".format(document_data))
 
         if len(document_data or {}) == 0:
@@ -35,30 +38,24 @@ class PhotoshopDocumentPublisherCollectorPlugin(BasePlugin):
                 "Error exporting the scene: Please have an "
                 "active work document before you can publish"
             )
-            self.status = constants.STATUS_ERROR
+            self.status = constants.status.ERROR_STATUS
             return []
         document_path = (
             document_data.get('full_path') if document_data else None
         )
 
-        if (
-            len(document_path or '') == 0
-            or document_data['saved'] is False
-        ):
+        if not document_path or document_data['saved'] is False:
             # Document is not saved, save it first.
-            self.logger.warning(
-                'Photoshop document not saved, asking to save'
-            )
+            self.logger.warning('Photoshop document not saved, asking to save')
             temp_path = tempfile.NamedTemporaryFile(
                 delete=False, suffix='.psd'
             ).name
-            save_result = (
-                self.event_manager.publish.remote_integration_rpc(
-                    get_integration_session_id(),
-                    "saveDocument", [temp_path],
-                    fetch_reply=True,
-                )['result']
-            )
+            save_result = self.event_manager.publish.remote_integration_rpc(
+                get_integration_session_id(),
+                "saveDocument",
+                [temp_path],
+                fetch_reply=True,
+            )['result']
             if save_result:
                 # Now re-fetch document data
                 document_data = (
@@ -69,9 +66,7 @@ class PhotoshopDocumentPublisherCollectorPlugin(BasePlugin):
                     )['result']
                 )
                 document_path = (
-                    document_data.get('full_path')
-                    if document_data
-                    else None
+                    document_data.get('full_path') if document_data else None
                 )
         if len(document_path or '') == 0:
             self.message = (
@@ -79,7 +74,7 @@ class PhotoshopDocumentPublisherCollectorPlugin(BasePlugin):
                 "document with a name before publish"
             )
 
-            self.status = constants.STATUS_ERROR
+            self.status = constants.status.ERROR_STATUS
             return []
         export_object = [document_data]
         return export_object

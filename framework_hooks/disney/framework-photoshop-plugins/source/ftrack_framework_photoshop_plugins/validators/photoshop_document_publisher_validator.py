@@ -18,6 +18,11 @@ class PhotoshopDocumentPublisherValidatorPlugin(BasePlugin):
             required_output_type=bool,
             required_output_value=True,
         )
+        self.register_method(
+            method_name='validate',
+            required_output_type=bool,
+            required_output_value=True,
+        )
 
     def validate(self, context_data=None, data=None, options=None):
         '''
@@ -56,5 +61,3 @@ class PhotoshopDocumentPublisherValidatorPlugin(BasePlugin):
             collector_result.extend(list(plugin.values()))
 
         return self.validate(data={'collector_result': collector_result})
-
-

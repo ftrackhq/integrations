@@ -21,6 +21,8 @@ class PhotoshopContextPlugin(BasePlugin):
                 'asset_name': None,
                 'comment': None,
                 'status_id': None,
+                'status_name': None,
+                'asset_type_name': None
             },
         )
 
@@ -32,33 +34,33 @@ class PhotoshopContextPlugin(BasePlugin):
             self.methods.get('run').get('required_output_value')
         )
         required_output.update(options)
-        if required_output.get('context_id') is None:
+        if not required_output.get('context_id'):
             self.message = (
                 "Context error: need context_id provided"
             )
-            self.status = constants.STATUS_ERROR
+            self.status = constants.status.ERROR_STATUS
             return []
         context_id = required_output['context_id']
-        if options.get('status_id') is None:
+        if not options.get('status_id'):
             # Fixed status
             if 'status_name' not in options:
                 self.message = (
-                    "Context error: need to specify asset_type_name in options "
+                    "Context error: need to specify status_name in options "
                     "when creating a new asset"
                 )
-                self.status = constants.STATUS_ERROR
+                self.status = constants.status.ERROR_STATUS
                 return []
             required_output['status_id'] = self.session.query("Status where name='{}'".format(
                 options['status_name'])
             ).one()['id']
-        if options.get('asset_id') is None:
+        if not options.get('asset_id'):
             # Create new or load existing asset
-            if 'asset_type_name' not in options:
+            if not options.get('asset_type_name'):
                 self.message = (
                     "Context error: need to specify asset_type_name in options "
                     "to enable evaluation of asset"
                 )
-                self.status = constants.STATUS_ERROR
+                self.status = constants.status.ERROR_STATUS
                 return []
             asset_type_name = options['asset_type_name']
             asset_name = options.get('asset_name') or asset_type_name
