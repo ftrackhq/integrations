@@ -70,6 +70,7 @@ class OpenerPublisherTabDialog(FrameworkDialog, TabDialog):
             dialog_options,
             parent,
         )
+        self.host_connection_selector.hide()
         self._opener_fetch_widget = None
         self._fetch_combo_box = None
         self._opener_fetch_layout = None
