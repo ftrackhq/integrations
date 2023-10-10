@@ -63,12 +63,7 @@ function saveDocument(temp_path) {
             // No document open
             return "false";
         }
-        // Has been saved?
-        var full_path = getDocumentPath();
-        if (full_path === "") {
-            app.activeDocument.saveAs(new File(temp_path));
-        } else
-           app.activeDocument.save();
+        app.activeDocument.saveAs(new File(temp_path));
         return "true";
     } catch (e) {
         alert(e);
@@ -107,5 +102,19 @@ function exportDocument(output_path, format) {
         return "true";
     } catch (e) {
         return "An error occurred: "+e+" Details: "+e.stack;
+    }
+}
+
+function openDocument(path) {
+    /*
+     * Opens the document from the given path, return "true" if successful,
+     * "false" otherwise.
+    */
+    try {
+        app.open(new File(path));
+        return "true";
+    } catch (e) {
+        alert(e);
+        return "false";
     }
 }

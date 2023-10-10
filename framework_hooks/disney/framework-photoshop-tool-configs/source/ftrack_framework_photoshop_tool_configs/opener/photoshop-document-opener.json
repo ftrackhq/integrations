@@ -106,7 +106,7 @@
             {
               "plugin_type": "finalizer",
               "plugin_title": "Finalizer process",
-              "plugin_name": "generic_passthrough"
+              "plugin_name": "photoshop_opener_finalizer"
             }
           ]
         },

@@ -158,7 +158,8 @@ const RPC_ALLOWED_FUNCTIONS = [
     "getDocumentPath",
     "getDocumentData",
     "saveDocument",
-    "exportDocument"
+    "exportDocument",
+    "openDocument"
 ];
 
 function handleRemoteIntegrationRPCCallback(event) {

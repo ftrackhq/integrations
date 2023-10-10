@@ -23,10 +23,12 @@ class PhotoshopDocumentPublisherCollectorPlugin(BasePlugin):
         )
 
     def run(self, context_data=None, data=None, options=None):
-        # Fetch document name from Photoshop
+        # Fetch document data from Photoshop
         document_data = self.event_manager.publish.remote_integration_rpc(
             get_integration_session_id(), "getDocumentData", fetch_reply=True
         )['result']
+        # Will return a dictionary with information about the document,
+        # an empty dict is returned if no document is open.
 
         # TODO: Write an endpoint to check if document exists and is saved, calling
         # get document data only once is not enough.
@@ -56,6 +58,7 @@ class PhotoshopDocumentPublisherCollectorPlugin(BasePlugin):
                 [temp_path],
                 fetch_reply=True,
             )['result']
+            # Will return a boolean containing the result.
             if save_result:
                 # Now re-fetch document data
                 document_data = (
