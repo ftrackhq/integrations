@@ -38,14 +38,14 @@ class PhotoshopDocumentPublisherCollectorPlugin(BasePlugin):
                 "Error exporting the scene: Please have an "
                 "active work document before you can publish"
             )
-            self.status = constants.STATUS_ERROR
+            self.status = constants.status.ERROR_STATUS
             return []
         document_path = (
             document_data.get('full_path') if document_data else None
         )
 
         if (
-            len(document_path or '') == 0
+            not document_path
             or document_data['saved'] is False
         ):
             # Document is not saved, save it first.
@@ -82,7 +82,7 @@ class PhotoshopDocumentPublisherCollectorPlugin(BasePlugin):
                 "document with a name before publish"
             )
 
-            self.status = constants.STATUS_ERROR
+            self.status = constants.status.ERROR_STATUS
             return []
         export_object = [document_data]
         return export_object
