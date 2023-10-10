@@ -51,7 +51,7 @@ class PhotoshopContextPlugin(BasePlugin):
             required_output['status_id'] = self.session.query("Status where name='{}'".format(
                 options['status_name'])
             ).one()['id']
-        if options.get('asset_id') is None:
+        if not options.get('asset_id'):
             # Create new or load existing asset
             if 'asset_type_name' not in options:
                 self.message = (
