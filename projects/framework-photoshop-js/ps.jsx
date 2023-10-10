@@ -109,3 +109,17 @@ function exportDocument(output_path, format) {
         return "An error occurred: "+e+" Details: "+e.stack;
     }
 }
+
+function openDocument(path) {
+    /*
+     * Opens the document from the given path, return "true" if successful,
+     * "false" otherwise.
+    */
+    try {
+        app.open(new File(path));
+        return "true";
+    } catch (e) {
+        alert(e);
+        return "false";
+    }
+}
