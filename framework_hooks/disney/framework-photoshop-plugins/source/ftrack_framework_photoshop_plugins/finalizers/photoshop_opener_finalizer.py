@@ -8,7 +8,7 @@ from ftrack_utils.framework.remote import get_integration_session_id
 
 
 class PhotoshopNativeOpenerFinalizer(BasePlugin):
-    name = 'photoshop_native_opener_finalizer'
+    name = 'photoshop_opener_finalizer'
     host_type = constants.host.PYTHON_HOST_TYPE
     plugin_type = constants.plugin.PLUGIN_FINALIZER_TYPE
 

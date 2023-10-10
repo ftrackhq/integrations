@@ -75,7 +75,7 @@
             {
               "plugin_type": "exporter",
               "plugin_title": "Export file",
-              "plugin_name": "photoshop_native_publisher_exporter"
+              "plugin_name": "photoshop_document_publisher_exporter"
             }
           ]
         }
