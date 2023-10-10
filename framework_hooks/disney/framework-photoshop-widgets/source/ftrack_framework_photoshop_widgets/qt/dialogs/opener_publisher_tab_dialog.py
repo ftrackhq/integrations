@@ -97,7 +97,7 @@ class OpenerPublisherTabDialog(FrameworkDialog, TabDialog):
         if publisher_tool_configs:
             # Pick the first tool config available
             self._tab_mapping['save'] = publisher_tool_configs.get_first(
-                tool_title="Document Opener"
+                tool_title="Document Publisher"
             )
             if not self.tool_config:
                 self.tool_config = self._tab_mapping['save']
