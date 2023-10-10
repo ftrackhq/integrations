@@ -35,7 +35,7 @@ class PhotoshopDocumentPublisherCollectorPlugin(BasePlugin):
                 "Error exporting the scene: Please have an "
                 "active work document before you can publish"
             )
-            self.status = constants.STATUS_ERROR
+            self.status = constants.status.ERROR_STATUS
             return []
         document_path = (
             document_data.get('full_path') if document_data else None
