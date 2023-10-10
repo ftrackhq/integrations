@@ -79,7 +79,7 @@ class PhotoshopDocumentPublisherCollectorPlugin(BasePlugin):
                 "document with a name before publish"
             )
 
-            self.status = constants.STATUS_ERROR
+            self.status = constants.status.ERROR_STATUS
             return []
         export_object = [document_data]
         return export_object
