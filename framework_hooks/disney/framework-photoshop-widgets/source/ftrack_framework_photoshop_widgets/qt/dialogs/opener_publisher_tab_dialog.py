@@ -131,7 +131,7 @@ class OpenerPublisherTabDialog(FrameworkDialog, TabDialog):
             )
             main_widget.layout().addWidget(collector_widget)
 
-        open_button = QtWidgets.QPushButton('OPEN')
+        open_button = QtWidgets.QPushButton('Open')
 
         open_button.clicked.connect(self._on_ui_open_button_clicked_callback)
 
