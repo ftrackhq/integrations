@@ -46,7 +46,7 @@ class PhotoshopContextPlugin(BasePlugin):
                     "Context error: need to specify asset_type_name in options "
                     "when creating a new asset"
                 )
-                self.status = constants.STATUS_ERROR
+                self.status = constants.status.ERROR_STATUS
                 return []
             required_output['status_id'] = self.session.query("Status where name='{}'".format(
                 options['status_name'])
