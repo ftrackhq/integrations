@@ -201,7 +201,7 @@ class TestProjectPublisherContextOptionsWidget(BaseOptionsWidget):
     def _on_comment_updated(self):
         '''Updates the option dictionary with current text when
         textChanged of comments_input event is triggered'''
-        current_text = self.comments_input.text()
+        current_text = self.comments_input.toPlainText()
         self.set_option_result(current_text, key='comment')
 
     def _on_asset_changed(self, asset_name, asset_entity, is_valid):
