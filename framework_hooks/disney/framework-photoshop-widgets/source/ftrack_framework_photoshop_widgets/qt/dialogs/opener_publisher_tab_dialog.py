@@ -70,6 +70,7 @@ class OpenerPublisherTabDialog(FrameworkDialog, TabDialog):
             dialog_options,
             parent,
         )
+        self.host_connection_selector.hide()
         self._asset_collector_widget = None
         self._tab_mapping = {}
         # This is in a separated method and not in the post_build because the
