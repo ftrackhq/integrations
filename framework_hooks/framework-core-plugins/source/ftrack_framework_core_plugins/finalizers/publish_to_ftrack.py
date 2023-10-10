@@ -50,7 +50,7 @@ class PublishToFtrack(BasePlugin):
 
         # TODO: implement version_dependencies
         version_dependencies = []
-        comment = context_data[0]['comment']
+        comment = context_data[0]['comment'] or context_data[0].get('description')
         status_id = context_data[0]['status_id']
         # TODO: Discuss with the team, how we pass the asset type, in the
         #  tool_config or in the context plugin? Right now only capable of publishing script asset type

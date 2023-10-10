@@ -146,7 +146,7 @@ function handleIntegrationDiscoverCallback(event) {
 function launchPublisher() {
     event_manager.publish.remote_integration_run_dialog(
         prepareEventData({
-            "dialog_name": "framework_publisher_dialog"
+            "dialog_name": "framework_opener_publisher_tab_dialog"
         })
     );
 }
