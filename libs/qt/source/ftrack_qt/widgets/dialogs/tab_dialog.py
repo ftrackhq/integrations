@@ -19,6 +19,10 @@ class TabDialog(StyledDialog):
     selected_tab_changed = QtCore.Signal(object)
 
     @property
+    def host_connection_selector(self):
+        return self._host_connection_selector
+
+    @property
     def selected_context_id(self):
         '''Return the selected context id in the context sleector'''
         return self._context_selector.context_id
