@@ -21,6 +21,8 @@ class PhotoshopContextPlugin(BasePlugin):
                 'asset_name': None,
                 'comment': None,
                 'status_id': None,
+                'status_name': None,
+                'asset_type_name': None
             },
         )
 
@@ -43,7 +45,7 @@ class PhotoshopContextPlugin(BasePlugin):
             # Fixed status
             if 'status_name' not in options:
                 self.message = (
-                    "Context error: need to specify asset_type_name in options "
+                    "Context error: need to specify status_name in options "
                     "when creating a new asset"
                 )
                 self.status = constants.STATUS_ERROR

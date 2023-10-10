@@ -105,7 +105,7 @@ class PhotoshopPublishContextWidget(FrameworkWidget, QtWidgets.QWidget):
         '''Updates the option dictionary with current text when
         textChanged of comments_input event is triggered'''
         current_text = self._description_input.text()
-        self.set_plugin_option('description', current_text)
+        self.set_plugin_option('comment', current_text)
 
     def _on_note_updated(self):
         '''Updates the option dictionary with current text when

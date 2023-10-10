@@ -28,6 +28,9 @@ class PhotoshopDocumentPublisherCollectorPlugin(BasePlugin):
             get_integration_session_id(), "getDocumentData", fetch_reply=True
         )['result']
 
+        # TODO: Write an endpoint to check if document exists and is saved, calling
+        # get document data only once is not enough.
+
         self.logger.debug("Got PS document data: {}".format(document_data))
 
         if len(document_data or {}) == 0:

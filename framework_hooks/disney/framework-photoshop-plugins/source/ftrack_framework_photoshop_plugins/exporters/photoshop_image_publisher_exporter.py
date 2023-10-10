@@ -14,7 +14,6 @@ class PhotoshopImagePublisherExporterPlugin(BasePlugin):
     name = 'photoshop_image_publisher_exporter'
     host_type = constants.host.PYTHON_HOST_TYPE
     plugin_type = constants.plugin.PLUGIN_EXPORTER_TYPE
-    extension = '.jpg'
 
     def register_methods(self):
         self.register_method(
@@ -31,8 +30,10 @@ class PhotoshopImagePublisherExporterPlugin(BasePlugin):
         This method will return a list containing the new file path.
         '''
 
+        extension = options.get('extension') or '.jpg'
+
         new_file_path = tempfile.NamedTemporaryFile(
-            delete=False, suffix=self.extension
+            delete=False, suffix=extension
         ).name
 
         collected_objects = []
@@ -52,7 +53,7 @@ class PhotoshopImagePublisherExporterPlugin(BasePlugin):
 
         result = self.event_manager.publish.remote_integration_rpc(
             get_integration_session_id(),
-            "exportDocument", [new_file_path, self.extension.replace('.', '')],
+            "exportDocument", [new_file_path, extension.replace('.', '')],
             fetch_reply=True,
         )['result']
 
