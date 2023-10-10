@@ -40,7 +40,7 @@ class OpenerPublisherTabDialog(FrameworkDialog, TabDialog):
         parent=None,
     ):
         '''
-        Initialize Mixin clas publisher dialog. It will load the qt dialog and
+        Initialize Mixin class publisher dialog. It will load the qt dialog and
         mix it with the framework dialog.
         *event_manager*: instance of
         :class:`~ftrack_framework_core.event.EventManager`
@@ -82,7 +82,7 @@ class OpenerPublisherTabDialog(FrameworkDialog, TabDialog):
         self._build_tabs()
 
     def _pre_select_tool_configs(self):
-        '''Pre select the desired tool configs'''
+        '''Pre-select the desired tool configs'''
         # Pre-select desired tool-configs
         opener_tool_configs = self.filtered_tool_configs['opener']
         if opener_tool_configs:

@@ -9,6 +9,8 @@ from ftrack_qt.widgets.selectors import ContextSelector
 
 from ftrack_qt.widgets.dialogs import StyledDialog
 
+from ftrack_qt.utils.layout import recursive_clear_layout
+
 
 class ScrollToolConfigsDialog(StyledDialog):
     '''Base Class to represent a Plugin'''
@@ -49,7 +51,7 @@ class ScrollToolConfigsDialog(StyledDialog):
     @property
     def is_browsing_context(self):
         '''
-        Return if context selector is currently working on seting up a context
+        Return if context selector is currently working on setting up a context
         '''
         return self._context_selector.is_browsing
 
@@ -129,10 +131,8 @@ class ScrollToolConfigsDialog(StyledDialog):
         # self._progress_widget = ProgressWidget
         # self._header.add_widget(self._progress_widget)
 
-        # TODO: we have to update the signals from the context selector to
-        #  identify that are our signals and not qt signals. So make them snake case
         self._context_selector = ContextSelector(
-            self._session, enble_context_change=True
+            self._session, enable_context_change=True
         )
 
         self._host_connection_selector = ListSelector("Host Selector")
@@ -232,5 +232,4 @@ class ScrollToolConfigsDialog(StyledDialog):
 
     def clear_tool_config_ui(self):
         '''Remove all widgets from the tool_config_widget layout'''
-        for i in reversed(range(self._tool_config_widget.layout().count())):
-            self._tool_config_widget.layout().itemAt(i).widget().deleteLater()
+        recursive_clear_layout(self._tool_config_widget.layout())

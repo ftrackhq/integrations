@@ -31,11 +31,15 @@ def discover_tool_configs_plugins(tool_configs, event_manager, host_types):
             )
             if not is_valid:
                 logger.warning(
-                    'tool_config {} not valid for host types {}'.format(
+                    'tool config {} not valid for host types {}'.format(
                         tool_config['tool_title'], host_types
                     )
                 )
-                copy_data[tool_type].remove(tool_config)
+                # Remove invalid tool config from result
+                for tool_config_ in copy_data[tool_type]:
+                    if tool_config_['tool_title'] == tool_config['tool_title']:
+                        copy_data[tool_type].remove(tool_config_)
+                        break
     return copy_data
 
 
@@ -70,7 +74,7 @@ def _discover_plugin(event_manager, host_types, plugin):
 
     Returns the result of the event.
 
-    *plugin* : Plugin tool_config, a dictionary with the plugin information.
+    *plugin* : Plugin tool config, a dictionary with the plugin information.
 
     *plugin_type* : Type of plugin
     '''
@@ -85,13 +89,13 @@ def _discover_plugin(event_manager, host_types, plugin):
 
         if plugin_result:
             logger.debug(
-                'plugin {} found for tool_config host_type {}'.format(
+                'plugin {} found for tool config host_type {}'.format(
                     plugin_name, host_type
                 )
             )
             break
         logger.warning(
-            'plugin {} not found for tool_config host_type {}'.format(
+            'plugin {} not found for tool config host_type {}'.format(
                 plugin_name, host_type
             )
         )
@@ -135,7 +139,7 @@ def discover_tool_configs(tool_config_paths):
         for tool_config in collected_files:
             if not tool_config.get('tool_type'):
                 logger.error(
-                    "Not registring tool_config as is missing "
+                    "Not registering tool config as is missing "
                     "tool_type key. Directory: {}, tool_config: {}".format(
                         lookup_dir, tool_config
                     )

@@ -11,7 +11,7 @@ from ftrack_qt.widgets.accordion import AccordionBaseWidget
 
 
 class PublisherDialog(FrameworkDialog, ScrollToolConfigsDialog):
-    '''Default Framework Publisher widget'''
+    '''Default Framework Publisher dialog'''
 
     name = 'framework_publisher_dialog'
     tool_config_type_filter = ['publisher']
@@ -46,7 +46,7 @@ class PublisherDialog(FrameworkDialog, ScrollToolConfigsDialog):
         parent=None,
     ):
         '''
-        Initialize Mixin clas publisher dialog. It will load the qt dialog and
+        Initialize Mixin class publisher dialog. It will load the qt dialog and
         mix it with the framework dialog.
         *event_manager*: instance of
         :class:`~ftrack_framework_core.event.EventManager`
@@ -124,6 +124,12 @@ class PublisherDialog(FrameworkDialog, ScrollToolConfigsDialog):
     def show_ui(self):
         '''Override Show method of the base framework dialog'''
         ScrollToolConfigsDialog.show(self)
+        self.raise_()
+        self.activateWindow()
+        self.setWindowState(
+            self.windowState() & ~QtCore.Qt.WindowMinimized
+            | QtCore.Qt.WindowActive
+        )
 
     def connect_focus_signal(self):
         '''Connect signal when the current dialog gets focus'''
@@ -174,7 +180,7 @@ class PublisherDialog(FrameworkDialog, ScrollToolConfigsDialog):
                 self,
                 title='Context out of sync!',
                 message='Selected context is not the current context, '
-                'do you want to update UI to syc with the current context?',
+                'do you want to update UI to sync with the current context?',
                 question=True,
             ).exec_()
             if result:
@@ -285,6 +291,13 @@ class PublisherDialog(FrameworkDialog, ScrollToolConfigsDialog):
                         widget, section_name='Exporters'
                     )
             self._tool_config_widget.layout().addWidget(step_accordion_widget)
+        spacer = QtWidgets.QSpacerItem(
+            1,
+            1,
+            QtWidgets.QSizePolicy.Minimum,
+            QtWidgets.QSizePolicy.Expanding,
+        )
+        self._tool_config_widget.layout().addItem(spacer)
 
     def _on_ui_run_button_clicked_callback(self):
         '''
