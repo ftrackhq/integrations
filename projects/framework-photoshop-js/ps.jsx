@@ -63,12 +63,7 @@ function saveDocument(temp_path) {
             // No document open
             return "false";
         }
-        // Has been saved?
-        var full_path = getDocumentPath();
-        if (full_path === "") {
-            app.activeDocument.saveAs(new File(temp_path));
-        } else
-           app.activeDocument.save();
+        app.activeDocument.saveAs(new File(temp_path));
         return "true";
     } catch (e) {
         alert(e);
