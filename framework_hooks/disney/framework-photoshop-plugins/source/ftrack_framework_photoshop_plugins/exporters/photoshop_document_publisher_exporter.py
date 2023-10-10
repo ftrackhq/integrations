@@ -7,10 +7,10 @@ from ftrack_framework_plugin import BasePlugin
 import ftrack_constants.framework as constants
 
 
-class PhotoshopNativePublisherExporterPlugin(BasePlugin):
+class PhotoshopDocumentPublisherExporterPlugin(BasePlugin):
     '''Save Photoshop document to temp location for publish'''
 
-    name = 'photoshop_native_publisher_exporter'
+    name = 'photoshop_document_publisher_exporter'
     host_type = constants.host.PYTHON_HOST_TYPE
     plugin_type = constants.plugin.PLUGIN_EXPORTER_TYPE
 

@@ -22,7 +22,7 @@ class PhotoshopContextPlugin(BasePlugin):
                 'comment': None,
                 'status_id': None,
                 'status_name': None,
-                'asset_type_name': None
+                'asset_type_name': None,
             },
         )
 
@@ -35,9 +35,7 @@ class PhotoshopContextPlugin(BasePlugin):
         )
         required_output.update(options)
         if not required_output.get('context_id'):
-            self.message = (
-                "Context error: need context_id provided"
-            )
+            self.message = "Context error: need context_id provided"
             self.status = constants.status.ERROR_STATUS
             return []
         context_id = required_output['context_id']
@@ -50,8 +48,8 @@ class PhotoshopContextPlugin(BasePlugin):
                 )
                 self.status = constants.status.ERROR_STATUS
                 return []
-            required_output['status_id'] = self.session.query("Status where name='{}'".format(
-                options['status_name'])
+            required_output['status_id'] = self.session.query(
+                "Status where name='{}'".format(options['status_name'])
             ).one()['id']
         if not options.get('asset_id'):
             # Create new or load existing asset
@@ -66,14 +64,17 @@ class PhotoshopContextPlugin(BasePlugin):
             asset_name = options.get('asset_name') or asset_type_name
 
             # Find asset
-            asset = self.session.query('Asset where name is "{}" and type.short is "{}" and parent.id={}'.format(
-                asset_name,
-                asset_type_name,
-                context_id)).first()
+            asset = self.session.query(
+                'Asset where name is "{}" and type.short is "{}" and parent.id={}'.format(
+                    asset_name, asset_type_name, context_id
+                )
+            ).first()
 
             if not asset:
                 # Prepare asset creation
-                required_output['asset_name'] = options.get('asset_name') or asset_type_name
+                required_output['asset_name'] = (
+                    options.get('asset_name') or asset_type_name
+                )
             else:
                 required_output['asset_id'] = asset['id']
 
