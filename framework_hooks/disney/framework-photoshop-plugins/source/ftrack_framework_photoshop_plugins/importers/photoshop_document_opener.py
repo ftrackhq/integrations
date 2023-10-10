@@ -22,8 +22,7 @@ class PSDocumentOpenerPlugin(BasePlugin):
 
     def run(self, context_data=None, data=None, options=None):
         '''
-        Get folder_path and file_name from the given *options* and return the
-        join full path.
+
         '''
         # TODO: to be implemented
         return ""
