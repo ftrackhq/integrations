@@ -36,7 +36,7 @@ class PhotoshopContextPlugin(BasePlugin):
             self.message = (
                 "Context error: need context_id provided"
             )
-            self.status = constants.STATUS_ERROR
+            self.status = constants.status.ERROR_STATUS
             return []
         context_id = required_output['context_id']
         if options.get('status_id') is None:
