@@ -42,7 +42,7 @@ class PhotoshopDocumentPublisherCollectorPlugin(BasePlugin):
         )
 
         if (
-            len(document_path or '') == 0
+            not document_path
             or document_data['saved'] is False
         ):
             # Document is not saved, save it first.
