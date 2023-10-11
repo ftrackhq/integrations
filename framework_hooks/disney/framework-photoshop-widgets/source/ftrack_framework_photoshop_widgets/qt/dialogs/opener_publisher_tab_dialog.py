@@ -125,7 +125,7 @@ class OpenerPublisherTabDialog(FrameworkDialog, TabDialog):
         self._fetch_combo_box = QtWidgets.QComboBox()
         # Pick all plugins of the same type
         collector_plugins = self.tab_mapping['open'].get_all(
-            category='plugin', plugin_type='fetch'
+            category='plugin', plugin_type='fetcher'
         )
         # Add all plugin titles to the combo box and set the current
         # plugin_config as data of the item
@@ -157,6 +157,7 @@ class OpenerPublisherTabDialog(FrameworkDialog, TabDialog):
         return main_widget
 
     def _on_opener_fetch_plugin_changed(self, index):
+        print("index ---> {}".format(index))
         plugin_config = self._fetch_combo_box.itemData(index)
         # Unregister the widget to be deleted
         self.unregister_widget(plugin_config.widget_name)
