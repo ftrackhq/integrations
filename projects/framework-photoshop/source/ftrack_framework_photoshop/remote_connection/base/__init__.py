@@ -61,7 +61,7 @@ class BasePhotoshopRemoteConnection(object):
                 )
             )
 
-    def __init__(self, client, photoshop_version):
+    def __init__(self, client, photoshop_version, panel_launchers):
         super(BasePhotoshopRemoteConnection, self).__init__()
 
         assert (
@@ -70,6 +70,7 @@ class BasePhotoshopRemoteConnection(object):
 
         self._client = client
         self._photoshop_version = photoshop_version
+        self._panel_launchers = panel_launchers
         self._photoshop_pid = -1
         self._connected = False
 
@@ -89,7 +90,7 @@ class BasePhotoshopRemoteConnection(object):
         if not self.connected:
             self.connected = True
             logger.info("Connected to Photoshop.")
-        # Send acknowledgment back with current context data
+        # Send acknowledgment back with launchers and current context data
         context_id = self.client.context_id
         task = self.session.query('Task where id={}'.format(context_id)).one()
         self.event_manager.publish.remote_integration_context_data(
@@ -100,6 +101,7 @@ class BasePhotoshopRemoteConnection(object):
             ' / '.join([d["name"] for d in task["link"][:-1]]),
             task['thumbnail_url']['url'],
             task['project_id'],
+            self._panel_launchers,
         )
 
     def probe_photoshop_pid(self):

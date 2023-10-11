@@ -1,10 +1,23 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2023 ftrack
+import logging
+
+from ftrack_framework_core.configure_logging import configure_logging
+
+configure_logging(
+    'ftrack_framework_photoshop',
+    extra_modules=["ftrack_qt"],
+    propagate=False,
+)
+
+logger = logging.getLogger('ftrack_framework_photoshop.bootstrap')
+
+# :coding: utf-8
+# :copyright: Copyright (c) 2014-2023 ftrack
 import os
 import logging
 import time
 import sys
-from functools import partial
 
 from Qt import QtWidgets, QtCore
 
@@ -16,15 +29,7 @@ from ftrack_framework_core.host import Host
 from ftrack_framework_core.event import EventManager
 from ftrack_framework_core.client import Client
 
-from ftrack_framework_core.configure_logging import configure_logging
-
-configure_logging(
-    'ftrack_framework_photoshop',
-    extra_modules=["ftrack_qt"],
-    propagate=False,
-)
-
-logger = logging.getLogger('ftrack_framework_photoshop.bootstrap')
+logger = logging.getLogger('ftrack_framework_photoshop')
 
 photoshop_connection = None
 
@@ -71,10 +76,21 @@ class Launcher(QtWidgets.QWidget):
         self.client.run_dialog(event['data']['dialog_name'])
 
 
-def initialise():
-    '''Initialise Photoshop Framework Python standalone part.'''
+def initialise(panel_launchers=None):
+    '''Initialise Photoshop Framework Python standalone part,
+    with panels defined in panel_launchers.'''
 
     global photoshop_connection
+
+    if not panel_launchers:
+        panel_launchers = [
+            {
+                "name": "publish",
+                "label": "PUBLISHER",
+                "dialog_name": "framework_publisher_dialog",
+                "image": "publish",
+            }
+        ]
 
     session = ftrack_api.Session(auto_connect_event_hub=False)
 
@@ -105,7 +121,7 @@ def initialise():
     ), 'Photoshop integration requires FTRACK_PHOTOSHOP_VERSION passed as environment variable!'
 
     photoshop_connection = CEPBasePhotoshopRemoteConnection(
-        client, int(photoshop_version)
+        client, int(photoshop_version), panel_launchers
     )
 
     # Connect with Photoshop
@@ -156,7 +172,3 @@ def run():
                                 photoshop_connection.photoshop_pid
                             )
                         )
-
-
-initialise()
-run()
