@@ -1,8 +1,8 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2014-2022 ftrack
+# :copyright: Copyright (c) 2014-2023 ftrack
 
 import logging
-from ftrack_framework_core.constants import asset as asset_const
+import ftrack_constants.framework as constants
 
 
 class DccObject(dict):
@@ -31,7 +31,7 @@ class DccObject(dict):
         Returns the attribute objects_loaded of the current
         self :obj:`name`
         '''
-        return self[asset_const.OBJECTS_LOADED]
+        return self[constants.asset.OBJECTS_LOADED]
 
     @objects_loaded.setter
     def objects_loaded(self, value):
@@ -39,7 +39,7 @@ class DccObject(dict):
         Set the objects_loaded attribute of the self :obj:`name` to the
         given *value*.
         '''
-        self[asset_const.OBJECTS_LOADED] = value
+        self[constants.asset.OBJECTS_LOADED] = value
 
     def __init__(self, name=None, from_id=None, **kwargs):
         '''

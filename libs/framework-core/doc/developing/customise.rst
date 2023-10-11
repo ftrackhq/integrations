@@ -15,7 +15,7 @@ framework-core
 Generally you will never need to touch the core module in order to customise your
 pipeline, the most common addon would in case be a custom engine providing new
 functionality to the Framework. Another case would be providing shared integration
-utility code that can be used across all DCC applications and definition plugins.
+utility code that can be used across all DCC applications and tool config plugins.
 
 
 framework-qt
@@ -32,7 +32,7 @@ framework-<host type>
 
 The module repository were you would make changes to each individual DCC
 application when it comes to the ftrack menu, clients and base plugins
-and widgets that are referenced from within the definition.
+and widgets that are referenced from within the tool config.
 
 
 Tutorial

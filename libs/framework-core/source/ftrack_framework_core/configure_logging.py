@@ -1,12 +1,14 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2014-2020 ftrack
-
-
+# :copyright: Copyright (c) 2014-2023 ftrack
 import os
 import logging
 import logging.config
+import sys
+
 import appdirs
 import errno
+
+from ftrack_utils.modules.scan_modules import scan_framework_modules
 
 
 def get_log_directory():
@@ -34,24 +36,27 @@ def get_log_directory():
 
 def configure_logging(
     logger_name,
+    add_extra_framework_modules=True,
     level=None,
-    format=None,
+    logging_format=None,
     extra_modules=None,
     extra_handlers=None,
     propagate=True,
 ):
-    '''Configure `loggerName` loggers with console and file handler.
+    '''Configure `logger_name` loggers with console and file handler, will scan
+    sys path and log framework modules to file if *add_extra_framework_modules* is set
+    to true (default).
 
     Optionally specify log *level* (default WARNING)
 
-    Optionally set *format*, default:
+    Optionally set *logging_format*, default:
     `%(asctime)s - %(name)s - %(levelname)s - %(message)s`.
 
     Optional *extra_modules* to extend the modules to be set to *level*.
     '''
     # Provide default values for level and format.
-    format = (
-        format
+    logging_format = (
+        logging_format
         or '%(levelname)s - %(threadName)s - %(asctime)s - %(name)s - %(message)s'
     )
     level = level or logging.INFO
@@ -70,6 +75,10 @@ def configure_logging(
         raise ValueError(error_message)
 
     extra_modules = extra_modules or []
+
+    if add_extra_framework_modules:
+        # Scan sys path for ftrack_framework* modules to file log
+        extra_modules.extend(scan_framework_modules())
 
     # Cast to list in case is a tuple.
     modules = []
@@ -97,7 +106,7 @@ def configure_logging(
                 'backupCount': 5,
             },
         },
-        'formatters': {'file': {'format': format}},
+        'formatters': {'file': {'format': logging_format}},
         'loggers': {
             '': {'level': 'INFO', 'handlers': ['console']},
             'ftrack_api': {'level': 'INFO', 'handlers': ['file']},
@@ -112,7 +121,6 @@ def configure_logging(
     modules_handlers = ['file'] + extra_handlers_names
 
     for module in modules:
-        current_level = logging.getLevelName(level)
         logging_settings['loggers'].setdefault(
             module,
             {

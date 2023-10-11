@@ -1,5 +1,5 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2014-2020 ftrack
+# :copyright: Copyright (c) 2014-2023 ftrack
 
 
 class LogItem(object):
@@ -12,18 +12,26 @@ class LogItem(object):
         *log_result*: Dictionary with log information.
         '''
         self.date = log_result.get('date')
-        self.status = log_result.get('status')
-        self.widget_ref = log_result.get('widget_ref')
+
         self.host_id = log_result.get('host_id')
-        self.execution_time = log_result.get('execution_time')
         self.plugin_name = log_result.get('plugin_name')
-        self.result = log_result.get('result')
-        self.message = log_result.get('message')
-        user_data = log_result.get('user_data') or {}
-        self.user_message = user_data.get('message', 'No message provided')
         self.plugin_type = log_result.get('plugin_type')
         self.plugin_id = log_result.get('plugin_id')
+        self.host_type = log_result.get('host_type')
+        self.plugin_status = log_result.get('plugin_status')
+        self.plugin_boolean_status = log_result.get('plugin_boolean_status')
+        self.plugin_method = log_result.get('plugin_method')
+        self.plugin_method_result = log_result.get('plugin_method_result')
+        self.plugin_result_registry = log_result.get('plugin_result_registry')
+        self.plugin_execution_time = log_result.get('plugin_execution_time')
+        self.plugin_message = log_result.get('plugin_message')
+        self.plugin_context_data = log_result.get('plugin_context_data')
+        self.plugin_data = log_result.get('plugin_data')
+        self.plugin_options = log_result.get('plugin_options')
+        self.plugin_widget_id = log_result.get('plugin_widget_id')
+        self.plugin_widget_name = log_result.get('plugin_widget_name')
 
+    # TODO: remove this properties if not needed.
     @property
     def execution_time(self):
         '''Return the duration of the log entry.'''

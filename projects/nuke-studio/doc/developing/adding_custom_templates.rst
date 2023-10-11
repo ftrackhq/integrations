@@ -31,7 +31,7 @@ Once you've found the file, open it in your favorite text editor. The file
 should look something like this::
 
     # :coding: utf-8
-    # :copyright: Copyright (c) 2015 ftrack
+    # :copyright: Copyright (c) 2014-2023 ftrack
 
     import logging
     import ftrack_api

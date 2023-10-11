@@ -1,5 +1,5 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2014 ftrack
+# :copyright: Copyright (c) 2014-2023 ftrack
 
 import ftrack_connect.ui.widget.components_list
 from harness import Harness

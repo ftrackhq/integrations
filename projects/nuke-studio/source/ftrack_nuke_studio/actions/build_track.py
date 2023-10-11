@@ -1,5 +1,5 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2018 ftrack
+# :copyright: Copyright (c) 2014-2023 ftrack
 
 import os
 import logging
@@ -213,7 +213,7 @@ class FtrackReBuildServerTrackDialog(QtWidgets.QDialog, FtrackBase):
 
     @property
     def data(self):
-        '''Return the the collected data from widget.'''
+        '''Return the collected data from widget.'''
         return self._result_data
 
     def accept_test(self):

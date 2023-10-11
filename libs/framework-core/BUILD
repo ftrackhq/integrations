@@ -1,7 +1,7 @@
 python_sources(
     name="core_lib",
     sources=["**/*.py"],  # , "!doc/*", "!test/*"],
-    dependencies=["libs/framework-core/resource/definitions:definitions"],
+    dependencies=["libs/framework-core/resource/tool_configs:tool_configs"],
 )
 resource(name="README", source="README.md")
 

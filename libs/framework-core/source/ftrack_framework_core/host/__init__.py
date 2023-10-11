@@ -2,94 +2,76 @@
 # :copyright: Copyright (c) 2014-2023 ftrack
 
 import uuid
-import ftrack_api
 import logging
 import socket
 import os
 import time
 
-from ftrack_framework_core.definition import collect, validate
-from ftrack_framework_core.host import engine as host_engine
-from ftrack_framework_core.host import validation
-from ftrack_framework_core import constants, utils
-
 from functools import partial
+
+from ftrack_utils.framework.dependencies import registry
+import ftrack_constants.framework as constants
+
+from ftrack_framework_core.tool_config import (
+    discover,
+    validate,
+    tool_config_object,
+)
+from ftrack_framework_core.asset import FtrackObjectManager
 from ftrack_framework_core.log.log_item import LogItem
 from ftrack_framework_core.log import LogDB
 
 logger = logging.getLogger(__name__)
 
+# TODO: this is the discover_host_reply function:
+#  1. Double check if this should better be part of the host class as a method.
+#  2. Rename it to discover_host_reply_callback or similar?
+
 
 def provide_host_information(
-    context_id, host_id, definitions, host_name, event
+    host_id, host_name, context_id, tool_configs, event
 ):
     '''
-    Returns dictionary with host id, host name, context id and definition from
-    the given *host_id*, *definitions* and *host_name*.
+    Returns dictionary with host id, host name, context id and tool_config from
+    the given *id*, *tool_configs* and *name*.
 
-    *host_id* : Host id
+    *id* : Host id
 
-    *definitions* : Dictionary with a valid definitions
+    *tool_configs* : Dictionary with a valid tool_configs
 
-    *host_name* : Host name
+    *name* : Host name
     '''
-    logger.debug('providing host_id: {}'.format(host_id))
+    logger.debug('providing id: {}'.format(id))
     host_dict = {
         'host_id': host_id,
         'host_name': host_name,
         'context_id': context_id,
-        'definition': definitions,
+        'tool_configs': tool_configs,
     }
+    # TODO: we could pass the engines as well so client knows what engines do we
+    #  have available. Re-evaluate this as it might not be necessary as the engine
+    #  is always given by the tool_config....
     return host_dict
 
 
 class Host(object):
-    host_types = [constants.HOST_TYPE]
+    # TODO: double_check host types and host type do we really need it?
+    #  Maybe what we need is tool_configs type? to specify which tool_configs we
+    #  want to discover?
+    host_types = [constants.host.PYTHON_HOST_TYPE]
     '''Compatible Host types for this HOST.'''
 
-    engines = {
-        'asset_manager': host_engine.AssetManagerEngine,
-        'loader': host_engine.LoaderEngine,
-        'opener': host_engine.OpenerEngine,
-        'publisher': host_engine.PublisherEngine,
-    }
-    '''Available engines for this host.'''
+    FtrackObjectManager = FtrackObjectManager
+    '''FtrackObjectManager class to use'''
 
     def __repr__(self):
-        return '<Host:{0}>'.format(self.host_id)
+        return '<Host:{0}>'.format(self.id)
 
     @property
-    def context_id(self):
-        '''Return the the default context id set at host launch'''
-        return os.getenv(
-            'FTRACK_CONTEXTID',
-            os.getenv('FTRACK_TASKID', os.getenv('FTRACK_SHOTID')),
-        )
-
-    @context_id.setter
-    def context_id(self, value):
-        '''Set the context id to *value* and send event to clients (through host connections)'''
-        if value == self.context_id:
-            return
-        os.environ['FTRACK_CONTEXTID'] = value
-        self.logger.warning(
-            'ftrack host context is now: {}'.format(self.context_id)
-        )
-        self._ftrack_context_id_changed()
-
-    @property
-    def host_id(self):
-        '''Returns the current host id.'''
-        return self._host_id
-
-    @property
-    def host_name(self):
-        '''Returns the current host name'''
-        if not self.host_id:
-            return
-        host_types = self.host_id.split("-")[0]
-        host_name = '{}-{}'.format(host_types, socket.gethostname())
-        return host_name
+    def event_manager(self):
+        '''Returns instance of
+        :class:`~ftrack_framework_core.event.EventManager`'''
+        return self._event_manager
 
     @property
     def session(self):
@@ -97,6 +79,99 @@ class Host(object):
         Returns instance of :class:`ftrack_api.session.Session`
         '''
         return self._event_manager.session
+
+    @property
+    def ftrack_object_manager(self):
+        '''
+        Initializes and returns an instance of
+        :class:`~ftrack_framework_core.asset.FtrackObjectManager`
+        '''
+        if not isinstance(
+            self._ftrack_object_manager, self.FtrackObjectManager
+        ):
+            self._ftrack_object_manager = self.FtrackObjectManager(
+                self.event_manager
+            )
+        return self._ftrack_object_manager
+
+    @property
+    def context_id(self):
+        '''Return the default context id set at host launch'''
+        # We get the host id from the env variable in case we start from C2
+        # TODO: connect3 pass context id when init host, so no need to store it
+        #  in an env variable
+        return os.getenv(
+            'FTRACK_CONTEXTID',
+            os.getenv('FTRACK_TASKID', os.getenv('FTRACK_SHOTID')),
+        )
+
+    @context_id.setter
+    def context_id(self, value):
+        '''
+        Set the context id to *value* and send event to clients
+        (through host connections)
+        '''
+        if value == self.context_id:
+            return
+        # Storing a context in the environment variable to be picked by connect
+        os.environ['FTRACK_CONTEXTID'] = value
+        self.logger.warning(
+            'ftrack host context is now: {}'.format(self.context_id)
+        )
+        self.event_manager.publish.host_context_changed(
+            self.id, self.context_id
+        )
+
+    @property
+    def id(self):
+        '''Returns the current host id.'''
+        return self._id
+
+    @property
+    def name(self):
+        '''Returns the current host name'''
+        if not self.id:
+            return
+        host_types = self.id.split("-")[0]
+        name = '{}-{}'.format(host_types, socket.gethostname())
+        return name
+
+    @property
+    def logs(self):
+        '''Returns the current logs'''
+        if not self._logs:
+            self._logs = LogDB(self._id)
+        return self._logs
+
+    @property
+    def schemas(self):
+        '''
+        Returns the registered schemas`
+        '''
+        return self.__schemas_registry
+
+    @property
+    def tool_configs(self):
+        '''
+        Returns the registered tool_configs`
+        '''
+        return self.__tool_configs_registry
+
+    @property
+    def plugins(self):
+        '''
+        Returns the registered plugins`
+        '''
+        return self.__plugins_registry
+
+    @property
+    def engines(self):
+        '''
+        Returns the registered engines`
+        '''
+        return self.__engines_registry
+
+    # TODO: we can create an engine registry
 
     def __init__(self, event_manager):
         '''
@@ -108,19 +183,262 @@ class Host(object):
         self.logger = logging.getLogger(
             __name__ + '.' + self.__class__.__name__
         )
+        # Create the host id
+        self._id = '{}-{}'.format('.'.join(self.host_types), uuid.uuid4().hex)
 
-        self._host_id = '{}-{}'.format(
-            '.'.join(self.host_types), uuid.uuid4().hex
-        )
+        self.logger.debug('Initializing Host {}'.format(self))
+
+        # Reset Logs
         self._logs = None
-
-        self.logger.debug('initializing {}'.format(self))
+        # Set event manager and object manager
         self._event_manager = event_manager
-        self.register()
+        self._ftrack_object_manager = None
+        # Reset all registries
+        self.__tool_configs_registry = {}
+        self.__schemas_registry = {}
+        self.__plugins_registry = []
+        self.__engines_registry = {}
 
-    def run(self, event):
+        # Register modules
+        self._register_modules()
+        # Subscribe to events
+        self._subscribe_events()
+
+        self.logger.debug('Host {} ready.'.format(self.id))
+
+    # Register
+    def _register_modules(self):
         '''
-        Runs the data with the defined engine type of the givent *event*
+        Register available framework modules.
+        '''
+        # We register the plugins first so they can subscribe to the discover event
+        registry.register_framework_modules_by_type(
+            event_manager=self.event_manager,
+            module_type='plugins',
+            callback=self._on_register_plugins_callback,
+        )
+        # Register the schemas before the tool_configs
+        registry.register_framework_modules_by_type(
+            event_manager=self.event_manager,
+            module_type='schemas',
+            callback=self._on_register_schemas_callback,
+        )
+        # Make sure schemas are found
+        if not self.schemas:
+            raise Exception(
+                'No schemas found. Please register valid schemas first.'
+            )
+        # Register the tool_configs, passing the schemas in the callback as are
+        # needed to augment and validate the tool_configs.
+        registry.register_framework_modules_by_type(
+            event_manager=self.event_manager,
+            module_type='tool_configs',
+            callback=partial(
+                self._on_register_tool_configs_callback, self.schemas
+            ),
+        )
+
+        # Register engines
+        registry.register_framework_modules_by_type(
+            event_manager=self.event_manager,
+            module_type='engines',
+            callback=self._on_register_engines_callback,
+        )
+
+        if (
+            self.__plugins_registry
+            and self.__schemas_registry
+            and self.__tool_configs_registry
+            and self.__engines_registry
+        ):
+            # Check that registry went correct
+            return True
+        raise Exception('Error registering modules on host, please check logs')
+
+    def _on_register_plugins_callback(self, registered_plugins):
+        '''
+        Callback of the :meth:`_register_framework_modules` of type plugins.
+        We add all the *registered_plugins* into our
+        :obj:`self.__plugins_registry`
+        '''
+        registered_plugins = list(set(registered_plugins))
+        initialized_plugins = []
+        # Init plugins
+        for plugin in registered_plugins:
+            initialized_plugins.append(
+                plugin(self.event_manager, self.id, self.ftrack_object_manager)
+            )
+
+        self.__plugins_registry = initialized_plugins
+
+    def _on_register_schemas_callback(self, schema_paths):
+        '''
+        Callback of the :meth:`_register_framework_modules` of type schmas.
+        We will discover valid schemas from all given *schema_paths* and convert
+        them to schemaObject. Valid schemas will be added to
+        :obj:`self.__schemas_registry`
+        '''
+        schema_paths = list(set(schema_paths))
+
+        schemas = self._discover_schemas(schema_paths)
+
+        self.__schemas_registry = schemas
+
+    def _on_register_tool_configs_callback(self, schemas, tool_config_paths):
+        '''
+        Callback of the :meth:`_register_framework_modules` of type tool_configs.
+        We will discover valid tool_configs from all given *tool_config_paths*
+        based on the given *schemas* and will convert the valid ones to a
+        ToolConfigObject. Valid tool_configs will be added to
+        :obj:`self.__tool_config_registry`
+        '''
+        tool_config_paths = list(set(tool_config_paths))
+
+        tool_configs = self._discover_tool_configs(
+            tool_config_paths, self.host_types, schemas
+        )
+
+        self.__tool_configs_registry = tool_configs
+
+    def _on_register_engines_callback(self, registred_engines):
+        registred_engines = list(set(registred_engines))
+        # Init engines
+        for engine in registred_engines:
+            initialized_enigne = engine(
+                self.event_manager,
+                self.ftrack_object_manager,
+                self.host_types,
+                self.id,
+            )
+            for engine_type in initialized_enigne.engine_types:
+                if engine_type not in list(self.__engines_registry.keys()):
+                    self.__engines_registry[engine_type] = {}
+                self.__engines_registry[engine_type].update(
+                    {initialized_enigne.name: initialized_enigne}
+                )
+
+        for key, value in list(self.__engines_registry.items()):
+            self.logger.warning(
+                'Valid engines : {} : {}'.format(key, len(value))
+            )
+
+    # Discover
+    def _discover_schemas(self, schema_paths):
+        '''
+        Discover all available and calid schemas in the given *schema_paths*
+        '''
+        start = time.time()
+
+        # discover schemas
+        discovered_schemas = discover.discover_schemas(schema_paths)
+
+        # resolve schemas
+        valid_schemas = discover.resolve_schemas(discovered_schemas)
+
+        end = time.time()
+        logger.debug('Discover schemas run in: {}s'.format((end - start)))
+
+        return valid_schemas
+
+    def _discover_tool_configs(self, tool_config_paths, host_types, schemas):
+        '''
+        Discover all the available and valid tool_configs in the given
+        *tool_config_paths* compatible with the given *host_types* and given
+        *schemas*
+        '''
+        start = time.time()
+
+        # discover tool_configs
+        discovered_tool_configs = discover.discover_tool_configs(
+            tool_config_paths
+        )
+
+        # filter tool_configs
+        discovered_tool_configs = discover.filter_tool_configs_by_host(
+            discovered_tool_configs, host_types
+        )
+
+        # validate schemas
+        discovered_tool_configs = discover.augment_tool_config(
+            discovered_tool_configs, schemas
+        )
+
+        # validate_plugins
+        validated_tool_configs = discover.discover_tool_configs_plugins(
+            discovered_tool_configs, self.event_manager, self.host_types
+        )
+
+        end = time.time()
+        logger.debug('Discover tool_configs run in: {}s'.format((end - start)))
+
+        for key, value in list(validated_tool_configs.items()):
+            logger.warning(
+                'Valid tool_configs : {} : {}'.format(key, len(value))
+            )
+
+        return validated_tool_configs
+
+    # Subscribe
+    def _subscribe_events(self):
+        '''Host subscription events to communicate with the client'''
+        # Subscribe to topic
+        # :const:`~ftrack_framework_core.constants.NOTIFY_PLUGIN_PROGRESS_TOPIC`
+        # to receive client notifications from the host in :meth:`_notify_client_callback`
+        self.event_manager.subscribe.notify_plugin_progress_client(
+            self.id, self._notify_plugin_progress_client_callback
+        )
+
+        # Listen to context change events for this host and its connected clients
+        self.event_manager.subscribe.client_context_changed(
+            self.id, self._client_context_change_callback
+        )
+
+        # Reply to discover_host_callback to clints to pass the host information
+        discover_host_callback_reply = partial(
+            provide_host_information,
+            self.id,
+            self.name,
+            self.context_id,
+            self.tool_configs,
+        )
+        self.event_manager.subscribe.discover_host(
+            callback=discover_host_callback_reply
+        )
+        # Subscribe to run tool_config
+        self.event_manager.subscribe.host_run_tool_config(
+            self.id, self.run_tool_config_callback
+        )
+        # Subscribe to run plugin
+        self.event_manager.subscribe.host_run_plugin(
+            self.id, self.run_plugin_callback
+        )
+
+    def _notify_plugin_progress_client_callback(self, event):
+        '''
+        Callback of the
+        :const:`~ftrack_framework_core.constants.NOTIFY_PLUGIN_PROGRESS_TOPIC`
+         event. Stores a log item in host pipeline log DB.
+
+        *event*: :class:`ftrack_api.event.base.Event`
+        '''
+        # Get the plugin info dictionary and add it to the logDB
+        plugin_info = event['data']
+        log_item = LogItem(plugin_info)
+        self.logs.add_log_item(log_item)
+        # Publish the event to notify client
+        self.event_manager.publish.host_log_item_added(self.id, log_item)
+
+    def _client_context_change_callback(self, event):
+        '''Callback when the client has changed context'''
+        context_id = event['data']['context_id']
+        if context_id != self.context_id:
+            self.context_id = context_id
+
+    # Run
+    # TODO: this should be ABC
+    def run_tool_config_callback(self, event):
+        '''
+        Runs the data with the defined engine type of the given *event*
 
         Returns result of the engine run.
 
@@ -128,256 +446,93 @@ class Host(object):
         :meth:`~ftrack_framework_core.client.HostConnection.run`
         '''
 
-        data = event['data']['pipeline']['data']
-        engine_type = event['data']['pipeline']['engine_type']
-        asset_type_name = data.get('asset_type')
+        tool_config = event['data']['tool_config']
+        engine_type = tool_config['engine_type']
+        engine_name = tool_config['engine_name']
+        # TODO: Double check the asset_type_name workflow, it isn't clean.
+        # TODO: pick asset type from context plugin and not from tool_config
+        asset_type_name = "script"  # tool_config.get('asset_type')
 
-        Engine = self.engines.get(engine_type)
-        if Engine is None:
-            raise Exception('No engine of type "{}" found'.format(engine_type))
-        engine_runner = Engine(
-            self._event_manager, self.host_types, self.host_id, asset_type_name
-        )
-
-        if not 'plugin' in data:
-            # Run a definition
-            try:
-                validation.validate_schema(self.__registry['schema'], data)
-            except Exception as error:
-                self.logger.error(
-                    "Can't validate the data {} error: {}".format(data, error)
+        engine = None
+        try:
+            engine = self.engines[engine_type].get(engine_name)
+        except Exception:
+            raise Exception(
+                'No engine of type "{}" with name "{}" found'.format(
+                    engine_type, engine_name
                 )
-            runner_result = engine_runner.run_definition(data)
-        else:
-            runner_result = engine_runner.run(data)
-
-        if runner_result == False:
-            self.logger.error("Couldn't publish the data {}".format(data))
-        return runner_result
-
-    def on_register_definition(self, event):
-        '''
-        Callback of the :meth:`register`
-        Validates the given *event* and subscribes to the
-        :class:`ftrack_api.event.base.Event` events with the topics
-        :const:`~ftrack_connnect_pipeline.constants.PIPELINE_DISCOVER_HOST`
-        and :const:`~ftrack_connnect_pipeline.constants.PIPELINE_HOST_RUN`
-
-        *event* : Should be a validated and complete definitions, schema and
-        packages dictionary coming from
-        :func:`ftrack_connect_pipeline_definition.resource.definitions.register.register_definitions`
-        '''
-
-        raw_result = event['data']
-
-        if not raw_result:
-            return
-
-        # Raw data should contain host_types and definition_paths
-        host_types = list(set(raw_result.get("host_types")))
-        definition_paths = list(set(raw_result.get("definition_paths")))
-
-        validated_result = self.collect_and_validate_definitions(
-            definition_paths, host_types
-        )
-
-        self.__registry = validated_result
-
-        handle_event = partial(
-            provide_host_information,
-            self.context_id,
-            self.host_id,
-            validated_result,
-            self.host_name,
-        )
-
-        self._event_manager.subscribe(
-            constants.PIPELINE_DISCOVER_HOST, handle_event
-        )
-
-        self._event_manager.subscribe(
-            '{} and data.pipeline.host_id={}'.format(
-                constants.PIPELINE_HOST_RUN, self.host_id
-            ),
-            self.run,
-        )
-        self.logger.debug('host {} ready.'.format(self.host_id))
-
-    def collect_and_validate_definitions(self, definition_paths, host_types):
-        '''
-        Collects all json files from the given *definition_paths* that match
-        the given *host_types*
-        '''
-        start = time.time()
-
-        # collect definitions
-        discovered_definitions = collect.collect_definitions(definition_paths)
-
-        # filter definitions
-        discovered_definitions = collect.filter_definitions_by_host(
-            discovered_definitions, host_types
-        )
-
-        # validate schemas
-        discovered_definitions = validate.validate_schema(
-            discovered_definitions, self.session
-        )
-
-        # resolve schemas
-        discovered_definitions = collect.resolve_schemas(
-            discovered_definitions
-        )
-
-        # validate_plugins
-        validated_result = self.validate_definition_plugins(
-            discovered_definitions
-        )
-
-        end = time.time()
-        logger.debug('Discover definitions run in: {}s'.format((end - start)))
-
-        for key, value in list(validated_result.items()):
-            logger.warning(
-                'Valid definitions : {} : {}'.format(key, len(value))
             )
+        # TODO: review asset_type_name in the specific task
+        engine.asset_type_name = asset_type_name
 
-        return validated_result
+        try:
+            validate.validate_tool_config(self.schemas, tool_config)
+        except Exception as error:
+            raise Exception(
+                "Can't validate tool_config {} error: {}".format(
+                    tool_config, error
+                )
+            )
+        engine_result = engine.run_tool_config(
+            tool_config_object.ToolConfigObject(tool_config)
+        )
 
-    def validate_definition_plugins(self, data):
+        if not engine_result:
+            self.logger.error(
+                "Couldn't run tool_config {}".format(tool_config)
+            )
+        return engine_result
+
+    # TODO: this should be ABC
+    def run_plugin_callback(self, event):
         '''
-        Validates the given *data* against the correspondant plugin validator.
-        Returns a validated data.
-
-        *data* : Should be a validated and complete definitions and schemas coming from
-        :func:`ftrack_connect_pipeline_definition.resource.definitions.register.register_definitions`
-        '''
-        plugin_validator = validation.PluginDiscoverValidation(
-            self.session, self.host_types
-        )
-
-        invalid_publishers_idxs = plugin_validator.validate_plugins(
-            data['publisher'], constants.PUBLISHER
-        )
-        if invalid_publishers_idxs:
-            for idx in sorted(invalid_publishers_idxs, reverse=True):
-                data['publisher'].pop(idx)
-
-        invalid_loaders_idxs = plugin_validator.validate_plugins(
-            data['loader'], constants.LOADER
-        )
-        if invalid_loaders_idxs:
-            for idx in sorted(invalid_loaders_idxs, reverse=True):
-                data['loader'].pop(idx)
-
-        invalid_openers_idxs = plugin_validator.validate_plugins(
-            data['opener'], constants.OPENER
-        )
-        if invalid_openers_idxs:
-            for idx in sorted(invalid_openers_idxs, reverse=True):
-                data['opener'].pop(idx)
-
-        return data
-
-    def _init_logs(self):
-        '''Delayed initialization of logs, when we know host ID.'''
-        if self._logs is None:
-            self._logs = LogDB(self._host_id)
-
-    def _on_client_notification(self, event):
-        '''
-        Callback of the
-        :const:`~ftrack_framework_core.constants.PIPELINE_CLIENT_NOTIFICATION`
-         event. Stores a log item in host pipeline log DB.
-
-        *event*: :class:`ftrack_api.event.base.Event`
+        Runs the plugin_config in the given *event* with the engine type
+        set in the *event*
         '''
 
-        self._init_logs()
-        self._logs.add_log_item(LogItem(event['data']['pipeline']))
+        plugin_config = event['data']['plugin_config']
+        plugin_method = event['data']['plugin_method']
+        engine_type = event['data']['engine_type']
+        engine_name = event['data']['engine_name']
+        plugin_widget_id = event['data']['plugin_widget_id']
 
-    def register(self):
-        '''
-        Publishes the :class:`ftrack_api.event.base.Event` with the topic
-        :const:`~ftrack_connnect_pipeline.constants.PIPELINE_REGISTER_TOPIC`
-        with the first host_type in the list :obj:`host_types` and type definition as the
-        data.
+        engine = None
+        try:
+            engine = self.engines[engine_type].get(engine_name)
+        except Exception:
+            raise Exception(
+                'No engine of type "{}" with name "{}" found'.format(
+                    engine_type, engine_name
+                )
+            )
+        # TODO: review asset_type_name in the specific task
+        engine.asset_type_name = None
 
-        Callback of the event points to :meth:`on_register_definition`
-        '''
-
-        event = ftrack_api.event.base.Event(
-            topic=constants.PIPELINE_REGISTER_TOPIC,
-            data={
-                'pipeline': {
-                    'type': 'definition',
-                    'host_types': self.host_types,
-                }
-            },
+        engine_result = engine.run_plugin(
+            plugin_name=plugin_config.get('plugin_name'),
+            plugin_default_method=plugin_config.get('default_method'),
+            # plugin_data will usually be None, but can be defined in the
+            # tool_config
+            # I have registered data in the publisher schema
+            plugin_data=plugin_config.get('data'),
+            plugin_options=plugin_config.get('options'),
+            # plugin_context_data will usually be None, but can be defined in the
+            # tool_config
+            # I have registered context_data in the schema
+            plugin_context_data=plugin_config.get('context_data'),
+            plugin_method=plugin_method,
+            plugin_widget_id=plugin_widget_id,
+            plugin_widget_name=plugin_config.get('widget_name'),
         )
 
-        self._event_manager.publish(event, self.on_register_definition)
-
-        '''
-        Subscribe to topic
-        :const:`~ftrack_framework_core.constants.PIPELINE_CLIENT_NOTIFICATION`
-        to receive client notifications from the host in :meth:`_notify_client`
-        '''
-        self.session.event_hub.subscribe(
-            'topic={} and data.pipeline.host_id={}'.format(
-                constants.PIPELINE_CLIENT_NOTIFICATION, self._host_id
-            ),
-            self._on_client_notification,
-        )
-
-        ''' Listen to context change events for this host and its connected clients'''
-        self.session.event_hub.subscribe(
-            'topic={} and data.pipeline.host_id={}'.format(
-                constants.PIPELINE_CLIENT_CONTEXT_CHANGE, self._host_id
-            ),
-            self._change_context_id,
-        )
-
-    def reset(self):
-        '''
-        Empty the variables :obj:`host_type`, :obj:`host_id` and :obj:`__registry`
-        '''
-        self._host_type = []
-        self._host_id = None
-        self.__registry = {}
-
-    def launch_client(self, name, source=None):
-        '''Send a widget launch event, to be picked up by DCC.'''
-        event = ftrack_api.event.base.Event(
-            topic=constants.PIPELINE_CLIENT_LAUNCH,
-            data={
-                'pipeline': {
-                    'host_id': self._host_id,
-                    'name': name,
-                    'source': source,
-                }
-            },
-        )
-        self._event_manager.publish(
-            event,
-        )
-
-    def _change_context_id(self, event):
-        if event['data']['pipeline']['host_id'] != self.host_id:
-            return
-        context_id = event['data']['pipeline']['context_id']
-        if context_id != self.context_id:
-            self.context_id = context_id
-
-    def _ftrack_context_id_changed(self):
-        event = ftrack_api.event.base.Event(
-            topic=constants.PIPELINE_HOST_CONTEXT_CHANGE,
-            data={
-                'pipeline': {
-                    'host_id': self.host_id,
-                    'context_id': self.context_id,
-                }
-            },
-        )
-        self._event_manager.publish(
-            event,
-        )
+        if not engine_result:
+            self.logger.error(
+                "Couldn't run plugin:\n "
+                "Tool config: {}\n"
+                "Method: {}\n"
+                "Engine type: {}\n"
+                "Engine name: {}\n".format(
+                    plugin_config, plugin_method, engine_type, engine_name
+                )
+            )
+        return engine_result

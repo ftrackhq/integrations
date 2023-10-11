@@ -94,7 +94,7 @@ runs:
         python setup.py build_plugin
         mv -v build/*.zip ../
       shell: bash
-    - name: Retreive zipball filename
+    - name: Retrieve zipball filename
       run: |
         cd dist
         echo "PLUGIN_ZIPBALL=$(ls -f *.zip)" >> $GITHUB_ENV

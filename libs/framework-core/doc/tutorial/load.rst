@@ -18,9 +18,9 @@ Constrain camera loader
 
 As a preparation, we constrain the camera loader to only be seen when on animation
 and lighting tasks, hiding it during modelling. We do this by modifying the loader
-definition json and adding the **discoverable** key:
+tool_config json and adding the **discoverable** key:
 
-**mypipeline/projects/framework-maya/resource/definitions/loader/camera-maya-loader.json**
+**mypipeline/projects/framework-maya/resource/tool_configs/loader/camera-maya-loader.json**
 
 ..  code-block:: json
     :linenos:
@@ -46,21 +46,21 @@ This serves as an example on how to implement your own loader that is not part o
 the framework but required in production.
 
 
-Definition
+Tool config
 ----------
 
 Reviewable Quicktimes are most likely published with render (asset type), from Nuke
-Studio or similar tool. This is why we implement an new *render loader* definition:
+Studio or similar tool. This is why we implement an new *render loader* tool_config:
 
-**mypipeline/projects/framework-maya/resource/definitions/loader/render-maya-loader.json**
+**mypipeline/projects/framework-maya/resource/tool_configs/loader/render-maya-loader.json**
 
-.. literalinclude:: /resource/framework-maya/resource/definitions/loader/render-maya-loader.json
+.. literalinclude:: /resource/framework-maya/resource/tool_configs/loader/render-maya-loader.json
     :language: json
     :linenos:
     :emphasize-lines: 3,4,26-27,43-46
 
 
-Definition breakdown:
+Tool config breakdown:
 
  * *name*; We follow the Framework naming convention here.
  * *asset_type*: Change here if quicktimes are published onto a different custom asset type than *render*.
@@ -83,7 +83,7 @@ Finally we implement a new importer plugin:
 
 Plugin breakdown:
 
- * *plugin_name*; The name of the plugin, have to match the name used within the definition.
+ * *plugin_name*; The name of the plugin, have to match the name used within the tool_config.
  * *run* function; The function that will be run during load in the ftrack Assembler.
 
 
