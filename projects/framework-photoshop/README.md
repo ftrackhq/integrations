@@ -72,3 +72,4 @@ Create Adobe extension:
 
 Use "Extension Manager" tool provided here: https://install.anastasiy.com/ to install 
 the built xzp plugin. Remember to remove previous ftrack extensions.
+

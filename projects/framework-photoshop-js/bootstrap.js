@@ -4,14 +4,25 @@
  Copyright (c) 2014-2023 ftrack
 */
 
+var csInterface = new CSInterface();
+
 var event_manager = undefined;
 var integration_session_id = undefined;
 var connected = false;
 
+try {
+    function jsx_callback(){
+        console.log("ps.jsx loaded");
+    }
+
+    jsx.evalFile('./ps.jsx', jsx_callback);
+} catch (e) {
+    error("[INTERNAL ERROR] Failed to resource "+e+" Details: "+e.stack);
+}
+
 function initializeIntegration() {
     /* Initialise the Photoshop JS integration part. */
     try {
-        var csInterface = new CSInterface();
         var env = {};
 
         // Get app version
@@ -71,7 +82,9 @@ function initializeSession(env, appVersion) {
         );
         event_manager.subscribe.integration_context_data(
             handleIntegrationContextDataCallback
-
+        );
+        event_manager.subscribe.remote_integration_rpc(
+            handleRemoteIntegrationRPCCallback
         );
 
         // Settle down - wait for standalone process to start listening. Then send
@@ -127,6 +140,76 @@ function handleIntegrationDiscoverCallback(event) {
         return;
     event_manager.publish_reply(event, prepareEventData({}));
 }
+
+// Tool launch
+
+function launchPublisher() {
+    event_manager.publish.remote_integration_run_dialog(
+        prepareEventData({
+            "dialog_name": "framework_opener_publisher_tab_dialog"
+        })
+    );
+}
+
+// RPC - extendscript calls
+
+// Whitelisted functions, add entrypoints from ps.jsx here
+const RPC_ALLOWED_FUNCTIONS = [
+    "getDocumentPath",
+    "getDocumentData",
+    "saveDocument",
+    "exportDocument",
+    "openDocument"
+];
+
+function handleRemoteIntegrationRPCCallback(event) {
+    /* Handle RPC calls from standalone process - run function with arguments
+     supplied in event and return the result.*/
+    try {
+        if (event.data.integration_session_id !== integration_session_id)
+            return;
+        let function_name = event.data.function_name;
+        if (!RPC_ALLOWED_FUNCTIONS.includes(function_name)) {
+            event_manager.publish_reply(event, prepareEventData(
+                {
+                    "result": {"message": "Function '"+function_name+"' not allowed"}
+                }
+            ));
+            return;
+        }
+        // Build args, quote strings
+        let s_args = '';
+        let idx = 0;
+        while (idx < event.data.args.length) {
+            let value = event.data.args[idx];
+            if (typeof value === 'string')
+                value = '"' + value + '"';
+            s_args += (s_args.length>0?",":"") + value;
+            idx++;
+        }
+
+        csInterface.evalScript(function_name+'('+s_args+')', function (result) {
+            try {
+                // String is the evalScript type, decode
+                if (result.startsWith("{"))
+                    result = JSON.parse(result);
+                else if (result === "true")
+                    result = true;
+                else if (result === "false")
+                    result = false;
+                event_manager.publish_reply(event, prepareEventData(
+                    {
+                        "result": result
+                    }
+                ));
+            } catch (e) {
+                error("[INTERNAL ERROR] Failed to run RPC call! "+e+" Details: "+e.stack);
+            }
+        });
+    } catch (e) {
+        error("[INTERNAL ERROR] Failed to run RPC call! "+e+" Details: "+e.stack);
+    }
+ }
 
 
 initializeIntegration();

@@ -44,8 +44,8 @@ class EventManager {
         this.session.eventHub.publish(event);
     }
 
-    publish_reply(surce_event, data) {
-        this.session.eventHub.publishReply(surce_event, data);
+    publish_reply(source_event, data) {
+        this.session.eventHub.publishReply(source_event, data);
     }
 };
 
@@ -66,6 +66,11 @@ class Publish {
 
     discover_remote_integration(data) {
         let event_topic = DISCOVER_REMOTE_INTEGRATION_TOPIC;
+        this.event_manager._publish(event_topic, data);
+    }
+
+    remote_integration_run_dialog(data) {
+        let event_topic = REMOTE_INTEGRATION_RUN_DIALOG_TOPIC;
         this.event_manager._publish(event_topic, data);
     }
 
@@ -92,6 +97,11 @@ class Subscribe {
 
     integration_context_data(callback) {
         let event_topic = REMOTE_INTEGRATION_CONTEXT_DATA_TOPIC;
+        this.event_manager._subscribe(event_topic, callback);
+    }
+
+    remote_integration_rpc(callback) {
+        let event_topic = REMOTE_INTEGRATION_RPC_TOPIC;
         this.event_manager._subscribe(event_topic, callback);
     }
 

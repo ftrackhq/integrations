@@ -40,7 +40,7 @@ class OpenerPublisherTabDialog(FrameworkDialog, TabDialog):
         parent=None,
     ):
         '''
-        Initialize Mixin clas publisher dialog. It will load the qt dialog and
+        Initialize Mixin class publisher dialog. It will load the qt dialog and
         mix it with the framework dialog.
         *event_manager*: instance of
         :class:`~ftrack_framework_core.event.EventManager`
@@ -85,19 +85,23 @@ class OpenerPublisherTabDialog(FrameworkDialog, TabDialog):
         self._build_tabs()
 
     def _pre_select_tool_configs(self):
-        '''Pre select the desired tool configs'''
+        '''Pre-select the desired tool configs'''
         # Pre-select desired tool-configs
         opener_tool_configs = self.filtered_tool_configs['opener']
         if opener_tool_configs:
             # Pick the first tool config available
-            self._tab_mapping['open'] = opener_tool_configs[0]
+            self._tab_mapping['open'] = opener_tool_configs.get_first(
+                tool_title="Document Opener"
+            )
             if not self.tool_config:
                 self.tool_config = self._tab_mapping['open']
 
         publisher_tool_configs = self.filtered_tool_configs['publisher']
         if publisher_tool_configs:
             # Pick the first tool config available
-            self._tab_mapping['save'] = publisher_tool_configs[0]
+            self._tab_mapping['save'] = publisher_tool_configs.get_first(
+                tool_title="Document Publisher"
+            )
             if not self.tool_config:
                 self.tool_config = self._tab_mapping['save']
 
@@ -140,7 +144,9 @@ class OpenerPublisherTabDialog(FrameworkDialog, TabDialog):
         )
 
         # Init opener fetch widget
-        self._on_opener_fetch_plugin_changed(self._fetch_combo_box.currentIndex())
+        self._on_opener_fetch_plugin_changed(
+            self._fetch_combo_box.currentIndex()
+        )
 
         open_button = QtWidgets.QPushButton('Open')
 
@@ -158,9 +164,7 @@ class OpenerPublisherTabDialog(FrameworkDialog, TabDialog):
         if self._opener_fetch_layout.count() >= 1:
             self._opener_fetch_layout.itemAt(0).widget().deleteLater()
         # Create the new widget
-        self._opener_fetch_widget = self.init_framework_widget(
-            plugin_config
-        )
+        self._opener_fetch_widget = self.init_framework_widget(plugin_config)
         self._opener_fetch_layout.addWidget(self._opener_fetch_widget)
         # Fetch the widget
         self._opener_fetch_widget.fetch()
@@ -228,6 +232,12 @@ class OpenerPublisherTabDialog(FrameworkDialog, TabDialog):
     def show_ui(self):
         '''Override Show method of the base framework dialog'''
         TabDialog.show(self)
+        self.raise_()
+        self.activateWindow()
+        self.setWindowState(
+            self.windowState() & ~QtCore.Qt.WindowMinimized
+            | QtCore.Qt.WindowActive
+        )
 
     def connect_focus_signal(self):
         '''Connect signal when the current dialog gets focus'''
@@ -352,7 +362,7 @@ class OpenerPublisherTabDialog(FrameworkDialog, TabDialog):
             plugin_config.options.update(
                 {
                     'fetcher': self._opener_fetch_widget.name,
-                    'selected_assets': selected_assets
+                    'selected_assets': selected_assets,
                 }
             )
         self._run_tool_config()
@@ -374,7 +384,7 @@ class OpenerPublisherTabDialog(FrameworkDialog, TabDialog):
         version_up_plugin_config = self.tab_mapping['save'].get_first(
             category='plugin',
             plugin_type='file_management',
-            plugin_name='photoshop_local_version_up_document'
+            plugin_name='photoshop_local_version_up_document',
         )
         arguments = {
             "plugin_config": version_up_plugin_config,

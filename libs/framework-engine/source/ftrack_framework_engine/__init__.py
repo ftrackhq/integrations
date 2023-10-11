@@ -132,7 +132,8 @@ class BaseEngine(ABC):
                 plugin_step_name=plugin_step_name,
                 plugin_stage_name=plugin_stage_name,
             )[0]
-            break
+            if plugin_info:
+                break
 
         if not plugin_info['plugin_boolean_status']:
             self.logger.error(

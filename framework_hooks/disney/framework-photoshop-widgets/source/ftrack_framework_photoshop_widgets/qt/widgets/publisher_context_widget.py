@@ -62,6 +62,10 @@ class PhotoshopPublishContextWidget(FrameworkWidget, QtWidgets.QWidget):
         description_layout = QtWidgets.QHBoxLayout()
         description_layout.setContentsMargins(0, 0, 0, 0)
 
+        # Provide context id
+        self.set_plugin_option('context_id', self.context_id)
+
+        # Build description label
         description_label = QtWidgets.QLabel('Description')
         description_label.setObjectName('gray')
         description_label.setAlignment(QtCore.Qt.AlignTop)
@@ -100,8 +104,8 @@ class PhotoshopPublishContextWidget(FrameworkWidget, QtWidgets.QWidget):
     def _on_description_updated(self):
         '''Updates the option dictionary with current text when
         textChanged of comments_input event is triggered'''
-        current_text = self._description_input.toPlainText()
-        self.set_plugin_option('description', current_text)
+        current_text = self._description_input.text()
+        self.set_plugin_option('comment', current_text)
 
     def _on_note_updated(self):
         '''Updates the option dictionary with current text when

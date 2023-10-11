@@ -8,6 +8,7 @@ Designed to be shared across a Monorepo
 
 Version history:
 
+0.4.2, Henrik Norin, 23.10.09; Support for additional hook include folder
 0.4.1, Henrik Norin, 23.10.02; Redone Photoshop CEP build
 0.4.0, Henrik Norin, 23.09.21; Build within Monorepo, refactored framework
 0.3.1, Henrik Norin, 23.08.29; CEP build updates
@@ -140,6 +141,7 @@ def build_plugin(args):
     shutil.copytree(HOOK_PATH, os.path.join(STAGING_PATH, 'hook'))
 
     # Copy resources
+
     if os.path.exists(RESOURCE_PATH):
         logging.info('Copying resources')
         shutil.copytree(RESOURCE_PATH, os.path.join(STAGING_PATH, 'resource'))
@@ -168,6 +170,27 @@ def build_plugin(args):
         if hook.find('-core-') > -1 or hook.find(DCC_NAME) > -1:
             framework_dependency_packages.append(hook_path)
 
+    if args.include:
+        include_path = os.path.join(MONOREPO_PATH, args.include)
+        if not os.path.exists(include_path):
+            # Might be an absolute path
+            include_path = args.include
+        if not os.path.isdir(include_path):
+            raise Exception(
+                'Include path "{}" is not a folder!'.format(include_path)
+            )
+        logging.info(
+            'Searching additional include path for dependencies: {}'.format(
+                include_path
+            )
+        )
+        for hook in os.listdir(include_path):
+            hook_path = os.path.join(include_path, hook)
+            if not os.path.isdir(hook_path):
+                continue
+            if hook.find('-core-') > -1 or hook.find(DCC_NAME) > -1:
+                framework_dependency_packages.append(hook_path)
+
     for dependency_path in framework_dependency_packages:
         if os.path.exists(os.path.join(dependency_path, 'setup.py')):
             logging.info(
@@ -175,6 +198,7 @@ def build_plugin(args):
             )
             os.chdir(dependency_path)
             restore_build_file = False
+
             PATH_BUILD = os.path.join(dependency_path, 'BUILD')
             if os.path.exists(PATH_BUILD):
                 restore_build_file = True
@@ -196,6 +220,7 @@ def build_plugin(args):
 
             if restore_build_file:
                 os.rename(PATH_BUILD + '_', PATH_BUILD)
+
         else:
             source_path = os.path.join(dependency_path, 'source')
             if not os.path.exists(source_path):
@@ -392,9 +417,14 @@ def build_cep(args):
             VERSION,
         )
     # Copy images
-    for filename in ["favicon.ico", "ftrack-logo-48.png", "loader.gif"]:
+    for filename in [
+        "favicon.ico",
+        "ftrack-logo-48.png",
+        "loader.gif",
+        "publish.png",
+    ]:
         shutil.copy(
-            os.path.join(STYLE_PATH, "image", filename),
+            os.path.join(STYLE_PATH, "image", "js", filename),
             os.path.join(STAGING_PATH, "image", filename),
         )
 
@@ -417,7 +447,7 @@ def build_cep(args):
         symlinks=True,
     )
 
-    # Copy js lib files
+    # Copy framework js lib files
     for js_file in [
         os.path.join(
             MONOREPO_PATH, "projects", "framework-photoshop-js", "utils.js"
@@ -445,6 +475,13 @@ def build_cep(args):
             MONOREPO_PATH, "projects", "framework-photoshop-js", "bootstrap.js"
         ),
         os.path.join(STAGING_PATH, "bootstrap.js"),
+        VERSION,
+    )
+    parse_and_copy(
+        os.path.join(
+            MONOREPO_PATH, "projects", "framework-photoshop-js", "ps.jsx"
+        ),
+        os.path.join(STAGING_PATH, "ps.jsx"),
         VERSION,
     )
 
@@ -493,6 +530,8 @@ if __name__ == '__main__':
             __version__, PROJECT_NAME
         )
     )
+
+    parser.add_argument('--include', help='Additional folder to include.')
 
     parser.add_argument(
         'command',

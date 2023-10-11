@@ -1,6 +1,6 @@
 {
   "tool_type": "publisher",
-  "tool_title": "PS File Publisher",
+  "tool_title": "Document Publisher",
   "host_type": "python",
   "ui_type": "qt",
   "engine_name": "load_publish",
@@ -22,8 +22,12 @@
             {
                 "plugin_type": "context",
                 "plugin_title": "context selector",
-                "plugin_name": "generic_context_passthrough",
-                "widget_name": "photoshop_publisher_context_selector"
+                "plugin_name": "photoshop_context",
+                "widget_name": "photoshop_publisher_context_selector",
+                "options": {
+                  "asset_type_name": "scene",
+                  "status_name": "Pending review"
+                }
             }
           ]
         }
@@ -44,12 +48,7 @@
             {
               "plugin_type": "collector",
               "plugin_title": "collect file",
-              "plugin_name": "file_collector",
-              "widget_name": "file_browser_collector",
-              "options": {
-                "folder_path": null,
-                "file_name": null
-              }
+              "plugin_name": "photoshop_document_publisher_collector"
             }
           ]
         },
@@ -62,7 +61,7 @@
             {
               "plugin_type": "validator",
               "plugin_title": "validate file exists",
-              "plugin_name": "file_exists_validator",
+              "plugin_name": "photoshop_document_publisher_validator",
               "widget_name": "validator_check"
             }
           ]
@@ -76,11 +75,55 @@
             {
               "plugin_type": "exporter",
               "plugin_title": "Export file",
-              "plugin_name": "rename_file_exporter",
-              "widget_name": "file_exporter_options",
-              "options": {
-                "export_destinations": "/Users/ftrack/Desktop/myPublishedFiile.png"
-              }
+              "plugin_name": "photoshop_document_publisher_exporter"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "step_type": "component",
+      "step_name": "reviewable",
+      "optional": true,
+      "enabled": true,
+      "stages": [
+        {
+          "stage_type": "collector",
+          "stage_name": "collector",
+          "optional": false,
+          "enabled": true,
+          "plugins": [
+            {
+              "plugin_type": "collector",
+              "plugin_title": "collect file",
+              "plugin_name": "photoshop_document_publisher_collector"
+            }
+          ]
+        },
+        {
+          "stage_type": "validator",
+          "stage_name": "validator",
+          "optional": false,
+          "enabled": true,
+          "plugins": [
+            {
+              "plugin_type": "validator",
+              "plugin_title": "validate document",
+              "plugin_name": "photoshop_document_publisher_validator",
+              "widget_name": "validator_check"
+            }
+          ]
+        },
+        {
+          "stage_type": "exporter",
+          "stage_name": "exporter",
+          "optional": false,
+          "enabled": true,
+          "plugins": [
+            {
+              "plugin_type": "exporter",
+              "plugin_title": "Export file",
+              "plugin_name": "photoshop_image_publisher_exporter"
             }
           ]
         }

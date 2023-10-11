@@ -33,7 +33,9 @@ class FrameworkDialog(BaseUI):
             return list(self.tool_configs.values())
         tool_configs = {}
         for tool_config_type in self.tool_config_type_filter:
-            tool_configs[tool_config_type] = self.tool_configs.get(tool_config_type)
+            tool_configs[tool_config_type] = self.tool_configs.get(
+                tool_config_type
+            )
         return tool_configs
 
     @property
@@ -244,8 +246,8 @@ class FrameworkDialog(BaseUI):
 
     def _on_focus_changed(self, old_widget, new_widget):
         '''
-        Set the *new_widget* as active and syncronizs the context, host and
-        tool_config with the client.
+        Set the *new_widget* as active and synchronize the context, host and
+        tool config with the client.
         '''
         # TODO: evaluate if this should be implemented in the widget
         if self == old_widget:
@@ -381,9 +383,7 @@ class FrameworkDialog(BaseUI):
         if not widget:
             self.logger.error(
                 "Widget is not registred : {}\n"
-                "Registry: {}".format(
-                    widget, self.framework_widgets.keys()
-                )
+                "Registry: {}".format(widget, self.framework_widgets.keys())
             )
             return
         widget.run_plugin_callback(plugin_info)
