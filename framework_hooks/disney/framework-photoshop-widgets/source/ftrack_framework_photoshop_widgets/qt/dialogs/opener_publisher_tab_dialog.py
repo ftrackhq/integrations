@@ -157,7 +157,6 @@ class OpenerPublisherTabDialog(FrameworkDialog, TabDialog):
         return main_widget
 
     def _on_opener_fetch_plugin_changed(self, index):
-        print("index ---> {}".format(index))
         plugin_config = self._fetch_combo_box.itemData(index)
         # Unregister the widget to be deleted
         self.unregister_widget(plugin_config.widget_name)
@@ -373,6 +372,13 @@ class OpenerPublisherTabDialog(FrameworkDialog, TabDialog):
         Open button from the UI has been clicked.
         Tell client to run the current tool config
         '''
+        publish_plugin_config = self.tool_config.get_fist(
+            category='plugin',
+            plugin_type='finalizer',
+            plugin_name='publish_to_ftrack',
+        )
+        # TODO: Pass status id not name
+        publish_plugin_config.options.update({"status": "to_review"})
         self._run_tool_config()
 
     def _on_ui_version_up_button_clicked_callback(self):
@@ -381,22 +387,14 @@ class OpenerPublisherTabDialog(FrameworkDialog, TabDialog):
         If *plugin_widget_id* is given, a signal with the result of the plugins
         will be emitted to be picked by that widget id.
         '''
-
-        version_up_plugin_config = self.tab_mapping['save'].get_first(
+        publish_plugin_config = self.tool_config.get_fist(
             category='plugin',
-            plugin_type='file_management',
-            plugin_name='photoshop_local_version_up_document',
+            plugin_type='finalizer',
+            plugin_name='publish_to_ftrack',
         )
-        arguments = {
-            "plugin_config": version_up_plugin_config,
-            "plugin_method_name": 'run',
-            "engine_type": self.tool_config.engine_type,
-            "engine_name": self.tool_config.engine_name,
-            'plugin_widget_id': None,
-        }
-        self.client_method_connection('run_plugin', arguments=arguments)
-        # Re-implement _on_client_notify_ui_run_plugin_result_callback from
-        # dialog in case we are interested on the result of this plugin execution.
+        # TODO: Pass status id not name
+        publish_plugin_config.options.update({"status": "WIP"})
+        self._run_tool_config()
 
     def _run_tool_config(self):
         '''
