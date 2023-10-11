@@ -21,5 +21,5 @@
             "expression": ["Adobe Photoshop*", "Adobe Photoshop .*\\.app"]
         }
     },
-    "standalone_module":"ftrack_framework_photoshop_bootstrap.bootstrap"
+    "standalone_module":"ftrack_framework_photoshop_bootstrap"
  }
