@@ -9,7 +9,6 @@ import time
 
 from functools import partial
 
-from ftrack_utils.framework.dependencies import registry
 import ftrack_constants.framework as constants
 
 from ftrack_framework_core.tool_config import (
@@ -173,7 +172,7 @@ class Host(object):
 
     # TODO: we can create an engine registry
 
-    def __init__(self, event_manager):
+    def __init__(self, event_manager, registry):
         '''
         Initialise Host with instance of
         :class:`~ftrack_framework_core.event.EventManager`
@@ -200,50 +199,31 @@ class Host(object):
         self.__engines_registry = {}
 
         # Register modules
-        self._register_modules()
+        self._register_modules(registry)
         # Subscribe to events
         self._subscribe_events()
 
         self.logger.debug('Host {} ready.'.format(self.id))
 
     # Register
-    def _register_modules(self):
+    def _register_modules(self, registry):
         '''
         Register available framework modules.
         '''
-        # We register the plugins first so they can subscribe to the discover event
-        registry.register_framework_modules_by_type(
-            event_manager=self.event_manager,
-            module_type='plugins',
-            callback=self._on_register_plugins_callback,
-        )
-        # Register the schemas before the tool_configs
-        registry.register_framework_modules_by_type(
-            event_manager=self.event_manager,
-            module_type='schemas',
-            callback=self._on_register_schemas_callback,
-        )
-        # Make sure schemas are found
+        # Discover plugin modules
+        self.discover_plugins(registry.registered_modules.get('plugin'))
+        # Discover schema modules
+        self.discover_schemas(registry.registered_modules.get('schema'))
         if not self.schemas:
             raise Exception(
                 'No schemas found. Please register valid schemas first.'
             )
-        # Register the tool_configs, passing the schemas in the callback as are
-        # needed to augment and validate the tool_configs.
-        registry.register_framework_modules_by_type(
-            event_manager=self.event_manager,
-            module_type='tool_configs',
-            callback=partial(
-                self._on_register_tool_configs_callback, self.schemas
-            ),
+        # Discover tool-config modules
+        self.discover_tool_configs(
+            registry.registered_modules.get('tool_config'), self.schemas
         )
-
-        # Register engines
-        registry.register_framework_modules_by_type(
-            event_manager=self.event_manager,
-            module_type='engines',
-            callback=self._on_register_engines_callback,
-        )
+        # Discover engine modules
+        self.discover_engines(registry.registered_modules.get('engine'))
 
         if (
             self.__plugins_registry
@@ -255,13 +235,14 @@ class Host(object):
             return True
         raise Exception('Error registering modules on host, please check logs')
 
-    def _on_register_plugins_callback(self, registered_plugins):
+    def discover_plugins(self, registered_plugins):
         '''
-        Callback of the :meth:`_register_framework_modules` of type plugins.
-        We add all the *registered_plugins* into our
+        Initialize all plugins given in the *registered_plugins* and add the
+        initialized plugins into our
         :obj:`self.__plugins_registry`
         '''
         registered_plugins = list(set(registered_plugins))
+
         initialized_plugins = []
         # Init plugins
         for plugin in registered_plugins:
@@ -271,28 +252,26 @@ class Host(object):
 
         self.__plugins_registry = initialized_plugins
 
-    def _on_register_schemas_callback(self, schema_paths):
+    def discover_schemas(self, registered_schemas):
         '''
-        Callback of the :meth:`_register_framework_modules` of type schmas.
         We will discover valid schemas from all given *schema_paths* and convert
         them to schemaObject. Valid schemas will be added to
         :obj:`self.__schemas_registry`
         '''
-        schema_paths = list(set(schema_paths))
+        schema_paths = list(set(registered_schemas))
 
         schemas = self._discover_schemas(schema_paths)
 
         self.__schemas_registry = schemas
 
-    def _on_register_tool_configs_callback(self, schemas, tool_config_paths):
+    def discover_tool_configs(self, registered_tool_configs, schemas):
         '''
-        Callback of the :meth:`_register_framework_modules` of type tool_configs.
-        We will discover valid tool_configs from all given *tool_config_paths*
-        based on the given *schemas* and will convert the valid ones to a
-        ToolConfigObject. Valid tool_configs will be added to
+        We will discover valid tool_configs from all given
+        *registered_tool_configs* based on the given *schemas* and will convert
+        the valid ones to aToolConfigObject. Valid tool_configs will be added to
         :obj:`self.__tool_config_registry`
         '''
-        tool_config_paths = list(set(tool_config_paths))
+        tool_config_paths = list(set(registered_tool_configs))
 
         tool_configs = self._discover_tool_configs(
             tool_config_paths, self.host_types, schemas
@@ -300,8 +279,13 @@ class Host(object):
 
         self.__tool_configs_registry = tool_configs
 
-    def _on_register_engines_callback(self, registred_engines):
-        registred_engines = list(set(registred_engines))
+    def discover_engines(self, registered_engines):
+        ''' '
+        Initialize all engines given in the *registered_engines* and add the
+        initialized engines into our
+        :obj:`self.__engines_registry`
+        '''
+        registred_engines = list(set(registered_engines))
         # Init engines
         for engine in registred_engines:
             initialized_enigne = engine(
@@ -364,8 +348,11 @@ class Host(object):
         )
 
         # validate_plugins
-        validated_tool_configs = discover.discover_tool_configs_plugins(
-            discovered_tool_configs, self.event_manager, self.host_types
+        registred_plugin_names = [
+            plugin.plugin_name for plugin in self.plugins
+        ]
+        validated_tool_configs = validate.validate_tool_config_plugins(
+            discovered_tool_configs, registred_plugin_names
         )
 
         end = time.time()

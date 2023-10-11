@@ -12,14 +12,6 @@ LOCAL_EVENT_MODE = 0
 #: Base name for events
 _BASE_ = 'ftrack.framework'
 
-#: Register tool config topic event.
-DISCOVER_TOOL_CONFIG_TOPIC = '{}.discover.tool_config'.format(_BASE_)
-#: Discover plugin topic event, used to discover the plugins.
-DISCOVER_PLUGIN_TOPIC = '{}.discover.plugin'.format(_BASE_)
-#: Discover widget topic event, used to discover the widgets of specific UI type.
-DISCOVER_WIDGET_TOPIC = '{}.discover.widget'.format(_BASE_)
-#: Discover engine topic event, used to discover the engines.
-DISCOVER_ENGINE_TOPIC = '{}.discover.engine'.format(_BASE_)
 #: Discover host topic event, used to discover available hosts.
 DISCOVER_HOST_TOPIC = '{}.host.discover.host'.format(_BASE_)
 #: Pipeline host run plugin topic event, used to communicate between client and

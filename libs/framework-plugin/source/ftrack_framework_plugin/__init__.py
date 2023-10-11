@@ -530,7 +530,7 @@ class BasePlugin(ABC):
         )
 
     @classmethod
-    def register(cls, event_manager):
+    def register(cls):
         '''
         Register function for the plugin to be discovered.
         '''
@@ -539,7 +539,8 @@ class BasePlugin(ABC):
         )
         logger.debug('registering: {} for {}'.format(cls.name, cls.host_type))
 
-        # subscribe to discover the plugin
-        event_manager.subscribe.discover_plugin(
-            cls.host_type, cls.name, callback=lambda event: True
-        )
+        data = {
+            'host_type': cls.host_type,
+            'plugin_name': cls.name,
+        }
+        return data

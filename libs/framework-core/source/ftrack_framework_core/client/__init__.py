@@ -190,6 +190,7 @@ class Client(object):
     def __init__(
         self,
         event_manager,
+        registry,
         auto_discover_host=True,
         auto_connect_host=True,
         multithreading_enabled=True,
@@ -221,61 +222,32 @@ class Client(object):
         self._auto_connect_host = auto_connect_host
 
         # Register modules
-        self._register_modules()
+        self._register_modules(registry)
 
         self.logger.debug('Initialising Client {}'.format(self))
 
         if auto_discover_host and not self.host_connections:
             self.discover_hosts()
 
-    def _register_modules(self):
+    def _register_modules(self, registry):
         '''
         Register framework modules available.
         '''
-        # We register the plugins first so they can subscribe to the discover event
-        registry.register_framework_modules_by_type(
-            event_manager=self.event_manager,
-            module_type='widgets',
-            callback=self._on_register_framework_widgets_callback,
-        )
+        # Discover widget modules
+        self.discover_widgets(registry.registered_modules.get('widget'))
 
         if self.__framework_widget_registry:
             # Check that registry went correct
             return True
         self.logger.warning('No widgets found to register')
 
-    def _on_register_framework_widgets_callback(self, registered_widgets):
+    def discover_widgets(self, registered_widgets):
         '''
-        Callback of the :meth:`_register_framework_modules` of type plugins.
-        We add all the *registered_plugins* into our
-        :obj:`self.__plugins_registry`
+        Register the given *registered_widgets* on the
+        :obj:`self.__framework_widget_registry`
         '''
-
-        discovered_widgets = []
         registered_widgets = list(set(registered_widgets))
-        for widget in registered_widgets:
-            # TODO: to support self.ui_types in the event manager we have to ask
-            #  for a python API modification in the backend to support the
-            #  operator "in" for lists
-
-            result = None
-            for ui_type in self.ui_types:
-                result = self.event_manager.publish.discover_widget(
-                    ui_type,
-                    widget.name,
-                )
-                if result:
-                    discovered_widgets.append(widget)
-                    break
-            if not result:
-                self.logger.warning(
-                    " The widget {} hasn't been registered. "
-                    "Check compatible UI types: {}".format(
-                        widget.name, self.ui_types
-                    )
-                )
-
-        self.__framework_widget_registry = discovered_widgets
+        self.__framework_widget_registry = registered_widgets
 
     # Host
     def discover_hosts(self, time_out=3):
