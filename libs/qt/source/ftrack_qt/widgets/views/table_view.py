@@ -29,7 +29,6 @@ class TableView(QtWidgets.QTableView):
 
     def pre_build(self):
         '''Prepare general layout.'''
-        self.setAlternatingRowColors(True)
 
         self.verticalHeader().hide()
 

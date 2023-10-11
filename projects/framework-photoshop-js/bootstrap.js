@@ -87,9 +87,9 @@ function initializeSession(env, appVersion) {
             handleRemoteIntegrationRPCCallback
         );
 
-        // Settle down - wait for standalone process to start listening. Then send
+        // Settle down - wait for standalone process compile to start listening. Then send
         // a ping to the standalone process to connect.
-        sleep(500).then(() => {
+        sleep(1500).then(() => {
             connect(appVersion);
         });
 

@@ -7,7 +7,7 @@ from Qt import QtWidgets, QtCore, QtGui
 #  So it can be used in mutiple places and not only for asset versions.
 
 
-class AssetVersionComboBoxDelegate(QtWidgets.QItemDelegate):
+class AssetVersionComboBoxDelegate(QtWidgets.QStyledItemDelegate):
     '''
     QItemDelegate that provides a combo box to select versions of an
     asset_version
@@ -42,4 +42,7 @@ class AssetVersionComboBoxDelegate(QtWidgets.QItemDelegate):
         index.data()
         if not index.isValid():
             return False
-        self.index_changed.emit(index, editor.itemData(editor.currentIndex()))
+        data = editor.itemData(editor.currentIndex())
+        if not data:
+            return False
+        self.index_changed.emit(index, data)

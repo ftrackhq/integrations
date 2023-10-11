@@ -135,7 +135,7 @@ class OpenerPublisherTabDialog(FrameworkDialog, TabDialog):
             )
             main_widget.layout().addWidget(collector_widget)
 
-        open_button = QtWidgets.QPushButton('Open')
+        open_button = QtWidgets.QPushButton('OPEN')
 
         open_button.clicked.connect(self._on_ui_open_button_clicked_callback)
 
@@ -163,7 +163,7 @@ class OpenerPublisherTabDialog(FrameworkDialog, TabDialog):
         # TODO: version up could execute a plugin defined in plugins of the tool-config
         # version_up_button = QtWidgets.QPushButton('Version Up')
         # TODO: review executes the entire tool-config steps/stages
-        review_button = QtWidgets.QPushButton('Send to Review')
+        review_button = QtWidgets.QPushButton('SEND TO REVIEW')
 
         review_button.clicked.connect(
             self._on_ui_review_button_clicked_callback
