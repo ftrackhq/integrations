@@ -73,4 +73,3 @@ class Registry(object):
         self.__registered_modules = registry.scan_modules(
             package_types, package_names
         )
-        return

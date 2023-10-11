@@ -348,9 +348,7 @@ class Host(object):
         )
 
         # validate_plugins
-        registred_plugin_names = [
-            plugin.plugin_name for plugin in self.plugins
-        ]
+        registred_plugin_names = [plugin.name for plugin in self.plugins]
         validated_tool_configs = validate.validate_tool_config_plugins(
             discovered_tool_configs, registred_plugin_names
         )
