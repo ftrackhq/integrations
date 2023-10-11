@@ -396,7 +396,7 @@ DefinitionSelectorComboBox {
                                                                                                                 font-size: 14px;
                                                                                                                 vertical-align: text-top; }
 
-                                                                                                                QTableWidet {
+                                                                                                                QTableWidget {
                                                                                                                   gridline-color: #f8f8f8; }
 
                                                                                                                   QTableView {
@@ -408,13 +408,13 @@ DefinitionSelectorComboBox {
                                                                                                                     QTableView::section {
                                                                                                                       border: none; }
 
-                                                                                                                      QTableView::item {
+                                                                                                                      QTableView::item, QStyledItemDelegate {
                                                                                                                         border: none;
                                                                                                                         padding: 5px;
                                                                                                                         background: #fafafa;
                                                                                                                         color: #333; }
 
-                                                                                                                        QTableView::item:selected {
+                                                                                                                        QTableView::item:selected, QStyledItemDelegate:selected {
                                                                                                                           background: #eee; }
 
                                                                                                                           QHeaderView {
