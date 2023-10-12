@@ -108,7 +108,3 @@ class ValidatorCheckWidget(FrameworkWidget, QtWidgets.QWidget):
         self.plugin_data = {'collector_result': collector_result}
         print(collector_result)
         self.run_plugin_method('validate')
-
-    def on_context_updated(self):
-        '''(Override) Do nothing - widget is not context dependent.'''
-        pass
