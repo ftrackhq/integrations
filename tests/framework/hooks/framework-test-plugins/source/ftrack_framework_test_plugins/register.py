@@ -9,6 +9,6 @@ from ftrack_utils.framework.dependencies import registry
 
 def register(event_manager):
     current_dir = os.path.dirname(__file__)
-    return registry.register_dependencies_from_directory(
+    return registry.scan_modules_from_directory(
         BasePlugin, current_dir, event_manager
     )

@@ -136,10 +136,20 @@ def build_plugin(args):
     logging.info('Cleaning up {}'.format(STAGING_PATH))
     shutil.rmtree(STAGING_PATH, ignore_errors=True)
 
-    # Copy hook
+    # Locate and copy hook
     logging.info('Copying hook')
-    HOOK_PATH = os.path.join(ROOT_PATH, 'hook')
-    shutil.copytree(HOOK_PATH, os.path.join(STAGING_PATH, 'hook'))
+    hook_path = None
+    for filename in os.listdir(os.path.join(MONOREPO_PATH, 'framework-hooks')):
+        if filename == 'framework-{}-bootstrap'.format(DCC_NAME):
+            hook_path = os.path.join(
+                MONOREPO_PATH, 'framework-hooks', filename, 'hook'
+            )
+    if not hook_path:
+        raise Exception(
+            'Could not locate connect hook module within "framework-hooks"!'
+        )
+    logging.info('Copying Connect hook from {}'.format(hook_path))
+    shutil.copytree(hook_path, os.path.join(STAGING_PATH, 'hook'))
 
     # Copy resources
 
@@ -164,8 +174,8 @@ def build_plugin(args):
             os.path.join(MONOREPO_PATH, 'libs', lib)
         )
     # Pick up hooks
-    for hook in os.listdir(os.path.join(MONOREPO_PATH, 'framework_hooks')):
-        hook_path = os.path.join(MONOREPO_PATH, 'framework_hooks', hook)
+    for hook in os.listdir(os.path.join(MONOREPO_PATH, 'framework-hooks')):
+        hook_path = os.path.join(MONOREPO_PATH, 'framework-hooks', hook)
         if not os.path.isdir(hook_path):
             continue
         if hook.find('-core-') > -1 or hook.find(DCC_NAME) > -1:
@@ -230,9 +240,17 @@ def build_plugin(args):
                 continue
             source_path = find_python_source(source_path)
             logging.info('Copying {}'.format(source_path))
+            dest_path = os.path.join(
+                dependencies_path, os.path.basename(source_path)
+            )
+            if os.path.exists(dest_path):
+                logging.info(
+                    '   Overriding {}'.format(os.path.basename(source_path))
+                )
+                shutil.rmtree(dest_path)
             shutil.copytree(
                 source_path,
-                os.path.join(dependencies_path, os.path.basename(source_path)),
+                dest_path,
             )
 
     logging.info('Collecting dependencies from wheel')

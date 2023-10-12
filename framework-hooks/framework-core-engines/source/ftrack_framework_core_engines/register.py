@@ -6,9 +6,9 @@ import os
 from ftrack_framework_engine import BaseEngine
 from ftrack_utils.framework.dependencies import registry
 
+EXTENSION_TYPE = "engine"
 
-def register(event_manager):
+
+def register():
     current_dir = os.path.dirname(__file__)
-    return registry.register_dependencies_from_directory(
-        BaseEngine, current_dir, event_manager
-    )
+    return registry.scan_modules_from_directory(BaseEngine, current_dir)
