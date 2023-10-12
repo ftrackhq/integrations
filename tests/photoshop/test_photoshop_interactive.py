@@ -4,7 +4,7 @@ import os
 
 # Add repository paths before running this interactive test.
 INTEGRATIONS_MONO_REPO = ""
-INTEGRATIONS_OPEN_SAVE_TOOL_SAMPLE_REPO = ""
+ADDITIONAL_EXTENSIONS = ""
 
 for item in (
     "framework-hooks/framework-photoshop-bootstrap/source/",
@@ -24,16 +24,14 @@ for item in (
 ):
     sys.path.append(os.path.join(INTEGRATIONS_MONO_REPO, item))
 
-for item in (
-    "framework-hooks/framework-photoshop-tool-configs/source/",
-    "framework-hooks/framework-photoshop-plugins/source/",
-    "framework-hooks/framework-photoshop-widgets/source/",
-): 
-    sys.path.append(
-        os.path.join(
-            INTEGRATIONS_OPEN_SAVE_TOOL_SAMPLE_REPO, item
-        )
-    )
+
+# If you have additional extensions in another place you can add them here.
+# for item in []: 
+#     sys.path.append(
+#         os.path.join(
+#             ADDITIONAL_EXTENSIONS, item
+#         )
+#     )
 
 import ftrack_framework_photoshop_bootstrap
 
