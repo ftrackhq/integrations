@@ -147,28 +147,28 @@ class Host(object):
         '''
         Returns the registered schemas`
         '''
-        return self.__schemas_registry
+        return self.__schemas_discovered
 
     @property
     def tool_configs(self):
         '''
         Returns the registered tool_configs`
         '''
-        return self.__tool_configs_registry
+        return self.__tool_configs_discovered
 
     @property
     def plugins(self):
         '''
         Returns the registered plugins`
         '''
-        return self.__plugins_registry
+        return self.__plugins_discovered
 
     @property
     def engines(self):
         '''
         Returns the registered engines`
         '''
-        return self.__engines_registry
+        return self.__engines_discovered
 
     # TODO: we can create an engine registry
 
@@ -193,10 +193,10 @@ class Host(object):
         self._event_manager = event_manager
         self._ftrack_object_manager = None
         # Reset all registries
-        self.__tool_configs_registry = {}
-        self.__schemas_registry = {}
-        self.__plugins_registry = []
-        self.__engines_registry = {}
+        self.__tool_configs_discovered = {}
+        self.__schemas_discovered = {}
+        self.__plugins_discovered = []
+        self.__engines_discovered = {}
 
         # Register modules
         self._register_modules(registry)
@@ -211,25 +211,23 @@ class Host(object):
         Register available framework modules.
         '''
         # Discover plugin modules
-        self.discover_plugins(registry.registered_modules.get('plugin'))
+        self.discover_plugins(registry.plugins)
         # Discover schema modules
-        self.discover_schemas(registry.registered_modules.get('schema'))
+        self.discover_schemas(registry.schemas)
         if not self.schemas:
             raise Exception(
                 'No schemas found. Please register valid schemas first.'
             )
         # Discover tool-config modules
-        self.discover_tool_configs(
-            registry.registered_modules.get('tool_config'), self.schemas
-        )
+        self.discover_tool_configs(registry.tool_configs, self.schemas)
         # Discover engine modules
-        self.discover_engines(registry.registered_modules.get('engine'))
+        self.discover_engines(registry.engines)
 
         if (
-            self.__plugins_registry
-            and self.__schemas_registry
-            and self.__tool_configs_registry
-            and self.__engines_registry
+            self.__plugins_discovered
+            and self.__schemas_discovered
+            and self.__tool_configs_discovered
+            and self.__engines_discovered
         ):
             # Check that registry went correct
             return True
@@ -239,7 +237,7 @@ class Host(object):
         '''
         Initialize all plugins given in the *registered_plugins* and add the
         initialized plugins into our
-        :obj:`self.__plugins_registry`
+        :obj:`self.__plugins_discovered`
         '''
         registered_plugins = list(set(registered_plugins))
 
@@ -250,19 +248,19 @@ class Host(object):
                 plugin(self.event_manager, self.id, self.ftrack_object_manager)
             )
 
-        self.__plugins_registry = initialized_plugins
+        self.__plugins_discovered = initialized_plugins
 
     def discover_schemas(self, registered_schemas):
         '''
         We will discover valid schemas from all given *schema_paths* and convert
         them to schemaObject. Valid schemas will be added to
-        :obj:`self.__schemas_registry`
+        :obj:`self.__schemas_discovered`
         '''
         schema_paths = list(set(registered_schemas))
 
         schemas = self._discover_schemas(schema_paths)
 
-        self.__schemas_registry = schemas
+        self.__schemas_discovered = schemas
 
     def discover_tool_configs(self, registered_tool_configs, schemas):
         '''
@@ -277,13 +275,13 @@ class Host(object):
             tool_config_paths, self.host_types, schemas
         )
 
-        self.__tool_configs_registry = tool_configs
+        self.__tool_configs_discovered = tool_configs
 
     def discover_engines(self, registered_engines):
         ''' '
         Initialize all engines given in the *registered_engines* and add the
         initialized engines into our
-        :obj:`self.__engines_registry`
+        :obj:`self.__engines_discovered`
         '''
         registred_engines = list(set(registered_engines))
         # Init engines
@@ -295,13 +293,13 @@ class Host(object):
                 self.id,
             )
             for engine_type in initialized_enigne.engine_types:
-                if engine_type not in list(self.__engines_registry.keys()):
-                    self.__engines_registry[engine_type] = {}
-                self.__engines_registry[engine_type].update(
+                if engine_type not in list(self.__engines_discovered.keys()):
+                    self.__engines_discovered[engine_type] = {}
+                self.__engines_discovered[engine_type].update(
                     {initialized_enigne.name: initialized_enigne}
                 )
 
-        for key, value in list(self.__engines_registry.items()):
+        for key, value in list(self.__engines_discovered.items()):
             self.logger.warning(
                 'Valid engines : {} : {}'.format(key, len(value))
             )
