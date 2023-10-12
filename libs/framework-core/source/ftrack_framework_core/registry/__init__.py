@@ -48,8 +48,6 @@ class Registry(object):
     def registered_modules(self):
         return self.__registered_modules
 
-    # TODO: we can create an engine registry
-
     def __init__(self):
         '''
         Initialise Registry

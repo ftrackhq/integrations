@@ -11,4 +11,4 @@ PACKAGE_TYPE = "widget"
 
 def register():
     current_dir = os.path.dirname(__file__)
-    return registry.register_dependencies_from_directory(BaseUI, current_dir)
+    return registry.scan_modules_from_directory(BaseUI, current_dir)

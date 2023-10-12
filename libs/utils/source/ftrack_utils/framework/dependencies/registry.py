@@ -86,8 +86,8 @@ def register_framework_modules_by_type(event_manager, module_type, callback):
         )
 
 
-def register_dependencies_from_directory(class_type, current_dir):
-    '''Register Dependency to api_object.'''
+def scan_modules_from_directory(class_type, current_dir):
+    '''Return available modules on the given directory'''
 
     subfolders = fast_scandir(current_dir)
     registered_dependencies = []

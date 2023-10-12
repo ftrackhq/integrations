@@ -37,8 +37,8 @@ event_manager = event.EventManager(
     session=session, mode=constants.event.LOCAL_EVENT_MODE
 )
 os.environ['FTRACK_CONTEXTID'] = '439dc504-a904-11ec-bbac-be6e0a48ed73'
-registry_class = registry.Registry()
-registry_class.scan_modules(
+registry_instance = registry.Registry()
+registry_instance.scan_modules(
     package_types=['plugin', 'engine', 'schema', 'tool_config', 'widget'],
     package_names=[
         'ftrack_framework_core_engines',
@@ -49,12 +49,12 @@ registry_class.scan_modules(
     ],
 )
 
-host_class = host.Host(event_manager, registry=registry_class)
+host_class = host.Host(event_manager, registry=registry_instance)
 
 
 from ftrack_framework_core import client
 
-client_class = client.Client(event_manager, registry=registry_class)
+client_class = client.Client(event_manager, registry=registry_instance)
 
 app = QtWidgets.QApplication.instance()
 if not app:
