@@ -33,9 +33,9 @@ for item in (
 #         )
 #     )
 
-import ftrack_framework_photoshop_bootstrap
+import ftrack_framework_photoshop
 
-ftrack_framework_photoshop_bootstrap.bootstrap_integration(
+ftrack_framework_photoshop.bootstrap_integration(
     panel_launchers=[
         {
             "name": "publish",
