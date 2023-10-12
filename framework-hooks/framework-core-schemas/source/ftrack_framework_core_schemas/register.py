@@ -8,7 +8,7 @@ from ftrack_utils.directories.scan_dir import fast_scandir
 
 logger = logging.getLogger('ftrack_framework_schemas.register')
 
-PACKAGE_TYPE = "schema"
+EXTENSION_TYPE = "schema"
 
 
 def register():

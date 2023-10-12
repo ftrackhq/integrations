@@ -6,7 +6,7 @@ import os
 from ftrack_framework_widget.widget import BaseUI
 from ftrack_utils.framework.dependencies import registry
 
-PACKAGE_TYPE = "widget"
+EXTENSION_TYPE = "widget"
 
 
 def register():

@@ -8,7 +8,7 @@ from ftrack_utils.directories.scan_dir import fast_scandir
 
 logger = logging.getLogger('ftrack_framework_tool_config.register')
 
-PACKAGE_TYPE = "tool_config"
+EXTENSION_TYPE = "tool_config"
 
 
 def register():

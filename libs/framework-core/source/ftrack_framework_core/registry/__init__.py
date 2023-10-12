@@ -63,12 +63,6 @@ class Registry(object):
         # Reset all registries
         self.__registered_modules = {}
 
-        self.__tool_configs_registry = {}
-        self.__schemas_registry = {}
-        self.__plugins_registry = []
-        self.__engines_registry = {}
-        self.__widgets_registry = {}
-
     # Register
     def scan_modules(self, package_types, package_names):
         '''

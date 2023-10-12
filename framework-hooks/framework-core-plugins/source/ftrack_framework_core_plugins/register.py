@@ -6,7 +6,7 @@ import os
 from ftrack_framework_plugin import BasePlugin
 from ftrack_utils.framework.dependencies import registry
 
-PACKAGE_TYPE = "plugin"
+EXTENSION_TYPE = "plugin"
 
 
 def register():

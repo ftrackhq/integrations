@@ -6,7 +6,7 @@ import os
 from ftrack_framework_engine import BaseEngine
 from ftrack_utils.framework.dependencies import registry
 
-PACKAGE_TYPE = "engine"
+EXTENSION_TYPE = "engine"
 
 
 def register():

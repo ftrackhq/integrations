@@ -69,8 +69,10 @@ def validate_tool_config_plugins(tool_configs, registered_plugin_names):
                     is_valid = False
                 if not is_valid:
                     logger.warning(
-                        'Tool config {} is not valid. It contains not '
-                        'registered plugins.'.format(tool_config['tool_title'])
+                        'Tool config {} is not valid. It contains plugins that '
+                        'have not been registered.'.format(
+                            tool_config['tool_title']
+                        )
                     )
                     copy_data[tool_type].remove(tool_config)
 

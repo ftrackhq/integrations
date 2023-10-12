@@ -27,25 +27,25 @@ def scan_modules(package_types, package_names):
                 "No register module in package {}".format(package.name)
             )
             continue
-        if register_module.PACKAGE_TYPE not in package_types:
+        if register_module.EXTENSION_TYPE not in package_types:
             logger.error(
                 "Package type is of {} type({}) is not in the "
                 "desired package_types {}".format(
-                    package.name, register_module.PACKAGE_TYPE, package_types
+                    package.name, register_module.EXTENSION_TYPE, package_types
                 )
             )
             continue
 
         # Call the register method We pass the event manager
-        if not registry_result.get(register_module.PACKAGE_TYPE):
-            registry_result[register_module.PACKAGE_TYPE] = []
+        if not registry_result.get(register_module.EXTENSION_TYPE):
+            registry_result[register_module.EXTENSION_TYPE] = []
         result = register_module.register()
         if type(result) == list:
             # Result might be a list so extend the current registry list
-            registry_result[register_module.PACKAGE_TYPE].extend(result)
+            registry_result[register_module.EXTENSION_TYPE].extend(result)
             continue
         # If result is just string, we append it to our registry
-        registry_result[register_module.PACKAGE_TYPE].append(result)
+        registry_result[register_module.EXTENSION_TYPE].append(result)
 
     # Return the result
     return registry_result
