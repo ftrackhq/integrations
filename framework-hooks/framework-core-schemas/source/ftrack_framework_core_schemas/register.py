@@ -8,10 +8,10 @@ from ftrack_utils.directories.scan_dir import fast_scandir
 
 logger = logging.getLogger('ftrack_framework_schemas.register')
 
+EXTENSION_TYPE = "schema"
 
-# TODO: maybe use the utility here as well to align with widgets and plugins so
-#  is easier for users to understand.
-def register(event_manager):
+
+def register():
     '''Register plugin to api_object.'''
 
     # We just need to pass the location of this file in order to register
