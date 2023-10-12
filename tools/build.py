@@ -177,7 +177,9 @@ def build_plugin(args):
         hook_path = os.path.join(MONOREPO_PATH, 'framework-hooks', hook)
         if not os.path.isdir(hook_path):
             continue
-        if hook.find('-core-') > -1 or hook.find(DCC_NAME) > -1:
+        if (
+            hook.find('-core-') > -1 or hook.find(DCC_NAME) > -1
+        ) and not hook.endswith('-js'):
             framework_dependency_packages.append(hook_path)
 
     if args.include:
@@ -198,7 +200,9 @@ def build_plugin(args):
             hook_path = os.path.join(include_path, hook)
             if not os.path.isdir(hook_path):
                 continue
-            if hook.find('-core-') > -1 or hook.find(DCC_NAME) > -1:
+            if (
+                hook.find('-core-') > -1 or hook.find(DCC_NAME) > -1
+            ) and not hook.endswith('-js'):
                 framework_dependency_packages.append(hook_path)
 
     for dependency_path in framework_dependency_packages:
