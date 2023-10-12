@@ -1,8 +1,10 @@
 # General
 *.py[cod]
+.DS_Store
 
 # Packages
 *.egg
+*.eggs
 *.egg-info
 *.eggs/*
 dist
@@ -27,6 +29,7 @@ test-reports/*
 
 # Build files
 /resource/*.css
+libs/qt-style/source/ftrack_qt_style/resource.py
 
 # Caches
 .sass-cache/
@@ -37,6 +40,10 @@ Thumbs.db
 .pydevproject
 .settings
 .idea/
+launch.json
+settings.json
+.env
+
 *.orig
 # SCM
 #source/framework_qt/ui/resource.py
@@ -45,3 +52,6 @@ Thumbs.db
 /.pants.*
 /dist/
 /.pids
+
+# Node modules.
+node_modules/
