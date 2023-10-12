@@ -89,3 +89,7 @@ class FileExportOptionsWidget(FrameworkWidget, QtWidgets.QWidget):
 
     def _on_option_changed(self, option, value):
         self.set_plugin_option(option, value)
+
+    def on_context_updated(self):
+        '''(Override) Do nothing - widget is not context dependent.'''
+        pass

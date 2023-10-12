@@ -71,3 +71,7 @@ class FileBrowserWidget(FrameworkWidget, QtWidgets.QWidget):
         asset_changed of asset_selector event is triggered'''
         self.set_plugin_option('folder_path', os.path.dirname(file_path))
         self.set_plugin_option('file_name', os.path.basename(file_path))
+
+    def on_context_updated(self):
+        '''(Override) Do nothing - widget is not context dependent.'''
+        pass

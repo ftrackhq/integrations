@@ -124,6 +124,7 @@ class PublisherDialog(FrameworkDialog, ScrollToolConfigsDialog):
     def show_ui(self):
         '''Override Show method of the base framework dialog'''
         ScrollToolConfigsDialog.show(self)
+        # TODO: Investigate if we can move these to client run_dialog
         self.raise_()
         self.activateWindow()
         self.setWindowState(
