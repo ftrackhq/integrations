@@ -9,6 +9,7 @@ var csInterface = new CSInterface();
 var event_manager = undefined;
 var integration_session_id = undefined;
 var connected = false;
+var panel_launchers;
 
 try {
     function jsx_callback(){
@@ -121,16 +122,33 @@ function prepareEventData(data) {
 
 function handleIntegrationContextDataCallback(event) {
     /* Standalone process has sent context data */
-    if (event.data.integration_session_id != integration_session_id)
-        return;
-    if (!connected) {
-        connected = true;
-        showElement("connecting", false);
-        showElement("content", true);
-        alert("ftrack Photoshop Integration successfully initialized\n\nIMPORTANT NOTE: "+
-        "This is an alpha and not intended for production use. Please submit bug reports "+
-        "and feedback to support@ftrack.com.");
+    try {
+        if (event.data.integration_session_id != integration_session_id)
+            return;
+        if (!connected) {
+            connected = true;
+            showElement("connecting", false);
+            showElement("content", true);
+            alert("ftrack Photoshop Integration successfully initialized\n\nIMPORTANT NOTE: "+
+            "This is an alpha and not intended for production use. Please submit bug reports "+
+            "and feedback to support@ftrack.com.");
+        }
+        // Build launchers
+        panel_launchers = event.data.panel_launchers;
+
+        let launcher_table = document.getElementById("launchers");
+        let idx = 0;
+        while (idx < panel_launchers.length) {
+            let launcher = panel_launchers[idx];
+            let row = launcher_table.insertRow();
+            let cell = row.insertCell();
+            cell.innerHTML = '<button id="launcher_button" onclick="launchTool(\''+launcher.name+'\')"><img id="launcher_image" src="./image/'+launcher.image+'.png" border="0" />&nbsp;'+launcher.label+'</button>';
+            idx++;
+        }
+    } catch (e) {
+        error("[INTERNAL ERROR] Failed setting up panel! "+e+" Details: "+e.stack);
     }
+
     // TODO: Display received context info
 }
 
@@ -143,10 +161,21 @@ function handleIntegrationDiscoverCallback(event) {
 
 // Tool launch
 
-function launchPublisher() {
+function launchTool(tool_name) {
+    // Find dialog name
+    let idx = 0;
+    var dialog_name = undefined;
+    while (idx < panel_launchers.length) {
+        let launcher = panel_launchers[idx];
+        if (launcher.name == tool_name) {
+            dialog_name = launcher.dialog_name;
+            break;
+        }
+        idx++;
+    }
     event_manager.publish.remote_integration_run_dialog(
         prepareEventData({
-            "dialog_name": "framework_opener_publisher_tab_dialog"
+            "dialog_name": dialog_name
         })
     );
 }

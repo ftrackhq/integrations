@@ -519,12 +519,13 @@ class Publish(object):
         context_path,
         thumbnail_url,
         project_id,
+        panel_launchers,
         callback=None,
     ):
         '''
         Publish an event with topic
         :const:`~ftrack_framework_core.constants.event.REMOTE_INTEGRATION_CONTEXT_DATA_TOPIC`
-        supplying *integration_session_id* and *context_data*.
+        supplying *integration_session_id*, context data and panel launcher definitions.
         '''
         data = {
             'integration_session_id': integration_session_id,
@@ -534,6 +535,7 @@ class Publish(object):
             'context_path': context_path,
             'context_thumbnail': thumbnail_url,
             'project_id': project_id,
+            'panel_launchers': panel_launchers,
         }
 
         event_topic = constants.event.REMOTE_INTEGRATION_CONTEXT_DATA_TOPIC
