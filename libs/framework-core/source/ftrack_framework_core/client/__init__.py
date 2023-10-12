@@ -168,7 +168,7 @@ class Client(object):
     @property
     def dialogs(self):
         '''Return Initalized dialogs'''
-        return self.__dialogs_registry
+        return self.__dialogs_discovered
 
     @property
     def dialog(self):
@@ -185,7 +185,7 @@ class Client(object):
     @property
     def discovered_framework_widgets(self):
         '''Return discovered framework widgets'''
-        return self.__framework_widget_registry
+        return self.____framework_widget_discovered
 
     def __init__(
         self,
@@ -216,8 +216,8 @@ class Client(object):
 
         # Setting init variables to 0
         self._host_context_changed_subscribe_id = None
-        self.__framework_widget_registry = []
-        self.__dialogs_registry = {}
+        self.____framework_widget_discovered = []
+        self.__dialogs_discovered = {}
         self._dialog = None
         self._auto_connect_host = auto_connect_host
 
@@ -234,9 +234,9 @@ class Client(object):
         Register framework modules available.
         '''
         # Discover widget modules
-        self.discover_widgets(registry.registered_modules.get('widget'))
+        self.discover_widgets(registry.widgets)
 
-        if self.__framework_widget_registry:
+        if self.____framework_widget_discovered:
             # Check that registry went correct
             return True
         self.logger.warning('No widgets found to register')
@@ -244,10 +244,10 @@ class Client(object):
     def discover_widgets(self, registered_widgets):
         '''
         Register the given *registered_widgets* on the
-        :obj:`self.__framework_widget_registry`
+        :obj:`self.____framework_widget_discovered`
         '''
         registered_widgets = list(set(registered_widgets))
-        self.__framework_widget_registry = registered_widgets
+        self.____framework_widget_discovered = registered_widgets
 
     # Host
     def discover_hosts(self, time_out=3):
@@ -481,7 +481,7 @@ class Client(object):
                     'Provided dialog_class {} not in the discovered framework '
                     'widgets, registering...'.format(dialog_class)
                 )
-                self.__framework_widget_registry.append(dialog_class)
+                self.____framework_widget_discovered.append(dialog_class)
 
         if dialog_name and not dialog_class:
             for registered_dialog_class in self.discovered_framework_widgets:
@@ -514,8 +514,8 @@ class Client(object):
 
     def _register_dialog(self, dialog):
         '''Register the given initialized *dialog* to the dialogs registry'''
-        if dialog.id not in list(self.__dialogs_registry.keys()):
-            self.__dialogs_registry[dialog.id] = dialog
+        if dialog.id not in list(self.__dialogs_discovered.keys()):
+            self.__dialogs_discovered[dialog.id] = dialog
 
     def set_active_dialog(self, old_dialog, new_dialog):
         '''Remove focus from the *old_dialog* and set the *new_dialog*'''

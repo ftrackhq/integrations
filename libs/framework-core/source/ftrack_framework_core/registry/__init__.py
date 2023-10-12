@@ -38,6 +38,13 @@ class Registry(object):
         return self.__registered_modules.get('engine')
 
     @property
+    def widgets(self):
+        '''
+        Returns the registered engines`
+        '''
+        return self.__registered_modules.get('widget')
+
+    @property
     def registered_modules(self):
         return self.__registered_modules
 
@@ -62,6 +69,7 @@ class Registry(object):
         self.__schemas_registry = {}
         self.__plugins_registry = []
         self.__engines_registry = {}
+        self.__widgets_registry = {}
 
     # Register
     def scan_modules(self, package_types, package_names):
