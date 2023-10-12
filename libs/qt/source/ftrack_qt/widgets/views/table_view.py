@@ -54,7 +54,7 @@ class TableView(QtWidgets.QTableView):
         '''
         self.table_model.set_data_items(data_items)
 
-    def _on_select_items(self):
+    def on_select_items(self):
         selected_items = []
         index_list = self.selectionModel().selectedRows()
         for index in index_list:
