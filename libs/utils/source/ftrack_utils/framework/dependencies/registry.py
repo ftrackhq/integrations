@@ -10,7 +10,7 @@ from ftrack_utils.directories.scan_dir import fast_scandir
 logger = logging.getLogger(__name__)
 
 
-def scan_modules(package_types, package_names):
+def scan_modules(extension_types, package_names):
     registry_result = {}
     # Look in all the depenency packages in the current python environment
     for package in pkgutil.iter_modules():
@@ -27,11 +27,13 @@ def scan_modules(package_types, package_names):
                 "No register module in package {}".format(package.name)
             )
             continue
-        if register_module.EXTENSION_TYPE not in package_types:
+        if register_module.EXTENSION_TYPE not in extension_types:
             logger.error(
                 "Package type is of {} type({}) is not in the "
-                "desired package_types {}".format(
-                    package.name, register_module.EXTENSION_TYPE, package_types
+                "desired extension_types {}".format(
+                    package.name,
+                    register_module.EXTENSION_TYPE,
+                    extension_types,
                 )
             )
             continue

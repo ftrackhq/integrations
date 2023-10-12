@@ -90,13 +90,13 @@ def bootstrap_integration(panel_launchers, extension_packages):
 
     host_registry = Registry()
     host_registry.scan_modules(
-        package_types=['plugin', 'engine', 'schema', 'tool_config'],
+        extension_types=['plugin', 'engine', 'schema', 'tool_config'],
         package_names=extension_packages,
     )
 
     client_registry = Registry()
     client_registry.scan_modules(
-        package_types=['widget'], package_names=extension_packages
+        extension_types=['widget'], package_names=extension_packages
     )
 
     Host(event_manager, host_registry)

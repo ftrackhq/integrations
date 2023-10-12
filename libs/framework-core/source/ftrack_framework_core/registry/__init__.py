@@ -64,12 +64,12 @@ class Registry(object):
         self.__registered_modules = {}
 
     # Register
-    def scan_modules(self, package_types, package_names):
+    def scan_modules(self, extension_types, package_names):
         '''
         Scan site packages for the given *package_names* if the package name
         is found and contains the register.py file and is of type of the given
-        *package_types*. The modules in the package gets registered.
+        *extension_types*. The modules in the package gets registered.
         '''
         self.__registered_modules = registry.scan_modules(
-            package_types, package_names
+            extension_types, package_names
         )

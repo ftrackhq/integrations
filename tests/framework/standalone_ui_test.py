@@ -39,7 +39,7 @@ event_manager = event.EventManager(
 os.environ['FTRACK_CONTEXTID'] = '439dc504-a904-11ec-bbac-be6e0a48ed73'
 registry_instance = registry.Registry()
 registry_instance.scan_modules(
-    package_types=['plugin', 'engine', 'schema', 'tool_config', 'widget'],
+    extension_types=['plugin', 'engine', 'schema', 'tool_config', 'widget'],
     package_names=[
         'ftrack_framework_core_engines',
         'ftrack_framework_core_plugins',
