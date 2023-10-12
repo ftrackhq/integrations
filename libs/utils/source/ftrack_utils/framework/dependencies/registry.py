@@ -10,6 +10,49 @@ from ftrack_utils.directories.scan_dir import fast_scandir
 logger = logging.getLogger(__name__)
 
 
+def scan_modules(extension_types, package_names):
+    registry_result = {}
+    # Look in all the depenency packages in the current python environment
+    for package in pkgutil.iter_modules():
+        # Pick only the that matches ftrack framework and the module type
+        if package.name not in package_names:
+            continue
+
+        # Import the register module
+        register_module = getattr(
+            __import__(package.name, fromlist=['register']), 'register'
+        )
+        if not register_module:
+            logger.error(
+                "No register module in package {}".format(package.name)
+            )
+            continue
+        if register_module.EXTENSION_TYPE not in extension_types:
+            logger.error(
+                "Package type is of {} type({}) is not in the "
+                "desired extension_types {}".format(
+                    package.name,
+                    register_module.EXTENSION_TYPE,
+                    extension_types,
+                )
+            )
+            continue
+
+        # Call the register method We pass the event manager
+        if not registry_result.get(register_module.EXTENSION_TYPE):
+            registry_result[register_module.EXTENSION_TYPE] = []
+        result = register_module.register()
+        if type(result) == list:
+            # Result might be a list so extend the current registry list
+            registry_result[register_module.EXTENSION_TYPE].extend(result)
+            continue
+        # If result is just string, we append it to our registry
+        registry_result[register_module.EXTENSION_TYPE].append(result)
+
+    # Return the result
+    return registry_result
+
+
 def register_framework_modules_by_type(event_manager, module_type, callback):
     registry_result = []
     # Look in all the depenency packages in the current python environment
@@ -45,10 +88,8 @@ def register_framework_modules_by_type(event_manager, module_type, callback):
         )
 
 
-def register_dependencies_from_directory(
-    class_type, current_dir, event_manager
-):
-    '''Register Dependency to api_object.'''
+def scan_modules_from_directory(class_type, current_dir):
+    '''Return available modules on the given directory'''
 
     subfolders = fast_scandir(current_dir)
     registered_dependencies = []
@@ -68,7 +109,7 @@ def register_dependencies_from_directory(
                 continue
             try:
                 # Call the register classmethod. We don't init the widget here
-                obj.register(event_manager)
+                obj.register()
                 registered_dependencies.append(obj)
             except Exception as e:
                 logger.warning(

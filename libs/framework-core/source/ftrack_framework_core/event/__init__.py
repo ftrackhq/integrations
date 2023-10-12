@@ -336,45 +336,6 @@ class Publish(object):
         event_topic = constants.event.EXECUTE_PLUGIN_TOPIC
         return self._publish_event(event_topic, data, callback)
 
-    def discover_plugin(self, host_type, plugin_name, callback=None):
-        '''
-        Publish an event with topic
-        :const:`~ftrack_framework_core.constants.event.DISCOVER_PLUGIN_TOPIC`
-        '''
-        data = {
-            'host_type': host_type,
-            'plugin_name': plugin_name,
-        }
-
-        event_topic = constants.event.DISCOVER_PLUGIN_TOPIC
-        return self._publish_event(event_topic, data, callback)
-
-    def discover_widget(self, ui_type, widget_name, callback=None):
-        '''
-        Publish an event with topic
-        :const:`~ftrack_framework_core.constants.event.DISCOVER_WIDGET_TOPIC`
-        '''
-        data = {
-            'ui_type': ui_type,
-            'widget_name': widget_name,
-        }
-
-        event_topic = constants.event.DISCOVER_WIDGET_TOPIC
-        return self._publish_event(event_topic, data, callback)
-
-    def discover_engine(self, engine_type, engine_name, callback=None):
-        '''
-        Publish an event with topic
-        :const:`~ftrack_framework_core.constants.event.DISCOVER_ENGINE_TOPIC`
-        '''
-        data = {
-            'engine_type': engine_type,
-            'engine_name': engine_name,
-        }
-
-        event_topic = constants.event.DISCOVER_ENGINE_TOPIC
-        return self._publish_event(event_topic, data, callback)
-
     def host_context_changed(self, host_id, context_id, callback=None):
         '''
         Publish an event with topic
@@ -435,20 +396,6 @@ class Publish(object):
         }
 
         event_topic = constants.event.NOTIFY_TOOL_CONFIG_PROGRESS_TOPIC
-        return self._publish_event(event_topic, data, callback)
-
-    # TODO: if not used remove it. (Double check)
-    def discover_tool_config(self, host_types, callback=None):
-        '''
-        Publish an event with topic
-        :const:`~ftrack_framework_core.constants.event.DISCOVER_TOOL_CONFIG_TOPIC`
-        '''
-        data = {
-            'type': 'tool_config',
-            'host_types': host_types,
-        }
-
-        event_topic = constants.event.DISCOVER_TOOL_CONFIG_TOPIC
         return self._publish_event(event_topic, data, callback)
 
     def host_log_item_added(self, host_id, log_item, callback=None):
@@ -684,45 +631,6 @@ class Subscribe(object):
         )
         return self._subscribe_event(event_topic, callback)
 
-    def discover_plugin(self, host_type, plugin_name, callback=None):
-        '''
-        Subscribe to an event with topic
-        :const:`~ftrack_framework_core.constants.event.DISCOVER_PLUGIN_TOPIC`
-        '''
-        event_topic = (
-            '{} and data.host_type={}'
-            ' and data.plugin_name={}'.format(
-                constants.event.DISCOVER_PLUGIN_TOPIC, host_type, plugin_name
-            )
-        )
-        return self._subscribe_event(event_topic, callback)
-
-    def discover_widget(self, ui_type, widget_name, callback=None):
-        '''
-        Subscribe to an event with topic
-        :const:`~ftrack_framework_core.constants.event.DISCOVER_WIDGET_TOPIC`
-        '''
-        event_topic = (
-            '{} and data.ui_type={}'
-            ' and data.widget_name={}'.format(
-                constants.event.DISCOVER_WIDGET_TOPIC, ui_type, widget_name
-            )
-        )
-        return self._subscribe_event(event_topic, callback)
-
-    def discover_engine(self, engine_type, engine_name, callback=None):
-        '''
-        Subscribe to an event with topic
-        :const:`~ftrack_framework_core.constants.event.DISCOVER_ENGINE_TOPIC`
-        '''
-        event_topic = (
-            '{} and data.engine_type={}'
-            ' and data.engine_name={}'.format(
-                constants.event.DISCOVER_ENGINE_TOPIC, engine_type, engine_name
-            )
-        )
-        return self._subscribe_event(event_topic, callback)
-
     def host_context_changed(self, host_id, callback=None):
         '''
         Subscribe to an event with topic
@@ -760,16 +668,6 @@ class Subscribe(object):
         '''
         event_topic = '{} and data.host_id={}'.format(
             constants.event.NOTIFY_TOOL_CONFIG_PROGRESS_TOPIC, host_id
-        )
-        return self._subscribe_event(event_topic, callback)
-
-    def discover_tool_config(self, callback=None):
-        '''
-        Subscribe to an event with topic
-        :const:`~ftrack_framework_core.constants.event.DISCOVER_TOOL_CONFIG_TOPIC`
-        '''
-        event_topic = '{} and data.type=tool_config'.format(
-            constants.event.DISCOVER_TOOL_CONFIG_TOPIC
         )
         return self._subscribe_event(event_topic, callback)
 

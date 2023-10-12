@@ -15,6 +15,7 @@ from ftrack_utils.framework.remote import get_integration_session_id
 from ftrack_framework_core.host import Host
 from ftrack_framework_core.event import EventManager
 from ftrack_framework_core.client import Client
+from ftrack_framework_core.registry import Registry
 
 from ftrack_framework_core.configure_logging import configure_logging
 
@@ -71,7 +72,7 @@ class Launcher(QtWidgets.QWidget):
         self.client.run_dialog(event['data']['dialog_name'])
 
 
-def bootstrap_integration(panel_launchers):
+def bootstrap_integration(panel_launchers, extension_packages):
     '''Initialise Photoshop Framework Python standalone part,
     with panels defined in *panel_launchers*'''
 
@@ -87,9 +88,20 @@ def bootstrap_integration(panel_launchers):
         remote_session=remote_session,
     )
 
-    Host(event_manager)
+    host_registry = Registry()
+    host_registry.scan_modules(
+        extension_types=['plugin', 'engine', 'schema', 'tool_config'],
+        package_names=extension_packages,
+    )
 
-    client = Client(event_manager)
+    client_registry = Registry()
+    client_registry.scan_modules(
+        extension_types=['widget'], package_names=extension_packages
+    )
+
+    Host(event_manager, host_registry)
+
+    client = Client(event_manager, client_registry)
 
     # Create launcher
     Launcher(client)
