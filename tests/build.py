@@ -139,14 +139,14 @@ def build_plugin(args):
     # Locate and copy hook
     logging.info('Copying hook')
     hook_path = None
-    for filename in os.listdir(os.path.join(MONOREPO_PATH, 'framework-hooks')):
+    for filename in os.listdir(os.path.join(MONOREPO_PATH, 'extensions')):
         if filename == 'framework-{}-bootstrap'.format(DCC_NAME):
             hook_path = os.path.join(
-                MONOREPO_PATH, 'framework-hooks', filename, 'hook'
+                MONOREPO_PATH, 'extensions', filename, 'hook'
             )
     if not hook_path:
         raise Exception(
-            'Could not locate connect hook module within "framework-hooks"!'
+            'Could not locate connect hook module within "extensions"!'
         )
     logging.info('Copying Connect hook from {}'.format(hook_path))
     shutil.copytree(hook_path, os.path.join(STAGING_PATH, 'hook'))
@@ -174,8 +174,8 @@ def build_plugin(args):
             os.path.join(MONOREPO_PATH, 'libs', lib)
         )
     # Pick up hooks
-    for hook in os.listdir(os.path.join(MONOREPO_PATH, 'framework-hooks')):
-        hook_path = os.path.join(MONOREPO_PATH, 'framework-hooks', hook)
+    for hook in os.listdir(os.path.join(MONOREPO_PATH, 'extensions')):
+        hook_path = os.path.join(MONOREPO_PATH, 'extensions', hook)
         if not os.path.isdir(hook_path):
             continue
         if hook.find('-core-') > -1 or hook.find(DCC_NAME) > -1:
@@ -474,21 +474,21 @@ def build_cep(args):
         os.path.join(
             MONOREPO_PATH,
             "projects",
-            "framework-photoshop-js",
+            "sample_photoshop_js",
             "source",
             "utils.js",
         ),
         os.path.join(
             MONOREPO_PATH,
             "projects",
-            "framework-photoshop-js",
+            "sample_photoshop_js",
             "source",
             "event-constants.js",
         ),
         os.path.join(
             MONOREPO_PATH,
             "projects",
-            "framework-photoshop-js",
+            "sample_photoshop_js",
             "source",
             "events-core.js",
         ),
@@ -502,7 +502,7 @@ def build_cep(args):
         os.path.join(
             MONOREPO_PATH,
             "projects",
-            "framework-photoshop-js",
+            "sample_photoshop_js",
             "source",
             "bootstrap.js",
         ),
@@ -513,7 +513,7 @@ def build_cep(args):
         os.path.join(
             MONOREPO_PATH,
             "projects",
-            "framework-photoshop-js",
+            "sample_photoshop_js",
             "source",
             "ps.jsx",
         ),
