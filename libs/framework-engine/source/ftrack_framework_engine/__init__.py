@@ -170,7 +170,7 @@ class BaseEngine(ABC):
         #  plugins as default behaviour....
 
     @classmethod
-    def register(cls, event_manager):
+    def register(cls):
         '''
         Register function for the engine to be discovered.
         '''
@@ -178,11 +178,12 @@ class BaseEngine(ABC):
             '{0}.{1}'.format(__name__, cls.__class__.__name__)
         )
 
-        # subscribe to discover the engine for each compatible type
-        for engine_type in cls.engine_types:
-            logger.debug(
-                'registering: {} for {}'.format(cls.name, engine_type)
-            )
-            event_manager.subscribe.discover_engine(
-                engine_type, cls.name, callback=lambda event: True
-            )
+        logger.debug(
+            'registering: {} for {}'.format(cls.name, cls.engine_types)
+        )
+
+        data = {
+            'engine_types': cls.engine_types,
+            'engine_name': cls.name,
+        }
+        return data

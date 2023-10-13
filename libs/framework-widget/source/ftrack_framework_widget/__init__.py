@@ -114,7 +114,7 @@ class BaseUI(object):
         )
 
     @classmethod
-    def register(cls, event_manager):
+    def register(cls):
         '''
         Register function to discover widget by class *cls*. Returns False if the
         class is not registerable.
@@ -130,7 +130,9 @@ class BaseUI(object):
             'registering: {} for {}'.format(cls.name, cls.widget_type)
         )
 
-        # subscribe to discover the widget
-        event_manager.subscribe.discover_widget(
-            cls.ui_type, cls.name, callback=lambda event: True
-        )
+        data = {
+            'ui_type': cls.ui_type,
+            'widget_name': cls.name,
+        }
+
+        return data

@@ -12,7 +12,14 @@ bootstrap_integration(
             "dialog_name": "framework_publisher_dialog",
             "image": "publish",
         }
-    ]
+    ],
+    extension_packages=[
+        'ftrack_framework_core_engines',
+        'ftrack_framework_core_plugins',
+        'ftrack_framework_core_schemas',
+        'ftrack_framework_core_tool_configs',
+        'ftrack_framework_core_widgets',
+    ],
 )
 
 # Run until Photoshop is closed.
