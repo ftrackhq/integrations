@@ -511,6 +511,7 @@ class Client(object):
         self._register_dialog(dialog)
         self.dialog = dialog
         self.dialog.show_ui()
+        self.dialog.setFocus()
 
     def _register_dialog(self, dialog):
         '''Register the given initialized *dialog* to the dialogs registry'''

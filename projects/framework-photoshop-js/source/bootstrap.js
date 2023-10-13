@@ -18,7 +18,7 @@ try {
 
     jsx.evalFile('./ps.jsx', jsx_callback);
 } catch (e) {
-    error("[INTERNAL ERROR] Failed to resource "+e+" Details: "+e.stack);
+    error("[INTERNAL ERROR] Failed to load JSX resource "+e+" Details: "+e.stack);
 }
 
 function initializeIntegration() {
@@ -180,16 +180,16 @@ function launchTool(tool_name) {
     );
 }
 
-// RPC - extendscript calls
+// RPC - extendscript API calls
 
-// Whitelisted functions, add entrypoints from ps.jsx here
-const RPC_ALLOWED_FUNCTIONS = [
-    "getDocumentPath",
-    "getDocumentData",
-    "saveDocument",
-    "exportDocument",
-    "openDocument"
-];
+// Whitelisted functions and their mappings, add entrypoints from ps.jsx here
+var RPC_FUNCTION_MAPPING = {
+    getDocumentPath:"getDocumentPath",
+    getDocumentData:"getDocumentData",
+    saveDocument:"saveDocument",
+    exportDocument:"exportDocument",
+    openDocument:"openDocument",
+};
 
 function handleRemoteIntegrationRPCCallback(event) {
     /* Handle RPC calls from standalone process - run function with arguments
@@ -197,11 +197,13 @@ function handleRemoteIntegrationRPCCallback(event) {
     try {
         if (event.data.integration_session_id !== integration_session_id)
             return;
-        let function_name = event.data.function_name;
-        if (!RPC_ALLOWED_FUNCTIONS.includes(function_name)) {
+        let function_name_raw = event.data.function_name;
+        let function_name = RPC_FUNCTION_MAPPING[function_name_raw];
+
+        if (function_name === undefined || function_name.length === 0) {
             event_manager.publish_reply(event, prepareEventData(
                 {
-                    "result": {"message": "Function '"+function_name+"' not allowed"}
+                    "result": "Unknown RCP function '"+function_name+"'"
                 }
             ));
             return;
