@@ -16,10 +16,10 @@ INCLUDE_PACKAGES = [
     'libs/qt-style',
     'libs/utils',
     # HOOKS
-    'framework_hooks/framework-core-engines',
-    'framework_hooks/framework-core-plugins',
-    'framework_hooks/framework-core-schemas',
-    'framework_hooks/framework-core-tool-configs',
+    'extensions/framework-common-engines',
+    'extensions/framework-common-plugins',
+    'extensions/framework-common-schemas',
+    'extensions/framework-common-tool-configs',
 ]
 
 for _package in INCLUDE_PACKAGES:
@@ -39,11 +39,11 @@ registry_instance = registry.Registry()
 registry_instance.scan_modules(
     extension_types=['plugin', 'engine', 'schema', 'tool_config', 'widget'],
     package_names=[
-        'ftrack_framework_core_engines',
-        'ftrack_framework_core_plugins',
-        'ftrack_framework_core_schemas',
-        'ftrack_framework_core_tool_configs',
-        'ftrack_framework_core_widgets',
+        'ftrack_framework_common_engines',
+        'ftrack_framework_common_plugins',
+        'ftrack_framework_common_schemas',
+        'ftrack_framework_common_tool_configs',
+        'ftrack_framework_common_widgets',
     ],
 )
 host_class = host.Host(event_manager, registry=registry_instance)

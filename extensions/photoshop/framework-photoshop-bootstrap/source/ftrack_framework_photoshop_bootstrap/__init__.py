@@ -14,11 +14,11 @@ bootstrap_integration(
         }
     ],
     extension_packages=[
-        'ftrack_framework_core_engines',
-        'ftrack_framework_core_plugins',
-        'ftrack_framework_core_schemas',
-        'ftrack_framework_core_tool_configs',
-        'ftrack_framework_core_widgets',
+        'ftrack_framework_common_engines',
+        'ftrack_framework_common_plugins',
+        'ftrack_framework_common_schemas',
+        'ftrack_framework_common_tool_configs',
+        'ftrack_framework_common_widgets',
     ],
 )
 
