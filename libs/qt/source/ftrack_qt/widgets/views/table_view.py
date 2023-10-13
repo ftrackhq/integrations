@@ -9,6 +9,9 @@ from ftrack_qt.widgets.models import TableModel
 class TableView(QtWidgets.QTableView):
     '''Generic table view to represent an item.'''
 
+    # This is to be re-implemented in the children
+    selection_changed = QtCore.Signal(object)
+
     @property
     def table_model(self):
         return self._generic_model
@@ -53,12 +56,3 @@ class TableView(QtWidgets.QTableView):
         Sets the :obj:`data_items` with the given *data_items*
         '''
         self.table_model.set_data_items(data_items)
-
-    def _on_select_items(self):
-        selected_items = []
-        index_list = self.selectionModel().selectedRows()
-        for index in index_list:
-            selected_items.append(
-                self.model().data(index, self.model().DATA_ROLE)
-            )
-        return selected_items

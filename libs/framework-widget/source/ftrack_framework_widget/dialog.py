@@ -312,6 +312,10 @@ class FrameworkDialog(BaseUI):
             dialog_connect_methods_callback=self._connect_dialog_methods_callback,
             dialog_property_getter_connection_callback=self._connect_dialog_property_getter_connection_callback,
         )
+        # TODO: widgets can't really run any plugin (like fetch) before it gets
+        #  registred, so In case someone utomatically fetches during the init
+        #  of the widget it will fail because its not registered yet. Task is to
+        #  find a way to better handle the registry.
         self._register_widget(widget)
         return widget
 
