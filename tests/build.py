@@ -8,6 +8,7 @@ Designed to be shared across a Monorepo
 
 Version history:
 
+0.4.3, Henrik Norin, 23.10.11; Support for additional CEP JS include folder
 0.4.2, Henrik Norin, 23.10.09; Support for additional hook include folder
 0.4.1, Henrik Norin, 23.10.02; Redone Photoshop CEP build
 0.4.0, Henrik Norin, 23.09.21; Build within Monorepo, refactored framework
@@ -198,7 +199,9 @@ def build_plugin(args):
             hook_path = os.path.join(include_path, hook)
             if not os.path.isdir(hook_path):
                 continue
-            if hook.find('-core-') > -1 or hook.find(DCC_NAME) > -1:
+            if (
+                hook.find('-core-') > -1 or hook.find(DCC_NAME) > -1
+            ) and hook.find('-js') == -1:
                 framework_dependency_packages.append(hook_path)
 
     for dependency_path in framework_dependency_packages:
@@ -320,7 +323,7 @@ def build_resources(args):
         compiled = compiler.compile(scss_file=scss_source)
         with open(css_target, 'w') as file_handle:
             file_handle.write(compiled)
-            print('Compiled {0}'.format(css_target))
+            logging.info('Compiled {0}'.format(css_target))
 
     try:
         pyside_rcc_command = 'pyside2-rcc'
@@ -385,6 +388,7 @@ def get_version():
 def parse_and_copy(source_path, target_path, version):
     '''Copies the single file pointed out by *source_path* to *target_path* and
     replaces version expression to supplied *version*.'''
+    logging.info("Parsing and copying {}>{}".format(source_path, target_path))
     with open(source_path, 'r') as f_src:
         with open(target_path, 'w') as f_dst:
             f_dst.write(
@@ -395,7 +399,7 @@ def parse_and_copy(source_path, target_path, version):
 
 
 def build_cep(args):
-    '''Wrapper for building docs for preview'''
+    '''Wrapper for building Adobe CEP extension'''
 
     if not os.path.exists(CEP_PATH):
         raise Exception('Missing "{}/" folder!'.format(CEP_PATH))
@@ -468,18 +472,24 @@ def build_cep(args):
     # Copy framework js lib files
     for js_file in [
         os.path.join(
-            MONOREPO_PATH, "projects", "framework-photoshop-js", "utils.js"
+            MONOREPO_PATH,
+            "projects",
+            "framework-photoshop-js",
+            "source",
+            "utils.js",
         ),
         os.path.join(
             MONOREPO_PATH,
             "projects",
             "framework-photoshop-js",
+            "source",
             "event-constants.js",
         ),
         os.path.join(
             MONOREPO_PATH,
             "projects",
             "framework-photoshop-js",
+            "source",
             "events-core.js",
         ),
     ]:
@@ -490,18 +500,46 @@ def build_cep(args):
         )
     parse_and_copy(
         os.path.join(
-            MONOREPO_PATH, "projects", "framework-photoshop-js", "bootstrap.js"
+            MONOREPO_PATH,
+            "projects",
+            "framework-photoshop-js",
+            "source",
+            "bootstrap.js",
         ),
         os.path.join(STAGING_PATH, "bootstrap.js"),
         VERSION,
     )
     parse_and_copy(
         os.path.join(
-            MONOREPO_PATH, "projects", "framework-photoshop-js", "ps.jsx"
+            MONOREPO_PATH,
+            "projects",
+            "framework-photoshop-js",
+            "source",
+            "ps.jsx",
         ),
         os.path.join(STAGING_PATH, "ps.jsx"),
         VERSION,
     )
+    if args.include:
+        include_path = os.path.join(MONOREPO_PATH, args.include)
+        if not os.path.exists(include_path):
+            # Might be an absolute path
+            include_path = args.include
+        if not os.path.isdir(include_path):
+            raise Exception(
+                'Include path "{}" is not a folder!'.format(include_path)
+            )
+        logging.info(
+            'Searching additional include path for dependencies: {}'.format(
+                include_path
+            )
+        )
+        for filename in os.listdir(include_path):
+            parse_and_copy(
+                os.path.join(include_path, filename),
+                os.path.join(STAGING_PATH, filename),
+                VERSION,
+            )
 
     # Transfer manifest xml, store version
     manifest_staging_path = os.path.join(STAGING_PATH, 'CSXS', 'manifest.xml')
@@ -532,7 +570,7 @@ def build_cep(args):
     if result.returncode != 0:
         raise Exception('Could not sign and build extension!')
 
-    print('Result: ' + extension_output_path)
+    logging.info('Result: ' + extension_output_path)
 
 
 if __name__ == '__main__':
