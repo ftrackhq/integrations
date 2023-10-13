@@ -161,7 +161,6 @@ class PublisherDialog(FrameworkDialog, ScrollToolConfigsDialog):
 
     def _on_tool_config_changed_callback(self):
         '''The selected tool config has been changed'''
-        super(PublisherDialog, self)._on_tool_config_changed_callback()
         tool_config_name = None
         if self.tool_config:
             tool_config_name = self.tool_config.tool_title
