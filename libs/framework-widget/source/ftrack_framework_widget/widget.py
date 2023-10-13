@@ -139,10 +139,11 @@ class FrameworkWidget(BaseUI):
         )
 
     def on_context_updated(self):
-        '''Called when context of the widget has been updated'''
-        raise NotImplementedError(
-            "This method should be implemented by the inheriting class"
-        )
+        '''Called when context of the widget has been updated.
+        
+        Override to handle context change in inheriting class.
+        '''
+        pass
 
     def set_plugin_option(self, name, value):
         '''
