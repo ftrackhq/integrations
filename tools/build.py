@@ -146,21 +146,59 @@ def build_package(pkg_path, args):
         shutil.rmtree(STAGING_PATH, ignore_errors=True)
 
         # Locate and copy hook
-        logging.info('Copying hook')
-        hook_path = None
-        for filename in os.listdir(
-            os.path.join(MONOREPO_PATH, 'framework-hooks')
-        ):
-            if filename == 'framework-{}-bootstrap'.format(DCC_NAME):
-                hook_path = os.path.join(
-                    MONOREPO_PATH, 'framework-hooks', filename, 'hook'
-                )
-        if not hook_path:
+        logging.info('Copying Connect hook')
+        extension_path = None
+        hook_search_paths = []
+        if args.include:
+            hook_search_paths.append(args.include)
+        hook_search_paths.append(
+            os.path.join(MONOREPO_PATH, 'extensions', DCC_NAME)
+        )
+        for hook_search_path in hook_search_paths:
+            if not os.path.exists(hook_search_path):
+                continue
+            for filename in os.listdir(hook_search_path):
+                if filename.replace('_', '-').endswith("-connect-hook"):
+                    if os.path.exists(
+                        os.path.join(hook_search_path, filename, 'source')
+                    ):
+                        # Standard hook location
+                        hook_path_package = os.path.join(
+                            hook_search_path,
+                            filename,
+                            'source',
+                            'ftrack_framework_{}_connect_hook'.format(
+                                DCC_NAME
+                            ),
+                        )
+                    else:
+                        # Hook is in root
+                        hook_path_package = os.path.join(
+                            hook_search_path, filename
+                        )
+                    if os.path.exists(hook_path_package):
+                        for module_name in os.listdir(hook_path_package):
+                            if module_name.startswith(
+                                'discover_'
+                            ) and module_name.endswith('.py'):
+                                extension_path = os.path.join(
+                                    hook_path_package, module_name
+                                )
+                                break
+            if extension_path:
+                break
+        if not extension_path:
             raise Exception(
-                'Could not locate connect hook module within "framework-hooks"!'
+                'Could not locate connect hook module within "extensions"!'
             )
-        logging.info('Copying Connect hook from {}'.format(hook_path))
-        shutil.copytree(hook_path, os.path.join(STAGING_PATH, 'hook'))
+        logging.info('Copying Connect hook from {}'.format(extension_path))
+        os.makedirs(os.path.join(STAGING_PATH, 'hook'))
+        shutil.copy(
+            extension_path,
+            os.path.join(
+                STAGING_PATH, 'hook', os.path.basename(extension_path)
+            ),
+        )
 
         # Copy resources
 
@@ -177,52 +215,80 @@ def build_package(pkg_path, args):
 
         os.makedirs(dependencies_path)
 
-        logging.info('Collecting Framework dependencies')
+        logging.info(
+            'Collecting Framework extensions and libs, building dependencies...'
+        )
         framework_dependency_packages = []
         for lib in os.listdir(os.path.join(MONOREPO_PATH, 'libs')):
             lib_path = os.path.join(MONOREPO_PATH, 'libs', lib)
-            if not os.path.isdir(lib_path) or lib.find('to_remove') > -1:
+            if not os.path.isdir(lib_path):
                 continue
-            framework_dependency_packages.append(
-                os.path.join(MONOREPO_PATH, 'libs', lib)
-            )
-        # Pick up hooks
-        for hook in os.listdir(os.path.join(MONOREPO_PATH, 'framework-hooks')):
-            hook_path = os.path.join(MONOREPO_PATH, 'framework-hooks', hook)
-            if not os.path.isdir(hook_path):
-                continue
-            if (
-                hook.find('-core-') > -1 or hook.find(DCC_NAME) > -1
-            ) and not hook.endswith('-js'):
-                framework_dependency_packages.append(hook_path)
+            extension_path = os.path.join(MONOREPO_PATH, 'libs', lib)
+            framework_dependency_packages.append(extension_path)
+            logging.info('Adding library package: {}'.format(extension_path))
 
+        # Pick up extensions
         if args.include:
+            # First pick up includes
             include_path = os.path.join(MONOREPO_PATH, args.include)
             if not os.path.exists(include_path):
                 # Might be an absolute path
                 include_path = args.include
-            if not os.path.isdir(include_path):
+            if not os.path.exists(include_path) or not os.path.isdir(
+                include_path
+            ):
                 raise Exception(
-                    'Include path "{}" is not a folder!'.format(include_path)
+                    'Include path "{}" does not exist or is not a folder!'.format(
+                        include_path
+                    )
                 )
             logging.info(
-                'Searching additional include path for dependencies: {}'.format(
+                'Searching additional include path for packages: {}'.format(
                     include_path
                 )
             )
-            for hook in os.listdir(include_path):
-                hook_path = os.path.join(include_path, hook)
-                if not os.path.isdir(hook_path):
+            for extension in os.listdir(include_path):
+                extension_path = os.path.join(include_path, extension)
+                if not os.path.isdir(extension_path):
                     continue
-                if (
-                    hook.find('-core-') > -1 or hook.find(DCC_NAME) > -1
-                ) and not hook.endswith('-js'):
-                    framework_dependency_packages.append(hook_path)
+                if not extension.endswith('-js'):
+                    logging.info(
+                        'Adding package include: {}'.format(extension_path)
+                    )
+                    framework_dependency_packages.append(extension_path)
 
+        for extension_base_path in [
+            os.path.join(MONOREPO_PATH, 'extensions', 'common'),
+            os.path.join(MONOREPO_PATH, 'extensions', DCC_NAME),
+        ]:
+            for extension in os.listdir(extension_base_path):
+                extension_path = os.path.join(extension_base_path, extension)
+                if not os.path.isdir(extension_path):
+                    continue
+                if not extension.endswith('-js'):
+                    add = True
+                    # Check if already in there
+                    for existing in framework_dependency_packages:
+                        if os.path.basename(existing) == extension:
+                            add = False
+                            break
+                    if add:
+                        logging.info(
+                            'Adding package: {}'.format(extension_path)
+                        )
+                        framework_dependency_packages.append(extension_path)
+                    else:
+                        logging.warning()
+
+        bootstrap_package_filename = 'ftrack_framework_{}_bootstrap'.format(
+            DCC_NAME
+        )
         for dependency_path in framework_dependency_packages:
             if os.path.exists(os.path.join(dependency_path, 'setup.py')):
                 logging.info(
-                    'Building {}'.format(os.path.basename(dependency_path))
+                    'Building Python dependencies for "{}"'.format(
+                        os.path.basename(dependency_path)
+                    )
                 )
                 os.chdir(dependency_path)
                 restore_build_file = False
@@ -250,27 +316,32 @@ def build_package(pkg_path, args):
                     os.rename(PATH_BUILD + '_', PATH_BUILD)
 
             else:
+                # Should have source folder but not having it is also allowed
                 source_path = os.path.join(dependency_path, 'source')
-                if not os.path.exists(source_path):
-                    continue
-                source_path = find_python_source(source_path)
+                if os.path.exists(source_path):
+                    source_path = find_python_source(source_path)
+                else:
+                    source_path = dependency_path
                 logging.info('Copying {}'.format(source_path))
-                dest_path = os.path.join(
-                    dependencies_path, os.path.basename(source_path)
-                )
+                filename = os.path.basename(source_path)
+
+                if (
+                    filename.endswith('_bootstrap')
+                    and filename != bootstrap_package_filename
+                ):
+                    # Rename bootstrap package to the correct name expected by app launcher for now
+                    filename = bootstrap_package_filename
+                dest_path = os.path.join(dependencies_path, filename)
                 if os.path.exists(dest_path):
-                    logging.info(
-                        '   Overriding {}'.format(
-                            os.path.basename(source_path)
-                        )
-                    )
-                    shutil.rmtree(dest_path)
+                    continue
                 shutil.copytree(
                     source_path,
                     dest_path,
                 )
 
-        logging.info('Collecting dependencies from wheel')
+        logging.info(
+            'Collecting dependencies from "{}" wheel'.format(DCC_NAME)
+        )
         subprocess.check_call(
             [
                 sys.executable,
