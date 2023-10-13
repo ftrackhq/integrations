@@ -140,7 +140,7 @@ class FrameworkWidget(BaseUI):
 
     def on_context_updated(self):
         '''Called when context of the widget has been updated.
-        
+
         Override to handle context change in inheriting class.
         '''
         pass
@@ -150,3 +150,7 @@ class FrameworkWidget(BaseUI):
         Updates the *name* option of the current plugin with the given *value*
         '''
         self.plugin_options = {name: value}
+
+    def validate(self):
+        '''Re implement this method to add validation to the widget'''
+        return None
