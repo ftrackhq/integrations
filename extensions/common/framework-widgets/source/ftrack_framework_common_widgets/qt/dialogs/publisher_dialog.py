@@ -152,7 +152,6 @@ class PublisherDialog(FrameworkDialog, ScrollToolConfigsDialog):
 
     def _on_client_host_changed_callback(self, event=None):
         '''Client host has been changed'''
-        super(PublisherDialog, self)._on_client_host_changed_callback(event)
         if not self.host_connection:
             self.selected_host_connection_id = None
             return
@@ -175,6 +174,9 @@ class PublisherDialog(FrameworkDialog, ScrollToolConfigsDialog):
         '''
         if self.is_browsing_context:
             return
+        # Don't try to sync context if self.host_connection is not set.
+        if not self.context_id and not self.host_connection:
+            return
         if self.context_id != self.selected_context_id:
             result = ModalDialog(
                 self,
@@ -193,7 +195,10 @@ class PublisherDialog(FrameworkDialog, ScrollToolConfigsDialog):
         Client host has been changed and doesn't match the ui host when
         focus is back to the current UI
         '''
-        if self.host_connection.host_id != self.selected_host_connection_id:
+        client_host_connection = None
+        if self.host_connection:
+            client_host_connection = self.host_connection.host_id
+        if client_host_connection != self.selected_host_connection_id:
             result = ModalDialog(
                 self,
                 title='Host connection out of sync!',

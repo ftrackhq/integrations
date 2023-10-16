@@ -51,8 +51,9 @@ class TabDialog(StyledDialog):
     def selected_host_connection_id(self, value):
         '''Set the given *value* as selected host_connection_id'''
         if not self.selected_host_connection_id and not value:
-            pass
+            self.clear_tab_ui()
         if self.selected_host_connection_id != value:
+            self.clear_tab_ui()
             if not value:
                 self._host_connection_selector.set_current_item_index(0)
                 return
@@ -151,3 +152,13 @@ class TabDialog(StyledDialog):
 
     def _on_tab_changed_callback(self, index):
         self.selected_tab_changed.emit(self._tab_widget.tabText(index))
+
+    def clear_tab_ui(self):
+        '''Remove all widgets from the tabs layout'''
+        self._tab_widget.currentChanged.disconnect()
+        while self._tab_widget.count():
+            widget = self._tab_widget.widget(0)
+            self._tab_widget.removeTab(0)
+            if widget:
+                widget.deleteLater()
+        self._tab_widget.currentChanged.connect(self._on_tab_changed_callback)
