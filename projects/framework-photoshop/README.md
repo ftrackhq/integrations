@@ -61,7 +61,7 @@ source folder before committing.
 
 Set variables:
 
-    FTRACK_ADOBE_CERTIFICATE_PASSWORD=<Adobe exchange vault entry>
+    ADOBE_CERTIFICATE_PASSWORD=<Adobe exchange vault entry>
 
 Create Adobe extension:
 

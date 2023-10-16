@@ -496,9 +496,9 @@ def build_package(pkg_path, args):
         if not os.path.exists(MANIFEST_PATH):
             raise Exception('Missing mainfest:{}!'.format(MANIFEST_PATH))
 
-        if len(os.environ.get('FTRACK_ADOBE_CERTIFICATE_PASSWORD') or '') == 0:
+        if len(os.environ.get('ADOBE_CERTIFICATE_PASSWORD') or '') == 0:
             raise Exception(
-                'Need certificate password in FTRACK_ADOBE_CERTIFICATE_PASSWORD '
+                'Need certificate password in ADOBE_CERTIFICATE_PASSWORD '
                 'environment variable!'
             )
 
@@ -656,7 +656,7 @@ def build_package(pkg_path, args):
                 STAGING_PATH,
                 extension_output_path,
                 CERTIFICATE_PATH,
-                '{}'.format(os.environ['FTRACK_ADOBE_CERTIFICATE_PASSWORD']),
+                '{}'.format(os.environ['ADOBE_CERTIFICATE_PASSWORD']),
             ]
         )
         result.communicate()
