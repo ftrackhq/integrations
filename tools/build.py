@@ -642,7 +642,7 @@ def build_package(pkg_path, args):
 
         extension_output_path = os.path.join(
             BUILD_PATH,
-            'ftrack_framework_adobe_{}.zxp'.format(VERSION),
+            'ftrack-framework-adobe-{}.zxp'.format(VERSION),
         )
 
         # Create and sign extension

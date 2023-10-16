@@ -8,6 +8,18 @@ Copyright (c) 2014-2023 ftrack
 
 #target photoshop
 
+function hasDocument() {
+    return documents.length > 0?"true":"false";
+}
+
+function documentSaved() {
+     if (documents.length == 0) {
+        return "No document open!";
+    }
+    const activeDoc = app.activeDocument;
+    return activeDoc.saved?"true":"false";
+}
+
 function getDocumentPath() {
     /*
      * Returns the path of the document, or an empty string if it has not been saved
