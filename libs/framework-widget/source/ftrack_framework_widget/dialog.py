@@ -257,10 +257,10 @@ class FrameworkDialog(BaseUI):
         else:
             self.is_active = False
         if self.is_active:
-            # Synchronize context with client
-            self.sync_context()
             # Synchronize Host connection with client
             self.sync_host_connection()
+            # Synchronize context with client
+            self.sync_context()
 
     def sync_context(self):
         '''

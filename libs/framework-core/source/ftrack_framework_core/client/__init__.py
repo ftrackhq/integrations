@@ -128,8 +128,9 @@ class Client(object):
     @property
     def context_id(self):
         '''Returns the current context id from current host connection'''
-        if self.host_connection is None:
-            raise Exception('No host connection available')
+        if not self.host_connection:
+            self.logger.warning('No host connection available')
+            return
         return self.host_connection.context_id
 
     @context_id.setter

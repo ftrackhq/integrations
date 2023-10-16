@@ -46,6 +46,9 @@ registry_instance.scan_modules(
         'ftrack_framework_common_schemas',
         'ftrack_framework_common_tool_configs',
         'ftrack_framework_common_widgets',
+        'sample_photoshop_plugins',
+        'sample_photoshop_tool_configs',
+        'sample_photoshop_widgets',
     ],
 )
 
