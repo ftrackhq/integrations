@@ -8,7 +8,7 @@ def scan_modules():
     '''Scan sys path and return all modules by lower case name.'''
     result = []
     for path in sys.path:
-        if os.path.exists(path):
+        if os.path.exists(path) and os.path.isdir(path):
             for fn in os.listdir(path):
                 if fn.find('-') > -1:
                     continue
