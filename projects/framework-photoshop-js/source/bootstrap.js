@@ -184,6 +184,8 @@ function launchTool(tool_name) {
 
 // Whitelisted functions and their mappings, add entrypoints from ps.jsx here
 var RPC_FUNCTION_MAPPING = {
+    hasDocument:"hasDocument",
+    documentSaved:"documentSaved",
     getDocumentPath:"getDocumentPath",
     getDocumentData:"getDocumentData",
     saveDocument:"saveDocument",
