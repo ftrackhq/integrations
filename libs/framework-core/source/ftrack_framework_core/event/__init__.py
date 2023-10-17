@@ -129,13 +129,7 @@ class EventManager(object):
             # TODO: Bring this back when API event hub properly can differentiate between local and remote mode
             self._connect()
             self._wait()
-        # elif remote_session:
-        #     # Create a remote event manager to be able to publish events over server
-        #     # TODO: Remove when API event hub properly can differentiate between local and remote mode
-        #     self._remote_event_manager = EventManager(
-        #         session=remote_session, mode=constants.event.REMOTE_EVENT_MODE
-        #     )
-
+            
         # Initialize Publish and subscribe classes to be able to provide
         # predefined events.
         self._publish_instance = Publish(self)
@@ -457,12 +451,6 @@ class Subscribe(object):
     def _subscribe_event(self, event_topic, callback):
         '''Common method that calls the private subscribe method from the event manager'''
         return self.event_manager._subscribe(event_topic, callback=callback)
-
-    # def _subscribe_remote_event(self, event_topic, callback):
-    #     '''Common method that calls the private subscribe method from the event manager'''
-    #     return self.event_manager.remote._subscribe(
-    #         event_topic, callback=callback
-    #     )
 
     def discover_host(self, callback):
         '''
