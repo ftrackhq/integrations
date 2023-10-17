@@ -74,6 +74,8 @@ def bootstrap_integration(panel_launchers, extension_packages):
         extension_types=['widget'], package_names=extension_packages
     )
 
+    # TODO: Update to pass in RPC interface and allow the plugins
+    # to access Photoshop in this case.
     Host(event_manager, host_registry)
 
     client = Client(event_manager, client_registry)
