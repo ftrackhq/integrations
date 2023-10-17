@@ -245,7 +245,7 @@ class Host(object):
         # Init plugins
         for plugin in registered_plugins:
             initialized_plugins.append(
-                plugin(self.event_manager, self.id, self.ftrack_object_manager)
+                plugin(self, self.id, self.ftrack_object_manager)
             )
 
         self.__plugins_discovered = initialized_plugins

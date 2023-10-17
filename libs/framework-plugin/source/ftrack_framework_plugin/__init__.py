@@ -45,7 +45,11 @@ class BasePlugin(ABC):
         Returns instance of
         :class:`~ftrack_framework_core.event.EventManager`
         '''
-        return self._event_manager
+        return self.host.event_manager
+
+    @property
+    def host(self):
+        return self._host
 
     @property
     def id(self):
@@ -193,7 +197,7 @@ class BasePlugin(ABC):
         '''Return Current stage name where plugin is been executed'''
         return self._plugin_stage_name
 
-    def __init__(self, event_manager, host_id, ftrack_object_manager):
+    def __init__(self, host, host_id, ftrack_object_manager):
         '''
         Initialise BasePlugin with instance of
         :class:`ftrack_api.session.Session`
@@ -203,7 +207,7 @@ class BasePlugin(ABC):
             '{0}.{1}'.format(__name__, self.__class__.__name__)
         )
 
-        self._event_manager = event_manager
+        self._host = host
         self._ftrack_object_manager = ftrack_object_manager
         self._host_id = host_id
         self._id = uuid.uuid4().hex

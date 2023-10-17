@@ -43,13 +43,13 @@ class BaseLoaderOpenerPlugin(BasePlugin):
     def json_data(self):
         return self._json_data
 
-    def __init__(self, event_manager, host_id, ftrack_object_manager):
+    def __init__(self, host, host_id, ftrack_object_manager):
         '''
         Initialise BasePlugin with instance of
         :class:`ftrack_api.session.Session`
         '''
         super(BaseLoaderOpenerPlugin, self).__init__(
-            event_manager, host_id, ftrack_object_manager
+            host, host_id, ftrack_object_manager
         )
         self._old_objects = None
         self._new_objects = None
