@@ -9,12 +9,29 @@ Community owned Photoshop integration for ftrack.
 
 ## Preparations
 
- #. Install Poetry
- #. Create a Python 3.7 virtual environment
- #. Activate venv
- #. Initialize Poetry and install dev dependencies:
+ 1. Install Poetry
+ 2. Create a Python 3.7 virtual environment ( [Check instructions in case you are in Apple Silicon chip]((###How to install compatible PySide2 Python 3.7 on Silicon based Mac ))
+ 3. Activate venv
+ 4. Initialize Poetry and install dev dependencies:
 
-     $ poetry install --with development
+    `$ poetry install --with development`
+
+### How to install compatible PySide2 Python 3.7 on Silicon based Mac 
+
+1. Open a roseta terminal:
+   1. Duplicate the terminal application and check the "Open using Rosetta" checkbox inside the "Get Info" right click menu.
+2. Install brew for x86_64 arch
+   1.  `$ arch -x86_64 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)" `
+   2. You can create an alias named ibrew to identify the intel brew. 
+      1. `$ alias ibrew="arch -x86_64 /usr/local/bin/brew"`
+3. Install the python version with the intel brew
+   1. `$ ibrew install python@3.7` 
+4. Install virtualenv
+   1. `$ /usr/local/opt/python@3.7/bin/pip3 install virtualenv`
+5. Create a new virtual environment
+   1. `$ /usr/local/opt/python@3.7/bin/python3 -m virtualenv /Users/ftrack/ftrack_integrations_env`
+6. Activate environment:
+   1. `$ source /Users/ftrack/ftrack_integrations_env/bin/activate`
 
 ## Build package
 
