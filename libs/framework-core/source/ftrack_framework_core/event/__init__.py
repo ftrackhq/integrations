@@ -59,11 +59,6 @@ class EventManager(object):
     def session(self):
         return self._session
 
-    # @property
-    # def remote(self):
-    #     '''Return the remote variant of the event manager'''
-    #     return self._remote_event_manager
-
     @property
     def connected(self):
         _connected = False
@@ -117,7 +112,6 @@ class EventManager(object):
         self,
         session,
         mode=constants.event.LOCAL_EVENT_MODE
-        # remote_session=None,
     ):
         self.logger = logging.getLogger(
             __name__ + '.' + self.__class__.__name__
