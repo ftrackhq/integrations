@@ -120,7 +120,7 @@ class Host(object):
         # Need to unsubscribe to make sure we subscribe again with the new
         # context
         self.session.event_hub.unsubscribe(self._discover_host_subscribe_id)
-        # Reply to discover_host_callback to clints to pass the host information
+        # Reply to discover_host_callback to clients to pass the host information
         discover_host_callback_reply = partial(
             provide_host_information,
             self.id,
