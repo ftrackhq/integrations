@@ -47,11 +47,6 @@ class PhotoshopRPC(object):
     def _initialise(self):
         '''Initialise the Photoshop connection'''
 
-        # self.event_manager.subscribe.discover_remote_integration(
-        #     get_integration_session_id(),
-        #     self._on_discover_remote_integration_callback,
-        # )
-
         event_topic = (
             'topic={} and source.applicationId=ftrack.api.javascript '
             'and data.integration_session_id={}'.format(
