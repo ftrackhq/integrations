@@ -117,6 +117,22 @@ class Host(object):
         self.logger.warning(
             'ftrack host context is now: {}'.format(self.context_id)
         )
+        # Need to unsubscribe to make sure we subscribe again with the new
+        # context
+        self.session.event_hub.unsubscribe(self._discover_host_subscribe_id)
+        # Reply to discover_host_callback to clients to pass the host information
+        discover_host_callback_reply = partial(
+            provide_host_information,
+            self.id,
+            self.name,
+            self.context_id,
+            self.tool_configs,
+        )
+        self._discover_host_subscribe_id = (
+            self.event_manager.subscribe.discover_host(
+                callback=discover_host_callback_reply
+            )
+        )
         self.event_manager.publish.host_context_changed(
             self.id, self.context_id
         )
@@ -197,6 +213,7 @@ class Host(object):
         self.__schemas_discovered = {}
         self.__plugins_discovered = []
         self.__engines_discovered = {}
+        self._discover_host_subscribe_id = None
 
         # Register modules
         self._register_modules(registry)
@@ -384,8 +401,10 @@ class Host(object):
             self.context_id,
             self.tool_configs,
         )
-        self.event_manager.subscribe.discover_host(
-            callback=discover_host_callback_reply
+        self._discover_host_subscribe_id = (
+            self.event_manager.subscribe.discover_host(
+                callback=discover_host_callback_reply
+            )
         )
         # Subscribe to run tool_config
         self.event_manager.subscribe.host_run_tool_config(
