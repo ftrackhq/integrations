@@ -73,6 +73,11 @@ class Host(object):
         return self._event_manager
 
     @property
+    def rpc_connection(self):
+        '''Returns instance of RPC connection.'''
+        return self.__rpc_connection
+
+    @property
     def session(self):
         '''
         Returns instance of :class:`ftrack_api.session.Session`
@@ -172,7 +177,7 @@ class Host(object):
 
     # TODO: we can create an engine registry
 
-    def __init__(self, event_manager, registry):
+    def __init__(self, event_manager, registry, rpc_connection=None):
         '''
         Initialise Host with instance of
         :class:`~ftrack_framework_core.event.EventManager`
@@ -192,6 +197,10 @@ class Host(object):
         # Set event manager and object manager
         self._event_manager = event_manager
         self._ftrack_object_manager = None
+
+        # Optional RPC connection.
+        self.__rpc_connection = rpc_connection
+        
         # Reset all registries
         self.__tool_configs_discovered = {}
         self.__schemas_discovered = {}

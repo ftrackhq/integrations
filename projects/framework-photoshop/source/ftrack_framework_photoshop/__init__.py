@@ -74,21 +74,10 @@ def bootstrap_integration(panel_launchers, extension_packages):
         extension_types=['widget'], package_names=extension_packages
     )
 
-    # TODO: Update to pass in RPC interface and allow the plugins
-    # to access Photoshop in this case.
-    Host(event_manager, host_registry)
-
-    client = Client(event_manager, client_registry)
-
     def on_run_dialog_callback(dialog_name):
         ftrack_qt.utils.invoke_in_qt_thread(
             client.run_dialog, dialog_name
         )
-
-    photoshop_version = os.environ.get('FTRACK_PHOTOSHOP_VERSION')
-    assert (
-        photoshop_version
-    ), 'Photoshop integration requires FTRACK_PHOTOSHOP_VERSION passed as environment variable!'
 
     rpc_connection = PhotoshopRPC(
         remote_session.event_hub,
@@ -96,6 +85,17 @@ def bootstrap_integration(panel_launchers, extension_packages):
         integration_session_id,
         on_run_dialog_callback
     )
+
+    # TODO: Update to pass in RPC interface and allow the plugins
+    # to access Photoshop in this case.
+    Host(event_manager, host_registry, rpc_connection=rpc_connection)
+
+    client = Client(event_manager, client_registry)
+
+    photoshop_version = os.environ.get('FTRACK_PHOTOSHOP_VERSION')
+    assert (
+        photoshop_version
+    ), 'Photoshop integration requires FTRACK_PHOTOSHOP_VERSION passed as environment variable!'
 
     global monitor_process
     monitor_process = process_util.MonitorProcess(int(photoshop_version))
