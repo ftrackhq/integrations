@@ -17,6 +17,8 @@ import platform
 from operator import itemgetter
 from distutils.version import LooseVersion
 
+from ._version import __version__
+
 import ftrack_api
 from ftrack_action_handler.action import BaseAction
 from ftrack_application_launcher.configure_logging import configure_logging
