@@ -8,6 +8,19 @@ from Qt import QtWidgets, QtCore, QtGui
 # TODO: check this utilities if they are really needed.
 
 
+def get_framework_dialog(widget, framework_dialog):
+    '''Recursively check if the parent widget is instance of the given
+    *frameworkDialog* if not return the top parent widget'''
+    parent = widget.parentWidget()
+    if not parent:
+        if isinstance(widget, framework_dialog):
+            return widget
+        return
+    if isinstance(parent, framework_dialog):
+        return parent
+    get_framework_dialog(parent, framework_dialog)
+
+
 def find_parent(widget, class_name):
     '''Recursively find upstream widget having class name
     containing *class_name*'''
