@@ -15,6 +15,54 @@ git clone https://github.com/ftrackhq/integrations
 
 or download the source ZIP from the [Integrations repository](https://github.com/ftrackhq/integrations) on Github
 
+
+## Preparations
+
+Follow these steps to prepare your environment:
+
+1. Install Poetry.
+2. Create a Python 3.7 virtual environment. If you're using an Apple Silicon chip, follow the instructions in the [How to install compatible PySide2 on Silicon based Mac](###How to install compatible PySide2 on Silicon based Mac) section.
+3. Activate the virtual environment.
+4. Initialize Poetry and install dev dependencies using the following command:
+    ```bash
+    poetry install --with development
+    ```
+
+### How to install compatible PySide2 on Silicon based Mac 
+
+Follow these steps to install a compatible version of PySide2 Python 3.7 on a Silicon-based Mac:
+
+1. Open a Rosetta terminal:
+    - Duplicate the terminal application and check the "Open using Rosetta" checkbox inside the "Get Info" right-click menu.
+2. Install brew for x86_64 architecture:
+    - Run the following command:
+        ```bash
+        arch -x86_64 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"
+        ```
+    - Create an alias named `ibrew` to identify the Intel brew:
+        ```bash
+        alias ibrew="arch -x86_64 /usr/local/bin/brew"
+        ```
+3. Install the Python version with the Intel brew:
+    - Run the following command:
+        ```bash
+        ibrew install python@3.7
+        ```
+4. Install `virtualenv`:
+    - Run the following command:
+        ```bash
+        /usr/local/opt/python@3.7/bin/pip3 install virtualenv
+        ```
+5. Create a new virtual environment and activate it:
+    - Run the following command to create the virtualenv:
+        ```bash
+        /usr/local/opt/python@3.7/bin/python3 -m virtualenv <path-to-where-you-want-it>
+        ```
+    - Run the following command:
+        ```bash
+        source  <path-to-where-you-want-it>/bin/activate
+        ```
+
 ## Black
 
 We run Black version 23 on the codebase to ensure consistent formatting. 
