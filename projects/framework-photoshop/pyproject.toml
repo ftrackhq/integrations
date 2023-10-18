@@ -24,6 +24,14 @@ optional = false
 ftrack-constants = "2.0.0rc1"
 ftrack-utils = "2.0.0rc1"
 ftrack-framework-core = "2.0.0rc1"
+#Extensions
+ftrack-framework-common-engines = "2.0.0rc1"
+ftrack-framework-common-plugins = "2.0.0rc1"
+ftrack-framework-common-schemas = "2.0.0rc1"
+ftrack-framework-common-tool-configs = "2.0.0rc1"
+ftrack-framework-common-widgets = "2.0.0rc1"
+ftrack-framework-photoshop-bootstrap = "2.0.0rc1"
+ftrack-framework-photoshop-hook = "2.0.0rc1"
 
 [tool.poetry.group.development]
 optional = true

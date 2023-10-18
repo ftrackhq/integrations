@@ -1,0 +1,26 @@
+[tool.poetry]
+name = "ftrack-common-engines-extension"
+version = "2.0.0rc1"
+description='ftrack common enignes extension'
+authors = ["ftrack Integrations Team <integrations@backlight.co>"]
+readme = "README.md"
+packages = [{include = "ftrack_framework_common_engines", from = "source"}]
+license = "Apache-2.0"
+homepage = "https://ftrack.com"
+repository = "https://github.com/ftrackhq/integrations"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.dependencies]
+python = ">= 3.7, < 3.8"
+
+# If this doesn't work with Pants, move it to root dependencies.
+[tool.poetry.group.framework]
+optional = false
+
+[tool.poetry.group.framework.dependencies]
+ftrack-constants = "2.0.0rc1"
+ftrack-utils = "2.0.0rc1"
+ftrack-framework-engine = "2.0.0rc1"
