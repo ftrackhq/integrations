@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "ftrack-framework-core"
-version = "0.1.0"
+version = "2.0.0rc1"
 description='ftrack Framework Core library'
 authors = ["ftrack Integrations Team <integrations@backlight.co>"]
 readme = "README.md"
@@ -18,6 +18,17 @@ python_jsonschema_objects = "<= 0.3.12"
 # Keep importlib-metadata it low, otherwise python_jsonschema_objects
 # build on python 3.7.12 will not work on maya 2022
 importlib-metadata = "<5.0"
+
+# If this doesn't work with Pants, move it to root dependencies.
+[tool.poetry.group.framework]
+optional = false
+
+[tool.poetry.group.framework.dependencies]
+ftrack-constants = "2.0.0rc1"
+ftrack-framework-engine = "2.0.0rc1"
+ftrack-framework-plugin = "2.0.0rc1"
+ftrack-framework-widget = "2.0.0rc1"
+ftrack-framework-utils = "2.0.0rc1"
 
 [build-system]
 requires = ["poetry-core"]
