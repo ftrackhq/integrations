@@ -11,7 +11,7 @@ Community owned Photoshop integration for ftrack.
 Follow these steps to prepare your environment:
 
 1. Install Poetry.
-2. Create a Python 3.7 virtual environment. If you're using an Apple Silicon chip, follow the instructions in the [###How to install compatible PySide2 Python 3.7 on Silicon based Mac](#how-to-install-compatible-pyside2-python-37-on-silicon-based-mac) section.
+2. Create a Python 3.7 virtual environment. If you're using an Apple Silicon chip, follow the instructions in the [How to install compatible PySide2 Python 3.7 on Silicon based Mac](### How to install compatible PySide2 Python 3.7 on Silicon based Mac) section.
 3. Activate the virtual environment.
 4. Initialize Poetry and install dev dependencies using the following command:
     ```bash
