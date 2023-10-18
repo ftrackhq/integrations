@@ -32,7 +32,7 @@ ftrack-constants = "2.0.0rc1"
 ftrack-framework-engine = "2.0.0rc1"
 ftrack-framework-plugin = "2.0.0rc1"
 ftrack-framework-widget = "2.0.0rc1"
-ftrack-framework-utils = "2.0.0rc1"
+ftrack-utils = "2.0.0rc1"
 
 [tool.poetry.group.documentation]
 optional = true

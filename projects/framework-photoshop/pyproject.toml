@@ -1,34 +1,44 @@
 [tool.poetry]
 name = "ftrack-framework-photoshop"
-version = "0.0.0"
+version = "1.0.0rc1"
 description='ftrack Adobe Photoshop integration'
 authors = ["ftrack Integrations Team <integrations@backlight.co>"]
 readme = "README.md"
 packages = [{include = "ftrack_framework_photoshop", from = "source"}]
 license = "Apache-2.0"
-maintainers = [
-    "Henrik Norin <henrik.norin@backlight.co>",
-    "LLuis Casals <lluis.casals@backlight.co>",
-]
 homepage = "https://ftrack.com"
 repository = "https://github.com/ftrackhq/integrations"
 
 [build-system]
-requires = ["poetry-core>=1.0.0", "poetry-dynamic-versioning"]
-build-backend = "poetry_dynamic_versioning.backend"
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
 
 [tool.poetry.dependencies]
 python = ">= 3.7, < 3.8"
-PySide2 = "<= 5.16"
-# https://python-poetry.org/docs/dependency-specification#dependency-specification
-#ftrack-framework-core = { path = "/Users/ftrack/work/ftrack/repos/integrations/libs/framework-core"}
+ftrack-python-api = ">= 1, < 3"
+
+[tool.poetry.group.framework]
+optional = false
+
+[tool.poetry.group.framework.dependencies]
+ftrack-constants = "2.0.0rc1"
+ftrack-utils = "2.0.0rc1"
+ftrack-framework-core = "2.0.0rc1"
+#Extensions
+ftrack-framework-common-engines = "2.0.0rc1"
+ftrack-framework-common-plugins = "2.0.0rc1"
+ftrack-framework-common-schemas = "2.0.0rc1"
+ftrack-framework-common-tool-configs = "2.0.0rc1"
+ftrack-framework-common-widgets = "2.0.0rc1"
+ftrack-framework-photoshop-bootstrap = "2.0.0rc1"
+ftrack-framework-photoshop-hook = "2.0.0rc1"
 
 [tool.poetry.group.development]
 optional = true
 
 [tool.poetry.group.development.dependencies]
 python = ">= 3.7, < 3.8"
-PySide2 = "<= 5.16"
+# https://python-poetry.org/docs/dependency-specification#dependency-specification
 ftrack-framework-core = { path = "../libs/framework-core"}
 
 
@@ -36,24 +46,4 @@ ftrack-framework-core = { path = "../libs/framework-core"}
 optional = true
 
 [tool.poetry.group.documentation.dependencies]
-pyScss = "^1.2.0"
-Jinja2 = "<3.1"
-sphinx = ">= 1.8.5, < 4"
-sphinx_rtd_theme = "^0.1.6"
-lowdown = "^0.1.0"
-black = "==23.1.0"
-
-[tool.poetry.group.test]
-optional = true
-
-[tool.poetry.group.test.dependencies]
-pytest = "^2.3.5"
-
-[tool.poetry-dynamic-versioning]
-enable = true
-vcs = "git"
-style = "pep440"
-latest-tag = true
-
-[tool.poetry-dynamic-versioning.substitution]
-files=["source/ftrack_framework_photoshop/_version.py"]
+markdown = "<=3.2.2"
