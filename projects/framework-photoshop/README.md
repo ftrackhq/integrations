@@ -19,7 +19,7 @@ Follow these steps to prepare your environment:
     poetry install --with development
     ```
 
-## How to install compatible PySide2 Python 3.7 on Silicon based Mac 
+### How to install compatible PySide2 Python 3.7 on Silicon based Mac 
 
 Follow these steps to install a compatible version of PySide2 Python 3.7 on a Silicon-based Mac:
 
