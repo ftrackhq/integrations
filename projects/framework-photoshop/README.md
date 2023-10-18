@@ -1,5 +1,4 @@
-ftrack Photoshop integration
-############################
+# ftrack Photoshop integration
 
 Community owned Photoshop integration for ftrack.
 
