@@ -23,3 +23,4 @@ optional = false
 [tool.poetry.group.framework.dependencies]
 ftrack-constants = "2.0.0rc1"
 ftrack-qt-style = "2.0.0rc1"
+ftrack-utils = "2.0.0rc1"
