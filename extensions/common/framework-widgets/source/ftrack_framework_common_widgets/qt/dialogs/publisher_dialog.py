@@ -19,14 +19,6 @@ class PublisherDialog(FrameworkDialog, ScrollToolConfigsDialog):
     docked = True
 
     @property
-    def host_connections_ids(self):
-        '''Returns available host id in the client'''
-        ids = []
-        for host_connection in self.host_connections:
-            ids.append(host_connection.host_id)
-        return ids
-
-    @property
     def tool_config_names(self):
         '''Returns available tool config names in the client'''
         names = []
@@ -99,9 +91,6 @@ class PublisherDialog(FrameworkDialog, ScrollToolConfigsDialog):
         # Set context from client:
         self._on_client_context_changed_callback()
 
-        # Add host connection items
-        self.add_host_connection_items(self.host_connections_ids)
-
         if self.host_connection:
             # Prevent the sync calling on creation as host might be already set.
             self._on_client_host_changed_callback()
@@ -109,11 +98,9 @@ class PublisherDialog(FrameworkDialog, ScrollToolConfigsDialog):
         self.selected_context_changed.connect(
             self._on_ui_context_changed_callback
         )
-        self.selected_host_changed.connect(self._on_ui_host_changed_callback)
         self.selected_tool_config_changed.connect(
             self._on_ui_tool_config_changed_callback
         )
-        self.refresh_hosts_clicked.connect(self._on_ui_refresh_hosts_callback)
         self.refresh_tool_configs_clicked.connect(
             self._on_ui_refresh_tool_configs_callback
         )
@@ -152,10 +139,6 @@ class PublisherDialog(FrameworkDialog, ScrollToolConfigsDialog):
 
     def _on_client_host_changed_callback(self, event=None):
         '''Client host has been changed'''
-        if not self.host_connection:
-            self.selected_host_connection_id = None
-            return
-        self.selected_host_connection_id = self.host_connection.host_id
         self.add_tool_config_items(self.tool_config_names)
 
     def _on_tool_config_changed_callback(self):
@@ -191,40 +174,11 @@ class PublisherDialog(FrameworkDialog, ScrollToolConfigsDialog):
                 self._on_ui_context_changed_callback(self.selected_context_id)
 
     def sync_host_connection(self):
-        '''
-        Client host has been changed and doesn't match the ui host when
-        focus is back to the current UI
-        '''
-        client_host_connection = None
-        if self.host_connection:
-            client_host_connection = self.host_connection.host_id
-        if client_host_connection != self.selected_host_connection_id:
-            result = ModalDialog(
-                self,
-                title='Host connection out of sync!',
-                message='Selected host connection is not the current host_connection, '
-                'do you want to update UI to sync with the current one?',
-                question=True,
-            ).exec_()
-            if result:
-                self._on_client_host_changed_callback()
-            else:
-                self._on_ui_host_changed_callback(
-                    self.selected_host_connection_id
-                )
+        pass
 
     def _on_ui_context_changed_callback(self, context_id):
         '''Context has been changed in the ui. Passing it to the client'''
         self.context_id = context_id
-
-    def _on_ui_host_changed_callback(self, host_id):
-        '''Host has been changed in the ui. Passing it to the client'''
-        if not host_id:
-            self.host_connection = None
-            return
-        for host_connection in self.host_connections:
-            if host_connection.host_id == host_id:
-                self.host_connection = host_connection
 
     def _on_ui_tool_config_changed_callback(self, tool_config_name):
         '''Tool config has been changed in the ui.'''
@@ -238,13 +192,6 @@ class PublisherDialog(FrameworkDialog, ScrollToolConfigsDialog):
             if not tool_config:
                 continue
             self.tool_config = tool_config
-
-    def _on_ui_refresh_hosts_callback(self):
-        '''
-        Refresh host button has been clicked in the UI,
-        Call the discover_host in the client
-        '''
-        self.client_method_connection('discover_hosts')
 
     def _on_ui_refresh_tool_configs_callback(self):
         '''
