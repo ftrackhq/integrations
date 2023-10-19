@@ -5,7 +5,6 @@ import operator
 import time
 import logging
 
-import ftrack_api
 from ftrack_connect.qt import QtWidgets, QtCore, QtGui
 
 import ftrack_connect.ui.application
