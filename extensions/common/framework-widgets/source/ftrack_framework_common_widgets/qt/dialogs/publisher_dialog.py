@@ -133,9 +133,7 @@ class PublisherDialog(FrameworkDialog, ScrollToolConfigsDialog):
 
     def _on_client_hosts_discovered_callback(self, event=None):
         '''Client new hosts has been discovered'''
-        super(PublisherDialog, self)._on_client_hosts_discovered_callback(
-            event
-        )
+        pass
 
     def _on_client_host_changed_callback(self, event=None):
         '''Client host has been changed'''
