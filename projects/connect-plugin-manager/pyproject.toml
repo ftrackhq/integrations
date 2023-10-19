@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "ftrack-connect-plugin-manager"
 version = "0.1.6"
-description='ftrack Connect class for downloading, installing and listing plugins.'
+description='ftrack Connect plugin for downloading, installing and listing plugins.'
 authors = ["ftrack Integrations Team <integrations@backlight.co>"]
 readme = "README.md"
 packages = [{include = "ftrack_connect_plugin_manager", from = "source"}]
