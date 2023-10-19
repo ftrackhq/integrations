@@ -9,11 +9,16 @@ license = "Apache-2.0"
 homepage = "https://ftrack.com"
 repository = "https://github.com/ftrackhq/integrations"
 
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
 [tool.poetry.dependencies]
 python = ">= 3.7, < 3.8"
 ftrack-python-api = ">= 1, < 3"
 six = ">= 1, < 2"
 appdirs = "*"
+jsonschema = "= 2.6.0" # This is needed for python_jsonschema_objects
 python_jsonschema_objects = "<= 0.3.12"
 # Keep importlib-metadata it low, otherwise python_jsonschema_objects
 # build on python 3.7.12 will not work on maya 2022
@@ -21,19 +26,21 @@ importlib-metadata = "<5.0"
 #ftrack
 ftrack-constants = "2.0.0rc1"
 ftrack-utils = "2.0.0rc1"
-
-[build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
-
-# If this doesn't work with Pants, move it to root dependencies.
-[tool.poetry.group.framework]
-optional = false
-
-[tool.poetry.group.framework.dependencies]
+# framework dependencies
 ftrack-framework-engine = "2.0.0rc1"
 ftrack-framework-plugin = "2.0.0rc1"
 ftrack-framework-widget = "2.0.0rc1"
+
+[tool.poetry.group.development]
+optional = true
+
+[tool.poetry.group.development.dependencies]
+python = ">= 3.7, < 3.8"
+ftrack-framework-engine = { path = "../framework-engine"}
+ftrack-framework-plugin = { path = "../framework-plugin"}
+ftrack-framework-widget = { path = "../framework-widget"}
+ftrack-constants = { path = "../constants"}
+ftrack-utils = { path = "../utils"}
 
 [tool.poetry.group.documentation]
 optional = true
