@@ -16,13 +16,23 @@ import logging
 import platform
 from operator import itemgetter
 from distutils.version import LooseVersion
-
-from ._version import __version__
+import os
 
 import ftrack_api
 from ftrack_action_handler.action import BaseAction
 from ftrack_application_launcher.configure_logging import configure_logging
 from ftrack_application_launcher.usage import send_event
+
+# Evaluate version
+try:
+    from ftrack_utils.version import get_version
+
+    __version__ = get_version(
+        os.path.basename(os.path.dirname(__file__)),
+        os.path.dirname(os.path.dirname(os.path.dirname(__file__))),
+    )
+except Exception:
+    __version__ = '0.0.0'
 
 configure_logging(__name__)
 

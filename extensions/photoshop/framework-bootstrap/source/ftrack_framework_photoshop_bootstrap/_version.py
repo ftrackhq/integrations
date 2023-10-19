@@ -4,7 +4,7 @@ import os
 
 
 def get_version():
-    '''Return version string for this package'''
+    '''Return version string for *package_name* at *package_path*'''
     package_name = os.path.basename(os.path.dirname(__file__))
     try:
         from importlib.metadata import version

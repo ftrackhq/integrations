@@ -82,3 +82,33 @@ def invoke_in_main_thread(fn, *args, **kwargs):
     QtCore.QCoreApplication.postEvent(
         _invoker, InvokeEvent(fn, *args, **kwargs)
     )
+
+
+def get_version(package_name, package_path):
+    '''Return version string for *package_name* at *package_path*'''
+    # TODO: Depend on ftrack_utils version module instead.
+    result = '0.0.0'
+    try:
+        from importlib.metadata import version
+
+        result = version(package_name)
+    except ImportError:
+        try:
+            # Running on pre 3.8 Python; use importlib-metadata package
+            from pkg_resources import get_distribution
+
+            result = get_distribution(package_name).version
+        except:
+            pass
+    if result == '0.0.0':
+        # Probably running from sources or not able to resolv, fetch version
+        # from pyproject.toml
+        import toml
+
+        path_toml = os.path.join(
+            package_path,
+            "pyproject.toml",
+        )
+        if os.path.exists(path_toml):
+            version = toml.load(path_toml)["tool"]["poetry"]["version"]
+    return version

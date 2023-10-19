@@ -4,12 +4,12 @@ import os
 import logging
 import time
 import sys
+import os
 
 from Qt import QtWidgets, QtCore
 
 import ftrack_api
 
-from ._version import __version__
 from ftrack_constants import framework as constants
 from ftrack_utils.framework.remote import get_integration_session_id
 from ftrack_framework_core.host import Host
@@ -18,6 +18,19 @@ from ftrack_framework_core.client import Client
 from ftrack_framework_core.registry import Registry
 
 from ftrack_framework_core.configure_logging import configure_logging
+
+
+# Evaluate version
+try:
+    from ftrack_utils.version import get_version
+
+    __version__ = get_version(
+        os.path.basename(os.path.dirname(__file__)),
+        os.path.dirname(os.path.dirname(os.path.dirname(__file__))),
+    )
+except Exception:
+    __version__ = '0.0.0'
+
 
 configure_logging(
     'ftrack_framework_photoshop',
