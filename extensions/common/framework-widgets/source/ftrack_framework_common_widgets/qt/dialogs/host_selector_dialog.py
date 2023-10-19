@@ -7,9 +7,6 @@ from ftrack_framework_widget.dialog import FrameworkDialog
 
 from ftrack_qt.widgets.selectors import ListSelector
 from ftrack_qt.widgets.dialogs import StyledDialog
-from ftrack_qt.widgets.dialogs import ModalDialog
-
-from ftrack_qt.utils.widget import get_framework_dialog
 
 
 class HostSelectorDialog(FrameworkDialog, StyledDialog):
@@ -93,6 +90,7 @@ class HostSelectorDialog(FrameworkDialog, StyledDialog):
             dialog_options,
             parent,
         )
+        self._is_sync = True
 
         self._host_connection_selector = None
 
@@ -163,59 +161,12 @@ class HostSelectorDialog(FrameworkDialog, StyledDialog):
             | QtCore.Qt.WindowActive
         )
 
-    def connect_focus_signal(self):
-        '''Connect signal when the current dialog gets focus'''
-        # Update the is_active property.
-        QtWidgets.QApplication.instance().focusChanged.connect(
-            self._on_focus_changed
-        )
-
-    def _on_focus_changed(self, old_widget, new_widget):
-        '''
-        Check if the focused widget is part of the current dialog, if not,
-        execute the main on_focus_changed method.
-        '''
-        if not old_widget or not new_widget:
-            super(HostSelectorDialog, self)._on_focus_changed(
-                old_widget, new_widget
-            )
-            return
-        old_parent_widget = get_framework_dialog(old_widget, FrameworkDialog)
-        new_parent_widget = get_framework_dialog(new_widget, FrameworkDialog)
-        if old_parent_widget != new_parent_widget:
-            super(HostSelectorDialog, self)._on_focus_changed(
-                old_widget, new_widget
-            )
-
     def _on_client_host_changed_callback(self, event=None):
         '''Client host has been changed'''
-        if not self.host_connection:
-            self.selected_host_connection_id = None
-            return
-        self.selected_host_connection_id = self.host_connection.host_id
-
-    def sync_host_connection(self):
-        '''
-        Client host has been changed and doesn't match the ui host when
-        focus is back to the current UI
-        '''
-        client_host_connection = None
+        client_host_connection_id = None
         if self.host_connection:
-            client_host_connection = self.host_connection.host_id
-        if client_host_connection != self.selected_host_connection_id:
-            result = ModalDialog(
-                self,
-                title='Host connection out of sync!',
-                message='Selected host connection is not the current host_connection, '
-                'do you want to update UI to sync with the current one?',
-                question=True,
-            ).exec_()
-            if result:
-                self._on_client_host_changed_callback()
-            else:
-                self._on_host_selected_callback(
-                    self.selected_host_connection_id
-                )
+            client_host_connection_id = self.host_connection.host_id
+        self.selected_host_connection_id = client_host_connection_id
 
     def _on_client_hosts_discovered_callback(self, event=None):
         pass
@@ -224,4 +175,10 @@ class HostSelectorDialog(FrameworkDialog, StyledDialog):
         pass
 
     def sync_context(self):
+        pass
+
+    def connect_focus_signal(self):
+        pass
+
+    def sync_host_connection(self):
         pass
