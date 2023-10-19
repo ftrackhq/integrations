@@ -10,6 +10,8 @@ import errno
 
 from ftrack_utils.modules.scan_modules import scan_framework_modules
 
+from ._version import __version__
+
 
 def get_log_directory():
     '''Get log directory.
@@ -138,3 +140,7 @@ def configure_logging(
 
     # Log out the file exporters.
     logging.warning('Saving log file to: {0}'.format(logfile))
+
+    logger = logging.getLogger('ftrack_framework_core')
+
+    logger.debug('ftrack_framework_core v{0!s}'.format(__version__))
