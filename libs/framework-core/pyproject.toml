@@ -18,6 +18,9 @@ python_jsonschema_objects = "<= 0.3.12"
 # Keep importlib-metadata it low, otherwise python_jsonschema_objects
 # build on python 3.7.12 will not work on maya 2022
 importlib-metadata = "<5.0"
+#ftrack
+ftrack-constants = "2.0.0rc1"
+ftrack-utils = "2.0.0rc1"
 
 [build-system]
 requires = ["poetry-core"]
@@ -28,11 +31,9 @@ build-backend = "poetry.core.masonry.api"
 optional = false
 
 [tool.poetry.group.framework.dependencies]
-ftrack-constants = "2.0.0rc1"
 ftrack-framework-engine = "2.0.0rc1"
 ftrack-framework-plugin = "2.0.0rc1"
 ftrack-framework-widget = "2.0.0rc1"
-ftrack-utils = "2.0.0rc1"
 
 [tool.poetry.group.documentation]
 optional = true
