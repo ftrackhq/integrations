@@ -4,7 +4,7 @@ import os
 
 # Evaluate version
 try:
-    from ftrack_connect.util import get_version
+    from ftrack_utils.version import get_version
 
     __version__ = get_version(
         os.path.basename(os.path.dirname(__file__)),

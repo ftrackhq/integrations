@@ -5,18 +5,7 @@ import os
 import logging
 import qtawesome as qta
 import darkdetect
-
-# Evaluate version
-try:
-    from ftrack_connect.util import get_version
-
-    __version__ = get_version(
-        os.path.basename(os.path.dirname(__file__)),
-        os.path.dirname(os.path.dirname(os.path.dirname(__file__))),
-    )
-except Exception:
-    __version__ = '0.0.0'
-
+from ._version import __version__
 
 logger = logging.getLogger(__name__)
 

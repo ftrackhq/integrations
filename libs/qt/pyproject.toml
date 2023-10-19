@@ -15,6 +15,8 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.poetry.dependencies]
 python = ">= 3.7, < 3.8"
+PySide2 = "<= 5.16"
+Qt.py = ">=1.0.0, < 2"
 
 # If this doesn't work with Pants, move it to root dependencies.
 [tool.poetry.group.framework]
