@@ -23,5 +23,5 @@ ftrack-utils = "2.0.0rc1"
 optional = true
 
 [tool.poetry.group.development.dependencies]
-ftrack-constants = { path = "../constants"}
-ftrack-utils = { path = "../utils"}
+ftrack-constants = { path = "../constants", develop=true}
+ftrack-utils = { path = "../utils", develop=true}

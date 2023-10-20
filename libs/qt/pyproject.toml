@@ -16,7 +16,7 @@ build-backend = "poetry.core.masonry.api"
 [tool.poetry.dependencies]
 python = ">= 3.7, < 3.8"
 PySide2 = "<= 5.16"
-Qt.py = ">=1.0.0, < 2"
+"Qt.py" = ">=1.0.0, < 2"
 # ftrack
 ftrack-constants = "2.0.0rc1"
 ftrack-qt-style = "2.0.0rc1"
@@ -26,6 +26,6 @@ ftrack-utils = "2.0.0rc1"
 optional = true
 
 [tool.poetry.group.development.dependencies]
-ftrack-constants = { path = "../constants"}
-ftrack-utils = { path = "../utils"}
-ftrack-qt-style = { path = "../qt-style"}
+ftrack-constants = { path = "../constants", develop=true}
+ftrack-utils = { path = "../utils", develop=true}
+ftrack-qt-style = { path = "../qt-style", develop=true}

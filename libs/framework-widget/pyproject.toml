@@ -21,4 +21,4 @@ ftrack-utils = "2.0.0rc1"
 optional = true
 
 [tool.poetry.group.development.dependencies]
-ftrack-utils = { path = "../utils"}
+ftrack-utils = { path = "../utils", develop=true}
