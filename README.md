@@ -21,7 +21,7 @@ or download the source ZIP from the [Integrations repository](https://github.com
 Follow these steps to prepare your environment:
 
 1. Install Poetry.
-2. Create a Python 3.7 virtual environment. If you're using an Apple Silicon chip, follow the instructions in the [How to install compatible PySide2 on Silicon based Mac](###How to install compatible PySide2 on Silicon based Mac) section.
+2. Create a Python 3.7 virtual environment. If you're using an Apple Silicon chip, follow the instructions in the [How to install compatible PySide2 on Silicon based Mac](#how-to-install-compatible-pyside2-on-silicon-based-mac) section.
 3. Activate the virtual environment.
 4. Initialize Poetry and install dev dependencies using the following command:
     ```bash
