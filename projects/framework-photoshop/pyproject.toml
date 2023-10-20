@@ -35,6 +35,7 @@ ftrack-framework-common-bootstrap = { version = "2.0.0rc1", optional = true }
 ftrack-framework-common-hook = { version = "2.0.0rc1", optional = true }
 
 [tool.poetry.extras]
+# TODO: add the common extensions here instead of having them separated.
 common-engines = ["ftrack-framework-common-engines"]
 common-plugins = ["ftrack-framework-common-plugins"]
 common-schemas = ["ftrack-framework-common-schemas"]
