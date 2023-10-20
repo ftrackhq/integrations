@@ -23,3 +23,9 @@ optional = true
 [tool.poetry.group.development.dependencies]
 ftrack-utils = { path = "../utils", develop=true}
 
+# TODO: to be implemented. Check following links:
+# Just call script in the current package: https://stackoverflow.com/questions/59286983/how-to-run-a-script-using-pyproject-toml-settings-and-poetry
+# Call script from an extra package: https://python-poetry.org/docs/master/pyproject/#scripts
+# [tool.poetry.scripts]
+# build_resource = 'my_package.console:run'
+
