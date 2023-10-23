@@ -5,7 +5,6 @@ import json
 import time
 import logging
 import functools
-import qtawesome as qta
 
 from ftrack_connect.qt import QtCore
 from ftrack_connect.qt import QtWidgets

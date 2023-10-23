@@ -14,13 +14,7 @@ class TabDialog(StyledDialog):
     '''Base Class to represent a Plugin'''
 
     selected_context_changed = QtCore.Signal(object)
-    selected_host_changed = QtCore.Signal(object)
-    refresh_hosts_clicked = QtCore.Signal()
     selected_tab_changed = QtCore.Signal(object)
-
-    @property
-    def host_connection_selector(self):
-        return self._host_connection_selector
 
     @property
     def selected_context_id(self):
@@ -40,25 +34,6 @@ class TabDialog(StyledDialog):
         '''
         return self._context_selector.is_browsing
 
-    @property
-    def selected_host_connection_id(self):
-        '''Return the selected host connection id'''
-        if self._host_connection_selector.current_item_index() in [0, -1]:
-            return None
-        return self._host_connection_selector.current_item_text()
-
-    @selected_host_connection_id.setter
-    def selected_host_connection_id(self, value):
-        '''Set the given *value* as selected host_connection_id'''
-        if not self.selected_host_connection_id and not value:
-            self.clear_tab_ui()
-        if self.selected_host_connection_id != value:
-            self.clear_tab_ui()
-            if not value:
-                self._host_connection_selector.set_current_item_index(0)
-                return
-            self._host_connection_selector.set_current_item(value)
-
     def __init__(
         self,
         session,
@@ -72,7 +47,6 @@ class TabDialog(StyledDialog):
 
         self._session = session
         self._context_selector = None
-        self._host_connection_selector = None
         self._tab_widget = None
         self._header = None
 
@@ -97,13 +71,10 @@ class TabDialog(StyledDialog):
             self._session, enable_context_change=True
         )
 
-        self._host_connection_selector = ListSelector("Host Selector")
-
         self._tab_widget = QtWidgets.QTabWidget()
 
         self.layout().addWidget(self._header)
         self.layout().addWidget(self._context_selector, QtCore.Qt.AlignTop)
-        self.layout().addWidget(self._host_connection_selector)
         self.layout().addWidget(self._tab_widget)
 
     def post_build(self):
@@ -112,20 +83,8 @@ class TabDialog(StyledDialog):
         self._context_selector.context_changed.connect(
             self._on_context_selected_callback
         )
-        # Connect host selector signals
-        self._host_connection_selector.current_item_changed.connect(
-            self._on_host_selected_callback
-        )
-        self._host_connection_selector.refresh_clicked.connect(
-            self._on_refresh_hosts_callback
-        )
         # Connect tab widget
         self._tab_widget.currentChanged.connect(self._on_tab_changed_callback)
-
-    def add_host_connection_items(self, host_connections_ids):
-        '''Add given host_connections in the host_connection selector'''
-        for host_connection_id in host_connections_ids:
-            self._host_connection_selector.add_item(host_connection_id)
 
     def add_tab(self, tab_title, widget):
         self._tab_widget.addTab(widget, tab_title)
@@ -135,20 +94,6 @@ class TabDialog(StyledDialog):
         if not context_id:
             return
         self.selected_context_changed.emit(context_id)
-
-    def _on_host_selected_callback(self, item_text):
-        '''
-        Emit signal with the new selected host_id
-        '''
-
-        if not item_text:
-            return
-        self.selected_host_changed.emit(self.selected_host_connection_id)
-
-    def _on_refresh_hosts_callback(self):
-        '''Clean up hast and emit signal to refresh hosts'''
-        self.selected_host_changed.emit(None)
-        self.refresh_hosts_clicked.emit()
 
     def _on_tab_changed_callback(self, index):
         self.selected_tab_changed.emit(self._tab_widget.tabText(index))
