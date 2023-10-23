@@ -56,5 +56,5 @@ Thumbs.db
 .vscode/settings.json
 
 # Ignore specific resource files
-**/ftrack_qt_style/resource.py
+#**/ftrack_qt_style/resource.py
 libs/resource
