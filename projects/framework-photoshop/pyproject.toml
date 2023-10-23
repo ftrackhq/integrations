@@ -44,15 +44,6 @@ common-widgets = ["ftrack-framework-common-widgets"]
 photoshop-bootstrap = ["ftrack-framework-common-bootstrap"]
 photoshop-hook = ["ftrack-framework-common-hook"]
 
-[tool.poetry.group.development]
-optional = true
-
-# https://python-poetry.org/docs/dependency-specification#dependency-specification
-[tool.poetry.group.development.dependencies]
-ftrack-framework-core = { path = "../../libs/framework-core", develop=true}
-ftrack-constants = { path = "../../libs/constants", develop=true}
-ftrack-utils = { path = "../../libs/utils", develop=true}
-
 [tool.poetry.group.documentation]
 optional = true
 
