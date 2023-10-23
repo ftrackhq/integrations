@@ -26,3 +26,7 @@ ftrack-utils = { version = "2.0.0rc1", optional = true }
 
 [tool.poetry.extras]
 ftrack-libs = ["ftrack-utils"]
+
+[tool.black]
+line-length = 79
+skip-string-normalization = true

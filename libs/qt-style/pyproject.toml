@@ -26,6 +26,11 @@ ftrack-utils = { version = "2.0.0rc1", optional = true }
 [tool.poetry.extras]
 ftrack-libs = ["ftrack-utils"]
 
+[tool.black]
+line-length = 79
+skip-string-normalization = true
+
+
 # TODO: to be implemented. Check following links:
 # Just call script in the current package: https://stackoverflow.com/questions/59286983/how-to-run-a-script-using-pyproject-toml-settings-and-poetry
 # Call script from an extra package: https://python-poetry.org/docs/master/pyproject/#scripts
