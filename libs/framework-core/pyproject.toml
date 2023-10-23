@@ -31,16 +31,6 @@ ftrack-framework-engine = "2.0.0rc1"
 ftrack-framework-plugin = "2.0.0rc1"
 ftrack-framework-widget = "2.0.0rc1"
 
-[tool.poetry.group.development]
-optional = true
-
-[tool.poetry.group.development.dependencies]
-ftrack-framework-engine = { path = "../framework-engine", develop=true}
-ftrack-framework-plugin = { path = "../framework-plugin", develop=true}
-ftrack-framework-widget = { path = "../framework-widget", develop=true}
-ftrack-constants = { path = "../constants", develop=true}
-ftrack-utils = { path = "../utils", develop=true}
-
 [tool.poetry.group.documentation]
 optional = true
 
