@@ -22,12 +22,11 @@ build-backend = "poetry.core.masonry.api"
 [tool.poetry.dependencies]
 python = ">= 3.7, < 3.8"
 #ftrack
-ftrack-constants = "2.0.0rc1"
-ftrack-utils = "2.0.0rc1"
+ftrack-constants= { version = "2.0.0rc1", optional = true }
+ftrack-utils = { version = "2.0.0rc1", optional = true }
+# framework dependencies
+ftrack-framework-plugin = { version = "2.0.0rc1", optional = true }
 
-# If this doesn't work with Pants, move it to root dependencies.
-[tool.poetry.group.framework]
-optional = false
-
-[tool.poetry.group.framework.dependencies]
-ftrack-framework-plugin = "2.0.0rc1"
+[tool.poetry.extras]
+ftrack-libs = ["ftrack-constants", "ftrack-utils"]
+framework-libs = ["ftrack-framework-plugin"]
