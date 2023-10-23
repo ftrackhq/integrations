@@ -19,29 +19,38 @@ ftrack-python-api = ">= 1, < 3"
 #ftrack
 ftrack-constants = "2.0.0rc1"
 ftrack-utils = "2.0.0rc1"
-
-
-[tool.poetry.group.framework]
-optional = false
-
-[tool.poetry.group.framework.dependencies]
+# framework dependencies
 ftrack-framework-core = "2.0.0rc1"
-#Extensions
-ftrack-framework-common-engines = "2.0.0rc1"
-ftrack-framework-common-plugins = "2.0.0rc1"
-ftrack-framework-common-schemas = "2.0.0rc1"
-ftrack-framework-common-tool-configs = "2.0.0rc1"
-ftrack-framework-common-widgets = "2.0.0rc1"
-ftrack-framework-photoshop-bootstrap = "2.0.0rc1"
-ftrack-framework-photoshop-hook = "2.0.0rc1"
+# Extras
+# A list of all of the optional dependencies, some of which are included in the
+# below `extras`. They can be opted into by apps.
+# extensions
+ftrack-framework-common-engines = { version = "2.0.0rc1", optional = true }
+ftrack-framework-common-plugins = { version = "2.0.0rc1", optional = true }
+ftrack-framework-common-schemas = { version = "2.0.0rc1", optional = true }
+ftrack-framework-common-tool-configs = { version = "2.0.0rc1", optional = true }
+ftrack-framework-common-widgets = { version = "2.0.0rc1", optional = true }
+## Photoshop Extensions
+ftrack-framework-common-bootstrap = { version = "2.0.0rc1", optional = true }
+ftrack-framework-common-hook = { version = "2.0.0rc1", optional = true }
+
+[tool.poetry.extras]
+common-engines = ["ftrack-framework-common-engines"]
+common-plugins = ["ftrack-framework-common-plugins"]
+common-schemas = ["ftrack-framework-common-schemas"]
+common-tool-configs = ["ftrack-framework-common-tool-configs"]
+common-widgets = ["ftrack-framework-common-widgets"]
+photoshop-bootstrap = ["ftrack-framework-common-bootstrap"]
+photoshop-hook = ["ftrack-framework-common-hook"]
 
 [tool.poetry.group.development]
 optional = true
 
-[tool.poetry.group.development.dependencies]
-python = ">= 3.7, < 3.8"
 # https://python-poetry.org/docs/dependency-specification#dependency-specification
-ftrack-framework-core = { path = "../libs/framework-core"}
+[tool.poetry.group.development.dependencies]
+ftrack-framework-core = { path = "../../libs/framework-core", develop=true}
+ftrack-constants = { path = "../../libs/constants", develop=true}
+ftrack-utils = { path = "../../libs/utils", develop=true}
 
 [tool.poetry.group.documentation]
 optional = true
