@@ -18,4 +18,9 @@ python = ">= 3.7, < 3.8"
 #ftrack
 ftrack-utils = "2.0.0rc1"
 
+[tool.poetry.group.development]
+optional = true
+
+[tool.poetry.group.development.dependencies]
+ftrack-utils = { path = "../utils", develop=true}
 
