@@ -43,7 +43,6 @@ python = ">= 3.7, < 3.8"
 # https://python-poetry.org/docs/dependency-specification#dependency-specification
 ftrack-framework-core = { path = "../libs/framework-core"}
 
-
 [tool.poetry.group.documentation]
 optional = true
 
