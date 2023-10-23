@@ -16,9 +16,7 @@ class ScrollToolConfigsDialog(StyledDialog):
     '''Base Class to represent a Plugin'''
 
     selected_context_changed = QtCore.Signal(object)
-    selected_host_changed = QtCore.Signal(object)
     selected_tool_config_changed = QtCore.Signal(object)
-    refresh_hosts_clicked = QtCore.Signal()
     refresh_tool_configs_clicked = QtCore.Signal()
     run_button_clicked = QtCore.Signal()
 
@@ -56,27 +54,6 @@ class ScrollToolConfigsDialog(StyledDialog):
         return self._context_selector.is_browsing
 
     @property
-    def selected_host_connection_id(self):
-        '''Return the selected host connection id'''
-        if self._host_connection_selector.current_item_index() in [0, -1]:
-            return None
-        return self._host_connection_selector.current_item_text()
-
-    @selected_host_connection_id.setter
-    def selected_host_connection_id(self, value):
-        '''Set the given *value* as selected host_connection_id'''
-        if not self.selected_host_connection_id and not value:
-            self._tool_config_selector.clear_items()
-            self.clear_tool_config_ui()
-        if self.selected_host_connection_id != value:
-            self._tool_config_selector.clear_items()
-            self.clear_tool_config_ui()
-            if not value:
-                self._host_connection_selector.set_current_item_index(0)
-                return
-            self._host_connection_selector.set_current_item(value)
-
-    @property
     def selected_tool_config_name(self):
         '''Return the selected tool config name'''
         if self._tool_config_selector.current_item_index() in [0, -1]:
@@ -108,7 +85,6 @@ class ScrollToolConfigsDialog(StyledDialog):
 
         self._session = session
         self._context_selector = None
-        self._host_connection_selector = None
         self._tool_config_selector = None
         self._header = None
         self._scroll_area = None
@@ -135,8 +111,6 @@ class ScrollToolConfigsDialog(StyledDialog):
             self._session, enable_context_change=True
         )
 
-        self._host_connection_selector = ListSelector("Host Selector")
-
         self._tool_config_selector = ListSelector("Configs")
 
         self._scroll_area = QtWidgets.QScrollArea()
@@ -154,7 +128,6 @@ class ScrollToolConfigsDialog(StyledDialog):
 
         self.layout().addWidget(self._header)
         self.layout().addWidget(self._context_selector, QtCore.Qt.AlignTop)
-        self.layout().addWidget(self._host_connection_selector)
         self.layout().addWidget(self._tool_config_selector)
         self.layout().addWidget(self._scroll_area, 100)
         self._scroll_area.setWidget(self._tool_config_widget)
@@ -166,13 +139,6 @@ class ScrollToolConfigsDialog(StyledDialog):
         self._context_selector.context_changed.connect(
             self._on_context_selected_callback
         )
-        # Connect host selector signals
-        self._host_connection_selector.current_item_changed.connect(
-            self._on_host_selected_callback
-        )
-        self._host_connection_selector.refresh_clicked.connect(
-            self._on_refresh_hosts_callback
-        )
         # Connect tool_config selector signals
         self._tool_config_selector.current_item_changed.connect(
             self._on_tool_config_selected_callback
@@ -182,11 +148,6 @@ class ScrollToolConfigsDialog(StyledDialog):
         )
         # Connect run_tool_config button
         self._run_button.clicked.connect(self._on_run_button_clicked)
-
-    def add_host_connection_items(self, host_connections_ids):
-        '''Add given host_connections in the host_connection selector'''
-        for host_connection_id in host_connections_ids:
-            self._host_connection_selector.add_item(host_connection_id)
 
     def add_tool_config_items(self, tool_config_names):
         '''Add given tool_configs to tool config selector'''
@@ -199,30 +160,17 @@ class ScrollToolConfigsDialog(StyledDialog):
             return
         self.selected_context_changed.emit(context_id)
 
-    def _on_host_selected_callback(self, item_text):
-        '''
-        Emit signal with the new selected host_id
-        '''
-
-        if not item_text:
-            return
-        self.selected_host_changed.emit(self.selected_host_connection_id)
-
-    def _on_refresh_hosts_callback(self):
-        '''Clean up hast and emit signal to refresh hosts'''
-        self.selected_host_changed.emit(None)
-        self.refresh_hosts_clicked.emit()
-
     def _on_tool_config_selected_callback(self, item_text):
         '''Emit signal with the new selected tool config'''
         if not item_text:
             return
+        self.clear_tool_config_ui()
         self.selected_tool_config_changed.emit(self.selected_tool_config_name)
 
     def _on_refresh_tool_configs_callback(self):
         '''Clean up tool_configs and emit signal to refresh them'''
-        # TODO: double think if tool_configs can be refreshed? maybe we should
-        #  thn re-select the same host instead of discovering hosts again?
+        self._tool_config_selector.clear_items()
+        self.clear_tool_config_ui()
         self.selected_tool_config_changed.emit(None)
         self.refresh_tool_configs_clicked.emit()
 

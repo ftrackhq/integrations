@@ -1,5 +1,4 @@
-ftrack Photoshop integration
-############################
+# ftrack Photoshop integration
 
 Community owned Photoshop integration for ftrack.
 
@@ -9,12 +8,15 @@ Community owned Photoshop integration for ftrack.
 
 ## Preparations
 
- #. Install Poetry
- #. Create a Python 3.7 virtual environment
- #. Activate venv
- #. Initialize Poetry and install dev dependencies:
+Follow these steps to prepare your environment:
 
-     $ poetry install --with development
+1. Install Poetry.
+2. Create a Python 3.7 virtual environment. If you're using an Apple Silicon chip, follow the instructions in the [How to install compatible PySide2 on Silicon based Mac](../../README.md#how-to-install-compatible-pyside2-on-silicon-based-mac) section.
+3. Activate the virtual environment.
+4. Initialize Poetry and install dev dependencies using the following command:
+    ```bash
+    poetry install --with development
+    ```
 
 ## Build package
 
