@@ -3,7 +3,7 @@
 import os
 
 
-# Evaluate version
+# Evaluate version and log package version
 try:
     from ftrack_utils.version import get_version
 

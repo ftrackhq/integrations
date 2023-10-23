@@ -29,4 +29,5 @@ def get_version(package_name, package_path):
         )
         if os.path.exists(path_toml):
             version = toml.load(path_toml)["tool"]["poetry"]["version"]
+
     return version

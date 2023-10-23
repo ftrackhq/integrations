@@ -12,7 +12,7 @@ from packaging.version import parse as parse_version
 import appdirs
 import json
 
-# Evaluate version
+# Evaluate version and log package version
 try:
     from ftrack_utils.version import get_version
 

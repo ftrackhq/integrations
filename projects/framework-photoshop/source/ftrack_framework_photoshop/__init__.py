@@ -20,7 +20,7 @@ from ftrack_framework_core.registry import Registry
 from ftrack_framework_core.configure_logging import configure_logging
 
 
-# Evaluate version
+# Evaluate version and log package version
 try:
     from ftrack_utils.version import get_version
 
@@ -31,14 +31,14 @@ try:
 except Exception:
     __version__ = '0.0.0'
 
-
 configure_logging(
     'ftrack_framework_photoshop',
     extra_modules=["ftrack_qt"],
     propagate=False,
 )
 
-logger = logging.getLogger('ftrack_framework_photoshop')
+logger = logging.getLogger(__name__)
+logger.debug('v{}'.format(__version__))
 
 photoshop_connection = None
 
