@@ -50,3 +50,8 @@ optional = true
 
 [tool.poetry.group.documentation.dependencies]
 markdown = "<=3.2.2"
+
+[tool.black]
+line-length = 79
+skip-string-normalization = true
+
