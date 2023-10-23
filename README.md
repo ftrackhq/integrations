@@ -127,6 +127,12 @@ python setup.py build_plugin
 
 Currently we do not have any tests in the repository, but we will add them in the future.
 
+## Publish to PyPi Test:
+- Add pypi test as publishable repository: https://python-poetry.org/docs/repositories/#publishable-repositories
+- Configure credentials using the token provided in 1Password PyPi-TEST-ftrack-utils : https://python-poetry.org/docs/repositories/#publishable-repositories (Make sure to point to the testpypi repo)
+    - poetry config pypi-token.testpypi <your-token>
+- Publish to test Pypi:
+    - poetry publish -r testpypi --build
 
 # Package overview
 
