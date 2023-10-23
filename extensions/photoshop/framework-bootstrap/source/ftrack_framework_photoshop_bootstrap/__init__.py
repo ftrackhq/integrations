@@ -1,10 +1,11 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2023 ftrack
 import os
+import logging
 
 from ftrack_framework_photoshop import bootstrap_integration, run_integration
 
-# Evaluate version
+# Evaluate version and log package version
 try:
     from ftrack_utils.version import get_version
 
@@ -15,6 +16,8 @@ try:
 except Exception:
     __version__ = '0.0.0'
 
+logger = logging.getLogger(__name__)
+logger.debug('v{}'.format(__version__))
 
 # Initialise the Photoshop Framework Python standalone part.
 bootstrap_integration(

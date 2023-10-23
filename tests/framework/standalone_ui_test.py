@@ -1,10 +1,25 @@
 import os
 import sys
 import ftrack_api
+import logging
 
 from Qt import QtWidgets
 
-ROOT_INTEGRATIONS_FOLDER = 'asd'
+
+from ftrack_framework_core.configure_logging import configure_logging
+
+configure_logging(
+    'ftrack_framework_standalone',
+    extra_modules=["ftrack_qt"],
+    propagate=False,
+)
+
+logger = logging.getLogger('standalone_ui_test')
+
+ROOT_INTEGRATIONS_FOLDER = os.path.dirname(
+    os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+)
+
 INCLUDE_PACKAGES = [
     'libs/framework-core',
     'libs/framework-engine',
@@ -19,15 +34,11 @@ INCLUDE_PACKAGES = [
     'extensions/common/framework-plugins',
     'extensions/common/framework-schemas',
     'extensions/common/framework-tool-configs',
+    'extensions/common/framework-widgets',
 ]
 
 for _package in INCLUDE_PACKAGES:
-    ftrack_package = "ftrack_" + _package.split("/")[-1].replace("-", "_")
-    sys.path.append(
-        os.path.join(
-            ROOT_INTEGRATIONS_FOLDER, _package, "source", ftrack_package
-        )
-    )
+    sys.path.append(os.path.join(ROOT_INTEGRATIONS_FOLDER, _package, "source"))
 
 from ftrack_framework_core import host, event, registry
 import ftrack_constants.framework as constants
@@ -46,9 +57,9 @@ registry_instance.scan_modules(
         'ftrack_framework_common_schemas',
         'ftrack_framework_common_tool_configs',
         'ftrack_framework_common_widgets',
-        'sample_photoshop_plugins',
-        'sample_photoshop_tool_configs',
-        'sample_photoshop_widgets',
+        #'sample_photoshop_plugins',
+        #'sample_photoshop_tool_configs',
+        #'sample_photoshop_widgets',
     ],
 )
 

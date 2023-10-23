@@ -23,7 +23,7 @@ from ftrack_action_handler.action import BaseAction
 from ftrack_application_launcher.configure_logging import configure_logging
 from ftrack_application_launcher.usage import send_event
 
-# Evaluate version
+'''Return version string for *package_name* at *package_path*'''
 try:
     from ftrack_utils.version import get_version
 

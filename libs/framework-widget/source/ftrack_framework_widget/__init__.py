@@ -4,7 +4,7 @@ import os
 import logging
 import uuid
 
-# Evaluate version
+# Evaluate version and log package version
 try:
     from ftrack_utils.version import get_version
 
@@ -14,6 +14,9 @@ try:
     )
 except Exception:
     __version__ = '0.0.0'
+
+logger = logging.getLogger(__name__)
+logger.debug('v{}'.format(__version__))
 
 
 def active_widget(func):
