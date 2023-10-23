@@ -9,8 +9,9 @@ import appdirs
 import errno
 
 from ftrack_utils.modules.scan_modules import scan_framework_modules
+from ftrack_utils import __version__ as utils_version
 
-from ._version import __version__
+from ftrack_framework_core import __version__
 
 
 def get_log_directory():
@@ -141,6 +142,10 @@ def configure_logging(
     # Log out the file exporters.
     logging.warning('Saving log file to: {0}'.format(logfile))
 
+    # Log out the version to disk
     logger = logging.getLogger('ftrack_framework_core')
+    logger.debug('v{0!s}'.format(__version__))
 
-    logger.debug('ftrack_framework_core v{0!s}'.format(__version__))
+    # Log utils to disk after logging has been setup.
+    logger = logging.getLogger('ftrack_utils')
+    logger.debug('v{0!s}'.format(utils_version))

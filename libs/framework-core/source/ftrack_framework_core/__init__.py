@@ -1,11 +1,8 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2023 ftrack.
-import logging
 import os
 
-from ftrack_framework_core.configure_logging import configure_logging
-
-# Evaluate version
+# Evaluate version and log package version
 try:
     from ftrack_utils.version import get_version
 
@@ -15,5 +12,9 @@ try:
     )
 except Exception:
     __version__ = "0.0.0"
+
+# Configure logging for this module, this import must
+# happen after version has been evaluated.
+from ftrack_framework_core.configure_logging import configure_logging
 
 configure_logging(__name__)
