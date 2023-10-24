@@ -27,23 +27,10 @@ ftrack-constants = { version = "2.0.0rc1", optional = true }
 ftrack-utils = { version = "2.0.0rc1", optional = true }
 # framework dependencies
 ftrack-framework-core = { version = "2.0.0rc1", optional = true }
-# A list of all of the optional dependencies, some of which are included in the
-# below `extras`. They can be opted into by apps.
-# extensions
-ftrack-framework-common-engines = { version = "2.0.0rc1", optional = true }
-ftrack-framework-common-plugins = { version = "2.0.0rc1", optional = true }
-ftrack-framework-common-schemas = { version = "2.0.0rc1", optional = true }
-ftrack-framework-common-tool-configs = { version = "2.0.0rc1", optional = true }
-ftrack-framework-common-widgets = { version = "2.0.0rc1", optional = true }
-## Photoshop Extensions
-ftrack-framework-photoshop-bootstrap = { version = "2.0.0rc1", optional = true }
-ftrack-framework-photoshop-hook = { version = "2.0.0rc1", optional = true }
 
 [tool.poetry.extras]
 ftrack-libs = ["ftrack-constants", "ftrack-utils"]
 framework-libs = ["ftrack-framework-core"]
-common-extensions = ["ftrack-framework-common-engines", "ftrack-framework-common-plugins", "ftrack-framework-common-schemas", "ftrack-framework-common-tool-configs", "ftrack-framework-common-widgets"]
-photoshop-extensions = ["ftrack-framework-photoshop-bootstrap", "ftrack-framework-photoshop-hook"]
 
 [tool.poetry.group.documentation]
 optional = true
