@@ -59,12 +59,12 @@ AWS_PLUGIN_DOWNLOAD_PATH = (
 )
 
 # Read version from source.
-release = get_version(version_scheme='post-release')
+# release = get_version(version_scheme='post-release')
 
 # take major/minor/patch
-VERSION = '.'.join(release.split('.')[:3])
+# VERSION = '.'.join(release.split('.')[:3])
 
-print('BUILDING VERSION : {}'.format(release))
+# print('BUILDING VERSION : {}'.format(release))
 
 
 connect_resource_hook = pkg_resources.resource_filename(
@@ -87,11 +87,6 @@ __version__ = {version!r}
 # General configuration.
 configuration = dict(
     name='ftrack Connect',
-    use_scm_version={
-        'write_to': 'source/ftrack_connect_installer/_version.py',
-        'write_to_template': version_template,
-        'version_scheme': 'post-release',
-    },
     description='Meta package for ftrack connect.',
     long_description=open(README_PATH).read(),
     keywords='ftrack, connect, package',
@@ -100,8 +95,9 @@ configuration = dict(
     include_package_data=True,
     author_email='support@ftrack.com',
     license='Apache License (2.0)',
-    packages=find_packages(SOURCE_PATH),
     package_dir={'': 'source'},
+    package_data={"": ["{}/**/*.*".format(RESOURCE_PATH)]},
+    version="2.1.2",
     setup_requires=[
         # 'sphinx >= 1.2.2, < 2',
         # 'sphinx_rtd_theme >= 0.1.6, < 2',
