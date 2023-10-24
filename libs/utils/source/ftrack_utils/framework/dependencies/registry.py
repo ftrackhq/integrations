@@ -92,6 +92,8 @@ def scan_modules_from_directory(class_type, current_dir):
     '''Return available modules on the given directory'''
 
     subfolders = fast_scandir(current_dir)
+    if not subfolders:
+        subfolders = [current_dir]
     registered_dependencies = []
     for loader, module_name, is_pkg in pkgutil.walk_packages(subfolders):
         _module = loader.find_module(module_name).load_module(module_name)

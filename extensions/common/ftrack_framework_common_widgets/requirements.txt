@@ -1,0 +1,2 @@
+ftrack_qt == "2.0.0rc1"
+ftrack-constants == "2.0.0rc1"

@@ -12,6 +12,7 @@ INCLUDE_PACKAGES = [
     'libs/framework-plugin',
     # QT
     'libs/framework-widget',
+    'libs/framework-qt',
     'libs/qt',
     'libs/qt-style',
     'libs/utils',
@@ -43,9 +44,23 @@ registry_instance.scan_modules(
         'ftrack_framework_common_plugins',
         'ftrack_framework_common_schemas',
         'ftrack_framework_common_tool_configs',
-        'ftrack_framework_common_widgets',
     ],
 )
+from ftrack_framework_widget.widget import BaseUI
+
+extras = [
+    {
+        'module_path': '/Users/ftrack/work/ftrack/repos/integrations/extensions/common/ftrack_framework_common_dialogs',
+        'class_type': BaseUI,
+        'extension_type': "widget",
+    },
+    {
+        'module_path': '/Users/ftrack/work/ftrack/repos/integrations/extensions/common/ftrack_framework_common_widgets',
+        'class_type': BaseUI,
+        'extension_type': "widget",
+    },
+]
+registry_instance.scan_extras(extras)
 host_class = host.Host(event_manager, registry=registry_instance)
 
 

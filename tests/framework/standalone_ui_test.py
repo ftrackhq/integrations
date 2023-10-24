@@ -34,11 +34,11 @@ INCLUDE_PACKAGES = [
     'extensions/common/framework-plugins',
     'extensions/common/framework-schemas',
     'extensions/common/framework-tool-configs',
-    'extensions/common/framework-widgets',
 ]
 
 for _package in INCLUDE_PACKAGES:
     sys.path.append(os.path.join(ROOT_INTEGRATIONS_FOLDER, _package, "source"))
+
 
 from ftrack_framework_core import host, event, registry
 import ftrack_constants.framework as constants
@@ -56,13 +56,26 @@ registry_instance.scan_modules(
         'ftrack_framework_common_plugins',
         'ftrack_framework_common_schemas',
         'ftrack_framework_common_tool_configs',
-        'ftrack_framework_common_widgets',
         #'sample_photoshop_plugins',
         #'sample_photoshop_tool_configs',
         #'sample_photoshop_widgets',
     ],
 )
+from ftrack_framework_widget.widget import BaseUI
 
+extras = [
+    {
+        'module_path': '/Users/ftrack/work/ftrack/repos/integrations/extensions/common/ftrack_framework_common_dialogs',
+        'class_type': BaseUI,
+        'extension_type': "widget",
+    },
+    {
+        'module_path': '/Users/ftrack/work/ftrack/repos/integrations/extensions/common/ftrack_framework_common_widgets',
+        'class_type': BaseUI,
+        'extension_type': "widget",
+    },
+]
+registry_instance.scan_extras(extras)
 host_class = host.Host(event_manager, registry=registry_instance)
 
 
@@ -74,6 +87,6 @@ app = QtWidgets.QApplication.instance()
 if not app:
     app = QtWidgets.QApplication(sys.argv)
 
-client_class.run_dialog(dialog_name='framework_publisher_dialog')
+client_class.run_dialog(dialog_name='default_publisher_dialog')
 
 sys.exit(app.exec_())
