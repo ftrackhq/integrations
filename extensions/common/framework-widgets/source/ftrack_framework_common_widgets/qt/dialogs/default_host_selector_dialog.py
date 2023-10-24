@@ -4,10 +4,10 @@
 from ftrack_qt.framework.dialogs import PublisherDialog
 
 
-class MyCustomPublisherDialog(PublisherDialog):
+class DefaultHostSelectorDialog(PublisherDialog):
     '''Default Framework Publisher dialog'''
 
-    name = 'custom_publisher_dialog'
+    name = 'default_host_selector_dialog'
     tool_config_type_filter = ['publisher']
     ui_type = 'qt'
     docked = True
@@ -23,7 +23,7 @@ class MyCustomPublisherDialog(PublisherDialog):
         parent=None,
     ):
         ''' '''
-        super(MyCustomPublisherDialog, self).__init__(
+        super(DefaultHostSelectorDialog, self).__init__(
             event_manager,
             client_id,
             connect_methods_callback,
@@ -32,4 +32,3 @@ class MyCustomPublisherDialog(PublisherDialog):
             dialog_options,
             parent=parent,
         )
-        self.run_button_title = "super publish"
