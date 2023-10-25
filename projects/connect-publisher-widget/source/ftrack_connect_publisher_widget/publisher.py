@@ -20,6 +20,7 @@ from ftrack_connect.ui.widget import (
 from ftrack_connect.ui.widget import asset_options as _asset_options
 from ftrack_connect.ui.widget import entity_selector
 from ftrack_connect_publisher_widget import advanced_option_group
+from ftrack_connect_publisher_widget import location_selector
 
 import ftrack_connect.asynchronous
 import ftrack_connect.error
@@ -184,7 +185,7 @@ class Publisher(QtWidgets.QWidget):
             taskId = entity['id']
             entity = entity['parent']
 
-        componentLocation = self.session.pick_location()
+        componentLocation = self.location_selector.selected_location
 
         components = []
         for component in self.componentsList.items():
