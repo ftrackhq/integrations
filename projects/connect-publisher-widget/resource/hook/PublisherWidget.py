@@ -74,6 +74,8 @@ class PublisherWidget(ftrack_connect.ui.application.ConnectWidget):
     def _onPublishFinished(self, success):
         '''Callback for publish finished signal.'''
         self.busyOverlay.hide()
+        selected_location = self.publishView.location_selector.selected_location
+        location_name = selected_location.get('label', selected_location['name'])
         if success:
             self.blockingOverlay.setMessage(
                 'Publish finished!\n \n'
@@ -86,7 +88,9 @@ class PublisherWidget(ftrack_connect.ui.application.ConnectWidget):
             ftrack_connect.usage.send_event(
                 self.session, 'PUBLISHED-FROM-CONNECT'
             )
-
+        # reset publish location
+        self.publishView.location_selector.reset()
+        
     def _onEntityChanged(self):
         '''Callback for entityChanged signal.'''
         self.blockingOverlay.hide()
