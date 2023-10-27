@@ -7,7 +7,7 @@
 Release Notes
 *************
 
-.. release:: 5.1
+.. release:: upcoming
 
     .. change:: changed
 
