@@ -6,6 +6,12 @@ import logging.config
 import appdirs
 import errno
 
+ENV_PLUGINS_URL = 'FTRACK_CONNECT_JSON_PLUGINS_URL'
+PLUGINS_URLS = [
+    'https://download.ftrack.com/ftrack-connect/plugins.json',
+    'https://ftrack-releases.oss-cn-hangzhou.aliyuncs.com/ftrack-connect/plugins.json',
+]
+
 
 def get_log_directory():
     '''Get log directory.
@@ -17,14 +23,7 @@ def get_log_directory():
     user_data_dir = appdirs.user_data_dir('ftrack-connect', 'ftrack')
     log_directory = os.path.join(user_data_dir, 'log')
 
-    if not os.path.exists(log_directory):
-        try:
-            os.makedirs(log_directory)
-        except OSError as error:
-            if error.errno == errno.EEXIST and os.path.isdir(log_directory):
-                pass
-            else:
-                raise
+    os.makedirs(log_directory, exist_ok=True)
 
     return log_directory
 
@@ -106,3 +105,13 @@ def configure_logging(
 
     # Log out the file output.
     logging.info('Saving log file to: {0}'.format(logfile))
+
+def get_plugins_url():
+    url = os.environ.get(ENV_PLUGINS_URL)
+    if not url:
+        from .util import UrlLatencyChecker
+
+        checker = UrlLatencyChecker(PLUGINS_URLS)
+        url = checker.run()
+    
+    return url
