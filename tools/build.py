@@ -494,13 +494,14 @@ def build_package(pkg_path, args):
 
         MANIFEST_PATH = os.path.join(CEP_PATH, "bundle", "manifest.xml")
         if not os.path.exists(MANIFEST_PATH):
-            raise Exception('Missing mainfest:{}!'.format(MANIFEST_PATH))
+            raise Exception('Missing manifest:{}!'.format(MANIFEST_PATH))
 
-        if len(os.environ.get('FTRACK_ADOBE_CERTIFICATE_PASSWORD') or '') == 0:
-            raise Exception(
-                'Need certificate password in FTRACK_ADOBE_CERTIFICATE_PASSWORD '
-                'environment variable!'
-            )
+        if not args.nosign:
+            if len(os.environ.get('ADOBE_CERTIFICATE_PASSWORD') or '') == 0:
+                raise Exception(
+                    'Need certificate password in ADOBE_CERTIFICATE_PASSWORD '
+                    'environment variable!'
+                )
 
         ZXPSIGN_CMD_PATH = find_executable(ZXPSIGN_CMD)
         if not ZXPSIGN_CMD_PATH:
@@ -645,25 +646,31 @@ def build_package(pkg_path, args):
             'ftrack-framework-adobe-{}.zxp'.format(VERSION),
         )
 
-        # Create and sign extension
-        if os.path.exists(extension_output_path):
-            os.remove(extension_output_path)
+        if not args.nosign:
+            # Create and sign extension
+            if os.path.exists(extension_output_path):
+                os.remove(extension_output_path)
 
-        result = subprocess.Popen(
-            [
-                ZXPSIGN_CMD_PATH,
-                '-sign',
-                STAGING_PATH,
-                extension_output_path,
-                CERTIFICATE_PATH,
-                '{}'.format(os.environ['FTRACK_ADOBE_CERTIFICATE_PASSWORD']),
-            ]
-        )
-        result.communicate()
-        if result.returncode != 0:
-            raise Exception('Could not sign and build extension!')
+            result = subprocess.Popen(
+                [
+                    ZXPSIGN_CMD_PATH,
+                    '-sign',
+                    STAGING_PATH,
+                    extension_output_path,
+                    CERTIFICATE_PATH,
+                    '{}'.format(os.environ['ADOBE_CERTIFICATE_PASSWORD']),
+                ]
+            )
+            result.communicate()
+            if result.returncode != 0:
+                raise Exception('Could not sign and build extension!')
 
-        logging.info('Result: ' + extension_output_path)
+            logging.info('Result: ' + extension_output_path)
+        else:
+            logging.warning(
+                'Not signing and creating ZPX plugin, result for for '
+                'manual deploy can be found here: {}'.format(STAGING_PATH)
+            )
 
     if args.command == 'clean':
         clean(args)
@@ -684,7 +691,15 @@ if __name__ == '__main__':
         'ftrack Integration deployment script v{}'.format(__version__)
     )
 
-    parser.add_argument('--include', help='Additional folder to include.')
+    parser.add_argument(
+        '--include', help='Additional folder to include with plugin build.'
+    )
+
+    parser.add_argument(
+        '--nosign',
+        help='(CEP plugin build) Do not sign and create ZXP.',
+        action='store_true',
+    )
 
     parser.add_argument(
         'command',
