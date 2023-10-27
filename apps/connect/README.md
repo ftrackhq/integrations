@@ -8,3 +8,33 @@ applications for workflows including logging time and publishing assets.
 
 Full documentation, including installation and setup guides, can be
 found at <http://ftrack-connect.rtd.ftrack.com/en/latest/>
+
+## Building
+
+### CI build
+
+See Monorepo build CI
+
+
+### Manual build
+
+Go to the root of the RV package within monorepo:
+
+```bash
+    cd integrations/projects/rv
+```
+
+
+Build the QT resources
+
+```bash
+python tools/build.py --style_path resource --output_path source/ftrack_connect/ui/resource.py build_qt_resources apps/connect
+```
+
+
+Build with Poetry:
+
+```bash
+poetry build
+```
+
