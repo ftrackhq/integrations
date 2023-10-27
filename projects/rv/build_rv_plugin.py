@@ -18,6 +18,8 @@ __version__ = "0.1.0"
 def copytree(src, dst, symlinks=False, ignore=None):
     print('Copying {0} to {1}'.format(src, dst))
     for item in os.listdir(src):
+        if item == 'BUILD_PANTS':
+            continue
         s = os.path.join(src, item)
         d = os.path.join(dst, item if item != "PACKAGE.yml" else "PACKAGE")
         if os.path.isdir(s):

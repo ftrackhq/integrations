@@ -757,6 +757,7 @@ if __name__ == '__main__':
     parser.add_argument(
         '--testpypi',
         help='Pip install from TestPyPi instead of public.',
+        action='store_true',
     )
 
     parser.add_argument(
