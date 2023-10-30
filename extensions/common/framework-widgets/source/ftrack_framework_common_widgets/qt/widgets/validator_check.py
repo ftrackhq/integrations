@@ -12,7 +12,7 @@ from ftrack_qt.widgets.icons import StatusMaterialIconWidget
 
 # TODO: review and docstring this code
 class ValidatorCheckWidget(BaseWidget):
-    '''Main class to represent a context widget on a publish process.'''
+    '''Main class to represent a validator check widget on a publish process.'''
 
     name = 'validator_check'
     ui_type = 'qt'
