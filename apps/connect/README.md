@@ -35,6 +35,26 @@ python tools/build.py --style_path resource --output_path source/ftrack_connect/
 Build with Poetry:
 
 ```bash
-poetry build
+  poetry build
 ```
+
+### Build documentation
+
+
+Install development dependencies:
+
+```bash
+  poetry install --with documentation
+```
+
+Build documentation:
+
+```bash
+    poetry run sphinx-build -b html doc dist/doc
+```
+
+## Publish to PyPi
+
+This is performed by the CI, to publish to PyPi test - follow the instructions in integrations README.md at root level of 
+repository.
 

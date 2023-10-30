@@ -8,6 +8,14 @@
 Release Notes
 *************
 
+.. release:: upcoming
+
+    .. change:: changed
+        :tags: Build system
+
+        Change build system to Poetry, using the monorepo tooling to build QT resources.
+
+
 .. release:: 2.1.1
     :date: 2023-04-27
 
@@ -15,7 +23,6 @@ Release Notes
         :tags: Plugins
 
         Limit packaging to prevent crashes on unexpected content in Connect plugin folder.
-
 
 .. release:: 2.1.0
     :date: 2023-04-05
@@ -360,9 +367,9 @@ Release Notes
         Port code to python3.
 
 
-.. warning:: 
+.. warning::
 
-    This is the last version supporting `ftrack-python-legacy-api <https://bitbucket.org/
+    This is the last version supporting `ftrack-python-legacy-api <https://bitbucket.org/`
 
 
 .. release:: 1.1.10
@@ -372,6 +379,7 @@ Release Notes
         :tags: doc
 
         Provide requirement file for RTD builds... release:: 1.1.9
+
     :date: 2021-03-11
 
     .. change:: fixed
@@ -407,12 +415,12 @@ Release Notes
 .. release:: 1.1.6
     :date: 2018-10-8
 
-  .. change:: changed
+    .. change:: changed
         :tags: Ui
 
         Update icons and style.
 
-  .. change:: fixed
+    .. change:: fixed
         :tags: Internal
 
         util.open_directory fails on Windows when path includes spaces.
@@ -420,17 +428,17 @@ Release Notes
 .. release:: 1.1.5
     :date: 2018-9-13
 
-  .. change:: fixed
+     .. change:: fixed
         :tags: Logging
 
         logger breaks with non ascii path.
 
-  .. change:: changed
+    .. change:: changed
         :tags: Logging
 
         Improve logging configuration.
 
-  .. change:: fixed
+    .. change:: fixed
         :tags: Ui
 
         Application versions are not correctly sorted.
