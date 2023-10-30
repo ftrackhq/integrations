@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "ftrack-rv"
-version = "5.0rc2"
+version = "5.1"
 description='ftrack Connect RV integration'
 authors = ["ftrack Integrations Team <integrations@backlight.co>"]
 readme = "README.md"
@@ -9,11 +9,25 @@ license = "Apache-2.0"
 homepage = "https://ftrack.com"
 repository = "https://github.com/ftrackhq/integrations"
 
+[[tool.poetry.source]]
+name = "testpypi"
+url = "https://test.pypi.org/simple/"
+default = false
+secondary = false
+
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.poetry.dependencies]
 python = ">= 3.7, < 3.11"
-ftrack-action-handler = "*"
-ftrack-utils = "2.0.0rc1"
+ftrack-python-api = ">= 1, < 3"
+ftrack-action-handler = { version = "*", optional = true }
+ftrack-utils = { version = "> 1, < 3", optional = true }
+
+[tool.poetry.extras]
+ftrack-libs = ["ftrack-action-handler ", "ftrack-utils"]
+
+[tool.black]
+line-length = 79
+skip-string-normalization = true
