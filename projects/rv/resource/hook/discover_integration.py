@@ -2,20 +2,18 @@
 # :copyright: Copyright (c) 2014-2023 ftrack
 
 import functools
-import sys
 import os
 
 import ftrack_api
 
+INTEGRATION_VERSION = '{{PACKAGE_VERSION}}'
+
 cwd = os.path.dirname(__file__)
 sources = os.path.abspath(os.path.join(cwd, '..', 'dependencies'))
-sys.path.append(sources)
 
 
 def on_discover_rv_integration(session, event):
-    from ftrack_rv import __version__ as integration_version
-
-    data = {'integration': {'name': 'rv', 'version': integration_version}}
+    data = {'integration': {'name': 'rv', 'version': INTEGRATION_VERSION}}
     return data
 
 
