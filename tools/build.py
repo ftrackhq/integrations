@@ -461,18 +461,22 @@ def build_package(pkg_path, args):
         if resource_target_path is None:
             resource_target_path = os.path.join(SOURCE_PATH, 'resource.py')
 
-        compiler = scss.Scss(search_paths=[sass_path])
+        # Any styles to compile?
+        if os.path.exists(sass_path):
+            compiler = scss.Scss(search_paths=[sass_path])
 
-        themes = ['style_light', 'style_dark']
-        for theme in themes:
-            scss_source = os.path.join(sass_path, '{0}.scss'.format(theme))
-            css_target = os.path.join(css_path, '{0}.css'.format(theme))
+            themes = ['style_light', 'style_dark']
+            for theme in themes:
+                scss_source = os.path.join(sass_path, '{0}.scss'.format(theme))
+                css_target = os.path.join(css_path, '{0}.css'.format(theme))
 
-            logging.info("Compiling {}".format(scss_source))
-            compiled = compiler.compile(scss_file=scss_source)
-            with open(css_target, 'w') as file_handle:
-                file_handle.write(compiled)
-                logging.info('Compiled {0}'.format(css_target))
+                logging.info("Compiling {}".format(scss_source))
+                compiled = compiler.compile(scss_file=scss_source)
+                with open(css_target, 'w') as file_handle:
+                    file_handle.write(compiled)
+                    logging.info('Compiled {0}'.format(css_target))
+        else:
+            logging.warning('No styles to compile.')
 
         try:
             pyside_rcc_command = 'pyside2-rcc'
