@@ -10,6 +10,7 @@ official CI/CD build implementation in place.
 
 Release notes:
 
+0.4.6, Henrik Norin, 23.10.30; Allow pre releases on Connect build when enabling test PyPi.
 0.4.5, Henrik Norin, 23.10.26; Support for including assets in Connect plugin build.
 0.4.4, Henrik Norin, 23.10.13; Support for building multiple packages at once.
 0.4.3, Henrik Norin, 23.10.11; Support for additional CEP JS include folder
@@ -330,7 +331,7 @@ def build_package(pkg_path, args):
                             'pip',
                             'install',
                             '-e',
-                            'ftrack-libs',
+                            '.[ftrack-libs]',
                             '.',
                             '--target',
                             dependencies_path,
@@ -376,9 +377,7 @@ def build_package(pkg_path, args):
             '-m',
             'pip',
             'install',
-            '-e',
-            '.[ftrack-libs]',
-            #'{}[ftrack-libs]'.format(wheel_path),
+            '{}[ftrack-libs]'.format(wheel_path),
             '--target',
             dependencies_path,
         ]
