@@ -586,6 +586,14 @@ def build_package(pkg_path, args):
         os.makedirs(os.path.join(STAGING_PATH, "image"))
         os.makedirs(os.path.join(STAGING_PATH, "css"))
 
+        style_path = args.style_path
+        if style_path is None:
+            style_path = DEFAULT_STYLE_PATH
+        else:
+            style_path = os.path.realpath(style_path)
+        if not os.path.exists(style_path):
+            raise Exception('Missing "{}/" folder!'.format(style_path))
+
         # Copy html
         for filename in ["index.html"]:
             parse_and_copy(
@@ -601,13 +609,13 @@ def build_package(pkg_path, args):
             "publish.png",
         ]:
             shutil.copy(
-                os.path.join(DEFAULT_STYLE_PATH, "image", "js", filename),
+                os.path.join(style_path, "image", "js", filename),
                 os.path.join(STAGING_PATH, "image", filename),
             )
 
         # Copy style
         shutil.copy(
-            os.path.join(DEFAULT_STYLE_PATH, "style_dark.css"),
+            os.path.join(style_path, "style_dark.css"),
             os.path.join(STAGING_PATH, "css", "style_dark.css"),
         )
 

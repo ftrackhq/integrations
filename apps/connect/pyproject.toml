@@ -7,7 +7,7 @@ readme = "README.md"
 packages = [{include = "ftrack_connect", from = "source"}]
 license = "Apache-2.0"
 homepage = "https://ftrack.com"
-repository = "https://github.com/ftrackhq/integrations"
+repository = "https://github.com/ftrackhq/integrations/apps/connect"
 
 [[tool.poetry.source]]
 name = "testpypi"
@@ -21,21 +21,21 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.poetry.dependencies]
 python = ">= 3.7, < 3.8"
-clique = "1.6.1"
-PySide2 = ">=5, <6"
-Riffle = ">= 1.0.1"
+PySide2 = ">=5, <= 5.16"
 ftrack-python-api = ">= 1, < 3"
+clique = "1.6.1"
+Riffle = ">= 1.0.1"
 arrow = ">= 0.4.6, < 1"
 appdirs = ">= 1.4, < 1.6"
 requests = ">= 2, <3"
-lowdown = ">= 0.1.0, < 1"
 "Qt.py" = ">=1.0.0, < 2"
 qtawesome = "*"
 darkdetect = "*"
 certifi = ">=2022,<2023"
+urllib3 = "<2"
 
 #ftrack
-ftrack-utils = { version = "2.0.0rc1", optional = true }
+ftrack-utils = { version = "> 1, < 3", optional = true }
 
 [tool.poetry.extras]
 ftrack-libs = ["ftrack-utils"]
@@ -44,15 +44,11 @@ ftrack-libs = ["ftrack-utils"]
 optional = true
 
 [tool.poetry.group.documentation.dependencies]
-PySide2 = ">=5, <6"
-"Qt.py" = ">=1.0.0, < 2"
 pyScss = ">= 1.2.0, < 2"
 sphinx = ">= 1.8.5, < 4"
-jinj2 = ">=3, <=3.0.3"
+Jinja2 = ">2, <=3.0.3"
 sphinx_rtd_theme = ">= 0.1.6, < 1"
 lowdown = ">= 0.1.0, < 1"
-setuptools = ">=45.0.0"
-setuptools_scm = "*"
 
 [tool.poetry.group.test]
 optional = true

@@ -18,12 +18,23 @@ See Monorepo build CI
 
 ### Manual build
 
-Go to the root of the RV package within monorepo:
+Go to the Connect package within monorepo:
 
 ```bash
-    cd integrations/projects/rv
+    cd integrations/apps/connect
 ```
 
+Install development dependencies:
+
+```bash
+  poetry install --with documentation
+```
+
+Go to the root of the Connect package within monorepo:
+
+```bash
+    cd integrations
+```
 
 Build the QT resources
 
@@ -31,15 +42,14 @@ Build the QT resources
 python tools/build.py --style_path resource --output_path source/ftrack_connect/ui/resource.py build_qt_resources apps/connect
 ```
 
-
 Build with Poetry:
 
 ```bash
   poetry build
 ```
 
-### Build documentation
 
+### Build documentation
 
 Install development dependencies:
 
@@ -57,4 +67,3 @@ Build documentation:
 
 This is performed by the CI, to publish to PyPi test - follow the instructions in integrations README.md at root level of 
 repository.
-

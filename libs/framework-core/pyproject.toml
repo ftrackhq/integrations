@@ -30,12 +30,12 @@ python_jsonschema_objects = "<= 0.3.12"
 # build on python 3.7.12 will not work on maya 2022
 importlib-metadata = "<5.0"
 #ftrack
-ftrack-constants= { version = "2.0.0rc1", optional = true }
-ftrack-utils = { version = "2.0.0rc1", optional = true }
+ftrack-constants= { version = "> 1, < 3", optional = true }
+ftrack-utils = { version = "> 1, < 3", optional = true }
 # framework dependencies
-ftrack-framework-engine = { version = "2.0.0rc1", optional = true }
-ftrack-framework-plugin = { version = "2.0.0rc1", optional = true }
-ftrack-framework-widget = { version = "2.0.0rc1", optional = true }
+ftrack-framework-engine = { version = "> 1, < 3", optional = true }
+ftrack-framework-plugin = { version = "> 1, < 3", optional = true }
+ftrack-framework-widget = { version = "> 1, < 3", optional = true }
 
 [tool.poetry.extras]
 ftrack-libs = ["ftrack-constants", "ftrack-utils"]
