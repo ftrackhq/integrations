@@ -8,8 +8,9 @@ Temporary replaces original setuptools implementation until there is an
 official CI/CD build implementation in place.
 
 
-Version history:
+Release notes:
 
+0.4.5, Henrik Norin, 23.10.26; Support for including assets in Connect plugin build.
 0.4.4, Henrik Norin, 23.10.13; Support for building multiple packages at once.
 0.4.3, Henrik Norin, 23.10.11; Support for additional CEP JS include folder
 0.4.2, Henrik Norin, 23.10.09; Support for additional hook include folder
@@ -100,7 +101,7 @@ def build_package(pkg_path, args):
             'No Python source package found @ "{}"'.format(source_path)
         )
 
-    def build_plugin(args):
+    def build_connect_plugin(args):
         '''
         Build the Connect plugin archive ready to be deployed in the Plugin manager.
 
@@ -149,8 +150,8 @@ def build_package(pkg_path, args):
         logging.info('Copying Connect hook')
         extension_path = None
         hook_search_paths = []
-        if args.include:
-            hook_search_paths.append(args.include)
+        if args.include_extensions:
+            hook_search_paths.append(args.include_extensions)
         hook_search_paths.append(
             os.path.join(MONOREPO_PATH, 'extensions', DCC_NAME)
         )
@@ -188,9 +189,25 @@ def build_package(pkg_path, args):
             if extension_path:
                 break
         if not extension_path:
-            raise Exception(
-                'Could not locate connect hook module within "extensions"!'
-            )
+            # Look in resource
+            path_resource_hook = os.path.join(RESOURCE_PATH, 'hook')
+            if os.path.exists(path_resource_hook):
+                for filename in os.listdir(path_resource_hook):
+                    if filename.startswith('discover_') and filename.endswith(
+                        '.py'
+                    ):
+                        extension_path = os.path.join(
+                            path_resource_hook, filename
+                        )
+                        break
+                if not extension_path:
+                    raise Exception(
+                        'Could not locate Connect hook module within resource folder!'
+                    )
+            else:
+                raise Exception(
+                    'Could not locate Connect hook module within "extensions"!'
+                )
         logging.info('Copying Connect hook from {}'.format(extension_path))
         os.makedirs(os.path.join(STAGING_PATH, 'hook'))
         shutil.copy(
@@ -200,159 +217,192 @@ def build_package(pkg_path, args):
             ),
         )
 
-        # Copy resources
-
-        if os.path.exists(RESOURCE_PATH):
-            logging.info('Copying resources')
-            shutil.copytree(
-                RESOURCE_PATH, os.path.join(STAGING_PATH, 'resource')
-            )
-        else:
-            logging.warning('No resources to copy.')
+        # # Copy resources
+        # if os.path.exists(RESOURCE_PATH):
+        #     logging.info('Copying resources')
+        #     shutil.copytree(
+        #         RESOURCE_PATH, os.path.join(STAGING_PATH, 'resource')
+        #     )
+        # else:
+        #     logging.warning('No resources to copy.')
 
         # Collect dependencies
         dependencies_path = os.path.join(STAGING_PATH, 'dependencies')
 
         os.makedirs(dependencies_path)
 
-        logging.info(
-            'Collecting Framework extensions and libs, building dependencies...'
-        )
-        framework_dependency_packages = []
-        for lib in os.listdir(os.path.join(MONOREPO_PATH, 'libs')):
-            lib_path = os.path.join(MONOREPO_PATH, 'libs', lib)
-            if not os.path.isdir(lib_path):
-                continue
-            extension_path = os.path.join(MONOREPO_PATH, 'libs', lib)
-            framework_dependency_packages.append(extension_path)
-            logging.info('Adding library package: {}'.format(extension_path))
+        if args.with_extensions:
+            logging.info(
+                '(Experimental) Collecting Framework extensions and libs, building dependencies...'
+            )
+            framework_dependency_packages = []
+            for lib in os.listdir(os.path.join(MONOREPO_PATH, 'libs')):
+                lib_path = os.path.join(MONOREPO_PATH, 'libs', lib)
+                if not os.path.isdir(lib_path):
+                    continue
+                extension_path = os.path.join(MONOREPO_PATH, 'libs', lib)
+                framework_dependency_packages.append(extension_path)
+                logging.info(
+                    'Adding library package: {}'.format(extension_path)
+                )
 
-        # Pick up extensions
-        if args.include:
-            # First pick up includes
-            include_path = os.path.join(MONOREPO_PATH, args.include)
-            if not os.path.exists(include_path):
-                # Might be an absolute path
-                include_path = args.include
-            if not os.path.exists(include_path) or not os.path.isdir(
-                include_path
-            ):
-                raise Exception(
-                    'Include path "{}" does not exist or is not a folder!'.format(
+            # Pick up extensions
+            if args.include_extensions:
+                # First pick up includes
+                include_path = os.path.join(
+                    MONOREPO_PATH, args.include_extensions
+                )
+                if not os.path.exists(include_path):
+                    # Might be an absolute path
+                    include_path = args.include_extensions
+                if not os.path.exists(include_path) or not os.path.isdir(
+                    include_path
+                ):
+                    raise Exception(
+                        'Include path "{}" does not exist or is not a folder!'.format(
+                            include_path
+                        )
+                    )
+                logging.info(
+                    'Searching additional include path for packages: {}'.format(
                         include_path
                     )
                 )
-            logging.info(
-                'Searching additional include path for packages: {}'.format(
-                    include_path
-                )
-            )
-            for extension in os.listdir(include_path):
-                extension_path = os.path.join(include_path, extension)
-                if not os.path.isdir(extension_path):
-                    continue
-                if not extension.endswith('-js'):
-                    logging.info(
-                        'Adding package include: {}'.format(extension_path)
-                    )
-                    framework_dependency_packages.append(extension_path)
-
-        for extension_base_path in [
-            os.path.join(MONOREPO_PATH, 'extensions', 'common'),
-            os.path.join(MONOREPO_PATH, 'extensions', DCC_NAME),
-        ]:
-            for extension in os.listdir(extension_base_path):
-                extension_path = os.path.join(extension_base_path, extension)
-                if not os.path.isdir(extension_path):
-                    continue
-                if not extension.endswith('-js'):
-                    add = True
-                    # Check if already in there
-                    for existing in framework_dependency_packages:
-                        if os.path.basename(existing) == extension:
-                            add = False
-                            break
-                    if add:
+                for extension in os.listdir(include_path):
+                    extension_path = os.path.join(include_path, extension)
+                    if not os.path.isdir(extension_path):
+                        continue
+                    if not extension.endswith('-js'):
                         logging.info(
-                            'Adding package: {}'.format(extension_path)
+                            'Adding package include: {}'.format(extension_path)
                         )
                         framework_dependency_packages.append(extension_path)
-                    else:
-                        logging.warning()
 
-        bootstrap_package_filename = 'ftrack_framework_{}_bootstrap'.format(
-            DCC_NAME
-        )
-        for dependency_path in framework_dependency_packages:
-            if os.path.exists(os.path.join(dependency_path, 'setup.py')):
-                logging.info(
-                    'Building Python dependencies for "{}"'.format(
-                        os.path.basename(dependency_path)
+            for extension_base_path in [
+                os.path.join(MONOREPO_PATH, 'extensions', 'common'),
+                os.path.join(MONOREPO_PATH, 'extensions', DCC_NAME),
+            ]:
+                for extension in os.listdir(extension_base_path):
+                    extension_path = os.path.join(
+                        extension_base_path, extension
                     )
-                )
-                os.chdir(dependency_path)
-                restore_build_file = False
+                    if not os.path.isdir(extension_path):
+                        continue
+                    if not extension.endswith('-js'):
+                        add = True
+                        # Check if already in there
+                        for existing in framework_dependency_packages:
+                            if os.path.basename(existing) == extension:
+                                add = False
+                                break
+                        if add:
+                            logging.info(
+                                'Adding package: {}'.format(extension_path)
+                            )
+                            framework_dependency_packages.append(
+                                extension_path
+                            )
+                        else:
+                            logging.warning()
 
-                PATH_BUILD = os.path.join(dependency_path, 'BUILD')
-                if os.path.exists(PATH_BUILD):
-                    restore_build_file = True
-                    os.rename(PATH_BUILD, PATH_BUILD + '_')
+            bootstrap_package_filename = (
+                'ftrack_framework_{}_bootstrap'.format(DCC_NAME)
+            )
+            for dependency_path in framework_dependency_packages:
+                if os.path.exists(os.path.join(dependency_path, 'setup.py')):
+                    logging.info(
+                        'Building Python dependencies for "{}"'.format(
+                            os.path.basename(dependency_path)
+                        )
+                    )
+                    os.chdir(dependency_path)
+                    restore_build_file = False
 
-                subprocess.check_call(
-                    [
-                        sys.executable,
-                        '-m',
-                        'pip',
-                        'install',
-                        '.',
-                        '--target',
-                        dependencies_path,
-                    ]
-                )
+                    PATH_BUILD = os.path.join(dependency_path, 'BUILD')
+                    if os.path.exists(PATH_BUILD):
+                        restore_build_file = True
+                        os.rename(PATH_BUILD, PATH_BUILD + '_')
 
-                shutil.rmtree(os.path.join(dependency_path, 'build'))
+                    subprocess.check_call(
+                        [
+                            sys.executable,
+                            '-m',
+                            'pip',
+                            'install',
+                            '.',
+                            '--target',
+                            dependencies_path,
+                        ]
+                    )
 
-                if restore_build_file:
-                    os.rename(PATH_BUILD + '_', PATH_BUILD)
+                    shutil.rmtree(os.path.join(dependency_path, 'build'))
 
-            else:
-                # Should have source folder but not having it is also allowed
-                source_path = os.path.join(dependency_path, 'source')
-                if os.path.exists(source_path):
-                    source_path = find_python_source(source_path)
+                    if restore_build_file:
+                        os.rename(PATH_BUILD + '_', PATH_BUILD)
+
                 else:
-                    source_path = dependency_path
-                logging.info('Copying {}'.format(source_path))
-                filename = os.path.basename(source_path)
+                    # Should have source folder but not having it is also allowed
+                    source_path = os.path.join(dependency_path, 'source')
+                    if os.path.exists(source_path):
+                        source_path = find_python_source(source_path)
+                    else:
+                        source_path = dependency_path
+                    logging.info('Copying {}'.format(source_path))
+                    filename = os.path.basename(source_path)
 
-                if (
-                    filename.endswith('_bootstrap')
-                    and filename != bootstrap_package_filename
-                ):
-                    # Rename bootstrap package to the correct name expected by app launcher for now
-                    filename = bootstrap_package_filename
-                dest_path = os.path.join(dependencies_path, filename)
-                if os.path.exists(dest_path):
-                    continue
-                shutil.copytree(
-                    source_path,
-                    dest_path,
-                )
+                    if (
+                        filename.endswith('_bootstrap')
+                        and filename != bootstrap_package_filename
+                    ):
+                        # Rename bootstrap package to the correct name expected by app launcher for now
+                        filename = bootstrap_package_filename
+                    dest_path = os.path.join(dependencies_path, filename)
+                    if os.path.exists(dest_path):
+                        continue
+                    shutil.copytree(
+                        source_path,
+                        dest_path,
+                    )
 
         logging.info(
-            'Collecting dependencies from "{}" wheel'.format(DCC_NAME)
+            'Installing package with dependencies from: "{}"'.format(
+                os.path.basename(wheel_path)
+            )
         )
-        subprocess.check_call(
-            [
-                sys.executable,
-                '-m',
-                'pip',
-                'install',
-                wheel_path,
-                '--target',
-                dependencies_path,
-            ]
-        )
+        commands = [
+            sys.executable,
+            '-m',
+            'pip',
+            'install',
+            wheel_path,
+            '--target',
+            dependencies_path,
+        ]
+        if args.testpypi:
+            commands.extend(
+                [
+                    '--index-url',
+                    'https://test.pypi.org/simple',
+                    '--extra-index-url',
+                    'https://pypi.org/simple',
+                ]
+            )
+
+        subprocess.check_call(commands)
+        if args.include_assets:
+            for asset_path in args.include_assets.split(","):
+                asset_destination_path = os.path.basename(asset_path)
+                logging.info('Copying asset "{}"'.format(asset_path))
+                if os.path.isdir(asset_path):
+                    shutil.copytree(
+                        asset_path,
+                        os.path.join(STAGING_PATH, asset_destination_path),
+                    )
+                else:
+                    shutil.copy(
+                        asset_path,
+                        os.path.join(STAGING_PATH, asset_destination_path),
+                    )
 
         logging.info('Creating archive')
         archive_path = os.path.join(
@@ -612,11 +662,11 @@ def build_package(pkg_path, args):
             os.path.join(STAGING_PATH, "ps.jsx"),
             VERSION,
         )
-        if args.include:
-            include_path = os.path.join(MONOREPO_PATH, args.include)
+        if args.include_extensions:
+            include_path = os.path.join(MONOREPO_PATH, args.include_extensions)
             if not os.path.exists(include_path):
                 # Might be an absolute path
-                include_path = args.include
+                include_path = args.include_extensions
             if not os.path.isdir(include_path):
                 raise Exception(
                     'Include path "{}" is not a folder!'.format(include_path)
@@ -674,8 +724,8 @@ def build_package(pkg_path, args):
 
     if args.command == 'clean':
         clean(args)
-    elif args.command == 'build_plugin':
-        build_plugin(args)
+    elif args.command == 'build_connect_plugin':
+        build_connect_plugin(args)
     elif args.command == 'build_resources':
         build_resources(args)
     elif args.command == 'build_sphinx':
@@ -692,7 +742,22 @@ if __name__ == '__main__':
     )
 
     parser.add_argument(
-        '--include', help='Additional folder to include with plugin build.'
+        '--with_extensions',
+        help='(Connect plugin) Manually '
+        'collect and include extensions (experimental).',
+    )
+    parser.add_argument(
+        '--include_extensions', help='Additional extension folder to include.'
+    )
+    parser.add_argument(
+        '--include_assets',
+        help='(Connect plugin) Additional asset to include.',
+    )
+
+    parser.add_argument(
+        '--testpypi',
+        help='Pip install from TestPyPi instead of public.',
+        action='store_true',
     )
 
     parser.add_argument(
@@ -705,12 +770,12 @@ if __name__ == '__main__':
         'command',
         help=(
             'clean; Clean(remove) build folder \n'
-            'build_plugin; Build Connect plugin archive\n'
+            'build_connect_plugin; Build Connect plugin archive\n'
             'build_resources; Build QT resources\n'
         ),
         choices=[
             'clean',
-            'build_plugin',
+            'build_connect_plugin',
             'build_resources',
             'build_resources',
             'build_sphinx',
