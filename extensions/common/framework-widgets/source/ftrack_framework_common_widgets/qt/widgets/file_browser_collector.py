@@ -4,13 +4,12 @@ import os.path
 
 from Qt import QtWidgets, QtCore, QtGui
 
-from ftrack_framework_widget.widget import FrameworkWidget
+from ftrack_framework_qt.widgets import BaseWidget
 
 from ftrack_qt.widgets.browsers import FileBrowser
 
 
-# TODO: review and docstring this code
-class FileBrowserWidget(FrameworkWidget, QtWidgets.QWidget):
+class FileBrowserWidget(BaseWidget):
     '''Main class to represent a context widget on a publish process.'''
 
     name = 'file_browser_collector'
@@ -31,23 +30,17 @@ class FileBrowserWidget(FrameworkWidget, QtWidgets.QWidget):
         '''
         self._file_browser = None
 
-        QtWidgets.QWidget.__init__(self, parent=parent)
-        FrameworkWidget.__init__(
-            self,
+        super(FileBrowserWidget, self).__init__(
             event_manager,
             client_id,
             context_id,
             plugin_config,
             dialog_connect_methods_callback,
             dialog_property_getter_connection_callback,
-            parent=parent,
+            parent,
         )
 
-        self.pre_build()
-        self.build()
-        self.post_build()
-
-    def pre_build(self):
+    def pre_build_ui(self):
         layout = QtWidgets.QVBoxLayout()
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setAlignment(QtCore.Qt.AlignTop)
@@ -56,13 +49,13 @@ class FileBrowserWidget(FrameworkWidget, QtWidgets.QWidget):
             QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Fixed
         )
 
-    def build(self):
+    def build_ui(self):
         '''build function widgets.'''
         # Create file browser
         self._file_browser = FileBrowser()
         self.layout().addWidget(self._file_browser)
 
-    def post_build(self):
+    def post_build_ui(self):
         '''hook events'''
         self._file_browser.path_changed.connect(self._on_path_changed)
 
