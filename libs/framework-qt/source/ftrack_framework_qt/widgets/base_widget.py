@@ -7,7 +7,7 @@ from ftrack_framework_widget.widget import FrameworkWidget
 
 
 class BaseWidget(FrameworkWidget, QtWidgets.QWidget):
-    '''Main class to represent a context widget on a publish process.'''
+    '''Main class to represent base framework widget.'''
 
     name = 'base_widget'
     ui_type = 'qt'
