@@ -7,7 +7,11 @@
 Release Notes
 *************
 
-.. release:: Upcoming
+.. release:: upcoming
+
+    .. change:: changed
+
+        Replaced setuptools with Poetry and RV package build tool.
 
     .. change:: fixed
         :tags: Api
