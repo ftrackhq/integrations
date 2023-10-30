@@ -30,7 +30,7 @@ Install development dependencies:
   poetry install --with documentation
 ```
 
-Go to the root of the RV package within monorepo:
+Go to the root of the Connect package within monorepo:
 
 ```bash
     cd integrations
