@@ -15,5 +15,5 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.poetry.dependencies]
 python = ">= 3.7, < 3.10"
-ftrack-utils = "2.0.0rc1"
+ftrack-utils = ">= 2, < 3"
 qtawesome = "*"
