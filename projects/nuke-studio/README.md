@@ -46,7 +46,7 @@ Build Connect plugin:
 
 ```bash
   cd integrations
-  python tools/build.py build_connect_plugin projects/nuke-studio
+  python tools/build.py --testpypi --include_resources resource/plugin,resource/application_hook build_connect_plugin projects/nuke-studio
 ```
 
 

@@ -10,16 +10,18 @@ import logging
 import functools
 import ftrack_api
 
+INTEGRATION_VERSION = '{{PACKAGE_VERSION}}'
+
 cwd = os.path.dirname(__file__)
 sources = os.path.abspath(os.path.join(cwd, '..', 'dependencies'))
-sys.path.append(sources)
 
 
 def on_discover_ftrack_nuke_studio_integration(session, event):
-    from ftrack_nuke_studio import __version__ as integration_version
-
     data = {
-        'integration': {"name": 'nuke-studio', 'version': integration_version}
+        'integration': {
+            "name": 'ftrack-nuke-studio',
+            'version': INTEGRATION_VERSION,
+        }
     }
 
     return data
@@ -28,8 +30,10 @@ def on_discover_ftrack_nuke_studio_integration(session, event):
 def on_launch_ftrack_nuke_studio_integration(session, event):
     ns_base_data = on_discover_ftrack_nuke_studio_integration(session, event)
 
-    ftrack_nuke_studio_path = os.path.join(cwd, '..', 'resource')
-    application_hooks_path = os.path.join(cwd, '..', 'application_hook')
+    ftrack_nuke_studio_path = os.path.join(cwd, '..', 'resource', 'plugin')
+    application_hooks_path = os.path.join(
+        cwd, '..', 'resource', 'application_hook'
+    )
 
     entity = event['data']['context']['selection'][0]
     project = session.get('Project', entity['entityId'])
