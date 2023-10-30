@@ -13,7 +13,9 @@ sources = os.path.abspath(os.path.join(cwd, '..', 'dependencies'))
 
 
 def on_discover_rv_integration(session, event):
-    data = {'integration': {'name': 'rv', 'version': INTEGRATION_VERSION}}
+    data = {
+        'integration': {'name': 'ftrack-rv', 'version': INTEGRATION_VERSION}
+    }
     return data
 
 
