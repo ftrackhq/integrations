@@ -13,25 +13,43 @@ See Monorepo build CI
 
 ### Manual build
 
-Go to the root of the RV package within monorepo:
+Install development dependencies:
 
 ```bash
-    cd integrations
+  cd integrations/projects/nuke-studio
+  poetry install --with documentation
+```
+
+:
+
+```bash
+    
 ```
 
 
-Build the QT resources
+Go to the root of the RV package within monorepo and build the QT resources
 
 ```bash
-python tools/build.py --style_path resource --output_path source/ftrack_nuke_studio/resource.py build_qt_resources projects/nuke-studio
+  cd integrations
+  python tools/build.py --style_path resource --output_path source/ftrack_nuke_studio/resource.py build_qt_resources projects/nuke-studio
 ```
-
 
 Build with Poetry:
 
 ```bash
+  cd integrations/projects/nuke-studio
   poetry build
 ```
+
+Build Connect plugin:
+
+
+```bash
+  cd integrations
+  python tools/build.py build_connect_plugin projects/nuke-studio
+```
+
+
 
 ### Build documentation
 
