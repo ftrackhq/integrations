@@ -296,14 +296,14 @@ reference = "testpypi"
 
 [[package]]
 name = "ftrack-utils"
-version = "2.0.0rc1"
+version = "2.0.0rc2"
 description = "ftrack utils library"
 category = "main"
 optional = true
 python-versions = ">=3.7,<3.8"
 files = [
-    {file = "ftrack_utils-2.0.0rc1-py3-none-any.whl", hash = "sha256:56d432538f5c2308200df0a60932770580a315c670efe5a8a085cf8fef85d6ea"},
-    {file = "ftrack_utils-2.0.0rc1.tar.gz", hash = "sha256:69b6e09adb819367b0c96f7cdfbadf995d2ed4d3a561cd5f837f01708e23a6d5"},
+    {file = "ftrack_utils-2.0.0rc2-py3-none-any.whl", hash = "sha256:631a56ec0339284d5578727dcd77f3b0a91b6399f18e24f4a9d6538057eff9aa"},
+    {file = "ftrack_utils-2.0.0rc2.tar.gz", hash = "sha256:68c3416495a93ab86f949fef250c7df46d24f0c977369162bdf69ed6dd6900db"},
 ]
 
 [package.source]
@@ -977,4 +977,4 @@ ftrack-libs = ["ftrack-utils"]
 [metadata]
 lock-version = "2.0"
 python-versions = ">= 3.7, < 3.8"
-content-hash = "b4d4e4cd26606b0a4691d66bc7ab583d961b6f1dced5cf63775fc502100de494"
+content-hash = "c176ea3f431f07e438183a12b1ba5beedf26237541d544c9c3b9fa4e1ee630e8"
