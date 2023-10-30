@@ -45,9 +45,9 @@ def build_package(pkg_path, args):
     os.chdir(pkg_path)
 
     ROOT_PATH = os.path.realpath(os.getcwd())
-    BUILD_PATH = os.path.join(ROOT_PATH, "dist")
-    RESOURCE_PATH = os.path.join(ROOT_PATH, "resource")
-    CEP_PATH = os.path.join(ROOT_PATH, "resource", "cep")
+    BUILD_PATH = os.path.join(ROOT_PATH, 'dist')
+    RESOURCE_PATH = os.path.join(ROOT_PATH, 'resource')
+    CEP_PATH = os.path.join(ROOT_PATH, 'resource', 'cep')
 
     POETRY_CONFIG_PATH = os.path.join(ROOT_PATH, 'pyproject.toml')
     if os.path.exists(POETRY_CONFIG_PATH):
@@ -68,12 +68,12 @@ def build_package(pkg_path, args):
         PROJECT_NAME = 'ftrack-{}'.format(os.path.basename(ROOT_PATH))
 
     SOURCE_PATH = os.path.join(
-        ROOT_PATH, "source", PROJECT_NAME.replace('-', '_')
+        ROOT_PATH, 'source', PROJECT_NAME.replace('-', '_')
     )
 
     MONOREPO_PATH = os.path.realpath(os.path.join(ROOT_PATH, '..', '..'))
 
-    DEFAULT_STYLE_PATH = os.path.join(MONOREPO_PATH, "resource", "style")
+    DEFAULT_STYLE_PATH = os.path.join(MONOREPO_PATH, 'resource', 'style')
 
     def clean(args):
         '''Remove build folder'''
@@ -159,7 +159,7 @@ def build_package(pkg_path, args):
             if not os.path.exists(hook_search_path):
                 continue
             for filename in os.listdir(hook_search_path):
-                if filename.replace('_', '-').endswith("-connect-hook"):
+                if filename.replace('_', '-').endswith('-connect-hook'):
                     if os.path.exists(
                         os.path.join(hook_search_path, filename, 'source')
                     ):
@@ -329,6 +329,8 @@ def build_package(pkg_path, args):
                             '-m',
                             'pip',
                             'install',
+                            '-e',
+                            'ftrack-libs',
                             '.',
                             '--target',
                             dependencies_path,
@@ -374,13 +376,16 @@ def build_package(pkg_path, args):
             '-m',
             'pip',
             'install',
-            wheel_path,
+            '-e',
+            '.[ftrack-libs]',
+            #'{}[ftrack-libs]'.format(wheel_path),
             '--target',
             dependencies_path,
         ]
         if args.testpypi:
             commands.extend(
                 [
+                    '--pre',
                     '--index-url',
                     'https://test.pypi.org/simple',
                     '--extra-index-url',
@@ -390,7 +395,7 @@ def build_package(pkg_path, args):
 
         subprocess.check_call(commands)
         if args.include_assets:
-            for asset_path in args.include_assets.split(","):
+            for asset_path in args.include_assets.split(','):
                 asset_destination_path = os.path.basename(asset_path)
                 logging.info('Copying asset "{}"'.format(asset_path))
                 if os.path.isdir(asset_path):
@@ -468,7 +473,7 @@ def build_package(pkg_path, args):
             scss_source = os.path.join(sass_path, '{0}.scss'.format(theme))
             css_target = os.path.join(css_path, '{0}.css'.format(theme))
 
-            logging.info("Compiling {}".format(scss_source))
+            logging.info('Compiling {}'.format(scss_source))
             compiled = compiler.compile(scss_file=scss_source)
             with open(css_target, 'w') as file_handle:
                 file_handle.write(compiled)
@@ -535,7 +540,7 @@ def build_package(pkg_path, args):
         '''Copies the single file pointed out by *source_path* to *target_path* and
         replaces version expression to supplied *version*.'''
         logging.info(
-            "Parsing and copying {}>{}".format(source_path, target_path)
+            'Parsing and copying {}>{}'.format(source_path, target_path)
         )
         with open(source_path, 'r') as f_src:
             with open(target_path, 'w') as f_dst:
@@ -551,7 +556,7 @@ def build_package(pkg_path, args):
         if not os.path.exists(CEP_PATH):
             raise Exception('Missing "{}/" folder!'.format(CEP_PATH))
 
-        MANIFEST_PATH = os.path.join(CEP_PATH, "bundle", "manifest.xml")
+        MANIFEST_PATH = os.path.join(CEP_PATH, 'bundle', 'manifest.xml')
         if not os.path.exists(MANIFEST_PATH):
             raise Exception('Missing manifest:{}!'.format(MANIFEST_PATH))
 
@@ -569,18 +574,18 @@ def build_package(pkg_path, args):
         CERTIFICATE_PATH = os.path.join(CEP_PATH, 'bundle', 'certificate.p12')
         if not os.path.exists(CERTIFICATE_PATH):
             raise Exception(
-                "Certificate missing: {}!".format(CERTIFICATE_PATH)
+                'Certificate missing: {}!'.format(CERTIFICATE_PATH)
             )
 
-        STAGING_PATH = os.path.join(BUILD_PATH, "staging")
+        STAGING_PATH = os.path.join(BUILD_PATH, 'staging')
 
         VERSION = get_version()
 
         # Clean staging path
         shutil.rmtree(STAGING_PATH, ignore_errors=True)
         os.makedirs(os.path.join(STAGING_PATH))
-        os.makedirs(os.path.join(STAGING_PATH, "image"))
-        os.makedirs(os.path.join(STAGING_PATH, "css"))
+        os.makedirs(os.path.join(STAGING_PATH, 'image'))
+        os.makedirs(os.path.join(STAGING_PATH, 'css'))
 
         style_path = args.style_path
         if style_path is None:
@@ -591,7 +596,7 @@ def build_package(pkg_path, args):
             raise Exception('Missing "{}/" folder!'.format(style_path))
 
         # Copy html
-        for filename in ["index.html"]:
+        for filename in ['index.html']:
             parse_and_copy(
                 os.path.join(CEP_PATH, filename),
                 os.path.join(STAGING_PATH, filename),
@@ -599,32 +604,32 @@ def build_package(pkg_path, args):
             )
         # Copy images
         for filename in [
-            "favicon.ico",
-            "ftrack-logo-48.png",
-            "loader.gif",
-            "publish.png",
+            'favicon.ico',
+            'ftrack-logo-48.png',
+            'loader.gif',
+            'publish.png',
         ]:
             shutil.copy(
-                os.path.join(style_path, "image", "js", filename),
-                os.path.join(STAGING_PATH, "image", filename),
+                os.path.join(style_path, 'image', 'js', filename),
+                os.path.join(STAGING_PATH, 'image', filename),
             )
 
         # Copy style
         shutil.copy(
-            os.path.join(style_path, "style_dark.css"),
-            os.path.join(STAGING_PATH, "css", "style_dark.css"),
+            os.path.join(style_path, 'style_dark.css'),
+            os.path.join(STAGING_PATH, 'css', 'style_dark.css'),
         )
 
         # Copy static libraries
         logging.info(
-            "Copying {}>{}".format(
-                os.path.join(CEP_PATH, "libraries"),
-                os.path.join(STAGING_PATH, "lib"),
+            'Copying {}>{}'.format(
+                os.path.join(CEP_PATH, 'libraries'),
+                os.path.join(STAGING_PATH, 'lib'),
             )
         )
         shutil.copytree(
-            os.path.join(CEP_PATH, "libraries"),
-            os.path.join(STAGING_PATH, "lib"),
+            os.path.join(CEP_PATH, 'libraries'),
+            os.path.join(STAGING_PATH, 'lib'),
             symlinks=True,
         )
 
@@ -632,51 +637,51 @@ def build_package(pkg_path, args):
         for js_file in [
             os.path.join(
                 MONOREPO_PATH,
-                "projects",
-                "framework-photoshop-js",
-                "source",
-                "utils.js",
+                'projects',
+                'framework-photoshop-js',
+                'source',
+                'utils.js',
             ),
             os.path.join(
                 MONOREPO_PATH,
-                "projects",
-                "framework-photoshop-js",
-                "source",
-                "event-constants.js",
+                'projects',
+                'framework-photoshop-js',
+                'source',
+                'event-constants.js',
             ),
             os.path.join(
                 MONOREPO_PATH,
-                "projects",
-                "framework-photoshop-js",
-                "source",
-                "events-core.js",
+                'projects',
+                'framework-photoshop-js',
+                'source',
+                'events-core.js',
             ),
         ]:
             parse_and_copy(
                 js_file,
-                os.path.join(STAGING_PATH, "lib", os.path.basename(js_file)),
+                os.path.join(STAGING_PATH, 'lib', os.path.basename(js_file)),
                 VERSION,
             )
         parse_and_copy(
             os.path.join(
                 MONOREPO_PATH,
-                "projects",
-                "framework-photoshop-js",
-                "source",
-                "bootstrap.js",
+                'projects',
+                'framework-photoshop-js',
+                'source',
+                'bootstrap.js',
             ),
-            os.path.join(STAGING_PATH, "bootstrap.js"),
+            os.path.join(STAGING_PATH, 'bootstrap.js'),
             VERSION,
         )
         parse_and_copy(
             os.path.join(
                 MONOREPO_PATH,
-                "projects",
-                "framework-photoshop-js",
-                "source",
-                "ps.jsx",
+                'projects',
+                'framework-photoshop-js',
+                'source',
+                'ps.jsx',
             ),
-            os.path.join(STAGING_PATH, "ps.jsx"),
+            os.path.join(STAGING_PATH, 'ps.jsx'),
             VERSION,
         )
         if args.include_extensions:
