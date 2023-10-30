@@ -17,4 +17,4 @@ build-backend = "poetry.core.masonry.api"
 python = ">= 3.7, < 3.10"
 # TODO: connect is a dependnecy of this package we should add it.
 # ftrack-connect = "2.0.0rc1"
-ftrack-utils = ">= 2, < 3"
+ftrack-utils = "> 1, < 3"

@@ -21,5 +21,5 @@ appdirs = '1.4.0'
 lucidity = '>= 1.5, < 2'
 opentimelineio = '0.11.*'
 Qt.py = ">=1.0.0, < 2"
-ftrack-utils = ">= 2, < 3"
+ftrack-utils = "> 1, < 3"
 
