@@ -333,6 +333,9 @@ class FrameworkDialog(BaseUI):
         for widget_id, widget in self.framework_widgets.items():
             if widget_name == widget.name:
                 self.__framework_widget_registry.pop(widget_id)
+                self.logger.info(
+                    "Unregistering widget: {}".format(widget_name)
+                )
                 break
 
     def _connect_dialog_methods_callback(

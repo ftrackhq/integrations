@@ -5,13 +5,13 @@ from Qt import QtWidgets, QtCore, QtGui
 
 import ftrack_constants.framework as constants
 
-from ftrack_framework_widget.widget import FrameworkWidget
+from ftrack_framework_qt.widgets import BaseWidget
 
 from ftrack_qt.widgets.icons import StatusMaterialIconWidget
 
 
 # TODO: review and docstring this code
-class ValidatorCheckWidget(FrameworkWidget, QtWidgets.QWidget):
+class ValidatorCheckWidget(BaseWidget):
     '''Main class to represent a context widget on a publish process.'''
 
     name = 'validator_check'
@@ -34,23 +34,17 @@ class ValidatorCheckWidget(FrameworkWidget, QtWidgets.QWidget):
         self._validator_status_icon = None
         self._check_button = None
 
-        QtWidgets.QWidget.__init__(self, parent=parent)
-        FrameworkWidget.__init__(
-            self,
+        super(ValidatorCheckWidget, self).__init__(
             event_manager,
             client_id,
             context_id,
             plugin_config,
             dialog_connect_methods_callback,
             dialog_property_getter_connection_callback,
-            parent=parent,
+            parent,
         )
 
-        self.pre_build()
-        self.build()
-        self.post_build()
-
-    def pre_build(self):
+    def pre_build_ui(self):
         layout = QtWidgets.QHBoxLayout()
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setAlignment(QtCore.Qt.AlignTop)
@@ -59,7 +53,7 @@ class ValidatorCheckWidget(FrameworkWidget, QtWidgets.QWidget):
             QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Fixed
         )
 
-    def build(self):
+    def build_ui(self):
         '''build function widgets.'''
 
         self._validator_name_label = QtWidgets.QLabel(self.plugin_name)
@@ -73,7 +67,7 @@ class ValidatorCheckWidget(FrameworkWidget, QtWidgets.QWidget):
         self.layout().addWidget(self._validator_status_icon)
         self.layout().addWidget(self._check_button)
 
-    def post_build(self):
+    def post_build_ui(self):
         '''hook events'''
         self._check_button.clicked.connect(self._on_check_clicked)
 

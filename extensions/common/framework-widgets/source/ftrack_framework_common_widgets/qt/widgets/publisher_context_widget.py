@@ -3,7 +3,7 @@
 
 from Qt import QtWidgets, QtCore, QtGui
 
-from ftrack_framework_widget.widget import FrameworkWidget
+from ftrack_framework_qt.widgets import BaseWidget
 
 from ftrack_qt.widgets.selectors import AssetSelector
 from ftrack_qt.widgets.selectors import StatusSelector
@@ -11,7 +11,7 @@ from ftrack_qt.widgets.lines import LineWidget
 
 
 # TODO: review and docstring this code
-class PublishContextWidget(FrameworkWidget, QtWidgets.QWidget):
+class PublishContextWidget(BaseWidget):
     '''Main class to represent a context widget on a publish process.'''
 
     name = 'publisher_context_selector'
@@ -35,23 +35,17 @@ class PublishContextWidget(FrameworkWidget, QtWidgets.QWidget):
         self._status_selector = None
         self._comments_input = None
 
-        QtWidgets.QWidget.__init__(self, parent=parent)
-        FrameworkWidget.__init__(
-            self,
+        super(PublishContextWidget, self).__init__(
             event_manager,
             client_id,
             context_id,
             plugin_config,
             dialog_connect_methods_callback,
             dialog_property_getter_connection_callback,
-            parent=parent,
+            parent,
         )
 
-        self.pre_build()
-        self.build()
-        self.post_build()
-
-    def pre_build(self):
+    def pre_build_ui(self):
         layout = QtWidgets.QVBoxLayout()
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setAlignment(QtCore.Qt.AlignTop)
@@ -60,7 +54,7 @@ class PublishContextWidget(FrameworkWidget, QtWidgets.QWidget):
             QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Fixed
         )
 
-    def build(self):
+    def build_ui(self):
         '''build function widgets.'''
 
         asset_layout = QtWidgets.QVBoxLayout()
@@ -116,7 +110,7 @@ class PublishContextWidget(FrameworkWidget, QtWidgets.QWidget):
         self.layout().addWidget(LineWidget())
         self.layout().addWidget(version_and_comment)
 
-    def post_build(self):
+    def post_build_ui(self):
         '''hook events'''
         self._asset_selector.assetChanged.connect(self._on_asset_changed)
         self._comments_input.textChanged.connect(self._on_comment_updated)
