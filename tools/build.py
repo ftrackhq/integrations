@@ -10,6 +10,7 @@ official CI/CD build implementation in place.
 
 Release notes:
 
+0.4.7, Henrik Norin, 23.10.30; Read package version from pyproject.toml, parse and replace version in Connect hooks.
 0.4.6, Henrik Norin, 23.10.30; Allow pre releases on Connect build when enabling test PyPi.
 0.4.5, Henrik Norin, 23.10.26; Support for including assets in Connect plugin build.
 0.4.4, Henrik Norin, 23.10.13; Support for building multiple packages at once.
@@ -34,7 +35,7 @@ import subprocess
 from distutils.spawn import find_executable
 import fileinput
 
-__version__ = '0.4.4'
+__version__ = '0.4.7'
 
 ZXPSIGN_CMD = 'ZXPSignCmd'
 
