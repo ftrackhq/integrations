@@ -24,7 +24,7 @@ class FileExportOptionsWidget(BaseWidget):
         dialog_property_getter_connection_callback,
         parent=None,
     ):
-        '''initialise PublishContextWidget with *parent*, *session*, *data*,
+        '''initialise FileExportOptionsWidget with *parent*, *session*, *data*,
         *name*, *description*, *options* and *context*
         '''
 
