@@ -23,7 +23,7 @@ build-backend = "poetry.core.masonry.api"
 python = ">= 3.7, < 3.11"
 ftrack-python-api = ">= 1, < 3"
 ftrack-action-handler = { version = "*", optional = true }
-ftrack-utils = { version = "2.0.0rc1", optional = true }
+ftrack-utils = { version = "2.0.0rc2", optional = true }
 
 [tool.poetry.extras]
 ftrack-libs = ["ftrack-action-handler ", "ftrack-utils"]

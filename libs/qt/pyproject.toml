@@ -25,7 +25,7 @@ PySide2 = "<= 5.16"
 "Qt.py" = ">=1.0.0, < 2"
 #ftrack
 ftrack-constants= { version = "2.0.0rc1", optional = true }
-ftrack-utils = { version = "2.0.0rc1", optional = true }
+ftrack-utils = { version = "2.0.0rc2", optional = true }
 ftrack-qt-style = { version = "2.0.0rc1", optional = true }
 
 [tool.poetry.extras]
