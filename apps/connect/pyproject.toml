@@ -32,6 +32,7 @@ requests = ">= 2, <3"
 qtawesome = "*"
 darkdetect = "*"
 certifi = ">=2022,<2023"
+urllib3 = "<2"
 
 #ftrack
 ftrack-utils = { version = "2.0.0rc1", optional = true }
