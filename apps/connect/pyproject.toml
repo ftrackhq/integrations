@@ -35,7 +35,7 @@ certifi = ">=2022,<2023"
 urllib3 = "<2"
 
 #ftrack
-ftrack-utils = { version = "2.0.0rc1", optional = true }
+ftrack-utils = { version = "> 1, < 3", optional = true }
 
 [tool.poetry.extras]
 ftrack-libs = ["ftrack-utils"]
