@@ -64,7 +64,7 @@ class PublishContextWidget(BaseWidget):
         self._asset_selector = AssetSelector(self.session)
         asset_layout.addWidget(self._asset_selector)
         # set the current context
-        self.on_context_updated()
+        self.set_context()
 
         # Build version and comment widget
         version_and_comment = QtWidgets.QWidget()
@@ -138,7 +138,7 @@ class PublishContextWidget(BaseWidget):
         if asset_entity:
             self.set_plugin_option('asset_id', asset_entity['id'])
 
-    def on_context_updated(self):
+    def set_context(self):
         tool_config = self.dialog_property_getter_connection('tool_config')
         # TODO: modify context selector to select asset_type as asset_type is
         #  not in tool config anymore.
