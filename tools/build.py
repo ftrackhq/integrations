@@ -73,7 +73,7 @@ def build_package(pkg_path, args):
 
     MONOREPO_PATH = os.path.realpath(os.path.join(ROOT_PATH, '..', '..'))
 
-    STYLE_PATH = os.path.join(MONOREPO_PATH, "resource", "style")
+    DEFAULT_STYLE_PATH = os.path.join(MONOREPO_PATH, "resource", "style")
 
     def clean(args):
         '''Remove build folder'''
@@ -435,7 +435,7 @@ def build_package(pkg_path, args):
             else:
                 sys.stdout.write(line)
 
-    def build_resources(args):
+    def build_qt_resources(args):
         '''Build resources.py from style'''
         try:
             import scss
@@ -445,13 +445,21 @@ def build_package(pkg_path, args):
                 'Check you have the pyScss Python package installed.'
             )
 
-        if not os.path.exists(STYLE_PATH):
-            raise Exception('Missing "{}/" folder!'.format(STYLE_PATH))
+        style_path = args.style_path
+        if style_path is None:
+            style_path = DEFAULT_STYLE_PATH
+        else:
+            style_path = os.path.realpath(style_path)
+        if not os.path.exists(style_path):
+            raise Exception('Missing "{}/" folder!'.format(style_path))
 
-        sass_path = os.path.join(STYLE_PATH, 'sass')
-        css_path = STYLE_PATH
-        resource_source_path = os.path.join(STYLE_PATH, 'resource.qrc')
-        resource_target_path = os.path.join(SOURCE_PATH, 'resource.py')
+        sass_path = os.path.join(style_path, 'sass')
+        css_path = style_path
+        resource_source_path = os.path.join(style_path, 'resource.qrc')
+
+        resource_target_path = args.output_path
+        if resource_target_path is None:
+            resource_target_path = os.path.join(SOURCE_PATH, 'resource.py')
 
         compiler = scss.Scss(search_paths=[sass_path])
 
@@ -460,6 +468,7 @@ def build_package(pkg_path, args):
             scss_source = os.path.join(sass_path, '{0}.scss'.format(theme))
             css_target = os.path.join(css_path, '{0}.css'.format(theme))
 
+            logging.info("Compiling {}".format(scss_source))
             compiled = compiler.compile(scss_file=scss_source)
             with open(css_target, 'w') as file_handle:
                 file_handle.write(compiled)
@@ -573,6 +582,14 @@ def build_package(pkg_path, args):
         os.makedirs(os.path.join(STAGING_PATH, "image"))
         os.makedirs(os.path.join(STAGING_PATH, "css"))
 
+        style_path = args.style_path
+        if style_path is None:
+            style_path = DEFAULT_STYLE_PATH
+        else:
+            style_path = os.path.realpath(style_path)
+        if not os.path.exists(style_path):
+            raise Exception('Missing "{}/" folder!'.format(style_path))
+
         # Copy html
         for filename in ["index.html"]:
             parse_and_copy(
@@ -588,13 +605,13 @@ def build_package(pkg_path, args):
             "publish.png",
         ]:
             shutil.copy(
-                os.path.join(STYLE_PATH, "image", "js", filename),
+                os.path.join(style_path, "image", "js", filename),
                 os.path.join(STAGING_PATH, "image", filename),
             )
 
         # Copy style
         shutil.copy(
-            os.path.join(STYLE_PATH, "style_dark.css"),
+            os.path.join(style_path, "style_dark.css"),
             os.path.join(STAGING_PATH, "css", "style_dark.css"),
         )
 
@@ -726,8 +743,8 @@ def build_package(pkg_path, args):
         clean(args)
     elif args.command == 'build_connect_plugin':
         build_connect_plugin(args)
-    elif args.command == 'build_resources':
-        build_resources(args)
+    elif args.command == 'build_qt_resources':
+        build_qt_resources(args)
     elif args.command == 'build_sphinx':
         build_sphinx(args)
     elif args.command == 'build_cep':
@@ -741,6 +758,7 @@ if __name__ == '__main__':
         'ftrack Integration deployment script v{}'.format(__version__)
     )
 
+    # Connect plugin options
     parser.add_argument(
         '--with_extensions',
         help='(Connect plugin) Manually '
@@ -760,6 +778,17 @@ if __name__ == '__main__':
         action='store_true',
     )
 
+    # QT resource options
+    parser.add_argument(
+        '--style_path',
+        help='(QT resource build) Override the default style path (resource/style).',
+    )
+    parser.add_argument(
+        '--output_path',
+        help='(QT resource build) Override the QT resource output directory.',
+    )
+
+    # CEP options
     parser.add_argument(
         '--nosign',
         help='(CEP plugin build) Do not sign and create ZXP.',
@@ -776,8 +805,7 @@ if __name__ == '__main__':
         choices=[
             'clean',
             'build_connect_plugin',
-            'build_resources',
-            'build_resources',
+            'build_qt_resources',
             'build_sphinx',
             'build_cep',
         ],
