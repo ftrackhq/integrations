@@ -9,7 +9,7 @@ from ftrack_framework_qt.widgets import BaseWidget
 
 
 class FileExportOptionsWidget(BaseWidget):
-    '''Main class to represent a context widget on a publish process.'''
+    '''Main class to represent a file publish export options widget on a publish process.'''
 
     name = 'file_exporter_options'
     ui_type = 'qt'
