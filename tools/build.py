@@ -117,7 +117,9 @@ def build_package(pkg_path, args):
         with open(source_path, 'r') as f_src:
             with open(target_path, 'w') as f_dst:
                 f_dst.write(
-                    f_src.read().replace('{{PACKAGE_VERSION}}', VERSION)
+                    f_src.read().replace(
+                        '{{FTRACK_FRAMEWORK_PHOTOSHOP_VERSION}}', VERSION
+                    )
                 )
 
     def build_connect_plugin(args):
@@ -157,10 +159,11 @@ def build_package(pkg_path, args):
             BUILD_PATH, '{}-{}'.format(PROJECT_NAME, VERSION)
         )
 
-        '''Run the build step.'''
         # Clean staging path
-        logging.info('Cleaning up {}'.format(STAGING_PATH))
-        shutil.rmtree(STAGING_PATH, ignore_errors=True)
+        if os.path.exists(STAGING_PATH):
+            logging.info('Cleaning up {}'.format(STAGING_PATH))
+            shutil.rmtree(STAGING_PATH, ignore_errors=True)
+        os.makedirs(os.path.join(STAGING_PATH))
 
         # Locate and copy hook
         logging.info('Copying Connect hook')
@@ -230,7 +233,7 @@ def build_package(pkg_path, args):
             )
         )
         os.makedirs(os.path.join(STAGING_PATH, 'hook'))
-        parse_and_copy(
+        shutil.copy(
             hook_source_path,
             os.path.join(
                 STAGING_PATH, 'hook', os.path.basename(hook_source_path)

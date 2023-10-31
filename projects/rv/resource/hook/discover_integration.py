@@ -3,19 +3,23 @@
 
 import functools
 import os
+import logging
 
 import ftrack_api
 
-INTEGRATION_VERSION = '{{PACKAGE_VERSION}}'
+logger = logging.getLogger(__name__)
 
 cwd = os.path.dirname(__file__)
+connect_plugin_path = os.path.abspath(os.path.join(cwd, '..'))
+
+# Version number should be in the plugin folder name
+VERSION = os.path.basename(connect_plugin_path).split('-')[-1]
+
 sources = os.path.abspath(os.path.join(cwd, '..', 'dependencies'))
 
 
 def on_discover_rv_integration(session, event):
-    data = {
-        'integration': {'name': 'ftrack-rv', 'version': INTEGRATION_VERSION}
-    }
+    data = {'integration': {'name': 'ftrack-rv', 'version': VERSION}}
     return data
 
 
@@ -27,6 +31,11 @@ def on_launch_rv_integration(session, event):
     }
 
     return rv_data
+
+
+def get_version_information(event):
+    '''Return version information for ftrack connect installer.'''
+    return [dict(name='ftrack-rv', version=VERSION)]
 
 
 def register(session):
@@ -53,5 +62,12 @@ def register(session):
         ' and data.application.identifier=rv*'
         ' and data.application.version >= 2021',
         handle_launch_event,
+        priority=20,
+    )
+
+    # Enable RV info in Connect about dialog
+    session.event_hub.subscribe(
+        'topic=ftrack.connect.plugin.debug-information',
+        get_version_information,
         priority=20,
     )
