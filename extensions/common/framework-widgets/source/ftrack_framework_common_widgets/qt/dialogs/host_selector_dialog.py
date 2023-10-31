@@ -3,13 +3,11 @@
 
 from Qt import QtWidgets, QtCore
 
-from ftrack_framework_widget.dialog import FrameworkDialog
-
+from ftrack_framework_qt.dialogs import BaseDialog
 from ftrack_qt.widgets.selectors import ListSelector
-from ftrack_qt.widgets.dialogs import StyledDialog
 
 
-class HostSelectorDialog(FrameworkDialog, StyledDialog):
+class HostSelectorDialog(BaseDialog):
     '''Default Framework Host Selector dialog'''
 
     name = 'framework_host_selector_dialog'
@@ -75,13 +73,9 @@ class HostSelectorDialog(FrameworkDialog, StyledDialog):
         *dialog_options*: Dictionary of arguments passed to configure the
         current dialog.
         '''
+        self._host_connection_selector = None
         # As a mixing class we have to initialize the parents separately
-        StyledDialog.__init__(
-            self,
-            parent=parent,
-        )
-        FrameworkDialog.__init__(
-            self,
+        super(HostSelectorDialog, self).__init__(
             event_manager,
             client_id,
             connect_methods_callback,
@@ -90,25 +84,17 @@ class HostSelectorDialog(FrameworkDialog, StyledDialog):
             dialog_options,
             parent,
         )
-        self._is_sync = True
 
-        self._host_connection_selector = None
-
-        self.pre_build()
-        self.build()
-        self.post_build()
-
-    def pre_build(self):
+    def pre_build_ui(self):
         '''Pre Build method of the widget'''
-        main_layout = QtWidgets.QVBoxLayout()
-        self.setLayout(main_layout)
+        pass
 
-    def build(self):
+    def build_ui(self):
         '''Build method of the widget'''
         self._host_connection_selector = ListSelector("Host Selector")
-        self.layout().addWidget(self._host_connection_selector)
+        self._tool_widget.layout().addWidget(self._host_connection_selector)
 
-    def post_build(self):
+    def post_build_ui(self):
         '''Post Build method of the widget'''
         # Connect host selector signals
         self._host_connection_selector.current_item_changed.connect(
@@ -151,34 +137,9 @@ class HostSelectorDialog(FrameworkDialog, StyledDialog):
         self.refresh_hosts_clicked.emit()
         self.client_method_connection('discover_hosts')
 
-    def show_ui(self):
-        '''Override Show method of the base framework dialog'''
-        HostSelectorDialog.show(self)
-        self.raise_()
-        self.activateWindow()
-        self.setWindowState(
-            self.windowState() & ~QtCore.Qt.WindowMinimized
-            | QtCore.Qt.WindowActive
-        )
-
     def _on_client_host_changed_callback(self, event=None):
         '''Client host has been changed'''
         client_host_connection_id = None
         if self.host_connection:
             client_host_connection_id = self.host_connection.host_id
         self.selected_host_connection_id = client_host_connection_id
-
-    def _on_client_hosts_discovered_callback(self, event=None):
-        pass
-
-    def _on_tool_config_changed_callback(self):
-        pass
-
-    def sync_context(self):
-        pass
-
-    def connect_focus_signal(self):
-        pass
-
-    def sync_host_connection(self):
-        pass

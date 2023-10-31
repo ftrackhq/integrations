@@ -41,6 +41,13 @@ ZXPSIGN_CMD = 'ZXPSignCmd'
 
 logging.getLogger().setLevel(logging.INFO)
 
+VERSION_TEMPLATE = '''
+# :coding: utf-8
+# :copyright: Copyright (c) 2014-2023 ftrack
+
+__version__ = {version}
+'''
+
 
 def build_package(pkg_path, args):
     '''Build the package @ pkg_path'''
@@ -117,7 +124,9 @@ def build_package(pkg_path, args):
         with open(source_path, 'r') as f_src:
             with open(target_path, 'w') as f_dst:
                 f_dst.write(
-                    f_src.read().replace('{{PACKAGE_VERSION}}', VERSION)
+                    f_src.read().replace(
+                        '{{FTRACK_FRAMEWORK_PHOTOSHOP_VERSION}}', VERSION
+                    )
                 )
 
     def build_connect_plugin(args):
@@ -157,10 +166,17 @@ def build_package(pkg_path, args):
             BUILD_PATH, '{}-{}'.format(PROJECT_NAME, VERSION)
         )
 
-        '''Run the build step.'''
         # Clean staging path
-        logging.info('Cleaning up {}'.format(STAGING_PATH))
-        shutil.rmtree(STAGING_PATH, ignore_errors=True)
+        if os.path.exists(STAGING_PATH):
+            logging.info('Cleaning up {}'.format(STAGING_PATH))
+            shutil.rmtree(STAGING_PATH, ignore_errors=True)
+        os.makedirs(os.path.join(STAGING_PATH))
+
+        # Store version
+        logging.info('Storing version ({})'.format(VERSION))
+        version_path = os.path.join(STAGING_PATH, '__version__.py')
+        with open(version_path, 'w') as f:
+            f.write(VERSION_TEMPLATE.format(version=VERSION))
 
         # Locate and copy hook
         logging.info('Copying Connect hook')
@@ -230,7 +246,7 @@ def build_package(pkg_path, args):
             )
         )
         os.makedirs(os.path.join(STAGING_PATH, 'hook'))
-        parse_and_copy(
+        shutil.copy(
             hook_source_path,
             os.path.join(
                 STAGING_PATH, 'hook', os.path.basename(hook_source_path)

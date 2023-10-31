@@ -2,12 +2,24 @@
 # :copyright: Copyright (c) 2014-2023 ftrack
 
 
-def recursive_clear_layout(layout):
+def recursive_clear_layout(layout, removed_widgets=[]):
     '''Recursively remove all widgets from the *layout*'''
-    while layout is not None and layout.count():
-        item = layout.takeAt(0)
+    for i in reversed(range(layout.count())):
+        item = layout.takeAt(i)
         widget = item.widget()
         if widget is not None:
+            if hasattr(widget, 'widget'):
+                if (
+                    hasattr(widget.widget(), 'layout')
+                    and widget.widget().layout()
+                ):
+                    recursive_clear_layout(
+                        widget.widget().layout(), removed_widgets
+                    )
+            elif hasattr(widget, 'layout') and widget.layout():
+                recursive_clear_layout(widget.layout(), removed_widgets)
+            removed_widgets.append(widget)
             widget.deleteLater()
         else:
-            recursive_clear_layout(item.layout())
+            if hasattr(item, 'layout') and item.layout():
+                recursive_clear_layout(item.layout(), removed_widgets)

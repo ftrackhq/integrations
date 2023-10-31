@@ -5,12 +5,11 @@ from functools import partial
 
 from Qt import QtWidgets, QtCore, QtGui
 
-from ftrack_framework_widget.widget import FrameworkWidget
+from ftrack_framework_qt.widgets import BaseWidget
 
 
-# TODO: review and docstring this code
-class FileExportOptionsWidget(FrameworkWidget, QtWidgets.QWidget):
-    '''Main class to represent a context widget on a publish process.'''
+class FileExportOptionsWidget(BaseWidget):
+    '''Main class to represent a file publish export options widget on a publish process.'''
 
     name = 'file_exporter_options'
     ui_type = 'qt'
@@ -25,28 +24,21 @@ class FileExportOptionsWidget(FrameworkWidget, QtWidgets.QWidget):
         dialog_property_getter_connection_callback,
         parent=None,
     ):
-        '''initialise PublishContextWidget with *parent*, *session*, *data*,
+        '''initialise FileExportOptionsWidget with *parent*, *session*, *data*,
         *name*, *description*, *options* and *context*
         '''
-        self._file_browser = None
 
-        QtWidgets.QWidget.__init__(self, parent=parent)
-        FrameworkWidget.__init__(
-            self,
+        super(FileExportOptionsWidget, self).__init__(
             event_manager,
             client_id,
             context_id,
             plugin_config,
             dialog_connect_methods_callback,
             dialog_property_getter_connection_callback,
-            parent=parent,
+            parent,
         )
 
-        self.pre_build()
-        self.build()
-        self.post_build()
-
-    def pre_build(self):
+    def pre_build_ui(self):
         layout = QtWidgets.QVBoxLayout()
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setAlignment(QtCore.Qt.AlignTop)
@@ -55,7 +47,7 @@ class FileExportOptionsWidget(FrameworkWidget, QtWidgets.QWidget):
             QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Fixed
         )
 
-    def build(self):
+    def build_ui(self):
         '''build function widgets.'''
         # Create options:
         for option, value in self.plugin_options.items():
@@ -83,7 +75,7 @@ class FileExportOptionsWidget(FrameworkWidget, QtWidgets.QWidget):
             h_layout.addWidget(value_widget)
             self.layout().addLayout(h_layout)
 
-    def post_build(self):
+    def post_build_ui(self):
         '''hook events'''
         pass
 

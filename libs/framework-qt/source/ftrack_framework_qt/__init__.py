@@ -1,5 +1,6 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2023 ftrack
+
 import os
 import logging
 
@@ -12,7 +13,7 @@ try:
         os.path.dirname(os.path.dirname(os.path.dirname(__file__))),
     )
 except Exception:
-    __version__ = '0.0.0'
+    __version__ = "0.0.0"
 
 logger = logging.getLogger(__name__)
-logger.debug('v{}'.format(__version__))
+logger.debug("v{}".format(__version__))
