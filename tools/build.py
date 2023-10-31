@@ -10,6 +10,8 @@ official CI/CD build implementation in place.
 
 Release notes:
 
+0.4.7, Henrik Norin, 23.10.30; Read package version from pyproject.toml, parse and replace version in Connect hooks.
+0.4.6, Henrik Norin, 23.10.30; Allow pre releases on Connect build when enabling test PyPi.
 0.4.5, Henrik Norin, 23.10.26; Support for including assets in Connect plugin build.
 0.4.4, Henrik Norin, 23.10.13; Support for building multiple packages at once.
 0.4.3, Henrik Norin, 23.10.11; Support for additional CEP JS include folder
@@ -33,11 +35,18 @@ import subprocess
 from distutils.spawn import find_executable
 import fileinput
 
-__version__ = '0.4.4'
+__version__ = '0.4.7'
 
 ZXPSIGN_CMD = 'ZXPSignCmd'
 
 logging.getLogger().setLevel(logging.INFO)
+
+VERSION_TEMPLATE = '''
+# :coding: utf-8
+# :copyright: Copyright (c) 2014-2023 ftrack
+
+__version__ = '{version}'
+'''
 
 
 def build_package(pkg_path, args):
@@ -45,35 +54,40 @@ def build_package(pkg_path, args):
     os.chdir(pkg_path)
 
     ROOT_PATH = os.path.realpath(os.getcwd())
-    BUILD_PATH = os.path.join(ROOT_PATH, "dist")
-    RESOURCE_PATH = os.path.join(ROOT_PATH, "resource")
-    CEP_PATH = os.path.join(ROOT_PATH, "resource", "cep")
+    BUILD_PATH = os.path.join(ROOT_PATH, 'dist')
+    RESOURCE_PATH = os.path.join(ROOT_PATH, 'resource')
+    CEP_PATH = os.path.join(ROOT_PATH, 'resource', 'cep')
 
     POETRY_CONFIG_PATH = os.path.join(ROOT_PATH, 'pyproject.toml')
     if os.path.exists(POETRY_CONFIG_PATH):
         PROJECT_NAME = None
+        VERSION = None
         with open(os.path.join(ROOT_PATH, 'pyproject.toml')) as f:
             for line in f:
                 if line.startswith('name = '):
                     PROJECT_NAME = line.split('=')[1].strip().strip('"')
+                elif line.startswith('version = '):
+                    VERSION = line.split('=')[1].strip().strip('"')
                     break
 
         DCC_NAME = PROJECT_NAME.split('-')[-1]
-
+        assert VERSION, 'No version could be extracted from "pyproject.toml"!'
     else:
         logging.warning(
             'Missing "pyproject.toml" file, not able to identify target DCC!'
         )
 
         PROJECT_NAME = 'ftrack-{}'.format(os.path.basename(ROOT_PATH))
+        DCC_NAME = None
+        VERSION = '0.0.0'
 
     SOURCE_PATH = os.path.join(
-        ROOT_PATH, "source", PROJECT_NAME.replace('-', '_')
+        ROOT_PATH, 'source', PROJECT_NAME.replace('-', '_')
     )
 
     MONOREPO_PATH = os.path.realpath(os.path.join(ROOT_PATH, '..', '..'))
 
-    DEFAULT_STYLE_PATH = os.path.join(MONOREPO_PATH, "resource", "style")
+    DEFAULT_STYLE_PATH = os.path.join(MONOREPO_PATH, 'resource', 'style')
 
     def clean(args):
         '''Remove build folder'''
@@ -101,6 +115,20 @@ def build_package(pkg_path, args):
             'No Python source package found @ "{}"'.format(source_path)
         )
 
+    def parse_and_copy(source_path, target_path):
+        '''Copies the single file pointed out by *source_path* to *target_path* and
+        replaces version expression to supplied *version*.'''
+        logging.info(
+            'Parsing and copying {}>{}'.format(source_path, target_path)
+        )
+        with open(source_path, 'r') as f_src:
+            with open(target_path, 'w') as f_dst:
+                f_dst.write(
+                    f_src.read().replace(
+                        '{{FTRACK_FRAMEWORK_PHOTOSHOP_VERSION}}', VERSION
+                    )
+                )
+
     def build_connect_plugin(args):
         '''
         Build the Connect plugin archive ready to be deployed in the Plugin manager.
@@ -122,17 +150,14 @@ def build_package(pkg_path, args):
 
         # Find wheel and read the version
         wheel_path = None
-        VERSION = None
         for filename in os.listdir(BUILD_PATH):
             # Expect: ftrack_connect_pipeline_qt-1.3.0a1-py3-none-any.whl
             if not filename.endswith('.whl'):
                 continue
             wheel_path = os.path.join(BUILD_PATH, filename)
-            parts = filename.split('-')
-            VERSION = parts[1]
             break
 
-        if not VERSION:
+        if not wheel_path:
             raise Exception(
                 'Could not locate a built python wheel! Please build with Poetry.'
             )
@@ -141,14 +166,21 @@ def build_package(pkg_path, args):
             BUILD_PATH, '{}-{}'.format(PROJECT_NAME, VERSION)
         )
 
-        '''Run the build step.'''
         # Clean staging path
-        logging.info('Cleaning up {}'.format(STAGING_PATH))
-        shutil.rmtree(STAGING_PATH, ignore_errors=True)
+        if os.path.exists(STAGING_PATH):
+            logging.info('Cleaning up {}'.format(STAGING_PATH))
+            shutil.rmtree(STAGING_PATH, ignore_errors=True)
+        os.makedirs(os.path.join(STAGING_PATH))
+
+        # Store version
+        logging.info('Storing version ({})'.format(VERSION))
+        version_path = os.path.join(STAGING_PATH, '__version__.py')
+        with open(version_path, 'w') as f:
+            f.write(VERSION_TEMPLATE.format(version=VERSION))
 
         # Locate and copy hook
         logging.info('Copying Connect hook')
-        extension_path = None
+        hook_source_path = None
         hook_search_paths = []
         if args.include_extensions:
             hook_search_paths.append(args.include_extensions)
@@ -159,7 +191,7 @@ def build_package(pkg_path, args):
             if not os.path.exists(hook_search_path):
                 continue
             for filename in os.listdir(hook_search_path):
-                if filename.replace('_', '-').endswith("-connect-hook"):
+                if filename.replace('_', '-').endswith('-connect-hook'):
                     if os.path.exists(
                         os.path.join(hook_search_path, filename, 'source')
                     ):
@@ -182,13 +214,13 @@ def build_package(pkg_path, args):
                             if module_name.startswith(
                                 'discover_'
                             ) and module_name.endswith('.py'):
-                                extension_path = os.path.join(
+                                hook_source_path = os.path.join(
                                     hook_path_package, module_name
                                 )
                                 break
-            if extension_path:
+            if hook_source_path:
                 break
-        if not extension_path:
+        if not hook_source_path:
             # Look in resource
             path_resource_hook = os.path.join(RESOURCE_PATH, 'hook')
             if os.path.exists(path_resource_hook):
@@ -196,11 +228,11 @@ def build_package(pkg_path, args):
                     if filename.startswith('discover_') and filename.endswith(
                         '.py'
                     ):
-                        extension_path = os.path.join(
+                        hook_source_path = os.path.join(
                             path_resource_hook, filename
                         )
                         break
-                if not extension_path:
+                if not hook_source_path:
                     raise Exception(
                         'Could not locate Connect hook module within resource folder!'
                     )
@@ -208,12 +240,16 @@ def build_package(pkg_path, args):
                 raise Exception(
                     'Could not locate Connect hook module within "extensions"!'
                 )
-        logging.info('Copying Connect hook from {}'.format(extension_path))
+        logging.info(
+            'Copying and substituting Connect hook from {}'.format(
+                hook_source_path
+            )
+        )
         os.makedirs(os.path.join(STAGING_PATH, 'hook'))
         shutil.copy(
-            extension_path,
+            hook_source_path,
             os.path.join(
-                STAGING_PATH, 'hook', os.path.basename(extension_path)
+                STAGING_PATH, 'hook', os.path.basename(hook_source_path)
             ),
         )
 
@@ -240,10 +276,10 @@ def build_package(pkg_path, args):
                 lib_path = os.path.join(MONOREPO_PATH, 'libs', lib)
                 if not os.path.isdir(lib_path):
                     continue
-                extension_path = os.path.join(MONOREPO_PATH, 'libs', lib)
-                framework_dependency_packages.append(extension_path)
+                hook_source_path = os.path.join(MONOREPO_PATH, 'libs', lib)
+                framework_dependency_packages.append(hook_source_path)
                 logging.info(
-                    'Adding library package: {}'.format(extension_path)
+                    'Adding library package: {}'.format(hook_source_path)
                 )
 
             # Pick up extensions
@@ -269,24 +305,26 @@ def build_package(pkg_path, args):
                     )
                 )
                 for extension in os.listdir(include_path):
-                    extension_path = os.path.join(include_path, extension)
-                    if not os.path.isdir(extension_path):
+                    hook_source_path = os.path.join(include_path, extension)
+                    if not os.path.isdir(hook_source_path):
                         continue
                     if not extension.endswith('-js'):
                         logging.info(
-                            'Adding package include: {}'.format(extension_path)
+                            'Adding package include: {}'.format(
+                                hook_source_path
+                            )
                         )
-                        framework_dependency_packages.append(extension_path)
+                        framework_dependency_packages.append(hook_source_path)
 
             for extension_base_path in [
                 os.path.join(MONOREPO_PATH, 'extensions', 'common'),
                 os.path.join(MONOREPO_PATH, 'extensions', DCC_NAME),
             ]:
                 for extension in os.listdir(extension_base_path):
-                    extension_path = os.path.join(
+                    hook_source_path = os.path.join(
                         extension_base_path, extension
                     )
-                    if not os.path.isdir(extension_path):
+                    if not os.path.isdir(hook_source_path):
                         continue
                     if not extension.endswith('-js'):
                         add = True
@@ -297,10 +335,10 @@ def build_package(pkg_path, args):
                                 break
                         if add:
                             logging.info(
-                                'Adding package: {}'.format(extension_path)
+                                'Adding package: {}'.format(hook_source_path)
                             )
                             framework_dependency_packages.append(
-                                extension_path
+                                hook_source_path
                             )
                         else:
                             logging.warning()
@@ -329,6 +367,8 @@ def build_package(pkg_path, args):
                             '-m',
                             'pip',
                             'install',
+                            '-e',
+                            '.[ftrack-libs]',
                             '.',
                             '--target',
                             dependencies_path,
@@ -374,13 +414,14 @@ def build_package(pkg_path, args):
             '-m',
             'pip',
             'install',
-            wheel_path,
+            '{}[ftrack-libs]'.format(wheel_path),
             '--target',
             dependencies_path,
         ]
         if args.testpypi:
             commands.extend(
                 [
+                    '--pre',
                     '--index-url',
                     'https://test.pypi.org/simple',
                     '--extra-index-url',
@@ -390,7 +431,7 @@ def build_package(pkg_path, args):
 
         subprocess.check_call(commands)
         if args.include_assets:
-            for asset_path in args.include_assets.split(","):
+            for asset_path in args.include_assets.split(','):
                 asset_destination_path = os.path.basename(asset_path)
                 logging.info('Copying asset "{}"'.format(asset_path))
                 if os.path.isdir(asset_path):
@@ -468,7 +509,7 @@ def build_package(pkg_path, args):
             scss_source = os.path.join(sass_path, '{0}.scss'.format(theme))
             css_target = os.path.join(css_path, '{0}.css'.format(theme))
 
-            logging.info("Compiling {}".format(scss_source))
+            logging.info('Compiling {}'.format(scss_source))
             compiled = compiler.compile(scss_file=scss_source)
             with open(css_target, 'w') as file_handle:
                 file_handle.write(compiled)
@@ -516,42 +557,13 @@ def build_package(pkg_path, args):
         logging.info('Running: {}'.format(cmd))
         os.system(cmd)
 
-    def get_version():
-        '''Read version from _version.py, updated by CI based on monorepo package tag'''
-        if 'POETRY_DYNAMIC_VERSIONING_BYPASS' in os.environ:
-            result = os.environ['POETRY_DYNAMIC_VERSIONING_BYPASS']
-            if result.startswith('v'):
-                return result[1:]
-            else:
-                return result
-        version_path = os.path.join(SOURCE_PATH, '_version.py')
-        with open(version_path, 'r') as file_handle:
-            for line in file_handle.readlines():
-                if line.find('__version__') > -1:
-                    return re.findall(r'\'(.*)\'', line)[0].strip()
-        raise ValueError('Could not find version in {0}'.format(version_path))
-
-    def parse_and_copy(source_path, target_path, version):
-        '''Copies the single file pointed out by *source_path* to *target_path* and
-        replaces version expression to supplied *version*.'''
-        logging.info(
-            "Parsing and copying {}>{}".format(source_path, target_path)
-        )
-        with open(source_path, 'r') as f_src:
-            with open(target_path, 'w') as f_dst:
-                f_dst.write(
-                    f_src.read().replace(
-                        '{{FTRACK_FRAMEWORK_PHOTOSHOP_VERSION}}', version
-                    )
-                )
-
     def build_cep(args):
         '''Wrapper for building Adobe CEP extension'''
 
         if not os.path.exists(CEP_PATH):
             raise Exception('Missing "{}/" folder!'.format(CEP_PATH))
 
-        MANIFEST_PATH = os.path.join(CEP_PATH, "bundle", "manifest.xml")
+        MANIFEST_PATH = os.path.join(CEP_PATH, 'bundle', 'manifest.xml')
         if not os.path.exists(MANIFEST_PATH):
             raise Exception('Missing manifest:{}!'.format(MANIFEST_PATH))
 
@@ -569,18 +581,16 @@ def build_package(pkg_path, args):
         CERTIFICATE_PATH = os.path.join(CEP_PATH, 'bundle', 'certificate.p12')
         if not os.path.exists(CERTIFICATE_PATH):
             raise Exception(
-                "Certificate missing: {}!".format(CERTIFICATE_PATH)
+                'Certificate missing: {}!'.format(CERTIFICATE_PATH)
             )
 
-        STAGING_PATH = os.path.join(BUILD_PATH, "staging")
-
-        VERSION = get_version()
+        STAGING_PATH = os.path.join(BUILD_PATH, 'staging')
 
         # Clean staging path
         shutil.rmtree(STAGING_PATH, ignore_errors=True)
         os.makedirs(os.path.join(STAGING_PATH))
-        os.makedirs(os.path.join(STAGING_PATH, "image"))
-        os.makedirs(os.path.join(STAGING_PATH, "css"))
+        os.makedirs(os.path.join(STAGING_PATH, 'image'))
+        os.makedirs(os.path.join(STAGING_PATH, 'css'))
 
         style_path = args.style_path
         if style_path is None:
@@ -591,7 +601,7 @@ def build_package(pkg_path, args):
             raise Exception('Missing "{}/" folder!'.format(style_path))
 
         # Copy html
-        for filename in ["index.html"]:
+        for filename in ['index.html']:
             parse_and_copy(
                 os.path.join(CEP_PATH, filename),
                 os.path.join(STAGING_PATH, filename),
@@ -599,32 +609,32 @@ def build_package(pkg_path, args):
             )
         # Copy images
         for filename in [
-            "favicon.ico",
-            "ftrack-logo-48.png",
-            "loader.gif",
-            "publish.png",
+            'favicon.ico',
+            'ftrack-logo-48.png',
+            'loader.gif',
+            'publish.png',
         ]:
             shutil.copy(
-                os.path.join(style_path, "image", "js", filename),
-                os.path.join(STAGING_PATH, "image", filename),
+                os.path.join(style_path, 'image', 'js', filename),
+                os.path.join(STAGING_PATH, 'image', filename),
             )
 
         # Copy style
         shutil.copy(
-            os.path.join(style_path, "style_dark.css"),
-            os.path.join(STAGING_PATH, "css", "style_dark.css"),
+            os.path.join(style_path, 'style_dark.css'),
+            os.path.join(STAGING_PATH, 'css', 'style_dark.css'),
         )
 
         # Copy static libraries
         logging.info(
-            "Copying {}>{}".format(
-                os.path.join(CEP_PATH, "libraries"),
-                os.path.join(STAGING_PATH, "lib"),
+            'Copying {}>{}'.format(
+                os.path.join(CEP_PATH, 'libraries'),
+                os.path.join(STAGING_PATH, 'lib'),
             )
         )
         shutil.copytree(
-            os.path.join(CEP_PATH, "libraries"),
-            os.path.join(STAGING_PATH, "lib"),
+            os.path.join(CEP_PATH, 'libraries'),
+            os.path.join(STAGING_PATH, 'lib'),
             symlinks=True,
         )
 
@@ -632,51 +642,51 @@ def build_package(pkg_path, args):
         for js_file in [
             os.path.join(
                 MONOREPO_PATH,
-                "projects",
-                "framework-photoshop-js",
-                "source",
-                "utils.js",
+                'projects',
+                'framework-photoshop-js',
+                'source',
+                'utils.js',
             ),
             os.path.join(
                 MONOREPO_PATH,
-                "projects",
-                "framework-photoshop-js",
-                "source",
-                "event-constants.js",
+                'projects',
+                'framework-photoshop-js',
+                'source',
+                'event-constants.js',
             ),
             os.path.join(
                 MONOREPO_PATH,
-                "projects",
-                "framework-photoshop-js",
-                "source",
-                "events-core.js",
+                'projects',
+                'framework-photoshop-js',
+                'source',
+                'events-core.js',
             ),
         ]:
             parse_and_copy(
                 js_file,
-                os.path.join(STAGING_PATH, "lib", os.path.basename(js_file)),
+                os.path.join(STAGING_PATH, 'lib', os.path.basename(js_file)),
                 VERSION,
             )
         parse_and_copy(
             os.path.join(
                 MONOREPO_PATH,
-                "projects",
-                "framework-photoshop-js",
-                "source",
-                "bootstrap.js",
+                'projects',
+                'framework-photoshop-js',
+                'source',
+                'bootstrap.js',
             ),
-            os.path.join(STAGING_PATH, "bootstrap.js"),
+            os.path.join(STAGING_PATH, 'bootstrap.js'),
             VERSION,
         )
         parse_and_copy(
             os.path.join(
                 MONOREPO_PATH,
-                "projects",
-                "framework-photoshop-js",
-                "source",
-                "ps.jsx",
+                'projects',
+                'framework-photoshop-js',
+                'source',
+                'ps.jsx',
             ),
-            os.path.join(STAGING_PATH, "ps.jsx"),
+            os.path.join(STAGING_PATH, 'ps.jsx'),
             VERSION,
         )
         if args.include_extensions:

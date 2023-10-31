@@ -115,6 +115,7 @@ class ApplicationStore(ftrack_application_launcher.ApplicationStore):
 
         if self.current_os == 'darwin':
             prefix = ['/', 'Applications']
+            # TODO: extract RV version number from Info.plist
             applications.extend(
                 self._search_filesystem(
                     expression=prefix + ['RV.*\.app'],
@@ -127,7 +128,7 @@ class ApplicationStore(ftrack_application_launcher.ApplicationStore):
                         '-flags',
                         'ModeManagerPreload=ftrack',
                     ],
-                    integrations={'legacy': ['ftrack-connect-rv']},
+                    integrations={'legacy': ['ftrack-rv']},
                 )
             )
 
@@ -143,7 +144,7 @@ class ApplicationStore(ftrack_application_launcher.ApplicationStore):
                     icon='rv',
                     launchArguments=['-flags', 'ModeManagerPreload=ftrack'],
                     versionExpression=re.compile(r'(?P<version>\d+.\d+.\d+)'),
-                    integrations={'legacy': ['ftrack-connect-rv']},
+                    integrations={'legacy': ['ftrack-rv']},
                 )
             )
 
@@ -182,7 +183,7 @@ class ApplicationStore(ftrack_application_launcher.ApplicationStore):
                             '-flags',
                             'ModeManagerPreload=ftrack',
                         ],
-                        integrations={'legacy': ['ftrack-connect-rv']},
+                        integrations={'legacy': ['ftrack-rv']},
                     )
                 )
 

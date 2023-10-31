@@ -1,7 +1,7 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2023 ftrack
 import os
-
+import logging
 
 # Evaluate version and log package version
 try:
@@ -13,3 +13,6 @@ try:
     )
 except Exception:
     __version__ = '0.0.0'
+
+logger = logging.getLogger(__name__)
+logger.debug('v{}'.format(__version__))

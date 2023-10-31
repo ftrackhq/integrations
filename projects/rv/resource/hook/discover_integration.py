@@ -2,20 +2,34 @@
 # :copyright: Copyright (c) 2014-2023 ftrack
 
 import functools
-import sys
 import os
+import logging
 
 import ftrack_api
 
+logger = logging.getLogger(__name__)
+
 cwd = os.path.dirname(__file__)
+connect_plugin_path = os.path.abspath(os.path.join(cwd, '..'))
+
+# Read version number from __version__.py
+__version__ = '0.0.0'
+path_version_file = os.path.join(connect_plugin_path, '__version__.py')
+if os.path.isfile(path_version_file):
+    with open(path_version_file) as f:
+        exec(f.read())
+else:
+    logger.warning(
+        'Unable to read version from {0}. Using default version: {1}'.format(
+            path_version_file, __version__
+        )
+    )
+
 sources = os.path.abspath(os.path.join(cwd, '..', 'dependencies'))
-sys.path.append(sources)
 
 
 def on_discover_rv_integration(session, event):
-    from ftrack_rv import __version__ as integration_version
-
-    data = {'integration': {'name': 'rv', 'version': integration_version}}
+    data = {'integration': {'name': 'ftrack-rv', 'version': __version__}}
     return data
 
 
@@ -27,6 +41,11 @@ def on_launch_rv_integration(session, event):
     }
 
     return rv_data
+
+
+def get_version_information(event):
+    '''Return version information for ftrack connect installer.'''
+    return [dict(name='ftrack-rv', version=__version__)]
 
 
 def register(session):
@@ -53,5 +72,12 @@ def register(session):
         ' and data.application.identifier=rv*'
         ' and data.application.version >= 2021',
         handle_launch_event,
+        priority=20,
+    )
+
+    # Enable RV info in Connect about dialog
+    session.event_hub.subscribe(
+        'topic=ftrack.connect.plugin.debug-information',
+        get_version_information,
         priority=20,
     )
