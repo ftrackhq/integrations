@@ -20,14 +20,7 @@ Install development dependencies:
   poetry install --with documentation
 ```
 
-:
-
-```bash
-    
-```
-
-
-Go to the root of the RV package within monorepo and build the QT resources
+Go to the root of the package within monorepo and build the QT resources
 
 ```bash
   cd integrations
