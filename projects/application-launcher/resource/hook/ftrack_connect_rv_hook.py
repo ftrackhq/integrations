@@ -128,7 +128,7 @@ class ApplicationStore(ftrack_application_launcher.ApplicationStore):
                         '-flags',
                         'ModeManagerPreload=ftrack',
                     ],
-                    integrations={'legacy': ['ftrack-connect-rv']},
+                    integrations={'legacy': ['ftrack-rv']},
                 )
             )
 
@@ -144,7 +144,7 @@ class ApplicationStore(ftrack_application_launcher.ApplicationStore):
                     icon='rv',
                     launchArguments=['-flags', 'ModeManagerPreload=ftrack'],
                     versionExpression=re.compile(r'(?P<version>\d+.\d+.\d+)'),
-                    integrations={'legacy': ['ftrack-connect-rv']},
+                    integrations={'legacy': ['ftrack-rv']},
                 )
             )
 
