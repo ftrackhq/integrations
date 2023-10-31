@@ -41,6 +41,13 @@ ZXPSIGN_CMD = 'ZXPSignCmd'
 
 logging.getLogger().setLevel(logging.INFO)
 
+VERSION_TEMPLATE = '''
+# :coding: utf-8
+# :copyright: Copyright (c) 2014-2023 ftrack
+
+__version__ = {version}
+'''
+
 
 def build_package(pkg_path, args):
     '''Build the package @ pkg_path'''
@@ -164,6 +171,12 @@ def build_package(pkg_path, args):
             logging.info('Cleaning up {}'.format(STAGING_PATH))
             shutil.rmtree(STAGING_PATH, ignore_errors=True)
         os.makedirs(os.path.join(STAGING_PATH))
+
+        # Store version
+        logging.info('Storing version ({})'.format(VERSION))
+        version_path = os.path.join(STAGING_PATH, '__version__.py')
+        with open(version_path, 'w') as f:
+            f.write(VERSION_TEMPLATE.format(version=VERSION))
 
         # Locate and copy hook
         logging.info('Copying Connect hook')
