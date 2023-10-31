@@ -15,7 +15,7 @@ See Monorepo build CI
 Go to the root of the RV package within monorepo:
 
 ```bash
-    cd integrations/projects/rv
+    cd integrations/projects/connect-action-launcher-widget
 ```
 
 Tag and build with Poetry:
