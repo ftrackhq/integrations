@@ -152,7 +152,9 @@ def build_package(pkg_path, args):
         wheel_path = None
         for filename in os.listdir(BUILD_PATH):
             # Expect: ftrack_connect_pipeline_qt-1.3.0a1-py3-none-any.whl
-            if not filename.endswith('.whl'):
+            if not filename.endswith('.whl') or VERSION not in filename.split(
+                '-'
+            ):
                 continue
             wheel_path = os.path.join(BUILD_PATH, filename)
             break
@@ -225,8 +227,9 @@ def build_package(pkg_path, args):
             path_resource_hook = os.path.join(RESOURCE_PATH, 'hook')
             if os.path.exists(path_resource_hook):
                 for filename in os.listdir(path_resource_hook):
-                    if filename.startswith('discover_') and filename.endswith(
-                        '.py'
+                    if filename.endswith('.py') and (
+                        filename.startswith('discover_')
+                        or filename.find('_widget') > -1
                     ):
                         hook_source_path = os.path.join(
                             path_resource_hook, filename

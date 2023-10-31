@@ -44,7 +44,7 @@ def on_launch_rv_integration(session, event):
 
 
 def get_version_information(event):
-    '''Return version information for ftrack connect installer.'''
+    '''Return version information for ftrack connect plugin.'''
     return [dict(name='ftrack-rv', version=__version__)]
 
 

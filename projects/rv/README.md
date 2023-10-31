@@ -53,16 +53,16 @@ Go to the root of the Monorepo and create the Connect plugin:
 
 ```bash
   cd integrations
-  python tools/build.py --testpypi --include_assets /tmp/ftrack-5.0rc2.rvpkg  build_connect_plugin projects/rv
+  python tools/build.py --include_assets /tmp/ftrack-5.0rc2.rvpkg  build_connect_plugin projects/rv
 ```
 
 
 If the build fails and RV is using beta or experimental dependencies published to Test PyPi, use the `--testpypi` flag 
-to build the plugin.
+to build the plugin:
 
 ```bash
   cd integrations
-  python tools/build.py --testpypi build_connect_plugin projects/rv
+  python tools/build.py --testpypi --include_assets /tmp/ftrack-5.0rc2.rvpkg  build_connect_plugin projects/rv
 ```
 
 The Connect plugin will be output to the dist/ folder.

@@ -18,14 +18,13 @@ Go to the root of the RV package within monorepo:
     cd integrations/projects/rv
 ```
 
-Build with Poetry:
+Tag and build with Poetry:
     
 ```bash
     poetry build
 ```
 
-
-Go to the root of the Monorepo and create the Connect plugin:
+Go to the root of the Monorepo and build the Connect plugin:
 
 ```bash
   cd integrations
@@ -33,7 +32,7 @@ Go to the root of the Monorepo and create the Connect plugin:
 ```
 
 If the build fails and RV is using beta or experimental dependencies published to Test PyPi, use the `--testpypi` flag 
-to build the plugin.
+to build the plugin:
 
 ```bash
   cd integrations
