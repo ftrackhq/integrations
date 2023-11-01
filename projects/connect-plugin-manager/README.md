@@ -5,38 +5,76 @@ Documentation: [https://ftrackhq.github.io/integrations/projects/connect-plugin-
 
 ## Building
 
+### Preparations
+
+Update release notes.
+
+Set or bump version in pyproject.toml:
+
+```bash
+    poetry version prerelease
+```
+or:
+```bash
+    poetry version patch
+```
+or:
+```bash
+    poetry version minor
+```
+or:
+```bash
+    poetry version major
+```
+
+Bump the connect plugin version in integrations/projects/connect-plugin-manager/connect-plugin/__version__.py
+
+Tag and push to SCM
 
 ### CI build
 
 See Monorepo build CI
 
+
 ### Manual build
 
-Go to the root of the RV package within monorepo:
+Install development dependencies:
 
 ```bash
-    cd integrations/projects/connect-plugin-manager
+  cd integrations/projects/connect-plugin-manager
+  poetry install --with documentation
 ```
 
-Tag and build with Poetry:
-    
+Build with Poetry:
+
 ```bash
-    poetry build
+  cd integrations/projects/connect-plugin-manager
+  poetry build
 ```
 
-Go to the root of the Monorepo and build the Connect plugin:
+Build Connect plugin:
+
 
 ```bash
   cd integrations
   python tools/build.py build_connect_plugin projects/connect-plugin-manager
 ```
 
-If the build fails and RV is using beta or experimental dependencies published to Test PyPi, use the `--testpypi` flag 
-to build the plugin:
+If the build fails and action launcher widget is using beta or experimental dependencies published to Test PyPi, use the `--testpypi` flag 
+to build the plugin.
+
+
+### Build documentation
+
+
+Install development dependencies:
 
 ```bash
-  cd integrations
-  python tools/build.py --testpypi build_connect_plugin projects/connect-plugin-manager
+  poetry install --with documentation
 ```
 
-The Connect plugin will be output to the dist/ folder.
+Build documentation:
+
+```bash
+    poetry run sphinx-build -b html doc dist/doc
+```
