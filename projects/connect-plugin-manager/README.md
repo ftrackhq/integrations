@@ -60,7 +60,7 @@ Build Connect plugin:
   python tools/build.py build_connect_plugin projects/connect-plugin-manager
 ```
 
-If the build fails and action launcher widget is using beta or experimental dependencies published to Test PyPi, use the `--testpypi` flag 
+If the build fails and plugin manager widget is using beta or experimental dependencies published to Test PyPi, use the `--testpypi` flag 
 to build the plugin.
 
 
