@@ -5,7 +5,7 @@ import os
 
 def get_version(package_name, package_path):
     '''Return version string for *package_name* at *package_path*'''
-    result = '0.0.0'
+    result = None
     try:
         from importlib.metadata import version
 
@@ -18,7 +18,11 @@ def get_version(package_name, package_path):
             result = get_distribution(package_name).version
         except:
             pass
-    if result == '0.0.0':
+    if not result:
+        # Probably running as Connect plugin not properly detected in sys path
+        result = get_connect_plugin_version(package_path)
+
+    if not result:
         # Probably running from sources or not able to resolv, fetch version
         # from pyproject.toml
         import toml
@@ -30,7 +34,7 @@ def get_version(package_name, package_path):
         if os.path.exists(path_toml):
             result = toml.load(path_toml)["tool"]["poetry"]["version"]
 
-    return result
+    return result or '0.0.0'
 
 
 def get_connect_plugin_version(connect_plugin_path):
