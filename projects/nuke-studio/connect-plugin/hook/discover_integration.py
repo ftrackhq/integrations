@@ -40,9 +40,11 @@ def on_discover_ftrack_nuke_studio_integration(session, event):
 def on_launch_ftrack_nuke_studio_integration(session, event):
     ns_base_data = on_discover_ftrack_nuke_studio_integration(session, event)
 
-    ftrack_nuke_studio_path = os.path.join(cwd, '..', 'resource', 'plugin')
+    ftrack_nuke_studio_path = os.path.join(
+        connect_plugin_path, 'resource', 'plugin'
+    )
     application_hooks_path = os.path.join(
-        cwd, '..', 'resource', 'application_hook'
+        connect_plugin_path, 'resource', 'application_hook'
     )
 
     entity = event['data']['context']['selection'][0]
