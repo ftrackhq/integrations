@@ -17,7 +17,7 @@ connect_plugin_path = os.path.abspath(os.path.join(cwd, '..'))
 
 # Read version number from __version__.py
 __version__ = get_connect_plugin_version(connect_plugin_path)
-if __version__ is None:
+if not __version__:
     __version__ = '0.0.0'
     logger.warning(
         'Unable to read version from {0}. Using default version: {1}'.format(
