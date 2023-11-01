@@ -2,84 +2,41 @@
 
 Documentation: [https://ftrackhq.github.io/integrations/projects/connect-action-launcher-widget/](https://ftrackhq.github.io/integrations/projects/connect-action-launcher-widget/)
 
+
 ## Building
 
-### Preparations
-
-Update release notes.
-
-Set or bump version in pyproject.toml:
-
-```bash
-    poetry version prerelease
-```
-or:
-```bash
-    poetry version patch
-```
-or:
-```bash
-    poetry version minor
-```
-or:
-```bash
-    poetry version major
-```
-
-Bump the connect plugin version in integrations/projects/connect-publisher-widget/connect-plugin/__version__.py
-
-Tag and push to SCM
 
 ### CI build
 
 See Monorepo build CI
 
-
 ### Manual build
 
-Install development dependencies:
+Go to the root of the RV package within monorepo:
 
 ```bash
-  cd integrations/projects/connect-publisher-widget
-  poetry install --with documentation
+    cd integrations/projects/connect-action-launcher-widget
 ```
 
-Build with Poetry:
-
+Tag and build with Poetry:
+    
 ```bash
-  cd integrations/projects/connect-publisher-widget
-  poetry build
+    poetry build
 ```
 
-Build Connect plugin:
-
+Go to the root of the Monorepo and build the Connect plugin:
 
 ```bash
   cd integrations
-  python tools/build.py build_connect_plugin projects/connect-publisher-widget
+  python tools/build.py build_connect_plugin projects/connect-action-launcher-widget
 ```
 
-If the build fails and Nuke Studio is using beta or experimental dependencies published to Test PyPi, use the `--testpypi` flag 
-to build the plugin.
-
-
-### Build documentation
-
-
-Install development dependencies:
+If the build fails and RV is using beta or experimental dependencies published to Test PyPi, use the `--testpypi` flag 
+to build the plugin:
 
 ```bash
-  poetry install --with documentation
+  cd integrations
+  python tools/build.py --testpypi build_connect_plugin projects/connect-action-launcher-widget
 ```
 
-Build documentation:
-
-```bash
-    poetry run sphinx-build -b html doc dist/doc
-```
-
-## Publish to PyPi
-
-This is performed by the CI, to publish to PyPi test - follow the instructions in integrations README.md at root level of 
-repository.
-
+The Connect plugin will be output to the dist/ folder.
