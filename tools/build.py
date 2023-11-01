@@ -10,6 +10,7 @@ official CI/CD build implementation in place.
 
 Release notes:
 
+0.4.8, Henrik Norin, 23.11.01; Pick up Connect plugin version and hook from connect-plugin folder.
 0.4.7, Henrik Norin, 23.10.30; Read package version from pyproject.toml, parse and replace version in Connect hooks.
 0.4.6, Henrik Norin, 23.10.30; Allow pre releases on Connect build when enabling test PyPi.
 0.4.5, Henrik Norin, 23.10.26; Support for including assets in Connect plugin build.
@@ -416,7 +417,7 @@ def build_package(pkg_path, args):
 
         logging.info('Creating archive')
         archive_path = os.path.join(
-            BUILD_PATH, '{0}-{1}'.format(PROJECT_NAME, VERSION)
+            BUILD_PATH, '{0}-{1}'.format(PROJECT_NAME, CONNECT_PLUGIN_VERSION)
         )
         shutil.make_archive(
             archive_path,
