@@ -403,7 +403,7 @@ def build_package(pkg_path, args):
 
         logging.info('Creating archive')
         archive_path = os.path.join(
-            BUILD_PATH, '{0}-{1}'.format(PROJECT_NAME, VERSION)
+            BUILD_PATH, '{0}-{1}'.format(PROJECT_NAME, CONNECT_PLUGIN_VERSION)
         )
         shutil.make_archive(
             archive_path,
