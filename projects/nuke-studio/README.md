@@ -65,7 +65,7 @@ Build Connect plugin:
 
 ```bash
   cd integrations
-  python tools/build.py --testpypi --include_resources resource/plugin,resource/application_hook build_connect_plugin projects/nuke-studio
+  python tools/build.py --include_resources resource/plugin,resource/application_hook build_connect_plugin projects/nuke-studio
 ```
 
 If the build fails and Nuke Studio is using beta or experimental dependencies published to Test PyPi, use the `--testpypi` flag 
@@ -87,8 +87,4 @@ Build documentation:
     poetry run sphinx-build -b html doc dist/doc
 ```
 
-## Publish to PyPi
-
-This is performed by the CI, to publish to PyPi test - follow the instructions in integrations README.md at root level of 
-repository.
 

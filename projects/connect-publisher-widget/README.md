@@ -1,6 +1,6 @@
-# ftrack connect action launcher widget
+# ftrack connect publisher widget
 
-Documentation: [https://ftrackhq.github.io/integrations/projects/connect-action-launcher-widget/](https://ftrackhq.github.io/integrations/projects/connect-action-launcher-widget/)
+Documentation: [https://ftrackhq.github.io/integrations/projects/connect-publisher-widget/](https://ftrackhq.github.io/integrations/projects/connect-publisher-widget/)
 
 ## Building
 
@@ -59,7 +59,7 @@ Build Connect plugin:
   python tools/build.py build_connect_plugin projects/connect-publisher-widget
 ```
 
-If the build fails and Nuke Studio is using beta or experimental dependencies published to Test PyPi, use the `--testpypi` flag 
+If the build fails and publisher widget is using beta or experimental dependencies published to Test PyPi, use the `--testpypi` flag 
 to build the plugin.
 
 
@@ -77,9 +77,4 @@ Build documentation:
 ```bash
     poetry run sphinx-build -b html doc dist/doc
 ```
-
-## Publish to PyPi
-
-This is performed by the CI, to publish to PyPi test - follow the instructions in integrations README.md at root level of 
-repository.
 
