@@ -31,3 +31,13 @@ def get_version(package_name, package_path):
             result = toml.load(path_toml)["tool"]["poetry"]["version"]
 
     return result
+
+
+def get_connect_plugin_version(connect_plugin_path):
+    '''Return Connect plugin version string for *connect_plugin_path*'''
+    __version__ = None
+    path_version_file = os.path.join(connect_plugin_path, '__version__.py')
+    if os.path.isfile(path_version_file):
+        with open(path_version_file) as f:
+            exec(f.read())
+    return __version__
