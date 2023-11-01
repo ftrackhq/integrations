@@ -54,6 +54,7 @@ def build_package(pkg_path, args):
     os.chdir(pkg_path)
 
     ROOT_PATH = os.path.realpath(os.getcwd())
+    CONNECT_PLUGIN_PATH = os.path.join(ROOT_PATH, 'connect-plugin')
     BUILD_PATH = os.path.join(ROOT_PATH, 'dist')
     RESOURCE_PATH = os.path.join(ROOT_PATH, 'resource')
     CEP_PATH = os.path.join(ROOT_PATH, 'resource', 'cep')
@@ -173,85 +174,40 @@ def build_package(pkg_path, args):
         os.makedirs(os.path.join(STAGING_PATH))
 
         # Store version
-        logging.info('Storing version ({})'.format(VERSION))
+        path_version_file = os.path.join(CONNECT_PLUGIN_PATH, '__version__.py')
+        if not os.path.isfile(path_version_file):
+            raise Exception(
+                'Missing "__version__.py" file in "connect-plugin" folder!'
+            )
+        CONNECT_PLUGIN_VERSION = None
+        with open(path_version_file) as f:
+            for line in f.readlines():
+                if line.startswith('__version__'):
+                    CONNECT_PLUGIN_VERSION = (
+                        line.split('=')[1].strip().strip("'")
+                    )
+                    break
+        assert (
+            CONNECT_PLUGIN_VERSION
+        ), 'No version could be extracted from "__version__.py"!'
+
+        logging.info(
+            'Storing Connect plugin version ({})'.format(
+                CONNECT_PLUGIN_VERSION
+            )
+        )
         version_path = os.path.join(STAGING_PATH, '__version__.py')
-        with open(version_path, 'w') as f:
-            f.write(VERSION_TEMPLATE.format(version=VERSION))
+        shutil.copyfile(path_version_file, version_path)
 
         # Locate and copy hook
         logging.info('Copying Connect hook')
-        hook_source_path = None
-        hook_search_paths = []
-        if args.include_extensions:
-            hook_search_paths.append(args.include_extensions)
-        hook_search_paths.append(
-            os.path.join(MONOREPO_PATH, 'extensions', DCC_NAME)
-        )
-        for hook_search_path in hook_search_paths:
-            if not os.path.exists(hook_search_path):
-                continue
-            for filename in os.listdir(hook_search_path):
-                if filename.replace('_', '-').endswith('-connect-hook'):
-                    if os.path.exists(
-                        os.path.join(hook_search_path, filename, 'source')
-                    ):
-                        # Standard hook location
-                        hook_path_package = os.path.join(
-                            hook_search_path,
-                            filename,
-                            'source',
-                            'ftrack_framework_{}_connect_hook'.format(
-                                DCC_NAME
-                            ),
-                        )
-                    else:
-                        # Hook is in root
-                        hook_path_package = os.path.join(
-                            hook_search_path, filename
-                        )
-                    if os.path.exists(hook_path_package):
-                        for module_name in os.listdir(hook_path_package):
-                            if module_name.startswith(
-                                'discover_'
-                            ) and module_name.endswith('.py'):
-                                hook_source_path = os.path.join(
-                                    hook_path_package, module_name
-                                )
-                                break
-            if hook_source_path:
-                break
-        if not hook_source_path:
-            # Look in resource
-            path_resource_hook = os.path.join(RESOURCE_PATH, 'hook')
-            if os.path.exists(path_resource_hook):
-                for filename in os.listdir(path_resource_hook):
-                    if filename.startswith('discover_') and filename.endswith(
-                        '.py'
-                    ):
-                        hook_source_path = os.path.join(
-                            path_resource_hook, filename
-                        )
-                        break
-                if not hook_source_path:
-                    raise Exception(
-                        'Could not locate Connect hook module within resource folder!'
-                    )
-            else:
-                raise Exception(
-                    'Could not locate Connect hook module within "extensions"!'
-                )
-        logging.info(
-            'Copying and substituting Connect hook from {}'.format(
-                hook_source_path
+        path_hook = os.path.join(CONNECT_PLUGIN_PATH, 'hook')
+        if not os.path.isdir(path_hook):
+            raise Exception(
+                'Missing "hook" folder in "connect-plugin" folder!'
             )
-        )
-        os.makedirs(os.path.join(STAGING_PATH, 'hook'))
-        shutil.copy(
-            hook_source_path,
-            os.path.join(
-                STAGING_PATH, 'hook', os.path.basename(hook_source_path)
-            ),
-        )
+
+        shutil.copytree(path_hook, os.path.join(STAGING_PATH, 'hook'))
 
         # # Copy resources
         # if os.path.exists(RESOURCE_PATH):
