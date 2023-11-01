@@ -2,6 +2,7 @@
 # :copyright: Copyright (c) 2014-2023 ftrack
 
 from ftrack_framework_widget import BaseUI, active_widget
+import logging
 
 
 class FrameworkDialog(BaseUI):
@@ -409,3 +410,24 @@ class FrameworkDialog(BaseUI):
         '''
         log_item = event['data']['log_item']
         # TODO: do something with the log_item
+
+    @classmethod
+    def register(cls):
+        '''
+        Register function to discover widget by class *cls*. Returns False if the
+        class is not registerable.
+        '''
+        if not hasattr(cls, 'name') or not cls.name:
+            # Can only register widgets that have a name, not base classes
+            return False
+
+        logger = logging.getLogger(
+            '{0}.{1}'.format(__name__, cls.__class__.__name__)
+        )
+        logger.debug(
+            'registering: {} for {}'.format(cls.name, cls.widget_type)
+        )
+
+        data = {'extension_type': 'dialog', 'name': cls.name, 'cls': cls}
+
+        return data

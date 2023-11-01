@@ -12,14 +12,9 @@ INCLUDE_PACKAGES = [
     'libs/framework-plugin',
     # QT
     'libs/framework-widget',
-    'libs/qt',
+    'libs/framework-qt' 'libs/qt',
     'libs/qt-style',
     'libs/utils',
-    # HOOKS
-    'extensions/common/framework-engines',
-    'extensions/common/framework-plugins',
-    'extensions/common/framework-schemas',
-    'extensions/common/framework-tool-configs',
 ]
 
 for _package in INCLUDE_PACKAGES:

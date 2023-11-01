@@ -196,8 +196,6 @@ class BaseEngine(ABC):
             'registering: {} for {}'.format(cls.name, cls.engine_types)
         )
 
-        data = {
-            'engine_types': cls.engine_types,
-            'engine_name': cls.name,
-        }
+        data = {'extension_type': 'engine', 'name': cls.name, 'cls': cls}
+
         return data

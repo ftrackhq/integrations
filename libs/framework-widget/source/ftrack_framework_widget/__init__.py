@@ -145,8 +145,9 @@ class BaseUI(object):
         )
 
         data = {
-            'ui_type': cls.ui_type,
-            'widget_name': cls.name,
+            'extension_type': 'base_framework_widget',
+            'name': cls.name,
+            'class': cls,
         }
 
         return data
