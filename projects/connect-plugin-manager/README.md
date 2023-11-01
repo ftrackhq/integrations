@@ -2,3 +2,41 @@
 
 Documentation: [https://ftrackhq.github.io/integrations/projects/connect-plugin-manager/](https://ftrackhq.github.io/integrations/projects/connect-plugin-manager/)
 
+
+## Building
+
+
+### CI build
+
+See Monorepo build CI
+
+### Manual build
+
+Go to the root of the RV package within monorepo:
+
+```bash
+    cd integrations/projects/connect-plugin-manager
+```
+
+Tag and build with Poetry:
+    
+```bash
+    poetry build
+```
+
+Go to the root of the Monorepo and build the Connect plugin:
+
+```bash
+  cd integrations
+  python tools/build.py build_connect_plugin projects/connect-plugin-manager
+```
+
+If the build fails and RV is using beta or experimental dependencies published to Test PyPi, use the `--testpypi` flag 
+to build the plugin:
+
+```bash
+  cd integrations
+  python tools/build.py --testpypi build_connect_plugin projects/connect-plugin-manager
+```
+
+The Connect plugin will be output to the dist/ folder.
