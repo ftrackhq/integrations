@@ -39,9 +39,12 @@ def get_version(package_name, package_path):
 
 def get_connect_plugin_version(connect_plugin_path):
     '''Return Connect plugin version string for *connect_plugin_path*'''
-    __version__ = None
+    result = None
     path_version_file = os.path.join(connect_plugin_path, '__version__.py')
     if os.path.isfile(path_version_file):
         with open(path_version_file) as f:
-            exec(f.read())
-    return __version__
+            for line in f.readlines():
+                if line.startswith('__version__'):
+                    result = line.split('=')[1].strip().strip("'")
+                    break
+    return result
