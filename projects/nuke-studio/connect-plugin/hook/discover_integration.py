@@ -3,9 +3,10 @@
 
 import os
 import logging
-
 import functools
+
 import ftrack_api
+from ftrack_utils.version import get_connect_plugin_version
 
 logger = logging.getLogger(__name__)
 
@@ -13,15 +14,12 @@ cwd = os.path.dirname(__file__)
 connect_plugin_path = os.path.abspath(os.path.join(cwd, '..'))
 
 # Read version number from __version__.py
-__version__ = '0.0.0'
-path_version_file = os.path.join(connect_plugin_path, '__version__.py')
-if os.path.isfile(path_version_file):
-    with open(path_version_file) as f:
-        exec(f.read())
-else:
+__version__ = get_connect_plugin_version(connect_plugin_path)
+if __version__ is None:
+    __version__ = '0.0.0'
     logger.warning(
         'Unable to read version from {0}. Using default version: {1}'.format(
-            path_version_file, __version__
+            connect_plugin_path, __version__
         )
     )
 
