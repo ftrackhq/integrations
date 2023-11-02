@@ -2,36 +2,24 @@
 # :copyright: Copyright (c) 2014-2023 ftrack
 
 import os
+import re
+import getpass
+import sys
+import pprint
 import logging
 import functools
-
 import ftrack_api
-from ftrack_utils.version import get_connect_plugin_version
-
-logger = logging.getLogger(__name__)
 
 cwd = os.path.dirname(__file__)
-connect_plugin_path = os.path.abspath(os.path.join(cwd, '..'))
-
-# Read version number from __version__.py
-__version__ = get_connect_plugin_version(connect_plugin_path)
-if not __version__:
-    __version__ = '0.0.0'
-    logger.warning(
-        'Unable to read version from {0}. Using default version: {1}'.format(
-            connect_plugin_path, __version__
-        )
-    )
-
-sources = os.path.abspath(os.path.join(connect_plugin_path, 'dependencies'))
+sources = os.path.abspath(os.path.join(cwd, '..', 'dependencies'))
+sys.path.append(sources)
 
 
 def on_discover_ftrack_nuke_studio_integration(session, event):
+    from ftrack_nuke_studio import __version__ as integration_version
+
     data = {
-        'integration': {
-            'name': 'ftrack-nuke-studio',
-            'version': __version__,
-        }
+        'integration': {"name": 'nuke-studio', 'version': integration_version}
     }
 
     return data
@@ -40,12 +28,8 @@ def on_discover_ftrack_nuke_studio_integration(session, event):
 def on_launch_ftrack_nuke_studio_integration(session, event):
     ns_base_data = on_discover_ftrack_nuke_studio_integration(session, event)
 
-    ftrack_nuke_studio_path = os.path.join(
-        connect_plugin_path, 'resource', 'plugin'
-    )
-    application_hooks_path = os.path.join(
-        connect_plugin_path, 'resource', 'application_hook'
-    )
+    ftrack_nuke_studio_path = os.path.join(cwd, '..', 'resource')
+    application_hooks_path = os.path.join(cwd, '..', 'application_hook')
 
     entity = event['data']['context']['selection'][0]
     project = session.get('Project', entity['entityId'])

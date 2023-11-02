@@ -1,19 +1,13 @@
 [tool.poetry]
 name = "ftrack-connect-action-launcher-widget"
-version = "0.1.2rc1"
+version = "0.1.2"
 description='ftrack Connect action launcher widget'
 authors = ["ftrack Integrations Team <integrations@backlight.co>"]
 readme = "README.md"
 packages = [{include = "ftrack_connect_action_launcher_widget", from = "source"}]
 license = "Apache-2.0"
 homepage = "https://ftrack.com"
-repository = "https://github.com/ftrackhq/integrations/projects/connect-action-launcher-widget"
-
-[[tool.poetry.source]]
-name = "testpypi"
-url = "https://test.pypi.org/simple/"
-default = false
-secondary = false
+repository = "https://github.com/ftrackhq/integrations"
 
 [build-system]
 requires = ["poetry-core"]
@@ -23,11 +17,4 @@ build-backend = "poetry.core.masonry.api"
 python = ">= 3.7, < 3.10"
 # TODO: connect is a dependnecy of this package we should add it.
 # ftrack-connect = "2.0.0rc1"
-ftrack-utils = { version = "> 1, < 3", optional = true }
-
-[tool.poetry.extras]
-ftrack-libs = ["ftrack-utils"]
-
-[tool.black]
-line-length = 79
-skip-string-normalization = true
+ftrack-utils = "> 1, < 3"
