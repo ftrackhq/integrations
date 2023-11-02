@@ -12,9 +12,15 @@ import ftrack_connect.usage
 import ftrack_connect.ui.widget.item_list
 import ftrack_connect.ui.widget.label
 import ftrack_connect.ui.widget.line_edit
+from ftrack_connect.util import get_connect_plugin_version
 
 cwd = os.path.dirname(__file__)
-sources = os.path.abspath(os.path.join(cwd, '..', 'dependencies'))
+connect_plugin_path = os.path.abspath(os.path.join(cwd, '..'))
+
+# Read version number from __version__.py
+__version__ = get_connect_plugin_version(connect_plugin_path)
+
+sources = os.path.abspath(os.path.join(connect_plugin_path, 'dependencies'))
 sys.path.append(sources)
 
 from ftrack_connect_timetracker_widget.timetracker import *
@@ -186,6 +192,11 @@ class TimeTracker(ftrack_connect.ui.application.ConnectWidget):
                 self.session.commit()
 
 
+def get_version_information(event):
+    '''Return version information for ftrack connect plugin.'''
+    return [dict(name='connect-time-tracker-widget', version=__version__)]
+
+
 def register(session, **kw):
     '''Register plugin. Called when used as an plugin.'''
     # Validate that session is an instance of ftrack_api.Session. If not,
@@ -200,3 +211,10 @@ def register(session, **kw):
     plugin = ftrack_connect.ui.application.ConnectWidgetPlugin(TimeTracker)
     plugin.register(session, priority=50)
     logger.debug('Plugin registered')
+
+    # Enable plugin info in Connect about dialog
+    session.event_hub.subscribe(
+        'topic=ftrack.connect.plugin.debug-information',
+        get_version_information,
+        priority=20,
+    )
