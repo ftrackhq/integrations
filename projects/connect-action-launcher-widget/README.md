@@ -37,11 +37,11 @@ See Monorepo build CI
 
 ### Manual build
 
-Install development dependencies:
+Install project dependencies:
 
 ```bash
   cd integrations/projects/connect-action-launcher-widget
-  poetry install --with documentation
+  poetry install
 ```
 
 Build with Poetry:
@@ -66,7 +66,7 @@ to build the plugin.
 ### Build documentation
 
 
-Install development dependencies:
+Install documentation dependencies:
 
 ```bash
   poetry install --with documentation
