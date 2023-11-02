@@ -11,7 +11,7 @@ from ftrack_framework_core.configure_logging import configure_logging
 configure_logging(
     'ftrack_framework_standalone',
     extra_modules=["ftrack_qt"],
-    propagate=False,
+    propagate=True,
 )
 
 logger = logging.getLogger('standalone_ui_test')
@@ -43,13 +43,10 @@ event_manager = event.EventManager(
 )
 os.environ['FTRACK_CONTEXTID'] = '439dc504-a904-11ec-bbac-be6e0a48ed73'
 
-# FTRACK_FRAMEWORK_EXTENSIONS_PATH = [
-#     os.path.join(
-#         ROOT_INTEGRATIONS_FOLDER, 'projects', 'framework-common-extensions'
-#     )
-# ]
 FTRACK_FRAMEWORK_EXTENSIONS_PATH = [
-    '/Users/ftrack/work/ftrack/repos/integrations/projects/framework-common-extensions'
+    os.path.join(
+        ROOT_INTEGRATIONS_FOLDER, 'projects', 'framework-common-extensions'
+    )
 ]
 
 registry_instance = registry.Registry()
