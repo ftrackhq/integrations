@@ -37,13 +37,6 @@ See Monorepo build CI
 
 ### Manual build
 
-Install development dependencies:
-
-```bash
-  cd integrations/projects/connect-publisher-widget
-  poetry install --with documentation
-```
-
 Build with Poetry:
 
 ```bash
@@ -52,7 +45,6 @@ Build with Poetry:
 ```
 
 Build Connect plugin:
-
 
 ```bash
   cd integrations
@@ -66,7 +58,7 @@ to build the plugin.
 ### Build documentation
 
 
-Install development dependencies:
+Install documentation dependencies:
 
 ```bash
   poetry install --with documentation
