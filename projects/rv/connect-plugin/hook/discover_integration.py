@@ -16,7 +16,7 @@ connect_plugin_path = os.path.abspath(os.path.join(cwd, '..'))
 # Read version number from __version__.py
 __version__ = get_connect_plugin_version(connect_plugin_path)
 
-sources = os.path.join(connect_plugin_path, 'dependencies')
+sources = os.path.abspath(os.path.join(connect_plugin_path, 'dependencies'))
 
 
 def on_discover_rv_integration(session, event):
