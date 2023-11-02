@@ -39,7 +39,7 @@ See Monorepo build CI
 
 ### Manual build
 
-Install development dependencies:
+Install documentation dependencies:
 
 ```bash
   cd integrations/projects/nuke-studio
