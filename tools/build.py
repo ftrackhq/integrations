@@ -10,7 +10,6 @@ official CI/CD build implementation in place.
 
 Release notes:
 
-0.4.8, Henrik Norin, 23.11.01; Pick up Connect plugin version and hook from connect-plugin folder.
 0.4.7, Henrik Norin, 23.10.30; Read package version from pyproject.toml, parse and replace version in Connect hooks.
 0.4.6, Henrik Norin, 23.10.30; Allow pre releases on Connect build when enabling test PyPi.
 0.4.5, Henrik Norin, 23.10.26; Support for including assets in Connect plugin build.
@@ -55,7 +54,6 @@ def build_package(pkg_path, args):
     os.chdir(pkg_path)
 
     ROOT_PATH = os.path.realpath(os.getcwd())
-    CONNECT_PLUGIN_PATH = os.path.join(ROOT_PATH, 'connect-plugin')
     BUILD_PATH = os.path.join(ROOT_PATH, 'dist')
     RESOURCE_PATH = os.path.join(ROOT_PATH, 'resource')
     CEP_PATH = os.path.join(ROOT_PATH, 'resource', 'cep')
@@ -154,9 +152,7 @@ def build_package(pkg_path, args):
         wheel_path = None
         for filename in os.listdir(BUILD_PATH):
             # Expect: ftrack_connect_pipeline_qt-1.3.0a1-py3-none-any.whl
-            if not filename.endswith('.whl') or VERSION not in filename.split(
-                '-'
-            ):
+            if not filename.endswith('.whl'):
                 continue
             wheel_path = os.path.join(BUILD_PATH, filename)
             break
@@ -177,62 +173,94 @@ def build_package(pkg_path, args):
         os.makedirs(os.path.join(STAGING_PATH))
 
         # Store version
-        path_version_file = os.path.join(CONNECT_PLUGIN_PATH, '__version__.py')
-        if not os.path.isfile(path_version_file):
-            raise Exception(
-                'Missing "__version__.py" file in "connect-plugin" folder!'
-            )
-        CONNECT_PLUGIN_VERSION = None
-        with open(path_version_file) as f:
-            for line in f.readlines():
-                if line.startswith('__version__'):
-                    CONNECT_PLUGIN_VERSION = (
-                        line.split('=')[1].strip().strip("'")
-                    )
-                    break
-        assert (
-            CONNECT_PLUGIN_VERSION
-        ), 'No version could be extracted from "__version__.py"!'
-
-        logging.info(
-            'Storing Connect plugin version ({})'.format(
-                CONNECT_PLUGIN_VERSION
-            )
-        )
+        logging.info('Storing version ({})'.format(VERSION))
         version_path = os.path.join(STAGING_PATH, '__version__.py')
-        shutil.copyfile(path_version_file, version_path)
+        with open(version_path, 'w') as f:
+            f.write(VERSION_TEMPLATE.format(version=VERSION))
 
         # Locate and copy hook
         logging.info('Copying Connect hook')
-        path_hook = os.path.join(CONNECT_PLUGIN_PATH, 'hook')
-        if not os.path.isdir(path_hook):
-            raise Exception(
-                'Missing "hook" folder in "connect-plugin" folder!'
-            )
-
-        shutil.copytree(path_hook, os.path.join(STAGING_PATH, 'hook'))
-
-        if args.include_resources:
-            for resource_path in args.include_resources.split(','):
-                # Copy resources
-                if os.path.exists(resource_path):
-                    logging.info('Copying resource "{}"'.format(resource_path))
-                    if not os.path.exists(
-                        os.path.join(STAGING_PATH, 'resource')
+        hook_source_path = None
+        hook_search_paths = []
+        if args.include_extensions:
+            hook_search_paths.append(args.include_extensions)
+        hook_search_paths.append(
+            os.path.join(MONOREPO_PATH, 'extensions', DCC_NAME)
+        )
+        for hook_search_path in hook_search_paths:
+            if not os.path.exists(hook_search_path):
+                continue
+            for filename in os.listdir(hook_search_path):
+                if filename.replace('_', '-').endswith('-connect-hook'):
+                    if os.path.exists(
+                        os.path.join(hook_search_path, filename, 'source')
                     ):
-                        os.makedirs(os.path.join(STAGING_PATH, 'resource'))
-                    shutil.copytree(
-                        resource_path,
-                        os.path.join(
-                            STAGING_PATH,
-                            'resource',
-                            os.path.basename(resource_path),
-                        ),
+                        # Standard hook location
+                        hook_path_package = os.path.join(
+                            hook_search_path,
+                            filename,
+                            'source',
+                            'ftrack_framework_{}_connect_hook'.format(
+                                DCC_NAME
+                            ),
+                        )
+                    else:
+                        # Hook is in root
+                        hook_path_package = os.path.join(
+                            hook_search_path, filename
+                        )
+                    if os.path.exists(hook_path_package):
+                        for module_name in os.listdir(hook_path_package):
+                            if module_name.startswith(
+                                'discover_'
+                            ) and module_name.endswith('.py'):
+                                hook_source_path = os.path.join(
+                                    hook_path_package, module_name
+                                )
+                                break
+            if hook_source_path:
+                break
+        if not hook_source_path:
+            # Look in resource
+            path_resource_hook = os.path.join(RESOURCE_PATH, 'hook')
+            if os.path.exists(path_resource_hook):
+                for filename in os.listdir(path_resource_hook):
+                    if filename.startswith('discover_') and filename.endswith(
+                        '.py'
+                    ):
+                        hook_source_path = os.path.join(
+                            path_resource_hook, filename
+                        )
+                        break
+                if not hook_source_path:
+                    raise Exception(
+                        'Could not locate Connect hook module within resource folder!'
                     )
-                else:
-                    logging.warning(
-                        'Resource "{}" does not exist!'.format(resource_path)
-                    )
+            else:
+                raise Exception(
+                    'Could not locate Connect hook module within "extensions"!'
+                )
+        logging.info(
+            'Copying and substituting Connect hook from {}'.format(
+                hook_source_path
+            )
+        )
+        os.makedirs(os.path.join(STAGING_PATH, 'hook'))
+        shutil.copy(
+            hook_source_path,
+            os.path.join(
+                STAGING_PATH, 'hook', os.path.basename(hook_source_path)
+            ),
+        )
+
+        # # Copy resources
+        # if os.path.exists(RESOURCE_PATH):
+        #     logging.info('Copying resources')
+        #     shutil.copytree(
+        #         RESOURCE_PATH, os.path.join(STAGING_PATH, 'resource')
+        #     )
+        # else:
+        #     logging.warning('No resources to copy.')
 
         # Collect dependencies
         dependencies_path = os.path.join(STAGING_PATH, 'dependencies')
@@ -419,7 +447,7 @@ def build_package(pkg_path, args):
 
         logging.info('Creating archive')
         archive_path = os.path.join(
-            BUILD_PATH, '{0}-{1}'.format(PROJECT_NAME, CONNECT_PLUGIN_VERSION)
+            BUILD_PATH, '{0}-{1}'.format(PROJECT_NAME, VERSION)
         )
         shutil.make_archive(
             archive_path,
@@ -474,22 +502,18 @@ def build_package(pkg_path, args):
         if resource_target_path is None:
             resource_target_path = os.path.join(SOURCE_PATH, 'resource.py')
 
-        # Any styles to compile?
-        if os.path.exists(sass_path):
-            compiler = scss.Scss(search_paths=[sass_path])
+        compiler = scss.Scss(search_paths=[sass_path])
 
-            themes = ['style_light', 'style_dark']
-            for theme in themes:
-                scss_source = os.path.join(sass_path, '{0}.scss'.format(theme))
-                css_target = os.path.join(css_path, '{0}.css'.format(theme))
+        themes = ['style_light', 'style_dark']
+        for theme in themes:
+            scss_source = os.path.join(sass_path, '{0}.scss'.format(theme))
+            css_target = os.path.join(css_path, '{0}.css'.format(theme))
 
-                logging.info("Compiling {}".format(scss_source))
-                compiled = compiler.compile(scss_file=scss_source)
-                with open(css_target, 'w') as file_handle:
-                    file_handle.write(compiled)
-                    logging.info('Compiled {0}'.format(css_target))
-        else:
-            logging.warning('No styles to compile.')
+            logging.info('Compiling {}'.format(scss_source))
+            compiled = compiler.compile(scss_file=scss_source)
+            with open(css_target, 'w') as file_handle:
+                file_handle.write(compiled)
+                logging.info('Compiled {0}'.format(css_target))
 
         try:
             pyside_rcc_command = 'pyside2-rcc'
@@ -755,11 +779,7 @@ if __name__ == '__main__':
     )
     parser.add_argument(
         '--include_assets',
-        help='(Connect plugin) Comma separated list of additional asset to include.',
-    )
-    parser.add_argument(
-        '--include_resources',
-        help='(Connect plugin) Comma separated list of resources to include.',
+        help='(Connect plugin) Additional asset to include.',
     )
 
     parser.add_argument(
