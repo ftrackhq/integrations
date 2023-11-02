@@ -39,11 +39,11 @@ See Monorepo build CI
 
 ### Manual build
 
-Install documentation dependencies:
+Install nuke dependencies:
 
 ```bash
   cd integrations/projects/nuke-studio
-  poetry install --with documentation
+  poetry install
 ```
 
 Go to the root of the package within monorepo and build the QT resources
@@ -75,7 +75,7 @@ to build the plugin.
 ### Build documentation
 
 
-Install development dependencies:
+Install documentation dependencies:
 
 ```bash
   poetry install --with documentation
