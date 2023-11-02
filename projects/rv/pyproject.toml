@@ -7,7 +7,7 @@ readme = "README.md"
 packages = [{include = "ftrack_rv", from = "source"}]
 license = "Apache-2.0"
 homepage = "https://ftrack.com"
-repository = "https://github.com/ftrackhq/integrations/projects/rv"
+repository = "https://github.com/ftrackhq/integrations/tree/main/projects/rv"
 
 [[tool.poetry.source]]
 name = "testpypi"
