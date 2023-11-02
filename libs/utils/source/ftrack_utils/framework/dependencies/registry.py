@@ -154,7 +154,7 @@ def get_framework_extensions_from_directory(scan_dir):
                 data = json.load(json_file)
                 if data.get("tool_type"):
                     registry_result = {
-                        "extension_type": "tool-config",
+                        "extension_type": "tool_config",
                         "name": data.get("tool_title"),
                         "cls": _file,
                     }

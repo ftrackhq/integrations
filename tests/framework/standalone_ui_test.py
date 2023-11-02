@@ -43,10 +43,13 @@ event_manager = event.EventManager(
 )
 os.environ['FTRACK_CONTEXTID'] = '439dc504-a904-11ec-bbac-be6e0a48ed73'
 
+# FTRACK_FRAMEWORK_EXTENSIONS_PATH = [
+#     os.path.join(
+#         ROOT_INTEGRATIONS_FOLDER, 'projects', 'framework-common-extensions'
+#     )
+# ]
 FTRACK_FRAMEWORK_EXTENSIONS_PATH = [
-    os.path.join(
-        ROOT_INTEGRATIONS_FOLDER, 'projects', 'framework-common-extensions'
-    )
+    '/Users/ftrack/work/ftrack/repos/integrations/projects/framework-common-extensions'
 ]
 
 registry_instance = registry.Registry()

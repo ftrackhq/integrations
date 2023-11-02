@@ -116,15 +116,13 @@ class FrameworkDialog(BaseUI):
 
     @property
     def framework_widgets(self):
-        '''Return initialized framework widgets'''
-        return self.__framework_widget_registry
+        '''Return instanced framework widgets'''
+        return self.__instanced_widgets
 
     @property
     def discovered_framework_widgets(self):
         '''Return discovered framework widgets from client'''
-        return self.client_property_getter_connection(
-            'discovered_framework_widgets'
-        )
+        return self.client_property_getter_connection('discovered_widgets')
 
     def __init__(
         self,
@@ -141,7 +139,7 @@ class FrameworkDialog(BaseUI):
         self._host_connections = None
         self._tool_config = None
         self._host_connection = None
-        self.__framework_widget_registry = {}
+        self.__instanced_widgets = {}
 
         # Connect client methods and properties
         self.connect_methods(connect_methods_callback)
@@ -290,8 +288,8 @@ class FrameworkDialog(BaseUI):
         '''
         widget_class = None
         for widget in self.discovered_framework_widgets:
-            if widget.name == plugin_config.widget_name:
-                widget_class = widget
+            if widget['name'] == plugin_config.widget_name:
+                widget_class = widget['cls']
                 break
         if not widget_class:
             error_message = (
@@ -324,8 +322,8 @@ class FrameworkDialog(BaseUI):
         '''
         Registers the initialized *widget* to the dialog registry.
         '''
-        if widget.id not in list(self.__framework_widget_registry.keys()):
-            self.__framework_widget_registry[widget.id] = widget
+        if widget.id not in list(self.__instanced_widgets.keys()):
+            self.__instanced_widgets[widget.id] = widget
 
     def unregister_widget(self, widget_name):
         '''
@@ -333,7 +331,7 @@ class FrameworkDialog(BaseUI):
         '''
         for widget_id, widget in self.framework_widgets.items():
             if widget_name == widget.name:
-                self.__framework_widget_registry.pop(widget_id)
+                self.__instanced_widgets.pop(widget_id)
                 self.logger.info(
                     "Unregistering widget: {}".format(widget_name)
                 )

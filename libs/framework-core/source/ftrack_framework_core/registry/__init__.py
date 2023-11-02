@@ -45,7 +45,7 @@ class Registry(object):
         return self.__registry.get('widget')
 
     @property
-    def dialog(self):
+    def dialogs(self):
         '''
         Returns the registered engines`
         '''
@@ -82,7 +82,7 @@ class Registry(object):
 
         discovered_extensions = []
         for path in paths:
-            discovered_extensions.append(
+            discovered_extensions.extend(
                 registry.get_framework_extensions_from_directory(path)
             )
         for extension in discovered_extensions:

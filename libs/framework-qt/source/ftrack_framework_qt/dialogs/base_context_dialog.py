@@ -154,7 +154,7 @@ class BaseContextDialog(FrameworkDialog, StyledDialog):
         self.build_ui()
         self.post_build_ui()
 
-    def _on_ui_run_button_clicked_callback(self):
+    def _on_run_button_clicked(self):
         '''
         Run button from the UI has been clicked.
         Tell client to run the current tool config
@@ -215,7 +215,4 @@ class BaseContextDialog(FrameworkDialog, StyledDialog):
         raise NotImplementedError
 
     def post_build_ui(self):
-        raise NotImplementedError
-
-    def _on_run_button_clicked(self):
         raise NotImplementedError
