@@ -154,7 +154,9 @@ def build_package(pkg_path, args):
         wheel_path = None
         for filename in os.listdir(BUILD_PATH):
             # Expect: ftrack_connect_pipeline_qt-1.3.0a1-py3-none-any.whl
-            if not filename.endswith('.whl'):
+            if not filename.endswith('.whl') or VERSION not in filename.split(
+                '-'
+            ):
                 continue
             wheel_path = os.path.join(BUILD_PATH, filename)
             break
