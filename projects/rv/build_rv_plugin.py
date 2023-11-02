@@ -33,14 +33,18 @@ def copytree(src, dst, symlinks=False, ignore=None):
 def build_rvpkg(source_path, output_path, version):
     '''Build rv plugin package.'''
 
-    if version is None:
-        version = '0.0.0'
+    if not version:
         # Read version number from pyproject.toml:
         with open(os.path.join('pyproject.toml')) as f:
             for line in f:
                 if 'version' in line:
                     version = line.split('=')[1].strip().strip('"')
                     break
+        if not version:
+            raise Exception(
+                "Can't read version from pyproject.toml file, please fix it or "
+                "provide a version number as argument."
+            )
 
     rvpkg_staging = os.path.join(tempfile.mkdtemp(), 'rvpkg')
 

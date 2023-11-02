@@ -6,7 +6,7 @@ import os
 import logging
 
 import ftrack_api
-from ftrack_utils.version import get_connect_plugin_version
+from ftrack_connect.util import get_connect_plugin_version
 
 logger = logging.getLogger(__name__)
 
@@ -15,13 +15,7 @@ connect_plugin_path = os.path.abspath(os.path.join(cwd, '..'))
 
 # Read version number from __version__.py
 __version__ = get_connect_plugin_version(connect_plugin_path)
-if not __version__:
-    __version__ = '0.0.0'
-    logger.warning(
-        'Unable to read version from {0}. Using default version: {1}'.format(
-            connect_plugin_path, __version__
-        )
-    )
+
 sources = os.path.join(connect_plugin_path, 'dependencies')
 
 
