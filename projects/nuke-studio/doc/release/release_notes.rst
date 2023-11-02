@@ -9,11 +9,6 @@ Release Notes
 
 .. release:: Upcoming
 
-    .. change:: changed
-        :tags: Build
-
-        Change build system to Poetry, using the monorepo tooling to build QT resources.
-
     .. change:: fixed
         :tags: Tags
 

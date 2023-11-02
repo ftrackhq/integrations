@@ -1,7 +1,7 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2023 ftrack
 '''
-ftrack RV plugin build tooling
+ftrack RV build tooling
 '''
 
 import argparse
