@@ -2,6 +2,7 @@
 # :copyright: Copyright (c) 2014-2023 ftrack
 
 import logging
+from collections import defaultdict
 
 from ftrack_utils.framework.dependencies import registry
 
@@ -72,7 +73,7 @@ class Registry(object):
         self.logger.debug('Initializing Registry {}'.format(self))
 
         # Reset all registries
-        self.__registry = {}
+        self.__registry = defaultdict(list)
 
     # Register
     def scan_extensions(self, paths):
@@ -91,8 +92,6 @@ class Registry(object):
     def add(self, extension_type, name, cls):
         # We use extension_type and not type to not interfere with python
         # build in type
-        if extension_type not in self.__registry.keys():
-            self.__registry[extension_type] = []
         self.__registry[extension_type].append(
             {
                 # TODO: name will be renamed to id in further tasks

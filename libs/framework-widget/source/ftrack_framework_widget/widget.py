@@ -163,16 +163,20 @@ class FrameworkWidget(BaseUI):
         Register function to discover widget by class *cls*. Returns False if the
         class is not registerable.
         '''
-        if not hasattr(cls, 'name') or not cls.name:
-            # Can only register widgets that have a name, not base classes
-            return False
-
         logger = logging.getLogger(
             '{0}.{1}'.format(__name__, cls.__class__.__name__)
         )
         logger.debug(
             'registering: {} for {}'.format(cls.name, cls.widget_type)
         )
+
+        if not hasattr(cls, 'name') or not cls.name:
+            # Can only register widgets that have a name, not base classes
+            logger.warning(
+                "Can only register widgets that have a name, no name provided "
+                "for this one"
+            )
+            return False
 
         data = {'extension_type': 'widget', 'name': cls.name, 'cls': cls}
 

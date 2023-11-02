@@ -9,9 +9,9 @@ import os
 
 def fast_scandir(dirname):
     subfolders = [
-        f.path
-        for f in os.scandir(dirname)
-        if f.is_dir() and not f.name.startswith("__")
+        _folder.path
+        for _folder in os.scandir(dirname)
+        if _folder.is_dir() and not _folder.name.startswith("__")
     ]
     for dirname in list(subfolders):
         subfolders.extend(fast_scandir(dirname))

@@ -61,9 +61,17 @@ def get_framework_extensions_from_directory(scan_dir):
         success_registry = False
         for name, obj in cls_members:
             if obj.__module__ != _module.__name__:
+                # We just want to check the current module, not the imported or
+                # inherited classes
                 continue
             try:
                 registry_result = obj.register()
+                # Validate registry
+                if {"name", "extension_type", "cls"} != registry_result.keys():
+                    raise ValueError(
+                        "The register function did not match expected format:"
+                        " {0}".format(registry_result.keys())
+                    )
                 available_extensions.append(registry_result)
                 success_registry = True
             except Exception as e:
