@@ -5,32 +5,21 @@ import os
 import sys
 import logging
 
+logger = logging.getLogger('ftrack-connect.widget.PublisherWidget')
+
+cwd = os.path.dirname(__file__)
+sources = os.path.abspath(os.path.join(cwd, '..', 'dependencies'))
+sys.path.append(sources)
+
+import platform
 import ftrack_api
-from ftrack_utils.version import get_connect_plugin_version
 from ftrack_connect.qt import QtWidgets, QtCore, QtGui
+import qtawesome as qta
 import ftrack_connect.ui.application
 
 import ftrack_connect.ui.application
 import ftrack_connect.ui.widget.overlay
 import ftrack_connect.usage
-
-logger = logging.getLogger(__name__)
-
-cwd = os.path.dirname(__file__)
-connect_plugin_path = os.path.abspath(os.path.join(cwd, '..'))
-
-# Read version number from __version__.py
-__version__ = get_connect_plugin_version(connect_plugin_path)
-if not __version__:
-    __version__ = '0.0.0'
-    logger.warning(
-        'Unable to read version from {0}. Using default version: {1}'.format(
-            connect_plugin_path, __version__
-        )
-    )
-
-sources = os.path.abspath(os.path.join(connect_plugin_path, 'dependencies'))
-sys.path.append(sources)
 
 from ftrack_connect_publisher_widget.publisher import Publisher
 
@@ -176,11 +165,6 @@ class PublisherWidget(ftrack_connect.ui.application.ConnectWidget):
         )
 
 
-def get_version_information(event):
-    '''Return version information for ftrack connect plugin.'''
-    return [dict(name='connect-publisher-widget', version=__version__)]
-
-
 def register(session, **kw):
     '''Register plugin. Called when used as an plugin.'''
     # Validate that session is an instance of ftrack_api.Session. If not,
@@ -196,10 +180,3 @@ def register(session, **kw):
     #  Uncomment to register plugin
     plugin = ftrack_connect.ui.application.ConnectWidgetPlugin(PublisherWidget)
     plugin.register(session, priority=20)
-
-    # Enable plugin info in Connect about dialog
-    session.event_hub.subscribe(
-        'topic=ftrack.connect.plugin.debug-information',
-        get_version_information,
-        priority=20,
-    )
