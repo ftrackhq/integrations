@@ -1,4 +1,7 @@
+type: tool_config
+name: standalone-file-publisher
 config_type: publisher
+host_type: python
 engine:
   - type: plugin
     plugin: generic_context_passthrough
