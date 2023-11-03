@@ -159,13 +159,6 @@ class Host(object):
         return self._logs
 
     @property
-    def schemas(self):
-        '''
-        Returns the registered schemas`
-        '''
-        return self.__schemas_discovered
-
-    @property
     def tool_configs(self):
         '''
         Returns the registered tool_configs`
@@ -229,20 +222,13 @@ class Host(object):
         '''
         # Discover plugin modules
         self.discover_plugins(registry.plugins)
-        # Discover schema modules
-        self.discover_schemas(registry.schemas)
-        if not self.schemas:
-            raise Exception(
-                'No schemas found. Please register valid schemas first.'
-            )
         # Discover tool-config modules
-        self.discover_tool_configs(registry.tool_configs, self.schemas)
+        self.discover_tool_configs(registry.tool_configs)
         # Discover engine modules
         self.discover_engines(registry.engines)
 
         if (
             self.__plugins_discovered
-            and self.__schemas_discovered
             and self.__tool_configs_discovered
             and self.__engines_discovered
         ):
@@ -270,32 +256,15 @@ class Host(object):
 
         self.__plugins_discovered = initialized_plugins
 
-    def discover_schemas(self, registered_schemas):
+    def discover_tool_configs(self, registered_tool_configs):
         '''
-        We will discover valid schemas from all given *schema_paths* and convert
-        them to schemaObject. Valid schemas will be added to
-        :obj:`self.__schemas_discovered`
-        '''
-
-        # TODO: this should be changed once yml implemented.
-        schemas = self._discover_schemas(
-            [schema['cls'] for schema in registered_schemas]
-        )
-
-        self.__schemas_discovered = schemas
-
-    def discover_tool_configs(self, registered_tool_configs, schemas):
-        '''
-        We will discover valid tool_configs from all given
-        *registered_tool_configs* based on the given *schemas* and will convert
-        the valid ones to aToolConfigObject. Valid tool_configs will be added to
+        Valid tool_configs will be added to
         :obj:`self.__tool_config_registry`
         '''
         # TODO: this should be changed once yml implemented.
         tool_configs = self._discover_tool_configs(
             [tool_config['cls'] for tool_config in registered_tool_configs],
             self.host_types,
-            schemas,
         )
 
         self.__tool_configs_discovered = tool_configs
@@ -329,28 +298,11 @@ class Host(object):
             )
 
     # Discover
-    def _discover_schemas(self, schema_paths):
-        '''
-        Discover all available and calid schemas in the given *schema_paths*
-        '''
-        start = time.time()
 
-        # discover schemas
-        discovered_schemas = discover.discover_schemas(schema_paths)
-
-        # resolve schemas
-        valid_schemas = discover.resolve_schemas(discovered_schemas)
-
-        end = time.time()
-        logger.debug('Discover schemas run in: {}s'.format((end - start)))
-
-        return valid_schemas
-
-    def _discover_tool_configs(self, tool_config_paths, host_types, schemas):
+    def _discover_tool_configs(self, tool_config_paths, host_types):
         '''
         Discover all the available and valid tool_configs in the given
-        *tool_config_paths* compatible with the given *host_types* and given
-        *schemas*
+        *tool_config_paths* compatible with the given *host_types*
         '''
         start = time.time()
 
@@ -364,15 +316,10 @@ class Host(object):
             discovered_tool_configs, host_types
         )
 
-        # validate schemas
-        discovered_tool_configs = discover.augment_tool_config(
-            discovered_tool_configs, schemas
-        )
-
         # validate_plugins
-        registred_plugin_names = [plugin.name for plugin in self.plugins]
+        registered_plugin_names = [plugin.name for plugin in self.plugins]
         validated_tool_configs = validate.validate_tool_config_plugins(
-            discovered_tool_configs, registred_plugin_names
+            discovered_tool_configs, registered_plugin_names
         )
 
         end = time.time()
@@ -474,14 +421,6 @@ class Host(object):
         # TODO: review asset_type_name in the specific task
         engine.asset_type_name = asset_type_name
 
-        try:
-            validate.validate_tool_config(self.schemas, tool_config)
-        except Exception as error:
-            raise Exception(
-                "Can't validate tool_config {} error: {}".format(
-                    tool_config, error
-                )
-            )
         engine_result = engine.run_tool_config(
             tool_config_object.ToolConfigObject(tool_config)
         )

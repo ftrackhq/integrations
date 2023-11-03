@@ -1,4 +1,8 @@
+type: tool_config
+name: photoshop-document-opener
 config_type: opener
+# TODO: evaluate host_type key
+host_type: photoshop
 engine:
   - type: plugin
     plugin: generic_context_passthrough

@@ -24,11 +24,7 @@ python = ">= 3.7, < 3.8"
 ftrack-python-api = ">= 1, < 3"
 six = ">= 1, < 2"
 appdirs = "*"
-jsonschema = "= 2.6.0" # This is needed for python_jsonschema_objects
-python_jsonschema_objects = "<= 0.3.12"
-# Keep importlib-metadata it low, otherwise python_jsonschema_objects
-# build on python 3.7.12 will not work on maya 2022
-importlib-metadata = "<5.0"
+pyyaml = "^6.0.1"
 #ftrack
 ftrack-constants= { version = "> 1, < 3", optional = true }
 ftrack-utils = { version = "> 1, < 3", optional = true }
