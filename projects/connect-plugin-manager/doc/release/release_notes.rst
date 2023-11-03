@@ -8,6 +8,12 @@
 Release Notes
 *************
 
+.. release:: upcoming
+
+    .. change:: changed
+
+        Replaced setuptools with Poetry and RV package build tool.
+
 .. release:: 0.1.5
     :date: 2022-11-08
 
