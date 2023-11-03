@@ -159,13 +159,6 @@ class Host(object):
         return self._logs
 
     @property
-    def schemas(self):
-        '''
-        Returns the registered schemas`
-        '''
-        return self.__schemas_discovered
-
-    @property
     def tool_configs(self):
         '''
         Returns the registered tool_configs`
