@@ -1,0 +1,53 @@
+config_type: publisher
+engine:
+  - type: plugin
+    plugin: photoshop_context
+    ui: photoshop_publisher_context_selector
+    options:
+      - asset_type_name: "scene",
+      - status_name: "Pending review"
+
+  # Export the snapshot component.
+  - type: group
+    options:
+      component: snapshot
+    plugins:
+      - type: plugin
+        tags:
+          - collector
+        plugin: photoshop_document_publisher_collector
+      - type: plugin
+        tags:
+          - validator
+        plugin: photoshop_document_publisher_validator
+        ui: validator_check
+      - type: plugin
+        tags:
+          - exporter
+        plugin: photoshop_document_publisher_exporter
+
+  # Export the reviewable component.
+  - type: group
+    options:
+      component: reviewable
+    optional: true
+    # enabled means that by default the optional checkbox will be checked
+    enabled: true
+    plugins:
+      - type: plugin
+        tags:
+          - collector
+        plugin: photoshop_document_publisher_collector
+      - type: plugin
+        tags:
+          - validator
+        plugin: photoshop_document_publisher_validator
+        ui: validator_check
+      - type: plugin
+        tags:
+          - exporter
+        plugin: photoshop_image_publisher_exporter
+
+
+  # Publish to ftrack.
+  - publish_to_ftrack
