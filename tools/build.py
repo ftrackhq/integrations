@@ -154,7 +154,9 @@ def build_package(pkg_path, args):
         wheel_path = None
         for filename in os.listdir(BUILD_PATH):
             # Expect: ftrack_connect_pipeline_qt-1.3.0a1-py3-none-any.whl
-            if not filename.endswith('.whl'):
+            if not filename.endswith('.whl') or VERSION not in filename.split(
+                '-'
+            ):
                 continue
             wheel_path = os.path.join(BUILD_PATH, filename)
             break
@@ -210,14 +212,27 @@ def build_package(pkg_path, args):
 
         shutil.copytree(path_hook, os.path.join(STAGING_PATH, 'hook'))
 
-        # # Copy resources
-        # if os.path.exists(RESOURCE_PATH):
-        #     logging.info('Copying resources')
-        #     shutil.copytree(
-        #         RESOURCE_PATH, os.path.join(STAGING_PATH, 'resource')
-        #     )
-        # else:
-        #     logging.warning('No resources to copy.')
+        if args.include_resources:
+            for resource_path in args.include_resources.split(','):
+                # Copy resources
+                if os.path.exists(resource_path):
+                    logging.info('Copying resource "{}"'.format(resource_path))
+                    if not os.path.exists(
+                        os.path.join(STAGING_PATH, 'resource')
+                    ):
+                        os.makedirs(os.path.join(STAGING_PATH, 'resource'))
+                    shutil.copytree(
+                        resource_path,
+                        os.path.join(
+                            STAGING_PATH,
+                            'resource',
+                            os.path.basename(resource_path),
+                        ),
+                    )
+                else:
+                    logging.warning(
+                        'Resource "{}" does not exist!'.format(resource_path)
+                    )
 
         # Collect dependencies
         dependencies_path = os.path.join(STAGING_PATH, 'dependencies')
@@ -459,18 +474,22 @@ def build_package(pkg_path, args):
         if resource_target_path is None:
             resource_target_path = os.path.join(SOURCE_PATH, 'resource.py')
 
-        compiler = scss.Scss(search_paths=[sass_path])
+        # Any styles to compile?
+        if os.path.exists(sass_path):
+            compiler = scss.Scss(search_paths=[sass_path])
 
-        themes = ['style_light', 'style_dark']
-        for theme in themes:
-            scss_source = os.path.join(sass_path, '{0}.scss'.format(theme))
-            css_target = os.path.join(css_path, '{0}.css'.format(theme))
+            themes = ['style_light', 'style_dark']
+            for theme in themes:
+                scss_source = os.path.join(sass_path, '{0}.scss'.format(theme))
+                css_target = os.path.join(css_path, '{0}.css'.format(theme))
 
-            logging.info('Compiling {}'.format(scss_source))
-            compiled = compiler.compile(scss_file=scss_source)
-            with open(css_target, 'w') as file_handle:
-                file_handle.write(compiled)
-                logging.info('Compiled {0}'.format(css_target))
+                logging.info("Compiling {}".format(scss_source))
+                compiled = compiler.compile(scss_file=scss_source)
+                with open(css_target, 'w') as file_handle:
+                    file_handle.write(compiled)
+                    logging.info('Compiled {0}'.format(css_target))
+        else:
+            logging.warning('No styles to compile.')
 
         try:
             pyside_rcc_command = 'pyside2-rcc'
@@ -736,7 +755,11 @@ if __name__ == '__main__':
     )
     parser.add_argument(
         '--include_assets',
-        help='(Connect plugin) Additional asset to include.',
+        help='(Connect plugin) Comma separated list of additional asset to include.',
+    )
+    parser.add_argument(
+        '--include_resources',
+        help='(Connect plugin) Comma separated list of resources to include.',
     )
 
     parser.add_argument(

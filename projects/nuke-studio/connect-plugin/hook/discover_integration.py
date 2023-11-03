@@ -1,35 +1,44 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2023 ftrack
 
-import os
-import re
-import getpass
-import sys
-import pprint
-import logging
 import functools
+import os
+import logging
+
 import ftrack_api
+from ftrack_connect.util import get_connect_plugin_version
+
+logger = logging.getLogger(__name__)
 
 cwd = os.path.dirname(__file__)
-sources = os.path.abspath(os.path.join(cwd, '..', 'dependencies'))
-sys.path.append(sources)
+connect_plugin_path = os.path.abspath(os.path.join(cwd, '..'))
+
+# Read version number from __version__.py
+__version__ = get_connect_plugin_version(connect_plugin_path)
+
+sources = os.path.abspath(os.path.join(connect_plugin_path, 'dependencies'))
 
 
-def on_discover_ftrack_nuke_studio_integration(session, event):
-    from ftrack_nuke_studio import __version__ as integration_version
-
+def on_discover_nuke_studio_integration(session, event):
     data = {
-        'integration': {"name": 'nuke-studio', 'version': integration_version}
+        'integration': {
+            'name': 'ftrack-nuke-studio',
+            'version': __version__,
+        }
     }
 
     return data
 
 
-def on_launch_ftrack_nuke_studio_integration(session, event):
-    ns_base_data = on_discover_ftrack_nuke_studio_integration(session, event)
+def on_launch_nuke_studio_integration(session, event):
+    ns_base_data = on_discover_nuke_studio_integration(session, event)
 
-    ftrack_nuke_studio_path = os.path.join(cwd, '..', 'resource')
-    application_hooks_path = os.path.join(cwd, '..', 'application_hook')
+    ftrack_nuke_studio_path = os.path.join(
+        connect_plugin_path, 'resource', 'plugin'
+    )
+    application_hooks_path = os.path.join(
+        connect_plugin_path, 'resource', 'application_hook'
+    )
 
     entity = event['data']['context']['selection'][0]
     project = session.get('Project', entity['entityId'])
@@ -45,7 +54,12 @@ def on_launch_ftrack_nuke_studio_integration(session, event):
     return ns_base_data
 
 
-def register(session, **kw):
+def get_version_information(event):
+    '''Return version information for ftrack connect installer.'''
+    return [dict(name='ftrack-nuke-studio', version=__version__)]
+
+
+def register(session):
     '''Register hooks for ftrack connect legacy plugins.'''
 
     '''Register plugin. Called when used as an plugin.'''
@@ -56,7 +70,7 @@ def register(session, **kw):
         return
 
     handle_discovery_event = functools.partial(
-        on_discover_ftrack_nuke_studio_integration, session
+        on_discover_nuke_studio_integration, session
     )
 
     session.event_hub.subscribe(
@@ -64,10 +78,11 @@ def register(session, **kw):
         ' and (data.application.identifier=nuke-studio* or data.application.identifier=hiero*)'
         ' and data.application.version >= 13',
         handle_discovery_event,
+        priority=20,
     )
 
     handle_launch_event = functools.partial(
-        on_launch_ftrack_nuke_studio_integration, session
+        on_launch_nuke_studio_integration, session
     )
 
     session.event_hub.subscribe(
@@ -75,4 +90,12 @@ def register(session, **kw):
         ' and (data.application.identifier=nuke-studio* or data.application.identifier=hiero*)'
         ' and data.application.version >= 13',
         handle_launch_event,
+        priority=20,
+    )
+
+    # Enable Nuke studio info in Connect about dialog
+    session.event_hub.subscribe(
+        'topic=ftrack.connect.plugin.debug-information',
+        get_version_information,
+        priority=20,
     )
