@@ -1,6 +1,7 @@
 type: tool_config
 name: photoshop-document-publisher
 config_type: publisher
+# TODO: evaluate host_type key
 host_type: photoshop
 engine:
   - type: plugin
