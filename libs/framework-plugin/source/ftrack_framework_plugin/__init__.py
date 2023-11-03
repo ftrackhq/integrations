@@ -554,8 +554,5 @@ class BasePlugin(ABC):
         )
         logger.debug('registering: {} for {}'.format(cls.name, cls.host_type))
 
-        data = {
-            'host_type': cls.host_type,
-            'plugin_name': cls.name,
-        }
+        data = {'extension_type': 'plugin', 'name': cls.name, 'cls': cls}
         return data

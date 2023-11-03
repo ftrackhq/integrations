@@ -256,13 +256,16 @@ class Host(object):
         initialized plugins into our
         :obj:`self.__plugins_discovered`
         '''
-        registered_plugins = list(set(registered_plugins))
 
         initialized_plugins = []
         # Init plugins
         for plugin in registered_plugins:
             initialized_plugins.append(
-                plugin(self.event_manager, self.id, self.ftrack_object_manager)
+                # TODO: this will be changed on the yaml task and will not have
+                #  to be initialized
+                plugin['cls'](
+                    self.event_manager, self.id, self.ftrack_object_manager
+                )
             )
 
         self.__plugins_discovered = initialized_plugins
@@ -273,9 +276,11 @@ class Host(object):
         them to schemaObject. Valid schemas will be added to
         :obj:`self.__schemas_discovered`
         '''
-        schema_paths = list(set(registered_schemas))
 
-        schemas = self._discover_schemas(schema_paths)
+        # TODO: this should be changed once yml implemented.
+        schemas = self._discover_schemas(
+            [schema['cls'] for schema in registered_schemas]
+        )
 
         self.__schemas_discovered = schemas
 
@@ -286,10 +291,11 @@ class Host(object):
         the valid ones to aToolConfigObject. Valid tool_configs will be added to
         :obj:`self.__tool_config_registry`
         '''
-        tool_config_paths = list(set(registered_tool_configs))
-
+        # TODO: this should be changed once yml implemented.
         tool_configs = self._discover_tool_configs(
-            tool_config_paths, self.host_types, schemas
+            [tool_config['cls'] for tool_config in registered_tool_configs],
+            self.host_types,
+            schemas,
         )
 
         self.__tool_configs_discovered = tool_configs
@@ -300,10 +306,11 @@ class Host(object):
         initialized engines into our
         :obj:`self.__engines_discovered`
         '''
-        registred_engines = list(set(registered_engines))
         # Init engines
-        for engine in registred_engines:
-            initialized_enigne = engine(
+        for engine in registered_engines:
+            # TODO: this will be changed on the yaml task and will not have to
+            #  be initialized
+            initialized_enigne = engine['cls'](
                 self.event_manager,
                 self.ftrack_object_manager,
                 self.host_types,

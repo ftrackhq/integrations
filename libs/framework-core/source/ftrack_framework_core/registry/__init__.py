@@ -2,6 +2,7 @@
 # :copyright: Copyright (c) 2014-2023 ftrack
 
 import logging
+from collections import defaultdict
 
 from ftrack_utils.framework.dependencies import registry
 
@@ -14,39 +15,50 @@ class Registry(object):
         '''
         Returns the registered schemas`
         '''
-        return self.__registered_modules.get('schema')
+        return self.__registry.get('schema')
 
     @property
     def tool_configs(self):
         '''
         Returns the registered tool_configs`
         '''
-        return self.__registered_modules.get('tool_config')
+        return self.__registry.get('tool_config')
 
     @property
     def plugins(self):
         '''
         Returns the registered plugins`
         '''
-        return self.__registered_modules.get('plugin')
+        return self.__registry.get('plugin')
 
     @property
     def engines(self):
         '''
         Returns the registered engines`
         '''
-        return self.__registered_modules.get('engine')
+        return self.__registry.get('engine')
 
     @property
     def widgets(self):
         '''
         Returns the registered engines`
         '''
-        return self.__registered_modules.get('widget')
+        return self.__registry.get('widget')
+
+    @property
+    def dialogs(self):
+        '''
+        Returns the registered engines`
+        '''
+        return self.__registry.get('dialog')
 
     @property
     def registered_modules(self):
-        return self.__registered_modules
+        return self.__registry
+
+    @property
+    def registry(self):
+        return self.__registry
 
     def __init__(self):
         '''
@@ -61,15 +73,29 @@ class Registry(object):
         self.logger.debug('Initializing Registry {}'.format(self))
 
         # Reset all registries
-        self.__registered_modules = {}
+        self.__registry = defaultdict(list)
 
     # Register
-    def scan_modules(self, extension_types, package_names):
+    def scan_extensions(self, paths):
         '''
-        Scan site packages for the given *package_names* if the package name
-        is found and contains the register.py file and is of type of the given
-        *extension_types*. The modules in the package gets registered.
+        Scan framework extension modules from the given *paths*
         '''
-        self.__registered_modules = registry.scan_modules(
-            extension_types, package_names
+
+        discovered_extensions = []
+        for path in paths:
+            discovered_extensions.extend(
+                registry.get_framework_extensions_from_directory(path)
+            )
+        for extension in discovered_extensions:
+            self.add(**extension)
+
+    def add(self, extension_type, name, cls):
+        # We use extension_type and not type to not interfere with python
+        # build in type
+        self.__registry[extension_type].append(
+            {
+                # TODO: name will be renamed to id in further tasks
+                "name": name,
+                "cls": cls,
+            }
         )

@@ -45,23 +45,17 @@ def discover_tool_configs(tool_config_paths):
     *tool_config_paths* : Directory path to look for the tool_configs.
     '''
     tool_configs = {}
-    for lookup_dir in tool_config_paths:
-        collected_files = _collect_json(lookup_dir)
-        for tool_config in collected_files:
-            if not tool_config.get('tool_type'):
-                logger.error(
-                    "Not registering tool config as is missing "
-                    "tool_type key. Directory: {}, tool_config: {}".format(
-                        lookup_dir, tool_config
-                    )
-                )
-                continue
-            if tool_config['tool_type'] not in tool_configs.keys():
-                tool_configs[tool_config['tool_type']] = []
-            tool_configs[tool_config['tool_type']].append(tool_config)
-        logger.debug(
-            'Found {} in path: {}'.format(len(collected_files), lookup_dir)
-        )
+    loaded_files = _load_json_files(tool_config_paths)
+    for tool_config in loaded_files:
+        if not tool_config.get('tool_type'):
+            logger.error(
+                "Not registering tool config as is missing "
+                "tool_type key. Tool_config: {}".format(tool_config)
+            )
+            continue
+        if tool_config['tool_type'] not in tool_configs.keys():
+            tool_configs[tool_config['tool_type']] = []
+        tool_configs[tool_config['tool_type']].append(tool_config)
 
     return tool_configs
 
@@ -73,32 +67,15 @@ def discover_schemas(schema_paths):
 
     *schema_paths* : Directory path to look for the schemas.
     '''
-    schemas = {}
-    for lookup_dir in schema_paths:
-        collected_files = _collect_json(lookup_dir)
-        for json_schema in collected_files:
-            schemas[json_schema['title']] = json_schema
-        logger.debug(
-            'Found {} schema(s) in path: {}'.format(
-                len(collected_files), lookup_dir
-            )
-        )
 
+    schemas = {}
+    loaded_json_files = _load_json_files(schema_paths)
+    for json_schema in loaded_json_files:
+        schemas[json_schema['title']] = json_schema
     return schemas
 
 
-def _collect_json(source_path):
-    '''
-    Return a json encoded list of all the json files discovered in the given
-    *source_path*.
-    '''
-    logger.debug('looking for tool_configs in : {}'.format(source_path))
-
-    json_files = []
-    for root, dirnames, filenames in os.walk(source_path):
-        for filename in fnmatch.filter(filenames, '*.json'):
-            json_files.append(os.path.join(root, filename))
-
+def _load_json_files(json_files):
     loaded_jsons = []
     for json_file in json_files:
         data_store = None
@@ -115,6 +92,20 @@ def _collect_json(source_path):
             loaded_jsons.append(data_store)
 
     return loaded_jsons
+
+
+def _collect_json(source_path):
+    '''
+    Return a json encoded list of all the json files discovered in the given
+    *source_path*.
+    '''
+    logger.debug('looking for tool_configs in : {}'.format(source_path))
+
+    json_files = []
+    for root, dirnames, filenames in os.walk(source_path):
+        for filename in fnmatch.filter(filenames, '*.json'):
+            json_files.append(os.path.join(root, filename))
+    return _load_json_files(json_files)
 
 
 # TODO: remove this function as its not used anymore

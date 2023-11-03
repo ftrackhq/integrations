@@ -12,14 +12,9 @@ INCLUDE_PACKAGES = [
     'libs/framework-plugin',
     # QT
     'libs/framework-widget',
-    'libs/qt',
+    'libs/framework-qt' 'libs/qt',
     'libs/qt-style',
     'libs/utils',
-    # HOOKS
-    'extensions/common/framework-engines',
-    'extensions/common/framework-plugins',
-    'extensions/common/framework-schemas',
-    'extensions/common/framework-tool-configs',
 ]
 
 for _package in INCLUDE_PACKAGES:
@@ -35,17 +30,15 @@ event_manager = event.EventManager(
     session=session, mode=constants.event.LOCAL_EVENT_MODE
 )
 os.environ['FTRACK_CONTEXTID'] = '439dc504-a904-11ec-bbac-be6e0a48ed73'
+FTRACK_FRAMEWORK_EXTENSIONS_PATH = [
+    os.path.join(
+        ROOT_INTEGRATIONS_FOLDER, 'projects', 'framework-common-extensions'
+    )
+]
+
 registry_instance = registry.Registry()
-registry_instance.scan_modules(
-    extension_types=['plugin', 'engine', 'schema', 'tool_config', 'widget'],
-    package_names=[
-        'ftrack_framework_common_engines',
-        'ftrack_framework_common_plugins',
-        'ftrack_framework_common_schemas',
-        'ftrack_framework_common_tool_configs',
-        'ftrack_framework_common_widgets',
-    ],
-)
+registry_instance.scan_extensions(paths=FTRACK_FRAMEWORK_EXTENSIONS_PATH)
+
 host_class = host.Host(event_manager, registry=registry_instance)
 
 

@@ -133,9 +133,6 @@ class BaseUI(object):
         Register function to discover widget by class *cls*. Returns False if the
         class is not registerable.
         '''
-        if not hasattr(cls, 'name') or not cls.name:
-            # Can only register widgets that have a name, not base classes
-            return False
 
         logger = logging.getLogger(
             '{0}.{1}'.format(__name__, cls.__class__.__name__)
@@ -144,9 +141,18 @@ class BaseUI(object):
             'registering: {} for {}'.format(cls.name, cls.widget_type)
         )
 
+        if not hasattr(cls, 'name') or not cls.name:
+            # Can only register widgets that have a name, not base classes
+            logger.warning(
+                "Can only register widgets that have a name, no name provided "
+                "for this one"
+            )
+            return False
+
         data = {
-            'ui_type': cls.ui_type,
-            'widget_name': cls.name,
+            'extension_type': 'base_framework_widget',
+            'name': cls.name,
+            'class': cls,
         }
 
         return data
