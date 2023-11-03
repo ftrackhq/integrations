@@ -1,0 +1,37 @@
+config_type: publisher
+engine:
+  - type: plugin
+    plugin: generic_context_passthrough
+    ui: publisher_context_selector
+
+  # Export the file component.
+  - type: group
+    options:
+      component: file
+    #optional: False by default so is no need
+    #enabled: True by default so is no need
+    plugins:
+      - type: plugin
+        tags:
+          - collector
+        plugin: file_collector
+        ui: file_browser_collector
+        options:
+          - folder_path: null
+          - file_name: null
+      - type: plugin
+        tags:
+          - validator
+        plugin: file_exists_validator
+        ui: validator_check
+      - type: plugin
+        tags:
+          - exporter
+        plugin: rename_file_exporter
+        ui: file_exporter_options
+        options:
+          - export_destinations: "/Users/ftrack/Desktop/myPublishedFiile.png"
+
+
+  # Publish to ftrack.
+  - publish_to_ftrack
