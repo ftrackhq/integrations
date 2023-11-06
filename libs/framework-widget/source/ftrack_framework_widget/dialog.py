@@ -101,19 +101,6 @@ class FrameworkDialog(BaseUI):
         '''
         return self.client_property_getter_connection('host_connections')
 
-    # TODO: evaluate if used and if needed
-    @property
-    def plugins(self):
-        '''
-        Available plugins in the current tool_config
-        '''
-        if not self.tool_config:
-            self.logger.warning(
-                "Please set a tool_config before quering plugins"
-            )
-            return None
-        return self.tool_config.get_all(category='plugin')
-
     @property
     def framework_widgets(self):
         '''Return instanced framework widgets'''
@@ -369,8 +356,8 @@ class FrameworkDialog(BaseUI):
         arguments = {
             "plugin_config": plugin_config,
             "plugin_method_name": plugin_method_name,
-            "engine_type": self.tool_config.engine_type,
-            "engine_name": self.tool_config.engine_name,
+            "engine_type": self.tool_config.get('engine_type'),
+            "engine_name": self.tool_config.get('engine_name'),
             'plugin_widget_id': plugin_widget_id,
         }
         self.client_method_connection('run_plugin', arguments=arguments)

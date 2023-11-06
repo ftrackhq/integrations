@@ -14,7 +14,6 @@ import ftrack_constants.framework as constants
 from ftrack_framework_core.tool_config import (
     discover,
     validate,
-    tool_config_object,
 )
 from ftrack_framework_core.asset import FtrackObjectManager
 from ftrack_framework_core.log.log_item import LogItem
@@ -421,9 +420,7 @@ class Host(object):
         # TODO: review asset_type_name in the specific task
         engine.asset_type_name = asset_type_name
 
-        engine_result = engine.run_tool_config(
-            tool_config_object.ToolConfigObject(tool_config)
-        )
+        engine_result = engine.run_tool_config(tool_config)
 
         if not engine_result:
             self.logger.error(
