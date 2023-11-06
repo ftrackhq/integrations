@@ -10,6 +10,8 @@ engine:
 
   # Export the file component.
   - type: group
+    tags:
+      - component
     options:
       component: file
     #optional: False by default so is no need

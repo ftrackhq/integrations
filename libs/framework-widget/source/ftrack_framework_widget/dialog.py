@@ -1,8 +1,10 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2023 ftrack
 
-from ftrack_framework_widget import BaseUI, active_widget
 import logging
+
+from ftrack_framework_widget import BaseUI, active_widget
+from ftrack_utils.framework.tool_config.read import get_tool_config_by_name
 
 
 class FrameworkDialog(BaseUI):
@@ -51,8 +53,8 @@ class FrameworkDialog(BaseUI):
         self.tool_configs
         '''
 
-        if value and not self.tool_configs[value.tool_type].get_first(
-            tool_title=value.tool_title
+        if value and not get_tool_config_by_name(
+            self.tool_configs[value['config_type']], value['name']
         ):
             self.logger.error(
                 "Invalid tool_config, choose one from : {}".format(
@@ -275,7 +277,7 @@ class FrameworkDialog(BaseUI):
         '''
         widget_class = None
         for widget in self.discovered_framework_widgets:
-            if widget['name'] == plugin_config.widget_name:
+            if widget['name'] == plugin_config['ui']:
                 widget_class = widget['cls']
                 break
         if not widget_class:
@@ -283,8 +285,8 @@ class FrameworkDialog(BaseUI):
                 'The provided widget {} for plugin {} is not registered '
                 'Please provide a registered widget.\n '
                 'Registered widgets: {}'.format(
-                    plugin_config.widget_name,
-                    plugin_config.plugin_name,
+                    plugin_config['ui'],
+                    plugin_config['plugin'],
                     self.discovered_framework_widgets,
                 )
             )

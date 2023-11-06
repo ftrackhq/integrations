@@ -5,6 +5,7 @@ from Qt import QtWidgets, QtCore
 
 from ftrack_framework_qt.dialogs import BaseContextDialog
 from ftrack_qt.widgets.accordion import AccordionBaseWidget
+from ftrack_utils.framework.tool_config.read import get_plugins, get_groups
 
 
 class StandardPublisherDialog(BaseContextDialog):
@@ -79,46 +80,39 @@ class StandardPublisherDialog(BaseContextDialog):
             self.tool_config = self.filtered_tool_configs.get("publisher")[0]
 
         # Build context widgets
-        context_plugins = self.tool_config.get_all(
-            category='plugin', plugin_type='context'
+        context_plugins = get_plugins(
+            self.tool_config, filters={'tags': ['context']}
         )
         for context_plugin in context_plugins:
-            if not context_plugin.widget_name:
+            if not context_plugin.get('ui'):
                 continue
             context_widget = self.init_framework_widget(context_plugin)
             self._scroll_area_widget.layout().addWidget(context_widget)
         # Build component widgets
-        component_steps = self.tool_config.get_all(
-            category='step', step_type='component'
+        component_groups = get_groups(
+            self.tool_config, filters={'tags': ['component']}
         )
-        for step in component_steps:
-            # TODO: add a key visible in the tool config to hide the step if wanted.
-            step_accordion_widget = AccordionBaseWidget(
+
+        for _group in component_groups:
+            group_accordion_widget = AccordionBaseWidget(
                 selectable=False,
                 show_checkbox=True,
-                checkable=not step.optional,
-                title=step.step_name,
+                checkable=not _group.get('optional', False),
+                title=_group.get('options').get('component'),
                 selected=False,
-                checked=step.enabled,
+                checked=_group.get('enabled', True),
                 collapsable=True,
                 collapsed=True,
             )
-            step_plugins = step.get_all(category='plugin')
-            for step_plugin in step_plugins:
-                if not step_plugin.widget_name:
-                    continue
-                widget = self.init_framework_widget(step_plugin)
-                if step_plugin.plugin_type == 'collector':
-                    step_accordion_widget.add_widget(widget)
-                if step_plugin.plugin_type == 'validator':
-                    step_accordion_widget.add_option_widget(
-                        widget, section_name='Validators'
-                    )
-                if step_plugin.plugin_type == 'exporter':
-                    step_accordion_widget.add_option_widget(
-                        widget, section_name='Exporters'
-                    )
-            self._scroll_area_widget.layout().addWidget(step_accordion_widget)
+            collectors = get_plugins(_group, filters={'tags': ['collector']})
+            self.add_collector_widgets(collectors, group_accordion_widget)
+            validators = get_plugins(_group, filters={'tags': ['validator']})
+            self.add_collector_widgets(validators, group_accordion_widget)
+            exporters = get_plugins(_group, filters={'tags': ['exporter']})
+            self.add_collector_widgets(exporters, group_accordion_widget)
+
+            self._scroll_area_widget.layout().addWidget(group_accordion_widget)
+
         spacer = QtWidgets.QSpacerItem(
             1,
             1,
@@ -126,6 +120,31 @@ class StandardPublisherDialog(BaseContextDialog):
             QtWidgets.QSizePolicy.Expanding,
         )
         self._scroll_area_widget.layout().addItem(spacer)
+
+    def add_collector_widgets(self, collectors, accordion_widget):
+        for plugin in collectors:
+            if not plugin.get('ui'):
+                continue
+            widget = self.init_framework_widget(plugin)
+            accordion_widget.add_widget(widget)
+
+    def add_validator_widgets(self, validators, accordion_widget):
+        for plugin in validators:
+            if not plugin.get('ui'):
+                continue
+            widget = self.init_framework_widget(plugin)
+            accordion_widget.add_option_widget(
+                widget, section_name='Validators'
+            )
+
+    def add_exporter_widgets(self, exporters, accordion_widget):
+        for plugin in exporters:
+            if not plugin.get('ui'):
+                continue
+            widget = self.init_framework_widget(plugin)
+            accordion_widget.add_option_widget(
+                widget, section_name='Exporters'
+            )
 
     def post_build_ui(self):
         pass
@@ -136,15 +155,15 @@ class StandardPublisherDialog(BaseContextDialog):
         If *plugin_widget_id* is given, a signal with the result of the plugins
         will be emitted to be picked by that widget id.
         '''
-        collector_plugins = self.tool_config.get_all(
-            category='plugin', plugin_type='collector'
+        collector_plugins = get_plugins(
+            self.tool_config, filters={'tags': ['collector']}
         )
         for collector_plugin in collector_plugins:
             arguments = {
                 "plugin_config": collector_plugin,
                 "plugin_method_name": 'run',
-                "engine_type": self.tool_config.engine_type,
-                "engine_name": self.tool_config.engine_name,
+                "engine_type": self.tool_config['engine_type'],
+                "engine_name": self.tool_config['engine_name'],
                 'plugin_widget_id': plugin_widget_id,
             }
             self.client_method_connection('run_plugin', arguments=arguments)
