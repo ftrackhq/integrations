@@ -46,6 +46,7 @@ class DiscoverApplications(object):
                 continue
 
             files = os.listdir(config_path)
+
             yaml_config_file_paths = [
                 os.path.join(config_path, str(config))
                 for config in files
@@ -57,6 +58,11 @@ class DiscoverApplications(object):
                     try:
                         yaml_content = yaml.safe_load(yaml_file)
                         loaded_filtered_files.append(yaml_content)
+                        self.logger.info(
+                            'Loaded app launcher config file: {}'.format(
+                                config_file_path
+                            )
+                        )
                     except yaml.YAMLError as exc:
                         # Log an error if the yaml file is invalid.
                         self.logger.error(
@@ -85,9 +91,8 @@ class DiscoverApplications(object):
             identifier,
             identified_configuration,
         ) in grouped_configurations.items():
-            self.logger.debug(
-                'building config store for {}'.format(identifier)
-            )
+            self.logger.info('building config store for {}'.format(identifier))
+            print('building config store for {}'.format(identifier))
             store = ApplicationStore(self._session)
 
             for config in identified_configuration:

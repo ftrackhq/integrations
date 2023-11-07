@@ -842,6 +842,8 @@ class Application(QtWidgets.QMainWindow):
     def _gather_plugins(self, path):
         '''Return plugin hooks from *path*.'''
         paths = []
+        if len(path or '') == 0:
+            return paths
         self.logger.debug(u'Searching {0!r} for plugin hooks.'.format(path))
 
         if os.path.isdir(path):
@@ -850,7 +852,7 @@ class Application(QtWidgets.QMainWindow):
                 if os.path.isdir(candidate_path):
                     full_hook_path = os.path.join(candidate_path, 'hook')
                     if (
-                        os.path.isfile(full_hook_path)
+                        os.path.isdir(full_hook_path)
                         and candidate_path not in paths
                     ):
                         paths.append(candidate_path)
@@ -1201,5 +1203,5 @@ class Application(QtWidgets.QMainWindow):
                         break  # Done with this folder
 
         # Create store containing applications.
-        applications = DiscoverApplicatons(self.session, config_paths)
+        applications = DiscoverApplications(self.session, config_paths)
         applications.register()
