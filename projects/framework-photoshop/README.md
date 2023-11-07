@@ -28,7 +28,7 @@ or:
     poetry version major
 ```
 
-Bump the connect plugin version in integrations/projects/connect-action-launcher-widget/connect-plugin/__version__.py
+Bump the connect plugin version in integrations/projects/framework-photoshop/connect-plugin/__version__.py
 
 Tag and push to SCM
 

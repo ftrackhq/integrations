@@ -306,8 +306,8 @@ def build_package(pkg_path, args):
                 )
                 if os.path.exists(requirements_path):
                     logging.info(
-                        'Building Python dependencies for extension "{}"'.format(
-                            os.path.basename(dependency_path)
+                        'Building Python extension dependencies @ "{}"'.format(
+                            requirements_path
                         )
                     )
                     os.chdir(dependency_path)
@@ -322,7 +322,6 @@ def build_package(pkg_path, args):
                             requirements_path,
                             '-e',
                             '.[{}]'.format(extras),
-                            '.',
                             '--target',
                             dependencies_path,
                         ]
