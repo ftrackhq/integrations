@@ -8,6 +8,13 @@ Community owned Photoshop integration for ftrack.
 
 ### Preparations
 
+
+Install Poetry
+
+Create a Python 3.7 virtual environment. If you're using an Apple Silicon chip, follow the instructions in the [How to install compatible PySide2 on Silicon based Mac](../../README.md#how-to-install-compatible-pyside2-on-silicon-based-mac) section. 
+
+Activate the virtual environment. 
+
 Update release notes.
 
 Set or bump version in pyproject.toml:
@@ -40,11 +47,13 @@ See Monorepo build CI
 
 ### Manual build
 
-Install Poetry
 
-Create a Python 3.7 virtual environment. If you're using an Apple Silicon chip, follow the instructions in the [How to install compatible PySide2 on Silicon based Mac](../../README.md#how-to-install-compatible-pyside2-on-silicon-based-mac) section. 
+Initialize Poetry and install dev dependencies using the following command:
 
-Activate the virtual environment.
+ ```bash
+    cd integrations/projects/framework-photoshop
+    poetry install --with development
+ ```
 
 Build with Poetry:
 
@@ -53,6 +62,7 @@ Build with Poetry:
 ```
 
 Build Connect plugin:
+
 
 ```bash
     cd integrations
@@ -113,7 +123,10 @@ Create Adobe extension:
     python tools/build.py build_cep projects/framework-photoshop
 ```
 
-### CEP plugin install
+## Installing
+
+
+### CEP plugin
 
 Use "Extension Manager" tool provided here: https://install.anastasiy.com/ to install 
 the built xzp plugin. Remember to remove previous ftrack extensions.
