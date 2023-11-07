@@ -44,25 +44,15 @@ Install Poetry
 
 Create a Python 3.7 virtual environment. If you're using an Apple Silicon chip, follow the instructions in the [How to install compatible PySide2 on Silicon based Mac](../../README.md#how-to-install-compatible-pyside2-on-silicon-based-mac) section. 
 
-Activate the virtual environment. 
-
-Initialize Poetry and install dev dependencies using the following command:
-
- ```bash
-    cd integrations/projects/framework-photoshop
-    poetry install --with development
- ```
+Activate the virtual environment.
 
 Build with Poetry:
-
-To build the plugin from source, run:
 
 ```bash
     poetry build
 ```
 
 Build Connect plugin:
-
 
 ```bash
     cd integrations
