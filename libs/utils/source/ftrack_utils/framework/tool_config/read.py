@@ -12,12 +12,14 @@ def get_tool_config_by_name(tool_configs, name):
 def get_plugins(tool_config, filters=None, names_only=False):
     '''
     Recursively return all the plugins available in the given tool_config.
+    *tool_config*: Dictionary produced by the yaml loader.
     *filters*: dictionary with key and values to match for returned plugins
     *names_only*: return only name of the plugin.
     '''
 
     plugins = []
-    # Check if it's a full tool-config or portion of it
+    # Check if it's a full tool-config or portion of it. If it's a portion it
+    # might be a list.
     if isinstance(tool_config, dict):
         top_level = tool_config.get('engine', tool_config.get('plugins'))
     else:
@@ -68,12 +70,14 @@ def get_plugins(tool_config, filters=None, names_only=False):
 def get_groups(tool_config, filters=None, top_level_only=True):
     '''
     Recursively return all the groups available in the given tool_config.
+    *tool_config*: Dictionary produced by the yaml loader.
     *filters*: dictionary with key and values to match for returned plugins
     *top_level_only*: return only top level group, not recusive.
     '''
 
     groups = []
-    # Check if it's a full tool-config or portion of it
+    # Check if it's a full tool-config or portion of it. If it's a portion it
+    # might be a list.
     if isinstance(tool_config, dict):
         top_level = tool_config.get('engine', tool_config)
     else:
