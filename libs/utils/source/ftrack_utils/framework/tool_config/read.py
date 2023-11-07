@@ -19,7 +19,7 @@ def get_plugins(tool_config, filters=None, names_only=False):
     plugins = []
     # Check if it's a full tool-config or portion of it
     if isinstance(tool_config, dict):
-        top_level = tool_config.get('engine', tool_config)
+        top_level = tool_config.get('engine', tool_config.get('plugins'))
     else:
         top_level = tool_config
     for obj in top_level:

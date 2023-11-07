@@ -107,9 +107,9 @@ class StandardPublisherDialog(BaseContextDialog):
             collectors = get_plugins(_group, filters={'tags': ['collector']})
             self.add_collector_widgets(collectors, group_accordion_widget)
             validators = get_plugins(_group, filters={'tags': ['validator']})
-            self.add_collector_widgets(validators, group_accordion_widget)
+            self.add_validator_widgets(validators, group_accordion_widget)
             exporters = get_plugins(_group, filters={'tags': ['exporter']})
-            self.add_collector_widgets(exporters, group_accordion_widget)
+            self.add_exporter_widgets(exporters, group_accordion_widget)
 
             self._scroll_area_widget.layout().addWidget(group_accordion_widget)
 

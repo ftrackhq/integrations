@@ -29,11 +29,13 @@ class FrameworkWidget(BaseUI):
     @property
     def plugin_name(self):
         '''Name of the current plugin'''
-        return self.plugin_config.plugin_name
+        return self.plugin_config['plugin']
 
     @property
     def plugin_context_data(self):
         '''context_data value of the current plugin'''
+        pass
+        # TODO: to remove once new engines and plugin has been refacctored
         return self.plugin_config.context_data
 
     @plugin_context_data.setter
@@ -41,6 +43,8 @@ class FrameworkWidget(BaseUI):
         '''
         Updates the context_data of the current plugin with the given *value*
         '''
+        pass
+        # TODO: to remove once new engines and plugin has been refacctored
         if type(value) != dict:
             return
         self.plugin_config.context_data.update(value)
@@ -48,6 +52,8 @@ class FrameworkWidget(BaseUI):
     @property
     def plugin_data(self):
         '''data value of the current plugin'''
+        pass
+        # TODO: to remove once new engines and plugin has been refacctored
         return self.plugin_config.data
 
     @plugin_data.setter
@@ -55,6 +61,8 @@ class FrameworkWidget(BaseUI):
         '''
         Updates the data of the current plugin with the given *value*
         '''
+        pass
+        # TODO: to remove once new engines and plugin has been refacctored
         if type(value) != dict:
             return
         self.plugin_config.data.update(value)
@@ -62,7 +70,7 @@ class FrameworkWidget(BaseUI):
     @property
     def plugin_options(self):
         '''options value of the current plugin'''
-        return self.plugin_config.options
+        return self.plugin_config.get('options')
 
     @plugin_options.setter
     def plugin_options(self, value):
@@ -71,7 +79,9 @@ class FrameworkWidget(BaseUI):
         '''
         if type(value) != dict:
             return
-        self.plugin_config.options.update(value)
+        if not self.plugin_config.get('options'):
+            self.plugin_config['options'] = []
+        self.plugin_config['options'].append(value)
 
     def __init__(
         self,
@@ -93,7 +103,8 @@ class FrameworkWidget(BaseUI):
         super(FrameworkWidget, self).__init__(event_manager, client_id, parent)
 
         # Augment tool_config with the widget ID:
-        self.plugin_config.widget_id = self.id
+        # TODO: evaluate if this is really needed when refactoring plugin
+        self.plugin_config['widget_id'] = self.id
 
     def connect_methods(self, method):
         '''

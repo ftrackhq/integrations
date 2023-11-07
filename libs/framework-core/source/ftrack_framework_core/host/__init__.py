@@ -454,7 +454,7 @@ class Host(object):
         engine.asset_type_name = None
 
         engine_result = engine.run_plugin(
-            plugin_name=plugin_config.get('plugin_name'),
+            plugin_name=plugin_config.get('plugin'),
             plugin_default_method=plugin_config.get('default_method'),
             # plugin_data will usually be None, but can be defined in the
             # tool_config
@@ -467,7 +467,7 @@ class Host(object):
             plugin_context_data=plugin_config.get('context_data'),
             plugin_method=plugin_method,
             plugin_widget_id=plugin_widget_id,
-            plugin_widget_name=plugin_config.get('widget_name'),
+            plugin_widget_name=plugin_config.get('ui'),
         )
 
         if not engine_result:
