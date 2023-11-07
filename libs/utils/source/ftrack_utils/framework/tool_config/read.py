@@ -67,9 +67,9 @@ def get_plugins(tool_config, filters=None, names_only=False):
 
 def get_groups(tool_config, filters=None, top_level_only=True):
     '''
-    Recursively return all the plugins available in the given tool_config.
+    Recursively return all the groups available in the given tool_config.
     *filters*: dictionary with key and values to match for returned plugins
-    *names_only*: return only name of the plugin.
+    *top_level_only*: return only top level group, not recusive.
     '''
 
     groups = []
