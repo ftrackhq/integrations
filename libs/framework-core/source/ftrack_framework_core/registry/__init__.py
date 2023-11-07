@@ -99,3 +99,35 @@ class Registry(object):
                 "cls": cls,
             }
         )
+
+    def _get(self, extensions, name, cls):
+        '''
+        Check given *extensions* list to match given *name* and *cls* if
+        neither provided, return all available extensions
+        '''
+        if not any([name, cls]):
+            return extensions
+        found_extensions = []
+        for extension in extensions:
+            if name and extension['name'] != name:
+                continue
+            if cls and extension['cls'] != cls:
+                continue
+            found_extensions.append(extension)
+        return found_extensions
+
+    def get(self, name=None, cls=None, extension_type=None):
+        '''
+        Return given matching *name*, *cls* or *extension_type*.
+        If nothing provided, return all available extensions.
+        '''
+        found_extensions = []
+        if extension_type:
+            extensions = self.registry.get(extension_type)
+            found_extensions.extend(self._get(extensions, name, cls))
+        else:
+            for extension_type in list(self.registry.keys()):
+                extensions = self.registry.get(extension_type)
+                found_extensions.extend(self._get(extensions, name, cls))
+
+        return found_extensions

@@ -178,6 +178,11 @@ class Host(object):
         '''
         return self.__engines_discovered
 
+    @property
+    def registry(self):
+        '''Return registry object'''
+        return self._registry
+
     # TODO: we can create an engine registry
 
     def __init__(self, event_manager, registry):
@@ -199,6 +204,7 @@ class Host(object):
         self._logs = None
         # Set event manager and object manager
         self._event_manager = event_manager
+        self._registry = registry
         self._ftrack_object_manager = None
         # Reset all registries
         self.__tool_configs_discovered = {}
@@ -208,7 +214,7 @@ class Host(object):
         self._discover_host_subscribe_id = None
 
         # Register modules
-        self._register_modules(registry)
+        self._register_modules(self.registry)
         # Subscribe to events
         self._subscribe_events()
 
@@ -402,23 +408,17 @@ class Host(object):
         '''
 
         tool_config = event['data']['tool_config']
-        engine_type = tool_config['engine_type']
-        engine_name = tool_config['engine_name']
-        # TODO: Double check the asset_type_name workflow, it isn't clean.
-        # TODO: pick asset type from context plugin and not from tool_config
-        asset_type_name = "script"  # tool_config.get('asset_type')
+        engine_name = tool_config.get('engine_name')
 
         engine = None
         try:
-            engine = self.engines[engine_type].get(engine_name)
+            engine = self.registry.get(
+                name=engine_name, extension_type='engine'
+            )
         except Exception:
             raise Exception(
-                'No engine of type "{}" with name "{}" found'.format(
-                    engine_type, engine_name
-                )
+                'No engine with name "{}" found'.format(engine_name)
             )
-        # TODO: review asset_type_name in the specific task
-        engine.asset_type_name = asset_type_name
 
         engine_result = engine.run_tool_config(tool_config)
 
