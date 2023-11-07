@@ -2,7 +2,7 @@
 # :copyright: Copyright (c) 2014-2023 ftrack.
 import os
 
-# Evaluate version and log package version
+# Evaluate package version
 try:
     from ftrack_utils.version import get_version
 
