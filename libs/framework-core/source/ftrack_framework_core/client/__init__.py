@@ -364,7 +364,7 @@ class Client(object):
         '''
         self.event_manager.publish.host_run_tool_config(
             self.host_id,
-            tool_config.to_dict(),
+            tool_config,
             self._run_tool_config_callback,
         )
 

@@ -5,11 +5,15 @@ config_type: publisher
 host_type: python
 engine:
   - type: plugin
+    tags:
+      - context
     plugin: generic_context_passthrough
     ui: publisher_context_selector
 
   # Export the file component.
   - type: group
+    tags:
+      - component
     options:
       component: file
     #optional: False by default so is no need
