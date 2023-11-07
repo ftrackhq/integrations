@@ -260,15 +260,6 @@ def build_package(pkg_path, args):
                 'Collecting Framework extensions and libs, building dependencies...'
             )
             framework_extensions = []
-            # for lib in os.listdir(os.path.join(MONOREPO_PATH, 'libs')):
-            #     lib_path = os.path.join(MONOREPO_PATH, 'libs', lib)
-            #     if not os.path.isdir(lib_path):
-            #         continue
-            #     lib_pkg_path = os.path.join(MONOREPO_PATH, 'libs', lib)
-            #     framework_dependency_packages.append(lib_pkg_path)
-            #     logging.info(
-            #         'Adding library package: {}'.format(lib_pkg_path)
-            #     )
 
             for target_folder, extension_base_path in [
                 (
@@ -638,26 +629,6 @@ def build_package(pkg_path, args):
             os.path.join(STAGING_PATH, 'ps.jsx'),
             VERSION,
         )
-        # if args.include_extensions:
-        #     include_path = os.path.join(MONOREPO_PATH, args.include_extensions)
-        #     if not os.path.exists(include_path):
-        #         # Might be an absolute path
-        #         include_path = args.include_extensions
-        #     if not os.path.isdir(include_path):
-        #         raise Exception(
-        #             'Include path "{}" is not a folder!'.format(include_path)
-        #         )
-        #     logging.info(
-        #         'Searching additional include path for dependencies: {}'.format(
-        #             include_path
-        #         )
-        #     )
-        #     for filename in os.listdir(include_path):
-        #         parse_and_copy(
-        #             os.path.join(include_path, filename),
-        #             os.path.join(STAGING_PATH, filename),
-        #             VERSION,
-        #         )
 
         # Transfer manifest xml, store version
         manifest_staging_path = os.path.join(
