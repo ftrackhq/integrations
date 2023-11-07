@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "ftrack-constants"
-version = "2.0.0rc1"
+version = "2.0.0rc2"
 description='ftrack constants library'
 authors = ["ftrack Integrations Team <integrations@backlight.co>"]
 readme = "README.md"
@@ -20,7 +20,7 @@ requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.poetry.dependencies]
-python = ">= 3.7, < 3.8"
+python = "^3.7"
 #ftrack
 ftrack-utils = { version = "> 1, < 3", optional = true }
 
