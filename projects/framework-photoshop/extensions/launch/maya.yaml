@@ -1,0 +1,27 @@
+priority: 100
+context:
+- Task
+identifier: ftrack-framework-launch-photoshop
+applicationIdentifier: photoshop_{variant}
+integrations:
+  framework:
+  - ftrack-framework-photoshop
+label: Adobe Photoshop
+icon: photoshop
+variant: "{version}"
+search_path:
+  windows:
+    prefix:
+    - C:\
+    - Program Files.*
+    expression:
+    - Adobe Photoshop*
+    - Photoshop.exe
+  darwin:
+    prefix:
+    - "/"
+    - Applications
+    expression:
+    - Adobe Photoshop*
+    - Adobe Photoshop .*\.app
+standalone_module: ftrack_framework_photoshop_bootstrap

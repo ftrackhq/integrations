@@ -4,7 +4,9 @@ import json
 import platform
 from collections import defaultdict
 import logging
-from ftrack_application_launcher import (
+import yaml
+
+from ftrack_connect.launcher import (
     ApplicationStore,
     ApplicationLaunchAction,
     ApplicationLauncher,
@@ -44,21 +46,25 @@ class DiscoverApplications(object):
                 continue
 
             files = os.listdir(config_path)
-            json_configs = [
-                open(os.path.join(config_path, str(config)), 'r').read()
+            yaml_config_file_paths = [
+                os.path.join(config_path, str(config))
                 for config in files
-                if config.endswith('json')
+                if config.endswith('yaml')
             ]
 
-            for config in json_configs:
-                try:
-                    loaded_filtered_files.append(json.loads(config))
-                except Exception as error:
-                    self.logger.warning(
-                        '{} could not be loaded due to {}'.format(
-                            config, error
+            for config_file_path in yaml_config_file_paths:
+                with open(config_file_path, 'r') as yaml_file:
+                    try:
+                        yaml_content = yaml.safe_load(yaml_file)
+                        loaded_filtered_files.append(yaml_content)
+                    except yaml.YAMLError as exc:
+                        # Log an error if the yaml file is invalid.
+                        self.logger.error(
+                            "Invalid .yaml file\nFile: {}\nError: {}".format(
+                                config_file_path, exc
+                            )
                         )
-                    )
+                        continue
 
         return loaded_filtered_files
 

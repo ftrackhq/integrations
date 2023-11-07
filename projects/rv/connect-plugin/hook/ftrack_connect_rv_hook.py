@@ -5,11 +5,9 @@ import os
 import sys
 import pprint
 import logging
-import json
 import re
 import datetime
 
-import platform
 
 cwd = os.path.dirname(__file__)
 

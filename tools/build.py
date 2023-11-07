@@ -212,6 +212,10 @@ def build_package(pkg_path, args):
 
         shutil.copytree(path_hook, os.path.join(STAGING_PATH, 'hook'))
 
+        # Locate and copy launcher
+
+        # Resources
+
         if args.include_resources:
             for resource_path in args.include_resources.split(','):
                 # Copy resources
