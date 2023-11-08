@@ -266,12 +266,10 @@ def build_package(pkg_path, args):
         extensions_destination_path = os.path.join(STAGING_PATH, 'extensions')
 
         os.makedirs(dependencies_path)
+        os.makedirs(extensions_destination_path)
 
         extras = 'ftrack-libs'
         if USES_FRAMEWORK:
-            if not os.path.exists(extensions_destination_path):
-                os.makedirs(extensions_destination_path)
-
             extras += ',framework-libs'
 
             logging.info(
