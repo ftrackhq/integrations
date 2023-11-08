@@ -450,7 +450,6 @@ class Application(QtWidgets.QMainWindow):
     def _post_login_settings(self):
         if self.tray:
             self.tray.show()
-        self._discover_applications()  # Was ftrack-application-launcher
 
     def _assign_session_theme(self, theme):
         if self.session:
@@ -823,6 +822,8 @@ class Application(QtWidgets.QMainWindow):
         )
         self.session._configure_locations()
         self._discoverConnectWidget()
+
+        self._discover_applications()  # Was ftrack-application-launcher
 
     def _discover_plugin_paths(self):
         '''Return a list of paths to pass to ftrack_api.Session()'''
@@ -1205,15 +1206,12 @@ class Application(QtWidgets.QMainWindow):
             if os.path.isdir(launcher_config_path):
                 for filename in os.listdir(launcher_config_path):
                     if (
-                        (
-                            filename.endswith('.yaml')
-                            or filename.endswith('.json')
-                        )  # Support legacy configs
-                        and launcher_config_path not in config_paths
-                    ):
+                        filename.endswith('.yaml')
+                        or filename.endswith('.json')  # Support legacy configs
+                    ) and launcher_config_path not in config_paths:
                         config_paths.append(launcher_config_path)
                         break  # Done with this folder
 
-        # Create store containing applications.
+        # Create store containing launchable applications.
         applications = DiscoverApplications(self.session, config_paths)
         applications.register()
