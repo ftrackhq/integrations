@@ -105,6 +105,10 @@ class DiscoverApplications(object):
                         )
                     )
 
+        self.logger.debug(
+            'Launcher configs found: {}'.format(len(loaded_filtered_files))
+        )
+
         return loaded_filtered_files
 
     def _group_configurations(self, configurations):

@@ -403,7 +403,7 @@ class Application(QtWidgets.QMainWindow):
         '''Return current session.'''
         return self._session
 
-    def __init__(self, theme='system', instance=None):
+    def __init__(self, theme='system', instance=None, log_level=None):
         '''Initialise the main application window.'''
         super(Application, self).__init__()
         self.logger = logging.getLogger(
@@ -412,6 +412,7 @@ class Application(QtWidgets.QMainWindow):
         self._instance = instance
         self._session = None
         self.__connect_start_time = time.time()
+        self._log_level = log_level
 
         self.defaultPluginDirectory = appdirs.user_data_dir(
             'ftrack-connect-plugins', 'ftrack'
@@ -628,6 +629,11 @@ class Application(QtWidgets.QMainWindow):
             )
         except Exception as error:
             raise ftrack_connect.error.ParseError(error)
+
+        # Need to reconfigure logging after session is created.
+        ftrack_connect.config.configure_logging(
+            'ftrack_connect', level=self._log_level, notify=False
+        )
 
         # Listen to events using the new API event hub. This is required to
         # allow reconfiguring the storage scenario.
@@ -1190,6 +1196,8 @@ class Application(QtWidgets.QMainWindow):
                     os.pathsep
                 )
             )
+
+        self.logger.debug('Discovering applications launcher configs.')
 
         for connect_plugin_path in self.pluginPaths:
             launcher_config_path = os.path.join(connect_plugin_path, 'launch')
