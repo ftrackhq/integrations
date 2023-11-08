@@ -26,7 +26,7 @@ ftrack-constants = { version = "> 1, < 3", optional = true }
 ftrack-utils = { version = "> 1, < 3", optional = true }
 # framework dependencies
 ftrack-framework-core = { version = "> 1, < 3", optional = true }
-ftrack-qt = { version = "> 1, < 3", optional = true, extras=["PySide2"] }
+ftrack-qt = { version = "> 1, < 3", optional = true, extras=["pyside"] }
 
 [tool.poetry.extras]
 ftrack-libs = ["ftrack-constants", "ftrack-utils", "ftrack-qt"]
