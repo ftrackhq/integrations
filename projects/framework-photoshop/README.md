@@ -47,14 +47,6 @@ See Monorepo build CI
 
 ### Manual build
 
-
-Initialize Poetry and install dev dependencies using the following command:
-
- ```bash
-    cd integrations/projects/framework-photoshop
-    poetry install --with development
- ```
-
 Build with Poetry:
 
 ```bash
