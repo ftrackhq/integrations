@@ -404,7 +404,8 @@ class Application(QtWidgets.QMainWindow):
         return self._session
 
     def __init__(self, theme='system', instance=None, log_level=None):
-        '''Initialise the main application window.'''
+        '''Initialise the main application window with *theme*, singleton
+        *instance* and custom *log_level*.'''
         super(Application, self).__init__()
         self.logger = logging.getLogger(
             __name__ + '.' + self.__class__.__name__
