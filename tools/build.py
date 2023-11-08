@@ -59,20 +59,32 @@ def build_package(pkg_path, args):
     BUILD_PATH = os.path.join(ROOT_PATH, 'dist')
     RESOURCE_PATH = os.path.join(ROOT_PATH, 'resource')
     CEP_PATH = os.path.join(ROOT_PATH, 'resource', 'cep')
+    USES_FRAMEWORK = False
+    PLATFORM_DEPENDENT = False
 
     POETRY_CONFIG_PATH = os.path.join(ROOT_PATH, 'pyproject.toml')
+    DCC_NAME = None
     if os.path.exists(POETRY_CONFIG_PATH):
         PROJECT_NAME = None
         VERSION = None
+        section = None
         with open(os.path.join(ROOT_PATH, 'pyproject.toml')) as f:
             for line in f:
-                if line.startswith('name = '):
-                    PROJECT_NAME = line.split('=')[1].strip().strip('"')
-                elif line.startswith('version = '):
-                    VERSION = line.split('=')[1].strip().strip('"')
-                    break
+                if line.startswith("["):
+                    section = line.strip().strip('[]')
+                if section == 'tool.poetry':
+                    if line.startswith('name = '):
+                        PROJECT_NAME = line.split('=')[1].strip().strip('"')
+                    elif line.startswith('version = '):
+                        VERSION = line.split('=')[1].strip().strip('"')
+                elif section == 'tool.poetry.dependencies':
+                    if line.startswith('ftrack-framework-core'):
+                        USES_FRAMEWORK = True
+                    elif line.startswith('PySide2'):
+                        PLATFORM_DEPENDENT = True
 
-        DCC_NAME = PROJECT_NAME.split('-')[-1]
+        if USES_FRAMEWORK:
+            DCC_NAME = PROJECT_NAME.split('-')[-1]
         assert VERSION, 'No version could be extracted from "pyproject.toml"!'
     else:
         logging.warning(
@@ -80,7 +92,6 @@ def build_package(pkg_path, args):
         )
 
         PROJECT_NAME = 'ftrack-{}'.format(os.path.basename(ROOT_PATH))
-        DCC_NAME = None
         VERSION = '0.0.0'
 
     SOURCE_PATH = os.path.join(
@@ -236,102 +247,61 @@ def build_package(pkg_path, args):
 
         # Collect dependencies
         dependencies_path = os.path.join(STAGING_PATH, 'dependencies')
+        extensions_path = os.path.join(STAGING_PATH, 'extensions')
 
         os.makedirs(dependencies_path)
+        os.makedirs(extensions_path)
 
-        if args.with_extensions:
+        extras = 'ftrack-libs'
+        if USES_FRAMEWORK:
+            extras += ',framework-libs'
+
             logging.info(
-                '(Experimental) Collecting Framework extensions and libs, building dependencies...'
+                'Collecting Framework extensions and libs, building dependencies...'
             )
-            framework_dependency_packages = []
-            for lib in os.listdir(os.path.join(MONOREPO_PATH, 'libs')):
-                lib_path = os.path.join(MONOREPO_PATH, 'libs', lib)
-                if not os.path.isdir(lib_path):
-                    continue
-                hook_source_path = os.path.join(MONOREPO_PATH, 'libs', lib)
-                framework_dependency_packages.append(hook_source_path)
-                logging.info(
-                    'Adding library package: {}'.format(hook_source_path)
-                )
+            framework_extensions = []
 
-            # Pick up extensions
-            if args.include_extensions:
-                # First pick up includes
-                include_path = os.path.join(
-                    MONOREPO_PATH, args.include_extensions
-                )
-                if not os.path.exists(include_path):
-                    # Might be an absolute path
-                    include_path = args.include_extensions
-                if not os.path.exists(include_path) or not os.path.isdir(
-                    include_path
-                ):
-                    raise Exception(
-                        'Include path "{}" does not exist or is not a folder!'.format(
-                            include_path
-                        )
-                    )
-                logging.info(
-                    'Searching additional include path for packages: {}'.format(
-                        include_path
-                    )
-                )
-                for extension in os.listdir(include_path):
-                    hook_source_path = os.path.join(include_path, extension)
-                    if not os.path.isdir(hook_source_path):
-                        continue
-                    if not extension.endswith('-js'):
-                        logging.info(
-                            'Adding package include: {}'.format(
-                                hook_source_path
-                            )
-                        )
-                        framework_dependency_packages.append(hook_source_path)
-
-            for extension_base_path in [
-                os.path.join(MONOREPO_PATH, 'extensions', 'common'),
-                os.path.join(MONOREPO_PATH, 'extensions', DCC_NAME),
+            for target_folder, extension_base_path in [
+                (
+                    'common',
+                    os.path.join(
+                        MONOREPO_PATH,
+                        'projects',
+                        'framework-common-extensions',
+                    ),
+                ),
+                (DCC_NAME, os.path.join(ROOT_PATH, 'extensions')),
             ]:
                 for extension in os.listdir(extension_base_path):
-                    hook_source_path = os.path.join(
+                    extension_source_path = os.path.join(
                         extension_base_path, extension
                     )
-                    if not os.path.isdir(hook_source_path):
+                    if (
+                        not os.path.isdir(extension_source_path)
+                        or extension == 'js'
+                    ):
                         continue
-                    if not extension.endswith('-js'):
-                        add = True
-                        # Check if already in there
-                        for existing in framework_dependency_packages:
-                            if os.path.basename(existing) == extension:
-                                add = False
-                                break
-                        if add:
-                            logging.info(
-                                'Adding package: {}'.format(hook_source_path)
-                            )
-                            framework_dependency_packages.append(
-                                hook_source_path
-                            )
-                        else:
-                            logging.warning()
+                    logging.info(
+                        'Adding extension: {}'.format(extension_source_path)
+                    )
+                    framework_extensions.append(
+                        (target_folder, extension_source_path)
+                    )
 
-            bootstrap_package_filename = (
+            bootstrap_extension_filename = (
                 'ftrack_framework_{}_bootstrap'.format(DCC_NAME)
             )
-            for dependency_path in framework_dependency_packages:
-                if os.path.exists(os.path.join(dependency_path, 'setup.py')):
+            for target_folder, dependency_path in framework_extensions:
+                requirements_path = os.path.join(
+                    dependency_path, 'requirements.txt'
+                )
+                if os.path.exists(requirements_path):
                     logging.info(
-                        'Building Python dependencies for "{}"'.format(
-                            os.path.basename(dependency_path)
+                        'Building Python extension dependencies @ "{}"'.format(
+                            requirements_path
                         )
                     )
                     os.chdir(dependency_path)
-                    restore_build_file = False
-
-                    PATH_BUILD = os.path.join(dependency_path, 'BUILD')
-                    if os.path.exists(PATH_BUILD):
-                        restore_build_file = True
-                        os.rename(PATH_BUILD, PATH_BUILD + '_')
 
                     subprocess.check_call(
                         [
@@ -339,42 +309,28 @@ def build_package(pkg_path, args):
                             '-m',
                             'pip',
                             'install',
+                            '-r',
+                            requirements_path,
                             '-e',
-                            '.[ftrack-libs]',
-                            '.',
+                            '.[{}]'.format(extras),
                             '--target',
                             dependencies_path,
                         ]
                     )
 
-                    shutil.rmtree(os.path.join(dependency_path, 'build'))
+                # Copy the extension
+                logging.info('Copying {}'.format(dependency_path))
+                filename = os.path.basename(dependency_path)
 
-                    if restore_build_file:
-                        os.rename(PATH_BUILD + '_', PATH_BUILD)
-
-                else:
-                    # Should have source folder but not having it is also allowed
-                    source_path = os.path.join(dependency_path, 'source')
-                    if os.path.exists(source_path):
-                        source_path = find_python_source(source_path)
-                    else:
-                        source_path = dependency_path
-                    logging.info('Copying {}'.format(source_path))
-                    filename = os.path.basename(source_path)
-
-                    if (
-                        filename.endswith('_bootstrap')
-                        and filename != bootstrap_package_filename
-                    ):
-                        # Rename bootstrap package to the correct name expected by app launcher for now
-                        filename = bootstrap_package_filename
-                    dest_path = os.path.join(dependencies_path, filename)
-                    if os.path.exists(dest_path):
-                        continue
-                    shutil.copytree(
-                        source_path,
-                        dest_path,
-                    )
+                dest_path = os.path.join(
+                    extensions_path, target_folder, filename
+                )
+                if os.path.exists(dest_path):
+                    continue
+                shutil.copytree(
+                    dependency_path,
+                    dest_path,
+                )
 
         logging.info(
             'Installing package with dependencies from: "{}"'.format(
@@ -386,7 +342,7 @@ def build_package(pkg_path, args):
             '-m',
             'pip',
             'install',
-            '{}[ftrack-libs]'.format(wheel_path),
+            '{}[{}]'.format(wheel_path, extras),
             '--target',
             dependencies_path,
         ]
@@ -421,6 +377,14 @@ def build_package(pkg_path, args):
         archive_path = os.path.join(
             BUILD_PATH, '{0}-{1}'.format(PROJECT_NAME, CONNECT_PLUGIN_VERSION)
         )
+        if PLATFORM_DEPENDENT:
+            if sys.platform.startswith('win'):
+                archive_path = '{}-windows'.format(archive_path)
+            elif sys.platform.startswith('darwin'):
+                archive_path = '{}-mac'.format(archive_path)
+            else:
+                archive_path = '{}-linux'.format(archive_path)
+
         shutil.make_archive(
             archive_path,
             'zip',
@@ -665,26 +629,6 @@ def build_package(pkg_path, args):
             os.path.join(STAGING_PATH, 'ps.jsx'),
             VERSION,
         )
-        if args.include_extensions:
-            include_path = os.path.join(MONOREPO_PATH, args.include_extensions)
-            if not os.path.exists(include_path):
-                # Might be an absolute path
-                include_path = args.include_extensions
-            if not os.path.isdir(include_path):
-                raise Exception(
-                    'Include path "{}" is not a folder!'.format(include_path)
-                )
-            logging.info(
-                'Searching additional include path for dependencies: {}'.format(
-                    include_path
-                )
-            )
-            for filename in os.listdir(include_path):
-                parse_and_copy(
-                    os.path.join(include_path, filename),
-                    os.path.join(STAGING_PATH, filename),
-                    VERSION,
-                )
 
         # Transfer manifest xml, store version
         manifest_staging_path = os.path.join(
@@ -745,14 +689,6 @@ if __name__ == '__main__':
     )
 
     # Connect plugin options
-    parser.add_argument(
-        '--with_extensions',
-        help='(Connect plugin) Manually '
-        'collect and include extensions (experimental).',
-    )
-    parser.add_argument(
-        '--include_extensions', help='Additional extension folder to include.'
-    )
     parser.add_argument(
         '--include_assets',
         help='(Connect plugin) Comma separated list of additional asset to include.',
