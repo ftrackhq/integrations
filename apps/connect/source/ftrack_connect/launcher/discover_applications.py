@@ -72,6 +72,39 @@ class DiscoverApplications(object):
                         )
                         continue
 
+            # Check for legacy json configs pointed out by environment variable and such
+            json_config_paths = [
+                open(os.path.join(config_path, str(config)), 'r').read()
+                for config in files
+                if config.endswith('json')
+            ]
+
+            for config_file_path in json_config_paths:
+                try:
+                    config = json.loads(config_file_path)
+                    # Remove if already defined - let this one override
+                    configs_remove = []
+                    for existing_config in loaded_filtered_files:
+                        if (
+                            existing_config['identifier']
+                            == config['identifier']
+                        ):
+                            configs_remove.append(existing_config)
+                    for config_to_remove in configs_remove:
+                        loaded_filtered_files.remove(config_to_remove)
+                        self.logger.info(
+                            'Overriding config {} with legacy JSON config @ {}'.format(
+                                config['identifier'], config_file_path
+                            )
+                        )
+                    loaded_filtered_files.append(config)
+                except Exception as error:
+                    self.logger.warning(
+                        '{} could not be loaded due to {}'.format(
+                            config_file_path, error
+                        )
+                    )
+
         return loaded_filtered_files
 
     def _group_configurations(self, configurations):

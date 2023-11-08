@@ -1196,7 +1196,10 @@ class Application(QtWidgets.QMainWindow):
             if os.path.isdir(launcher_config_path):
                 for filename in os.listdir(launcher_config_path):
                     if (
-                        filename.endswith('.yaml')
+                        (
+                            filename.endswith('.yaml')
+                            or filename.endswith('.json')
+                        )  # Support legacy configs
                         and launcher_config_path not in config_paths
                     ):
                         config_paths.append(launcher_config_path)
