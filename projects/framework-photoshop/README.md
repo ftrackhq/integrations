@@ -4,41 +4,81 @@ Community owned Photoshop integration for ftrack.
 
 # Documentation
 
-# Building
+## Building
 
-## Preparations
+### Preparations
 
-Follow these steps to prepare your environment:
 
-1. Install Poetry.
-2. Create a Python 3.7 virtual environment. If you're using an Apple Silicon chip, follow the instructions in the [How to install compatible PySide2 on Silicon based Mac](../../README.md#how-to-install-compatible-pyside2-on-silicon-based-mac) section.
-3. Activate the virtual environment.
-4. Initialize Poetry and install dev dependencies using the following command:
-    ```bash
-    poetry install --with development
-    ```
+Install Poetry
 
-## Build package
+Create a Python 3.7 virtual environment. If you're using an Apple Silicon chip, follow the instructions in the [How to install compatible PySide2 on Silicon based Mac](../../README.md#how-to-install-compatible-pyside2-on-silicon-based-mac) section. 
 
-As monorepo tags are not interpreted by Poetry, set the version manually for now:
+Activate the virtual environment. 
 
-    $ export POETRY_DYNAMIC_VERSIONING_BYPASS="v0.4.0"
+Update release notes.
 
-To build the plugin from source, run:
+Set or bump version in pyproject.toml:
 
-    $ poetry build
+```bash
+    poetry version prerelease
+```
+or:
+```bash
+    poetry version patch
+```
+or:
+```bash
+    poetry version minor
+```
+or:
+```bash
+    poetry version major
+```
 
-## Build Connect plugin
+Bump the connect plugin version in integrations/projects/framework-photoshop/connect-plugin/__version__.py
 
-Until we have a proper CI/CD enabled build with Pants, use the temporary 
-build script:
+Tag and push to SCM
 
-    $ python <path-to-monorepo>/tests/build.py build_plugin
 
-## Build docs
+### CI build
 
-    $ python <path-to-monorepo>/tests/build.py build_sphinx
+See Monorepo build CI
 
+
+### Manual build
+
+Build with Poetry:
+
+```bash
+    poetry build
+```
+
+Build Connect plugin:
+
+
+```bash
+    cd integrations
+    python tools/build.py build_connect_plugin projects/framework-photoshop
+```
+
+If the build fails and Photoshop is using beta or experimental dependencies published to Test PyPi, use the `--testpypi` flag 
+to build the plugin.
+
+
+### Build documentation
+
+
+Install documentation dependencies:
+
+```bash
+    poetry install --with documentation
+```
+
+Build documentation:
+
+```bash
+    poetry run sphinx-build -b html doc dist/doc
+```
 
 
 # Development
@@ -48,12 +88,15 @@ build script:
 
 To enable live development, first allow unsigned extensions:
 
-    $ defaults write com.adobe.CSXS.8 PlayerDebugMode 1
-
+```bash
+    defaults write com.adobe.CSXS.8 PlayerDebugMode 1
+```
 
 Build and install ZXP extension and then open up permissions on folder:
 
-    $ sudo chmod -R 777 "/library/application support/adobe/cep/extensions/com.ftrack.framework.photoshop.panel"
+```bash
+    sudo chmod -R 777 "/library/application support/adobe/cep/extensions/com.ftrack.framework.photoshop.panel"
+```
 
 You are now ready to do live changes to extension, remember to sync back changes to
 source folder before committing.
@@ -67,10 +110,15 @@ Set variables:
 
 Create Adobe extension:
 
-    $ python tests/build.py build_cep
+```bash
+    cd integrations 
+    python tools/build.py build_cep projects/framework-photoshop
+```
+
+## Installing
 
 
-### CEP plugin install
+### CEP plugin
 
 Use "Extension Manager" tool provided here: https://install.anastasiy.com/ to install 
 the built xzp plugin. Remember to remove previous ftrack extensions.
