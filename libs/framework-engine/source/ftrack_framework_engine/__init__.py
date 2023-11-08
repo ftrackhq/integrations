@@ -6,6 +6,8 @@ import logging
 
 from abc import ABC, abstractmethod
 
+from ftrack_utils.deocrators import with_session
+
 # Evaluate version and log package version
 try:
     from ftrack_utils.version import get_version
@@ -47,7 +49,8 @@ class BaseEngine(ABC):
         self._plugin_registry = plugin_registry
 
     @abstractmethod
-    def run_plugin(self, plugin, store, options):
+    @with_session
+    def run_plugin(self, plugin, store, options, session=None):
         '''
         Run given *plugin* accepting *store* and *options*.
         *plugin*: Name of the plugin to be executed.

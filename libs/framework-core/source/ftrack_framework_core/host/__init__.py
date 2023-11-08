@@ -165,20 +165,6 @@ class Host(object):
         return self.__tool_configs_discovered
 
     @property
-    def plugins(self):
-        '''
-        Returns the registered plugins`
-        '''
-        return self.__plugins_discovered
-
-    @property
-    def engines(self):
-        '''
-        Returns the registered engines`
-        '''
-        return self.__engines_discovered
-
-    @property
     def registry(self):
         '''Return registry object'''
         return self._registry
@@ -208,58 +194,22 @@ class Host(object):
         self._ftrack_object_manager = None
         # Reset all registries
         self.__tool_configs_discovered = {}
-        self.__schemas_discovered = {}
-        self.__plugins_discovered = []
-        self.__engines_discovered = {}
+
         self._discover_host_subscribe_id = None
 
         # Register modules
-        self._register_modules(self.registry)
+        # TODO: should be the register who discover, load and validates the tool configs?
+        # Discover tool-config modules
+        self.discover_tool_configs(registry.tool_configs)
+        if not self.__tool_configs_discovered:
+            raise Exception(
+                'Error discovering tool-configs on host, please check logs'
+            )
+        # self._register_modules(self.registry)
         # Subscribe to events
         self._subscribe_events()
 
         self.logger.debug('Host {} ready.'.format(self.id))
-
-    # Register
-    def _register_modules(self, registry):
-        '''
-        Register available framework modules.
-        '''
-        # Discover plugin modules
-        self.discover_plugins(registry.plugins)
-        # Discover tool-config modules
-        self.discover_tool_configs(registry.tool_configs)
-        # Discover engine modules
-        self.discover_engines(registry.engines)
-
-        if (
-            self.__plugins_discovered
-            and self.__tool_configs_discovered
-            and self.__engines_discovered
-        ):
-            # Check that registry went correct
-            return True
-        raise Exception('Error registering modules on host, please check logs')
-
-    def discover_plugins(self, registered_plugins):
-        '''
-        Initialize all plugins given in the *registered_plugins* and add the
-        initialized plugins into our
-        :obj:`self.__plugins_discovered`
-        '''
-
-        initialized_plugins = []
-        # Init plugins
-        for plugin in registered_plugins:
-            initialized_plugins.append(
-                # TODO: this will be changed on the yaml task and will not have
-                #  to be initialized
-                plugin['cls'](
-                    self.event_manager, self.id, self.ftrack_object_manager
-                )
-            )
-
-        self.__plugins_discovered = initialized_plugins
 
     def discover_tool_configs(self, registered_tool_configs):
         '''
@@ -273,34 +223,6 @@ class Host(object):
         )
 
         self.__tool_configs_discovered = tool_configs
-
-    def discover_engines(self, registered_engines):
-        ''' '
-        Initialize all engines given in the *registered_engines* and add the
-        initialized engines into our
-        :obj:`self.__engines_discovered`
-        '''
-        # Init engines
-        for engine in registered_engines:
-            # TODO: this will be changed on the yaml task and will not have to
-            #  be initialized
-            initialized_enigne = engine['cls'](
-                self.event_manager,
-                self.ftrack_object_manager,
-                self.host_types,
-                self.id,
-            )
-            for engine_type in initialized_enigne.engine_types:
-                if engine_type not in list(self.__engines_discovered.keys()):
-                    self.__engines_discovered[engine_type] = {}
-                self.__engines_discovered[engine_type].update(
-                    {initialized_enigne.name: initialized_enigne}
-                )
-
-        for key, value in list(self.__engines_discovered.items()):
-            self.logger.warning(
-                'Valid engines : {} : {}'.format(key, len(value))
-            )
 
     # Discover
 
@@ -322,7 +244,9 @@ class Host(object):
         )
 
         # validate_plugins
-        registered_plugin_names = [plugin.name for plugin in self.plugins]
+        registered_plugin_names = [
+            plugin['name'] for plugin in self.registry.plugins
+        ]
         validated_tool_configs = validate.validate_tool_config_plugins(
             discovered_tool_configs, registered_plugin_names
         )
@@ -408,19 +332,19 @@ class Host(object):
         '''
 
         tool_config = event['data']['tool_config']
-        engine_name = tool_config.get('engine_name')
+        engine_name = tool_config.get('engine_name', 'standard_engine')
 
-        engine = None
         try:
-            engine = self.registry.get(
+            engine_registry = self.registry.get(
                 name=engine_name, extension_type='engine'
-            )
+            )[0]
+            engine_instance = engine_registry['cls'](self.registry)
         except Exception:
             raise Exception(
                 'No engine with name "{}" found'.format(engine_name)
             )
 
-        engine_result = engine.run_tool_config(tool_config)
+        engine_result = engine_instance.execute_engine(tool_config['engine'])
 
         if not engine_result:
             self.logger.error(
@@ -434,7 +358,8 @@ class Host(object):
         Runs the plugin_config in the given *event* with the engine type
         set in the *event*
         '''
-
+        pass
+        # TODO: double check this
         plugin_config = event['data']['plugin_config']
         plugin_method = event['data']['plugin_method']
         engine_type = event['data']['engine_type']
