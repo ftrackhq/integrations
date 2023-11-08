@@ -6,7 +6,7 @@ from collections import defaultdict
 import logging
 import yaml
 
-from ftrack_connect.launcher import (
+from ftrack_connect.applaunch import (
     ApplicationStore,
     ApplicationLaunchAction,
     ApplicationLauncher,
@@ -128,8 +128,11 @@ class DiscoverApplications(object):
             identifier,
             identified_configuration,
         ) in grouped_configurations.items():
-            self.logger.info('building config store for {}'.format(identifier))
-            print('building config store for {}'.format(identifier))
+            self.logger.info(
+                'building config store for {}({})'.format(
+                    identifier, len(identified_configuration)
+                )
+            )
             store = ApplicationStore(self._session)
 
             for config in identified_configuration:

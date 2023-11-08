@@ -42,7 +42,7 @@ from ftrack_connect import usage
 import ftrack_connect.ui.config
 from ftrack_connect.asynchronous import asynchronous
 
-from ftrack_connect.launcher.discover_applications import DiscoverApplications
+from ftrack_connect.applaunch.discover_applications import DiscoverApplications
 
 
 class ConnectWidgetPlugin(object):

@@ -20,7 +20,7 @@ import os
 
 import ftrack_api
 from ftrack_action_handler.action import BaseAction
-from ftrack_connect.launcher.usage import send_event
+from ftrack_connect.applaunch.usage import send_event
 
 
 #: Default expression to match version component of executable path.
