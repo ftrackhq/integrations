@@ -5,19 +5,16 @@ import uuid
 import logging
 import socket
 import os
-import time
 
 from functools import partial
 
 import ftrack_constants.framework as constants
 
-from ftrack_framework_core.tool_config import (
-    discover,
-    validate,
-)
 from ftrack_framework_core.asset import FtrackObjectManager
 from ftrack_framework_core.log.log_item import LogItem
 from ftrack_framework_core.log import LogDB
+
+from ftrack_utils.decorators import with_new_session
 
 logger = logging.getLogger(__name__)
 
@@ -92,6 +89,7 @@ class Host(object):
             )
         return self._ftrack_object_manager
 
+    # noinspection SpellCheckingInspection
     @property
     def context_id(self):
         '''Return the default context id set at host launch'''
@@ -103,6 +101,7 @@ class Host(object):
             os.getenv('FTRACK_TASKID', os.getenv('FTRACK_SHOTID')),
         )
 
+    # noinspection SpellCheckingInspection
     @context_id.setter
     def context_id(self, value):
         '''
@@ -160,23 +159,25 @@ class Host(object):
     @property
     def tool_configs(self):
         '''
-        Returns the registered tool_configs`
+        Returns filtered tool_configs`
         '''
-        return self.__tool_configs_discovered
+        compatible_tool_configs = {}
+        for tool_config in self.registry.tool_configs:
+            content = tool_config['extension']
+            if str(content.get('host_type')) in self.host_types:
+                if (
+                    content['config_type']
+                    not in compatible_tool_configs.keys()
+                ):
+                    compatible_tool_configs[content['config_type']] = []
+                compatible_tool_configs[content['config_type']].append(content)
+
+        return compatible_tool_configs
 
     @property
-    def plugins(self):
-        '''
-        Returns the registered plugins`
-        '''
-        return self.__plugins_discovered
-
-    @property
-    def engines(self):
-        '''
-        Returns the registered engines`
-        '''
-        return self.__engines_discovered
+    def registry(self):
+        '''Return registry object'''
+        return self._registry
 
     # TODO: we can create an engine registry
 
@@ -199,137 +200,15 @@ class Host(object):
         self._logs = None
         # Set event manager and object manager
         self._event_manager = event_manager
+        self._registry = registry
         self._ftrack_object_manager = None
-        # Reset all registries
-        self.__tool_configs_discovered = {}
-        self.__schemas_discovered = {}
-        self.__plugins_discovered = []
-        self.__engines_discovered = {}
+
         self._discover_host_subscribe_id = None
 
-        # Register modules
-        self._register_modules(registry)
         # Subscribe to events
         self._subscribe_events()
 
         self.logger.debug('Host {} ready.'.format(self.id))
-
-    # Register
-    def _register_modules(self, registry):
-        '''
-        Register available framework modules.
-        '''
-        # Discover plugin modules
-        self.discover_plugins(registry.plugins)
-        # Discover tool-config modules
-        self.discover_tool_configs(registry.tool_configs)
-        # Discover engine modules
-        self.discover_engines(registry.engines)
-
-        if (
-            self.__plugins_discovered
-            and self.__tool_configs_discovered
-            and self.__engines_discovered
-        ):
-            # Check that registry went correct
-            return True
-        raise Exception('Error registering modules on host, please check logs')
-
-    def discover_plugins(self, registered_plugins):
-        '''
-        Initialize all plugins given in the *registered_plugins* and add the
-        initialized plugins into our
-        :obj:`self.__plugins_discovered`
-        '''
-
-        initialized_plugins = []
-        # Init plugins
-        for plugin in registered_plugins:
-            initialized_plugins.append(
-                # TODO: this will be changed on the yaml task and will not have
-                #  to be initialized
-                plugin['cls'](
-                    self.event_manager, self.id, self.ftrack_object_manager
-                )
-            )
-
-        self.__plugins_discovered = initialized_plugins
-
-    def discover_tool_configs(self, registered_tool_configs):
-        '''
-        Valid tool_configs will be added to
-        :obj:`self.__tool_config_registry`
-        '''
-        # TODO: this should be changed once yml implemented.
-        tool_configs = self._discover_tool_configs(
-            [tool_config['cls'] for tool_config in registered_tool_configs],
-            self.host_types,
-        )
-
-        self.__tool_configs_discovered = tool_configs
-
-    def discover_engines(self, registered_engines):
-        ''' '
-        Initialize all engines given in the *registered_engines* and add the
-        initialized engines into our
-        :obj:`self.__engines_discovered`
-        '''
-        # Init engines
-        for engine in registered_engines:
-            # TODO: this will be changed on the yaml task and will not have to
-            #  be initialized
-            initialized_enigne = engine['cls'](
-                self.event_manager,
-                self.ftrack_object_manager,
-                self.host_types,
-                self.id,
-            )
-            for engine_type in initialized_enigne.engine_types:
-                if engine_type not in list(self.__engines_discovered.keys()):
-                    self.__engines_discovered[engine_type] = {}
-                self.__engines_discovered[engine_type].update(
-                    {initialized_enigne.name: initialized_enigne}
-                )
-
-        for key, value in list(self.__engines_discovered.items()):
-            self.logger.warning(
-                'Valid engines : {} : {}'.format(key, len(value))
-            )
-
-    # Discover
-
-    def _discover_tool_configs(self, tool_config_paths, host_types):
-        '''
-        Discover all the available and valid tool_configs in the given
-        *tool_config_paths* compatible with the given *host_types*
-        '''
-        start = time.time()
-
-        # discover tool_configs
-        discovered_tool_configs = discover.discover_tool_configs(
-            tool_config_paths
-        )
-
-        # filter tool_configs
-        discovered_tool_configs = discover.filter_tool_configs_by_host(
-            discovered_tool_configs, host_types
-        )
-
-        # validate_plugins
-        registered_plugin_names = [plugin.name for plugin in self.plugins]
-        validated_tool_configs = validate.validate_tool_config_plugins(
-            discovered_tool_configs, registered_plugin_names
-        )
-
-        end = time.time()
-        logger.debug('Discover tool_configs run in: {}s'.format((end - start)))
-
-        for key, value in list(validated_tool_configs.items()):
-            logger.warning(
-                'Valid tool_configs : {} : {}'.format(key, len(value))
-            )
-
-        return validated_tool_configs
 
     # Subscribe
     def _subscribe_events(self):
@@ -346,7 +225,7 @@ class Host(object):
             self.id, self._client_context_change_callback
         )
 
-        # Reply to discover_host_callback to clints to pass the host information
+        # Reply to discover_host_callback to client to pass the host information
         discover_host_callback_reply = partial(
             provide_host_information,
             self.id,
@@ -390,8 +269,8 @@ class Host(object):
             self.context_id = context_id
 
     # Run
-    # TODO: this should be ABC
-    def run_tool_config_callback(self, event):
+    @with_new_session
+    def run_tool_config_callback(self, event, session=None):
         '''
         Runs the data with the defined engine type of the given *event*
 
@@ -402,25 +281,21 @@ class Host(object):
         '''
 
         tool_config = event['data']['tool_config']
-        engine_type = tool_config['engine_type']
-        engine_name = tool_config['engine_name']
-        # TODO: Double check the asset_type_name workflow, it isn't clean.
-        # TODO: pick asset type from context plugin and not from tool_config
-        asset_type_name = "script"  # tool_config.get('asset_type')
+        engine_name = tool_config.get('engine_name', 'standard_engine')
 
-        engine = None
         try:
-            engine = self.engines[engine_type].get(engine_name)
+            engine_registry = self.registry.get(
+                name=engine_name, extension_type='engine'
+            )[0]
+            engine_instance = engine_registry['extension'](
+                self.registry, session
+            )
         except Exception:
             raise Exception(
-                'No engine of type "{}" with name "{}" found'.format(
-                    engine_type, engine_name
-                )
+                'No engine with name "{}" found'.format(engine_name)
             )
-        # TODO: review asset_type_name in the specific task
-        engine.asset_type_name = asset_type_name
 
-        engine_result = engine.run_tool_config(tool_config)
+        engine_result = engine_instance.execute_engine(tool_config['engine'])
 
         if not engine_result:
             self.logger.error(
@@ -434,7 +309,8 @@ class Host(object):
         Runs the plugin_config in the given *event* with the engine type
         set in the *event*
         '''
-
+        pass
+        # TODO: double check this
         plugin_config = event['data']['plugin_config']
         plugin_method = event['data']['plugin_method']
         engine_type = event['data']['engine_type']

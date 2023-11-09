@@ -7,6 +7,7 @@ from ftrack_qt.utils.widget import set_property
 from ftrack_qt.widgets.headers import AccordionHeaderWidget
 
 
+# noinspection SpellCheckingInspection
 class AccordionBaseWidget(QtWidgets.QFrame):
     '''A utility accordion widget providing a header which can be expanded to show content'''
 
@@ -124,7 +125,7 @@ class AccordionBaseWidget(QtWidgets.QFrame):
 
         self.layout().addWidget(self._indicator_widget)
 
-        # Create the main_wdget
+        # Create the main_widget
         main_widget = QtWidgets.QWidget()
         main_widget.setLayout(QtWidgets.QVBoxLayout())
         main_widget.layout().setAlignment(QtCore.Qt.AlignTop)

@@ -32,42 +32,6 @@ class FrameworkWidget(BaseUI):
         return self.plugin_config['plugin']
 
     @property
-    def plugin_context_data(self):
-        '''context_data value of the current plugin'''
-        pass
-        # TODO: to remove once new engines and plugin has been refacctored
-        return self.plugin_config.context_data
-
-    @plugin_context_data.setter
-    def plugin_context_data(self, value):
-        '''
-        Updates the context_data of the current plugin with the given *value*
-        '''
-        pass
-        # TODO: to remove once new engines and plugin has been refacctored
-        if type(value) != dict:
-            return
-        self.plugin_config.context_data.update(value)
-
-    @property
-    def plugin_data(self):
-        '''data value of the current plugin'''
-        pass
-        # TODO: to remove once new engines and plugin has been refacctored
-        return self.plugin_config.data
-
-    @plugin_data.setter
-    def plugin_data(self, value):
-        '''
-        Updates the data of the current plugin with the given *value*
-        '''
-        pass
-        # TODO: to remove once new engines and plugin has been refacctored
-        if type(value) != dict:
-            return
-        self.plugin_config.data.update(value)
-
-    @property
     def plugin_options(self):
         '''options value of the current plugin'''
         return self.plugin_config.get('options')
@@ -174,6 +138,8 @@ class FrameworkWidget(BaseUI):
         Register function to discover widget by class *cls*. Returns False if the
         class is not registerable.
         '''
+        import inspect
+
         logger = logging.getLogger(
             '{0}.{1}'.format(__name__, cls.__class__.__name__)
         )
@@ -189,6 +155,11 @@ class FrameworkWidget(BaseUI):
             )
             return False
 
-        data = {'extension_type': 'widget', 'name': cls.name, 'cls': cls}
+        data = {
+            'extension_type': 'widget',
+            'name': cls.name,
+            'extension': cls,
+            'path': inspect.getfile(cls),
+        }
 
         return data

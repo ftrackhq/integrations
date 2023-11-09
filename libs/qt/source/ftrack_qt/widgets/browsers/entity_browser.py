@@ -473,7 +473,7 @@ class EntityBrowserNavigator(InputEventBlockingWidget):
 
     @property
     def entity(self):
-        '''Retreive the entity browsed in navigator'''
+        '''Retrieve the entity browsed in navigator'''
         return (
             self._entity_browser.intermediate_entity
             if self._is_browser

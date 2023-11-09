@@ -8,7 +8,7 @@ from ftrack_framework_core import event
     [constants.LOCAL_EVENT_MODE, constants.REMOTE_EVENT_MODE],
     ids=['local mode', 'remote mode'],
 )
-def test_event_manager_initalise(session, test_event, manager_mode):
+def test_event_manager_initialise(session, test_event, manager_mode):
     def event_data(event):
         return {'test': 'data'}
 

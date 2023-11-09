@@ -54,7 +54,7 @@ ASSET_INFO_OPTIONS = 'asset_info_options'
 #: and the DCC ftrack plugin.
 # TODO: Change this constant name to something like DCC_OBJECT.
 REFERENCE_OBJECT = 'reference_object'
-#: Is Lates version constant identifier key for ftrack assets connected or used with
+#: Is latest version constant identifier key for ftrack assets connected or used with
 #: :class:`~ftrack_framework_core.asset.asset_info.FtrackAssetInfo`
 #: and the DCC ftrack plugin.
 IS_LATEST_VERSION = 'is_latest_version'

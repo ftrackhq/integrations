@@ -154,9 +154,9 @@ class Client(object):
             raise Exception('No host connection available')
         return self.host_connection.tool_configs
 
-    # TODO: double check how we enable disbale multithreading,
+    # TODO: double check how we enable disable multithreading,
     #  I think we can improve it and make it simpler, take a look at the
-    #  active_ui decorator that I created, maybe we can use soemthing similar.
+    #  active_ui decorator that I created, maybe we can use something similar.
     @property
     def multithreading_enabled(self):
         '''Return True if client supports multithreading (write operations)'''
@@ -208,7 +208,7 @@ class Client(object):
             __name__ + '.' + self.__class__.__name__
         )
 
-        # Create the client id to use to comunicate with UI
+        # Create the client id to use to communicate with UI
         self._id = '{}'.format(uuid.uuid4().hex)
 
         # Set the event manager
@@ -489,7 +489,7 @@ class Client(object):
                 raise Exception(error_message)
 
             if dialog_class not in [
-                dialog['cls'] for dialog in self.discovered_dialogs
+                dialog['extension'] for dialog in self.discovered_dialogs
             ]:
                 self.logger.warning(
                     'Provided dialog_class {} not in the discovered framework '
@@ -499,18 +499,18 @@ class Client(object):
                     {
                         'extension_type': 'dialog',
                         'name': dialog_name,
-                        'cls': dialog_class,
+                        'extension': dialog_class,
                     }
                 )
 
         if dialog_name and not dialog_class:
             for registered_dialog_class in self.discovered_dialogs:
                 if dialog_name == registered_dialog_class['name']:
-                    dialog_class = registered_dialog_class['cls']
+                    dialog_class = registered_dialog_class['extension']
                     break
         if not dialog_class:
             error_message = (
-                'Please provide a registrated dialog name.\n'
+                'Please provide a registered dialog name.\n'
                 'Given name: {} \n'
                 'registered widgets: {}'.format(
                     dialog_name, self.discovered_dialogs
