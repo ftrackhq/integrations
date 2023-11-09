@@ -29,4 +29,4 @@ except Exception:
         "Styling resource file not found, please install ftrack-qt-style library"
     )
 
-# TODO: review all the code inside this library, we should standarized docstrings.
+# TODO: review all the code inside this library, we should standardized docstrings.

@@ -90,6 +90,7 @@ class Host(object):
             )
         return self._ftrack_object_manager
 
+    # noinspection SpellCheckingInspection
     @property
     def context_id(self):
         '''Return the default context id set at host launch'''
@@ -101,6 +102,7 @@ class Host(object):
             os.getenv('FTRACK_TASKID', os.getenv('FTRACK_SHOTID')),
         )
 
+    # noinspection SpellCheckingInspection
     @context_id.setter
     def context_id(self, value):
         '''

@@ -13,6 +13,7 @@ import ftrack_constants.framework as constants
 #  asset info or DCC object can be removed.
 
 
+# noinspection SpellCheckingInspection
 class FtrackObjectManager(object):
     '''
     FtrackObjectManager class.
