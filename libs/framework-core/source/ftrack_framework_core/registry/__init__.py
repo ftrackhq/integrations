@@ -89,45 +89,52 @@ class Registry(object):
         for extension in discovered_extensions:
             self.add(**extension)
 
-    def add(self, extension_type, name, cls):
-        # We use extension_type and not type to not interfere with python
+    def add(self, extension_type, name, extension, path):
+        # We use type and not type to not interfere with python
         # build in type
         self.__registry[extension_type].append(
             {
                 # TODO: name will be renamed to id in further tasks
                 "name": name,
-                "cls": cls,
+                "extension": extension,
+                "path": path,
             }
         )
 
-    def _get(self, extensions, name, cls):
+    def _get(self, extensions, name, extension, path):
         '''
-        Check given *extensions* list to match given *name* and *cls* if
+        Check given *extensions* list to match given *name* and *extension* if
         neither provided, return all available extensions
         '''
-        if not any([name, cls]):
+        if not any([name, extension]):
             return extensions
         found_extensions = []
         for extension in extensions:
             if name and extension['name'] != name:
                 continue
-            if cls and extension['cls'] != cls:
+            if extension and extension['extension'] != extension:
+                continue
+            if path and extension['path'] != path:
                 continue
             found_extensions.append(extension)
         return found_extensions
 
-    def get(self, name=None, cls=None, extension_type=None):
+    def get(self, name=None, extension=None, path=None, extension_type=None):
         '''
-        Return given matching *name*, *cls* or *extension_type*.
+        Return given matching *name*, *extension* or *extension_type*.
         If nothing provided, return all available extensions.
         '''
         found_extensions = []
         if extension_type:
             extensions = self.registry.get(extension_type)
-            found_extensions.extend(self._get(extensions, name, cls))
+            found_extensions.extend(
+                self._get(extensions, name, extension, path)
+            )
         else:
             for extension_type in list(self.registry.keys()):
                 extensions = self.registry.get(extension_type)
-                found_extensions.extend(self._get(extensions, name, cls))
+                found_extensions.extend(
+                    self._get(extensions, name, extension, path)
+                )
 
         return found_extensions

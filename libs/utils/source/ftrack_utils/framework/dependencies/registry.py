@@ -41,7 +41,8 @@ def register_framework_yaml_files(file_list):
             data = {
                 "extension_type": yaml_content['type'],
                 "name": yaml_content['name'],
-                "cls": yaml_content,
+                "extension": yaml_content,
+                "path": _file,
             }
             registered_files.append(data)
     return registered_files
@@ -90,7 +91,12 @@ def get_framework_extensions_from_directory(scan_dir):
             try:
                 registry_result = obj.register()
                 # Validate registry
-                if {"name", "extension_type", "cls"} != registry_result.keys():
+                if {
+                    "name",
+                    "extension_type",
+                    "extension",
+                    "path",
+                } != registry_result.keys():
                     raise ValueError(
                         "The register function did not match expected format:"
                         " {0}".format(registry_result.keys())

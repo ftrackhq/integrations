@@ -489,7 +489,7 @@ class Client(object):
                 raise Exception(error_message)
 
             if dialog_class not in [
-                dialog['cls'] for dialog in self.discovered_dialogs
+                dialog['extension'] for dialog in self.discovered_dialogs
             ]:
                 self.logger.warning(
                     'Provided dialog_class {} not in the discovered framework '
@@ -499,14 +499,14 @@ class Client(object):
                     {
                         'extension_type': 'dialog',
                         'name': dialog_name,
-                        'cls': dialog_class,
+                        'extension': dialog_class,
                     }
                 )
 
         if dialog_name and not dialog_class:
             for registered_dialog_class in self.discovered_dialogs:
                 if dialog_name == registered_dialog_class['name']:
-                    dialog_class = registered_dialog_class['cls']
+                    dialog_class = registered_dialog_class['extension']
                     break
         if not dialog_class:
             error_message = (

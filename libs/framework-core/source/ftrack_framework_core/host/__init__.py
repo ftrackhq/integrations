@@ -160,7 +160,7 @@ class Host(object):
         '''
         compatible_tool_configs = {}
         for tool_config in self.registry.tool_configs:
-            content = tool_config['cls']
+            content = tool_config['extension']
             if str(content.get('host_type')) in self.host_types:
                 if (
                     content['config_type']
@@ -284,7 +284,7 @@ class Host(object):
             engine_registry = self.registry.get(
                 name=engine_name, extension_type='engine'
             )[0]
-            engine_instance = engine_registry['cls'](self.registry)
+            engine_instance = engine_registry['extension'](self.registry)
         except Exception:
             raise Exception(
                 'No engine with name "{}" found'.format(engine_name)

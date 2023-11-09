@@ -201,10 +201,17 @@ class BasePlugin(ABC):
         '''
         Register function for the plugin to be discovered.
         '''
+        import inspect
+
         logger = logging.getLogger(
             '{0}.{1}'.format(__name__, cls.__class__.__name__)
         )
         logger.debug('registering: {}'.format(cls.name))
 
-        data = {'extension_type': 'plugin', 'name': cls.name, 'cls': cls}
+        data = {
+            'extension_type': 'plugin',
+            'name': cls.name,
+            'extension': cls,
+            'path': inspect.getfile(cls),
+        }
         return data
