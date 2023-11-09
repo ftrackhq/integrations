@@ -35,7 +35,7 @@ class FrameworkWidget(BaseUI):
     def plugin_context_data(self):
         '''context_data value of the current plugin'''
         pass
-        # TODO: to remove once new engines and plugin has been refacctored
+        # TODO: to remove once new engines and plugin has been refactored
         return self.plugin_config.context_data
 
     @plugin_context_data.setter

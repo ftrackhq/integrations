@@ -9,7 +9,7 @@ from ftrack_utils.framework.tool_config.read import get_tool_config_by_name
 
 class FrameworkDialog(BaseUI):
     '''
-    Base Class to represent a FrameworkDilog, all the dialogs executed by the
+    Base Class to represent a FrameworkDialog, all the dialogs executed by the
     UI should inherit from here.
     '''
 
@@ -301,7 +301,7 @@ class FrameworkDialog(BaseUI):
             dialog_property_getter_connection_callback=self._connect_dialog_property_getter_connection_callback,
         )
         # TODO: widgets can't really run any plugin (like fetch) before it gets
-        #  registred, so In case someone utomatically fetches during the init
+        #  registered, so In case someone automatically fetches during the init
         #  of the widget it will fail because its not registered yet. Task is to
         #  find a way to better handle the registry.
         self._register_widget(widget)
@@ -377,7 +377,7 @@ class FrameworkDialog(BaseUI):
         widget = self.framework_widgets.get(plugin_widget_id)
         if not widget:
             self.logger.error(
-                "Widget is not registred : {}\n"
+                "Widget is not registered : {}\n"
                 "Registry: {}".format(widget, self.framework_widgets.keys())
             )
             return
@@ -393,7 +393,7 @@ class FrameworkDialog(BaseUI):
 
     def _on_client_notify_ui_log_item_added_callback(self, event):
         '''
-        Client notifiies dialog that a new log item has been added.
+        Client notify dialog that a new log item has been added.
         '''
         log_item = event['data']['log_item']
         # TODO: do something with the log_item
@@ -402,7 +402,7 @@ class FrameworkDialog(BaseUI):
     def register(cls):
         '''
         Register function to discover widget by class *cls*. Returns False if the
-        class is not registerable.
+        class is not registrable.
         '''
 
         logger = logging.getLogger(

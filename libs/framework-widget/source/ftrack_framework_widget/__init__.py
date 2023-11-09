@@ -131,7 +131,7 @@ class BaseUI(object):
     def register(cls):
         '''
         Register function to discover widget by class *cls*. Returns False if the
-        class is not registerable.
+        class is not registrable.
         '''
 
         logger = logging.getLogger(

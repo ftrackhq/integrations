@@ -6,7 +6,7 @@ import clique
 
 
 def find_image_sequence(file_path):
-    '''Try to find a continous image sequence in the *file_path*, supplied either as
+    '''Try to find a continuous image sequence in the *file_path*, supplied either as
     an explicit single file within the sequence or a folder. Will return the clique
     parsable expression.
     '''

@@ -41,8 +41,8 @@ class StandardEngine(BaseEngine):
         # except Exception as error:
         # TODO: implement the exception error. Log and rise?
         # pass
-        # if self.on_plugin_execution_succes:
-        # self.on_plugin_execution_succes(
+        # if self.on_plugin_execution_success:
+        # self.on_plugin_execution_success(
         # execution_time
         # )
         # return result

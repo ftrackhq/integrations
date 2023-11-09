@@ -26,7 +26,7 @@ class Structure(ftrack_api.structure.base.Structure):
     ):
         super(Structure, self).__init__()
         self.logger = logging.getLogger(
-            'com.ftrack.integartions.tutorials.custom-location-plugin.location.Structure'
+            'com.ftrack.integrations.tutorials.custom-location-plugin.location.Structure'
         )
         self.project_versions_prefix = project_versions_prefix
         self.illegal_character_substitute = illegal_character_substitute

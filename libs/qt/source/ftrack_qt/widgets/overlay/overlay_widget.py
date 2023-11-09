@@ -41,7 +41,7 @@ class OverlayWidget(QtWidgets.QFrame):
         self._event_filter_installed = False
 
         # TODO: fix close button once style in place
-        self.close_btn = QtWidgets.QPushButton('cloase', parent=self)
+        self.close_btn = QtWidgets.QPushButton('Close', parent=self)
         # self.close_btn.setIcon(MaterialIcon('close', color='#D3d4D6'))
         # self.close_btn.setObjectName('borderless')
         # self.close_btn.setFixedSize(24, 24)
@@ -95,7 +95,7 @@ class OverlayWidget(QtWidgets.QFrame):
     def setVisible(self, visible):
         '''(Override) Set whether *visible* or not.'''
         # TODO: double check how we identify the class name, find a better
-        #  solution and more standard, as now is only fining base name wich is
+        #  solution and more standard, as now is only fining base name which is
         #  the framework base class name. But I think why should find the top
         #  level widget by type and not by name, and that type should be given
         #  in the overlay initialization maybe.

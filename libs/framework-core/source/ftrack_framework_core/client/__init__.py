@@ -154,9 +154,9 @@ class Client(object):
             raise Exception('No host connection available')
         return self.host_connection.tool_configs
 
-    # TODO: double check how we enable disbale multithreading,
+    # TODO: double check how we enable disable multithreading,
     #  I think we can improve it and make it simpler, take a look at the
-    #  active_ui decorator that I created, maybe we can use soemthing similar.
+    #  active_ui decorator that I created, maybe we can use something similar.
     @property
     def multithreading_enabled(self):
         '''Return True if client supports multithreading (write operations)'''
@@ -208,7 +208,7 @@ class Client(object):
             __name__ + '.' + self.__class__.__name__
         )
 
-        # Create the client id to use to comunicate with UI
+        # Create the client id to use to communicate with UI
         self._id = '{}'.format(uuid.uuid4().hex)
 
         # Set the event manager
@@ -510,7 +510,7 @@ class Client(object):
                     break
         if not dialog_class:
             error_message = (
-                'Please provide a registrated dialog name.\n'
+                'Please provide a registered dialog name.\n'
                 'Given name: {} \n'
                 'registered widgets: {}'.format(
                     dialog_name, self.discovered_dialogs

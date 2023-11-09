@@ -16,7 +16,7 @@ import ftrack_constants.framework as constants
 class FtrackObjectManager(object):
     '''
     FtrackObjectManager class.
-    Mantain the syncronization between asset_info and the ftrack information of
+    Maintain the synchronization between asset_info and the ftrack information of
     the objects in the scene.
     '''
 
