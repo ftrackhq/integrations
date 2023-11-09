@@ -1,7 +1,7 @@
 import ftrack_api
 
 
-def with_session(func):
+def with_new_session(func):
     def wrapper(*args, **kwargs):
         '''
         Creates an ftrack session and passes the session as an argument of the

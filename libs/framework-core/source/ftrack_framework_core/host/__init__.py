@@ -15,6 +15,8 @@ from ftrack_framework_core.asset import FtrackObjectManager
 from ftrack_framework_core.log.log_item import LogItem
 from ftrack_framework_core.log import LogDB
 
+from ftrack_utils.deocrators import with_new_session
+
 logger = logging.getLogger(__name__)
 
 # TODO: this is the discover_host_reply function:
@@ -266,8 +268,8 @@ class Host(object):
             self.context_id = context_id
 
     # Run
-    # TODO: this should be ABC
-    def run_tool_config_callback(self, event):
+    @with_new_session
+    def run_tool_config_callback(self, event, session=None):
         '''
         Runs the data with the defined engine type of the given *event*
 
@@ -284,7 +286,9 @@ class Host(object):
             engine_registry = self.registry.get(
                 name=engine_name, extension_type='engine'
             )[0]
-            engine_instance = engine_registry['extension'](self.registry)
+            engine_instance = engine_registry['extension'](
+                self.registry, session
+            )
         except Exception:
             raise Exception(
                 'No engine with name "{}" found'.format(engine_name)

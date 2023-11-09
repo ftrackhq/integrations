@@ -4,7 +4,6 @@
 import copy
 
 from ftrack_framework_engine import BaseEngine
-from ftrack_utils.deocrators import with_session
 
 
 class StandardEngine(BaseEngine):
@@ -14,14 +13,13 @@ class StandardEngine(BaseEngine):
 
     name = 'standard_engine'
 
-    def __init__(self, plugin_registry):
+    def __init__(self, plugin_registry, session):
         '''
         Initialise StandardEngine with given *plugin_registry*.
         '''
-        super(StandardEngine, self).__init__(plugin_registry)
+        super(StandardEngine, self).__init__(plugin_registry, session)
 
-    @with_session
-    def run_plugin(self, plugin, store, options, session=None):
+    def run_plugin(self, plugin, store, options):
         '''
         If given *plugin* is in the plugin registry, initialize it with the
         given *options* and execute run method passing given *store* as argument.
@@ -30,7 +28,7 @@ class StandardEngine(BaseEngine):
         *options*: options to be passed to the plugin
         '''
         registered_plugin = self.plugin_registry.get(name=plugin)[0]
-        plugin_instance = registered_plugin['cls'](options, session)
+        plugin_instance = registered_plugin['extension'](options, self.session)
         print(
             f"Run {plugin_instance.id} with options {plugin_instance.options}"
         )

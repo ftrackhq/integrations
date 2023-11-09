@@ -110,17 +110,17 @@ class Registry(object):
         Check given *extensions* list to match given *name*, *extension* and *path* if
         neither provided, return all available extensions
         '''
-        if not any([name, extension]):
+        if not any([name, extension, path]):
             return extensions
         found_extensions = []
-        for extension in extensions:
-            if name and extension['name'] != name:
+        for _extension in extensions:
+            if name and _extension['name'] != name:
                 continue
-            if extension and extension['extension'] != extension:
+            if extension and _extension['extension'] != extension:
                 continue
-            if path and extension['path'] != path:
+            if path and _extension['path'] != path:
                 continue
-            found_extensions.append(extension)
+            found_extensions.append(_extension)
         return found_extensions
 
     def get(self, name=None, extension=None, path=None, extension_type=None):
