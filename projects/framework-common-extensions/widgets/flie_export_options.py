@@ -50,31 +50,30 @@ class FileExportOptionsWidget(BaseWidget):
     def build_ui(self):
         '''build function widgets.'''
         # Create options:
-        for options in self.plugin_options:
-            for option, value in options.items():
-                h_layout = QtWidgets.QHBoxLayout()
-                option_widget = QtWidgets.QLabel(option)
-                value_widget = None
-                if type(value) == str:
-                    value_widget = QtWidgets.QLineEdit(value)
-                    value_widget.textChanged.connect(
-                        partial(self._on_option_changed, option)
-                    )
-                elif type(value) == bool:
-                    # TODO: implement
-                    pass
-                elif type(value) == list:
-                    # TODO: implement
-                    pass
-                elif type(value) == dict:
-                    # TODO: implement
-                    pass
-                else:
-                    value_widget = QtWidgets.QLineEdit(value)
+        for option, value in self.plugin_options.items():
+            h_layout = QtWidgets.QHBoxLayout()
+            option_widget = QtWidgets.QLabel(option)
+            value_widget = None
+            if type(value) == str:
+                value_widget = QtWidgets.QLineEdit(value)
+                value_widget.textChanged.connect(
+                    partial(self._on_option_changed, option)
+                )
+            elif type(value) == bool:
+                # TODO: implement
+                pass
+            elif type(value) == list:
+                # TODO: implement
+                pass
+            elif type(value) == dict:
+                # TODO: implement
+                pass
+            else:
+                value_widget = QtWidgets.QLineEdit(value)
 
-                h_layout.addWidget(option_widget)
-                h_layout.addWidget(value_widget)
-                self.layout().addLayout(h_layout)
+            h_layout.addWidget(option_widget)
+            h_layout.addWidget(value_widget)
+            self.layout().addLayout(h_layout)
 
     def post_build_ui(self):
         '''hook events'''

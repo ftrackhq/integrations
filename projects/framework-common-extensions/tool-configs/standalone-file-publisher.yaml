@@ -25,8 +25,8 @@ engine:
         plugin: file_collector
         ui: file_browser_collector
         options:
-          - folder_path: null
-          - file_name: null
+          folder_path: null
+          file_name: null
       - type: plugin
         tags:
           - validator
@@ -38,7 +38,7 @@ engine:
         plugin: rename_file_exporter
         ui: file_exporter_options
         options:
-          - export_destinations: "/Users/ftrack/Desktop/myPublishedFile.png"
+          export_destinations: "/Users/ftrack/Desktop/myPublishedFile.png"
 
 
   # Publish to ftrack.
