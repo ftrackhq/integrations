@@ -61,8 +61,10 @@ def get_files_from_folder(_dir, filetype_pattern):
 
 def get_framework_extensions_from_directory(scan_dir):
     '''Return available extensions on the given directory'''
+    # noinspection SpellCheckingInspection
     subfolders = fast_scandir(scan_dir)
     if not subfolders:
+        # noinspection SpellCheckingInspection
         subfolders = [scan_dir]
 
     available_extensions = []

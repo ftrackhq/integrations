@@ -32,42 +32,6 @@ class FrameworkWidget(BaseUI):
         return self.plugin_config['plugin']
 
     @property
-    def plugin_context_data(self):
-        '''context_data value of the current plugin'''
-        pass
-        # TODO: to remove once new engines and plugin has been refactored
-        return self.plugin_config.context_data
-
-    @plugin_context_data.setter
-    def plugin_context_data(self, value):
-        '''
-        Updates the context_data of the current plugin with the given *value*
-        '''
-        pass
-        # TODO: to remove once new engines and plugin has been refacctored
-        if type(value) != dict:
-            return
-        self.plugin_config.context_data.update(value)
-
-    @property
-    def plugin_data(self):
-        '''data value of the current plugin'''
-        pass
-        # TODO: to remove once new engines and plugin has been refacctored
-        return self.plugin_config.data
-
-    @plugin_data.setter
-    def plugin_data(self, value):
-        '''
-        Updates the data of the current plugin with the given *value*
-        '''
-        pass
-        # TODO: to remove once new engines and plugin has been refacctored
-        if type(value) != dict:
-            return
-        self.plugin_config.data.update(value)
-
-    @property
     def plugin_options(self):
         '''options value of the current plugin'''
         return self.plugin_config.get('options')

@@ -7,6 +7,7 @@ from ftrack_qt.utils.widget import set_property
 from ftrack_qt.widgets.headers import AccordionHeaderWidget
 
 
+# noinspection SpellCheckingInspection
 class AccordionBaseWidget(QtWidgets.QFrame):
     '''A utility accordion widget providing a header which can be expanded to show content'''
 

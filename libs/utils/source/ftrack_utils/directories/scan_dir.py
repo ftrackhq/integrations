@@ -7,6 +7,7 @@ import os
 # https://stackoverflow.com/questions/973473/getting-a-list-of-all-subdirectories-in-the-current-directory
 
 
+# noinspection SpellCheckingInspection
 def fast_scandir(dirname):
     subfolders = [
         _folder.path

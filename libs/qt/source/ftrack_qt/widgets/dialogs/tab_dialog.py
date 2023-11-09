@@ -30,7 +30,7 @@ class TabDialog(StyledDialog):
     @property
     def is_browsing_context(self):
         '''
-        Return if context selector is currently working on seting up a context
+        Return if context selector is currently working on setting up a context
         '''
         return self._context_selector.is_browsing
 

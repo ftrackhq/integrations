@@ -226,7 +226,7 @@ class Host(object):
             self.id, self._client_context_change_callback
         )
 
-        # Reply to discover_host_callback to clints to pass the host information
+        # Reply to discover_host_callback to client to pass the host information
         discover_host_callback_reply = partial(
             provide_host_information,
             self.id,

@@ -40,6 +40,7 @@ class ThumbnailBase(QtWidgets.QLabel):
         self.pre_build()
         self.post_build()
 
+    # noinspection SpellCheckingInspection
     def pre_build(self):
         self.thumbnailCache = {}
         self.setFrameStyle(QtWidgets.QFrame.StyledPanel)
