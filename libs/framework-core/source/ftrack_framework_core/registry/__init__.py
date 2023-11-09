@@ -90,7 +90,11 @@ class Registry(object):
             self.add(**extension)
 
     def add(self, extension_type, name, extension, path):
-        # We use type and not type to not interfere with python
+        '''
+        Add the given *extension_type* with *name*, *extension* and *path to
+        the registry
+        '''
+        # We use extension_type and not type to not interfere with python
         # build in type
         self.__registry[extension_type].append(
             {
