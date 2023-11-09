@@ -11,10 +11,6 @@ from functools import partial
 
 import ftrack_constants.framework as constants
 
-from ftrack_framework_core.tool_config import (
-    discover,
-    validate,
-)
 from ftrack_framework_core.asset import FtrackObjectManager
 from ftrack_framework_core.log.log_item import LogItem
 from ftrack_framework_core.log import LogDB
@@ -160,9 +156,20 @@ class Host(object):
     @property
     def tool_configs(self):
         '''
-        Returns the registered tool_configs`
+        Returns filtered tool_configs`
         '''
-        return self.__tool_configs_discovered
+        compatible_tool_configs = {}
+        for tool_config in self.registry.tool_configs:
+            content = tool_config['cls']
+            if str(content.get('host_type')) in self.host_types:
+                if (
+                    content['config_type']
+                    not in compatible_tool_configs.keys()
+                ):
+                    compatible_tool_configs[content['config_type']] = []
+                compatible_tool_configs[content['config_type']].append(content)
+
+        return compatible_tool_configs
 
     @property
     def registry(self):
@@ -192,74 +199,13 @@ class Host(object):
         self._event_manager = event_manager
         self._registry = registry
         self._ftrack_object_manager = None
-        # Reset all registries
-        self.__tool_configs_discovered = {}
 
         self._discover_host_subscribe_id = None
 
-        # Register modules
-        # TODO: should be the register who discover, load and validates the tool configs?
-        # Discover tool-config modules
-        self.discover_tool_configs(registry.tool_configs)
-        if not self.__tool_configs_discovered:
-            raise Exception(
-                'Error discovering tool-configs on host, please check logs'
-            )
-        # self._register_modules(self.registry)
         # Subscribe to events
         self._subscribe_events()
 
         self.logger.debug('Host {} ready.'.format(self.id))
-
-    def discover_tool_configs(self, registered_tool_configs):
-        '''
-        Valid tool_configs will be added to
-        :obj:`self.__tool_config_registry`
-        '''
-        # TODO: this should be changed once yml implemented.
-        tool_configs = self._discover_tool_configs(
-            [tool_config['cls'] for tool_config in registered_tool_configs],
-            self.host_types,
-        )
-
-        self.__tool_configs_discovered = tool_configs
-
-    # Discover
-
-    def _discover_tool_configs(self, tool_config_paths, host_types):
-        '''
-        Discover all the available and valid tool_configs in the given
-        *tool_config_paths* compatible with the given *host_types*
-        '''
-        start = time.time()
-
-        # discover tool_configs
-        discovered_tool_configs = discover.discover_tool_configs(
-            tool_config_paths
-        )
-
-        # filter tool_configs
-        discovered_tool_configs = discover.filter_tool_configs_by_host(
-            discovered_tool_configs, host_types
-        )
-
-        # validate_plugins
-        registered_plugin_names = [
-            plugin['name'] for plugin in self.registry.plugins
-        ]
-        validated_tool_configs = validate.validate_tool_config_plugins(
-            discovered_tool_configs, registered_plugin_names
-        )
-
-        end = time.time()
-        logger.debug('Discover tool_configs run in: {}s'.format((end - start)))
-
-        for key, value in list(validated_tool_configs.items()):
-            logger.warning(
-                'Valid tool_configs : {} : {}'.format(key, len(value))
-            )
-
-        return validated_tool_configs
 
     # Subscribe
     def _subscribe_events(self):

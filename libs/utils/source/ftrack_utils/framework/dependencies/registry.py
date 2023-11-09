@@ -41,7 +41,7 @@ def register_framework_yaml_files(file_list):
             data = {
                 "extension_type": yaml_content['type'],
                 "name": yaml_content['name'],
-                "cls": _file,
+                "cls": yaml_content,
             }
             registered_files.append(data)
     return registered_files
