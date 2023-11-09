@@ -5,7 +5,6 @@ import uuid
 import logging
 import socket
 import os
-import time
 
 from functools import partial
 
@@ -15,7 +14,7 @@ from ftrack_framework_core.asset import FtrackObjectManager
 from ftrack_framework_core.log.log_item import LogItem
 from ftrack_framework_core.log import LogDB
 
-from ftrack_utils.deocrators import with_new_session
+from ftrack_utils.decorators import with_new_session
 
 logger = logging.getLogger(__name__)
 
