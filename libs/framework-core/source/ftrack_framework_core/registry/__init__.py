@@ -121,7 +121,7 @@ class Registry(object):
 
     def get(self, name=None, extension=None, path=None, extension_type=None):
         '''
-        Return given matching *name*, *extension* or *extension_type*.
+        Return given matching *name*, *extension*, *path* or *extension_type*.
         If nothing provided, return all available extensions.
         '''
         found_extensions = []
