@@ -131,8 +131,9 @@ class BaseUI(object):
     def register(cls):
         '''
         Register function to discover widget by class *cls*. Returns False if the
-        class is not registerable.
+        class is not registrable.
         '''
+        import inspect
 
         logger = logging.getLogger(
             '{0}.{1}'.format(__name__, cls.__class__.__name__)
@@ -152,7 +153,8 @@ class BaseUI(object):
         data = {
             'extension_type': 'base_framework_widget',
             'name': cls.name,
-            'class': cls,
+            'extension': cls,
+            'path': inspect.getfile(cls),
         }
 
         return data

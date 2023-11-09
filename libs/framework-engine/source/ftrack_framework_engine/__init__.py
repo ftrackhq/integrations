@@ -72,6 +72,8 @@ class BaseEngine(ABC):
         '''
         Register function for the engine to be discovered.
         '''
+        import inspect
+
         logger = logging.getLogger(
             '{0}.{1}'.format(__name__, cls.__class__.__name__)
         )
@@ -80,6 +82,11 @@ class BaseEngine(ABC):
             'registering: {} for {}'.format(cls.name, cls.engine_types)
         )
 
-        data = {'extension_type': 'engine', 'name': cls.name, 'cls': cls}
+        data = {
+            'extension_type': 'engine',
+            'name': cls.name,
+            'extension': cls,
+            'path': inspect.getfile(cls),
+        }
 
         return data

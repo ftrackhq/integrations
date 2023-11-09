@@ -18,7 +18,7 @@ class TabDialog(StyledDialog):
 
     @property
     def selected_context_id(self):
-        '''Return the selected context id in the context sleector'''
+        '''Return the selected context id in the context selector'''
         return self._context_selector.context_id
 
     @selected_context_id.setter

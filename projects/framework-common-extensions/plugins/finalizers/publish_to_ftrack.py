@@ -108,7 +108,7 @@ class PublishToFtrack(BasePlugin):
                 asset_entity_object, context_object, comment, status_object
             )
 
-            # Set dependnecies
+            # Set dependencies
             if version_dependencies:
                 for dependency in version_dependencies:
                     asset_version_object['uses_versions'].append(dependency)

@@ -12,7 +12,7 @@ LOCATION_DIRECTORY = os.path.abspath(
 sys.path.append(LOCATION_DIRECTORY)
 
 logger = logging.getLogger(
-    'com.ftrack.intgrations.tutoriale.custom-location-plugin.hook.plugin_hook'
+    'com.ftrack.integrations.tutorial.custom-location-plugin.hook.plugin_hook'
 )
 
 

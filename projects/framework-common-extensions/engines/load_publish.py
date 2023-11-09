@@ -18,7 +18,7 @@ class LoadPublishEngine(BaseEngine):
         constants.tools.types.OPENER,
         constants.tools.types.PUBLISHER,
     ]
-    '''Suported engine types for this engine class'''
+    '''Supported engine types for this engine class'''
 
     @property
     def context_data(self):
@@ -65,7 +65,7 @@ class LoadPublishEngine(BaseEngine):
     ):
         '''
         Function to update the self._registry variable with the result of
-        all the runned plugins.
+        all the ran plugins.
         '''
 
         if not self._registry.get(step_type):
@@ -75,7 +75,7 @@ class LoadPublishEngine(BaseEngine):
         if not self._registry[step_type][step_name].get(stage_name):
             self._registry[step_type][step_name][stage_name] = {}
         # TODO: if the plugin is defined twice in the same stage, the result
-        #  will be overrided. To avoid this, we could make the plugin name unic
+        #  will be overriden. To avoid this, we could make the plugin name unic
         #  or add the description if the plugin to the dictionary (But I would
         #  try to avoid that to not make it more complex. So I'll go for the
         #  first option)
