@@ -174,6 +174,8 @@ class FrameworkWidget(BaseUI):
         Register function to discover widget by class *cls*. Returns False if the
         class is not registerable.
         '''
+        import inspect
+
         logger = logging.getLogger(
             '{0}.{1}'.format(__name__, cls.__class__.__name__)
         )
@@ -189,6 +191,11 @@ class FrameworkWidget(BaseUI):
             )
             return False
 
-        data = {'extension_type': 'widget', 'name': cls.name, 'cls': cls}
+        data = {
+            'extension_type': 'widget',
+            'name': cls.name,
+            'extension': cls,
+            'path': inspect.getfile(cls),
+        }
 
         return data

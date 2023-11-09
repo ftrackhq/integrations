@@ -278,7 +278,7 @@ class FrameworkDialog(BaseUI):
         widget_class = None
         for widget in self.discovered_framework_widgets:
             if widget['name'] == plugin_config['ui']:
-                widget_class = widget['cls']
+                widget_class = widget['extension']
                 break
         if not widget_class:
             error_message = (
@@ -404,6 +404,7 @@ class FrameworkDialog(BaseUI):
         Register function to discover widget by class *cls*. Returns False if the
         class is not registrable.
         '''
+        import inspect
 
         logger = logging.getLogger(
             '{0}.{1}'.format(__name__, cls.__class__.__name__)
@@ -420,6 +421,11 @@ class FrameworkDialog(BaseUI):
             )
             return False
 
-        data = {'extension_type': 'dialog', 'name': cls.name, 'cls': cls}
+        data = {
+            'extension_type': 'dialog',
+            'name': cls.name,
+            'extension': cls,
+            'path': inspect.getfile(cls),
+        }
 
         return data
