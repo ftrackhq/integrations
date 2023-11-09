@@ -40,6 +40,7 @@ class ThumbnailBase(QtWidgets.QLabel):
         self.pre_build()
         self.post_build()
 
+    # noinspection SpellCheckingInspection
     def pre_build(self):
         self.thumbnailCache = {}
         self.setFrameStyle(QtWidgets.QFrame.StyledPanel)
@@ -137,7 +138,7 @@ class ThumbnailBase(QtWidgets.QLabel):
         self.setPixmap(scaled_pixmap)
 
     def _safeDownload(self, url, opener_callback, timeout=5):
-        '''Check *url* through the given *openener_callback*.
+        '''Check *url* through the given *opener_callback*.
 
         .. note::
 

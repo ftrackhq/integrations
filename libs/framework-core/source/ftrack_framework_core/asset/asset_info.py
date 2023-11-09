@@ -46,7 +46,7 @@ class FtrackAssetInfo(dict):
 
     def encode_options(self, asset_info_options):
         '''
-        Encodes the json value from the given *asset_info_opitons*
+        Encodes the json value from the given *asset_info_options*
         to base64.
 
         *asset_info_opitons* : Options used to load the asset in the scene.
@@ -59,7 +59,7 @@ class FtrackAssetInfo(dict):
 
     def decode_options(self, asset_info_options):
         '''
-        Decodes the json value from the given *asset_info_opitons*
+        Decodes the json value from the given *asset_info_options*
         from base64.
 
         *asset_info_opitons* : Options used to load the asset in the scene.

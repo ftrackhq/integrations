@@ -12,6 +12,7 @@ logger = logging.getLogger(__name__)
 
 
 # This is the old materialIconWidget
+# noinspection SpellCheckingInspection
 class StatusMaterialIconWidget(QtWidgets.QWidget):
     '''Material icon widget, support status > icon encoding'''
 

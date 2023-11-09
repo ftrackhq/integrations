@@ -13,10 +13,11 @@ import ftrack_constants.framework as constants
 #  asset info or DCC object can be removed.
 
 
+# noinspection SpellCheckingInspection
 class FtrackObjectManager(object):
     '''
     FtrackObjectManager class.
-    Mantain the syncronization between asset_info and the ftrack information of
+    Maintain the synchronization between asset_info and the ftrack information of
     the objects in the scene.
     '''
 

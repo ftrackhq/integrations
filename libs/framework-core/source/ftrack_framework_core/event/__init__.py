@@ -300,42 +300,6 @@ class Publish(object):
         event_topic = constants.event.HOST_RUN_PLUGIN_TOPIC
         return self._publish_event(event_topic, data, callback)
 
-    def execute_plugin(
-        self,
-        plugin_name,
-        plugin_default_method,
-        plugin_method,
-        host_type,
-        plugin_data,
-        plugin_options,
-        plugin_context_data,
-        plugin_widget_id=None,
-        plugin_widget_name=None,
-        plugin_step_name=None,
-        plugin_stage_name=None,
-        callback=None,
-    ):
-        '''
-        Publish an event with topic
-        :const:`~ftrack_framework_core.constants.event.EXECUTE_PLUGIN_TOPIC`
-        '''
-        data = {
-            'plugin_name': plugin_name,
-            'plugin_default_method': plugin_default_method,
-            'plugin_method': plugin_method,
-            'host_type': host_type,
-            'plugin_data': plugin_data,
-            'plugin_options': plugin_options,
-            'plugin_context_data': plugin_context_data,
-            'plugin_widget_id': plugin_widget_id,
-            'plugin_widget_name': plugin_widget_name,
-            'plugin_step_name': plugin_step_name,
-            'plugin_stage_name': plugin_stage_name,
-        }
-
-        event_topic = constants.event.EXECUTE_PLUGIN_TOPIC
-        return self._publish_event(event_topic, data, callback)
-
     def host_context_changed(self, host_id, context_id, callback=None):
         '''
         Publish an event with topic
@@ -615,19 +579,6 @@ class Subscribe(object):
         '''
         event_topic = '{} and data.host_id={}'.format(
             constants.event.HOST_RUN_PLUGIN_TOPIC, host_id
-        )
-        return self._subscribe_event(event_topic, callback)
-
-    def execute_plugin(self, host_type, plugin_name, callback=None):
-        '''
-        Subscribe to an event with topic
-        :const:`~ftrack_framework_core.constants.event.EXECUTE_PLUGIN_TOPIC`
-        '''
-        event_topic = (
-            '{} and data.host_type={}'
-            ' and data.plugin_name={}'.format(
-                constants.event.EXECUTE_PLUGIN_TOPIC, host_type, plugin_name
-            )
         )
         return self._subscribe_event(event_topic, callback)
 

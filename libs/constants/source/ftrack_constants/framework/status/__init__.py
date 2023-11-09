@@ -3,7 +3,7 @@
 
 #: Unknown status of plugin execution.
 UNKNOWN_STATUS = 'UNKNOWN_STATUS'
-#: Succed status of plugin execution.
+#: Succeed status of plugin execution.
 SUCCESS_STATUS = 'SUCCESS_STATUS'
 #: Warning status of plugin execution.
 WARNING_STATUS = 'WARNING_STATUS'

@@ -1,13 +1,15 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2023 ftrack
 
-from ftrack_framework_widget import BaseUI, active_widget
 import logging
+
+from ftrack_framework_widget import BaseUI, active_widget
+from ftrack_utils.framework.tool_config.read import get_tool_config_by_name
 
 
 class FrameworkDialog(BaseUI):
     '''
-    Base Class to represent a FrameworkDilog, all the dialogs executed by the
+    Base Class to represent a FrameworkDialog, all the dialogs executed by the
     UI should inherit from here.
     '''
 
@@ -51,8 +53,8 @@ class FrameworkDialog(BaseUI):
         self.tool_configs
         '''
 
-        if value and not self.tool_configs[value.tool_type].get_first(
-            tool_title=value.tool_title
+        if value and not get_tool_config_by_name(
+            self.tool_configs[value['config_type']], value['name']
         ):
             self.logger.error(
                 "Invalid tool_config, choose one from : {}".format(
@@ -100,19 +102,6 @@ class FrameworkDialog(BaseUI):
         Available host_connections in client
         '''
         return self.client_property_getter_connection('host_connections')
-
-    # TODO: evaluate if used and if needed
-    @property
-    def plugins(self):
-        '''
-        Available plugins in the current tool_config
-        '''
-        if not self.tool_config:
-            self.logger.warning(
-                "Please set a tool_config before quering plugins"
-            )
-            return None
-        return self.tool_config.get_all(category='plugin')
 
     @property
     def framework_widgets(self):
@@ -288,16 +277,16 @@ class FrameworkDialog(BaseUI):
         '''
         widget_class = None
         for widget in self.discovered_framework_widgets:
-            if widget['name'] == plugin_config.widget_name:
-                widget_class = widget['cls']
+            if widget['name'] == plugin_config['ui']:
+                widget_class = widget['extension']
                 break
         if not widget_class:
             error_message = (
                 'The provided widget {} for plugin {} is not registered '
                 'Please provide a registered widget.\n '
                 'Registered widgets: {}'.format(
-                    plugin_config.widget_name,
-                    plugin_config.plugin_name,
+                    plugin_config['ui'],
+                    plugin_config['plugin'],
                     self.discovered_framework_widgets,
                 )
             )
@@ -312,7 +301,7 @@ class FrameworkDialog(BaseUI):
             dialog_property_getter_connection_callback=self._connect_dialog_property_getter_connection_callback,
         )
         # TODO: widgets can't really run any plugin (like fetch) before it gets
-        #  registred, so In case someone utomatically fetches during the init
+        #  registered, so In case someone automatically fetches during the init
         #  of the widget it will fail because its not registered yet. Task is to
         #  find a way to better handle the registry.
         self._register_widget(widget)
@@ -369,8 +358,8 @@ class FrameworkDialog(BaseUI):
         arguments = {
             "plugin_config": plugin_config,
             "plugin_method_name": plugin_method_name,
-            "engine_type": self.tool_config.engine_type,
-            "engine_name": self.tool_config.engine_name,
+            "engine_type": self.tool_config.get('engine_type'),
+            "engine_name": self.tool_config.get('engine_name'),
             'plugin_widget_id': plugin_widget_id,
         }
         self.client_method_connection('run_plugin', arguments=arguments)
@@ -388,7 +377,7 @@ class FrameworkDialog(BaseUI):
         widget = self.framework_widgets.get(plugin_widget_id)
         if not widget:
             self.logger.error(
-                "Widget is not registred : {}\n"
+                "Widget is not registered : {}\n"
                 "Registry: {}".format(widget, self.framework_widgets.keys())
             )
             return
@@ -404,7 +393,7 @@ class FrameworkDialog(BaseUI):
 
     def _on_client_notify_ui_log_item_added_callback(self, event):
         '''
-        Client notifiies dialog that a new log item has been added.
+        Client notify dialog that a new log item has been added.
         '''
         log_item = event['data']['log_item']
         # TODO: do something with the log_item
@@ -413,8 +402,9 @@ class FrameworkDialog(BaseUI):
     def register(cls):
         '''
         Register function to discover widget by class *cls*. Returns False if the
-        class is not registerable.
+        class is not registrable.
         '''
+        import inspect
 
         logger = logging.getLogger(
             '{0}.{1}'.format(__name__, cls.__class__.__name__)
@@ -431,6 +421,11 @@ class FrameworkDialog(BaseUI):
             )
             return False
 
-        data = {'extension_type': 'dialog', 'name': cls.name, 'cls': cls}
+        data = {
+            'extension_type': 'dialog',
+            'name': cls.name,
+            'extension': cls,
+            'path': inspect.getfile(cls),
+        }
 
         return data

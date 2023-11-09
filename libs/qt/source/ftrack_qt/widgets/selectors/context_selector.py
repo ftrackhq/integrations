@@ -100,7 +100,7 @@ class ContextSelector(QtWidgets.QFrame):
         Initialise ContextSelector widget
 
         :param session: :class:`ftrack_api.session.Session`
-        :param enable_context_change:  If setto True, this contest selection is allowed to spawn the entity browser
+        :param enable_context_change:  If set to True, this contest selection is allowed to spawn the entity browser
             and change global context.
         :param select_task: If true. only tasks can be selected in the entity browser. If false, any context can be selected.
         :param browse_context_id: If set, the entity browser will be opened with this context id as the root.

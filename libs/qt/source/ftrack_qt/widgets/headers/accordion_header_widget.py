@@ -12,6 +12,7 @@ from ftrack_qt.widgets.lines import LineWidget
 from ftrack_qt.widgets.buttons import OptionsButton
 
 
+# noinspection SpellCheckingInspection
 class AccordionHeaderWidget(QtWidgets.QFrame):
     '''Container for accordion header - holding checkbox, title, user content
     and expander button.'''
