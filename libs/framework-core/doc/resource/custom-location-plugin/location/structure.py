@@ -16,6 +16,7 @@ import ftrack_api.structure.base
 STUDIO_PUBLISH_FOLDER = "PUBLISH"
 
 
+# noinspection SpellCheckingInspection
 class Structure(ftrack_api.structure.base.Structure):
     '''
     Custom structure publishing to "_PUBLISH" folder beneath shot.
@@ -26,7 +27,7 @@ class Structure(ftrack_api.structure.base.Structure):
     ):
         super(Structure, self).__init__()
         self.logger = logging.getLogger(
-            'com.ftrack.integartions.tutorials.custom-location-plugin.location.Structure'
+            'com.ftrack.integrations.tutorials.custom-location-plugin.location.Structure'
         )
         self.project_versions_prefix = project_versions_prefix
         self.illegal_character_substitute = illegal_character_substitute

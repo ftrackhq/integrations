@@ -12,7 +12,7 @@ LOCATION_DIRECTORY = os.path.abspath(
 sys.path.append(LOCATION_DIRECTORY)
 
 logger = logging.getLogger(
-    'com.ftrack.intgrations.tutoriale.custom-location-plugin.hook.plugin_hook'
+    'com.ftrack.integrations.tutorial.custom-location-plugin.hook.plugin_hook'
 )
 
 
@@ -41,6 +41,7 @@ def modify_application_launch(event):
     environment = event['data']['options']['env']
 
     appendPath(LOCATION_DIRECTORY, 'FTRACK_EVENT_PLUGIN_PATH', environment)
+    # noinspection SpellCheckingInspection
     appendPath(LOCATION_DIRECTORY, 'PYTHONPATH', environment)
     logger.info(
         'Connect plugin modified launch hook to register location plugin.'

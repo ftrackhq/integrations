@@ -4,7 +4,7 @@
 from Qt import QtWidgets, QtCore, QtGui
 
 # TODO: try to generalize this delegate to be able to pass the looking keys.
-#  So it can be used in mutiple places and not only for asset versions.
+#  So it can be used in multiple places and not only for asset versions.
 
 
 class AssetVersionComboBoxDelegate(QtWidgets.QStyledItemDelegate):

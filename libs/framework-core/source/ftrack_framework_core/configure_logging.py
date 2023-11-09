@@ -46,6 +46,7 @@ def configure_logging(
     extra_handlers=None,
     propagate=True,
 ):
+    # noinspection SpellCheckingInspection
     '''Configure `logger_name` loggers with console and file handler, will scan
     sys path and log framework modules to file if *add_extra_framework_modules* is set
     to true (default).
@@ -58,6 +59,7 @@ def configure_logging(
     Optional *extra_modules* to extend the modules to be set to *level*.
     '''
     # Provide default values for level and format.
+    # noinspection SpellCheckingInspection
     logging_format = (
         logging_format
         or '%(levelname)s - %(threadName)s - %(asctime)s - %(name)s - %(message)s'

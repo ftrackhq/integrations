@@ -72,7 +72,7 @@ def get_groups(tool_config, filters=None, top_level_only=True):
     Recursively return all the groups available in the given tool_config.
     *tool_config*: Dictionary produced by the yaml loader.
     *filters*: dictionary with key and values to match for returned plugins
-    *top_level_only*: return only top level group, not recusive.
+    *top_level_only*: return only top level group, not recursive.
     '''
 
     groups = []
