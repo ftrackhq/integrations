@@ -1192,13 +1192,6 @@ class Application(QtWidgets.QMainWindow):
         configuration files.'''
         config_paths = []
 
-        if 'FTRACK_APPLICATION_LAUNCHER_CONFIG_PATHS' in os.environ:
-            config_paths.extend(
-                os.environ['FTRACK_APPLICATION_LAUNCHER_CONFIG_PATHS'].split(
-                    os.pathsep
-                )
-            )
-
         self.logger.debug('Discovering applications launcher configs.')
 
         for connect_plugin_path in self.pluginPaths:
@@ -1207,7 +1200,6 @@ class Application(QtWidgets.QMainWindow):
                 for filename in os.listdir(launcher_config_path):
                     if (
                         filename.endswith('.yaml')
-                        or filename.endswith('.json')  # Support legacy configs
                     ) and launcher_config_path not in config_paths:
                         config_paths.append(launcher_config_path)
                         break  # Done with this folder

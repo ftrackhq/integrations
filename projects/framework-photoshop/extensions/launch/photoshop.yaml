@@ -1,3 +1,5 @@
+type: launcher
+name: photoshop
 priority: 100
 context:
 - Task
