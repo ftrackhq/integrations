@@ -103,7 +103,7 @@ class Registry(object):
 
     def _get(self, extensions, name, extension, path):
         '''
-        Check given *extensions* list to match given *name* and *extension* if
+        Check given *extensions* list to match given *name*, *extension* and *path* if
         neither provided, return all available extensions
         '''
         if not any([name, extension]):
