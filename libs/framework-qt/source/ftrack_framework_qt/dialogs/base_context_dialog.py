@@ -13,7 +13,7 @@ from ftrack_qt.utils.layout import recursive_clear_layout
 
 
 class BaseContextDialog(FrameworkDialog, StyledDialog):
-    '''Default Framework Publisher dialog'''
+    '''Default Framework context dialog'''
 
     name = 'base_context_dialog'
     tool_config_type_filter = None
