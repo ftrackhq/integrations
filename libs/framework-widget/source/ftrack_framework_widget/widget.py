@@ -27,6 +27,11 @@ class FrameworkWidget(BaseUI):
         return self._plugin_config
 
     @property
+    def group_config(self):
+        '''tIf plugin lives in a group, return the group tool config'''
+        return self._group_config
+
+    @property
     def plugin_name(self):
         '''Name of the current plugin'''
         return self.plugin_config['plugin']
@@ -53,12 +58,14 @@ class FrameworkWidget(BaseUI):
         client_id,
         context_id,
         plugin_config,
+        group_config,
         dialog_connect_methods_callback,
         dialog_property_getter_connection_callback,
         parent=None,
     ):
         self._context_id = context_id
         self._plugin_config = plugin_config
+        self._group_config = group_config
 
         # Connect dialog methods and properties
         self.connect_methods(dialog_connect_methods_callback)
@@ -88,18 +95,6 @@ class FrameworkWidget(BaseUI):
         '''Updates the widget context_id with the given *context_id*'''
         self._context_id = context_id
         self.on_context_updated()
-
-    def run_plugin_method(self, plugin_method_name):
-        '''
-        Call the run_plugin_method from the dialog with the current
-        plugin_config, id and the given *plugin_method_name* as arguments
-        '''
-        arguments = {
-            "plugin_config": self.plugin_config,
-            "plugin_method_name": plugin_method_name,
-            'plugin_ui_id': self.id,
-        }
-        self.dialog_method_connection('run_plugin_method', arguments=arguments)
 
     def run_plugin_callback(self, plugin_info):
         '''

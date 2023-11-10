@@ -8,6 +8,7 @@ import ftrack_constants.framework as constants
 from ftrack_framework_qt.widgets import BaseWidget
 
 from ftrack_qt.widgets.icons import StatusMaterialIconWidget
+from ftrack_utils.framework.tool_config.read import get_plugins
 
 
 # TODO: review and docstring this code
@@ -23,6 +24,7 @@ class ValidatorCheckWidget(BaseWidget):
         client_id,
         context_id,
         plugin_config,
+        group_config,
         dialog_connect_methods_callback,
         dialog_property_getter_connection_callback,
         parent=None,
@@ -39,6 +41,7 @@ class ValidatorCheckWidget(BaseWidget):
             client_id,
             context_id,
             plugin_config,
+            group_config,
             dialog_connect_methods_callback,
             dialog_property_getter_connection_callback,
             parent,
@@ -75,8 +78,22 @@ class ValidatorCheckWidget(BaseWidget):
         currentIndexChanged of status_selector event is triggered'''
         # This is async, so once the result arrive to the run_plugin_callback,
         # we set the status
-        arguments = {"plugin_ui_id": self.id}
-        self.dialog_method_connection('run_collectors', arguments=arguments)
+        if not self.group_config:
+            self.logger.warning(
+                "This plugin is not in a group so it can't know which collector "
+                "to run"
+            )
+            return
+        collector_plugins = get_plugins(
+            self.group_config, filters={'tags': ['collector']}
+        )
+        for collector_plugin in collector_plugins:
+            arguments = {
+                "plugin_ui_id": self.id,
+                "plugin_config": collector_plugin,
+                "engine_name": self.tool_config.get('engine_name'),
+            }
+            self.dialog_method_connection('run_plugin', arguments=arguments)
         self._validator_status_icon.set_status(constants.status.RUNNING_STATUS)
 
     def run_plugin_callback(self, plugin_info):
@@ -99,5 +116,11 @@ class ValidatorCheckWidget(BaseWidget):
 
     def validate_collector_result(self, collector_result):
         self.plugin_data = {'collector_result': collector_result}
-        print(collector_result)
-        self.run_plugin_method('validate')
+        # TODO: think on how to pass the plugin data here probably directly to
+        #  the store argument
+        arguments = {
+            "plugin_config": self.plugin_config,
+            "engine_name": self.tool_config.get('engine_name'),
+            'plugin_ui_id': self.id,
+        }
+        self.dialog_method_connection('run_plugin', arguments=arguments)

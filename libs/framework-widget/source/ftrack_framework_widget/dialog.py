@@ -271,7 +271,7 @@ class FrameworkDialog(BaseUI):
             "This method should be implemented by the inheriting class"
         )
 
-    def init_framework_widget(self, plugin_config):
+    def init_framework_widget(self, plugin_config, group_config=None):
         '''
         Method to initialize a framework widget given in the *plugin_config*
         '''
@@ -297,6 +297,7 @@ class FrameworkDialog(BaseUI):
             self.client_id,
             self.context_id,
             plugin_config,
+            group_config,
             dialog_connect_methods_callback=self._connect_dialog_methods_callback,
             dialog_property_getter_connection_callback=self._connect_dialog_property_getter_connection_callback,
         )
@@ -345,9 +346,16 @@ class FrameworkDialog(BaseUI):
         '''Enables widgets to call dialog properties'''
         return self.__getattribute__(property_name)
 
-    def run_plugin_method(
-        self, plugin_config, plugin_method_name, plugin_ui_id=None
-    ):
+    def run_tool_config(self, tool_config):
+        '''
+        Run button from the UI has been clicked.
+        Tell client to run the current tool config
+        '''
+
+        arguments = {"tool_config": tool_config}
+        self.client_method_connection('run_tool_config', arguments=arguments)
+
+    def run_plugin(self, plugin_config, engine_name, plugin_ui_id=None):
         '''
         Dialog tell client to run the *plugin_method_name* from the
         *plugin_config* .
@@ -357,9 +365,7 @@ class FrameworkDialog(BaseUI):
         # No callback as it is returned by an event
         arguments = {
             "plugin_config": plugin_config,
-            "plugin_method_name": plugin_method_name,
-            "engine_type": self.tool_config.get('engine_type'),
-            "engine_name": self.tool_config.get('engine_name'),
+            "engine_name": engine_name,
             'plugin_ui_id': plugin_ui_id,
         }
         self.client_method_connection('run_plugin', arguments=arguments)

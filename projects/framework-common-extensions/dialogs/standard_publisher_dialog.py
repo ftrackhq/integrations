@@ -105,11 +105,17 @@ class StandardPublisherDialog(BaseContextDialog):
                 collapsed=True,
             )
             collectors = get_plugins(_group, filters={'tags': ['collector']})
-            self.add_collector_widgets(collectors, group_accordion_widget)
+            self.add_collector_widgets(
+                collectors, group_accordion_widget, _group
+            )
             validators = get_plugins(_group, filters={'tags': ['validator']})
-            self.add_validator_widgets(validators, group_accordion_widget)
+            self.add_validator_widgets(
+                validators, group_accordion_widget, _group
+            )
             exporters = get_plugins(_group, filters={'tags': ['exporter']})
-            self.add_exporter_widgets(exporters, group_accordion_widget)
+            self.add_exporter_widgets(
+                exporters, group_accordion_widget, _group
+            )
 
             self._scroll_area_widget.layout().addWidget(group_accordion_widget)
 
@@ -121,50 +127,36 @@ class StandardPublisherDialog(BaseContextDialog):
         )
         self._scroll_area_widget.layout().addItem(spacer)
 
-    def add_collector_widgets(self, collectors, accordion_widget):
-        for plugin in collectors:
-            if not plugin.get('ui'):
+    def add_collector_widgets(
+        self, collectors, accordion_widget, group_config=None
+    ):
+        for plugin_config in collectors:
+            if not plugin_config.get('ui'):
                 continue
-            widget = self.init_framework_widget(plugin)
+            widget = self.init_framework_widget(plugin_config, group_config)
             accordion_widget.add_widget(widget)
 
-    def add_validator_widgets(self, validators, accordion_widget):
-        for plugin in validators:
-            if not plugin.get('ui'):
+    def add_validator_widgets(
+        self, validators, accordion_widget, group_config=None
+    ):
+        for plugin_config in validators:
+            if not plugin_config.get('ui'):
                 continue
-            widget = self.init_framework_widget(plugin)
+            widget = self.init_framework_widget(plugin_config, group_config)
             accordion_widget.add_option_widget(
                 widget, section_name='Validators'
             )
 
-    def add_exporter_widgets(self, exporters, accordion_widget):
-        for plugin in exporters:
-            if not plugin.get('ui'):
+    def add_exporter_widgets(
+        self, exporters, accordion_widget, group_config=None
+    ):
+        for plugin_config in exporters:
+            if not plugin_config.get('ui'):
                 continue
-            widget = self.init_framework_widget(plugin)
+            widget = self.init_framework_widget(plugin_config, group_config)
             accordion_widget.add_option_widget(
                 widget, section_name='Exporters'
             )
 
     def post_build_ui(self):
         pass
-
-    def run_collectors(self, plugin_ui_id=None):
-        '''
-        Run all the collector plugins of the current tool_config.
-        If *plugin_ui_id* is given, a signal with the result of the plugins
-        will be emitted to be picked by that widget id.
-        '''
-        # TODO: we need to know from which group it comes
-        collector_plugins = get_plugins(
-            self.tool_config, filters={'tags': ['collector']}
-        )
-        for collector_plugin in collector_plugins:
-            arguments = {
-                "plugin_config": collector_plugin,
-                "plugin_method_name": 'run',
-                "engine_type": self.tool_config['engine_type'],
-                "engine_name": self.tool_config['engine_name'],
-                'plugin_ui_id': plugin_ui_id,
-            }
-            self.client_method_connection('run_plugin', arguments=arguments)
