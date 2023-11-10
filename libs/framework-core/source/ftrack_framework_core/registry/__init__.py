@@ -4,7 +4,7 @@
 import logging
 from collections import defaultdict
 
-from ftrack_utils.framework.dependencies import registry
+from ftrack_utils.extensions import registry
 
 logger = logging.getLogger(__name__)
 
@@ -84,7 +84,7 @@ class Registry(object):
         discovered_extensions = []
         for path in paths:
             discovered_extensions.extend(
-                registry.get_framework_extensions_from_directory(path)
+                registry.get_extensions_from_directory(path)
             )
         for extension in discovered_extensions:
             self.add(**extension)
