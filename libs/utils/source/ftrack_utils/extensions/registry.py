@@ -13,9 +13,9 @@ from ftrack_utils.directories.scan_dir import fast_scandir
 logger = logging.getLogger(__name__)
 
 
-def register_framework_yaml_files(file_list):
+def register_yaml_files(file_list):
     '''
-    Generate data registry files for all compatible framework .yaml files in
+    Generate data registry files for all extension compatible .yaml files in
     the given *file_list*
     '''
     registered_files = []
@@ -34,7 +34,7 @@ def register_framework_yaml_files(file_list):
             if not yaml_content.get("type"):
                 # Log warning if yaml file doesn't contain type key.
                 logger.warning(
-                    "No compatible framework .yaml file, missing 'type'."
+                    "No extension compatible .yaml file, missing 'type'."
                     "\nFile: {}".format(_file)
                 )
                 continue
@@ -59,7 +59,7 @@ def get_files_from_folder(_dir, filetype_pattern):
     return file_list
 
 
-def get_framework_extensions_from_directory(scan_dir):
+def get_extensions_from_directory(scan_dir):
     '''Return available extensions on the given directory'''
     # noinspection SpellCheckingInspection
     subfolders = fast_scandir(scan_dir)
@@ -73,10 +73,10 @@ def get_framework_extensions_from_directory(scan_dir):
         file_list = get_files_from_folder(_dir, filetype_pattern="*.y*ml")
         if not file_list:
             continue
-        registered_files = register_framework_yaml_files(file_list)
+        registered_files = register_yaml_files(file_list)
         if not registered_files:
             logger.warning(
-                "No framework compatible yaml extensions found in "
+                "No compatible yaml extensions found in "
                 "folder {}".format(_dir)
             )
         available_extensions.extend(registered_files)
@@ -114,7 +114,7 @@ def get_framework_extensions_from_directory(scan_dir):
                 continue
         if not success_registry:
             logger.warning(
-                "No framework compatible python extension found in module {} "
+                "No compatible python extension found in module {} "
                 "from path{}".format(module_name, loader.path)
             )
 
