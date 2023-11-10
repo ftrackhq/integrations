@@ -43,6 +43,8 @@ class FrameworkWidget(BaseUI):
         '''
         if type(value) != dict:
             return
+        if not self.plugin_config.get('options'):
+            self.plugin_config['options'] = {}
         self.plugin_config['options'].update(value)
 
     def __init__(

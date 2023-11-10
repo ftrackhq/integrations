@@ -130,6 +130,10 @@ class BasePlugin(ABC):
         self._ui_name = None
         self._result = False
 
+    def ui_hook(self, payload):
+        '''Method to interact with the UI'''
+        raise NotImplementedError('Missing ui_hook method.')
+
     @abstractmethod
     def run(self, store):
         raise NotImplementedError('Missing run method.')

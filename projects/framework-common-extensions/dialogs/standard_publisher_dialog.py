@@ -155,6 +155,7 @@ class StandardPublisherDialog(BaseContextDialog):
         If *plugin_widget_id* is given, a signal with the result of the plugins
         will be emitted to be picked by that widget id.
         '''
+        # TODO: we need to know from which group it comes
         collector_plugins = get_plugins(
             self.tool_config, filters={'tags': ['collector']}
         )

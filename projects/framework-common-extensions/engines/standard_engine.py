@@ -77,11 +77,12 @@ class StandardEngine(BaseEngine):
                             # Deepcopy the group option to override them for
                             # this plugin
                             options = copy.deepcopy(group_options)
+                            options.update(plugin_item.get("options", {}))
                             self.run_plugin(
                                 plugin_item["plugin"],
                                 store,
                                 # Override group options with the plugin options
-                                options.update(plugin_item.get("options", {})),
+                                options,
                             )
                         # TODO: (future improvements) if group inside a
                         #  group recursively execute plugins inside
@@ -92,3 +93,4 @@ class StandardEngine(BaseEngine):
                     self.run_plugin(
                         item["plugin"], store, item.get("options", {})
                     )
+        return store
