@@ -1,5 +1,5 @@
 type: launcher
-name: photoshop
+name: ftrack-framework-photoshop
 priority: 100
 context:
 - Task

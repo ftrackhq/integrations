@@ -56,25 +56,11 @@ class DiscoverApplications(object):
 
             for extension in register_yaml_files(yaml_config_file_paths):
                 loaded_filtered_files.append(extension['extension'])
-
-            for config_file_path in yaml_config_file_paths:
-                with open(config_file_path, 'r') as yaml_file:
-                    try:
-                        yaml_content = yaml.safe_load(yaml_file)
-                        loaded_filtered_files.append(yaml_content)
-                        self.logger.info(
-                            'Loaded app launcher config file: {}'.format(
-                                config_file_path
-                            )
-                        )
-                    except yaml.YAMLError as exc:
-                        # Log an error if the yaml file is invalid.
-                        self.logger.error(
-                            "Invalid .yaml file\nFile: {}\nError: {}".format(
-                                config_file_path, exc
-                            )
-                        )
-                        continue
+                self.logger.info(
+                    'Found launcher config extension: {}'.format(
+                        extension['path']
+                    )
+                )
 
         self.logger.debug(
             'Launcher configs found: {}'.format(len(loaded_filtered_files))
@@ -99,7 +85,7 @@ class DiscoverApplications(object):
             identifier,
             identified_configuration,
         ) in grouped_configurations.items():
-            self.logger.info(
+            self.logger.debug(
                 'building config store for {}({})'.format(
                     identifier, len(identified_configuration)
                 )

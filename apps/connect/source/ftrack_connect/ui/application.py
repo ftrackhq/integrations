@@ -821,9 +821,10 @@ class Application(QtWidgets.QMainWindow):
             lambda event: True,
         )
         self.session._configure_locations()
-        self._discoverConnectWidget()
 
         self._discover_applications()  # Was ftrack-application-launcher
+
+        self._discoverConnectWidget()
 
     def _discover_plugin_paths(self):
         '''Return a list of paths to pass to ftrack_api.Session()'''

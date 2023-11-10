@@ -316,7 +316,7 @@ class ApplicationStore(object):
                 del folders[:]
 
         results = sorted(applications, key=itemgetter('version'), reverse=True)
-        self.logger.info('Discovered applications {}'.format(results))
+        self.logger.debug('Discovered applications: {}'.format(results))
         return results
 
 
