@@ -149,10 +149,10 @@ class StandardPublisherDialog(BaseContextDialog):
     def post_build_ui(self):
         pass
 
-    def run_collectors(self, plugin_widget_id=None):
+    def run_collectors(self, plugin_ui_id=None):
         '''
         Run all the collector plugins of the current tool_config.
-        If *plugin_widget_id* is given, a signal with the result of the plugins
+        If *plugin_ui_id* is given, a signal with the result of the plugins
         will be emitted to be picked by that widget id.
         '''
         # TODO: we need to know from which group it comes
@@ -165,6 +165,6 @@ class StandardPublisherDialog(BaseContextDialog):
                 "plugin_method_name": 'run',
                 "engine_type": self.tool_config['engine_type'],
                 "engine_name": self.tool_config['engine_name'],
-                'plugin_widget_id': plugin_widget_id,
+                'plugin_ui_id': plugin_ui_id,
             }
             self.client_method_connection('run_plugin', arguments=arguments)

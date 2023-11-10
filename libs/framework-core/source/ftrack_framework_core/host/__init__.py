@@ -256,7 +256,7 @@ class Host(object):
         # Get the plugin info dictionary and add it to the logDB
         plugin_info = event['data']
         log_item = LogItem(plugin_info)
-        self.logs.add_log_item(log_item)
+        self.logs.add_log_item(self.id, log_item)
         # Publish the event to notify client
         self.event_manager.publish.host_log_item_added(self.id, log_item)
 
@@ -319,7 +319,7 @@ class Host(object):
         plugin_method = event['data']['plugin_method']
         engine_type = event['data']['engine_type']
         engine_name = event['data']['engine_name']
-        plugin_widget_id = event['data']['plugin_widget_id']
+        plugin_ui_id = event['data']['plugin_ui_id']
 
         engine = None
         try:
@@ -346,8 +346,8 @@ class Host(object):
             # I have registered context_data in the schema
             plugin_context_data=plugin_config.get('context_data'),
             plugin_method=plugin_method,
-            plugin_widget_id=plugin_widget_id,
-            plugin_widget_name=plugin_config.get('ui'),
+            plugin_ui_id=plugin_ui_id,
+            plugin_ui_name=plugin_config.get('ui'),
         )
 
         if not engine_result:

@@ -162,7 +162,7 @@ class BasePlugin(ABC):
             self.logger.exception(
                 "Error message: {}\n Traceback: {}".format(self.message, e)
             )
-            return self.provide_plugin_info()
+            return self.provide_plugin_info(store)
         # print plugin error handled by the plugin
         if not self.boolean_status:
             # Generic message printing the result in case no message is provided.
@@ -172,7 +172,7 @@ class BasePlugin(ABC):
                     "Result is {}.".format(self.name, self.result)
                 )
             self.logger.error(self.message)
-            return self.provide_plugin_info()
+            return self.provide_plugin_info(store)
 
         self.status = constants.status.SUCCESS_STATUS
         # Notify client
@@ -184,9 +184,9 @@ class BasePlugin(ABC):
         total_time = end_time - start_time
         self.execution_time = total_time
 
-        return self.provide_plugin_info()
+        return self.provide_plugin_info(store)
 
-    def provide_plugin_info(self):
+    def provide_plugin_info(self, store=None):
         '''Provide the entire plugin information'''
         return {
             'plugin_name': self.name,
@@ -197,7 +197,9 @@ class BasePlugin(ABC):
             'plugin_execution_time': self.execution_time,
             'plugin_ui_id': self.ui_id,
             'plugin_ui_name': self.ui_name,
+            'plugin_options': self.options,
             'plugin_result': self.result,
+            'plugin_store': store,
         }
 
     @classmethod

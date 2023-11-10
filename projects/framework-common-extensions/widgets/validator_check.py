@@ -85,7 +85,7 @@ class ValidatorCheckWidget(BaseWidget):
             self.validate_collector_result(plugin_info['plugin_method_result'])
         # We have run the validate method
         if (
-            plugin_info['plugin_widget_id'] == self.id
+            plugin_info['plugin_ui_id'] == self.id
             and plugin_info['plugin_method'] == 'validate'
         ):
             if plugin_info['plugin_method_result']:
