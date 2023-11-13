@@ -58,6 +58,7 @@ def build_package(pkg_path, args):
     CONNECT_PLUGIN_PATH = os.path.join(ROOT_PATH, 'connect-plugin')
     BUILD_PATH = os.path.join(ROOT_PATH, 'dist')
     RESOURCE_PATH = os.path.join(ROOT_PATH, 'resource')
+    EXTENSION_PATH = os.path.join(ROOT_PATH, 'extensions')
     CEP_PATH = os.path.join(ROOT_PATH, 'resource', 'cep')
     USES_FRAMEWORK = False
     PLATFORM_DEPENDENT = False
@@ -223,6 +224,21 @@ def build_package(pkg_path, args):
 
         shutil.copytree(path_hook, os.path.join(STAGING_PATH, 'hook'))
 
+        # Locate and copy launcher
+
+        launcher_path = os.path.join(EXTENSION_PATH, 'launch')
+        if os.path.isdir(launcher_path):
+            logging.info('Copying App launcher config')
+            shutil.copytree(
+                launcher_path, os.path.join(STAGING_PATH, 'launch')
+            )
+        else:
+            logging.warning(
+                'App launcher config path not found: {}'.format(launcher_path)
+            )
+
+        # Resources
+
         if args.include_resources:
             for resource_path in args.include_resources.split(','):
                 # Copy resources
@@ -247,10 +263,10 @@ def build_package(pkg_path, args):
 
         # Collect dependencies
         dependencies_path = os.path.join(STAGING_PATH, 'dependencies')
-        extensions_path = os.path.join(STAGING_PATH, 'extensions')
+        extensions_destination_path = os.path.join(STAGING_PATH, 'extensions')
 
         os.makedirs(dependencies_path)
-        os.makedirs(extensions_path)
+        os.makedirs(extensions_destination_path)
 
         extras = 'ftrack-libs'
         if USES_FRAMEWORK:
@@ -270,7 +286,7 @@ def build_package(pkg_path, args):
                         'framework-common-extensions',
                     ),
                 ),
-                (DCC_NAME, os.path.join(ROOT_PATH, 'extensions')),
+                (DCC_NAME, EXTENSION_PATH),
             ]:
                 for extension in os.listdir(extension_base_path):
                     extension_source_path = os.path.join(
@@ -323,7 +339,7 @@ def build_package(pkg_path, args):
                 filename = os.path.basename(dependency_path)
 
                 dest_path = os.path.join(
-                    extensions_path, target_folder, filename
+                    extensions_destination_path, target_folder, filename
                 )
                 if os.path.exists(dest_path):
                     continue

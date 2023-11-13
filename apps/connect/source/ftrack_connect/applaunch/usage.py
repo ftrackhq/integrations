@@ -6,9 +6,9 @@ import os
 
 import ftrack_api
 
-from ftrack_application_launcher import asynchronous
+from ftrack_connect.applaunch import asynchronous
 
-logger = logging.getLogger('ftrack_application_launcher:usage')
+logger = logging.getLogger('ftrack_connect.applaunch:usage')
 _log_usage_session = None
 
 
