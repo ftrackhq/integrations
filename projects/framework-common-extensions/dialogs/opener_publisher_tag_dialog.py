@@ -108,16 +108,15 @@ class OpenerPublisherTabDialog(BaseContextDialog):
         main_widget.setLayout(main_layout)
 
         # Build Collector widget
-        collector_plugins = self.tab_mapping['open'].get_all(
-            category='plugin', plugin_type='collector'
+        collector_plugins = get_plugins(
+            self.tool_config, filters={'tags': ['collector']}
         )
-        for collector_plugin_config in collector_plugins:
-            if not collector_plugin_config.widget_name:
+        for collector_plugin in collector_plugins:
+            if not collector_plugin.get('ui'):
                 continue
-            collector_widget = self.init_framework_widget(
-                collector_plugin_config
-            )
-            collector_widget.fetch()
+            collector_widget = self.init_framework_widget(collector_plugin)
+            # TODO: run ui hook
+            # collector_widget.fetch()
             main_widget.layout().addWidget(collector_widget)
 
         open_button = QtWidgets.QPushButton('OPEN')
@@ -135,13 +134,13 @@ class OpenerPublisherTabDialog(BaseContextDialog):
         main_widget.setLayout(main_layout)
 
         # Build Collector widget
-        context_plugins = self.tab_mapping['save'].get_all(
-            category='plugin', plugin_type='context'
+        context_plugins = get_plugins(
+            self.tool_config, filters={'tags': ['context']}
         )
-        for context_plugin_config in context_plugins:
-            if not context_plugin_config.widget_name:
+        for context_plugin in context_plugins:
+            if not context_plugin.get('ui'):
                 continue
-            context_widget = self.init_framework_widget(context_plugin_config)
+            context_widget = self.init_framework_widget(context_plugin)
             main_widget.layout().addWidget(context_widget)
 
         buttons_layout = QtWidgets.QHBoxLayout()
