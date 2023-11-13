@@ -1,6 +1,6 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2023 ftrack
-
+import plistlib
 import sys
 import pprint
 import re
@@ -281,6 +281,22 @@ class ApplicationStore(object):
                                     'Could not parse version'
                                     ' {0} from {1}'.format(version, path)
                                 )
+                        elif sys.platform == 'darwin' and path.endswith(
+                            '.app'
+                        ):
+                            # Extract version from Info.plist within .app
+                            # bundle.
+                            plist_path = os.path.join(
+                                path, 'Contents', 'Info.plist'
+                            )
+                            if os.path.isfile(plist_path):
+                                with open(plist_path, 'rb') as f:
+                                    infoPlist = plistlib.load(f)
+                                    version = infoPlist.get(
+                                        'CFBundleShortVersionString'
+                                    )
+                                    if version:
+                                        loose_version = LooseVersion(version)
 
                         variant_str = variant.format(
                             version=str(loose_version)
