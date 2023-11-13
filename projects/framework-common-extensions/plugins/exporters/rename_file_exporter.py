@@ -22,7 +22,7 @@ class RenameExporterPlugin(BasePlugin):
         '''
         component_name = self.options.get('component')
 
-        collected_file = store[component_name]['collected_file']
+        collected_file = store['components'][component_name]['collected_file']
         export_destination = self.options['export_destination']
 
         store['components'][component_name]['exported_path'] = self.rename(
