@@ -279,8 +279,6 @@ class Publish(object):
         self,
         host_id,
         plugin_config,
-        plugin_method,
-        engine_type,
         engine_name,
         plugin_ui_id=None,
         callback=None,
@@ -292,8 +290,6 @@ class Publish(object):
         data = {
             'host_id': host_id,
             'plugin_config': plugin_config,
-            'plugin_method': plugin_method,
-            'engine_type': engine_type,
             'engine_name': engine_name,
             'plugin_ui_id': plugin_ui_id,
         }

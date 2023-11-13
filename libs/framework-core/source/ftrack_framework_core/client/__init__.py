@@ -384,8 +384,6 @@ class Client(object):
     def run_plugin(
         self,
         plugin_config,
-        plugin_method_name,
-        engine_type,
         engine_name,
         plugin_ui_id=None,
     ):
@@ -401,8 +399,6 @@ class Client(object):
         self.event_manager.publish.host_run_plugin(
             self.host_id,
             plugin_config,
-            plugin_method_name,
-            engine_type,
             engine_name,
             plugin_ui_id,
             self._run_plugin_callback,

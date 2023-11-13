@@ -91,12 +91,16 @@ class ValidatorCheckWidget(BaseWidget):
             arguments = {
                 "plugin_ui_id": self.id,
                 "plugin_config": collector_plugin,
-                "engine_name": self.tool_config.get('engine_name'),
             }
             self.dialog_method_connection('run_plugin', arguments=arguments)
         self._validator_status_icon.set_status(constants.status.RUNNING_STATUS)
 
     def run_plugin_callback(self, plugin_info):
+        # TODO: how we know that the answer of the plugin is from the collector plugin.
+        #  also the plugins are now not returning because they store in the store,
+        #  so I don't get the result, maybe I should return in the collectors
+        #  if I need? Maybe the return should be something like {FileCollectorPlugin: {isCollector:True, result:'asd}}
+
         # In case we have run the collectors
         if plugin_info['plugin_type'] == 'collector':
             self.validate_collector_result(plugin_info['plugin_method_result'])

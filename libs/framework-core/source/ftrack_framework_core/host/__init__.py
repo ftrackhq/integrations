@@ -307,56 +307,38 @@ class Host(object):
             )
         return engine_result
 
-    def run_plugin_callback(self, event):
+    @with_new_session
+    def run_plugin_callback(self, event, session=None):
         '''
         Runs the plugin_config in the given *event* with the engine type
         set in the *event*
         '''
-        pass
-        # TODO: double check this
         plugin_config = event['data']['plugin_config']
-        plugin_method = event['data']['plugin_method']
-        engine_type = event['data']['engine_type']
-        engine_name = event['data']['engine_name']
+        engine_name = event['data'].get('engine_name', 'standard_engine')
         plugin_ui_id = event['data']['plugin_ui_id']
 
-        engine = None
         try:
-            engine = self.engines[engine_type].get(engine_name)
+            engine_registry = self.registry.get(
+                name=engine_name, extension_type='engine'
+            )[0]
+            engine_instance = engine_registry['extension'](
+                self.registry, session
+            )
         except Exception:
             raise Exception(
-                'No engine of type "{}" with name "{}" found'.format(
-                    engine_type, engine_name
-                )
+                'No engine with name "{}" found'.format(engine_name)
             )
-        # TODO: review asset_type_name in the specific task
-        engine.asset_type_name = None
 
-        engine_result = engine.run_plugin(
-            plugin_name=plugin_config.get('plugin'),
-            plugin_default_method=plugin_config.get('default_method'),
-            # plugin_data will usually be None, but can be defined in the
-            # tool_config
-            # I have registered data in the publisher schema
-            plugin_data=plugin_config.get('data'),
-            plugin_options=plugin_config.get('options'),
-            # plugin_context_data will usually be None, but can be defined in the
-            # tool_config
-            # I have registered context_data in the schema
-            plugin_context_data=plugin_config.get('context_data'),
-            plugin_method=plugin_method,
-            plugin_ui_id=plugin_ui_id,
-            plugin_ui_name=plugin_config.get('ui'),
-        )
-
-        if not engine_result:
-            self.logger.error(
-                "Couldn't run plugin:\n "
-                "Tool config: {}\n"
-                "Method: {}\n"
-                "Engine type: {}\n"
-                "Engine name: {}\n".format(
-                    plugin_config, plugin_method, engine_type, engine_name
-                )
+        try:
+            engine_result = engine_instance.run_plugin(
+                plugin_config['plugin'], {}, plugin_config.get('options')
             )
+
+        except Exception as error:
+            raise Exception(
+                'Error appear when executing plugin: {} from {}.'
+                '\n Error: {}'.format(plugin_config, engine_name, error)
+            )
+        if engine_result:
+            engine_result['plugin_ui_id'] = plugin_ui_id
         return engine_result

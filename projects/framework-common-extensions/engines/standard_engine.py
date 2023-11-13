@@ -53,6 +53,7 @@ class StandardEngine(BaseEngine):
         #     self.event_manager.publish.notify_plugin_progress_client(
         #         self.provide_plugin_info()
         #     )
+        return plugin_info
 
     def execute_engine(self, engine):
         '''

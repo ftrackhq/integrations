@@ -355,17 +355,17 @@ class FrameworkDialog(BaseUI):
         arguments = {"tool_config": tool_config}
         self.client_method_connection('run_tool_config', arguments=arguments)
 
-    def run_plugin(self, plugin_config, engine_name, plugin_ui_id=None):
+    def run_plugin(self, plugin_config, engine_name=None, plugin_ui_id=None):
         '''
         Dialog tell client to run the *plugin_method_name* from the
         *plugin_config* .
-        Provides a *plugin_ui_id* if its a widget who wants to execute the
+        Provides a *plugin_ui_id* if it's a widget who wants to execute the
         method.
         '''
         # No callback as it is returned by an event
         arguments = {
             "plugin_config": plugin_config,
-            "engine_name": engine_name,
+            "engine_name": self.tool_config.get('engine_name', engine_name),
             'plugin_ui_id': plugin_ui_id,
         }
         self.client_method_connection('run_plugin', arguments=arguments)
@@ -376,7 +376,7 @@ class FrameworkDialog(BaseUI):
         now the dialog notifies the widget that has executed the method.
         '''
         plugin_info = event['data']['plugin_info']
-        plugin_ui_id = plugin_info['plugin_ui_id']
+        plugin_ui_id = plugin_info.get('plugin_ui_id')
         if not plugin_ui_id:
             self.logger.info("Widget id not provided")
             return

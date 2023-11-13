@@ -102,10 +102,8 @@ class FrameworkWidget(BaseUI):
         the *plugin_info*
         '''
         # Called by the dialog
-        executed_method = plugin_info['plugin_method']
-        method_result = plugin_info['plugin_method_result']
-        print('executed_method'.format(executed_method))
-        print('method_result'.format(method_result))
+        result = plugin_info['plugin_result']
+        print('result'.format(result))
         raise NotImplementedError(
             "This method should be implemented by the inheriting class"
         )
