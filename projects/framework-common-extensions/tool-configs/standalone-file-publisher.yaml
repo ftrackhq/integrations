@@ -7,7 +7,7 @@ engine:
   - type: plugin
     tags:
       - context
-    plugin: generic_context_passthrough
+    plugin: asset_context
     ui: publisher_context_selector
 
   # Export the file component.
@@ -20,13 +20,15 @@ engine:
     #enabled: True by default so is no need
     plugins:
       - type: plugin
+        plugin: store_component
+      - type: plugin
         tags:
           - collector
         plugin: file_collector
         ui: file_browser_collector
         options:
-          - folder_path: null
-          - file_name: null
+          folder_path: null
+          file_name: null
       - type: plugin
         tags:
           - validator
@@ -38,7 +40,7 @@ engine:
         plugin: rename_file_exporter
         ui: file_exporter_options
         options:
-          - export_destinations: "/Users/ftrack/Desktop/myPublishedFile.png"
+          export_destination: "/Users/ftrack/Desktop/myPublishedFile.png"
 
 
   # Publish to ftrack.

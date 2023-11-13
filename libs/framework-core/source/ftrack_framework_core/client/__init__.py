@@ -387,7 +387,7 @@ class Client(object):
         plugin_method_name,
         engine_type,
         engine_name,
-        plugin_widget_id=None,
+        plugin_ui_id=None,
     ):
         '''
         Publish event to tell the host to run the given *plugin_method_name*
@@ -404,7 +404,7 @@ class Client(object):
             plugin_method_name,
             engine_type,
             engine_name,
-            plugin_widget_id,
+            plugin_ui_id,
             self._run_plugin_callback,
         )
 

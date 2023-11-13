@@ -66,15 +66,6 @@ class StandardEngine(BaseEngine):
                 self.run_plugin(item, store, {})
 
             elif isinstance(item, dict):
-                # TODO: temp solution, evaluate if to use lists.
-                if item.get('options') and isinstance(
-                    item.get('options'), list
-                ):
-                    item['options'] = {
-                        k: v
-                        for _dict in item['options']
-                        for k, v in _dict.items()
-                    }
                 # If it's a group, execute all plugins from the group
                 if item["type"] == "group":
                     group_options = item.get("options", {})
@@ -83,23 +74,15 @@ class StandardEngine(BaseEngine):
                         if isinstance(plugin_item, str):
                             self.run_plugin(plugin_item, store, group_options)
                         else:
-                            # TODO: temporal solution evaluate if to use list
-                            if plugin_item.get("options") and isinstance(
-                                plugin_item.get("options"), list
-                            ):
-                                plugin_item['options'] = {
-                                    k: v
-                                    for _dict in plugin_item['options']
-                                    for k, v in _dict.items()
-                                }
                             # Deepcopy the group option to override them for
                             # this plugin
                             options = copy.deepcopy(group_options)
+                            options.update(plugin_item.get("options", {}))
                             self.run_plugin(
                                 plugin_item["plugin"],
                                 store,
                                 # Override group options with the plugin options
-                                options.update(plugin_item.get("options", {})),
+                                options,
                             )
                         # TODO: (future improvements) if group inside a
                         #  group recursively execute plugins inside
@@ -110,3 +93,4 @@ class StandardEngine(BaseEngine):
                     self.run_plugin(
                         item["plugin"], store, item.get("options", {})
                     )
+        return store

@@ -55,7 +55,6 @@ class ValidatorCheckWidget(BaseWidget):
 
     def build_ui(self):
         '''build function widgets.'''
-
         self._validator_name_label = QtWidgets.QLabel(self.plugin_name)
         self._validator_status_icon = StatusMaterialIconWidget('check')
         self._validator_status_icon.setObjectName('borderless')
@@ -76,7 +75,7 @@ class ValidatorCheckWidget(BaseWidget):
         currentIndexChanged of status_selector event is triggered'''
         # This is async, so once the result arrive to the run_plugin_callback,
         # we set the status
-        arguments = {"plugin_widget_id": self.id}
+        arguments = {"plugin_ui_id": self.id}
         self.dialog_method_connection('run_collectors', arguments=arguments)
         self._validator_status_icon.set_status(constants.status.RUNNING_STATUS)
 
@@ -86,7 +85,7 @@ class ValidatorCheckWidget(BaseWidget):
             self.validate_collector_result(plugin_info['plugin_method_result'])
         # We have run the validate method
         if (
-            plugin_info['plugin_widget_id'] == self.id
+            plugin_info['plugin_ui_id'] == self.id
             and plugin_info['plugin_method'] == 'validate'
         ):
             if plugin_info['plugin_method_result']:
