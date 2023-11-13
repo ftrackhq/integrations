@@ -11,7 +11,7 @@ from ftrack_utils.framework.tool_config.read import get_plugins, get_groups
 class OpenerPublisherTabDialog(BaseContextDialog):
     '''Framework Opener and Publisher in a dialog with tabs'''
 
-    name = 'framework_standard_publisher_dialog'
+    name = 'framework_opener_publisher_tab_dialog'
     tool_config_type_filter = ['publisher', 'opener']
     ui_type = 'qt'
     run_button_title = 'publish'
@@ -54,6 +54,8 @@ class OpenerPublisherTabDialog(BaseContextDialog):
         '''
         self._scroll_area = None
         self._scroll_area_widget = None
+        self._tab_mapping = {}
+        self._tab_widget = None
 
         super(OpenerPublisherTabDialog, self).__init__(
             event_manager,
@@ -65,9 +67,6 @@ class OpenerPublisherTabDialog(BaseContextDialog):
             parent,
         )
 
-        self._tab_mapping = {}
-        self._tab_widget = None
-
         self._pre_select_tool_configs()
 
     def _pre_select_tool_configs(self):
@@ -76,28 +75,24 @@ class OpenerPublisherTabDialog(BaseContextDialog):
         opener_tool_configs = self.filtered_tool_configs['opener']
         if opener_tool_configs:
             # Pick the first tool config available
-            self._tab_mapping['open'] = opener_tool_configs.get_first(
-                tool_title="Document Opener"
-            )
+            self._tab_mapping['open'] = opener_tool_configs[0]
             if not self.tool_config:
                 self.tool_config = self._tab_mapping['open']
 
         publisher_tool_configs = self.filtered_tool_configs['publisher']
         if publisher_tool_configs:
             # Pick the first tool config available
-            self._tab_mapping['save'] = publisher_tool_configs.get_first(
-                tool_title="Document Publisher"
-            )
+            self._tab_mapping['save'] = publisher_tool_configs[0]
             if not self.tool_config:
                 self.tool_config = self._tab_mapping['save']
 
     def _build_tabs(self):
         '''Build Open and save tabs'''
-        if self._tab_mapping['open']:
+        if self._tab_mapping.get('open'):
             self._open_widget = self._build_open_widget()
             self.add_tab("Open", self._open_widget)
 
-        if self._tab_mapping['save']:
+        if self._tab_mapping.get('save'):
             self._publish_widget = self._build_publish_widget()
             self.add_tab("Save", self._publish_widget)
 
