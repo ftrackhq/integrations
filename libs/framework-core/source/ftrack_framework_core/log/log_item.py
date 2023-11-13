@@ -12,24 +12,19 @@ class LogItem(object):
         *log_result*: Dictionary with log information.
         '''
         self.date = log_result.get('date')
-
         self.host_id = log_result.get('host_id')
+
         self.plugin_name = log_result.get('plugin_name')
-        self.plugin_type = log_result.get('plugin_type')
         self.plugin_id = log_result.get('plugin_id')
-        self.host_type = log_result.get('host_type')
-        self.plugin_status = log_result.get('plugin_status')
         self.plugin_boolean_status = log_result.get('plugin_boolean_status')
-        self.plugin_method = log_result.get('plugin_method')
-        self.plugin_method_result = log_result.get('plugin_method_result')
-        self.plugin_result_registry = log_result.get('plugin_result_registry')
-        self.plugin_execution_time = log_result.get('plugin_execution_time')
+        self.plugin_status = log_result.get('plugin_status')
         self.plugin_message = log_result.get('plugin_message')
-        self.plugin_context_data = log_result.get('plugin_context_data')
-        self.plugin_data = log_result.get('plugin_data')
+        self.plugin_execution_time = log_result.get('plugin_execution_time')
+        self.plugin_ui_id = log_result.get('plugin_ui_id')
+        self.plugin_ui_name = log_result.get('plugin_ui_name')
         self.plugin_options = log_result.get('plugin_options')
-        self.plugin_widget_id = log_result.get('plugin_widget_id')
-        self.plugin_widget_name = log_result.get('plugin_widget_name')
+        self.plugin_result = log_result.get('plugin_result')
+        self.plugin_store = log_result.get('plugin_store')
 
     # TODO: remove this properties if not needed.
     @property

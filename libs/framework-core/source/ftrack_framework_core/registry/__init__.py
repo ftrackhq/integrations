@@ -98,7 +98,6 @@ class Registry(object):
         # build in type
         self.__registry[extension_type].append(
             {
-                # TODO: name will be renamed to id in further tasks
                 "name": name,
                 "extension": extension,
                 "path": path,

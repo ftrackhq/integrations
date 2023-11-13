@@ -346,12 +346,12 @@ class FrameworkDialog(BaseUI):
         return self.__getattribute__(property_name)
 
     def run_plugin_method(
-        self, plugin_config, plugin_method_name, plugin_widget_id=None
+        self, plugin_config, plugin_method_name, plugin_ui_id=None
     ):
         '''
         Dialog tell client to run the *plugin_method_name* from the
         *plugin_config* .
-        Provides a *plugin_widget_id* if its a widget who wants to execute the
+        Provides a *plugin_ui_id* if its a widget who wants to execute the
         method.
         '''
         # No callback as it is returned by an event
@@ -360,7 +360,7 @@ class FrameworkDialog(BaseUI):
             "plugin_method_name": plugin_method_name,
             "engine_type": self.tool_config.get('engine_type'),
             "engine_name": self.tool_config.get('engine_name'),
-            'plugin_widget_id': plugin_widget_id,
+            'plugin_ui_id': plugin_ui_id,
         }
         self.client_method_connection('run_plugin', arguments=arguments)
 
@@ -370,11 +370,11 @@ class FrameworkDialog(BaseUI):
         now the dialog notifies the widget that has executed the method.
         '''
         plugin_info = event['data']['plugin_info']
-        plugin_widget_id = plugin_info['plugin_widget_id']
-        if not plugin_widget_id:
+        plugin_ui_id = plugin_info['plugin_ui_id']
+        if not plugin_ui_id:
             self.logger.info("Widget id not provided")
             return
-        widget = self.framework_widgets.get(plugin_widget_id)
+        widget = self.framework_widgets.get(plugin_ui_id)
         if not widget:
             self.logger.error(
                 "Widget is not registered : {}\n"

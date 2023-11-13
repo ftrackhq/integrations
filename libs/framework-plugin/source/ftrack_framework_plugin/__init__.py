@@ -130,11 +130,28 @@ class BasePlugin(ABC):
         self._ui_name = None
         self._result = False
 
+    def ui_hook(self, payload):
+        '''
+        Method to interact with the UI.
+        *payload* Data provided from the ui.
+        '''
+        raise NotImplementedError('Missing ui_hook method.')
+
     @abstractmethod
     def run(self, store):
+        '''
+        Implementation of the plugin. *store* contains any previous published
+        data from the executed tool-config
+        '''
         raise NotImplementedError('Missing run method.')
 
     def run_plugin(self, store):
+        '''
+        Call the method run of the current plugin and provides feedback to the
+        engine.
+        *store* contains any previous published data from the executed
+        tool-config
+        '''
         start_time = time.time()
         # Reset all statuses
         self._status = constants.status.DEFAULT_STATUS
@@ -158,7 +175,7 @@ class BasePlugin(ABC):
             self.logger.exception(
                 "Error message: {}\n Traceback: {}".format(self.message, e)
             )
-            return self.provide_plugin_info()
+            return self.provide_plugin_info(store)
         # print plugin error handled by the plugin
         if not self.boolean_status:
             # Generic message printing the result in case no message is provided.
@@ -168,7 +185,7 @@ class BasePlugin(ABC):
                     "Result is {}.".format(self.name, self.result)
                 )
             self.logger.error(self.message)
-            return self.provide_plugin_info()
+            return self.provide_plugin_info(store)
 
         self.status = constants.status.SUCCESS_STATUS
         # Notify client
@@ -180,10 +197,14 @@ class BasePlugin(ABC):
         total_time = end_time - start_time
         self.execution_time = total_time
 
-        return self.provide_plugin_info()
+        return self.provide_plugin_info(store)
 
-    def provide_plugin_info(self):
-        '''Provide the entire plugin information'''
+    def provide_plugin_info(self, store=None):
+        '''
+        Provide the entire plugin information.
+        If *store* is given, provides the current store as part of the
+        plugin info.
+        '''
         return {
             'plugin_name': self.name,
             'plugin_id': self.id,
@@ -193,7 +214,9 @@ class BasePlugin(ABC):
             'plugin_execution_time': self.execution_time,
             'plugin_ui_id': self.ui_id,
             'plugin_ui_name': self.ui_name,
+            'plugin_options': self.options,
             'plugin_result': self.result,
+            'plugin_store': store,
         }
 
     @classmethod

@@ -44,8 +44,8 @@ class FrameworkWidget(BaseUI):
         if type(value) != dict:
             return
         if not self.plugin_config.get('options'):
-            self.plugin_config['options'] = []
-        self.plugin_config['options'].append(value)
+            self.plugin_config['options'] = {}
+        self.plugin_config['options'].update(value)
 
     def __init__(
         self,
@@ -97,7 +97,7 @@ class FrameworkWidget(BaseUI):
         arguments = {
             "plugin_config": self.plugin_config,
             "plugin_method_name": plugin_method_name,
-            'plugin_widget_id': self.id,
+            'plugin_ui_id': self.id,
         }
         self.dialog_method_connection('run_plugin_method', arguments=arguments)
 

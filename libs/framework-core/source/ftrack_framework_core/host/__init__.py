@@ -179,8 +179,6 @@ class Host(object):
         '''Return registry object'''
         return self._registry
 
-    # TODO: we can create an engine registry
-
     def __init__(self, event_manager, registry):
         '''
         Initialise Host with instance of
@@ -258,7 +256,7 @@ class Host(object):
         # Get the plugin info dictionary and add it to the logDB
         plugin_info = event['data']
         log_item = LogItem(plugin_info)
-        self.logs.add_log_item(log_item)
+        self.logs.add_log_item(self.id, log_item)
         # Publish the event to notify client
         self.event_manager.publish.host_log_item_added(self.id, log_item)
 
@@ -295,15 +293,20 @@ class Host(object):
                 'No engine with name "{}" found'.format(engine_name)
             )
 
-        engine_result = engine_instance.execute_engine(tool_config['engine'])
+        try:
+            engine_result = engine_instance.execute_engine(
+                tool_config['engine']
+            )
 
-        if not engine_result:
-            self.logger.error(
-                "Couldn't run tool_config {}".format(tool_config)
+        except Exception as error:
+            raise Exception(
+                'Error appear when executing engine: {} from {}.'
+                '\n Error: {}'.format(
+                    tool_config['engine'], engine_name, error
+                )
             )
         return engine_result
 
-    # TODO: this should be ABC
     def run_plugin_callback(self, event):
         '''
         Runs the plugin_config in the given *event* with the engine type
@@ -315,7 +318,7 @@ class Host(object):
         plugin_method = event['data']['plugin_method']
         engine_type = event['data']['engine_type']
         engine_name = event['data']['engine_name']
-        plugin_widget_id = event['data']['plugin_widget_id']
+        plugin_ui_id = event['data']['plugin_ui_id']
 
         engine = None
         try:
@@ -342,8 +345,8 @@ class Host(object):
             # I have registered context_data in the schema
             plugin_context_data=plugin_config.get('context_data'),
             plugin_method=plugin_method,
-            plugin_widget_id=plugin_widget_id,
-            plugin_widget_name=plugin_config.get('ui'),
+            plugin_ui_id=plugin_ui_id,
+            plugin_ui_name=plugin_config.get('ui'),
         )
 
         if not engine_result:
