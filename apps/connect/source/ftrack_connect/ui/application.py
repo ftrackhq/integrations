@@ -851,7 +851,7 @@ class Application(QtWidgets.QMainWindow):
     def _gather_plugins(self, path):
         '''Return plugin hooks from *path*.'''
         paths = []
-        if len(path or '') == 0:
+        if not path:
             return paths
         self.logger.debug(u'Searching {0!r} for plugin hooks.'.format(path))
 

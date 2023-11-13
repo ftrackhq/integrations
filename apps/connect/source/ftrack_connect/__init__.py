@@ -27,9 +27,8 @@ _resource = {"loaded": False}
 
 def load_icons(font_folder):
     font_folder = os.path.abspath(font_folder)
-    if not _resource["loaded"]:
-        logger.info(f'loading ftrack icon fonts from {font_folder}')
     if not _resource['loaded']:
+        logger.info(f'loading ftrack icon fonts from {font_folder}')
         qta.load_font(
             'ftrack',
             'ftrack-icon.ttf',
