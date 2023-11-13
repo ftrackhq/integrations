@@ -1191,20 +1191,17 @@ class Application(QtWidgets.QMainWindow):
     def _discover_applications(self):
         '''Walk through Connect plugins and pick up application launcher
         configuration files.'''
-        config_paths = []
+        launcher_config_paths = []
 
         self.logger.debug('Discovering applications launcher configs.')
 
         for connect_plugin_path in self.plugin_paths:
             launcher_config_path = os.path.join(connect_plugin_path, 'launch')
             if os.path.isdir(launcher_config_path):
-                for filename in os.listdir(launcher_config_path):
-                    if (
-                        filename.endswith('.yaml')
-                    ) and launcher_config_path not in config_paths:
-                        config_paths.append(launcher_config_path)
-                        break  # Done with this folder
+                launcher_config_paths.append(launcher_config_path)
 
         # Create store containing launchable applications.
-        applications = DiscoverApplications(self.session, config_paths)
+        applications = DiscoverApplications(
+            self.session, launcher_config_paths
+        )
         applications.register()
