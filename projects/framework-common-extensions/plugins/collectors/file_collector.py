@@ -24,10 +24,7 @@ class FileCollectorPlugin(BasePlugin):
                 "options: {}".format(self.options)
             )
             return
-        component_name = self.options.get('component')
-        if component_name:
-            store[component_name]['collected_file'] = os.path.join(
-                folder_path, file_name
-            )
-        else:
-            store['collected_file'] = os.path.join(folder_path, file_name)
+        component_name = self.options.get('component', 'main')
+        store['components'][component_name]['collected_file'] = os.path.join(
+            folder_path, file_name
+        )

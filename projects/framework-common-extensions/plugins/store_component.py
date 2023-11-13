@@ -14,7 +14,6 @@ class StoreComponentPlugin(BasePlugin):
         '''
         component_name = self.options.get('component')
         if component_name:
-            store[component_name] = {}
             if not store.get('components'):
-                store['components'] = []
-            store['components'].append(component_name)
+                store['components'] = {}
+            store['components'][component_name] = {}
