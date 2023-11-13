@@ -2,26 +2,36 @@
 # :copyright: Copyright (c) 2014-2023 ftrack
 
 import os
-import sys
 import pprint
 import logging
 import re
 import datetime
 
+import ftrack_api
+from ftrack_connect.util import get_connect_plugin_version
+
+from ftrack_connect.applaunch import (
+    append_path,
+    ApplicationLauncher,
+    ApplicationLaunchAction,
+    ApplicationStore,
+)
+
+logger = logging.getLogger(__name__)
 
 cwd = os.path.dirname(__file__)
+connect_plugin_path = os.path.abspath(os.path.join(cwd, '..'))
 
-python_dependencies = os.path.abspath(os.path.join(cwd, '..', 'dependencies'))
+# Read version number from __version__.py
+__version__ = get_connect_plugin_version(connect_plugin_path)
 
-sys.path.append(python_dependencies)
-
-import ftrack_api
-import ftrack_application_launcher
-
-RV_INSTALLATION_PATH = os.getenv('RV_INSTALLATION_PATH', '/usr/local/rv')
+python_dependencies = os.path.join(connect_plugin_path, 'dependencies')
 
 
-class ApplicationLauncher(ftrack_application_launcher.ApplicationLauncher):
+RV_LINUX_INSTALLATION_PATH = os.getenv('RV_INSTALLATION_PATH', '/usr/local/rv')
+
+
+class ApplicationLauncher(ApplicationLauncher):
     '''Discover and launch rv.'''
 
     def _get_application_environment(self, application, context=None):
@@ -33,14 +43,14 @@ class ApplicationLauncher(ftrack_application_launcher.ApplicationLauncher):
             ApplicationLauncher, self
         )._get_application_environment(application, context)
 
-        environment = ftrack_application_launcher.append_path(
+        environment = append_path(
             python_dependencies, 'PYTHONPATH', environment
         )
 
         return environment
 
 
-class LaunchRvAction(ftrack_application_launcher.ApplicationLaunchAction):
+class LaunchRvAction(ApplicationLaunchAction):
     '''Adobe plugins discover and launch action.'''
 
     context = [None, 'Task', 'AssetVersion']
@@ -92,7 +102,7 @@ class LaunchRvAction(ftrack_application_launcher.ApplicationLaunchAction):
         return self.launcher.launch(applicationIdentifier, context)
 
 
-class ApplicationStore(ftrack_application_launcher.ApplicationStore):
+class ApplicationStore(ApplicationStore):
     def _discover_applications(self):
         '''Return a list of applications that can be launched from this host.
 
@@ -113,7 +123,6 @@ class ApplicationStore(ftrack_application_launcher.ApplicationStore):
 
         if self.current_os == 'darwin':
             prefix = ['/', 'Applications']
-            # TODO: extract RV version number from Info.plist
             applications.extend(
                 self._search_filesystem(
                     expression=prefix + ['RV.*\.app'],
@@ -148,24 +157,24 @@ class ApplicationStore(ftrack_application_launcher.ApplicationStore):
 
         elif self.current_os == 'linux':
             separator = os.path.sep
-            prefix = RV_INSTALLATION_PATH
-            if not os.path.exists(RV_INSTALLATION_PATH):
+            prefix = RV_LINUX_INSTALLATION_PATH
+            if not os.path.exists(RV_LINUX_INSTALLATION_PATH):
                 self.logger.debug(
                     'No folder found for '
                     '$RV_INSTALLATION_PATH at : {0}'.format(
-                        RV_INSTALLATION_PATH
+                        RV_LINUX_INSTALLATION_PATH
                     )
                 )
 
             else:
                 # Check for leading slashes
-                if RV_INSTALLATION_PATH.startswith(separator):
+                if RV_LINUX_INSTALLATION_PATH.startswith(separator):
                     # Strip it off if does exist
                     prefix = prefix[1:]
 
                 # Split the path in its components.
                 prefix = prefix.split(separator)
-                if RV_INSTALLATION_PATH.startswith(separator):
+                if RV_LINUX_INSTALLATION_PATH.startswith(separator):
                     # Add leading slash back
                     prefix.insert(0, separator)
 
@@ -197,8 +206,6 @@ class ApplicationStore(ftrack_application_launcher.ApplicationStore):
 def register(session, **kw):
     '''Register hooks.'''
 
-    logger = logging.getLogger('ftrack_plugin:ftrack_connect_rv_hook.register')
-
     # Validate that registry is ftrack.EVENT_HANDLERS. If not, assume that
     # register is being called from a new or incompatible API and
     # return without doing anything.
@@ -214,3 +221,5 @@ def register(session, **kw):
     # Create action and register to respond to discover and launch actions.
     action = LaunchRvAction(session, application_store, launcher)
     action.register()
+
+    logger.info('Registered rv launch hook v{}.'.format(__version__))

@@ -9,6 +9,11 @@ Release Notes
 
 .. release:: upcoming
 
+    .. change:: fixed
+        :tags: versioning
+
+        Properly detect RV version on mac. Refactored hook to use applaunch module within Connect.
+
     .. change:: changed
 
         Replaced setuptools with Poetry and RV package build tool.
