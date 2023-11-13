@@ -11,8 +11,8 @@ import subprocess
 
 from ftrack_connect.util import get_connect_plugin_version
 
-NAME = 'ftrack-framework-photoshop'
-''' The name of the integration, should match pyproject.toml name, bootstrap and launcher name'''
+NAME = 'framework-photoshop'
+''' The name of the integration, should match name in bootstrap and launcher'''
 
 logger = logging.getLogger(__name__)
 
@@ -22,7 +22,7 @@ connect_plugin_path = os.path.abspath(os.path.join(cwd, '..'))
 # Read version number from __version__.py
 __version__ = get_connect_plugin_version(connect_plugin_path)
 
-sources = os.path.join(connect_plugin_path, 'dependencies')
+python_dependencies = os.path.join(connect_plugin_path, 'dependencies')
 
 
 def on_discover_pipeline_photoshop(session, event):
@@ -64,7 +64,7 @@ def on_launch_pipeline_photoshop(session, event):
         pass
 
     pipeline_photoshop_base_data['integration']['env'] = {
-        'PYTHONPATH.prepend': os.path.pathsep.join([sources]),
+        'PYTHONPATH.prepend': os.path.pathsep.join([python_dependencies]),
         'FTRACK_INTEGRATION_SESSION_ID': str(uuid.uuid4()),
         'FTRACK_PHOTOSHOP_VERSION': str(photoshop_version),
     }

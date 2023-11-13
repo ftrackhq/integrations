@@ -420,7 +420,7 @@ class Application(QtWidgets.QMainWindow):
         )
         self._createDefaultPluginDirectory()
 
-        self.pluginPaths = self._discover_plugin_paths()
+        self.plugin_paths = self._discover_plugin_paths()
 
         # Register widget for error handling.
         self.uncaughtError = _uncaught_error.UncaughtError(parent=self)
@@ -611,7 +611,7 @@ class Application(QtWidgets.QMainWindow):
             if apiPluginPath and apiPluginPath not in api_plugin_paths:
                 api_plugin_paths.append(os.path.expandvars(apiPluginPath))
 
-        for connect_plugin_path in self.pluginPaths:
+        for connect_plugin_path in self.plugin_paths:
             api_plugin_paths.append(os.path.join(connect_plugin_path, 'hook'))
 
         return api_plugin_paths
@@ -1195,7 +1195,7 @@ class Application(QtWidgets.QMainWindow):
 
         self.logger.debug('Discovering applications launcher configs.')
 
-        for connect_plugin_path in self.pluginPaths:
+        for connect_plugin_path in self.plugin_paths:
             launcher_config_path = os.path.join(connect_plugin_path, 'launch')
             if os.path.isdir(launcher_config_path):
                 for filename in os.listdir(launcher_config_path):

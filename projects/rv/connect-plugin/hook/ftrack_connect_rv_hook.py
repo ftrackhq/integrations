@@ -11,9 +11,9 @@ import datetime
 
 cwd = os.path.dirname(__file__)
 
-sources = os.path.abspath(os.path.join(cwd, '..', 'dependencies'))
+python_dependencies = os.path.abspath(os.path.join(cwd, '..', 'dependencies'))
 
-sys.path.append(sources)
+sys.path.append(python_dependencies)
 
 import ftrack_api
 import ftrack_application_launcher
@@ -34,7 +34,7 @@ class ApplicationLauncher(ftrack_application_launcher.ApplicationLauncher):
         )._get_application_environment(application, context)
 
         environment = ftrack_application_launcher.append_path(
-            sources, 'PYTHONPATH', environment
+            python_dependencies, 'PYTHONPATH', environment
         )
 
         return environment

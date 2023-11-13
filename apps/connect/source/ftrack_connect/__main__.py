@@ -60,7 +60,7 @@ def main_connect(arguments=None):
         '--verbosity',
         help='Set the logging output verbosity.',
         choices=loggingLevels.keys(),
-        default='info',
+        default='warning',
     )
 
     parser.add_argument(

@@ -1,5 +1,5 @@
 type: launcher
-name: ftrack-framework-photoshop
+name: framework-photoshop
 priority: 100
 context:
 - Task
@@ -7,7 +7,7 @@ identifier: ftrack-framework-launch-photoshop
 applicationIdentifier: photoshop_{variant}
 integrations:
   framework:
-  - ftrack-framework-photoshop
+  - framework-photoshop
 label: Adobe Photoshop
 icon: photoshop
 variant: "{version}"
