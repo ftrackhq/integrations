@@ -57,4 +57,7 @@ class ComponentPathCollectorPlugin(BasePlugin):
             self.message = "\n".join(unresolved_asset_messages)
             self.status = constants.status.ERROR_STATUS
 
-        store['collected_paths'] = collected_paths
+        component_name = self.options.get('component', 'main')
+        store['components'][component_name][
+            'collected_paths'
+        ] = collected_paths

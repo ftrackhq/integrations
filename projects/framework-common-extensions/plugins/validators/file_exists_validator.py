@@ -24,7 +24,6 @@ class FileExistsValidatorPlugin(BasePlugin):
         component_name = self.options.get('component')
         collected_file = store[component_name]['collected_file']
 
-        if component_name:
-            store[component_name]['valid_file'] = self.validate(collected_file)
-        else:
-            store['valid_file'] = self.validate(collected_file)
+        store['components'][component_name]['valid_file'] = self.validate(
+            collected_file
+        )

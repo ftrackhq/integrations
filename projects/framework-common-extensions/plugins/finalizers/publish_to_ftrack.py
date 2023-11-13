@@ -21,7 +21,7 @@ class PublishToFtrack(BasePlugin):
         '''
 
         # Get components to publish
-        components = store.get('components')
+        components = list(store.get('components').keys())
         if not components:
             return
 

@@ -293,7 +293,6 @@ class Host(object):
                 'No engine with name "{}" found'.format(engine_name)
             )
 
-        engine_result = None
         try:
             engine_result = engine_instance.execute_engine(
                 tool_config['engine']

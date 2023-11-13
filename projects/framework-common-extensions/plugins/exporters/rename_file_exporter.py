@@ -25,14 +25,6 @@ class RenameExporterPlugin(BasePlugin):
         collected_file = store[component_name]['collected_file']
         export_destination = self.options['export_destination']
 
-        store[component_name]['exported_path'] = self.rename(
+        store['components'][component_name]['exported_path'] = self.rename(
             collected_file, export_destination
         )
-        if component_name:
-            store[component_name]['exported_path'] = self.rename(
-                collected_file, export_destination
-            )
-        else:
-            store['exported_path'] = self.rename(
-                collected_file, export_destination
-            )

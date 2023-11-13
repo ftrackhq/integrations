@@ -131,14 +131,27 @@ class BasePlugin(ABC):
         self._result = False
 
     def ui_hook(self, payload):
-        '''Method to interact with the UI'''
+        '''
+        Method to interact with the UI.
+        *payload* Data provided from the ui.
+        '''
         raise NotImplementedError('Missing ui_hook method.')
 
     @abstractmethod
     def run(self, store):
+        '''
+        Implementation of the plugin. *store* contains any previous published
+        data from the executed tool-config
+        '''
         raise NotImplementedError('Missing run method.')
 
     def run_plugin(self, store):
+        '''
+        Call the method run of the current plugin and provides feedback to the
+        engine.
+        *store* contains any previous published data from the executed
+        tool-config
+        '''
         start_time = time.time()
         # Reset all statuses
         self._status = constants.status.DEFAULT_STATUS
@@ -187,7 +200,11 @@ class BasePlugin(ABC):
         return self.provide_plugin_info(store)
 
     def provide_plugin_info(self, store=None):
-        '''Provide the entire plugin information'''
+        '''
+        Provide the entire plugin information.
+        If *store* is given, provides the current store as part of the
+        plugin info.
+        '''
         return {
             'plugin_name': self.name,
             'plugin_id': self.id,
