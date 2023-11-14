@@ -14,7 +14,7 @@ class OpenerPublisherTabDialog(BaseContextDialog):
     name = 'framework_opener_publisher_tab_dialog'
     tool_config_type_filter = ['publisher', 'opener']
     ui_type = 'qt'
-    run_button_title = 'publish'
+    run_button_title = None
 
     @property
     def tab_mapping(self):
@@ -52,8 +52,6 @@ class OpenerPublisherTabDialog(BaseContextDialog):
         *dialog_options*: Dictionary of arguments passed to configure the
         current dialog.
         '''
-        self._scroll_area = None
-        self._scroll_area_widget = None
         self._tab_mapping = {}
         self._tab_widget = None
 
@@ -76,84 +74,97 @@ class OpenerPublisherTabDialog(BaseContextDialog):
         if opener_tool_configs:
             # Pick the first tool config available
             self._tab_mapping['open'] = opener_tool_configs[0]
-            if not self.tool_config:
-                self.tool_config = self._tab_mapping['open']
 
         publisher_tool_configs = self.filtered_tool_configs['publisher']
         if publisher_tool_configs:
             # Pick the first tool config available
             self._tab_mapping['save'] = publisher_tool_configs[0]
-            if not self.tool_config:
-                self.tool_config = self._tab_mapping['save']
+
+    def add_tab(self, tab_title, widget):
+        self._tab_widget.addTab(widget, tab_title)
 
     def _build_tabs(self):
         '''Build Open and save tabs'''
-        if self._tab_mapping.get('open'):
-            self._open_widget = self._build_open_widget()
-            self.add_tab("Open", self._open_widget)
+        self._open_widget = self._build_open_widget(
+            self._tab_mapping.get('open')
+        )
+        self.add_tab("Open", self._open_widget)
 
-        if self._tab_mapping.get('save'):
-            self._publish_widget = self._build_publish_widget()
-            self.add_tab("Save", self._publish_widget)
+        self._publish_widget = self._build_publish_widget(
+            self._tab_mapping.get('save')
+        )
+        self.add_tab("Save", self._publish_widget)
 
-    def _build_open_widget(self):
+    def _build_open_widget(self, tool_config):
         '''Open tab widget creation'''
         main_widget = QtWidgets.QWidget()
         main_layout = QtWidgets.QVBoxLayout()
         main_widget.setLayout(main_layout)
 
         # Build Collector widget
-        collector_plugins = get_plugins(
-            self.tool_config, filters={'tags': ['collector']}
-        )
-        for collector_plugin in collector_plugins:
-            if not collector_plugin.get('ui'):
-                continue
-            collector_widget = self.init_framework_widget(collector_plugin)
-            # TODO: run ui hook
-            # collector_widget.fetch()
-            main_widget.layout().addWidget(collector_widget)
-
         open_button = QtWidgets.QPushButton('OPEN')
 
-        open_button.clicked.connect(self._on_ui_open_button_clicked_callback)
+        if tool_config:
+            collector_plugins = get_plugins(
+                tool_config, filters={'tags': ['collector']}
+            )
+            for collector_plugin in collector_plugins:
+                if not collector_plugin.get('ui'):
+                    continue
+                collector_widget = self.init_framework_widget(collector_plugin)
+                # TODO: run ui hook
+                # collector_widget.fetch()
+                main_widget.layout().addWidget(collector_widget)
+        else:
+            main_widget.layout().addWidget(
+                QtWidgets.QLabel(
+                    '<html><i>No open tool config available</i></html>'
+                )
+            )
+            open_button.setDisabled(True)
+
+        open_button.clicked.connect(self._on_run_button_clicked)
 
         main_widget.layout().addWidget(open_button)
 
         return main_widget
 
-    def _build_publish_widget(self):
+    def _on_selected_tab_changed_callback(self, tab_index):
+        self.tool_config = self.tab_mapping.get(
+            'open' if tab_index == 0 else 'save'
+        )
+
+    def _build_publish_widget(self, tool_config):
         '''Open tab widget creation'''
         main_widget = QtWidgets.QWidget()
         main_layout = QtWidgets.QVBoxLayout()
         main_widget.setLayout(main_layout)
 
-        # Build Collector widget
-        context_plugins = get_plugins(
-            self.tool_config, filters={'tags': ['context']}
-        )
-        for context_plugin in context_plugins:
-            if not context_plugin.get('ui'):
-                continue
-            context_widget = self.init_framework_widget(context_plugin)
-            main_widget.layout().addWidget(context_widget)
+        publish_button = QtWidgets.QPushButton('PUBLISH')
+
+        if tool_config:
+            # Build Collector widget
+            context_plugins = get_plugins(
+                tool_config or {}, filters={'tags': ['context']}
+            )
+            for context_plugin in context_plugins:
+                if not context_plugin.get('ui'):
+                    continue
+                context_widget = self.init_framework_widget(context_plugin)
+                main_widget.layout().addWidget(context_widget)
+        else:
+            main_widget.layout().addWidget(
+                QtWidgets.QLabel(
+                    '<html><i>No publish tool config available</i></html>'
+                )
+            )
+            publish_button.setDisabled(True)
 
         buttons_layout = QtWidgets.QHBoxLayout()
 
-        # We create the version Up Button that will execute the
-        # version up plugin
-        version_up_button = QtWidgets.QPushButton('VERSION UP')
-        version_up_button.clicked.connect(
-            self._on_ui_version_up_button_clicked_callback
-        )
-        buttons_layout.addWidget(version_up_button)
-
         # send to review executes the entire tool-config steps/stages
-        review_button = QtWidgets.QPushButton('SEND TO REVIEW')
-        review_button.clicked.connect(
-            self._on_ui_review_button_clicked_callback
-        )
-        buttons_layout.addWidget(review_button)
+        publish_button.clicked.connect(self._on_run_button_clicked)
+        buttons_layout.addWidget(publish_button)
 
         main_widget.layout().addLayout(buttons_layout)
 
@@ -167,61 +178,18 @@ class OpenerPublisherTabDialog(BaseContextDialog):
 
         self._tab_widget = QtWidgets.QTabWidget()
         self._build_tabs()
-        self.layout().addWidget(self._tab_widget)
+        self.tool_widget.layout().addWidget(self._tab_widget)
 
         self.run_button.setVisible(False)
-
-    def add_collector_widgets(self, collectors, accordion_widget):
-        for plugin in collectors:
-            if not plugin.get('ui'):
-                continue
-            widget = self.init_framework_widget(plugin)
-            accordion_widget.add_widget(widget)
-
-    def add_validator_widgets(self, validators, accordion_widget):
-        for plugin in validators:
-            if not plugin.get('ui'):
-                continue
-            widget = self.init_framework_widget(plugin)
-            accordion_widget.add_option_widget(
-                widget, section_name='Validators'
-            )
-
-    def add_exporter_widgets(self, exporters, accordion_widget):
-        for plugin in exporters:
-            if not plugin.get('ui'):
-                continue
-            widget = self.init_framework_widget(plugin)
-            accordion_widget.add_option_widget(
-                widget, section_name='Exporters'
-            )
 
     def post_build_ui(self):
         self._tab_widget.currentChanged.connect(
             self._on_selected_tab_changed_callback
         )
 
-    def _on_selected_tab_changed_callback(self, tab_name):
-        if not tab_name:
-            self.tool_config = None
-            return
-        self.tool_config = self.tab_mapping.get(tab_name.lower())
-
-    def run_collectors(self, plugin_widget_id=None):
+    def _on_ui_run_button_clicked_callback(self):
         '''
-        Run all the collector plugins of the current tool_config.
-        If *plugin_widget_id* is given, a signal with the result of the plugins
-        will be emitted to be picked by that widget id.
+        RUN button from the UI has been clicked.
+        Tell client to run the current tool config
         '''
-        collector_plugins = get_plugins(
-            self.tool_config, filters={'tags': ['collector']}
-        )
-        for collector_plugin in collector_plugins:
-            arguments = {
-                "plugin_config": collector_plugin,
-                "plugin_method_name": 'run',
-                "engine_type": self.tool_config['engine_type'],
-                "engine_name": self.tool_config['engine_name'],
-                'plugin_widget_id': plugin_widget_id,
-            }
-            self.client_method_connection('run_plugin', arguments=arguments)
+        self._run_tool_config()

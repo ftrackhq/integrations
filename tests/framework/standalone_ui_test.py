@@ -63,6 +63,6 @@ app = QtWidgets.QApplication.instance()
 if not app:
     app = QtWidgets.QApplication(sys.argv)
 
-client_class.run_dialog(dialog_name='framework_standard_publisher_dialog')
+client_class.run_dialog(dialog_name='framework_opener_publisher_tab_dialog')
 
 sys.exit(app.exec_())
