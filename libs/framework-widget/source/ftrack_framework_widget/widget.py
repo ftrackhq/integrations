@@ -96,18 +96,6 @@ class FrameworkWidget(BaseUI):
         self._context_id = context_id
         self.on_context_updated()
 
-    def on_log_item_added_callback(self, plugin_info):
-        '''
-        Called when a result of an executed plugin is published. It provides
-        the *plugin_info*
-        '''
-        # Called by the dialog
-        result = plugin_info['plugin_result']
-        print('result'.format(result))
-        raise NotImplementedError(
-            "This method should be implemented by the inheriting class"
-        )
-
     def on_context_updated(self):
         '''Called when context of the widget has been updated.
 

@@ -352,14 +352,6 @@ class FrameworkDialog(BaseUI):
         Client notify dialog that a new log item has been added.
         '''
         log_item = event['data']['log_item']
-        widget = self.framework_widgets.get(log_item['plugin_ui_name'])
-        if not widget:
-            self.logger.error(
-                "Widget is not registered : {}\n"
-                "Registry: {}".format(widget, self.framework_widgets.keys())
-            )
-            return
-        widget.on_log_item_added_callback(log_item)
 
     @classmethod
     def register(cls):
