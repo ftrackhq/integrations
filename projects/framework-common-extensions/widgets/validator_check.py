@@ -6,11 +6,10 @@ from Qt import QtWidgets, QtCore, QtGui
 from ftrack_framework_qt.widgets import BaseWidget
 
 
-# TODO: review and docstring this code
-class ValidatorCheckWidget(BaseWidget):
-    '''Main class to represent a validator check widget on a publish process.'''
+class ValidatorLabelWidget(BaseWidget):
+    '''Main class to represent a validator widget on a publish process.'''
 
-    name = 'validator_check'
+    name = 'validator_label'
     ui_type = 'qt'
 
     def __init__(
@@ -24,14 +23,9 @@ class ValidatorCheckWidget(BaseWidget):
         dialog_property_getter_connection_callback,
         parent=None,
     ):
-        '''initialise PublishContextWidget with *parent*, *session*, *data*,
-        *name*, *description*, *options* and *context*
-        '''
         self._validator_name_label = None
-        self._validator_status_icon = None
-        self._check_button = None
 
-        super(ValidatorCheckWidget, self).__init__(
+        super(ValidatorLabelWidget, self).__init__(
             event_manager,
             client_id,
             context_id,
