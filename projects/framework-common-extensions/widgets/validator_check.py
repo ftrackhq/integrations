@@ -3,12 +3,7 @@
 
 from Qt import QtWidgets, QtCore, QtGui
 
-import ftrack_constants.framework as constants
-
 from ftrack_framework_qt.widgets import BaseWidget
-
-from ftrack_qt.widgets.icons import StatusMaterialIconWidget
-from ftrack_utils.framework.tool_config.read import get_plugins
 
 
 # TODO: review and docstring this code
@@ -59,25 +54,10 @@ class ValidatorCheckWidget(BaseWidget):
     def build_ui(self):
         '''build function widgets.'''
         self._validator_name_label = QtWidgets.QLabel(self.plugin_name)
-        self._validator_status_icon = StatusMaterialIconWidget('check')
-        self._validator_status_icon.setObjectName('borderless')
-        self._validator_status_icon.set_status(constants.status.DEFAULT_STATUS)
 
         # Add the widgets to the layout
         self.layout().addWidget(self._validator_name_label)
-        self.layout().addWidget(self._validator_status_icon)
 
     def post_build_ui(self):
         '''hook events'''
         pass
-
-    def on_log_item_added_callback(self, plugin_info):
-        if plugin_info['plugin_name'] == self.plugin_config['name']:
-            if plugin_info['boolean_status']:
-                self._validator_status_icon.set_status(
-                    constants.status.SUCCESS_STATUS
-                )
-            else:
-                self._validator_status_icon.set_status(
-                    constants.status.ERROR_STATUS
-                )
