@@ -91,6 +91,7 @@ class ValidatorCheckWidget(BaseWidget):
             arguments = {
                 "plugin_ui_id": self.id,
                 "plugin_config": collector_plugin,
+                "plugin_store": dict(),
             }
             self.dialog_method_connection('run_plugin', arguments=arguments)
         self._validator_status_icon.set_status(constants.status.RUNNING_STATUS)
@@ -101,30 +102,35 @@ class ValidatorCheckWidget(BaseWidget):
         #  so I don't get the result, maybe I should return in the collectors
         #  if I need? Maybe the return should be something like {FileCollectorPlugin: {isCollector:True, result:'asd}}
 
-        # In case we have run the collectors
-        if plugin_info['plugin_type'] == 'collector':
-            self.validate_collector_result(plugin_info['plugin_method_result'])
-        # We have run the validate method
-        if (
-            plugin_info['plugin_ui_id'] == self.id
-            and plugin_info['plugin_method'] == 'validate'
-        ):
-            if plugin_info['plugin_method_result']:
-                self._validator_status_icon.set_status(
-                    constants.status.SUCCESS_STATUS
-                )
-            else:
-                self._validator_status_icon.set_status(
-                    constants.status.ERROR_STATUS
-                )
+        if plugin_info['plugin_ui_id'] != self.id:
+            return
 
-    def validate_collector_result(self, collector_result):
-        self.plugin_data = {'collector_result': collector_result}
-        # TODO: think on how to pass the plugin data here probably directly to
-        #  the store argument
+        collector_plugins = get_plugins(
+            self.group_config, filters={'tags': ['collector']}
+        )
+
+        # In case we have run the collectors
+        if plugin_info['plugin_name'] in collector_plugins:
+            self.validate_collector_result(plugin_info['plugin_store'])
+            return
+        # Pick the result from the validator
+        print(plugin_info)
+        # TODO: we should standarize the is_valid_file
+        if plugin_info['plugin_store']['components'][
+            self.group_config['options']['component']
+        ]['valid_file']:
+            self._validator_status_icon.set_status(
+                constants.status.SUCCESS_STATUS
+            )
+        else:
+            self._validator_status_icon.set_status(
+                constants.status.ERROR_STATUS
+            )
+
+    def validate_collector_result(self, store):
         arguments = {
-            "plugin_config": self.plugin_config,
-            "engine_name": self.tool_config.get('engine_name'),
             'plugin_ui_id': self.id,
+            'plugin_config': self.plugin_config,
+            'store': store,
         }
         self.dialog_method_connection('run_plugin', arguments=arguments)

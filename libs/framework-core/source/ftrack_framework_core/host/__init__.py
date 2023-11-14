@@ -314,8 +314,13 @@ class Host(object):
         set in the *event*
         '''
         plugin_config = event['data']['plugin_config']
-        engine_name = event['data'].get('engine_name', 'standard_engine')
+        engine_name = event['data']['engine_name']
+        if not engine_name:
+            engine_name = 'standard_engine'
         plugin_ui_id = event['data']['plugin_ui_id']
+        store = event['data']['plugin_store']
+        if not isinstance(store, dict):
+            store = dict()
 
         try:
             engine_registry = self.registry.get(
@@ -331,7 +336,7 @@ class Host(object):
 
         try:
             engine_result = engine_instance.run_plugin(
-                plugin_config['plugin'], {}, plugin_config.get('options')
+                plugin_config['plugin'], store, plugin_config.get('options')
             )
 
         except Exception as error:

@@ -355,7 +355,13 @@ class FrameworkDialog(BaseUI):
         arguments = {"tool_config": tool_config}
         self.client_method_connection('run_tool_config', arguments=arguments)
 
-    def run_plugin(self, plugin_config, engine_name=None, plugin_ui_id=None):
+    def run_plugin(
+        self,
+        plugin_config,
+        engine_name=None,
+        plugin_ui_id=None,
+        plugin_store=None,
+    ):
         '''
         Dialog tell client to run the *plugin_method_name* from the
         *plugin_config* .
@@ -367,6 +373,7 @@ class FrameworkDialog(BaseUI):
             "plugin_config": plugin_config,
             "engine_name": self.tool_config.get('engine_name', engine_name),
             'plugin_ui_id': plugin_ui_id,
+            "plugin_store": plugin_store,
         }
         self.client_method_connection('run_plugin', arguments=arguments)
 

@@ -281,6 +281,7 @@ class Publish(object):
         plugin_config,
         engine_name,
         plugin_ui_id=None,
+        plugin_store=None,
         callback=None,
     ):
         '''
@@ -292,6 +293,7 @@ class Publish(object):
             'plugin_config': plugin_config,
             'engine_name': engine_name,
             'plugin_ui_id': plugin_ui_id,
+            'plugin_store': plugin_store,
         }
         event_topic = constants.event.HOST_RUN_PLUGIN_TOPIC
         return self._publish_event(event_topic, data, callback)
