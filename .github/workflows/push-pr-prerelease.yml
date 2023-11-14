@@ -12,6 +12,7 @@ on:
       - opened
       - edited
       - synchronize
+    branches: ["dummy"] # Disable CI - do not trigger
 
 jobs:
 

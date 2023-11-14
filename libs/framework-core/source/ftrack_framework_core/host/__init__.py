@@ -329,8 +329,6 @@ class Host(object):
                     engine_type, engine_name
                 )
             )
-        # TODO: review asset_type_name in the specific task
-        engine.asset_type_name = None
 
         engine_result = engine.run_plugin(
             plugin_name=plugin_config.get('plugin'),
