@@ -79,26 +79,34 @@ class PublishToFtrack(BasePlugin):
             results = {}
 
             for component_name in components:
-                if not store.get(component_name):
+                if not store['components'].get(component_name):
                     continue
                 # TODO: allow multiple paths
                 if component_name == 'thumbnail':
                     self._create_thumbnail(
                         asset_version_object,
-                        store[component_name].get('exported_path'),
+                        store['components'][component_name].get(
+                            'exported_path'
+                        ),
                     )
                 elif component_name == 'reviewable':
                     self._create_reviewable(
                         asset_version_object,
-                        store[component_name].get('exported_path'),
+                        store['components'][component_name].get(
+                            'exported_path'
+                        ),
                     )
                 else:
                     self._create_component(
                         asset_version_object,
                         component_name,
-                        store[component_name].get('exported_path'),
+                        store['components'][component_name].get(
+                            'exported_path'
+                        ),
                     )
-                store[component_name]['published_to_ftrack'] = True
+                store['components'][component_name][
+                    'published_to_ftrack'
+                ] = True
             self.session.commit()
             rollback = False
         except:
