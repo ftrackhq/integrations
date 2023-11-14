@@ -96,7 +96,7 @@ class FrameworkWidget(BaseUI):
         self._context_id = context_id
         self.on_context_updated()
 
-    def run_plugin_callback(self, plugin_info):
+    def on_log_item_added_callback(self, plugin_info):
         '''
         Called when a result of an executed plugin is published. It provides
         the *plugin_info*

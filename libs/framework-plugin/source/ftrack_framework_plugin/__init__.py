@@ -8,8 +8,6 @@ from abc import ABC, abstractmethod
 
 import ftrack_constants.framework as constants
 
-from ftrack_framework_plugin import validation
-
 
 # Evaluate version and log package version
 try:

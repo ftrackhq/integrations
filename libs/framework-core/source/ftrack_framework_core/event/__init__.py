@@ -322,14 +322,6 @@ class Publish(object):
         event_topic = constants.event.CLIENT_CONTEXT_CHANGED_TOPIC
         return self._publish_event(event_topic, data, callback)
 
-    def notify_plugin_progress_client(self, plugin_info, callback=None):
-        '''
-        Publish an event with topic
-        :const:`~ftrack_framework_core.constants.event.NOTIFY_PLUGIN_PROGRESS_TOPIC`
-        '''
-        event_topic = constants.event.NOTIFY_PLUGIN_PROGRESS_TOPIC
-        return self._publish_event(event_topic, plugin_info, callback)
-
     def notify_tool_config_progress_client(
         self,
         host_id,
@@ -422,23 +414,6 @@ class Publish(object):
         }
 
         event_topic = constants.event.CLIENT_NOTIFY_RUN_PLUGIN_RESULT_TOPIC
-        return self._publish_event(event_topic, data, callback)
-
-    def client_notify_run_tool_config_result(
-        self, client_id, tool_config_result, callback=None
-    ):
-        '''
-        Publish an event with topic
-        :const:`~ftrack_framework_core.constants.event.CLIENT_NOTIFY_RUN_TOOL_CONFIG_RESULT_TOPIC`
-        '''
-        data = {
-            'client_id': client_id,
-            'tool_config_result': tool_config_result,
-        }
-
-        event_topic = (
-            constants.event.CLIENT_NOTIFY_RUN_TOOL_CONFIG_RESULT_TOPIC
-        )
         return self._publish_event(event_topic, data, callback)
 
     def client_notify_log_item_added(self, client_id, log_item, callback=None):
@@ -600,16 +575,6 @@ class Subscribe(object):
         )
         return self._subscribe_event(event_topic, callback)
 
-    def notify_plugin_progress_client(self, host_id, callback=None):
-        '''
-        Subscribe to an event with topic
-        :const:`~ftrack_framework_core.constants.event.NOTIFY_PLUGIN_PROGRESS_TOPIC`
-        '''
-        event_topic = '{} and data.host_id={}'.format(
-            constants.event.NOTIFY_PLUGIN_PROGRESS_TOPIC, host_id
-        )
-        return self._subscribe_event(event_topic, callback)
-
     def notify_tool_config_progress_client(self, host_id, callback=None):
         '''
         Subscribe to an event with topic
@@ -667,17 +632,6 @@ class Subscribe(object):
         '''
         event_topic = '{} and data.client_id={}'.format(
             constants.event.CLIENT_NOTIFY_RUN_PLUGIN_RESULT_TOPIC, client_id
-        )
-        return self._subscribe_event(event_topic, callback)
-
-    def client_notify_run_tool_config_result(self, client_id, callback=None):
-        '''
-        Subscribe to an event with topic
-        :const:`~ftrack_framework_core.constants.event.CLIENT_NOTIFY_RUN_TOOL_CONFIG_RESULT_TOPIC`
-        '''
-        event_topic = '{} and data.client_id={}'.format(
-            constants.event.CLIENT_NOTIFY_RUN_TOOL_CONFIG_RESULT_TOPIC,
-            client_id,
         )
         return self._subscribe_event(event_topic, callback)
 

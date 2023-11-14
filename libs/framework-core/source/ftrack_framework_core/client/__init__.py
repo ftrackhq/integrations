@@ -327,7 +327,6 @@ class Client(object):
         # Emit signal to widget
         self.event_manager.publish.client_signal_hosts_discovered(self.id)
 
-    # TODO: this should be ABC method
     def on_host_changed(self, host_connection):
         '''Called when the host has been (re-)selected by the user.'''
         # Emit signal to widget
@@ -339,7 +338,6 @@ class Client(object):
         # Feed the new context to the client
         self.on_context_changed(event['data']['context_id'])
 
-    # TODO: this should be ABC method
     def on_context_changed(self, context_id):
         '''Called when the context has been set or changed within the
         host connection, either from this client or remote
@@ -365,61 +363,9 @@ class Client(object):
         self.event_manager.publish.host_run_tool_config(
             self.host_id,
             tool_config,
-            self._run_tool_config_callback,
-        )
-
-    # TODO: this should be ABC method
-    def _run_tool_config_callback(self, event):
-        '''Callback of the :meth:`~ftrack_framework_core.client.run_tool_config'''
-        self.logger.debug("_run_tool_config_callback event: {}".format(event))
-        result = event['data']
-        if type(event['data']) == list():
-            result = event['data'][0]
-        # Publish event to widget
-        self.event_manager.publish.client_notify_run_tool_config_result(
-            self.id, event['data']
         )
 
     # Plugin
-    def run_plugin(
-        self,
-        plugin_config,
-        engine_name,
-        plugin_ui_id=None,
-        plugin_store=None,
-    ):
-        '''
-        Publish event to tell the host to run the given *plugin_method_name*
-        of the *plugin_config* with the given *engine*.
-
-        Result of the executed plugin method specified in the
-        *plugin_config* will be passed to
-        :meth:`~ftrack_framework_core.client._run_plugin_callback`.
-        '''
-
-        self.event_manager.publish.host_run_plugin(
-            self.host_id,
-            plugin_config,
-            engine_name,
-            plugin_ui_id,
-            plugin_store,
-            self._run_plugin_callback,
-        )
-
-    #  converted to ABC method.
-    def _run_plugin_callback(self, event):
-        '''
-        Callback of the :meth:`~ftrack_framework_core.client.run_plugin
-        This method publish the client_notify_run_plugin_result.
-        As example, this event is subscribed by the FrameworkDialog so this can
-        get the results.
-        '''
-        self.logger.debug("_run_plugin_callback event: {}".format(event))
-        # Publish event to widget
-        self.event_manager.publish.client_notify_run_plugin_result(
-            self.id, event['data'][0]
-        )
-
     def on_log_item_added_callback(self, event):
         '''
         Called when a log item has added in the host.

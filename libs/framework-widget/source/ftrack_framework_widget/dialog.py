@@ -166,14 +166,6 @@ class FrameworkDialog(BaseUI):
         self.event_manager.subscribe.client_signal_host_changed(
             self.client_id, callback=self._on_client_host_changed_callback
         )
-        self.event_manager.subscribe.client_notify_run_plugin_result(
-            self.client_id,
-            callback=self._on_client_notify_ui_run_plugin_result_callback,
-        )
-        self.event_manager.subscribe.client_notify_run_tool_config_result(
-            self.client_id,
-            callback=self._on_client_notify_ui_run_tool_config_result_callback,
-        )
         self.event_manager.subscribe.client_notify_log_item_added(
             self.client_id,
             callback=self._on_client_notify_ui_log_item_added_callback,
@@ -355,61 +347,19 @@ class FrameworkDialog(BaseUI):
         arguments = {"tool_config": tool_config}
         self.client_method_connection('run_tool_config', arguments=arguments)
 
-    def run_plugin(
-        self,
-        plugin_config,
-        engine_name=None,
-        plugin_ui_id=None,
-        plugin_store=None,
-    ):
+    def _on_client_notify_ui_log_item_added_callback(self, event):
         '''
-        Dialog tell client to run the *plugin_method_name* from the
-        *plugin_config* .
-        Provides a *plugin_ui_id* if it's a widget who wants to execute the
-        method.
+        Client notify dialog that a new log item has been added.
         '''
-        # No callback as it is returned by an event
-        arguments = {
-            "plugin_config": plugin_config,
-            "engine_name": self.tool_config.get('engine_name', engine_name),
-            'plugin_ui_id': plugin_ui_id,
-            "plugin_store": plugin_store,
-        }
-        self.client_method_connection('run_plugin', arguments=arguments)
-
-    def _on_client_notify_ui_run_plugin_result_callback(self, event):
-        '''
-        Client has notified the dialog about a result of a plugin method,
-        now the dialog notifies the widget that has executed the method.
-        '''
-        plugin_info = event['data']['plugin_info']
-        plugin_ui_id = plugin_info.get('plugin_ui_id')
-        if not plugin_ui_id:
-            self.logger.info("Widget id not provided")
-            return
-        widget = self.framework_widgets.get(plugin_ui_id)
+        log_item = event['data']['log_item']
+        widget = self.framework_widgets.get(log_item['plugin_ui_name'])
         if not widget:
             self.logger.error(
                 "Widget is not registered : {}\n"
                 "Registry: {}".format(widget, self.framework_widgets.keys())
             )
             return
-        widget.run_plugin_callback(plugin_info)
-
-    def _on_client_notify_ui_run_tool_config_result_callback(self, event):
-        '''
-        Client notifies the dialog that tool_config has been executed and passes
-        the result in the *event*
-        '''
-        tool_config_result = event['data']['tool_config_result']
-        # TODO: do something with the result
-
-    def _on_client_notify_ui_log_item_added_callback(self, event):
-        '''
-        Client notify dialog that a new log item has been added.
-        '''
-        log_item = event['data']['log_item']
-        # TODO: do something with the log_item
+        widget.on_log_item_added_callback(log_item)
 
     @classmethod
     def register(cls):

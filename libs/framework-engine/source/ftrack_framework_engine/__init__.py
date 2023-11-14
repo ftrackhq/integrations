@@ -41,7 +41,7 @@ class BaseEngine(ABC):
     def plugin_registry(self):
         return self._plugin_registry
 
-    def __init__(self, plugin_registry, session):
+    def __init__(self, plugin_registry, session, on_plugin_executed=None):
         '''
         Initialise BaseEngine with given *plugin_registry*.
         '''
@@ -53,6 +53,7 @@ class BaseEngine(ABC):
 
         self._plugin_registry = plugin_registry
         self._session = session
+        self.on_plugin_executed = on_plugin_executed
 
     @abstractmethod
     def run_plugin(self, plugin, store, options):
