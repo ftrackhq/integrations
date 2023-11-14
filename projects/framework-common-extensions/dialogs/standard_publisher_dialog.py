@@ -86,11 +86,6 @@ class StandardPublisherDialog(BaseContextDialog):
         for context_plugin in context_plugins:
             if not context_plugin.get('ui'):
                 continue
-            # Inject asset type name in context plugin
-            asset_type_name = self.tool_config.get('asset_type_name', 'script')
-            if 'options' not in context_plugin:
-                context_plugin['options'] = {}
-            context_plugin['options']['asset_type_name'] = asset_type_name
             context_widget = self.init_framework_widget(context_plugin)
             self._scroll_area_widget.layout().addWidget(context_widget)
         # Build component widgets

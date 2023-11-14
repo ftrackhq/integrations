@@ -3,12 +3,13 @@ name: standalone-file-publisher
 config_type: publisher
 # TODO: evaluate host_type key
 host_type: python
-asset_type_name: script
 engine:
   - type: plugin
     tags:
       - context
     plugin: asset_context
+    options:
+      asset_type_name: script
     ui: publisher_context_selector
 
   # Export the file component.
