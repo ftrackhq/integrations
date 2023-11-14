@@ -3,6 +3,7 @@ name: standalone-file-publisher
 config_type: publisher
 # TODO: evaluate host_type key
 host_type: python
+asset_type_name: script
 engine:
   - type: plugin
     tags:

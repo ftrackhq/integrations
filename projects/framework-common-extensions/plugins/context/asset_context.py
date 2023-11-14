@@ -13,8 +13,14 @@ class AssetContextPlugin(BasePlugin):
         'context_id', 'asset_name', 'comment', 'status_id' keys in the
         given *store*
         '''
-        # TODO: shouldn't asset_id and asset_type_name be here as well?
-        keys = ['context_id', 'asset_name', 'comment', 'status_id']
+        keys = [
+            'context_id',
+            'asset_name',
+            'comment',
+            'status_id',
+            'asset_id',
+            'asset_type_name',
+        ]
         for k in keys:
             if self.options.get(k):
                 store[k] = self.options.get(k)

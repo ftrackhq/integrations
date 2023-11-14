@@ -109,6 +109,7 @@ class FrameworkWidget(BaseUI):
         # Called by the dialog
         executed_method = plugin_info['plugin_method']
         method_result = plugin_info['plugin_method_result']
+        # TODO: remove prints
         print('executed_method'.format(executed_method))
         print('method_result'.format(method_result))
         raise NotImplementedError(

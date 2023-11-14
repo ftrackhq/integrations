@@ -30,8 +30,7 @@ class PublishToFtrack(BasePlugin):
         comment = store.get('comment')
         status_id = store.get('status_id')
         asset_id = store.get('asset_id')
-        # TODO: remove script default value once asset_type task is implemented
-        asset_type_name = store.get('asset_type_name', 'script')
+        asset_type_name = store.get('asset_type_name')
         asset_name = store.get('asset_name', asset_type_name)
 
         # TODO: implement version_dependencies
@@ -138,6 +137,9 @@ class PublishToFtrack(BasePlugin):
             ).first()
         else:
             # Query/identify asset
+            assert (
+                asset_type_name
+            ), 'Cannot create asset, no asset type name provided'
             # Get Asset type object
             asset_type_object = self.session.query(
                 'AssetType where short is "{}"'.format(asset_type_name)

@@ -367,12 +367,14 @@ class AssetSelector(QtWidgets.QWidget):
 
     def set_context(self, context_id, asset_type_name):
         '''Set context to *context_id* and asset type to *asset_type_name*'''
+        assert context_id, 'No context id provided'
         self.logger.debug('setting context to :{}'.format(context_id))
         self._asset_list.on_context_changed(context_id, asset_type_name)
         self.set_asset_name(asset_type_name)
 
     def set_asset_name(self, asset_name):
         '''Update the asset input widget with *asset_name*'''
+        assert asset_name, 'No asset type name provided'
         self.logger.debug('setting asset name to :{}'.format(asset_name))
         self._new_asset_input.name.setText(asset_name)
 
