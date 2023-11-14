@@ -7,7 +7,7 @@ from ftrack_framework_widget.widget import FrameworkWidget
 
 
 class BaseWidget(FrameworkWidget, QtWidgets.QWidget):
-    '''Main class to represent basWe framework widget.'''
+    '''Main class to represent base framework widget.'''
 
     name = 'base_widget'
     ui_type = 'qt'
