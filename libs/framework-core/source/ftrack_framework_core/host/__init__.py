@@ -56,9 +56,6 @@ class Host(object):
     host_types = [constants.host.PYTHON_HOST_TYPE]
     '''Compatible Host types for this HOST.'''
 
-    FtrackObjectManager = FtrackObjectManager
-    '''FtrackObjectManager class to use'''
-
     def __repr__(self):
         return '<Host:{0}>'.format(self.id)
 
@@ -74,20 +71,6 @@ class Host(object):
         Returns instance of :class:`ftrack_api.session.Session`
         '''
         return self._event_manager.session
-
-    @property
-    def ftrack_object_manager(self):
-        '''
-        Initializes and returns an instance of
-        :class:`~ftrack_framework_core.asset.FtrackObjectManager`
-        '''
-        if not isinstance(
-            self._ftrack_object_manager, self.FtrackObjectManager
-        ):
-            self._ftrack_object_manager = self.FtrackObjectManager(
-                self.event_manager
-            )
-        return self._ftrack_object_manager
 
     # noinspection SpellCheckingInspection
     @property
@@ -199,7 +182,6 @@ class Host(object):
         # Set event manager and object manager
         self._event_manager = event_manager
         self._registry = registry
-        self._ftrack_object_manager = None
 
         self._discover_host_subscribe_id = None
 
