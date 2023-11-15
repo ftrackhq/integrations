@@ -73,10 +73,9 @@ class LogDB(object):
                 '''CREATE TABLE {0} (id INTEGER PRIMARY KEY,'''
                 ''' date int, plugin_status text, plugin_boolean_status bool,'''
                 ''' host_id text, plugin_name text,'''
-                ''' plugin_id text, plugin_result text,'''
+                ''' plugin_reference text, plugin_result text,'''
                 ''' plugin_execution_time real,'''
                 ''' plugin_message text, plugin_options text,'''
-                ''' plugin_ui_id text, plugin_ui_name text,'''
                 ''' plugin_store text)'''.format(self.table_name)
             )
 
@@ -162,11 +161,10 @@ class LogDB(object):
 
             cur.execute(
                 '''INSERT INTO {0} (date,plugin_status,plugin_boolean_status,
-                host_id, plugin_name,plugin_id,plugin_result,
+                host_id, plugin_name,plugin_reference,plugin_result,
                 plugin_execution_time,
-                plugin_message,plugin_options,
-                plugin_ui_id,plugin_ui_name,plugin_store) 
-                VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)'''.format(
+                plugin_message,plugin_options,plugin_store) 
+                VALUES (?,?,?,?,?,?,?,?,?,?,?)'''.format(
                     self.table_name
                 ),
                 (
@@ -175,13 +173,11 @@ class LogDB(object):
                     log_item.plugin_boolean_status,
                     host_id,
                     log_item.plugin_name,
-                    log_item.plugin_id,
+                    log_item.plugin_reference,
                     log_item.plugin_result,
                     log_item.plugin_execution_time,
                     log_item.plugin_message,
                     str(log_item.plugin_options),
-                    str(log_item.plugin_ui_id),
-                    str(log_item.plugin_ui_name),
                     str(log_item.plugin_store),
                 ),
             )
@@ -206,10 +202,9 @@ class LogDB(object):
             cur.execute(
                 ''' SELECT date,plugin_status,plugin_boolean_status,host_id,'''
                 '''plugin_name,'''
-                '''plugin_id,plugin_result,'''
+                '''plugin_reference,plugin_result,'''
                 '''plugin_execution_time,'''
-                '''plugin_message,plugin_options'''
-                '''plugin_ui_id,plugin_ui_name, plugin_store'''
+                '''plugin_message,plugin_options,plugin_store'''
                 ''' FROM {0} WHERE host_id=?;  '''.format(self.table_name),
                 (host_id,),
             )
@@ -223,20 +218,18 @@ class LogDB(object):
                             'plugin_boolean_status': t[2],
                             'host_id': t[3],
                             'plugin_name': t[4],
-                            'plugin_id': t[5],
+                            'plugin_reference': t[5],
                             'plugin_result': t[6],
                             'plugin_execution_time': t[7],
                             'plugin_message': t[8],
                             'plugin_options': t[9],
-                            'plugin_ui_id': t[10],
-                            'plugin_ui_name': t[11],
-                            'plugin_store': t[12],
+                            'plugin_store': t[10],
                         }
                     )
                 )
         return log_items
 
-    def get_log_items_by_plugin_id(self, host_id, plugin_id):
+    def get_log_items_by_plugin_reference(self, host_id, plugin_reference):
         '''
         Stores a :class:`~ftrack_framework_core.log.log_item.LogItem` in
         persistent log database.
@@ -249,13 +242,13 @@ class LogDB(object):
             cur.execute(
                 ''' SELECT date,plugin_status,plugin_boolean_status,host_id,'''
                 '''plugin_name,'''
-                '''plugin_id,plugin_result,'''
+                '''plugin_reference,plugin_result,'''
                 '''plugin_execution_time,plugin_message,'''
-                '''plugin_options,plugin_ui_id,plugin_ui_name,plugin_store'''
-                ''' FROM {0} WHERE host_id=? AND plugin_id=?;  '''.format(
+                '''plugin_options,plugin_store'''
+                ''' FROM {0} WHERE host_id=? AND plugin_reference=?;  '''.format(
                     self.table_name
                 ),
-                (host_id, plugin_id),
+                (host_id, plugin_reference),
             )
 
             for t in cur.fetchall():
@@ -267,14 +260,12 @@ class LogDB(object):
                             'plugin_boolean_status': t[2],
                             'host_id': t[3],
                             'plugin_name': t[4],
-                            'plugin_id': t[5],
+                            'plugin_reference': t[5],
                             'plugin_result': t[6],
                             'plugin_execution_time': t[7],
                             'plugin_message': t[8],
                             'plugin_options': t[9],
-                            'plugin_ui_id': t[10],
-                            'plugin_ui_name': t[11],
-                            'plugin_store': t[12],
+                            'plugin_store': t[10],
                         }
                     )
                 )
