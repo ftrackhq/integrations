@@ -66,7 +66,6 @@ class FrameworkWidget(BaseUI):
         plugin_config,
         group_config,
         on_set_plugin_option,
-        on_run_ui_hook,
         parent=None,
     ):
         self._context_id = context_id
@@ -76,7 +75,6 @@ class FrameworkWidget(BaseUI):
 
         # Connect dialog methods and properties
         self.on_set_plugin_option = on_set_plugin_option
-        self.on_run_ui_hook = on_run_ui_hook
 
         super(FrameworkWidget, self).__init__(event_manager, client_id, parent)
 
@@ -105,9 +103,6 @@ class FrameworkWidget(BaseUI):
     def plugin_callback(self, log_item):
         print("Plugin Callback ---> {}".format(log_item))
         # raise NotImplementedError
-
-    def run_ui_hook(self):
-        self.on_run_ui_hook()
 
     @classmethod
     def register(cls):

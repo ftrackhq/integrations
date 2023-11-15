@@ -308,7 +308,6 @@ class FrameworkDialog(BaseUI):
             plugin_config,
             group_config,
             on_set_plugin_option=self._on_set_plugin_option_callback,
-            on_run_ui_hook=self._on_run_ui_hook_callback,
         )
         # TODO: widgets can't really run any plugin (like fetch) before it gets
         #  registered, so In case someone automatically fetches during the init
@@ -393,10 +392,6 @@ class FrameworkDialog(BaseUI):
         self.client_method_connection(
             'set_config_options', arguments=arguments
         )
-
-    def _on_run_ui_hook_callback(self):
-        # TODO: implement the run of the ui hook from the given plugin reference
-        pass
 
     @classmethod
     def register(cls):
