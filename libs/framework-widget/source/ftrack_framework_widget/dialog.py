@@ -369,6 +369,17 @@ class FrameworkDialog(BaseUI):
         Client notify dialog that a new log item has been added.
         '''
         log_item = event['data']['log_item']
+        reference = log_item.get('plugin_reference')
+        if not reference:
+            return
+        widget = self.framework_widgets.get(reference)
+        if not widget:
+            self.logger.warning(
+                "Widget with reference {} can't be found on the dialog "
+                "initialized widgets".format(reference)
+            )
+            return
+        widget.plugin_callback(log_item)
 
     def set_plugin_options(self, plugin_reference, options):
         '''

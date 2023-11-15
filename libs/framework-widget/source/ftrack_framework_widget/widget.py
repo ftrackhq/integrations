@@ -119,6 +119,10 @@ class FrameworkWidget(BaseUI):
         '''Re implement this method to add validation to the widget'''
         return None
 
+    def plugin_callback(self, log_item):
+        print("Plugin Callback ---> {}".format(log_item))
+        # raise NotImplementedError
+
     @classmethod
     def register(cls):
         '''
