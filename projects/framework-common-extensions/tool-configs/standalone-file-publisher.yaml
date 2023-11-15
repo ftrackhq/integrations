@@ -8,6 +8,8 @@ engine:
     tags:
       - context
     plugin: asset_context
+    options:
+      asset_type_name: script
     ui: publisher_context_selector
 
   # Export the file component.

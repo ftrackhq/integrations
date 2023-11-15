@@ -141,10 +141,7 @@ class PublishContextWidget(BaseWidget):
             self.set_plugin_option('asset_id', asset_entity['id'])
 
     def set_context(self):
-        # TODO: modify context selector to select asset_type as asset_type is
-        #  not in tool config anymore.
-        tool_config = self.dialog_property_getter_connection('tool_config')
-        # TODO: remove this as soon as the asset_type_name task is done.
-        asset_type_name = "script"  # tool_config.asset_type
-        self._asset_selector.set_context(self.context_id, asset_type_name)
+        self._asset_selector.set_context(
+            self.context_id, self.plugin_options.get('asset_type_name')
+        )
         self.set_plugin_option('context_id', self.context_id)

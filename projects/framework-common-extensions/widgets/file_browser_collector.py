@@ -64,5 +64,7 @@ class FileBrowserWidget(BaseWidget):
     def _on_path_changed(self, file_path):
         '''Updates the option dictionary with provided *asset_name* when
         asset_changed of asset_selector event is triggered'''
+        if not file_path:
+            return
         self.set_plugin_option('folder_path', os.path.dirname(file_path))
         self.set_plugin_option('file_name', os.path.basename(file_path))

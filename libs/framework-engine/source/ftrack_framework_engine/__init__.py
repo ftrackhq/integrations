@@ -43,7 +43,8 @@ class BaseEngine(ABC):
 
     def __init__(self, plugin_registry, session, on_plugin_executed=None):
         '''
-        Initialise BaseEngine with given *plugin_registry*.
+        Initialise BaseEngine with given *plugin_registry*, *session* and
+        optional *on_plugin_executed* callback to communicate with the host.
         '''
         super(BaseEngine, self).__init__()
 
