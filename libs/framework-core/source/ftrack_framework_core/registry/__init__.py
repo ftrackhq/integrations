@@ -96,7 +96,7 @@ class Registry(object):
         the registry
         '''
         if extension_type == 'tool_config':
-            self._augment_tool_config(extension)
+            self.augment_tool_config(extension)
         # We use extension_type and not type to not interfere with python
         # build in type
         self.__registry[extension_type].append(
@@ -145,21 +145,36 @@ class Registry(object):
 
         return found_extensions
 
-    def _augment_tool_config(self, tool_config):
+    def augment_tool_config(self, tool_config):
+        '''
+        Augment the given *tool_config* to add a reference number to it
+        and each plugin and group
+        '''
         tool_config['reference'] = uuid.uuid4()
         self._recursive_create_reference(tool_config.get('engine'))
         return tool_config
 
     def _recursive_create_reference(self, tool_config_engine_portion):
+        '''
+        Recursive method to add reference number to each plugin and group of the
+        given engine portion of a tool_config.
+        '''
         for item in tool_config_engine_portion:
             if isinstance(item, str):
-                item['reference'] = uuid.uuid4()
+                # TODO: we can't add reference number to a string.
+                # item['reference'] = uuid.uuid4()
+                continue
             elif isinstance(item, dict):
                 if item["type"] == "group":
                     item['reference'] = uuid.uuid4()
                     for plugin_item in item.get("plugins", []):
+                        if isinstance(plugin_item, str):
+                            # item['reference'] = uuid.uuid4()
+                            continue
                         plugin_item['reference'] = uuid.uuid4()
                         if plugin_item['type'] == "group":
-                            self._recursive_create_reference(plugin_item)
+                            self._recursive_create_reference(
+                                plugin_item.get('plugins')
+                            )
                 elif item["type"] == "plugin":
                     item['reference'] = uuid.uuid4()
