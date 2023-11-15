@@ -399,14 +399,6 @@ class Client(object):
             self.id, event['data']['log_item']
         )
 
-    def reset_tool_config(self, tool_config_name, tool_config_type):
-        '''
-        Ask host connection to reset values of a specific tool_config
-        '''
-        self.host_connection.reset_tool_config(
-            tool_config_name, tool_config_type
-        )
-
     def reset_all_tool_configs(self):
         '''
         Ask host connection to reset values of all tool_configs
