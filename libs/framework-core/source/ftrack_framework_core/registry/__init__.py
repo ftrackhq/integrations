@@ -161,15 +161,26 @@ class Registry(object):
         '''
         for item in tool_config_engine_portion:
             if isinstance(item, str):
-                # TODO: we can't add reference number to a string.
-                # item['reference'] = uuid.uuid4()
+                # Convert string plugin to dictionary
+                index = tool_config_engine_portion.index(item)
+                tool_config_engine_portion[index] = {
+                    'type': 'plugin',
+                    'plugin': item,
+                    'reference': uuid.uuid4(),
+                }
                 continue
             elif isinstance(item, dict):
                 if item["type"] == "group":
                     item['reference'] = uuid.uuid4()
                     for plugin_item in item.get("plugins", []):
                         if isinstance(plugin_item, str):
-                            # item['reference'] = uuid.uuid4()
+                            # Convert string plugin to dictionary
+                            index = item['plugins'].index(plugin_item)
+                            item['plugins'][index] = {
+                                'type': 'plugin',
+                                'plugin': plugin_item,
+                                'reference': uuid.uuid4(),
+                            }
                             continue
                         plugin_item['reference'] = uuid.uuid4()
                         if plugin_item['type'] == "group":
