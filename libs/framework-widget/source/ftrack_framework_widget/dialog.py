@@ -160,12 +160,6 @@ class FrameworkDialog(BaseUI):
         self.event_manager.subscribe.client_signal_context_changed(
             self.client_id, callback=self._on_client_context_changed_callback
         )
-        self.event_manager.subscribe.client_signal_hosts_discovered(
-            self.client_id, callback=self._on_client_hosts_discovered_callback
-        )
-        self.event_manager.subscribe.client_signal_host_changed(
-            self.client_id, callback=self._on_client_host_changed_callback
-        )
         self.event_manager.subscribe.client_notify_log_item_added(
             self.client_id,
             callback=self._on_client_notify_ui_log_item_added_callback,
@@ -194,26 +188,6 @@ class FrameworkDialog(BaseUI):
         '''
         for id, widget in self.framework_widgets.items():
             widget.update_context(self.context_id)
-
-    @active_widget
-    def _on_client_hosts_discovered_callback(self, event=None):
-        '''
-        Will only run if the widget is active
-        Callback for when new host has been discovered in client.
-        '''
-        raise NotImplementedError(
-            "This method should be implemented by the inheriting class"
-        )
-
-    @active_widget
-    def _on_client_host_changed_callback(self, event=None):
-        '''
-        Will only run if the widget is active
-        Callback for when host has changed in the client.
-        '''
-        raise NotImplementedError(
-            "This method should be implemented by the inheriting class"
-        )
 
     @active_widget
     def _on_tool_config_changed_callback(self):

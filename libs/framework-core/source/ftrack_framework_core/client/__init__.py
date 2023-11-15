@@ -51,17 +51,6 @@ class Client(object):
         '''
         return self._event_manager.session
 
-    # TODO: Discuss if we want to change name to available_hosts
-    @property
-    def host_connections(self):
-        '''Return the current list of host_connections'''
-        return Client._host_connections
-
-    @host_connections.setter
-    def host_connections(self, value):
-        '''Return the current list of host_connections'''
-        Client._host_connections = value
-
     # TODO: Discuss if we want to change this to connected host
     @property
     def host_connection(self):
@@ -194,8 +183,6 @@ class Client(object):
         self,
         event_manager,
         registry,
-        auto_discover_host=True,
-        auto_connect_host=True,
         multithreading_enabled=True,
     ):
         '''
@@ -223,15 +210,13 @@ class Client(object):
         self.__dialogs_discovered = []
         self.__instanced_dialogs = {}
         self._dialog = None
-        self._auto_connect_host = auto_connect_host
 
         # Register modules
         self._register_modules(registry)
 
         self.logger.debug('Initialising Client {}'.format(self))
 
-        if auto_discover_host and not self.host_connections:
-            self.discover_hosts()
+        self.discover_host()
 
     def _register_modules(self, registry):
         '''
@@ -262,14 +247,13 @@ class Client(object):
         self.__dialogs_discovered = registered_dialogs
 
     # Host
-    def discover_hosts(self, time_out=3):
+    def discover_host(self, time_out=3):
         '''
         Find for available hosts during the optional *time_out*.
 
         This removes all previously discovered host connections.
         '''
         # Reset host connections
-        self.host_connections = []
         if self.host_connection:
             self._unsubscribe_host_context_changed()
             self.host_connection = None
@@ -284,7 +268,7 @@ class Client(object):
                 'Terminate with: Ctrl-C'
             )
 
-        while not self.host_connections:
+        while not self.host_connection:
             delta_time = time.time() - start_time
 
             if time_out and delta_time >= time_out:
@@ -294,9 +278,6 @@ class Client(object):
             self.event_manager.publish.discover_host(
                 callback=self._host_discovered_callback
             )
-
-        # Feed host connections to the client
-        self.on_hosts_discovered(self.host_connections)
 
     def _host_discovered_callback(self, event):
         '''
@@ -309,23 +290,10 @@ class Client(object):
         if not event['data']:
             return
         for reply_data in event['data']:
-            host_connection = HostConnection(self.event_manager, reply_data)
-            if (
-                host_connection
-                and host_connection not in self.host_connections
-            ):
-                self.host_connections.append(host_connection)
-
-    def on_hosts_discovered(self, host_connections):
-        '''
-        Callback, hosts has been discovered.
-        Widgets can hook in the published signal.
-        '''
-        if self._auto_connect_host:
-            # Automatically connect to the first one
-            self.host_connection = host_connections[0]
-        # Emit signal to widget
-        self.event_manager.publish.client_signal_hosts_discovered(self.id)
+            self.host_connection = HostConnection(
+                self.event_manager, reply_data
+            )
+            break
 
     def on_host_changed(self, host_connection):
         '''Called when the host has been (re-)selected by the user.'''
