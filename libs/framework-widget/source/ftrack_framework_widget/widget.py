@@ -106,8 +106,8 @@ class FrameworkWidget(BaseUI):
         print("Plugin Callback ---> {}".format(log_item))
         # raise NotImplementedError
 
-    def run_ui_hook(self):
-        self.on_run_ui_hook()
+    def run_ui_hook(self, payload):
+        self.on_run_ui_hook(self.plugin_reference, payload)
 
     @classmethod
     def register(cls):

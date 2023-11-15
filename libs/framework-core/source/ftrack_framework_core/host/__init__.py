@@ -303,3 +303,63 @@ class Host(object):
         self.logs.add_log_item(self.id, log_item)
         # Publish the event to notify client
         self.event_manager.publish.host_log_item_added(self.id, log_item)
+
+    @with_new_session
+    def run_ui_hook_callback(self, event, session=None):
+        '''
+        Runs the data with the defined engine type of the given *event*
+
+        Returns result of the engine run.
+
+        *event* : Published from the client host connection at
+        :meth:`~ftrack_framework_core.client.HostConnection.run`
+        '''
+
+        tool_config_reference = event['data']['tool_config_reference']
+        plugin_reference = event['data']['plugin_reference']
+        payload = event['data']['payload']
+
+        tool_config = None
+        for _tool_config in self.tool_configs:
+            if _tool_config['reference'] == tool_config_reference:
+                tool_config = _tool_config
+                break
+        if not tool_config:
+            raise Exception(
+                'Given tool config reference {} not found on registered '
+                'tool_configs. \n {}'.format(
+                    tool_config_reference, self.tool_configs
+                )
+            )
+        engine_name = tool_config.get('engine_name', 'standard_engine')
+
+        try:
+            engine_registry = self.registry.get(
+                name=engine_name, extension_type='engine'
+            )[0]
+            engine_instance = engine_registry['extension'](
+                self.registry,
+                session,
+                on_plugin_executed=self.on_plugin_executed_callback,
+            )
+        except Exception:
+            raise Exception(
+                'No engine with name "{}" found'.format(engine_name)
+            )
+
+        try:
+            # TODO: find the plugin that matches the reference with a for loop
+            # This is just pseudo code
+            plugin_config = tool_config['engine'][plugin_reference]
+            engine_result = engine_instance.run_ui_hook(
+                plugin_config['plugin'], payload, reference_id=plugin_reference
+            )
+
+        except Exception as error:
+            raise Exception(
+                'Error appear when executing engine: {} from {}.'
+                '\n Error: {}'.format(
+                    tool_config['engine'], engine_name, error
+                )
+            )
+        return engine_result

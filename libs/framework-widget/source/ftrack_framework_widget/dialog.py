@@ -394,9 +394,13 @@ class FrameworkDialog(BaseUI):
             'set_config_options', arguments=arguments
         )
 
-    def _on_run_ui_hook_callback(self):
-        # TODO: implement the run of the ui hook from the given plugin reference
-        pass
+    def _on_run_ui_hook_callback(self, plugin_reference, payload):
+        arguments = {
+            "tool_config_reference": self.tool_config['reference'],
+            "plugin_config_reference": plugin_reference,
+            "payload": payload,
+        }
+        self.client_method_connection('run_ui_hook', arguments=arguments)
 
     @classmethod
     def register(cls):

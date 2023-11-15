@@ -536,3 +536,14 @@ class Client(object):
         self._tool_config_options[tool_config_reference][
             plugin_config_reference
         ].update(plugin_options)
+
+    def run_ui_hook(
+        self, tool_config_reference, plugin_config_reference, payload
+    ):
+        # TODO: crerate the event in the event manager and document it
+        self.event_manager.publish.host_run_ui_hook(
+            self.host_id,
+            tool_config_reference,
+            plugin_config_reference,
+            payload,
+        )
