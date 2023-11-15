@@ -109,9 +109,9 @@ class FrameworkDialog(BaseUI):
         return self.__instanced_widgets
 
     @property
-    def discovered_framework_widgets(self):
+    def registry(self):
         '''Return discovered framework widgets from client'''
-        return self.client_property_getter_connection('discovered_widgets')
+        return self.client_property_getter_connection('registry')
 
     def __init__(
         self,
@@ -243,7 +243,7 @@ class FrameworkDialog(BaseUI):
         *group_config* as optional argument in case is part of a group.
         '''
         widget_class = None
-        for widget in self.discovered_framework_widgets:
+        for widget in self.registry.widgets:
             if widget['name'] == plugin_config['ui']:
                 widget_class = widget['extension']
                 break
@@ -254,7 +254,7 @@ class FrameworkDialog(BaseUI):
                 'Registered widgets: {}'.format(
                     plugin_config['ui'],
                     plugin_config['plugin'],
-                    self.discovered_framework_widgets,
+                    self.registry.widgets,
                 )
             )
             self.logger.error(error_message)
