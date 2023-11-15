@@ -140,6 +140,7 @@ class PublishContextWidget(BaseWidget):
 
     def set_context(self):
         self._asset_selector.set_context(
-            self.context_id, self.plugin_options.get('asset_type_name')
+            self.context_id,
+            self.plugin_config['options'].get('asset_type_name'),
         )
         self.set_plugin_option('context_id', self.context_id)
