@@ -8,6 +8,9 @@ import logging
 import ftrack_api
 from ftrack_connect.util import get_connect_plugin_version
 
+NAME = 'ftrack-nuke-studio'
+''' The name of the integration, should match name in bootstrap and launcher '''
+
 logger = logging.getLogger(__name__)
 
 cwd = os.path.dirname(__file__)
@@ -16,13 +19,15 @@ connect_plugin_path = os.path.abspath(os.path.join(cwd, '..'))
 # Read version number from __version__.py
 __version__ = get_connect_plugin_version(connect_plugin_path)
 
-sources = os.path.abspath(os.path.join(connect_plugin_path, 'dependencies'))
+python_dependencies = os.path.abspath(
+    os.path.join(connect_plugin_path, 'dependencies')
+)
 
 
 def on_discover_nuke_studio_integration(session, event):
     data = {
         'integration': {
-            'name': 'ftrack-nuke-studio',
+            'name': NAME,
             'version': __version__,
         }
     }
@@ -44,7 +49,7 @@ def on_launch_nuke_studio_integration(session, event):
     project = session.get('Project', entity['entityId'])
 
     ns_base_data['integration']['env'] = {
-        'PYTHONPATH.prepend': sources,
+        'PYTHONPATH.prepend': python_dependencies,
         'FTRACK_EVENT_PLUGIN_PATH.prepend': application_hooks_path,
         'HIERO_PLUGIN_PATH.prepend': ftrack_nuke_studio_path,
         'FTRACK_CONTEXTID.set': project['id'],
@@ -56,7 +61,7 @@ def on_launch_nuke_studio_integration(session, event):
 
 def get_version_information(event):
     '''Return version information for ftrack connect installer.'''
-    return [dict(name='ftrack-nuke-studio', version=__version__)]
+    return [dict(name=NAME, version=__version__)]
 
 
 def register(session):
@@ -98,4 +103,10 @@ def register(session):
         'topic=ftrack.connect.plugin.debug-information',
         get_version_information,
         priority=20,
+    )
+
+    logger.info(
+        'Registered {} integration v{} discovery and launch.'.format(
+            NAME, __version__
+        )
     )
