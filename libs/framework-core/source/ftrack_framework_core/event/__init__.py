@@ -266,12 +266,18 @@ class Publish(object):
         event_topic = constants.event.DISCOVER_HOST_TOPIC
         return self._publish_event(event_topic, data, callback)
 
-    def host_run_tool_config(self, host_id, tool_config, callback=None):
+    def host_run_tool_config(
+        self, host_id, tool_config_reference, user_options, callback=None
+    ):
         '''
         Publish an event with topic
         :const:`~ftrack_framework_core.constants.event.HOST_RUN_TOOL_CONFIG_TOPIC`
         '''
-        data = {'host_id': host_id, 'tool_config': tool_config}
+        data = {
+            'host_id': host_id,
+            'tool_config_reference': tool_config_reference,
+            'user_options': user_options,
+        }
         event_topic = constants.event.HOST_RUN_TOOL_CONFIG_TOPIC
         return self._publish_event(event_topic, data, callback)
 

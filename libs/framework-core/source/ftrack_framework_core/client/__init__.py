@@ -190,6 +190,10 @@ class Client(object):
         '''Return discovered framework widgets'''
         return self.__dialogs_discovered
 
+    @property
+    def tool_config_options(self):
+        return self._tool_config_options
+
     def __init__(
         self,
         event_manager,
@@ -224,6 +228,7 @@ class Client(object):
         self.__instanced_dialogs = {}
         self._dialog = None
         self._auto_connect_host = auto_connect_host
+        self._tool_config_options = {}
 
         # Register modules
         self._register_modules(registry)
@@ -355,14 +360,15 @@ class Client(object):
             self._host_context_changed_subscribe_id = None
 
     # Tool config
-    def run_tool_config(self, tool_config):
+    def run_tool_config(self, tool_config_reference):
         '''
         Publish event to tell the host to run the given *tool_config* with the
         given *engine*.
         '''
         self.event_manager.publish.host_run_tool_config(
             self.host_id,
-            tool_config,
+            tool_config_reference,
+            self.tool_config_options.get(tool_config_reference, {}),
         )
 
     # Plugin
@@ -510,3 +516,23 @@ class Client(object):
         Callback from the dialog, return the value of the given *property_name*
         '''
         return self.__getattribute__(property_name)
+
+    def set_config_options(
+        self, tool_config_reference, plugin_config_reference, plugin_options
+    ):
+        if not isinstance(plugin_options, dict):
+            raise Exception(
+                "plugin_options should be a dictionary. "
+                "Current given type: {}".format(plugin_options)
+            )
+        if not self._tool_config_options.get(tool_config_reference):
+            self._tool_config_options[tool_config_reference] = {}
+        if not self._tool_config_options[tool_config_reference].get(
+            plugin_config_reference
+        ):
+            self._tool_config_options[tool_config_reference][
+                plugin_config_reference
+            ] = {}
+        self._tool_config_options[tool_config_reference][
+            plugin_config_reference
+        ].update(plugin_options)

@@ -39,7 +39,7 @@ class FrameworkWidget(BaseUI):
     @property
     def plugin_options(self):
         '''options value of the current plugin'''
-        return self.plugin_config.get('options')
+        return self._options
 
     @plugin_options.setter
     def plugin_options(self, value):
@@ -48,9 +48,18 @@ class FrameworkWidget(BaseUI):
         '''
         if type(value) != dict:
             return
-        if not self.plugin_config.get('options'):
-            self.plugin_config['options'] = {}
-        self.plugin_config['options'].update(value)
+
+        self._options.update(value)
+        arguments = {
+            "plugin_reference": self.plugin_reference,
+            "options": self._options,
+        }
+        self.dialog_method_connection('set_plugin_option', arguments=arguments)
+
+    @property
+    def plugin_reference(self):
+        '''Return the unique assigned reference'''
+        return self.plugin_config['reference']
 
     def __init__(
         self,
@@ -66,6 +75,7 @@ class FrameworkWidget(BaseUI):
         self._context_id = context_id
         self._plugin_config = plugin_config
         self._group_config = group_config
+        self._options = {}
 
         # Connect dialog methods and properties
         self.connect_methods(dialog_connect_methods_callback)

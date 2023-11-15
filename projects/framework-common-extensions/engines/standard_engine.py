@@ -62,7 +62,7 @@ class StandardEngine(BaseEngine):
 
         return plugin_info
 
-    def execute_engine(self, engine):
+    def execute_engine(self, engine, user_options):
         '''
         Execute given *engine* from a tool-config.
         *engine*: Portion list of a tool-config with groups and plugins.
@@ -77,6 +77,8 @@ class StandardEngine(BaseEngine):
                 # If it's a group, execute all plugins from the group
                 if item["type"] == "group":
                     group_options = item.get("options", {})
+                    group_reference = item['reference']
+                    group_options.update(user_options.get(group_reference, {}))
                     for plugin_item in item.get("plugins", []):
                         # Use plugin options if plugin is defined as string
                         if isinstance(plugin_item, str):
@@ -86,6 +88,10 @@ class StandardEngine(BaseEngine):
                             # this plugin
                             options = copy.deepcopy(group_options)
                             options.update(plugin_item.get("options", {}))
+                            plugin_reference = plugin_item['reference']
+                            options.update(
+                                user_options.get(plugin_reference, {})
+                            )
                             self.run_plugin(
                                 plugin_item["plugin"],
                                 store,
@@ -98,7 +104,8 @@ class StandardEngine(BaseEngine):
                 elif item["type"] == "plugin":
                     # Execute plugin only with its own options if plugin is
                     # defined outside the group
-                    self.run_plugin(
-                        item["plugin"], store, item.get("options", {})
-                    )
+                    plugin_reference = item['reference']
+                    options = item.get("options", {})
+                    options.update(user_options.get(plugin_reference, {}))
+                    self.run_plugin(item["plugin"], store, options)
         return store

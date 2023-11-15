@@ -113,6 +113,13 @@ class FrameworkDialog(BaseUI):
         '''Return discovered framework widgets from client'''
         return self.client_property_getter_connection('discovered_widgets')
 
+    @property
+    def tool_config_options(self):
+        '''
+        Current tool_config_options in client
+        '''
+        return self.client_property_getter_connection('tool_config_options')
+
     def __init__(
         self,
         event_manager,
@@ -353,6 +360,19 @@ class FrameworkDialog(BaseUI):
         Client notify dialog that a new log item has been added.
         '''
         log_item = event['data']['log_item']
+
+    def set_plugin_options(self, plugin_reference, options):
+        '''
+        Updates the *name* option of the current plugin with the given *value*
+        '''
+        arguments = {
+            "tool_config_reference": self.tool_config['reference'],
+            "plugin_config_reference": plugin_reference,
+            "plugin_options": options,
+        }
+        self.client_method_connection(
+            'set_config_options', arguments=arguments
+        )
 
     @classmethod
     def register(cls):
