@@ -141,14 +141,6 @@ class Client(object):
             raise Exception('No host connection available')
         return self.host_connection.tool_configs
 
-    # TODO: double check how we enable disable multithreading,
-    #  I think we can improve it and make it simpler, take a look at the
-    #  active_ui decorator that I created, maybe we can use something similar.
-    @property
-    def multithreading_enabled(self):
-        '''Return True if client supports multithreading (write operations)'''
-        return self._multithreading_enabled
-
     # Widget
     @property
     def dialogs(self):
@@ -181,7 +173,6 @@ class Client(object):
         self,
         event_manager,
         registry,
-        multithreading_enabled=True,
     ):
         '''
         Initialise Client with instance of
@@ -198,9 +189,6 @@ class Client(object):
 
         # Set the event manager
         self._event_manager = event_manager
-
-        # Set multithreading
-        self._multithreading_enabled = multithreading_enabled
 
         # Setting init variables to 0
         self._host_context_changed_subscribe_id = None
