@@ -22,7 +22,7 @@ class StandardEngine(BaseEngine):
             plugin_registry, session, on_plugin_executed
         )
 
-    def run_plugin(self, plugin, store, options):
+    def run_plugin(self, plugin, store, options, reference_id=None):
         '''
         If given *plugin* is in the plugin registry, initialize it with the
         given *options* and execute run method passing given *store* as argument.
@@ -31,7 +31,9 @@ class StandardEngine(BaseEngine):
         *options*: options to be passed to the plugin
         '''
         registered_plugin = self.plugin_registry.get(name=plugin)[0]
-        plugin_instance = registered_plugin['extension'](options, self.session)
+        plugin_instance = registered_plugin['extension'](
+            options, self.session, reference_id
+        )
         self.logger.debug(
             f"Run {plugin_instance.id} with options {plugin_instance.options}"
         )
@@ -97,6 +99,7 @@ class StandardEngine(BaseEngine):
                                 store,
                                 # Override group options with the plugin options
                                 options,
+                                plugin_reference,
                             )
                         # TODO: (future improvements) if group inside a
                         #  group recursively execute plugins inside
@@ -107,5 +110,7 @@ class StandardEngine(BaseEngine):
                     plugin_reference = item['reference']
                     options = item.get("options", {})
                     options.update(user_options.get(plugin_reference, {}))
-                    self.run_plugin(item["plugin"], store, options)
+                    self.run_plugin(
+                        item["plugin"], store, options, plugin_reference
+                    )
         return store

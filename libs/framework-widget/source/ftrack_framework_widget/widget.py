@@ -83,10 +83,6 @@ class FrameworkWidget(BaseUI):
 
         super(FrameworkWidget, self).__init__(event_manager, client_id, parent)
 
-        # Augment tool_config with the widget ID:
-        # TODO: evaluate if this is really needed when refactoring plugin
-        self.plugin_config['widget_id'] = self.id
-
     def connect_methods(self, method):
         '''
         Connect the dialog callback method for the widget to be able to execute

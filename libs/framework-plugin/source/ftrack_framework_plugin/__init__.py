@@ -40,13 +40,6 @@ class BasePlugin(ABC):
         return self._session
 
     @property
-    def id(self):
-        '''
-        Id of the plugin
-        '''
-        return self._id
-
-    @property
     def status(self):
         '''Current status of the plugin'''
         return self._status
@@ -94,21 +87,16 @@ class BasePlugin(ABC):
         return self._options
 
     @property
-    def ui_id(self):
-        '''Return the widget id linked to the plugin'''
-        return self._ui_id
-
-    @property
-    def ui_name(self):
-        '''Return the widget name linked to the plugin'''
-        return self._ui_name
-
-    @property
     def result(self):
-        '''Return the widget name linked to the plugin'''
+        '''Return the result provided by the plugin'''
         return self._result
 
-    def __init__(self, options, session):
+    @property
+    def reference(self):
+        '''Return the reference number given to the plugin'''
+        return self._reference
+
+    def __init__(self, options, session, reference_id=None):
         '''
         Initialise BasePlugin with instance of
         :class:`ftrack_api.session.Session`
@@ -120,13 +108,11 @@ class BasePlugin(ABC):
 
         self._options = options
         self._session = session
-        self._id = uuid.uuid4().hex
         self._status = constants.status.UNKNOWN_STATUS
         self._message = ''
         self._execution_time = 0
-        self._ui_id = None
-        self._ui_name = None
         self._result = False
+        self._reference = reference_id
 
     def ui_hook(self, payload):
         '''
@@ -205,13 +191,11 @@ class BasePlugin(ABC):
         '''
         return {
             'plugin_name': self.name,
-            'plugin_id': self.id,
+            'plugin_reference': self.reference,
             'plugin_boolean_status': self.boolean_status,
             'plugin_status': self.status,
             'plugin_message': self.message,
             'plugin_execution_time': self.execution_time,
-            'plugin_ui_id': self.ui_id,
-            'plugin_ui_name': self.ui_name,
             'plugin_options': self.options,
             'plugin_result': self.result,
             'plugin_store': store,

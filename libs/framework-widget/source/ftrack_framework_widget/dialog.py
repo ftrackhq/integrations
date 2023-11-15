@@ -2,6 +2,7 @@
 # :copyright: Copyright (c) 2014-2023 ftrack
 
 import logging
+import uuid
 
 from ftrack_framework_widget import BaseUI, active_widget
 from ftrack_utils.framework.tool_config.read import get_tool_config_by_name
@@ -120,6 +121,13 @@ class FrameworkDialog(BaseUI):
         '''
         return self.client_property_getter_connection('tool_config_options')
 
+    @property
+    def id(self):
+        '''
+        Id of the plugin
+        '''
+        return self._id
+
     def __init__(
         self,
         event_manager,
@@ -136,6 +144,7 @@ class FrameworkDialog(BaseUI):
         self._tool_config = None
         self._host_connection = None
         self.__instanced_widgets = {}
+        self._id = uuid.uuid4().hex
 
         # Connect client methods and properties
         self.connect_methods(connect_methods_callback)
@@ -305,23 +314,23 @@ class FrameworkDialog(BaseUI):
         #  registered, so In case someone automatically fetches during the init
         #  of the widget it will fail because its not registered yet. Task is to
         #  find a way to better handle the registry.
-        self._register_widget(widget)
+        self._register_widget(plugin_config['reference'], widget)
         return widget
 
-    def _register_widget(self, widget):
+    def _register_widget(self, plugin_reference, widget):
         '''
         Registers the initialized *widget* to the dialog registry.
         '''
-        if widget.id not in list(self.__instanced_widgets.keys()):
-            self.__instanced_widgets[widget.id] = widget
+        if plugin_reference not in list(self.__instanced_widgets.keys()):
+            self.__instanced_widgets[plugin_reference] = widget
 
     def unregister_widget(self, widget_name):
         '''
         Remove the given *widget_name* from the registered widgets.
         '''
-        for widget_id, widget in self.framework_widgets.items():
+        for plugin_reference, widget in self.framework_widgets.items():
             if widget_name == widget.name:
-                self.__instanced_widgets.pop(widget_id)
+                self.__instanced_widgets.pop(plugin_reference)
                 self.logger.info(
                     "Unregistering widget: {}".format(widget_name)
                 )

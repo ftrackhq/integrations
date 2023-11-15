@@ -2,7 +2,6 @@
 # :copyright: Copyright (c) 2014-2023 ftrack
 import os
 import logging
-import uuid
 
 # Evaluate version and log package version
 try:
@@ -37,7 +36,7 @@ class BaseUI(object):
     ui_type = 'all'
 
     def __repr__(self):
-        return '<{}:{}>'.format(self.id, self.name)
+        return '<{}>'.format(self.name)
 
     @property
     def session(self):
@@ -53,13 +52,6 @@ class BaseUI(object):
         :class:`~ftrack_framework_core.event.EventManager`
         '''
         return self._event_manager
-
-    @property
-    def id(self):
-        '''
-        Id of the plugin
-        '''
-        return self._id
 
     @property
     def parent(self):
@@ -94,7 +86,6 @@ class BaseUI(object):
         )
 
         self._event_manager = event_manager
-        self._id = uuid.uuid4().hex
 
         # Set properties to 0
         self._is_active = False
