@@ -66,6 +66,7 @@ class OpenerPublisherTabDialog(BaseContextDialog):
         )
 
         self._pre_select_tool_configs()
+        self._build_tabs()
 
     def _pre_select_tool_configs(self):
         '''Pre-select the desired tool configs'''
@@ -78,22 +79,29 @@ class OpenerPublisherTabDialog(BaseContextDialog):
         publisher_tool_configs = self.filtered_tool_configs['publisher']
         if publisher_tool_configs:
             # Pick the first tool config available
-            self._tab_mapping['save'] = publisher_tool_configs[0]
+            self._tab_mapping['publish'] = publisher_tool_configs[0]
 
     def add_tab(self, tab_title, widget):
-        self._tab_widget.addTab(widget, tab_title)
+        scroll_area = QtWidgets.QScrollArea()
+        scroll_area.setStyle(QtWidgets.QStyleFactory.create("plastique"))
+        scroll_area.setWidgetResizable(True)
+        scroll_area.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
+
+        scroll_area.setWidget(widget)
+
+        self._tab_widget.addTab(scroll_area, tab_title)
 
     def _build_tabs(self):
-        '''Build Open and save tabs'''
+        '''Build Open and publish tabs'''
         self._open_widget = self._build_open_widget(
             self._tab_mapping.get('open')
         )
         self.add_tab("Open", self._open_widget)
 
         self._publish_widget = self._build_publish_widget(
-            self._tab_mapping.get('save')
+            self._tab_mapping.get('publish')
         )
-        self.add_tab("Save", self._publish_widget)
+        self.add_tab("Publish", self._publish_widget)
 
     def _build_open_widget(self, tool_config):
         '''Open tab widget creation'''
@@ -131,7 +139,7 @@ class OpenerPublisherTabDialog(BaseContextDialog):
 
     def _on_selected_tab_changed_callback(self, tab_index):
         self.tool_config = self.tab_mapping.get(
-            'open' if tab_index == 0 else 'save'
+            'open' if tab_index == 0 else 'publish'
         )
 
     def _build_publish_widget(self, tool_config):
@@ -177,7 +185,6 @@ class OpenerPublisherTabDialog(BaseContextDialog):
         # Select the desired tool_config
 
         self._tab_widget = QtWidgets.QTabWidget()
-        self._build_tabs()
         self.tool_widget.layout().addWidget(self._tab_widget)
 
         self.run_button.setVisible(False)
