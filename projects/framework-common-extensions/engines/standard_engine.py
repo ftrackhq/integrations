@@ -15,7 +15,8 @@ class StandardEngine(BaseEngine):
 
     def __init__(self, plugin_registry, session, on_plugin_executed=None):
         '''
-        Initialise StandardEngine with given *plugin_registry*.
+        Initialise BaseEngine with given *plugin_registry*, *session* and
+        optional *on_plugin_executed* callback to communicate with the host.
         '''
         super(StandardEngine, self).__init__(
             plugin_registry, session, on_plugin_executed
@@ -40,6 +41,9 @@ class StandardEngine(BaseEngine):
         # TODO: (future improvements) implement a validation error.
         #  except ValidationError as error:
         except Exception as error:
+            # TODO: double check if this is necessary as I think is already
+            #  handled and printed to the log by the raise Exception.
+            self.logger.exception(error)
             raise Exception(
                 "Plugin {} can't be executed. Error: {}".format(plugin, error)
             )

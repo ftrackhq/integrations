@@ -265,7 +265,8 @@ class FrameworkDialog(BaseUI):
 
     def init_framework_widget(self, plugin_config, group_config=None):
         '''
-        Method to initialize a framework widget given in the *plugin_config*
+        Method to initialize a framework widget given in the *plugin_config*.
+        *group_config* as optional argument in case is part of a group.
         '''
         widget_class = None
         for widget in self.discovered_framework_widgets:
