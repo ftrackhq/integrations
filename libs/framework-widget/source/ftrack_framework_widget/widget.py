@@ -50,11 +50,8 @@ class FrameworkWidget(BaseUI):
             return
 
         self._options.update(value)
-        arguments = {
-            "plugin_reference": self.plugin_reference,
-            "options": self._options,
-        }
-        self.dialog_method_connection('set_plugin_option', arguments=arguments)
+
+        self.on_set_plugin_option(self.plugin_reference, self._options)
 
     @property
     def plugin_reference(self):
@@ -68,8 +65,8 @@ class FrameworkWidget(BaseUI):
         context_id,
         plugin_config,
         group_config,
-        dialog_connect_methods_callback,
-        dialog_property_getter_connection_callback,
+        on_set_plugin_option,
+        on_run_ui_hook,
         parent=None,
     ):
         self._context_id = context_id
@@ -78,24 +75,10 @@ class FrameworkWidget(BaseUI):
         self._options = {}
 
         # Connect dialog methods and properties
-        self.connect_methods(dialog_connect_methods_callback)
-        self.connect_properties(dialog_property_getter_connection_callback)
+        self.on_set_plugin_option = on_set_plugin_option
+        self.on_run_ui_hook = on_run_ui_hook
 
         super(FrameworkWidget, self).__init__(event_manager, client_id, parent)
-
-    def connect_methods(self, method):
-        '''
-        Connect the dialog callback method for the widget to be able to execute
-        dialog methods.
-        '''
-        self.dialog_method_connection = method
-
-    def connect_properties(self, get_method):
-        '''
-        Connect the dialog getterproperties for the widget to be
-        able to call them.
-        '''
-        self.dialog_property_getter_connection = get_method
 
     def update_context(self, context_id):
         '''Updates the widget context_id with the given *context_id*'''
@@ -122,6 +105,9 @@ class FrameworkWidget(BaseUI):
     def plugin_callback(self, log_item):
         print("Plugin Callback ---> {}".format(log_item))
         # raise NotImplementedError
+
+    def run_ui_hook(self):
+        self.on_run_ui_hook()
 
     @classmethod
     def register(cls):
