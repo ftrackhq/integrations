@@ -211,12 +211,6 @@ class Host(object):
     # Subscribe
     def _subscribe_events(self):
         '''Host subscription events to communicate with the client'''
-        # Subscribe to topic
-        # :const:`~ftrack_framework_core.constants.NOTIFY_PLUGIN_PROGRESS_TOPIC`
-        # to receive client notifications from the host in :meth:`_notify_client_callback`
-        self.event_manager.subscribe.notify_plugin_progress_client(
-            self.id, self._notify_plugin_progress_client_callback
-        )
 
         # Listen to context change events for this host and its connected clients
         self.event_manager.subscribe.client_context_changed(
@@ -240,25 +234,6 @@ class Host(object):
         self.event_manager.subscribe.host_run_tool_config(
             self.id, self.run_tool_config_callback
         )
-        # Subscribe to run plugin
-        self.event_manager.subscribe.host_run_plugin(
-            self.id, self.run_plugin_callback
-        )
-
-    def _notify_plugin_progress_client_callback(self, event):
-        '''
-        Callback of the
-        :const:`~ftrack_framework_core.constants.NOTIFY_PLUGIN_PROGRESS_TOPIC`
-         event. Stores a log item in host pipeline log DB.
-
-        *event*: :class:`ftrack_api.event.base.Event`
-        '''
-        # Get the plugin info dictionary and add it to the logDB
-        plugin_info = event['data']
-        log_item = LogItem(plugin_info)
-        self.logs.add_log_item(self.id, log_item)
-        # Publish the event to notify client
-        self.event_manager.publish.host_log_item_added(self.id, log_item)
 
     def _client_context_change_callback(self, event):
         '''Callback when the client has changed context'''
@@ -286,7 +261,9 @@ class Host(object):
                 name=engine_name, extension_type='engine'
             )[0]
             engine_instance = engine_registry['extension'](
-                self.registry, session
+                self.registry,
+                session,
+                on_plugin_executed=self.on_plugin_executed_callback,
             )
         except Exception:
             raise Exception(
@@ -307,54 +284,8 @@ class Host(object):
             )
         return engine_result
 
-    def run_plugin_callback(self, event):
-        '''
-        Runs the plugin_config in the given *event* with the engine type
-        set in the *event*
-        '''
-        pass
-        # TODO: double check this
-        plugin_config = event['data']['plugin_config']
-        plugin_method = event['data']['plugin_method']
-        engine_type = event['data']['engine_type']
-        engine_name = event['data']['engine_name']
-        plugin_ui_id = event['data']['plugin_ui_id']
-
-        engine = None
-        try:
-            engine = self.engines[engine_type].get(engine_name)
-        except Exception:
-            raise Exception(
-                'No engine of type "{}" with name "{}" found'.format(
-                    engine_type, engine_name
-                )
-            )
-
-        engine_result = engine.run_plugin(
-            plugin_name=plugin_config.get('plugin'),
-            plugin_default_method=plugin_config.get('default_method'),
-            # plugin_data will usually be None, but can be defined in the
-            # tool_config
-            # I have registered data in the publisher schema
-            plugin_data=plugin_config.get('data'),
-            plugin_options=plugin_config.get('options'),
-            # plugin_context_data will usually be None, but can be defined in the
-            # tool_config
-            # I have registered context_data in the schema
-            plugin_context_data=plugin_config.get('context_data'),
-            plugin_method=plugin_method,
-            plugin_ui_id=plugin_ui_id,
-            plugin_ui_name=plugin_config.get('ui'),
-        )
-
-        if not engine_result:
-            self.logger.error(
-                "Couldn't run plugin:\n "
-                "Tool config: {}\n"
-                "Method: {}\n"
-                "Engine type: {}\n"
-                "Engine name: {}\n".format(
-                    plugin_config, plugin_method, engine_type, engine_name
-                )
-            )
-        return engine_result
+    def on_plugin_executed_callback(self, plugin_info):
+        log_item = LogItem(plugin_info)
+        self.logs.add_log_item(self.id, log_item)
+        # Publish the event to notify client
+        self.event_manager.publish.host_log_item_added(self.id, log_item)

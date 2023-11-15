@@ -13,11 +13,14 @@ class StandardEngine(BaseEngine):
 
     name = 'standard_engine'
 
-    def __init__(self, plugin_registry, session):
+    def __init__(self, plugin_registry, session, on_plugin_executed=None):
         '''
-        Initialise StandardEngine with given *plugin_registry*.
+        Initialise BaseEngine with given *plugin_registry*, *session* and
+        optional *on_plugin_executed* callback to communicate with the host.
         '''
-        super(StandardEngine, self).__init__(plugin_registry, session)
+        super(StandardEngine, self).__init__(
+            plugin_registry, session, on_plugin_executed
+        )
 
     def run_plugin(self, plugin, store, options):
         '''
@@ -29,30 +32,35 @@ class StandardEngine(BaseEngine):
         '''
         registered_plugin = self.plugin_registry.get(name=plugin)[0]
         plugin_instance = registered_plugin['extension'](options, self.session)
-        print(
+        self.logger.debug(
             f"Run {plugin_instance.id} with options {plugin_instance.options}"
         )
-        # try:
-        plugin_info = plugin_instance.run_plugin(store)
+        plugin_info = None
+        try:
+            plugin_info = plugin_instance.run_plugin(store)
         # TODO: (future improvements) implement a validation error.
         #  except ValidationError as error:
-        # except Exception as error:
-        # TODO: implement the exception error. Log and rise?
-        # pass
-        # if self.on_plugin_execution_success:
-        # self.on_plugin_execution_success(
-        # execution_time
-        # )
-        # return result
-        print(store)
-        print("*" * 10)
-        # TODO: think on where do we add the notify client if the engine doesn't
-        #  have the event manager either.
-        # def _notify_client(self):
-        #     '''Publish an event with the plugin info to be picked by the client'''
-        #     self.event_manager.publish.notify_plugin_progress_client(
-        #         self.provide_plugin_info()
-        #     )
+        except Exception as error:
+            # TODO: double check if this is necessary as I think is already
+            #  handled and printed to the log by the raise Exception.
+            self.logger.exception(error)
+            raise Exception(
+                "Plugin {} can't be executed. Error: {}".format(plugin, error)
+            )
+        finally:
+            if plugin_info:
+                if self.on_plugin_executed:
+                    self.on_plugin_executed(plugin_info)
+                    if not plugin_info['plugin_boolean_status']:
+                        raise Exception(
+                            "Error executing plugin {}. Error Message {}".format(
+                                plugin_info['plugin_name'],
+                                plugin_info['plugin_message'],
+                            )
+                        )
+        self.logger.debug(store)
+
+        return plugin_info
 
     def execute_engine(self, engine):
         '''
