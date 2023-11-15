@@ -27,8 +27,6 @@ class Client(object):
     #  one client now.
     _host_connection = None
     '''The singleton host connection used by all clients within the process space / DCC'''
-    _host_connections = []
-    '''The list of discovered host connections'''
 
     def __repr__(self):
         return '<Client:{0}>'.format(self.id)
