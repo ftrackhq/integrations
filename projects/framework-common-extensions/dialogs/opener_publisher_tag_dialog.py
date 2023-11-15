@@ -153,7 +153,7 @@ class OpenerPublisherTabDialog(BaseContextDialog):
         if tool_config:
             # Build Collector widget
             context_plugins = get_plugins(
-                tool_config or {}, filters={'tags': ['context']}
+                tool_config, filters={'tags': ['context']}
             )
             for context_plugin in context_plugins:
                 if not context_plugin.get('ui'):
