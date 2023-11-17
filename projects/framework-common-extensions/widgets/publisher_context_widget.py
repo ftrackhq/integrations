@@ -24,8 +24,7 @@ class PublishContextWidget(BaseWidget):
         context_id,
         plugin_config,
         group_config,
-        dialog_connect_methods_callback,
-        dialog_property_getter_connection_callback,
+        on_set_plugin_option,
         parent=None,
     ):
         '''initialise PublishContextWidget with *parent*, *session*, *data*,
@@ -42,8 +41,7 @@ class PublishContextWidget(BaseWidget):
             context_id,
             plugin_config,
             group_config,
-            dialog_connect_methods_callback,
-            dialog_property_getter_connection_callback,
+            on_set_plugin_option,
             parent,
         )
 
@@ -146,7 +144,7 @@ class PublishContextWidget(BaseWidget):
 
     def set_context(self):
         self._asset_selector.set_asset_name(
-            self.plugin_options.get('asset_type_name')
+            self.plugin_config['options'].get('asset_type_name'),
         )
         self._asset_selector.reload()
 

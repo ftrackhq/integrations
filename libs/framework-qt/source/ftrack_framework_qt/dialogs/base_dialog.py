@@ -117,14 +117,6 @@ class BaseDialog(FrameworkDialog, StyledDialog):
         '''
         pass
 
-    def _on_client_hosts_discovered_callback(self, event=None):
-        '''Client new hosts has been discovered'''
-        pass
-
-    def _on_client_host_changed_callback(self, event=None):
-        '''Client host has been changed'''
-        pass
-
     def _on_tool_config_changed_callback(self):
         '''The selected tool config has been changed'''
         pass

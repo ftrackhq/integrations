@@ -266,12 +266,18 @@ class Publish(object):
         event_topic = constants.event.DISCOVER_HOST_TOPIC
         return self._publish_event(event_topic, data, callback)
 
-    def host_run_tool_config(self, host_id, tool_config, callback=None):
+    def host_run_tool_config(
+        self, host_id, tool_config_reference, client_options, callback=None
+    ):
         '''
         Publish an event with topic
         :const:`~ftrack_framework_core.constants.event.HOST_RUN_TOOL_CONFIG_TOPIC`
         '''
-        data = {'host_id': host_id, 'tool_config': tool_config}
+        data = {
+            'host_id': host_id,
+            'tool_config_reference': tool_config_reference,
+            'client_options': client_options,
+        }
         event_topic = constants.event.HOST_RUN_TOOL_CONFIG_TOPIC
         return self._publish_event(event_topic, data, callback)
 
@@ -322,18 +328,6 @@ class Publish(object):
         }
 
         event_topic = constants.event.CLIENT_SIGNAL_CONTEXT_CHANGED_TOPIC
-        return self._publish_event(event_topic, data, callback)
-
-    def client_signal_hosts_discovered(self, client_id, callback=None):
-        '''
-        Publish an event with topic
-        :const:`~ftrack_framework_core.constants.event.CLIENT_SIGNAL_HOSTS_DISCOVERED_TOPIC`
-        '''
-        data = {
-            'client_id': client_id,
-        }
-
-        event_topic = constants.event.CLIENT_SIGNAL_HOSTS_DISCOVERED_TOPIC
         return self._publish_event(event_topic, data, callback)
 
     def client_signal_host_changed(self, client_id, callback=None):
@@ -514,16 +508,6 @@ class Subscribe(object):
         '''
         event_topic = '{} and data.client_id={}'.format(
             constants.event.CLIENT_SIGNAL_CONTEXT_CHANGED_TOPIC, client_id
-        )
-        return self._subscribe_event(event_topic, callback)
-
-    def client_signal_hosts_discovered(self, client_id, callback=None):
-        '''
-        Subscribe to an event with topic
-        :const:`~ftrack_framework_core.constants.event.CLIENT_SIGNAL_HOSTS_DISCOVERED_TOPIC`
-        '''
-        event_topic = '{} and data.client_id={}'.format(
-            constants.event.CLIENT_SIGNAL_HOSTS_DISCOVERED_TOPIC, client_id
         )
         return self._subscribe_event(event_topic, callback)
 

@@ -4,6 +4,7 @@
 import time
 import logging
 import uuid
+from collections import defaultdict
 
 from six import string_types
 
@@ -27,8 +28,6 @@ class Client(object):
     #  one client now.
     _host_connection = None
     '''The singleton host connection used by all clients within the process space / DCC'''
-    _host_connections = []
-    '''The list of discovered host connections'''
 
     def __repr__(self):
         return '<Client:{0}>'.format(self.id)
@@ -50,17 +49,6 @@ class Client(object):
         Returns instance of :class:`ftrack_api.session.Session`
         '''
         return self._event_manager.session
-
-    # TODO: Discuss if we want to change name to available_hosts
-    @property
-    def host_connections(self):
-        '''Return the current list of host_connections'''
-        return Client._host_connections
-
-    @host_connections.setter
-    def host_connections(self, value):
-        '''Return the current list of host_connections'''
-        Client._host_connections = value
 
     # TODO: Discuss if we want to change this to connected host
     @property
@@ -154,14 +142,6 @@ class Client(object):
             raise Exception('No host connection available')
         return self.host_connection.tool_configs
 
-    # TODO: double check how we enable disable multithreading,
-    #  I think we can improve it and make it simpler, take a look at the
-    #  active_ui decorator that I created, maybe we can use something similar.
-    @property
-    def multithreading_enabled(self):
-        '''Return True if client supports multithreading (write operations)'''
-        return self._multithreading_enabled
-
     # Widget
     @property
     def dialogs(self):
@@ -181,22 +161,18 @@ class Client(object):
         self._dialog = value
 
     @property
-    def discovered_widgets(self):
-        '''Return discovered framework widgets'''
-        return self.__widgets_discovered
+    def registry(self):
+        '''Return registry object'''
+        return self._registry
 
     @property
-    def discovered_dialogs(self):
-        '''Return discovered framework widgets'''
-        return self.__dialogs_discovered
+    def tool_config_options(self):
+        return self._tool_config_options
 
     def __init__(
         self,
         event_manager,
         registry,
-        auto_discover_host=True,
-        auto_connect_host=True,
-        multithreading_enabled=True,
     ):
         '''
         Initialise Client with instance of
@@ -214,62 +190,25 @@ class Client(object):
         # Set the event manager
         self._event_manager = event_manager
 
-        # Set multithreading
-        self._multithreading_enabled = multithreading_enabled
-
         # Setting init variables to 0
+        self._registry = registry
         self._host_context_changed_subscribe_id = None
-        self.__widgets_discovered = []
-        self.__dialogs_discovered = []
         self.__instanced_dialogs = {}
         self._dialog = None
-        self._auto_connect_host = auto_connect_host
-
-        # Register modules
-        self._register_modules(registry)
+        self._tool_config_options = defaultdict(defaultdict)
 
         self.logger.debug('Initialising Client {}'.format(self))
 
-        if auto_discover_host and not self.host_connections:
-            self.discover_hosts()
-
-    def _register_modules(self, registry):
-        '''
-        Register framework modules available.
-        '''
-        # Discover widget modules
-        self.discover_dialogs(registry.dialogs)
-        # Discover widget modules
-        self.discover_widgets(registry.widgets)
-
-        if self.__widgets_discovered and self.__dialogs_discovered:
-            # Check that registry went correct
-            return True
-        self.logger.warning('No dialogs or widgets found to register')
-
-    def discover_widgets(self, registered_widgets):
-        '''
-        Register the given *registered_widgets* on the
-        :obj:`self.__widgets_discovered`
-        '''
-        self.__widgets_discovered = registered_widgets
-
-    def discover_dialogs(self, registered_dialogs):
-        '''
-        Register the given *registered_dialogs* on the
-        :obj:`self.__dialogs_discovered`
-        '''
-        self.__dialogs_discovered = registered_dialogs
+        self.discover_host()
 
     # Host
-    def discover_hosts(self, time_out=3):
+    def discover_host(self, time_out=3):
         '''
         Find for available hosts during the optional *time_out*.
 
         This removes all previously discovered host connections.
         '''
         # Reset host connections
-        self.host_connections = []
         if self.host_connection:
             self._unsubscribe_host_context_changed()
             self.host_connection = None
@@ -284,7 +223,7 @@ class Client(object):
                 'Terminate with: Ctrl-C'
             )
 
-        while not self.host_connections:
+        while not self.host_connection:
             delta_time = time.time() - start_time
 
             if time_out and delta_time >= time_out:
@@ -294,9 +233,6 @@ class Client(object):
             self.event_manager.publish.discover_host(
                 callback=self._host_discovered_callback
             )
-
-        # Feed host connections to the client
-        self.on_hosts_discovered(self.host_connections)
 
     def _host_discovered_callback(self, event):
         '''
@@ -309,23 +245,10 @@ class Client(object):
         if not event['data']:
             return
         for reply_data in event['data']:
-            host_connection = HostConnection(self.event_manager, reply_data)
-            if (
-                host_connection
-                and host_connection not in self.host_connections
-            ):
-                self.host_connections.append(host_connection)
-
-    def on_hosts_discovered(self, host_connections):
-        '''
-        Callback, hosts has been discovered.
-        Widgets can hook in the published signal.
-        '''
-        if self._auto_connect_host:
-            # Automatically connect to the first one
-            self.host_connection = host_connections[0]
-        # Emit signal to widget
-        self.event_manager.publish.client_signal_hosts_discovered(self.id)
+            self.host_connection = HostConnection(
+                self.event_manager, reply_data
+            )
+            break
 
     def on_host_changed(self, host_connection):
         '''Called when the host has been (re-)selected by the user.'''
@@ -355,14 +278,16 @@ class Client(object):
             self._host_context_changed_subscribe_id = None
 
     # Tool config
-    def run_tool_config(self, tool_config):
+    def run_tool_config(self, tool_config_reference):
         '''
-        Publish event to tell the host to run the given *tool_config* with the
-        given *engine*.
+        Publish event to tell the host to run the given *tool_config_reference*
+        on the engine.
+        *tool_config_reference*: id number of the tool config.
         '''
         self.event_manager.publish.host_run_tool_config(
             self.host_id,
-            tool_config,
+            tool_config_reference,
+            self.tool_config_options.get(tool_config_reference, {}),
         )
 
     # Plugin
@@ -376,13 +301,11 @@ class Client(object):
             "plugin_name: {} \n"
             "plugin_status: {} \n"
             "plugin_message: {} \n"
-            "plugin_result: {} \n"
             "plugin_execution_time: {} \n"
             "plugin_store: {} \n".format(
                 log_item.plugin_name,
                 log_item.plugin_status,
                 log_item.plugin_message,
-                log_item.plugin_result,
                 log_item.plugin_execution_time,
                 log_item.plugin_options,
                 log_item.plugin_store,
@@ -391,14 +314,6 @@ class Client(object):
         # Publish event to widget
         self.event_manager.publish.client_notify_log_item_added(
             self.id, event['data']['log_item']
-        )
-
-    def reset_tool_config(self, tool_config_name, tool_config_type):
-        '''
-        Ask host connection to reset values of a specific tool_config
-        '''
-        self.host_connection.reset_tool_config(
-            tool_config_name, tool_config_type
         )
 
     def reset_all_tool_configs(self):
@@ -428,22 +343,20 @@ class Client(object):
                 raise Exception(error_message)
 
             if dialog_class not in [
-                dialog['extension'] for dialog in self.discovered_dialogs
+                dialog['extension'] for dialog in self.registry.dialogs
             ]:
                 self.logger.warning(
                     'Provided dialog_class {} not in the discovered framework '
                     'widgets, registering...'.format(dialog_class)
                 )
-                self.__dialogs_discovered.append(
-                    {
-                        'extension_type': 'dialog',
-                        'name': dialog_name,
-                        'extension': dialog_class,
-                    }
+                self.registry.add(
+                    extension_type='dialog',
+                    name=dialog_name,
+                    extension=dialog_class,
                 )
 
         if dialog_name and not dialog_class:
-            for registered_dialog_class in self.discovered_dialogs:
+            for registered_dialog_class in self.registry.dialogs:
                 if dialog_name == registered_dialog_class['name']:
                     dialog_class = registered_dialog_class['extension']
                     break
@@ -452,7 +365,7 @@ class Client(object):
                 'Please provide a registered dialog name.\n'
                 'Given name: {} \n'
                 'registered widgets: {}'.format(
-                    dialog_name, self.discovered_dialogs
+                    dialog_name, self.registry.dialogs
                 )
             )
             self.logger.error(error_message)
@@ -510,3 +423,15 @@ class Client(object):
         Callback from the dialog, return the value of the given *property_name*
         '''
         return self.__getattribute__(property_name)
+
+    def set_config_options(
+        self, tool_config_reference, plugin_config_reference, plugin_options
+    ):
+        if not isinstance(plugin_options, dict):
+            raise Exception(
+                "plugin_options should be a dictionary. "
+                "Current given type: {}".format(plugin_options)
+            )
+        self._tool_config_options[tool_config_reference][
+            plugin_config_reference
+        ] = plugin_options
