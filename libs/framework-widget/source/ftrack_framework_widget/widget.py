@@ -101,6 +101,7 @@ class FrameworkWidget(BaseUI):
         return None
 
     def plugin_run_callback(self, log_item):
+        # TODO: implement this to update the status in the widget.
         print("Plugin Callback ---> {}".format(log_item))
         # raise NotImplementedError
 

@@ -29,6 +29,7 @@ class StandardEngine(BaseEngine):
         *plugin*: Name of the plugin to be executed.
         *store*: registry of plugin data.
         *options*: options to be passed to the plugin
+        *reference*: reference id of the plugin
         '''
         registered_plugin = self.plugin_registry.get(name=plugin)[0]
         plugin_instance = registered_plugin['extension'](
@@ -68,6 +69,8 @@ class StandardEngine(BaseEngine):
         '''
         Execute given *engine* from a tool-config.
         *engine*: Portion list of a tool-config with groups and plugins.
+        *user_options*: dictionary with options passed by the client to
+        the plugins.
         '''
         store = dict()
         for item in engine:

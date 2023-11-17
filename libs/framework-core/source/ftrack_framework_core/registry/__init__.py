@@ -147,7 +147,7 @@ class Registry(object):
 
     def augment_tool_config(self, tool_config):
         '''
-        Augment the given *tool_config* to add a reference number to it
+        Augment the given *tool_config* to add a reference id to it
         and each plugin and group
         '''
         tool_config['reference'] = uuid.uuid4().hex

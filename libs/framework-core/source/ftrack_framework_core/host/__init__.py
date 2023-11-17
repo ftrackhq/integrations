@@ -254,7 +254,7 @@ class Host(object):
         '''
 
         tool_config_reference = event['data']['tool_config_reference']
-        user_options = event['data']['user_options']
+        client_options = event['data']['client_options']
 
         for typed_configs in self.tool_configs.values():
             tool_config = None
@@ -289,7 +289,7 @@ class Host(object):
 
         try:
             engine_result = engine_instance.execute_engine(
-                tool_config['engine'], user_options
+                tool_config['engine'], client_options
             )
 
         except Exception as error:

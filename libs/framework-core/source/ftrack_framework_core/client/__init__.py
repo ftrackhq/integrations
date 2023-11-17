@@ -363,8 +363,9 @@ class Client(object):
     # Tool config
     def run_tool_config(self, tool_config_reference):
         '''
-        Publish event to tell the host to run the given *tool_config* with the
-        given *engine*.
+        Publish event to tell the host to run the given *tool_config_reference*
+        on the engine.
+        *tool_config_reference*: id number of the tool config.
         '''
         self.event_manager.publish.host_run_tool_config(
             self.host_id,
