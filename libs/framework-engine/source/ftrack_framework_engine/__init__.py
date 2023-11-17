@@ -67,7 +67,7 @@ class BaseEngine(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def execute_engine(self, engine):
+    def execute_engine(self, engine, client_options):
         '''
         Execute given *engine* from a tool-config.
         *engine*: Portion list of a tool-config with groups and plugins.

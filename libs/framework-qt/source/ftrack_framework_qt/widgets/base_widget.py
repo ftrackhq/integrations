@@ -19,8 +19,7 @@ class BaseWidget(FrameworkWidget, QtWidgets.QWidget):
         context_id,
         plugin_config,
         group_config,
-        dialog_connect_methods_callback,
-        dialog_property_getter_connection_callback,
+        on_set_plugin_option,
         parent=None,
     ):
         '''initialise base widget with *parent*, *session*, *data*,
@@ -35,8 +34,7 @@ class BaseWidget(FrameworkWidget, QtWidgets.QWidget):
             context_id,
             plugin_config,
             group_config,
-            dialog_connect_methods_callback,
-            dialog_property_getter_connection_callback,
+            on_set_plugin_option,
             parent=parent,
         )
 

@@ -40,13 +40,6 @@ class BasePlugin(ABC):
         return self._session
 
     @property
-    def id(self):
-        '''
-        Id of the plugin
-        '''
-        return self._id
-
-    @property
     def status(self):
         '''Current status of the plugin'''
         return self._status
@@ -94,21 +87,11 @@ class BasePlugin(ABC):
         return self._options
 
     @property
-    def ui_id(self):
-        '''Return the widget id linked to the plugin'''
-        return self._ui_id
+    def reference(self):
+        '''Return the reference number given to the plugin'''
+        return self._reference
 
-    @property
-    def ui_name(self):
-        '''Return the widget name linked to the plugin'''
-        return self._ui_name
-
-    @property
-    def result(self):
-        '''Return the widget name linked to the plugin'''
-        return self._result
-
-    def __init__(self, options, session):
+    def __init__(self, options, session, reference=None):
         '''
         Initialise BasePlugin with instance of
         :class:`ftrack_api.session.Session`
@@ -120,13 +103,10 @@ class BasePlugin(ABC):
 
         self._options = options
         self._session = session
-        self._id = uuid.uuid4().hex
         self._status = constants.status.UNKNOWN_STATUS
         self._message = ''
         self._execution_time = 0
-        self._ui_id = None
-        self._ui_name = None
-        self._result = False
+        self._reference = reference
 
     def ui_hook(self, payload):
         '''
@@ -154,10 +134,9 @@ class BasePlugin(ABC):
         # Reset all statuses
         self._status = constants.status.DEFAULT_STATUS
         self._message = None
-        self._result = None
         try:
             self.status = constants.status.RUNNING_STATUS
-            self._result = self.run(store)
+            self.run(store)
         except Exception as e:
             if self.boolean_status:
                 self._status = constants.status.EXCEPTION_STATUS
@@ -176,11 +155,11 @@ class BasePlugin(ABC):
             return self.provide_plugin_info(store)
         # print plugin error handled by the plugin
         if not self.boolean_status:
-            # Generic message printing the result in case no message is provided.
+            # Generic message in case no message is provided.
             if not self.message:
                 self.message = (
-                    "Error detected on the plugin {}, but no message provided. "
-                    "Result is {}.".format(self.name, self.result)
+                    "Error detected on the plugin {}, "
+                    "but no message provided. ".format(self.name)
                 )
             self.logger.error(self.message)
             return self.provide_plugin_info(store)
@@ -188,8 +167,8 @@ class BasePlugin(ABC):
         self.status = constants.status.SUCCESS_STATUS
         # Notify client
         self.message = (
-            "Plugin executed successfully, result: {} \n "
-            "execution messages: {}".format(self.result, self.message)
+            "Plugin executed successfully,"
+            " execution messages: {}".format(self.message)
         )
         end_time = time.time()
         total_time = end_time - start_time
@@ -205,15 +184,12 @@ class BasePlugin(ABC):
         '''
         return {
             'plugin_name': self.name,
-            'plugin_id': self.id,
+            'plugin_reference': self.reference,
             'plugin_boolean_status': self.boolean_status,
             'plugin_status': self.status,
             'plugin_message': self.message,
             'plugin_execution_time': self.execution_time,
-            'plugin_ui_id': self.ui_id,
-            'plugin_ui_name': self.ui_name,
             'plugin_options': self.options,
-            'plugin_result': self.result,
             'plugin_store': store,
         }
 
