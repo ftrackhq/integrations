@@ -35,7 +35,7 @@ class StandardEngine(BaseEngine):
             options, self.session, reference
         )
         self.logger.debug(
-            f"Run {plugin_instance.id} with options {plugin_instance.options}"
+            f"Run {plugin_instance.reference} with options {plugin_instance.options}"
         )
         plugin_info = None
         try:

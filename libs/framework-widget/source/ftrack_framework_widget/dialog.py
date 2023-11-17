@@ -354,13 +354,13 @@ class FrameworkDialog(BaseUI):
         '''Enables widgets to call dialog properties'''
         return self.__getattribute__(property_name)
 
-    def run_tool_config(self, tool_config):
+    def run_tool_config(self, tool_config_reference):
         '''
         Run button from the UI has been clicked.
         Tell client to run the current tool config
         '''
 
-        arguments = {"tool_config": tool_config}
+        arguments = {"tool_config_reference": tool_config_reference}
         self.client_method_connection('run_tool_config', arguments=arguments)
 
     def _on_client_notify_ui_log_item_added_callback(self, event):
@@ -368,7 +368,7 @@ class FrameworkDialog(BaseUI):
         Client notify dialog that a new log item has been added.
         '''
         log_item = event['data']['log_item']
-        reference = log_item.get('plugin_reference')
+        reference = log_item.plugin_reference
         if not reference:
             return
         widget = self.framework_widgets.get(reference)

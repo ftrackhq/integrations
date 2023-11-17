@@ -256,9 +256,13 @@ class Host(object):
         tool_config_reference = event['data']['tool_config_reference']
         user_options = event['data']['user_options']
 
-        for _tool_config in self.tool_configs:
-            if _tool_config['reference'] == tool_config_reference:
-                tool_config = _tool_config
+        for typed_configs in self.tool_configs.values():
+            tool_config = None
+            for _tool_config in typed_configs:
+                if _tool_config['reference'] == tool_config_reference:
+                    tool_config = _tool_config
+                    break
+            if tool_config:
                 break
         else:
             raise Exception(
