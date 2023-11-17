@@ -21,7 +21,7 @@ class LogItem(object):
         self.plugin_message = log_result.get('plugin_message')
         self.plugin_execution_time = log_result.get('plugin_execution_time')
         self.plugin_options = log_result.get('plugin_options')
-        self.plugin_result = log_result.get('plugin_result')
+        # Revisit this if store goes to big
         self.plugin_store = log_result.get('plugin_store')
 
     # TODO: remove this properties if not needed.

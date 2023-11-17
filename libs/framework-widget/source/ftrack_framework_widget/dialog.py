@@ -378,7 +378,7 @@ class FrameworkDialog(BaseUI):
                 "initialized widgets".format(reference)
             )
             return
-        widget.plugin_callback(log_item)
+        widget.plugin_run_callback(log_item)
 
     def _on_set_plugin_option_callback(self, plugin_reference, options):
         '''

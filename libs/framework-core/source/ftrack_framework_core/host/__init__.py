@@ -256,12 +256,11 @@ class Host(object):
         tool_config_reference = event['data']['tool_config_reference']
         user_options = event['data']['user_options']
 
-        tool_config = None
         for _tool_config in self.tool_configs:
             if _tool_config['reference'] == tool_config_reference:
                 tool_config = _tool_config
                 break
-        if not tool_config:
+        else:
             raise Exception(
                 'Given tool config reference {} not found on registered '
                 'tool_configs. \n {}'.format(

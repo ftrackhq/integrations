@@ -87,16 +87,11 @@ class BasePlugin(ABC):
         return self._options
 
     @property
-    def result(self):
-        '''Return the result provided by the plugin'''
-        return self._result
-
-    @property
     def reference(self):
         '''Return the reference number given to the plugin'''
         return self._reference
 
-    def __init__(self, options, session, reference_id=None):
+    def __init__(self, options, session, reference=None):
         '''
         Initialise BasePlugin with instance of
         :class:`ftrack_api.session.Session`
@@ -111,8 +106,7 @@ class BasePlugin(ABC):
         self._status = constants.status.UNKNOWN_STATUS
         self._message = ''
         self._execution_time = 0
-        self._result = False
-        self._reference = reference_id
+        self._reference = reference
 
     def ui_hook(self, payload):
         '''
@@ -140,10 +134,9 @@ class BasePlugin(ABC):
         # Reset all statuses
         self._status = constants.status.DEFAULT_STATUS
         self._message = None
-        self._result = None
         try:
             self.status = constants.status.RUNNING_STATUS
-            self._result = self.run(store)
+            self.run(store)
         except Exception as e:
             if self.boolean_status:
                 self._status = constants.status.EXCEPTION_STATUS
@@ -162,11 +155,11 @@ class BasePlugin(ABC):
             return self.provide_plugin_info(store)
         # print plugin error handled by the plugin
         if not self.boolean_status:
-            # Generic message printing the result in case no message is provided.
+            # Generic message in case no message is provided.
             if not self.message:
                 self.message = (
-                    "Error detected on the plugin {}, but no message provided. "
-                    "Result is {}.".format(self.name, self.result)
+                    "Error detected on the plugin {}, "
+                    "but no message provided. ".format(self.name)
                 )
             self.logger.error(self.message)
             return self.provide_plugin_info(store)
@@ -174,8 +167,8 @@ class BasePlugin(ABC):
         self.status = constants.status.SUCCESS_STATUS
         # Notify client
         self.message = (
-            "Plugin executed successfully, result: {} \n "
-            "execution messages: {}".format(self.result, self.message)
+            "Plugin executed successfully,"
+            " execution messages: {}".format(self.message)
         )
         end_time = time.time()
         total_time = end_time - start_time
@@ -197,7 +190,6 @@ class BasePlugin(ABC):
             'plugin_message': self.message,
             'plugin_execution_time': self.execution_time,
             'plugin_options': self.options,
-            'plugin_result': self.result,
             'plugin_store': store,
         }
 

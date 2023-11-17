@@ -4,6 +4,7 @@
 import time
 import logging
 import uuid
+from collections import defaultdict
 
 from six import string_types
 
@@ -228,7 +229,7 @@ class Client(object):
         self.__instanced_dialogs = {}
         self._dialog = None
         self._auto_connect_host = auto_connect_host
-        self._tool_config_options = {}
+        self._tool_config_options = defaultdict(defaultdict)
 
         # Register modules
         self._register_modules(registry)
@@ -382,13 +383,11 @@ class Client(object):
             "plugin_name: {} \n"
             "plugin_status: {} \n"
             "plugin_message: {} \n"
-            "plugin_result: {} \n"
             "plugin_execution_time: {} \n"
             "plugin_store: {} \n".format(
                 log_item.plugin_name,
                 log_item.plugin_status,
                 log_item.plugin_message,
-                log_item.plugin_result,
                 log_item.plugin_execution_time,
                 log_item.plugin_options,
                 log_item.plugin_store,
@@ -517,14 +516,6 @@ class Client(object):
                 "plugin_options should be a dictionary. "
                 "Current given type: {}".format(plugin_options)
             )
-        if not self._tool_config_options.get(tool_config_reference):
-            self._tool_config_options[tool_config_reference] = {}
-        if not self._tool_config_options[tool_config_reference].get(
-            plugin_config_reference
-        ):
-            self._tool_config_options[tool_config_reference][
-                plugin_config_reference
-            ] = {}
         self._tool_config_options[tool_config_reference][
             plugin_config_reference
-        ].update(plugin_options)
+        ] = plugin_options
