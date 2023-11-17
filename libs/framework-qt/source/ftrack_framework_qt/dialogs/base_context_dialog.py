@@ -160,7 +160,7 @@ class BaseContextDialog(FrameworkDialog, StyledDialog):
         Tell client to run the current tool config
         '''
 
-        self.run_tool_config(self.tool_config)
+        self.run_tool_config(self.tool_config['reference'])
 
     # FrameworkDialog overrides
     def show_ui(self):

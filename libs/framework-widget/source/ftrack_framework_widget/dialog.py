@@ -2,6 +2,7 @@
 # :copyright: Copyright (c) 2014-2023 ftrack
 
 import logging
+import uuid
 
 from ftrack_framework_widget import BaseUI, active_widget
 from ftrack_utils.framework.tool_config.read import get_tool_config_by_name
@@ -113,6 +114,20 @@ class FrameworkDialog(BaseUI):
         '''Return discovered framework widgets from client'''
         return self.client_property_getter_connection('discovered_widgets')
 
+    @property
+    def tool_config_options(self):
+        '''
+        Current tool_config_options in client
+        '''
+        return self.client_property_getter_connection('tool_config_options')
+
+    @property
+    def id(self):
+        '''
+        Id of the plugin
+        '''
+        return self._id
+
     def __init__(
         self,
         event_manager,
@@ -129,6 +144,7 @@ class FrameworkDialog(BaseUI):
         self._tool_config = None
         self._host_connection = None
         self.__instanced_widgets = {}
+        self._id = uuid.uuid4().hex
 
         # Connect client methods and properties
         self.connect_methods(connect_methods_callback)
@@ -265,30 +281,29 @@ class FrameworkDialog(BaseUI):
             self.context_id,
             plugin_config,
             group_config,
-            dialog_connect_methods_callback=self._connect_dialog_methods_callback,
-            dialog_property_getter_connection_callback=self._connect_dialog_property_getter_connection_callback,
+            on_set_plugin_option=self._on_set_plugin_option_callback,
         )
         # TODO: widgets can't really run any plugin (like fetch) before it gets
         #  registered, so In case someone automatically fetches during the init
         #  of the widget it will fail because its not registered yet. Task is to
         #  find a way to better handle the registry.
-        self._register_widget(widget)
+        self._register_widget(plugin_config['reference'], widget)
         return widget
 
-    def _register_widget(self, widget):
+    def _register_widget(self, plugin_reference, widget):
         '''
         Registers the initialized *widget* to the dialog registry.
         '''
-        if widget.id not in list(self.__instanced_widgets.keys()):
-            self.__instanced_widgets[widget.id] = widget
+        if plugin_reference not in list(self.__instanced_widgets.keys()):
+            self.__instanced_widgets[plugin_reference] = widget
 
     def unregister_widget(self, widget_name):
         '''
         Remove the given *widget_name* from the registered widgets.
         '''
-        for widget_id, widget in self.framework_widgets.items():
+        for plugin_reference, widget in self.framework_widgets.items():
             if widget_name == widget.name:
-                self.__instanced_widgets.pop(widget_id)
+                self.__instanced_widgets.pop(plugin_reference)
                 self.logger.info(
                     "Unregistering widget: {}".format(widget_name)
                 )
@@ -313,13 +328,13 @@ class FrameworkDialog(BaseUI):
         '''Enables widgets to call dialog properties'''
         return self.__getattribute__(property_name)
 
-    def run_tool_config(self, tool_config):
+    def run_tool_config(self, tool_config_reference):
         '''
         Run button from the UI has been clicked.
         Tell client to run the current tool config
         '''
 
-        arguments = {"tool_config": tool_config}
+        arguments = {"tool_config_reference": tool_config_reference}
         self.client_method_connection('run_tool_config', arguments=arguments)
 
     def _on_client_notify_ui_log_item_added_callback(self, event):
@@ -327,6 +342,30 @@ class FrameworkDialog(BaseUI):
         Client notify dialog that a new log item has been added.
         '''
         log_item = event['data']['log_item']
+        reference = log_item.plugin_reference
+        if not reference:
+            return
+        widget = self.framework_widgets.get(reference)
+        if not widget:
+            self.logger.warning(
+                "Widget with reference {} can't be found on the dialog "
+                "initialized widgets".format(reference)
+            )
+            return
+        widget.plugin_run_callback(log_item)
+
+    def _on_set_plugin_option_callback(self, plugin_reference, options):
+        '''
+        Updates the *name* option of the current plugin with the given *value*
+        '''
+        arguments = {
+            "tool_config_reference": self.tool_config['reference'],
+            "plugin_config_reference": plugin_reference,
+            "plugin_options": options,
+        }
+        self.client_method_connection(
+            'set_config_options', arguments=arguments
+        )
 
     @classmethod
     def register(cls):

@@ -39,7 +39,7 @@ class FrameworkWidget(BaseUI):
     @property
     def plugin_options(self):
         '''options value of the current plugin'''
-        return self.plugin_config.get('options')
+        return self._options
 
     @plugin_options.setter
     def plugin_options(self, value):
@@ -48,9 +48,15 @@ class FrameworkWidget(BaseUI):
         '''
         if type(value) != dict:
             return
-        if not self.plugin_config.get('options'):
-            self.plugin_config['options'] = {}
-        self.plugin_config['options'].update(value)
+
+        self._options.update(value)
+
+        self.on_set_plugin_option(self.plugin_reference, self._options)
+
+    @property
+    def plugin_reference(self):
+        '''Return the unique assigned reference'''
+        return self.plugin_config['reference']
 
     def __init__(
         self,
@@ -59,37 +65,18 @@ class FrameworkWidget(BaseUI):
         context_id,
         plugin_config,
         group_config,
-        dialog_connect_methods_callback,
-        dialog_property_getter_connection_callback,
+        on_set_plugin_option,
         parent=None,
     ):
         self._context_id = context_id
         self._plugin_config = plugin_config
         self._group_config = group_config
+        self._options = {}
 
         # Connect dialog methods and properties
-        self.connect_methods(dialog_connect_methods_callback)
-        self.connect_properties(dialog_property_getter_connection_callback)
+        self.on_set_plugin_option = on_set_plugin_option
 
         super(FrameworkWidget, self).__init__(event_manager, client_id, parent)
-
-        # Augment tool_config with the widget ID:
-        # TODO: evaluate if this is really needed when refactoring plugin
-        self.plugin_config['widget_id'] = self.id
-
-    def connect_methods(self, method):
-        '''
-        Connect the dialog callback method for the widget to be able to execute
-        dialog methods.
-        '''
-        self.dialog_method_connection = method
-
-    def connect_properties(self, get_method):
-        '''
-        Connect the dialog getterproperties for the widget to be
-        able to call them.
-        '''
-        self.dialog_property_getter_connection = get_method
 
     def update_context(self, context_id):
         '''Updates the widget context_id with the given *context_id*'''
@@ -112,6 +99,11 @@ class FrameworkWidget(BaseUI):
     def validate(self):
         '''Re implement this method to add validation to the widget'''
         return None
+
+    def plugin_run_callback(self, log_item):
+        # TODO: implement this to update the status in the widget.
+        print("Plugin Callback ---> {}".format(log_item))
+        # raise NotImplementedError
 
     @classmethod
     def register(cls):
