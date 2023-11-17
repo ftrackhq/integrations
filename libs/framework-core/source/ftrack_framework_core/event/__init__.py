@@ -330,18 +330,6 @@ class Publish(object):
         event_topic = constants.event.CLIENT_SIGNAL_CONTEXT_CHANGED_TOPIC
         return self._publish_event(event_topic, data, callback)
 
-    def client_signal_hosts_discovered(self, client_id, callback=None):
-        '''
-        Publish an event with topic
-        :const:`~ftrack_framework_core.constants.event.CLIENT_SIGNAL_HOSTS_DISCOVERED_TOPIC`
-        '''
-        data = {
-            'client_id': client_id,
-        }
-
-        event_topic = constants.event.CLIENT_SIGNAL_HOSTS_DISCOVERED_TOPIC
-        return self._publish_event(event_topic, data, callback)
-
     def client_signal_host_changed(self, client_id, callback=None):
         '''
         Publish an event with topic
@@ -520,16 +508,6 @@ class Subscribe(object):
         '''
         event_topic = '{} and data.client_id={}'.format(
             constants.event.CLIENT_SIGNAL_CONTEXT_CHANGED_TOPIC, client_id
-        )
-        return self._subscribe_event(event_topic, callback)
-
-    def client_signal_hosts_discovered(self, client_id, callback=None):
-        '''
-        Subscribe to an event with topic
-        :const:`~ftrack_framework_core.constants.event.CLIENT_SIGNAL_HOSTS_DISCOVERED_TOPIC`
-        '''
-        event_topic = '{} and data.client_id={}'.format(
-            constants.event.CLIENT_SIGNAL_HOSTS_DISCOVERED_TOPIC, client_id
         )
         return self._subscribe_event(event_topic, callback)
 
