@@ -15,7 +15,7 @@ from ftrack_qt.widgets.thumbnails import AssetVersionThumbnail
 from ftrack_qt.utils.widget import set_property
 
 
-class AssetListItem(QtWidgets.QFrame):
+class AssetListItemWidget(QtWidgets.QFrame):
     '''Widget representing an asset within the list, for user selection'''
 
     versionChanged = QtCore.Signal(object)
@@ -36,11 +36,18 @@ class AssetListItem(QtWidgets.QFrame):
         '''Return enable_version_select'''
         return self._fetch_assetversions is not None
 
+    @property
+    def version(self):
+        if self._version_combobox:
+            return self._version_combobox.version()
+        else:
+            return self.asset['latest_version']
+
     def __init__(self, asset, session, fetch_assetversions=None):
         '''Represent *asset* in list, with *session* for querying ftrack.
         If *fetch_assetversions* is given, user is presented a asset version
         selector. Otherwise, display latest version'''
-        super(AssetListItem, self).__init__()
+        super(AssetListItemWidget, self).__init__()
 
         self._asset = asset
         self._session = session
@@ -155,6 +162,12 @@ class AssetListItem(QtWidgets.QFrame):
             self._version_info_widget.setText('')
 
 
+class AssetListItem(QtWidgets.QListWidgetItem):
+    '''Asset item'''
+
+    widget = None
+
+
 class AssetList(QtWidgets.QListWidget):
     '''Widget presenting list of existing assets'''
 
@@ -213,20 +226,21 @@ class AssetList(QtWidgets.QListWidget):
         '''Add fetched assets to list'''
         self.clear()
         for asset_entity in self.assets:
-            widget = AssetListItem(
+            widget = AssetListItemWidget(
                 asset_entity,
                 self.session,
                 fetch_assetversions=self._fetch_assetversions,
             )
             widget.versionChanged.connect(self._on_version_changed_callback)
-            list_item = QtWidgets.QListWidgetItem(self)
+            list_item = AssetListItem(self)
             list_item.setSizeHint(
                 QtCore.QSize(
                     widget.sizeHint().width(), widget.sizeHint().height() + 5
                 )
             )
-            self.addItem(list_item)
+            list_item.widget = widget  # Overcome Qt bug
             self.setItemWidget(list_item, widget)
+            self.addItem(list_item)
         self.assetsAdded.emit()
 
     def _on_version_changed_callback(self, assetversion_entity):
@@ -388,6 +402,8 @@ class AssetSelector(QtWidgets.QWidget):
         self._asset_list = None
         self._new_asset_input = None
 
+        self._selected_index = None
+
         self.validator = QtGui.QRegExpValidator(self.VALID_ASSET_NAME)
         self.placeholder_name = "Asset Name..."
 
@@ -419,23 +435,22 @@ class AssetSelector(QtWidgets.QWidget):
                 self.validator, self.placeholder_name
             )
             self._list_and_input.layout().addWidget(self._new_asset_input)
+            self._update_widget()
 
         self.layout().addWidget(self._list_and_input)
 
     def post_build(self):
-        self._asset_list.itemChanged.connect(self._current_asset_changed)
+        self.updateWidget.connect(self._update_widget)
         self._asset_list.assetsQueryDone.connect(self._refresh)
         self._asset_list.assetsAdded.connect(self._pre_select_asset)
-        self._asset_list.itemActivated.connect(self._list_selection_updated)
         self._asset_list.itemSelectionChanged.connect(
             self._list_selection_updated
         )
         self._asset_list.versionChanged.connect(
             self._on_version_changed_callback
         )
-        self._new_asset_input.clicked.connect(self._current_asset_changed)
+        self._new_asset_input.clicked.connect(self._new_asset_clicked)
         self._new_asset_input.name.textChanged.connect(self._new_asset_changed)
-        self.updateWidget.connect(self._update_widget)
 
     def _refresh(self):
         '''Add assets queried in separate thread to list.'''
@@ -445,58 +460,51 @@ class AssetSelector(QtWidgets.QWidget):
         '''Assets have been loaded, select most suitable asset to start with'''
         if self._asset_list.count() > 0:
             self._label.setText(
-                'We found {} assets already '
+                'We found {} asset{} already '
                 'published on this task. Choose which one to version up or create '
-                'a new asset'.format(self._asset_list.count())
+                'a new asset'.format(
+                    self._asset_list.count(),
+                    's' if self._asset_list.count() > 1 else '',
+                )
             )
-
             self._asset_list.setCurrentRow(0)
             self._label.show()
             self._asset_list.show()
-            self._current_asset_changed(self._asset_list.item(0))
         else:
             self._label.setText('Enter asset name')
             self._asset_list.hide()
-            self._current_asset_changed()
         self._list_and_input.size_changed()
+
+    def _new_asset_clicked(self):
+        self._asset_list.setCurrentRow(-1)
+        self.updateWidget.emit(None)
 
     def _list_selection_updated(self):
         '''React upon user list selection'''
-        selected_index = self._asset_list.currentRow()
-        if selected_index == -1:
-            # Deselected, give focus to new asset input
-            self.updateWidget.emit(None)
-        else:
-            self._current_asset_changed(
-                self._asset_list.assets[selected_index]
-            )
-
-    def _current_asset_changed(self, item=None):
-        '''An existing asset *item* has been selected, or None if current is de-selected.'''
-        print('@@@ _current_asset_changed; item: {}'.format(item))
-        asset_entity = None
-        asset_widget = None
-        if item is not None:
-            selected_index = self._asset_list.currentRow()
-            if selected_index > -1:
-                # A proper asset were selected
-                asset_entity = self._asset_list.assets[selected_index]
-        if asset_entity:
-            asset_name = asset_entity['name']
-            is_valid_name = self.validate_name(asset_name)
-            self.assetChanged.emit(asset_name, asset_entity, is_valid_name)
-            # self.versionChanged.emit(..)
-            self.updateWidget.emit(asset_entity)
-        else:
-            # All items de-selected
-            self._new_asset_changed()
-            self.versionChanged.emit(None)
-            self.updateWidget.emit(None)
+        prev_selected_index = self._selected_index
+        self._selected_index = self._asset_list.currentRow()
+        if prev_selected_index != self._selected_index:
+            if self._selected_index > -1:
+                asset_widget = self._asset_list.currentItem().widget
+                asset_name = asset_widget.asset['name']
+                is_valid_name = self.validate_name(asset_name)
+                self.assetChanged.emit(
+                    asset_name, asset_widget.asset, is_valid_name
+                )
+                self.versionChanged.emit(asset_widget.version)
+                self.updateWidget.emit(asset_widget.asset)
+            else:
+                # All items de-selected
+                self._new_asset_changed()
+                self.versionChanged.emit(None)
+                self.updateWidget.emit(None)
 
     def _update_widget(self, selected_asset=None):
         '''Synchronize state of list with new asset input if *selected_asset* is
         None, otherwise bring focus to list.'''
         self._asset_list.ensurePolished()
+        self._new_asset_input.name.ensurePolished()
+        self._new_asset_input.button.ensurePolished()
         if selected_asset is not None:
             # Bring focus to list, remove focus from new asset input
             set_property(self._new_asset_input, 'status', 'unfocused')
@@ -504,7 +512,6 @@ class AssetSelector(QtWidgets.QWidget):
             self._new_asset_input.name.deselect()
         else:
             # Deselect all assets in list, bring focus to new asset input
-            self._asset_list.setCurrentRow(-1)
             set_property(self._new_asset_input, 'status', 'focused')
             self._new_asset_input.name.setEnabled(True)
         self._new_asset_input.button.setEnabled(True)

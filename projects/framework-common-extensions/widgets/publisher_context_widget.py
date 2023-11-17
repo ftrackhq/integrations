@@ -67,7 +67,7 @@ class PublishContextWidget(BaseWidget):
             self.session,
         )
         asset_layout.addWidget(self._asset_selector)
-        # set the current context
+        # set context
         self.set_context()
 
         # Build version and comment widget
@@ -141,11 +141,18 @@ class PublishContextWidget(BaseWidget):
         self.set_plugin_option('is_valid_name', is_valid)
         if asset_entity:
             self.set_plugin_option('asset_id', asset_entity['id'])
+        else:
+            self.set_plugin_option('asset_id', None)
 
     def set_context(self):
+        self.set_plugin_option('context_id', self.context_id)
         self._asset_selector.set_asset_name(
             self.plugin_config['options'].get('asset_type_name'),
         )
+        self.reload()
+
+    def reload(self):
+        '''Reload assets on context'''
         self._asset_selector.reload()
 
     def _on_fetch_assets_callback(self):
@@ -155,7 +162,7 @@ class PublishContextWidget(BaseWidget):
 
         asset_type_entity = self.session.query(
             'select name from AssetType where short is "{}"'.format(
-                self.plugin_options.get('asset_type_name')
+                self.plugin_config['options'].get('asset_type_name')
             )
         ).first()
 

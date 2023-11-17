@@ -13,6 +13,15 @@ class VersionSelector(QtWidgets.QComboBox):
         object
     )  # User has selected the version, version id as the argument
 
+    @property
+    def version(self):
+        '''Return current selected asset version entity'''
+        index = self.currentIndex()
+        if index > -1:
+            return self.itemData(index)
+        else:
+            return None
+
     def __init__(self, fetch_assetversions, parent=None):
         super(VersionSelector, self).__init__(parent=parent)
         self.logger = logging.getLogger(
