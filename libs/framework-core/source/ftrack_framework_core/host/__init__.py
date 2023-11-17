@@ -235,7 +235,24 @@ class Host(object):
         :meth:`~ftrack_framework_core.client.HostConnection.run`
         '''
 
-        tool_config = event['data']['tool_config']
+        tool_config_reference = event['data']['tool_config_reference']
+        client_options = event['data']['client_options']
+
+        for typed_configs in self.tool_configs.values():
+            tool_config = None
+            for _tool_config in typed_configs:
+                if _tool_config['reference'] == tool_config_reference:
+                    tool_config = _tool_config
+                    break
+            if tool_config:
+                break
+        else:
+            raise Exception(
+                'Given tool config reference {} not found on registered '
+                'tool_configs. \n {}'.format(
+                    tool_config_reference, self.tool_configs
+                )
+            )
         engine_name = tool_config.get('engine_name', 'standard_engine')
 
         try:
@@ -254,7 +271,7 @@ class Host(object):
 
         try:
             engine_result = engine_instance.execute_engine(
-                tool_config['engine']
+                tool_config['engine'], client_options
             )
 
         except Exception as error:

@@ -4,6 +4,7 @@
 import time
 import logging
 import uuid
+from collections import defaultdict
 
 from six import string_types
 
@@ -164,6 +165,10 @@ class Client(object):
         '''Return registry object'''
         return self._registry
 
+    @property
+    def tool_config_options(self):
+        return self._tool_config_options
+
     def __init__(
         self,
         event_manager,
@@ -190,6 +195,7 @@ class Client(object):
         self._host_context_changed_subscribe_id = None
         self.__instanced_dialogs = {}
         self._dialog = None
+        self._tool_config_options = defaultdict(defaultdict)
 
         self.logger.debug('Initialising Client {}'.format(self))
 
@@ -272,14 +278,16 @@ class Client(object):
             self._host_context_changed_subscribe_id = None
 
     # Tool config
-    def run_tool_config(self, tool_config):
+    def run_tool_config(self, tool_config_reference):
         '''
-        Publish event to tell the host to run the given *tool_config* with the
-        given *engine*.
+        Publish event to tell the host to run the given *tool_config_reference*
+        on the engine.
+        *tool_config_reference*: id number of the tool config.
         '''
         self.event_manager.publish.host_run_tool_config(
             self.host_id,
-            tool_config,
+            tool_config_reference,
+            self.tool_config_options.get(tool_config_reference, {}),
         )
 
     # Plugin
@@ -293,13 +301,11 @@ class Client(object):
             "plugin_name: {} \n"
             "plugin_status: {} \n"
             "plugin_message: {} \n"
-            "plugin_result: {} \n"
             "plugin_execution_time: {} \n"
             "plugin_store: {} \n".format(
                 log_item.plugin_name,
                 log_item.plugin_status,
                 log_item.plugin_message,
-                log_item.plugin_result,
                 log_item.plugin_execution_time,
                 log_item.plugin_options,
                 log_item.plugin_store,
@@ -308,14 +314,6 @@ class Client(object):
         # Publish event to widget
         self.event_manager.publish.client_notify_log_item_added(
             self.id, event['data']['log_item']
-        )
-
-    def reset_tool_config(self, tool_config_name, tool_config_type):
-        '''
-        Ask host connection to reset values of a specific tool_config
-        '''
-        self.host_connection.reset_tool_config(
-            tool_config_name, tool_config_type
         )
 
     def reset_all_tool_configs(self):
@@ -425,3 +423,15 @@ class Client(object):
         Callback from the dialog, return the value of the given *property_name*
         '''
         return self.__getattribute__(property_name)
+
+    def set_config_options(
+        self, tool_config_reference, plugin_config_reference, plugin_options
+    ):
+        if not isinstance(plugin_options, dict):
+            raise Exception(
+                "plugin_options should be a dictionary. "
+                "Current given type: {}".format(plugin_options)
+            )
+        self._tool_config_options[tool_config_reference][
+            plugin_config_reference
+        ] = plugin_options

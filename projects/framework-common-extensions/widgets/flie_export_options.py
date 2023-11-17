@@ -21,8 +21,7 @@ class FileExportOptionsWidget(BaseWidget):
         context_id,
         plugin_config,
         group_config,
-        dialog_connect_methods_callback,
-        dialog_property_getter_connection_callback,
+        on_set_plugin_option,
         parent=None,
     ):
         '''initialise FileExportOptionsWidget with *parent*, *session*, *data*,
@@ -35,8 +34,7 @@ class FileExportOptionsWidget(BaseWidget):
             context_id,
             plugin_config,
             group_config,
-            dialog_connect_methods_callback,
-            dialog_property_getter_connection_callback,
+            on_set_plugin_option,
             parent,
         )
 
@@ -52,7 +50,7 @@ class FileExportOptionsWidget(BaseWidget):
     def build_ui(self):
         '''build function widgets.'''
         # Create options:
-        for option, value in self.plugin_options.items():
+        for option, value in self.plugin_config.get('options').items():
             h_layout = QtWidgets.QHBoxLayout()
             option_widget = QtWidgets.QLabel(option)
             value_widget = None
