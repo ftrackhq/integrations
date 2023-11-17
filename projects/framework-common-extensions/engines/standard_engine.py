@@ -22,20 +22,21 @@ class StandardEngine(BaseEngine):
             plugin_registry, session, on_plugin_executed
         )
 
-    def run_plugin(self, plugin, store, options, reference_id=None):
+    def run_plugin(self, plugin, store, options, reference=None):
         '''
         If given *plugin* is in the plugin registry, initialize it with the
         given *options* and execute run method passing given *store* as argument.
         *plugin*: Name of the plugin to be executed.
         *store*: registry of plugin data.
         *options*: options to be passed to the plugin
+        *reference*: reference id of the plugin
         '''
         registered_plugin = self.plugin_registry.get(name=plugin)[0]
         plugin_instance = registered_plugin['extension'](
-            options, self.session, reference_id
+            options, self.session, reference
         )
         self.logger.debug(
-            f"Run {plugin_instance.id} with options {plugin_instance.options}"
+            f"Run {plugin_instance.reference} with options {plugin_instance.options}"
         )
         plugin_info = None
         try:
@@ -68,6 +69,8 @@ class StandardEngine(BaseEngine):
         '''
         Execute given *engine* from a tool-config.
         *engine*: Portion list of a tool-config with groups and plugins.
+        *user_options*: dictionary with options passed by the client to
+        the plugins.
         '''
         store = dict()
         for item in engine:

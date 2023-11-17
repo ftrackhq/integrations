@@ -147,10 +147,10 @@ class Registry(object):
 
     def augment_tool_config(self, tool_config):
         '''
-        Augment the given *tool_config* to add a reference number to it
+        Augment the given *tool_config* to add a reference id to it
         and each plugin and group
         '''
-        tool_config['reference'] = uuid.uuid4()
+        tool_config['reference'] = uuid.uuid4().hex
         self._recursive_create_reference(tool_config.get('engine'))
         return tool_config
 
@@ -161,20 +161,31 @@ class Registry(object):
         '''
         for item in tool_config_engine_portion:
             if isinstance(item, str):
-                # TODO: we can't add reference number to a string.
-                # item['reference'] = uuid.uuid4()
+                # Convert string plugin to dictionary
+                index = tool_config_engine_portion.index(item)
+                tool_config_engine_portion[index] = {
+                    'type': 'plugin',
+                    'plugin': item,
+                    'reference': uuid.uuid4().hex,
+                }
                 continue
             elif isinstance(item, dict):
                 if item["type"] == "group":
-                    item['reference'] = uuid.uuid4()
+                    item['reference'] = uuid.uuid4().hex
                     for plugin_item in item.get("plugins", []):
                         if isinstance(plugin_item, str):
-                            # item['reference'] = uuid.uuid4()
+                            # Convert string plugin to dictionary
+                            index = item['plugins'].index(plugin_item)
+                            item['plugins'][index] = {
+                                'type': 'plugin',
+                                'plugin': plugin_item,
+                                'reference': uuid.uuid4().hex,
+                            }
                             continue
-                        plugin_item['reference'] = uuid.uuid4()
+                        plugin_item['reference'] = uuid.uuid4().hex
                         if plugin_item['type'] == "group":
                             self._recursive_create_reference(
                                 plugin_item.get('plugins')
                             )
                 elif item["type"] == "plugin":
-                    item['reference'] = uuid.uuid4()
+                    item['reference'] = uuid.uuid4().hex

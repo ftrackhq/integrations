@@ -102,7 +102,8 @@ class FrameworkWidget(BaseUI):
         '''Re implement this method to add validation to the widget'''
         return None
 
-    def plugin_callback(self, log_item):
+    def plugin_run_callback(self, log_item):
+        # TODO: implement this to update the status in the widget.
         print("Plugin Callback ---> {}".format(log_item))
         # raise NotImplementedError
 

@@ -73,7 +73,7 @@ class LogDB(object):
                 '''CREATE TABLE {0} (id INTEGER PRIMARY KEY,'''
                 ''' date int, plugin_status text, plugin_boolean_status bool,'''
                 ''' host_id text, plugin_name text,'''
-                ''' plugin_reference text, plugin_result text,'''
+                ''' plugin_reference text,'''
                 ''' plugin_execution_time real,'''
                 ''' plugin_message text, plugin_options text,'''
                 ''' plugin_store text)'''.format(self.table_name)
@@ -161,10 +161,10 @@ class LogDB(object):
 
             cur.execute(
                 '''INSERT INTO {0} (date,plugin_status,plugin_boolean_status,
-                host_id, plugin_name,plugin_reference,plugin_result,
+                host_id, plugin_name,plugin_reference,
                 plugin_execution_time,
                 plugin_message,plugin_options,plugin_store) 
-                VALUES (?,?,?,?,?,?,?,?,?,?,?)'''.format(
+                VALUES (?,?,?,?,?,?,?,?,?,?)'''.format(
                     self.table_name
                 ),
                 (
@@ -174,7 +174,6 @@ class LogDB(object):
                     host_id,
                     log_item.plugin_name,
                     log_item.plugin_reference,
-                    log_item.plugin_result,
                     log_item.plugin_execution_time,
                     log_item.plugin_message,
                     str(log_item.plugin_options),
@@ -202,7 +201,7 @@ class LogDB(object):
             cur.execute(
                 ''' SELECT date,plugin_status,plugin_boolean_status,host_id,'''
                 '''plugin_name,'''
-                '''plugin_reference,plugin_result,'''
+                '''plugin_reference,'''
                 '''plugin_execution_time,'''
                 '''plugin_message,plugin_options,plugin_store'''
                 ''' FROM {0} WHERE host_id=?;  '''.format(self.table_name),
@@ -219,11 +218,10 @@ class LogDB(object):
                             'host_id': t[3],
                             'plugin_name': t[4],
                             'plugin_reference': t[5],
-                            'plugin_result': t[6],
-                            'plugin_execution_time': t[7],
-                            'plugin_message': t[8],
-                            'plugin_options': t[9],
-                            'plugin_store': t[10],
+                            'plugin_execution_time': t[6],
+                            'plugin_message': t[7],
+                            'plugin_options': t[8],
+                            'plugin_store': t[9],
                         }
                     )
                 )
@@ -242,7 +240,7 @@ class LogDB(object):
             cur.execute(
                 ''' SELECT date,plugin_status,plugin_boolean_status,host_id,'''
                 '''plugin_name,'''
-                '''plugin_reference,plugin_result,'''
+                '''plugin_reference,'''
                 '''plugin_execution_time,plugin_message,'''
                 '''plugin_options,plugin_store'''
                 ''' FROM {0} WHERE host_id=? AND plugin_reference=?;  '''.format(
@@ -261,11 +259,10 @@ class LogDB(object):
                             'host_id': t[3],
                             'plugin_name': t[4],
                             'plugin_reference': t[5],
-                            'plugin_result': t[6],
-                            'plugin_execution_time': t[7],
-                            'plugin_message': t[8],
-                            'plugin_options': t[9],
-                            'plugin_store': t[10],
+                            'plugin_execution_time': t[6],
+                            'plugin_message': t[7],
+                            'plugin_options': t[8],
+                            'plugin_store': t[9],
                         }
                     )
                 )

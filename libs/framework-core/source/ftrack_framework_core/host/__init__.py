@@ -56,9 +56,6 @@ class Host(object):
     host_types = [constants.host.PYTHON_HOST_TYPE]
     '''Compatible Host types for this HOST.'''
 
-    FtrackObjectManager = FtrackObjectManager
-    '''FtrackObjectManager class to use'''
-
     def __repr__(self):
         return '<Host:{0}>'.format(self.id)
 
@@ -74,20 +71,6 @@ class Host(object):
         Returns instance of :class:`ftrack_api.session.Session`
         '''
         return self._event_manager.session
-
-    @property
-    def ftrack_object_manager(self):
-        '''
-        Initializes and returns an instance of
-        :class:`~ftrack_framework_core.asset.FtrackObjectManager`
-        '''
-        if not isinstance(
-            self._ftrack_object_manager, self.FtrackObjectManager
-        ):
-            self._ftrack_object_manager = self.FtrackObjectManager(
-                self.event_manager
-            )
-        return self._ftrack_object_manager
 
     # noinspection SpellCheckingInspection
     @property
@@ -199,7 +182,6 @@ class Host(object):
         # Set event manager and object manager
         self._event_manager = event_manager
         self._registry = registry
-        self._ftrack_object_manager = None
 
         self._discover_host_subscribe_id = None
 
@@ -254,14 +236,17 @@ class Host(object):
         '''
 
         tool_config_reference = event['data']['tool_config_reference']
-        user_options = event['data']['user_options']
+        client_options = event['data']['client_options']
 
-        tool_config = None
-        for _tool_config in self.tool_configs:
-            if _tool_config['reference'] == tool_config_reference:
-                tool_config = _tool_config
+        for typed_configs in self.tool_configs.values():
+            tool_config = None
+            for _tool_config in typed_configs:
+                if _tool_config['reference'] == tool_config_reference:
+                    tool_config = _tool_config
+                    break
+            if tool_config:
                 break
-        if not tool_config:
+        else:
             raise Exception(
                 'Given tool config reference {} not found on registered '
                 'tool_configs. \n {}'.format(
@@ -286,7 +271,7 @@ class Host(object):
 
         try:
             engine_result = engine_instance.execute_engine(
-                tool_config['engine'], user_options
+                tool_config['engine'], client_options
             )
 
         except Exception as error:

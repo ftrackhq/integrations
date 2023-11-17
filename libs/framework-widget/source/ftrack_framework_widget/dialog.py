@@ -110,9 +110,9 @@ class FrameworkDialog(BaseUI):
         return self.__instanced_widgets
 
     @property
-    def discovered_framework_widgets(self):
+    def registry(self):
         '''Return discovered framework widgets from client'''
-        return self.client_property_getter_connection('discovered_widgets')
+        return self.client_property_getter_connection('registry')
 
     @property
     def tool_config_options(self):
@@ -176,12 +176,6 @@ class FrameworkDialog(BaseUI):
         self.event_manager.subscribe.client_signal_context_changed(
             self.client_id, callback=self._on_client_context_changed_callback
         )
-        self.event_manager.subscribe.client_signal_hosts_discovered(
-            self.client_id, callback=self._on_client_hosts_discovered_callback
-        )
-        self.event_manager.subscribe.client_signal_host_changed(
-            self.client_id, callback=self._on_client_host_changed_callback
-        )
         self.event_manager.subscribe.client_notify_log_item_added(
             self.client_id,
             callback=self._on_client_notify_ui_log_item_added_callback,
@@ -210,26 +204,6 @@ class FrameworkDialog(BaseUI):
         '''
         for id, widget in self.framework_widgets.items():
             widget.update_context(self.context_id)
-
-    @active_widget
-    def _on_client_hosts_discovered_callback(self, event=None):
-        '''
-        Will only run if the widget is active
-        Callback for when new host has been discovered in client.
-        '''
-        raise NotImplementedError(
-            "This method should be implemented by the inheriting class"
-        )
-
-    @active_widget
-    def _on_client_host_changed_callback(self, event=None):
-        '''
-        Will only run if the widget is active
-        Callback for when host has changed in the client.
-        '''
-        raise NotImplementedError(
-            "This method should be implemented by the inheriting class"
-        )
 
     @active_widget
     def _on_tool_config_changed_callback(self):
@@ -285,7 +259,7 @@ class FrameworkDialog(BaseUI):
         *group_config* as optional argument in case is part of a group.
         '''
         widget_class = None
-        for widget in self.discovered_framework_widgets:
+        for widget in self.registry.widgets:
             if widget['name'] == plugin_config['ui']:
                 widget_class = widget['extension']
                 break
@@ -296,7 +270,7 @@ class FrameworkDialog(BaseUI):
                 'Registered widgets: {}'.format(
                     plugin_config['ui'],
                     plugin_config['plugin'],
-                    self.discovered_framework_widgets,
+                    self.registry.widgets,
                 )
             )
             self.logger.error(error_message)
@@ -355,13 +329,13 @@ class FrameworkDialog(BaseUI):
         '''Enables widgets to call dialog properties'''
         return self.__getattribute__(property_name)
 
-    def run_tool_config(self, tool_config):
+    def run_tool_config(self, tool_config_reference):
         '''
         Run button from the UI has been clicked.
         Tell client to run the current tool config
         '''
 
-        arguments = {"tool_config": tool_config}
+        arguments = {"tool_config_reference": tool_config_reference}
         self.client_method_connection('run_tool_config', arguments=arguments)
 
     def _on_client_notify_ui_log_item_added_callback(self, event):
@@ -369,7 +343,7 @@ class FrameworkDialog(BaseUI):
         Client notify dialog that a new log item has been added.
         '''
         log_item = event['data']['log_item']
-        reference = log_item.get('plugin_reference')
+        reference = log_item.plugin_reference
         if not reference:
             return
         widget = self.framework_widgets.get(reference)
@@ -379,7 +353,7 @@ class FrameworkDialog(BaseUI):
                 "initialized widgets".format(reference)
             )
             return
-        widget.plugin_callback(log_item)
+        widget.plugin_run_callback(log_item)
 
     def _on_set_plugin_option_callback(self, plugin_reference, options):
         '''
