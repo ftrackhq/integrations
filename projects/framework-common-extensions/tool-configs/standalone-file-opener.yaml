@@ -1,0 +1,33 @@
+type: tool_config
+name: standalone-file-opener
+config_type: opener
+# TODO: evaluate host_type key
+host_type: python
+engine:
+  - type: plugin
+    tags:
+      - context
+    plugin: context
+
+  # Open the file component.
+  - type: group
+    tags:
+      - component
+    options:
+      component: file
+    plugins:
+      - type: plugin
+        plugin: store_component
+      - type: plugin
+        tags:
+          - collector
+        plugin: path_collector
+        ui: assetversion_selector
+        options:
+          file_extensions:
+            - png
+      - type: plugin
+        tags:
+          - opener
+        plugin: file_opener
+

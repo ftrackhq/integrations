@@ -63,7 +63,11 @@ class PublishContextWidget(BaseWidget):
         asset_layout.setAlignment(QtCore.Qt.AlignTop)
 
         # Create asset
-        self._asset_selector = AssetSelector(self.session)
+        self._asset_selector = AssetSelector(
+            AssetSelector.MODE_SELECT_ASSET_CREATE,
+            self._on_fetch_assets_callback,
+            self.session,
+        )
         asset_layout.addWidget(self._asset_selector)
         # set the current context
         self.set_context()
@@ -141,7 +145,41 @@ class PublishContextWidget(BaseWidget):
             self.set_plugin_option('asset_id', asset_entity['id'])
 
     def set_context(self):
-        self._asset_selector.set_context(
-            self.context_id, self.plugin_options.get('asset_type_name')
+        self._asset_selector.set_asset_name(
+            self.plugin_options.get('asset_type_name')
         )
-        self.set_plugin_option('context_id', self.context_id)
+        self._asset_selector.reload()
+
+    def _on_fetch_assets_callback(self):
+        '''Return publishable assets back to asset selector'''
+        # TODO: To be moved to a plugin when ui_hook is implemented
+        context_id = self.context_id
+
+        asset_type_entity = self.session.query(
+            'select name from AssetType where short is "{}"'.format(
+                self.plugin_options.get('asset_type_name')
+            )
+        ).first()
+
+        # Determine if we have a task or not
+        context = self.session.get('Context', context_id)
+        # If it's a fake asset, context will be None so return empty list.
+        if not context:
+            return []
+        if context.entity_type == 'Task':
+            assets = self.session.query(
+                'select name, versions.task.id, type.id, id, latest_version,'
+                'latest_version.version '
+                'from Asset where versions.task.id is {} and type.id is {}'.format(
+                    context_id, asset_type_entity['id']
+                )
+            ).all()
+        else:
+            assets = self.session.query(
+                'select name, versions.task.id, type.id, id, latest_version,'
+                'latest_version.version '
+                'from Asset where parent.id is {} and type.id is {}'.format(
+                    context_id, asset_type_entity['id']
+                )
+            ).all()
+        return list(assets)
