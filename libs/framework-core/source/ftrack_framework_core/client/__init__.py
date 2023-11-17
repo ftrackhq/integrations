@@ -142,14 +142,6 @@ class Client(object):
             raise Exception('No host connection available')
         return self.host_connection.tool_configs
 
-    # TODO: double check how we enable disable multithreading,
-    #  I think we can improve it and make it simpler, take a look at the
-    #  active_ui decorator that I created, maybe we can use something similar.
-    @property
-    def multithreading_enabled(self):
-        '''Return True if client supports multithreading (write operations)'''
-        return self._multithreading_enabled
-
     # Widget
     @property
     def dialogs(self):
@@ -169,14 +161,9 @@ class Client(object):
         self._dialog = value
 
     @property
-    def discovered_widgets(self):
-        '''Return discovered framework widgets'''
-        return self.__widgets_discovered
-
-    @property
-    def discovered_dialogs(self):
-        '''Return discovered framework widgets'''
-        return self.__dialogs_discovered
+    def registry(self):
+        '''Return registry object'''
+        return self._registry
 
     @property
     def tool_config_options(self):
@@ -186,7 +173,6 @@ class Client(object):
         self,
         event_manager,
         registry,
-        multithreading_enabled=True,
     ):
         '''
         Initialise Client with instance of
@@ -204,51 +190,16 @@ class Client(object):
         # Set the event manager
         self._event_manager = event_manager
 
-        # Set multithreading
-        self._multithreading_enabled = multithreading_enabled
-
         # Setting init variables to 0
+        self._registry = registry
         self._host_context_changed_subscribe_id = None
-        self.__widgets_discovered = []
-        self.__dialogs_discovered = []
         self.__instanced_dialogs = {}
         self._dialog = None
         self._tool_config_options = defaultdict(defaultdict)
 
-        # Register modules
-        self._register_modules(registry)
-
         self.logger.debug('Initialising Client {}'.format(self))
 
         self.discover_host()
-
-    def _register_modules(self, registry):
-        '''
-        Register framework modules available.
-        '''
-        # Discover widget modules
-        self.discover_dialogs(registry.dialogs)
-        # Discover widget modules
-        self.discover_widgets(registry.widgets)
-
-        if self.__widgets_discovered and self.__dialogs_discovered:
-            # Check that registry went correct
-            return True
-        self.logger.warning('No dialogs or widgets found to register')
-
-    def discover_widgets(self, registered_widgets):
-        '''
-        Register the given *registered_widgets* on the
-        :obj:`self.__widgets_discovered`
-        '''
-        self.__widgets_discovered = registered_widgets
-
-    def discover_dialogs(self, registered_dialogs):
-        '''
-        Register the given *registered_dialogs* on the
-        :obj:`self.__dialogs_discovered`
-        '''
-        self.__dialogs_discovered = registered_dialogs
 
     # Host
     def discover_host(self, time_out=3):
@@ -392,22 +343,20 @@ class Client(object):
                 raise Exception(error_message)
 
             if dialog_class not in [
-                dialog['extension'] for dialog in self.discovered_dialogs
+                dialog['extension'] for dialog in self.registry.dialogs
             ]:
                 self.logger.warning(
                     'Provided dialog_class {} not in the discovered framework '
                     'widgets, registering...'.format(dialog_class)
                 )
-                self.__dialogs_discovered.append(
-                    {
-                        'extension_type': 'dialog',
-                        'name': dialog_name,
-                        'extension': dialog_class,
-                    }
+                self.registry.add(
+                    extension_type='dialog',
+                    name=dialog_name,
+                    extension=dialog_class,
                 )
 
         if dialog_name and not dialog_class:
-            for registered_dialog_class in self.discovered_dialogs:
+            for registered_dialog_class in self.registry.dialogs:
                 if dialog_name == registered_dialog_class['name']:
                     dialog_class = registered_dialog_class['extension']
                     break
@@ -416,7 +365,7 @@ class Client(object):
                 'Please provide a registered dialog name.\n'
                 'Given name: {} \n'
                 'registered widgets: {}'.format(
-                    dialog_name, self.discovered_dialogs
+                    dialog_name, self.registry.dialogs
                 )
             )
             self.logger.error(error_message)
