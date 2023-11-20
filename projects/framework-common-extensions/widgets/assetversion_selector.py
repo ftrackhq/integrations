@@ -1,5 +1,6 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2023 ftrack
+import time
 
 from Qt import QtWidgets
 
@@ -21,6 +22,7 @@ class AssetVersionSelectorWidget(FrameworkWidget, QtWidgets.QWidget):
         plugin_config,
         group_config,
         on_set_plugin_option,
+        on_run_ui_hook,
         parent=None,
     ):
         """initialise PublishContextWidget with *parent*, *session*, *data*,
@@ -36,6 +38,7 @@ class AssetVersionSelectorWidget(FrameworkWidget, QtWidgets.QWidget):
             plugin_config,
             group_config,
             on_set_plugin_option,
+            on_run_ui_hook,
             parent,
         )
 
@@ -80,53 +83,24 @@ class AssetVersionSelectorWidget(FrameworkWidget, QtWidgets.QWidget):
 
     def _on_fetch_assets_callback(self):
         '''Return assets back to asset selector'''
-        # TODO: To be moved to a plugin when ui_hook is implemented
-        context_id = self.context_id
-
-        asset_type_entity = self.session.query(
-            'select name from AssetType where short is "{}"'.format(
-                self.plugin_config['options'].get('asset_type_name')
-            )
-        ).first()
-
-        # Determine if we have a task or not
-        context = self.session.get('Context', context_id)
-        # If it's a fake asset, context will be None so return empty list.
-        if not context:
-            return []
-        if context.entity_type == 'Task':
-            assets = self.session.query(
-                'select name, versions.task.id, type.id, id, latest_version,'
-                'latest_version.version '
-                'from Asset where versions.task.id is {} and type.id is {}'.format(
-                    context_id, asset_type_entity['id']
-                )
-            ).all()
-        else:
-            assets = self.session.query(
-                'select name, versions.task.id, type.id, id, latest_version,'
-                'latest_version.version '
-                'from Asset where parent.id is {} and type.id is {}'.format(
-                    context_id, asset_type_entity['id']
-                )
-            ).all()
-        return sorted(
-            list(assets),
-            key=lambda a: a['latest_version']['date'],
-            reverse=True,
-        )
+        payload = {
+            'context_id': self.context_id,
+            'context_type': 'asset',
+            'asset_type_name': self.plugin_config['options'].get(
+                'asset_type_name'
+            ),
+        }
+        return self.run_ui_hook(payload, await_result=True)
 
     def _on_fetch_assetversions_callback(self, asset_entity):
         '''Query ftrack for all version beneath *asset_entity*'''
-        # TODO: To be moved to a plugin when ui_hook is implemented
-        result = []
-        for version in self.session.query(
-            'select version, id '
-            'from AssetVersion where task.id is {} and asset_id is {} order by'
-            ' version descending'.format(self.context_id, asset_entity['id'])
-        ).all():
-            result.append(version)
-        return result
+        return []
+        payload = {
+            'context_id': self.context_id,
+            'context_type': 'asset_version',
+            'asset_id': asset_entity,
+        }
+        return self.run_ui_hook(payload, await_result=True)
 
     def _on_assets_added(self, assets):
         if len(assets or []) > 0:

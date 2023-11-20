@@ -115,7 +115,7 @@ class PublishContextWidget(BaseWidget):
         version_and_comment.layout().addLayout(comments_layout)
 
         # Add the widgets to the layout
-        self.layout().addLayout(self._label)
+        self.layout().addWidget(self._label)
         self.layout().addLayout(asset_layout)
         self.layout().addWidget(LineWidget())
         self.layout().addWidget(version_and_comment)
@@ -178,35 +178,12 @@ class PublishContextWidget(BaseWidget):
         self._asset_selector.reload()
 
     def _on_fetch_assets_callback(self):
-        '''Return publishable assets back to asset selector'''
-        # TODO: To be moved to a plugin when ui_hook is implemented
-        context_id = self.context_id
-
-        asset_type_entity = self.session.query(
-            'select name from AssetType where short is "{}"'.format(
-                self.plugin_config['options'].get('asset_type_name')
-            )
-        ).first()
-
-        # Determine if we have a task or not
-        context = self.session.get('Context', context_id)
-        # If it's a fake asset, context will be None so return empty list.
-        if not context:
-            return []
-        if context.entity_type == 'Task':
-            assets = self.session.query(
-                'select name, versions.task.id, type.id, id, latest_version,'
-                'latest_version.version '
-                'from Asset where versions.task.id is {} and type.id is {}'.format(
-                    context_id, asset_type_entity['id']
-                )
-            ).all()
-        else:
-            assets = self.session.query(
-                'select name, versions.task.id, type.id, id, latest_version,'
-                'latest_version.version '
-                'from Asset where parent.id is {} and type.id is {}'.format(
-                    context_id, asset_type_entity['id']
-                )
-            ).all()
-        return list(assets)
+        '''Return assets back to asset selector'''
+        payload = {
+            'context_id': self.context_id,
+            'context_type': 'asset',
+            'asset_type_name': self.plugin_config['options'].get(
+                'asset_type_name'
+            ),
+        }
+        return self.run_ui_hook(payload, await_result=True)

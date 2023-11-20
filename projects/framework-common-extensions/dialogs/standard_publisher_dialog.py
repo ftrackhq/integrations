@@ -68,6 +68,7 @@ class StandardPublisherDialog(BaseContextDialog):
         # Create a main widget for the scroll area
         self._scroll_area_widget = QtWidgets.QWidget()
         scroll_area_widget_layout = QtWidgets.QVBoxLayout()
+        scroll_area_widget_layout.setContentsMargins(0, 0, 0, 0)
         self._scroll_area_widget.setLayout(scroll_area_widget_layout)
 
         self.tool_widget.layout().addWidget(self._scroll_area, 100)
