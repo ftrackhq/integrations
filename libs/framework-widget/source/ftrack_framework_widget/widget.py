@@ -117,6 +117,7 @@ class FrameworkWidget(BaseUI):
         and return the result.
         '''
         if await_result:
+            # TODO: make this thread safe
             self._ui_hook_result = None
             self._do_await_ui_hook_result = True
         self.on_run_ui_hook(payload)
@@ -125,13 +126,18 @@ class FrameworkWidget(BaseUI):
 
     def _await_ui_hook_result(self):
         timeout = 10
-        while True:
-            time.sleep(0.1)
-            if self._ui_hook_result:
-                return self._ui_hook_result
-            timeout -= 0.1
-            if timeout <= 0:
-                raise Exception('Timeout waiting for ui_hook result')
+        try:
+            while True:
+                time.sleep(0.1)
+                if self._ui_hook_result:
+                    return self._ui_hook_result
+                timeout -= 0.1
+                if timeout <= 0:
+                    raise Exception('Timeout waiting for ui_hook result')
+        finally:
+            self._do_await_ui_hook_result = (
+                False  # Prevent await for next call
+            )
 
     def ui_hook_callback(self, ui_hook_result):
         '''Get the result of the ui_hook method from the plugin'''
