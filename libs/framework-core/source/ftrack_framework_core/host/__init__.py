@@ -10,9 +10,9 @@ from functools import partial
 
 import ftrack_constants.framework as constants
 
-from ftrack_framework_core.asset import FtrackObjectManager
 from ftrack_framework_core.log.log_item import LogItem
 from ftrack_framework_core.log import LogDB
+from ftrack_utils.framework.tool_config.read import get_plugins
 
 from ftrack_utils.decorators import with_new_session
 
@@ -344,11 +344,11 @@ class Host(object):
                 'No engine with name "{}" found'.format(engine_name)
             )
 
-        for obj in tool_config['engine']:
-            if obj['reference'] == plugin_reference:
-                plugin_config = obj
-                break
-        else:
+        try:
+            plugin_config = get_plugins(
+                tool_config, filters={'reference': plugin_reference}
+            )[0]
+        except Exception:
             raise Exception(
                 'Given plugin config reference {} not found on the '
                 'tool_config {}'.format(plugin_reference, tool_config)
@@ -359,7 +359,7 @@ class Host(object):
                 plugin_config['plugin'],
                 payload,
                 client_options,
-                reference_id=plugin_reference,
+                reference=plugin_reference,
             )
 
         except Exception as error:
