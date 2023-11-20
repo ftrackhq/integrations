@@ -112,7 +112,9 @@ class FrameworkWidget(BaseUI):
 
     def run_ui_hook(self, payload, await_result=False):
         '''
-        Call the on_run_ui_hook method from the dialog with the given *payload*
+        Call the on_run_ui_hook method from the dialog with the given *payload*.
+        By default, this is an async operation. If *await_result* is true, await
+        and return the result.
         '''
         if await_result:
             self._ui_hook_result = None

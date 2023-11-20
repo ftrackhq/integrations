@@ -7,7 +7,7 @@ from Qt import QtWidgets, QtCore
 
 from ftrack_qt.widgets.info import EntityInfo
 
-from ftrack_qt.widgets.thumbnails import Context
+from ftrack_qt.widgets.thumbnails import ContextThumbnail
 from ftrack_utils.threading import BaseThread
 from ftrack_qt.widgets.buttons import CircularButton
 
@@ -136,7 +136,7 @@ class ContextSelector(QtWidgets.QFrame):
             EntityBrowser,
         )  # Prevent circular import
 
-        self.thumbnail_widget = Context(self.session)
+        self.thumbnail_widget = ContextThumbnail(self.session)
 
         self.thumbnail_widget.setMinimumWidth(50)
         self.thumbnail_widget.setMinimumHeight(40)
