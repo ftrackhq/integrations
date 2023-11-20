@@ -98,12 +98,27 @@ class FrameworkWidget(BaseUI):
         return None
 
     def plugin_run_callback(self, log_item):
-        # TODO: implement this to update the status in the widget.
-        print("Plugin Callback ---> {}".format(log_item))
-        # raise NotImplementedError
+        '''
+        Receive the callback with the plugin info every time a plugin has been
+        executed
+        '''
+        self.logger.warning(
+            "Method not implemented, Plugin Callback ---> {}".format(log_item)
+        )
 
     def run_ui_hook(self, payload):
+        '''
+        Call the on_run_ui_hook method from the dialog with the given *payload*
+        '''
         self.on_run_ui_hook(payload)
+
+    def ui_hook_callback(self, ui_hook_result):
+        '''Get the result of the ui_hook method from the plugin'''
+        self.logger.warning(
+            "Method not implemented, ui_hook_result ---> {}".format(
+                ui_hook_result
+            )
+        )
 
     @classmethod
     def register(cls):

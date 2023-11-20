@@ -181,6 +181,10 @@ class FrameworkDialog(BaseUI):
             self.client_id,
             callback=self._on_client_notify_ui_log_item_added_callback,
         )
+        self.event_manager.subscribe.client_notify_ui_hook_result(
+            self.client_id,
+            callback=self._on_client_notify_ui_hook_result_callback,
+        )
 
     def show_ui(self):
         '''
@@ -359,6 +363,24 @@ class FrameworkDialog(BaseUI):
             )
             return
         widget.plugin_run_callback(log_item)
+
+    def _on_client_notify_ui_hook_result_callback(self, event):
+        '''
+        Client notify ui with the result of running the UI hook.
+        '''
+        reference = event['data']['plugin_reference']
+        ui_hook_result = event['data']['ui_hook_result']
+
+        if not reference:
+            return
+        widget = self.framework_widgets.get(reference)
+        if not widget:
+            self.logger.warning(
+                "Widget with reference {} can't be found on the dialog "
+                "initialized widgets".format(reference)
+            )
+            return
+        widget.ui_hook_callback(ui_hook_result)
 
     def _on_set_plugin_option_callback(self, plugin_reference, options):
         '''

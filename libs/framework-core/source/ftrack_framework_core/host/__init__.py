@@ -217,6 +217,11 @@ class Host(object):
             self.id, self.run_tool_config_callback
         )
 
+        # Subscribe to run tool_config
+        self.event_manager.subscribe.host_run_ui_hook(
+            self.id, self.run_ui_hook_callback
+        )
+
     def _client_context_change_callback(self, event):
         '''Callback when the client has changed context'''
         context_id = event['data']['context_id']
@@ -301,7 +306,8 @@ class Host(object):
         '''
 
         tool_config_reference = event['data']['tool_config_reference']
-        plugin_reference = event['data']['plugin_reference']
+        plugin_reference = event['data']['plugin_config_reference']
+        client_options = event['data']['client_options']
         payload = event['data']['payload']
 
         tool_config = None
@@ -325,7 +331,9 @@ class Host(object):
             engine_instance = engine_registry['extension'](
                 self.registry,
                 session,
-                on_plugin_executed=self.on_plugin_executed_callback,
+                on_plugin_executed=partial(
+                    self.on_ui_hook_executed_callback, plugin_reference
+                ),
             )
         except Exception:
             raise Exception(
@@ -337,7 +345,10 @@ class Host(object):
             # This is just pseudo code
             plugin_config = tool_config['engine'][plugin_reference]
             engine_result = engine_instance.run_ui_hook(
-                plugin_config['plugin'], payload, reference_id=plugin_reference
+                plugin_config['plugin'],
+                payload,
+                client_options,
+                reference_id=plugin_reference,
             )
 
         except Exception as error:
@@ -348,3 +359,8 @@ class Host(object):
                 )
             )
         return engine_result
+
+    def on_ui_hook_executed_callback(self, plugin_reference, ui_hook_result):
+        self.event_manager.publish.host_run_ui_hook_result(
+            self.id, plugin_reference, ui_hook_result
+        )
