@@ -51,12 +51,7 @@ class FrameworkWidget(BaseUI):
 
         self._options.update(value)
 
-        self.on_set_plugin_option(self.plugin_reference, self._options)
-
-    @property
-    def plugin_reference(self):
-        '''Return the unique assigned reference'''
-        return self.plugin_config['reference']
+        self.on_set_plugin_option(self._options)
 
     def __init__(
         self,
@@ -66,6 +61,7 @@ class FrameworkWidget(BaseUI):
         plugin_config,
         group_config,
         on_set_plugin_option,
+        on_run_ui_hook,
         parent=None,
     ):
         self._context_id = context_id
@@ -75,6 +71,7 @@ class FrameworkWidget(BaseUI):
 
         # Connect dialog methods and properties
         self.on_set_plugin_option = on_set_plugin_option
+        self.on_run_ui_hook = on_run_ui_hook
 
         super(FrameworkWidget, self).__init__(event_manager, client_id, parent)
 
@@ -101,9 +98,28 @@ class FrameworkWidget(BaseUI):
         return None
 
     def plugin_run_callback(self, log_item):
-        # TODO: implement this to update the status in the widget.
-        print("Plugin Callback ---> {}".format(log_item))
-        # raise NotImplementedError
+        '''
+        Receive the callback with the plugin info every time a plugin has been
+        executed.
+        *log_item* is the plugin info dictionary.
+        '''
+        self.logger.warning(
+            "Method not implemented, Plugin Callback ---> {}".format(log_item)
+        )
+
+    def run_ui_hook(self, payload):
+        '''
+        Call the on_run_ui_hook method from the dialog with the given *payload*
+        '''
+        self.on_run_ui_hook(payload)
+
+    def ui_hook_callback(self, ui_hook_result):
+        '''Get the result of the ui_hook method from the plugin'''
+        self.logger.warning(
+            "Method not implemented, ui_hook_result ---> {}".format(
+                ui_hook_result
+            )
+        )
 
     @classmethod
     def register(cls):

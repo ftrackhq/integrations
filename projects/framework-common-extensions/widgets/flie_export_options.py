@@ -22,6 +22,7 @@ class FileExportOptionsWidget(BaseWidget):
         plugin_config,
         group_config,
         on_set_plugin_option,
+        on_run_ui_hook,
         parent=None,
     ):
         '''initialise FileExportOptionsWidget with *parent*, *session*, *data*,
@@ -35,6 +36,7 @@ class FileExportOptionsWidget(BaseWidget):
             plugin_config,
             group_config,
             on_set_plugin_option,
+            on_run_ui_hook,
             parent,
         )
 

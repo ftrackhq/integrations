@@ -20,6 +20,7 @@ class ValidatorLabelWidget(BaseWidget):
         plugin_config,
         group_config,
         on_set_plugin_option,
+        on_run_ui_hook,
         parent=None,
     ):
         self._validator_name_label = None
@@ -31,6 +32,7 @@ class ValidatorLabelWidget(BaseWidget):
             plugin_config,
             group_config,
             on_set_plugin_option,
+            on_run_ui_hook,
             parent,
         )
 
