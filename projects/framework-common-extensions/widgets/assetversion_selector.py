@@ -121,9 +121,8 @@ class AssetVersionSelectorWidget(FrameworkWidget, QtWidgets.QWidget):
     def _on_assets_added(self, assets):
         if len(assets or []) > 0:
             self._label.setText(
-                'We found {} asset{} published '
-                ' on this task. Choose version '
-                'to open'.format(
+                'We found {} asset{} published on this task. '
+                'Choose version'.format(
                     len(assets),
                     's' if len(assets) > 1 else '',
                 )
