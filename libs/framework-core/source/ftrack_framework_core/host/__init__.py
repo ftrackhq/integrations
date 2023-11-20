@@ -217,7 +217,7 @@ class Host(object):
             self.id, self.run_tool_config_callback
         )
 
-        # Subscribe to run tool_config
+        # Subscribe to run ui hook
         self.event_manager.subscribe.host_run_ui_hook(
             self.id, self.run_ui_hook_callback
         )
@@ -310,18 +310,22 @@ class Host(object):
         client_options = event['data']['client_options']
         payload = event['data']['payload']
 
-        tool_config = None
-        for _tool_config in self.tool_configs:
-            if _tool_config['reference'] == tool_config_reference:
-                tool_config = _tool_config
+        for typed_configs in self.tool_configs.values():
+            tool_config = None
+            for _tool_config in typed_configs:
+                if _tool_config['reference'] == tool_config_reference:
+                    tool_config = _tool_config
+                    break
+            if tool_config:
                 break
-        if not tool_config:
+        else:
             raise Exception(
                 'Given tool config reference {} not found on registered '
                 'tool_configs. \n {}'.format(
                     tool_config_reference, self.tool_configs
                 )
             )
+
         engine_name = tool_config.get('engine_name', 'standard_engine')
 
         try:
@@ -340,10 +344,17 @@ class Host(object):
                 'No engine with name "{}" found'.format(engine_name)
             )
 
+        for obj in tool_config['engine']:
+            if obj['reference'] == plugin_reference:
+                plugin_config = obj
+                break
+        else:
+            raise Exception(
+                'Given plugin config reference {} not found on the '
+                'tool_config {}'.format(plugin_reference, tool_config)
+            )
+
         try:
-            # TODO: find the plugin that matches the reference with a for loop
-            # This is just pseudo code
-            plugin_config = tool_config['engine'][plugin_reference]
             engine_result = engine_instance.run_ui_hook(
                 plugin_config['plugin'],
                 payload,
