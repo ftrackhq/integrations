@@ -28,7 +28,7 @@ class FrameworkWidget(BaseUI):
 
     @property
     def group_config(self):
-        '''tIf plugin lives in a group, return the group tool config'''
+        '''If plugin lives in a group, return the group tool config'''
         return self._group_config
 
     @property

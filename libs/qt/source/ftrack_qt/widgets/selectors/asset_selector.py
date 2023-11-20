@@ -16,7 +16,8 @@ from ftrack_qt.utils.widget import set_property
 
 
 class AssetListItemWidget(QtWidgets.QFrame):
-    '''Widget representing an asset within the list, for user selection'''
+    '''Widget representing an asset, with version selector, within the list,
+    for user selection'''
 
     versionChanged = QtCore.Signal(object)
     '''Signal emitted when version is changed, with assetversion entity as argument'''
@@ -62,8 +63,6 @@ class AssetListItemWidget(QtWidgets.QFrame):
         self._version_info_widget = None
 
         self._latest_version = None
-        self._current_version_id = None
-        self._current_version_number = None
 
         self.pre_build()
         self.build()
@@ -124,8 +123,6 @@ class AssetListItemWidget(QtWidgets.QFrame):
 
         if self._latest_version:
             self._thumbnail_widget.load(self._latest_version['id'])
-            self._current_version_id = self._latest_version['id']
-            self._current_version_number = self._latest_version['version']
 
         self.setToolTip(string_utils.str_context(self.asset['parent']))
 

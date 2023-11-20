@@ -110,10 +110,10 @@ class AssetVersionSelectorWidget(FrameworkWidget, QtWidgets.QWidget):
                     context_id, asset_type_entity['id']
                 )
             ).all()
-        return list(
-            sorted(
-                assets, key=lambda a: a['latest_version']['date'], reverse=True
-            )
+        return sorted(
+            list(assets),
+            key=lambda a: a['latest_version']['date'],
+            reverse=True,
         )
 
     def _on_fetch_assetversions_callback(self, asset_entity):

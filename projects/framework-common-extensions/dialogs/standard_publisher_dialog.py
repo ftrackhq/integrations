@@ -79,7 +79,9 @@ class StandardPublisherDialog(BaseContextDialog):
         if not self.filtered_tool_configs.get("publisher"):
             self.logger.warning("No Publisher tool configs available")
             self._scroll_area_widget.layout().addWidget(
-                QtWidgets.QLabel("No Publisher tool configs available")
+                QtWidgets.QLabel(
+                    "<html><i>No Publisher tool configs available</i></html>"
+                )
             )
         else:
             self.tool_config = self.filtered_tool_configs.get("publisher")[0]
