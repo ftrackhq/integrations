@@ -12,6 +12,12 @@ import ftrack_nuke_studio.exception
 
 import hiero
 
+try:
+    from hiero.core.VersionScanner import VersionScanner
+except ImportError:
+    from hiero.core.FnVersionScanner import VersionScanner
+
+
 from hiero.ui.BuildExternalMediaTrack import (
     BuildTrack,
     BuildTrackActionBase,
@@ -476,7 +482,7 @@ class FtrackReBuildServerTrackAction(BuildTrackActionBase, FtrackBase):
         if track_item.isMediaPresent():
             version = track_item.currentVersion()
             scanner = (
-                hiero.core.VersionScanner.VersionScanner()
+                VersionScanner()
             )  # Scan for new versions
             scanner.doScan(version)
 
