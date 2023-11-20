@@ -10,6 +10,11 @@ Release Notes
 .. release:: Upcoming
 
     .. change:: fixed
+        :tags: API
+
+        Update Pyside function signatures to work on Nuke 15.
+
+    .. change:: fixed
         :tags: Tags
 
         Tags on sequences break exporters. 
