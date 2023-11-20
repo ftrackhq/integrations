@@ -51,12 +51,7 @@ class FrameworkWidget(BaseUI):
 
         self._options.update(value)
 
-        self.on_set_plugin_option(self.plugin_reference, self._options)
-
-    @property
-    def plugin_reference(self):
-        '''Return the unique assigned reference'''
-        return self.plugin_config['reference']
+        self.on_set_plugin_option(self._options)
 
     def __init__(
         self,
@@ -108,7 +103,7 @@ class FrameworkWidget(BaseUI):
         # raise NotImplementedError
 
     def run_ui_hook(self, payload):
-        self.on_run_ui_hook(self.plugin_reference, payload)
+        self.on_run_ui_hook(payload)
 
     @classmethod
     def register(cls):

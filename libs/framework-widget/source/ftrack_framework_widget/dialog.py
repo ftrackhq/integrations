@@ -3,6 +3,7 @@
 
 import logging
 import uuid
+from functools import partial
 
 from ftrack_framework_widget import BaseUI, active_widget
 from ftrack_utils.framework.tool_config.read import get_tool_config_by_name
@@ -281,8 +282,12 @@ class FrameworkDialog(BaseUI):
             self.context_id,
             plugin_config,
             group_config,
-            on_set_plugin_option=self._on_set_plugin_option_callback,
-            on_run_ui_hook=self._on_run_ui_hook_callback,
+            on_set_plugin_option=partial(
+                self._on_set_plugin_option_callback, plugin_config['reference']
+            ),
+            on_run_ui_hook=partial(
+                self._on_run_ui_hook_callback, plugin_config['reference']
+            ),
         )
         # TODO: widgets can't really run any plugin (like fetch) before it gets
         #  registered, so In case someone automatically fetches during the init
