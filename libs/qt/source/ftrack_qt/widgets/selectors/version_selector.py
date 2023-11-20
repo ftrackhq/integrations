@@ -31,7 +31,6 @@ class VersionSelector(QtWidgets.QComboBox):
         self._fetch_assetversions = fetch_assetversions
 
         self.setEditable(False)
-        self.context_id = None
         self.asset_entity = None
 
         self._version_id = None  # Current selected version id
@@ -56,10 +55,10 @@ class VersionSelector(QtWidgets.QComboBox):
             self._version_id = latest_version['id']
         return latest_version
 
-    def set_version_entity(self, version_entity, is_compatible=True):
+    def set_version_entity(self, version_entity):
         self.asset_entity = version_entity['asset']
         self.clear()
-        self._add_version((version_entity, is_compatible))
+        self._add_version(version_entity)
         self._version_id = version_entity['id']
 
     def showPopup(self):
@@ -71,10 +70,6 @@ class VersionSelector(QtWidgets.QComboBox):
             self.add_versions(sorted(versions, key=lambda v: -v['version']))
             self._mute_index_change_signal = False
         super(VersionSelector, self).showPopup()
-
-    def set_context_id(self, context_id):
-        self.context_id = context_id
-        self.clear()
 
     def _add_version(self, version):
         self.addItem(str('v{}'.format(version['version'])), version)

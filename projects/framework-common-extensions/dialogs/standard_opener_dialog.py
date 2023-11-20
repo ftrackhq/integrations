@@ -14,7 +14,7 @@ class StandardOpenerDialog(BaseContextDialog):
     name = 'framework_standard_opener_dialog'
     tool_config_type_filter = ['opener']
     ui_type = 'qt'
-    run_button_title = 'open'
+    run_button_title = 'OPEN'
     docked = False
 
     def __init__(
@@ -54,6 +54,7 @@ class StandardOpenerDialog(BaseContextDialog):
             dialog_options,
             parent,
         )
+        self.resize(400, 450)
 
     def pre_build_ui(self):
         # Create scroll area to add all the widgets
@@ -67,15 +68,15 @@ class StandardOpenerDialog(BaseContextDialog):
         # Create a main widget for the scroll area
         self._scroll_area_widget = QtWidgets.QWidget()
         scroll_area_widget_layout = QtWidgets.QVBoxLayout()
+        scroll_area_widget_layout.setContentsMargins(0, 0, 0, 0)
         self._scroll_area_widget.setLayout(scroll_area_widget_layout)
-
         self.tool_widget.layout().addWidget(self._scroll_area, 100)
         self._scroll_area.setWidget(self._scroll_area_widget)
 
     def build_ui(self):
         # Select the desired tool_config
         if not self.filtered_tool_configs.get("opener"):
-            self.logger.warning("No Oepener tool configs available")
+            self.logger.warning("No opener tool configs available")
         else:
             self.tool_config = self.filtered_tool_configs.get("opener")[0]
 
@@ -95,6 +96,12 @@ class StandardOpenerDialog(BaseContextDialog):
         )
 
         for _group in component_groups:
+            component_label = QtWidgets.QLabel(
+                _group.get('options').get('component')
+            )
+            component_label.setObjectName('hq')
+            self._scroll_area_widget.layout().addWidget(component_label)
+
             collectors = get_plugins(_group, filters={'tags': ['collector']})
             for plugin_config in collectors:
                 if not plugin_config.get('ui'):

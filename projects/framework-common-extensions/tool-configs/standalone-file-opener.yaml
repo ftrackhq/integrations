@@ -21,13 +21,14 @@ engine:
       - type: plugin
         tags:
           - collector
-        plugin: path_collector
+        plugin: component_path_collector
         ui: assetversion_selector
         options:
+          asset_type_name: script
           file_extensions:
             - png
       - type: plugin
         tags:
           - opener
-        plugin: file_opener
+        plugin: open_file
 

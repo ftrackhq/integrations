@@ -19,8 +19,8 @@ class AssetVersionSelectorWidget(FrameworkWidget, QtWidgets.QWidget):
         client_id,
         context_id,
         plugin_config,
-        dialog_connect_methods_callback,
-        dialog_property_getter_connection_callback,
+        group_config,
+        on_set_plugin_option,
         parent=None,
     ):
         """initialise PublishContextWidget with *parent*, *session*, *data*,
@@ -34,11 +34,12 @@ class AssetVersionSelectorWidget(FrameworkWidget, QtWidgets.QWidget):
             client_id,
             context_id,
             plugin_config,
-            dialog_connect_methods_callback,
-            dialog_property_getter_connection_callback,
-            parent=parent,
+            group_config,
+            on_set_plugin_option,
+            parent,
         )
 
+        self._label = None
         self._assetversion_selector = None
 
         self.pre_build()
@@ -47,22 +48,35 @@ class AssetVersionSelectorWidget(FrameworkWidget, QtWidgets.QWidget):
 
     def pre_build(self):
         main_layout = QtWidgets.QVBoxLayout()
+        main_layout.setContentsMargins(0, 0, 0, 0)
         self.setLayout(main_layout)
 
     def build(self):
+        self._label = QtWidgets.QLabel()
+        self._label.setObjectName('gray')
+        self._label.setWordWrap(True)
+
         self._assetversion_selector = AssetSelector(
             AssetSelector.MODE_SELECT_ASSETVERSION,
             self._on_fetch_assets_callback,
             self.session,
-            fetch_assetversions=self._on_fetch_assetversions_callback(),
+            fetch_assetversions=self._on_fetch_assetversions_callback,
         )
-        self.layout().addLayout(self._assetversion_selector)
+
+        self.layout().addWidget(self._label)
+        self.layout().addWidget(self._assetversion_selector)
 
     def post_build(self):
         """Perform post-construction operations."""
+        self._assetversion_selector.assetsAdded.connect(self._on_assets_added)
         self._assetversion_selector.versionChanged.connect(
             self._on_version_changed_callback
         )
+        # set context
+        self.set_context()
+
+    def set_context(self):
+        self._assetversion_selector.reload()
 
     def _on_fetch_assets_callback(self):
         '''Return assets back to asset selector'''
@@ -71,7 +85,7 @@ class AssetVersionSelectorWidget(FrameworkWidget, QtWidgets.QWidget):
 
         asset_type_entity = self.session.query(
             'select name from AssetType where short is "{}"'.format(
-                self.plugin_options.get('asset_type_name')
+                self.plugin_config['options'].get('asset_type_name')
             )
         ).first()
 
@@ -96,7 +110,11 @@ class AssetVersionSelectorWidget(FrameworkWidget, QtWidgets.QWidget):
                     context_id, asset_type_entity['id']
                 )
             ).all()
-        return list(assets)
+        return list(
+            sorted(
+                assets, key=lambda a: a['latest_version']['date'], reverse=True
+            )
+        )
 
     def _on_fetch_assetversions_callback(self, asset_entity):
         '''Query ftrack for all version beneath *asset_entity*'''
@@ -107,20 +125,32 @@ class AssetVersionSelectorWidget(FrameworkWidget, QtWidgets.QWidget):
             'from AssetVersion where task.id is {} and asset_id is {} order by'
             ' version descending'.format(self.context_id, asset_entity['id'])
         ).all():
-            result.append((version, True))
+            result.append(version)
         return result
 
-    def _on_version_changed_callback(self, assetversion_entity):
-        if assetversion_entity:
-            print(
-                '@@@ {} {}({})'.format(
-                    assetversion_entity['asset']['name'],
-                    assetversion_entity['version'],
-                    assetversion_entity['id'],
+    def _on_assets_added(self, assets):
+        if len(assets or []) > 0:
+            self._label.setText(
+                'We found {} asset{} published '
+                ' on this task. Choose version '
+                'to open'.format(
+                    len(assets),
+                    's' if len(assets) > 1 else '',
                 )
             )
         else:
-            print('@@@ None')
+            self._label.setText('No assets found!')
+
+    def _on_version_changed_callback(self, assetversion_entity):
+        self.set_plugin_option(
+            'asset_versions',
+            [
+                {
+                    'asset_version_id': assetversion_entity['id'],
+                    'component_name': self.plugin_options.get('component'),
+                }
+            ],
+        )
 
     def run_plugin_callback(self, plugin_info):
         # Check the result of the desired method
@@ -135,7 +165,3 @@ class AssetVersionSelectorWidget(FrameworkWidget, QtWidgets.QWidget):
             self.current_fetch_widget.set_data_items(
                 plugin_info["plugin_method_result"]
             )
-
-    def on_context_updated(self):
-        '''Re-fetch from plugin due to context change.'''
-        self.fetch()

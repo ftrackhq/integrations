@@ -39,7 +39,7 @@ class AssetListItemWidget(QtWidgets.QFrame):
     @property
     def version(self):
         if self._version_combobox:
-            return self._version_combobox.version()
+            return self._version_combobox.version
         else:
             return self.asset['latest_version']
 
@@ -90,7 +90,6 @@ class AssetListItemWidget(QtWidgets.QFrame):
                     self._fetch_assetversions
                 )
             )
-            self._version_combobox.set_context_id(self.context_id)
             self._version_combobox.setMaximumHeight(20)
             self.layout().addWidget(self._version_combobox)
 
@@ -140,11 +139,11 @@ class AssetListItemWidget(QtWidgets.QFrame):
         '''User has selected new version *assetversion_entity*, update the
         thumbnail and emit event'''
         if assetversion_entity:
-            self.thumbnail_widget.load(assetversion_entity['id'])
+            self._thumbnail_widget.load(assetversion_entity['id'])
             self._update_publisher_info(assetversion_entity)
             self.versionChanged.emit(assetversion_entity)
         else:
-            self.thumbnail_widget.use_placeholder()
+            self._thumbnail_widget.use_placeholder()
             self._update_publisher_info(None)
             self.versionChanged.emit(None)
 
@@ -351,6 +350,8 @@ class AssetSelector(QtWidgets.QWidget):
 
     VALID_ASSET_NAME = QtCore.QRegExp('[A-Za-z0-9_]+')
 
+    assetsAdded = QtCore.Signal(object)
+
     assetChanged = QtCore.Signal(object, object, object)
     '''Signal emitted when asset is changed, with asset name, asset entity and 
     is_valid_name flag'''
@@ -370,6 +371,11 @@ class AssetSelector(QtWidgets.QWidget):
     def session(self):
         '''Return session'''
         return self._session
+
+    @property
+    def assets(self):
+        '''Return list of assets'''
+        return self._asset_list.assets
 
     def __init__(
         self,
@@ -397,7 +403,6 @@ class AssetSelector(QtWidgets.QWidget):
         self._session = session
         self._fetch_assetversions = fetch_assetversions
 
-        self._label = None
         self._list_and_input = None
         self._asset_list = None
         self._new_asset_input = None
@@ -413,14 +418,10 @@ class AssetSelector(QtWidgets.QWidget):
 
     def pre_build(self):
         main_layout = QtWidgets.QVBoxLayout()
+        main_layout.setContentsMargins(0, 0, 0, 0)
         self.setLayout(main_layout)
 
     def build(self):
-        self._label = QtWidgets.QLabel()
-        self._label.setObjectName('gray')
-        self._label.setWordWrap(True)
-        self.layout().addWidget(self._label)
-
         self._list_and_input = AssetListAndInput()
 
         self._asset_list = AssetList(
@@ -449,8 +450,11 @@ class AssetSelector(QtWidgets.QWidget):
         self._asset_list.versionChanged.connect(
             self._on_version_changed_callback
         )
-        self._new_asset_input.clicked.connect(self._new_asset_clicked)
-        self._new_asset_input.name.textChanged.connect(self._new_asset_changed)
+        if self._new_asset_input:
+            self._new_asset_input.clicked.connect(self._new_asset_clicked)
+            self._new_asset_input.name.textChanged.connect(
+                self._new_asset_changed
+            )
 
     def _refresh(self):
         '''Add assets queried in separate thread to list.'''
@@ -459,21 +463,12 @@ class AssetSelector(QtWidgets.QWidget):
     def _pre_select_asset(self):
         '''Assets have been loaded, select most suitable asset to start with'''
         if self._asset_list.count() > 0:
-            self._label.setText(
-                'We found {} asset{} already '
-                'published on this task. Choose which one to version up or create '
-                'a new asset'.format(
-                    self._asset_list.count(),
-                    's' if self._asset_list.count() > 1 else '',
-                )
-            )
             self._asset_list.setCurrentRow(0)
-            self._label.show()
             self._asset_list.show()
         else:
-            self._label.setText('Enter asset name')
             self._asset_list.hide()
         self._list_and_input.size_changed()
+        self.assetsAdded.emit(self.assets)
 
     def _new_asset_clicked(self):
         self._asset_list.setCurrentRow(-1)
@@ -495,7 +490,8 @@ class AssetSelector(QtWidgets.QWidget):
                 self.updateWidget.emit(asset_widget.asset)
             else:
                 # All items de-selected
-                self._new_asset_changed()
+                if self._new_asset_input:
+                    self._new_asset_changed()
                 self.versionChanged.emit(None)
                 self.updateWidget.emit(None)
 
@@ -503,6 +499,8 @@ class AssetSelector(QtWidgets.QWidget):
         '''Synchronize state of list with new asset input if *selected_asset* is
         None, otherwise bring focus to list.'''
         self._asset_list.ensurePolished()
+        if not self._new_asset_input:
+            return
         self._new_asset_input.name.ensurePolished()
         self._new_asset_input.button.ensurePolished()
         if selected_asset is not None:
@@ -543,10 +541,11 @@ class AssetSelector(QtWidgets.QWidget):
                 is_valid_bool = False
             else:
                 is_valid_bool = True
-        if is_valid_bool:
-            set_property(self._new_asset_input.name, 'input', '')
-        else:
-            set_property(self._new_asset_input.name, 'input', 'invalid')
+        if self._new_asset_input:
+            if is_valid_bool:
+                set_property(self._new_asset_input.name, 'input', '')
+            else:
+                set_property(self._new_asset_input.name, 'input', 'invalid')
         return is_valid_bool
 
     def reload(self):
