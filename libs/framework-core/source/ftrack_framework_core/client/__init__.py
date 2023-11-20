@@ -87,6 +87,12 @@ class Client(object):
             self.host_connection.host_id,
             callback=self.on_log_item_added_callback,
         )
+        # TODO: should this event go directly to dialog or widget and never
+        #  pass through client?
+        self.event_manager.subscribe.host_run_ui_hook_result(
+            self.host_connection.host_id,
+            callback=self.on_ui_hook_callback,
+        )
         # Clean up host_context_change_subscription in case exists
         self._unsubscribe_host_context_changed()
         # Subscribe to host_context_change even though we already subscribed in
@@ -316,6 +322,18 @@ class Client(object):
             self.id, event['data']['log_item']
         )
 
+    def on_ui_hook_callback(self, event):
+        '''
+        Called ui_hook has been executed on host and needs to notify UI with
+        the result.
+        '''
+        # Publish event to widget
+        self.event_manager.publish.client_notify_ui_hook_result(
+            self.id,
+            event['data']['plugin_reference'],
+            event['data']['ui_hook_result'],
+        )
+
     def reset_all_tool_configs(self):
         '''
         Ask host connection to reset values of all tool_configs
@@ -435,3 +453,18 @@ class Client(object):
         self._tool_config_options[tool_config_reference][
             plugin_config_reference
         ] = plugin_options
+
+    def run_ui_hook(
+        self, tool_config_reference, plugin_config_reference, payload
+    ):
+        # TODO: should this event go directly to dialog or widget and never
+        #  pass through client?
+        self.event_manager.publish.host_run_ui_hook(
+            self.host_id,
+            tool_config_reference,
+            plugin_config_reference,
+            self.tool_config_options[tool_config_reference].get(
+                plugin_config_reference, {}
+            ),
+            payload,
+        )

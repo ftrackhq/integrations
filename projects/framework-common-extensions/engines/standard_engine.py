@@ -22,6 +22,55 @@ class StandardEngine(BaseEngine):
             plugin_registry, session, on_plugin_executed
         )
 
+    def run_ui_hook(self, plugin, payload, options, reference=None):
+        '''
+        If given *plugin* is in the plugin registry, initialize it with the
+        given *options* and execute the ui_hook method passing given *payload*
+        as argument.
+        *plugin*: Name of the plugin to be executed.
+        *payload*: data.
+        *options*: options to be passed to the plugin
+        *reference*: reference id of the plugin
+        '''
+        matching_plugins = self.plugin_registry.get(name=plugin)
+
+        if len(matching_plugins) == 0:
+            raise Exception(
+                "No matching plugins found for plugin name: {0}".format(plugin)
+            )
+
+        if len(matching_plugins) > 1:
+            raise Exception(
+                "Multiple matching plugins found for plugin name: {0}".format(
+                    plugin
+                )
+            )
+
+        registered_plugin = matching_plugins[0]
+
+        plugin_instance = registered_plugin['extension'](
+            options, self.session, reference
+        )
+        ui_hook_result = None
+        try:
+            ui_hook_result = plugin_instance.ui_hook(payload)
+        except Exception as error:
+            # TODO: double check if this is necessary as I think is already
+            #  handled and printed to the log by the raise Exception.
+            self.logger.exception(error)
+            raise Exception(
+                "UI hook method of plugin {} can't be executed. Error: {}".format(
+                    plugin, error
+                )
+            )
+        finally:
+            if ui_hook_result:
+                if self.on_plugin_executed:
+                    self.on_plugin_executed(ui_hook_result)
+        self.logger.debug(ui_hook_result)
+
+        return ui_hook_result
+
     def run_plugin(self, plugin, store, options, reference=None):
         '''
         If given *plugin* is in the plugin registry, initialize it with the
@@ -31,7 +80,22 @@ class StandardEngine(BaseEngine):
         *options*: options to be passed to the plugin
         *reference*: reference id of the plugin
         '''
-        registered_plugin = self.plugin_registry.get(name=plugin)[0]
+        matching_plugins = self.plugin_registry.get(name=plugin)
+
+        if len(matching_plugins) == 0:
+            raise Exception(
+                "No matching plugins found for plugin name: {0}".format(plugin)
+            )
+
+        if len(matching_plugins) > 1:
+            raise Exception(
+                "Multiple matching plugins found for plugin name: {0}".format(
+                    plugin
+                )
+            )
+
+        registered_plugin = matching_plugins[0]
+
         plugin_instance = registered_plugin['extension'](
             options, self.session, reference
         )

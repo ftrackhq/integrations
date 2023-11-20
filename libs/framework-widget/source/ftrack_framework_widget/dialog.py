@@ -3,6 +3,7 @@
 
 import logging
 import uuid
+from functools import partial
 
 from ftrack_framework_widget import BaseUI, active_widget
 from ftrack_utils.framework.tool_config.read import get_tool_config_by_name
@@ -180,6 +181,10 @@ class FrameworkDialog(BaseUI):
             self.client_id,
             callback=self._on_client_notify_ui_log_item_added_callback,
         )
+        self.event_manager.subscribe.client_notify_ui_hook_result(
+            self.client_id,
+            callback=self._on_client_notify_ui_hook_result_callback,
+        )
 
     def show_ui(self):
         '''
@@ -281,7 +286,12 @@ class FrameworkDialog(BaseUI):
             self.context_id,
             plugin_config,
             group_config,
-            on_set_plugin_option=self._on_set_plugin_option_callback,
+            on_set_plugin_option=partial(
+                self._on_set_plugin_option_callback, plugin_config['reference']
+            ),
+            on_run_ui_hook=partial(
+                self._on_run_ui_hook_callback, plugin_config['reference']
+            ),
         )
         # TODO: widgets can't really run any plugin (like fetch) before it gets
         #  registered, so In case someone automatically fetches during the init
@@ -354,9 +364,27 @@ class FrameworkDialog(BaseUI):
             return
         widget.plugin_run_callback(log_item)
 
+    def _on_client_notify_ui_hook_result_callback(self, event):
+        '''
+        Client notify ui with the result of running the UI hook.
+        '''
+        reference = event['data']['plugin_reference']
+        ui_hook_result = event['data']['ui_hook_result']
+
+        if not reference:
+            return
+        widget = self.framework_widgets.get(reference)
+        if not widget:
+            self.logger.warning(
+                "Widget with reference {} can't be found on the dialog "
+                "initialized widgets".format(reference)
+            )
+            return
+        widget.ui_hook_callback(ui_hook_result)
+
     def _on_set_plugin_option_callback(self, plugin_reference, options):
         '''
-        Updates the *name* option of the current plugin with the given *value*
+        Pass the given *options* of the *plugin_reference* to the client.
         '''
         arguments = {
             "tool_config_reference": self.tool_config['reference'],
@@ -366,6 +394,14 @@ class FrameworkDialog(BaseUI):
         self.client_method_connection(
             'set_config_options', arguments=arguments
         )
+
+    def _on_run_ui_hook_callback(self, plugin_reference, payload):
+        arguments = {
+            "tool_config_reference": self.tool_config['reference'],
+            "plugin_config_reference": plugin_reference,
+            "payload": payload,
+        }
+        self.client_method_connection('run_ui_hook', arguments=arguments)
 
     @classmethod
     def register(cls):

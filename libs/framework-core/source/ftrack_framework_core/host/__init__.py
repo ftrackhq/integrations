@@ -10,9 +10,9 @@ from functools import partial
 
 import ftrack_constants.framework as constants
 
-from ftrack_framework_core.asset import FtrackObjectManager
 from ftrack_framework_core.log.log_item import LogItem
 from ftrack_framework_core.log import LogDB
+from ftrack_utils.framework.tool_config.read import get_plugins
 
 from ftrack_utils.decorators import with_new_session
 
@@ -217,6 +217,11 @@ class Host(object):
             self.id, self.run_tool_config_callback
         )
 
+        # Subscribe to run ui hook
+        self.event_manager.subscribe.host_run_ui_hook(
+            self.id, self.run_ui_hook_callback
+        )
+
     def _client_context_change_callback(self, event):
         '''Callback when the client has changed context'''
         context_id = event['data']['context_id']
@@ -288,3 +293,85 @@ class Host(object):
         self.logs.add_log_item(self.id, log_item)
         # Publish the event to notify client
         self.event_manager.publish.host_log_item_added(self.id, log_item)
+
+    @with_new_session
+    def run_ui_hook_callback(self, event, session=None):
+        '''
+        Runs the data with the defined engine type of the given *event*
+
+        Returns result of the engine run.
+
+        *event* : Published from the client host connection at
+        :meth:`~ftrack_framework_core.client.HostConnection.run`
+        '''
+
+        tool_config_reference = event['data']['tool_config_reference']
+        plugin_reference = event['data']['plugin_config_reference']
+        client_options = event['data']['client_options']
+        payload = event['data']['payload']
+
+        for typed_configs in self.tool_configs.values():
+            tool_config = None
+            for _tool_config in typed_configs:
+                if _tool_config['reference'] == tool_config_reference:
+                    tool_config = _tool_config
+                    break
+            if tool_config:
+                break
+        else:
+            raise Exception(
+                'Given tool config reference {} not found on registered '
+                'tool_configs. \n {}'.format(
+                    tool_config_reference, self.tool_configs
+                )
+            )
+
+        engine_name = tool_config.get('engine_name', 'standard_engine')
+
+        try:
+            engine_registry = self.registry.get(
+                name=engine_name, extension_type='engine'
+            )[0]
+            engine_instance = engine_registry['extension'](
+                self.registry,
+                session,
+                on_plugin_executed=partial(
+                    self.on_ui_hook_executed_callback, plugin_reference
+                ),
+            )
+        except Exception:
+            raise Exception(
+                'No engine with name "{}" found'.format(engine_name)
+            )
+
+        try:
+            plugin_config = get_plugins(
+                tool_config, filters={'reference': plugin_reference}
+            )[0]
+        except Exception:
+            raise Exception(
+                'Given plugin config reference {} not found on the '
+                'tool_config {}'.format(plugin_reference, tool_config)
+            )
+
+        try:
+            engine_result = engine_instance.run_ui_hook(
+                plugin_config['plugin'],
+                payload,
+                client_options,
+                reference=plugin_reference,
+            )
+
+        except Exception as error:
+            raise Exception(
+                'Error appear when executing engine: {} from {}.'
+                '\n Error: {}'.format(
+                    tool_config['engine'], engine_name, error
+                )
+            )
+        return engine_result
+
+    def on_ui_hook_executed_callback(self, plugin_reference, ui_hook_result):
+        self.event_manager.publish.host_run_ui_hook_result(
+            self.id, plugin_reference, ui_hook_result
+        )
