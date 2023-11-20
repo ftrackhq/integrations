@@ -261,9 +261,9 @@ class Host(object):
         engine_name = tool_config.get('engine_name', 'standard_engine')
 
         try:
-            engine_registry = self.registry.get(
+            engine_registry = self.registry.get_one(
                 name=engine_name, extension_type='engine'
-            )[0]
+            )
             engine_instance = engine_registry['extension'](
                 self.registry,
                 session,
@@ -329,9 +329,9 @@ class Host(object):
         engine_name = tool_config.get('engine_name', 'standard_engine')
 
         try:
-            engine_registry = self.registry.get(
+            engine_registry = self.registry.get_one(
                 name=engine_name, extension_type='engine'
-            )[0]
+            )
             engine_instance = engine_registry['extension'](
                 self.registry,
                 session,

@@ -145,6 +145,29 @@ class Registry(object):
 
         return found_extensions
 
+    def get_one(self, *args, **kwargs):
+        '''
+        Return the extension mathing the given arguments, if not found or
+        multiple found raise exception.
+        '''
+        matching_extensions = self.get(*args, **kwargs)
+        if len(matching_extensions) == 0:
+            kwargs_string = ''.join([('%s=%s' % x) for x in kwargs.items()])
+            raise Exception(
+                "Extension not found. Arguments: {}".format(
+                    (''.join(args), kwargs_string)
+                )
+            )
+
+        if len(matching_extensions) > 1:
+            kwargs_string = ''.join([('%s=%s' % x) for x in kwargs.items()])
+            raise Exception(
+                "Multiple matching extensions found.Arguments: {}".format(
+                    (''.join(args), kwargs_string)
+                )
+            )
+        return matching_extensions[0]
+
     def augment_tool_config(self, tool_config):
         '''
         Augment the given *tool_config* to add a reference id to it
