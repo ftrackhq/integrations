@@ -8,10 +8,9 @@ from Qt import QtWidgets, QtCore
 class VersionSelector(QtWidgets.QComboBox):
     '''Version selector combobox'''
 
-    versionsQueryDone = QtCore.Signal()
-    versionChanged = QtCore.Signal(
-        object
-    )  # User has selected the version, version id as the argument
+    versionsQueryDone = QtCore.Signal()  # Emitted when versions query is done
+    versionChanged = QtCore.Signal(object)
+    '''User has selected the version, version entity passed as the argument'''
 
     @property
     def version(self):
@@ -46,6 +45,7 @@ class VersionSelector(QtWidgets.QComboBox):
         return self._fetch_assetversions(self.asset_entity)
 
     def set_asset_entity(self, asset_entity):
+        '''Set the current asset entity to *asset_entity* and rebuild the widget'''
         self.asset_entity = asset_entity
         self._version_id = None
         self.clear()
@@ -62,7 +62,7 @@ class VersionSelector(QtWidgets.QComboBox):
         self._version_id = version_entity['id']
 
     def showPopup(self):
-        '''Override'''
+        '''(Override) Populate all available version for user selection'''
         versions = self.get_versions()
         if len(versions) != self.count():
             self._mute_index_change_signal = True
@@ -72,9 +72,11 @@ class VersionSelector(QtWidgets.QComboBox):
         super(VersionSelector, self).showPopup()
 
     def _add_version(self, version):
+        '''Add *version* assetversion entity to the combobox'''
         self.addItem(str('v{}'.format(version['version'])), version)
 
     def add_versions(self, versions):
+        '''Add *versions* list of assetversion entities to the combobox'''
         selected_index = 0
         for index, version in enumerate(versions):
             self._add_version(version)
@@ -91,6 +93,6 @@ class VersionSelector(QtWidgets.QComboBox):
         if index > -1:
             version = self.itemData(index)
             version_id = version['id']
-            if version_id is not None and version_id != self._version_id:
+            if version_id and version_id != self._version_id:
                 self._version_id = version_id
                 self.versionChanged.emit(version)

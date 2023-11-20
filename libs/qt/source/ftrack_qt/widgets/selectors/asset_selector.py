@@ -347,6 +347,7 @@ class AssetSelector(QtWidgets.QWidget):
     VALID_ASSET_NAME = QtCore.QRegExp('[A-Za-z0-9_]+')
 
     assetsAdded = QtCore.Signal(object)
+    '''Signal emitted when assets are added, with list of asset entities as argument'''
 
     assetChanged = QtCore.Signal(object, object, object)
     '''Signal emitted when asset is changed, with asset name, asset entity and 
@@ -386,7 +387,9 @@ class AssetSelector(QtWidgets.QWidget):
 
         :param mode: The mode of operation.
         :param fetch_assets: Callback to fetch assets
-        :param fetch_assetversions:
+        :param session: ftrack session, required for thumbnail load.
+        :param fetch_assetversions: Callback to fetch asset version for a specific
+        asset.
         :param parent:
         '''
         super(AssetSelector, self).__init__(parent=parent)
@@ -550,4 +553,5 @@ class AssetSelector(QtWidgets.QWidget):
         self._asset_list.reload()
 
     def _on_version_changed_callback(self, assetversion_entity):
+        '''A version has been selected in list, pass signal on.'''
         self.versionChanged.emit(assetversion_entity)

@@ -142,12 +142,13 @@ class AssetVersionSelectorWidget(FrameworkWidget, QtWidgets.QWidget):
             self._label.setText('No assets found!')
 
     def _on_version_changed_callback(self, assetversion_entity):
+        component_name = self.group_config.get('options').get('component')
         self.set_plugin_option(
             'asset_versions',
             [
                 {
                     'asset_version_id': assetversion_entity['id'],
-                    'component_name': self.plugin_options.get('component'),
+                    'component_name': component_name,
                 }
             ],
         )

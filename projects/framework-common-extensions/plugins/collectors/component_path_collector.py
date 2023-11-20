@@ -28,29 +28,22 @@ class ComponentPathCollectorPlugin(BasePlugin):
         containing 'asset_version_id' and 'component_name' for the desired
         assets to open.
         '''
-        component_name = self.options.get('component', 'main')
-
         unresolved_asset_messages = []
         collected_paths = []
         asset_versions = self.options.get('asset_versions')
         for asset_version_dict in asset_versions:
-            asset_version_component_name = asset_version_dict.get(
-                'component_name'
-            )
-            if not asset_version_component_name:
-                asset_version_component_name = component_name  # Fallback
             component = self.session.query(
                 "select id from Component where version_id is {} "
                 "and name is {}".format(
                     asset_version_dict['asset_version_id'],
-                    asset_version_component_name,
+                    asset_version_dict['component_name'],
                 )
             ).first()
             if not component:
                 message = (
                     'Component name {} not available for '
                     'asset version id {}'.format(
-                        asset_version_component_name,
+                        asset_version_dict['component_name'],
                         asset_version_dict['asset_version_id'],
                     )
                 )
@@ -64,6 +57,7 @@ class ComponentPathCollectorPlugin(BasePlugin):
             self.message = "\n".join(unresolved_asset_messages)
             self.status = constants.status.ERROR_STATUS
 
+        component_name = self.options.get('component', 'main')
         store['components'][component_name][
             'collected_paths'
         ] = collected_paths

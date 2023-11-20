@@ -101,10 +101,10 @@ class StandardOpenerDialog(BaseContextDialog):
         )
 
         for _group in component_groups:
-            component_label = QtWidgets.QLabel(
-                _group.get('options').get('component')
-            )
-            component_label.setObjectName('hq')
+            component_name = _group.get('options').get('component')
+            component_label = QtWidgets.QLabel(component_name)
+            component_label.setObjectName('h3')
+            component_label.setToolTip("Component: {}".format(component_name))
             self._scroll_area_widget.layout().addWidget(component_label)
 
             collectors = get_plugins(_group, filters={'tags': ['collector']})
