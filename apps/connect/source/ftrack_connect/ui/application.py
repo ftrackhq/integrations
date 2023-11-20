@@ -923,9 +923,9 @@ class Application(QtWidgets.QMainWindow):
         '''Find and load connect widgets in search paths.'''
 
         event = ftrack_api.event.base.Event(topic=ConnectWidgetPlugin.topic)
-
+        disable_startup_widget = bool(os.getenv('FTRACK_CONNECT_DISABLE_STARTUP_WIDGET', False))
         responses = self.session.event_hub.publish(event, synchronous=True)
-        if not responses:
+        if not responses and not disable_startup_widget:
             widget_plugin = WelcomePlugin(self.session)
             identifier = widget_plugin.getIdentifier()
             if not self.plugins.get(identifier):
