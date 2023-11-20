@@ -14,8 +14,8 @@ class ComponentPathCollectorPlugin(BasePlugin):
         *payload['context id']*
         '''
         latest_asset_versions = self.session.query(
-            "select asset from AssetVersion where task_id is {} and "
-            "is_latest_version is True".format(payload['context_id'])
+            'select asset from AssetVersion where task_id is {} and '
+            'is_latest_version is True'.format(payload['context_id'])
         )
 
         return list(latest_asset_versions)
@@ -33,8 +33,8 @@ class ComponentPathCollectorPlugin(BasePlugin):
         asset_versions = self.options.get('asset_versions')
         for asset_version_dict in asset_versions:
             component = self.session.query(
-                "select id from Component where version_id is {} "
-                "and name is {}".format(
+                'select id from Component where version_id is {} '
+                'and name is {}'.format(
                     asset_version_dict['asset_version_id'],
                     asset_version_dict['component_name'],
                 )
@@ -54,7 +54,7 @@ class ComponentPathCollectorPlugin(BasePlugin):
             component_path = location.get_filesystem_path(component)
             collected_paths.append(component_path)
         if not collected_paths:
-            self.message = "\n".join(unresolved_asset_messages)
+            self.message = '\n'.join(unresolved_asset_messages)
             self.status = constants.status.ERROR_STATUS
 
         component_name = self.options.get('component', 'main')

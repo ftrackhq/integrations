@@ -139,7 +139,7 @@ class AssetVersionSelectorWidget(FrameworkWidget, QtWidgets.QWidget):
                 )
             )
         else:
-            self._label.setText('No assets found!')
+            self._label.setText('<html><i>No assets found!<i></html>')
 
     def _on_version_changed_callback(self, assetversion_entity):
         component_name = self.group_config.get('options').get('component')
@@ -152,17 +152,3 @@ class AssetVersionSelectorWidget(FrameworkWidget, QtWidgets.QWidget):
                 }
             ],
         )
-
-    def run_plugin_callback(self, plugin_info):
-        # Check the result of the desired method
-        if plugin_info["plugin_widget_id"] != self.id:
-            return
-
-        if (
-            plugin_info["plugin_method"] == "fetch"
-            and plugin_info["plugin_method_result"]
-        ):
-            # TODO: Make sure that all fetch widgets have set_data_items method in it.
-            self.current_fetch_widget.set_data_items(
-                plugin_info["plugin_method_result"]
-            )

@@ -29,12 +29,13 @@ class VersionSelector(QtWidgets.QComboBox):
 
         self._fetch_assetversions = fetch_assetversions
 
-        self.setEditable(False)
         self.asset_entity = None
-
         self._version_id = None  # Current selected version id
 
         self._mute_index_change_signal = False
+
+        self.setEditable(False)
+
         self.currentIndexChanged.connect(self._on_current_index_changed)
 
         self.setMaximumHeight(24)
