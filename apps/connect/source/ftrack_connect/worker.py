@@ -42,6 +42,7 @@ class Worker(QtCore.QThread):
 
         '''
         super(Worker, self).__init__(parent=parent)
+        self.setObjectName(str(function))
         self.function = function
         self.args = args or []
         self.kwargs = kwargs or {}

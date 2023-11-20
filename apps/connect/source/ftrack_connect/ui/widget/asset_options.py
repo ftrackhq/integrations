@@ -16,7 +16,7 @@ NEW_ASSET = 'NEW_ASSET'
 EXISTING_ASSET = 'EXISTING_ASSET'
 
 
-class AssetOptions(object):
+class AssetOptions(QtWidgets.QWidget):
     '''Asset options: holds asset related widgets and logic.
 
     .. note::
@@ -31,9 +31,9 @@ class AssetOptions(object):
         '''Return current session.'''
         return self._session
 
-    def __init__(self, session):
+    def __init__(self, session, parent=None):
         '''Instantiate the asset options.'''
-        super(AssetOptions, self).__init__()
+        super(AssetOptions, self).__init__(parent=parent)
 
         self.logger = logging.getLogger(
             __name__ + '.' + self.__class__.__name__
@@ -57,13 +57,13 @@ class AssetOptions(object):
         self.radioButtonFrame.layout().addWidget(self.existingAssetButton)
 
         self.existingAssetSelector = _asset_selector.AssetSelector(
-            session=self.session
+            session=self.session, parent=parent
         )
         self.assetTypeSelector = _asset_type_selector.AssetTypeSelector(
-            session=self.session
+            session=self.session, parent=parent
         )
         self.assetNameLineEdit = _asset_name_edit.AssetNameEdit(
-            self.session, self.existingAssetSelector, self.assetTypeSelector
+            self.session, self.existingAssetSelector, self.assetTypeSelector, parent=parent
         )
 
         self.assetTypeSelector.currentIndexChanged.connect(
