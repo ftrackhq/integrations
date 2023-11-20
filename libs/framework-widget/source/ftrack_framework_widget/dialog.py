@@ -384,7 +384,7 @@ class FrameworkDialog(BaseUI):
 
     def _on_set_plugin_option_callback(self, plugin_reference, options):
         '''
-        Updates the *name* option of the current plugin with the given *value*
+        Pass the given *options* of the *plugin_reference* to the client.
         '''
         arguments = {
             "tool_config_reference": self.tool_config['reference'],

@@ -25,17 +25,29 @@ class StandardEngine(BaseEngine):
     def run_ui_hook(self, plugin, payload, options, reference=None):
         '''
         If given *plugin* is in the plugin registry, initialize it with the
-        given *options* and execute run method passing given *store* as argument.
+        given *options* and execute the ui_hook method passing given *payload*
+        as argument.
         *plugin*: Name of the plugin to be executed.
-        *store*: registry of plugin data.
+        *payload*: data.
         *options*: options to be passed to the plugin
         *reference*: reference id of the plugin
         '''
-        try:
-            registered_plugin = self.plugin_registry.get(name=plugin)[0]
-        except Exception:
-            self.logger.exception('Plugin not found: {}'.format(plugin))
-            raise Exception('Plugin not found: {}'.format(plugin))
+        matching_plugins = self.plugin_registry.get(name=plugin)
+
+        if len(matching_plugins) == 0:
+            raise Exception(
+                "No matching plugins found for plugin name: {0}".format(plugin)
+            )
+
+        if len(matching_plugins) > 1:
+            raise Exception(
+                "Multiple matching plugins found for plugin name: {0}".format(
+                    plugin
+                )
+            )
+
+        registered_plugin = matching_plugins[0]
+
         plugin_instance = registered_plugin['extension'](
             options, self.session, reference
         )
@@ -68,11 +80,22 @@ class StandardEngine(BaseEngine):
         *options*: options to be passed to the plugin
         *reference*: reference id of the plugin
         '''
-        try:
-            registered_plugin = self.plugin_registry.get(name=plugin)[0]
-        except Exception:
-            self.logger.exception('Plugin not found: {}'.format(plugin))
-            raise Exception('Plugin not found: {}'.format(plugin))
+        matching_plugins = self.plugin_registry.get(name=plugin)
+
+        if len(matching_plugins) == 0:
+            raise Exception(
+                "No matching plugins found for plugin name: {0}".format(plugin)
+            )
+
+        if len(matching_plugins) > 1:
+            raise Exception(
+                "Multiple matching plugins found for plugin name: {0}".format(
+                    plugin
+                )
+            )
+
+        registered_plugin = matching_plugins[0]
+
         plugin_instance = registered_plugin['extension'](
             options, self.session, reference
         )

@@ -324,7 +324,8 @@ class Client(object):
 
     def on_ui_hook_callback(self, event):
         '''
-        Called when a log item has added in the host.
+        Called ui_hook has been executed on host and needs to notify UI with
+        the result.
         '''
         # Publish event to widget
         self.event_manager.publish.client_notify_ui_hook_result(

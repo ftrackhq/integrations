@@ -100,7 +100,8 @@ class FrameworkWidget(BaseUI):
     def plugin_run_callback(self, log_item):
         '''
         Receive the callback with the plugin info every time a plugin has been
-        executed
+        executed.
+        *log_item* is the plugin info dictionary.
         '''
         self.logger.warning(
             "Method not implemented, Plugin Callback ---> {}".format(log_item)
