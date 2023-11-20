@@ -23,6 +23,7 @@ class FileBrowserWidget(BaseWidget):
         plugin_config,
         group_config,
         on_set_plugin_option,
+        on_run_ui_hook,
         parent=None,
     ):
         '''initialise PublishContextWidget with *parent*, *session*, *data*,
@@ -37,6 +38,7 @@ class FileBrowserWidget(BaseWidget):
             plugin_config,
             group_config,
             on_set_plugin_option,
+            on_run_ui_hook,
             parent,
         )
 
