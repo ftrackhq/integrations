@@ -231,13 +231,12 @@ class AssetList(QtWidgets.QListWidget):
                 fetch_assetversions=self._fetch_assetversions,
             )
             widget.versionChanged.connect(self._on_version_changed_callback)
-            list_item = AssetListItem(self)
+            list_item = QtWidgets.QListWidgetItem(self)
             list_item.setSizeHint(
                 QtCore.QSize(
                     widget.sizeHint().width(), widget.sizeHint().height() + 5
                 )
             )
-            list_item.widget = widget  # Overcome Qt bug
             self.setItemWidget(list_item, widget)
             self.addItem(list_item)
         self.assetsAdded.emit()
@@ -480,7 +479,8 @@ class AssetSelector(QtWidgets.QWidget):
         self._selected_index = self._asset_list.currentRow()
         if prev_selected_index != self._selected_index:
             if self._selected_index > -1:
-                asset_widget = self._asset_list.currentItem().widget
+                asset_item = self._asset_list.currentItem()
+                asset_widget = self._asset_list.itemWidget(asset_item)
                 asset_name = asset_widget.asset['name']
                 is_valid_name = self.validate_name(asset_name)
                 self.assetChanged.emit(
