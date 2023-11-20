@@ -54,8 +54,8 @@ class ItemSelector(QtWidgets.QComboBox):
 
     def currentItem(self):
         '''Return the currently selected index.'''
-        currentIndex = self.currentIndex()
-        return self.itemData(currentIndex)
+        self.__currentIndex = self.currentIndex()
+        return self.itemData(self.__currentIndex)
 
     def findData(self, itemId):
         '''Return index of item with id equal to *itemId*
@@ -104,7 +104,7 @@ class ItemSelector(QtWidgets.QComboBox):
         if items is None:
             items = []
 
-        currentItem = self.currentItem()
+        self.__currentItem = self.currentItem()
         self.clear()
 
         # Add default empty item
@@ -115,4 +115,4 @@ class ItemSelector(QtWidgets.QComboBox):
             self.addItem(str(label), item[self._idField])
 
         # Re-select previously selected item
-        self.selectItem(currentItem)
+        self.selectItem(self.__currentItem)

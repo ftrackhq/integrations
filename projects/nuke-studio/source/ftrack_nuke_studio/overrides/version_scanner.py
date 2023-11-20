@@ -6,7 +6,6 @@ import logging
 from Qt import QtGui
 
 import hiero
-from hiero.core.VersionScanner import VersionScanner
 from ftrack_nuke_studio.session import get_shared_session
 from ftrack_nuke_studio.base import FtrackBase
 
@@ -17,6 +16,10 @@ current_ftrack_location = session.pick_location()
 Base = FtrackBase()
 hiero_version_tuple = Base.hiero_version_tuple
 
+try:
+    from hiero.core.VersionScanner import VersionScanner
+except ImportError:
+    from hiero.core.FnVersionScanner import VersionScanner
 
 def register_versioning_overrides():
     '''Register overrides for VersionScanner object.'''

@@ -28,6 +28,7 @@ def asynchronous(method):
         thread = threading.Thread(
             target=exceptHookWrapper, args=args, kwargs=kwargs
         )
+        thread.name = str(method)
         thread.start()
 
     return wrapper

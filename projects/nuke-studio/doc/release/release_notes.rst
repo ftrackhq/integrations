@@ -15,6 +15,11 @@ Release Notes
         Change build system to Poetry, using the monorepo tooling to build QT resources.
 
     .. change:: fixed
+        :tags: API
+
+        Update Pyside function signatures to work on Nuke 15.
+
+    .. change:: fixed
         :tags: Tags
 
         Tags on sequences break exporters. 
