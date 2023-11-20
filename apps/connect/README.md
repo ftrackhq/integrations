@@ -11,6 +11,42 @@ found at <http://ftrack-connect.rtd.ftrack.com/en/latest/>
 
 ## Building
 
+### Preparations
+
+1. Clone the public repository:
+
+    $ git clone https://github.com/ftrackhq/integrations.git
+
+2. Update release notes.
+
+3. Install Poetry (https://python-poetry.org/docs/#installation)
+
+4. Set or bump version in pyproject.toml:
+
+```bash
+   cd integrations/apps/connect
+```
+
+
+```bash
+    poetry version prerelease
+```
+or:
+```bash
+    poetry version patch
+```
+or:
+```bash
+    poetry version minor
+```
+or:
+```bash
+    poetry version major
+```
+
+5. Tag and push to SCM
+
+
 ### CI build
 
 See Monorepo build CI
@@ -18,46 +54,51 @@ See Monorepo build CI
 
 ### Manual build
 
-Go to the Connect package within monorepo:
+1. Go to the Connect package within monorepo:
 
 ```bash
     cd integrations/apps/connect
 ```
 
-Install development dependencies:
+2. Install development dependencies:
 
 ```bash
-  poetry install --with documentation
+    poetry install --with documentation
 ```
 
-Go to the root of the Connect package within monorepo:
+3. Go to the root of the Connect package within monorepo:
 
 ```bash
     cd integrations
 ```
 
-Build the QT resources
+4. Activate a virtual environment:
+
+```bash
+    poetry shell
+```
+
+5. Build the QT resources
 
 ```bash
 python tools/build.py --style_path resource --output_path source/ftrack_connect/ui/resource.py build_qt_resources apps/connect
 ```
 
-Build with Poetry:
+6. Build with Poetry:
 
 ```bash
   poetry build
 ```
 
-
 ### Build documentation
 
-Install development dependencies:
+1. Install development dependencies:
 
 ```bash
   poetry install --with documentation
 ```
 
-Build documentation:
+2. Build documentation:
 
 ```bash
     poetry run sphinx-build -b html doc dist/doc

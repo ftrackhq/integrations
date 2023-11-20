@@ -3,29 +3,36 @@
 Meta package that provides support for building platform specific
 bundles of ftrack connect installers.
 
-Clone the public repository:
+## Building
 
+### Preparations
+
+
+1. Clone the public integrations repository:
+
+```bash
     $ git clone git@bitbucket.org:ftrack/ftrack-connect-installer.git
+```
 
-Or download and extract the
-[zipball](https://bitbucket.org/ftrack/ftrack-connect-installer/get/master.zip)
+2. Install Poetry (https://python-poetry.org/docs/#installation)
 
-Clone ftrack connect public repository:
+3. Follow the instructions in Connect to build, then install it into the virtual environment:
 
-    $ git clone git@bitbucket.org:ftrack/ftrack-connect.git
+```bash
+    $ cd app/connect
+    $ poetry install
+```
 
-Or download and extract the
-[zipball](https://bitbucket.org/ftrack/ftrack-connect/get/master.zip)
+Connect is now installed into the virtual environment and can be used to build the installer. Go
+to the root of the Connect package within monorepo:
 
-Create and activate a virtual environment with python3.7
+```bash
+    $ cd integrations/installers/connect-installer
+```
 
-Note
 
-If in windows, please create the virtual env using venv.
+## Windows
 
-Install dependencies with:
-
-    $ pip install -r <ftrack-connect-installer>/requirements.txt
 
 Warning
 
@@ -44,41 +51,6 @@ cx_freeze branch installation is temporary until cx_freeze \> 6.5
 version is released. (
 [3.7](https://github.com/marcelotduarte/cx_Freeze/pull/887) )
 
-Install ftrack connect:
-
-    $ cd <ftrack-connect>
-    $ pip install -r <ftrack-connect>/requirements.txt
-    $ python setup.py install
-
-Build connect package with (specific build package):
-
-    $ cd <ftrack-connect-installer>
-
-## Linux
-
-Build tar.gz release with:
-
-    $ python setup.py build_exe
-
-Once build the result will be available in
-build/exe.linux-x86_64-**\<PYTHON VERSION\>**
-
-To generate the tar.gz run from the build folder:
-
-    $ tar -zcvf ftrack-connect-installer-<PACKAGE VERSION>-<PLATFORM>.tar.gz exe.linux-x86_64-3.7 --transform 's/exe.linux-x86_64-3.7/ftrack-connect-installer/'
-
-Generate the md5 with:
-
-    $ md5sum ftrack-connect-installer-<PACKAGE VERSION>-<PLATFORM>.tar.gz > ftrack-connect-installer-<PACKAGE VERSION>-<PLATFORM>.tar.gz.md5
-
-Note
-
-Please remember to set **\<PLATFORM\>** to either:
-
--   C7 for Centos 7 compatible releases.
--   C8 for centos 8 compatible releases.
-
-## Windows
 
 Build msi release with:
 
@@ -106,6 +78,35 @@ Once the msi is built, run the following commands to codesign it:
 
 At the end of the process you'll then asked to provide your token
 password, once done, the package should get codesigned.
+
+
+## Linux
+
+Install patchelf platform dependent package:
+
+    $ pip install patchelf
+
+Build tar.gz release with:
+
+    $ python setup.py build_exe
+
+Once build the result will be available in
+build/exe.linux-x86_64-**\<PYTHON VERSION\>**
+
+To generate the tar.gz run from the build folder:
+
+    $ tar -zcvf ftrack-connect-installer-<PACKAGE VERSION>-<PLATFORM>.tar.gz exe.linux-x86_64-3.7 --transform 's/exe.linux-x86_64-3.7/ftrack-connect-installer/'
+
+Generate the md5 with:
+
+    $ md5sum ftrack-connect-installer-<PACKAGE VERSION>-<PLATFORM>.tar.gz > ftrack-connect-installer-<PACKAGE VERSION>-<PLATFORM>.tar.gz.md5
+
+Note
+
+Please remember to set **\<PLATFORM\>** to either:
+
+-   C7 for Centos 7 compatible releases.
+-   C8 for centos 8 compatible releases.
 
 ## MacOs
 
