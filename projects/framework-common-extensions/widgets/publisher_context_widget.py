@@ -186,4 +186,13 @@ class PublishContextWidget(BaseWidget):
                 'asset_type_name'
             ),
         }
-        return self.run_ui_hook(payload, await_result=True)
+        asset_ids = self.run_ui_hook(payload, await_result=True)
+        return list(
+            self.session.query(
+                'select name, versions.task.id, type.id, id, latest_version,'
+                'latest_version.version '
+                'from Asset where id in ({})'.format(
+                    ','.join([str(asset_id) for asset_id in asset_ids])
+                )
+            ).all()
+        )

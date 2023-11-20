@@ -40,7 +40,8 @@ class AssetContextPlugin(BasePlugin):
                     context_id, asset_type_entity['id']
                 )
             ).all()
-        return list(assets)
+        result = list(assets)
+        return [entity['id'] for entity in result]
 
     def run(self, store):
         '''

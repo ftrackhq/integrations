@@ -33,21 +33,19 @@ class ComponentPathCollectorPlugin(BasePlugin):
                 return []
             if context.entity_type == 'Task':
                 assets = self.session.query(
-                    'select name, versions.task.id, type.id, id, latest_version,'
-                    'latest_version.version '
-                    'from Asset where versions.task.id is {} and type.id is {}'.format(
+                    'select latest_version from Asset where versions.task.id is '
+                    '{} and type.id is {}'.format(
                         context_id, asset_type_entity['id']
                     )
                 ).all()
             else:
                 assets = self.session.query(
-                    'select name, versions.task.id, type.id, id, latest_version,'
-                    'latest_version.version '
-                    'from Asset where parent.id is {} and type.id is {}'.format(
+                    'select latest_version from Asset where parent.id is {} '
+                    'and type.id is {}'.format(
                         context_id, asset_type_entity['id']
                     )
                 ).all()
-            return sorted(
+            result = sorted(
                 list(assets),
                 key=lambda a: a['latest_version']['date'],
                 reverse=True,
@@ -60,11 +58,11 @@ class ComponentPathCollectorPlugin(BasePlugin):
                 ' version descending'.format(context_id, payload['asset_id'])
             ).all():
                 result.append(version)
-            return result
         else:
             raise Exception(
                 'Unknown context_type: {}'.format(payload['context_type'])
             )
+        return [entity['id'] for entity in result]
 
     def run(self, store):
         '''

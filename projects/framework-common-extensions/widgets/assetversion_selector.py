@@ -90,17 +90,33 @@ class AssetVersionSelectorWidget(FrameworkWidget, QtWidgets.QWidget):
                 'asset_type_name'
             ),
         }
-        return self.run_ui_hook(payload, await_result=True)
+        asset_ids = self.run_ui_hook(payload, await_result=True)
+        return list(
+            self.session.query(
+                'select name, versions.task.id, type.id, id, latest_version,'
+                'latest_version.version '
+                'from Asset where id in ({})'.format(
+                    ','.join([str(asset_id) for asset_id in asset_ids])
+                )
+            ).all()
+        )
 
     def _on_fetch_assetversions_callback(self, asset_entity):
         '''Query ftrack for all version beneath *asset_entity*'''
-        return []
         payload = {
             'context_id': self.context_id,
             'context_type': 'asset_version',
-            'asset_id': asset_entity,
+            'asset_id': asset_entity['id'],
         }
-        return self.run_ui_hook(payload, await_result=True)
+        version_ids = self.run_ui_hook(payload, await_result=True)
+        return list(
+            self.session.query(
+                'select version, id '
+                'from AssetVersion where id in ({})'.format(
+                    ','.join([str(version_id) for version_id in version_ids])
+                )
+            ).all()
+        )
 
     def _on_assets_added(self, assets):
         if len(assets or []) > 0:
