@@ -32,21 +32,7 @@ class StandardEngine(BaseEngine):
         *options*: options to be passed to the plugin
         *reference*: reference id of the plugin
         '''
-        matching_plugins = self.plugin_registry.get(name=plugin)
-
-        if len(matching_plugins) == 0:
-            raise Exception(
-                "No matching plugins found for plugin name: {0}".format(plugin)
-            )
-
-        if len(matching_plugins) > 1:
-            raise Exception(
-                "Multiple matching plugins found for plugin name: {0}".format(
-                    plugin
-                )
-            )
-
-        registered_plugin = matching_plugins[0]
+        registered_plugin = self.plugin_registry.get_one(name=plugin)
 
         plugin_instance = registered_plugin['extension'](
             options, self.session, reference
@@ -80,21 +66,7 @@ class StandardEngine(BaseEngine):
         *options*: options to be passed to the plugin
         *reference*: reference id of the plugin
         '''
-        matching_plugins = self.plugin_registry.get(name=plugin)
-
-        if len(matching_plugins) == 0:
-            raise Exception(
-                "No matching plugins found for plugin name: {0}".format(plugin)
-            )
-
-        if len(matching_plugins) > 1:
-            raise Exception(
-                "Multiple matching plugins found for plugin name: {0}".format(
-                    plugin
-                )
-            )
-
-        registered_plugin = matching_plugins[0]
+        registered_plugin = self.plugin_registry.get_one(name=plugin)
 
         plugin_instance = registered_plugin['extension'](
             options, self.session, reference
