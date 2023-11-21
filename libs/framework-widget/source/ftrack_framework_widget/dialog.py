@@ -299,8 +299,8 @@ class FrameworkDialog(BaseUI):
         #  find a way to better handle the registry.
         self._register_widget(plugin_config['reference'], widget)
         # Just a quick hack to test query assets
-        if hasattr(widget, 'query_assets'):
-            widget.query_assets()
+        if widget.fetch_method_on_start:
+            getattr(widget, widget.fetch_method_on_start)()
         return widget
 
     def _register_widget(self, plugin_reference, widget):
