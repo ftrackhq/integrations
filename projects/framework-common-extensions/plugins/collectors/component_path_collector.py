@@ -17,6 +17,7 @@ class ComponentPathCollectorPlugin(BasePlugin):
         AssetVersion entities available on the given
         payload['asset_id'] on task payload['context_id']
         '''
+
         context_id = payload['context_id']
         # Determine if we have a task or not
         context = self.session.get('Context', context_id)
@@ -32,13 +33,13 @@ class ComponentPathCollectorPlugin(BasePlugin):
 
         if context.entity_type == 'Task':
             asset_versions = self.session.query(
-                'select asset.name, id from AssetVersion where task_id is {} and asset.type.id is {}'.format(
+                'select asset.name, asset_id, id, date, version, is_latest_version, thumbnail_url from AssetVersion where task_id is {} and asset.type.id is {}'.format(
                     context_id, asset_type_entity['id']
                 )
             ).all()
         else:
             asset_versions = self.session.query(
-                'select asset.name, id from AssetVersion where parent.id is {} and asset.type.id is {}'.format(
+                'select asset.name, asset_id, id, date, version, is_latest_version, thumbnail_url from AssetVersion where parent.id is {} and asset.type.id is {}'.format(
                     context_id, asset_type_entity['id']
                 )
             ).all()
@@ -48,24 +49,26 @@ class ComponentPathCollectorPlugin(BasePlugin):
         #         self.session.server_url + '/img/thumbnail2.png'
         # )
 
-        # TODO: this is too slow, check how to make it much faster
-        result = {}
-        for asset_version in asset_versions:
-            if asset_version['asset_id'] not in list(result.keys()):
-                result[asset_version['asset_id']] = {
-                    'name': asset_version['asset']['name'],
-                    'versions': [],
-                }
-            # url = asset_version['thumbnail_url'] or placholder_thumbnail
-            result[asset_version['asset_id']]['versions'].append(
-                {
-                    'id': asset_version['id'],
-                    'date': asset_version['date'],
-                    'version': asset_version['version'],
-                    'is_latest_version': asset_version['is_latest_version'],
-                    'thumbnail': asset_version['thumbnail_url'],
-                }
-            )
+        with self.session.auto_populating(False):
+            result = {}
+            for asset_version in asset_versions:
+                if asset_version['asset_id'] not in list(result.keys()):
+                    result[asset_version['asset_id']] = {
+                        'name': asset_version['asset']['name'],
+                        'versions': [],
+                    }
+                # url = asset_version['thumbnail_url'] or placholder_thumbnail
+                result[asset_version['asset_id']]['versions'].append(
+                    {
+                        'id': asset_version['id'],
+                        'date': asset_version['date'],
+                        'version': asset_version['version'],
+                        'is_latest_version': asset_version[
+                            'is_latest_version'
+                        ],
+                        'thumbnail': asset_version['thumbnail_url'],
+                    }
+                )
         return result
 
     def run(self, store):
