@@ -9,7 +9,7 @@ from Qt import QtCore, QtGui, QtWidgets
 from ftrack_qt.widgets.thumbnails.base import ThumbnailBase
 
 
-class Context(ThumbnailBase):
+class ContextThumbnail(ThumbnailBase):
     '''Context thumbnail widget'''
 
     def _download(self, reference):
@@ -24,7 +24,7 @@ class Context(ThumbnailBase):
             ).one()
         url = self.get_thumbnail_url(thumbnail)
         if url is not None:
-            return super(Context, self)._download(url)
+            return super(ContextThumbnail, self)._download(url)
         else:
             raise urllib.error.URLError("No context URL")
 

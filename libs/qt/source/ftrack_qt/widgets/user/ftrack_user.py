@@ -3,7 +3,7 @@
 # TODO: Clean this code
 from Qt import QtCore, QtWidgets, QtGui
 
-from ftrack_qt.widgets.thumbnails import User as UserThumbnail
+from ftrack_qt.widgets.thumbnails import UserThumbnail as UserThumbnail
 
 # Cache of user names.
 NAME_CACHE = dict()
