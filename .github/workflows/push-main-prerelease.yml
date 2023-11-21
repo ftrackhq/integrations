@@ -8,7 +8,7 @@ concurrency: pants_ci
 
 on:
   push:
-    branches: ["main"]
+    branches: ["dummy"] # Disable CI - do not trigger
 
 jobs:
 

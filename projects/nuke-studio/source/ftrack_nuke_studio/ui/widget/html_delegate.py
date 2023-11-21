@@ -60,7 +60,7 @@ class HtmlDelegate(QtWidgets.QStyledItemDelegate):
 
         # Get paint rectangle in screen coordinates
         text_rectangle = style.subElementRect(
-            QtWidgets.QStyle.SE_ItemViewItemText, options
+            QtWidgets.QStyle.SE_ItemViewItemText, options, options.widget
         )
 
         # Adjust the rectangle to fix issue occurring on windows.

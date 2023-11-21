@@ -237,44 +237,6 @@ class HostConnection(object):
                 if not exist:
                     self._tool_configs[config_type].remove(tool_config)
 
-    def reset_tool_config(self, tool_config_name, tool_config_type):
-        '''
-        If tool_config of the given *tool_config_type* and with the given
-        *tool_config_name* is found, set the original values to it
-        '''
-        # Get the current tool_config
-        mod_tool_config = get_tool_config_by_name(
-            self._tool_configs[tool_config_type], tool_config_name
-        )
-        # Get the original tool_config
-        origin_tool_config = get_tool_config_by_name(
-            self._raw_host_data['tool_configs'][tool_config_type],
-            tool_config_name,
-        )
-        if not mod_tool_config:
-            self.logger.warning(
-                'Host connection doesnt have a matching tool_config of type: {} '
-                'and name: {} in the tool_configs property.'.format(
-                    tool_config_type, tool_config_name
-                )
-            )
-        if not origin_tool_config:
-            self.logger.warning(
-                'Host connection doesnt have a matching tool_config of type: {} '
-                'and name: {} in the available tool_configs'.format(
-                    tool_config_type, tool_config_name
-                )
-            )
-        # Set the current tool_config = to the original one
-        if mod_tool_config and origin_tool_config:
-            # Get the index first to be able to re-set the original tool_config
-            # in to the same position in the list
-            index = self._tool_configs[tool_config_type].index(mod_tool_config)
-            self._tool_configs[tool_config_type].pop(index)
-            self._tool_configs[tool_config_type].insert(
-                index, copy.deepcopy(origin_tool_config)
-            )
-
     def reset_all_tool_configs(self):
         '''Reset all tool_configs to its original values sent from host'''
         self._tool_configs = self._available_filtered_host_tool_configs

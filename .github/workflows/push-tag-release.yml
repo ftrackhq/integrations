@@ -12,6 +12,7 @@ on:
       - '**0.0.0**'
       - '**latest**'
       - '**stable**'
+    branches: ["dummy"] # Disable CI - do not trigger
 
 jobs:
 
