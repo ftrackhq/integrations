@@ -10,7 +10,7 @@ from Qt import QtWidgets, QtCore, QtGui
 import ftrack_utils.string as string_utils
 
 from ftrack_utils.threading import BaseThread
-from ftrack_qt.widgets.thumbnails import AssetVersion
+from ftrack_qt.widgets.thumbnails import AssetVersionThumbnail
 from ftrack_qt.utils.widget import set_property
 
 
@@ -31,7 +31,7 @@ class AssetListItem(QtWidgets.QFrame):
         self.layout().setSpacing(5)
 
     def build(self):
-        self.thumbnail_widget = AssetVersion(self.session)
+        self.thumbnail_widget = AssetVersionThumbnail(self.session)
         self.thumbnail_widget.setScaledContents(True)
         self.thumbnail_widget.setMinimumSize(57, 31)
         self.thumbnail_widget.setMaximumSize(57, 31)
