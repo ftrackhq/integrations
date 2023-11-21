@@ -52,7 +52,7 @@ class ThumbnailBase(QtWidgets.QLabel):
 
     def post_build(self):
         self.thumbnailFetched.connect(self._downloaded)
-        self.thumbnailNotFound.connect(self._use_placeholder)
+        self.thumbnailNotFound.connect(self.use_placeholder)
 
     def load(self, reference):
         '''Load thumbnail from *reference* and display it.'''
@@ -110,7 +110,7 @@ class ThumbnailBase(QtWidgets.QLabel):
 
         self.__loadingReference = None
 
-    def _use_placeholder(self):
+    def use_placeholder(self):
         '''Use placeholder image'''
         IMAGE_CACHE[self.__loadingReference] = None
         self._updateWithPlaceholderPixmap()

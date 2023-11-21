@@ -160,8 +160,7 @@ class BaseContextDialog(FrameworkDialog, StyledDialog):
         Tell client to run the current tool config
         '''
 
-        arguments = {"tool_config": self.tool_config}
-        self.client_method_connection('run_tool_config', arguments=arguments)
+        self.run_tool_config(self.tool_config['reference'])
 
     # FrameworkDialog overrides
     def show_ui(self):
@@ -183,14 +182,6 @@ class BaseContextDialog(FrameworkDialog, StyledDialog):
         Client context has been changed and doesn't match the ui context when
         focus is back to the current UI
         '''
-        pass
-
-    def _on_client_hosts_discovered_callback(self, event=None):
-        '''Client new hosts has been discovered'''
-        pass
-
-    def _on_client_host_changed_callback(self, event=None):
-        '''Client host has been changed'''
         pass
 
     def _on_tool_config_changed_callback(self):

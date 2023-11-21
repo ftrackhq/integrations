@@ -7,7 +7,7 @@ import urllib.request, urllib.parse, urllib.error
 from ftrack_qt.widgets.thumbnails.ellipse import EllipseThumbnailBase
 
 
-class User(EllipseThumbnailBase):
+class UserThumbnail(EllipseThumbnailBase):
     '''User(avatar) thumbnail widget'''
 
     def _download(self, reference):
@@ -18,7 +18,7 @@ class User(EllipseThumbnailBase):
             )
         ).first()['thumbnail']
         url = self.get_thumbnail_url(thumbnail)
-        return super(User, self)._download(url)
+        return super(UserThumbnail, self)._download(url)
 
     def get_thumbnail_url(self, component):
         if not component:

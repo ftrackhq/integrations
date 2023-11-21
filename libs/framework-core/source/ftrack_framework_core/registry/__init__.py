@@ -1,5 +1,6 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2023 ftrack
+import uuid
 
 import logging
 from collections import defaultdict
@@ -94,6 +95,8 @@ class Registry(object):
         Add the given *extension_type* with *name*, *extension* and *path to
         the registry
         '''
+        if extension_type == 'tool_config':
+            self.augment_tool_config(extension)
         # We use extension_type and not type to not interfere with python
         # build in type
         self.__registry[extension_type].append(
@@ -141,3 +144,71 @@ class Registry(object):
                 )
 
         return found_extensions
+
+    def get_one(self, *args, **kwargs):
+        '''
+        Return the extension mathing the given arguments, if not found or
+        multiple found raise exception.
+        '''
+        matching_extensions = self.get(*args, **kwargs)
+        if len(matching_extensions) == 0:
+            kwargs_string = ''.join([('%s=%s' % x) for x in kwargs.items()])
+            raise Exception(
+                "Extension not found. Arguments: {}".format(
+                    (''.join(args), kwargs_string)
+                )
+            )
+
+        if len(matching_extensions) > 1:
+            kwargs_string = ''.join([('%s=%s' % x) for x in kwargs.items()])
+            raise Exception(
+                "Multiple matching extensions found.Arguments: {}".format(
+                    (''.join(args), kwargs_string)
+                )
+            )
+        return matching_extensions[0]
+
+    def augment_tool_config(self, tool_config):
+        '''
+        Augment the given *tool_config* to add a reference id to it
+        and each plugin and group
+        '''
+        tool_config['reference'] = uuid.uuid4().hex
+        self._recursive_create_reference(tool_config.get('engine'))
+        return tool_config
+
+    def _recursive_create_reference(self, tool_config_engine_portion):
+        '''
+        Recursive method to add reference number to each plugin and group of the
+        given engine portion of a tool_config.
+        '''
+        for item in tool_config_engine_portion:
+            if isinstance(item, str):
+                # Convert string plugin to dictionary
+                index = tool_config_engine_portion.index(item)
+                tool_config_engine_portion[index] = {
+                    'type': 'plugin',
+                    'plugin': item,
+                    'reference': uuid.uuid4().hex,
+                }
+                continue
+            elif isinstance(item, dict):
+                if item["type"] == "group":
+                    item['reference'] = uuid.uuid4().hex
+                    for plugin_item in item.get("plugins", []):
+                        if isinstance(plugin_item, str):
+                            # Convert string plugin to dictionary
+                            index = item['plugins'].index(plugin_item)
+                            item['plugins'][index] = {
+                                'type': 'plugin',
+                                'plugin': plugin_item,
+                                'reference': uuid.uuid4().hex,
+                            }
+                            continue
+                        plugin_item['reference'] = uuid.uuid4().hex
+                        if plugin_item['type'] == "group":
+                            self._recursive_create_reference(
+                                plugin_item.get('plugins')
+                            )
+                elif item["type"] == "plugin":
+                    item['reference'] = uuid.uuid4().hex

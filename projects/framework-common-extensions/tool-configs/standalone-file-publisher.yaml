@@ -8,6 +8,8 @@ engine:
     tags:
       - context
     plugin: asset_context
+    options:
+      asset_type_name: script
     ui: publisher_context_selector
 
   # Export the file component.
@@ -33,7 +35,7 @@ engine:
         tags:
           - validator
         plugin: file_exists_validator
-        ui: validator_check
+        ui: validator_label
       - type: plugin
         tags:
           - exporter

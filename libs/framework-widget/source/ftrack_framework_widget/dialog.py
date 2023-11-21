@@ -2,6 +2,8 @@
 # :copyright: Copyright (c) 2014-2023 ftrack
 
 import logging
+import uuid
+from functools import partial
 
 from ftrack_framework_widget import BaseUI, active_widget
 from ftrack_utils.framework.tool_config.read import get_tool_config_by_name
@@ -109,9 +111,23 @@ class FrameworkDialog(BaseUI):
         return self.__instanced_widgets
 
     @property
-    def discovered_framework_widgets(self):
+    def registry(self):
         '''Return discovered framework widgets from client'''
-        return self.client_property_getter_connection('discovered_widgets')
+        return self.client_property_getter_connection('registry')
+
+    @property
+    def tool_config_options(self):
+        '''
+        Current tool_config_options in client
+        '''
+        return self.client_property_getter_connection('tool_config_options')
+
+    @property
+    def id(self):
+        '''
+        Id of the plugin
+        '''
+        return self._id
 
     def __init__(
         self,
@@ -129,6 +145,7 @@ class FrameworkDialog(BaseUI):
         self._tool_config = None
         self._host_connection = None
         self.__instanced_widgets = {}
+        self._id = uuid.uuid4().hex
 
         # Connect client methods and properties
         self.connect_methods(connect_methods_callback)
@@ -160,23 +177,13 @@ class FrameworkDialog(BaseUI):
         self.event_manager.subscribe.client_signal_context_changed(
             self.client_id, callback=self._on_client_context_changed_callback
         )
-        self.event_manager.subscribe.client_signal_hosts_discovered(
-            self.client_id, callback=self._on_client_hosts_discovered_callback
-        )
-        self.event_manager.subscribe.client_signal_host_changed(
-            self.client_id, callback=self._on_client_host_changed_callback
-        )
-        self.event_manager.subscribe.client_notify_run_plugin_result(
-            self.client_id,
-            callback=self._on_client_notify_ui_run_plugin_result_callback,
-        )
-        self.event_manager.subscribe.client_notify_run_tool_config_result(
-            self.client_id,
-            callback=self._on_client_notify_ui_run_tool_config_result_callback,
-        )
         self.event_manager.subscribe.client_notify_log_item_added(
             self.client_id,
             callback=self._on_client_notify_ui_log_item_added_callback,
+        )
+        self.event_manager.subscribe.client_notify_ui_hook_result(
+            self.client_id,
+            callback=self._on_client_notify_ui_hook_result_callback,
         )
 
     def show_ui(self):
@@ -202,26 +209,6 @@ class FrameworkDialog(BaseUI):
         '''
         for id, widget in self.framework_widgets.items():
             widget.update_context(self.context_id)
-
-    @active_widget
-    def _on_client_hosts_discovered_callback(self, event=None):
-        '''
-        Will only run if the widget is active
-        Callback for when new host has been discovered in client.
-        '''
-        raise NotImplementedError(
-            "This method should be implemented by the inheriting class"
-        )
-
-    @active_widget
-    def _on_client_host_changed_callback(self, event=None):
-        '''
-        Will only run if the widget is active
-        Callback for when host has changed in the client.
-        '''
-        raise NotImplementedError(
-            "This method should be implemented by the inheriting class"
-        )
 
     @active_widget
     def _on_tool_config_changed_callback(self):
@@ -271,12 +258,13 @@ class FrameworkDialog(BaseUI):
             "This method should be implemented by the inheriting class"
         )
 
-    def init_framework_widget(self, plugin_config):
+    def init_framework_widget(self, plugin_config, group_config=None):
         '''
-        Method to initialize a framework widget given in the *plugin_config*
+        Method to initialize a framework widget given in the *plugin_config*.
+        *group_config* as optional argument in case is part of a group.
         '''
         widget_class = None
-        for widget in self.discovered_framework_widgets:
+        for widget in self.registry.widgets:
             if widget['name'] == plugin_config['ui']:
                 widget_class = widget['extension']
                 break
@@ -287,7 +275,7 @@ class FrameworkDialog(BaseUI):
                 'Registered widgets: {}'.format(
                     plugin_config['ui'],
                     plugin_config['plugin'],
-                    self.discovered_framework_widgets,
+                    self.registry.widgets,
                 )
             )
             self.logger.error(error_message)
@@ -297,30 +285,35 @@ class FrameworkDialog(BaseUI):
             self.client_id,
             self.context_id,
             plugin_config,
-            dialog_connect_methods_callback=self._connect_dialog_methods_callback,
-            dialog_property_getter_connection_callback=self._connect_dialog_property_getter_connection_callback,
+            group_config,
+            on_set_plugin_option=partial(
+                self._on_set_plugin_option_callback, plugin_config['reference']
+            ),
+            on_run_ui_hook=partial(
+                self._on_run_ui_hook_callback, plugin_config['reference']
+            ),
         )
         # TODO: widgets can't really run any plugin (like fetch) before it gets
         #  registered, so In case someone automatically fetches during the init
         #  of the widget it will fail because its not registered yet. Task is to
         #  find a way to better handle the registry.
-        self._register_widget(widget)
+        self._register_widget(plugin_config['reference'], widget)
         return widget
 
-    def _register_widget(self, widget):
+    def _register_widget(self, plugin_reference, widget):
         '''
         Registers the initialized *widget* to the dialog registry.
         '''
-        if widget.id not in list(self.__instanced_widgets.keys()):
-            self.__instanced_widgets[widget.id] = widget
+        if plugin_reference not in list(self.__instanced_widgets.keys()):
+            self.__instanced_widgets[plugin_reference] = widget
 
     def unregister_widget(self, widget_name):
         '''
         Remove the given *widget_name* from the registered widgets.
         '''
-        for widget_id, widget in self.framework_widgets.items():
+        for plugin_reference, widget in self.framework_widgets.items():
             if widget_name == widget.name:
-                self.__instanced_widgets.pop(widget_id)
+                self.__instanced_widgets.pop(plugin_reference)
                 self.logger.info(
                     "Unregistering widget: {}".format(widget_name)
                 )
@@ -345,58 +338,70 @@ class FrameworkDialog(BaseUI):
         '''Enables widgets to call dialog properties'''
         return self.__getattribute__(property_name)
 
-    def run_plugin_method(
-        self, plugin_config, plugin_method_name, plugin_ui_id=None
-    ):
+    def run_tool_config(self, tool_config_reference):
         '''
-        Dialog tell client to run the *plugin_method_name* from the
-        *plugin_config* .
-        Provides a *plugin_ui_id* if its a widget who wants to execute the
-        method.
+        Run button from the UI has been clicked.
+        Tell client to run the current tool config
         '''
-        # No callback as it is returned by an event
-        arguments = {
-            "plugin_config": plugin_config,
-            "plugin_method_name": plugin_method_name,
-            "engine_type": self.tool_config.get('engine_type'),
-            "engine_name": self.tool_config.get('engine_name'),
-            'plugin_ui_id': plugin_ui_id,
-        }
-        self.client_method_connection('run_plugin', arguments=arguments)
 
-    def _on_client_notify_ui_run_plugin_result_callback(self, event):
-        '''
-        Client has notified the dialog about a result of a plugin method,
-        now the dialog notifies the widget that has executed the method.
-        '''
-        plugin_info = event['data']['plugin_info']
-        plugin_ui_id = plugin_info['plugin_ui_id']
-        if not plugin_ui_id:
-            self.logger.info("Widget id not provided")
-            return
-        widget = self.framework_widgets.get(plugin_ui_id)
-        if not widget:
-            self.logger.error(
-                "Widget is not registered : {}\n"
-                "Registry: {}".format(widget, self.framework_widgets.keys())
-            )
-            return
-        widget.run_plugin_callback(plugin_info)
-
-    def _on_client_notify_ui_run_tool_config_result_callback(self, event):
-        '''
-        Client notifies the dialog that tool_config has been executed and passes
-        the result in the *event*
-        '''
-        tool_config_result = event['data']['tool_config_result']
-        # TODO: do something with the result
+        arguments = {"tool_config_reference": tool_config_reference}
+        self.client_method_connection('run_tool_config', arguments=arguments)
 
     def _on_client_notify_ui_log_item_added_callback(self, event):
         '''
         Client notify dialog that a new log item has been added.
         '''
         log_item = event['data']['log_item']
-        # TODO: do something with the log_item
+        reference = log_item.plugin_reference
+        if not reference:
+            return
+        widget = self.framework_widgets.get(reference)
+        if not widget:
+            self.logger.warning(
+                "Widget with reference {} can't be found on the dialog "
+                "initialized widgets".format(reference)
+            )
+            return
+        widget.plugin_run_callback(log_item)
+
+    def _on_client_notify_ui_hook_result_callback(self, event):
+        '''
+        Client notify ui with the result of running the UI hook.
+        '''
+        reference = event['data']['plugin_reference']
+        ui_hook_result = event['data']['ui_hook_result']
+
+        if not reference:
+            return
+        widget = self.framework_widgets.get(reference)
+        if not widget:
+            self.logger.warning(
+                "Widget with reference {} can't be found on the dialog "
+                "initialized widgets".format(reference)
+            )
+            return
+        widget.ui_hook_callback(ui_hook_result)
+
+    def _on_set_plugin_option_callback(self, plugin_reference, options):
+        '''
+        Pass the given *options* of the *plugin_reference* to the client.
+        '''
+        arguments = {
+            "tool_config_reference": self.tool_config['reference'],
+            "plugin_config_reference": plugin_reference,
+            "plugin_options": options,
+        }
+        self.client_method_connection(
+            'set_config_options', arguments=arguments
+        )
+
+    def _on_run_ui_hook_callback(self, plugin_reference, payload):
+        arguments = {
+            "tool_config_reference": self.tool_config['reference'],
+            "plugin_config_reference": plugin_reference,
+            "payload": payload,
+        }
+        self.client_method_connection('run_ui_hook', arguments=arguments)
 
     @classmethod
     def register(cls):

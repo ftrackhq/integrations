@@ -2,6 +2,7 @@
 # :copyright: Copyright (c) 2014-2023 ftrack
 
 import logging
+import time
 
 from ftrack_framework_widget import BaseUI, active_widget
 
@@ -27,6 +28,11 @@ class FrameworkWidget(BaseUI):
         return self._plugin_config
 
     @property
+    def group_config(self):
+        '''If plugin lives in a group, return the group tool config'''
+        return self._group_config
+
+    @property
     def plugin_name(self):
         '''Name of the current plugin'''
         return self.plugin_config['plugin']
@@ -34,7 +40,7 @@ class FrameworkWidget(BaseUI):
     @property
     def plugin_options(self):
         '''options value of the current plugin'''
-        return self.plugin_config.get('options')
+        return self._options
 
     @plugin_options.setter
     def plugin_options(self, value):
@@ -43,9 +49,10 @@ class FrameworkWidget(BaseUI):
         '''
         if type(value) != dict:
             return
-        if not self.plugin_config.get('options'):
-            self.plugin_config['options'] = {}
-        self.plugin_config['options'].update(value)
+
+        self._options.update(value)
+
+        self.on_set_plugin_option(self._options)
 
     def __init__(
         self,
@@ -53,67 +60,28 @@ class FrameworkWidget(BaseUI):
         client_id,
         context_id,
         plugin_config,
-        dialog_connect_methods_callback,
-        dialog_property_getter_connection_callback,
+        group_config,
+        on_set_plugin_option,
+        on_run_ui_hook,
         parent=None,
     ):
         self._context_id = context_id
         self._plugin_config = plugin_config
+        self._group_config = group_config
+        self._options = {}
+        self._do_await_ui_hook_result = False
+        self._ui_hook_result = None
 
         # Connect dialog methods and properties
-        self.connect_methods(dialog_connect_methods_callback)
-        self.connect_properties(dialog_property_getter_connection_callback)
+        self.on_set_plugin_option = on_set_plugin_option
+        self.on_run_ui_hook = on_run_ui_hook
 
         super(FrameworkWidget, self).__init__(event_manager, client_id, parent)
-
-        # Augment tool_config with the widget ID:
-        # TODO: evaluate if this is really needed when refactoring plugin
-        self.plugin_config['widget_id'] = self.id
-
-    def connect_methods(self, method):
-        '''
-        Connect the dialog callback method for the widget to be able to execute
-        dialog methods.
-        '''
-        self.dialog_method_connection = method
-
-    def connect_properties(self, get_method):
-        '''
-        Connect the dialog getterproperties for the widget to be
-        able to call them.
-        '''
-        self.dialog_property_getter_connection = get_method
 
     def update_context(self, context_id):
         '''Updates the widget context_id with the given *context_id*'''
         self._context_id = context_id
         self.on_context_updated()
-
-    def run_plugin_method(self, plugin_method_name):
-        '''
-        Call the run_plugin_method from the dialog with the current
-        plugin_config, id and the given *plugin_method_name* as arguments
-        '''
-        arguments = {
-            "plugin_config": self.plugin_config,
-            "plugin_method_name": plugin_method_name,
-            'plugin_ui_id': self.id,
-        }
-        self.dialog_method_connection('run_plugin_method', arguments=arguments)
-
-    def run_plugin_callback(self, plugin_info):
-        '''
-        Called when a result of an executed plugin is published. It provides
-        the *plugin_info*
-        '''
-        # Called by the dialog
-        executed_method = plugin_info['plugin_method']
-        method_result = plugin_info['plugin_method_result']
-        print('executed_method'.format(executed_method))
-        print('method_result'.format(method_result))
-        raise NotImplementedError(
-            "This method should be implemented by the inheriting class"
-        )
 
     def on_context_updated(self):
         '''Called when context of the widget has been updated.
@@ -131,6 +99,56 @@ class FrameworkWidget(BaseUI):
     def validate(self):
         '''Re implement this method to add validation to the widget'''
         return None
+
+    def plugin_run_callback(self, log_item):
+        '''
+        Receive the callback with the plugin info every time a plugin has been
+        executed.
+        *log_item* is the plugin info dictionary.
+        '''
+        self.logger.warning(
+            "Method not implemented, Plugin Callback ---> {}".format(log_item)
+        )
+
+    def run_ui_hook(self, payload, await_result=False):
+        '''
+        Call the on_run_ui_hook method from the dialog with the given *payload*.
+        By default, this is an async operation. If *await_result* is true, await
+        and return the result.
+        '''
+        if await_result:
+            # TODO: make this thread safe
+            self._ui_hook_result = None
+            self._do_await_ui_hook_result = True
+        self.on_run_ui_hook(payload)
+        if await_result:
+            return self._await_ui_hook_result()
+
+    def _await_ui_hook_result(self):
+        timeout = 10
+        try:
+            while True:
+                time.sleep(0.1)
+                if self._ui_hook_result:
+                    return self._ui_hook_result
+                timeout -= 0.1
+                if timeout <= 0:
+                    raise Exception('Timeout waiting for ui_hook result')
+        finally:
+            self._do_await_ui_hook_result = (
+                False  # Prevent await for next call
+            )
+
+    def ui_hook_callback(self, ui_hook_result):
+        '''Get the result of the ui_hook method from the plugin'''
+        if self._do_await_ui_hook_result:
+            self._ui_hook_result = ui_hook_result
+        else:
+            self.logger.warning(
+                "Method not implemented, ui_hook_result ---> {}".format(
+                    ui_hook_result
+                )
+            )
 
     @classmethod
     def register(cls):

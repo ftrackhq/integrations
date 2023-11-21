@@ -10,9 +10,9 @@ from functools import partial
 
 import ftrack_constants.framework as constants
 
-from ftrack_framework_core.asset import FtrackObjectManager
 from ftrack_framework_core.log.log_item import LogItem
 from ftrack_framework_core.log import LogDB
+from ftrack_utils.framework.tool_config.read import get_plugins
 
 from ftrack_utils.decorators import with_new_session
 
@@ -56,9 +56,6 @@ class Host(object):
     host_types = [constants.host.PYTHON_HOST_TYPE]
     '''Compatible Host types for this HOST.'''
 
-    FtrackObjectManager = FtrackObjectManager
-    '''FtrackObjectManager class to use'''
-
     def __repr__(self):
         return '<Host:{0}>'.format(self.id)
 
@@ -74,20 +71,6 @@ class Host(object):
         Returns instance of :class:`ftrack_api.session.Session`
         '''
         return self._event_manager.session
-
-    @property
-    def ftrack_object_manager(self):
-        '''
-        Initializes and returns an instance of
-        :class:`~ftrack_framework_core.asset.FtrackObjectManager`
-        '''
-        if not isinstance(
-            self._ftrack_object_manager, self.FtrackObjectManager
-        ):
-            self._ftrack_object_manager = self.FtrackObjectManager(
-                self.event_manager
-            )
-        return self._ftrack_object_manager
 
     # noinspection SpellCheckingInspection
     @property
@@ -199,7 +182,6 @@ class Host(object):
         # Set event manager and object manager
         self._event_manager = event_manager
         self._registry = registry
-        self._ftrack_object_manager = None
 
         self._discover_host_subscribe_id = None
 
@@ -211,12 +193,6 @@ class Host(object):
     # Subscribe
     def _subscribe_events(self):
         '''Host subscription events to communicate with the client'''
-        # Subscribe to topic
-        # :const:`~ftrack_framework_core.constants.NOTIFY_PLUGIN_PROGRESS_TOPIC`
-        # to receive client notifications from the host in :meth:`_notify_client_callback`
-        self.event_manager.subscribe.notify_plugin_progress_client(
-            self.id, self._notify_plugin_progress_client_callback
-        )
 
         # Listen to context change events for this host and its connected clients
         self.event_manager.subscribe.client_context_changed(
@@ -240,25 +216,11 @@ class Host(object):
         self.event_manager.subscribe.host_run_tool_config(
             self.id, self.run_tool_config_callback
         )
-        # Subscribe to run plugin
-        self.event_manager.subscribe.host_run_plugin(
-            self.id, self.run_plugin_callback
+
+        # Subscribe to run ui hook
+        self.event_manager.subscribe.host_run_ui_hook(
+            self.id, self.run_ui_hook_callback
         )
-
-    def _notify_plugin_progress_client_callback(self, event):
-        '''
-        Callback of the
-        :const:`~ftrack_framework_core.constants.NOTIFY_PLUGIN_PROGRESS_TOPIC`
-         event. Stores a log item in host pipeline log DB.
-
-        *event*: :class:`ftrack_api.event.base.Event`
-        '''
-        # Get the plugin info dictionary and add it to the logDB
-        plugin_info = event['data']
-        log_item = LogItem(plugin_info)
-        self.logs.add_log_item(self.id, log_item)
-        # Publish the event to notify client
-        self.event_manager.publish.host_log_item_added(self.id, log_item)
 
     def _client_context_change_callback(self, event):
         '''Callback when the client has changed context'''
@@ -278,15 +240,34 @@ class Host(object):
         :meth:`~ftrack_framework_core.client.HostConnection.run`
         '''
 
-        tool_config = event['data']['tool_config']
+        tool_config_reference = event['data']['tool_config_reference']
+        client_options = event['data']['client_options']
+
+        for typed_configs in self.tool_configs.values():
+            tool_config = None
+            for _tool_config in typed_configs:
+                if _tool_config['reference'] == tool_config_reference:
+                    tool_config = _tool_config
+                    break
+            if tool_config:
+                break
+        else:
+            raise Exception(
+                'Given tool config reference {} not found on registered '
+                'tool_configs. \n {}'.format(
+                    tool_config_reference, self.tool_configs
+                )
+            )
         engine_name = tool_config.get('engine_name', 'standard_engine')
 
         try:
-            engine_registry = self.registry.get(
+            engine_registry = self.registry.get_one(
                 name=engine_name, extension_type='engine'
-            )[0]
+            )
             engine_instance = engine_registry['extension'](
-                self.registry, session
+                self.registry,
+                session,
+                on_plugin_executed=self.on_plugin_executed_callback,
             )
         except Exception:
             raise Exception(
@@ -295,7 +276,7 @@ class Host(object):
 
         try:
             engine_result = engine_instance.execute_engine(
-                tool_config['engine']
+                tool_config['engine'], client_options
             )
 
         except Exception as error:
@@ -307,56 +288,90 @@ class Host(object):
             )
         return engine_result
 
-    def run_plugin_callback(self, event):
-        '''
-        Runs the plugin_config in the given *event* with the engine type
-        set in the *event*
-        '''
-        pass
-        # TODO: double check this
-        plugin_config = event['data']['plugin_config']
-        plugin_method = event['data']['plugin_method']
-        engine_type = event['data']['engine_type']
-        engine_name = event['data']['engine_name']
-        plugin_ui_id = event['data']['plugin_ui_id']
+    def on_plugin_executed_callback(self, plugin_info):
+        log_item = LogItem(plugin_info)
+        self.logs.add_log_item(self.id, log_item)
+        # Publish the event to notify client
+        self.event_manager.publish.host_log_item_added(self.id, log_item)
 
-        engine = None
-        try:
-            engine = self.engines[engine_type].get(engine_name)
-        except Exception:
+    @with_new_session
+    def run_ui_hook_callback(self, event, session=None):
+        '''
+        Runs the data with the defined engine type of the given *event*
+
+        Returns result of the engine run.
+
+        *event* : Published from the client host connection at
+        :meth:`~ftrack_framework_core.client.HostConnection.run`
+        '''
+
+        tool_config_reference = event['data']['tool_config_reference']
+        plugin_reference = event['data']['plugin_config_reference']
+        client_options = event['data']['client_options']
+        payload = event['data']['payload']
+
+        for typed_configs in self.tool_configs.values():
+            tool_config = None
+            for _tool_config in typed_configs:
+                if _tool_config['reference'] == tool_config_reference:
+                    tool_config = _tool_config
+                    break
+            if tool_config:
+                break
+        else:
             raise Exception(
-                'No engine of type "{}" with name "{}" found'.format(
-                    engine_type, engine_name
+                'Given tool config reference {} not found on registered '
+                'tool_configs. \n {}'.format(
+                    tool_config_reference, self.tool_configs
                 )
             )
-        # TODO: review asset_type_name in the specific task
-        engine.asset_type_name = None
 
-        engine_result = engine.run_plugin(
-            plugin_name=plugin_config.get('plugin'),
-            plugin_default_method=plugin_config.get('default_method'),
-            # plugin_data will usually be None, but can be defined in the
-            # tool_config
-            # I have registered data in the publisher schema
-            plugin_data=plugin_config.get('data'),
-            plugin_options=plugin_config.get('options'),
-            # plugin_context_data will usually be None, but can be defined in the
-            # tool_config
-            # I have registered context_data in the schema
-            plugin_context_data=plugin_config.get('context_data'),
-            plugin_method=plugin_method,
-            plugin_ui_id=plugin_ui_id,
-            plugin_ui_name=plugin_config.get('ui'),
-        )
+        engine_name = tool_config.get('engine_name', 'standard_engine')
 
-        if not engine_result:
-            self.logger.error(
-                "Couldn't run plugin:\n "
-                "Tool config: {}\n"
-                "Method: {}\n"
-                "Engine type: {}\n"
-                "Engine name: {}\n".format(
-                    plugin_config, plugin_method, engine_type, engine_name
+        try:
+            engine_registry = self.registry.get_one(
+                name=engine_name, extension_type='engine'
+            )
+            engine_instance = engine_registry['extension'](
+                self.registry,
+                session,
+                on_plugin_executed=partial(
+                    self.on_ui_hook_executed_callback, plugin_reference
+                ),
+            )
+        except Exception:
+            raise Exception(
+                'No engine with name "{}" found'.format(engine_name)
+            )
+
+        try:
+            plugin_config = get_plugins(
+                tool_config, filters={'reference': plugin_reference}
+            )[0]
+        except Exception:
+            raise Exception(
+                'Given plugin config reference {} not found on the '
+                'tool_config {}'.format(plugin_reference, tool_config)
+            )
+
+        try:
+            engine_result = engine_instance.run_ui_hook(
+                plugin_config['plugin'],
+                payload,
+                client_options,
+                reference=plugin_reference,
+            )
+
+        except Exception as error:
+            raise Exception(
+                'Error appear when executing engine: {} from {}.'
+                '\n Error: {}'.format(
+                    tool_config['engine'], engine_name, error
                 )
             )
         return engine_result
+
+    def on_ui_hook_executed_callback(self, plugin_reference, ui_hook_result):
+        self.event_manager.publish.host_run_ui_hook_result(
+            self.id, plugin_reference, ui_hook_result
+        )

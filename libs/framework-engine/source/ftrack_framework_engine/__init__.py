@@ -41,9 +41,10 @@ class BaseEngine(ABC):
     def plugin_registry(self):
         return self._plugin_registry
 
-    def __init__(self, plugin_registry, session):
+    def __init__(self, plugin_registry, session, on_plugin_executed=None):
         '''
-        Initialise BaseEngine with given *plugin_registry*.
+        Initialise BaseEngine with given *plugin_registry*, *session* and
+        optional *on_plugin_executed* callback to communicate with the host.
         '''
         super(BaseEngine, self).__init__()
 
@@ -53,6 +54,7 @@ class BaseEngine(ABC):
 
         self._plugin_registry = plugin_registry
         self._session = session
+        self.on_plugin_executed = on_plugin_executed
 
     @abstractmethod
     def run_plugin(self, plugin, store, options):
@@ -65,7 +67,7 @@ class BaseEngine(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def execute_engine(self, engine):
+    def execute_engine(self, engine, client_options):
         '''
         Execute given *engine* from a tool-config.
         *engine*: Portion list of a tool-config with groups and plugins.

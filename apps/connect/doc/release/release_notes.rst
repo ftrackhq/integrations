@@ -11,6 +11,10 @@ Release Notes
 .. release:: upcoming
 
     .. change:: changed
+
+        Convert Object to QObject to ensure proper livecycle handling in pyside.
+
+    .. change:: changed
         :tags: Build system
 
         Change build system to Poetry, using the monorepo tooling to build QT resources.

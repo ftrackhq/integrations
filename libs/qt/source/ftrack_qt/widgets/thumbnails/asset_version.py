@@ -8,7 +8,7 @@ from Qt import QtCore, QtGui, QtWidgets
 from ftrack_qt.widgets.thumbnails.base import ThumbnailBase
 
 
-class AssetVersion(ThumbnailBase):
+class AssetVersionThumbnail(ThumbnailBase):
     '''Asset version thumbnail widget'''
 
     def _download(self, reference):
@@ -17,7 +17,7 @@ class AssetVersion(ThumbnailBase):
             'url'
         ]
         url = url or self.placholderThumbnail
-        return super(AssetVersion, self)._download(url)
+        return super(AssetVersionThumbnail, self)._download(url)
 
     def get_thumbnail_url(self, component):
         if not component:

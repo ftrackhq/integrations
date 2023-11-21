@@ -13,51 +13,100 @@ class StandardEngine(BaseEngine):
 
     name = 'standard_engine'
 
-    def __init__(self, plugin_registry, session):
+    def __init__(self, plugin_registry, session, on_plugin_executed=None):
         '''
-        Initialise StandardEngine with given *plugin_registry*.
+        Initialise BaseEngine with given *plugin_registry*, *session* and
+        optional *on_plugin_executed* callback to communicate with the host.
         '''
-        super(StandardEngine, self).__init__(plugin_registry, session)
+        super(StandardEngine, self).__init__(
+            plugin_registry, session, on_plugin_executed
+        )
 
-    def run_plugin(self, plugin, store, options):
+    def run_ui_hook(self, plugin, payload, options, reference=None):
+        '''
+        If given *plugin* is in the plugin registry, initialize it with the
+        given *options* and execute the ui_hook method passing given *payload*
+        as argument.
+        *plugin*: Name of the plugin to be executed.
+        *payload*: data.
+        *options*: options to be passed to the plugin
+        *reference*: reference id of the plugin
+        '''
+        registered_plugin = self.plugin_registry.get_one(name=plugin)
+
+        plugin_instance = registered_plugin['extension'](
+            options, self.session, reference
+        )
+        ui_hook_result = None
+        try:
+            ui_hook_result = plugin_instance.ui_hook(payload)
+        except Exception as error:
+            # TODO: double check if this is necessary as I think is already
+            #  handled and printed to the log by the raise Exception.
+            self.logger.exception(error)
+            raise Exception(
+                "UI hook method of plugin {} can't be executed. Error: {}".format(
+                    plugin, error
+                )
+            )
+        finally:
+            if ui_hook_result:
+                if self.on_plugin_executed:
+                    self.on_plugin_executed(ui_hook_result)
+        self.logger.debug(ui_hook_result)
+
+        return ui_hook_result
+
+    def run_plugin(self, plugin, store, options, reference=None):
         '''
         If given *plugin* is in the plugin registry, initialize it with the
         given *options* and execute run method passing given *store* as argument.
         *plugin*: Name of the plugin to be executed.
         *store*: registry of plugin data.
         *options*: options to be passed to the plugin
+        *reference*: reference id of the plugin
         '''
-        registered_plugin = self.plugin_registry.get(name=plugin)[0]
-        plugin_instance = registered_plugin['extension'](options, self.session)
-        print(
-            f"Run {plugin_instance.id} with options {plugin_instance.options}"
+        registered_plugin = self.plugin_registry.get_one(name=plugin)
+
+        plugin_instance = registered_plugin['extension'](
+            options, self.session, reference
         )
-        # try:
-        plugin_info = plugin_instance.run_plugin(store)
+        self.logger.debug(
+            f"Run {plugin_instance.reference} with options {plugin_instance.options}"
+        )
+        plugin_info = None
+        try:
+            plugin_info = plugin_instance.run_plugin(store)
         # TODO: (future improvements) implement a validation error.
         #  except ValidationError as error:
-        # except Exception as error:
-        # TODO: implement the exception error. Log and rise?
-        # pass
-        # if self.on_plugin_execution_success:
-        # self.on_plugin_execution_success(
-        # execution_time
-        # )
-        # return result
-        print(store)
-        print("*" * 10)
-        # TODO: think on where do we add the notify client if the engine doesn't
-        #  have the event manager either.
-        # def _notify_client(self):
-        #     '''Publish an event with the plugin info to be picked by the client'''
-        #     self.event_manager.publish.notify_plugin_progress_client(
-        #         self.provide_plugin_info()
-        #     )
+        except Exception as error:
+            # TODO: double check if this is necessary as I think is already
+            #  handled and printed to the log by the raise Exception.
+            self.logger.exception(error)
+            raise Exception(
+                "Plugin {} can't be executed. Error: {}".format(plugin, error)
+            )
+        finally:
+            if plugin_info:
+                if self.on_plugin_executed:
+                    self.on_plugin_executed(plugin_info)
+                    if not plugin_info['plugin_boolean_status']:
+                        raise Exception(
+                            "Error executing plugin {}. Error Message {}".format(
+                                plugin_info['plugin_name'],
+                                plugin_info['plugin_message'],
+                            )
+                        )
+        self.logger.debug(store)
 
-    def execute_engine(self, engine):
+        return plugin_info
+
+    def execute_engine(self, engine, user_options):
         '''
         Execute given *engine* from a tool-config.
         *engine*: Portion list of a tool-config with groups and plugins.
+        *user_options*: dictionary with options passed by the client to
+        the plugins.
         '''
         store = dict()
         for item in engine:
@@ -69,6 +118,8 @@ class StandardEngine(BaseEngine):
                 # If it's a group, execute all plugins from the group
                 if item["type"] == "group":
                     group_options = item.get("options", {})
+                    group_reference = item['reference']
+                    group_options.update(user_options.get(group_reference, {}))
                     for plugin_item in item.get("plugins", []):
                         # Use plugin options if plugin is defined as string
                         if isinstance(plugin_item, str):
@@ -78,11 +129,16 @@ class StandardEngine(BaseEngine):
                             # this plugin
                             options = copy.deepcopy(group_options)
                             options.update(plugin_item.get("options", {}))
+                            plugin_reference = plugin_item['reference']
+                            options.update(
+                                user_options.get(plugin_reference, {})
+                            )
                             self.run_plugin(
                                 plugin_item["plugin"],
                                 store,
                                 # Override group options with the plugin options
                                 options,
+                                plugin_reference,
                             )
                         # TODO: (future improvements) if group inside a
                         #  group recursively execute plugins inside
@@ -90,7 +146,10 @@ class StandardEngine(BaseEngine):
                 elif item["type"] == "plugin":
                     # Execute plugin only with its own options if plugin is
                     # defined outside the group
+                    plugin_reference = item['reference']
+                    options = item.get("options", {})
+                    options.update(user_options.get(plugin_reference, {}))
                     self.run_plugin(
-                        item["plugin"], store, item.get("options", {})
+                        item["plugin"], store, options, plugin_reference
                     )
         return store

@@ -12,7 +12,7 @@ Release Notes
 
     .. change:: changed
 
-        Replaced setuptools with Poetry and RV package build tool.
+        Replaced setuptools with Poetry, use build tooling to produce Connect plugin.
 
 .. release:: 0.1.5
     :date: 2022-11-08

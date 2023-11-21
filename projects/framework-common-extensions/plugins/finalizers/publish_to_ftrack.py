@@ -30,8 +30,7 @@ class PublishToFtrack(BasePlugin):
         comment = store.get('comment')
         status_id = store.get('status_id')
         asset_id = store.get('asset_id')
-        # TODO: remove script default value once asset_type task is implemented
-        asset_type_name = store.get('asset_type_name', 'script')
+        asset_type_name = store.get('asset_type_name')
         asset_name = store.get('asset_name', asset_type_name)
 
         # TODO: implement version_dependencies
@@ -79,26 +78,34 @@ class PublishToFtrack(BasePlugin):
             results = {}
 
             for component_name in components:
-                if not store.get(component_name):
+                if not store['components'].get(component_name):
                     continue
                 # TODO: allow multiple paths
                 if component_name == 'thumbnail':
                     self._create_thumbnail(
                         asset_version_object,
-                        store[component_name].get('exported_path'),
+                        store['components'][component_name].get(
+                            'exported_path'
+                        ),
                     )
                 elif component_name == 'reviewable':
                     self._create_reviewable(
                         asset_version_object,
-                        store[component_name].get('exported_path'),
+                        store['components'][component_name].get(
+                            'exported_path'
+                        ),
                     )
                 else:
                     self._create_component(
                         asset_version_object,
                         component_name,
-                        store[component_name].get('exported_path'),
+                        store['components'][component_name].get(
+                            'exported_path'
+                        ),
                     )
-                store[component_name]['published_to_ftrack'] = True
+                store['components'][component_name][
+                    'published_to_ftrack'
+                ] = True
             self.session.commit()
             rollback = False
         except:
@@ -138,6 +145,9 @@ class PublishToFtrack(BasePlugin):
             ).first()
         else:
             # Query/identify asset
+            assert (
+                asset_type_name
+            ), 'Cannot create asset, no asset type name provided'
             # Get Asset type object
             asset_type_object = self.session.query(
                 'AssetType where short is "{}"'.format(asset_type_name)

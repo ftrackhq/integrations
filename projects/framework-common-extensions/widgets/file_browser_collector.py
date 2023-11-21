@@ -21,8 +21,9 @@ class FileBrowserWidget(BaseWidget):
         client_id,
         context_id,
         plugin_config,
-        dialog_connect_methods_callback,
-        dialog_property_getter_connection_callback,
+        group_config,
+        on_set_plugin_option,
+        on_run_ui_hook,
         parent=None,
     ):
         '''initialise PublishContextWidget with *parent*, *session*, *data*,
@@ -35,8 +36,9 @@ class FileBrowserWidget(BaseWidget):
             client_id,
             context_id,
             plugin_config,
-            dialog_connect_methods_callback,
-            dialog_property_getter_connection_callback,
+            group_config,
+            on_set_plugin_option,
+            on_run_ui_hook,
             parent,
         )
 
@@ -62,5 +64,7 @@ class FileBrowserWidget(BaseWidget):
     def _on_path_changed(self, file_path):
         '''Updates the option dictionary with provided *asset_name* when
         asset_changed of asset_selector event is triggered'''
+        if not file_path:
+            return
         self.set_plugin_option('folder_path', os.path.dirname(file_path))
         self.set_plugin_option('file_name', os.path.basename(file_path))
