@@ -1,6 +1,5 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2023 ftrack
-import time
 
 from Qt import QtWidgets
 
@@ -11,7 +10,7 @@ from ftrack_qt.widgets.selectors import AssetSelector
 class AssetVersionSelectorWidget(FrameworkWidget, QtWidgets.QWidget):
     """Main class to represent an asset version selector widget."""
 
-    name = "assetversion_selector"
+    name = "asset_version_selector"
     ui_type = "qt"
 
     def __init__(
@@ -43,7 +42,7 @@ class AssetVersionSelectorWidget(FrameworkWidget, QtWidgets.QWidget):
         )
 
         self._label = None
-        self._assetversion_selector = None
+        self._asset_version_selector = None
 
         self.pre_build()
         self.build()
@@ -59,64 +58,31 @@ class AssetVersionSelectorWidget(FrameworkWidget, QtWidgets.QWidget):
         self._label.setObjectName('gray')
         self._label.setWordWrap(True)
 
-        self._assetversion_selector = AssetSelector(
-            AssetSelector.MODE_SELECT_ASSETVERSION,
-            self._on_fetch_assets_callback,
-            self.session,
-            fetch_assetversions=self._on_fetch_assetversions_callback,
-        )
+        self._asset_version_selector = AssetSelector()
 
         self.layout().addWidget(self._label)
-        self.layout().addWidget(self._assetversion_selector)
+        self.layout().addWidget(self._asset_version_selector)
 
     def post_build(self):
         """Perform post-construction operations."""
-        self._assetversion_selector.assetsAdded.connect(self._on_assets_added)
-        self._assetversion_selector.versionChanged.connect(
+        self._asset_version_selector.assets_added.connect(
+            self._on_assets_added
+        )
+        self._asset_version_selector.version_changed.connect(
             self._on_version_changed_callback
         )
-        # set context
-        self.set_context()
 
-    def set_context(self):
-        self._assetversion_selector.reload()
-
-    def _on_fetch_assets_callback(self):
-        '''Return assets back to asset selector'''
+    def query_assets(self):
         payload = {
             'context_id': self.context_id,
-            'context_type': 'asset',
             'asset_type_name': self.plugin_config['options'].get(
                 'asset_type_name'
             ),
         }
-        asset_ids = self.run_ui_hook(payload, await_result=True)
-        return list(
-            self.session.query(
-                'select name, versions.task.id, type.id, id, latest_version,'
-                'latest_version.version '
-                'from Asset where id in ({})'.format(
-                    ','.join([str(asset_id) for asset_id in asset_ids])
-                )
-            ).all()
-        )
+        self.run_ui_hook(payload)
 
-    def _on_fetch_assetversions_callback(self, asset_entity):
-        '''Query ftrack for all version beneath *asset_entity*'''
-        payload = {
-            'context_id': self.context_id,
-            'context_type': 'asset_version',
-            'asset_id': asset_entity['id'],
-        }
-        version_ids = self.run_ui_hook(payload, await_result=True)
-        return list(
-            self.session.query(
-                'select version, id '
-                'from AssetVersion where id in ({})'.format(
-                    ','.join([str(version_id) for version_id in version_ids])
-                )
-            ).all()
-        )
+    def ui_hook_callback(self, ui_hook_result):
+        self._asset_version_selector.set_assets(ui_hook_result)
 
     def _on_assets_added(self, assets):
         if len(assets or []) > 0:
@@ -130,14 +96,11 @@ class AssetVersionSelectorWidget(FrameworkWidget, QtWidgets.QWidget):
         else:
             self._label.setText('<html><i>No assets found!<i></html>')
 
-    def _on_version_changed_callback(self, assetversion_entity):
+    def _on_version_changed_callback(self, version):
         component_name = self.group_config.get('options').get('component')
         self.set_plugin_option(
-            'asset_versions',
-            [
-                {
-                    'asset_version_id': assetversion_entity['id'],
-                    'component_name': component_name,
-                }
-            ],
+            {
+                'asset_version_id': version['id'],
+                'component_name': component_name,
+            }
         )

@@ -298,6 +298,9 @@ class FrameworkDialog(BaseUI):
         #  of the widget it will fail because its not registered yet. Task is to
         #  find a way to better handle the registry.
         self._register_widget(plugin_config['reference'], widget)
+        # Just a quick hack to test query assets
+        if hasattr(widget, 'query_assets'):
+            widget.query_assets()
         return widget
 
     def _register_widget(self, plugin_reference, widget):

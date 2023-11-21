@@ -18,51 +18,55 @@ class ComponentPathCollectorPlugin(BasePlugin):
         payload['asset_id'] on task payload['context_id']
         '''
         context_id = payload['context_id']
+        # Determine if we have a task or not
+        context = self.session.get('Context', context_id)
+        # If it's a fake asset, context will be None so return empty list.
+        if not context:
+            return []
 
-        if payload.get('context_type', 'asset') == 'asset':
-            asset_type_entity = self.session.query(
-                'select name from AssetType where short is "{}"'.format(
-                    payload['asset_type_name']
+        asset_type_entity = self.session.query(
+            'select name from AssetType where short is "{}"'.format(
+                payload['asset_type_name']
+            )
+        ).one()
+
+        if context.entity_type == 'Task':
+            asset_versions = self.session.query(
+                'select asset.name, id from AssetVersion where task_id is {} and asset.type.id is {}'.format(
+                    context_id, asset_type_entity['id']
                 )
-            ).one()
-
-            # Determine if we have a task or not
-            context = self.session.get('Context', context_id)
-            # If it's a fake asset, context will be None so return empty list.
-            if not context:
-                return []
-            if context.entity_type == 'Task':
-                assets = self.session.query(
-                    'select latest_version from Asset where versions.task.id is '
-                    '{} and type.id is {}'.format(
-                        context_id, asset_type_entity['id']
-                    )
-                ).all()
-            else:
-                assets = self.session.query(
-                    'select latest_version from Asset where parent.id is {} '
-                    'and type.id is {}'.format(
-                        context_id, asset_type_entity['id']
-                    )
-                ).all()
-            result = sorted(
-                list(assets),
-                key=lambda a: a['latest_version']['date'],
-                reverse=True,
-            )
-        elif payload['context_type'] == 'asset_version':
-            result = []
-            for version in self.session.query(
-                'select version, id '
-                'from AssetVersion where task.id is {} and asset_id is {} order by'
-                ' version descending'.format(context_id, payload['asset_id'])
-            ).all():
-                result.append(version)
+            ).all()
         else:
-            raise Exception(
-                'Unknown context_type: {}'.format(payload['context_type'])
+            asset_versions = self.session.query(
+                'select asset.name, id from AssetVersion where parent.id is {} and asset.type.id is {}'.format(
+                    context_id, asset_type_entity['id']
+                )
+            ).all()
+
+        # TODO: thumbnail implementation
+        # placholder_thumbnail = (
+        #         self.session.server_url + '/img/thumbnail2.png'
+        # )
+
+        # TODO: this is too slow, check how to make it much faster
+        result = {}
+        for asset_version in asset_versions:
+            if asset_version['asset_id'] not in list(result.keys()):
+                result[asset_version['asset_id']] = {
+                    'name': asset_version['asset']['name'],
+                    'versions': [],
+                }
+            # url = asset_version['thumbnail_url'] or placholder_thumbnail
+            result[asset_version['asset_id']]['versions'].append(
+                {
+                    'id': asset_version['id'],
+                    'date': asset_version['date'],
+                    'version': asset_version['version'],
+                    'is_latest_version': asset_version['is_latest_version'],
+                    'thumbnail': asset_version['thumbnail_url'],
+                }
             )
-        return [entity['id'] for entity in result]
+        return result
 
     def run(self, store):
         '''
@@ -72,36 +76,27 @@ class ComponentPathCollectorPlugin(BasePlugin):
         containing 'asset_version_id' and 'component_name' for the desired
         assets to open.
         '''
-        unresolved_asset_messages = []
-        collected_paths = []
-        asset_versions = self.options.get('asset_versions')
-        for asset_version_dict in asset_versions:
-            component = self.session.query(
-                'select id from Component where version_id is {} '
-                'and name is {}'.format(
-                    asset_version_dict['asset_version_id'],
-                    asset_version_dict['component_name'],
+
+        component = self.session.query(
+            'select id from Component where version_id is {} '
+            'and name is {}'.format(
+                self.options.get('asset_version_id'),
+                self.options.get('component_name'),
+            )
+        ).first()
+        if not component:
+            message = (
+                'Component name {} not available for '
+                'asset version id {}'.format(
+                    self.options.get('component_name'),
+                    self.options.get('asset_version_id'),
                 )
-            ).first()
-            if not component:
-                message = (
-                    'Component name {} not available for '
-                    'asset version id {}'.format(
-                        asset_version_dict['component_name'],
-                        asset_version_dict['asset_version_id'],
-                    )
-                )
-                self.logger.warning(message)
-                unresolved_asset_messages.append(message)
-                continue
-            location = self.session.pick_location()
-            component_path = location.get_filesystem_path(component)
-            collected_paths.append(component_path)
-        if not collected_paths:
-            self.message = '\n'.join(unresolved_asset_messages)
+            )
+            self.logger.warning(message)
+            self.message = message
             self.status = constants.status.ERROR_STATUS
 
+        location = self.session.pick_location()
+        component_path = location.get_filesystem_path(component)
         component_name = self.options.get('component', 'main')
-        store['components'][component_name][
-            'collected_paths'
-        ] = collected_paths
+        store['components'][component_name]['collected_path'] = component_path
