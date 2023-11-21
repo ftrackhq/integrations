@@ -4,7 +4,7 @@
 from Qt import QtWidgets
 
 from ftrack_framework_widget.widget import FrameworkWidget
-from ftrack_qt.widgets.selectors import AssetSelector
+from ftrack_qt.widgets.selectors import OpenAssetSelector
 
 
 class AssetVersionSelectorWidget(FrameworkWidget, QtWidgets.QWidget):
@@ -58,7 +58,7 @@ class AssetVersionSelectorWidget(FrameworkWidget, QtWidgets.QWidget):
         self._label.setObjectName('gray')
         self._label.setWordWrap(True)
 
-        self._asset_version_selector = AssetSelector()
+        self._asset_version_selector = OpenAssetSelector()
 
         self.layout().addWidget(self._label)
         self.layout().addWidget(self._asset_version_selector)

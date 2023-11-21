@@ -30,14 +30,14 @@ class OpenFilePlugin(BasePlugin):
         '''
         component_name = self.options.get('component')
 
-        collected_paths = store['components'][component_name].get(
-            'collected_paths'
+        collected_path = store['components'][component_name].get(
+            'collected_path'
         )
 
-        if not collected_paths or len(collected_paths) != 1:
+        if not collected_path:
             self.message = "No path provided to open!"
             self.status = constants.status.ERROR_STATUS
 
         store['components'][component_name]['open_result'] = self.open_file(
-            collected_paths[0]
+            collected_path
         )

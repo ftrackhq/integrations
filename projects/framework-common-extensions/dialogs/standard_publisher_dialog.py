@@ -44,7 +44,6 @@ class StandardPublisherDialog(BaseContextDialog):
         '''
         self._scroll_area = None
         self._scroll_area_widget = None
-        self._context_widgets = None
 
         super(StandardPublisherDialog, self).__init__(
             event_manager,
@@ -68,7 +67,6 @@ class StandardPublisherDialog(BaseContextDialog):
         # Create a main widget for the scroll area
         self._scroll_area_widget = QtWidgets.QWidget()
         scroll_area_widget_layout = QtWidgets.QVBoxLayout()
-        scroll_area_widget_layout.setContentsMargins(0, 0, 0, 0)
         self._scroll_area_widget.setLayout(scroll_area_widget_layout)
 
         self.tool_widget.layout().addWidget(self._scroll_area, 100)
@@ -76,14 +74,8 @@ class StandardPublisherDialog(BaseContextDialog):
 
     def build_ui(self):
         # Select the desired tool_config
-
         if not self.filtered_tool_configs.get("publisher"):
             self.logger.warning("No Publisher tool configs available")
-            self._scroll_area_widget.layout().addWidget(
-                QtWidgets.QLabel(
-                    "<html><i>No Publisher tool configs available</i></html>"
-                )
-            )
         else:
             self.tool_config = self.filtered_tool_configs.get("publisher")[0]
 
@@ -91,14 +83,11 @@ class StandardPublisherDialog(BaseContextDialog):
         context_plugins = get_plugins(
             self.tool_config, filters={'tags': ['context']}
         )
-        self._context_widgets = []
         for context_plugin in context_plugins:
             if not context_plugin.get('ui'):
                 continue
             context_widget = self.init_framework_widget(context_plugin)
             self._scroll_area_widget.layout().addWidget(context_widget)
-            self._context_widgets.append(context_widget)
-
         # Build component widgets
         component_groups = get_groups(
             self.tool_config, filters={'tags': ['component']}
@@ -171,9 +160,3 @@ class StandardPublisherDialog(BaseContextDialog):
 
     def post_build_ui(self):
         pass
-
-    def _on_run_button_clicked(self):
-        '''(Override) Refresh context widgets upon publish'''
-        super(StandardPublisherDialog, self)._on_run_button_clicked()
-        for context_widget in self._context_widgets:
-            context_widget.reload()

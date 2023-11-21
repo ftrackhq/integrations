@@ -7,7 +7,7 @@ engine:
   - type: plugin
     tags:
       - context
-    plugin: context
+    plugin: store_context_id
 
   # Open the file component.
   - type: group
