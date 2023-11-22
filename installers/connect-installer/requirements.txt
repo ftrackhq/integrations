@@ -7,3 +7,4 @@ certifi>=2022
 setuptools_scm
 wheel
 ftrack-action-handler
+ftrack-utils

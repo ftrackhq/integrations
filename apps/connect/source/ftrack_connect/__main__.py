@@ -23,19 +23,8 @@ def main_connect(arguments=None):
     import ftrack_connect.config
     import ftrack_connect.singleton
 
-    # Hooks use the ftrack event system. Set the FTRACK_EVENT_PLUGIN_PATH
-    # to pick up the default hooks if it has not already been set.
-    try:
-        os.environ.setdefault(
-            'FTRACK_EVENT_PLUGIN_PATH',
-            pkg_resources.resource_filename(
-                pkg_resources.Requirement.parse('ftrack-connect'),
-                'ftrack_connect_resource/hook',
-            ),
-        )
-    except pkg_resources.DistributionNotFound:
-        # If part of a frozen package then distribution might not be found.
-        pass
+    # Bootstrap hooks
+    import ftrack_connect.hook
 
     import ftrack_connect.ui.application
     import ftrack_connect.ui.theme

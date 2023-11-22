@@ -16,7 +16,9 @@ bundles of ftrack connect installers.
 
 2. Install Poetry (https://python-poetry.org/docs/#installation)
 
-3. Follow the instructions in Connect to build, then install it into the virtual environment:
+3. (Optional) Bump version, update release notes, tag and push to SCM.
+
+4. Follow the instructions in Connect to build, then install it into the virtual environment:
 
 ```bash
     $ cd app/connect
@@ -28,6 +30,12 @@ to the root of the Connect package within monorepo:
 
 ```bash
     $ cd integrations/installers/connect-installer
+```
+
+Install installer dependencies, including ftrack-utils library:
+
+```bash
+    $ pip install --pre --index-url https://test.pypi.org/simple --extra-index-url https://pypi.org/simple  -r requirements.txt
 ```
 
 
