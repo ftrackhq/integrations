@@ -12,4 +12,4 @@ tools:
 framework_extension_paths:
   - "extensions/common"
   - "extensions/photoshop"
-  - "${FTRACK_EXTENSION_PATH}"
+  - "${FTRACK_EXTENSIONS_PATH}"
