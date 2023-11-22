@@ -11,7 +11,7 @@ bundles of ftrack connect installers.
 1. Clone the public integrations repository:
 
 ```bash
-    $ git clone git@bitbucket.org:ftrack/ftrack-connect-installer.git
+    $ git clone https://github.com/ftrackhq/integrations.git
 ```
 
 2. Install Poetry (https://python-poetry.org/docs/#installation)
@@ -181,5 +181,5 @@ activated and configured.
 #### Dependencies
 
 -   [Python](http://python.org) \>= 3.7, \< 3.8
--   [ftrack-connect](https://bitbucket.org/ftrack/ftrack-connect) \>=
+-   [ftrack-connect](https://github.com/ftrackhq/integrations/apps/connect) \>=
     2.0, \< 3.0
