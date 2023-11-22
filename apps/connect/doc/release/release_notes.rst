@@ -11,6 +11,11 @@ Release Notes
 .. release:: upcoming
 
     .. change:: changed
+        :tags: Environment Variables
+
+        Provide FTRACK_CONNECT_DISABLE_STARTUP_WIDGET environment variable to drive the startup widget visibility.
+
+    .. change:: changed
 
         Convert Object to QObject to ensure proper livecycle handling in pyside.
 
