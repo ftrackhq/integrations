@@ -1,0 +1,15 @@
+extension_type: dcc-config
+extension_name: framework-photoshop
+panels:
+  - name: publish
+    label: "PUBLISH DOCUMENT"
+    dialog_name: framework_standard_publisher_dialog
+    image: publish
+  - name: open
+    label: "OPEN DOCUMENT"
+    dialog_name: framework_standard_opener_dialog
+    image: open
+framework_extension_paths:
+  - "extensions/common"
+  - "extensions/photoshop"
+  - "${FTRACK_EXTENSION_PATH}"

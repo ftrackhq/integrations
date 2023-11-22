@@ -1,3 +1,7 @@
+# :coding: utf-8
+# :copyright: Copyright (c) 2014-2023 ftrack
+
+
 def get_tool_config_by_name(tool_configs, name):
     '''
     Return a tool-config with the given *name* from the *tool_configs*

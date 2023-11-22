@@ -57,7 +57,6 @@ def build_package(pkg_path, args):
     ROOT_PATH = os.path.realpath(os.getcwd())
     CONNECT_PLUGIN_PATH = os.path.join(ROOT_PATH, 'connect-plugin')
     BUILD_PATH = os.path.join(ROOT_PATH, 'dist')
-    RESOURCE_PATH = os.path.join(ROOT_PATH, 'resource')
     EXTENSION_PATH = os.path.join(ROOT_PATH, 'extensions')
     CEP_PATH = os.path.join(ROOT_PATH, 'resource', 'cep')
     USES_FRAMEWORK = False
@@ -304,9 +303,6 @@ def build_package(pkg_path, args):
                         (target_folder, extension_source_path)
                     )
 
-            bootstrap_extension_filename = (
-                'ftrack_framework_{}_bootstrap'.format(DCC_NAME)
-            )
             for target_folder, dependency_path in framework_extensions:
                 requirements_path = os.path.join(
                     dependency_path, 'requirements.txt'
@@ -346,6 +342,21 @@ def build_package(pkg_path, args):
                 shutil.copytree(
                     dependency_path,
                     dest_path,
+                )
+
+            # Copy DCC config
+            dcc_config_path = os.path.join(
+                EXTENSION_PATH, '{}.yaml'.format(DCC_NAME)
+            )
+            if os.path.isfile(dcc_config_path):
+                logging.info('Copying DCC config')
+                shutil.copy(
+                    dcc_config_path,
+                    os.path.join(STAGING_PATH, '{}.yaml'.format(DCC_NAME)),
+                )
+            else:
+                raise Exception(
+                    'Missing DCC config file: {}'.format(dcc_config_path)
                 )
 
         logging.info(

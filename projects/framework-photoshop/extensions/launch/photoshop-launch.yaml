@@ -1,5 +1,5 @@
-type: launcher
-name: framework-photoshop
+extension_type: launcher
+extension_name: framework-photoshop
 priority: 100
 context:
 - Task
@@ -26,4 +26,4 @@ search_path:
     expression:
     - Adobe Photoshop*
     - Adobe Photoshop .*\.app
-standalone_module: ftrack_framework_photoshop_bootstrap
+standalone_module: ftrack_framework_photoshop
