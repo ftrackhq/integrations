@@ -69,11 +69,6 @@ def on_launch_pipeline_photoshop(session, event):
         # check for its existence.
         pass
 
-    print(
-        '@@@ event pipeline_photoshop_base_data env: {}'.format(
-            pipeline_photoshop_base_data['integration']['env']
-        )
-    )
     if not pipeline_photoshop_base_data['integration'].get('env'):
         pipeline_photoshop_base_data['integration']['env'] = {}
 

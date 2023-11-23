@@ -181,6 +181,7 @@ class ApplicationStore(object):
         integrations=None,
         standalone_module=None,
         environment_variables=None,
+        connect_plugin_path=None,
     ):
         '''
         Return list of applications found in filesystem matching *expression*.
@@ -329,19 +330,46 @@ class ApplicationStore(object):
                         if environment_variables:
                             # Parse environment variables
                             # TODO: support platform specific env vars
+
+                            def expand_variable(name, value):
+                                '''Convert path  - support relative paths and
+                                home directories'''
+                                if not len(value or ''):
+                                    return ''
+                                value = str(value)
+                                if name.find('PATH') > -1:
+                                    if value[0] != os.sep and not (
+                                        sys.platform == 'win32'
+                                        and len(value) >= 2
+                                        and value[1] == ':'
+                                    ):
+                                        # A relative path, append plugin path
+                                        value = os.path.join(
+                                            connect_plugin_path, value
+                                        )
+                                    elif value[0] == '~':
+                                        # A home directory path
+                                        value = os.path.expanduser(value)
+                                return value
+
                             application['environment_variables'] = {}
-                            for key, value in list(
+                            for name, value in list(
                                 environment_variables.items()
                             ):
                                 if isinstance(value, list):
                                     # Merge on path sep
                                     application['environment_variables'][
-                                        key
-                                    ] = os.pathsep.join(value)
+                                        name
+                                    ] = os.pathsep.join(
+                                        [
+                                            expand_variable(name, v)
+                                            for v in value
+                                        ]
+                                    )
                                 else:
                                     application['environment_variables'][
-                                        key
-                                    ] = str(value)
+                                        name
+                                    ] = str(expand_variable(name, value))
 
                         applications.append(application)
 

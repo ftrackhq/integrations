@@ -261,16 +261,17 @@ def build_package(pkg_path, args):
                         'Resource "{}" does not exist!'.format(resource_path)
                     )
 
-        # Collect dependencies
+        # Collect dependencies and extensions
         dependencies_path = os.path.join(STAGING_PATH, 'dependencies')
         extensions_destination_path = os.path.join(STAGING_PATH, 'extensions')
 
         os.makedirs(dependencies_path)
         os.makedirs(extensions_destination_path)
 
-        extras = 'ftrack-libs'
+        extras = 'ftrack-libs' if not args.libs_from_source else None
         if USES_FRAMEWORK:
-            extras += ',framework-libs'
+            if extras:
+                extras += ',framework-libs'
 
             logging.info(
                 'Collecting Framework extensions and libs, building dependencies...'
@@ -316,20 +317,28 @@ def build_package(pkg_path, args):
                     )
                     os.chdir(dependency_path)
 
-                    subprocess.check_call(
+                    commands = [
+                        sys.executable,
+                        '-m',
+                        'pip',
+                        'install',
+                        '-r',
+                        requirements_path,
+                    ]
+                    if extras:
+                        commands.extend(
+                            [
+                                '-e',
+                                '.[{}]'.format(extras),
+                            ]
+                        )
+                    commands.extend(
                         [
-                            sys.executable,
-                            '-m',
-                            'pip',
-                            'install',
-                            '-r',
-                            requirements_path,
-                            '-e',
-                            '.[{}]'.format(extras),
                             '--target',
                             dependencies_path,
                         ]
                     )
+                    subprocess.check_call()
 
                 # Copy the extension
                 logging.info('Copying {}'.format(dependency_path))
@@ -365,6 +374,44 @@ def build_package(pkg_path, args):
                     'Missing DCC config file: {}'.format(dcc_config_path)
                 )
 
+        if args.libs_from_source:
+            # Build library dependencies from source
+            libs_path = os.path.join(MONOREPO_PATH, 'libs')
+            for filename in os.listdir(libs_path):
+                lib_path = os.path.join(libs_path, filename)
+                if not os.path.isfile(
+                    os.path.join(lib_path, 'pyproject.toml')
+                ):
+                    continue
+                # Cleanup
+                dist_path = os.path.join(lib_path, 'dist')
+                if os.path.exists(dist_path):
+                    logging.warning(
+                        'Cleaning lib dist folder: {}'.format(dist_path)
+                    )
+                    shutil.rmtree(dist_path)
+                # Build
+                logging.info('Building wheel for {}'.format(filename))
+                subprocess.check_call(['poetry', 'build'], cwd=lib_path)
+
+                # Locate result
+                for wheel_name in os.listdir(dist_path):
+                    if not wheel_name.endswith('.whl'):
+                        continue
+                    # Install it
+                    logging.info('Installing library: {}'.format(wheel_name))
+                    subprocess.check_call(
+                        [
+                            sys.executable,
+                            '-m',
+                            'pip',
+                            'install',
+                            os.path.join(dist_path, wheel_name),
+                            '--target',
+                            dependencies_path,
+                        ]
+                    )
+
         logging.info(
             'Installing package with dependencies from: "{}"'.format(
                 os.path.basename(wheel_path)
@@ -375,7 +422,7 @@ def build_package(pkg_path, args):
             '-m',
             'pip',
             'install',
-            '{}[{}]'.format(wheel_path, extras),
+            '{}[{}]'.format(wheel_path, extras) if extras else wheel_path,
             '--target',
             dependencies_path,
         ]
@@ -391,6 +438,7 @@ def build_package(pkg_path, args):
             )
 
         subprocess.check_call(commands)
+
         if args.include_assets:
             for asset_path in args.include_assets.split(','):
                 asset_destination_path = os.path.basename(asset_path)
@@ -729,6 +777,13 @@ if __name__ == '__main__':
     parser.add_argument(
         '--include_resources',
         help='(Connect plugin) Comma separated list of resources to include.',
+    )
+
+    parser.add_argument(
+        '--libs_from_source',
+        help='(Connect plugin) Instead of pulling from PyPi, uses dependencies '
+        'directly from sources.',
+        action='store_true',
     )
 
     parser.add_argument(

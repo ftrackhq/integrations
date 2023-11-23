@@ -10,6 +10,12 @@ Release Notes
 
 .. release:: upcoming
 
+    .. change:: changed
+        :tags: App launcher environment Variables
+
+        Support for environment variables in app launcher configuration, provided to hook with
+        launch event.
+
     .. change:: fixed
 
         Moved resource hooks to source, to have them included in Poetry build.
