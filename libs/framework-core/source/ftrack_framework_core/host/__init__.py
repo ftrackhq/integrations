@@ -12,7 +12,7 @@ import ftrack_constants.framework as constants
 
 from ftrack_framework_core.log.log_item import LogItem
 from ftrack_framework_core.log import LogDB
-from ftrack_utils.framework.tool_config.read import get_plugins
+from ftrack_utils.framework.config.tool import get_plugins
 
 from ftrack_utils.decorators import with_new_session
 
