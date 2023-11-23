@@ -19,6 +19,13 @@ Release Notes
 
         Change build system to Poetry, using the monorepo tooling to build QT resources.
 
+    .. change:: changed
+        :tags: Launch
+
+        Moved ftrack-application-launcher plugin logic to Connect, with launcher
+        configs now being present as integration extensions.
+        YAML launcher configuration is now supported and is to be considered default, keeping
+        backward compatibility with the legacy JSON configurations.
 
 .. release:: 2.1.1
     :date: 2023-04-27

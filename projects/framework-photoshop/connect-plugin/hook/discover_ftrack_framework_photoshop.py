@@ -9,26 +9,27 @@ import functools
 import uuid
 import subprocess
 
+from ftrack_connect.util import get_connect_plugin_version
+
 NAME = 'framework-photoshop'
+''' The name of the integration, should match name in bootstrap and launcher'''
 
-logger = logging.getLogger('ftrack_{}.discover'.format(NAME.replace('-', '_')))
+logger = logging.getLogger(__name__)
 
-plugin_base_dir = os.path.normpath(
-    os.path.join(os.path.abspath(os.path.dirname(__file__)), '..')
-)
-python_dependencies = os.path.join(plugin_base_dir, 'dependencies')
-sys.path.append(python_dependencies)
+cwd = os.path.dirname(__file__)
+connect_plugin_path = os.path.abspath(os.path.join(cwd, '..'))
+
+# Read version number from __version__.py
+__version__ = get_connect_plugin_version(connect_plugin_path)
+
+python_dependencies = os.path.join(connect_plugin_path, 'dependencies')
 
 
 def on_discover_pipeline_photoshop(session, event):
-    from ftrack_framework_photoshop import (
-        __version__ as integration_version,
-    )
-
     data = {
         'integration': {
-            'name': 'ftrack-{}'.format(NAME),
-            'version': integration_version,
+            'name': NAME,
+            'version': __version__,
         }
     }
 
@@ -115,7 +116,7 @@ def update_uxp_plugin():
     )
 
     path_plugin_base = os.path.join(
-        plugin_base_dir, 'resource', 'plugins', 'photoshop', 'uxp'
+        connect_plugin_path, 'resource', 'plugins', 'photoshop', 'uxp'
     )
 
     if platform.system() == 'Darwin':
@@ -222,4 +223,10 @@ def register(session):
         ' and data.application.version >= 2014',
         handle_launch_event,
         priority=40,
+    )
+
+    logger.info(
+        'Registered {} integration v{} discovery and launch.'.format(
+            NAME, __version__
+        )
     )

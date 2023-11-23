@@ -1,6 +1,6 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2023 ftrack
-
+import plistlib
 import sys
 import pprint
 import re
@@ -20,21 +20,7 @@ import os
 
 import ftrack_api
 from ftrack_action_handler.action import BaseAction
-from ftrack_application_launcher.configure_logging import configure_logging
-from ftrack_application_launcher.usage import send_event
-
-'''Return version string for *package_name* at *package_path*'''
-try:
-    from ftrack_utils.version import get_version
-
-    __version__ = get_version(
-        os.path.basename(os.path.dirname(__file__)),
-        os.path.dirname(os.path.dirname(os.path.dirname(__file__))),
-    )
-except Exception:
-    __version__ = '0.0.0'
-
-configure_logging(__name__)
+from ftrack_connect.applaunch.usage import send_event
 
 
 #: Default expression to match version component of executable path.
@@ -115,6 +101,7 @@ class ApplicationStore(object):
     def __init__(self, session):
         '''Instantiate store and discover applications.'''
         super(ApplicationStore, self).__init__()
+
         self.logger = logging.getLogger(
             __name__ + '.' + self.__class__.__name__
         )
@@ -294,6 +281,22 @@ class ApplicationStore(object):
                                     'Could not parse version'
                                     ' {0} from {1}'.format(version, path)
                                 )
+                        elif sys.platform == 'darwin' and path.endswith(
+                            '.app'
+                        ):
+                            # Extract version from Info.plist within .app
+                            # bundle.
+                            plist_path = os.path.join(
+                                path, 'Contents', 'Info.plist'
+                            )
+                            if os.path.isfile(plist_path):
+                                with open(plist_path, 'rb') as f:
+                                    infoPlist = plistlib.load(f)
+                                    version = infoPlist.get(
+                                        'CFBundleShortVersionString'
+                                    )
+                                    if version:
+                                        loose_version = LooseVersion(version)
 
                         variant_str = variant.format(
                             version=str(loose_version)
@@ -329,7 +332,7 @@ class ApplicationStore(object):
                 del folders[:]
 
         results = sorted(applications, key=itemgetter('version'), reverse=True)
-        self.logger.debug('Discovered applications {}'.format(results))
+        self.logger.debug('Discovered applications: {}'.format(results))
         return results
 
 
