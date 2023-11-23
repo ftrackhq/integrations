@@ -5,6 +5,12 @@
 Releases
 ########
 
+.. release:: upcoming
+
+    .. change:: fixed
+
+        Aligned setuptools build with Connect Poetry build.
+
 .. release:: 2.1.1
     :date: 2023-04-27
 
