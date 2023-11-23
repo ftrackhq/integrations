@@ -11,7 +11,10 @@ from Qt import QtWidgets, QtCore
 import ftrack_api
 
 from ftrack_constants import framework as constants
-from ftrack_utils.framework.dcc_config.read import read_dcc_config
+from ftrack_utils.framework.config.dcc import read_dcc_config
+from ftrack_utils.extensions.environment import (
+    get_extensions_path_from_environment,
+)
 from ftrack_utils.framework.remote import get_integration_session_id
 from ftrack_framework_core.host import Host
 from ftrack_framework_core.event import EventManager
@@ -50,7 +53,7 @@ if not app:
     app = QtWidgets.QApplication(sys.argv)
 
 
-def bootstrap_integration(dcc_config):
+def bootstrap_integration(framework_extensions_path, dcc_config):
     '''Initialise Photoshop Framework Python standalone part,
     with panels defined in *panel_launchers*'''
 
@@ -67,18 +70,23 @@ def bootstrap_integration(dcc_config):
     )
 
     registry_instance = registry.Registry()
-    registry_instance.scan_extensions(
-        paths=dcc_config['framework_extension_paths']
-    )
+    registry_instance.scan_extensions(paths=framework_extensions_path)
 
     Host(event_manager, registry=registry_instance)
 
     client = Client(event_manager, registry=registry_instance)
 
+    # Init tools
+    # TODO: Implement tool init
+    print('Got dcc config: ', dcc_config)
+
 
 # Find and read DCC config
-cwd = os.path.dirname(__file__)
-bootstrap_integration(read_dcc_config(cwd))
+framework_extensions_path = get_extensions_path_from_environment()
+bootstrap_integration(
+    framework_extensions_path,
+    read_dcc_config('photoshop', framework_extensions_path),
+)
 # TODO: Implement RCP connection and process monitor
 time.sleep(5)
 logger.error('Test launch shutting down!')

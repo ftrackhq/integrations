@@ -7,6 +7,7 @@ import inspect
 import glob
 import os
 import yaml
+import re
 
 from ftrack_utils.directories.scan_dir import fast_scandir
 
@@ -16,13 +17,26 @@ logger = logging.getLogger(__name__)
 def register_yaml_files(file_list):
     '''
     Generate data registry files for all extension compatible .yaml files in
-    the given *file_list*
+    the given *file_list*. Support environment variable substitution in the yaml file.
     '''
+
+    path_matcher = re.compile(r'\$\{([^}^{]+)}')
+
+    def env_constructor(loader, node):
+        '''Extract the matched value, expand env variable, and replace the match.'''
+        value = node.value
+        match = path_matcher.match(value)
+        env_var = match.group()[2:-1]
+        return os.environ.get(env_var, '') + value[match.end() :]
+
+    yaml.add_implicit_resolver('!env', path_matcher)
+    yaml.add_constructor('!env', env_constructor)
+
     registered_files = []
     for _file in file_list:
         with open(_file, 'r') as yaml_file:
             try:
-                yaml_content = yaml.safe_load(yaml_file)
+                yaml_content = yaml.load(yaml_file, Loader=yaml.FullLoader)
             except yaml.YAMLError as exc:
                 # Log an error if the yaml file is invalid.
                 logger.error(

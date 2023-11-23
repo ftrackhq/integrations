@@ -118,6 +118,7 @@ class DiscoverApplications(object):
                     launchArguments=launch_arguments,
                     integrations=config.get('integrations'),
                     standalone_module=config.get('standalone_module'),
+                    environment_variables=config.get('environment_variables'),
                 )
                 store.applications.extend(applications)
 

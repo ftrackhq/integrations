@@ -1,5 +1,5 @@
-extension_type: launcher
-extension_name: framework-photoshop
+type: launcher
+name: framework-photoshop
 priority: 100
 context:
 - Task
@@ -27,3 +27,7 @@ search_path:
     - Adobe Photoshop*
     - Adobe Photoshop .*\.app
 standalone_module: ftrack_framework_photoshop
+environment_variables:
+  FTRACK_EXTENSIONS_PATH:
+    - extensions/common
+    - extensions/photoshop

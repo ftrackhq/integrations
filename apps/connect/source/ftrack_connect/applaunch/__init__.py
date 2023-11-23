@@ -180,6 +180,7 @@ class ApplicationStore(object):
         description=None,
         integrations=None,
         standalone_module=None,
+        environment_variables=None,
     ):
         '''
         Return list of applications found in filesystem matching *expression*.
@@ -325,6 +326,10 @@ class ApplicationStore(object):
                             application[
                                 'standalone_module'
                             ] = standalone_module
+                        if environment_variables:
+                            application[
+                                'environment_variables'
+                            ] = environment_variables
 
                         applications.append(application)
 
@@ -484,7 +489,7 @@ class ApplicationLauncher(object):
                 integration={
                     'name': None,
                     'version': None,
-                    'env': {},
+                    'env': application.get('environment_variables', {}),
                     'launch_arguments': [],
                 },
                 platform=self.current_os,

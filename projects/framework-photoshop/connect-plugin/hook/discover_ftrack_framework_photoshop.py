@@ -39,9 +39,18 @@ def on_discover_pipeline_photoshop(session, event):
 def on_launch_pipeline_photoshop(session, event):
     '''Handle application launch and add environment to *event*.'''
 
-    pipeline_photoshop_base_data = on_discover_pipeline_photoshop(
-        session, event
+    pipeline_photoshop_base_data = event['data']
+    print(
+        '@@@ event pipeline_photoshop_base_data: {}'.format(
+            pipeline_photoshop_base_data
+        )
     )
+
+    discover_data = on_discover_pipeline_photoshop(session, event)
+    for key in discover_data['integration']:
+        pipeline_photoshop_base_data['integration'][key] = discover_data[
+            'integration'
+        ][key]
 
     photoshop_version = event['data']['application']['version'].version[0]
 
@@ -63,11 +72,18 @@ def on_launch_pipeline_photoshop(session, event):
         # check for its existence.
         pass
 
-    pipeline_photoshop_base_data['integration']['env'] = {
-        'PYTHONPATH.prepend': os.path.pathsep.join([python_dependencies]),
-        'FTRACK_INTEGRATION_SESSION_ID': str(uuid.uuid4()),
-        'FTRACK_PHOTOSHOP_VERSION': str(photoshop_version),
-    }
+    if not pipeline_photoshop_base_data['integration'].get('env'):
+        pipeline_photoshop_base_data['integration']['env'] = {}
+
+    pipeline_photoshop_base_data['integration']['env'][
+        'PYTHONPATH.prepend'
+    ] = os.path.pathsep.join([python_dependencies])
+    pipeline_photoshop_base_data['integration']['env'][
+        'FTRACK_INTEGRATION_SESSION_ID'
+    ] = uuid.uuid4().hex
+    pipeline_photoshop_base_data['integration']['env'][
+        'FTRACK_PHOTOSHOP_VERSION'
+    ] = str(photoshop_version)
 
     if not use_uxp and sys.platform == 'darwin':
         # Check if running on apple silicon (arm64)

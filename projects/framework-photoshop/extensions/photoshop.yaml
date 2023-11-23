@@ -1,5 +1,5 @@
-extension_type: dcc-config
-extension_name: framework-photoshop
+type: dcc-config
+name: framework-photoshop
 tools:
   - name: publish
     label: "PUBLISH DOCUMENT"
@@ -9,7 +9,3 @@ tools:
     label: "OPEN DOCUMENT"
     dialog_name: framework_standard_opener_dialog
     image: open
-framework_extension_paths:
-  - "extensions/common"
-  - "extensions/photoshop"
-  - "${FTRACK_EXTENSIONS_PATH}"

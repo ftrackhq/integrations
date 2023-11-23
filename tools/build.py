@@ -10,6 +10,7 @@ official CI/CD build implementation in place.
 
 Release notes:
 
+0.4.9, Henrik Norin, 23.11.23; Include DCC config in build.
 0.4.8, Henrik Norin, 23.11.01; Pick up Connect plugin version and hook from connect-plugin folder.
 0.4.7, Henrik Norin, 23.10.30; Read package version from pyproject.toml, parse and replace version in Connect hooks.
 0.4.6, Henrik Norin, 23.10.30; Allow pre releases on Connect build when enabling test PyPi.
@@ -36,7 +37,7 @@ import subprocess
 from distutils.spawn import find_executable
 import fileinput
 
-__version__ = '0.4.7'
+__version__ = '0.4.9'
 
 ZXPSIGN_CMD = 'ZXPSignCmd'
 
@@ -352,7 +353,12 @@ def build_package(pkg_path, args):
                 logging.info('Copying DCC config')
                 shutil.copy(
                     dcc_config_path,
-                    os.path.join(STAGING_PATH, '{}.yaml'.format(DCC_NAME)),
+                    os.path.join(
+                        STAGING_PATH,
+                        'extensions',
+                        DCC_NAME,
+                        '{}.yaml'.format(DCC_NAME),
+                    ),
                 )
             else:
                 raise Exception(
