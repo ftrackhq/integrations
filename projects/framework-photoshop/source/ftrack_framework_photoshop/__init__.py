@@ -83,6 +83,8 @@ def bootstrap_integration(framework_extensions_path, dcc_config):
 
 # Find and read DCC config
 framework_extensions_path = get_extensions_path_from_environment()
+print('Got framework extensions path: ', framework_extensions_path)
+
 bootstrap_integration(
     framework_extensions_path,
     read_dcc_config('photoshop', framework_extensions_path),

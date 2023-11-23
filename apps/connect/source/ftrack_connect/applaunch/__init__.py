@@ -327,9 +327,21 @@ class ApplicationStore(object):
                                 'standalone_module'
                             ] = standalone_module
                         if environment_variables:
-                            application[
-                                'environment_variables'
-                            ] = environment_variables
+                            # Parse environment variables
+                            # TODO: support platform specific env vars
+                            application['environment_variables'] = {}
+                            for key, value in list(
+                                environment_variables.items()
+                            ):
+                                if isinstance(value, list):
+                                    # Merge on path sep
+                                    application['environment_variables'][
+                                        key
+                                    ] = os.pathsep.join(value)
+                                else:
+                                    application['environment_variables'][
+                                        key
+                                    ] = str(value)
 
                         applications.append(application)
 
@@ -673,13 +685,22 @@ class ApplicationLauncher(object):
                     )
                 )
 
+                command = []
                 standalone_python_interpreter_path = sys.argv[0]
+                if not standalone_python_interpreter_path.endswith('.py'):
+                    command.append(standalone_python_interpreter_path)
+                else:
+                    # Support invocation through Python interpreter
+                    command.extend(
+                        [sys.executable, standalone_python_interpreter_path]
+                    )
 
-                command = [
-                    standalone_python_interpreter_path,
-                    "--run-framework-standalone",
-                    application['standalone_module'],
-                ]
+                command.extend(
+                    [
+                        "--run-framework-standalone",
+                        application['standalone_module'],
+                    ]
+                )
 
                 # Append PID to environment for framework to use.
                 environment['FTRACK_APPLICATION_PID'] = str(process.pid)

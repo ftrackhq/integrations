@@ -39,12 +39,9 @@ def on_discover_pipeline_photoshop(session, event):
 def on_launch_pipeline_photoshop(session, event):
     '''Handle application launch and add environment to *event*.'''
 
-    pipeline_photoshop_base_data = event['data']
-    print(
-        '@@@ event pipeline_photoshop_base_data: {}'.format(
-            pipeline_photoshop_base_data
-        )
-    )
+    pipeline_photoshop_base_data = {
+        'integration': event['data']['integration']
+    }
 
     discover_data = on_discover_pipeline_photoshop(session, event)
     for key in discover_data['integration']:
@@ -72,6 +69,11 @@ def on_launch_pipeline_photoshop(session, event):
         # check for its existence.
         pass
 
+    print(
+        '@@@ event pipeline_photoshop_base_data env: {}'.format(
+            pipeline_photoshop_base_data['integration']['env']
+        )
+    )
     if not pipeline_photoshop_base_data['integration'].get('env'):
         pipeline_photoshop_base_data['integration']['env'] = {}
 
