@@ -1,5 +1,5 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2022 ftrack
+# :copyright: Copyright (c) 2014-2023 ftrack
 
 '''ftrack connect action launcher widget documentation build configuration file.'''
 
@@ -24,7 +24,7 @@ extensions = [
     'sphinx.ext.intersphinx',
     'sphinx.ext.todo',
     'sphinx.ext.viewcode',
-    'lowdown'
+    'lowdown',
 ]
 
 
@@ -54,9 +54,7 @@ release = VERSION
 exclude_patterns = ['_template']
 
 # A list of prefixes to ignore for module listings.
-modindex_common_prefix = [
-    'ftrack_connect_action_launcher_widget.'
-]
+modindex_common_prefix = ['ftrack_connect_action_launcher_widget.']
 
 # -- HTML output --------------------------------------------------------------
 
@@ -65,6 +63,7 @@ on_rtd = os.environ.get('READTHEDOCS', None) == 'True'
 
 if not on_rtd:  # only import and set the theme if building docs locally
     import sphinx_rtd_theme
+
     html_theme = 'sphinx_rtd_theme'
     html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
 
@@ -98,8 +97,8 @@ intersphinx_mapping = {
     ),
     'ftrack-application-launcher': (
         'https://ftrack-application-launcher.readthedocs.io/en/latest/',
-        None
-    )
+        None,
+    ),
 }
 
 
@@ -109,6 +108,7 @@ todo_include_todos = True
 
 
 # -- Setup --------------------------------------------------------------------
+
 
 def setup(app):
     app.connect('autodoc-skip-member', autodoc_skip)

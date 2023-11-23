@@ -1,6 +1,6 @@
 # escape=`
 #########################################################################
-# :copyright: Copyright (c) 2020 ftrack
+# :copyright: Copyright (c) 2014-2023 ftrack
 #
 
 FROM winamd64/python:3.7

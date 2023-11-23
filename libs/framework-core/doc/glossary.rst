@@ -53,11 +53,11 @@ Glossary
          * `ftrack_framework_maya <https://ftrackhq.github.io/integrations/projects/framework-maya/>`_
          * Source code: `<https://github.com/ftrackhq/integrations/projects/framework-maya>`_
 
-    Definition
+    Tool config
         A :term:`JSON` configuration file defining :term:`Framework` :term:`engine` behaviour -
         which plugins and widgets to use. Is validated against a :term:`schema`.
-        Example of a definition is the *Maya Geometry* publisher. Definitions lives within
-        the resource/definitions folder within each framework plugin.
+        Example of a tool config is the *Maya Geometry* publisher. Tool_configs lives within
+        the resource/tool_configs folder within each framework plugin.
 
     Engine
         A core Python module driving a specific behaviour within the :term:`Framework`,
@@ -78,13 +78,13 @@ Glossary
         `<https://github.com/ftrackhq/integrations/libs/framework-core>`_
 
     Host
-        The central part of the core Framework that discovers and executes definitions
+        The central part of the core Framework that discovers and executes tool_configs
         through engines, handle the context and much more. The host is designed to
         be able to operate in remote mode through the ftrack event system.
 
     Host type
         The host type is the actual DCC type and is used to identify a DCC module
-        and bind a definition to the DCC application. An example host types value
+        and bind a tool config to the DCC application. An example host types value
         is **maya**.
 
     JSON
@@ -102,7 +102,7 @@ Glossary
         A module designed to be discovered by the :term:`ftrack Python API`. Plugins
         designed to be discovered by Connect is called Connect plugins and are main
         components of the :term:`Framework`. Framework plugins resides within the
-        definition module and are referenced from the with the :term:`definition` JSON
+        tool config module and are referenced from the with the :term:`tool config` JSON
         configurations.
 
     Plugin manager
@@ -131,6 +131,6 @@ Glossary
 
     Schema
         A :term:`JSON` configuration defining the strict structure and syntax of
-        a :term:`definition` for use with an :term:`engine`.
+        a :term:`tool config` for use with an :term:`engine`.
 
 

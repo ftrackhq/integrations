@@ -1,14 +1,11 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2018 ftrack
+# :copyright: Copyright (c) 2014-2023 ftrack
 
 import opentimelineio as otio
 import logging
 import hiero
 
-from hiero.exporters.FnEDLExportTask import (
-    EDLExportTask,
-    EDLExportPreset
-)
+from hiero.exporters.FnEDLExportTask import EDLExportTask, EDLExportPreset
 from hiero.exporters.FnEDLExportUI import EDLExportUI
 from hiero.exporters.FnEDLExportTask import EDLExportTask, EDLExportTrackTask
 from hiero.core.FnExporterBase import TaskCallbacks
@@ -20,7 +17,7 @@ from ftrack_nuke_studio.config import report_exception
 from ftrack_nuke_studio.processors.ftrack_base.ftrack_base_processor import (
     FtrackProcessorPreset,
     FtrackProcessor,
-    FtrackProcessorUI
+    FtrackProcessorUI,
 )
 
 
@@ -51,7 +48,7 @@ class OTIOExportTrackTask(EDLExportTrackTask):
 
         available_range = otio.opentime.TimeRange(
             otio.opentime.from_frames(sourceIn, self._fps),
-            otio.opentime.from_frames(sourceOut - sourceIn , self._fps)
+            otio.opentime.from_frames(sourceOut - sourceIn, self._fps),
         )
         clip.source_range = available_range
 
@@ -67,7 +64,9 @@ class OTIOExportTrackTask(EDLExportTrackTask):
 
             media_range = otio.opentime.TimeRange(
                 otio.opentime.from_frames(media_file.startFrame(), self._fps),
-                otio.opentime.from_frames(media_file.endFrame() - media_file.startFrame(), self._fps)
+                otio.opentime.from_frames(
+                    media_file.endFrame() - media_file.startFrame(), self._fps
+                ),
             )
             clip.media_reference.available_range = media_range
 
@@ -121,7 +120,11 @@ class FtrackOTIOExporter(EDLExportTask, FtrackProcessor):
                 # We shouldn't get passed any empty tracks but if we do, don't create a task for them
                 if trackItems:
                     task = OTIOExportTrackTask(self, track, trackItems)
-                    self.logger.info('adding {} to {}'.format(task._otio_track, self.timeline))
+                    self.logger.info(
+                        'adding {} to {}'.format(
+                            task._otio_track, self.timeline
+                        )
+                    )
                     self.timeline.tracks.append(task._otio_track)
                     self._trackTasks.append(task)
 
@@ -199,12 +202,16 @@ class FtrackOTIOExporterPreset(EDLExportPreset, FtrackProcessorPreset):
         resolver.addResolver(
             "{sequence}",
             "Name of the sequence being processed",
-            lambda keyword, task: task.sequenceName()
+            lambda keyword, task: task.sequenceName(),
         )
 
     def addCustomResolveEntries(self, resolver):
         EDLExportPreset.addCustomResolveEntries(self, resolver)
-        resolver.addResolver("{ext}", "Extension of the file to be output", lambda keyword, task: "otio")
+        resolver.addResolver(
+            "{ext}",
+            "Extension of the file to be output",
+            lambda keyword, task: "otio",
+        )
 
 
 class FtrackOTIOExporterUI(EDLExportUI, FtrackProcessorUI):
@@ -228,5 +235,9 @@ class FtrackOTIOExporterUI(EDLExportUI, FtrackProcessorUI):
         self.addFtrackTaskUI(form_layout, exportTemplate)
 
 
-hiero.core.taskRegistry.registerTask(FtrackOTIOExporterPreset, FtrackOTIOExporter)
-hiero.ui.taskUIRegistry.registerTaskUI(FtrackOTIOExporterPreset, FtrackOTIOExporterUI)
+hiero.core.taskRegistry.registerTask(
+    FtrackOTIOExporterPreset, FtrackOTIOExporter
+)
+hiero.ui.taskUIRegistry.registerTaskUI(
+    FtrackOTIOExporterPreset, FtrackOTIOExporterUI
+)

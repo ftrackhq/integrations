@@ -7,6 +7,13 @@
 Release Notes
 *************
 
+.. release:: 1.3.2
+    :date: 2023-08-1
+
+    .. change:: changed
+
+        First release from monorepo CI
+
 .. release:: 1.3.1
     :date: 2023-06-15
 
@@ -24,10 +31,10 @@ Release Notes
         Aligned load method on changing version, fixing bug where and tracked and then loaded asset could not have its version changed and stay loaded.
 
     .. change:: changed
-        :tags: definitions
+        :tags: tool_configs
 
-        Remove ftrack-connect-pipeline-definitions repository.
-        Add plugins and definitions on each integration.
+        Remove ftrack-connect-pipeline-tool_configs repository.
+        Add plugins and tool_configs on each integration.
 
     .. change:: changed
         :tags: load_asset
@@ -64,9 +71,9 @@ Release Notes
     :date: 2022-11-08
 
     .. change:: new
-        :tags: definition
+        :tags: tool_config
 
-        Definition_object module implemented on client.
+        Tool_config_object module implemented on client.
 
     .. change:: fix
         :tags: dependencies

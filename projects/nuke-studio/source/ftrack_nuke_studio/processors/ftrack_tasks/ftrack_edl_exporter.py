@@ -1,12 +1,9 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2018 ftrack
+# :copyright: Copyright (c) 2014-2023 ftrack
 
 import hiero
 
-from hiero.exporters.FnEDLExportTask import (
-    EDLExportTask,
-    EDLExportPreset
-)
+from hiero.exporters.FnEDLExportTask import EDLExportTask, EDLExportPreset
 from hiero.exporters.FnEDLExportUI import EDLExportUI
 from hiero.core.FnExporterBase import TaskCallbacks
 from hiero.ui.FnTaskUIFormLayout import TaskUIFormLayout
@@ -16,7 +13,7 @@ from ftrack_nuke_studio.config import report_exception
 from ftrack_nuke_studio.processors.ftrack_base.ftrack_base_processor import (
     FtrackProcessorPreset,
     FtrackProcessor,
-    FtrackProcessorUI
+    FtrackProcessorUI,
 )
 
 
@@ -81,7 +78,7 @@ class FtrackEDLExporterPreset(EDLExportPreset, FtrackProcessorPreset):
         resolver.addResolver(
             "{sequence}",
             "Name of the sequence being processed",
-            lambda keyword, task: task.sequenceName()
+            lambda keyword, task: task.sequenceName(),
         )
 
 
@@ -106,5 +103,9 @@ class FtrackEDLExporterUI(EDLExportUI, FtrackProcessorUI):
         self.addFtrackTaskUI(form_layout, exportTemplate)
 
 
-hiero.core.taskRegistry.registerTask(FtrackEDLExporterPreset, FtrackEDLExporter)
-hiero.ui.taskUIRegistry.registerTaskUI(FtrackEDLExporterPreset, FtrackEDLExporterUI)
+hiero.core.taskRegistry.registerTask(
+    FtrackEDLExporterPreset, FtrackEDLExporter
+)
+hiero.ui.taskUIRegistry.registerTaskUI(
+    FtrackEDLExporterPreset, FtrackEDLExporterUI
+)

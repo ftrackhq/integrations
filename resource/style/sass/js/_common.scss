@@ -1,0 +1,19 @@
+body {
+  color: white;
+  background-color: #2d2d2d;
+  font-family: $font-family-base;
+}
+
+#error {
+  font-size: 11px;
+  border: 1px solid rgba(255, 134, 134, 25%);
+  border-radius: 4px;
+  background-color: rgba(255, 124, 134, 5%);
+  padding: 25px;
+}
+
+#footer {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 45%);
+}
+

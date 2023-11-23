@@ -1,5 +1,5 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2014 ftrack
+# :copyright: Copyright (c) 2014-2023 ftrack
 import os
 import re
 import logging
@@ -15,50 +15,32 @@ import appdirs
 import json
 import sys
 
+# Evaluate version and log package version
+try:
+    from ftrack_utils.version import get_version
+
+    __version__ = get_version(
+        os.path.basename(os.path.dirname(__file__)),
+        os.path.dirname(os.path.dirname(os.path.dirname(__file__))),
+    )
+except Exception:
+    __version__ = '0.0.0'
+
 from ftrack_connect.qt import QtWidgets, QtCore, QtGui
 import qtawesome as qta
 
 from ftrack_connect.ui.widget.overlay import BlockingOverlay
 
 
-class InstallerDoneBlockingOverlay(BlockingOverlay):
+class InstallerBlockingOverlay(BlockingOverlay):
     '''Custom blocking overlay for publisher.'''
 
     def __init__(self, parent, message=''):
-        super(InstallerDoneBlockingOverlay, self).__init__(
+        super(InstallerBlockingOverlay, self).__init__(
             parent,
             message=message,
             icon=qta.icon('mdi6.check', color='#FFDD86', scale_factor=1.2),
         )
-
-        self.button_layout = QtWidgets.QHBoxLayout()
-        self.button_layout.setContentsMargins(0, 0, 0, 0)
-        self.contentLayout.addSpacing(30)
-        self.contentLayout.addLayout(self.button_layout)
-        self.confirmButton = QtWidgets.QPushButton('Install more plugins')
-        self.restartButton = QtWidgets.QPushButton('Restart')
-        self.restartButton.setObjectName('primary')
-
-        self.button_layout.addWidget(self.confirmButton)
-        self.button_layout.addWidget(self.restartButton)
-        self.confirmButton.hide()
-        self.confirmButton.clicked.connect(self.hide)
-
-
-class InstallerFailedBlockingOverlay(BlockingOverlay):
-    '''Custom blocking overlay for publisher.'''
-
-    def __init__(self, parent, message=''):
-        super(InstallerFailedBlockingOverlay, self).__init__(
-            parent,
-            message=message,
-            icon=qta.icon('mdi6.close', color='#FF8686', scale_factor=1.2),
-        )
-
-        self.textEdit = QtWidgets.QTextEdit()
-        self.textEdit.setReadOnly(True)
-        self.textEdit.setFixedHeight(200)
-        self.contentLayout.addWidget(self.textEdit)
 
         self.button_layout = QtWidgets.QHBoxLayout()
         self.button_layout.setContentsMargins(0, 0, 0, 0)

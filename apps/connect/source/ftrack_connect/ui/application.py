@@ -1,5 +1,5 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2014 ftrack
+# :copyright: Copyright (c) 2014-2023 ftrack
 
 import os
 import platform
@@ -12,7 +12,7 @@ import weakref
 from operator import itemgetter
 import appdirs
 import time
-import urllib
+import urllib.request
 import zipfile
 import json
 import tempfile

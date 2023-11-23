@@ -18,7 +18,7 @@ Python Example
 
 This is an example on how to run the framework in a python console without
 Connect or any DCC running on the background, this way the framework is able to
-discover any definition where the host type is python.
+discover any tool config where the host type is python.
 
 **mypipeline/standalone-snippets/python_standalone_publish_snippet.py**
 
@@ -31,7 +31,7 @@ DCC Maya Example
 ----------------
 
 This is an example on how to run the framework inside the maya console.
-All the definitions with host_type maya and python will be discovered.
+All the tool_configs with host_type maya and python will be discovered.
 
 
 .. warning::
@@ -78,9 +78,9 @@ framework to be discovered in a DCC application without launching from connect.
      - | <your-local-path-to>/ftrack-connect-plugins/ftrack-framework-core-1.0.4/resource/plugins/python;
        | <your-local-path-to>/ftrack-connect-plugins/ftrack-framework-qt-1.0.3/resource/plugins/python;
        | <your-local-path-to>/ftrack-connect-plugins/ftrack-framework-maya-1.0.2/resource/plugins/python;
-       | <your-local-path-to>/ftrack-connect-plugins/ftrack-framework-maya-1.0.2/resource/definitions;
+       | <your-local-path-to>/ftrack-connect-plugins/ftrack-framework-maya-1.0.2/resource/tool_configs;
 
-   * - FTRACK_DEFINITION_PLUGIN_PATH
+   * - FTRACK_TOOL_CONFIG_PLUGIN_PATH
      - <your-local-path-to>/ftrack-connect-plugins/ftrack-framework-maya-1.0.2/resource/plugins
 
    * - MAYA_SCRIPT_PATH

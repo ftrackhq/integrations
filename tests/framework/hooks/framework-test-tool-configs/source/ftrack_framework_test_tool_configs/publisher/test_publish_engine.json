@@ -1,0 +1,149 @@
+{
+  "type": "publisher",
+  "name": "Test Publisher",
+  "asset_type": "script",
+  "host_type": "python",
+  "ui_type": "qt",
+  "task_type": "rendering",
+  "engine_name": "load_publish",
+  "contexts": [
+    {
+      "name": "main",
+      "stages": [
+        {
+          "name": "context",
+          "plugins":[
+            {
+              "name": "context selector",
+              "plugin": "generic_context_passthrough",
+              "widget": "publisher_context_selector"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "components": [
+    {
+      "name": "file",
+      "stages": [
+        {
+          "name": "collector",
+          "plugins":[
+            {
+              "name": "collect file",
+              "plugin": "file_collector",
+              "widget": "file_browser_collector",
+              "options": {
+                "folder_path": null,
+                "file_name": null
+              }
+            }
+          ]
+        },
+        {
+          "name": "validator",
+          "plugins":[
+            {
+              "name": "validate file exists",
+              "plugin": "file_exists_validator",
+              "widget": "validator_check"
+            }
+          ]
+        },
+        {
+          "name": "exporter",
+          "plugins":[
+            {
+              "name": "Export file",
+              "plugin": "rename_file_exporter",
+              "widget": "file_exporter_options",
+              "options": {
+                "export_destinations": "/Users/ftrack/Desktop/myPublishedFiile.png"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Test_component",
+      "stages": [
+        {
+          "name": "collector",
+          "plugins":[
+            {
+              "name": "Test Data",
+              "plugin": "test_data",
+              "options": {}
+            },
+            {
+              "name": "Test Data two",
+              "plugin": "test_data_2",
+              "options": {}
+            }
+          ]
+        },
+        {
+          "name": "validator",
+          "plugins":[
+            {
+              "name": "Test Data",
+              "plugin": "test_validator",
+              "options": {}
+            }
+          ]
+        },
+        {
+          "name": "exporter",
+          "plugins":[
+            {
+              "name": "Test Data",
+              "plugin": "test_data",
+              "options": {}
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "finalizers": [
+    {
+      "name": "main",
+      "stages": [
+        {
+          "name": "pre_finalizer",
+          "visible": false,
+          "plugins":[
+            {
+              "name": "Test Data",
+              "plugin": "test_data",
+              "options": {}
+            }
+          ]
+        },
+        {
+          "name": "finalizer",
+          "visible": false,
+          "plugins":[
+            {
+              "name": "Publish to ftrack server",
+              "plugin": "publish_to_ftrack"
+            }
+          ]
+        },
+        {
+          "name": "post_finalizer",
+          "visible": false,
+          "plugins":[
+            {
+              "name": "Test Data",
+              "plugin": "test_data",
+              "options": {}
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

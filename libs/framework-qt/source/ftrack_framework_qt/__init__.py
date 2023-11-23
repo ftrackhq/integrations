@@ -1,13 +1,19 @@
-from ._version import __version__
+# :coding: utf-8
+# :copyright: Copyright (c) 2014-2023 ftrack
 
-from ftrack_framework_core.configure_logging import configure_logging
+import os
+import logging
 
-# DO NOT REMOVE UNUSED IMPORT - important to keep this in order to have resources
-# initialised properly for applying style and providing images & fonts.
-from ftrack_framework_qt.ui import (
-    resource,
-)
-from ftrack_framework_qt.ui import theme
+# Evaluate version and log package version
+try:
+    from ftrack_utils.version import get_version
 
+    __version__ = get_version(
+        os.path.basename(os.path.dirname(__file__)),
+        os.path.dirname(os.path.dirname(os.path.dirname(__file__))),
+    )
+except Exception:
+    __version__ = "0.0.0"
 
-configure_logging(__name__, extra_modules=['ftrack_framework_core'])
+logger = logging.getLogger(__name__)
+logger.debug("v{}".format(__version__))

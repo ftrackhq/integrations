@@ -1,5 +1,5 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2018 ftrack
+# :copyright: Copyright (c) 2014-2023 ftrack
 
 import logging
 
@@ -8,7 +8,6 @@ import hiero.core.events
 
 
 class TagDropHandler(object):
-
     kTextMimeType = 'text/plain'
 
     def __init__(self):
@@ -27,9 +26,9 @@ class TagDropHandler(object):
         hiero.core.events.registerInterest(
             (
                 hiero.core.events.EventType.kDrop,
-                hiero.core.events.EventType.kTimeline
+                hiero.core.events.EventType.kTimeline,
             ),
-            self.dropHandler
+            self.dropHandler,
         )
 
     def dropHandler(self, event):
@@ -43,17 +42,17 @@ class TagDropHandler(object):
         except AttributeError:
             return
 
-        can_use_tags = all([
-            hasattr(track_item, 'tags'),
-            hasattr(track_item, 'sourceIn'),
-            hasattr(track_item, 'sourceOut'),
-            not isinstance(track_item, hiero.core.Sequence),
-        ])
+        can_use_tags = all(
+            [
+                hasattr(track_item, 'tags'),
+                hasattr(track_item, 'sourceIn'),
+                hasattr(track_item, 'sourceOut'),
+                not isinstance(track_item, hiero.core.Sequence),
+            ]
+        )
 
         if not can_use_tags:
-            self.logger.debug(
-                'cannot use tags on {}'.format(track_item)
-            )
+            self.logger.debug('cannot use tags on {}'.format(track_item))
             return
 
         dropped_tags = event.items
@@ -64,9 +63,7 @@ class TagDropHandler(object):
         for existing_tag in track_item.tags():
             meta = existing_tag.metadata()
             if meta.hasKey('type') and meta.value('type') == 'ftrack':
-                existing_ftrack_tag_names.append(
-                    existing_tag.name()
-                )
+                existing_ftrack_tag_names.append(existing_tag.name())
 
         self.logger.debug(
             'Existing ftrack tags names: {0}'.format(existing_ftrack_tag_names)
@@ -110,9 +107,9 @@ class TagDropHandler(object):
         hiero.core.events.unregisterInterest(
             (
                 hiero.core.events.EventType.kDrop,
-                hiero.core.events.EventType.kTimeline
+                hiero.core.events.EventType.kTimeline,
             ),
-            self.dropHandler
+            self.dropHandler,
         )
 
         hiero.ui.unregisterBinViewCustomMimeDataType(

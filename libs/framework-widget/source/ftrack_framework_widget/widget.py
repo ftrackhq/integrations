@@ -1,0 +1,183 @@
+# :coding: utf-8
+# :copyright: Copyright (c) 2014-2023 ftrack
+
+import logging
+import time
+
+from ftrack_framework_widget import BaseUI, active_widget
+
+
+class FrameworkWidget(BaseUI):
+    '''Base class to represent a Widget of the framework'''
+
+    # We Define name, plugin_type and host_type as class variables for
+    # convenience for the user when creating its own plugin.
+    name = None
+    widget_type = 'framework_widget'
+    dialog_method_connection = None
+    dialog_property_getter_connection = None
+
+    @property
+    def context_id(self):
+        '''Current context id in client'''
+        return self._context_id
+
+    @property
+    def plugin_config(self):
+        '''tool_config of the current plugin'''
+        return self._plugin_config
+
+    @property
+    def group_config(self):
+        '''If plugin lives in a group, return the group tool config'''
+        return self._group_config
+
+    @property
+    def plugin_name(self):
+        '''Name of the current plugin'''
+        return self.plugin_config['plugin']
+
+    @property
+    def plugin_options(self):
+        '''options value of the current plugin'''
+        return self._options
+
+    @plugin_options.setter
+    def plugin_options(self, value):
+        '''
+        Updates the options of the current plugin with the given *value*
+        '''
+        if type(value) != dict:
+            return
+
+        self._options.update(value)
+
+        self.on_set_plugin_option(self._options)
+
+    def __init__(
+        self,
+        event_manager,
+        client_id,
+        context_id,
+        plugin_config,
+        group_config,
+        on_set_plugin_option,
+        on_run_ui_hook,
+        parent=None,
+    ):
+        self._context_id = context_id
+        self._plugin_config = plugin_config
+        self._group_config = group_config
+        self._options = {}
+        self._do_await_ui_hook_result = False
+        self._ui_hook_result = None
+
+        # Connect dialog methods and properties
+        self.on_set_plugin_option = on_set_plugin_option
+        self.on_run_ui_hook = on_run_ui_hook
+
+        super(FrameworkWidget, self).__init__(event_manager, client_id, parent)
+
+    def update_context(self, context_id):
+        '''Updates the widget context_id with the given *context_id*'''
+        self._context_id = context_id
+        self.on_context_updated()
+
+    def on_context_updated(self):
+        '''Called when context of the widget has been updated.
+
+        Override to handle context change in inheriting class.
+        '''
+        pass
+
+    def set_plugin_option(self, name, value):
+        '''
+        Updates the *name* option of the current plugin with the given *value*
+        '''
+        self.plugin_options = {name: value}
+
+    def validate(self):
+        '''Re implement this method to add validation to the widget'''
+        return None
+
+    def plugin_run_callback(self, log_item):
+        '''
+        Receive the callback with the plugin info every time a plugin has been
+        executed.
+        *log_item* is the plugin info dictionary.
+        '''
+        self.logger.warning(
+            "Method not implemented, Plugin Callback ---> {}".format(log_item)
+        )
+
+    def run_ui_hook(self, payload, await_result=False):
+        '''
+        Call the on_run_ui_hook method from the dialog with the given *payload*.
+        By default, this is an async operation. If *await_result* is true, await
+        and return the result.
+        '''
+        if await_result:
+            # TODO: make this thread safe
+            self._ui_hook_result = None
+            self._do_await_ui_hook_result = True
+        self.on_run_ui_hook(payload)
+        if await_result:
+            return self._await_ui_hook_result()
+
+    def _await_ui_hook_result(self):
+        timeout = 10
+        try:
+            while True:
+                time.sleep(0.1)
+                if self._ui_hook_result:
+                    return self._ui_hook_result
+                timeout -= 0.1
+                if timeout <= 0:
+                    raise Exception('Timeout waiting for ui_hook result')
+        finally:
+            self._do_await_ui_hook_result = (
+                False  # Prevent await for next call
+            )
+
+    def ui_hook_callback(self, ui_hook_result):
+        '''Get the result of the ui_hook method from the plugin'''
+        if self._do_await_ui_hook_result:
+            self._ui_hook_result = ui_hook_result
+        else:
+            self.logger.warning(
+                "Method not implemented, ui_hook_result ---> {}".format(
+                    ui_hook_result
+                )
+            )
+
+    @classmethod
+    def register(cls):
+        '''
+        Register function to discover widget by class *cls*. Returns False if the
+        class is not registerable.
+        '''
+        import inspect
+
+        logger = logging.getLogger(
+            '{0}.{1}'.format(__name__, cls.__class__.__name__)
+        )
+        logger.debug(
+            'registering: {} for {}'.format(cls.name, cls.widget_type)
+        )
+
+        if not hasattr(cls, 'name') or not cls.name:
+            # Can only register widgets that have a name, not base classes
+            logger.warning(
+                "Can only register widgets that have a name, no name provided "
+                "for this one"
+            )
+            return False
+
+        data = {
+            'extension_type': 'widget',
+            'name': cls.name,
+            'extension': cls,
+            'path': inspect.getfile(cls),
+        }
+
+        return data

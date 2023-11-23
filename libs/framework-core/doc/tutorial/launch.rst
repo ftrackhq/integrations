@@ -67,7 +67,7 @@ In this example we are going to change the Windows location of Maya and add an a
         "applicationIdentifier":"maya_{variant}",
         "integrations": {
             "pipeline":[
-                "ftrack-connect-pipeline-definition",
+                "ftrack-connect-pipeline-tool_config",
                 "framework-core",
                 "ftrack-connect-pipeline-qt",
                 "ftrack-connect-pipeline-maya"

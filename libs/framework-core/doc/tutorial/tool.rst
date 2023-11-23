@@ -4,7 +4,7 @@
 .. _tutorial/tool:
 
 *************************************************
-Add a custom tool the the ftrack menu within Maya
+Add a custom tool the ftrack menu within Maya
 *************************************************
 
 In this section we demonstrate how to add your own studio tool to the Maya plug-in,

@@ -1,5 +1,5 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2014 ftrack
+# :copyright: Copyright (c) 2014-2023 ftrack
 
 import threading
 import sys
@@ -28,6 +28,7 @@ def asynchronous(method):
         thread = threading.Thread(
             target=exceptHookWrapper, args=args, kwargs=kwargs
         )
+        thread.name = str(method)
         thread.start()
 
     return wrapper

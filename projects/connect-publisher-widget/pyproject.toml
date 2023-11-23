@@ -1,0 +1,31 @@
+[tool.poetry]
+name = "ftrack-connect-publisher-widget"
+version = "0.1.3rc1"
+description='ftrack Connect publisher widget plugin.'
+authors = ["ftrack Integrations Team <integrations@backlight.co>"]
+readme = "README.md"
+packages = [{include = "ftrack_connect_publisher_widget", from = "source"}]
+license = "Apache-2.0"
+homepage = "https://ftrack.com"
+repository = "https://github.com/ftrackhq/integrations/tree/main/projects/connect-publisher-widget"
+
+[[tool.poetry.source]]
+name = "testpypi"
+url = "https://test.pypi.org/simple/"
+default = false
+secondary = false
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.dependencies]
+python = ">= 3.7, < 3.8"
+ftrack-utils = { version = "> 1, < 3", optional = true }
+
+[tool.poetry.extras]
+ftrack-libs = ["ftrack-utils"]
+
+[tool.black]
+line-length = 79
+skip-string-normalization = true

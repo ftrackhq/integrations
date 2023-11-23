@@ -1,227 +1,17 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2014-2020 ftrack
-import os
+# :copyright: Copyright (c) 2014-2023 ftrack
+
 import time
 import logging
-import copy
 import uuid
+from collections import defaultdict
 
 from six import string_types
-import ftrack_api
-from ftrack_framework_core import constants
-from ftrack_framework_core.log import LogDB
-from ftrack_framework_core.log.log_item import LogItem
-from ftrack_framework_core.definition import definition_object
 
+from ftrack_framework_widget.dialog import FrameworkDialog
+import ftrack_constants.framework as constants
 
-class HostConnection(object):
-    '''
-    Host Connection Base class.
-    This class is used to communicate between the client and the host.
-    '''
-
-    @property
-    def context_id(self):
-        '''Returns the current context id as fetched from the host'''
-        return self._context_id
-
-    @context_id.setter
-    def context_id(self, value):
-        '''Set the context id for this host connection to *value*. Will notify the host and
-        other active host connection through an event, and tell the client through callback.'''
-        if value == self.context_id:
-            return
-        self._context_id = value
-
-    @property
-    def event_manager(self):
-        '''Returns instance of
-        :class:`~ftrack_framework_core.event.EventManager`'''
-        return self._event_manager
-
-    @property
-    def session(self):
-        '''
-        Returns instance of :class:`ftrack_api.session.Session`
-        '''
-        return self.event_manager.session
-
-    @property
-    def definitions(self):
-        '''Returns the current definitions, filtered on discoverable.'''
-        context_identifiers = []
-        if self.context_id:
-
-            entity = self.session.query(
-                'TypedContext where id is {}'.format(self.context_id)
-            ).first()
-            if entity:
-                # Task, Project,...
-                context_identifiers.append(entity.get('context_type').lower())
-                if 'type' in entity:
-                    # Modeling, animation...
-                    context_identifiers.append(
-                        entity['type'].get('name').lower()
-                    )
-                # Name of the task or the project
-                context_identifiers.append(entity.get('name').lower())
-
-        if context_identifiers:
-            result = {}
-            for schema_title in self._raw_host_data['definition'].keys():
-                result[schema_title] = self._filter_definitions(
-                    context_identifiers,
-                    self._raw_host_data['definition'][schema_title],
-                )
-            # TODO:
-            #  This is a dictionary where the keys are the definition types like
-            #  publisher, opener, etc... and the values are a list of those.
-            #  But it also includes the key Schema, which contains a list of the
-            #  schemas for each type. This should be cleaned up in the future in
-            #  order to separate schemas from the definitions.
-            return copy.deepcopy(result)
-
-        return definition_object.DefinitionObject(
-            self._raw_host_data['definition']
-        )
-
-    def _filter_definitions(self, context_identifiers, definitions):
-        '''Filter *definitions* on *context_identifiers* and discoverable.'''
-        result = []
-        for definition in definitions:
-            match = False
-            discoverable = definition.get('discoverable')
-            if not discoverable:
-                # Append if not discoverable, because that means should be
-                # discovered always as the Asset Manager or the logger
-                match = True
-            else:
-                # This is not in a list comprehension because it needs the break
-                # once found
-                for discover_name in discoverable:
-                    if discover_name.lower() in context_identifiers:
-                        # Add definition as it matches
-                        match = True
-                        break
-
-            if not match:
-                self.logger.debug(
-                    'Excluding definition {} - context identifiers {} '
-                    'does not match schema discoverable: {}.'.format(
-                        definition.get('name'),
-                        context_identifiers,
-                        discoverable,
-                    )
-                )
-            if match:
-                result.append(definition)
-
-        # Convert the list to our custom DefinitionList so we can have get
-        # method and automatically convert all definitions to definitionObject
-        return definition_object.DefinitionList(result)
-
-    @property
-    def id(self):
-        '''Returns the current host id.'''
-        return self._raw_host_data['host_id']
-
-    @property
-    def name(self):
-        '''Returns the current host name.'''
-        return self._raw_host_data['host_name']
-
-    @property
-    def host_types(self):
-        '''Returns the list of compatible host for the current definitions.'''
-        return self._raw_host_data['host_id'].split("-")[0].split(".")
-
-    def __del__(self):
-        self.logger.debug('Closing {}'.format(self))
-
-    def __repr__(self):
-        return '<HostConnection: {}>'.format(self.id)
-
-    def __hash__(self):
-        return hash(self.id)
-
-    def __eq__(self, other):
-        return self.__hash__() == other.__hash__()
-
-    def __init__(self, event_manager, host_data):
-        '''Initialise HostConnection with instance of
-        :class:`~ftrack_framework_core.event.EventManager` , and *host_data*
-
-        *host_data* : Dictionary containing the host information.
-        :py:func:`~ftrack_framework_core.host.provide_host_information`
-
-        '''
-        self.logger = logging.getLogger(
-            '{0}.{1}'.format(__name__, self.__class__.__name__)
-        )
-
-        copy_data = copy.deepcopy(host_data)
-
-        self._event_manager = event_manager
-        self._raw_host_data = copy_data
-        self._context_id = self._raw_host_data.get('context_id')
-        self.subscribe_host_context_change()
-
-    def run(self, data, engine, callback=None):
-        '''
-        Publish an event with the topic
-        :py:const:`~ftrack_framework_core.constants.PIPELINE_HOST_RUN`
-        with the given *data* and *engine*.
-        '''
-        event = ftrack_api.event.base.Event(
-            topic=constants.PIPELINE_HOST_RUN,
-            data={
-                'pipeline': {
-                    'host_id': self.id,
-                    'data': data,
-                    'engine_type': engine,
-                }
-            },
-        )
-        self.event_manager.publish(event, callback)
-
-    def launch_client(self, name, source=None):
-        '''Send a widget launch event, to be picked up by DCC.'''
-        event = ftrack_api.event.base.Event(
-            topic=constants.PIPELINE_CLIENT_LAUNCH,
-            data={
-                'pipeline': {
-                    'host_id': self.id,
-                    'name': name,
-                    'source': source,
-                }
-            },
-        )
-        self.event_manager.publish(
-            event,
-        )
-
-    def subscribe_host_context_change(self):
-        '''Have host connection subscribe to context change events, to be able
-        to notify client'''
-        self.session.event_hub.subscribe(
-            'topic={} and data.pipeline.host_id={}'.format(
-                constants.PIPELINE_HOST_CONTEXT_CHANGE, self.id
-            ),
-            self._ftrack_host_context_id_changed,
-        )
-
-    def _ftrack_host_context_id_changed(self, event):
-        '''Set the new context ID based on data provided in *event*'''
-        self.context_id = event['data']['pipeline']['context_id']
-
-    def change_host_context_id(self, context_id):
-        event = ftrack_api.event.base.Event(
-            topic=constants.PIPELINE_CLIENT_CONTEXT_CHANGE,
-            data={'pipeline': {'host_id': self.id, 'context_id': context_id}},
-        )
-        self.event_manager.publish(
-            event,
-        )
+from ftrack_framework_core.client.host_connection import HostConnection
 
 
 class Client(object):
@@ -229,20 +19,29 @@ class Client(object):
     Base client class.
     '''
 
-    ui_types = [constants.UI_TYPE]
+    # tODO: evaluate if to use compatible UI types in here or directly add the list of ui types
+    ui_types = constants.client.COMPATIBLE_UI_TYPES
     '''Compatible UI for this client.'''
-    definition_filters = None
-    '''Use only definitions that matches the definition_filters'''
-    definition_extensions_filter = None
-    '''(Open) Only show definitions and components capable of accept these filename extensions. '''
 
+    # TODO: Double check with the team if this is needed to have a singleton host
+    #  connection and if it still makes sense to be a singleton as we only have
+    #  one client now.
     _host_connection = None
     '''The singleton host connection used by all clients within the process space / DCC'''
-    _host_connections = []
-    '''The list of discovered host connections'''
 
     def __repr__(self):
-        return '<Client:{0}>'.format(self.ui_types)
+        return '<Client:{0}>'.format(self.id)
+
+    @property
+    def id(self):
+        '''Returns the current client id.'''
+        return self._id
+
+    @property
+    def event_manager(self):
+        '''Returns instance of
+        :class:`~ftrack_framework_core.event.EventManager`'''
+        return self._event_manager
 
     @property
     def session(self):
@@ -251,57 +50,7 @@ class Client(object):
         '''
         return self._event_manager.session
 
-    @property
-    def event_manager(self):
-        '''Returns instance of
-        :class:`~ftrack_framework_core.event.EventManager`'''
-        return self._event_manager
-
-    @property
-    def connected(self):
-        '''
-        Returns True if client is connected to a
-        :class:`~ftrack_framework_core.host.HOST`'''
-        return self._connected
-
-    @property
-    def context_id(self):
-        '''Returns the current context id from host'''
-        if self.host_connection is None:
-            raise Exception('No host connection available')
-        return self.host_connection.context_id
-
-    @context_id.setter
-    def context_id(self, context_id):
-        '''Sets the context id on current host connection, will throw an exception
-        if no host connection is active'''
-        if not isinstance(context_id, string_types):
-            raise ValueError('Context should be in form of a string.')
-        if self.host_connection is None:
-            raise Exception('No host connection available')
-        self.host_connection.change_host_context_id(context_id)
-
-    @property
-    def context(self):
-        '''Returns the current context'''
-        if self.host_connection is None:
-            raise Exception('No host connection available')
-        if self.host_connection.context_id is None:
-            raise Exception('No host context id set')
-        return self.session.query(
-            'Context where id={}'.format(self.context_id)
-        ).first()
-
-    @property
-    def host_connections(self):
-        '''Return the current list of host_connections'''
-        return Client._host_connections
-
-    @host_connections.setter
-    def host_connections(self, value):
-        '''Return the current list of host_connections'''
-        Client._host_connections = value
-
+    # TODO: Discuss if we want to change this to connected host
     @property
     def host_connection(self):
         '''
@@ -318,104 +67,158 @@ class Client(object):
         *value* : should be instance of
         :class:`~ftrack_framework_core.client.HostConnection`
         '''
-        if value is None or (
-            self.host_connection and value.id == self.host_connection.id
+        if not value:
+            # Clean up host_context_change_subscription in case exists
+            self._unsubscribe_host_context_changed()
+            Client._host_connection = value
+            self.on_host_changed(self.host_connection)
+            return
+        if (
+            self.host_connection
+            and value.host_id == self.host_connection.host_id
         ):
             return
 
-        self.logger.debug('host connection: {}'.format(value))
+        self.logger.debug('Setting new host connection: {}'.format(value))
         Client._host_connection = value
-        self.on_client_notification()
-        self.subscribe_host_context_change()
+
+        # Subscribe log item added
+        self.event_manager.subscribe.host_log_item_added(
+            self.host_connection.host_id,
+            callback=self.on_log_item_added_callback,
+        )
+        # TODO: should this event go directly to dialog or widget and never
+        #  pass through client?
+        self.event_manager.subscribe.host_run_ui_hook_result(
+            self.host_connection.host_id,
+            callback=self.on_ui_hook_callback,
+        )
+        # Clean up host_context_change_subscription in case exists
+        self._unsubscribe_host_context_changed()
+        # Subscribe to host_context_change even though we already subscribed in
+        # the host_connection. This is because we want to let the client know
+        # that host changed context but also update the host connection to the
+        # new context.
+        self._host_context_changed_subscribe_id = (
+            self.event_manager.subscribe.host_context_changed(
+                self.host_connection.host_id,
+                self._host_context_changed_callback,
+            )
+        )
         # Feed change of host and context to client
         self.on_host_changed(self.host_connection)
         self.on_context_changed(self.host_connection.context_id)
 
     @property
-    def schema(self):
-        '''Return the current schema.'''
-        return self._schema
-
-    @property
-    def definition(self):
-        '''Returns the current definition.'''
-        return self._definition
-
-    @property
-    def definitions(self):
-        '''Returns the definitions list of the current host connection'''
+    def host_id(self):
+        '''returns the host id from the current host connection'''
         if self.host_connection is None:
             raise Exception('No host connection available')
-        return self.host_connection.definitions
+        return self.host_connection.host_id
 
     @property
-    def engine_type(self):
-        '''Return the current engine type'''
-        return self._engine_type
+    def context_id(self):
+        '''Returns the current context id from current host connection'''
+        if not self.host_connection:
+            self.logger.warning('No host connection available')
+            return
+        return self.host_connection.context_id
 
-    @property
-    def logs(self):
-        '''Return the log items'''
-        self._init_logs()
-        return self._logs.get_log_items(
-            self.host_connection.id
-            if not self.host_connection is None
-            else None
+    @context_id.setter
+    def context_id(self, context_id):
+        '''Publish the given *context_id to be set by the host'''
+        if not isinstance(context_id, string_types):
+            raise ValueError('Context should be in form of a string.')
+        if self.host_connection is None:
+            raise Exception('No host connection available')
+        # Publish event to notify host that client has changed the context
+        self.event_manager.publish.client_context_changed(
+            self.host_id, context_id
         )
 
-    def _init_logs(self):
-        '''Delayed initialization of logs, when we know host ID.'''
-        if self._logs is None:
-            self._logs = LogDB(
-                self.host_connection.id
-                if not self.host_connection is None
-                else uuid.uuid4().hex
-            )
+    @property
+    def host_context_changed_subscribe_id(self):
+        '''The subscription id of the host context changed event'''
+        return self._host_context_changed_subscribe_id
 
     @property
-    def multithreading_enabled(self):
-        '''Return True if DCC supports multithreading (write operations)'''
-        return self._multithreading_enabled
+    def tool_configs(self):
+        '''Returns all available tool_configs from the current host_ connection'''
+        if not self.host_connection:
+            raise Exception('No host connection available')
+        return self.host_connection.tool_configs
 
-    def __init__(self, event_manager, multithreading_enabled=True):
+    # Widget
+    @property
+    def dialogs(self):
+        '''Return instanced dialogs'''
+        return self.__instanced_dialogs
+
+    @property
+    def dialog(self):
+        '''Return the current active dialog'''
+        return self._dialog
+
+    @dialog.setter
+    def dialog(self, value):
+        # TODO: Check value is type of framework dialog
+        '''Set the given *value* as the current active dialog'''
+        self.set_active_dialog(self._dialog, value)
+        self._dialog = value
+
+    @property
+    def registry(self):
+        '''Return registry object'''
+        return self._registry
+
+    @property
+    def tool_config_options(self):
+        return self._tool_config_options
+
+    def __init__(
+        self,
+        event_manager,
+        registry,
+    ):
         '''
         Initialise Client with instance of
         :class:`~ftrack_framework_core.event.EventManager`
         '''
-        self._current = {}
-        self.context_change_subscribe_id = None
-        self._connected = False
-        self._logs = None
-        self._schema = None
-        self._definition = None
-
-        self.__callback = None
+        # TODO: double check logger initialization and standardize it around all files.
+        # Setting logger
         self.logger = logging.getLogger(
             __name__ + '.' + self.__class__.__name__
         )
+
+        # Create the client id to use to communicate with UI
+        self._id = '{}'.format(uuid.uuid4().hex)
+
+        # Set the event manager
         self._event_manager = event_manager
-        self.logger.debug('Initialising {}'.format(self))
-        self._multithreading_enabled = multithreading_enabled
+
+        # Setting init variables to 0
+        self._registry = registry
+        self._host_context_changed_subscribe_id = None
+        self.__instanced_dialogs = {}
+        self._dialog = None
+        self._tool_config_options = defaultdict(defaultdict)
+
+        self.logger.debug('Initialising Client {}'.format(self))
+
+        self.discover_host()
 
     # Host
-
-    def discover_hosts(self, force_rediscover=False, time_out=3):
+    def discover_host(self, time_out=3):
         '''
-        Find for available hosts during the optional *time_out* and Returns
-        a list of discovered :class:`~ftrack_framework_core.client.HostConnection`.
+        Find for available hosts during the optional *time_out*.
 
-        Skip this and use existing singleton host connection if previously detected,
-        unless *force_rediscover* is True.
+        This removes all previously discovered host connections.
         '''
-        if force_rediscover:
-            self.host_connections = None
+        # Reset host connections
+        if self.host_connection:
+            self._unsubscribe_host_context_changed()
             self.host_connection = None
-        if self.host_connection is not None:
-            self.on_client_notification()
-            self.subscribe_host_context_change()
-            self.on_host_changed(self.host_connection)
-            self.on_context_changed(self.host_connection.context_id)
-            return
+
         # discovery host loop and timeout.
         start_time = time.time()
         self.logger.debug('time out set to {}:'.format(time_out))
@@ -426,284 +229,242 @@ class Client(object):
                 'Terminate with: Ctrl-C'
             )
 
-        while not self.host_connections:
+        while not self.host_connection:
             delta_time = time.time() - start_time
 
             if time_out and delta_time >= time_out:
                 self.logger.warning('Could not discover any host.')
                 break
 
-            self._discover_hosts()
+            self.event_manager.publish.discover_host(
+                callback=self._host_discovered_callback
+            )
 
-        if self.__callback and self.host_connections:
-            self.__callback(self.host_connections)
-
-        # Feed host connections to the client
-        self.on_hosts_discovered(self.host_connections)
-
-    def _discover_hosts(self):
+    def _host_discovered_callback(self, event):
         '''
-        Publish an event with the topic
-        :py:data:`~ftrack_framework_core.constants.PIPELINE_DISCOVER_HOST`
-        with the callback
-        py:meth:`~ftrack_framework_core.client._host_discovered`
-        '''
-        self.host_connections = []  # Start over
-        discover_event = ftrack_api.event.base.Event(
-            topic=constants.PIPELINE_DISCOVER_HOST
-        )
-
-        self._event_manager.publish(
-            discover_event, callback=self._host_discovered
-        )
-
-    def _host_discovered(self, event):
-        '''
-        Callback, add the :class:`~ftrack_framework_core.client.HostConnection`
-        of the new discovered :class:`~ftrack_framework_core.host.HOST` from
-        the given *event*.
+        Reply callback of the discover host event, generate
+        :class:`~ftrack_framework_core.client.HostConnection`
+        of all discovered hosts from the given *event*.
 
         *event*: :class:`ftrack_api.event.base.Event`
         '''
         if not event['data']:
             return
-        host_connection = HostConnection(self.event_manager, event['data'])
-        if (
-            host_connection
-            and host_connection not in self.host_connections
-            and self.filter_host(host_connection)
-        ):
-            Client._host_connections.append(host_connection)
-
-        self._connected = True
-
-    def filter_host(self, host_connection):
-        '''Return True if the *host_connection* should be considered
-
-        *host_connection*: :class:`ftrack_framework_core.client.HostConnection`
-        '''
-        # On the discovery time context id could be None, so we have to consider
-        # hosts with non context id. This method could be useful later on to
-        # filter hosts that not match a specific criteria. But considering all
-        # hosts as valid for now.
-        return True
-
-    def change_host(self, host_connection):
-        '''Client(user) has chosen the host connection to use, set it to *host_connection*'''
-        self.host_connection = host_connection
-
-    def on_hosts_discovered(self, host_connections):
-        '''Callback, hosts has been discovered. To be overridden by the qt client'''
-        pass
+        for reply_data in event['data']:
+            self.host_connection = HostConnection(
+                self.event_manager, reply_data
+            )
+            break
 
     def on_host_changed(self, host_connection):
-        '''Called when the host has been (re-)selected by the user. To be
-        overridden by the qt client.'''
-        pass
+        '''Called when the host has been (re-)selected by the user.'''
+        # Emit signal to widget
+        self.event_manager.publish.client_signal_host_changed(self.id)
 
     # Context
-
-    def subscribe_host_context_change(self):
-        '''Have host connection subscribe to context change events, to be able
-        to notify client'''
-        if self.context_change_subscribe_id:
-            self.session.unsubscribe(self.context_change_subscribe_id)
-        self.context_change_subscribe_id = self.session.event_hub.subscribe(
-            'topic={} and data.pipeline.host_id={}'.format(
-                constants.PIPELINE_HOST_CONTEXT_CHANGE,
-                self.host_connection.id,
-            ),
-            self._host_context_id_changed,
-        )
-
-    def _host_context_id_changed(self, event):
+    def _host_context_changed_callback(self, event):
         '''Set the new context ID based on data provided in *event*'''
         # Feed the new context to the client
-        self.on_context_changed(event['data']['pipeline']['context_id'])
+        self.on_context_changed(event['data']['context_id'])
 
     def on_context_changed(self, context_id):
-        '''Called when the context has been set or changed within the host connection, either from this
-        client or remote (other client or the host). Should be overridden by client.'''
-        pass
+        '''Called when the context has been set or changed within the
+        host connection, either from this client or remote
+        (other client or the host).
+        '''
+        # Emit signal to widget
+        self.event_manager.publish.client_signal_context_changed(self.id)
 
-    def unsubscribe_host_context_change(self):
+    def _unsubscribe_host_context_changed(self):
         '''Unsubscribe to client context change events'''
-        if self.context_change_subscribe_id:
+        if self.host_context_changed_subscribe_id:
             self.session.event_hub.unsubscribe(
-                self.context_change_subscribe_id
+                self.host_context_changed_subscribe_id
             )
-            self.context_change_subscribe_id = None
+            self._host_context_changed_subscribe_id = None
 
-    # Definition
-
-    def run_definition(self, definition=None, engine_type=None):
+    # Tool config
+    def run_tool_config(self, tool_config_reference):
         '''
-        Calls the :meth:`~ftrack_framework_core.client.HostConnection.run`
-        to run the entire given *definition* with the given *engine_type*.
-
-        Callback received at :meth:`_run_callback`
+        Publish event to tell the host to run the given *tool_config_reference*
+        on the engine.
+        *tool_config_reference*: id number of the tool config.
         '''
-        # If not definition or engine type passed use the original ones set up
-        # in the client
-        if not definition:
-            definition = self.definition
-        if not engine_type:
-            engine_type = self.engine_type
-        self.host_connection.run(
-            definition.to_dict(),
-            engine_type,
-            callback=self._run_callback,
+        self.event_manager.publish.host_run_tool_config(
+            self.host_id,
+            tool_config_reference,
+            self.tool_config_options.get(tool_config_reference, {}),
         )
-
-    def get_schema_from_definition(self, definition):
-        '''Return matching schema for the given *definition*'''
-        if not self.host_connection:
-            self.logger.error("please set the host connection first")
-            return
-        for schema in self.host_connection.definitions['schema']:
-            if (
-                schema['properties']['type'].get('default')
-                == definition['type']
-            ):
-                return schema
-
-            self.logger.debug(
-                "Schema title: {} and type: {} does not match definition {}".format(
-                    schema['title'],
-                    schema['properties']['type'].get('default'),
-                    definition['name'],
-                )
-            )
-
-        self.logger.error(
-            "Can't find a matching schema for the given definition: {}".format(
-                definition.name
-            )
-        )
-        return
-
-    def change_definition(self, definition, schema=None):
-        '''
-        Assign the given *schema* and the given *definition* as the current
-        :obj:`schema` and :obj:`definition`
-        '''
-        if not self.host_connection:
-            self.logger.error("please set the host connection first")
-            return
-        if not definition:
-            self.logger.error("please provide a definition")
-            return
-
-        if not schema:
-            schema = self.get_schema_from_definition(definition)
-        self._schema = schema
-        self._definition = definition
-        self.change_engine(self.definition['_config']['engine_type'])
 
     # Plugin
-
-    def run_plugin(self, plugin_data, method, engine_type):
+    def on_log_item_added_callback(self, event):
         '''
-        Calls the :meth:`~ftrack_framework_core.client.HostConnection.run`
-        to run one single plugin.
-
-        Callback received at :meth:`_run_callback`
-
-        *plugin_data* : Dictionary with the plugin information.
-
-        *method* : method of the plugin to be run
+        Called when a log item has added in the host.
         '''
-        # Plugin type is constructed using the engine_type and the type of the plugin.
-        # (publisher.collector). We have to make sure that plugin_type is in
-        # the data argument passed to the host_connection, because we are only
-        # passing data to the engine. And the engine_type is only available
-        # on the definition.
-        plugin_type = '{}.{}'.format(engine_type, plugin_data['type'])
-        data = {
-            'plugin': plugin_data,
-            'plugin_type': plugin_type,
-            'method': method,
-        }
-        self.host_connection.run(
-            data, engine_type, callback=self._run_callback
+        log_item = event['data']['log_item']
+        self.logger.info(
+            "Plugin Execution progress: \n "
+            "plugin_name: {} \n"
+            "plugin_status: {} \n"
+            "plugin_message: {} \n"
+            "plugin_execution_time: {} \n"
+            "plugin_store: {} \n".format(
+                log_item.plugin_name,
+                log_item.plugin_status,
+                log_item.plugin_message,
+                log_item.plugin_execution_time,
+                log_item.plugin_options,
+                log_item.plugin_store,
+            )
+        )
+        # Publish event to widget
+        self.event_manager.publish.client_notify_log_item_added(
+            self.id, event['data']['log_item']
         )
 
-    def _run_callback(self, event):
-        '''Callback of the :meth:`~ftrack_framework_core.client.run_plugin'''
-        self.logger.debug("_run_callback event: {}".format(event))
-
-    def on_ready(self, callback, time_out=3):
+    def on_ui_hook_callback(self, event):
         '''
-        calls the given *callback* method when host is been discovered with the
-        optional *time_out*
+        Called ui_hook has been executed on host and needs to notify UI with
+        the result.
         '''
-        self.__callback = callback
-        self.discover_hosts(time_out=time_out)
-
-    def change_engine(self, engine_type):
-        '''
-        Assign the given *engine_type* as the current :obj:`engine_type`
-        '''
-        self._engine_type = engine_type
-
-    def _on_log_item_added(self, log_item):
-        '''Called when a client notify event arrives.'''
-        pass
-
-    def on_client_notification(self):
-        '''
-        Subscribe to topic
-        :const:`~ftrack_framework_core.constants.PIPELINE_CLIENT_NOTIFICATION`
-        to receive client notifications from the host in :meth:`_notify_client`
-        '''
-        self.session.event_hub.subscribe(
-            'topic={} and data.pipeline.host_id={}'.format(
-                constants.PIPELINE_CLIENT_NOTIFICATION, self.host_connection.id
-            ),
-            self._notify_client,
+        # Publish event to widget
+        self.event_manager.publish.client_notify_ui_hook_result(
+            self.id,
+            event['data']['plugin_reference'],
+            event['data']['ui_hook_result'],
         )
 
-    def _notify_client(self, event):
+    def reset_all_tool_configs(self):
         '''
-        Callback of the
-        :const:`~ftrack_framework_core.constants.PIPELINE_CLIENT_NOTIFICATION`
-         event.
-
-        *event*: :class:`ftrack_api.event.base.Event`
+        Ask host connection to reset values of all tool_configs
         '''
-        result = event['data']['pipeline']['result']
-        status = event['data']['pipeline']['status']
-        plugin_name = event['data']['pipeline']['plugin_name']
-        widget_ref = event['data']['pipeline']['widget_ref']
-        message = event['data']['pipeline']['message']
-        user_data = event['data']['pipeline'].get('user_data') or {}
-        user_message = user_data.get('message')
-        plugin_id = event['data']['pipeline'].get('plugin_id')
+        self.host_connection.reset_all_tool_configs()
 
-        self._on_log_item_added(LogItem(event['data']['pipeline']))
+    # UI
+    def run_dialog(self, dialog_name, dialog_class=None, dialog_options=None):
+        '''Function to show a framework dialog from the client'''
+        # use dialog options to pass options to the dialog like for
+        #  example: Dialog= WidgetDialog dialog_options= {tool_config_plugin: Context_selector}
+        #  ---> So this will execute the widget dialog with the widget of the
+        #  context_selector in it, it simulates a run_widget).
+        #  Or any other kind of option like docked or not
 
-        if constants.status_bool_mapping[status]:
+        if dialog_class:
+            if not isinstance(dialog_class, FrameworkDialog):
+                error_message = (
+                    'The provided class {} is not instance of the base framework '
+                    'widget. Please provide a supported widget.'.format(
+                        dialog_class
+                    )
+                )
+                self.logger.error(error_message)
+                raise Exception(error_message)
 
-            self.logger.debug(
-                '\n plugin_name: {} \n status: {} \n result: {} \n '
-                'message: {} \n user_message: {} \n plugin_id: {}'.format(
-                    plugin_name,
-                    status,
-                    result,
-                    message,
-                    user_message,
-                    plugin_id,
+            if dialog_class not in [
+                dialog['extension'] for dialog in self.registry.dialogs
+            ]:
+                self.logger.warning(
+                    'Provided dialog_class {} not in the discovered framework '
+                    'widgets, registering...'.format(dialog_class)
+                )
+                self.registry.add(
+                    extension_type='dialog',
+                    name=dialog_name,
+                    extension=dialog_class,
+                )
+
+        if dialog_name and not dialog_class:
+            for registered_dialog_class in self.registry.dialogs:
+                if dialog_name == registered_dialog_class['name']:
+                    dialog_class = registered_dialog_class['extension']
+                    break
+        if not dialog_class:
+            error_message = (
+                'Please provide a registered dialog name.\n'
+                'Given name: {} \n'
+                'registered widgets: {}'.format(
+                    dialog_name, self.registry.dialogs
                 )
             )
+            self.logger.error(error_message)
+            raise Exception(error_message)
 
-        if (
-            status == constants.ERROR_STATUS
-            or status == constants.EXCEPTION_STATUS
-        ):
+        dialog = dialog_class(
+            self.event_manager,
+            self.id,
+            connect_methods_callback=self._connect_methods_callback,
+            connect_setter_property_callback=self._connect_setter_property_callback,
+            connect_getter_property_callback=self._connect_getter_property_callback,
+            dialog_options=dialog_options,
+        )
+        # Append dialog to dialogs
+        self._register_dialog(dialog)
+        self.dialog = dialog
+        self.dialog.show_ui()
+        self.dialog.setFocus()
+
+    def _register_dialog(self, dialog):
+        '''Register the given initialized *dialog* to the dialogs registry'''
+        if dialog.id not in list(self.__instanced_dialogs.keys()):
+            self.__instanced_dialogs[dialog.id] = dialog
+
+    def set_active_dialog(self, old_dialog, new_dialog):
+        '''Remove focus from the *old_dialog* and set the *new_dialog*'''
+        for dialog in list(self.dialogs.values()):
+            dialog.change_focus(old_dialog, new_dialog)
+
+    def _connect_methods_callback(
+        self, method_name, arguments=None, callback=None
+    ):
+        '''
+        Callback from the dialog to execute the given *method_name* from the
+        client with the given *arguments* call the given *callback* once we have
+        the result
+        '''
+        meth = getattr(self, method_name)
+        if not arguments:
+            arguments = {}
+        result = meth(**arguments)
+        if callback:
+            callback(result)
+        return result
+
+    def _connect_setter_property_callback(self, property_name, value):
+        '''
+        Callback from the dialog, set the given *property_name* from the
+        client to the given *value*
+        '''
+        self.__setattr__(property_name, value)
+
+    def _connect_getter_property_callback(self, property_name):
+        '''
+        Callback from the dialog, return the value of the given *property_name*
+        '''
+        return self.__getattribute__(property_name)
+
+    def set_config_options(
+        self, tool_config_reference, plugin_config_reference, plugin_options
+    ):
+        if not isinstance(plugin_options, dict):
             raise Exception(
-                'An error occurred during the execution of the '
-                'plugin name {} \n message: {}  \n user_message: {} '
-                '\n data: {} \n plugin_id: {}'.format(
-                    plugin_name, message, user_message, result, plugin_id
-                )
+                "plugin_options should be a dictionary. "
+                "Current given type: {}".format(plugin_options)
             )
+        self._tool_config_options[tool_config_reference][
+            plugin_config_reference
+        ] = plugin_options
+
+    def run_ui_hook(
+        self, tool_config_reference, plugin_config_reference, payload
+    ):
+        # TODO: should this event go directly to dialog or widget and never
+        #  pass through client?
+        self.event_manager.publish.host_run_ui_hook(
+            self.host_id,
+            tool_config_reference,
+            plugin_config_reference,
+            self.tool_config_options[tool_config_reference].get(
+                plugin_config_reference, {}
+            ),
+            payload,
+        )

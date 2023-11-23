@@ -1,5 +1,5 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2015 ftrack
+# :copyright: Copyright (c) 2014-2023 ftrack
 import os
 import logging
 import logging.config
@@ -16,6 +16,7 @@ def get_log_directory():
     '''
     try:
         import appdirs  # Inline import to avoid RV crashing if not available.
+
         user_data_dir = appdirs.user_data_dir('ftrack-connect', 'ftrack')
         log_directory = os.path.join(user_data_dir, 'log')
     except Exception:
@@ -68,25 +69,17 @@ def configure_logging(logger_name, level=None, format=None):
                 'maxBytes': 10485760,
                 'backupCount': 5,
             },
-
         },
-        'formatters': {
-            'file': {
-                'format': format
-            }
-        },
+        'formatters': {'file': {'format': format}},
         'loggers': {
-            '': {
-                'level': 'DEBUG',
-                'handlers': ['console', 'file']
-            },
+            '': {'level': 'DEBUG', 'handlers': ['console', 'file']},
             'ftrack_api': {
                 'level': 'INFO',
             },
             'FTrackCore': {
                 'level': 'INFO',
-            }
-        }
+            },
+        },
     }
 
     # Set default logging settings.

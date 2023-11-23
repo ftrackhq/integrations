@@ -1,5 +1,5 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2018 ftrack
+# :copyright: Copyright (c) 2014-2023 ftrack
 
 import os
 import logging
@@ -12,25 +12,29 @@ import ftrack_nuke_studio.exception
 
 import hiero
 
+try:
+    from hiero.core.VersionScanner import VersionScanner
+except ImportError:
+    from hiero.core.FnVersionScanner import VersionScanner
+
+
 from hiero.ui.BuildExternalMediaTrack import (
     BuildTrack,
     BuildTrackActionBase,
-    TrackFinderByNameWithDialog
+    TrackFinderByNameWithDialog,
 )
 
 registry = hiero.core.taskRegistry
 
-logger = logging.getLogger(
-    __name__
-)
+logger = logging.getLogger(__name__)
 
 
 class FtrackTrackFinderByNameWithDialog(TrackFinderByNameWithDialog):
     '''Track creation widget.'''
 
     def findOrCreateTrackByName(self, sequence, track_name):
-        ''' Searches the *sequence* for a track with the given *track_name* .  If none are found,
-            creates a new one. '''
+        '''Searches the *sequence* for a track with the given *track_name* .  If none are found,
+        creates a new one.'''
         # a track always has to have a name
         if not track_name or not sequence:
             raise RuntimeError('Invalid arguments')
@@ -46,8 +50,10 @@ class FtrackTrackFinderByNameWithDialog(TrackFinderByNameWithDialog):
         if track is None:
             track = hiero.core.VideoTrack(str(track_name))
             sequence.addTrack(track)
-            track.addTag(hiero.core.Tag(
-                track_name, ':ftrack/image/default/ftrackLogoLight')
+            track.addTag(
+                hiero.core.Tag(
+                    track_name, ':ftrack/image/default/ftrackLogoLight'
+                )
             )
             is_new_track = True
         return track, is_new_track
@@ -55,10 +61,11 @@ class FtrackTrackFinderByNameWithDialog(TrackFinderByNameWithDialog):
 
 class FtrackReBuildServerTrackDialog(QtWidgets.QDialog, FtrackBase):
     '''Rebuild from server widget.'''
+
     excluded_component_names = ['ftrackreview-mp4', 'thumbnail']
 
     def __init__(self, selection, parent=None):
-        ''' Initialise class with *selection* and *parent* widget. '''
+        '''Initialise class with *selection* and *parent* widget.'''
         self._result_data = {}
 
         if not parent:
@@ -70,7 +77,9 @@ class FtrackReBuildServerTrackDialog(QtWidgets.QDialog, FtrackBase):
         )
 
         num_tasks = registry.numTasks()
-        self._ftrack_tasks = [registry.taskName(index) for index in range(num_tasks)]
+        self._ftrack_tasks = [
+            registry.taskName(index) for index in range(num_tasks)
+        ]
 
         self._selection = selection
 
@@ -106,10 +115,18 @@ class FtrackReBuildServerTrackDialog(QtWidgets.QDialog, FtrackBase):
 
         # Add the standard ok/cancel buttons, default to ok.
         self._buttonbox = QtWidgets.QDialogButtonBox(
-            QtWidgets.QDialogButtonBox.StandardButton.Ok | QtWidgets.QDialogButtonBox.StandardButton.Cancel)
-        self._buttonbox.button(QtWidgets.QDialogButtonBox.StandardButton.Ok).setText('Build')
-        self._buttonbox.button(QtWidgets.QDialogButtonBox.StandardButton.Ok).setDisabled(True)
-        self._buttonbox.button(QtWidgets.QDialogButtonBox.StandardButton.Ok).setAutoDefault(True)
+            QtWidgets.QDialogButtonBox.StandardButton.Ok
+            | QtWidgets.QDialogButtonBox.StandardButton.Cancel
+        )
+        self._buttonbox.button(
+            QtWidgets.QDialogButtonBox.StandardButton.Ok
+        ).setText('Build')
+        self._buttonbox.button(
+            QtWidgets.QDialogButtonBox.StandardButton.Ok
+        ).setDisabled(True)
+        self._buttonbox.button(
+            QtWidgets.QDialogButtonBox.StandardButton.Ok
+        ).setAutoDefault(True)
         self._buttonbox.accepted.connect(self.accept_test)
         self._buttonbox.rejected.connect(self.reject)
         layout.addWidget(self._buttonbox)
@@ -124,9 +141,15 @@ class FtrackReBuildServerTrackDialog(QtWidgets.QDialog, FtrackBase):
 
         # connect signals
         self.tasks_combobox.currentIndexChanged.connect(self.get_components)
-        self.asset_type_combobox.currentIndexChanged.connect(self.get_components)
-        self.component_combobox.currentIndexChanged.connect(self.get_components)
-        self.asset_status_combobox.currentIndexChanged.connect(self.get_components)
+        self.asset_type_combobox.currentIndexChanged.connect(
+            self.get_components
+        )
+        self.component_combobox.currentIndexChanged.connect(
+            self.get_components
+        )
+        self.asset_status_combobox.currentIndexChanged.connect(
+            self.get_components
+        )
 
         # set suggested track name
         self._tracknameField.setText(self.suggested_track_name)
@@ -138,20 +161,22 @@ class FtrackReBuildServerTrackDialog(QtWidgets.QDialog, FtrackBase):
     def suggested_track_name(self):
         task_name = self.tasks_combobox.currentText()
         component_name = self.component_combobox.currentText()
-        status = self.asset_status_combobox.currentText().replace('-', '').strip()
+        status = (
+            self.asset_status_combobox.currentText().replace('-', '').strip()
+        )
         new_track_name = '{}-{}-{}'.format(task_name, component_name, status)
         return new_track_name.upper()
 
     @staticmethod
     def common_items(items):
-        ''' Return a set with only common entities in *items*. '''
+        '''Return a set with only common entities in *items*.'''
         if not items:
             return set()
         return set.intersection(*map(set, items))
 
     @property
     def parsed_selection(self):
-        ''' Return a dictionary with the parsed TrackItem selection. '''
+        '''Return a dictionary with the parsed TrackItem selection.'''
         results = {}
         project_name = self.project.name()
         project_template = get_project_template(self.project)
@@ -162,25 +187,29 @@ class FtrackReBuildServerTrackDialog(QtWidgets.QDialog, FtrackBase):
         if not project_template:
             raise ftrack_nuke_studio.exception.TemplateError(
                 'No template defined for project {}'.format(project_name)
-        )
+            )
 
         for trackItem in self._selection:
-            if isinstance(trackItem, (hiero.core.EffectTrackItem, hiero.core.Transition)):
+            if isinstance(
+                trackItem, (hiero.core.EffectTrackItem, hiero.core.Transition)
+            ):
                 continue
             try:
                 parsed_results = match(trackItem, project_template)
             except ftrack_nuke_studio.exception.TemplateError:
                 continue
-            results[trackItem] = [ftrack_project['name']] + [result['name'] for result in parsed_results]
+            results[trackItem] = [ftrack_project['name']] + [
+                result['name'] for result in parsed_results
+            ]
 
         return results
 
     def trackName(self):
-        ''' Return the new track name. '''
+        '''Return the new track name.'''
         return str(self._tracknameField.text())
 
     def item_project(self, item):
-        ''' Return the project from given *item*. '''
+        '''Return the project from given *item*.'''
         if hasattr(item, 'project'):
             return item.project()
         elif hasattr(item, 'parent'):
@@ -190,19 +219,20 @@ class FtrackReBuildServerTrackDialog(QtWidgets.QDialog, FtrackBase):
 
     @property
     def data(self):
-        ''' Return the the collected data from widget. '''
+        '''Return the collected data from widget.'''
         return self._result_data
 
     def accept_test(self):
-        ''' Check whether the widget can be triggered. '''
+        '''Check whether the widget can be triggered.'''
         if self.trackName():
             self.accept()
         else:
             QtWidgets.QMessageBox.warning(
-                self, 'Build track from ftrack',
+                self,
+                'Build track from ftrack',
                 'Please set track names',
-                QtWidgets.QMessageBox.Ok
-        )
+                QtWidgets.QMessageBox.Ok,
+            )
 
     def _get_context_leafs(self, data):
         '''return the lower most context leaf for the given set of data'''
@@ -210,9 +240,15 @@ class FtrackReBuildServerTrackDialog(QtWidgets.QDialog, FtrackBase):
         for datum in data:
             project = datum[0]
             first_parent = datum[1]
-            query = 'name is "{}" and project.name is "{}"'.format(first_parent, project)
+            query = 'name is "{}" and project.name is "{}"'.format(
+                first_parent, project
+            )
             for index, item in enumerate(datum[2:]):
-                query = 'name is "{}" and parent[TypedContext] has ({})'.format(item, query)
+                query = (
+                    'name is "{}" and parent[TypedContext] has ({})'.format(
+                        item, query
+                    )
+                )
             full_query = u'TypedContext where {}'.format(query)
 
             results.extend(self.session.query(full_query).all())
@@ -220,7 +256,7 @@ class FtrackReBuildServerTrackDialog(QtWidgets.QDialog, FtrackBase):
         return results
 
     def get_components(self, index=None):
-        ''' Return all the found components. '''
+        '''Return all the found components.'''
         self._result_data = {}
         task_name = self.tasks_combobox.currentText()
         asset_type_name = self.asset_type_combobox.currentText()
@@ -231,46 +267,59 @@ class FtrackReBuildServerTrackDialog(QtWidgets.QDialog, FtrackBase):
             return self._result_data
 
         for taskItem, context in self.parsed_selection.items():
-
             context_leafs = self._get_context_leafs([context])
             for context_leaf in context_leafs:
                 query = (
-                    'Component where name is "{}" '  # component name 
+                    'Component where name is "{}" '  # component name
                     'and version.asset.type.name is "{}" '  # asset type
                     'and version.task.name is "{}" '  # task name
                     'and version.asset.parent.id is "{}" '  # shot
-                    ''.format(component_name, asset_type_name, task_name,context_leaf['id'])
+                    ''.format(
+                        component_name,
+                        asset_type_name,
+                        task_name,
+                        context_leaf['id'],
+                    )
                 )
 
                 if asset_status != '- ANY -':
-                    query += ' and version.status.name is "{}"'.format(asset_status)
+                    query += ' and version.status.name is "{}"'.format(
+                        asset_status
+                    )
 
-                all_components = self.session.query(query
-                ).all()
+                all_components = self.session.query(query).all()
 
                 if not all_components:
                     continue
 
-                sorted_components = sorted(all_components, key=lambda k: int(k['version']['version']))
+                sorted_components = sorted(
+                    all_components, key=lambda k: int(k['version']['version'])
+                )
 
                 final_component = sorted_components[-1]
                 self._result_data[taskItem] = final_component['id']
 
         # Update window title with the amount of clips found matching the filters
-        new_title = self._window_title + ' - ({} clips found)'.format(len(self._result_data))
+        new_title = self._window_title + ' - ({} clips found)'.format(
+            len(self._result_data)
+        )
         self.setWindowTitle(new_title)
 
-        self._buttonbox.button(QtWidgets.QDialogButtonBox.StandardButton.Ok).setDisabled(not bool(len(self._result_data)))
+        self._buttonbox.button(
+            QtWidgets.QDialogButtonBox.StandardButton.Ok
+        ).setDisabled(not bool(len(self._result_data)))
         self._tracknameField.setText(self.suggested_track_name)
 
     def populate_components(self):
-        ''' Populate the components widget. '''
+        '''Populate the components widget.'''
         all_component_names = []
 
         context_leafs = self._get_context_leafs(self.parsed_selection.values())
 
         for context in context_leafs:
-            task_query = 'select name from Component where version.asset.parent.id is "{}"'.format(context['id'])
+            task_query = 'select name from Component where version.asset.parent.id is "{}"'.format(
+                context['id']
+            )
             components = self.session.query(task_query).all()
 
             if not components:
@@ -279,7 +328,11 @@ class FtrackReBuildServerTrackDialog(QtWidgets.QDialog, FtrackBase):
             # We should filter components based on the processor task names: [Foundry] Ticket: 38929
             # For now let's simply filter the one which are not acceptable
             all_component_names.append(
-                [component['name'] for component in components if component['name'] not in self.excluded_component_names]
+                [
+                    component['name']
+                    for component in components
+                    if component['name'] not in self.excluded_component_names
+                ]
             )
 
         common_components = self.common_items(all_component_names)
@@ -287,36 +340,44 @@ class FtrackReBuildServerTrackDialog(QtWidgets.QDialog, FtrackBase):
             self.component_combobox.addItem(name)
 
     def populate_asset_statuses(self):
-        ''' Populate the asset status widget. '''
+        '''Populate the asset status widget.'''
         statuses = self.session.query('Status').all()
         self.asset_status_combobox.addItem('- ANY -')
         for status in statuses:
             self.asset_status_combobox.addItem(status['name'])
 
     def populate_asset_types(self):
-        ''' Populate the asset types widget. '''
+        '''Populate the asset types widget.'''
         all_asset_types_names = []
         context_leafs = self._get_context_leafs(self.parsed_selection.values())
 
         for context in context_leafs:
-            task_query = 'select type, type.name, name from Asset where parent.id is "{}"'.format(context['id'])
+            task_query = 'select type, type.name, name from Asset where parent.id is "{}"'.format(
+                context['id']
+            )
             assets = self.session.query(task_query).all()
 
             if not assets:
                 continue
 
-            all_asset_types_names.append([asset['type']['name'] for asset in assets])
+            all_asset_types_names.append(
+                [asset['type']['name'] for asset in assets]
+            )
         common_asset_types = self.common_items(all_asset_types_names)
         for name in sorted(common_asset_types):
             self.asset_type_combobox.addItem(name)
 
     def populate_tasks(self):
-        ''' Populate the tasks widget. '''
-        all_tasks=[]
+        '''Populate the tasks widget.'''
+        all_tasks = []
         context_leafs = self._get_context_leafs(self.parsed_selection.values())
 
         for context in context_leafs:
-            task_query = 'select name from Task where parent.id is "{}"'.format(context['id'])
+            task_query = (
+                'select name from Task where parent.id is "{}"'.format(
+                    context['id']
+                )
+            )
             tasks = self.session.query(task_query).all()
 
             if not tasks:
@@ -333,8 +394,10 @@ class FtrackReBuildServerTrackAction(BuildTrackActionBase, FtrackBase):
     '''Rebuild from server action.'''
 
     def __init__(self):
-        ''' Initialise action. '''
-        super(FtrackReBuildServerTrackAction, self).__init__('Build track from ftrack')
+        '''Initialise action.'''
+        super(FtrackReBuildServerTrackAction, self).__init__(
+            'Build track from ftrack'
+        )
         self.trackFinder = FtrackTrackFinderByNameWithDialog(self)
         self.setIcon(QtGui.QPixmap(':ftrack/image/default/ftrackLogoLight'))
 
@@ -343,7 +406,7 @@ class FtrackReBuildServerTrackAction(BuildTrackActionBase, FtrackBase):
         )
 
     def getExternalFilePaths(self, trackItem):
-        ''''Return the files path for the given *trackItem*. '''
+        ''' 'Return the files path for the given *trackItem*.'''
         component_id = self._track_data.get(trackItem)
         if not component_id:
             return []
@@ -357,7 +420,7 @@ class FtrackReBuildServerTrackAction(BuildTrackActionBase, FtrackBase):
         return [path.split()[0]]
 
     def getExpectedRange(self, trackItem):
-        ''''Return the expected frame range for the given *trackItem*. '''
+        ''' 'Return the expected frame range for the given *trackItem*.'''
         component_id = self._track_data.get(trackItem)
         if not component_id:
             return 0, 0, None, None, 0
@@ -375,56 +438,66 @@ class FtrackReBuildServerTrackAction(BuildTrackActionBase, FtrackBase):
         return result
 
     def trackName(self):
-        ''''Return current trackName. '''
+        ''' 'Return current trackName.'''
         return self._trackName
 
     def configure(self, project, selection):
-        ''''Return whether the widget is configured correctly given *project* and *selection*. '''
+        ''' 'Return whether the widget is configured correctly given *project* and *selection*.'''
         # Check the preferences for whether the built clips should be comp clips in the
         # case that the export being built from was a Nuke Shot export.
         settings = hiero.core.ApplicationSettings()
 
         dialog = FtrackReBuildServerTrackDialog(selection)
         if dialog.exec_():
-          self._trackName = dialog.trackName()
-          self._track_data = dialog.data
-          return True
+            self._trackName = dialog.trackName()
+            self._track_data = dialog.data
+            return True
         else:
-          return False
+            return False
 
     def doit(self):
-        '''' Execute action. '''
+        ''' ' Execute action.'''
         selection = self.getTrackItems()
 
         sequence = hiero.ui.activeView().sequence()
         project = sequence.project()
 
-
         if not self.configure(project, selection):
-          return
+            return
 
         self._buildTrack(selection, sequence, project)
 
         if self._errors:
-          msgBox = QtWidgets.QMessageBox(hiero.ui.mainWindow())
-          msgBox.setWindowTitle('Build track from ftrack')
-          msgBox.setText('There were problems building the track.')
-          msgBox.setDetailedText( '\n'.join(self._errors) )
-          msgBox.exec_()
-          self._errors = []
+            msgBox = QtWidgets.QMessageBox(hiero.ui.mainWindow())
+            msgBox.setWindowTitle('Build track from ftrack')
+            msgBox.setText('There were problems building the track.')
+            msgBox.setDetailedText('\n'.join(self._errors))
+            msgBox.exec_()
+            self._errors = []
 
     @staticmethod
     def update_ftrack_versions(track_item):
-        '''' Force update *trackIten* to fetch all available versions'''
+        ''' ' Force update *trackIten* to fetch all available versions'''
         track_item.source().rescan()  # First rescan the current clip
         if track_item.isMediaPresent():
             version = track_item.currentVersion()
-            scanner = hiero.core.VersionScanner.VersionScanner()  # Scan for new versions
+            scanner = (
+                VersionScanner()
+            )  # Scan for new versions
             scanner.doScan(version)
 
-    def _buildTrackItem(self, name, clip, originalTrackItem, expected_start_time, expectedDuration, expected_start_handle,
-                        expectedEndHandle, expectedOffset):
-        '''' Return a trackItem build out of:
+    def _buildTrackItem(
+        self,
+        name,
+        clip,
+        originalTrackItem,
+        expected_start_time,
+        expectedDuration,
+        expected_start_handle,
+        expectedEndHandle,
+        expectedOffset,
+    ):
+        ''' ' Return a trackItem build out of:
 
         *name*, *clip*, *originalTrackItem*, *expectedStartTime*, *expectedDuration*, *expectedStartHandle*,
         *expectedEndHandle*, *expectedOffset*.
@@ -446,7 +519,9 @@ class FtrackReBuildServerTrackAction(BuildTrackActionBase, FtrackBase):
 
         # If source durations match, and there were no retimes, then the whole clip was exported, and we should use the same source in/out
         # as the original.  The correct handles are not being stored in the tag in this case.
-        full_clip_exported = (original_media_source.duration() == media_source.duration())
+        full_clip_exported = (
+            original_media_source.duration() == media_source.duration()
+        )
 
         if full_clip_exported:
             source_in = originalTrackItem.sourceIn()
@@ -455,7 +530,9 @@ class FtrackReBuildServerTrackAction(BuildTrackActionBase, FtrackBase):
         # Otherwise try to use the export handles and retime info to determine the correct source in/out
         else:
             # On the timeline, the first frame of video files is always 0.  Reset the start time
-            is_video_file = hiero.core.isVideoFileExtension(os.path.splitext(media_source.fileinfos()[0].filename())[1])
+            is_video_file = hiero.core.isVideoFileExtension(
+                os.path.splitext(media_source.fileinfos()[0].filename())[1]
+            )
             if is_video_file:
                 expected_start_time = 0
 
@@ -464,7 +541,9 @@ class FtrackReBuildServerTrackAction(BuildTrackActionBase, FtrackBase):
                 source_in += expected_start_handle
 
             # First add the abs src duration to get the source out
-            source_out = source_in + abs(originalTrackItem.sourceOut() - originalTrackItem.sourceIn())
+            source_out = source_in + abs(
+                originalTrackItem.sourceOut() - originalTrackItem.sourceIn()
+            )
 
             # Then, for a negative retime, src in/out need to be reversed
             if originalTrackItem.playbackSpeed() < 0.0:
@@ -486,43 +565,53 @@ class FtrackBuildTrack(BuildTrack):
     '''Build track menu.'''
 
     def __init__(self):
-        ''' Initialise menu widget. '''
+        '''Initialise menu widget.'''
         QtWidgets.QMenu.__init__(self, 'Build track from ftrack', None)
         self.logger = logging.getLogger(
             __name__ + '.' + self.__class__.__name__
         )
-        hiero.core.events.registerInterest('kShowContextMenu/kTimeline', self.eventHandler)
+        hiero.core.events.registerInterest(
+            'kShowContextMenu/kTimeline', self.eventHandler
+        )
         self.setIcon(QtGui.QPixmap(':ftrack/image/default/ftrackLogoLight'))
         self._action_rebuild_from_server = FtrackReBuildServerTrackAction()
         self.addAction(self._action_rebuild_from_server)
 
     def eventHandler(self, event):
-        ''' Check whether the menu can be enabled given the *event*. '''
+        '''Check whether the menu can be enabled given the *event*.'''
         # Check if this actions are not to be enabled
         restricted = []
         if hasattr(event, 'restricted'):
-          restricted = getattr(event, 'restricted');
+            restricted = getattr(event, 'restricted')
         if 'buildExternalMediaTrack' in restricted:
-          return
+            return
 
         if not hasattr(event.sender, 'selection'):
-          # Something has gone wrong, we shouldn't only be here if raised
-          # by the timeline view which will give a selection.
-          return
+            # Something has gone wrong, we shouldn't only be here if raised
+            # by the timeline view which will give a selection.
+            return
 
         selection = event.sender.selection()
 
         # We don't need this action if a user has right-clicked on a Track header
-        trackSelection = [item for item in selection if isinstance(item, (hiero.core.VideoTrack,hiero.core.AudioTrack))]
-        if len(trackSelection)>0:
-          return
+        trackSelection = [
+            item
+            for item in selection
+            if isinstance(item, (hiero.core.VideoTrack, hiero.core.AudioTrack))
+        ]
+        if len(trackSelection) > 0:
+            return
 
-        #filter out the Audio Tracks
-        selection = [ item for item in selection if isinstance(item.parent(), hiero.core.VideoTrack) ]
+        # filter out the Audio Tracks
+        selection = [
+            item
+            for item in selection
+            if isinstance(item.parent(), hiero.core.VideoTrack)
+        ]
 
         if selection is None:
-          selection = () # We disable on empty selection.
+            selection = ()  # We disable on empty selection.
 
-        self._action_rebuild_from_server.setEnabled(len(selection)>0)
+        self._action_rebuild_from_server.setEnabled(len(selection) > 0)
 
         event.menu.addMenu(self)

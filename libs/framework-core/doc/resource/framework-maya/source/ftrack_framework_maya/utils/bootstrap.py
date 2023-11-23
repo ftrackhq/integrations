@@ -18,6 +18,7 @@ def init_maya(context_id=None, session=None):
     :param session: The session required to query from *context_id*.
     :return:
     '''
+    # noinspection SpellCheckingInspection
     fstart = fend = fps = None
     if context_id:
         assert session is not None, 'Session not provided'
@@ -38,6 +39,7 @@ def init_maya(context_id=None, session=None):
             parent = context['parent']
             if parent.entity_type == 'Shot':
                 shot = parent
+        # noinspection SpellCheckingInspection
         if not shot:
             logger.warning(
                 'Cannot initialize Maya timeline - no shot related to context: {}'.format(
@@ -49,11 +51,14 @@ def init_maya(context_id=None, session=None):
             not 'fstart' in shot['custom_attributes']
             or not 'fend' in shot['custom_attributes']
         ):
+            # noinspection SpellCheckingInspection
             logger.warning(
                 'Cannot initialize Maya timeline - no fstart or fend shot custom attributes available'.format()
             )
             return
+        # noinspection SpellCheckingInspection
         if 'fstart' in shot['custom_attributes']:
+            # noinspection SpellCheckingInspection
             fstart = float(shot['custom_attributes']['fstart'])
         if 'fend' in shot['custom_attributes']:
             fend = float(shot['custom_attributes']['fend'])
@@ -62,6 +67,7 @@ def init_maya(context_id=None, session=None):
     else:
         # Set default values from environments.
         if 'FS' in os.environ and len(os.environ['FS'] or '') > 0:
+            # noinspection SpellCheckingInspection
             fstart = float(os.environ.get('FS', 0))
         if 'FE' in os.environ and len(os.environ['FE'] or '') > 0:
             fend = float(os.environ.get('FE', 100))
@@ -84,22 +90,25 @@ def init_maya(context_id=None, session=None):
         elif fps == 25:
             fps_unit = "pal"
         elif fps == 30:
+            # noinspection SpellCheckingInspection
             fps_unit = "ntsc"
         elif fps == 48:
             fps_unit = "show"
         elif fps == 50:
+            # noinspection SpellCheckingInspection
             fps_unit = "palf"
         elif fps == 60:
+            # noinspection SpellCheckingInspection
             fps_unit = "ntscf"
         logger.info('Setting FPS : {}, unit: {}'.format(fps, fps_unit))
         cmds.currentUnit(time=fps_unit)
-
 
 
 def scene_open(session, logger):
     '''Load latest scene, or generate new from template.'''
     from ftrack_framework_maya.utils import get_save_path
 
+    # noinspection SpellCheckingInspection
     context_id = os.getenv('FTRACK_CONTEXTID')
     task = session.query('Task where id={}'.format(context_id)).one()
     path_snapshot_open = path_snapshot_load = None
@@ -163,6 +172,7 @@ def scene_open(session, logger):
 
 def set_task_status(status_name, session, logger, unused_arg=None):
     '''Change the status of the launched task to *status*'''
+    # noinspection SpellCheckingInspection
     task = session.query(
         'Task where id={}'.format(os.environ['FTRACK_CONTEXTID'])
     ).one()

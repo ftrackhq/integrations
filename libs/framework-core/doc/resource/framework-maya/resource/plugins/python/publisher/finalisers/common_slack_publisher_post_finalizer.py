@@ -1,5 +1,5 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2014-2022 ftrack
+# :copyright: Copyright (c) 2014-2023 ftrack
 import os
 
 from slack import WebClient
@@ -10,13 +10,11 @@ from ftrack_framework_core import plugin
 
 
 class CommonSlackPublisherFinalizerPlugin(plugin.PublisherPostFinalizerPlugin):
-
     plugin_name = 'common_slack_publisher_finalizer'
 
     SLACK_CHANNEL = 'test'
 
     def run(self, context_data=None, data=None, options=None):
-
         # Harvest publish data
         reviewable_path = asset_version_id = component_names = None
         for component_data in data:

@@ -32,7 +32,7 @@ the bootstrap script(s).
 resource
 ========
 
-The resource folder contains the bootstrap scripts, definition configurations and the associated plugins.
+The resource folder contains the bootstrap scripts, tool config configurations and the associated plugins.
 
 
 bootstrap
@@ -41,23 +41,23 @@ The bootstrap script is the entry point within the DCC that is responsible for
 spawning the :term:`host` and :term:`client` widgets through the main DCC menu.
 
 
-definitions
+tool_configs
 -----------
 
-The definition pipeline module is were the each :term:`definition`, :term:`schema` and
+The tool config pipeline module is were the each :term:`tool config`, :term:`schema` and
 Framework :term:`plugin` are stored.
 
 As mentioned previously, the new Framework is designed to make it easy to write
 custom code that takes care of asset load and publishing, the new Framework achieves
-this by introducing “definitions” which basically are JSON schemas that configures
+this by introducing “tool_configs” which basically are JSON schemas that configures
 which Framework plugins (loaders and publishers) to run for a certain ftrack asset type.
 This module is were you most likely do customisations in order to tailor the Framework
 to the studio needs.
 
-This directory contains the :term:`definition` JSON configuration files for each
+This directory contains the :term:`tool config` JSON configuration files for each
 :term:`engine` and :term:`host type`.
 
-We have highlighted some file of importance, leaving out built-in definitions that
+We have highlighted some file of importance, leaving out built-in tool_configs that
 would be left out of an potential customization:
 
 .. code-block:: bash
@@ -75,11 +75,11 @@ would be left out of an potential customization:
 loader
 ^^^^^^
 
-Loader definitions, used by the Assembler client during load of assets.
+Loader tool_configs, used by the Assembler client during load of assets.
 
 **loader/geometry-maya-loader.json**
 
-The Framework definition for loading geometry asset versions into Maya:
+The Framework tool_config for loading geometry asset versions into Maya:
 
 .. code-block:: json
 
@@ -320,11 +320,11 @@ The Framework definition for loading geometry asset versions into Maya:
 
 Attributes:
 
- * **type**; Definition type, binds to the host engine names.
- * **name**; The name of the definition should be kept unique within the pipeline.
- * **host_type**; The type of host this definition should  be available to, basically the name of the DCC application.
+ * **type**; Tool config type, binds to the host engine names.
+ * **name**; The name of the tool_config should be kept unique within the pipeline.
+ * **host_type**; The type of host this tool_config should  be available to, basically the name of the DCC application.
  * **context**; Section that defines the plugin to use when selecting context (Task) and the asset version to load.
- * **components**; Section that defines each loadable component (step) - which definition plugin and options to use for collect and load into the DCC app. See plugin and their widgets directories below.
+ * **components**; Section that defines each loadable component (step) - which tool_config plugin and options to use for collect and load into the DCC app. See plugin and their widgets directories below.
  * **finalizers**; Section that defines plugins that should be run after load has finished.
 
 
@@ -332,9 +332,9 @@ Attributes:
 Publisher
 ^^^^^^^^^
 
-Publisher definitions, used by the Publisher client during publish of assets.
+Publisher tool_configs, used by the Publisher client during publish of assets.
 
-The structure of a publish definition is very similar to the loader, with different
+The structure of a publish tool_config is very similar to the loader, with different
 plugins and options.
 
 
@@ -352,15 +352,15 @@ which asset types are to be resolved for a certain task type.
 Schema
 ^^^^^^^
 
-JSON configuration files defining the rules that apply to the syntax of definitions
+JSON configuration files defining the rules that apply to the syntax of tool_configs
 (asset manager, loader and publisher). Typically you will not alter these files,
-but you can add your own attributes to definitions here, that can be picked up by the plugins.
+but you can add your own attributes to tool_configs here, that can be picked up by the plugins.
 
 
 plugin
 ------
 
-The plugins are were the code lives, that are referenced within the definitions. Structure:
+The plugins are were the code lives, that are referenced within the tool_configs. Structure:
 
 .. code-block:: bash
 
@@ -501,11 +501,11 @@ do uploads to additional storage.
 Schema validation
 -----------------
 
-This host performs validation of the definitions at boot and when a definition
+This host performs validation of the tool_configs at boot and when a tool_config
 is supplied to be run with a engine.
 
 The validation is important to make sure the syntax and plugin references are
-correct within the definition.
+correct within the tool_config.
 
 Search the DCC log for validation errors, for example Maya log is located here:
 
@@ -532,6 +532,6 @@ Description of main submodules:
  * **asset**; Contains asset manager logic for handling DCC objects.
  * **client**; DCC implementation of each :term;`client`.
  * **host**; DCC implementation of the :term;`host`.
- * **plugin**; Contain DCC implementation of bases for definition plugin widgets.
+ * **plugin**; Contain DCC implementation of bases for tool_config plugin widgets.
  * **utils**; Contains additional utils and tools related to the DCC application.
 

@@ -1,5 +1,5 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2018 ftrack
+# :copyright: Copyright (c) 2014-2023 ftrack
 
 import os
 import re
@@ -9,7 +9,10 @@ import tempfile
 import hiero
 import hiero.core.util
 from hiero.exporters.FnSubmission import Submission
-from hiero.exporters.FnTranscodeExporter import TranscodeExporter, TranscodePreset
+from hiero.exporters.FnTranscodeExporter import (
+    TranscodeExporter,
+    TranscodePreset,
+)
 from hiero.exporters.FnTranscodeExporterUI import TranscodeExporterUI
 from hiero.ui.FnTaskUIFormLayout import TaskUIFormLayout
 
@@ -18,7 +21,7 @@ from ftrack_nuke_studio.config import report_exception
 from ftrack_nuke_studio.processors.ftrack_base.ftrack_base_processor import (
     FtrackProcessorPreset,
     FtrackProcessor,
-    FtrackProcessorUI
+    FtrackProcessorUI,
 )
 
 
@@ -40,7 +43,9 @@ class FtrackNukeRenderExporter(TranscodeExporter, FtrackProcessor):
 
     def addWriteNodeToScript(self, script, rootNode, framerate):
         '''Restore original function from parent class.'''
-        TranscodeExporter.addWriteNodeToScript(self, script, rootNode, framerate)
+        TranscodeExporter.addWriteNodeToScript(
+            self, script, rootNode, framerate
+        )
 
     def createTranscodeScript(self):
         '''Create a custom transcode script for this task.'''
@@ -63,7 +68,9 @@ class FtrackNukeRenderExporter(TranscodeExporter, FtrackProcessor):
             submissionDict['endFrame'] = end
 
             # Create a job on our submission to do the actual rendering.
-            self._renderTask = self._submission.addJob(Submission.kNukeRender, submissionDict, self._scriptfile)
+            self._renderTask = self._submission.addJob(
+                Submission.kNukeRender, submissionDict, self._scriptfile
+            )
 
     def _makePath(self):
         '''Disable file path creation.'''
@@ -107,25 +114,25 @@ class FtrackNukeRenderExporterPreset(TranscodePreset, FtrackProcessorPreset):
         resolver.addResolver(
             "{clip}",
             "Name of the clip used in the shot being processed",
-            lambda keyword, task: task.clipName()
+            lambda keyword, task: task.clipName(),
         )
 
         resolver.addResolver(
             "{shot}",
             "Name of the shot being processed",
-            lambda keyword, task: task.shotName()
+            lambda keyword, task: task.shotName(),
         )
 
         resolver.addResolver(
             "{track}",
             "Name of the track being processed",
-            lambda keyword, task: task.trackName()
+            lambda keyword, task: task.trackName(),
         )
 
         resolver.addResolver(
             "{sequence}",
             "Name of the sequence being processed",
-            lambda keyword, task: task.sequenceName()
+            lambda keyword, task: task.sequenceName(),
         )
 
 
@@ -149,5 +156,10 @@ class FtrackNukeRenderExporterUI(TranscodeExporterUI, FtrackProcessorUI):
         form_layout.addDivider('Ftrack Options')
         self.addFtrackTaskUI(form_layout, exportTemplate)
 
-hiero.core.taskRegistry.registerTask(FtrackNukeRenderExporterPreset, FtrackNukeRenderExporter)
-hiero.ui.taskUIRegistry.registerTaskUI(FtrackNukeRenderExporterPreset, FtrackNukeRenderExporterUI)
+
+hiero.core.taskRegistry.registerTask(
+    FtrackNukeRenderExporterPreset, FtrackNukeRenderExporter
+)
+hiero.ui.taskUIRegistry.registerTaskUI(
+    FtrackNukeRenderExporterPreset, FtrackNukeRenderExporterUI
+)

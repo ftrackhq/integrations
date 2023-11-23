@@ -1,11 +1,10 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2014 ftrack
+# :copyright: Copyright (c) 2014-2023 ftrack
 import os
 import json
 import time
 import logging
 import functools
-import qtawesome as qta
 
 from ftrack_connect.qt import QtCore
 from ftrack_connect.qt import QtWidgets
@@ -268,7 +267,6 @@ class Actions(QtWidgets.QWidget):
     def _getCurrentUserId(self):
         '''Return current user id.'''
         if not self._currentUserId:
-
             user = self.session.query(
                 'User where username="{0}"'.format(self.session.api_user)
             ).one()

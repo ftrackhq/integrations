@@ -1,8 +1,11 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2018 ftrack
+# :copyright: Copyright (c) 2014-2023 ftrack
 
 import hiero
-from hiero.exporters.FnAudioExportTask import AudioExportTask, AudioExportPreset
+from hiero.exporters.FnAudioExportTask import (
+    AudioExportTask,
+    AudioExportPreset,
+)
 from hiero.exporters.FnAudioExportUI import AudioExportUI
 from hiero.ui.FnTaskUIFormLayout import TaskUIFormLayout
 
@@ -12,7 +15,7 @@ from ftrack_nuke_studio.config import report_exception
 from ftrack_nuke_studio.processors.ftrack_base.ftrack_base_processor import (
     FtrackProcessorPreset,
     FtrackProcessor,
-    FtrackProcessorUI
+    FtrackProcessorUI,
 )
 
 
@@ -72,31 +75,33 @@ class FtrackAudioExporterPreset(AudioExportPreset, FtrackProcessorPreset):
         '''Add ftrack resolve entries to *resolver*.'''
         FtrackProcessorPreset.addFtrackResolveEntries(self, resolver)
         # ensure to have {ext} set to a wav fixed extension
-        resolver.addResolver('{ext}', 'Extension of the file to be output', 'wav')
+        resolver.addResolver(
+            '{ext}', 'Extension of the file to be output', 'wav'
+        )
 
         # Provide common resolver from ShotProcessorPreset
         resolver.addResolver(
             "{clip}",
             "Name of the clip used in the shot being processed",
-            lambda keyword, task: task.clipName()
+            lambda keyword, task: task.clipName(),
         )
 
         resolver.addResolver(
             "{shot}",
             "Name of the shot being processed",
-            lambda keyword, task: task.shotName()
+            lambda keyword, task: task.shotName(),
         )
 
         resolver.addResolver(
             "{track}",
             "Name of the track being processed",
-            lambda keyword, task: task.trackName()
+            lambda keyword, task: task.trackName(),
         )
 
         resolver.addResolver(
             "{sequence}",
             "Name of the sequence being processed",
-            lambda keyword, task: task.sequenceName()
+            lambda keyword, task: task.sequenceName(),
         )
 
 
@@ -121,5 +126,10 @@ class FtrackAudioExporterUI(AudioExportUI, FtrackProcessorUI):
 
         self.addFtrackTaskUI(form_layout, exportTemplate)
 
-hiero.core.taskRegistry.registerTask(FtrackAudioExporterPreset, FtrackAudioExporter)
-hiero.ui.taskUIRegistry.registerTaskUI(FtrackAudioExporterPreset, FtrackAudioExporterUI)
+
+hiero.core.taskRegistry.registerTask(
+    FtrackAudioExporterPreset, FtrackAudioExporter
+)
+hiero.ui.taskUIRegistry.registerTaskUI(
+    FtrackAudioExporterPreset, FtrackAudioExporterUI
+)

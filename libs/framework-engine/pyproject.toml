@@ -1,0 +1,33 @@
+[tool.poetry]
+name = "ftrack-framework-engine"
+version = "2.0.0rc1"
+description='ftrack framework engine library'
+authors = ["ftrack Integrations Team <integrations@backlight.co>"]
+readme = "README.md"
+packages = [{include = "ftrack_framework_engine", from = "source"}]
+license = "Apache-2.0"
+homepage = "https://ftrack.com"
+repository = "https://github.com/ftrackhq/integrations"
+
+[[tool.poetry.source]]
+name = "testpypi"
+url = "https://test.pypi.org/simple/"
+default = false
+secondary = false
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.dependencies]
+python = ">= 3.7, < 3.8"
+#ftrack
+ftrack-utils = { version = "> 1, < 3", optional = true }
+
+[tool.poetry.extras]
+ftrack-libs = ["ftrack-utils"]
+
+[tool.black]
+line-length = 79
+skip-string-normalization = true
+

@@ -1,24 +1,24 @@
-ftrack\_framework\_core.definition
+ftrack\_framework\_core.tool_config
 ============================================
 
-.. automodule:: ftrack_framework_core.definition
+.. automodule:: ftrack_framework_core.tool_config
     :members:
     :undoc-members:
     :show-inheritance:
 
 
-ftrack\_framework\_core.definition.collect
+ftrack\_framework\_core.tool_config.collect
 ---------------------------------------------------
 
-.. automodule:: ftrack_framework_core.definition.collect
+.. automodule:: ftrack_framework_core.tool_config.collect
     :members:
     :undoc-members:
     :show-inheritance:
 
-ftrack\_framework\_core.definition.validate
+ftrack\_framework\_core.tool_config.validate
 ----------------------------------------------------
 
-.. automodule:: ftrack_framework_core.definition.validate
+.. automodule:: ftrack_framework_core.tool_config.validate
     :members:
     :undoc-members:
     :show-inheritance:

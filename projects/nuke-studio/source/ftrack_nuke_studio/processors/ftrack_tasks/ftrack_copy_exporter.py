@@ -1,5 +1,5 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2020 ftrack
+# :copyright: Copyright (c) 2014-2023 ftrack
 
 import os
 
@@ -14,12 +14,11 @@ from ftrack_nuke_studio.config import report_exception
 from ftrack_nuke_studio.processors.ftrack_base.ftrack_base_processor import (
     FtrackProcessorPreset,
     FtrackProcessor,
-    FtrackProcessorUI
+    FtrackProcessorUI,
 )
 
 
 class FtrackCopyExporter(CopyExporter, FtrackProcessor):
-
     @report_exception
     def __init__(self, init_dict):
         CopyExporter.__init__(self, init_dict)
@@ -44,18 +43,16 @@ class FtrackCopyExporter(CopyExporter, FtrackProcessor):
 
     @report_exception
     def doFrame(self, src, dst):
-        '''Override per frame function to allow a proper registration 
-            into ftrack.
-        
+        '''Override per frame function to allow a proper registration
+        into ftrack.
+
         '''
         if not self._source.singleFile():
             dst_path = os.path.dirname(self._exportPath)
             dst_file_tokens = os.path.basename(dst).split('.')[-2:]
             dst_tokens = [self.component_name().lower()]
             dst_tokens.extend(dst_file_tokens)
-            dst_name = '{0}.{1}.{2}'.format(
-                *dst_tokens
-            )
+            dst_name = '{0}.{1}.{2}'.format(*dst_tokens)
 
             dst = os.path.join(dst_path, dst_name)
         else:
@@ -66,7 +63,6 @@ class FtrackCopyExporter(CopyExporter, FtrackProcessor):
 
 
 class FtrackCopyExporterPreset(CopyPreset, FtrackProcessorPreset):
-
     @report_exception
     def __init__(self, name, properties):
         CopyPreset.__init__(self, name, properties)
@@ -100,36 +96,35 @@ class FtrackCopyExporterPreset(CopyPreset, FtrackProcessorPreset):
         resolver.addResolver(
             "{clip}",
             "Name of the clip used in the shot being processed",
-            lambda keyword, task: task.clipName()
+            lambda keyword, task: task.clipName(),
         )
 
         resolver.addResolver(
             "{shot}",
             "Name of the shot being processed",
-            lambda keyword, task: task.shotName()
+            lambda keyword, task: task.shotName(),
         )
 
         resolver.addResolver(
             "{track}",
             "Name of the track being processed",
-            lambda keyword, task: task.trackName()
+            lambda keyword, task: task.trackName(),
         )
 
         resolver.addResolver(
             "{sequence}",
             "Name of the sequence being processed",
-            lambda keyword, task: task.sequenceName()
+            lambda keyword, task: task.sequenceName(),
         )
 
         resolver.addResolver(
             "{ext}",
             "Extension of the file to be output",
-            lambda keyword, task: task.fileext()
+            lambda keyword, task: task.fileext(),
         )
 
 
 class FtrackCopyExporterUI(CopyExporterUI, FtrackProcessorUI):
-
     def __init__(self, preset):
         CopyExporterUI.__init__(self, preset)
         FtrackProcessorUI.__init__(self, preset)
@@ -145,5 +140,10 @@ class FtrackCopyExporterUI(CopyExporterUI, FtrackProcessorUI):
 
         self.addFtrackTaskUI(form_layout, exportTemplate)
 
-hiero.core.taskRegistry.registerTask(FtrackCopyExporterPreset, FtrackCopyExporter)
-hiero.ui.taskUIRegistry.registerTaskUI(FtrackCopyExporterPreset, FtrackCopyExporterUI)
+
+hiero.core.taskRegistry.registerTask(
+    FtrackCopyExporterPreset, FtrackCopyExporter
+)
+hiero.ui.taskUIRegistry.registerTaskUI(
+    FtrackCopyExporterPreset, FtrackCopyExporterUI
+)

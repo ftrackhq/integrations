@@ -1,5 +1,5 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2015 ftrack
+# :copyright: Copyright (c) 2014-2023 ftrack
 
 import logging
 import os
@@ -10,17 +10,16 @@ import ftrack_api
 
 FTRACK_CONNECT_INSTALLER_RESOURCE_PATH = os.environ.get(
     'FTRACK_CONNECT_INSTALLER_RESOURCE_PATH',
-    os.path.abspath(
-        os.path.join(
-            os.path.dirname(__file__), '..'
-        )
-    )
+    os.path.abspath(os.path.join(os.path.dirname(__file__), '..')),
 )
 
 VERSION = 'Unknown'
-with open(os.path.join(
-    FTRACK_CONNECT_INSTALLER_RESOURCE_PATH, 'ftrack_connect_installer_version.py'
-)) as _version_file:
+with open(
+    os.path.join(
+        FTRACK_CONNECT_INSTALLER_RESOURCE_PATH,
+        'ftrack_connect_installer_version.py',
+    )
+) as _version_file:
     VERSION = re.match(
         r'.*__version__ = \'(.*?)\'', _version_file.read(), re.DOTALL
     ).group(1)
@@ -28,13 +27,7 @@ with open(os.path.join(
 
 def get_version_information(event):
     '''Return version information for ftrack connect installer.'''
-    return [
-        dict(
-            name='Package',
-            version=VERSION,
-            core=True
-        )
-    ]
+    return [dict(name='Package', version=VERSION, core=True)]
 
 
 def register(api_object, **kw):
@@ -53,5 +46,5 @@ def register(api_object, **kw):
 
     api_object.event_hub.subscribe(
         'topic=ftrack.connect.plugin.debug-information',
-        get_version_information
+        get_version_information,
     )

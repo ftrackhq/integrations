@@ -1,10 +1,11 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2018 ftrack
+# :copyright: Copyright (c) 2014-2023 ftrack
 
 import time
 import re
 import unicodedata
 import logging
+
 logger = logging.getLogger(__name__)
 
 import hiero
@@ -23,7 +24,7 @@ class FtrackBase(object):
         'ftrack.origin',
         'ftrack.unmanaged',
         'ftrack.connect',
-        'ftrack.perforce-scenario'
+        'ftrack.perforce-scenario',
     ]
     illegal_character_substitute = '_'
     path_separator = '/'
@@ -71,7 +72,7 @@ class FtrackBase(object):
         return (
             hiero.core.env['VersionMajor'],
             hiero.core.env['VersionMinor'],
-            hiero.core.env['VersionRelease'].split('v')[-1]
+            hiero.core.env['VersionRelease'].split('v')[-1],
         )
 
     @property

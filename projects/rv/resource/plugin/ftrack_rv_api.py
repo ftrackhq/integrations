@@ -1,5 +1,5 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2014 ftrack
+# :copyright: Copyright (c) 2014-2023 ftrack
 
 import sys
 import json
@@ -23,9 +23,9 @@ import rv as rv
 ftrack_rv_logger_name = 'ftrack_rv'
 
 
-
 try:
     import ftrack_logging
+
     ftrack_logging.configure_logging(ftrack_rv_logger_name)
     # Setup logging.
 except Exception as error:
@@ -47,17 +47,13 @@ for env in required_envs:
 
 
 # Setup ssl certificate path.
-cacert_path = os.path.join(
-    os.path.dirname(__file__),
-    'cacert.pem'
-)
+cacert_path = os.path.join(os.path.dirname(__file__), 'cacert.pem')
 os.environ['REQUESTS_CA_BUNDLE'] = cacert_path
 
 # Setup dependencies path.
-dependencies_path = os.path.abspath(os.path.join(
-    os.path.dirname(__file__),
-    'dependencies.zip'
-))
+dependencies_path = os.path.abspath(
+    os.path.join(os.path.dirname(__file__), 'dependencies.zip')
+)
 
 logger.debug('Adding {} to PATH'.format(dependencies_path))
 sys.path.insert(0, dependencies_path)
@@ -69,9 +65,7 @@ try:
     from ftrack_api.symbol import ORIGIN_LOCATION_ID, SERVER_LOCATION_ID
 
 except ImportError as e:
-    logger.error(
-        'No Ftrack API module found in {}'.format(dependencies_path)
-    )
+    logger.error('No Ftrack API module found in {}'.format(dependencies_path))
     raise
 
 
@@ -90,9 +84,7 @@ annotation_components = {}
 
 # Initialize New API
 try:
-    session = ftrack_api.Session(
-        auto_connect_event_hub=False
-    )
+    session = ftrack_api.Session(auto_connect_event_hub=False)
 
     # Get some useful locations.
     origin_location = session.get('Location', ORIGIN_LOCATION_ID)
@@ -115,33 +107,23 @@ def _getSourceNode(nodeType='sequence'):
                 'RVSequenceGroup', 'Sequence'
             )
 
-            rv.extra_commands.setUIName(
-                sequenceSourceNode, 'SequenceNode'
-            )
+            rv.extra_commands.setUIName(sequenceSourceNode, 'SequenceNode')
 
         return sequenceSourceNode
 
     elif nodeType == 'stack':
         if stackSourceNode is None:
-            stackSourceNode = rv.commands.newNode(
-                'RVStackGroup', 'Stack'
-            )
+            stackSourceNode = rv.commands.newNode('RVStackGroup', 'Stack')
 
-            rv.extra_commands.setUIName(
-                stackSourceNode, 'StackNode'
-            )
+            rv.extra_commands.setUIName(stackSourceNode, 'StackNode')
 
         return stackSourceNode
 
     elif nodeType == 'layout':
         if layoutSourceNode is None:
-            layoutSourceNode = rv.commands.newNode(
-                'RVLayoutGroup', 'Layout'
-            )
+            layoutSourceNode = rv.commands.newNode('RVLayoutGroup', 'Layout')
 
-            rv.extra_commands.setUIName(
-                layoutSourceNode, 'LayoutNode'
-            )
+            rv.extra_commands.setUIName(layoutSourceNode, 'LayoutNode')
 
         return layoutSourceNode
 
@@ -174,9 +156,7 @@ def _ftrackAddVersion(track, layout):
     stackInputs = rv.commands.nodeConnections(layout, False)[0]
     newSource = rv.commands.addSourceVerbose([track], None)
     rv.commands.setNodeInputs(layout, stackInputs)
-    rv.extra_commands.setUIName(
-        rv.commands.nodeGroup(newSource), track
-    )
+    rv.extra_commands.setUIName(rv.commands.nodeGroup(newSource), track)
 
     return newSource
 
@@ -191,9 +171,7 @@ def _ftrackCreateGroup(tracks, sourceNode, layout):
         except Exception as error:
             logger.exception(error)
 
-    rv.commands.setNodeInputs(
-        sourceNode, singleSources
-    )
+    rv.commands.setNodeInputs(sourceNode, singleSources)
 
 
 def loadPlaylist(playlist, index=None, includeFrame=None):
@@ -214,9 +192,7 @@ def loadPlaylist(playlist, index=None, includeFrame=None):
 
     sources = []
     for item in playlist:
-        sources.append(_getFilePath(
-            item.get('componentId')
-        ))
+        sources.append(_getFilePath(item.get('componentId')))
 
     sequenceSourceNode = _getSourceNode('sequence')
 
@@ -242,18 +218,13 @@ def validateComponentLocation(componentId, versionId):
                 'ftrack-event',
                 base64.b64encode(
                     json.dumps(
-                        {
-                            'type': 'breakItem',
-                            'versionId': versionId
-                        }
+                        {'type': 'breakItem', 'versionId': versionId}
                     ).encode("utf-8")
                 ).decode('ascii'),
-                None
+                None,
             )
         except Exception:
-            logger.error(
-                'Could not send internal event to ftrack.'
-            )
+            logger.error('Could not send internal event to ftrack.')
 
 
 def ftrackCompare(data):
@@ -313,8 +284,9 @@ def _getEntityFromEnvironment():
             decodedEventData = json.loads(base64.b64decode(eventData))
         except (TypeError, ValueError):
             logger.error(
-                'Failed to decode {0}: {1}'
-                .format(eventEnvironmentVariable, eventData)
+                'Failed to decode {0}: {1}'.format(
+                    eventEnvironmentVariable, eventData
+                )
             )
         else:
             selection = decodedEventData.get('selection', [])
@@ -329,13 +301,15 @@ def _getEntityFromEnvironment():
                     return entityId, entityType
                 except (IndexError, AttributeError, KeyError):
                     logger.error(
-                        'Failed to extract selection information from: {0}'
-                        .format(selection)
+                        'Failed to extract selection information from: {0}'.format(
+                            selection
+                        )
                     )
     else:
         logger.debug(
-            'No event data retrieved. {0} not set.'
-            .format(eventEnvironmentVariable)
+            'No event data retrieved. {0} not set.'.format(
+                eventEnvironmentVariable
+            )
         )
 
     return None, None
@@ -361,18 +335,20 @@ def _translateEntityType(entityType):
         alias_for = schema.get('alias_for')
 
         if (
-            alias_for and isinstance(alias_for, str) and
-            alias_for.lower() == entity_type
+            alias_for
+            and isinstance(alias_for, str)
+            and alias_for.lower() == entity_type
         ):
             return schema['id']
 
     for schema in session.schemas:
         if schema['id'].lower() == entity_type:
-                return schema['id']
+            return schema['id']
 
     raise ValueError(
         'Unable to translate entity type: {0}.'.format(entity_type)
     )
+
 
 def _get_temp_data_url(name, temp_data_id):
     operation = {
@@ -385,6 +361,7 @@ def _get_temp_data_url(name, temp_data_id):
     url = result[0]['widget_url']
     full_url = '{}&entityType=tempdata&entityId={}'.format(url, temp_data_id)
     return full_url
+
 
 def _generateURL(params=None, panelName=None):
     '''Return URL to panel in ftrack based on *params* or *panel*.'''
@@ -403,15 +380,17 @@ def _generateURL(params=None, panelName=None):
             except Exception:
                 entityId, entityType = _getEntityFromEnvironment()
 
-            if (entityId and entityType):
-                if (entityType != 'tempdata') :   
+            if entityId and entityType:
+                if entityType != 'tempdata':
                     new_entity_type = _translateEntityType(entityType)
                     new_entity = session.get(new_entity_type, entityId)
                     try:
-                        url = session.get_widget_url(panelName, entity=new_entity)
+                        url = session.get_widget_url(
+                            panelName, entity=new_entity
+                        )
                     except Exception as exception:
                         logger.error(str(exception))
-                else: 
+                else:
                     try:
                         url = _get_temp_data_url(panelName, entityId)
                     except Exception as exception:
@@ -437,8 +416,7 @@ def ftrackFilePath(id):
 
 
 def ftrackUUID(short):
-    '''Retun a uuid based on uuid1
-    '''
+    '''Retun a uuid based on uuid1'''
     return str(uuid())
 
 
@@ -457,7 +435,7 @@ def ftrackJumpTo(index=0, startFrame=1):
                 data = rv.commands.sourceMediaInfoList(source)[0]
                 add = (data.get('endFrame', 0) - data.get('startFrame', 0)) + 1
                 add = 1 if add == 0 else add
-                frameNumber += (add)
+                frameNumber += add
 
         rv.commands.setFrame(frameNumber + startFrame)
     except Exception:
@@ -480,13 +458,9 @@ def create_component(encoded_args):
 
         component_name = 'Frame_{0}'.format(frame)
         file_path = os.path.join(ftrackFilePath(''), file_name)
-        logger.info(u'Creating component: {0!r}'.format(
-            file_path
-        ))
+        logger.info(u'Creating component: {0!r}'.format(file_path))
         component = session.create_component(
-            path=file_path,
-            data=dict(name=component_name),
-            location=None
+            path=file_path, data=dict(name=component_name), location=None
         )
         component_id = component['id']
         annotation_components[component_id] = component
@@ -499,9 +473,11 @@ def create_component(encoded_args):
 def upload_component(component_id):
     '''Add component with *component_id* to ftrack server location.'''
     try:
-        logger.info(u'Adding component {0!r} to ftrack server location.'.format(
-            component_id
-        ))
+        logger.info(
+            u'Adding component {0!r} to ftrack server location.'.format(
+                component_id
+            )
+        )
         component = annotation_components[component_id]
         server_location.add_component(component, origin_location)
         del annotation_components[component_id]

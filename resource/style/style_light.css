@@ -1,0 +1,970 @@
+QDialog {
+  background-color: #fafafa; }
+
+  Dialog, ModalDialog {
+    background-color: #f8f8f8; }
+
+    QFrame[ftrackDropZone] {
+      border-radius: 2px;
+      border-width: 2px;
+      border-style: dashed;
+      border-color: #e6e6e6; }
+      QFrame[ftrackDropZone] > QLabel {
+        color: #999; }
+
+QLabel {
+  color: #333;
+  border: none; }
+
+  QTextEdit, QLineEdit {
+    border: 1px solid #eee;
+    border-radius: 2px;
+    padding: 4px;
+    background: white;
+    selection-background-color: #eee;
+    color: #333; }
+    QTextEdit:hover, QLineEdit:hover {
+      border-color: #fbfbfb; }
+      QTextEdit:disabled, QLineEdit:disabled {
+        border-color: #d5d5d5; }
+        QTextEdit:focus, QLineEdit:focus {
+          border-color: #fbfbfb; }
+
+QTextEdit[input="invalid"], QLineEdit[input="invalid"] {
+  border: 1px solid black; }
+
+  NewAssetNameInput QLineEdit, NewAssetInput[status='focused'] QLineEdit,
+  NewAssetInput[status='unfocused'] QLineEdit {
+    border: 1px solid #eee !important; }
+
+    NewAssetInput[status='unfocused'] QLabel {
+      color: #555; }
+
+      QCheckBox {
+        color: #333;
+        border: none; }
+
+        QCheckBox::indicator {
+          image: url(':/ftrack/image/light/checkbox_unchecked'); }
+
+          QCheckBox::indicator:disabled {
+            image: url(':/ftrack/image/light/checkbox_unchecked_disabled'); }
+
+            QCheckBox::indicator:checked {
+              image: url(':/ftrack/image/light/checkbox_checked'); }
+
+              QCheckBox::indicator:checked:disabled {
+                image: url(':/ftrack/image/light/checkbox_checked_disabled'); }
+
+                AssetVersion QLabel {
+                  color: #333;
+                  border: none; }
+
+                  TitleLabel {
+                    background: #1F252B; }
+
+                    WarningLabel {
+                      color: #FFBA5C;
+                      font-style: italic; }
+
+                      QComboBox {
+                        border: 1px solid #eee;
+                        border-radius: 2px;
+                        padding: 4px;
+                        padding-left: 10px;
+                        background: transparent;
+                        selection-background-color: #eee;
+                        color: #333;
+                        text-align: center; }
+                        QComboBox:hover {
+                          border-color: #e2e2e2; }
+                          QComboBox:focus {
+                            border: 1px solid #fbfbfb; }
+
+QComboBox::drop-down {
+  subcontrol-origin: padding;
+  subcontrol-position: top right;
+  padding: 4px;
+  border: 0;
+  text-align: center; }
+
+  QComboBox::down-arrow {
+    image: url(':/ftrack/image/light/combobox_down_arrow');
+    width: 8px;
+    height: 8px; }
+
+    QComboBox QAbstractItemView {
+      color: #333;
+      outline: 0;
+      border-radius: 2px;
+      background: #fafafa;
+      selection-background-color: #eee;
+      text-align: center; }
+
+      QFrame[docked='true'] QComboBox QAbstractItemView {
+        background: #373737; }
+
+        QComboBox QAbstractItemView::item {
+          padding: 4px 0; }
+
+          QComboBox QAbstractItemView::item:selected {
+            color: #333;
+            background-color: #eee; }
+
+            QComboBox[ftrackCurrentIndexIsDefault="true"] {
+              color: #555; }
+
+              QComboBox[chip='true'] {
+                border-radius: 11px; }
+
+                AssetVersionSelector, VersionComboBox {
+                  border: 1px solid #eee;
+                  border-radius: 11px;
+                  color: #333; }
+
+                  AssemblerVersionComboBox {
+                    border: 1px solid #eee;
+                    border-radius: 11px;
+                    background: transparent;
+                    selection-background-color: #eee;
+                    color: #333 !important;
+                    text-align: center; }
+                    AssemblerVersionComboBox:hover {
+                      border-color: #fbfbfb; }
+                      AssemblerVersionComboBox:focus {
+                        border: 1px solid #fbfbfb; }
+                        AssemblerVersionComboBox:disabled {
+                          border: 1px solid #e2e2e2;
+                          color: #555; }
+
+DefinitionSelectorComboBox {
+  padding-top: 7px;
+  padding-bottom: 5px;
+  padding-right: 7px; }
+
+  QPushButton, QMessageBox QPushButton {
+    border: 1px solid #F1C500;
+    border-radius: 3px;
+    background-color: transparent;
+    color: #F1C500;
+    padding: 4px; }
+
+    QPushButton:hover {
+      border-color: #d8b000;
+      background-color: #3D3520;
+      color: black; }
+
+      QPushButton:pressed {
+        border-color: #d8b000;
+        background-color: #2c2617;
+        color: black; }
+
+        QPushButton:disabled {
+          color: black;
+          border-color: black; }
+
+          QPushButton:checked {
+            color: #F1C500;
+            background-color: #3D3520;
+            font-weight: bold; }
+
+            QPushButton#primary {
+              background-color: #F1C500;
+              color: white; }
+
+              QPushButton#primary:hover {
+                background-color: #F1C500;
+                border-color: #F1C500;
+                color: white; }
+
+                QPushButton#primary:pressed {
+                  background-color: #d8b000;
+                  border-color: #d8b000;
+                  color: white; }
+
+                  QPushButton[flat="true"]:pressed {
+                    background: none;
+                    border: 1px solid #F1C500; }
+
+                    QToolButton {
+                      border: 1px solid #F1C500;
+                      border-radius: 2px;
+                      background-color: white;
+                      color: black; }
+
+                      QToolButton:hover {
+                        border-color: #d8b000;
+                        background-color: #eee;
+                        color: white; }
+
+                        QToolButton:pressed {
+                          border-color: #d8b000;
+                          background-color: #eee;
+                          color: white; }
+
+                          QFrame#new-asset-input[status=''] QPushButton {
+                            border: 1px;
+                            solid transparent; }
+
+                            QPushButton#status-widget-collapsed-button {
+                              border-radius: 16px;
+                              padding: 0px; }
+
+                              QPushButton#status-widget-expanded-button {
+                                border-radius: 16px;
+                                padding: 0px; }
+
+                                QPushButton#status-widget-expanded-banner {
+                                  border-radius: 4px;
+                                  padding: 4px; }
+
+                                  QPushButton[status='unknown_status'], QPushButton[status='pause_status'],
+                                  QPushButton#status-widget-expanded-button QLabel {
+                                    border: 1px solid #333; }
+
+                                    QPushButton#status-widget-expanded-button[status='warning_status'] QLabel,
+                                    QPushButton#status-widget-expanded-button[status='pause_status'] QLabel {
+                                      border: none;
+                                      color: #333; }
+
+                                      QPushButton[status='success_status'] {
+                                        border: 1px solid #79DFB6; }
+
+                                        QPushButton#status-widget-expanded-button[status='success_status'] QLabel {
+                                          border: none;
+                                          color: #79DFB6; }
+
+                                          QPushButton[status='warning_status'] {
+                                            border: 1px solid #FFBA5C; }
+
+                                            QPushButton#status-widget-expanded-button[status='warning_status'] QLabel {
+                                              border: none;
+                                              color: #FFBA5C; }
+
+                                              QPushButton[status='running_status'] {
+                                                border: 1px solid #87E1EB; }
+
+                                                QPushButton#status-widget-expanded-button[status='running_status'] QLabel {
+                                                  border: none;
+                                                  color: #87E1EB; }
+
+                                                  QPushButton[status='error_status'], QPushButton[status='exception_status'] {
+                                                    border: 1px solid #FF7A73; }
+
+                                                    QPushButton#status-widget-expanded-button[status='error_status'] QLabel,
+                                                    QPushButton#status-widget-expanded-button[status='exception_status'] QLabel {
+                                                      border: none;
+                                                      color: #FF7A73; }
+
+                                                      OptionsButton {
+                                                        padding: 0px;
+                                                        margin: 0px; }
+
+                                                        OptionsButton:disabled {
+                                                          background: none; }
+
+                                                          PhaseButton, PhaseButton QLabel {
+                                                            background-color: transparent;
+                                                            border: none; }
+
+                                                            RunButton {
+                                                              color: #F1C500;
+                                                              font-size: 12px;
+                                                              padding-left: 14px;
+                                                              padding-right: 14px; }
+
+                                                              OpenAssemblerButton {
+                                                                color: #333;
+                                                                font-size: 12px;
+                                                                border: 1px solid #333; }
+
+                                                                OpenAssemblerButton:hover {
+                                                                  color: #404040;
+                                                                  border: 1px solid #404040;
+                                                                  background: black; }
+
+                                                                  AddRunButton {
+                                                                    color: #86E0EA;
+                                                                    border: 1px solid #86E0EA;
+                                                                    border-radius: 3px;
+                                                                    padding-left: 14px;
+                                                                    padding-right: 14px; }
+
+                                                                    AddRunButton:hover {
+                                                                      color: #9ce6ee;
+                                                                      border: 1px solid #9ce6ee;
+                                                                      background: #115860; }
+
+                                                                      AddRunButton:disabled {
+                                                                        color: #115860;
+                                                                        border: 1px solid #115860; }
+
+                                                                        LoadRunButton {
+                                                                          color: #1CBC90;
+                                                                          border: 1px solid #1CBC90;
+                                                                          border-radius: 3px;
+                                                                          padding-left: 14px;
+                                                                          padding-right: 14px; }
+
+                                                                          LoadRunButton:hover {
+                                                                            color: #1fd2a1;
+                                                                            border: 1px solid #1fd2a1;
+                                                                            background: #0b4d3b; }
+
+                                                                            LoadRunButton:disabled {
+                                                                              color: #062a20;
+                                                                              border: 1px solid #062a20; }
+
+                                                                              RemoveButton {
+                                                                                color: #FF7A73;
+                                                                                border: 1px solid #FF7A73;
+                                                                                border-radius: 3px;
+                                                                                padding-left: 4px;
+                                                                                padding-right: 4px; }
+
+                                                                                RemoveButton:hover {
+                                                                                  color: #ff928d;
+                                                                                  border: 1px solid #ff928d;
+                                                                                  background: #f20c00; }
+
+                                                                                  RemoveButton:disabled {
+                                                                                    color: rgba(255, 122, 115, 0.25);
+                                                                                    border: 1px solid rgba(255, 122, 115, 0.25); }
+
+                                                                                    ApproveButton {
+                                                                                      color: #F1C500;
+                                                                                      border: none;
+                                                                                      background: transparent;
+                                                                                      font-size: 1.1em; }
+
+                                                                                      ApproveButton:disabled {
+                                                                                        background: transparent; }
+
+                                                                                        ApproveButton:hover {
+                                                                                          background: transparent; }
+
+                                                                                          DenyButton {
+                                                                                            color: #555;
+                                                                                            border: none;
+                                                                                            background: transparent;
+                                                                                            font-size: 1.1em; }
+
+                                                                                            DenyButton:hover {
+                                                                                              background: transparent; }
+
+                                                                                              NewAssetButton {
+                                                                                                border: none;
+                                                                                                font-weight: bold;
+                                                                                                color: #373737;
+                                                                                                background-color: #F1C500 !important; }
+
+                                                                                                QTabWidget {
+                                                                                                  padding: 0px;
+                                                                                                  border: none;
+                                                                                                  margin: -10px -10px -10px -10px; }
+
+                                                                                                  QTabWidget::pane {
+                                                                                                    padding: 0px;
+                                                                                                    margin: -2px -2px -2px -2px;
+                                                                                                    border: none; }
+
+                                                                                                    QTabWidget::tab-bar {
+                                                                                                      left: 0px;
+                                                                                                      background-color: red; }
+
+                                                                                                      QTabBar {
+                                                                                                        border-bottom: 2px solid #222;
+                                                                                                        padding: 0px;
+                                                                                                        margin: 0px; }
+
+                                                                                                        QTabBar::tab {
+                                                                                                          min-width: 120px;
+                                                                                                          padding: 8px 10px 9px 10px;
+                                                                                                          color: #555;
+                                                                                                          border-bottom: none;
+                                                                                                          font-size: 12px; }
+
+                                                                                                          QTabBar::tab:selected {
+                                                                                                            color: #333;
+                                                                                                            border-bottom: 2px solid #F1C500; }
+
+                                                                                                            QTabBar::tab:hover {
+                                                                                                              color: #333; }
+
+                                                                                                              AssemblerTabWidget QTabBar::tab {
+                                                                                                                min-width: 170px;
+                                                                                                                font-size: 14px;
+                                                                                                                vertical-align: text-top; }
+
+                                                                                                                QTableWidget {
+                                                                                                                  gridline-color: #f8f8f8; }
+
+                                                                                                                  QTableView {
+                                                                                                                    gridline-color: #f8f8f8;
+                                                                                                                    border: 1px solid #333;
+                                                                                                                    outline: 0;
+                                                                                                                    background: #fafafa; }
+
+                                                                                                                    QTableView::section {
+                                                                                                                      border: none; }
+
+                                                                                                                      QTableView::item {
+                                                                                                                        border: none;
+                                                                                                                        padding: 5px;
+                                                                                                                        background: #fafafa;
+                                                                                                                        color: #333; }
+
+                                                                                                                        QTableView::item:selected {
+                                                                                                                          background: #eee; }
+
+                                                                                                                          QHeaderView {
+                                                                                                                            color: #333;
+                                                                                                                            background-color: #f8f8f8;
+                                                                                                                            border: none; }
+
+                                                                                                                            QHeaderView::section {
+                                                                                                                              border-style: none;
+                                                                                                                              border-right: 1px solid alt-background;
+                                                                                                                              background-color: #fafafa; }
+
+                                                                                                                              QListWidget {
+                                                                                                                                border: 1px solid #eee;
+                                                                                                                                outline: 0;
+                                                                                                                                background: transparent; }
+
+                                                                                                                                QListWidget::item {
+                                                                                                                                  background: transparent;
+                                                                                                                                  padding: 2px;
+                                                                                                                                  color: #555; }
+
+                                                                                                                                  QListWidget::item:alternate {
+                                                                                                                                    background: #333;
+                                                                                                                                    padding: 2px;
+                                                                                                                                    color: #999; }
+
+                                                                                                                                    QListWidget::item QLabel {
+                                                                                                                                      background: transparent; }
+
+                                                                                                                                      QListWidget::item:selected, QListWidget::item:alternate:selected {
+                                                                                                                                        background: #eee;
+                                                                                                                                        color: white; }
+
+                                                                                                                                        AssetList {
+                                                                                                                                          border: none;
+                                                                                                                                          outline: 0;
+                                                                                                                                          background: transparent; }
+
+                                                                                                                                          QMenuBar {
+                                                                                                                                            background: white; }
+
+                                                                                                                                            QMenu {
+                                                                                                                                              background: #f8f8f8; }
+
+                                                                                                                                              QFrame[docked='true'] QMenu {
+                                                                                                                                                background: #2c2c2c; }
+
+                                                                                                                                                QMenu::item {
+                                                                                                                                                  background: #f8f8f8;
+                                                                                                                                                  border: 0px;
+                                                                                                                                                  padding: 7px;
+                                                                                                                                                  padding-right: 15px;
+                                                                                                                                                  color: #333; }
+
+                                                                                                                                                  QFrame[docked='true'] QMenu::item {
+                                                                                                                                                    background: #2c2c2c; }
+
+                                                                                                                                                    QMenu::item:selected:enabled {
+                                                                                                                                                      background: #262626; }
+
+                                                                                                                                                      QMenu::item:pressed:enabled {
+                                                                                                                                                        background: #1a1a1a; }
+
+                                                                                                                                                        QMenu::item:unchecked {
+                                                                                                                                                          margin-left: -10px; }
+
+                                                                                                                                                          QScrollBar {
+                                                                                                                                                            border: 0;
+                                                                                                                                                            background: #fafafa;
+                                                                                                                                                            background-color: #fafafa;
+                                                                                                                                                            margin: 0; }
+
+                                                                                                                                                            QScrollBar:vertical {
+                                                                                                                                                              width: 12px;
+                                                                                                                                                              background: #fafafa; }
+
+                                                                                                                                                              QScrollBar:horizontal {
+                                                                                                                                                                height: 12px;
+                                                                                                                                                                background: #fafafa; }
+
+                                                                                                                                                                QScrollBar::handle:vertical, QScrollBar::handle:horizontal {
+                                                                                                                                                                  border: 0;
+                                                                                                                                                                  border-radius: 4px;
+                                                                                                                                                                  background: #555;
+                                                                                                                                                                  margin: 2px;
+                                                                                                                                                                  min-width: 2px;
+                                                                                                                                                                  min-height: 2px; }
+
+                                                                                                                                                                  QFrame[docked='true'] QScrollBar {
+                                                                                                                                                                    background: #373737; }
+
+                                                                                                                                                                    QFrame[docked='true'] QScrollBar:vertical {
+                                                                                                                                                                      background: #373737; }
+
+                                                                                                                                                                      QFrame[docked='true'] QScrollBar:horizontal {
+                                                                                                                                                                        background: #373737; }
+
+                                                                                                                                                                        QFrame[docked='true'] QScrollBar::handle {
+                                                                                                                                                                          background: #333; }
+
+                                                                                                                                                                          QFrame[docked='true'] QScrollBar::handle:hover {
+                                                                                                                                                                            background: #555; }
+
+                                                                                                                                                                            QScrollBar::handle:vertical {
+                                                                                                                                                                              min-height: 4px; }
+
+                                                                                                                                                                              QScrollBar::left-arrow, QScrollBar::right-arrow, QScrollBar::down-arrow,
+                                                                                                                                                                              QScrollBar::up-arrow {
+                                                                                                                                                                                width: 0px;
+                                                                                                                                                                                height: 0px;
+                                                                                                                                                                                border: none; }
+
+                                                                                                                                                                                QScrollBar::add-line {
+                                                                                                                                                                                  border: 0;
+                                                                                                                                                                                  height: 0;
+                                                                                                                                                                                  background: white;
+                                                                                                                                                                                  subcontrol-position: bottom;
+                                                                                                                                                                                  subcontrol-origin: margin; }
+
+                                                                                                                                                                                  QScrollBar::sub-line {
+                                                                                                                                                                                    border: 0;
+                                                                                                                                                                                    height: 0;
+                                                                                                                                                                                    background: white;
+                                                                                                                                                                                    subcontrol-position: top;
+                                                                                                                                                                                    subcontrol-origin: margin; }
+
+                                                                                                                                                                                    ScrollingFlowWidget > QScrollArea, ScrollingFlowWidget > QScrollArea QWidget {
+                                                                                                                                                                                      background-color: transparent;
+                                                                                                                                                                                      border: none; }
+
+                                                                                                                                                                                      QFrame#publisher-componentlist {
+                                                                                                                                                                                        border: 0; }
+
+                                                                                                                                                                                        QFrame#publisher-componentlist QTableWidget {
+                                                                                                                                                                                          background-color: transparent;
+                                                                                                                                                                                          border: 0; }
+
+                                                                                                                                                                                          QFrame#publisher-componentlist QTableWidget::item {
+                                                                                                                                                                                            background-color: transparent;
+                                                                                                                                                                                            border: 0;
+                                                                                                                                                                                            padding: 0; }
+
+                                                                                                                                                                                            QFrame#ftrack-connect-thumbnail-drop-zone {
+                                                                                                                                                                                              padding: 4px; }
+
+                                                                                                                                                                                              QPushButton#thumbnail-drop-zone-remove-button {
+                                                                                                                                                                                                image: url(':/ftrack/image/light/trash'); }
+
+                                                                                                                                                                                                #timer QLabel[title] {
+                                                                                                                                                                                                  color: #548cd7; }
+
+                                                                                                                                                                                                  #timer QLineEdit#timeField {
+                                                                                                                                                                                                    font-weight: bold;
+                                                                                                                                                                                                    padding: 8px;
+                                                                                                                                                                                                    width: 80px; }
+
+                                                                                                                                                                                                    #timer QPushButton#primary {
+                                                                                                                                                                                                      padding: 8px;
+                                                                                                                                                                                                      width: 80px; }
+
+                                                                                                                                                                                                      #timer QPushButton[mode="start"]#primary {
+                                                                                                                                                                                                        background-color: #F1C500;
+                                                                                                                                                                                                        border-color: #d8b000; }
+
+                                                                                                                                                                                                        #timer QPushButton[mode="start"]#primary:hover {
+                                                                                                                                                                                                          background-color: #d8b000;
+                                                                                                                                                                                                          border-color: #be9b00; }
+
+                                                                                                                                                                                                          #timer QPushButton[mode="start"]#primary:pressed {
+                                                                                                                                                                                                            background-color: #be9b00;
+                                                                                                                                                                                                            border-color: #a48600; }
+
+                                                                                                                                                                                                            #timer QPushButton[mode="start"]:disabled#primary {
+                                                                                                                                                                                                              background-color: #ffe158;
+                                                                                                                                                                                                              border-color: #ffdc3f; }
+
+                                                                                                                                                                                                              #timer QPushButton[mode="stop"]#primary {
+                                                                                                                                                                                                                background-color: #E74C3C;
+                                                                                                                                                                                                                border-color: #ea6153; }
+
+                                                                                                                                                                                                                #timer QPushButton[mode="stop"]#primary:hover {
+                                                                                                                                                                                                                  background-color: #ea6153;
+                                                                                                                                                                                                                  border-color: #ed7669; }
+
+                                                                                                                                                                                                                  #timer QPushButton[mode="stop"]#primary:pressed {
+                                                                                                                                                                                                                    background-color: #d62c1a;
+                                                                                                                                                                                                                    border-color: #bf2718; }
+
+                                                                                                                                                                                                                    #timer QPushButton[mode="stop"]:disabled#primary {
+                                                                                                                                                                                                                      background-color: #f29f97;
+                                                                                                                                                                                                                      border-color: #ef8b80; }
+
+                                                                                                                                                                                                                      #time-log QLabel[title] {
+                                                                                                                                                                                                                        color: #548cd7; }
+
+                                                                                                                                                                                                                        QFrame#time-log-list {
+                                                                                                                                                                                                                          border: 0;
+                                                                                                                                                                                                                          margin: 20px 0 0 0; }
+
+                                                                                                                                                                                                                          QFrame#time-log-list QTableWidget {
+                                                                                                                                                                                                                            background-color: transparent;
+                                                                                                                                                                                                                            border: 0; }
+
+                                                                                                                                                                                                                            QFrame#time-log-list QTableWidget::item {
+                                                                                                                                                                                                                              background-color: transparent;
+                                                                                                                                                                                                                              border-bottom: 1px solid #e6e6e6;
+                                                                                                                                                                                                                              padding: 0; }
+
+                                                                                                                                                                                                                              QFrame#overlay {
+                                                                                                                                                                                                                                background-color: #f8f8f8; }
+
+                                                                                                                                                                                                                                QFrame#overlay QLabel {
+                                                                                                                                                                                                                                  background-color: transparent; }
+
+                                                                                                                                                                                                                                  EntityBrowser QTabBar {
+                                                                                                                                                                                                                                    border: 1px solid #999;
+                                                                                                                                                                                                                                    background: white; }
+
+                                                                                                                                                                                                                                    EntityBrowser QTabBar::tab {
+                                                                                                                                                                                                                                      background: #F1C500;
+                                                                                                                                                                                                                                      min-width: 0px;
+                                                                                                                                                                                                                                      padding: 2px 8px;
+                                                                                                                                                                                                                                      color: white;
+                                                                                                                                                                                                                                      border-radius: 3px;
+                                                                                                                                                                                                                                      margin: 3px;
+                                                                                                                                                                                                                                      margin-right: 0px; }
+
+                                                                                                                                                                                                                                      EntityBrowser QTabBar::tab:selected {
+                                                                                                                                                                                                                                        color: white; }
+
+                                                                                                                                                                                                                                        EntityBrowser QTabBar::tab:hover {
+                                                                                                                                                                                                                                          background-color: #d8b000;
+                                                                                                                                                                                                                                          border-color: #be9b00; }
+
+                                                                                                                                                                                                                                          EntityBrowser QToolButton#entity-browser-reload-button {
+                                                                                                                                                                                                                                            image: url(':/ftrack/image/light/reload'); }
+
+                                                                                                                                                                                                                                            EntityBrowser QToolButton#entity-browser-up-button {
+                                                                                                                                                                                                                                              image: url(':/ftrack/image/light/upArrow'); }
+
+                                                                                                                                                                                                                                              EntitySelector QPushButton#entity-selector-remove-button {
+                                                                                                                                                                                                                                                image: url(':/ftrack/image/light/remove'); }
+
+                                                                                                                                                                                                                                                QToolTip {
+                                                                                                                                                                                                                                                  border: 1px solid #eee;
+                                                                                                                                                                                                                                                  border-radius: 2px;
+                                                                                                                                                                                                                                                  background-color: white;
+                                                                                                                                                                                                                                                  color: #333;
+                                                                                                                                                                                                                                                  padding: 3px; }
+
+                                                                                                                                                                                                                                                  QRadioButton {
+                                                                                                                                                                                                                                                    color: #333; }
+
+                                                                                                                                                                                                                                                    QRadioButton::indicator {
+                                                                                                                                                                                                                                                      width: 13px;
+                                                                                                                                                                                                                                                      height: 13px; }
+
+                                                                                                                                                                                                                                                      QRadioButton:disabled {
+                                                                                                                                                                                                                                                        color: #555; }
+
+                                                                                                                                                                                                                                                        QRadioButton::indicator::unchecked {
+                                                                                                                                                                                                                                                          image: url(':/ftrack/image/light/radiobutton_unchecked'); }
+
+                                                                                                                                                                                                                                                          QRadioButton::indicator:unchecked:hover {
+                                                                                                                                                                                                                                                            image: url(':/ftrack/image/light/radiobutton_unchecked_hover'); }
+
+                                                                                                                                                                                                                                                            QRadioButton::indicator:unchecked:pressed {
+                                                                                                                                                                                                                                                              image: url(':/ftrack/image/light/radiobutton_unchecked_pressed'); }
+
+                                                                                                                                                                                                                                                              QRadioButton::indicator::checked {
+                                                                                                                                                                                                                                                                image: url(':/ftrack/image/light/radiobutton_checked'); }
+
+                                                                                                                                                                                                                                                                QRadioButton::indicator:checked:hover {
+                                                                                                                                                                                                                                                                  image: url(':/ftrack/image/light/radiobutton_checked_hover'); }
+
+                                                                                                                                                                                                                                                                  QRadioButton::indicator:checked:pressed {
+                                                                                                                                                                                                                                                                    image: url(':/ftrack/image/light/radiobutton_checked_pressed'); }
+
+                                                                                                                                                                                                                                                                    QRadioButton::indicator:disabled::unchecked {
+                                                                                                                                                                                                                                                                      image: url(':/ftrack/image/light/radiobutton_unchecked_disabled'); }
+
+                                                                                                                                                                                                                                                                      QRadioButton::indicator:disabled:unchecked:hover {
+                                                                                                                                                                                                                                                                        image: url(':/ftrack/image/light/radiobutton_unchecked_hover_disabled'); }
+
+                                                                                                                                                                                                                                                                        QRadioButton::indicator:disabled:unchecked:pressed {
+                                                                                                                                                                                                                                                                          image: url(':/ftrack/image/light/radiobutton_unchecked_pressed_disabled'); }
+
+                                                                                                                                                                                                                                                                          QRadioButton::indicator:disabled::checked {
+                                                                                                                                                                                                                                                                            image: url(':/ftrack/image/light/radiobutton_checked_disabled'); }
+
+                                                                                                                                                                                                                                                                            QRadioButton::indicator:disabled:checked:hover {
+                                                                                                                                                                                                                                                                              image: url(':/ftrack/image/light/radiobutton_checked_hover_disabled'); }
+
+                                                                                                                                                                                                                                                                              QRadioButton::indicator:disabled:checked:pressed {
+                                                                                                                                                                                                                                                                                image: url(':/ftrack/image/light/radiobutton_checked_pressed_disabled'); }
+
+                                                                                                                                                                                                                                                                                QAction#component-remove-action {
+                                                                                                                                                                                                                                                                                  image: url(':/ftrack/image/light/trash'); }
+
+                                                                                                                                                                                                                                                                                  QGroupBox {
+                                                                                                                                                                                                                                                                                    color: #333;
+                                                                                                                                                                                                                                                                                    background: transparent !important;
+                                                                                                                                                                                                                                                                                    border: 1px solid #eee;
+                                                                                                                                                                                                                                                                                    padding-top: 7px; }
+
+                                                                                                                                                                                                                                                                                    QGroupBox::title {
+                                                                                                                                                                                                                                                                                      color: #333;
+                                                                                                                                                                                                                                                                                      font-size: 0.7em; }
+
+                                                                                                                                                                                                                                                                                      QGroupBox::indicator {
+                                                                                                                                                                                                                                                                                        width: 20px;
+                                                                                                                                                                                                                                                                                        height: 20px; }
+
+                                                                                                                                                                                                                                                                                        QGroupBox::indicator::unchecked {
+                                                                                                                                                                                                                                                                                          image: url(':/ftrack/image/light/menu'); }
+
+                                                                                                                                                                                                                                                                                          QGroupBox::indicator:unchecked:hover {
+                                                                                                                                                                                                                                                                                            image: url(':/ftrack/image/light/apps'); }
+
+                                                                                                                                                                                                                                                                                            QGroupBox::indicator:unchecked:pressed {
+                                                                                                                                                                                                                                                                                              image: url(':/ftrack/image/light/menu'); }
+
+                                                                                                                                                                                                                                                                                              QGroupBox::indicator::checked {
+                                                                                                                                                                                                                                                                                                image: url(':/ftrack/image/light/apps'); }
+
+                                                                                                                                                                                                                                                                                                QGroupBox::indicator:checked:hover {
+                                                                                                                                                                                                                                                                                                  image: url(':/ftrack/image/light/menu'); }
+
+                                                                                                                                                                                                                                                                                                  QGroupBox::indicator:checked:pressed {
+                                                                                                                                                                                                                                                                                                    image: url(':/ftrack/image/light/apps'); }
+
+                                                                                                                                                                                                                                                                                                    QSplitter::handle {
+                                                                                                                                                                                                                                                                                                      border-left: 1px dotted #eee;
+                                                                                                                                                                                                                                                                                                      width: 2px;
+                                                                                                                                                                                                                                                                                                      max-width: 2px; }
+
+                                                                                                                                                                                                                                                                                                      QFrame[background='transparent'], QDialog[background='transparent'] {
+                                                                                                                                                                                                                                                                                                        background: transparent; }
+
+                                                                                                                                                                                                                                                                                                        QFrame[background='ftrack'], QDialog[background='ftrack'] {
+                                                                                                                                                                                                                                                                                                          background: #fafafa; }
+
+                                                                                                                                                                                                                                                                                                          QFrame[background='ftrack-modal'], QDialog[background='ftrack-modal'] {
+                                                                                                                                                                                                                                                                                                            background: #ffffff; }
+
+                                                                                                                                                                                                                                                                                                            QFrame[background='default'], QDialog[background='default'] {
+                                                                                                                                                                                                                                                                                                              background: #373737; }
+
+                                                                                                                                                                                                                                                                                                              QFrame[background='maya'], QDialog[background='maya'] {
+                                                                                                                                                                                                                                                                                                                background: #424242; }
+
+                                                                                                                                                                                                                                                                                                                QFrame[background='nuke'], QDialog[background='nuke'] {
+                                                                                                                                                                                                                                                                                                                  background: #323232; }
+
+                                                                                                                                                                                                                                                                                                                  QFrame[background='houdini'], QDialog[background='houdini'] {
+                                                                                                                                                                                                                                                                                                                    background: #424242; }
+
+                                                                                                                                                                                                                                                                                                                    QtAssetManagerClientWidget[assembler='true'] {
+                                                                                                                                                                                                                                                                                                                      background-color: #1A2027; }
+
+                                                                                                                                                                                                                                                                                                                      QFrame[indicator='green'] {
+                                                                                                                                                                                                                                                                                                                        background: #79DFB6; }
+
+                                                                                                                                                                                                                                                                                                                        QFrame[indicator='blue'] {
+                                                                                                                                                                                                                                                                                                                          background: #0C8ADF; }
+
+                                                                                                                                                                                                                                                                                                                          QFrame[indicator='orange'] {
+                                                                                                                                                                                                                                                                                                                            background: #FFBA5C; }
+
+                                                                                                                                                                                                                                                                                                                            QFrame[indicator='red'] {
+                                                                                                                                                                                                                                                                                                                              background: #FF5C5C; }
+
+                                                                                                                                                                                                                                                                                                                              QFrame[indicator='grey'] {
+                                                                                                                                                                                                                                                                                                                                background: #404040; }
+
+                                                                                                                                                                                                                                                                                                                                QFrame[background='selected'] {
+                                                                                                                                                                                                                                                                                                                                  background: #eee; }
+
+                                                                                                                                                                                                                                                                                                                                  QFrame[background='transparent'] {
+                                                                                                                                                                                                                                                                                                                                    background: transparent; }
+
+                                                                                                                                                                                                                                                                                                                                    Line {
+                                                                                                                                                                                                                                                                                                                                      border: 1px dashed #eee; }
+
+                                                                                                                                                                                                                                                                                                                                      Line[style='solid'] {
+                                                                                                                                                                                                                                                                                                                                        border: 1px solid rgba(255, 255, 255, 0.05); }
+
+                                                                                                                                                                                                                                                                                                                                        NewAssetInput[status='focused'] {
+                                                                                                                                                                                                                                                                                                                                          background: #eee !important; }
+
+                                                                                                                                                                                                                                                                                                                                          #bordered {
+                                                                                                                                                                                                                                                                                                                                            border: 1px dashed #eee; }
+
+                                                                                                                                                                                                                                                                                                                                            AccordionBaseWidget {
+                                                                                                                                                                                                                                                                                                                                              border-top: 1px dashed #eee; }
+
+                                                                                                                                                                                                                                                                                                                                              PublisherAccordionStepWidgetObject {
+                                                                                                                                                                                                                                                                                                                                                border-left: 1px dashed #eee;
+                                                                                                                                                                                                                                                                                                                                                border-right: 1px dashed #eee; }
+
+                                                                                                                                                                                                                                                                                                                                                NavigationEntityButton {
+                                                                                                                                                                                                                                                                                                                                                  background: #1F252B;
+                                                                                                                                                                                                                                                                                                                                                  border-radius: 12px;
+                                                                                                                                                                                                                                                                                                                                                  border: none;
+                                                                                                                                                                                                                                                                                                                                                  color: #333;
+                                                                                                                                                                                                                                                                                                                                                  padding-left: 5px;
+                                                                                                                                                                                                                                                                                                                                                  padding-right: 5px;
+                                                                                                                                                                                                                                                                                                                                                  font-weight: bold; }
+
+                                                                                                                                                                                                                                                                                                                                                  NavigationEntityButton[first='true'] {
+                                                                                                                                                                                                                                                                                                                                                    background: transparent;
+                                                                                                                                                                                                                                                                                                                                                    border-radius: 12px;
+                                                                                                                                                                                                                                                                                                                                                    border: 1px solid #eee; }
+
+                                                                                                                                                                                                                                                                                                                                                    NavigationEntityButton:hover, EntityWidget:hover, AccordionBaseWidget:hover {
+                                                                                                                                                                                                                                                                                                                                                      background: #eee; }
+
+                                                                                                                                                                                                                                                                                                                                                      EntityWidget {
+                                                                                                                                                                                                                                                                                                                                                        color: #333;
+                                                                                                                                                                                                                                                                                                                                                        border-bottom: 1px dashed #eee;
+                                                                                                                                                                                                                                                                                                                                                        border-right: 1px dashed #eee; }
+
+                                                                                                                                                                                                                                                                                                                                                        EntityWidget[background='selected'] {
+                                                                                                                                                                                                                                                                                                                                                          background: #eee; }
+
+                                                                                                                                                                                                                                                                                                                                                          TypeWidget {
+                                                                                                                                                                                                                                                                                                                                                            border: 1px solid #222;
+                                                                                                                                                                                                                                                                                                                                                            border-radius: 12px; }
+
+                                                                                                                                                                                                                                                                                                                                                            Footer QLabel {
+                                                                                                                                                                                                                                                                                                                                                              color: #f8f8f8; }
+
+                                                                                                                                                                                                                                                                                                                                                              QFrame[docked='true'] Footer QLabel {
+                                                                                                                                                                                                                                                                                                                                                                color: #333; }
+
+                                                                                                                                                                                                                                                                                                                                                                * {
+                                                                                                                                                                                                                                                                                                                                                                  font-family: 'Roboto', 'Open Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+                                                                                                                                                                                                                                                                                                                                                                  font-size: 11px; }
+
+                                                                                                                                                                                                                                                                                                                                                                  QLabel#lead-label {
+                                                                                                                                                                                                                                                                                                                                                                    font-size: 13px;
+                                                                                                                                                                                                                                                                                                                                                                    color: #999;
+                                                                                                                                                                                                                                                                                                                                                                    font-weight: light; }
+
+                                                                                                                                                                                                                                                                                                                                                                    QPixmap {
+                                                                                                                                                                                                                                                                                                                                                                      image: url(':/ftrack/image/light/ftrackLogoLabelDark'); }
+
+                                                                                                                                                                                                                                                                                                                                                                      QScrollArea {
+                                                                                                                                                                                                                                                                                                                                                                        border: none;
+                                                                                                                                                                                                                                                                                                                                                                        background-color: transparent;
+                                                                                                                                                                                                                                                                                                                                                                        padding: 0px; }
+
+                                                                                                                                                                                                                                                                                                                                                                        QScrollArea QWidget {
+                                                                                                                                                                                                                                                                                                                                                                          background-color: transparent; }
+
+                                                                                                                                                                                                                                                                                                                                                                          QMessageBox {
+                                                                                                                                                                                                                                                                                                                                                                            background-color: #222; }
+
+                                                                                                                                                                                                                                                                                                                                                                            #h1 {
+                                                                                                                                                                                                                                                                                                                                                                              color: white;
+                                                                                                                                                                                                                                                                                                                                                                              font-weight: bold;
+                                                                                                                                                                                                                                                                                                                                                                              font-size: 20px; }
+
+                                                                                                                                                                                                                                                                                                                                                                              #h2 {
+                                                                                                                                                                                                                                                                                                                                                                                color: white;
+                                                                                                                                                                                                                                                                                                                                                                                font-weight: bold;
+                                                                                                                                                                                                                                                                                                                                                                                font-size: 14px; }
+
+                                                                                                                                                                                                                                                                                                                                                                                #h3 {
+                                                                                                                                                                                                                                                                                                                                                                                  color: white;
+                                                                                                                                                                                                                                                                                                                                                                                  font-weight: bold;
+                                                                                                                                                                                                                                                                                                                                                                                  font-size: larger; }
+
+                                                                                                                                                                                                                                                                                                                                                                                  #h4 {
+                                                                                                                                                                                                                                                                                                                                                                                    color: white;
+                                                                                                                                                                                                                                                                                                                                                                                    font-weight: bold; }
+
+                                                                                                                                                                                                                                                                                                                                                                                    #gray {
+                                                                                                                                                                                                                                                                                                                                                                                      color: #555; }
+
+                                                                                                                                                                                                                                                                                                                                                                                      #gray-dark {
+                                                                                                                                                                                                                                                                                                                                                                                        color: #333; }
+
+                                                                                                                                                                                                                                                                                                                                                                                        #gray-darker {
+                                                                                                                                                                                                                                                                                                                                                                                          color: #222; }
+
+                                                                                                                                                                                                                                                                                                                                                                                          #red {
+                                                                                                                                                                                                                                                                                                                                                                                            color: red; }
+
+                                                                                                                                                                                                                                                                                                                                                                                            #color-primary {
+                                                                                                                                                                                                                                                                                                                                                                                              color: #F1C500; }
+
+                                                                                                                                                                                                                                                                                                                                                                                              #borderless {
+                                                                                                                                                                                                                                                                                                                                                                                                border: none; }
+
+                                                                                                                                                                                                                                                                                                                                                                                                QPushButton#ftrack-connect-publisher-browse-button {
+                                                                                                                                                                                                                                                                                                                                                                                                  margin: 10px; }
+
+                                                                                                                                                                                                                                                                                                                                                                                                  #ftrack-connect-window TimerOverlay {
+                                                                                                                                                                                                                                                                                                                                                                                                    border: 1px dashed #e6e6e6;
+                                                                                                                                                                                                                                                                                                                                                                                                    background-color: white; }
+
+                                                                                                                                                                                                                                                                                                                                                                                                    #ftrack-connect-window TimerOverlay QLabel {
+                                                                                                                                                                                                                                                                                                                                                                                                      background: transparent; }
+
+                                                                                                                                                                                                                                                                                                                                                                                                      QFrame#HarnessGuiController {
+                                                                                                                                                                                                                                                                                                                                                                                                        border: 2px inset #999;
+                                                                                                                                                                                                                                                                                                                                                                                                        background-color: #eee; }
+
+                                                                                                                                                                                                                                                                                                                                                                                                        body {
+                                                                                                                                                                                                                                                                                                                                                                                                          color: white;
+                                                                                                                                                                                                                                                                                                                                                                                                          background-color: #2d2d2d;
+                                                                                                                                                                                                                                                                                                                                                                                                          font-family: 'Roboto', 'Open Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif; }
+
+                                                                                                                                                                                                                                                                                                                                                                                                          #error {
+                                                                                                                                                                                                                                                                                                                                                                                                            font-size: 11px;
+                                                                                                                                                                                                                                                                                                                                                                                                            border: 1px solid rgba(255, 134, 134, 0.25);
+                                                                                                                                                                                                                                                                                                                                                                                                            border-radius: 4px;
+                                                                                                                                                                                                                                                                                                                                                                                                            background-color: rgba(255, 124, 134, 0.05);
+                                                                                                                                                                                                                                                                                                                                                                                                            padding: 25px; }
+
+                                                                                                                                                                                                                                                                                                                                                                                                            #footer {
+                                                                                                                                                                                                                                                                                                                                                                                                              font-size: 12px;
+                                                                                                                                                                                                                                                                                                                                                                                                              color: rgba(255, 255, 255, 0.45); }
+
+                                                                                                                                                                                                                                                                                                                                                                                                              #launchers {
+                                                                                                                                                                                                                                                                                                                                                                                                                width: 100%; }
+
+                                                                                                                                                                                                                                                                                                                                                                                                                #launcher_button {
+                                                                                                                                                                                                                                                                                                                                                                                                                  font-size: 15px;
+                                                                                                                                                                                                                                                                                                                                                                                                                  font-weight: 500;
+                                                                                                                                                                                                                                                                                                                                                                                                                  width: 100%;
+                                                                                                                                                                                                                                                                                                                                                                                                                  height: 48px;
+                                                                                                                                                                                                                                                                                                                                                                                                                  padding: 8px;
+                                                                                                                                                                                                                                                                                                                                                                                                                  margin: 4px;
+                                                                                                                                                                                                                                                                                                                                                                                                                  border: 1px solid rgba(255, 221, 134, 0.25);
+                                                                                                                                                                                                                                                                                                                                                                                                                  border-radius: 4px;
+                                                                                                                                                                                                                                                                                                                                                                                                                  background-color: rgba(255, 221, 134, 0.05);
+                                                                                                                                                                                                                                                                                                                                                                                                                  color: #ffdd86; }
+
+                                                                                                                                                                                                                                                                                                                                                                                                                  #launcher_button:hover {
+                                                                                                                                                                                                                                                                                                                                                                                                                    background-color: rgba(255, 221, 134, 0.25); }
+
+                                                                                                                                                                                                                                                                                                                                                                                                                    #launcher_image {
+                                                                                                                                                                                                                                                                                                                                                                                                                      width: 12px;
+                                                                                                                                                                                                                                                                                                                                                                                                                      height: 16px;
+                                                                                                                                                                                                                                                                                                                                                                                                                      min-width: 12px;
+                                                                                                                                                                                                                                                                                                                                                                                                                      min-height: 16px;
+                                                                                                                                                                                                                                                                                                                                                                                                                      max-width: 12px;
+                                                                                                                                                                                                                                                                                                                                                                                                                      max-height: 16px;
+                                                                                                                                                                                                                                                                                                                                                                                                                      margin-bottom: -3px;
+                                                                                                                                                                                                                                                                                                                                                                                                                      padding-right: 4px; }

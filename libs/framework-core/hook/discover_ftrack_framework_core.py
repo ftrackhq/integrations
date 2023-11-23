@@ -1,5 +1,5 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2016 ftrack
+# :copyright: Copyright (c) 2014-2023 ftrack
 
 import os
 import sys
@@ -8,7 +8,6 @@ import logging
 import functools
 
 NAME = 'framework-core'
-VERSION = '0.1.0'
 
 logger = logging.getLogger('{}.hook'.format(NAME.replace('-', '_')))
 
@@ -22,12 +21,11 @@ sys.path.append(python_dependencies)
 
 
 def on_discover_ftrack_framework_core(session, event):
-
     from ftrack_framework_core import __version__ as integration_version
 
     data = {
         'integration': {
-            'name': 'framework-core',
+            'name': 'ftrack-{}'.format(NAME),
             'version': integration_version,
         }
     }
@@ -48,20 +46,21 @@ def on_launch_ftrack_framework_core(session, event):
         plugin_base_dir, 'resource', 'bootstrap'
     )
 
-    core_bootstrap_plugin_path = os.path.join(
-        core_bootstrap_path, 'plugins'
+    core_bootstrap_plugin_path = os.path.join(core_bootstrap_path, 'plugins')
+
+    core_tool_configs_path = os.path.join(
+        plugin_base_dir, 'resource', 'tool_configs'
     )
 
-    core_definitions_path = os.path.join(
-        plugin_base_dir, 'resource', 'definitions'
-    )
-
+    # TODO: fix this as are all in different paths now
+    # noinspection SpellCheckingInspection
     core_base_data['integration']['env'] = {
         'PYTHONPATH.prepend': python_dependencies,
         'FTRACK_EVENT_PLUGIN_PATH.prepend': os.path.pathsep.join(
-            [core_plugins_path, core_definitions_path]
+            [core_plugins_path, core_tool_configs_path]
         ),
-        'FTRACK_DEFINITION_PATH.prepend': core_definitions_path,
+        'FTRACK_TOOL_CONFIG_PATH.prepend': core_tool_configs_path,
+        #'FTRACK_SCHEMA_PATH.prepend': core_schemas_path,
     }
 
     return core_base_data
@@ -72,7 +71,9 @@ def register(session):
     if not isinstance(session, ftrack_api.session.Session):
         return
 
-    handle_discovery_event = functools.partial(on_discover_ftrack_framework_core, session)
+    handle_discovery_event = functools.partial(
+        on_discover_ftrack_framework_core, session
+    )
 
     session.event_hub.subscribe(
         'topic=ftrack.connect.application.discover '
@@ -81,7 +82,9 @@ def register(session):
         priority=20,
     )
 
-    handle_launch_event = functools.partial(on_launch_ftrack_framework_core, session)
+    handle_launch_event = functools.partial(
+        on_launch_ftrack_framework_core, session
+    )
 
     session.event_hub.subscribe(
         'topic=ftrack.connect.application.launch '

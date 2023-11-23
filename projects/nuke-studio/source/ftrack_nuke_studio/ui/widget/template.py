@@ -1,5 +1,5 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2018 ftrack
+# :copyright: Copyright (c) 2014-2023 ftrack
 
 import logging
 import ftrack_nuke_studio.ui.widget.html_combobox
@@ -14,9 +14,7 @@ class Template(ftrack_nuke_studio.ui.widget.html_combobox.HtmlComboBox):
     def __init__(self, project, parent=None):
         '''Initialise template combobox.'''
 
-        super(Template, self).__init__(
-            self.format, parent=parent
-        )
+        super(Template, self).__init__(self.format, parent=parent)
 
         self.logger = logging.getLogger(
             __name__ + '.' + self.__class__.__name__
@@ -29,9 +27,7 @@ class Template(ftrack_nuke_studio.ui.widget.html_combobox.HtmlComboBox):
         default_index = 0
         for index, template in enumerate(self._templates):
             self.addItem(template['name'])
-            self.setItemData(
-                index, template
-            )
+            self.setItemData(index, template)
 
             if template.get('default'):
                 default_index = index

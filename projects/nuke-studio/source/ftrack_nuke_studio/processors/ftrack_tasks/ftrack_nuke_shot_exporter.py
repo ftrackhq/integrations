@@ -1,5 +1,5 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2018 ftrack
+# :copyright: Copyright (c) 2014-2023 ftrack
 
 import hiero.core.util
 from hiero.exporters.FnNukeShotExporter import NukeShotExporter, NukeShotPreset
@@ -13,7 +13,7 @@ from ftrack_nuke_studio.config import report_exception
 from ftrack_nuke_studio.processors.ftrack_base.ftrack_base_processor import (
     FtrackProcessorPreset,
     FtrackProcessor,
-    FtrackProcessorUI
+    FtrackProcessorUI,
 )
 
 
@@ -39,8 +39,11 @@ class FtrackNukeShotExporter(NukeShotExporter, FtrackProcessor):
         track_item = self._init_dict.get('item')
         task_label = self._preset.properties()['ftrack']['reference_task']
         ftrack_tags = [
-            tag for tag in track_item.tags() if (
-                tag.metadata().hasKey('tag.provider') and tag.metadata()['tag.provider'] == 'ftrack'
+            tag
+            for tag in track_item.tags()
+            if (
+                tag.metadata().hasKey('tag.provider')
+                and tag.metadata()['tag.provider'] == 'ftrack'
             )
         ]
 
@@ -67,12 +70,26 @@ class FtrackNukeShotExporter(NukeShotExporter, FtrackProcessor):
                 ftrack_asset_type = ftrack_asset['type']['short']
 
                 node.addTabKnob('ftracktab', 'ftrack')
-                node.addInputTextKnob('componentId', 'componentId', value=component_id)
-                node.addInputTextKnob('componentName', 'componentName', value=ftrack_component_name)
-                node.addInputTextKnob('assetVersionId', 'assetVersionId', value=ftrack_version_id)
-                node.addInputTextKnob('assetVersion', 'assetVersion', value=ftrack_version)
-                node.addInputTextKnob('assetName', 'assetName', value=ftrack_asset_name)
-                node.addInputTextKnob('assetType', 'assetType', value=ftrack_asset_type)
+                node.addInputTextKnob(
+                    'componentId', 'componentId', value=component_id
+                )
+                node.addInputTextKnob(
+                    'componentName',
+                    'componentName',
+                    value=ftrack_component_name,
+                )
+                node.addInputTextKnob(
+                    'assetVersionId', 'assetVersionId', value=ftrack_version_id
+                )
+                node.addInputTextKnob(
+                    'assetVersion', 'assetVersion', value=ftrack_version
+                )
+                node.addInputTextKnob(
+                    'assetName', 'assetName', value=ftrack_asset_name
+                )
+                node.addInputTextKnob(
+                    'assetType', 'assetType', value=ftrack_asset_type
+                )
 
     def _makePath(self):
         '''Disable file path creation.'''
@@ -101,7 +118,6 @@ class FtrackNukeShotExporterPreset(NukeShotPreset, FtrackProcessorPreset):
         '''Return task/component name.'''
         return self.properties()['ftrack']['component_name']
 
-
     def set_ftrack_properties(self, properties):
         '''Set ftrack specific *properties* for task.'''
         FtrackProcessorPreset.set_ftrack_properties(self, properties)
@@ -121,25 +137,25 @@ class FtrackNukeShotExporterPreset(NukeShotPreset, FtrackProcessorPreset):
         resolver.addResolver(
             "{clip}",
             "Name of the clip used in the shot being processed",
-            lambda keyword, task: task.clipName()
+            lambda keyword, task: task.clipName(),
         )
 
         resolver.addResolver(
             "{shot}",
             "Name of the shot being processed",
-            lambda keyword, task: task.shotName()
+            lambda keyword, task: task.shotName(),
         )
 
         resolver.addResolver(
             "{track}",
             "Name of the track being processed",
-            lambda keyword, task: task.trackName()
+            lambda keyword, task: task.trackName(),
         )
 
         resolver.addResolver(
             "{sequence}",
             "Name of the sequence being processed",
-            lambda keyword, task: task.sequenceName()
+            lambda keyword, task: task.sequenceName(),
         )
 
 
@@ -161,12 +177,16 @@ class FtrackNukeShotExporterUI(NukeShotExporterUI, FtrackProcessorUI):
         from available instanciated tasks from *exportTemplate*.
         '''
         available_tasks_names = [
-            preset.name() for path, preset in exportTemplate.flatten() if (
-                isinstance(preset, TranscodePreset)
-            )
+            preset.name()
+            for path, preset in exportTemplate.flatten()
+            if (isinstance(preset, TranscodePreset))
         ]
 
-        key, value, label = 'reference_task', available_tasks_names, 'Source component'
+        key, value, label = (
+            'reference_task',
+            available_tasks_names,
+            'Source component',
+        )
         tooltip = 'Select component output as input for nuke script read node.'
 
         available_tasks_options = UIPropertyFactory.create(
@@ -175,7 +195,7 @@ class FtrackNukeShotExporterUI(NukeShotExporterUI, FtrackProcessorUI):
             value=value,
             dictionary=self._preset.properties()['ftrack'],
             label=label + ':',
-            tooltip=tooltip
+            tooltip=tooltip,
         )
         parent_layout.addRow(label + ':', available_tasks_options)
         available_tasks_options.update(True)
@@ -198,5 +218,9 @@ class FtrackNukeShotExporterUI(NukeShotExporterUI, FtrackProcessorUI):
         self._timelineWriteNode.setHidden(True)
 
 
-hiero.core.taskRegistry.registerTask(FtrackNukeShotExporterPreset, FtrackNukeShotExporter)
-hiero.ui.taskUIRegistry.registerTaskUI(FtrackNukeShotExporterPreset, FtrackNukeShotExporterUI)
+hiero.core.taskRegistry.registerTask(
+    FtrackNukeShotExporterPreset, FtrackNukeShotExporter
+)
+hiero.ui.taskUIRegistry.registerTaskUI(
+    FtrackNukeShotExporterPreset, FtrackNukeShotExporterUI
+)

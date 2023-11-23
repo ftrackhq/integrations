@@ -1,5 +1,5 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2018 ftrack
+# :copyright: Copyright (c) 2014-2023 ftrack
 
 import hiero
 from hiero.exporters.FnShotProcessor import ShotProcessorPreset
@@ -11,7 +11,9 @@ from ftrack_nuke_studio.config import report_exception
 from Qt import QtWidgets
 
 from ftrack_nuke_studio.processors.ftrack_base.ftrack_base_processor import (
-    FtrackProcessorPreset, FtrackProcessor, FtrackProcessorUI
+    FtrackProcessorPreset,
+    FtrackProcessor,
+    FtrackProcessorUI,
 )
 
 
@@ -21,13 +23,17 @@ class FtrackShotProcessor(ShotProcessor, FtrackProcessor):
     @report_exception
     def __init__(self, preset, submission, synchronous=False):
         '''Initialise processor with *preset* , *submission* and option to run as *synchronous*.'''
-        ShotProcessor.__init__(self, preset, submission, synchronous=synchronous)
+        ShotProcessor.__init__(
+            self, preset, submission, synchronous=synchronous
+        )
         FtrackProcessor.__init__(self, preset)
 
     @report_exception
     def startProcessing(self, exportItems, preview=False):
-        ''' Start processing of *exportItems* with optional *preview* mode. '''
-        result = FtrackProcessor.validate_ftrack_processing(self, exportItems, preview)
+        '''Start processing of *exportItems* with optional *preview* mode.'''
+        result = FtrackProcessor.validate_ftrack_processing(
+            self, exportItems, preview
+        )
         if result:
             exportItems = self.create_project_structure(exportItems)
         return ShotProcessor.startProcessing(self, exportItems, preview)
@@ -45,7 +51,11 @@ class FtrackShotProcessor(ShotProcessor, FtrackProcessor):
             if component_name not in components[target_task]:
                 components[target_task].append(component_name)
             else:
-                self.logger.info('{} is duplicated component for {}'.format(component_name, target_task))
+                self.logger.info(
+                    '{} is duplicated component for {}'.format(
+                        component_name, target_task
+                    )
+                )
                 task.setDuplicate()
 
 
@@ -58,17 +68,21 @@ class FtrackShotProcessorUI(ShotProcessorUI, FtrackProcessorUI):
         FtrackProcessorUI.__init__(self, preset)
 
     def updatePathPreview(self):
-        ''' Override path preview widget to show ftrack server address.'''
+        '''Override path preview widget to show ftrack server address.'''
         location_name = self.ftrack_location['name']
         mount_point = self.ftrack_location.accessor.prefix
-        self._pathPreviewWidget.setText('Using Location: {0}, with mount point: {1}'.format(location_name, mount_point))
+        self._pathPreviewWidget.setText(
+            'Using Location: {0}, with mount point: {1}'.format(
+                location_name, mount_point
+            )
+        )
 
     def _checkExistingVersions(self, exportItems):
-        ''' Override to disable internal version existence.'''
+        '''Override to disable internal version existence.'''
         return True
 
     def createVersionWidget(self):
-        ''' Override to disable version widget.
+        '''Override to disable version widget.
         Return an empty QWidget.
         '''
         widget = QtWidgets.QWidget()
@@ -78,18 +92,22 @@ class FtrackShotProcessorUI(ShotProcessorUI, FtrackProcessorUI):
         return widget
 
     def displayName(self):
-        ''' Return processor display name. '''
+        '''Return processor display name.'''
         return 'Ftrack Shot Processor'
 
     def toolTip(self):
-        ''' Return processor tooltip. '''
+        '''Return processor tooltip.'''
         return 'Process as Shots generates output on a per shot basis.'
 
     @report_exception
     def populateUI(self, processorUIWidget, taskUIWidget, exportItems):
         '''Populate processor ui with *exportItems*, with parent widget *processorUIWidget* or *taskUIWidget*.'''
-        ShotProcessorUI.populateUI(self, processorUIWidget, taskUIWidget, exportItems)
-        form_layout = FtrackProcessorUI.addFtrackProcessorUI(self, processorUIWidget, exportItems)
+        ShotProcessorUI.populateUI(
+            self, processorUIWidget, taskUIWidget, exportItems
+        )
+        form_layout = FtrackProcessorUI.addFtrackProcessorUI(
+            self, processorUIWidget, exportItems
+        )
         self.add_thumbnail_options(form_layout)
         self.add_reviewable_options(form_layout)
 
@@ -113,26 +131,25 @@ class FtrackShotProcessorPreset(ShotProcessorPreset, FtrackProcessorPreset):
         resolver.addResolver(
             "{clip}",
             "Name of the clip used in the shot being processed",
-            lambda keyword, task: task.clipName()
+            lambda keyword, task: task.clipName(),
         )
 
         resolver.addResolver(
             "{shot}",
             "Name of the shot being processed",
-            lambda keyword, task: task.shotName()
+            lambda keyword, task: task.shotName(),
         )
-
 
         resolver.addResolver(
             "{track}",
             "Name of the track being processed",
-            lambda keyword, task: task.trackName()
+            lambda keyword, task: task.trackName(),
         )
 
         resolver.addResolver(
             "{sequence}",
             "Name of the sequence being processed",
-            lambda keyword, task: task.sequenceName()
+            lambda keyword, task: task.sequenceName(),
         )
 
     def set_ftrack_properties(self, properties):

@@ -1,5 +1,5 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2018 ftrack
+# :copyright: Copyright (c) 2014-2023 ftrack
 
 
 import hiero.core
@@ -29,7 +29,7 @@ def available_templates(project):
         ftrack_api.event.base.Event(
             topic='ftrack.connect.nuke-studio.get-context-templates'
         ),
-        synchronous=True
+        synchronous=True,
     )
 
     for response in responses:
@@ -64,7 +64,7 @@ def get_project_template(project):
                     'expression': tag.metadata().value(
                         'ftrack.template.expression'
                     ),
-                    'default': True
+                    'default': True,
                 }
                 break
 
@@ -120,16 +120,13 @@ def match(item, template):
 
     hierarchy = []
     for object_type, object_name in objects.items():
-
         # Skip special `_` group used to remove things from name.
         if object_type == '_':
             continue
 
         # TODO: Validate that object type exist in ftrack. If not should
         # be marked as error.
-        hierarchy.append(dict(
-            object_type=object_type, name=object_name
-        ))
+        hierarchy.append(dict(object_type=object_type, name=object_name))
 
     hierarchy = sorted(
         hierarchy, key=lambda x: expression.index(x['object_type'])
@@ -141,10 +138,10 @@ def match(item, template):
             data={
                 'application_object': item,
                 'template': template,
-                'structure': hierarchy
-            }
+                'structure': hierarchy,
+            },
         ),
-        synchronous=True
+        synchronous=True,
     )
 
     return hierarchy

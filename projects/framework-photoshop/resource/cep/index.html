@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+  <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <head>
+    <link rel="icon" type="image/x-icon" href="./image/favicon.ico">
+    <link rel="stylesheet" href="./css/style_dark.css">
+  </head>
+
+  <body>
+    
+    <div id="error" style="visibility: hidden; display: none;">
+    </div>
+
+    <div id="connecting">
+      <br>
+      <div style="text-align: center;">
+        <i>loading</i><br>
+        <br>
+        <img src="./image/loader.gif" border="0" />
+      </div>
+    </div>
+
+    <div id="content" style="visibility: hidden; display: none;">
+      <!-- TODO: Implement context widget -->
+
+      <table id="launchers" cellspacing="2" cellpadding="0">
+        <!-- Content will be injected upon connection event from standalone process-->
+      </table>
+
+    </div>
+
+    <p id="footer">
+      This is the ftrack Framework Photoshop integration alpha.
+      Contact support@ftrack.com for inquiries. v{{FTRACK_FRAMEWORK_PHOTOSHOP_VERSION}}
+    </p>
+    <br>
+    <script type="text/javascript" src='./lib/CSInterface.js'></script>
+    <script type="text/javascript" src="./lib/JSX.js"></script>
+    <script type="text/javascript" src="./lib/ftrack.0.7.2.min.js"></script>
+    <script type="text/javascript" src="./lib/event-constants.js"></script>
+    <script type="text/javascript" src="./lib/utils.js"></script>
+    <script type="text/javascript" src="./lib/events-core.js"></script>
+    <script type="text/javascript" src="./bootstrap.js"></script>
+    <script type="text/javascript" src="./bootstrap-include.js"></script>
+  </body>
+</html>

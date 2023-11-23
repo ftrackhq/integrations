@@ -1,8 +1,8 @@
-
 import os
 import ftrack_api
 
 _shared_session = None
+
 
 def get_shared_session(plugin_paths=None):
     '''Return shared ftrack_api session.'''
@@ -15,7 +15,7 @@ def get_shared_session(plugin_paths=None):
             server_url=os.environ['FTRACK_SERVER'],
             api_key=os.environ['FTRACK_API_KEY'],
             api_user=os.environ['FTRACK_API_USER'],
-            plugin_paths=plugin_paths
+            plugin_paths=plugin_paths,
         )
 
     return _shared_session

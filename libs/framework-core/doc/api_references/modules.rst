@@ -13,7 +13,7 @@ API Reference
 
     ftrack_framework_core
 
-* `ftrack_connect_pipeline_definition <https://ftrackhq.github.io/ftrack-connect-pipeline-definition/>`_
+* `ftrack_connect_pipeline_tool_config <https://ftrackhq.github.io/ftrack-connect-pipeline-tool_config/>`_
 * `ftrack_connect_pipeline_qt <https://ftrackhq.github.io/ftrack-connect-pipeline-qt/>`_
 * `ftrack_connect_pipeline_maya <https://ftrackhq.github.io/ftrack-connect-pipeline-maya/>`_
 * `ftrack_connect_pipeline_nuke <https://ftrackhq.github.io/ftrack-connect-pipeline-nuke/>`_

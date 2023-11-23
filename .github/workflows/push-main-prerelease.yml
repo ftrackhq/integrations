@@ -1,5 +1,4 @@
-# Create the v0.0.0-latest pre-release on push/merge to main, be it on a PR merge,
-# direct push or a release tag push.
+# Create the v0.0.0rc pre-release on push/merge to main, be it on a PR merge or direct push.
 # Cleans up old tags and releases.
 
 name: CI-MERGE
@@ -9,58 +8,35 @@ concurrency: pants_ci
 
 on:
   push:
-    branches: ["main"]
+    branches: ["dummy"] # Disable CI - do not trigger
 
 jobs:
+
+  # Run Pants to evaluate which packages have changed.
   pants-build:
     uses: ./.github/workflows/pants-build.yml
     with:
-      pre_tag: false
+      full_release: false
       check_changed: true
+      version: "v0.0.0rc"
 
-  # Have to call connect release directly due to problems passing on AWS credentials
-  # pre-release:
-  #  needs: pants-build
-  #  uses: ./.github/workflows/pre-release.yml
-  #  with:
-  #    changed: ${{needs.pants-build.outputs.changed}}
-  #    tag_type: "latest"
-
+  # Create a pre-release for the packages that have changed.
   pre-release:
     needs: pants-build
-    strategy:
-      matrix:
-        # Add new packages here
-        package: [application-launcher, connect-action-launcher-widget, connect-plugin-manager, framework-core, framework-qt, framework-maya, framework-nuke, framework-houdini, framework-3dsmax, connect-timetracker-widget, nuke-studio, rv]
-        os: [ubuntu-latest]
-        suffix: ['']
-        include:
-          - package: framework-unreal
-            os: windows-latest
-            suffix: 'win'
-          # Add platform dependent packages here
-    runs-on: ${{ matrix.os }}
-    steps:
-      - name: Check out repository
-        if: ${{ contains(needs.pants-build.outputs.changed,matrix.package) }}
-        uses: actions/checkout@v3
-      - name: Run release action
-        if: ${{ contains(needs.pants-build.outputs.changed,matrix.package) }}
-        uses: ./.github/actions/connect-release
-        with:
-          package: ${{ matrix.package }}
-          tag: ${{ matrix.package }}/v0.0.0-latest
-          suffix: ${{ matrix.suffix }}
-          deleteprevious: true
-          prerelease: true
-          deploy_aws: true
-          token: ${{ secrets.GITHUB_TOKEN }}
-          aws_key_id: ${{ secrets.S3_ACCESS_KEY }}
-          aws_secret_access_key: ${{ secrets.S3_SECRET_ACCESS_KEY }}
+    uses: ./.github/workflows/release.yml
+    with:
+      changed: ${{needs.pants-build.outputs.changed}}
+      pre: true
+      version: ${{needs.pants-build.outputs.version}}
+      deploy_aws: true
+    secrets:
+      aws_key_id: ${{ secrets.S3_ACCESS_KEY }}
+      aws_secret_access_key: ${{ secrets.S3_SECRET_ACCESS_KEY }}
 
-#  deploy-docs:
-#    #needs: pants-build
-#    uses: ./.github/workflows/deploy-docs.yml
-#    with:
-#      changed: test #${{needs.pants-build.outputs.changed}}
-#      #destination: ./latest
+  deploy-docs:
+      needs: pants-build
+      uses: ./.github/workflows/deploy-docs.yml
+      with:
+        changed: ${{needs.pants-build.outputs.changed}}
+        build_index: false
+        is_rc: true

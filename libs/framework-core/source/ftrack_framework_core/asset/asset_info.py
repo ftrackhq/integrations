@@ -1,5 +1,5 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2014-2020 ftrack
+# :copyright: Copyright (c) 2014-2023 ftrack
 
 import logging
 import json
@@ -7,7 +7,7 @@ import uuid
 import base64
 import six
 import os
-from ftrack_framework_core.constants import asset as constants
+import ftrack_constants.framework as constants
 
 
 class FtrackAssetInfo(dict):
@@ -21,7 +21,7 @@ class FtrackAssetInfo(dict):
         *mapping* argument
         '''
         new_mapping = {}
-        for k in constants.KEYS:
+        for k in constants.asset.KEYS:
             v = mapping.get(k)
             # Sometimes the value None is interpreted as unicode (in maya
             # mostly) we are converting to a type None
@@ -46,7 +46,7 @@ class FtrackAssetInfo(dict):
 
     def encode_options(self, asset_info_options):
         '''
-        Encodes the json value from the given *asset_info_opitons*
+        Encodes the json value from the given *asset_info_options*
         to base64.
 
         *asset_info_opitons* : Options used to load the asset in the scene.
@@ -59,7 +59,7 @@ class FtrackAssetInfo(dict):
 
     def decode_options(self, asset_info_options):
         '''
-        Decodes the json value from the given *asset_info_opitons*
+        Decodes the json value from the given *asset_info_options*
         from base64.
 
         *asset_info_opitons* : Options used to load the asset in the scene.
@@ -82,7 +82,7 @@ class FtrackAssetInfo(dict):
         '''
 
         value = super(FtrackAssetInfo, self).__getitem__(k)
-        if k == constants.ASSET_INFO_OPTIONS:
+        if k == constants.asset.ASSET_INFO_OPTIONS:
             if value:
                 value = self.decode_options(value)
         return value
@@ -95,7 +95,7 @@ class FtrackAssetInfo(dict):
         automatically encode the given json value to base64
         '''
 
-        if k == constants.ASSET_INFO_OPTIONS:
+        if k == constants.asset.ASSET_INFO_OPTIONS:
             v = self.encode_options(v)
         super(FtrackAssetInfo, self).__setitem__(k, v)
 
@@ -200,29 +200,31 @@ class FtrackAssetInfo(dict):
                             break
 
         asset_info_data = {
-            constants.ASSET_INFO_ID: uuid.uuid4().hex,
-            constants.ASSET_NAME: asset_version_entity['asset']['name'],
-            constants.ASSET_TYPE_NAME: asset_version_entity['asset']['type'][
-                'name'
+            constants.asset.ASSET_INFO_ID: uuid.uuid4().hex,
+            constants.asset.ASSET_NAME: asset_version_entity['asset']['name'],
+            constants.asset.ASSET_TYPE_NAME: asset_version_entity['asset'][
+                'type'
+            ]['name'],
+            constants.asset.VERSION_ID: asset_version_entity['id'],
+            constants.asset.ASSET_ID: asset_version_entity['asset']['id'],
+            constants.asset.VERSION_NUMBER: int(
+                asset_version_entity['version']
+            ),
+            constants.asset.IS_LATEST_VERSION: asset_version_entity[
+                constants.asset.IS_LATEST_VERSION
             ],
-            constants.VERSION_ID: asset_version_entity['id'],
-            constants.ASSET_ID: asset_version_entity['asset']['id'],
-            constants.VERSION_NUMBER: int(asset_version_entity['version']),
-            constants.IS_LATEST_VERSION: asset_version_entity[
-                constants.IS_LATEST_VERSION
-            ],
-            constants.DEPENDENCY_IDS: [
+            constants.asset.DEPENDENCY_IDS: [
                 dependency['id']
                 for dependency in asset_version_entity['uses_versions']
             ],
-            constants.LOAD_MODE: load_mode or 'Not Set',
-            constants.ASSET_INFO_OPTIONS: asset_info_options or '',
-            constants.OBJECTS_LOADED: objects_loaded,
-            constants.REFERENCE_OBJECT: reference_object or '',
-            constants.CONTEXT_PATH: context_path,
-            constants.COMPONENT_NAME: component_name,
-            constants.COMPONENT_ID: component_id,
-            constants.COMPONENT_PATH: component_path,
+            constants.asset.LOAD_MODE: load_mode or 'Not Set',
+            constants.asset.ASSET_INFO_OPTIONS: asset_info_options or '',
+            constants.asset.OBJECTS_LOADED: objects_loaded,
+            constants.asset.REFERENCE_OBJECT: reference_object or '',
+            constants.asset.CONTEXT_PATH: context_path,
+            constants.asset.COMPONENT_NAME: component_name,
+            constants.asset.COMPONENT_ID: component_id,
+            constants.asset.COMPONENT_PATH: component_path,
         }
 
         return cls(asset_info_data)

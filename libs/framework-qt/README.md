@@ -1,4 +1,4 @@
-# framework-qt
+# ftrack-framework-qt
 
-Documentation: [https://ftrackhq.github.io/integrations/libs/framework-qt/](https://ftrackhq.github.io/integrations/libs/framework-qt/)
+Documentation: [https://ftrackhq.github.io/integrations/libs/qt/](https://ftrackhq.github.io/integrations/libs/framework-qt/)
 

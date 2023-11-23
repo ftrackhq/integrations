@@ -1,10 +1,11 @@
-# General
+# Ignore Python compiled files
 *.py[cod]
 
-# Packages
+# Ignore Python packaging artifacts
 *.egg
 *.egg-info
 *.eggs/*
+*.eggs
 dist
 eggs
 parts
@@ -17,31 +18,43 @@ lib
 lib64
 __pycache__
 
-# Installer logs
+# Ignore pip installer logs
 pip-log.txt
 
-# Unit test / coverage reports
+# Ignore unit test/coverage reports
 .coverage
 .tox
 test-reports/*
 
-# Build files
+# Ignore build files (e.g. CSS resources)
 /resource/*.css
 
-# Caches
+# Ignore cache files
 .sass-cache/
 Thumbs.db
 
-# Development
+# Ignore IDE/Editor specific files and directories
 .project
 .pydevproject
 .settings
 .idea/
 *.orig
-# SCM
-#source/framework_qt/ui/resource.py
 
-# Pants workspace files
+# Ignore version control system files
+.DS_Store
+
+# Ignore Pants build files (Pants is a build system)
 /.pants.*
 /dist/
 /.pids
+
+# Ignore environment files
+.env
+
+# Ignore VS Code configuration files
+.vscode/launch.json
+.vscode/settings.json
+
+# Ignore specific resource files
+#**/ftrack_qt_style/resource.py
+libs/resource

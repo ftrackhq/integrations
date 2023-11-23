@@ -1,0 +1,9 @@
+{
+    "plugin_title": "collect file",
+    "plugin_name": "file_collector",
+    "widget_name": "file_browser_collector",
+    "options": {
+      "folder_path": null,
+      "file_name": null
+    }
+}

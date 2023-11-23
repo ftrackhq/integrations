@@ -23,7 +23,7 @@ Finalise by restarting Connect and DCC(s) to have the newly built integrations d
 
 ..  important::
 
-    This is no need to restart Connect on a rebuild if the the version number is
+    This is no need to restart Connect on a rebuild if the version number is
     the same, in that case only a relaunch of DCC is required.
 
 

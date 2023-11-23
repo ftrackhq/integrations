@@ -1,11 +1,10 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2023 ftrack
+# :copyright: Copyright (c) 2014-2023 ftrack
 
 import operator
 import time
 import logging
 
-import ftrack_api
 from ftrack_connect.qt import QtWidgets, QtCore, QtGui
 
 import ftrack_connect.ui.application
@@ -28,12 +27,7 @@ class DurationParser(object):
 
     def __init__(self):
         '''Initialise parser.'''
-        self._unit = dict(
-            day=60 * 60 * 24,
-            hour=60 * 60,
-            minute=60,
-            second=1
-        )
+        self._unit = dict(day=60 * 60 * 24, hour=60 * 60, minute=60, second=1)
 
         # Build expressions.
         self._expressions = []
@@ -52,16 +46,14 @@ class DurationParser(object):
             expression += r'(?:{0})?{1}'.format(entry, separators)
 
         expression += '$'
-        self._expressions.append(
-            re.compile(expression, re.IGNORECASE)
-        )
+        self._expressions.append(re.compile(expression, re.IGNORECASE))
 
         # Minute, second clock format.
         # Example: 1:30 min -> 1 minute and 30 seconds
         self._expressions.append(
             re.compile(
                 r'(?P<minute>\d+):(?P<second>\d+)\s*(?:minutes?|mins?|m)\s*$',
-                re.IGNORECASE
+                re.IGNORECASE,
             )
         )
 
@@ -70,7 +62,7 @@ class DurationParser(object):
         self._expressions.append(
             re.compile(
                 r'(?P<hour>\d+):(?P<minute>\d+)\s*(?:hours?|hrs?|h)?\s*$',
-                re.IGNORECASE
+                re.IGNORECASE,
             )
         )
 
@@ -79,7 +71,7 @@ class DurationParser(object):
         self._expressions.append(
             re.compile(
                 r'(?P<hour>\d+):(?P<minute>\d+):(?P<second>\d+)$',
-                re.IGNORECASE
+                re.IGNORECASE,
             )
         )
 
@@ -142,7 +134,7 @@ class DurationParser(object):
                 seconds = 0.0
                 for key, value in match.groupdict().items():
                     if value is not None:
-                        seconds += (self._unit[key] * float(value))
+                        seconds += self._unit[key] * float(value)
 
                 return seconds
 
@@ -179,7 +171,6 @@ class DurationFormatter(object):
             text = '{0:02d}:{1:02d}:{2:02d}'.format(hours, minutes, seconds)
 
         return text
-
 
 
 class Timer(QtWidgets.QFrame):
@@ -269,16 +260,13 @@ class Timer(QtWidgets.QFrame):
         self.toggleButton.clicked.connect(self.toggle)
 
         # Set initial values.
-        self.setValue({
-            'title': title,
-            'description': description,
-            'time': time
-        })
+        self.setValue(
+            {'title': title, 'description': description, 'time': time}
+        )
 
     def eventFilter(self, obj, event):
         '''Filter *event* sent to *obj*.'''
         if obj == self.timeField:
-
             if event.type() == QtCore.QEvent.FocusIn:
                 self._onTimeFieldFocused()
 
@@ -286,7 +274,6 @@ class Timer(QtWidgets.QFrame):
                 self._onTimeFieldBlurred()
 
             elif event.type() == QtCore.QEvent.KeyPress:
-
                 if event.key() in (QtCore.Qt.Key_Enter, QtCore.Qt.Key_Return):
                     self.timeField.clearFocus()
                     return True
@@ -320,9 +307,7 @@ class Timer(QtWidgets.QFrame):
     def _onTimeFieldBlurred(self):
         '''Handle time field losing focus.'''
         try:
-            time = DurationParser().parse(
-                self.timeField.text()
-            )
+            time = DurationParser().parse(self.timeField.text())
         except ftrack_connect.error.ParseError:
             # Revert to previous correct value.
             # TODO: Indicate to user that entered value is invalid.
@@ -374,9 +359,7 @@ class Timer(QtWidgets.QFrame):
         '''Handle timer *event*.'''
         if self._tick is not None:
             now = time.time()
-            self.setTime(
-                self._elapsed + (now - self._tick)
-            )
+            self.setTime(self._elapsed + (now - self._tick))
             self._tick = now
 
     def start(self):
@@ -499,18 +482,20 @@ class Timer(QtWidgets.QFrame):
     def clear(self):
         '''Clear all values.'''
 
-        self.setValue({
-            'title': self.title(),
-            'description': self.description(),
-            'time': 0
-        })
+        self.setValue(
+            {
+                'title': self.title(),
+                'description': self.description(),
+                'time': 0,
+            }
+        )
 
     def value(self):
         '''Return dictionary with component data.'''
         return {
             'title': self.title(),
             'description': self.description(),
-            'time': self.time()
+            'time': self.time(),
         }
 
     def setValue(self, value):
@@ -544,13 +529,14 @@ class Timer(QtWidgets.QFrame):
         if time is None:
             time = 0
 
-        changed = (time == self.time())
+        changed = time == self.time()
         self._elapsed = time
         text = DurationFormatter().format(time)
         self.timeField.setText(text)
 
         if changed:
             self.timeChanged.emit(time)
+
 
 class TimeLog(QtWidgets.QWidget):
     '''Represent a time log.'''
@@ -589,7 +575,6 @@ class TimeLog(QtWidgets.QWidget):
         # TODO: Add theme support.
         playIcon = qta.icon('mdi6.play', color='#FFDD86', scale_factor=1.5)
 
-
         self.playButton = QtWidgets.QPushButton(playIcon, '')
         self.playButton.setFlat(True)
         self.playButton.clicked.connect(self._onPlayButtonClicked)
@@ -600,11 +585,9 @@ class TimeLog(QtWidgets.QWidget):
         )
 
         # Set initial values.
-        self.setValue({
-            'title': title,
-            'description': description,
-            'data': data
-        })
+        self.setValue(
+            {'title': title, 'description': description, 'data': data}
+        )
 
     def title(self):
         '''Return title.'''
@@ -635,7 +618,7 @@ class TimeLog(QtWidgets.QWidget):
         return {
             'title': self.title(),
             'description': self.description(),
-            'data': self.data()
+            'data': self.data(),
         }
 
     def setValue(self, value):
@@ -647,8 +630,6 @@ class TimeLog(QtWidgets.QWidget):
     def _onPlayButtonClicked(self):
         '''Handle playButton clicks.'''
         self.selected.emit(self)
-
-
 
 
 class TimeLogList(ftrack_connect.ui.widget.item_list.ItemList):
@@ -666,15 +647,13 @@ class TimeLogList(ftrack_connect.ui.widget.item_list.ItemList):
         super(TimeLogList, self).__init__(
             widgetFactory=self._createWidget,
             widgetItem=lambda widget: widget.value(),
-            parent=parent
+            parent=parent,
         )
         self.setObjectName('time-log-list')
         self.list.setShowGrid(False)
 
         # Disable selection on internal list.
-        self.list.setSelectionMode(
-            QtWidgets.QAbstractItemView.NoSelection
-        )
+        self.list.setSelectionMode(QtWidgets.QAbstractItemView.NoSelection)
 
         headerLayout = QtWidgets.QHBoxLayout()
         self.titleLabel = QtWidgets.QLabel(title)
@@ -743,11 +722,13 @@ class TimerOverlay(ftrack_connect.ui.widget.overlay.Overlay):
 
         # TODO: See if there is a way to stop Sass converting the rgba string
         # to the wrong value.
-        self.setStyleSheet('''
+        self.setStyleSheet(
+            '''
             #ftrack-connect-window TimerOverlay {
                 background-color: rgba(128, 128, 128, 200);
             }
-        ''')
+        '''
+        )
 
 
 class TimeTrackerBlockingOverlay(
@@ -758,8 +739,8 @@ class TimeTrackerBlockingOverlay(
     def __init__(self, parent, message=''):
         '''Initialise.'''
         super(TimeTrackerBlockingOverlay, self).__init__(
-            parent, message=message,
-            icon=':ftrack/image/default/ftrackLogoGrey'
+            parent,
+            message=message,
+            icon=':ftrack/image/default/ftrackLogoGrey',
         )
         self.content.setMinimumWidth(350)
-

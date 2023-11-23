@@ -1,5 +1,5 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2014-2021 ftrack
+# :copyright: Copyright (c) 2014-2023 ftrack
 
 import os
 import logging
@@ -23,12 +23,15 @@ class ResultEncoder(JSONEncoder):
         return str(obj)
 
 
+# TODO: review this class to make it easier to maintain.
+#  Define all keys in a common place.
+# noinspection SpellCheckingInspection
 class LogDB(object):
     '''
     Log database class
     '''
 
-    db_name = 'pipeline-{}.db'
+    db_name = 'framework-{}.db'
     table_name = 'LOGMGR'
     database_expire_grace_s = 7 * 24 * 3600
     _connection = None
@@ -45,10 +48,12 @@ class LogDB(object):
             '{0}.{1}'.format(__name__, self.__class__.__name__)
         )
 
-        if 0 < len(db_name or ''):
+        if db_name:
             self.db_name = db_name
-        if 0 < len(table_name or ''):
+        if table_name:
             self.table_name = table_name
+
+        print(self.table_name)
 
         self._database_path = self.get_database_path(host_id)
 
@@ -66,13 +71,14 @@ class LogDB(object):
         if cur.fetchone()[0] == 0:
             cur.execute(
                 '''CREATE TABLE {0} (id INTEGER PRIMARY KEY,'''
-                ''' date int, status text, widget_ref text,'''
-                ''' host_id text, execution_time real, plugin_name text,'''
-                ''' result text, message text, user_message text,'''
-                ''' plugin_type text, plugin_id text)'''.format(
-                    self.table_name
-                )
+                ''' date int, plugin_status text, plugin_boolean_status bool,'''
+                ''' host_id text, plugin_name text,'''
+                ''' plugin_reference text,'''
+                ''' plugin_execution_time real,'''
+                ''' plugin_message text, plugin_options text,'''
+                ''' plugin_store text)'''.format(self.table_name)
             )
+
             self.connection.commit()
             self.logger.debug('Initialised plugin log persistent storage.')
 
@@ -145,7 +151,7 @@ class LogDB(object):
 
         return os.path.join(user_data_dir, self.db_name.format(host_id))
 
-    def add_log_item(self, log_item):
+    def add_log_item(self, host_id, log_item):
         '''
         Stores a :class:`~ftrack_framework_core.log.log_item.LogItem` in
         persistent log database.
@@ -154,27 +160,24 @@ class LogDB(object):
             cur = self.connection.cursor()
 
             cur.execute(
-                '''INSERT INTO {0} (date,status,widget_ref,host_id,'''
-                '''execution_time,plugin_name,result,message,user_message,'''
-                '''plugin_type, plugin_id) VALUES (?,?,?,?,?,?,?,?,?,?,?)'''.format(
+                '''INSERT INTO {0} (date,plugin_status,plugin_boolean_status,
+                host_id, plugin_name,plugin_reference,
+                plugin_execution_time,
+                plugin_message,plugin_options,plugin_store) 
+                VALUES (?,?,?,?,?,?,?,?,?,?)'''.format(
                     self.table_name
                 ),
                 (
                     time.time(),
-                    log_item.status,
-                    log_item.widget_ref,
-                    log_item.host_id,
-                    log_item.execution_time,
+                    log_item.plugin_status,
+                    log_item.plugin_boolean_status,
+                    host_id,
                     log_item.plugin_name,
-                    base64.encodebytes(
-                        json.dumps(log_item.result, cls=ResultEncoder).encode(
-                            'utf-8'
-                        )
-                    ).decode('utf-8'),
-                    log_item.message,
-                    log_item.user_message,
-                    log_item.plugin_type,
-                    log_item.plugin_id,
+                    log_item.plugin_reference,
+                    log_item.plugin_execution_time,
+                    log_item.plugin_message,
+                    str(log_item.plugin_options),
+                    str(log_item.plugin_store),
                 ),
             )
             self.connection.commit()
@@ -196,8 +199,11 @@ class LogDB(object):
         log_items = []
         if not host_id is None:
             cur.execute(
-                ''' SELECT date,status,widget_ref,host_id,execution_time,'''
-                '''plugin_name,result,message,user_message,plugin_type, plugin_id '''
+                ''' SELECT date,plugin_status,plugin_boolean_status,host_id,'''
+                '''plugin_name,'''
+                '''plugin_reference,'''
+                '''plugin_execution_time,'''
+                '''plugin_message,plugin_options,plugin_store'''
                 ''' FROM {0} WHERE host_id=?;  '''.format(self.table_name),
                 (host_id,),
             )
@@ -207,24 +213,21 @@ class LogDB(object):
                     LogItem(
                         {
                             'date': datetime.datetime.fromtimestamp(t[0]),
-                            'status': t[1],
-                            'widget_ref': t[2],
+                            'plugin_status': t[1],
+                            'plugin_boolean_status': t[2],
                             'host_id': t[3],
-                            'execution_time': t[4],
-                            'plugin_name': t[5],
-                            'result': json.loads(
-                                base64.b64decode(t[6]).decode('utf-8')
-                            ),
-                            'message': t[7],
-                            'user_message': t[8],
-                            'plugin_type': t[9],
-                            'plugin_id': t[10],
+                            'plugin_name': t[4],
+                            'plugin_reference': t[5],
+                            'plugin_execution_time': t[6],
+                            'plugin_message': t[7],
+                            'plugin_options': t[8],
+                            'plugin_store': t[9],
                         }
                     )
                 )
         return log_items
 
-    def get_log_items_by_plugin_id(self, host_id, plugin_id):
+    def get_log_items_by_plugin_reference(self, host_id, plugin_reference):
         '''
         Stores a :class:`~ftrack_framework_core.log.log_item.LogItem` in
         persistent log database.
@@ -235,12 +238,15 @@ class LogDB(object):
         log_items = []
         if not host_id is None:
             cur.execute(
-                ''' SELECT date,status,widget_ref,host_id,execution_time,'''
-                '''plugin_name,result,message,user_message,plugin_type, plugin_id '''
-                ''' FROM {0} WHERE host_id=? AND plugin_id=?;  '''.format(
+                ''' SELECT date,plugin_status,plugin_boolean_status,host_id,'''
+                '''plugin_name,'''
+                '''plugin_reference,'''
+                '''plugin_execution_time,plugin_message,'''
+                '''plugin_options,plugin_store'''
+                ''' FROM {0} WHERE host_id=? AND plugin_reference=?;  '''.format(
                     self.table_name
                 ),
-                (host_id, plugin_id),
+                (host_id, plugin_reference),
             )
 
             for t in cur.fetchall():
@@ -248,18 +254,15 @@ class LogDB(object):
                     LogItem(
                         {
                             'date': datetime.datetime.fromtimestamp(t[0]),
-                            'status': t[1],
-                            'widget_ref': t[2],
+                            'plugin_status': t[1],
+                            'plugin_boolean_status': t[2],
                             'host_id': t[3],
-                            'execution_time': t[4],
-                            'plugin_name': t[5],
-                            'result': json.loads(
-                                base64.b64decode(t[6]).decode('utf-8')
-                            ),
-                            'message': t[7],
-                            'user_message': t[8],
-                            'plugin_type': t[9],
-                            'plugin_id': t[10],
+                            'plugin_name': t[4],
+                            'plugin_reference': t[5],
+                            'plugin_execution_time': t[6],
+                            'plugin_message': t[7],
+                            'plugin_options': t[8],
+                            'plugin_store': t[9],
                         }
                     )
                 )

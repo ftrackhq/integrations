@@ -1,5 +1,5 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2018 ftrack
+# :copyright: Copyright (c) 2014-2023 ftrack
 
 import logging
 import copy
@@ -10,7 +10,10 @@ from hiero.ui.FnTaskUIFormLayout import TaskUIFormLayout
 import tempfile
 
 from hiero.exporters.FnSubmission import Submission
-from hiero.exporters.FnTranscodeExporter import TranscodeExporter, TranscodePreset
+from hiero.exporters.FnTranscodeExporter import (
+    TranscodeExporter,
+    TranscodePreset,
+)
 from hiero.exporters.FnTranscodeExporterUI import TranscodeExporterUI
 from hiero.exporters.FnExportUtil import writeSequenceAudioWithHandles
 
@@ -19,13 +22,13 @@ from ftrack_nuke_studio.config import report_exception
 from ftrack_nuke_studio.processors.ftrack_base.ftrack_base_processor import (
     FtrackProcessorPreset,
     FtrackProcessor,
-    FtrackProcessorUI
+    FtrackProcessorUI,
 )
 
 from ftrack_nuke_studio.base import FtrackBase
+
 Base = FtrackBase()
 hiero_version_tuple = Base.hiero_version_tuple
-
 
 
 class FtrackReviewableExporter(TranscodeExporter, FtrackProcessor):
@@ -44,9 +47,7 @@ class FtrackReviewableExporter(TranscodeExporter, FtrackProcessor):
         self.createTranscodeScript()
 
     def setAudioExportSettings(self):
-        '''method to perpare audio settings
-        
-        ''' 
+        '''method to perpare audio settings'''
         extension = '.wav'
         path = tempfile.NamedTemporaryFile(
             suffix=extension, delete=False
@@ -56,31 +57,30 @@ class FtrackReviewableExporter(TranscodeExporter, FtrackProcessor):
         if hiero_version_tuple >= (12, 1, 0):
             # this method is from nuke 12.1.0 on, hence we call super only in that case
             from hiero.exporters import FnAudioHelper
+
             FnAudioHelper.setAudioExportSettings(self)
 
     def writeAudio(self):
-        '''Override write audio method 
+        '''Override write audio method
         This override allows to leverage the difference between versions.
         '''
         self.setAudioExportSettings()
 
         if isinstance(self._item, (hiero.core.Sequence, hiero.core.TrackItem)):
             if self._sequenceHasAudio(self._sequence):
-
                 if isinstance(self._item, hiero.core.Sequence):
                     start, end = self.outputRange()
                     if hiero_version_tuple < (12, 1, 0):
-                        audio_export_data = (
-                            self._audioFile, start, end
-                        )
+                        audio_export_data = (self._audioFile, start, end)
                     else:
                         audio_export_data = (
-                            self._audioFile, start, end,
+                            self._audioFile,
+                            start,
+                            end,
                             self._outputChannels,
                             self._sampleRate,
                             self._bitDepth,
-                            self._bitRate
-
+                            self._bitRate,
                         )
                     self._item.writeAudioToFile(*audio_export_data)
 
@@ -94,7 +94,7 @@ class FtrackReviewableExporter(TranscodeExporter, FtrackProcessor):
                             self._item.timelineIn(),
                             self._item.timelineOut(),
                             startHandle,
-                            endHandle
+                            endHandle,
                         )
                     else:
                         audio_export_data = (
@@ -107,7 +107,7 @@ class FtrackReviewableExporter(TranscodeExporter, FtrackProcessor):
                             self._outputChannels,
                             self._sampleRate,
                             self._bitDepth,
-                            self._bitRate
+                            self._bitRate,
                         )
 
                     writeSequenceAudioWithHandles(*audio_export_data)
@@ -116,9 +116,7 @@ class FtrackReviewableExporter(TranscodeExporter, FtrackProcessor):
             if self._item.mediaSource().hasAudio():
                 # If clip, write out full length
                 if hiero_version_tuple < (12, 1, 0):
-                    audio_export_data = (
-                        self._audioFile
-                    )
+                    audio_export_data = self._audioFile
 
                 else:
                     audio_export_data = (
@@ -126,7 +124,7 @@ class FtrackReviewableExporter(TranscodeExporter, FtrackProcessor):
                         self._outputChannels,
                         self._sampleRate,
                         self._bitDepth,
-                        self._bitRate
+                        self._bitRate,
                     )
                 self._item.writeAudioToFile(*audio_export_data)
 
@@ -137,13 +135,17 @@ class FtrackReviewableExporter(TranscodeExporter, FtrackProcessor):
 
     def addWriteNodeToScript(self, script, rootNode, framerate):
         '''Restore original function from parent class.'''
-        TranscodeExporter.addWriteNodeToScript(self, script, rootNode, framerate)
+        TranscodeExporter.addWriteNodeToScript(
+            self, script, rootNode, framerate
+        )
 
     def createTranscodeScript(self):
         '''Create a custom transcode script for this task.'''
 
         # Figure out the script location
-        path = tempfile.NamedTemporaryFile(suffix='.nk', delete=False).name.replace('\\', '/')
+        path = tempfile.NamedTemporaryFile(
+            suffix='.nk', delete=False
+        ).name.replace('\\', '/')
         self._scriptfile = str(path)
 
         self.logger.debug('writing script to : {}'.format(self._scriptfile))
@@ -158,7 +160,9 @@ class FtrackReviewableExporter(TranscodeExporter, FtrackProcessor):
             submissionDict['endFrame'] = end
 
             # Create a job on our submission to do the actual rendering.
-            self._renderTask = self._submission.addJob(Submission.kNukeRender, submissionDict, self._scriptfile)
+            self._renderTask = self._submission.addJob(
+                Submission.kNukeRender, submissionDict, self._scriptfile
+            )
 
     def _makePath(self):
         '''Disable file path creation.'''
@@ -197,11 +201,11 @@ class FtrackReviewableExporterPreset(TranscodePreset, FtrackProcessorPreset):
         # enforce mov for newly created task
         self.properties()['file_type'] = 'mov'
         self.properties()['mov'] = {
-                'encoder': 'mov64',
-                'codec': 'avc1\tH.264',
-                'quality': 3,
-                'settingsString': 'H.264, High Quality',
-                'keyframerate': 1,
+            'encoder': 'mov64',
+            'codec': 'avc1\tH.264',
+            'quality': 3,
+            'settingsString': 'H.264, High Quality',
+            'keyframerate': 1,
         }
 
     def addUserResolveEntries(self, resolver):
@@ -211,25 +215,25 @@ class FtrackReviewableExporterPreset(TranscodePreset, FtrackProcessorPreset):
         resolver.addResolver(
             "{clip}",
             "Name of the clip used in the shot being processed",
-            lambda keyword, task: task.clipName()
+            lambda keyword, task: task.clipName(),
         )
 
         resolver.addResolver(
             "{shot}",
             "Name of the shot being processed",
-            lambda keyword, task: task.shotName()
+            lambda keyword, task: task.shotName(),
         )
 
         resolver.addResolver(
             "{track}",
             "Name of the track being processed",
-            lambda keyword, task: task.trackName()
+            lambda keyword, task: task.trackName(),
         )
 
         resolver.addResolver(
             "{sequence}",
             "Name of the sequence being processed",
-            lambda keyword, task: task.sequenceName()
+            lambda keyword, task: task.sequenceName(),
         )
 
 
@@ -255,5 +259,9 @@ class FtrackReviewableExporterUI(TranscodeExporterUI, FtrackProcessorUI):
         self.addFtrackTaskUI(form_layout, exportTemplate)
 
 
-hiero.core.taskRegistry.registerTask(FtrackReviewableExporterPreset, FtrackReviewableExporter)
-hiero.ui.taskUIRegistry.registerTaskUI(FtrackReviewableExporterPreset, FtrackReviewableExporterUI)
+hiero.core.taskRegistry.registerTask(
+    FtrackReviewableExporterPreset, FtrackReviewableExporter
+)
+hiero.ui.taskUIRegistry.registerTaskUI(
+    FtrackReviewableExporterPreset, FtrackReviewableExporterUI
+)

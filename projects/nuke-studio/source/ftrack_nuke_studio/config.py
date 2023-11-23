@@ -1,5 +1,5 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2015 ftrack
+# :copyright: Copyright (c) 2014-2023 ftrack
 import os
 import logging
 import logging.config
@@ -8,6 +8,7 @@ import functools
 import errno
 
 _logger_name = None
+
 
 def report_exception(function):
     """
@@ -45,7 +46,6 @@ def get_log_directory():
     user_data_dir = appdirs.user_data_dir('ftrack-connect', 'ftrack')
     log_directory = os.path.join(user_data_dir, 'log').encode('utf8')
 
-
     if not os.path.exists(log_directory):
         try:
             os.makedirs(log_directory)
@@ -73,7 +73,8 @@ def configure_logging(logger_name, level=None, format=None):
     _logger_name = logger_name
 
     log_directory = get_log_directory()
-    logfile = os.path.join(log_directory, '{0}.log'.format(logger_name).encode('utf8')
+    logfile = os.path.join(
+        log_directory, '{0}.log'.format(logger_name).encode('utf8')
     )
 
     logging_settings = {
@@ -95,18 +96,10 @@ def configure_logging(logger_name, level=None, format=None):
                 'maxBytes': 10485760,
                 'backupCount': 5,
             },
-
         },
-        'formatters': {
-            'file': {
-                'format': format
-            }
-        },
+        'formatters': {'file': {'format': format}},
         'loggers': {
-            '': {
-                'level': 'DEBUG',
-                'handlers': ['console', 'file']
-            },
+            '': {'level': 'DEBUG', 'handlers': ['console', 'file']},
             'ftrack_api': {
                 'level': 'INFO',
             },
@@ -116,13 +109,9 @@ def configure_logging(logger_name, level=None, format=None):
             'Hiero': {
                 'level': 'INFO',
             },
-            'requests': {
-                'level': 'ERROR'
-            },
-            'urllib3': {
-                'level': 'ERROR'
-            }
-        }
+            'requests': {'level': 'ERROR'},
+            'urllib3': {'level': 'ERROR'},
+        },
     }
 
     # Set default logging settings.

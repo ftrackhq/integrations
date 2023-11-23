@@ -1,5 +1,5 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2014 ftrack
+# :copyright: Copyright (c) 2014-2023 ftrack
 #             Copyright (c) 2014 Martin Pengelly-Phillips
 # :notice: Derived from Riffle (https://github.com/4degrees/riffle)
 

@@ -1,5 +1,5 @@
 # Create public release on tag push, preserves previous releases.
-# Re-tags "stable" to point on HEAD
+# Re-tags "<package>/stable" to point on tag
 
 name: CI-TAG
 
@@ -12,63 +12,58 @@ on:
       - '**0.0.0**'
       - '**latest**'
       - '**stable**'
-
-# TODO: Support multiple platform builds
+    branches: ["dummy"] # Disable CI - do not trigger
 
 jobs:
+
+  # Run Pants to build the released package
   pants-build:
-    # Only trigger on tags having a slash within and version starting with "v", ignore other tags
     uses: ./.github/workflows/pants-build.yml
     with:
-      pre_tag: true
+      full_release: true
       check_changed: false
 
+  # Release the package
   release:
     needs: pants-build
-    runs-on: ${{ needs.pants-build.outputs.os }}
-    steps:
-      - name: Check out repository
-        uses: actions/checkout@v3
-      - name: Run release action
-        uses: ./.github/actions/connect-release
-        with:
-          package: ${{ needs.pants-build.outputs.package }}
-          tag: ${{ needs.pants-build.outputs.tag }}
-          suffix: ${{ needs.pants-build.outputs.suffix }}
-          deleteprevious: false
-          prerelease: false
-          token: ${{ secrets.GITHUB_TOKEN }}
-          deploy_aws: true
-          aws_key_id: ${{ secrets.S3_ACCESS_KEY }}
-          aws_secret_access_key: ${{ secrets.S3_SECRET_ACCESS_KEY}}
-      - name: Tag package as stable
-        run: |
-          git fetch --force --tags
-          git tag -f ${{ needs.pants-build.outputs.package }}/stable
-          git push -f origin ${{ needs.pants-build.outputs.package }}/stable
+    uses: ./.github/workflows/release.yml
+    with:
+      changed: ${{needs.pants-build.outputs.changed}}
+      pre: false
+      version: ${{ needs.pants-build.outputs.version }}
+      deploy_aws: true
+    secrets:
+      aws_key_id: ${{ secrets.S3_ACCESS_KEY }}
+      aws_secret_access_key: ${{ secrets.S3_SECRET_ACCESS_KEY }}
 
-  # Align latest tag to the latest release tag
-  align-latest:
-    needs: pants-build
-    runs-on: ${{ needs.pants-build.outputs.os }}
-    steps:
-      - name: Check out repository
-        uses: actions/checkout@v3
-      - name: Run release action
-        uses: ./.github/actions/connect-release
-        with:
-          package: ${{ needs.pants-build.outputs.package }}
-          tag: ${{ needs.pants-build.outputs.package }}/v0.0.0-latest
-          suffix: ${{ needs.pants-build.outputs.suffix }}
-          deleteprevious: true
-          prerelease: true
-          deploy_aws: true
-          token: ${{ secrets.GITHUB_TOKEN }}
-          aws_key_id: ${{ secrets.S3_ACCESS_KEY }}
-          aws_secret_access_key: ${{ secrets.S3_SECRET_ACCESS_KEY}}
+  # Also align latest rc pre-release build to tag, as the previous push to main
+  # probably was just a release note update which is not picked up by Pants/merge CI.
 
-#  deploy-docs:
-#    needs: pants-build
-#    uses: ./.github/workflows/deploy-docs.yml
-#    with:
-#      changed: ${{needs.pants-build.outputs.changed}}
+  pants-build-pre-release:
+    needs: release
+    uses: ./.github/workflows/pants-build.yml
+    with:
+      full_release: false
+      check_changed: false
+      version: "v0.0.0rc"
+      package: ${{ needs.pants-build.outputs.changed }}
+
+  pre-release:
+    needs: pants-build-pre-release
+    uses: ./.github/workflows/release.yml
+    with:
+      changed: ${{ needs.pants-build.outputs.changed }}
+      pre: true
+      version: ${{ needs.pants-build.outputs.version }}
+      deploy_aws: true
+    secrets:
+      aws_key_id: ${{ secrets.S3_ACCESS_KEY }}
+      aws_secret_access_key: ${{ secrets.S3_SECRET_ACCESS_KEY }}
+
+  deploy-docs:
+      needs: pants-build
+      uses: ./.github/workflows/deploy-docs.yml
+      with:
+        changed: ${{needs.pants-build.outputs.changed}}
+        build_index: false
+        is_rc: false

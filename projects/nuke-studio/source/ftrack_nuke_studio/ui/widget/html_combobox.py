@@ -1,5 +1,5 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2015 ftrack
+# :copyright: Copyright (c) 2014-2023 ftrack
 
 from Qt import QtWidgets, QtCore, QtGui
 import ftrack_nuke_studio.ui.widget.html_delegate
@@ -55,8 +55,8 @@ class HtmlComboBox(QtWidgets.QComboBox):
 
             painter.save()
             painter.translate(text_rectangle.topLeft())
-            painter.setClipRect(text_rectangle.translated(
-                -text_rectangle.topLeft())
+            painter.setClipRect(
+                text_rectangle.translated(-text_rectangle.topLeft())
             )
             document.documentLayout().draw(painter, paint_context)
             painter.restore()

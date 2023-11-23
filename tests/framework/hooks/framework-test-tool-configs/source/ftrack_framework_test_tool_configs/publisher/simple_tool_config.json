@@ -1,0 +1,20 @@
+{
+  "tool_type": "publisher",
+  "tool_title": "Simple Tool",
+  "host_type": "python",
+  "ui_type": "qt",
+  "engine_name": "load_publish",
+  "engine_type": "publisher",
+  "validation_schema": "ToolSchema",
+  "plugins":[
+      {
+          "plugin_title": "collect file",
+          "plugin_name": "file_collector",
+          "widget_name": "file_browser_collector",
+          "options": {
+            "folder_path": null,
+            "file_name": null
+          }
+      }
+  ]
+}

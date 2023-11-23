@@ -1,3 +1,5 @@
+# Action to release a package for Connect
+
 name: 'Connect plugin build and release'
 description: "Action that builds and releases a Connect plugin based on setuptools"
 inputs:
@@ -10,18 +12,18 @@ inputs:
   suffix:
     required: true
     description: The suffix to append to the plugin filename
-  deleteprevious:
-    required: true
-    description: Whether or not delete previous release and tag
-  prerelease:
+  pre:
     required: true
     description: Whether or not this is a pre-release
+  deleteprevious:
+    required: true
+    description: Whether or not to delete the previous release
   token:
     required: true
     description: The GH token
   deploy_aws:
     required: true
-    description: Deploy to AWS
+    description: Deploy to AWS or not
   aws_key_id:
     required: true
     description: The AWS key ID to use
@@ -50,11 +52,11 @@ runs:
         tag_name: ${{ inputs.tag }} # tag name to delete
       env:
         GITHUB_TOKEN: ${{ inputs.token }}
-    - name: Delete previous releases, including drafts, matching tag pattern
+    - name: Failsafe delete previous releases & tags, including drafts, matching tag pattern
       if: ${{ inputs.deleteprevious == 'true' }}
       shell: bash
       run: |
-        gh release list --limit 100 | sed 's/|/ /' | awk '{print $1, $8}' | grep ${{ inputs.tag }} | while read -r line; do echo Deleting previous release: $line; gh release delete -y "$line"; done
+        gh release list --limit 100 | sed 's/|/ /' | awk '{print $1, $8}' | grep ${{ inputs.tag }} | while read -r line; do echo Deleting previous release: $line; gh release delete -y "$line" && git tag -d "$line" && git push origin --delete "$line"; done
       env:
         GITHUB_TOKEN: ${{ inputs.token }}
       continue-on-error: true
@@ -76,7 +78,7 @@ runs:
           Commit: **${{ github.sha }}**
           
           Please check release notes for more information.
-        prerelease: ${{ inputs.prelease }}
+        prerelease: ${{ inputs.pre }}
     - name: Restore pants build from cache
       uses: actions/cache/restore@v3
       with:
@@ -92,7 +94,7 @@ runs:
         python setup.py build_plugin
         mv -v build/*.zip ../
       shell: bash
-    - name: Retreive zipball filename
+    - name: Retrieve zipball filename
       run: |
         cd dist
         echo "PLUGIN_ZIPBALL=$(ls -f *.zip)" >> $GITHUB_ENV

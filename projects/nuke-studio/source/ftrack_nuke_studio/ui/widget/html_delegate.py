@@ -1,5 +1,5 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2015 ftrack
+# :copyright: Copyright (c) 2014-2023 ftrack
 
 from Qt import QtWidgets, QtCore, QtGui
 
@@ -54,14 +54,13 @@ class HtmlDelegate(QtWidgets.QStyledItemDelegate):
             paint_context.palette.setColor(
                 QtGui.QPalette.Text,
                 options.palette.color(
-                    QtGui.QPalette.Active,
-                    QtGui.QPalette.HighlightedText
-                )
+                    QtGui.QPalette.Active, QtGui.QPalette.HighlightedText
+                ),
             )
 
         # Get paint rectangle in screen coordinates
         text_rectangle = style.subElementRect(
-            QtWidgets.QStyle.SE_ItemViewItemText, options
+            QtWidgets.QStyle.SE_ItemViewItemText, options, options.widget
         )
 
         # Adjust the rectangle to fix issue occurring on windows.

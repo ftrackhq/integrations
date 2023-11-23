@@ -1,0 +1,68 @@
+# Helper workflow to create a full release or a pre-release
+
+name: release
+
+on:
+  workflow_call:
+    inputs:
+      # Comma(,) separated list of packages that have changed
+      changed:
+        required: true
+        type: string
+      # Boolean to indicate if this is a pre-release (true) or not (false)
+      pre:
+        required: true
+        type: boolean
+      # The version to use for the release
+      version:
+        required: true
+        type: string
+      # Whether or not to deploy artefacts to AWS
+      deploy_aws:
+        required: true
+        type: boolean
+    # AWS credentials, as needed
+    secrets:
+      aws_key_id:
+        required: true
+      aws_secret_access_key:
+        required: true
+
+jobs:
+  release:
+    strategy:
+      matrix:
+        # Add new packages here
+        package: [application-launcher, connect-action-launcher-widget, connect-plugin-manager, framework-core, framework-qt, framework-maya, framework-nuke, framework-houdini, framework-3dsmax, connect-timetracker-widget, nuke-studio, rv]
+        os: [ubuntu-latest]
+        suffix: ['']
+        include:
+          - package: framework-unreal
+            os: windows-latest
+            suffix: 'win'
+          # Add platform dependent packages here
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Check out repository
+        if: ${{ contains(inputs.changed,matrix.package) }}
+        uses: actions/checkout@v3
+      - name: Run release action
+        if: ${{ contains(inputs.changed,matrix.package) }}
+        uses: ./.github/actions/connect-release
+        with:
+          package: ${{ matrix.package }}
+          tag: ${{ matrix.package }}/${{inputs.version}}
+          suffix: ${{ matrix.suffix }}
+          pre: ${{inputs.pre}}
+          deleteprevious: ${{inputs.pre}}
+          deploy_aws: ${{inputs.deploy_aws}}
+          token: ${{ secrets.GITHUB_TOKEN }}
+          aws_key_id: ${{ secrets.aws_key_id }}
+          aws_secret_access_key: ${{ secrets.aws_secret_access_key }}
+# Stable tag is not compatible with PEP 440
+#      - name: Tag package as stable
+#        if: ${{ ! inputs.pre && contains(inputs.changed,matrix.package) }}
+#        run: |
+#          git fetch --force --tags
+#          git tag -f ${{ matrix.package }}/stable
+#          git push -f origin ${{ matrix.package }}/stable

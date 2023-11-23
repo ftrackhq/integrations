@@ -1,5 +1,5 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2014 ftrack
+# :copyright: Copyright (c) 2014-2023 ftrack
 
 '''
 requires :
@@ -24,11 +24,9 @@ from setuptools_scm import get_version
 # Embedded plugins.
 
 
-
 embedded_plugins = [
     # new/updated releases
 ]
-
 
 
 bundle_name = 'ftrack Connect'
@@ -40,9 +38,7 @@ shiboken_path = os.path.join(shiboken2.__path__[0])
 
 # Setup code
 
-logging.basicConfig(
-    level=logging.INFO
-)
+logging.basicConfig(level=logging.INFO)
 
 from setuptools import Distribution, find_packages, setup as setup
 
@@ -53,35 +49,32 @@ RESOURCE_PATH = os.path.join(ROOT_PATH, 'resource')
 README_PATH = os.path.join(ROOT_PATH, 'README.md')
 BUILD_PATH = os.path.join(ROOT_PATH, 'build')
 DOWNLOAD_PLUGIN_PATH = os.path.join(
-    BUILD_PATH, 'plugin-downloads-{0}'.format(
+    BUILD_PATH,
+    'plugin-downloads-{0}'.format(
         datetime.datetime.now().strftime('%y-%m-%d-%H-%M-%S')
-    )
+    ),
 )
 AWS_PLUGIN_DOWNLOAD_PATH = (
     'https://download.ftrack.com/ftrack-connect/integrations/'
 )
 
 # Read version from source.
-release = get_version(
-    version_scheme='post-release'
-)
+# release = get_version(version_scheme='post-release')
 
 # take major/minor/patch
-VERSION = '.'.join(release.split('.')[:3])
+# VERSION = '.'.join(release.split('.')[:3])
 
-print('BUILDING VERSION : {}'.format(release))
+# print('BUILDING VERSION : {}'.format(release))
 
 
 connect_resource_hook = pkg_resources.resource_filename(
     pkg_resources.Requirement.parse('ftrack-connect'),
-    'ftrack_connect_resource/hook'
+    'ftrack_connect_resource/hook',
 )
 
 external_connect_plugins = []
 for plugin in embedded_plugins:
-    external_connect_plugins.append(
-        (plugin, plugin.replace('.zip', ''))
-    )
+    external_connect_plugins.append((plugin, plugin.replace('.zip', '')))
 
 version_template = '''
 # :coding: utf-8
@@ -94,11 +87,6 @@ __version__ = {version!r}
 # General configuration.
 configuration = dict(
     name='ftrack Connect',
-    use_scm_version={
-        'write_to': 'source/ftrack_connect_installer/_version.py',
-        'write_to_template': version_template,
-        'version_scheme': 'post-release'
-    },
     description='Meta package for ftrack connect.',
     long_description=open(README_PATH).read(),
     keywords='ftrack, connect, package',
@@ -107,10 +95,9 @@ configuration = dict(
     include_package_data=True,
     author_email='support@ftrack.com',
     license='Apache License (2.0)',
-    packages=find_packages(SOURCE_PATH),
-    package_dir={
-        '': 'source'
-    },
+    package_dir={'': 'source'},
+    package_data={"": ["{}/**/*.*".format(RESOURCE_PATH)]},
+    version="2.1.2",
     setup_requires=[
         # 'sphinx >= 1.2.2, < 2',
         # 'sphinx_rtd_theme >= 0.1.6, < 2',
@@ -121,16 +108,15 @@ configuration = dict(
         'cx_freeze',
         'wheel',
         'setuptools>=45.0.0',
-        'setuptools_scm'
+        'setuptools_scm',
     ],
     options={},
-    python_requires=">=3, <4"
+    python_requires=">=3, <4",
 )
 
 
 # Platform specific distributions.
 if sys.platform in ('darwin', 'win32', 'linux'):
-
     configuration['setup_requires'].append('cx_freeze')
 
     from cx_Freeze import setup, Executable, build
@@ -142,6 +128,7 @@ if sys.platform in ('darwin', 'win32', 'linux'):
             '''Run build ensuring build_resources called first.'''
 
             import requests
+
             print('Creating {}'.format(DOWNLOAD_PLUGIN_PATH))
             os.makedirs(DOWNLOAD_PLUGIN_PATH)
 
@@ -149,10 +136,7 @@ if sys.platform in ('darwin', 'win32', 'linux'):
                 url = AWS_PLUGIN_DOWNLOAD_PATH + plugin
                 temp_path = os.path.join(DOWNLOAD_PLUGIN_PATH, plugin)
                 logging.info(
-                    'Downloading url {0} to {1}'.format(
-                        url,
-                        temp_path
-                    )
+                    'Downloading url {0} to {1}'.format(url, temp_path)
                 )
                 print('DOWNLOADING FROM  {}'.format(url))
 
@@ -176,10 +160,7 @@ if sys.platform in ('darwin', 'win32', 'linux'):
 
             build.run(self)
 
-
-    configuration['cmdclass'] = {
-        'build': BuildResources
-    }
+    configuration['cmdclass'] = {'build': BuildResources}
 
     # Add requests certificates to resource folder.
     import requests.certs
@@ -187,8 +168,12 @@ if sys.platform in ('darwin', 'win32', 'linux'):
     # opcode is not a virtualenv module, so we can use it to find the stdlib.
     # This is the same trick used by distutils itself it installs itself into
     # the virtualenv
-    distutils_path = os.path.join(os.path.dirname(opcode.__file__), 'distutils')
-    encodings_path = os.path.join(os.path.dirname(opcode.__file__), 'encodings')
+    distutils_path = os.path.join(
+        os.path.dirname(opcode.__file__), 'distutils'
+    )
+    encodings_path = os.path.join(
+        os.path.dirname(opcode.__file__), 'encodings'
+    )
 
     include_connect_plugins = []
     resources = [
@@ -196,13 +181,15 @@ if sys.platform in ('darwin', 'win32', 'linux'):
         (os.path.join(RESOURCE_PATH, 'hook'), 'resource/hook'),
         (requests.certs.where(), 'resource/cacert.pem'),
         (
-            os.path.join(SOURCE_PATH, 'ftrack_connect_installer', '_version.py'),
-            'resource/ftrack_connect_installer_version.py'
+            os.path.join(
+                SOURCE_PATH, 'ftrack_connect_installer', '_version.py'
+            ),
+            'resource/ftrack_connect_installer_version.py',
         ),
         ('qt.conf', 'qt.conf'),
         ('logo.svg', 'logo.svg'),
         (distutils_path, 'distutils'),
-        (encodings_path, 'encodings')
+        (encodings_path, 'encodings'),
     ]
 
     for _, plugin_directory in external_connect_plugins:
@@ -212,7 +199,7 @@ if sys.platform in ('darwin', 'win32', 'linux'):
         include_connect_plugins.append(
             (
                 os.path.relpath(plugin_download_path, ROOT_PATH),
-                'resource/connect-standard-plugins/' + plugin_directory
+                'resource/connect-standard-plugins/' + plugin_directory,
             )
         )
 
@@ -233,7 +220,6 @@ if sys.platform in ('darwin', 'win32', 'linux'):
             includes.append(dbmodule)
 
     if sys.platform == 'win32':
-
         # MSI shotcut table list.
         shortcut_table = [
             (
@@ -248,7 +234,7 @@ if sys.platform in ('darwin', 'win32', 'linux'):
                 None,
                 None,
                 None,
-                'TARGETDIR'
+                'TARGETDIR',
             ),
             (
                 'ProgramMenuShortcut',
@@ -262,8 +248,8 @@ if sys.platform in ('darwin', 'win32', 'linux'):
                 None,
                 None,
                 None,
-                'TARGETDIR'
-            )
+                'TARGETDIR',
+            ),
         ]
 
         executables.append(
@@ -284,13 +270,17 @@ if sys.platform in ('darwin', 'win32', 'linux'):
             ),
             'data': {'Shortcut': shortcut_table},
             'all_users': True,
-            'add_to_path': True
+            'add_to_path': True,
         }
 
         # Qt plugins paths
         qt_platforms_path = os.path.join(pyside_path, "plugins", "platforms")
-        qt_imageformats_path = os.path.join(pyside_path, "plugins", "imageformats")
-        qt_iconengines_path = os.path.join(pyside_path, "plugins", "iconengines")
+        qt_imageformats_path = os.path.join(
+            pyside_path, "plugins", "imageformats"
+        )
+        qt_iconengines_path = os.path.join(
+            pyside_path, "plugins", "iconengines"
+        )
 
         include_files = [
             # Include Qt
@@ -298,19 +288,14 @@ if sys.platform in ('darwin', 'win32', 'linux'):
             (qt_imageformats_path, 'lib/Qt/plugins/imageformats'),
             (qt_iconengines_path, 'lib/Qt/plugins/iconengines'),
         ]
-        #Extend include_files with resources list
+        # Extend include_files with resources list
         include_files.extend(resources)
         include_files.extend(include_connect_plugins)
 
         # Force Qt to be included.
-        bin_includes = [
-            'PySide2',
-            "shiboken2",
-            "encodings"
-        ]
+        bin_includes = ['PySide2', "shiboken2", "encodings"]
 
     elif sys.platform == 'darwin':
-
         # Update Info.plist file with version
         INFO_PLIST_FILE = os.path.join(RESOURCE_PATH, 'Info.plist')
         try:
@@ -325,7 +310,7 @@ if sys.platform in ('darwin', 'win32', 'linux'):
             if 'CFBundleShortVersionString' in pl.keys():
                 pl["CFBundleShortVersionString"] = str(VERSION)
             with open(INFO_PLIST_FILE, "wb") as file:
-                    plistlib.dump(pl, file)
+                plistlib.dump(pl, file)
         except Exception as e:
             logging.warning(
                 'Could not change the version at Info.plist file. \n Error: {}'.format(
@@ -353,7 +338,7 @@ if sys.platform in ('darwin', 'win32', 'linux'):
             os.path.join(pyside_path, "Qt", "lib", "QtDBus.framework"),
             os.path.join(pyside_path, "Qt", "lib", "QtWidgets.framework"),
             os.path.join(pyside_path, "Qt", "lib", "QtQml.framework"),
-            os.path.join(pyside_path, "Qt", "lib", "QtPrintSupport.framework")
+            os.path.join(pyside_path, "Qt", "lib", "QtPrintSupport.framework"),
         ]
 
         # include_resources is an argument of bdist_mac only, all the listed
@@ -363,15 +348,13 @@ if sys.platform in ('darwin', 'win32', 'linux'):
         # and dylib are added on the MacOS folder for now
         include_resources.remove(('qt.conf', 'qt.conf'))
 
-        #Extend resources with the connect plugins.
+        # Extend resources with the connect plugins.
         include_resources.extend(include_connect_plugins)
 
         configuration['options']['bdist_mac'] = {
             'iconfile': './logo.icns',
             'bundle_name': bundle_name,
-            'custom_info_plist': os.path.join(
-                RESOURCE_PATH, 'Info.plist'
-            ),
+            'custom_info_plist': os.path.join(RESOURCE_PATH, 'Info.plist'),
             'include_frameworks': include_frameworks,
             'include_resources': include_resources,
             # TODO: codesign arguments is not working with PySide2 applications because
@@ -385,21 +368,20 @@ if sys.platform in ('darwin', 'win32', 'linux'):
 
         configuration['options']['bdist_dmg'] = {
             'applications_shortcut': False,
-            'volume_label': 'ftrack Connect'
+            'volume_label': 'ftrack Connect',
         }
 
         include_files = [
-            #Include Qt
+            # Include Qt
             os.path.join(pyside_path, "Qt", "plugins", "platforms"),
             os.path.join(pyside_path, "Qt", "plugins", "imageformats"),
             os.path.join(pyside_path, "Qt", "plugins", "iconengines"),
-            #Include PySide and Shiboken libs
+            # Include PySide and Shiboken libs
             os.path.join(pyside_path, "libpyside2.abi3.5.14.dylib"),
-            os.path.join(shiboken_path, "libshiboken2.abi3.5.14.dylib")
+            os.path.join(shiboken_path, "libshiboken2.abi3.5.14.dylib"),
         ]
 
     elif sys.platform == 'linux':
-
         executables.append(
             Executable(
                 script='source/ftrack_connect_installer/__main__.py',
@@ -410,16 +392,22 @@ if sys.platform in ('darwin', 'win32', 'linux'):
         )
 
         # Qt plugins paths
-        qt_platforms_path = os.path.join(pyside_path, "Qt", "plugins", "platforms")
-        qt_imageformats_path = os.path.join(pyside_path, "Qt", "plugins", "imageformats")
-        qt_iconengines_path = os.path.join(pyside_path, "Qt", "plugins", "iconengines")
+        qt_platforms_path = os.path.join(
+            pyside_path, "Qt", "plugins", "platforms"
+        )
+        qt_imageformats_path = os.path.join(
+            pyside_path, "Qt", "plugins", "imageformats"
+        )
+        qt_iconengines_path = os.path.join(
+            pyside_path, "Qt", "plugins", "iconengines"
+        )
 
         include_files = [
             # Include Qt
             (qt_platforms_path, 'lib/Qt/plugins/platforms'),
             (qt_imageformats_path, 'lib/Qt/plugins/imageformats'),
-            (qt_iconengines_path, 'lib/Qt/plugins/iconengines')
-            ]
+            (qt_iconengines_path, 'lib/Qt/plugins/iconengines'),
+        ]
 
         # Extend include_files with resources list
         include_files.extend(resources)
@@ -434,42 +422,44 @@ if sys.platform in ('darwin', 'win32', 'linux'):
             'libQt5Xml.so',
             'libQt5XcbQpa.so',
             'libQt5DBus.so',
-            'libshiboken2'
+            'libshiboken2',
         ]
 
     configuration['executables'] = executables
 
-    includes.extend([
-        'atexit',  # Required for PySide
-        'ftrack_connect',
-        'ftrack_api.resource_identifier_transformer.base',
-        'ftrack_api.structure.id',
-        'encodings',
-        'PySide2',
-        'shiboken2',
-        'Qt',
-        'PySide2.QtSvg',
-        'PySide2.QtXml',
-        'PySide2.QtCore',
-        'PySide2.QtWidgets',
-        'PySide2.QtGui',
-        'ftrack_action_handler',
-        'ftrack_action_handler.action',
-        'ssl',
-        'xml.etree',
-        'xml.etree.ElementTree',
-        'xml.etree.ElementPath',
-        'xml.etree.ElementInclude',
-        'http',
-        'http.server',
-        'webbrowser',
-        'html',
-        'html.parser',
-        'cgi',
-        'concurrent',
-        'concurrent.futures',
-        'darkdetect'
-    ])
+    includes.extend(
+        [
+            'atexit',  # Required for PySide
+            'ftrack_connect',
+            'ftrack_api.resource_identifier_transformer.base',
+            'ftrack_api.structure.id',
+            'encodings',
+            'PySide2',
+            'shiboken2',
+            'Qt',
+            'PySide2.QtSvg',
+            'PySide2.QtXml',
+            'PySide2.QtCore',
+            'PySide2.QtWidgets',
+            'PySide2.QtGui',
+            'ftrack_action_handler',
+            'ftrack_action_handler.action',
+            'ssl',
+            'xml.etree',
+            'xml.etree.ElementTree',
+            'xml.etree.ElementPath',
+            'xml.etree.ElementInclude',
+            'http',
+            'http.server',
+            'webbrowser',
+            'html',
+            'html.parser',
+            'cgi',
+            'concurrent',
+            'concurrent.futures',
+            'darkdetect',
+        ]
+    )
 
     configuration['options']['build_exe'] = {
         'packages': ['ftrack_connect'],
@@ -488,7 +478,7 @@ if sys.platform in ('darwin', 'win32', 'linux'):
             'http',
             'urllib.parser',
             'webbrowser',
-            'darkdetect'
+            'darkdetect',
         ],
         'excludes': [
             "dbm.gnu",
@@ -502,7 +492,7 @@ if sys.platform in ('darwin', 'win32', 'linux'):
     }
 
 
-def post_setup(codesign_frameworks = True):
+def post_setup(codesign_frameworks=True):
     '''
     Post setup function.
 
@@ -516,25 +506,24 @@ def post_setup(codesign_frameworks = True):
 
     '''
     if sys.platform == 'darwin':
-        logging.info(
-            " Fixing PySide2 frameworks."
-        )
+        logging.info(" Fixing PySide2 frameworks.")
         bundle_dir = os.path.join(BUILD_PATH, bundle_name + ".app")
-        frameworks_dir = os.path.join(bundle_dir,  "Contents", "Frameworks")
+        frameworks_dir = os.path.join(bundle_dir, "Contents", "Frameworks")
         for framework in os.listdir(frameworks_dir):
             full_path = '{}/{}'.format(frameworks_dir, framework)
             framework_name = framework.split(".")[0]
             # Fix PySide2 misplaced resources and .plist file on frameworks.
-            bash_move_cmd = 'mv "{}/Resources" "{}/Versions/5/Resources"'.format(
-                full_path,
-                full_path
+            bash_move_cmd = (
+                'mv "{}/Resources" "{}/Versions/5/Resources"'.format(
+                    full_path, full_path
+                )
             )
             os.system(bash_move_cmd)
             # The symlink has to be relative, otherwise will not codesign correctly.
             # You can test the codesign after codesign the whole application with:
             # codesign -vvv --deep --strict build/ftrack-connect.app/
-            bash_ln_command = 'cd "{}"; ln -s "Versions/5/Resources/" "./"'.format(
-                full_path
+            bash_ln_command = (
+                'cd "{}"; ln -s "Versions/5/Resources/" "./"'.format(full_path)
             )
             os.system(bash_ln_command)
             if codesign_frameworks:
@@ -547,8 +536,8 @@ def post_setup(codesign_frameworks = True):
                     '"{}/versions/5/{}"'.format(
                         os.getenv('CODESIGN_IDENTITY'),
                         full_path,
-                        framework_name
-                        )
+                        framework_name,
+                    )
                 )
                 codesign_result = os.system(bashCommand)
                 if codesign_result != 0:
@@ -565,6 +554,7 @@ def post_setup(codesign_frameworks = True):
                 " You should codesign the frameworks before codesign the "
                 "application, otherwise it will not be well codesigned."
             )
+
 
 def codesign_osx(create_dmg=True, notarize=True):
     '''
@@ -590,7 +580,7 @@ def codesign_osx(create_dmg=True, notarize=True):
     )
     codesign_result = os.system(codesign_command)
     if codesign_result != 0:
-        raise(
+        raise (
             Exception(
                 "Codesign not working please make sure you have the "
                 "CODESIGN_IDENTITY, APPLE_USER_NAME environment variables and "
@@ -602,9 +592,7 @@ def codesign_osx(create_dmg=True, notarize=True):
     if create_dmg:
         dmg_name = '{0}-{1}.dmg'.format(bundle_name, VERSION)
         dmg_path = os.path.join(BUILD_PATH, dmg_name)
-        dmg_command = (
-            'appdmg resource/appdmg.json "{}"'.format(dmg_path)
-        )
+        dmg_command = 'appdmg resource/appdmg.json "{}"'.format(dmg_path)
         dmg_result = os.system(dmg_command)
         if dmg_result != 0:
             raise (Exception("dmg creation not working please check."))
@@ -624,7 +612,9 @@ def codesign_osx(create_dmg=True, notarize=True):
                 '--username $APPLE_USER_NAME --password "@keychain:ftrack_connect_sign_pass" '
                 '--file "{}"'.format(dmg_path)
             )
-            notarize_result = subprocess.check_output(notarize_command, shell=True)
+            notarize_result = subprocess.check_output(
+                notarize_command, shell=True
+            )
             notarize_result = notarize_result.decode("utf-8")
             status, uuid = notarize_result.split('\n')[0:2]
             uuid_num = uuid.split(' = ')[-1]
@@ -647,19 +637,27 @@ def codesign_osx(create_dmg=True, notarize=True):
                     'xcrun altool --notarization-info {} -u $APPLE_USER_NAME '
                     '-p "@keychain:ftrack_connect_sign_pass"'.format(uuid_num)
                 )
-                query_result = subprocess.check_output(notarize_query, shell=True)
+                query_result = subprocess.check_output(
+                    notarize_query, shell=True
+                )
                 query_result = query_result.decode("utf-8")
                 status = query_result.split("Status: ")[-1].split("\n")[0]
                 if status == 'success':
                     exit_loop = True
-                    staple_app_cmd = 'xcrun stapler staple "{}"'.format(bundle_path)
-                    staple_dmg_cmd = 'xcrun stapler staple "{}"'.format(dmg_path)
+                    staple_app_cmd = 'xcrun stapler staple "{}"'.format(
+                        bundle_path
+                    )
+                    staple_dmg_cmd = 'xcrun stapler staple "{}"'.format(
+                        dmg_path
+                    )
                     os.system(staple_app_cmd)
                     os.system(staple_dmg_cmd)
 
                 elif status == 'invalid':
                     exit_loop = True
-                    log_url = query_result.split("LogFileURL: ")[-1].split("\n")[0]
+                    log_url = query_result.split("LogFileURL: ")[-1].split(
+                        "\n"
+                    )[0]
                     raise (
                         Exception(
                             "Notarization failed, please copy the following url "
@@ -680,13 +678,17 @@ def codesign_osx(create_dmg=True, notarize=True):
                             ' Please check the status of the notarization using '
                             'the command:\nxcrun altool --notarization-info {} '
                             '-u $APPLE_USER_NAME  '
-                            '-p "@keychain:ftrack_connect_sign_pass"'.format(uuid_num)
+                            '-p "@keychain:ftrack_connect_sign_pass"'.format(
+                                uuid_num
+                            )
                         )
                         logging.info(
                             ' Please once notarization is succeed use the '
                             'following command to staple the app and the dmg: \n'
                             'xcrum stapler staple "{}" \n'
-                            'xcrun stapler staple "{}"'.format(bundle_path, dmg_path)
+                            'xcrun stapler staple "{}"'.format(
+                                bundle_path, dmg_path
+                            )
                         )
                     else:
                         try:
@@ -699,7 +701,7 @@ def codesign_osx(create_dmg=True, notarize=True):
                                 "Response: {}".format(notarize_query, response)
                             )
                         exit_loop = False
-                        time.sleep(sleep_min*60)
+                        time.sleep(sleep_min * 60)
 
 
 if sys.platform == 'darwin':
@@ -711,25 +713,33 @@ if sys.platform == 'darwin':
         description=''' Override help for Connect build in MacOs. These are the 
         accepted arguments for connect build. ''',
         epilog='Make sure you have the CODESIGN_IDENTITY and APPLE_USER_NAME '
-               'environment variables and the ftrack_connect_sign_pass on the '
-               'keychain before codesign. Also make sure to have appdmg installed '
-                'by running "npm install -g appdmg"'
+        'environment variables and the ftrack_connect_sign_pass on the '
+        'keychain before codesign. Also make sure to have appdmg installed '
+        'by running "npm install -g appdmg"',
     )
     parser.add_argument(
-        '-cf', '--codesign_frameworks',
+        '-cf',
+        '--codesign_frameworks',
         action='store_true',
         help='Codesign the frameworks on the Frameworks folder on MacOS',
     )
     parser.add_argument(
-        '-cs', '--codesign', action='store_true', help='Codesign the .app in MacOS'
+        '-cs',
+        '--codesign',
+        action='store_true',
+        help='Codesign the .app in MacOS',
     )
     parser.add_argument(
-        '-dmg', '--create_dmg', action='store_true',
-        help='Create the dmg file for MacOS'
+        '-dmg',
+        '--create_dmg',
+        action='store_true',
+        help='Create the dmg file for MacOS',
     )
     parser.add_argument(
-        '-not', '--notarize', action='store_true',
-        help='Notarize the dmg application after codesign'
+        '-not',
+        '--notarize',
+        action='store_true',
+        help='Notarize the dmg application after codesign',
     )
     args, unknown = parser.parse_known_args()
     sys.argv = [sys.argv[0]] + unknown
@@ -740,6 +750,7 @@ def clean_download_dir():
     if os.path.exists(DOWNLOAD_PLUGIN_PATH):
         shutil.rmtree(DOWNLOAD_PLUGIN_PATH)
 
+
 # Call main setup.
 setup(**configuration)
 
@@ -748,13 +759,13 @@ if sys.platform == 'darwin':
     if 'osx_args' in locals():
         post_setup(codesign_frameworks=osx_args.codesign_frameworks)
         if osx_args.codesign:
-            codesign_osx(create_dmg=osx_args.create_dmg, notarize=osx_args.notarize)
+            codesign_osx(
+                create_dmg=osx_args.create_dmg, notarize=osx_args.notarize
+            )
         elif osx_args.create_dmg:
             dmg_name = '{0}-{1}.dmg'.format(bundle_name, VERSION)
             dmg_path = os.path.join(BUILD_PATH, dmg_name)
-            dmg_command = (
-                'appdmg resource/appdmg.json "{}"'.format(dmg_path)
-            )
+            dmg_command = 'appdmg resource/appdmg.json "{}"'.format(dmg_path)
             dmg_result = os.system(dmg_command)
             if dmg_result != 0:
                 raise (Exception("dmg creation not working please check."))

@@ -1,5 +1,5 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2015 ftrack
+# :copyright: Copyright (c) 2014-2023 ftrack
 
 '''ftrack connect installer documentation build configuration file.'''
 
@@ -15,7 +15,7 @@ extensions = [
     'sphinx.ext.intersphinx',
     'sphinx.ext.todo',
     'sphinx.ext.viewcode',
-    'lowdown'
+    'lowdown',
 ]
 
 
@@ -55,6 +55,7 @@ on_rtd = os.environ.get('READTHEDOCS', None) == 'True'
 
 if not on_rtd:  # only import and set the theme if we're building docs locally
     import sphinx_rtd_theme
+
     html_theme = 'sphinx_rtd_theme'
     html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
 
@@ -82,11 +83,13 @@ intersphinx_mapping = {
     'python': ('http://docs.python.org/', None),
     'ftrack': ('http://ftrack.rtd.ftrack.com/en/latest/', None),
     'ftrack-connect-photoshop': (
-        'http://ftrack-connect-photoshop.rtd.ftrack.com/en/latest/', None
+        'http://ftrack-connect-photoshop.rtd.ftrack.com/en/latest/',
+        None,
     ),
     'ftrack-connect-after-effects': (
-        'http://ftrack-connect-after-effects.rtd.ftrack.com/en/latest/', None
-    )
+        'http://ftrack-connect-after-effects.rtd.ftrack.com/en/latest/',
+        None,
+    ),
 }
 
 

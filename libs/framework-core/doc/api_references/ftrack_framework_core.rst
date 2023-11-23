@@ -12,7 +12,7 @@ ftrack\_framework\_core
     ftrack_framework_core.asset
     ftrack_framework_core.client
     ftrack_framework_core.constants
-    ftrack_framework_core.definition
+    ftrack_framework_core.tool_config
     ftrack_framework_core.host
     ftrack_framework_core.log
     ftrack_framework_core.plugin
