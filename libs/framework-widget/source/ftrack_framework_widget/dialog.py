@@ -6,7 +6,7 @@ import uuid
 from functools import partial
 
 from ftrack_framework_widget import BaseUI, active_widget
-from ftrack_utils.framework.tool_config.read import get_tool_config_by_name
+from ftrack_utils.framework.config.tool import get_tool_config_by_name
 
 
 class FrameworkDialog(BaseUI):
