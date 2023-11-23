@@ -10,6 +10,10 @@ Release Notes
 
 .. release:: upcoming
 
+    .. change:: fixed
+
+        Moved resource hooks to source, to have them included in Poetry build.
+
     .. change:: changed
         :tags: Environment Variables
 
