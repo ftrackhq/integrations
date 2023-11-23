@@ -36,13 +36,12 @@ sys.path.append(python_dependencies)
 
 
 from ftrack_connect_plugin_manager import (
-    InstallerBlockingOverlay,
+    InstallerDoneBlockingOverlay,
+    InstallerFailedBlockingOverlay,
     PluginProcessor,
     DndPluginList,
     ROLES,
 )
-
-logger = logging.getLogger('ftrack_connect.plugin.plugin_installer')
 
 
 class PluginInstaller(ftrack_connect.ui.application.ConnectWidget):
@@ -104,10 +103,17 @@ class PluginInstaller(ftrack_connect.ui.application.ConnectWidget):
         layout.addLayout(button_layout)
 
         # overlays
-        self.blockingOverlay = InstallerBlockingOverlay(self)
-        self.blockingOverlay.hide()
-        self.blockingOverlay.confirmButton.clicked.connect(self.refresh)
-        self.blockingOverlay.restartButton.clicked.connect(
+        self.blockingOverlayDone = InstallerDoneBlockingOverlay(self)
+        self.blockingOverlayDone.hide()
+        self.blockingOverlayDone.confirmButton.clicked.connect(self.refresh)
+        self.blockingOverlayDone.restartButton.clicked.connect(
+            self.requestConnectRestart.emit
+        )
+
+        self.blockingOverlayFailed = InstallerFailedBlockingOverlay(self)
+        self.blockingOverlayFailed.hide()
+        self.blockingOverlayFailed.confirmButton.clicked.connect(self.refresh)
+        self.blockingOverlayFailed.restartButton.clicked.connect(
             self.requestConnectRestart.emit
         )
 
@@ -199,9 +205,16 @@ class PluginInstaller(ftrack_connect.ui.application.ConnectWidget):
 
     def _show_user_message_done(self, message):
         '''Show final message to the user.'''
-        self.blockingOverlay.setMessage('<h2>Installation finished!</h2>')
-        self.blockingOverlay.confirmButton.show()
-        self.blockingOverlay.show()
+        self.blockingOverlayDone.setMessage('<h2>{}</h2>'.format(message))
+        self.blockingOverlayDone.confirmButton.show()
+        self.blockingOverlayDone.show()
+
+    def _show_user_message_failed(self, message, reason):
+        '''Show final message to the user.'''
+        self.blockingOverlayFailed.setMessage('<h2>{}</h2>'.format(message))
+        self.blockingOverlayFailed.setReason(reason)
+        self.blockingOverlayFailed.confirmButton.show()
+        self.blockingOverlayFailed.show()
 
     def _reset_overlay(self):
         self.reset_plugin_list()
