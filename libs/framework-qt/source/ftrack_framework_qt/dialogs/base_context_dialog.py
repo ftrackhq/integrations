@@ -8,6 +8,7 @@ from ftrack_framework_widget.dialog import FrameworkDialog
 from ftrack_qt.widgets.dialogs import StyledDialog
 from ftrack_qt.widgets.headers import SessionHeader
 from ftrack_qt.widgets.selectors import ContextSelector
+from ftrack_qt.widgets.progress import ProgressWidget
 
 from ftrack_qt.utils.layout import recursive_clear_layout
 
@@ -38,6 +39,11 @@ class BaseContextDialog(FrameworkDialog, StyledDialog):
         Return if context selector is currently working on setting up a context
         '''
         return self._context_selector.is_browsing
+
+    @property
+    def progress_widget(self):
+        '''Return the progress widget of the dialog'''
+        return self._progress_widget
 
     @property
     def tool_widget(self):
@@ -91,6 +97,7 @@ class BaseContextDialog(FrameworkDialog, StyledDialog):
         )
         self._header = None
         self._context_selector = None
+        self._progress_widget = None
         self._tool_widget = None
         self._run_button = None
 
@@ -105,9 +112,9 @@ class BaseContextDialog(FrameworkDialog, StyledDialog):
     def build(self):
         # Create the header
         self._header = SessionHeader(self.event_manager.session)
-        # TODO: implement progress widget.
-        # self._progress_widget = ProgressWidget
-        # self._header.add_widget(self._progress_widget)
+
+        self._progress_widget = ProgressWidget()
+        self._header.add_widget(self.progress_widget.button_widget)
 
         self._context_selector = ContextSelector(
             self.event_manager.session, enable_context_change=True

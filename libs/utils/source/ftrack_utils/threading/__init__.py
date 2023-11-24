@@ -20,3 +20,8 @@ class BaseThread(threading.Thread):
         result = self.method(*self.target_args)
         if self.callback is not None:
             self.callback(result)
+
+
+def is_main_thread():
+    '''Return True if current thread is main thread.'''
+    return threading.current_thread().name == 'MainThread'

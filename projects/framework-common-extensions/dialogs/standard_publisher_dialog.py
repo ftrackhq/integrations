@@ -87,6 +87,8 @@ class StandardPublisherDialog(BaseContextDialog):
         else:
             self.tool_config = self.filtered_tool_configs.get("publisher")[0]
 
+        self.progress_widget.prepare_add_phases()
+
         # Build context widgets
         context_plugins = get_plugins(
             self.tool_config, filters={'tags': ['context']}
@@ -98,6 +100,7 @@ class StandardPublisherDialog(BaseContextDialog):
             context_widget = self.init_framework_widget(context_plugin)
             self._scroll_area_widget.layout().addWidget(context_widget)
             self._context_widgets.append(context_widget)
+            self.progress_widget.add_phase('context', context_plugin['name'])
 
         # Build component widgets
         component_groups = get_groups(
@@ -146,6 +149,14 @@ class StandardPublisherDialog(BaseContextDialog):
                 continue
             widget = self.init_framework_widget(plugin_config, group_config)
             accordion_widget.add_widget(widget)
+            self.progress_widget.add_phase(
+                '{}:collector'.format(
+                    group_config.get('options').get('component')
+                    if group_config
+                    else 'component'
+                ),
+                plugin_config['name'],
+            )
 
     def add_validator_widgets(
         self, validators, accordion_widget, group_config=None
@@ -157,6 +168,14 @@ class StandardPublisherDialog(BaseContextDialog):
             accordion_widget.add_option_widget(
                 widget, section_name='Validators'
             )
+            self.progress_widget.add_phase(
+                '{}:validator'.format(
+                    group_config.get('options').get('component')
+                    if group_config
+                    else 'component'
+                ),
+                plugin_config['name'],
+            )
 
     def add_exporter_widgets(
         self, exporters, accordion_widget, group_config=None
@@ -167,6 +186,14 @@ class StandardPublisherDialog(BaseContextDialog):
             widget = self.init_framework_widget(plugin_config, group_config)
             accordion_widget.add_option_widget(
                 widget, section_name='Exporters'
+            )
+            self.progress_widget.add_phase(
+                '{}:exporter'.format(
+                    group_config.get('options').get('component')
+                    if group_config
+                    else 'component'
+                ),
+                plugin_config['name'],
             )
 
     def post_build_ui(self):
