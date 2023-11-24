@@ -233,6 +233,9 @@ class ApplicationStore(object):
         *environment_variables* is a dictionary of environment variables that
         should be set when launching the application.
 
+        *connect_plugin_path* is the path to the connect plugin folder associated
+        with the application/integration.
+
         '''
 
         applications = []
@@ -730,14 +733,12 @@ class ApplicationLauncher(object):
                 )
 
                 command = []
-                standalone_python_interpreter_path = sys.argv[0]
-                if not standalone_python_interpreter_path.endswith('.py'):
-                    command.append(standalone_python_interpreter_path)
+                executable_filename = sys.argv[0]
+                if not executable_filename.endswith('.py'):
+                    command.append(executable_filename)
                 else:
                     # Support invocation through Python interpreter
-                    command.extend(
-                        [sys.executable, standalone_python_interpreter_path]
-                    )
+                    command.extend([sys.executable, executable_filename])
 
                 command.extend(
                     [
