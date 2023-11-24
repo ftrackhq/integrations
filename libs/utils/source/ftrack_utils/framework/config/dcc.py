@@ -5,6 +5,7 @@ import os
 import logging
 
 from ftrack_utils.extensions.registry import register_yaml_files
+from ftrack_utils.paths import find_files
 
 logger = logging.getLogger(__name__)
 
@@ -21,22 +22,17 @@ def read_dcc_config(dcc_name, framework_extension_paths):
             )
             continue
 
-        for root, dirs, files in os.walk(framework_extension_path):
-            yaml_config_file_paths = [
-                os.path.join(root, str(config))
-                for config in files
-                if config == '{}.yaml'.format(dcc_name)
-            ]
-
-            if len(yaml_config_file_paths) == 0:
-                continue
-
-            for extension in register_yaml_files(yaml_config_file_paths):
+        for yaml_config_file_path in find_files(
+            framework_extension_path,
+            file_filter=lambda filename: filename
+            == '{}.yaml'.format(dcc_name),
+        ):
+            for extension in register_yaml_files([yaml_config_file_path]):
                 # Should only be one
                 return extension
 
     raise ValueError(
-        'Could not DCC find configuration file for "{0}" at extension paths {1}'.format(
+        'Could not find DCC configuration file for "{0}" at extension paths {1}'.format(
             dcc_name, framework_extension_paths
         )
     )

@@ -223,6 +223,16 @@ class ApplicationStore(object):
 
         *description* can be used to provide a helpful description for the
         user.
+
+        *integrations* is the list of integrations that are required for this
+        application to run.
+
+        *standalone_module* is the name of the standalone module that should be
+        launched together with the application.
+
+        *environment_variables* is a dictionary of environment variables that
+        should be set when launching the application.
+
         '''
 
         applications = []
@@ -331,13 +341,13 @@ class ApplicationStore(object):
                             # Parse environment variables
                             # TODO: support platform specific env vars
 
-                            def expand_variable(name, value):
-                                '''Convert path  - support relative paths and
+                            def conditional_expand_variable(name, value):
+                                '''Convert FTRACK_EXTENSIONS_PATH  - support relative paths and
                                 home directories'''
                                 if not len(value or ''):
                                     return ''
                                 value = str(value)
-                                if name.find('PATH') > -1:
+                                if name.lower() == 'ftrack_extensions_path':
                                     if value[0] != os.sep and not (
                                         sys.platform == 'win32'
                                         and len(value) >= 2
@@ -362,14 +372,20 @@ class ApplicationStore(object):
                                         name
                                     ] = os.pathsep.join(
                                         [
-                                            expand_variable(name, v)
+                                            conditional_expand_variable(
+                                                name, v
+                                            )
                                             for v in value
                                         ]
                                     )
                                 else:
                                     application['environment_variables'][
                                         name
-                                    ] = str(expand_variable(name, value))
+                                    ] = str(
+                                        conditional_expand_variable(
+                                            name, value
+                                        )
+                                    )
 
                         applications.append(application)
 
