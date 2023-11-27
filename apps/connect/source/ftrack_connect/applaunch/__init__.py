@@ -359,10 +359,9 @@ class ApplicationStore(object):
                             application[
                                 'standalone_module'
                             ] = standalone_module
-                        application['environment_variables'] = None
+                        application['environment_variables'] = {}
                         if extensions_path:
                             # Convert to list and expand paths
-                            application['environment_variables'] = {}
                             if isinstance(extensions_path, list):
                                 application['environment_variables'][
                                     'FTRACK_EXTENSIONS_PATH'
@@ -384,9 +383,6 @@ class ApplicationStore(object):
                         if environment_variables:
                             # Parse environment variables
                             # TODO: support platform specific env vars
-
-                            if not application['environment_variables']:
-                                application['environment_variables'] = {}
                             for name, value in list(
                                 environment_variables.items()
                             ):

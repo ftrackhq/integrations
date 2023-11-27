@@ -13,20 +13,20 @@ from ftrack_utils.directories.scan_dir import fast_scandir
 
 logger = logging.getLogger(__name__)
 
-path_matcher = re.compile(r'\$\{([^}^{]+)}')
+env_matcher = re.compile(r'\$\{([^}^{]+)}')
 
 
 # Patch yaml module to support environment variable substitution
 def env_constructor(loader, node):
     '''Extract the matched value, expand env variable, and replace the match.'''
     value = node.value
-    match = path_matcher.match(value)
+    match = env_matcher.match(value)
     env_var = match.group()[2:-1]
     return os.environ.get(env_var, '') + value[match.end() :]
 
 
-yaml.add_implicit_resolver('!env', path_matcher)
-yaml.add_constructor('!env', env_constructor)
+yaml.add_implicit_resolver('!env', env_matcher, None, yaml.SafeLoader)
+yaml.add_constructor('!env', env_constructor, yaml.SafeLoader)
 
 
 def register_yaml_files(file_list):
@@ -39,7 +39,7 @@ def register_yaml_files(file_list):
     for _file in file_list:
         with open(_file, 'r') as yaml_file:
             try:
-                yaml_content = yaml.load(yaml_file, Loader=yaml.FullLoader)
+                yaml_content = yaml.safe_load(yaml_file)
             except yaml.YAMLError as exc:
                 # Log an error if the yaml file is invalid.
                 logger.error(

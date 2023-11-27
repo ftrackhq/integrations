@@ -32,6 +32,6 @@ extensions_path:
   - extensions/photoshop
 # TODO: remove this on documentation update
 environment_variables:
-  TEST_ENVIRONMENT_VARIABLE:
-    - value1
-    - value2
+  TEST_ENVIRONMENT_VARIABLE_WITH_ENV:
+    - ${PATH}
+    - N:\additional_path
