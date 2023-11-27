@@ -1,4 +1,4 @@
-type: dcc-config
+type: dcc_config
 name: framework-photoshop
 tools:
   - name: publish

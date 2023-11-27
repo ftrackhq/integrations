@@ -34,33 +34,3 @@ def find_image_sequence(file_path):
             return os.path.join(folder_path, collection.format())
 
     return None
-
-
-def find_files(file_path, file_filter=None, directory_filter=None):
-    '''
-    Returns(generator) the files or directories in the given *file_path*, using
-    os.walk.
-
-    If *file_filter* is supplied, only files matching the filter will be returned.
-
-    If *directory_filter* is supplied, only directories matching the filter will be returned.
-
-    If no filter is provided, all files is returned.
-    '''
-
-    if not os.path.isdir(file_path):
-        raise Exception(
-            'Path does not exist or is not a directory: {0}'.format(file_path)
-        )
-    for root, dirs, files in os.walk(file_path):
-        if file_filter:
-            for f in files:
-                if file_filter(f):
-                    yield os.path.join(root, f)
-        if directory_filter:
-            for d in dirs:
-                if directory_filter(d):
-                    yield os.path.join(root, d)
-        if not file_filter and not directory_filter:
-            for f in files + dirs:
-                yield os.path.join(root, f)

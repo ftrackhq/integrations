@@ -83,6 +83,9 @@ def get_extensions_from_directory(scan_dir):
     if not subfolders:
         # noinspection SpellCheckingInspection
         subfolders = [scan_dir]
+    else:
+        # Add  the original path to the list of paths
+        subfolders.append(scan_dir)
 
     available_extensions = []
     # Check non python extensions

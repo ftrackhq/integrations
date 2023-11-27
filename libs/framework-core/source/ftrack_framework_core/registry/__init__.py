@@ -54,6 +54,20 @@ class Registry(object):
         return self.__registry.get('dialog')
 
     @property
+    def launchers(self):
+        '''
+        Returns the registered engines`
+        '''
+        return self.__registry.get('launcher')
+
+    @property
+    def dcc_configs(self):
+        '''
+        Returns the registered engines`
+        '''
+        return self.__registry.get('dcc_config')
+
+    @property
     def registered_modules(self):
         return self.__registry
 
