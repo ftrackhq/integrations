@@ -119,6 +119,7 @@ class DiscoverApplications(object):
                     launchArguments=launch_arguments,
                     integrations=config.get('integrations'),
                     standalone_module=config.get('standalone_module'),
+                    extensions_path=config.get('extensions_path'),
                     environment_variables=config.get('environment_variables'),
                     connect_plugin_path=os.path.realpath(
                         os.path.join(os.path.dirname(config_path), '..')

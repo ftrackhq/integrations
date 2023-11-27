@@ -268,7 +268,7 @@ def build_package(pkg_path, args):
         os.makedirs(dependencies_path)
         os.makedirs(extensions_destination_path)
 
-        extras = 'ftrack-libs' if not args.libs_from_source else None
+        extras = 'ftrack-libs' if not args.from_source else None
         if USES_FRAMEWORK:
             if extras:
                 extras += ',framework-libs'
@@ -374,7 +374,7 @@ def build_package(pkg_path, args):
                     'Missing DCC config file: {}'.format(dcc_config_path)
                 )
 
-        if args.libs_from_source:
+        if args.from_source:
             # Build library dependencies from source
             libs_path = os.path.join(MONOREPO_PATH, 'libs')
             for filename in os.listdir(libs_path):
@@ -780,7 +780,7 @@ if __name__ == '__main__':
     )
 
     parser.add_argument(
-        '--libs_from_source',
+        '--from_source',
         help='(Connect plugin) Instead of pulling from PyPi, uses dependencies '
         'directly from sources.',
         action='store_true',

@@ -168,6 +168,22 @@ class ApplicationStore(object):
 
         return result
 
+    def _conditional_expand_extension_path(self, value, connect_plugin_path):
+        '''Convert extension path *value*  - support relative paths by
+        prepending *connect_plugin_path* and home directories (~ prefix)'''
+        if not len(value or ''):
+            return ''
+        value = str(value)
+        if value[0] != os.sep and not (
+            sys.platform == 'win32' and len(value) >= 2 and value[1] == ':'
+        ):
+            # A relative path, append plugin path
+            value = os.path.join(connect_plugin_path, value)
+        elif value.startswith('~/'):
+            # A home directory path
+            value = os.path.expanduser(value)
+        return value
+
     def _search_filesystem(
         self,
         expression,
@@ -180,6 +196,7 @@ class ApplicationStore(object):
         description=None,
         integrations=None,
         standalone_module=None,
+        extensions_path=None,
         environment_variables=None,
         connect_plugin_path=None,
     ):
@@ -229,6 +246,8 @@ class ApplicationStore(object):
 
         *standalone_module* is the name of the standalone module that should be
         launched together with the application.
+
+        *extensions_path* is a raw dictionary containing extension paths.
 
         *environment_variables* is a dictionary of environment variables that
         should be set when launching the application.
@@ -340,55 +359,49 @@ class ApplicationStore(object):
                             application[
                                 'standalone_module'
                             ] = standalone_module
+                        application['environment_variables'] = None
+                        if extensions_path:
+                            # Convert to list and expand paths
+                            application['environment_variables'] = {}
+                            if isinstance(extensions_path, list):
+                                application['environment_variables'][
+                                    'FTRACK_EXTENSIONS_PATH'
+                                ] = os.pathsep.join(
+                                    [
+                                        self._conditional_expand_extension_path(
+                                            extension_path, connect_plugin_path
+                                        )
+                                        for extension_path in extensions_path
+                                    ]
+                                )
+                            else:
+                                application['environment_variables'][
+                                    'FTRACK_EXTENSIONS_PATH'
+                                ] = self._conditional_expand_extension_path(
+                                    extensions_path, connect_plugin_path
+                                )
+
                         if environment_variables:
                             # Parse environment variables
                             # TODO: support platform specific env vars
 
-                            def conditional_expand_variable(name, value):
-                                '''Convert FTRACK_EXTENSIONS_PATH  - support relative paths and
-                                home directories'''
-                                if not len(value or ''):
-                                    return ''
-                                value = str(value)
-                                if name.lower() == 'ftrack_extensions_path':
-                                    if value[0] != os.sep and not (
-                                        sys.platform == 'win32'
-                                        and len(value) >= 2
-                                        and value[1] == ':'
-                                    ):
-                                        # A relative path, append plugin path
-                                        value = os.path.join(
-                                            connect_plugin_path, value
-                                        )
-                                    elif value[0] == '~':
-                                        # A home directory path
-                                        value = os.path.expanduser(value)
-                                return value
-
-                            application['environment_variables'] = {}
+                            if not application['environment_variables']:
+                                application['environment_variables'] = {}
                             for name, value in list(
                                 environment_variables.items()
                             ):
+                                if name.upper() == 'FTRACK_EXTENSIONS_PATH':
+                                    # Ignore - already handled
+                                    continue
                                 if isinstance(value, list):
                                     # Merge on path sep
                                     application['environment_variables'][
                                         name
-                                    ] = os.pathsep.join(
-                                        [
-                                            conditional_expand_variable(
-                                                name, v
-                                            )
-                                            for v in value
-                                        ]
-                                    )
+                                    ] = os.pathsep.join(value)
                                 else:
                                     application['environment_variables'][
                                         name
-                                    ] = str(
-                                        conditional_expand_variable(
-                                            name, value
-                                        )
-                                    )
+                                    ] = str(value)
 
                         applications.append(application)
 
