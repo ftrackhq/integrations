@@ -49,6 +49,18 @@ class ComponentPathCollectorPlugin(BasePlugin):
         #         self.session.server_url + '/img/thumbnail2.png'
         # )
 
+        params = urllib.parse.urlencode(
+            {
+                'id': component['id'],
+                'username': self.session.api_user,
+                'apiKey': self.session.api_key,
+            }
+        )
+
+        result_url = '{base_url}/component/thumbnail?{params}'.format(
+            base_url=self.session._server_url, params=params
+        )
+
         with self.session.auto_populating(False):
             result = {}
             for asset_version in asset_versions:

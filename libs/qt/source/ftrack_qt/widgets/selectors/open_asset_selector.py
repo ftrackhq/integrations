@@ -6,6 +6,7 @@ import logging
 from Qt import QtWidgets, QtCore, QtGui
 
 from ftrack_qt.widgets.selectors.version_selector import VersionSelector
+from ftrack_qt.widgets.thumbnails import OpenAssetVersionThumbnail
 
 # TODO: add a reload button that emits a signal
 
@@ -56,10 +57,8 @@ class AssetListItemWidget(QtWidgets.QFrame):
 
     def build(self):
         # TODO: implement thumbnail
-        self._thumbnail_widget = (
-            QtWidgets.QPushButton()
-        )  # AssetVersionThumbnail(self._session)
-        # self._thumbnail_widget.setScaledContents(True)
+        self._thumbnail_widget = OpenAssetVersionThumbnail()
+        self._thumbnail_widget.setScaledContents(True)
         self._thumbnail_widget.setMinimumSize(57, 31)
         self._thumbnail_widget.setMaximumSize(57, 31)
         self.layout().addWidget(self._thumbnail_widget)
@@ -103,7 +102,7 @@ class AssetListItemWidget(QtWidgets.QFrame):
         #     self._latest_version = self.asset['latest_version']
 
         # if self._latest_version:
-        #     self._thumbnail_widget.load(self._latest_version['id'])
+        self._thumbnail_widget.load(self._version_combobox.version['url'])
         #
         # self.setToolTip(string_utils.str_context(self.asset['parent']))
 
