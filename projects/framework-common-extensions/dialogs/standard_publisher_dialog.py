@@ -100,7 +100,7 @@ class StandardPublisherDialog(BaseContextDialog):
             context_widget = self.init_framework_widget(context_plugin)
             self._scroll_area_widget.layout().addWidget(context_widget)
             self._context_widgets.append(context_widget)
-            self.progress_widget.add_phase('context', context_plugin['name'])
+            self.progress_widget.add_widget('context', context_plugin['name'])
 
         # Build component widgets
         component_groups = get_groups(
@@ -149,7 +149,8 @@ class StandardPublisherDialog(BaseContextDialog):
                 continue
             widget = self.init_framework_widget(plugin_config, group_config)
             accordion_widget.add_widget(widget)
-            self.progress_widget.add_phase(
+            self.progress_widget.add_widget(
+                widget,
                 '{}:collector'.format(
                     group_config.get('options').get('component')
                     if group_config
@@ -168,7 +169,7 @@ class StandardPublisherDialog(BaseContextDialog):
             accordion_widget.add_option_widget(
                 widget, section_name='Validators'
             )
-            self.progress_widget.add_phase(
+            self.progress_widget.add_widget(
                 '{}:validator'.format(
                     group_config.get('options').get('component')
                     if group_config
@@ -187,7 +188,7 @@ class StandardPublisherDialog(BaseContextDialog):
             accordion_widget.add_option_widget(
                 widget, section_name='Exporters'
             )
-            self.progress_widget.add_phase(
+            self.progress_widget.add_widget(
                 '{}:exporter'.format(
                     group_config.get('options').get('component')
                     if group_config

@@ -49,6 +49,7 @@ class ProgressWidget(QtWidgets.QWidget):
         super(ProgressWidget, self).__init__(parent=parent)
         self._status_view_mode = status_view_mode
 
+        self._overlay_container = None
         self._content_widget = None
         self._status_banner = None
         self._button_widget = None
@@ -100,11 +101,20 @@ class ProgressWidget(QtWidgets.QWidget):
         )
         self._content_widget.layout().addWidget(self._status_banner)
 
-    def add_phase(
-        self, category, phase_name, batch_id=None, phase_label=None, indent=0
+    def add_widget(
+        self,
+        widget,
+        category,
+        phase_name,
+        batch_id=None,
+        phase_label=None,
+        indent=0,
     ):
-        '''Add a phase *phase_name* for *batch_id* to the progress widget, under *category*
-        having optional label *phase_label* and optional *indent* left margin
+        '''Add progress widget representation for framework *widget*, beneath
+        *category*, having *phase_name*and optional *batch_id*.
+
+        If *phase_label* is given, use this instead
+        of plugin name. Optional *indent* defines left margin.
         '''
         id_name = "{}.{}.{}".format(batch_id or '-', category, phase_name)
         phase_button = PhaseButtonWidget(
