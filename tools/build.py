@@ -295,7 +295,10 @@ def build_package(pkg_path, args):
                     )
                     if (
                         not os.path.isdir(extension_source_path)
-                        or extension == 'js'
+                        or extension
+                        == 'launch'  # Launch deployed to root of Connect plugin
+                        or extension
+                        == 'js'  # Skip JS extensions, built to CEP plugin
                     ):
                         continue
                     logging.info(
@@ -347,7 +350,9 @@ def build_package(pkg_path, args):
                 dest_path = os.path.join(
                     extensions_destination_path, target_folder, filename
                 )
-                if os.path.exists(dest_path):
+                if not os.path.exists(os.path.dirname(dest_path)):
+                    os.makedirs(os.path.dirname(dest_path))
+                elif os.path.exists(dest_path):
                     continue
                 shutil.copytree(
                     dependency_path,
@@ -360,14 +365,17 @@ def build_package(pkg_path, args):
             )
             if os.path.isfile(dcc_config_path):
                 logging.info('Copying DCC config')
+                dest_path = os.path.join(
+                    STAGING_PATH,
+                    'extensions',
+                    DCC_NAME,
+                    '{}.yaml'.format(DCC_NAME),
+                )
+                if not os.path.exists(os.path.dirname(dest_path)):
+                    os.makedirs(os.path.dirname(dest_path))
                 shutil.copy(
                     dcc_config_path,
-                    os.path.join(
-                        STAGING_PATH,
-                        'extensions',
-                        DCC_NAME,
-                        '{}.yaml'.format(DCC_NAME),
-                    ),
+                    dest_path,
                 )
             else:
                 raise Exception(
