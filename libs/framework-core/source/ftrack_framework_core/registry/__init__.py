@@ -56,14 +56,14 @@ class Registry(object):
     @property
     def launchers(self):
         '''
-        Returns the registered engines`
+        Returns the registered launcher configs`
         '''
         return self.__registry.get('launcher')
 
     @property
     def dcc_configs(self):
         '''
-        Returns the registered engines`
+        Returns the registered dcc configs`
         '''
         return self.__registry.get('dcc_config')
 
