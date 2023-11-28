@@ -21,7 +21,12 @@ class AssetListItemWidget(QtWidgets.QFrame):
     @property
     def enable_version_select(self):
         '''Return enable_version_select'''
-        return True
+        return self._version_combobox.isEnabled()
+
+    @enable_version_select.setter
+    def enable_version_select(self, value):
+        '''Return enable_version_select'''
+        self._version_combobox.setEnabled(value)
 
     @property
     def version(self):
@@ -66,21 +71,20 @@ class AssetListItemWidget(QtWidgets.QFrame):
         self._asset_name_widget = QtWidgets.QLabel(self._asset_name)
         self.layout().addWidget(self._asset_name_widget)
 
-        if self.enable_version_select:
-            self._version_combobox = VersionSelector()
-            self._version_combobox.set_versions(self._versions)
-            self._version_combobox.setMaximumHeight(20)
-            self.layout().addWidget(self._version_combobox)
+        self._version_combobox = VersionSelector()
+        self._version_combobox.set_versions(self._versions)
+        self._version_combobox.setMaximumHeight(20)
+        self.layout().addWidget(self._version_combobox)
 
-            self._version_info_widget = QtWidgets.QLabel()
-            self._version_info_widget.setObjectName('gray')
-            self.layout().addWidget(self._version_info_widget, 10)
+        self._version_info_widget = QtWidgets.QLabel()
+        self._version_info_widget.setObjectName('gray')
+        self.layout().addWidget(self._version_info_widget, 10)
 
-            # self._latest_version = self._version_combobox.set_asset_entity(
-            #     self.asset
-            # )
+        # self._latest_version = self._version_combobox.set_asset_entity(
+        #     self.asset
+        # )
 
-            # self._update_publisher_info(self._latest_version)
+        # self._update_publisher_info(self._latest_version)
         # TODO: double check this
         # else:
         #     self._create_label = QtWidgets.QLabel('- create')
@@ -102,8 +106,12 @@ class AssetListItemWidget(QtWidgets.QFrame):
         #     self._latest_version = self.asset['latest_version']
 
         # if self._latest_version:
-        self._thumbnail_widget.load(self._version_combobox.version['url'])
-        #
+        self._thumbnail_widget.set_server_url(
+            self._version_combobox.version['server_url']
+        )
+        self._thumbnail_widget.load(
+            self._version_combobox.version['thumbnail']
+        )
         # self.setToolTip(string_utils.str_context(self.asset['parent']))
 
     def post_build(self):
@@ -114,7 +122,7 @@ class AssetListItemWidget(QtWidgets.QFrame):
     def _on_current_version_changed(self, index):
         '''User has selected new version *assetversion_entity*, update the
         thumbnail and emit event'''
-        version_dict = self._version_combobox.version()
+        version_dict = self._version_combobox.version
         if version_dict:
             # TODO: reload thumbnail, updatePublisher_info?
             self.version_changed.emit(version_dict)
@@ -152,6 +160,8 @@ class AssetList(QtWidgets.QListWidget):
 
     assets_added = QtCore.Signal(object)
 
+    selected_item_changed = QtCore.Signal(object, object)
+
     def __init__(self, parent=None):
         super(AssetList, self).__init__(parent=parent)
         self.logger = logging.getLogger(
@@ -162,6 +172,7 @@ class AssetList(QtWidgets.QListWidget):
         self.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
         self.setSpacing(1)
         self.assets = []
+        self.currentItemChanged.connect(self._on_item_changed)
 
     def set_assets(self, assets):
         self.assets = assets
@@ -178,12 +189,22 @@ class AssetList(QtWidgets.QListWidget):
                     widget.sizeHint().width(), widget.sizeHint().height() + 5
                 )
             )
+            widget.enable_version_select = False
             self.setItemWidget(list_item, widget)
             self.addItem(list_item)
         self.assets_added.emit(assets)
 
     def _on_version_changed_callback(self, version):
         self.version_changed.emit(version)
+
+    def _on_item_changed(self, current_item, previous_item):
+        # tODO:carefully is not returning the widget, is returning the listwidgetitem.
+        if previous_item:
+            previous_item.enable_version_select = False
+        current_item.enable_version_select = True
+        self.selected_item_changed.emit(
+            self.indexFromItem(current_item), current_item.version
+        )
 
 
 class AssetListAndInput(QtWidgets.QWidget):
@@ -226,8 +247,9 @@ class OpenAssetSelector(QtWidgets.QWidget):
     '''Signal emitted when version is changed, with assetversion entity as
     argument (version select mode)'''
 
-    # TODO: double check if update_widget is needed and in case it is refactor it.
-    # update_widget = QtCore.Signal(object)
+    selected_item_changed = QtCore.Signal(object)
+    '''Signal emitted when an item is selected, with asset_version id
+    argument'''
 
     def __init__(
         self,
@@ -252,7 +274,7 @@ class OpenAssetSelector(QtWidgets.QWidget):
         self._asset_list = None
         self._new_asset_input = None
 
-        self._selected_index = None
+        self.selected_index = None
 
         self.validator = QtGui.QRegExpValidator(self.VALID_ASSET_NAME)
         self.placeholder_name = "Asset Name..."
@@ -280,7 +302,9 @@ class OpenAssetSelector(QtWidgets.QWidget):
     def post_build(self):
         self._asset_list.assets_added.connect(self._on_assets_added)
         self._asset_list.version_changed.connect(self._on_version_changed)
-        # self.updateWidget.connect(self._update_widget)
+        self._asset_list.selected_item_changed.connect(
+            self._on_selected_item_changed
+        )
 
     def _on_assets_added(self, assets):
         self.assets_added.emit(assets)
@@ -291,12 +315,6 @@ class OpenAssetSelector(QtWidgets.QWidget):
     def _on_version_changed(self, version):
         self.version_changed.emit(version)
 
-    # def _pre_select_asset(self):
-    #     '''Assets have been loaded, select most suitable asset to start with'''
-    #     if self._asset_list.count() > 0:
-    #         self._asset_list.setCurrentRow(0)
-    #         self._asset_list.show()
-    #     else:
-    #         self._asset_list.hide()
-    #     self._list_and_input.size_changed()
-    #     self.assetsAdded.emit(self.assets)
+    def _on_selected_item_changed(self, index, version):
+        self.selected_index = index
+        self.selected_item_changed.emit(version)

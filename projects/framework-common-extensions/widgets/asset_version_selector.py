@@ -72,6 +72,9 @@ class AssetVersionSelectorWidget(FrameworkWidget, QtWidgets.QWidget):
         self._asset_version_selector.version_changed.connect(
             self._on_version_changed_callback
         )
+        self._asset_version_selector.selected_item_changed.connect(
+            self._on_selected_item_changed_callback
+        )
 
     def query_assets(self):
         payload = {
@@ -98,10 +101,11 @@ class AssetVersionSelectorWidget(FrameworkWidget, QtWidgets.QWidget):
             self._label.setText('<html><i>No assets found!<i></html>')
 
     def _on_version_changed_callback(self, version):
-        component_name = self.group_config.get('options').get('component')
-        self.set_plugin_option(
-            {
-                'asset_version_id': version['id'],
-                'component_name': component_name,
-            }
-        )
+        if not self.selected_index:
+            return
+        self.set_plugin_option('asset_version_id', version['id'])
+
+    def _on_selected_item_changed_callback(self, version):
+        if not self.selected_index:
+            return
+        self.set_plugin_option('asset_version_id', version['id'])

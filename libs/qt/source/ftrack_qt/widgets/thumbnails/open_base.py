@@ -25,9 +25,9 @@ class OpenThumbnailBase(QtWidgets.QLabel):
 
     _connection_count = 0
 
-    def __init__(self, server_url, scale=True, parent=None):
+    def __init__(self, scale=True, parent=None):
         super(OpenThumbnailBase, self).__init__(parent)
-        self._server_url = server_url
+        self._server_url = None
         self._alive = True
         self._scale = scale
 
@@ -41,12 +41,14 @@ class OpenThumbnailBase(QtWidgets.QLabel):
         self.post_build()
 
     # noinspection SpellCheckingInspection
+    def set_server_url(self, server_url):
+        self._server_url = server_url
+        self.placholderThumbnail = self._server_url + '/img/thumbnail2.png'
+
     def pre_build(self):
         self.thumbnailCache = {}
         self.setFrameStyle(QtWidgets.QFrame.StyledPanel)
         self.setAlignment(QtCore.Qt.AlignCenter)
-
-        self.placholderThumbnail = self.server_url + '/img/thumbnail2.png'
 
     def post_build(self):
         self.thumbnailFetched.connect(self._downloaded)

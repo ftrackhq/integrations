@@ -3,6 +3,7 @@
 
 from ftrack_framework_plugin import BasePlugin
 import ftrack_constants.framework as constants
+import urllib.parse
 
 
 class ComponentPathCollectorPlugin(BasePlugin):
@@ -33,33 +34,20 @@ class ComponentPathCollectorPlugin(BasePlugin):
 
         if context.entity_type == 'Task':
             asset_versions = self.session.query(
-                'select asset.name, asset_id, id, date, version, is_latest_version, thumbnail_url from AssetVersion where task_id is {} and asset.type.id is {}'.format(
+                'select asset.name, asset_id, id, date, version, '
+                'is_latest_version, thumbnail_url from AssetVersion where '
+                'task_id is {} and asset.type.id is {}'.format(
                     context_id, asset_type_entity['id']
                 )
             ).all()
         else:
             asset_versions = self.session.query(
-                'select asset.name, asset_id, id, date, version, is_latest_version, thumbnail_url from AssetVersion where parent.id is {} and asset.type.id is {}'.format(
+                'select asset.name, asset_id, id, date, version, '
+                'is_latest_version, thumbnail_url from AssetVersion where '
+                'parent.id is {} and asset.type.id is {}'.format(
                     context_id, asset_type_entity['id']
                 )
             ).all()
-
-        # TODO: thumbnail implementation
-        # placholder_thumbnail = (
-        #         self.session.server_url + '/img/thumbnail2.png'
-        # )
-
-        params = urllib.parse.urlencode(
-            {
-                'id': component['id'],
-                'username': self.session.api_user,
-                'apiKey': self.session.api_key,
-            }
-        )
-
-        result_url = '{base_url}/component/thumbnail?{params}'.format(
-            base_url=self.session._server_url, params=params
-        )
 
         with self.session.auto_populating(False):
             result = {}
@@ -69,6 +57,19 @@ class ComponentPathCollectorPlugin(BasePlugin):
                         'name': asset_version['asset']['name'],
                         'versions': [],
                     }
+
+                # params = urllib.parse.urlencode(
+                #     {
+                #         'id': asset_version['id'],
+                #         'username': self.session.api_user,
+                #         'apiKey': self.session.api_key,
+                #     }
+                # )
+                #
+                # result_url = '{base_url}/component/thumbnail?{params}'.format(
+                #     base_url=self.session._server_url, params=params
+                # )
+
                 # url = asset_version['thumbnail_url'] or placholder_thumbnail
                 result[asset_version['asset_id']]['versions'].append(
                     {
@@ -78,7 +79,8 @@ class ComponentPathCollectorPlugin(BasePlugin):
                         'is_latest_version': asset_version[
                             'is_latest_version'
                         ],
-                        'thumbnail': asset_version['thumbnail_url'],
+                        'thumbnail': asset_version['thumbnail_url']['url'],
+                        'server_url': self.session._server_url,
                     }
                 )
         return result
