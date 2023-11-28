@@ -1,10 +1,13 @@
 import sys
 import os
-import json
 import platform
 from collections import defaultdict
 import logging
-from ftrack_application_launcher import (
+import yaml
+
+from ftrack_utils.extensions.registry import register_yaml_files
+
+from ftrack_connect.applaunch import (
     ApplicationStore,
     ApplicationLaunchAction,
     ApplicationLauncher,
@@ -44,21 +47,26 @@ class DiscoverApplications(object):
                 continue
 
             files = os.listdir(config_path)
-            json_configs = [
-                open(os.path.join(config_path, str(config)), 'r').read()
+
+            yaml_config_file_paths = [
+                os.path.join(config_path, str(config))
                 for config in files
-                if config.endswith('json')
+                if config.endswith('yaml')
             ]
 
-            for config in json_configs:
-                try:
-                    loaded_filtered_files.append(json.loads(config))
-                except Exception as error:
-                    self.logger.warning(
-                        '{} could not be loaded due to {}'.format(
-                            config, error
-                        )
+            for extension in register_yaml_files(yaml_config_file_paths):
+                loaded_filtered_files.append(
+                    (extension['extension'], extension['path'])
+                )
+                self.logger.info(
+                    'Found launcher config extension: {}'.format(
+                        extension['path']
                     )
+                )
+
+        self.logger.debug(
+            'Launcher configs found: {}'.format(len(loaded_filtered_files))
+        )
 
         return loaded_filtered_files
 
@@ -66,9 +74,9 @@ class DiscoverApplications(object):
         '''group configuration based on identifier'''
         result_dict = defaultdict(list)
 
-        for configuration in configurations:
+        for configuration, path in configurations:
             result_dict.setdefault(configuration['identifier'], []).append(
-                configuration
+                (configuration, path)
             )
 
         return result_dict
@@ -80,11 +88,13 @@ class DiscoverApplications(object):
             identified_configuration,
         ) in grouped_configurations.items():
             self.logger.debug(
-                'building config store for {}'.format(identifier)
+                'building config store for {}({})'.format(
+                    identifier, len(identified_configuration)
+                )
             )
             store = ApplicationStore(self._session)
 
-            for config in identified_configuration:
+            for config, config_path in identified_configuration:
                 # extract data from app config
                 search_path = config['search_path'].get(self.current_os)
                 if not search_path:
@@ -99,7 +109,6 @@ class DiscoverApplications(object):
                 prefix = search_path['prefix']
                 expression = search_path['expression']
                 version_expression = search_path.get('version_expression')
-
                 applications = store._search_filesystem(
                     versionExpression=version_expression,
                     expression=prefix + expression,
@@ -110,6 +119,11 @@ class DiscoverApplications(object):
                     launchArguments=launch_arguments,
                     integrations=config.get('integrations'),
                     standalone_module=config.get('standalone_module'),
+                    extensions_path=config.get('extensions_path'),
+                    environment_variables=config.get('environment_variables'),
+                    connect_plugin_path=os.path.realpath(
+                        os.path.join(os.path.dirname(config_path), '..')
+                    ),
                 )
                 store.applications.extend(applications)
 

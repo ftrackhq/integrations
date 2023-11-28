@@ -42,6 +42,8 @@ from ftrack_connect import usage
 import ftrack_connect.ui.config
 from ftrack_connect.asynchronous import asynchronous
 
+from ftrack_connect.applaunch.discover_applications import DiscoverApplications
+
 
 class ConnectWidgetPlugin(object):
     topic = 'ftrack.connect.plugin.connect-widget'
@@ -401,8 +403,9 @@ class Application(QtWidgets.QMainWindow):
         '''Return current session.'''
         return self._session
 
-    def __init__(self, theme='system', instance=None):
-        '''Initialise the main application window.'''
+    def __init__(self, theme='system', instance=None, log_level=None):
+        '''Initialise the main application window with *theme*, singleton
+        *instance* and custom *log_level*.'''
         super(Application, self).__init__()
         self.logger = logging.getLogger(
             __name__ + '.' + self.__class__.__name__
@@ -410,13 +413,14 @@ class Application(QtWidgets.QMainWindow):
         self._instance = instance
         self._session = None
         self.__connect_start_time = time.time()
+        self._log_level = log_level
 
         self.defaultPluginDirectory = appdirs.user_data_dir(
             'ftrack-connect-plugins', 'ftrack'
         )
         self._createDefaultPluginDirectory()
 
-        self.pluginHookPaths = self._discover_hook_paths()
+        self.plugin_paths = self._discover_plugin_paths()
 
         # Register widget for error handling.
         self.uncaughtError = _uncaught_error.UncaughtError(parent=self)
@@ -598,19 +602,38 @@ class Application(QtWidgets.QMainWindow):
         self.loginWidget.setFocus()
         self._login_overlay.hide()
 
-    def _setup_session(self, plugin_paths=None):
+    def _get_api_plugin_paths(self):
+        api_plugin_paths = []
+
+        for apiPluginPath in os.environ.get(
+            'FTRACK_EVENT_PLUGIN_PATH', ''
+        ).split(os.pathsep):
+            if apiPluginPath and apiPluginPath not in api_plugin_paths:
+                api_plugin_paths.append(os.path.expandvars(apiPluginPath))
+
+        for connect_plugin_path in self.plugin_paths:
+            api_plugin_paths.append(os.path.join(connect_plugin_path, 'hook'))
+
+        return api_plugin_paths
+
+    def _setup_session(self, api_plugin_paths=None):
         '''Setup a new python API session.'''
         if hasattr(self, '_hub_thread'):
             self._hub_thread.cleanup()
 
-        if plugin_paths is None:
-            plugin_paths = self.pluginHookPaths
+        if api_plugin_paths is None:
+            api_plugin_paths = self._get_api_plugin_paths()
         try:
             session = ftrack_api.Session(
-                auto_connect_event_hub=True, plugin_paths=plugin_paths
+                auto_connect_event_hub=True, plugin_paths=api_plugin_paths
             )
         except Exception as error:
             raise ftrack_connect.error.ParseError(error)
+
+        # Need to reconfigure logging after session is created.
+        ftrack_connect.config.configure_logging(
+            'ftrack_connect', level=self._log_level, notify=False
+        )
 
         # Listen to events using the new API event hub. This is required to
         # allow reconfiguring the storage scenario.
@@ -698,7 +721,7 @@ class Application(QtWidgets.QMainWindow):
         # Login using the new ftrack API.
         try:
             # Quick session to poll for settings, confirm credentials
-            self._session = self._setup_session(plugin_paths='')
+            self._session = self._setup_session(api_plugin_paths='')
             self._assign_session_theme(self.theme())
         except Exception as error:
             self.logger.exception('Error during login:')
@@ -715,7 +738,7 @@ class Application(QtWidgets.QMainWindow):
             )
             if storage_scenario is None:
                 ftrack_api.plugin.discover(
-                    self.pluginHookPaths, [self.session]
+                    self._get_api_plugin_paths(), [self.session]
                 )
                 # Hide login overlay at this time since it will be deleted
                 self.logger.debug('Storage scenario is not configured.')
@@ -798,43 +821,38 @@ class Application(QtWidgets.QMainWindow):
             lambda event: True,
         )
         self.session._configure_locations()
+
+        self._discover_applications()  # Was ftrack-application-launcher
+
         self._discoverConnectWidget()
 
-    def _discover_hook_paths(self):
+    def _discover_plugin_paths(self):
         '''Return a list of paths to pass to ftrack_api.Session()'''
 
         plugin_paths = []
 
-        plugin_paths.extend(
-            self._gatherPluginHooks(self.defaultPluginDirectory)
-        )
-
-        for apiPluginPath in os.environ.get(
-            'FTRACK_EVENT_PLUGIN_PATH', ''
-        ).split(os.pathsep):
-            if apiPluginPath and apiPluginPath not in plugin_paths:
-                plugin_paths.append(os.path.expandvars(apiPluginPath))
+        plugin_paths.extend(self._gather_plugins(self.defaultPluginDirectory))
 
         for connectPluginPath in os.environ.get(
             'FTRACK_CONNECT_PLUGIN_PATH', ''
         ).split(os.pathsep):
             plugin_paths.extend(
-                self._gatherPluginHooks(os.path.expandvars(connectPluginPath))
+                self._gather_plugins(os.path.expandvars(connectPluginPath))
             )
 
         plugin_paths = list(set(plugin_paths))
 
         self.logger.info(
-            u'Connect plugin hooks directories: {0}'.format(
-                ', '.join(plugin_paths)
-            )
+            u'Connect plugin directories: {0}'.format(', '.join(plugin_paths))
         )
 
         return plugin_paths
 
-    def _gatherPluginHooks(self, path):
+    def _gather_plugins(self, path):
         '''Return plugin hooks from *path*.'''
         paths = []
+        if not path:
+            return paths
         self.logger.debug(u'Searching {0!r} for plugin hooks.'.format(path))
 
         if os.path.isdir(path):
@@ -842,8 +860,11 @@ class Application(QtWidgets.QMainWindow):
                 candidate_path = os.path.join(path, candidate)
                 if os.path.isdir(candidate_path):
                     full_hook_path = os.path.join(candidate_path, 'hook')
-                    if full_hook_path not in paths:
-                        paths.append(full_hook_path)
+                    if (
+                        os.path.isdir(full_hook_path)
+                        and candidate_path not in paths
+                    ):
+                        paths.append(candidate_path)
 
         self.logger.debug(
             u'Found {0!r} plugin hooks in {1!r}.'.format(paths, path)
@@ -923,9 +944,9 @@ class Application(QtWidgets.QMainWindow):
         '''Find and load connect widgets in search paths.'''
 
         event = ftrack_api.event.base.Event(topic=ConnectWidgetPlugin.topic)
-
+        disable_startup_widget = bool(os.getenv('FTRACK_CONNECT_DISABLE_STARTUP_WIDGET', False))
         responses = self.session.event_hub.publish(event, synchronous=True)
-        if not responses:
+        if not responses and not disable_startup_widget:
             widget_plugin = WelcomePlugin(self.session)
             identifier = widget_plugin.getIdentifier()
             if not self.plugins.get(identifier):
@@ -1166,3 +1187,21 @@ class Application(QtWidgets.QMainWindow):
             return
 
         ftrack_connect.util.open_directory(self.defaultPluginDirectory)
+
+    def _discover_applications(self):
+        '''Walk through Connect plugins and pick up application launcher
+        configuration files.'''
+        launcher_config_paths = []
+
+        self.logger.debug('Discovering applications launcher configs.')
+
+        for connect_plugin_path in self.plugin_paths:
+            launcher_config_path = os.path.join(connect_plugin_path, 'launch')
+            if os.path.isdir(launcher_config_path):
+                launcher_config_paths.append(launcher_config_path)
+
+        # Create store containing launchable applications.
+        applications = DiscoverApplications(
+            self.session, launcher_config_paths
+        )
+        applications.register()

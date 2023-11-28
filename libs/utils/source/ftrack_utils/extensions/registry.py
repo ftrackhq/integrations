@@ -7,17 +7,34 @@ import inspect
 import glob
 import os
 import yaml
+import re
 
 from ftrack_utils.directories.scan_dir import fast_scandir
 
 logger = logging.getLogger(__name__)
 
+env_matcher = re.compile(r'\$\{([^}^{]+)}')
+
+
+# Patch yaml module to support environment variable substitution
+def env_constructor(loader, node):
+    '''Extract the matched value, expand env variable, and replace the match.'''
+    value = node.value
+    match = env_matcher.match(value)
+    env_var = match.group()[2:-1]
+    return os.environ.get(env_var, '') + value[match.end() :]
+
+
+yaml.add_implicit_resolver('!env', env_matcher, None, yaml.SafeLoader)
+yaml.add_constructor('!env', env_constructor, yaml.SafeLoader)
+
 
 def register_yaml_files(file_list):
     '''
     Generate data registry files for all extension compatible .yaml files in
-    the given *file_list*
+    the given *file_list*. Support environment variable substitution in the yaml file.
     '''
+
     registered_files = []
     for _file in file_list:
         with open(_file, 'r') as yaml_file:
@@ -66,6 +83,9 @@ def get_extensions_from_directory(scan_dir):
     if not subfolders:
         # noinspection SpellCheckingInspection
         subfolders = [scan_dir]
+    else:
+        # Add  the original path to the list of paths
+        subfolders.append(scan_dir)
 
     available_extensions = []
     # Check non python extensions

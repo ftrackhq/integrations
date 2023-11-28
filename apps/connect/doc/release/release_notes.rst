@@ -11,6 +11,21 @@ Release Notes
 .. release:: upcoming
 
     .. change:: changed
+        :tags: App launcher environment Variables
+
+        Support for environment variables in app launcher configuration, provided to hook with
+        launch event.
+
+    .. change:: fixed
+
+        Moved resource hooks to source, to have them included in Poetry build.
+
+    .. change:: changed
+        :tags: Environment Variables
+
+        Provide FTRACK_CONNECT_DISABLE_STARTUP_WIDGET environment variable to drive the startup widget visibility.
+
+    .. change:: changed
 
         Convert Object to QObject to ensure proper livecycle handling in pyside.
 
@@ -19,6 +34,13 @@ Release Notes
 
         Change build system to Poetry, using the monorepo tooling to build QT resources.
 
+    .. change:: changed
+        :tags: Launch
+
+        Moved ftrack-application-launcher plugin logic to Connect, with launcher
+        configs now being present as integration extensions.
+        YAML launcher configuration is now supported and is to be considered default, keeping
+        backward compatibility with the legacy JSON configurations.
 
 .. release:: 2.1.1
     :date: 2023-04-27

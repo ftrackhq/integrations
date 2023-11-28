@@ -31,6 +31,7 @@ class PublishContextWidget(BaseWidget):
         '''initialise PublishContextWidget with *parent*, *session*, *data*,
         *name*, *description*, *options* and *context*
         '''
+        self._label = None
         self._asset_selector = None
         self._asset_status_label = None
         self._status_selector = None
@@ -59,14 +60,18 @@ class PublishContextWidget(BaseWidget):
     def build_ui(self):
         '''build function widgets.'''
 
+        self._label = QtWidgets.QLabel()
+        self._label.setObjectName('gray')
+        self._label.setWordWrap(True)
+
         asset_layout = QtWidgets.QVBoxLayout()
         asset_layout.setAlignment(QtCore.Qt.AlignTop)
 
         # Create asset
-        self._asset_selector = AssetSelector(self.session)
+        self._asset_selector = AssetSelector(
+            self.session,
+        )
         asset_layout.addWidget(self._asset_selector)
-        # set the current context
-        self.set_context()
 
         # Build version and comment widget
         version_and_comment = QtWidgets.QWidget()
@@ -108,17 +113,21 @@ class PublishContextWidget(BaseWidget):
         version_and_comment.layout().addLayout(comments_layout)
 
         # Add the widgets to the layout
+        self.layout().addWidget(self._label)
         self.layout().addLayout(asset_layout)
         self.layout().addWidget(LineWidget())
         self.layout().addWidget(version_and_comment)
 
     def post_build_ui(self):
         '''hook events'''
+        self._asset_selector.assetsAdded.connect(self._on_assets_added)
         self._asset_selector.assetChanged.connect(self._on_asset_changed)
         self._comments_input.textChanged.connect(self._on_comment_updated)
         self._status_selector.currentIndexChanged.connect(
             self._on_status_changed
         )
+        # set context
+        self.set_context()
 
     def _on_status_changed(self, status):
         '''Updates the options dictionary with provided *status* when
@@ -132,6 +141,19 @@ class PublishContextWidget(BaseWidget):
         current_text = self.comments_input.toPlainText()
         self.set_plugin_option('comment', current_text)
 
+    def _on_assets_added(self, assets):
+        if len(assets or []) > 0:
+            self._label.setText(
+                'We found {} asset{} already '
+                'published on this task. Choose which one to version up or create '
+                'a new asset'.format(
+                    len(assets),
+                    's' if len(assets) > 1 else '',
+                )
+            )
+        else:
+            self._label.setText('Enter asset name')
+
     def _on_asset_changed(self, asset_name, asset_entity, is_valid):
         '''Updates the option dictionary with provided *asset_name* when
         asset_changed of asset_selector event is triggered'''
@@ -139,10 +161,36 @@ class PublishContextWidget(BaseWidget):
         self.set_plugin_option('is_valid_name', is_valid)
         if asset_entity:
             self.set_plugin_option('asset_id', asset_entity['id'])
+        else:
+            self.set_plugin_option('asset_id', None)
 
     def set_context(self):
-        self._asset_selector.set_context(
-            self.context_id,
+        self.set_plugin_option('context_id', self.context_id)
+        self._asset_selector.set_asset_name(
             self.plugin_config['options'].get('asset_type_name'),
         )
-        self.set_plugin_option('context_id', self.context_id)
+        self.reload()
+
+    def reload(self):
+        '''Reload assets on context'''
+        self._asset_selector.reload()
+
+    def _on_fetch_assets_callback(self):
+        '''Return assets back to asset selector'''
+        payload = {
+            'context_id': self.context_id,
+            'context_type': 'asset',
+            'asset_type_name': self.plugin_config['options'].get(
+                'asset_type_name'
+            ),
+        }
+        asset_ids = self.run_ui_hook(payload, await_result=True)
+        return list(
+            self.session.query(
+                'select name, versions.task.id, type.id, id, latest_version,'
+                'latest_version.version '
+                'from Asset where id in ({})'.format(
+                    ','.join([str(asset_id) for asset_id in asset_ids])
+                )
+            ).all()
+        )

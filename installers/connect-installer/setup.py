@@ -18,7 +18,6 @@ import subprocess
 import time
 import datetime
 import zipfile
-from setuptools_scm import get_version
 
 
 # Embedded plugins.
@@ -58,30 +57,48 @@ AWS_PLUGIN_DOWNLOAD_PATH = (
     'https://download.ftrack.com/ftrack-connect/integrations/'
 )
 
+
 # Read version from source.
 # release = get_version(version_scheme='post-release')
 
 # take major/minor/patch
 # VERSION = '.'.join(release.split('.')[:3])
 
-# print('BUILDING VERSION : {}'.format(release))
+# Fetch Connect version
+try:
+    from importlib.metadata import version
+
+    VERSION = version('ftrack-connect')
+except ImportError:
+    from pkg_resources import get_distribution
+
+    VERSION = get_distribution('ftrack-connect').version
+
+# Write to _version.py
+
+version_template = '''
+# :coding: utf-8
+# :copyright: Copyright (c) 2014-2023 ftrack
+
+__version__ = {version!r}
+'''
+
+with open(
+    os.path.join(SOURCE_PATH, 'ftrack_connect_installer', '_version.py'), 'w'
+) as file:
+    file.write(version_template.format(version=VERSION))
+
+print('BUILDING VERSION : {}'.format(VERSION))
 
 
-connect_resource_hook = pkg_resources.resource_filename(
-    pkg_resources.Requirement.parse('ftrack-connect'),
-    'ftrack_connect_resource/hook',
+connect_resource_hook = os.path.join(
+    pkg_resources.get_distribution("ftrack-connect").location,
+    'ftrack_connect/hook',
 )
 
 external_connect_plugins = []
 for plugin in embedded_plugins:
     external_connect_plugins.append((plugin, plugin.replace('.zip', '')))
-
-version_template = '''
-# :coding: utf-8
-# :copyright: Copyright (c) 2014-2021 ftrack
-
-__version__ = {version!r}
-'''
 
 
 # General configuration.
@@ -109,6 +126,7 @@ configuration = dict(
         'wheel',
         'setuptools>=45.0.0',
         'setuptools_scm',
+        'ftrack_utils',
     ],
     options={},
     python_requires=">=3, <4",
@@ -303,7 +321,7 @@ if sys.platform in ('darwin', 'win32', 'linux'):
                 pl = plistlib.load(file)
             if 'CFBundleGetInfoString' in pl.keys():
                 pl["CFBundleShortVersionString"] = str(
-                    'ftrack Connect {}, copyright: Copyright (c) 2014-2020 ftrack'.format(
+                    'ftrack Connect {}, copyright: Copyright (c) 2014-2023 ftrack'.format(
                         VERSION
                     )
                 )
@@ -458,6 +476,7 @@ if sys.platform in ('darwin', 'win32', 'linux'):
             'concurrent',
             'concurrent.futures',
             'darkdetect',
+            'ftrack_utils',
         ]
     )
 
