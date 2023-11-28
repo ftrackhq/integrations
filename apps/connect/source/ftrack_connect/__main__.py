@@ -125,6 +125,7 @@ def main_connect(arguments=None):
     connectWindow = ftrack_connect.ui.application.Application(
         theme=str(namespace.theme),
         instance=single_instance,
+        log_level=loggingLevels[namespace.verbosity],
     )
 
     if namespace.silent:

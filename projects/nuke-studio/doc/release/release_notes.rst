@@ -10,6 +10,11 @@ Release Notes
 .. release:: Upcoming
 
     .. change:: changed
+        :tags: Launch
+
+        Imported and converted application launcher config from deprecated ftrack-application-launcher plugin.
+
+    .. change:: changed
         :tags: Build
 
         Change build system to Poetry, using the monorepo tooling to build QT resources.

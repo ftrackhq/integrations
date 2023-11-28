@@ -1,6 +1,6 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2023 ftrack
-
+import plistlib
 import sys
 import pprint
 import re
@@ -20,21 +20,7 @@ import os
 
 import ftrack_api
 from ftrack_action_handler.action import BaseAction
-from ftrack_application_launcher.configure_logging import configure_logging
-from ftrack_application_launcher.usage import send_event
-
-'''Return version string for *package_name* at *package_path*'''
-try:
-    from ftrack_utils.version import get_version
-
-    __version__ = get_version(
-        os.path.basename(os.path.dirname(__file__)),
-        os.path.dirname(os.path.dirname(os.path.dirname(__file__))),
-    )
-except Exception:
-    __version__ = '0.0.0'
-
-configure_logging(__name__)
+from ftrack_connect.applaunch.usage import send_event
 
 
 #: Default expression to match version component of executable path.
@@ -115,6 +101,7 @@ class ApplicationStore(object):
     def __init__(self, session):
         '''Instantiate store and discover applications.'''
         super(ApplicationStore, self).__init__()
+
         self.logger = logging.getLogger(
             __name__ + '.' + self.__class__.__name__
         )
@@ -181,6 +168,22 @@ class ApplicationStore(object):
 
         return result
 
+    def _conditional_expand_extension_path(self, value, connect_plugin_path):
+        '''Convert extension path *value*  - support relative paths by
+        prepending *connect_plugin_path* and home directories (~ prefix)'''
+        if not len(value or ''):
+            return ''
+        value = str(value)
+        if value[0] != os.sep and not (
+            sys.platform == 'win32' and len(value) >= 2 and value[1] == ':'
+        ):
+            # A relative path, append plugin path
+            value = os.path.join(connect_plugin_path, value)
+        elif value.startswith('~/'):
+            # A home directory path
+            value = os.path.expanduser(value)
+        return value
+
     def _search_filesystem(
         self,
         expression,
@@ -193,6 +196,9 @@ class ApplicationStore(object):
         description=None,
         integrations=None,
         standalone_module=None,
+        extensions_path=None,
+        environment_variables=None,
+        connect_plugin_path=None,
     ):
         '''
         Return list of applications found in filesystem matching *expression*.
@@ -234,6 +240,21 @@ class ApplicationStore(object):
 
         *description* can be used to provide a helpful description for the
         user.
+
+        *integrations* is the list of integrations that are required for this
+        application to run.
+
+        *standalone_module* is the name of the standalone module that should be
+        launched together with the application.
+
+        *extensions_path* is a raw dictionary containing extension paths.
+
+        *environment_variables* is a dictionary of environment variables that
+        should be set when launching the application.
+
+        *connect_plugin_path* is the path to the connect plugin folder associated
+        with the application/integration.
+
         '''
 
         applications = []
@@ -294,6 +315,22 @@ class ApplicationStore(object):
                                     'Could not parse version'
                                     ' {0} from {1}'.format(version, path)
                                 )
+                        elif sys.platform == 'darwin' and path.endswith(
+                            '.app'
+                        ):
+                            # Extract version from Info.plist within .app
+                            # bundle.
+                            plist_path = os.path.join(
+                                path, 'Contents', 'Info.plist'
+                            )
+                            if os.path.isfile(plist_path):
+                                with open(plist_path, 'rb') as f:
+                                    infoPlist = plistlib.load(f)
+                                    version = infoPlist.get(
+                                        'CFBundleShortVersionString'
+                                    )
+                                    if version:
+                                        loose_version = LooseVersion(version)
 
                         variant_str = variant.format(
                             version=str(loose_version)
@@ -322,6 +359,45 @@ class ApplicationStore(object):
                             application[
                                 'standalone_module'
                             ] = standalone_module
+                        application['environment_variables'] = {}
+                        if extensions_path:
+                            # Convert to list and expand paths
+                            if isinstance(extensions_path, list):
+                                application['environment_variables'][
+                                    'FTRACK_EXTENSIONS_PATH'
+                                ] = os.pathsep.join(
+                                    [
+                                        self._conditional_expand_extension_path(
+                                            extension_path, connect_plugin_path
+                                        )
+                                        for extension_path in extensions_path
+                                    ]
+                                )
+                            else:
+                                application['environment_variables'][
+                                    'FTRACK_EXTENSIONS_PATH'
+                                ] = self._conditional_expand_extension_path(
+                                    extensions_path, connect_plugin_path
+                                )
+
+                        if environment_variables:
+                            # Parse environment variables
+                            # TODO: support platform specific env vars
+                            for name, value in list(
+                                environment_variables.items()
+                            ):
+                                if name.upper() == 'FTRACK_EXTENSIONS_PATH':
+                                    # Ignore - already handled
+                                    continue
+                                if isinstance(value, list):
+                                    # Merge on path sep
+                                    application['environment_variables'][
+                                        name
+                                    ] = os.pathsep.join(value)
+                                else:
+                                    application['environment_variables'][
+                                        name
+                                    ] = str(value)
 
                         applications.append(application)
 
@@ -329,7 +405,7 @@ class ApplicationStore(object):
                 del folders[:]
 
         results = sorted(applications, key=itemgetter('version'), reverse=True)
-        self.logger.debug('Discovered applications {}'.format(results))
+        self.logger.debug('Discovered applications: {}'.format(results))
         return results
 
 
@@ -481,7 +557,7 @@ class ApplicationLauncher(object):
                 integration={
                     'name': None,
                     'version': None,
-                    'env': {},
+                    'env': application.get('environment_variables', {}),
                     'launch_arguments': [],
                 },
                 platform=self.current_os,
@@ -665,13 +741,20 @@ class ApplicationLauncher(object):
                     )
                 )
 
-                standalone_python_interpreter_path = sys.argv[0]
+                command = []
+                executable_filename = sys.argv[0]
+                if not executable_filename.endswith('.py'):
+                    command.append(executable_filename)
+                else:
+                    # Support invocation through Python interpreter
+                    command.extend([sys.executable, executable_filename])
 
-                command = [
-                    standalone_python_interpreter_path,
-                    "--run-framework-standalone",
-                    application['standalone_module'],
-                ]
+                command.extend(
+                    [
+                        "--run-framework-standalone",
+                        application['standalone_module'],
+                    ]
+                )
 
                 # Append PID to environment for framework to use.
                 environment['FTRACK_APPLICATION_PID'] = str(process.pid)
