@@ -8,7 +8,6 @@ from Qt import QtWidgets
 
 from ftrack_framework_core.configure_logging import configure_logging
 
-os.environ['TESTVAR'] = "jhej"
 
 configure_logging(
     'ftrack_framework_standalone',
