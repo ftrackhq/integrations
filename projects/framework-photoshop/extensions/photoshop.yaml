@@ -1,0 +1,11 @@
+type: dcc_config
+name: framework-photoshop
+tools:
+  - name: publish
+    label: "PUBLISH DOCUMENT"
+    dialog_name: framework_standard_publisher_dialog
+    icon: publish
+  - name: open
+    label: "OPEN DOCUMENT"
+    dialog_name: framework_standard_opener_dialog
+    icon: open

@@ -26,4 +26,12 @@ search_path:
     expression:
     - Adobe Photoshop*
     - Adobe Photoshop .*\.app
-standalone_module: ftrack_framework_photoshop_bootstrap
+standalone_module: ftrack_framework_photoshop
+extensions_path:
+  - extensions/common
+  - extensions/photoshop
+# TODO: remove this on documentation update
+environment_variables:
+  TEST_ENVIRONMENT_VARIABLE_WITH_ENV:
+    - ${PATH}
+    - N:\additional_path
