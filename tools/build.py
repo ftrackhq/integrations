@@ -634,7 +634,6 @@ def build_package(pkg_path, args):
             parse_and_copy(
                 os.path.join(CEP_PATH, filename),
                 os.path.join(STAGING_PATH, filename),
-                VERSION,
             )
         # Copy images
         for filename in [
@@ -694,7 +693,6 @@ def build_package(pkg_path, args):
             parse_and_copy(
                 js_file,
                 os.path.join(STAGING_PATH, 'lib', os.path.basename(js_file)),
-                VERSION,
             )
         parse_and_copy(
             os.path.join(
@@ -705,7 +703,6 @@ def build_package(pkg_path, args):
                 'bootstrap.js',
             ),
             os.path.join(STAGING_PATH, 'bootstrap.js'),
-            VERSION,
         )
         parse_and_copy(
             os.path.join(
@@ -716,7 +713,6 @@ def build_package(pkg_path, args):
                 'ps.jsx',
             ),
             os.path.join(STAGING_PATH, 'ps.jsx'),
-            VERSION,
         )
 
         # Transfer manifest xml, store version
@@ -725,7 +721,7 @@ def build_package(pkg_path, args):
         )
         if not os.path.exists(os.path.dirname(manifest_staging_path)):
             os.makedirs(os.path.dirname(manifest_staging_path))
-        parse_and_copy(MANIFEST_PATH, manifest_staging_path, VERSION)
+        parse_and_copy(MANIFEST_PATH, manifest_staging_path)
 
         extension_output_path = os.path.join(
             BUILD_PATH,

@@ -7,7 +7,7 @@
 var csInterface = new CSInterface();
 
 var event_manager = undefined;
-var integration_session_id = undefined;
+var remote_integration_session_id = undefined;
 var connected = false;
 var panel_launchers;
 
@@ -34,7 +34,7 @@ function initializeIntegration() {
         // TODO: when CEP is deprecated, prevent initialization and show error message
 
         // Fetch launch variables passed on by Connect (hook)
-        csInterface.evalScript('$.getenv("FTRACK_INTEGRATION_SESSION_ID")', function (result) {
+        csInterface.evalScript('$.getenv("FTRACK_REMOTE_INTEGRATION_SESSION_ID")', function (result) {
             if (result != 'null') {
                 env.FTRACK_INTEGRATION_SESSION_ID = result;
                 csInterface.evalScript('$.getenv("FTRACK_SERVER")', function (result) {
@@ -66,7 +66,7 @@ function initializeIntegration() {
 function initializeSession(env, appVersion) {
     /* Initialise the ftrack API session. */
     try {
-        integration_session_id = env.FTRACK_INTEGRATION_SESSION_ID;
+        remote_integration_session_id = env.FTRACK_REMOTE_INTEGRATION_SESSION_ID;
 
         var session = new ftrack.Session(
             env.FTRACK_SERVER,
@@ -108,7 +108,7 @@ function connect(appVersion) {
             })
         );
     } catch (e) {
-        error("[INTERNAL ERROR] Failed to publish integration discovery event! "+e+" Details: "+e.stack);
+        error("[INTERNAL ERROR] Failed to publish standalone process discovery event! "+e+" Details: "+e.stack);
     }
 }
 
@@ -116,21 +116,21 @@ function connect(appVersion) {
 
 function prepareEventData(data) {
     /* Append integration session id to event data */
-    data["integration_session_id"] = integration_session_id;
+    data["remote_integration_session_id"] = remote_integration_session_id;
     return data;
 }
 
 function handleIntegrationContextDataCallback(event) {
     /* Standalone process has sent context data */
     try {
-        if (event.data.integration_session_id != integration_session_id)
+        if (event.data.remote_integration_session_id != remote_integration_session_id)
             return;
         if (!connected) {
             connected = true;
             showElement("connecting", false);
             showElement("content", true);
             alert("ftrack Photoshop Integration successfully initialized\n\nIMPORTANT NOTE: "+
-            "This is an alpha and not intended for production use. Please submit bug reports "+
+            "This is an beta and not intended for production use. Please submit bug reports "+
             "and feedback to support@ftrack.com.");
         }
         // Build launchers
@@ -154,95 +154,9 @@ function handleIntegrationContextDataCallback(event) {
 
 function handleIntegrationDiscoverCallback(event) {
     /* Tell integration we are still here by sending reply back */
-    if (event.data.integration_session_id !== integration_session_id)
+    if (event.data.remote_integration_session_id !== remote_integration_session_id)
         return;
     event_manager.publish_reply(event, prepareEventData({}));
 }
-
-// Tool launch
-
-function launchTool(tool_name) {
-    // Find dialog name
-    let idx = 0;
-    var dialog_name = undefined;
-    while (idx < panel_launchers.length) {
-        let launcher = panel_launchers[idx];
-        if (launcher.name == tool_name) {
-            dialog_name = launcher.dialog_name;
-            break;
-        }
-        idx++;
-    }
-    event_manager.publish.remote_integration_run_dialog(
-        prepareEventData({
-            "dialog_name": dialog_name
-        })
-    );
-}
-
-// RPC - extendscript API calls
-
-// Whitelisted functions and their mappings, add entrypoints from ps.jsx here
-var RPC_FUNCTION_MAPPING = {
-    hasDocument:"hasDocument",
-    documentSaved:"documentSaved",
-    getDocumentPath:"getDocumentPath",
-    getDocumentData:"getDocumentData",
-    saveDocument:"saveDocument",
-    exportDocument:"exportDocument",
-    openDocument:"openDocument",
-};
-
-function handleRemoteIntegrationRPCCallback(event) {
-    /* Handle RPC calls from standalone process - run function with arguments
-     supplied in event and return the result.*/
-    try {
-        if (event.data.integration_session_id !== integration_session_id)
-            return;
-        let function_name_raw = event.data.function_name;
-        let function_name = RPC_FUNCTION_MAPPING[function_name_raw];
-
-        if (function_name === undefined || function_name.length === 0) {
-            event_manager.publish_reply(event, prepareEventData(
-                {
-                    "result": "Unknown RCP function '"+function_name+"'"
-                }
-            ));
-            return;
-        }
-        // Build args, quote strings
-        let s_args = '';
-        let idx = 0;
-        while (idx < event.data.args.length) {
-            let value = event.data.args[idx];
-            if (typeof value === 'string')
-                value = '"' + value + '"';
-            s_args += (s_args.length>0?",":"") + value;
-            idx++;
-        }
-
-        csInterface.evalScript(function_name+'('+s_args+')', function (result) {
-            try {
-                // String is the evalScript type, decode
-                if (result.startsWith("{"))
-                    result = JSON.parse(result);
-                else if (result === "true")
-                    result = true;
-                else if (result === "false")
-                    result = false;
-                event_manager.publish_reply(event, prepareEventData(
-                    {
-                        "result": result
-                    }
-                ));
-            } catch (e) {
-                error("[INTERNAL ERROR] Failed to run RPC call! "+e+" Details: "+e.stack);
-            }
-        });
-    } catch (e) {
-        error("[INTERNAL ERROR] Failed to run RPC call! "+e+" Details: "+e.stack);
-    }
- }
-
 
 initializeIntegration();

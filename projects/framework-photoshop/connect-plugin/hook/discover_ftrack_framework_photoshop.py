@@ -72,7 +72,7 @@ def on_launch_pipeline_photoshop(session, event):
         'PYTHONPATH.prepend'
     ] = os.path.pathsep.join([python_dependencies])
     launch_data['integration']['env'][
-        'FTRACK_INTEGRATION_SESSION_ID'
+        'FTRACK_REMOTE_INTEGRATION_SESSION_ID'
     ] = uuid.uuid4().hex
     launch_data['integration']['env']['FTRACK_PHOTOSHOP_VERSION'] = str(
         photoshop_version

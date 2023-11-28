@@ -60,11 +60,6 @@ class EventManager(object):
         return self._session
 
     @property
-    def remote(self):
-        '''Return the remote variant of the event manager'''
-        return self._remote_event_manager
-
-    @property
     def connected(self):
         _connected = False
         try:
@@ -113,12 +108,7 @@ class EventManager(object):
             # self.logger.debug('Starting new hub thread for {}'.format(self))
             self._event_hub_thread.start()
 
-    def __init__(
-        self,
-        session,
-        mode=constants.event.LOCAL_EVENT_MODE,
-        remote_session=None,
-    ):
+    def __init__(self, session, mode=constants.event.LOCAL_EVENT_MODE):
         self.logger = logging.getLogger(
             __name__ + '.' + self.__class__.__name__
         )
@@ -129,12 +119,6 @@ class EventManager(object):
             # TODO: Bring this back when API event hub properly can differentiate between local and remote mode
             self._connect()
             self._wait()
-        elif remote_session:
-            # Create a remote event manager to be able to publish events over server
-            # TODO: Remove when API event hub properly can differentiate between local and remote mode
-            self._remote_event_manager = EventManager(
-                session=remote_session, mode=constants.event.REMOTE_EVENT_MODE
-            )
 
         # Initialize Publish and subscribe classes to be able to provide
         # predefined events.
@@ -204,56 +188,6 @@ class Publish(object):
         publish_result = self.event_manager._publish(
             publish_event, callback=callback, mode=mode
         )
-        return publish_result
-
-    def _publish_remote_event(
-        self, event_topic, data, callback, fetch_reply=False
-    ):
-        '''
-        Common method that calls the private publish method from the
-        remote event manager
-        '''
-        publish_event = ftrack_api.event.base.Event(
-            topic=event_topic, data=data
-        )
-
-        # TODO: Make this thread safe in case multiple calls arrive here at the same time
-        self._reply_event = None
-
-        def default_callback(event):
-            if callback:
-                callback(event)
-            self._reply_event = event
-
-        if fetch_reply:
-            callback_effective = default_callback
-        else:
-            callback_effective = callback
-
-        # TODO: _publish does not return anything, so we shouldn't return the result
-        publish_result = self.event_manager.remote._publish(
-            publish_event, callback=callback_effective
-        )
-
-        if fetch_reply:
-            waited = 0
-            while not self._reply_event:
-                time.sleep(0.01)
-                waited += 10
-                # TODO: Move this timeout to property that can be set on event manager init
-                if waited > 10 * 1000:  # Wait 10s for reply
-                    raise Exception(
-                        'Timeout waiting remote integration event reply! '
-                        'Waited {}s'.format(waited / 1000)
-                    )
-                if waited % 1000 == 0:
-                    logger.info(
-                        "Waited {}s for {} reply".format(
-                            waited / 1000, event_topic
-                        )
-                    )
-            return self._reply_event['data']
-
         return publish_result
 
     def discover_host(self, callback=None):
