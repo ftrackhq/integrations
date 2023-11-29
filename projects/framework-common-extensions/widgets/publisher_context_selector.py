@@ -11,7 +11,7 @@ from ftrack_qt.widgets.lines import LineWidget
 
 
 # TODO: review and docstring this code
-class PublishContextWidget(BaseWidget):
+class PublisherContextSelectorWidget(BaseWidget):
     '''Main class to represent a context widget on a publish process.'''
 
     name = 'publisher_context_selector'
@@ -37,7 +37,7 @@ class PublishContextWidget(BaseWidget):
         self._status_selector = None
         self._comments_input = None
 
-        super(PublishContextWidget, self).__init__(
+        super(PublisherContextSelectorWidget, self).__init__(
             event_manager,
             client_id,
             context_id,
@@ -68,9 +68,7 @@ class PublishContextWidget(BaseWidget):
         asset_layout.setAlignment(QtCore.Qt.AlignTop)
 
         # Create asset
-        self._asset_selector = AssetSelector(
-            self.session,
-        )
+        self._asset_selector = AssetSelector()
         asset_layout.addWidget(self._asset_selector)
 
         # Build version and comment widget

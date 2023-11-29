@@ -7,7 +7,7 @@ engine:
   - type: plugin
     tags:
       - context
-    plugin: asset_context
+    plugin: store_asset_context
     options:
       asset_type_name: script
     ui: publisher_context_selector

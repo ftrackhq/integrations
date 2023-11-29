@@ -4,8 +4,8 @@
 from ftrack_framework_plugin import BasePlugin
 
 
-class AssetContextPlugin(BasePlugin):
-    name = 'asset_context'
+class StoreAssetContextPlugin(BasePlugin):
+    name = 'store_asset_context'
 
     def ui_hook(self, payload):
         '''
