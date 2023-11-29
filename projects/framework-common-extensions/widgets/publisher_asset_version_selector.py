@@ -5,17 +5,18 @@ from Qt import QtWidgets, QtCore, QtGui
 
 from ftrack_framework_qt.widgets import BaseWidget
 
-from ftrack_qt.widgets.selectors import AssetSelector
+from ftrack_qt.widgets.selectors import PublishAssetSelector
 from ftrack_qt.widgets.selectors import StatusSelector
 from ftrack_qt.widgets.lines import LineWidget
 
 
 # TODO: review and docstring this code
-class PublisherContextSelectorWidget(BaseWidget):
+class PublisherAssetVersionSelectorWidget(BaseWidget):
     '''Main class to represent a context widget on a publish process.'''
 
-    name = 'publisher_context_selector'
+    name = 'publisher_asset_version_selector'
     ui_type = 'qt'
+    fetch_method_on_start = 'query_assets'
 
     def __init__(
         self,
@@ -32,12 +33,12 @@ class PublisherContextSelectorWidget(BaseWidget):
         *name*, *description*, *options* and *context*
         '''
         self._label = None
-        self._asset_selector = None
+        self._asset_version_selector = None
         self._asset_status_label = None
         self._status_selector = None
         self._comments_input = None
 
-        super(PublisherContextSelectorWidget, self).__init__(
+        super(PublisherAssetVersionSelectorWidget, self).__init__(
             event_manager,
             client_id,
             context_id,
@@ -68,8 +69,8 @@ class PublisherContextSelectorWidget(BaseWidget):
         asset_layout.setAlignment(QtCore.Qt.AlignTop)
 
         # Create asset
-        self._asset_selector = AssetSelector()
-        asset_layout.addWidget(self._asset_selector)
+        self._asset_version_selector = PublishAssetSelector()
+        asset_layout.addWidget(self._asset_version_selector)
 
         # Build version and comment widget
         version_and_comment = QtWidgets.QWidget()
@@ -118,14 +119,54 @@ class PublisherContextSelectorWidget(BaseWidget):
 
     def post_build_ui(self):
         '''hook events'''
-        self._asset_selector.assetsAdded.connect(self._on_assets_added)
-        self._asset_selector.assetChanged.connect(self._on_asset_changed)
+        self._asset_version_selector.assets_added.connect(
+            self._on_assets_added
+        )
+        self._asset_version_selector.selected_item_changed.connect(
+            self._on_selected_item_changed_callback
+        )
+        self._asset_version_selector.new_asset.connect(
+            self._on_new_asset_callback
+        )
         self._comments_input.textChanged.connect(self._on_comment_updated)
         self._status_selector.currentIndexChanged.connect(
             self._on_status_changed
         )
-        # set context
-        self.set_context()
+        # # set context
+        # self.set_context()
+
+    def query_assets(self):
+        payload = {
+            'context_id': self.context_id,
+            'asset_type_name': self.plugin_config['options'].get(
+                'asset_type_name'
+            ),
+        }
+        self.run_ui_hook(payload)
+
+    def ui_hook_callback(self, ui_hook_result):
+        self._asset_version_selector.set_assets(ui_hook_result)
+
+    def _on_assets_added(self, assets):
+        if len(assets or []) > 0:
+            self._label.setText(
+                'We found {} asset{} published on this task. '
+                'Choose version'.format(
+                    len(assets),
+                    's' if len(assets) > 1 else '',
+                )
+            )
+        else:
+            self._label.setText('<html><i>No assets found!<i></html>')
+
+    def _on_selected_item_changed_callback(self, version):
+        self.set_plugin_option('context_id', self.context_id)
+        self.set_plugin_option('asset_version_id', version['id'])
+
+    def _on_new_asset_callback(self, asset_name):
+        self.set_plugin_option('context_id', self.context_id)
+        self.set_plugin_option('asset_version_id', None)
+        self.set_plugin_option('asset_name', asset_name)
 
     def _on_status_changed(self, status):
         '''Updates the options dictionary with provided *status* when
@@ -139,19 +180,6 @@ class PublisherContextSelectorWidget(BaseWidget):
         current_text = self.comments_input.toPlainText()
         self.set_plugin_option('comment', current_text)
 
-    def _on_assets_added(self, assets):
-        if len(assets or []) > 0:
-            self._label.setText(
-                'We found {} asset{} already '
-                'published on this task. Choose which one to version up or create '
-                'a new asset'.format(
-                    len(assets),
-                    's' if len(assets) > 1 else '',
-                )
-            )
-        else:
-            self._label.setText('Enter asset name')
-
     def _on_asset_changed(self, asset_name, asset_entity, is_valid):
         '''Updates the option dictionary with provided *asset_name* when
         asset_changed of asset_selector event is triggered'''
@@ -164,14 +192,14 @@ class PublisherContextSelectorWidget(BaseWidget):
 
     def set_context(self):
         self.set_plugin_option('context_id', self.context_id)
-        self._asset_selector.set_asset_name(
+        self._asset_version_selector.set_asset_name(
             self.plugin_config['options'].get('asset_type_name'),
         )
         self.reload()
 
     def reload(self):
         '''Reload assets on context'''
-        self._asset_selector.reload()
+        self._asset_version_selector.reload()
 
     def _on_fetch_assets_callback(self):
         '''Return assets back to asset selector'''

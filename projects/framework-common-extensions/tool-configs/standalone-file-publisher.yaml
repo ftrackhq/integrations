@@ -10,7 +10,7 @@ engine:
     plugin: store_asset_context
     options:
       asset_type_name: script
-    ui: publisher_context_selector
+    ui: publisher_asset_version_selector
 
   # Export the file component.
   - type: group

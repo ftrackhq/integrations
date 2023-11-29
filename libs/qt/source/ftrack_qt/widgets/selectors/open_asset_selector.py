@@ -7,11 +7,12 @@ from Qt import QtWidgets, QtCore, QtGui
 
 from ftrack_qt.widgets.selectors.version_selector import VersionSelector
 from ftrack_qt.widgets.thumbnails import OpenAssetVersionThumbnail
+from ftrack_qt.utils.widget import set_property
 
 # TODO: add a reload button that emits a signal
 
 
-class AssetListItemWidget(QtWidgets.QFrame):
+class AssetListWidgetItem(QtWidgets.QFrame):
     '''Widget representing an asset, with version selector, within the list,
     for user selection'''
 
@@ -37,7 +38,7 @@ class AssetListItemWidget(QtWidgets.QFrame):
         '''Represent *asset* in list, with *session* for querying ftrack.
         If *fetch_assetversions* is given, user is presented a asset version
         selector. Otherwise, display latest version'''
-        super(AssetListItemWidget, self).__init__()
+        super(AssetListWidgetItem, self).__init__()
 
         self._asset_name = asset_name
         self._versions = versions
@@ -139,7 +140,7 @@ class AssetList(QtWidgets.QListWidget):
         self.assets = assets
 
         for asset_id, asset_dict in self.assets.items():
-            widget = AssetListItemWidget(
+            widget = AssetListWidgetItem(
                 asset_name=asset_dict['name'], versions=asset_dict['versions']
             )
 
@@ -254,8 +255,6 @@ class OpenAssetSelector(QtWidgets.QWidget):
 
         self._asset_list = AssetList()
 
-        self._asset_list.setVisible(True)
-
         self._list_and_input.add_asset_list(self._asset_list)
 
         self.layout().addWidget(self._list_and_input)
@@ -271,6 +270,10 @@ class OpenAssetSelector(QtWidgets.QWidget):
         self.assets_added.emit(assets)
 
     def set_assets(self, assets):
+        if not assets:
+            self._asset_list.hide()
+        else:
+            self._asset_list.show()
         self._asset_list.set_assets(assets)
 
     def _on_version_changed(self, version):
@@ -279,3 +282,133 @@ class OpenAssetSelector(QtWidgets.QWidget):
     def _on_selected_item_changed(self, index, version):
         self.selected_index = index
         self.selected_item_changed.emit(version)
+
+
+class NewAssetInput(QtWidgets.QFrame):
+    '''Widget holding new asset input during publish'''
+
+    text_changed = QtCore.Signal(object)
+
+    def __init__(self, validator, placeholder_name):
+        super(NewAssetInput, self).__init__()
+
+        self._validator = validator
+        self._placeholder_name = placeholder_name
+
+        self.pre_build()
+        self.build()
+        self.post_build()
+
+    def pre_build(self):
+        self.setLayout(QtWidgets.QHBoxLayout())
+        self.layout().setContentsMargins(4, 1, 1, 1)
+        self.layout().setSpacing(1)
+        self.setMaximumHeight(32)
+
+    def build(self):
+        self.button = QtWidgets.QPushButton('NEW')
+        self.button.setStyleSheet('background: #FFDD86;')
+        self.button.setFixedSize(56, 30)
+        self.button.setMaximumSize(56, 30)
+
+        self.layout().addWidget(self.button)
+
+        self.name = QtWidgets.QLineEdit()
+        self.name.setPlaceholderText(self._placeholder_name)
+        self.name.setValidator(self._validator)
+        self.name.setSizePolicy(
+            QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Minimum
+        )
+        self.layout().addWidget(self.name, 1000)
+
+        self.version_label = QtWidgets.QLabel('- Version 1')
+        self.version_label.setObjectName("color-primary")
+        self.layout().addWidget(self.version_label)
+
+    def post_build(self):
+        self.button.clicked.connect(self.input_clicked)
+        self.name.mousePressEvent = self.input_clicked
+        self.name.textChanged.connect(self.on_text_changed)
+
+    def mousePressEvent(self, event):
+        '''Override mouse press to emit signal'''
+        self.text_changed.emit(self.name.text())
+
+    def input_clicked(self, event):
+        '''Callback on user button or name click'''
+        self.text_changed.emit(self.name.text())
+
+    def on_text_changed(self):
+        self.text_changed.emit(self.name.text())
+
+
+class PublishAssetSelector(OpenAssetSelector):
+    '''Widget for choosing an existing asset and asset version, or input asset
+    name for creating a new asset, depending on mode.'''
+
+    VALID_ASSET_NAME = QtCore.QRegExp('[A-Za-z0-9_]+')
+
+    new_asset = QtCore.Signal(object)
+
+    def __init__(
+        self,
+        parent=None,
+    ):
+        '''
+        Initialise asset selector widget.
+
+        :param mode: The mode of operation.
+        :param fetch_assets: Callback to fetch assets
+        :param session: ftrack session, required for thumbnail load.
+        :param fetch_assetversions: Callback to fetch asset version for a specific
+        asset.
+        :param parent:
+        '''
+        self.validator = QtGui.QRegExpValidator(self.VALID_ASSET_NAME)
+        self.placeholder_name = "Asset Name..."
+
+        super(PublishAssetSelector, self).__init__(parent=parent)
+
+    def build(self):
+        super(PublishAssetSelector, self).build()
+
+        # Create new asset
+        self._new_asset_input = NewAssetInput(
+            self.validator, self.placeholder_name
+        )
+        self._list_and_input.layout().addWidget(self._new_asset_input)
+
+    def post_build(self):
+        super(PublishAssetSelector, self).post_build()
+        self._new_asset_input.text_changed.connect(self._on_new_asset)
+
+    def _on_new_asset(self, asset_name):
+        '''New asset name text changed'''
+        self.selected_index = None
+        self.selected_item_changed.emit(None)
+        is_valid_name = self.validate_name(asset_name)
+        if is_valid_name:
+            self.new_asset.emit(asset_name)
+        else:
+            self.new_asset.emit(None)
+
+    def validate_name(self, asset_name):
+        '''Return True if *asset_name* is valid, also reflect this on input style'''
+        is_valid_bool = True
+        # Already an asset by that name
+        if self._asset_list.assets:
+            for asset_id, asset_dict in self._asset_list.assets.items():
+                if asset_dict['name'].lower() == asset_name.lower():
+                    is_valid_bool = False
+                    break
+        if is_valid_bool and self.validator:
+            is_valid = self.validator.validate(asset_name, 0)
+            if is_valid[0] != QtGui.QValidator.Acceptable:
+                is_valid_bool = False
+            else:
+                is_valid_bool = True
+        if is_valid_bool:
+            set_property(self._new_asset_input.name, 'input', '')
+        else:
+            set_property(self._new_asset_input.name, 'input', 'invalid')
+        return is_valid_bool
