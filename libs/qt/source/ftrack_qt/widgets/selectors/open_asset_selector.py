@@ -61,7 +61,6 @@ class AssetListItemWidget(QtWidgets.QFrame):
         self.layout().setSpacing(5)
 
     def build(self):
-        # TODO: implement thumbnail
         self._thumbnail_widget = OpenAssetVersionThumbnail()
         self._thumbnail_widget.setScaledContents(True)
         self._thumbnail_widget.setMinimumSize(57, 31)
@@ -86,6 +85,11 @@ class AssetListItemWidget(QtWidgets.QFrame):
         self._thumbnail_widget.load(
             self._version_combobox.version['thumbnail']
         )
+        self._version_info_widget.setText(
+            f"{self._version_combobox.version['user_first_name']} "
+            f"{self._version_combobox.version['user_last_name']} @ "
+            f"{self._version_combobox.version['date'].strftime('%y-%m-%d %H:%M')}"
+        )
 
     def post_build(self):
         self._version_combobox.currentIndexChanged.connect(
@@ -100,6 +104,11 @@ class AssetListItemWidget(QtWidgets.QFrame):
             self.version_changed.emit(version_dict)
             self._thumbnail_widget.load(
                 self._version_combobox.version['thumbnail']
+            )
+            self._version_info_widget.setText(
+                f"{self._version_combobox.version['user_first_name']} "
+                f"{self._version_combobox.version['user_last_name']} @ "
+                f"{self._version_combobox.version['date'].strftime('%y-%m-%d %H:%M')}"
             )
 
 

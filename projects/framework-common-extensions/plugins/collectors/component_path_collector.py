@@ -34,7 +34,8 @@ class ComponentPathCollectorPlugin(BasePlugin):
         if context.entity_type == 'Task':
             asset_versions = self.session.query(
                 'select asset.name, asset_id, id, date, version, '
-                'is_latest_version, thumbnail_url from AssetVersion where '
+                'is_latest_version, thumbnail_url, user.first_name, '
+                'user.last_name, date from AssetVersion where '
                 'task_id is {} and asset.type.id is {}'.format(
                     context_id, asset_type_entity['id']
                 )
@@ -42,7 +43,8 @@ class ComponentPathCollectorPlugin(BasePlugin):
         else:
             asset_versions = self.session.query(
                 'select asset.name, asset_id, id, date, version, '
-                'is_latest_version, thumbnail_url from AssetVersion where '
+                'is_latest_version, thumbnail_url, user.first_name, '
+                'user.last_name, date from AssetVersion where '
                 'parent.id is {} and asset.type.id is {}'.format(
                     context_id, asset_type_entity['id']
                 )
@@ -67,6 +69,8 @@ class ComponentPathCollectorPlugin(BasePlugin):
                         ],
                         'thumbnail': asset_version['thumbnail_url']['url'],
                         'server_url': self.session._server_url,
+                        'user_first_name': asset_version['user']['first_name'],
+                        'user_last_name': asset_version['user']['last_name'],
                     }
                 )
         return result
