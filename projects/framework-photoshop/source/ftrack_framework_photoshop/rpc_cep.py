@@ -134,6 +134,7 @@ class PhotoshopRPCCEP(object):
 
         if True:
             # Debug events
+            # TODO: Remove when RPC is implemented
             def print_event(event):
                 print(event)
 
