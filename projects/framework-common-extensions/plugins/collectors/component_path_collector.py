@@ -3,7 +3,6 @@
 
 from ftrack_framework_plugin import BasePlugin
 import ftrack_constants.framework as constants
-import urllib.parse
 
 
 class ComponentPathCollectorPlugin(BasePlugin):
