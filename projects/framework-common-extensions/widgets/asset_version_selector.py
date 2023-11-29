@@ -3,11 +3,11 @@
 
 from Qt import QtWidgets
 
-from ftrack_framework_widget.widget import FrameworkWidget
+from ftrack_framework_qt.widgets import BaseWidget
 from ftrack_qt.widgets.selectors import OpenAssetSelector
 
 
-class AssetVersionSelectorWidget(FrameworkWidget, QtWidgets.QWidget):
+class AssetVersionSelectorWidget(BaseWidget):
     """Main class to represent an asset version selector widget."""
 
     name = "asset_version_selector"
@@ -29,9 +29,10 @@ class AssetVersionSelectorWidget(FrameworkWidget, QtWidgets.QWidget):
         *name*, *description*, *options* and *context*
         """
 
-        QtWidgets.QWidget.__init__(self, parent=parent)
-        FrameworkWidget.__init__(
-            self,
+        self._label = None
+        self._asset_version_selector = None
+
+        super(AssetVersionSelectorWidget, self).__init__(
             event_manager,
             client_id,
             context_id,
@@ -42,19 +43,12 @@ class AssetVersionSelectorWidget(FrameworkWidget, QtWidgets.QWidget):
             parent,
         )
 
-        self._label = None
-        self._asset_version_selector = None
-
-        self.pre_build()
-        self.build()
-        self.post_build()
-
-    def pre_build(self):
+    def pre_build_ui(self):
         main_layout = QtWidgets.QVBoxLayout()
         main_layout.setContentsMargins(0, 0, 0, 0)
         self.setLayout(main_layout)
 
-    def build(self):
+    def build_ui(self):
         self._label = QtWidgets.QLabel()
         self._label.setObjectName('gray')
         self._label.setWordWrap(True)
@@ -64,7 +58,7 @@ class AssetVersionSelectorWidget(FrameworkWidget, QtWidgets.QWidget):
         self.layout().addWidget(self._label)
         self.layout().addWidget(self._asset_version_selector)
 
-    def post_build(self):
+    def post_build_ui(self):
         """Perform post-construction operations."""
         self._asset_version_selector.assets_added.connect(
             self._on_assets_added
