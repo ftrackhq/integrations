@@ -80,39 +80,12 @@ class AssetListItemWidget(QtWidgets.QFrame):
         self._version_info_widget.setObjectName('gray')
         self.layout().addWidget(self._version_info_widget, 10)
 
-        # self._latest_version = self._version_combobox.set_asset_entity(
-        #     self.asset
-        # )
-
-        # self._update_publisher_info(self._latest_version)
-        # TODO: double check this
-        # else:
-        #     self._create_label = QtWidgets.QLabel('- create')
-        #     self._create_label.setObjectName("gray")
-        #     self.layout().addWidget(self._create_label)
-        #
-        #     self._version_label = QtWidgets.QLabel(
-        #         'Version {}'.format(
-        #             self.asset['latest_version']['version'] + 1
-        #         )
-        #     )
-        #     self._version_label.setObjectName("color-primary")
-        #     self.layout().addWidget(self._version_label)
-        #
-        #     self.layout().addStretch()
-        #
-        #     self.setToolTip(string_utils.str_context(self.asset['parent']))
-        #
-        #     self._latest_version = self.asset['latest_version']
-
-        # if self._latest_version:
         self._thumbnail_widget.set_server_url(
             self._version_combobox.version['server_url']
         )
         self._thumbnail_widget.load(
             self._version_combobox.version['thumbnail']
         )
-        # self.setToolTip(string_utils.str_context(self.asset['parent']))
 
     def post_build(self):
         self._version_combobox.currentIndexChanged.connect(
@@ -124,31 +97,10 @@ class AssetListItemWidget(QtWidgets.QFrame):
         thumbnail and emit event'''
         version_dict = self._version_combobox.version
         if version_dict:
-            # TODO: reload thumbnail, updatePublisher_info?
             self.version_changed.emit(version_dict)
-
-        #
-        # if assetversion_entity:
-        #     self._thumbnail_widget.load(assetversion_entity['id'])
-        #     self._update_publisher_info(assetversion_entity)
-        #     self.versionChanged.emit(assetversion_entity)
-        # else:
-        #     self._thumbnail_widget.use_placeholder()
-        #     self._update_publisher_info(None)
-        #     self.versionChanged.emit(None)
-
-    # def _update_publisher_info(self, assetversion_entity):
-    #     '''Update the publisher info widget with the *version_entity*'''
-    #     if assetversion_entity:
-    #         self._version_info_widget.setText(
-    #             '{} {} @ {}'.format(
-    #                 assetversion_entity['user']['first_name'],
-    #                 assetversion_entity['user']['last_name'],
-    #                 assetversion_entity['date'].strftime('%y-%m-%d %H:%M'),
-    #             )
-    #         )
-    #     else:
-    #         self._version_info_widget.setText('')
+            self._thumbnail_widget.load(
+                self._version_combobox.version['thumbnail']
+            )
 
 
 class AssetList(QtWidgets.QListWidget):
@@ -198,12 +150,12 @@ class AssetList(QtWidgets.QListWidget):
         self.version_changed.emit(version)
 
     def _on_item_changed(self, current_item, previous_item):
-        # tODO:carefully is not returning the widget, is returning the listwidgetitem.
         if previous_item:
-            previous_item.enable_version_select = False
-        current_item.enable_version_select = True
+            self.itemWidget(previous_item).enable_version_select = False
+        self.itemWidget(current_item).enable_version_select = True
         self.selected_item_changed.emit(
-            self.indexFromItem(current_item), current_item.version
+            self.indexFromItem(current_item),
+            self.itemWidget(current_item).version,
         )
 
 

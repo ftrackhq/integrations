@@ -16,23 +16,6 @@ class OpenAssetVersionThumbnail(OpenThumbnailBase):
         url = url or self.placholderThumbnail
         return super(OpenAssetVersionThumbnail, self)._download(url)
 
-    def get_thumbnail_url(self, component):
-        if not component:
-            return
-
-        params = urllib.parse.urlencode(
-            {
-                'id': component['id'],
-                'username': self.session.api_user,
-                'apiKey': self.session.api_key,
-            }
-        )
-
-        result_url = '{base_url}/component/thumbnail?{params}'.format(
-            base_url=self.session._server_url, params=params
-        )
-        return result_url
-
     def _scaleAndSetPixmap(self, pixmap):
         '''Scale and set *pixmap*.'''
         if self._scale:

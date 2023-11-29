@@ -58,19 +58,6 @@ class ComponentPathCollectorPlugin(BasePlugin):
                         'versions': [],
                     }
 
-                # params = urllib.parse.urlencode(
-                #     {
-                #         'id': asset_version['id'],
-                #         'username': self.session.api_user,
-                #         'apiKey': self.session.api_key,
-                #     }
-                # )
-                #
-                # result_url = '{base_url}/component/thumbnail?{params}'.format(
-                #     base_url=self.session._server_url, params=params
-                # )
-
-                # url = asset_version['thumbnail_url'] or placholder_thumbnail
                 result[asset_version['asset_id']]['versions'].append(
                     {
                         'id': asset_version['id'],
@@ -98,7 +85,7 @@ class ComponentPathCollectorPlugin(BasePlugin):
             'select id from Component where version_id is {} '
             'and name is {}'.format(
                 self.options.get('asset_version_id'),
-                self.options.get('component_name'),
+                self.options.get('component'),
             )
         ).first()
         if not component:

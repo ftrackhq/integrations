@@ -101,11 +101,7 @@ class AssetVersionSelectorWidget(FrameworkWidget, QtWidgets.QWidget):
             self._label.setText('<html><i>No assets found!<i></html>')
 
     def _on_version_changed_callback(self, version):
-        if not self.selected_index:
-            return
         self.set_plugin_option('asset_version_id', version['id'])
 
     def _on_selected_item_changed_callback(self, version):
-        if not self.selected_index:
-            return
         self.set_plugin_option('asset_version_id', version['id'])
