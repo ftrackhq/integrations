@@ -10,6 +10,8 @@ var event_manager = undefined;
 var remote_integration_session_id = undefined;
 var connected = false;
 var panel_launchers;
+var context_id = undefined;
+var project_id = undefined;
 
 try {
     function jsx_callback(){
@@ -36,7 +38,7 @@ function initializeIntegration() {
         // Fetch launch variables passed on by Connect (hook)
         csInterface.evalScript('$.getenv("FTRACK_REMOTE_INTEGRATION_SESSION_ID")', function (result) {
             if (result != 'null') {
-                env.FTRACK_INTEGRATION_SESSION_ID = result;
+                env.FTRACK_REMOTE_INTEGRATION_SESSION_ID = result;
                 csInterface.evalScript('$.getenv("FTRACK_SERVER")', function (result) {
                     if (result != 'null') {
                         env.FTRACK_SERVER = result;
@@ -83,9 +85,6 @@ function initializeSession(env, appVersion) {
         );
         event_manager.subscribe.integration_context_data(
             handleIntegrationContextDataCallback
-        );
-        event_manager.subscribe.remote_integration_rpc(
-            handleRemoteIntegrationRPCCallback
         );
 
         // Settle down - wait for standalone process compile to start listening. Then send
@@ -134,16 +133,25 @@ function handleIntegrationContextDataCallback(event) {
             "and feedback to support@ftrack.com.");
         }
         // Build launchers
-        panel_launchers = event.data.panel_launchers;
+        if (event.data.panel_launchers !== undefined) {
+            panel_launchers = event.data.panel_launchers;
 
-        let launcher_table = document.getElementById("launchers");
-        let idx = 0;
-        while (idx < panel_launchers.length) {
-            let launcher = panel_launchers[idx];
-            let row = launcher_table.insertRow();
-            let cell = row.insertCell();
-            cell.innerHTML = '<button id="launcher_button" onclick="launchTool(\''+launcher.name+'\')"><img id="launcher_image" src="./image/'+launcher.image+'.png" border="0" />&nbsp;'+launcher.label+'</button>';
-            idx++;
+            let launcher_table = document.getElementById("launchers");
+            launcher_table.innerHTML = "";
+            let idx = 0;
+            while (idx < panel_launchers.length) {
+                let launcher = panel_launchers[idx];
+                let row = launcher_table.insertRow();
+                let cell = row.insertCell();
+                cell.innerHTML = '<button id="launcher_button" onclick="launchTool(\''+launcher.name+'\')"><img id="launcher_image" src="./image/'+launcher.image+'.png" border="0" />&nbsp;'+launcher.label+'</button>';
+                idx++;
+            }
+        }
+        if (event.data.context_id !== context_id) {
+            context_id = event.data.context_id;
+            document.getElementById("context_thumbnail").src = event.data.context_thumbnail;
+            document.getElementById("context_name").innerHTML = event.data.context_name;
+            document.getElementById("context_path").innerHTML = event.data.context_path;
         }
     } catch (e) {
         error("[INTERNAL ERROR] Failed setting up panel! "+e+" Details: "+e.stack);
@@ -157,6 +165,11 @@ function handleIntegrationDiscoverCallback(event) {
     if (event.data.remote_integration_session_id !== remote_integration_session_id)
         return;
     event_manager.publish_reply(event, prepareEventData({}));
+}
+
+function openContext() {
+    let task_url = event_manager.session.serverUrl+"/#slideEntityId="+context_id+"&slideEntityType=task&view=tasks&itemId=projects&entityId="+project_id+"&entityType=show";
+    csInterface.openURLInDefaultBrowser(task_url);
 }
 
 initializeIntegration();

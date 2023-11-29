@@ -14,7 +14,6 @@ from ftrack_constants import framework as constants
 from ftrack_utils.extensions.environment import (
     get_extensions_path_from_environment,
 )
-from ftrack_utils.framework.remote import get_remote_integration_session_id
 from ftrack_framework_core.host import Host
 from ftrack_framework_core.event import EventManager
 from ftrack_framework_core.client import Client
@@ -24,7 +23,7 @@ from ftrack_framework_core.configure_logging import configure_logging
 
 from ftrack_qt.utils.threading import invoke_in_qt_thread
 
-from .rpc_cep import PhotoshopRPC
+from .rpc_cep import PhotoshopRPCCEP
 from . import process_util
 
 # Evaluate version and log package version
@@ -87,7 +86,9 @@ def bootstrap_integration(framework_extensions_path):
     # Init tools
     dcc_config = registry_instance.get_one(
         name='framework-photoshop', extension_type='dcc_config'
-    )
+    )['extension']
+
+    logger.debug('Read DCC config: {}'.format(dcc_config))
 
     def on_run_dialog_callback(dialog_name):
         invoke_in_qt_thread(client.run_dialog, dialog_name)
@@ -95,8 +96,8 @@ def bootstrap_integration(framework_extensions_path):
     # Init Photoshop connection
     remote_session = ftrack_api.Session(auto_connect_event_hub=True)
 
-    photoshop_connection = PhotoshopRPC(
-        remote_session.event_hub, dcc_config['tools'], on_run_dialog_callback
+    photoshop_connection = PhotoshopRPCCEP(
+        remote_session, client, dcc_config['tools'], on_run_dialog_callback
     )
 
     # Init process monitor
@@ -112,15 +113,15 @@ def bootstrap_integration(framework_extensions_path):
 
     else:
         raise RuntimeError(
-            f'Photoshop {photoshop_connection.photoshop_version} '
-            f'({photoshop_connection.session_id}) '
-            f'process never started. Shutting down.'
+            'Photoshop {photoshop_connection.photoshop_version} '
+            f'({photoshop_connection.remote_integration_remote_integration_session_id}) '
+            'process never started. Shutting down.'
         )
 
-    logger.info(
+    logger.warning(
         f'Photoshop {photoshop_connection.photoshop_version} standalone '
-        f'integration initialized and ready to '
-        'accept incoming connect.'
+        'integration initialized and ready to '
+        'accept incoming connection.'
     )
 
 
@@ -142,7 +143,7 @@ def run_integration():
                 )
             )
         # Failsafe check if PS is still alive
-        if active_time % (60 * 1000) == 0:
+        if active_time % (30 * 1000) == 0:
             if not photoshop_connection.connected:
                 # Check if Photoshop still is running
                 if not process_monitor.check_running():
@@ -161,7 +162,7 @@ def run_integration():
                         )
                         process_util.terminate_current_process()
                     else:
-                        logger.warning(
+                        logger.info(
                             'Photoshop is not responding but process ({}) is still '
                             'there, panel temporarily closed?'.format(
                                 process_monitor.photoshop_pid

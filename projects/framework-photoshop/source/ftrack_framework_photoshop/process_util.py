@@ -24,18 +24,16 @@ def probe_photoshop_pid(photoshop_version):
                 # Expect:
                 #   501 21270     1   0  3:05PM ??         0:36.85 /Applications/Adobe Photoshop 2022/Adobe Photoshop 2022.app/Contents/MacOS/Adobe Photoshop 2022
                 pid = int(re.split(" +", line)[2])
-                logger.info('Got Photoshop PID: {}'.format(pid))
 
                 return pid
 
     logger.warning('Photoshop not found running!')
-
     return None
 
 
 def terminate_current_process():
     '''Terminate Photoshop standalone integration process'''
-    logger.info("Terminating Photoshop standalone framework integration")
+    logger.warning("Terminating Photoshop standalone framework integration")
 
     os.kill(os.getpid(), signal.SIGKILL)
 
@@ -75,5 +73,5 @@ class MonitorProcess(object):
             logger.info(f"Photoshop process detected: {self.process_pid}")
             return True
 
-        logger.info("Photoshop process not yet detected. Probing...")
+        logger.warning("Photoshop process not yet detected. Probing...")
         return False

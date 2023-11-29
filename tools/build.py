@@ -65,9 +65,9 @@ def build_package(pkg_path, args):
 
     POETRY_CONFIG_PATH = os.path.join(ROOT_PATH, 'pyproject.toml')
     DCC_NAME = None
+    VERSION = None
     if os.path.exists(POETRY_CONFIG_PATH):
         PROJECT_NAME = None
-        VERSION = None
         section = None
         with open(os.path.join(ROOT_PATH, 'pyproject.toml')) as f:
             for line in f:
@@ -87,6 +87,16 @@ def build_package(pkg_path, args):
         if USES_FRAMEWORK:
             DCC_NAME = PROJECT_NAME.split('-')[-1]
         assert VERSION, 'No version could be extracted from "pyproject.toml"!'
+
+        if args.command == 'build_cep':
+            # Align version, cannot contain rc/alpha/beta
+            if VERSION.find('rc') > -1:
+                VERSION = VERSION.split('rc')[0]
+            elif VERSION.find('a') > -1:
+                VERSION = VERSION.split('a')[0]
+            elif VERSION.find('b') > -1:
+                VERSION = VERSION.split('b')[0]
+
     else:
         logging.warning(
             'Missing "pyproject.toml" file, not able to identify target DCC!'
@@ -111,23 +121,6 @@ def build_package(pkg_path, args):
 
         logging.info('Cleaning up {}'.format(BUILD_PATH))
         shutil.rmtree(BUILD_PATH, ignore_errors=True)
-
-    def find_python_source(source_path):
-        '''Find a python package in *source_path*'''
-        candidate = None
-        for filename in os.listdir(source_path):
-            pkg_path = os.path.join(source_path, filename)
-            if os.path.isfile(pkg_path):
-                continue
-            if os.path.exists(os.path.join(pkg_path, '__init__.py')):
-                return pkg_path
-            elif filename.startswith('ftrack_'):
-                candidate = pkg_path
-        if candidate:
-            return candidate
-        raise Exception(
-            'No Python source package found @ "{}"'.format(source_path)
-        )
 
     def parse_and_copy(source_path, target_path):
         '''Copies the single file pointed out by *source_path* to *target_path* and
@@ -615,6 +608,15 @@ def build_package(pkg_path, args):
 
         STAGING_PATH = os.path.join(BUILD_PATH, 'staging')
 
+        # Clean previous build
+        if os.path.exists(BUILD_PATH):
+            for filename in os.listdir(BUILD_PATH):
+                if filename.endswith('.zxp'):
+                    logging.warning(
+                        'Removed previous build: {}'.format(filename)
+                    )
+                    os.remove(os.path.join(BUILD_PATH, filename))
+
         # Clean staging path
         shutil.rmtree(STAGING_PATH, ignore_errors=True)
         os.makedirs(os.path.join(STAGING_PATH))
@@ -635,25 +637,30 @@ def build_package(pkg_path, args):
                 os.path.join(CEP_PATH, filename),
                 os.path.join(STAGING_PATH, filename),
             )
+
         # Copy images
+        logging.info("Copying images")
         for filename in [
             'favicon.ico',
             'ftrack-logo-48.png',
             'loader.gif',
             'publish.png',
+            'thumbnail.png',
+            'open_in_new.png',
         ]:
+            logging.info("   " + filename)
             shutil.copy(
                 os.path.join(style_path, 'image', 'js', filename),
                 os.path.join(STAGING_PATH, 'image', filename),
             )
 
-        # Copy style
+        filename = 'style_dark.css'
+        logging.info("Copying style: {}".format(filename))
         shutil.copy(
-            os.path.join(style_path, 'style_dark.css'),
-            os.path.join(STAGING_PATH, 'css', 'style_dark.css'),
+            os.path.join(style_path, filename),
+            os.path.join(STAGING_PATH, 'css', filename),
         )
 
-        # Copy static libraries
         logging.info(
             'Copying {}>{}'.format(
                 os.path.join(CEP_PATH, 'libraries'),
@@ -666,7 +673,7 @@ def build_package(pkg_path, args):
             symlinks=True,
         )
 
-        # Copy framework js lib files
+        logging.info("Copying framework js lib files")
         for js_file in [
             os.path.join(
                 MONOREPO_PATH,
@@ -694,26 +701,17 @@ def build_package(pkg_path, args):
                 js_file,
                 os.path.join(STAGING_PATH, 'lib', os.path.basename(js_file)),
             )
-        parse_and_copy(
-            os.path.join(
-                MONOREPO_PATH,
-                'projects',
-                'framework-photoshop-js',
-                'source',
-                'bootstrap.js',
-            ),
-            os.path.join(STAGING_PATH, 'bootstrap.js'),
-        )
-        parse_and_copy(
-            os.path.join(
-                MONOREPO_PATH,
-                'projects',
-                'framework-photoshop-js',
-                'source',
-                'ps.jsx',
-            ),
-            os.path.join(STAGING_PATH, 'ps.jsx'),
-        )
+        for filename in ['bootstrap.js', 'ps.jsx']:
+            parse_and_copy(
+                os.path.join(
+                    MONOREPO_PATH,
+                    'projects',
+                    'framework-photoshop-js',
+                    'source',
+                    filename,
+                ),
+                os.path.join(STAGING_PATH, filename),
+            )
 
         # Transfer manifest xml, store version
         manifest_staging_path = os.path.join(

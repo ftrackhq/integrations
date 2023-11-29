@@ -10,16 +10,23 @@ import ftrack_api.event.base
 import ftrack_constants.framework as constants
 from ftrack_utils.framework.remote import get_remote_integration_session_id
 
-logger = logging.getLogger(__name__)
 
+class PhotoshopRPCCEP(object):
+    '''Base Photoshop remote connection for CEP based integration.'''
 
-class PhotoshopRPC(object):
-    '''Base Photoshop remote connection.'''
+    @property
+    def session(self):
+        return self._session
 
     @property
     def event_hub(self):
         '''Return event hub.'''
-        return self._event_hub
+        return self.session.event_hub
+
+    @property
+    def client(self):
+        '''Return client.'''
+        return self._client
 
     @property
     def photoshop_version(self):
@@ -32,14 +39,14 @@ class PhotoshopRPC(object):
         self._photoshop_version = value
 
     @property
-    def session_id(self):
+    def remote_integration_session_id(self):
         '''Return remote integration session ID.'''
-        return self._session_id
+        return self._remote_integration_session_id
 
-    @session_id.setter
-    def session_id(self, value):
+    @remote_integration_session_id.setter
+    def remote_integration_session_id(self, value):
         '''Set remote integration session ID to *value*.'''
-        self._session_id = value
+        self._remote_integration_session_id = value
 
     @property
     def on_run_dialog_callback(self):
@@ -61,22 +68,27 @@ class PhotoshopRPC(object):
         '''Set connected state to *value*.'''
         self._connected = value
         if self._connected:
-            logger.info(
+            self.logger.info(
                 'Successfully established connection to Photoshop {}'.format(
                     self.photoshop_version
                 )
             )
 
-    def __init__(self, event_hub, panel_launchers, on_run_dialog_callback):
-        super(PhotoshopRPC, self).__init__()
+    def __init__(
+        self, session, client, panel_launchers, on_run_dialog_callback
+    ):
+        super(PhotoshopRPCCEP, self).__init__()
 
-        self._event_hub = event_hub
+        self._session = session
+        self._client = client
         self._panel_launchers = panel_launchers
         self.on_run_dialog_callback = on_run_dialog_callback
 
-        self._session_id = None
+        self._remote_integration_session_id = None
         self._photoshop_version = None
         self._connected = False
+
+        self.logger = logging.getLogger(__name__)
 
         self._initialise()
 
@@ -88,16 +100,18 @@ class PhotoshopRPC(object):
             self.photoshop_version
         ), 'Photoshop integration requires FTRACK_PHOTOSHOP_VERSION passed as environment variable!'
 
-        self.session_id = get_remote_integration_session_id()
+        self.remote_integration_session_id = (
+            get_remote_integration_session_id()
+        )
         assert (
-            self.session_id
+            self.remote_integration_session_id
         ), 'Photoshop integration requires FTRACK_REMOTE_INTEGRATION_SESSION_ID passed as environment variable!'
 
         event_topic = (
             'topic={} and source.applicationId=ftrack.api.javascript '
             'and data.remote_integration_session_id={}'.format(
                 constants.event.DISCOVER_REMOTE_INTEGRATION_TOPIC,
-                self.session_id,
+                self.remote_integration_session_id,
             )
         )
         self._subscribe_event(
@@ -108,14 +122,28 @@ class PhotoshopRPC(object):
             'topic={} and source.applicationId=ftrack.api.javascript '
             'and data.remote_integration_session_id={}'.format(
                 constants.event.REMOTE_INTEGRATION_RUN_DIALOG_TOPIC,
-                self.session_id,
+                self.remote_integration_session_id,
             )
         )
-        return self._subscribe_event(
+        self._subscribe_event(
             event_topic,
             lambda event: self.on_run_dialog_callback(
                 event['data']['dialog_name']
             ),
+        )
+
+        if True:
+            # Debug events
+            def print_event(event):
+                print(event)
+
+            self._subscribe_event(
+                "topic=ftrack*",
+                print_event,
+            )
+
+        self.logger.info(
+            f'Created Photoshop {self.photoshop_version} connection (session id: {self.remote_integration_session_id})'
         )
 
     # Event hub methods
@@ -129,12 +157,16 @@ class PhotoshopRPC(object):
         data,
         callback=None,
         fetch_reply=False,
-        timeout=10 * 1000,
+        timeout=None,
     ):
         '''
         Common method that calls the private publish method from the
         remote event manager
         '''
+
+        if timeout is None:
+            timeout = 10 * 1000
+
         publish_event = ftrack_api.event.base.Event(
             topic=event_topic, data=data
         )
@@ -167,7 +199,7 @@ class PhotoshopRPC(object):
                         'Waited {}s'.format(waited / 1000)
                     )
                 if waited % 1000 == 0:
-                    logger.info(
+                    self.logger.info(
                         "Waited {}s for {} reply".format(
                             waited / 1000, event_topic
                         )
@@ -175,6 +207,20 @@ class PhotoshopRPC(object):
             return self._reply_event['data']
 
         return publish_result
+
+    def _append_context_data(self, data):
+        '''Append and return context data to event payload *data*'''
+        context_id = self.client.context_id
+        task = self.session.query('Task where id={}'.format(context_id)).one()
+        data['context_id'] = context_id
+        data['context_name'] = task['name']
+        data['context_type'] = task['type']['name']
+        data['context_path'] = ' / '.join(
+            [d["name"] for d in task["link"][:-1]]
+        )
+        data['context_thumbnail'] = task['thumbnail_url']['url']
+        data['project_id'] = task['project_id']
+        return data
 
     def _on_discover_remote_integration_callback(self, event):
         '''Callback for discover_remote_integration *event*, sends
@@ -184,32 +230,37 @@ class PhotoshopRPC(object):
 
         self._publish_event(
             constants.event.REMOTE_INTEGRATION_CONTEXT_DATA_TOPIC,
-            {
-                'remote_integration_session_id': self.session_id,
-                'panel_launchers': self._panel_launchers,
-            },
+            self._append_context_data(
+                {
+                    'remote_integration_session_id': self.remote_integration_session_id,
+                    'panel_launchers': self._panel_launchers,
+                }
+            ),
         )
 
     # Lifecycle methods
 
     def check_responding(self):
         '''Check if Photoshop is alive, send context data'''
-        logger.info("Checking if remote integration is still alive...")
+        self.logger.info("Checking if remote integration is still alive...")
 
-        # Send event and wait for reply sync.
-        collected_event = self._publish_event(
-            constants.event.REMOTE_INTEGRATION_CONTEXT_DATA_TOPIC,
-            {
-                'remote_integration_session_id': self.session_id,
-                'panel_launchers': self._panel_launchers,
-            },
-            fetch_reply=True,
-        )
-
-        logger.info(
-            'Got reply for integration discovery response event: {}'.format(
-                collected_event
+        try:
+            # Send event and wait for reply sync.
+            collected_event = self._publish_event(
+                constants.event.REMOTE_INTEGRATION_CONTEXT_DATA_TOPIC,
+                self._append_context_data(
+                    {
+                        'remote_integration_session_id': self.remote_integration_session_id
+                    }
+                ),
+                fetch_reply=True,
             )
-        )
-
-        return True
+            self.logger.info(
+                'Got reply for integration discovery response event: {}'.format(
+                    collected_event
+                )
+            )
+            return True
+        except Exception as e:
+            self.logger.exception(e)
+            return False

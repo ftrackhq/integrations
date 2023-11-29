@@ -73,17 +73,14 @@ def on_launch_pipeline_photoshop(session, event):
     ] = os.path.pathsep.join([python_dependencies])
     launch_data['integration']['env'][
         'FTRACK_REMOTE_INTEGRATION_SESSION_ID'
-    ] = uuid.uuid4().hex
+    ] = str(uuid.uuid4())
     launch_data['integration']['env']['FTRACK_PHOTOSHOP_VERSION'] = str(
         photoshop_version
     )
 
     if not use_uxp and sys.platform == 'darwin':
         # Check if running on apple silicon (arm64)
-        if (
-            subprocess.check_output("arch").decode('utf-8').find('i386') == -1
-            or True
-        ):
+        if subprocess.check_output("arch").decode('utf-8').find('i386') == -1:
             logger.warning(
                 'Running on non Intel hardware(Apple Silicon), will require PS '
                 'to be launched in Rosetta mode!'

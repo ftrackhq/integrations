@@ -44,6 +44,16 @@ engine:
         options:
           export_destination: "/Users/ftrack/Desktop/myPublishedFile.png"
 
+  - type: group
+    tags:
+      - finalizers
+    plugins:
+      - type: plugin
+        tags:
+          - finalizer
+        plugin: publish_to_ftrack
+      - type: plugin
+        tags:
+          - post_finalizer
+        plugin: post_to_slack
 
-  # Publish to ftrack.
-  - publish_to_ftrack
