@@ -10,7 +10,6 @@ from ftrack_qt.widgets.selectors import StatusSelector
 from ftrack_qt.widgets.lines import LineWidget
 
 
-# TODO: review and docstring this code
 class PublisherAssetVersionSelectorWidget(BaseWidget):
     '''Main class to represent a context widget on a publish process.'''
 
@@ -71,6 +70,9 @@ class PublisherAssetVersionSelectorWidget(BaseWidget):
         # Create asset
         self._asset_version_selector = PublishAssetSelector()
         asset_layout.addWidget(self._asset_version_selector)
+        self._asset_version_selector.set_default_new_asset_name(
+            self.plugin_config['options'].get('asset_type_name')
+        )
 
         # Build version and comment widget
         version_and_comment = QtWidgets.QWidget()

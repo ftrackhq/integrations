@@ -71,3 +71,6 @@ class NewAssetInput(QtWidgets.QFrame):
             set_property(self._name, 'input', '')
         else:
             set_property(self._name, 'input', 'invalid')
+
+    def set_default_name(self, name):
+        self._name.setText(name)

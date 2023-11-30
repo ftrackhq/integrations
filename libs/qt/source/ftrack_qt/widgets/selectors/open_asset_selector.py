@@ -166,6 +166,9 @@ class PublishAssetSelector(OpenAssetSelector):
         self._new_asset_input.set_valid(is_valid_bool)
         return is_valid_bool
 
+    def set_default_new_asset_name(self, name):
+        self._new_asset_input.set_default_name(name)
+
 
 class AssetListAndInput(QtWidgets.QWidget):
     '''Compound widget containing asset list and new asset input'''
