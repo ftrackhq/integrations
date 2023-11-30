@@ -165,7 +165,7 @@ def run_integration():
                         logger.info(
                             'Photoshop is not responding but process ({}) is still '
                             'there, panel temporarily closed?'.format(
-                                process_monitor.photoshop_pid
+                                process_monitor.process_pid
                             )
                         )
 
