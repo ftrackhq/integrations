@@ -39,16 +39,26 @@ def terminate_current_process():
 
 
 class MonitorProcess(object):
+    @property
+    def process_pid(self):
+        '''Return process PID.'''
+        return self._process_pid
+
+    @process_pid.setter
+    def process_pid(self, value):
+        '''Set process PID to *value*.'''
+        if self._process_pid != value:
+            self._process_pid = value
+            logger.info(f"Photoshop process detected: {self.process_pid}")
+
     def __init__(self, photoshop_version):
         '''Monitor photoshop process of version *photoshop_version*.'''
         self.photoshop_version = photoshop_version
-        self.process_pid = None
+        self._process_pid = None
 
     def _check_still_running(self):
         logger.info(
-            "Checking if PS is still alive (pid: {})...".format(
-                self.process_pid
-            )
+            f"Checking if PS is still alive (pid: {self.process_pid})..."
         )
         pid = probe_photoshop_pid(self.photoshop_version)
         is_same_process = pid == self.process_pid
@@ -70,7 +80,6 @@ class MonitorProcess(object):
 
         self.process_pid = probe_photoshop_pid(self.photoshop_version)
         if self.process_pid:
-            logger.info(f"Photoshop process detected: {self.process_pid}")
             return True
 
         logger.warning("Photoshop process not yet detected. Probing...")
