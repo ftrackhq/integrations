@@ -160,6 +160,10 @@ class PublisherAssetVersionSelectorWidget(BaseWidget):
             self._label.setText('<html><i>No assets found!<i></html>')
 
     def _on_selected_item_changed_callback(self, version):
+        if not version:
+            self.set_plugin_option('context_id', self.context_id)
+            self.set_plugin_option('asset_version_id', None)
+            return
         self.set_plugin_option('context_id', self.context_id)
         self.set_plugin_option('asset_version_id', version['id'])
 

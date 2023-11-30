@@ -5,202 +5,17 @@ import logging
 
 from Qt import QtWidgets, QtCore, QtGui
 
-from ftrack_qt.widgets.selectors.version_selector import VersionSelector
-from ftrack_qt.widgets.thumbnails import OpenAssetVersionThumbnail
-from ftrack_qt.utils.widget import set_property
-
-# TODO: add a reload button that emits a signal
-
-
-class AssetListWidgetItem(QtWidgets.QFrame):
-    '''Widget representing an asset, with version selector, within the list,
-    for user selection'''
-
-    version_changed = QtCore.Signal(object)
-    '''Signal emitted when version is changed, with assetversion entity as argument'''
-
-    @property
-    def enable_version_select(self):
-        '''Return enable_version_select'''
-        return self._version_combobox.isEnabled()
-
-    @enable_version_select.setter
-    def enable_version_select(self, value):
-        '''Return enable_version_select'''
-        self._version_combobox.setEnabled(value)
-
-    @property
-    def version(self):
-        if self._version_combobox:
-            return self._version_combobox.version
-
-    def __init__(self, asset_name, versions):
-        '''Represent *asset* in list, with *session* for querying ftrack.
-        If *fetch_assetversions* is given, user is presented a asset version
-        selector. Otherwise, display latest version'''
-        super(AssetListWidgetItem, self).__init__()
-
-        self._asset_name = asset_name
-        self._versions = versions
-
-        self._thumbnail_widget = None
-        self._asset_name_widget = None
-        self._create_label = None
-        self._version_label = None
-        self._version_combobox = None
-        self._version_info_widget = None
-
-        self._latest_version = None
-
-        self.pre_build()
-        self.build()
-        self.post_build()
-
-    def pre_build(self):
-        self.setLayout(QtWidgets.QHBoxLayout())
-        self.layout().setContentsMargins(0, 0, 0, 0)
-        self.layout().setSpacing(5)
-
-    def build(self):
-        self._thumbnail_widget = OpenAssetVersionThumbnail()
-        self._thumbnail_widget.setScaledContents(True)
-        self._thumbnail_widget.setMinimumSize(57, 31)
-        self._thumbnail_widget.setMaximumSize(57, 31)
-        self.layout().addWidget(self._thumbnail_widget)
-
-        self._asset_name_widget = QtWidgets.QLabel(self._asset_name)
-        self.layout().addWidget(self._asset_name_widget)
-
-        self._version_combobox = VersionSelector()
-        self._version_combobox.set_versions(self._versions)
-        self._version_combobox.setMaximumHeight(20)
-        self.layout().addWidget(self._version_combobox)
-
-        self._version_info_widget = QtWidgets.QLabel()
-        self._version_info_widget.setObjectName('gray')
-        self.layout().addWidget(self._version_info_widget, 10)
-
-        self._thumbnail_widget.set_server_url(
-            self._version_combobox.version['server_url']
-        )
-        self._thumbnail_widget.load(
-            self._version_combobox.version['thumbnail']
-        )
-        self._version_info_widget.setText(
-            f"{self._version_combobox.version['user_first_name']} "
-            f"{self._version_combobox.version['user_last_name']} @ "
-            f"{self._version_combobox.version['date'].strftime('%y-%m-%d %H:%M')}"
-        )
-
-    def post_build(self):
-        self._version_combobox.currentIndexChanged.connect(
-            self._on_current_version_changed
-        )
-
-    def _on_current_version_changed(self, index):
-        '''User has selected new version *assetversion_entity*, update the
-        thumbnail and emit event'''
-        version_dict = self._version_combobox.version
-        if version_dict:
-            self.version_changed.emit(version_dict)
-            self._thumbnail_widget.load(
-                self._version_combobox.version['thumbnail']
-            )
-            self._version_info_widget.setText(
-                f"{self._version_combobox.version['user_first_name']} "
-                f"{self._version_combobox.version['user_last_name']} @ "
-                f"{self._version_combobox.version['date'].strftime('%y-%m-%d %H:%M')}"
-            )
-
-
-class AssetList(QtWidgets.QListWidget):
-    '''Widget presenting list of existing assets'''
-
-    version_changed = QtCore.Signal(object)
-    '''Signal emitted when version is changed, with assetversion entity as 
-    argument (version select mode)'''
-
-    assets_added = QtCore.Signal(object)
-
-    selected_item_changed = QtCore.Signal(object, object)
-
-    def __init__(self, parent=None):
-        super(AssetList, self).__init__(parent=parent)
-        self.logger = logging.getLogger(
-            __name__ + '.' + self.__class__.__name__
-        )
-
-        self.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
-        self.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
-        self.setSpacing(1)
-        self.assets = []
-        self.currentItemChanged.connect(self._on_item_changed)
-
-    def set_assets(self, assets):
-        self.assets = assets
-
-        for asset_id, asset_dict in self.assets.items():
-            widget = AssetListWidgetItem(
-                asset_name=asset_dict['name'], versions=asset_dict['versions']
-            )
-
-            widget.version_changed.connect(self._on_version_changed_callback)
-            list_item = QtWidgets.QListWidgetItem(self)
-            list_item.setSizeHint(
-                QtCore.QSize(
-                    widget.sizeHint().width(), widget.sizeHint().height() + 5
-                )
-            )
-            widget.enable_version_select = False
-            self.setItemWidget(list_item, widget)
-            self.addItem(list_item)
-        self.assets_added.emit(assets)
-
-    def _on_version_changed_callback(self, version):
-        self.version_changed.emit(version)
-
-    def _on_item_changed(self, current_item, previous_item):
-        if previous_item:
-            self.itemWidget(previous_item).enable_version_select = False
-        self.itemWidget(current_item).enable_version_select = True
-        self.selected_item_changed.emit(
-            self.indexFromItem(current_item),
-            self.itemWidget(current_item).version,
-        )
-
-
-class AssetListAndInput(QtWidgets.QWidget):
-    '''Compound widget containing asset list and new asset input'''
-
-    def __init__(self, parent=None):
-        super(AssetListAndInput, self).__init__(parent=parent)
-        self.setLayout(QtWidgets.QVBoxLayout())
-        self.layout().setContentsMargins(0, 0, 0, 0)
-        self.layout().setSpacing(0)
-
-    def add_asset_list(self, asset_list):
-        '''Add *asset_list* widget to widget'''
-        self._asset_list = asset_list
-        self.layout().addWidget(asset_list)
-
-    def resizeEvent(self, event):
-        '''(Override)'''
-        self.size_changed()
-
-    def size_changed(self):
-        '''Resize asset list to fit widget, to prevent unnecessary scrolling'''
-        self._asset_list.setFixedSize(
-            self.size().width() - 1,
-            self._asset_list.sizeHintForRow(0) * self._asset_list.count()
-            + 2 * self._asset_list.frameWidth(),
-        )
+from ftrack_qt.widgets.frames import (
+    AssetVersionCreation,
+    AssetVersionSelection,
+    NewAssetInput,
+)
+from ftrack_qt.widgets.lists import AssetList
 
 
 class OpenAssetSelector(QtWidgets.QWidget):
     '''Widget for choosing an existing asset and asset version, or input asset
     name for creating a new asset, depending on mode.'''
-
-    VALID_ASSET_NAME = QtCore.QRegExp('[A-Za-z0-9_]+')
 
     assets_added = QtCore.Signal(object)
     '''Signal emitted when assets are added, with list of asset entities as argument'''
@@ -238,9 +53,6 @@ class OpenAssetSelector(QtWidgets.QWidget):
 
         self.selected_index = None
 
-        self.validator = QtGui.QRegExpValidator(self.VALID_ASSET_NAME)
-        self.placeholder_name = "Asset Name..."
-
         self.pre_build()
         self.build()
         self.post_build()
@@ -251,13 +63,9 @@ class OpenAssetSelector(QtWidgets.QWidget):
         self.setLayout(main_layout)
 
     def build(self):
-        self._list_and_input = AssetListAndInput()
+        self._asset_list = AssetList(AssetVersionSelection)
 
-        self._asset_list = AssetList()
-
-        self._list_and_input.add_asset_list(self._asset_list)
-
-        self.layout().addWidget(self._list_and_input)
+        self.layout().addWidget(self._asset_list)
 
     def post_build(self):
         self._asset_list.assets_added.connect(self._on_assets_added)
@@ -282,64 +90,6 @@ class OpenAssetSelector(QtWidgets.QWidget):
     def _on_selected_item_changed(self, index, version):
         self.selected_index = index
         self.selected_item_changed.emit(version)
-
-
-class NewAssetInput(QtWidgets.QFrame):
-    '''Widget holding new asset input during publish'''
-
-    text_changed = QtCore.Signal(object)
-
-    def __init__(self, validator, placeholder_name):
-        super(NewAssetInput, self).__init__()
-
-        self._validator = validator
-        self._placeholder_name = placeholder_name
-
-        self.pre_build()
-        self.build()
-        self.post_build()
-
-    def pre_build(self):
-        self.setLayout(QtWidgets.QHBoxLayout())
-        self.layout().setContentsMargins(4, 1, 1, 1)
-        self.layout().setSpacing(1)
-        self.setMaximumHeight(32)
-
-    def build(self):
-        self.button = QtWidgets.QPushButton('NEW')
-        self.button.setStyleSheet('background: #FFDD86;')
-        self.button.setFixedSize(56, 30)
-        self.button.setMaximumSize(56, 30)
-
-        self.layout().addWidget(self.button)
-
-        self.name = QtWidgets.QLineEdit()
-        self.name.setPlaceholderText(self._placeholder_name)
-        self.name.setValidator(self._validator)
-        self.name.setSizePolicy(
-            QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Minimum
-        )
-        self.layout().addWidget(self.name, 1000)
-
-        self.version_label = QtWidgets.QLabel('- Version 1')
-        self.version_label.setObjectName("color-primary")
-        self.layout().addWidget(self.version_label)
-
-    def post_build(self):
-        self.button.clicked.connect(self.input_clicked)
-        self.name.mousePressEvent = self.input_clicked
-        self.name.textChanged.connect(self.on_text_changed)
-
-    def mousePressEvent(self, event):
-        '''Override mouse press to emit signal'''
-        self.text_changed.emit(self.name.text())
-
-    def input_clicked(self, event):
-        '''Callback on user button or name click'''
-        self.text_changed.emit(self.name.text())
-
-    def on_text_changed(self):
-        self.text_changed.emit(self.name.text())
 
 
 class PublishAssetSelector(OpenAssetSelector):
@@ -370,13 +120,19 @@ class PublishAssetSelector(OpenAssetSelector):
         super(PublishAssetSelector, self).__init__(parent=parent)
 
     def build(self):
-        super(PublishAssetSelector, self).build()
+        self._list_and_input = AssetListAndInput()
+
+        self._asset_list = AssetList(AssetVersionCreation)
+
+        self._list_and_input.add_asset_list(self._asset_list)
 
         # Create new asset
         self._new_asset_input = NewAssetInput(
             self.validator, self.placeholder_name
         )
         self._list_and_input.layout().addWidget(self._new_asset_input)
+
+        self.layout().addWidget(self._list_and_input)
 
     def post_build(self):
         super(PublishAssetSelector, self).post_build()
@@ -407,8 +163,32 @@ class PublishAssetSelector(OpenAssetSelector):
                 is_valid_bool = False
             else:
                 is_valid_bool = True
-        if is_valid_bool:
-            set_property(self._new_asset_input.name, 'input', '')
-        else:
-            set_property(self._new_asset_input.name, 'input', 'invalid')
+        self._new_asset_input.set_valid(is_valid_bool)
         return is_valid_bool
+
+
+class AssetListAndInput(QtWidgets.QWidget):
+    '''Compound widget containing asset list and new asset input'''
+
+    def __init__(self, parent=None):
+        super(AssetListAndInput, self).__init__(parent=parent)
+        self.setLayout(QtWidgets.QVBoxLayout())
+        self.layout().setContentsMargins(0, 0, 0, 0)
+        self.layout().setSpacing(0)
+
+    def add_asset_list(self, asset_list):
+        '''Add *asset_list* widget to widget'''
+        self._asset_list = asset_list
+        self.layout().addWidget(asset_list)
+
+    def resizeEvent(self, event):
+        '''(Override)'''
+        self.size_changed()
+
+    def size_changed(self):
+        '''Resize asset list to fit widget, to prevent unnecessary scrolling'''
+        self._asset_list.setFixedSize(
+            self.size().width() - 1,
+            self._asset_list.sizeHintForRow(0) * self._asset_list.count()
+            + 2 * self._asset_list.frameWidth(),
+        )
