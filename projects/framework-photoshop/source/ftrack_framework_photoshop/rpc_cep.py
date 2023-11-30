@@ -158,27 +158,24 @@ class PhotoshopRPCCEP(object):
         data,
         callback=None,
         fetch_reply=False,
-        timeout=None,
+        timeout=10 * 1000,
     ):
         '''
         Common method that calls the private publish method from the
         remote event manager
         '''
 
-        if timeout is None:
-            timeout = 10 * 1000
-
         publish_event = ftrack_api.event.base.Event(
             topic=event_topic, data=data
         )
 
-        # TODO: Make this thread safe in case multiple calls arrive here at the same time
-        self._reply_event = None
+        reply_event = None
 
         def default_callback(event):
             if callback:
                 callback(event)
-            self._reply_event = event
+            nonlocal reply_event
+            reply_event = event
 
         if fetch_reply:
             callback_effective = default_callback
@@ -191,7 +188,7 @@ class PhotoshopRPCCEP(object):
 
         if fetch_reply:
             waited = 0
-            while not self._reply_event:
+            while not reply_event:
                 time.sleep(0.01)
                 waited += 10
                 if waited > timeout:  # Wait 10s for reply
@@ -205,7 +202,7 @@ class PhotoshopRPCCEP(object):
                             waited / 1000, event_topic
                         )
                     )
-            return self._reply_event['data']
+            return reply_event['data']
 
         return publish_result
 
