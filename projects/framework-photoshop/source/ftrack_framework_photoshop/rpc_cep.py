@@ -14,6 +14,8 @@ from ftrack_utils.framework.remote import get_remote_integration_session_id
 class PhotoshopRPCCEP(object):
     '''Base Photoshop remote connection for CEP based integration.'''
 
+    _instance = None
+
     @property
     def session(self):
         return self._session
@@ -79,6 +81,10 @@ class PhotoshopRPCCEP(object):
     ):
         super(PhotoshopRPCCEP, self).__init__()
 
+        PhotoshopRPCCEP._instance = (
+            self  # Store reference to self as this is a singleton
+        )
+
         self._session = session
         self._client = client
         self._panel_launchers = panel_launchers
@@ -91,6 +97,16 @@ class PhotoshopRPCCEP(object):
         self.logger = logging.getLogger(__name__)
 
         self._initialise()
+
+    @staticmethod
+    def instance():
+        '''Return the singleton instance, checks if it is initialised and connected.'''
+        assert PhotoshopRPCCEP._instance, 'Photoshop RPC not created!'
+        assert (
+            PhotoshopRPCCEP._instance.connected
+        ), 'Photoshop RPC not connected!'
+
+        return PhotoshopRPCCEP._instance
 
     def _initialise(self):
         '''Initialise the Photoshop connection'''
@@ -237,6 +253,26 @@ class PhotoshopRPCCEP(object):
                     'panel_launchers': self._panel_launchers,
                 }
             ),
+        )
+
+    # RPC methods
+
+    def rpc(self, function_name, args=None, callback=None):
+        '''
+        Publish an event with topic
+        :const:`~ftrack_framework_core.constants.event.REMOTE_INTEGRATION_RPC_TOPIC`
+        supplying *integration_session_id*, to run remote *function_name* with
+        arguments in *args* list, calling *callback* providing the reply.
+        '''
+        data = {
+            'integration_session_id': self.remote_integration_session_id,
+            'function_name': function_name,
+            'args': args or [],
+        }
+
+        event_topic = constants.event.REMOTE_INTEGRATION_RPC_TOPIC
+        return self._publish_event(
+            event_topic, data, callback, fetch_reply=True
         )
 
     # Lifecycle methods
