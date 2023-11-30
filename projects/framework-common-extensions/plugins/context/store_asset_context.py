@@ -19,7 +19,15 @@ class StoreAssetContextPlugin(BasePlugin):
 
         context_id = payload['context_id']
         # Determine if we have a task or not
-        context = self.session.get('Context', context_id)
+        context = self.session.query(
+            'select link from Context where id is {}'.format(context_id)
+        ).one()
+        project = self.session.query(
+            'select project_schema from Project where id is "{}"'.format(
+                context['link'][0]['id']
+            )
+        ).one()
+        statuses = project['project_schema'].get_statuses('AssetVersion')
         # If it's a fake asset, context will be None so return empty list.
         if not context:
             return []
@@ -34,7 +42,7 @@ class StoreAssetContextPlugin(BasePlugin):
             asset_versions = self.session.query(
                 'select asset.name, asset_id, id, date, version, '
                 'is_latest_version, thumbnail_url, user.first_name, '
-                'user.last_name, date from AssetVersion where '
+                'user.last_name, date, status.name from AssetVersion where '
                 'is_latest_version is True and task_id is {} and asset.type.id is {}'.format(
                     context_id, asset_type_entity['id']
                 )
@@ -43,22 +51,32 @@ class StoreAssetContextPlugin(BasePlugin):
             asset_versions = self.session.query(
                 'select asset.name, asset_id, id, date, version, '
                 'is_latest_version, thumbnail_url, user.first_name, '
-                'user.last_name, date from AssetVersion where '
+                'user.last_name, date, status.name from AssetVersion where '
                 'is_latest_version is True and parent.id is {} and asset.type.id is {}'.format(
                     context_id, asset_type_entity['id']
                 )
             ).all()
 
+        result = dict()
+        result['statuses'] = []
+        for status in statuses:
+            result['statuses'].append(
+                {
+                    'id': status['id'],
+                    'name': status['name'],
+                    'color': status['color'],
+                }
+            )
         with self.session.auto_populating(False):
-            result = {}
+            result['assets'] = {}
             for asset_version in asset_versions:
                 if asset_version['asset_id'] not in list(result.keys()):
-                    result[asset_version['asset_id']] = {
+                    result['assets'][asset_version['asset_id']] = {
                         'name': asset_version['asset']['name'],
                         'versions': [],
                     }
 
-                result[asset_version['asset_id']]['versions'].append(
+                result['assets'][asset_version['asset_id']]['versions'].append(
                     {
                         'id': asset_version['id'],
                         'date': asset_version['date'],
@@ -70,6 +88,7 @@ class StoreAssetContextPlugin(BasePlugin):
                         'server_url': self.session._server_url,
                         'user_first_name': asset_version['user']['first_name'],
                         'user_last_name': asset_version['user']['last_name'],
+                        'status': asset_version['status']['name'],
                     }
                 )
         return result

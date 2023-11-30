@@ -86,7 +86,7 @@ class PublisherAssetVersionSelectorWidget(BaseWidget):
         self._asset_status_label = QtWidgets.QLabel("Status")
         self._asset_status_label.setObjectName('gray')
 
-        self._status_selector = StatusSelector(self.session, self.context_id)
+        self._status_selector = StatusSelector()
 
         status_layout.addWidget(self._asset_status_label)
         status_layout.addWidget(self._status_selector, 10)
@@ -132,8 +132,6 @@ class PublisherAssetVersionSelectorWidget(BaseWidget):
         self._status_selector.currentIndexChanged.connect(
             self._on_status_changed
         )
-        # # set context
-        # self.set_context()
 
     def query_assets(self):
         payload = {
@@ -145,7 +143,8 @@ class PublisherAssetVersionSelectorWidget(BaseWidget):
         self.run_ui_hook(payload)
 
     def ui_hook_callback(self, ui_hook_result):
-        self._asset_version_selector.set_assets(ui_hook_result)
+        self._asset_version_selector.set_assets(ui_hook_result['assets'])
+        self._status_selector.set_statuses(ui_hook_result['statuses'])
 
     def _on_assets_added(self, assets):
         if len(assets or []) > 0:
@@ -166,61 +165,22 @@ class PublisherAssetVersionSelectorWidget(BaseWidget):
             return
         self.set_plugin_option('context_id', self.context_id)
         self.set_plugin_option('asset_version_id', version['id'])
+        self._status_selector.set_status_by_name(version['status'])
 
     def _on_new_asset_callback(self, asset_name):
         self.set_plugin_option('context_id', self.context_id)
         self.set_plugin_option('asset_version_id', None)
         self.set_plugin_option('asset_name', asset_name)
 
-    def _on_status_changed(self, status):
+    def _on_status_changed(self, index):
         '''Updates the options dictionary with provided *status* when
         currentIndexChanged of status_selector event is triggered'''
-        status_id = self._status_selector.itemData(status)
-        self.set_plugin_option('status_id', status_id)
+        status_dict = self._status_selector.status
+        if status_dict:
+            self.set_plugin_option('status_id', status_dict['id'])
 
     def _on_comment_updated(self):
         '''Updates the option dictionary with current text when
         textChanged of comments_input event is triggered'''
         current_text = self.comments_input.toPlainText()
         self.set_plugin_option('comment', current_text)
-
-    def _on_asset_changed(self, asset_name, asset_entity, is_valid):
-        '''Updates the option dictionary with provided *asset_name* when
-        asset_changed of asset_selector event is triggered'''
-        self.set_plugin_option('asset_name', asset_name)
-        self.set_plugin_option('is_valid_name', is_valid)
-        if asset_entity:
-            self.set_plugin_option('asset_id', asset_entity['id'])
-        else:
-            self.set_plugin_option('asset_id', None)
-
-    # def set_context(self):
-    #     self.set_plugin_option('context_id', self.context_id)
-    #     self._asset_version_selector.set_asset_name(
-    #         self.plugin_config['options'].get('asset_type_name'),
-    #     )
-    #     self.reload()
-    #
-    # def reload(self):
-    #     '''Reload assets on context'''
-    #     self._asset_version_selector.reload()
-
-    def _on_fetch_assets_callback(self):
-        '''Return assets back to asset selector'''
-        payload = {
-            'context_id': self.context_id,
-            'context_type': 'asset',
-            'asset_type_name': self.plugin_config['options'].get(
-                'asset_type_name'
-            ),
-        }
-        asset_ids = self.run_ui_hook(payload, await_result=True)
-        return list(
-            self.session.query(
-                'select name, versions.task.id, type.id, id, latest_version,'
-                'latest_version.version '
-                'from Asset where id in ({})'.format(
-                    ','.join([str(asset_id) for asset_id in asset_ids])
-                )
-            ).all()
-        )

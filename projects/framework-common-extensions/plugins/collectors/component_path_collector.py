@@ -50,16 +50,17 @@ class ComponentPathCollectorPlugin(BasePlugin):
                 )
             ).all()
 
+        result = {}
         with self.session.auto_populating(False):
-            result = {}
+            result['assets'] = {}
             for asset_version in asset_versions:
                 if asset_version['asset_id'] not in list(result.keys()):
-                    result[asset_version['asset_id']] = {
+                    result['assets'][asset_version['asset_id']] = {
                         'name': asset_version['asset']['name'],
                         'versions': [],
                     }
 
-                result[asset_version['asset_id']]['versions'].append(
+                result['assets'][asset_version['asset_id']]['versions'].append(
                     {
                         'id': asset_version['id'],
                         'date': asset_version['date'],

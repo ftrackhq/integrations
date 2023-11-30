@@ -80,7 +80,7 @@ class AssetVersionSelectorWidget(BaseWidget):
         self.run_ui_hook(payload)
 
     def ui_hook_callback(self, ui_hook_result):
-        self._asset_version_selector.set_assets(ui_hook_result)
+        self._asset_version_selector.set_assets(ui_hook_result['assets'])
 
     def _on_assets_added(self, assets):
         if len(assets or []) > 0:

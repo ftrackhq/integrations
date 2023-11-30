@@ -8,9 +8,6 @@ from Qt import QtWidgets, QtCore
 class VersionSelector(QtWidgets.QComboBox):
     '''Version selector combobox'''
 
-    version_changed = QtCore.Signal(object)
-    '''User has selected the version, version entity passed as the argument'''
-
     @property
     def version(self):
         '''Return current selected asset version entity'''
@@ -25,8 +22,6 @@ class VersionSelector(QtWidgets.QComboBox):
         self.logger = logging.getLogger(
             __name__ + '.' + self.__class__.__name__
         )
-
-        self._version_id = None  # Current selected version id
 
         self.setEditable(False)
 
