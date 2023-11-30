@@ -146,7 +146,7 @@ function handleIntegrationContextDataCallback(event) {
                 let launcher = panel_launchers[idx];
                 let row = launcher_table.insertRow();
                 let cell = row.insertCell();
-                cell.innerHTML = '<button id="launcher_button" onclick="launchTool(\''+launcher.name+'\')"><img id="launcher_image" src="./image/'+launcher.image+'.png" border="0" />&nbsp;'+launcher.label+'</button>';
+                cell.innerHTML = '<button id="launcher_button" onclick="launchTool(\''+launcher.name+'\')"><img id="launcher_image" src="./image/'+launcher.icon+'.png" border="0" />&nbsp;'+launcher.label+'</button>';
                 idx++;
             }
         }

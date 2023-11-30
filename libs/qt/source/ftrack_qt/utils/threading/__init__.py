@@ -10,7 +10,7 @@ class InvokeEvent(QtCore.QEvent):
     def __init__(self, fn, *args, **kwargs):
         '''Invoke *fn* in main thread.'''
         QtCore.QEvent.__init__(
-            self, QtCore.QEvent.Type(QtCore.QEvent.registerEventType(self))
+            self, QtCore.QEvent.Type(QtCore.QEvent.registerEventType())
         )
         self.fn = fn
         self.args = args

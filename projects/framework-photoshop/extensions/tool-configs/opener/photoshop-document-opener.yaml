@@ -1,0 +1,31 @@
+type: tool_config
+name: photoshop-document-opener
+config_type: opener
+# TODO: evaluate host_type key
+host_type: photoshop
+engine:
+  - type: plugin
+    tags:
+      - context
+    plugin: context
+
+  # Open the snapshot component.
+  - type: group
+    options:
+      component: snapshot
+    plugins:
+      - type: plugin
+        tags:
+          - collector
+        plugin: component_path_collector
+        ui: assetversion_selector
+        options:
+          asset_type_name: scene
+      - type: plugin
+        tags:
+          - importer
+        plugin: document_opener
+
+  # Open finalizer.
+  - type: plugin
+    plugin: finalize_open

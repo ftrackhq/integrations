@@ -79,7 +79,7 @@ def bootstrap_integration(framework_extensions_path):
     registry_instance = registry.Registry()
     registry_instance.scan_extensions(paths=framework_extensions_path)
 
-    Host(event_manager, registry=registry_instance)
+    Host(event_manager, registry=registry_instance, host_types=['photoshop'])
 
     client = Client(event_manager, registry=registry_instance)
 

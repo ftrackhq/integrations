@@ -9,7 +9,7 @@ engine:
       - context
     plugin: asset_context
     options:
-      - asset_type_name: scene
+      asset_type_name: scene
     ui: publisher_context_selector
 
   # Export the snapshot component.
