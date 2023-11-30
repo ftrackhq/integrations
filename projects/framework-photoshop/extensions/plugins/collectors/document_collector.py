@@ -1,8 +1,8 @@
 import os
+import tempfile
 
 from ftrack_framework_plugin import BasePlugin
 import ftrack_constants.framework as constants
-from ftrack_utils.framework.remote import get_remote_integration_session_id
 from ftrack_framework_photoshop.rpc_cep import PhotoshopRPCCEP
 
 
@@ -14,22 +14,17 @@ class DocumentCollectorPlugin(BasePlugin):
         Collect the current document data from Photoshop
         and store the collected_data in the given *store*.
         '''
-        rpccon = PhotoshopRPCCEP.instance()
+        # Get exiting RPC connection instance
+        photoshop_connection = PhotoshopRPCCEP.instance()
 
-        document_saved_result = (
-            self.event_manager.publish.remote_integration_rpc(
-                get_remote_integration_session_id(),
-                'documentSaved',
-                fetch_reply=True,
-            )['result']
-        )
+        document_saved_result = photoshop_connection.rpc('documentSaved')
 
         if isinstance(document_saved_result, str):
             self.message = 'Error exporting the document: {}'.format(
                 document_saved_result
             )
             self.status = constants.status.ERROR_STATUS
-            return []
+            return
 
         if not document_saved_result:
             # Document is not saved, save it first.
@@ -37,34 +32,30 @@ class DocumentCollectorPlugin(BasePlugin):
             temp_path = tempfile.NamedTemporaryFile(
                 delete=False, suffix='.psd'
             ).name
-            save_result = self.event_manager.publish.remote_integration_rpc(
-                get_integration_session_id(),
-                "saveDocument",
-                [temp_path],
-                fetch_reply=True,
-            )['result']
+            save_result = photoshop_connection.rpc('saveDocument', [temp_path])
             # Will return a boolean containing the result.
             if isinstance(save_result, str):
                 self.message = 'Error saving the document: {}'.format(
                     save_result
                 )
                 self.status = constants.status.ERROR_STATUS
-                return []
+                return
             elif save_result:
                 self.logger.info('Document saved successfully')
 
         # Get document data
-        document_data = self.event_manager.publish.remote_integration_rpc(
-            get_integration_session_id(), 'getDocumentData', fetch_reply=True
-        )['result']
+        document_data = photoshop_connection.rpc('documentSaved')
+
         # Will return a dictionary with information about the document,
         # an empty dict is returned if no document is open.
 
-        self.logger.debug('Got PS document data: {}'.format(document_data))
+        self.logger.debug(
+            'Got Photoshop document data: {}'.format(document_data)
+        )
 
         if len(document_data or {}) == 0:
             self.message = (
-                'Error exporting the document: Please have an '
+                'Error exporting the Photoshop document: Please have an '
                 'active work document before you can publish'
             )
             self.status = constants.status.ERROR_STATUS

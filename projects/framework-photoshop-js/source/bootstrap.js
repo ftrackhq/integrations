@@ -86,6 +86,9 @@ function initializeSession(env, appVersion) {
         event_manager.subscribe.integration_context_data(
             handleIntegrationContextDataCallback
         );
+        event_manager.subscribe.remote_integration_rpc(
+            handleRemoteIntegrationRPCCallback
+        );
 
         // Settle down - wait for standalone process compile to start listening. Then send
         // a ping to the standalone process to connect.
@@ -166,6 +169,92 @@ function handleIntegrationDiscoverCallback(event) {
         return;
     event_manager.publish_reply(event, prepareEventData({}));
 }
+
+// Tool launch
+
+function launchTool(tool_name) {
+    // Find dialog name
+    let idx = 0;
+    var dialog_name = undefined;
+    while (idx < panel_launchers.length) {
+        let launcher = panel_launchers[idx];
+        if (launcher.name == tool_name) {
+            dialog_name = launcher.dialog_name;
+            break;
+        }
+        idx++;
+    }
+    event_manager.publish.remote_integration_run_dialog(
+        prepareEventData({
+            "dialog_name": dialog_name
+        })
+    );
+}
+
+// RPC - extendscript API calls
+
+// Whitelisted functions and their mappings, add entrypoints from ps.jsx here
+var RPC_FUNCTION_MAPPING = {
+    hasDocument:"hasDocument",
+    documentSaved:"documentSaved",
+    getDocumentPath:"getDocumentPath",
+    getDocumentData:"getDocumentData",
+    saveDocument:"saveDocument",
+    exportDocument:"exportDocument",
+    openDocument:"openDocument",
+};
+
+function handleRemoteIntegrationRPCCallback(event) {
+    /* Handle RPC calls from standalone process - run function with arguments
+     supplied in event and return the result.*/
+    try {
+        if (event.data.remote_integration_session_id !== remote_integration_session_id)
+            return;
+        let function_name_raw = event.data.function_name;
+        let function_name = RPC_FUNCTION_MAPPING[function_name_raw];
+
+        if (function_name === undefined || function_name.length === 0) {
+            event_manager.publish_reply(event, prepareEventData(
+                {
+                    "result": "Unknown RCP function '"+function_name+"'"
+                }
+            ));
+            return;
+        }
+        // Build args, quote strings
+        let s_args = '';
+        let idx = 0;
+        while (idx < event.data.args.length) {
+            let value = event.data.args[idx];
+            if (typeof value === 'string')
+                value = '"' + value + '"';
+            s_args += (s_args.length>0?",":"") + value;
+            idx++;
+        }
+
+        csInterface.evalScript(function_name+'('+s_args+')', function (result) {
+            try {
+                // String is the evalScript type, decode
+                if (result.startsWith("{"))
+                    result = JSON.parse(result);
+                else if (result === "true")
+                    result = true;
+                else if (result === "false")
+                    result = false;
+                event_manager.publish_reply(event, prepareEventData(
+                    {
+                        "result": result
+                    }
+                ));
+            } catch (e) {
+                error("[INTERNAL ERROR] Failed to run RPC call! "+e+" Details: "+e.stack);
+            }
+        });
+    } catch (e) {
+        error("[INTERNAL ERROR] Failed to run RPC call! "+e+" Details: "+e.stack);
+    }
+ }
+
 
 function openContext() {
     let task_url = event_manager.session.serverUrl+"/#slideEntityId="+context_id+"&slideEntityType=task&view=tasks&itemId=projects&entityId="+project_id+"&entityType=show";

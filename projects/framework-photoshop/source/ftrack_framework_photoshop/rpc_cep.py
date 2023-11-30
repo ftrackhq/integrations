@@ -254,13 +254,20 @@ class PhotoshopRPCCEP(object):
 
     # RPC methods
 
-    def rpc(self, function_name, args=None, callback=None):
+    def rpc(self, function_name, args=None, callback=None, fetch_reply=True):
         '''
         Publish an event with topic
         :const:`~ftrack_framework_core.constants.event.REMOTE_INTEGRATION_RPC_TOPIC`
         supplying *integration_session_id*, to run remote *function_name* with
-        arguments in *args* list, calling *callback* providing the reply.
+        arguments in *args* list, calling *callback* providing the reply (async) or
+        awaiting and fetching the reply if *fetch_reply* is True (sync, default).
+
         '''
+
+        assert not (callback and fetch_reply), (
+            'Cannot use callback and fetch reply ' 'at the same time!'
+        )
+
         data = {
             'integration_session_id': self.remote_integration_session_id,
             'function_name': function_name,
@@ -269,8 +276,8 @@ class PhotoshopRPCCEP(object):
 
         event_topic = constants.event.REMOTE_INTEGRATION_RPC_TOPIC
         return self._publish_event(
-            event_topic, data, callback, fetch_reply=True
-        )
+            event_topic, data, callback, fetch_reply=fetch_reply
+        )['result']
 
     # Lifecycle methods
 
