@@ -194,16 +194,16 @@ class PublisherAssetVersionSelectorWidget(BaseWidget):
         else:
             self.set_plugin_option('asset_id', None)
 
-    def set_context(self):
-        self.set_plugin_option('context_id', self.context_id)
-        self._asset_version_selector.set_asset_name(
-            self.plugin_config['options'].get('asset_type_name'),
-        )
-        self.reload()
-
-    def reload(self):
-        '''Reload assets on context'''
-        self._asset_version_selector.reload()
+    # def set_context(self):
+    #     self.set_plugin_option('context_id', self.context_id)
+    #     self._asset_version_selector.set_asset_name(
+    #         self.plugin_config['options'].get('asset_type_name'),
+    #     )
+    #     self.reload()
+    #
+    # def reload(self):
+    #     '''Reload assets on context'''
+    #     self._asset_version_selector.reload()
 
     def _on_fetch_assets_callback(self):
         '''Return assets back to asset selector'''
