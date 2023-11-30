@@ -11,9 +11,11 @@ class AssetVersionCreation(QtWidgets.QFrame):
 
     @property
     def version(self):
+        '''Return the latest version of the asset.'''
         return self._versions[-1]
 
     def __init__(self, asset_name, versions):
+        '''Initialize the AssetVersionCreation widget.'''
         super(AssetVersionCreation, self).__init__()
 
         self._asset_name = asset_name
@@ -28,11 +30,13 @@ class AssetVersionCreation(QtWidgets.QFrame):
         self.build()
 
     def pre_build(self):
+        '''Set up the layout for the widget.'''
         self.setLayout(QtWidgets.QHBoxLayout())
         self.layout().setContentsMargins(0, 0, 0, 0)
         self.layout().setSpacing(5)
 
     def build(self):
+        '''Build the widget components.'''
         self._thumbnail_widget = AssetVersionThumbnail()
         self._thumbnail_widget.setScaledContents(True)
         self._thumbnail_widget.setMinimumSize(57, 31)

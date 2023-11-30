@@ -31,6 +31,7 @@ class AssetVersionSelection(QtWidgets.QFrame):
             return self._version_combobox.version
 
     def __init__(self, asset_name, versions):
+        '''Initialize the AssetVersionSelection widget.'''
         super(AssetVersionSelection, self).__init__()
 
         self._asset_name = asset_name
@@ -46,11 +47,13 @@ class AssetVersionSelection(QtWidgets.QFrame):
         self.post_build()
 
     def pre_build(self):
+        '''Set up the layout for the widget.'''
         self.setLayout(QtWidgets.QHBoxLayout())
         self.layout().setContentsMargins(0, 0, 0, 0)
         self.layout().setSpacing(5)
 
     def build(self):
+        '''Build the widget components.'''
         self._thumbnail_widget = AssetVersionThumbnail()
         self._thumbnail_widget.setScaledContents(True)
         self._thumbnail_widget.setMinimumSize(57, 31)
@@ -82,13 +85,13 @@ class AssetVersionSelection(QtWidgets.QFrame):
         )
 
     def post_build(self):
+        '''Connect signals after building the widget.'''
         self._version_combobox.currentIndexChanged.connect(
             self._on_current_version_changed
         )
 
     def _on_current_version_changed(self, index):
-        '''User has selected new version *assetversion_entity*, update the
-        thumbnail and emit event'''
+        '''Handle the event when the current version is changed.'''
         version_dict = self._version_combobox.version
         if version_dict:
             self.version_changed.emit(version_dict)

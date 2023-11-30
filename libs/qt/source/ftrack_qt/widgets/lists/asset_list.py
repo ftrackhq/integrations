@@ -14,10 +14,13 @@ class AssetList(QtWidgets.QListWidget):
     argument (version select mode)'''
 
     assets_added = QtCore.Signal(object)
+    '''Signal emitted when assets are added to the list'''
 
     selected_item_changed = QtCore.Signal(object, object)
+    '''Signal emitted when selected item is changed'''
 
     def __init__(self, asset_list_widget_item, parent=None):
+        '''Initialize AssetList'''
         super(AssetList, self).__init__(parent=parent)
         self.logger = logging.getLogger(
             __name__ + '.' + self.__class__.__name__
@@ -31,6 +34,7 @@ class AssetList(QtWidgets.QListWidget):
         self.currentItemChanged.connect(self._on_item_changed)
 
     def set_assets(self, assets):
+        '''Set assets for the list'''
         self.assets = assets
 
         for asset_id, asset_dict in self.assets.items():
@@ -55,9 +59,11 @@ class AssetList(QtWidgets.QListWidget):
         self.assets_added.emit(assets)
 
     def _on_version_changed_callback(self, version):
+        '''Handle version changed callback'''
         self.version_changed.emit(version)
 
     def _on_item_changed(self, current_item, previous_item):
+        '''Handle item changed event'''
         if hasattr(self.itemWidget(current_item), 'enable_version_select'):
             if previous_item:
                 self.itemWidget(previous_item).enable_version_select = False

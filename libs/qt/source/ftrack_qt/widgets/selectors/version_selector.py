@@ -18,6 +18,7 @@ class VersionSelector(QtWidgets.QComboBox):
             return None
 
     def __init__(self, parent=None):
+        '''Initialize the VersionSelector.'''
         super(VersionSelector, self).__init__(parent=parent)
         self.logger = logging.getLogger(
             __name__ + '.' + self.__class__.__name__
@@ -29,15 +30,16 @@ class VersionSelector(QtWidgets.QComboBox):
         self.setMinimumHeight(24)
 
     def set_versions(self, versions):
+        '''Set the versions in the combobox.'''
         self.clear()
         self._add_versions(sorted(versions, key=lambda v: -v['version']))
 
     def _add_versions(self, sorted_versions):
-        '''Add *versions* list of assetversion entities to the combobox'''
+        '''Add versions to the combobox.'''
         for index, version in enumerate(sorted_versions):
             self._add_version(version)
         self.setCurrentIndex(0)
 
     def _add_version(self, version):
-        '''Add *version* assetversion entity to the combobox'''
+        '''Add a version to the combobox.'''
         self.addItem(str('v{}'.format(version['version'])), version)

@@ -58,16 +58,19 @@ class OpenAssetSelector(QtWidgets.QWidget):
         self.post_build()
 
     def pre_build(self):
+        '''Set up the main layout for the widget.'''
         main_layout = QtWidgets.QVBoxLayout()
         main_layout.setContentsMargins(0, 0, 0, 0)
         self.setLayout(main_layout)
 
     def build(self):
+        '''Build the asset list and add it to the layout.'''
         self._asset_list = AssetList(AssetVersionSelection)
 
         self.layout().addWidget(self._asset_list)
 
     def post_build(self):
+        '''Connect signals to slots after building the widget.'''
         self._asset_list.assets_added.connect(self._on_assets_added)
         self._asset_list.version_changed.connect(self._on_version_changed)
         self._asset_list.selected_item_changed.connect(
@@ -75,9 +78,11 @@ class OpenAssetSelector(QtWidgets.QWidget):
         )
 
     def _on_assets_added(self, assets):
+        '''Emit the assets_added signal with the given assets.'''
         self.assets_added.emit(assets)
 
     def set_assets(self, assets):
+        '''Set the assets in the asset list and show or hide it based on the presence of assets.'''
         if not assets:
             self._asset_list.hide()
         else:
@@ -85,9 +90,11 @@ class OpenAssetSelector(QtWidgets.QWidget):
         self._asset_list.set_assets(assets)
 
     def _on_version_changed(self, version):
+        '''Emit the version_changed signal with the given version.'''
         self.version_changed.emit(version)
 
     def _on_selected_item_changed(self, index, version):
+        '''Update the selected index and emit the selected_item_changed signal with the given version.'''
         self.selected_index = index
         self.selected_item_changed.emit(version)
 
@@ -120,6 +127,7 @@ class PublishAssetSelector(OpenAssetSelector):
         super(PublishAssetSelector, self).__init__(parent=parent)
 
     def build(self):
+        '''Build the asset list and new asset input and add them to the layout.'''
         self._list_and_input = AssetListAndInput()
 
         self._asset_list = AssetList(AssetVersionCreation)
@@ -135,11 +143,12 @@ class PublishAssetSelector(OpenAssetSelector):
         self.layout().addWidget(self._list_and_input)
 
     def post_build(self):
+        '''Connect signals to slots after building the widget.'''
         super(PublishAssetSelector, self).post_build()
         self._new_asset_input.text_changed.connect(self._on_new_asset)
 
     def _on_new_asset(self, asset_name):
-        '''New asset name text changed'''
+        '''Handle changes to the new asset name input.'''
         self.selected_index = None
         self.selected_item_changed.emit(None)
         is_valid_name = self.validate_name(asset_name)
@@ -149,7 +158,7 @@ class PublishAssetSelector(OpenAssetSelector):
             self.new_asset.emit(None)
 
     def validate_name(self, asset_name):
-        '''Return True if *asset_name* is valid, also reflect this on input style'''
+        '''Validate the given asset name and update the input style.'''
         is_valid_bool = True
         # Already an asset by that name
         if self._asset_list.assets:
@@ -167,6 +176,7 @@ class PublishAssetSelector(OpenAssetSelector):
         return is_valid_bool
 
     def set_default_new_asset_name(self, name):
+        '''Set the default name for the new asset input.'''
         self._new_asset_input.set_default_name(name)
 
 
@@ -174,22 +184,23 @@ class AssetListAndInput(QtWidgets.QWidget):
     '''Compound widget containing asset list and new asset input'''
 
     def __init__(self, parent=None):
+        '''Initialize the widget with a vertical layout.'''
         super(AssetListAndInput, self).__init__(parent=parent)
         self.setLayout(QtWidgets.QVBoxLayout())
         self.layout().setContentsMargins(0, 0, 0, 0)
         self.layout().setSpacing(0)
 
     def add_asset_list(self, asset_list):
-        '''Add *asset_list* widget to widget'''
+        '''Add the given asset list to the widget.'''
         self._asset_list = asset_list
         self.layout().addWidget(asset_list)
 
     def resizeEvent(self, event):
-        '''(Override)'''
+        '''Override the resize event to handle size changes.'''
         self.size_changed()
 
     def size_changed(self):
-        '''Resize asset list to fit widget, to prevent unnecessary scrolling'''
+        '''Resize the asset list to fit the widget, preventing unnecessary scrolling.'''
         self._asset_list.setFixedSize(
             self.size().width() - 1,
             self._asset_list.sizeHintForRow(0) * self._asset_list.count()

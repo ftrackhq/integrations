@@ -8,7 +8,7 @@ from ftrack_qt.widgets.selectors import OpenAssetSelector
 
 
 class AssetVersionSelectorWidget(BaseWidget):
-    """Main class to represent an asset version selector widget."""
+    '''Main class to represent an asset version selector widget.'''
 
     name = "asset_version_selector"
     ui_type = "qt"
@@ -25,10 +25,9 @@ class AssetVersionSelectorWidget(BaseWidget):
         on_run_ui_hook,
         parent=None,
     ):
-        """initialise PublishContextWidget with *parent*, *session*, *data*,
+        '''Initialize PublishContextWidget with *parent*, *session*, *data*,
         *name*, *description*, *options* and *context*
-        """
-
+        '''
         self._label = None
         self._asset_version_selector = None
 
@@ -44,11 +43,13 @@ class AssetVersionSelectorWidget(BaseWidget):
         )
 
     def pre_build_ui(self):
+        '''Set up the main layout for the widget.'''
         main_layout = QtWidgets.QVBoxLayout()
         main_layout.setContentsMargins(0, 0, 0, 0)
         self.setLayout(main_layout)
 
     def build_ui(self):
+        '''Build the user interface for the widget.'''
         self._label = QtWidgets.QLabel()
         self._label.setObjectName('gray')
         self._label.setWordWrap(True)
@@ -59,7 +60,7 @@ class AssetVersionSelectorWidget(BaseWidget):
         self.layout().addWidget(self._asset_version_selector)
 
     def post_build_ui(self):
-        """Perform post-construction operations."""
+        '''Perform post-construction operations.'''
         self._asset_version_selector.assets_added.connect(
             self._on_assets_added
         )
@@ -71,6 +72,7 @@ class AssetVersionSelectorWidget(BaseWidget):
         )
 
     def query_assets(self):
+        '''Query assets based on the context and asset type.'''
         payload = {
             'context_id': self.context_id,
             'asset_type_name': self.plugin_config['options'].get(
@@ -80,9 +82,11 @@ class AssetVersionSelectorWidget(BaseWidget):
         self.run_ui_hook(payload)
 
     def ui_hook_callback(self, ui_hook_result):
+        '''Handle the result of the UI hook.'''
         self._asset_version_selector.set_assets(ui_hook_result['assets'])
 
     def _on_assets_added(self, assets):
+        '''Handle the addition of assets to the selector.'''
         if len(assets or []) > 0:
             self._label.setText(
                 'We found {} asset{} published on this task. '
@@ -95,7 +99,9 @@ class AssetVersionSelectorWidget(BaseWidget):
             self._label.setText('<html><i>No assets found!<i></html>')
 
     def _on_version_changed_callback(self, version):
+        '''Handle the change of selected version.'''
         self.set_plugin_option('asset_version_id', version['id'])
 
     def _on_selected_item_changed_callback(self, version):
+        '''Handle the change of selected item.'''
         self.set_plugin_option('asset_version_id', version['id'])
