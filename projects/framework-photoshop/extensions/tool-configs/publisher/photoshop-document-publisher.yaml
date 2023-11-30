@@ -1,0 +1,60 @@
+type: tool_config
+name: photoshop-document-publisher
+config_type: publisher
+# TODO: evaluate host_type key
+host_type: photoshop
+engine:
+  - type: plugin
+    tags:
+      - context
+    plugin: asset_context
+    options:
+      - asset_type_name: scene
+    ui: publisher_context_selector
+
+  # Export the snapshot component.
+  - type: group
+    options:
+      component: snapshot
+    plugins:
+      - type: plugin
+        plugin: store_component
+      - type: plugin
+        tags:
+          - collector
+        plugin: document_collector
+      - type: plugin
+        tags:
+          - validator
+        plugin: document_validator
+      - type: plugin
+        tags:
+          - exporter
+        plugin: document_exporter
+
+  # Export the reviewable component.
+  - type: group
+    options:
+      component: reviewable
+    optional: true
+    # enabled means that by default the optional checkbox will be checked
+    enabled: true
+    plugins:
+      - type: plugin
+        plugin: store_component
+      - type: plugin
+        tags:
+          - collector
+        plugin: document_collector
+      - type: plugin
+        tags:
+          - validator
+        plugin: document_validator
+        ui: validator_check
+      - type: plugin
+        tags:
+          - exporter
+        plugin: photoshop_image_exporter
+
+  # Publish to ftrack.
+  - publish_to_ftrack
