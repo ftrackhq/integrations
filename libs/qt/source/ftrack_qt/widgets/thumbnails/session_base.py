@@ -15,7 +15,7 @@ from ftrack_utils.threading import BaseThread
 IMAGE_CACHE = dict()
 
 
-class OpenThumbnailBase(QtWidgets.QLabel):
+class SessionThumbnailBase(QtWidgets.QLabel):
     '''Widget to load thumbnails from ftrack server.'''
 
     MAX_CONNECTIONS = 10  # Maximum number of parallel connections to allow
@@ -25,9 +25,9 @@ class OpenThumbnailBase(QtWidgets.QLabel):
 
     _connection_count = 0
 
-    def __init__(self, scale=True, parent=None):
-        super(OpenThumbnailBase, self).__init__(parent)
-        self._server_url = None
+    def __init__(self, session, scale=True, parent=None):
+        super(SessionThumbnailBase, self).__init__(parent)
+        self.session = session
         self._alive = True
         self._scale = scale
 
@@ -41,14 +41,14 @@ class OpenThumbnailBase(QtWidgets.QLabel):
         self.post_build()
 
     # noinspection SpellCheckingInspection
-    def set_server_url(self, server_url):
-        self._server_url = server_url
-        self.placholderThumbnail = self._server_url + '/img/thumbnail2.png'
-
     def pre_build(self):
         self.thumbnailCache = {}
         self.setFrameStyle(QtWidgets.QFrame.StyledPanel)
         self.setAlignment(QtCore.Qt.AlignCenter)
+
+        self.placholderThumbnail = (
+            self.session.server_url + '/img/thumbnail2.png'
+        )
 
     def post_build(self):
         self.thumbnailFetched.connect(self._downloaded)
@@ -77,14 +77,14 @@ class OpenThumbnailBase(QtWidgets.QLabel):
     def _download_async(self, reference):
         '''(Run in background thread) Download image'''
         while (
-            OpenThumbnailBase.MAX_CONNECTIONS
-            <= OpenThumbnailBase._connection_count
+            SessionThumbnailBase.MAX_CONNECTIONS
+            <= SessionThumbnailBase._connection_count
         ):
             time.sleep(0.01)
             # Thumbnail widget still active?
             if not shiboken2.isValid(self):
                 return
-        OpenThumbnailBase._connection_count += 1
+        SessionThumbnailBase._connection_count += 1
         try:
             return self._download(reference)
         except urllib.error.URLError:
@@ -94,7 +94,7 @@ class OpenThumbnailBase(QtWidgets.QLabel):
                 return
             self.thumbnailNotFound.emit()
         finally:
-            OpenThumbnailBase._connection_count -= 1
+            SessionThumbnailBase._connection_count -= 1
 
     def _downloaded_async(self, html):
         '''(Run in background thread) Image has been downloaded, propagate to QT thread'''
@@ -156,7 +156,7 @@ class OpenThumbnailBase(QtWidgets.QLabel):
         '''Return thumbnail file from *url*.'''
         if url:
             ftrackProxy = os.getenv('FTRACK_PROXY', '')
-            ftrackServer = self._server_url
+            ftrackServer = self.session._server_url
 
             if ftrackProxy != '':
                 if ftrackServer.startswith('https'):

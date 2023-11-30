@@ -3,7 +3,7 @@
 
 from Qt import QtWidgets, QtCore, QtGui
 
-from ftrack_qt.widgets.thumbnails import OpenAssetVersionThumbnail
+from ftrack_qt.widgets.thumbnails import AssetVersionThumbnail
 
 
 class AssetVersionCreation(QtWidgets.QFrame):
@@ -33,7 +33,7 @@ class AssetVersionCreation(QtWidgets.QFrame):
         self.layout().setSpacing(5)
 
     def build(self):
-        self._thumbnail_widget = OpenAssetVersionThumbnail()
+        self._thumbnail_widget = AssetVersionThumbnail()
         self._thumbnail_widget.setScaledContents(True)
         self._thumbnail_widget.setMinimumSize(57, 31)
         self._thumbnail_widget.setMaximumSize(57, 31)
