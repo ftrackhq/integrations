@@ -153,9 +153,10 @@ def run_integration():
                     'down!'
                 )
                 process_util.terminate_current_process()
-            if photoshop_connection.connected:
+            else:
                 # Check if Photoshop panel is alive
-                if not photoshop_connection.check_responding():
+                respond_result = photoshop_connection.check_responding()
+                if not respond_result and photoshop_connection.connected:
                     photoshop_connection.connected = False
                     logger.info(
                         'Photoshop is not responding but process ({}) is still '
@@ -163,6 +164,9 @@ def run_integration():
                             process_monitor.process_pid
                         )
                     )
+                elif respond_result and not photoshop_connection.connected:
+                    photoshop_connection.connected = True
+                    logger.info('Photoshop is responding again, panel alive.')
 
 
 # Find and read DCC config
