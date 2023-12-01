@@ -1,9 +1,11 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2023 ftrack
 import tempfile
-import shutil
+
 
 from ftrack_framework_plugin import BasePlugin
+import ftrack_constants.framework as constants
+
 from ftrack_framework_photoshop.rpc_cep import PhotoshopRPCCEP
 
 
@@ -43,6 +45,12 @@ class ImageExporterPlugin(BasePlugin):
             delete=False, suffix='.jpg'
         ).name
 
-        store['components'][component_name]['exported_path'] = self.export(
-            extension, new_file_path
-        )
+        export_result = self.export(extension, new_file_path)
+
+        if isinstance(export_result, str):
+            self.message = 'Error exporting the reviewable: {}'.format(
+                export_result
+            )
+            self.status = constants.status.ERROR_STATUS
+            return
+        store['components'][component_name]['exported_path'] = new_file_path

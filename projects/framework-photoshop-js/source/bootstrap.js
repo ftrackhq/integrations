@@ -216,7 +216,7 @@ function handleRemoteIntegrationRPCCallback(event) {
         if (function_name === undefined || function_name.length === 0) {
             event_manager.publish_reply(event, prepareEventData(
                 {
-                    "result": "Unknown RCP function '"+function_name+"'"
+                    "error_message": "Unknown RCP function '"+function_name+"'"
                 }
             ));
             return;
@@ -247,11 +247,23 @@ function handleRemoteIntegrationRPCCallback(event) {
                     }
                 ));
             } catch (e) {
-                error("[INTERNAL ERROR] Failed to run RPC call! "+e+" Details: "+e.stack);
+                error_message = "[INTERNAL ERROR] Failed to convert RPC call result! "+e+" Details: "+e.stack;
+                event_manager.publish_reply(event, prepareEventData(
+                    {
+                        "error_message": error_message
+                    }
+                ));
+                error(error_message);
             }
         });
     } catch (e) {
-        error("[INTERNAL ERROR] Failed to run RPC call! "+e+" Details: "+e.stack);
+        error_message = "[INTERNAL ERROR] Failed to run RPC call! "+e+" Details: "+e.stack;
+        event_manager.publish_reply(event, prepareEventData(
+            {
+                "error_message": error_message
+            }
+        ));
+        error(error_message);
     }
  }
 

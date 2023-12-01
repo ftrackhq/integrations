@@ -105,23 +105,25 @@ def bootstrap_integration(framework_extensions_path):
         photoshop_connection.photoshop_version
     )
 
-    for _ in range(60 * 2):
+    for _ in range(30 * 2):  # Wait 30s for Photoshop to connect
         time.sleep(0.5)
 
-        if process_monitor.check_running():
+        if process_monitor.check_running:
             break
+
+        logger.debug("Still waiting for Photoshop to connect")
 
     else:
         raise RuntimeError(
             'Photoshop {photoshop_connection.photoshop_version} '
-            f'({photoshop_connection.remote_integration_remote_integration_session_id}) '
+            f'({photoshop_connection.remote_integration_session_id}) '
             'process never started. Shutting down.'
         )
 
     logger.warning(
         f'Photoshop {photoshop_connection.photoshop_version} standalone '
-        'integration initialized and ready to '
-        'accept incoming connection.'
+        'integration initialized and ready and awiting connection from'
+        ' Photoshop.'
     )
 
 
@@ -142,32 +144,25 @@ def run_integration():
                     active_time / 1000, photoshop_connection.connected
                 )
             )
-        # Failsafe check if PS is still alive
-        if active_time % (30 * 1000) == 0:
-            if not photoshop_connection.connected:
-                # Check if Photoshop still is running
-                if not process_monitor.check_running():
-                    logger.warning(
-                        'Photoshop never connected and process gone, shutting '
-                        'down!'
-                    )
-                    process_util.terminate_current_process()
-            else:
+        # Failsafe check if PS is still alive every 10s
+        if active_time % (10 * 1000) == 0:
+            # Check if Photoshop still is running
+            if not process_monitor.check_running():
+                logger.warning(
+                    'Photoshop never connected and process gone, shutting '
+                    'down!'
+                )
+                process_util.terminate_current_process()
+            if photoshop_connection.connected:
                 # Check if Photoshop panel is alive
                 if not photoshop_connection.check_responding():
-                    if not process_monitor.check_running():
-                        logger.warning(
-                            'Photoshop is not responding and process gone, '
-                            'shutting down!'
+                    photoshop_connection.connected = False
+                    logger.info(
+                        'Photoshop is not responding but process ({}) is still '
+                        'there, panel temporarily closed?'.format(
+                            process_monitor.process_pid
                         )
-                        process_util.terminate_current_process()
-                    else:
-                        logger.info(
-                            'Photoshop is not responding but process ({}) is still '
-                            'there, panel temporarily closed?'.format(
-                                process_monitor.process_pid
-                            )
-                        )
+                    )
 
 
 # Find and read DCC config

@@ -152,7 +152,8 @@ class PhotoshopRPCCEP(object):
             # Debug events
             # TODO: Remove when RPC is implemented
             def print_event(event):
-                print(event)
+                print(f'/// DEBUG EVENT: {event}')
+                self.logger.info(f'/// DEBUG EVENT: {event}')
 
             self._subscribe_event(
                 "topic=ftrack*",
@@ -205,7 +206,7 @@ class PhotoshopRPCCEP(object):
         if fetch_reply:
             waited = 0
             while not reply_event:
-                time.sleep(0.01)
+                self.session.event_hub.wait(0.01)
                 waited += 10
                 if waited > timeout:  # Wait 10s for reply
                     raise Exception(
@@ -252,33 +253,6 @@ class PhotoshopRPCCEP(object):
             ),
         )
 
-    # RPC methods
-
-    def rpc(self, function_name, args=None, callback=None, fetch_reply=True):
-        '''
-        Publish an event with topic
-        :const:`~ftrack_framework_core.constants.event.REMOTE_INTEGRATION_RPC_TOPIC`
-        supplying *integration_session_id*, to run remote *function_name* with
-        arguments in *args* list, calling *callback* providing the reply (async) or
-        awaiting and fetching the reply if *fetch_reply* is True (sync, default).
-
-        '''
-
-        assert not (callback and fetch_reply), (
-            'Cannot use callback and fetch reply ' 'at the same time!'
-        )
-
-        data = {
-            'integration_session_id': self.remote_integration_session_id,
-            'function_name': function_name,
-            'args': args or [],
-        }
-
-        event_topic = constants.event.REMOTE_INTEGRATION_RPC_TOPIC
-        return self._publish_event(
-            event_topic, data, callback, fetch_reply=fetch_reply
-        )['result']
-
     # Lifecycle methods
 
     def check_responding(self):
@@ -305,3 +279,30 @@ class PhotoshopRPCCEP(object):
         except Exception as e:
             self.logger.exception(e)
             return False
+
+    # RPC methods
+
+    def rpc(self, function_name, args=None, callback=None, fetch_reply=True):
+        '''
+        Publish an event with topic
+        :const:`~ftrack_framework_core.constants.event.REMOTE_INTEGRATION_RPC_TOPIC`
+        supplying *integration_session_id*, to run remote *function_name* with
+        arguments in *args* list, calling *callback* providing the reply (async) or
+        awaiting and fetching the reply if *fetch_reply* is True (sync, default).
+
+        '''
+
+        assert not (callback and fetch_reply), (
+            'Cannot use callback and fetch reply ' 'at the same time!'
+        )
+
+        data = {
+            'remote_integration_session_id': self.remote_integration_session_id,
+            'function_name': function_name,
+            'args': args or [],
+        }
+
+        event_topic = constants.event.REMOTE_INTEGRATION_RPC_TOPIC
+        return self._publish_event(
+            event_topic, data, callback, fetch_reply=fetch_reply
+        )['result']

@@ -19,6 +19,12 @@ class DocumentCollectorPlugin(BasePlugin):
 
         document_saved_result = photoshop_connection.rpc('documentSaved')
 
+        self.logger.debug(
+            'Got Photoshop saved query result: {}'.format(
+                document_saved_result
+            )
+        )
+
         if isinstance(document_saved_result, str):
             self.message = 'Error exporting the document: {}'.format(
                 document_saved_result
@@ -44,7 +50,7 @@ class DocumentCollectorPlugin(BasePlugin):
                 self.logger.info('Document saved successfully')
 
         # Get document data
-        document_data = photoshop_connection.rpc('documentSaved')
+        document_data = photoshop_connection.rpc('getDocumentData')
 
         # Will return a dictionary with information about the document,
         # an empty dict is returned if no document is open.
