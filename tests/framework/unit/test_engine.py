@@ -70,7 +70,7 @@ def test_engine_instance(registry_instance, session_instance):
     class TestEngine(BaseEngine):
         name = 'test_engine'
 
-        def get_store(self) -> list:
+        def get_store(self) -> dict:
             return dict()
 
     return TestEngine(
