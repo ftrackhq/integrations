@@ -111,7 +111,7 @@ def bootstrap_integration(framework_extensions_path):
         if process_monitor.check_running:
             break
 
-        logger.debug("Still waiting for Photoshop to connect")
+        logger.debug("Still waiting for Photoshop to launch")
 
     else:
         raise RuntimeError(

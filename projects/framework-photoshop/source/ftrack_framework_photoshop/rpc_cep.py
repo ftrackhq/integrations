@@ -14,6 +14,7 @@ from ftrack_utils.framework.remote import get_remote_integration_session_id
 class PhotoshopRPCCEP(object):
     '''Base Photoshop remote connection for CEP based integration.'''
 
+    # Connection should be a singleton accessible also during plugin execution
     _instance = None
 
     @property
@@ -81,9 +82,8 @@ class PhotoshopRPCCEP(object):
     ):
         super(PhotoshopRPCCEP, self).__init__()
 
-        PhotoshopRPCCEP._instance = (
-            self  # Store reference to self as this is a singleton
-        )
+        # Store reference to self in class variable
+        PhotoshopRPCCEP._instance = self
 
         self._session = session
         self._client = client

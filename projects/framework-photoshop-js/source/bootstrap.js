@@ -86,9 +86,6 @@ function initializeSession(env, appVersion) {
         event_manager.subscribe.integration_context_data(
             handleIntegrationContextDataCallback
         );
-        event_manager.subscribe.remote_integration_rpc(
-            handleRemoteIntegrationRPCCallback
-        );
 
         // Settle down - wait for standalone process compile to start listening. Then send
         // a ping to the standalone process to connect.
@@ -170,25 +167,9 @@ function handleIntegrationDiscoverCallback(event) {
     event_manager.publish_reply(event, prepareEventData({}));
 }
 
-// Tool launch
-
-function launchTool(tool_name) {
-    // Find dialog name
-    let idx = 0;
-    var dialog_name = undefined;
-    while (idx < panel_launchers.length) {
-        let launcher = panel_launchers[idx];
-        if (launcher.name == tool_name) {
-            dialog_name = launcher.dialog_name;
-            break;
-        }
-        idx++;
-    }
-    event_manager.publish.remote_integration_run_dialog(
-        prepareEventData({
-            "dialog_name": dialog_name
-        })
-    );
+function openContext() {
+    let task_url = event_manager.session.serverUrl+"/#slideEntityId="+context_id+"&slideEntityType=task&view=tasks&itemId=projects&entityId="+project_id+"&entityType=show";
+    csInterface.openURLInDefaultBrowser(task_url);
 }
 
 // RPC - extendscript API calls
