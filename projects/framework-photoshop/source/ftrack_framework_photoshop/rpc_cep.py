@@ -286,8 +286,8 @@ class PhotoshopRPCCEP(object):
         '''
         Publish an event with topic
         :const:`~ftrack_framework_core.constants.event.REMOTE_INTEGRATION_RPC_TOPIC`
-        supplying *integration_session_id*, to run remote *function_name* with
-        arguments in *args* list, calling *callback* providing the reply (async) or
+        , to run remote *function_name* with arguments in *args* list, calling
+        *callback* providing the reply (async) or
         awaiting and fetching the reply if *fetch_reply* is True (sync, default).
 
         '''

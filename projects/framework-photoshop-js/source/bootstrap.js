@@ -167,11 +167,6 @@ function handleIntegrationDiscoverCallback(event) {
     event_manager.publish_reply(event, prepareEventData({}));
 }
 
-function openContext() {
-    let task_url = event_manager.session.serverUrl+"/#slideEntityId="+context_id+"&slideEntityType=task&view=tasks&itemId=projects&entityId="+project_id+"&entityType=show";
-    csInterface.openURLInDefaultBrowser(task_url);
-}
-
 // RPC - extendscript API calls
 
 // Whitelisted functions and their mappings, add entrypoints from ps.jsx here
