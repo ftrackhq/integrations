@@ -11,9 +11,13 @@ engine:
 
   # Open the snapshot component.
   - type: group
+    tags:
+      - component
     options:
       component: snapshot
     plugins:
+      - type: plugin
+        plugin: store_component
       - type: plugin
         tags:
           - collector
@@ -24,8 +28,8 @@ engine:
       - type: plugin
         tags:
           - importer
-        plugin: document_opener
+        plugin: open_document
 
   # Open finalizer.
   - type: plugin
-    plugin: finalize_open
+    plugin: save_to_temp
