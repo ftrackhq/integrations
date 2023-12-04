@@ -148,6 +148,9 @@ class PublisherAssetVersionSelectorWidget(BaseWidget):
 
     def ui_hook_callback(self, ui_hook_result):
         '''Update the asset and status selectors based on the UI hook result.'''
+        super(PublisherAssetVersionSelectorWidget, self).ui_hook_callback(
+            ui_hook_result
+        )
         self._asset_version_selector.set_assets(ui_hook_result['assets'])
         self._status_selector.set_statuses(ui_hook_result['statuses'])
 
