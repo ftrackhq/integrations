@@ -83,6 +83,9 @@ class AssetVersionSelectorWidget(BaseWidget):
 
     def ui_hook_callback(self, ui_hook_result):
         '''Handle the result of the UI hook.'''
+        super(AssetVersionSelectorWidget, self).ui_hook_callback(
+            ui_hook_result
+        )
         self._asset_version_selector.set_assets(ui_hook_result['assets'])
 
     def _on_assets_added(self, assets):

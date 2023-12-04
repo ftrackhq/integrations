@@ -39,7 +39,6 @@ class ThumbnailBase(QtWidgets.QLabel):
         self.pre_build()
         self.post_build()
 
-    # noinspection SpellCheckingInspection
     def set_server_url(self, server_url):
         self._server_url = server_url
         self.placholderThumbnail = self._server_url + '/img/thumbnail2.png'

@@ -2,9 +2,9 @@
 # :copyright: Copyright (c) 2014-2023 ftrack
 
 import logging
-import time
 
-from ftrack_framework_widget import BaseUI, active_widget
+from ftrack_qt.utils.decorators import invoke_in_qt_main_thread
+from ftrack_framework_widget import BaseUI
 
 
 class FrameworkWidget(BaseUI):
@@ -116,13 +116,10 @@ class FrameworkWidget(BaseUI):
         '''
         self.on_run_ui_hook(payload)
 
+    @invoke_in_qt_main_thread
     def ui_hook_callback(self, ui_hook_result):
         '''Get the result of the ui_hook method from the plugin'''
-        self.logger.warning(
-            "Method not implemented, ui_hook_result ---> {}".format(
-                ui_hook_result
-            )
-        )
+        pass
 
     @classmethod
     def register(cls):
