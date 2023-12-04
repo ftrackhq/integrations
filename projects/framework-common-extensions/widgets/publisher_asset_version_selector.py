@@ -15,7 +15,7 @@ class PublisherAssetVersionSelectorWidget(BaseWidget):
 
     name = 'publisher_asset_version_selector'
     ui_type = 'qt'
-    fetch_method_on_start = 'query_assets'
+    fetch_method_on_init = 'query_assets'
 
     def __init__(
         self,

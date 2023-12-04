@@ -81,7 +81,7 @@ class AssetVersionSelection(QtWidgets.QFrame):
         self._version_info_widget.setText(
             f"{self._version_combobox.version['user_first_name']} "
             f"{self._version_combobox.version['user_last_name']} @ "
-            f"{self._version_combobox.version['date'].strftime('%y-%m-%d %H:%M')}"
+            f"{self._version_combobox.version['date']}"
         )
 
     def post_build(self):
@@ -101,5 +101,5 @@ class AssetVersionSelection(QtWidgets.QFrame):
             self._version_info_widget.setText(
                 f"{self._version_combobox.version['user_first_name']} "
                 f"{self._version_combobox.version['user_last_name']} @ "
-                f"{self._version_combobox.version['date'].strftime('%y-%m-%d %H:%M')}"
+                f"{self._version_combobox.version['date']}"
             )

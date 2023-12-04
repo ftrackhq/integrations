@@ -54,7 +54,9 @@ class ComponentPathCollectorPlugin(BasePlugin):
         with self.session.auto_populating(False):
             result['assets'] = {}
             for asset_version in asset_versions:
-                if asset_version['asset_id'] not in list(result.keys()):
+                if asset_version['asset_id'] not in list(
+                    result['assets'].keys()
+                ):
                     result['assets'][asset_version['asset_id']] = {
                         'name': asset_version['asset']['name'],
                         'versions': [],
@@ -63,13 +65,15 @@ class ComponentPathCollectorPlugin(BasePlugin):
                 result['assets'][asset_version['asset_id']]['versions'].append(
                     {
                         'id': asset_version['id'],
-                        'date': asset_version['date'],
+                        'date': asset_version['date'].strftime(
+                            '%y-%m-%d %H:%M'
+                        ),
                         'version': asset_version['version'],
                         'is_latest_version': asset_version[
                             'is_latest_version'
                         ],
                         'thumbnail': asset_version['thumbnail_url']['url'],
-                        'server_url': self.session._server_url,
+                        'server_url': self.session.server_url,
                         'user_first_name': asset_version['user']['first_name'],
                         'user_last_name': asset_version['user']['last_name'],
                     }

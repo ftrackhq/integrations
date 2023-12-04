@@ -16,7 +16,7 @@ class FrameworkWidget(BaseUI):
     widget_type = 'framework_widget'
     dialog_method_connection = None
     dialog_property_getter_connection = None
-    fetch_method_on_start = None
+    fetch_method_on_init = None
 
     @property
     def context_id(self):
