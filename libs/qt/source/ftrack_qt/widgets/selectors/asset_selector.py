@@ -102,6 +102,8 @@ class PublishAssetSelector(OpenAssetSelector):
     VALID_ASSET_NAME = QtCore.QRegExp('[A-Za-z0-9_]+')
 
     new_asset = QtCore.Signal(object)
+    '''This signal is emitted when a new asset is selected. It sends the
+    new asset_name as argument.'''
 
     def __init__(
         self,
