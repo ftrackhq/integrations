@@ -138,7 +138,7 @@ class PublishAssetSelector(OpenAssetSelector):
         self._new_asset_input = NewAssetInput(
             self.validator, self.placeholder_name
         )
-        self._list_and_input.layout().addWidget(self._new_asset_input)
+        self._list_and_input.add_asset_input(self._new_asset_input)
 
         self.layout().addWidget(self._list_and_input)
 
@@ -189,11 +189,18 @@ class AssetListAndInput(QtWidgets.QWidget):
         self.setLayout(QtWidgets.QVBoxLayout())
         self.layout().setContentsMargins(0, 0, 0, 0)
         self.layout().setSpacing(0)
+        self._asset_list = None
+        self._asset_input = None
 
     def add_asset_list(self, asset_list):
         '''Add the given asset list to the widget.'''
         self._asset_list = asset_list
         self.layout().addWidget(asset_list)
+
+    def add_asset_input(self, asset_input):
+        '''Add the given asset list to the widget.'''
+        self._asset_input = asset_input
+        self.layout().addWidget(asset_input)
 
     def resizeEvent(self, event):
         '''Override the resize event to handle size changes.'''
