@@ -64,26 +64,6 @@ class InvokeEvent(QtCore.QEvent):
         self.kwargs = kwargs
 
 
-class Invoker(QtCore.QObject):
-    '''Invoker.'''
-
-    def event(self, event):
-        '''Call function on *event*.'''
-        event.fn(*event.args, **event.kwargs)
-
-        return True
-
-
-_invoker = Invoker()
-
-
-def invoke_in_main_thread(fn, *args, **kwargs):
-    '''Invoke function *fn* with arguments.'''
-    QtCore.QCoreApplication.postEvent(
-        _invoker, InvokeEvent(fn, *args, **kwargs)
-    )
-
-
 def get_connect_plugin_version(connect_plugin_path):
     '''Return Connect plugin version string for *connect_plugin_path*'''
     result = None
