@@ -3,5 +3,7 @@
 import os
 
 
-def get_integration_session_id():
-    return os.environ.get('FTRACK_INTEGRATION_SESSION_ID')
+def get_remote_integration_session_id():
+    '''Return the session ID shared with a driven RPC integration, in
+    standalone mode.'''
+    return os.environ.get('FTRACK_REMOTE_INTEGRATION_SESSION_ID')
