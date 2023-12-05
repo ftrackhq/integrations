@@ -1,0 +1,54 @@
+#context {
+  margin-left: 2px;
+}
+
+#context_thumbnail {
+  width: 64;
+  height: 50;
+  min-width: 65;
+  min-height: 50px;
+  max-width: 65;
+  max-height: 50px;
+  border: 1px solid #2d2d2d;
+  border-radius: 4px;
+}
+
+
+#context_name {
+  font-size: 13px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 87%);
+  margin-top: -5px;
+}
+
+#context_path {
+  font-size: 11px;
+  font-weight: 400;
+  color: rgba(255, 255, 255, 33%);
+}
+
+#context_open {
+  background: transparent;
+  width: 30px;
+  height: 30px;
+  max-width: 30px;
+  max-height: 30px;
+  border: 1px solid rgba(255, 255, 255, 10%);
+  border-radius: 15px;
+}
+
+#context_open:hover {
+  border: 1px solid rgba(255, 255, 255, 25%);
+  background-color: rgba(255, 255, 255, 5%);
+}
+
+#context_open img {
+  width: 16px;
+  height: 16px;
+  min-width: 16px;
+  min-height: 16px;
+  max-width: 16px;
+  max-height: 16px;
+  padding-top: 2px;
+  padding-left: 0px;
+}
