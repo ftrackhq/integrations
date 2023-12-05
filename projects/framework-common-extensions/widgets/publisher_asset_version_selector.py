@@ -8,6 +8,7 @@ from ftrack_framework_qt.widgets import BaseWidget
 from ftrack_qt.widgets.selectors import PublishAssetSelector
 from ftrack_qt.widgets.selectors import StatusSelector
 from ftrack_qt.widgets.lines import LineWidget
+from ftrack_qt.utils.decorators import invoke_in_qt_main_thread
 
 
 class PublisherAssetVersionSelectorWidget(BaseWidget):
@@ -149,6 +150,7 @@ class PublisherAssetVersionSelectorWidget(BaseWidget):
         }
         self.run_ui_hook(payload)
 
+    @invoke_in_qt_main_thread
     def ui_hook_callback(self, ui_hook_result):
         '''Update the asset and status selectors based on the UI hook result.'''
         super(PublisherAssetVersionSelectorWidget, self).ui_hook_callback(

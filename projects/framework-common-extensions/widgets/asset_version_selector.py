@@ -5,6 +5,7 @@ from Qt import QtWidgets
 
 from ftrack_framework_qt.widgets import BaseWidget
 from ftrack_qt.widgets.selectors import OpenAssetSelector
+from ftrack_qt.utils.decorators import invoke_in_qt_main_thread
 
 
 class AssetVersionSelectorWidget(BaseWidget):
@@ -84,6 +85,7 @@ class AssetVersionSelectorWidget(BaseWidget):
         }
         self.run_ui_hook(payload)
 
+    @invoke_in_qt_main_thread
     def ui_hook_callback(self, ui_hook_result):
         '''Handle the result of the UI hook.'''
         super(AssetVersionSelectorWidget, self).ui_hook_callback(
