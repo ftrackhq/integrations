@@ -16,7 +16,6 @@ class FrameworkWidget(BaseUI):
     widget_type = 'framework_widget'
     dialog_method_connection = None
     dialog_property_getter_connection = None
-    fetch_method_on_init = None
 
     @property
     def context_id(self):
@@ -119,6 +118,10 @@ class FrameworkWidget(BaseUI):
     @invoke_in_qt_main_thread
     def ui_hook_callback(self, ui_hook_result):
         '''Get the result of the ui_hook method from the plugin'''
+        pass
+
+    def populate(self):
+        '''Fetch info from plugin to populate the widget'''
         pass
 
     @classmethod

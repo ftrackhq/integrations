@@ -11,7 +11,6 @@ class BaseWidget(FrameworkWidget, QtWidgets.QWidget):
 
     name = 'base_widget'
     ui_type = 'qt'
-    fetch_method_on_init = None
 
     def __init__(
         self,

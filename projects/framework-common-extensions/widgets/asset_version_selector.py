@@ -12,7 +12,6 @@ class AssetVersionSelectorWidget(BaseWidget):
 
     name = "asset_version_selector"
     ui_type = "qt"
-    fetch_method_on_init = 'query_assets'
 
     def __init__(
         self,
@@ -70,6 +69,10 @@ class AssetVersionSelectorWidget(BaseWidget):
         self._asset_version_selector.selected_item_changed.connect(
             self._on_selected_item_changed_callback
         )
+
+    def populate(self):
+        '''Fetch info from plugin to populate the widget'''
+        self.query_assets()
 
     def query_assets(self):
         '''Query assets based on the context and asset type.'''
