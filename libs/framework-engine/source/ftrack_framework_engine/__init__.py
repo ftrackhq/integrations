@@ -90,7 +90,9 @@ class BaseEngine(object):
             if ui_hook_result:
                 if self.on_plugin_executed:
                     self.on_plugin_executed(ui_hook_result)
-        self.logger.debug(ui_hook_result)
+        self.logger.debug(
+            f"Result from running ui_hook {reference}: {ui_hook_result}"
+        )
 
         return ui_hook_result
 
@@ -134,7 +136,9 @@ class BaseEngine(object):
                                 plugin_info['plugin_message'],
                             )
                         )
-        self.logger.debug(store)
+        self.logger.debug(
+            f"Result from running plugin {reference}: {plugin_info}"
+        )
 
         return plugin_info
 

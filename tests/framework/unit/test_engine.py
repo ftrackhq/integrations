@@ -76,19 +76,36 @@ def test_run_plugin(test_engine_instance):
     assert result['plugin_store'] == {'test_data': options}
 
 
-def test_execute_engine(test_engine_instance):
-    # Test case for the execute_engine method
-    engine = [
-        {
-            "type": "group",
-            "reference": "1234",
-            "plugins": [
-                {"type": "plugin", "plugin": "test_plugin", "reference": "123"}
+@pytest.mark.parametrize(
+    "engine, user_options, expected_result",
+    [
+        (
+            [
+                {
+                    "type": "group",
+                    "reference": "1234",
+                    "plugins": [
+                        {
+                            "type": "plugin",
+                            "plugin": "test_plugin",
+                            "reference": "123",
+                        }
+                    ],
+                }
             ],
-        }
-    ]
-    user_options = {"123": {"option1": "value1"}}
-
+            {"123": {"option1": "value1"}},
+            {'test_data': {"option1": "value1"}},
+        ),
+        (
+            [{"type": "plugin", "plugin": "test_plugin", "reference": "123"}],
+            {"123": {"option1": "value1"}},
+            {'test_data': {"option1": "value1"}},
+        ),
+    ],
+)
+def test_execute_engine(
+    test_engine_instance, engine, user_options, expected_result
+):
     # Call the method and assert the expected behavior
     result = test_engine_instance.execute_engine(engine, user_options)
-    assert result == {'test_data': user_options['123']}
+    assert result == expected_result
