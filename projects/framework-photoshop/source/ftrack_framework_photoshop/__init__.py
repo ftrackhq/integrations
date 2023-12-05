@@ -21,7 +21,7 @@ from ftrack_framework_core import registry
 
 from ftrack_framework_core.configure_logging import configure_logging
 
-from ftrack_qt.utils.threading import invoke_in_qt_thread
+from ftrack_qt.utils.decorators import invoke_in_qt_main_thread
 
 from .rpc_cep import PhotoshopRPCCEP
 from . import process_util
@@ -90,8 +90,9 @@ def bootstrap_integration(framework_extensions_path):
 
     logger.debug('Read DCC config: {}'.format(dcc_config))
 
+    @invoke_in_qt_main_thread
     def on_run_dialog_callback(dialog_name):
-        invoke_in_qt_thread(client.run_dialog, dialog_name)
+        client.run_dialog(dialog_name)
 
     # Init Photoshop connection
     remote_session = ftrack_api.Session(auto_connect_event_hub=True)

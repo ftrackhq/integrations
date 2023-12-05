@@ -2,11 +2,10 @@
 # :copyright: Copyright (c) 2014-2023 ftrack
 
 from ftrack_framework_plugin import BasePlugin
-import ftrack_constants.framework as constants
 
 
-class ComponentPathCollectorPlugin(BasePlugin):
-    name = 'component_path_collector'
+class StoreAssetContextPlugin(BasePlugin):
+    name = 'store_asset_context'
 
     def ui_hook(self, payload):
         '''
@@ -20,7 +19,15 @@ class ComponentPathCollectorPlugin(BasePlugin):
 
         context_id = payload['context_id']
         # Determine if we have a task or not
-        context = self.session.get('Context', context_id)
+        context = self.session.query(
+            'select link from Context where id is {}'.format(context_id)
+        ).one()
+        project = self.session.query(
+            'select project_schema from Project where id is "{}"'.format(
+                context['link'][0]['id']
+            )
+        ).one()
+        statuses = project['project_schema'].get_statuses('AssetVersion')
         # If it's a fake asset, context will be None so return empty list.
         if not context:
             return []
@@ -35,8 +42,8 @@ class ComponentPathCollectorPlugin(BasePlugin):
             asset_versions = self.session.query(
                 'select asset.name, asset_id, id, date, version, '
                 'is_latest_version, thumbnail_url, user.first_name, '
-                'user.last_name, date from AssetVersion where '
-                'task_id is {} and asset.type.id is {}'.format(
+                'user.last_name, date, status.name from AssetVersion where '
+                'is_latest_version is True and task_id is {} and asset.type.id is {}'.format(
                     context_id, asset_type_entity['id']
                 )
             ).all()
@@ -44,13 +51,22 @@ class ComponentPathCollectorPlugin(BasePlugin):
             asset_versions = self.session.query(
                 'select asset.name, asset_id, id, date, version, '
                 'is_latest_version, thumbnail_url, user.first_name, '
-                'user.last_name, date from AssetVersion where '
-                'parent.id is {} and asset.type.id is {}'.format(
+                'user.last_name, date, status.name from AssetVersion where '
+                'is_latest_version is True and parent.id is {} and asset.type.id is {}'.format(
                     context_id, asset_type_entity['id']
                 )
             ).all()
 
-        result = {}
+        result = dict()
+        result['statuses'] = []
+        for status in statuses:
+            result['statuses'].append(
+                {
+                    'id': status['id'],
+                    'name': status['name'],
+                    'color': status['color'],
+                }
+            )
         with self.session.auto_populating(False):
             result['assets'] = {}
             for asset_version in asset_versions:
@@ -76,39 +92,25 @@ class ComponentPathCollectorPlugin(BasePlugin):
                         'server_url': self.session.server_url,
                         'user_first_name': asset_version['user']['first_name'],
                         'user_last_name': asset_version['user']['last_name'],
+                        'status': asset_version['status']['name'],
                     }
                 )
         return result
 
     def run(self, store):
         '''
-        Store location path from the :obj:`self.options['asset_versions']`.
-
-        ['asset_versions']: expected a list of dictionaries
-        containing 'asset_version_id' and 'component_name' for the desired
-        assets to open.
+        Store values of the :obj:`self.options`
+        'context_id', 'asset_name', 'comment', 'status_id' keys in the
+        given *store*
         '''
-
-        component = self.session.query(
-            'select id from Component where version_id is {} '
-            'and name is {}'.format(
-                self.options.get('asset_version_id'),
-                self.options.get('component'),
-            )
-        ).first()
-        if not component:
-            message = (
-                'Component name {} not available for '
-                'asset version id {}'.format(
-                    self.options.get('component_name'),
-                    self.options.get('asset_version_id'),
-                )
-            )
-            self.logger.warning(message)
-            self.message = message
-            self.status = constants.status.ERROR_STATUS
-
-        location = self.session.pick_location()
-        component_path = location.get_filesystem_path(component)
-        component_name = self.options.get('component', 'main')
-        store['components'][component_name]['collected_path'] = component_path
+        keys = [
+            'context_id',
+            'asset_name',
+            'comment',
+            'status_id',
+            'asset_version_id',
+            'asset_type_name',
+        ]
+        for k in keys:
+            if self.options.get(k):
+                store[k] = self.options.get(k)

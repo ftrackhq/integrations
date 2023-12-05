@@ -4,8 +4,8 @@
 from ftrack_framework_plugin import BasePlugin
 
 
-class ContextPlugin(BasePlugin):
-    name = 'context'
+class ContextIdPlugin(BasePlugin):
+    name = 'store_context_id'
 
     def run(self, store):
         '''
