@@ -1,7 +1,7 @@
 # test_standard_engine.py
-from ftrack_framework_core import registry
-
 import pytest
+import ftrack_framework_core
+from ftrack_framework_core import registry
 
 
 @pytest.fixture
