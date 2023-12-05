@@ -33,10 +33,15 @@ class ProgressWidget(QtWidgets.QWidget):
     _update_status_async = QtCore.Signal(object, object)
     # Delegate to main thread - update overall status based on status and message
 
-    _update_phase_status_async = QtCore.Signal(
-        object, object, object, object, object, object
+    _update_phase_status_sync = QtCore.Signal(
+        object,
+        object,
+        object,
+        object,
+        object,
     )
-    # Delegate to main thread - update status based on category, phase name, status, message, log and batch id
+    # Delegate to main thread - update status based on category, phase name,
+    # status code, status message and log message
 
     @property
     def button_widget(self):
@@ -89,7 +94,7 @@ class ProgressWidget(QtWidgets.QWidget):
         '''post build function , mostly used connect widgets events.'''
         self.button_widget.clicked.connect(self.show_widget)
         self._update_status_async.connect(self.update_status)
-        self._update_phase_status_async.connect(self.update_phase_status)
+        self._update_phase_status_sync.connect(self.update_phase_status)
 
     # Build
 
@@ -103,20 +108,18 @@ class ProgressWidget(QtWidgets.QWidget):
 
     def add_widget(
         self,
-        widget,
         category,
         phase_name,
-        batch_id=None,
         phase_label=None,
         indent=0,
     ):
         '''Add progress widget representation for framework *widget*, beneath
-        *category*, having *phase_name*and optional *batch_id*.
+        *category*, having *phase_name* (plugin name)
 
         If *phase_label* is given, use this instead
         of plugin name. Optional *indent* defines left margin.
         '''
-        id_name = "{}.{}.{}".format(batch_id or '-', category, phase_name)
+        id_name = "{}.{}".format(category, phase_name)
         phase_button = PhaseButtonWidget(
             phase_label or phase_name, ProgressWidget.NOT_STARTED_STATUS
         )
@@ -129,7 +132,7 @@ class ProgressWidget(QtWidgets.QWidget):
         )
         if category not in self._categories:
             self._categories.append(category)
-            phase_category = QtWidgets.QLabel(category.upper())
+            phase_category = QtWidgets.QLabel(category)
             phase_category.setObjectName("gray")
             self._content_widget.layout().addWidget(phase_category)
         self._content_widget.layout().addWidget(phase_button)
@@ -164,6 +167,24 @@ class ProgressWidget(QtWidgets.QWidget):
             self._status_banner.set_status(new_status, message=message)
         self.set_status_widget_visibility(True)
 
+    def update_progress(self, log_item):
+        '''A plugin has been executed, with information passed on in *log_item*'''
+        self.logger.info(
+            "Plugin Execution progress: \n "
+            "plugin_name: {} \n"
+            "plugin_status: {} \n"
+            "plugin_message: {} \n"
+            "plugin_execution_time: {} \n"
+            "plugin_store: {} \n".format(
+                log_item.plugin_name,
+                log_item.plugin_status,
+                log_item.plugin_message,
+                log_item.plugin_execution_time,
+                log_item.plugin_options,
+                log_item.plugin_store,
+            )
+        )
+
     def set_status_widget_visibility(self, visibility=False):
         '''Update the visibility of the progress widget'''
         self.button_widget.setVisible(visibility)
@@ -179,28 +200,22 @@ class ProgressWidget(QtWidgets.QWidget):
         self.button_widget.setVisible(False)
 
     def update_phase_status(
-        self, category, phase_name, new_status, status_message, log, batch_id
+        self, category, phase_name, new_status, status_message, log_message
     ):
         '''Update the status of a phase *phase_name* under *category* to *new_status*, with
-        optional *status_message* and *log* for optional *batch_id*'''
+        optional *status_message* and *log*'''
         if not is_main_thread():
-            self._update_phase_status_async.emit(
-                category,
-                phase_name,
-                new_status,
-                status_message,
-                log,
-                batch_id,
+            self._update_phase_status_sync.emit(
+                category, phase_name, new_status, status_message, log_message
             )
             return
-        id_name = "{}.{}.{}".format(batch_id or '-', category, phase_name)
+        id_name = "{}.{}".format(category, phase_name)
         if id_name in self._phase_widgets:
             self._phase_widgets[id_name].update_status(
-                new_status, status_message, log
+                new_status, status_message, log_message
             )
             if new_status != self.button_widget.status:
-                main_status_message = '{}{}.{}: {}'.format(
-                    ('{}.'.format(batch_id)) if batch_id else '',
+                main_status_message = '{}.{}: {}'.format(
                     category,
                     phase_name,
                     status_message,
@@ -289,14 +304,14 @@ class PhaseButtonWidget(QtWidgets.QPushButton):
         self.clicked.connect(self.show_log)
         self._close_button.clicked.connect(self._log_overlay.close)
 
-    def update_status(self, new_status, status_message, log):
+    def update_status(self, new_status, status_message, log_message):
         '''Update the status of the phase to *new_status* and set *status_message*. 
         Build log messages from *log*.''' ''
         # Make sure widget not has been destroyed
         if shiboken2.isValid(self._status_message_widget):
             self._status_message_widget.setText(status_message)
         self.set_status(new_status)
-        self.log = log
+        self.log_message = log_message
 
     def set_status(self, new_status):
         '''Visualize *new_status* on the button'''
@@ -304,8 +319,8 @@ class PhaseButtonWidget(QtWidgets.QPushButton):
 
     def show_log(self):
         self._log_overlay.setParent(self.parent())
-        if len(self.log or '') > 0:
-            self._log_text_edit.setText(self.log)
+        if len(self.log_message or '') > 0:
+            self._log_text_edit.setText(self.log_message)
         else:
             self._log_text_edit.setText("No errors found")
         self._log_overlay.setVisible(True)

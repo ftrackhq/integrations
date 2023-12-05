@@ -6,6 +6,7 @@ from Qt import QtWidgets, QtCore
 from ftrack_framework_qt.dialogs import BaseContextDialog
 from ftrack_qt.widgets.accordion import AccordionBaseWidget
 from ftrack_utils.framework.config.tool import get_plugins, get_groups
+from ftrack_qt.widgets.progress import ProgressWidget
 
 
 class StandardPublisherDialog(BaseContextDialog):
@@ -77,6 +78,9 @@ class StandardPublisherDialog(BaseContextDialog):
     def build_ui(self):
         # Select the desired tool_config
 
+        self._progress_widget = ProgressWidget()
+        self._header.add_widget(self.progress_widget.button_widget)
+
         if not self.filtered_tool_configs.get("publisher"):
             self.logger.warning("No Publisher tool configs available")
             self._scroll_area_widget.layout().addWidget(
@@ -95,12 +99,16 @@ class StandardPublisherDialog(BaseContextDialog):
         )
         self._context_widgets = []
         for context_plugin in context_plugins:
+            self.progress_widget.add_widget(
+                'context',
+                context_plugin['plugin'],
+                phase_label=context_plugin.get('label'),
+            )
             if not context_plugin.get('ui'):
                 continue
             context_widget = self.init_framework_widget(context_plugin)
             self._scroll_area_widget.layout().addWidget(context_widget)
             self._context_widgets.append(context_widget)
-            self.progress_widget.add_widget('context', context_plugin['name'])
 
         # Build component widgets
         component_groups = get_groups(
@@ -141,67 +149,71 @@ class StandardPublisherDialog(BaseContextDialog):
         )
         self._scroll_area_widget.layout().addItem(spacer)
 
+        self.progress_widget.phases_added()
+
     def add_collector_widgets(
         self, collectors, accordion_widget, group_config=None
     ):
         for plugin_config in collectors:
-            if not plugin_config.get('ui'):
-                continue
-            widget = self.init_framework_widget(plugin_config, group_config)
-            accordion_widget.add_widget(widget)
             self.progress_widget.add_widget(
-                widget,
                 '{}:collector'.format(
                     group_config.get('options').get('component')
                     if group_config
                     else 'component'
                 ),
-                plugin_config['name'],
+                plugin_config['plugin'],
+                phase_label=plugin_config.get('label'),
             )
+            if not plugin_config.get('ui'):
+                continue
+            widget = self.init_framework_widget(plugin_config, group_config)
+            accordion_widget.add_widget(widget)
 
     def add_validator_widgets(
         self, validators, accordion_widget, group_config=None
     ):
         for plugin_config in validators:
-            if not plugin_config.get('ui'):
-                continue
-            widget = self.init_framework_widget(plugin_config, group_config)
-            accordion_widget.add_option_widget(
-                widget, section_name='Validators'
-            )
             self.progress_widget.add_widget(
                 '{}:validator'.format(
                     group_config.get('options').get('component')
                     if group_config
                     else 'component'
                 ),
-                plugin_config['name'],
+                plugin_config['plugin'],
+                phase_label=plugin_config.get('label'),
+            )
+            if not plugin_config.get('ui'):
+                continue
+            widget = self.init_framework_widget(plugin_config, group_config)
+            accordion_widget.add_option_widget(
+                widget, section_name='Validators'
             )
 
     def add_exporter_widgets(
         self, exporters, accordion_widget, group_config=None
     ):
         for plugin_config in exporters:
-            if not plugin_config.get('ui'):
-                continue
-            widget = self.init_framework_widget(plugin_config, group_config)
-            accordion_widget.add_option_widget(
-                widget, section_name='Exporters'
-            )
             self.progress_widget.add_widget(
                 '{}:exporter'.format(
                     group_config.get('options').get('component')
                     if group_config
                     else 'component'
                 ),
-                plugin_config['name'],
+                plugin_config['plugin'],
+                phase_label=plugin_config.get('label'),
+            )
+            if not plugin_config.get('ui'):
+                continue
+            widget = self.init_framework_widget(plugin_config, group_config)
+            accordion_widget.add_option_widget(
+                widget, section_name='Exporters'
             )
 
     def post_build_ui(self):
         pass
 
     def _on_run_button_clicked(self):
-        '''(Override) Refresh context widgets upon publish'''
+        '''(Override) Refresh context widget(s) upon publish'''
         super(StandardPublisherDialog, self)._on_run_button_clicked()
         for context_widget in self._context_widgets:
             context_widget.reload()

@@ -8,7 +8,6 @@ from ftrack_framework_widget.dialog import FrameworkDialog
 from ftrack_qt.widgets.dialogs import StyledDialog
 from ftrack_qt.widgets.headers import SessionHeader
 from ftrack_qt.widgets.selectors import ContextSelector
-from ftrack_qt.widgets.progress import ProgressWidget
 
 from ftrack_qt.utils.layout import recursive_clear_layout
 
@@ -113,9 +112,6 @@ class BaseContextDialog(FrameworkDialog, StyledDialog):
         # Create the header
         self._header = SessionHeader(self.event_manager.session)
 
-        self._progress_widget = ProgressWidget()
-        self._header.add_widget(self.progress_widget.button_widget)
-
         self._context_selector = ContextSelector(
             self.event_manager.session, enable_context_change=True
         )
@@ -166,8 +162,15 @@ class BaseContextDialog(FrameworkDialog, StyledDialog):
         Run button from the UI has been clicked.
         Tell client to run the current tool config
         '''
-
+        if self.progress_widget:
+            self.progress_widget.show_widget(self)
+            self.progress_widget.reset_statuses()
         self.run_tool_config(self.tool_config['reference'])
+
+    def plugin_run_callback(self, log_item):
+        '''(Override) Pass log item to the progress widget'''
+        if self.progress_widget:
+            self.progress_widget.update_progress(log_item)
 
     # FrameworkDialog overrides
     def show_ui(self):
