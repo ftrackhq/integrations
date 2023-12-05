@@ -4,10 +4,10 @@
 
 from Qt import QtCore, QtGui, QtWidgets
 
-from ftrack_qt.widgets.thumbnails.base import ThumbnailBase
+from ftrack_qt.widgets.thumbnails.session_base import SessionThumbnailBase
 
 
-class EllipseThumbnailBase(ThumbnailBase):
+class EllipseThumbnailBase(SessionThumbnailBase):
     '''Thumbnail which is drawn as an ellipse.'''
 
     def paintEvent(self, event):

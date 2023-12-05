@@ -1,7 +1,7 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2023 ftrack
 
-from Qt import QtCore
+from Qt import QtCore, QtWidgets
 
 
 class InvokeEvent(QtCore.QEvent):
@@ -30,7 +30,7 @@ class Invoker(QtCore.QObject):
 _invoker = Invoker(None)
 
 
-def invoke_in_qt_thread(fn, *args, **kwargs):
+def invoke_in_qt_main_thread(fn, *args, **kwargs):
     '''Invoke function *fn* with arguments.'''
     QtCore.QCoreApplication.postEvent(
         _invoker, InvokeEvent(fn, *args, **kwargs)

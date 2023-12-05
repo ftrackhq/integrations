@@ -7,7 +7,7 @@ engine:
   - type: plugin
     tags:
       - context
-    plugin: context
+    plugin: store_context_id
 
   # Open the file component.
   - type: group
@@ -22,7 +22,7 @@ engine:
         tags:
           - collector
         plugin: component_path_collector
-        ui: assetversion_selector
+        ui: asset_version_selector
         options:
           asset_type_name: script
           file_extensions:
