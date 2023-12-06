@@ -175,6 +175,7 @@ class PublishAssetSelector(OpenAssetSelector):
 
     def set_assets(self, assets):
         super(PublishAssetSelector, self).set_assets(assets)
+        # Make sure widget expands properly to fit list
         self._list_and_input.size_changed()
 
 
