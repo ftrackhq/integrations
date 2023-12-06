@@ -36,15 +36,15 @@ class OpenDocumentPlugin(BasePlugin):
         '''
         component_name = self.options.get('component')
 
-        collected_paths = store['components'][component_name].get(
-            'collected_paths'
+        collected_path = store['components'][component_name].get(
+            'collected_path'
         )
 
-        if not collected_paths or len(collected_paths) != 1:
+        if not collected_path:
             self.message = "No path provided to open!"
             self.status = constants.status.ERROR_STATUS
 
-        document_path = collected_paths[0]
+        document_path = collected_path
 
         if not os.path.exists(document_path):
             self.message = "Document '{}' does not exist!".format(

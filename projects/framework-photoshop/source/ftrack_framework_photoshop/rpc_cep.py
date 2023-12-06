@@ -104,7 +104,7 @@ class PhotoshopRPCCEP(object):
         assert PhotoshopRPCCEP._instance, 'Photoshop RPC not created!'
         assert (
             PhotoshopRPCCEP._instance.connected
-        ), 'Photoshop RPC not connected!'
+        ), 'Photoshop not connected, please keep panel open while integration is working!'
 
         return PhotoshopRPCCEP._instance
 

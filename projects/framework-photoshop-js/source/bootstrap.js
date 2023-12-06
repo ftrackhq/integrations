@@ -80,11 +80,11 @@ function initializeSession(env, appVersion) {
         event_manager = new EventManager(session);
 
         //  Subscribe to events
-        event_manager.subscribe.discover_remote_integration(
-            handleIntegrationDiscoverCallback
-        );
         event_manager.subscribe.integration_context_data(
             handleIntegrationContextDataCallback
+        );
+        event_manager.subscribe.remote_integration_rpc(
+            handleRemoteIntegrationRPCCallback
         );
 
         // Settle down - wait for standalone process compile to start listening. Then send
@@ -124,14 +124,6 @@ function handleIntegrationContextDataCallback(event) {
     try {
         if (event.data.remote_integration_session_id != remote_integration_session_id)
             return;
-        if (!connected) {
-            connected = true;
-            showElement("connecting", false);
-            showElement("content", true);
-            alert("ftrack Photoshop Integration successfully initialized\n\nIMPORTANT NOTE: "+
-            "This is an beta and not intended for production use. Please submit bug reports "+
-            "and feedback to support@ftrack.com.");
-        }
         // Build launchers
         if (event.data.panel_launchers !== undefined) {
             panel_launchers = event.data.panel_launchers;
@@ -153,6 +145,21 @@ function handleIntegrationContextDataCallback(event) {
             document.getElementById("context_name").innerHTML = event.data.context_name;
             document.getElementById("context_path").innerHTML = event.data.context_path;
         }
+        if (!connected) {
+            connected = true;
+            showElement("connecting", false);
+            showElement("content", true);
+            alert("ftrack Photoshop Integration successfully initialized\n\nIMPORTANT NOTE: "+
+            "This is an beta and not intended for production use. Please submit bug reports "+
+            "and feedback to support@ftrack.com.");
+        } else {
+            // Reply to event to confirm we received the data
+            event_manager.publish_reply(event, prepareEventData(
+                {
+                    "result": true
+                }
+            ));
+        }
     } catch (e) {
         error("[INTERNAL ERROR] Failed setting up panel! "+e+" Details: "+e.stack);
     }
@@ -160,11 +167,25 @@ function handleIntegrationContextDataCallback(event) {
     // TODO: Display received context info
 }
 
-function handleIntegrationDiscoverCallback(event) {
-    /* Tell integration we are still here by sending reply back */
-    if (event.data.remote_integration_session_id !== remote_integration_session_id)
-        return;
-    event_manager.publish_reply(event, prepareEventData({}));
+// Tool launch
+
+function launchTool(tool_name) {
+    // Find dialog name
+    let idx = 0;
+    var dialog_name = undefined;
+    while (idx < panel_launchers.length) {
+        let launcher = panel_launchers[idx];
+        if (launcher.name == tool_name) {
+            dialog_name = launcher.dialog_name;
+            break;
+        }
+        idx++;
+    }
+    event_manager.publish.remote_integration_run_dialog(
+        prepareEventData({
+            "dialog_name": dialog_name
+        })
+    );
 }
 
 // RPC - extendscript API calls

@@ -164,7 +164,7 @@ class PublisherAssetVersionSelectorWidget(BaseWidget):
         if len(assets or []) > 0:
             self._label.setText(
                 'We found {} asset{} published on this task. '
-                'Choose version'.format(
+                'Choose asset'.format(
                     len(assets),
                     's' if len(assets) > 1 else '',
                 )
@@ -174,11 +174,10 @@ class PublisherAssetVersionSelectorWidget(BaseWidget):
 
     def _on_selected_item_changed_callback(self, version):
         '''Update the plugin options based on the selected item.'''
+        self.set_plugin_option('context_id', self.context_id)
         if not version:
-            self.set_plugin_option('context_id', self.context_id)
             self.set_plugin_option('asset_version_id', None)
             return
-        self.set_plugin_option('context_id', self.context_id)
         self.set_plugin_option('asset_version_id', version['id'])
         self._status_selector.set_status_by_name(version['status'])
 
