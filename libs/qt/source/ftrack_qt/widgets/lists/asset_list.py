@@ -67,9 +67,8 @@ class AssetList(QtWidgets.QListWidget):
         if hasattr(self.itemWidget(current_item), 'enable_version_select'):
             if previous_item:
                 self.itemWidget(previous_item).enable_version_select = False
-            if current_item:
-                self.itemWidget(current_item).enable_version_select = True
+            self.itemWidget(current_item).enable_version_select = True
         self.selected_item_changed.emit(
-            self.indexFromItem(current_item) if current_item else None,
-            self.itemWidget(current_item).version if current_item else None,
+            self.indexFromItem(current_item),
+            self.itemWidget(current_item).version,
         )
