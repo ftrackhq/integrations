@@ -141,6 +141,7 @@ class PublishAssetSelector(OpenAssetSelector):
 
     def _on_new_asset(self, asset_name):
         '''This method handles changes to the new asset name input.'''
+        self._asset_list.setCurrentRow(-1)  # Make sure list is deselected
         self.selected_index = None
         self.selected_item_changed.emit(None)
         is_valid_name = self.validate_name(asset_name)
@@ -170,6 +171,11 @@ class PublishAssetSelector(OpenAssetSelector):
     def set_default_new_asset_name(self, name):
         '''This method sets the default name for the new asset input.'''
         self._new_asset_input.set_default_name(name)
+
+    def set_assets(self, assets):
+        super(PublishAssetSelector, self).set_assets(assets)
+        # Make sure widget expands properly to fit list
+        self._list_and_input.size_changed()
 
 
 class AssetListAndInput(QtWidgets.QWidget):

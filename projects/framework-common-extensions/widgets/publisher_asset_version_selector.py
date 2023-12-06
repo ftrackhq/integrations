@@ -174,11 +174,10 @@ class PublisherAssetVersionSelectorWidget(BaseWidget):
 
     def _on_selected_item_changed_callback(self, version):
         '''Update the plugin options based on the selected item.'''
+        self.set_plugin_option('context_id', self.context_id)
         if not version:
-            self.set_plugin_option('context_id', self.context_id)
             self.set_plugin_option('asset_version_id', None)
             return
-        self.set_plugin_option('context_id', self.context_id)
         self.set_plugin_option('asset_version_id', version['id'])
         self._status_selector.set_status_by_name(version['status'])
 

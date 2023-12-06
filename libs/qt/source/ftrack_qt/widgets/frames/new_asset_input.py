@@ -9,6 +9,7 @@ class NewAssetInput(QtWidgets.QFrame):
     '''Widget holding new asset input during publish'''
 
     text_changed = QtCore.Signal(object)
+    '''Signal emitted when the text is changed, with text as argument.'''
 
     def __init__(self, validator, placeholder_name):
         '''Initialize the NewAssetInput widget.'''
