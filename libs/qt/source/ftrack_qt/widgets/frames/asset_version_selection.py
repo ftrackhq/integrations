@@ -30,12 +30,14 @@ class AssetVersionSelection(QtWidgets.QFrame):
         if self._version_combobox:
             return self._version_combobox.version
 
-    def __init__(self, asset_name, versions):
+    def __init__(self, asset_name, asset_id, versions, server_url):
         '''Initialize the AssetVersionSelection widget.'''
         super(AssetVersionSelection, self).__init__()
 
+        self._asset_id = asset_id
         self._asset_name = asset_name
         self._versions = versions
+        self._server_url = server_url
 
         self._thumbnail_widget = None
         self._asset_name_widget = None
@@ -72,9 +74,7 @@ class AssetVersionSelection(QtWidgets.QFrame):
         self._version_info_widget.setObjectName('gray')
         self.layout().addWidget(self._version_info_widget, 10)
 
-        self._thumbnail_widget.set_server_url(
-            self._version_combobox.version['server_url']
-        )
+        self._thumbnail_widget.set_server_url(self._server_url)
         self._thumbnail_widget.load(
             self._version_combobox.version['thumbnail']
         )

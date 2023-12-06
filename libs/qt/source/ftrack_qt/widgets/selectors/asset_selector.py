@@ -92,6 +92,7 @@ class OpenAssetSelector(QtWidgets.QWidget):
         '''This method updates the selected index and emits the
         selected_item_changed signal with the given version.'''
         self.selected_index = index
+        # TODO: we should somehow pass the asset id here.
         self.selected_item_changed.emit(version)
 
 

@@ -39,7 +39,10 @@ class AssetList(QtWidgets.QListWidget):
 
         for asset_id, asset_dict in self.assets.items():
             widget = self.asset_list_widget_item(
-                asset_name=asset_dict['name'], versions=asset_dict['versions']
+                asset_name=asset_dict['name'],
+                asset_id=asset_id,
+                versions=asset_dict['versions'],
+                server_url=asset_dict['server_url'],
             )
 
             if hasattr(widget, 'version_changed'):
