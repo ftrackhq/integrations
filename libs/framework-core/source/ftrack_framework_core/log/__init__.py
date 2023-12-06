@@ -25,7 +25,6 @@ class ResultEncoder(JSONEncoder):
 
 # TODO: review this class to make it easier to maintain.
 #  Define all keys in a common place.
-# noinspection SpellCheckingInspection
 class LogDB(object):
     '''
     Log database class

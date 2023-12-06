@@ -21,7 +21,26 @@
     </div>
 
     <div id="content" style="visibility: hidden; display: none;">
-      <!-- TODO: Implement context widget -->
+
+      <!-- Context area -->
+      <table id="context" cellspacing="1" cellpadding="2">
+        <tr height="50px">
+          <td width="65px">
+            <img id="context_thumbnail" src="./image/thumbnail.png" border="0" width="64" />
+          </td>
+          <td width=100%>
+            <span id="context_name">&lt;task name&gt;</span><br>
+            <span id="context_path">&lt;task path&gt;</span>
+          </td>
+          <td width="30px">
+            <button id="context_open" onclick="openContext()"><img src="./image/open_in_new.png" border="0" /></button>
+          </td>
+          <!-- TODO: Bring back when context switch dialog is implemented -->
+          <!--  td width="30px">
+            <button id="context_change" onclick="showChangeContext()"><img src="./image/swap_horiz.png" border="0" /></button>
+          </td -->
+        </tr>
+      </table>
 
       <table id="launchers" cellspacing="2" cellpadding="0">
         <!-- Content will be injected upon connection event from standalone process-->
@@ -30,7 +49,7 @@
     </div>
 
     <p id="footer">
-      This is the ftrack Framework Photoshop integration alpha.
+      This is the ftrack Framework Photoshop integration.
       Contact support@ftrack.com for inquiries. v{{FTRACK_FRAMEWORK_PHOTOSHOP_VERSION}}
     </p>
     <br>

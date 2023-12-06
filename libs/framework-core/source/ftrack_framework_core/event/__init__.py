@@ -60,11 +60,6 @@ class EventManager(object):
         return self._session
 
     @property
-    def remote(self):
-        '''Return the remote variant of the event manager'''
-        return self._remote_event_manager
-
-    @property
     def connected(self):
         _connected = False
         try:
@@ -113,12 +108,7 @@ class EventManager(object):
             # self.logger.debug('Starting new hub thread for {}'.format(self))
             self._event_hub_thread.start()
 
-    def __init__(
-        self,
-        session,
-        mode=constants.event.LOCAL_EVENT_MODE,
-        remote_session=None,
-    ):
+    def __init__(self, session, mode=constants.event.LOCAL_EVENT_MODE):
         self.logger = logging.getLogger(
             __name__ + '.' + self.__class__.__name__
         )
@@ -129,12 +119,6 @@ class EventManager(object):
             # TODO: Bring this back when API event hub properly can differentiate between local and remote mode
             self._connect()
             self._wait()
-        elif remote_session:
-            # Create a remote event manager to be able to publish events over server
-            # TODO: Remove when API event hub properly can differentiate between local and remote mode
-            self._remote_event_manager = EventManager(
-                session=remote_session, mode=constants.event.REMOTE_EVENT_MODE
-            )
 
         # Initialize Publish and subscribe classes to be able to provide
         # predefined events.
@@ -204,56 +188,6 @@ class Publish(object):
         publish_result = self.event_manager._publish(
             publish_event, callback=callback, mode=mode
         )
-        return publish_result
-
-    def _publish_remote_event(
-        self, event_topic, data, callback, fetch_reply=False
-    ):
-        '''
-        Common method that calls the private publish method from the
-        remote event manager
-        '''
-        publish_event = ftrack_api.event.base.Event(
-            topic=event_topic, data=data
-        )
-
-        # TODO: Make this thread safe in case multiple calls arrive here at the same time
-        self._reply_event = None
-
-        def default_callback(event):
-            if callback:
-                callback(event)
-            self._reply_event = event
-
-        if fetch_reply:
-            callback_effective = default_callback
-        else:
-            callback_effective = callback
-
-        # TODO: _publish does not return anything, so we shouldn't return the result
-        publish_result = self.event_manager.remote._publish(
-            publish_event, callback=callback_effective
-        )
-
-        if fetch_reply:
-            waited = 0
-            while not self._reply_event:
-                time.sleep(0.01)
-                waited += 10
-                # TODO: Move this timeout to property that can be set on event manager init
-                if waited > 10 * 1000:  # Wait 10s for reply
-                    raise Exception(
-                        'Timeout waiting remote integration event reply! '
-                        'Waited {}s'.format(waited / 1000)
-                    )
-                if waited % 1000 == 0:
-                    logger.info(
-                        "Waited {}s for {} reply".format(
-                            waited / 1000, event_topic
-                        )
-                    )
-            return self._reply_event['data']
-
         return publish_result
 
     def discover_host(self, callback=None):
@@ -410,82 +344,6 @@ class Publish(object):
         event_topic = constants.event.CLIENT_NOTIFY_UI_HOOK_RESULT_TOPIC
         return self._publish_event(event_topic, data, callback)
 
-    def discover_remote_integration(
-        self, integration_session_id, callback=None, fetch_reply=False
-    ):
-        '''
-        Publish a remote event with topic
-        :const:`~ftrack_framework_core.constants.event.DISCOVER_REMOTE_INTEGRATION_TOPIC`
-        supplying *integration_session_id*, calling *callback* with reply. If *fetch_reply* is
-        True, the reply is awaited and returned.
-        '''
-        data = {
-            'integration_session_id': integration_session_id,
-        }
-
-        event_topic = constants.event.DISCOVER_REMOTE_INTEGRATION_TOPIC
-        return self._publish_remote_event(
-            event_topic, data, callback, fetch_reply=fetch_reply
-        )
-
-    def remote_integration_context_data(
-        self,
-        integration_session_id,
-        context_id,
-        task_name,
-        task_type_name,
-        context_path,
-        thumbnail_url,
-        project_id,
-        panel_launchers,
-        callback=None,
-    ):
-        '''
-        Publish an event with topic
-        :const:`~ftrack_framework_core.constants.event.REMOTE_INTEGRATION_CONTEXT_DATA_TOPIC`
-        supplying *integration_session_id*, context data and panel launcher definitions.
-        '''
-        data = {
-            'integration_session_id': integration_session_id,
-            'context_id': context_id,
-            'context_name': task_name,
-            'context_type': task_type_name,
-            'context_path': context_path,
-            'context_thumbnail': thumbnail_url,
-            'project_id': project_id,
-            'panel_launchers': panel_launchers,
-        }
-
-        event_topic = constants.event.REMOTE_INTEGRATION_CONTEXT_DATA_TOPIC
-        return self._publish_remote_event(event_topic, data, callback)
-
-    def remote_integration_rpc(
-        self,
-        integration_session_id,
-        function_name,
-        args=None,
-        callback=None,
-        fetch_reply=False,
-    ):
-        '''
-        Publish an event with topic
-        :const:`~ftrack_framework_core.constants.event.REMOTE_INTEGRATION_RPC_TOPIC`
-        supplying *integration_session_id*, to run remote *function_name* with
-        arguments in *args* list, calling *callback* providing the reply.
-
-        If *fetch_reply* is True, the reply is awaited and returned.
-        '''
-        data = {
-            'integration_session_id': integration_session_id,
-            'function_name': function_name,
-            'args': args or [],
-        }
-
-        event_topic = constants.event.REMOTE_INTEGRATION_RPC_TOPIC
-        return self._publish_remote_event(
-            event_topic, data, callback, fetch_reply=fetch_reply
-        )
-
 
 class Subscribe(object):
     '''Class with all the events subscribed by the framework'''
@@ -501,12 +359,6 @@ class Subscribe(object):
     def _subscribe_event(self, event_topic, callback):
         '''Common method that calls the private subscribe method from the event manager'''
         return self.event_manager._subscribe(event_topic, callback=callback)
-
-    def _subscribe_remote_event(self, event_topic, callback):
-        '''Common method that calls the private subscribe method from the event manager'''
-        return self.event_manager.remote._subscribe(
-            event_topic, callback=callback
-        )
 
     def discover_host(self, callback):
         '''
@@ -615,37 +467,3 @@ class Subscribe(object):
             constants.event.CLIENT_NOTIFY_UI_HOOK_RESULT_TOPIC, client_id
         )
         return self._subscribe_event(event_topic, callback)
-
-    def discover_remote_integration(
-        self, integration_session_id, callback=None
-    ):
-        '''
-        Subscribe to an event with topic
-        :const:`~ftrack_framework_core.constants.event.DISCOVER_REMOTE_INTEGRATION_TOPIC`
-        and *integration_session_id*
-        '''
-        event_topic = (
-            '{} and source.applicationId=ftrack.api.javascript '
-            'and data.integration_session_id={}'.format(
-                constants.event.DISCOVER_REMOTE_INTEGRATION_TOPIC,
-                integration_session_id,
-            )
-        )
-        return self._subscribe_remote_event(event_topic, callback)
-
-    def remote_integration_run_dialog(
-        self, integration_session_id, callback=None
-    ):
-        '''
-        Subscribe to an event with topic
-        :const:`~ftrack_framework_core.constants.event.REMOTE_INTEGRATION_RUN_DIALOG_TOPIC`
-        and *integration_session_id*
-        '''
-        event_topic = (
-            '{} and source.applicationId=ftrack.api.javascript '
-            'and data.integration_session_id={}'.format(
-                constants.event.REMOTE_INTEGRATION_RUN_DIALOG_TOPIC,
-                integration_session_id,
-            )
-        )
-        return self._subscribe_remote_event(event_topic, callback)

@@ -45,7 +45,6 @@ class StandardPublisherDialog(BaseContextDialog):
         '''
         self._scroll_area = None
         self._scroll_area_widget = None
-        self._context_widgets = None
 
         super(StandardPublisherDialog, self).__init__(
             event_manager,
@@ -97,7 +96,6 @@ class StandardPublisherDialog(BaseContextDialog):
         context_plugins = get_plugins(
             self.tool_config, filters={'tags': ['context']}
         )
-        self._context_widgets = []
         for context_plugin in context_plugins:
             self.progress_widget.add_widget(
                 'context',
@@ -108,7 +106,6 @@ class StandardPublisherDialog(BaseContextDialog):
                 continue
             context_widget = self.init_framework_widget(context_plugin)
             self._scroll_area_widget.layout().addWidget(context_widget)
-            self._context_widgets.append(context_widget)
 
         # Build component widgets
         component_groups = get_groups(
@@ -215,5 +212,7 @@ class StandardPublisherDialog(BaseContextDialog):
     def _on_run_button_clicked(self):
         '''(Override) Refresh context widget(s) upon publish'''
         super(StandardPublisherDialog, self)._on_run_button_clicked()
-        for context_widget in self._context_widgets:
-            context_widget.reload()
+        self.clean_ui()
+        self.pre_build_ui()
+        self.build_ui()
+        self.post_build_ui()

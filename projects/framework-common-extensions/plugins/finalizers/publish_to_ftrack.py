@@ -29,7 +29,7 @@ class PublishToFtrack(BasePlugin):
         context_id = store.get('context_id')
         comment = store.get('comment')
         status_id = store.get('status_id')
-        asset_id = store.get('asset_id')
+        asset_version_id = store.get('asset_version_id')
         asset_type_name = store.get('asset_type_name')
         asset_name = store.get('asset_name', asset_type_name)
 
@@ -48,7 +48,7 @@ class PublishToFtrack(BasePlugin):
         ).one()
 
         asset_entity_object = self._get_asset_entity_object(
-            context_object, asset_id, asset_type_name, asset_name
+            context_object, asset_version_id, asset_type_name, asset_name
         )
 
         rollback = False
@@ -135,14 +135,17 @@ class PublishToFtrack(BasePlugin):
         store["asset_id"] = asset_entity_object["id"]
 
     def _get_asset_entity_object(
-        self, context_object, asset_id, asset_type_name, asset_name
+        self, context_object, asset_version_id, asset_type_name, asset_name
     ):
         asset_entity_object = None
-        if asset_id:
+        if asset_version_id:
             # An explicit asset is provided
-            asset_entity_object = self.session.query(
-                'Asset where id is "{}"'.format(asset_id)
+            asset_version_entity_object = self.session.query(
+                'select asset from AssetVersion where id is "{}"'.format(
+                    asset_version_id
+                )
             ).first()
+            asset_entity_object = asset_version_entity_object['asset']
         else:
             # Query/identify asset
             assert (

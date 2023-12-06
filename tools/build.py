@@ -10,6 +10,7 @@ official CI/CD build implementation in place.
 
 Release notes:
 
+0.4.9, Henrik Norin, 23.11.23; Include DCC config in build.
 0.4.8, Henrik Norin, 23.11.01; Pick up Connect plugin version and hook from connect-plugin folder.
 0.4.7, Henrik Norin, 23.10.30; Read package version from pyproject.toml, parse and replace version in Connect hooks.
 0.4.6, Henrik Norin, 23.10.30; Allow pre releases on Connect build when enabling test PyPi.
@@ -36,7 +37,7 @@ import subprocess
 from distutils.spawn import find_executable
 import fileinput
 
-__version__ = '0.4.7'
+__version__ = '0.4.9'
 
 ZXPSIGN_CMD = 'ZXPSignCmd'
 
@@ -57,16 +58,16 @@ def build_package(pkg_path, args):
     ROOT_PATH = os.path.realpath(os.getcwd())
     CONNECT_PLUGIN_PATH = os.path.join(ROOT_PATH, 'connect-plugin')
     BUILD_PATH = os.path.join(ROOT_PATH, 'dist')
-    RESOURCE_PATH = os.path.join(ROOT_PATH, 'resource')
+    EXTENSION_PATH = os.path.join(ROOT_PATH, 'extensions')
     CEP_PATH = os.path.join(ROOT_PATH, 'resource', 'cep')
     USES_FRAMEWORK = False
     PLATFORM_DEPENDENT = False
 
     POETRY_CONFIG_PATH = os.path.join(ROOT_PATH, 'pyproject.toml')
     DCC_NAME = None
+    VERSION = None
     if os.path.exists(POETRY_CONFIG_PATH):
         PROJECT_NAME = None
-        VERSION = None
         section = None
         with open(os.path.join(ROOT_PATH, 'pyproject.toml')) as f:
             for line in f:
@@ -86,6 +87,16 @@ def build_package(pkg_path, args):
         if USES_FRAMEWORK:
             DCC_NAME = PROJECT_NAME.split('-')[-1]
         assert VERSION, 'No version could be extracted from "pyproject.toml"!'
+
+        if args.command == 'build_cep':
+            # Align version, cannot contain rc/alpha/beta
+            if VERSION.find('rc') > -1:
+                VERSION = VERSION.split('rc')[0]
+            elif VERSION.find('a') > -1:
+                VERSION = VERSION.split('a')[0]
+            elif VERSION.find('b') > -1:
+                VERSION = VERSION.split('b')[0]
+
     else:
         logging.warning(
             'Missing "pyproject.toml" file, not able to identify target DCC!'
@@ -110,23 +121,6 @@ def build_package(pkg_path, args):
 
         logging.info('Cleaning up {}'.format(BUILD_PATH))
         shutil.rmtree(BUILD_PATH, ignore_errors=True)
-
-    def find_python_source(source_path):
-        '''Find a python package in *source_path*'''
-        candidate = None
-        for filename in os.listdir(source_path):
-            pkg_path = os.path.join(source_path, filename)
-            if os.path.isfile(pkg_path):
-                continue
-            if os.path.exists(os.path.join(pkg_path, '__init__.py')):
-                return pkg_path
-            elif filename.startswith('ftrack_'):
-                candidate = pkg_path
-        if candidate:
-            return candidate
-        raise Exception(
-            'No Python source package found @ "{}"'.format(source_path)
-        )
 
     def parse_and_copy(source_path, target_path):
         '''Copies the single file pointed out by *source_path* to *target_path* and
@@ -223,6 +217,21 @@ def build_package(pkg_path, args):
 
         shutil.copytree(path_hook, os.path.join(STAGING_PATH, 'hook'))
 
+        # Locate and copy launcher
+
+        launcher_path = os.path.join(EXTENSION_PATH, 'launch')
+        if os.path.isdir(launcher_path):
+            logging.info('Copying App launcher config')
+            shutil.copytree(
+                launcher_path, os.path.join(STAGING_PATH, 'launch')
+            )
+        else:
+            logging.warning(
+                'App launcher config path not found: {}'.format(launcher_path)
+            )
+
+        # Resources
+
         if args.include_resources:
             for resource_path in args.include_resources.split(','):
                 # Copy resources
@@ -245,16 +254,17 @@ def build_package(pkg_path, args):
                         'Resource "{}" does not exist!'.format(resource_path)
                     )
 
-        # Collect dependencies
+        # Collect dependencies and extensions
         dependencies_path = os.path.join(STAGING_PATH, 'dependencies')
-        extensions_path = os.path.join(STAGING_PATH, 'extensions')
+        extensions_destination_path = os.path.join(STAGING_PATH, 'extensions')
 
         os.makedirs(dependencies_path)
-        os.makedirs(extensions_path)
+        os.makedirs(extensions_destination_path)
 
-        extras = 'ftrack-libs'
+        extras = 'ftrack-libs' if not args.from_source else None
         if USES_FRAMEWORK:
-            extras += ',framework-libs'
+            if extras:
+                extras += ',framework-libs'
 
             logging.info(
                 'Collecting Framework extensions and libs, building dependencies...'
@@ -270,7 +280,7 @@ def build_package(pkg_path, args):
                         'framework-common-extensions',
                     ),
                 ),
-                (DCC_NAME, os.path.join(ROOT_PATH, 'extensions')),
+                (DCC_NAME, EXTENSION_PATH),
             ]:
                 for extension in os.listdir(extension_base_path):
                     extension_source_path = os.path.join(
@@ -278,7 +288,10 @@ def build_package(pkg_path, args):
                     )
                     if (
                         not os.path.isdir(extension_source_path)
-                        or extension == 'js'
+                        or extension
+                        == 'launch'  # Launch deployed to root of Connect plugin
+                        or extension
+                        == 'js'  # Skip JS extensions, built to CEP plugin
                     ):
                         continue
                     logging.info(
@@ -288,9 +301,6 @@ def build_package(pkg_path, args):
                         (target_folder, extension_source_path)
                     )
 
-            bootstrap_extension_filename = (
-                'ftrack_framework_{}_bootstrap'.format(DCC_NAME)
-            )
             for target_folder, dependency_path in framework_extensions:
                 requirements_path = os.path.join(
                     dependency_path, 'requirements.txt'
@@ -303,34 +313,105 @@ def build_package(pkg_path, args):
                     )
                     os.chdir(dependency_path)
 
-                    subprocess.check_call(
+                    commands = [
+                        sys.executable,
+                        '-m',
+                        'pip',
+                        'install',
+                        '-r',
+                        requirements_path,
+                    ]
+                    if extras:
+                        commands.extend(
+                            [
+                                '-e',
+                                '.[{}]'.format(extras),
+                            ]
+                        )
+                    commands.extend(
                         [
-                            sys.executable,
-                            '-m',
-                            'pip',
-                            'install',
-                            '-r',
-                            requirements_path,
-                            '-e',
-                            '.[{}]'.format(extras),
                             '--target',
                             dependencies_path,
                         ]
                     )
+                    subprocess.check_call()
 
                 # Copy the extension
                 logging.info('Copying {}'.format(dependency_path))
                 filename = os.path.basename(dependency_path)
 
                 dest_path = os.path.join(
-                    extensions_path, target_folder, filename
+                    extensions_destination_path, target_folder, filename
                 )
-                if os.path.exists(dest_path):
+                if not os.path.exists(os.path.dirname(dest_path)):
+                    os.makedirs(os.path.dirname(dest_path))
+                elif os.path.exists(dest_path):
                     continue
                 shutil.copytree(
                     dependency_path,
                     dest_path,
                 )
+
+            # Copy DCC config
+            dcc_config_path = os.path.join(
+                EXTENSION_PATH, '{}.yaml'.format(DCC_NAME)
+            )
+            if os.path.isfile(dcc_config_path):
+                logging.info('Copying DCC config')
+                dest_path = os.path.join(
+                    STAGING_PATH,
+                    'extensions',
+                    DCC_NAME,
+                    '{}.yaml'.format(DCC_NAME),
+                )
+                if not os.path.exists(os.path.dirname(dest_path)):
+                    os.makedirs(os.path.dirname(dest_path))
+                shutil.copy(
+                    dcc_config_path,
+                    dest_path,
+                )
+            else:
+                raise Exception(
+                    'Missing DCC config file: {}'.format(dcc_config_path)
+                )
+
+        if args.from_source:
+            # Build library dependencies from source
+            libs_path = os.path.join(MONOREPO_PATH, 'libs')
+            for filename in os.listdir(libs_path):
+                lib_path = os.path.join(libs_path, filename)
+                if not os.path.isfile(
+                    os.path.join(lib_path, 'pyproject.toml')
+                ):
+                    continue
+                # Cleanup
+                dist_path = os.path.join(lib_path, 'dist')
+                if os.path.exists(dist_path):
+                    logging.warning(
+                        'Cleaning lib dist folder: {}'.format(dist_path)
+                    )
+                    shutil.rmtree(dist_path)
+                # Build
+                logging.info('Building wheel for {}'.format(filename))
+                subprocess.check_call(['poetry', 'build'], cwd=lib_path)
+
+                # Locate result
+                for wheel_name in os.listdir(dist_path):
+                    if not wheel_name.endswith('.whl'):
+                        continue
+                    # Install it
+                    logging.info('Installing library: {}'.format(wheel_name))
+                    subprocess.check_call(
+                        [
+                            sys.executable,
+                            '-m',
+                            'pip',
+                            'install',
+                            os.path.join(dist_path, wheel_name),
+                            '--target',
+                            dependencies_path,
+                        ]
+                    )
 
         logging.info(
             'Installing package with dependencies from: "{}"'.format(
@@ -342,7 +423,7 @@ def build_package(pkg_path, args):
             '-m',
             'pip',
             'install',
-            '{}[{}]'.format(wheel_path, extras),
+            '{}[{}]'.format(wheel_path, extras) if extras else wheel_path,
             '--target',
             dependencies_path,
         ]
@@ -358,6 +439,7 @@ def build_package(pkg_path, args):
             )
 
         subprocess.check_call(commands)
+
         if args.include_assets:
             for asset_path in args.include_assets.split(','):
                 asset_destination_path = os.path.basename(asset_path)
@@ -526,6 +608,15 @@ def build_package(pkg_path, args):
 
         STAGING_PATH = os.path.join(BUILD_PATH, 'staging')
 
+        # Clean previous build
+        if os.path.exists(BUILD_PATH):
+            for filename in os.listdir(BUILD_PATH):
+                if filename.endswith('.zxp'):
+                    logging.warning(
+                        'Removed previous build: {}'.format(filename)
+                    )
+                    os.remove(os.path.join(BUILD_PATH, filename))
+
         # Clean staging path
         shutil.rmtree(STAGING_PATH, ignore_errors=True)
         os.makedirs(os.path.join(STAGING_PATH))
@@ -545,27 +636,31 @@ def build_package(pkg_path, args):
             parse_and_copy(
                 os.path.join(CEP_PATH, filename),
                 os.path.join(STAGING_PATH, filename),
-                VERSION,
             )
+
         # Copy images
+        logging.info("Copying images")
         for filename in [
             'favicon.ico',
             'ftrack-logo-48.png',
             'loader.gif',
             'publish.png',
+            'thumbnail.png',
+            'open_in_new.png',
         ]:
+            logging.info("   " + filename)
             shutil.copy(
                 os.path.join(style_path, 'image', 'js', filename),
                 os.path.join(STAGING_PATH, 'image', filename),
             )
 
-        # Copy style
+        filename = 'style_dark.css'
+        logging.info("Copying style: {}".format(filename))
         shutil.copy(
-            os.path.join(style_path, 'style_dark.css'),
-            os.path.join(STAGING_PATH, 'css', 'style_dark.css'),
+            os.path.join(style_path, filename),
+            os.path.join(STAGING_PATH, 'css', filename),
         )
 
-        # Copy static libraries
         logging.info(
             'Copying {}>{}'.format(
                 os.path.join(CEP_PATH, 'libraries'),
@@ -578,7 +673,7 @@ def build_package(pkg_path, args):
             symlinks=True,
         )
 
-        # Copy framework js lib files
+        logging.info("Copying framework js lib files")
         for js_file in [
             os.path.join(
                 MONOREPO_PATH,
@@ -605,30 +700,18 @@ def build_package(pkg_path, args):
             parse_and_copy(
                 js_file,
                 os.path.join(STAGING_PATH, 'lib', os.path.basename(js_file)),
-                VERSION,
             )
-        parse_and_copy(
-            os.path.join(
-                MONOREPO_PATH,
-                'projects',
-                'framework-photoshop-js',
-                'source',
-                'bootstrap.js',
-            ),
-            os.path.join(STAGING_PATH, 'bootstrap.js'),
-            VERSION,
-        )
-        parse_and_copy(
-            os.path.join(
-                MONOREPO_PATH,
-                'projects',
-                'framework-photoshop-js',
-                'source',
-                'ps.jsx',
-            ),
-            os.path.join(STAGING_PATH, 'ps.jsx'),
-            VERSION,
-        )
+        for filename in ['bootstrap.js', 'ps.jsx']:
+            parse_and_copy(
+                os.path.join(
+                    MONOREPO_PATH,
+                    'projects',
+                    'framework-photoshop-js',
+                    'source',
+                    filename,
+                ),
+                os.path.join(STAGING_PATH, filename),
+            )
 
         # Transfer manifest xml, store version
         manifest_staging_path = os.path.join(
@@ -636,7 +719,7 @@ def build_package(pkg_path, args):
         )
         if not os.path.exists(os.path.dirname(manifest_staging_path)):
             os.makedirs(os.path.dirname(manifest_staging_path))
-        parse_and_copy(MANIFEST_PATH, manifest_staging_path, VERSION)
+        parse_and_copy(MANIFEST_PATH, manifest_staging_path)
 
         extension_output_path = os.path.join(
             BUILD_PATH,
@@ -696,6 +779,13 @@ if __name__ == '__main__':
     parser.add_argument(
         '--include_resources',
         help='(Connect plugin) Comma separated list of resources to include.',
+    )
+
+    parser.add_argument(
+        '--from_source',
+        help='(Connect plugin) Instead of pulling from PyPi, uses dependencies '
+        'directly from sources.',
+        action='store_true',
     )
 
     parser.add_argument(
