@@ -141,9 +141,9 @@ class PublishAssetSelector(OpenAssetSelector):
 
     def _on_new_asset(self, asset_name):
         '''This method handles changes to the new asset name input.'''
-        self.blockSignals(True)
+        self._asset_list.blockSignals(True)
         self._asset_list.setCurrentRow(-1)  # Make sure list is deselected
-        self.blockSignals(True)
+        self._asset_list.blockSignals(True)
         self.selected_index = None
         self.selected_item_changed.emit(None)
         is_valid_name = self.validate_name(asset_name)
