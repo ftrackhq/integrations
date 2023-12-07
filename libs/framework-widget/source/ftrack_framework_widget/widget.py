@@ -3,7 +3,6 @@
 
 import logging
 
-from ftrack_qt.utils.decorators import invoke_in_qt_main_thread
 from ftrack_framework_widget import BaseUI
 
 
@@ -102,8 +101,10 @@ class FrameworkWidget(BaseUI):
     def plugin_run_callback(self, log_item):
         '''
         Receive the callback with the plugin info every time a plugin has been
-        executed.
-        *log_item* is the plugin info dictionary.
+        executed. *log_item* is the plugin info dictionary.
+
+        NOTE: Make sure this is executed in the QT/DCC main thread as this might be
+        called asynchronously.
         '''
         self.logger.warning(
             "Method not implemented, Plugin Callback ---> {}".format(log_item)
@@ -115,9 +116,14 @@ class FrameworkWidget(BaseUI):
         '''
         self.on_run_ui_hook(payload)
 
-    @invoke_in_qt_main_thread
     def ui_hook_callback(self, ui_hook_result):
-        '''Get the result of the ui_hook method from the plugin'''
+        '''
+        Get the result of the ui_hook method from the plugin, should be overriden
+        as needed by the inheriting class.
+
+        NOTE: Make sure this is executed in the QT/DCC main thread as this might be
+        called asynchronously.
+        '''
         pass
 
     def populate(self):
