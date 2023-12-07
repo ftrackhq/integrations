@@ -152,8 +152,7 @@ class PublishToFtrack(BasePlugin):
         elif asset_id:
             # Get Asset entity object
             asset_entity_object = self.session.query(
-                f'Asset where id is {asset_id} and name is {asset_name} and '
-                f'type.short is {asset_type_name}'
+                f'Asset where id is {asset_id}'
             ).first()
         else:
             # Query/identify asset

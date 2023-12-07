@@ -38,69 +38,25 @@ class StoreAssetContextPlugin(BasePlugin):
             )
         ).one()
 
-        # Query all assets that are related to the given context id and are from
-        # the given asset_type include also assets that has no
-        # asset_versions on it.
-        if context.entity_type == 'Task':
-            # Assets where this task has been linked to a version previously.
-            
-            # Assets belonging to the task parent with versions (regardless if it has been linked to this task).
-            # Assets belonging to the task parent without any versions yet.
+        if not context.entity_type == 'Task':
+            raise Exception("Query not supported on non task contexts")
 
-            # Assets belonging to the task parent.
-            #
-            # Modelling task (Done) => model v1, model v2, model v3
-            # Fix the model task (In progress) => model v4
-            assets = self.session.query(
-                f'select name, id, latest_version.version, versions, versions.id, versions.date, '
-                f'versions.version, versions.is_latest_version, '
-                f'versions.thumbnail_url, versions.user.first_name, '
-                f'versions.user.last_name, versions.status.name from Asset '
-                f'where (versions.task_id is {context_id} and '
-                f'type.id is {asset_type_entity["id"]}) or (parent.children.id '
-                f'is {context_id} and type.id is '
-                f'{asset_type_entity["id"]})'
-            ).all()
-            # asset_versions = self.session.query(
-            #     'select asset.name, asset_id, id, date, version, '
-            #     'is_latest_version, thumbnail_url, user.first_name, '
-            #     'user.last_name, date, status.name from AssetVersion where '
-            #     'is_latest_version is True and task_id is {} and asset.type.id is {}'.format(
-            #         context_id, asset_type_entity['id']
-            #     )
-            # ).all()
-
-        else:
-            # tODO: does this query makes sense?
-            assets = self.session.query(
-                f'select name, id, latest_version.version, versions, versions.id, versions.date, '
-                f'versions.version, versions.is_latest_version, '
-                f'versions.thumbnail_url, versions.user.first_name, '
-                f'versions.user.last_name, versions.status.name from Asset '
-                f'where (parent.id is {context_id} and '
-                f'type.id is {asset_type_entity["id"]}) or (parent.children.id '
-                f'is {context_id} and type.id is '
-                f'{asset_type_entity["id"]})'
-            ).all()
-            # asset_versions = self.session.query(
-            #     'select asset.name, asset_id, id, date, version, '
-            #     'is_latest_version, thumbnail_url, user.first_name, '
-            #     'user.last_name, date, status.name from AssetVersion where '
-            #     'is_latest_version is True and parent.id is {} and asset.type.id is {}'.format(
-            #         context_id, asset_type_entity['id']
-            #     )
-            # ).all()
-        # If context Task:
-        # Assets where versions are linked to Task.
-        # Assets where published on parent to Task
-        # Else if context "Parent"
-        # Assets where context is Parent.
-        # Some pseudo code (not tested) for handling "Task" case:
-        # asset = self.session.query(
-        #     'select name, id from Asset where '
-        #     'versions.task_id is {} or '
-        #     'context.children.id is {}'
-        # )
+        # We are querying the following assets:
+        # Before the "or":
+        # Assets where this task has been linked to a version previously.
+        # After the "or":
+        # Assets belonging to the task parent (AssetBuild) with or without
+        # versions (regardless if it has been linked to this task).
+        assets = self.session.query(
+            f'select name, id, latest_version.version, versions, versions.id, versions.date, '
+            f'versions.version, versions.is_latest_version, '
+            f'versions.thumbnail_url, versions.user.first_name, '
+            f'versions.user.last_name, versions.status.name from Asset '
+            f'where (versions.task_id is {context_id} and '
+            f'type.id is {asset_type_entity["id"]}) or (parent.children.id '
+            f'is {context_id} and type.id is '
+            f'{asset_type_entity["id"]})'
+        ).all()
 
         result = dict()
         result['statuses'] = []
@@ -121,22 +77,33 @@ class StoreAssetContextPlugin(BasePlugin):
                         'versions': [],
                         'server_url': self.session.server_url,
                     }
-                
+
+                # Return info for latest version only.
                 if asset['versions']:
                     latest_version = asset['versions'][-1]
                     result['assets'][asset['id']]['versions'].append(
                         {
-                            'id': version['id'],
-                            'date': version['date'].strftime('%y-%m-%d %H:%M'),
-                            'version': version['version'],
-                            'is_latest_version': version['is_latest_version'],
+                            'id': latest_version['id'],
+                            'date': latest_version['date'].strftime(
+                                '%y-%m-%d %H:%M'
+                            ),
+                            'version': latest_version['version'],
+                            'is_latest_version': latest_version[
+                                'is_latest_version'
+                            ],
                             # Next available version number
                             'next_version': asset['latest_version']['version']
                             + 1,
-                            'thumbnail': version['thumbnail_url']['url'],
-                            'user_first_name': version['user']['first_name'],
-                            'user_last_name': version['user']['last_name'],
-                            'status': version['status']['name'],
+                            'thumbnail': latest_version['thumbnail_url'][
+                                'url'
+                            ],
+                            'user_first_name': latest_version['user'][
+                                'first_name'
+                            ],
+                            'user_last_name': latest_version['user'][
+                                'last_name'
+                            ],
+                            'status': latest_version['status']['name'],
                         }
                     )
         return result
