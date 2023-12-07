@@ -4,7 +4,7 @@
 from Qt import QtWidgets, QtCore
 
 from ftrack_framework_qt.dialogs import BaseContextDialog
-from ftrack_utils.framework.tool_config.read import get_plugins, get_groups
+from ftrack_utils.framework.config.tool import get_plugins, get_groups
 
 
 class StandardOpenerDialog(BaseContextDialog):

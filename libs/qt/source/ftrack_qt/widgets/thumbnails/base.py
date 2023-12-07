@@ -1,6 +1,5 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2023 ftrack
-# TODO: Clean this code
 import time
 import os
 import logging
@@ -25,9 +24,9 @@ class ThumbnailBase(QtWidgets.QLabel):
 
     _connection_count = 0
 
-    def __init__(self, session, scale=True, parent=None):
+    def __init__(self, scale=True, parent=None):
         super(ThumbnailBase, self).__init__(parent)
-        self.session = session
+        self._server_url = None
         self._alive = True
         self._scale = scale
 
@@ -40,15 +39,14 @@ class ThumbnailBase(QtWidgets.QLabel):
         self.pre_build()
         self.post_build()
 
-    # noinspection SpellCheckingInspection
+    def set_server_url(self, server_url):
+        self._server_url = server_url
+        self.placholderThumbnail = self._server_url + '/img/thumbnail2.png'
+
     def pre_build(self):
         self.thumbnailCache = {}
         self.setFrameStyle(QtWidgets.QFrame.StyledPanel)
         self.setAlignment(QtCore.Qt.AlignCenter)
-
-        self.placholderThumbnail = (
-            self.session.server_url + '/img/thumbnail2.png'
-        )
 
     def post_build(self):
         self.thumbnailFetched.connect(self._downloaded)
@@ -153,7 +151,7 @@ class ThumbnailBase(QtWidgets.QLabel):
         '''Return thumbnail file from *url*.'''
         if url:
             ftrackProxy = os.getenv('FTRACK_PROXY', '')
-            ftrackServer = self.session._server_url
+            ftrackServer = self._server_url
 
             if ftrackProxy != '':
                 if ftrackServer.startswith('https'):

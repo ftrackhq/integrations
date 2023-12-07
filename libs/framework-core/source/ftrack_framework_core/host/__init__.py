@@ -12,7 +12,7 @@ import ftrack_constants.framework as constants
 
 from ftrack_framework_core.log.log_item import LogItem
 from ftrack_framework_core.log import LogDB
-from ftrack_utils.framework.tool_config.read import get_plugins
+from ftrack_utils.framework.config.tool import get_plugins
 
 from ftrack_utils.decorators import with_new_session
 
@@ -72,7 +72,6 @@ class Host(object):
         '''
         return self._event_manager.session
 
-    # noinspection SpellCheckingInspection
     @property
     def context_id(self):
         '''Return the default context id set at host launch'''
@@ -84,7 +83,6 @@ class Host(object):
             os.getenv('FTRACK_TASKID', os.getenv('FTRACK_SHOTID')),
         )
 
-    # noinspection SpellCheckingInspection
     @context_id.setter
     def context_id(self, value):
         '''

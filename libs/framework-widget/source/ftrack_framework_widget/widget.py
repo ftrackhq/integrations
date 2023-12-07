@@ -2,9 +2,8 @@
 # :copyright: Copyright (c) 2014-2023 ftrack
 
 import logging
-import time
 
-from ftrack_framework_widget import BaseUI, active_widget
+from ftrack_framework_widget import BaseUI
 
 
 class FrameworkWidget(BaseUI):
@@ -69,7 +68,6 @@ class FrameworkWidget(BaseUI):
         self._plugin_config = plugin_config
         self._group_config = group_config
         self._options = {}
-        self._do_await_ui_hook_result = False
         self._ui_hook_result = None
 
         # Connect dialog methods and properties
@@ -103,52 +101,34 @@ class FrameworkWidget(BaseUI):
     def plugin_run_callback(self, log_item):
         '''
         Receive the callback with the plugin info every time a plugin has been
-        executed.
-        *log_item* is the plugin info dictionary.
+        executed. *log_item* is the plugin info dictionary.
+
+        NOTE: Make sure this is executed in the QT/DCC main thread as this might be
+        called asynchronously.
         '''
         self.logger.warning(
             "Method not implemented, Plugin Callback ---> {}".format(log_item)
         )
 
-    def run_ui_hook(self, payload, await_result=False):
+    def run_ui_hook(self, payload):
         '''
         Call the on_run_ui_hook method from the dialog with the given *payload*.
-        By default, this is an async operation. If *await_result* is true, await
-        and return the result.
         '''
-        if await_result:
-            # TODO: make this thread safe
-            self._ui_hook_result = None
-            self._do_await_ui_hook_result = True
         self.on_run_ui_hook(payload)
-        if await_result:
-            return self._await_ui_hook_result()
-
-    def _await_ui_hook_result(self):
-        timeout = 10
-        try:
-            while True:
-                time.sleep(0.1)
-                if self._ui_hook_result:
-                    return self._ui_hook_result
-                timeout -= 0.1
-                if timeout <= 0:
-                    raise Exception('Timeout waiting for ui_hook result')
-        finally:
-            self._do_await_ui_hook_result = (
-                False  # Prevent await for next call
-            )
 
     def ui_hook_callback(self, ui_hook_result):
-        '''Get the result of the ui_hook method from the plugin'''
-        if self._do_await_ui_hook_result:
-            self._ui_hook_result = ui_hook_result
-        else:
-            self.logger.warning(
-                "Method not implemented, ui_hook_result ---> {}".format(
-                    ui_hook_result
-                )
-            )
+        '''
+        Get the result of the ui_hook method from the plugin, should be overriden
+        as needed by the inheriting class.
+
+        NOTE: Make sure this is executed in the QT/DCC main thread as this might be
+        called asynchronously.
+        '''
+        pass
+
+    def populate(self):
+        '''Fetch info from plugin to populate the widget'''
+        pass
 
     @classmethod
     def register(cls):

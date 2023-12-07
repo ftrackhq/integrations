@@ -6,7 +6,7 @@ import uuid
 from functools import partial
 
 from ftrack_framework_widget import BaseUI, active_widget
-from ftrack_utils.framework.tool_config.read import get_tool_config_by_name
+from ftrack_utils.framework.config.tool import get_tool_config_by_name
 
 
 class FrameworkDialog(BaseUI):
@@ -298,6 +298,8 @@ class FrameworkDialog(BaseUI):
         #  of the widget it will fail because its not registered yet. Task is to
         #  find a way to better handle the registry.
         self._register_widget(plugin_config['reference'], widget)
+        # Just a quick hack to test query assets
+        widget.populate()
         return widget
 
     def _register_widget(self, plugin_reference, widget):

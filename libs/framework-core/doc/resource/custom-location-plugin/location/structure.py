@@ -16,7 +16,6 @@ import ftrack_api.structure.base
 STUDIO_PUBLISH_FOLDER = "PUBLISH"
 
 
-# noinspection SpellCheckingInspection
 class Structure(ftrack_api.structure.base.Structure):
     '''
     Custom structure publishing to "_PUBLISH" folder beneath shot.

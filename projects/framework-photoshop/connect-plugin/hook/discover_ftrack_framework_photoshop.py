@@ -39,9 +39,11 @@ def on_discover_pipeline_photoshop(session, event):
 def on_launch_pipeline_photoshop(session, event):
     '''Handle application launch and add environment to *event*.'''
 
-    pipeline_photoshop_base_data = on_discover_pipeline_photoshop(
-        session, event
-    )
+    launch_data = {'integration': event['data']['integration']}
+
+    discover_data = on_discover_pipeline_photoshop(session, event)
+    for key in discover_data['integration']:
+        launch_data['integration'][key] = discover_data['integration'][key]
 
     photoshop_version = event['data']['application']['version'].version[0]
 
@@ -59,53 +61,53 @@ def on_launch_pipeline_photoshop(session, event):
         else:
             logger.warning('UXP plugin install disabled!')
     else:
-        # CEP plugin, requires to be manually installed in Photoshop, integration will
-        # check for its existence.
-        pass
+        logger.info(
+            'Assuming CEP plugin has been properly installed prior to launch.'
+        )
 
-    pipeline_photoshop_base_data['integration']['env'] = {
-        'PYTHONPATH.prepend': os.path.pathsep.join([python_dependencies]),
-        'FTRACK_INTEGRATION_SESSION_ID': str(uuid.uuid4()),
-        'FTRACK_PHOTOSHOP_VERSION': str(photoshop_version),
-    }
+    if not launch_data['integration'].get('env'):
+        launch_data['integration']['env'] = {}
+
+    launch_data['integration']['env'][
+        'PYTHONPATH.prepend'
+    ] = os.path.pathsep.join([python_dependencies])
+    launch_data['integration']['env'][
+        'FTRACK_REMOTE_INTEGRATION_SESSION_ID'
+    ] = str(uuid.uuid4())
+    launch_data['integration']['env']['FTRACK_PHOTOSHOP_VERSION'] = str(
+        photoshop_version
+    )
 
     if not use_uxp and sys.platform == 'darwin':
         # Check if running on apple silicon (arm64)
-        if (
-            subprocess.check_output("arch").decode('utf-8').find('i386') == -1
-            or True
-        ):
+        if subprocess.check_output("arch").decode('utf-8').find('i386') == -1:
             logger.warning(
                 'Running on non Intel hardware(Apple Silicon), will require PS '
                 'to be launched in Rosetta mode!'
             )
-            pipeline_photoshop_base_data['integration']['env'][
-                'FTRACK_LAUNCH_ARCH'
-            ] = 'x86_64'
+            launch_data['integration']['env']['FTRACK_LAUNCH_ARCH'] = 'x86_64'
 
     selection = event['data'].get('context', {}).get('selection', [])
 
     if selection:
         task = session.get('Context', selection[0]['entityId'])
-        pipeline_photoshop_base_data['integration']['env'][
-            'FTRACK_CONTEXTID.set'
-        ] = task['id']
+        launch_data['integration']['env']['FTRACK_CONTEXTID.set'] = task['id']
         parent = session.query(
             'select custom_attributes from Context where id={}'.format(
                 task['parent']['id']
             )
         ).first()  # Make sure updated custom attributes are fetched
-        pipeline_photoshop_base_data['integration']['env']['FS.set'] = parent[
+        launch_data['integration']['env']['FS.set'] = parent[
             'custom_attributes'
         ].get('fstart', '1.0')
-        pipeline_photoshop_base_data['integration']['env']['FE.set'] = parent[
+        launch_data['integration']['env']['FE.set'] = parent[
             'custom_attributes'
         ].get('fend', '100.0')
-        pipeline_photoshop_base_data['integration']['env']['FPS.set'] = parent[
+        launch_data['integration']['env']['FPS.set'] = parent[
             'custom_attributes'
         ].get('fps', '24.0')
 
-    return pipeline_photoshop_base_data
+    return launch_data
 
 
 def update_uxp_plugin():

@@ -11,6 +11,21 @@ Release Notes
 .. release:: upcoming
 
     .. change:: changed
+        :tags: App launcher environment Variables
+
+        Support for environment variables in app launcher configuration, provided to hook with
+        launch event.
+
+    .. change:: fixed
+
+        Moved resource hooks to source, to have them included in Poetry build.
+
+    .. change:: changed
+        :tags: Environment Variables
+
+        Provide FTRACK_CONNECT_DISABLE_STARTUP_WIDGET environment variable to drive the startup widget visibility.
+
+    .. change:: changed
 
         Convert Object to QObject to ensure proper livecycle handling in pyside.
 
