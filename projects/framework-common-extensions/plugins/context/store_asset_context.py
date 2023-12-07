@@ -38,18 +38,20 @@ class StoreAssetContextPlugin(BasePlugin):
             )
         ).one()
 
+        # Query all assets that are related to the given context id and are from
+        # the given asset_type include also assets that has no
+        # asset_versions on it.
         if context.entity_type == 'Task':
             assets = self.session.query(
                 f'select name, id, latest_version.version, versions, versions.id, versions.date, '
                 f'versions.version, versions.is_latest_version, '
                 f'versions.thumbnail_url, versions.user.first_name, '
                 f'versions.user.last_name, versions.status.name from Asset '
-                f'where versions.task_id is {context_id} and '
-                f'type.id is {asset_type_entity["id"]} or parent.children.id '
+                f'where (versions.task_id is {context_id} and '
+                f'type.id is {asset_type_entity["id"]}) or (parent.children.id '
                 f'is {context_id} and versions is None and type.id is '
-                f'{asset_type_entity["id"]}'
+                f'{asset_type_entity["id"]})'
             ).all()
-
             # asset_versions = self.session.query(
             #     'select asset.name, asset_id, id, date, version, '
             #     'is_latest_version, thumbnail_url, user.first_name, '
@@ -58,17 +60,19 @@ class StoreAssetContextPlugin(BasePlugin):
             #         context_id, asset_type_entity['id']
             #     )
             # ).all()
-            # if not asset_versions:
-            #     asset_versions = self.session.query(
-            #         'select asset.name, asset_id, id, date, version, '
-            #         'is_latest_version, thumbnail_url, user.first_name, '
-            #         'user.last_name, date, status.name from AssetVersion where '
-            #         'task_id is {} and asset.type.id is {}'.format(
-            #             context_id, asset_type_entity['id']
-            #         )
-            #     ).all()
+
         else:
-            pass
+            # tODO: does this query makes sense?
+            assets = self.session.query(
+                f'select name, id, latest_version.version, versions, versions.id, versions.date, '
+                f'versions.version, versions.is_latest_version, '
+                f'versions.thumbnail_url, versions.user.first_name, '
+                f'versions.user.last_name, versions.status.name from Asset '
+                f'where (parent.id is {context_id} and '
+                f'type.id is {asset_type_entity["id"]}) or (parent.children.id '
+                f'is {context_id} and versions is None and type.id is '
+                f'{asset_type_entity["id"]})'
+            ).all()
             # asset_versions = self.session.query(
             #     'select asset.name, asset_id, id, date, version, '
             #     'is_latest_version, thumbnail_url, user.first_name, '
@@ -77,7 +81,6 @@ class StoreAssetContextPlugin(BasePlugin):
             #         context_id, asset_type_entity['id']
             #     )
             # ).all()
-
         # If context Task:
         # Assets where versions are linked to Task.
         # Assets where published on parent to Task
@@ -116,6 +119,7 @@ class StoreAssetContextPlugin(BasePlugin):
                             'date': version['date'].strftime('%y-%m-%d %H:%M'),
                             'version': version['version'],
                             'is_latest_version': version['is_latest_version'],
+                            # Next available version number
                             'next_version': asset['latest_version']['version']
                             + 1,
                             'thumbnail': version['thumbnail_url']['url'],
@@ -135,6 +139,7 @@ class StoreAssetContextPlugin(BasePlugin):
         keys = [
             'context_id',
             'asset_name',
+            'asset_id',
             'comment',
             'status_id',
             'asset_version_id',

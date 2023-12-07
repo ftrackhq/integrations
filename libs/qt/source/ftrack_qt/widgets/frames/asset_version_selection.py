@@ -30,6 +30,11 @@ class AssetVersionSelection(QtWidgets.QFrame):
         if self._version_combobox:
             return self._version_combobox.version
 
+    @property
+    def asset_id(self):
+        '''Return the id of the asset.'''
+        return self._asset_id
+
     def __init__(self, asset_name, asset_id, versions, server_url):
         '''Initialize the AssetVersionSelection widget.'''
         super(AssetVersionSelection, self).__init__()

@@ -60,6 +60,7 @@ class ComponentPathCollectorPlugin(BasePlugin):
                     result['assets'][asset_version['asset_id']] = {
                         'name': asset_version['asset']['name'],
                         'versions': [],
+                        'server_url': self.session.server_url,
                     }
 
                 result['assets'][asset_version['asset_id']]['versions'].append(
@@ -73,7 +74,6 @@ class ComponentPathCollectorPlugin(BasePlugin):
                             'is_latest_version'
                         ],
                         'thumbnail': asset_version['thumbnail_url']['url'],
-                        'server_url': self.session.server_url,
                         'user_first_name': asset_version['user']['first_name'],
                         'user_last_name': asset_version['user']['last_name'],
                     }
