@@ -126,13 +126,13 @@ python setup.py build_plugin
 ## Testing
 
 - Got to the repository root and execute the following command to run all the monorepo available unit tests:
-````bash
-PyTest tests/framework/unit/
-````
+```bash
+PyTest
+```
 - And This command to execute a specific tests: (Example using framework)
-- ````bash
+```bash
 PyTest tests/framework/unit/
-````
+```
 
 ## Publish to PyPi Test:
 - Add pypi test as publishable repository: https://python-poetry.org/docs/repositories/#publishable-repositories
