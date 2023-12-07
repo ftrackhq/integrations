@@ -225,7 +225,7 @@ DefinitionSelectorComboBox {
                                     QPushButton#status-widget-expanded-button[status='warning_status'] QLabel,
                                     QPushButton#status-widget-expanded-button[status='pause_status'] QLabel {
                                       border: none;
-                                      color: #333; }
+                                      color: #FFBA5C; }
 
                                       QPushButton[status='success_status'] {
                                         border: 1px solid #79DFB6; }

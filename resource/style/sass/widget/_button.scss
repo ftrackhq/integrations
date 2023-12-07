@@ -96,15 +96,13 @@ QPushButton[status='unknown_status'], QPushButton[status='pause_status'], QPushB
     border: 1px solid $gray-dark;
 }
 QPushButton#status-widget-expanded-button[status='warning_status'] QLabel, QPushButton#status-widget-expanded-button[status='pause_status'] QLabel {
-    border: none;
-    color: $gray-dark;
+    color: #FFBA5C;
 }
 
 QPushButton[status='success_status'] {
     border: 1px solid #79DFB6;
 }
 QPushButton#status-widget-expanded-button[status='success_status'] QLabel {
-    border: none;
     color: #79DFB6;
 }
 

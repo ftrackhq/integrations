@@ -10,6 +10,9 @@ from ftrack_qt.widgets.headers import SessionHeader
 from ftrack_qt.widgets.selectors import ContextSelector
 
 from ftrack_qt.utils.layout import recursive_clear_layout
+from ftrack_qt.utils.decorators import invoke_in_qt_main_thread
+
+import ftrack_constants.framework as constants
 
 
 class BaseContextDialog(FrameworkDialog, StyledDialog):
@@ -43,6 +46,11 @@ class BaseContextDialog(FrameworkDialog, StyledDialog):
     def progress_widget(self):
         '''Return the progress widget of the dialog'''
         return self._progress_widget
+
+    @progress_widget.setter
+    def progress_widget(self, value):
+        '''Set the progress widget of the dialog'''
+        self._progress_widget = value
 
     @property
     def tool_widget(self):
@@ -163,14 +171,14 @@ class BaseContextDialog(FrameworkDialog, StyledDialog):
         Tell client to run the current tool config
         '''
         if self.progress_widget:
-            self.progress_widget.show_widget(self)
-            self.progress_widget.reset_statuses()
+            self.progress_widget.run(self, self._run_button.text())
         self.run_tool_config(self.tool_config['reference'])
 
+    @invoke_in_qt_main_thread
     def plugin_run_callback(self, log_item):
-        '''(Override) Pass log item to the progress widget'''
+        '''(Override) Pass framework log item to the progress widget'''
         if self.progress_widget:
-            self.progress_widget.update_progress(log_item)
+            self.progress_widget.update_framework_progress(log_item)
 
     # FrameworkDialog overrides
     def show_ui(self):
