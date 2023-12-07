@@ -124,6 +124,8 @@ python setup.py build_plugin
 ```
 
 ## Testing
+We run PyTest ^7.4 on the codebase to ensure the consistency of our monorepo.
+Please make sure you pip install PyTest if you want to run the unit tests.
 
 - Got to the repository root and execute the following command to run all the monorepo available unit tests:
 ```bash
