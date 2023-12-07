@@ -1,3 +1,18 @@
 [tool.black]
 line-length = 79
 skip-string-normalization = true
+
+[tool.pytest.ini_options]
+minversion = "6.0"
+pythonpath = [
+     'libs/constants/source',
+     'libs/utils/source',
+     'libs/framework-core/source',
+     'libs/framework-engine/source',
+     'libs/framework-plugin/source',
+     # QT
+     'libs/framework-widget/source',
+     'libs/framework-qt/source',
+     'libs/qt/source',
+     'libs/qt-style/source'
+]
