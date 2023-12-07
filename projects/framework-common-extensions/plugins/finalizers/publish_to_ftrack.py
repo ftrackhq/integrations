@@ -150,7 +150,7 @@ class PublishToFtrack(BasePlugin):
             ).first()
             asset_entity_object = asset_version_entity_object['asset']
         elif asset_id:
-            # Get Asset entity object
+            # Get Asset entity object from asset id
             asset_entity_object = self.session.query(
                 f'Asset where id is {asset_id}'
             ).first()
