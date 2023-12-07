@@ -172,19 +172,22 @@ class PublisherAssetVersionSelectorWidget(BaseWidget):
         else:
             self._label.setText('<html><i>No assets found!<i></html>')
 
-    def _on_selected_item_changed_callback(self, version):
+    def _on_selected_item_changed_callback(self, version, asset_id):
         '''Update the plugin options based on the selected item.'''
         self.set_plugin_option('context_id', self.context_id)
         if not version:
             self.set_plugin_option('asset_version_id', None)
+            self.set_plugin_option('asset_id', asset_id)
             return
-        self.set_plugin_option('asset_version_id', version['id'])
-        self._status_selector.set_status_by_name(version['status'])
+        self.set_plugin_option('asset_version_id', version.get('id'))
+        self.set_plugin_option('asset_id', asset_id)
+        self._status_selector.set_status_by_name(version.get('status'))
 
     def _on_new_asset_callback(self, asset_name):
         '''Update the plugin options based on the new asset name.'''
         self.set_plugin_option('context_id', self.context_id)
         self.set_plugin_option('asset_version_id', None)
+        self.set_plugin_option('asset_id', None)
         self.set_plugin_option('asset_name', asset_name)
 
     def _on_status_changed(self, index):

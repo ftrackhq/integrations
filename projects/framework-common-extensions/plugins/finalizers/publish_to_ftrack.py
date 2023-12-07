@@ -7,7 +7,6 @@ from ftrack_framework_plugin import BasePlugin
 import ftrack_constants.framework as constants
 
 
-# TODO: review and cleanup this code
 class PublishToFtrack(BasePlugin):
     name = 'publish_to_ftrack'
 
@@ -31,6 +30,7 @@ class PublishToFtrack(BasePlugin):
         status_id = store.get('status_id')
         asset_version_id = store.get('asset_version_id')
         asset_type_name = store.get('asset_type_name')
+        asset_id = store.get('asset_id')
         asset_name = store.get('asset_name', asset_type_name)
 
         # TODO: implement version_dependencies
@@ -38,17 +38,21 @@ class PublishToFtrack(BasePlugin):
 
         # Get Context object
         context_object = self.session.query(
-            'select name, parent, parent.name from Context where '
-            'id is "{}"'.format(context_id)
+            f'select name, parent, parent.name from Context where '
+            f'id is {context_id}'
         ).one()
 
         # Get Status object
         status_object = self.session.query(
-            'Status where id is "{}"'.format(status_id)
+            f'Status where id is {status_id}'
         ).one()
 
         asset_entity_object = self._get_asset_entity_object(
-            context_object, asset_version_id, asset_type_name, asset_name
+            context_object,
+            asset_version_id,
+            asset_id,
+            asset_type_name,
+            asset_name,
         )
 
         rollback = False
@@ -67,9 +71,7 @@ class PublishToFtrack(BasePlugin):
             self.session.commit()
 
             self.logger.debug(
-                'Successfully created assetversion: {}'.format(
-                    asset_version_object['version']
-                )
+                f'Successfully created assetversion: {asset_version_object["version"]}'
             )
 
             # Undo version creation from this point in case it fails
@@ -114,9 +116,9 @@ class PublishToFtrack(BasePlugin):
             tb = traceback.format_exc()
             self.status = constants.status.EXCEPTION_STATUS
             self.message = (
-                "Error occurred during the run method, trying "
-                "to create a new version and components of the finalizer_plugin: "
-                "{} \n error: {}".format(self.name, str(tb))
+                f"Error occurred during the run method, trying "
+                f"to create a new version and components of the finalizer_plugin: "
+                f"{self.name} \n error: {str(tb)}"
             )
         finally:
             if rollback:
@@ -126,26 +128,32 @@ class PublishToFtrack(BasePlugin):
                 self.session.commit()
 
         self.logger.debug(
-            "publishing: {} to {} as {}".format(
-                asset_entity_object, context_id, asset_entity_object
-            )
+            f"publishing: {asset_entity_object} to {context_id} as {asset_entity_object}"
         )
 
         store["asset_version_id"] = asset_version_object['id']
         store["asset_id"] = asset_entity_object["id"]
 
     def _get_asset_entity_object(
-        self, context_object, asset_version_id, asset_type_name, asset_name
+        self,
+        context_object,
+        asset_version_id,
+        asset_id,
+        asset_type_name,
+        asset_name,
     ):
         asset_entity_object = None
         if asset_version_id:
             # An explicit asset is provided
             asset_version_entity_object = self.session.query(
-                'select asset from AssetVersion where id is "{}"'.format(
-                    asset_version_id
-                )
+                f'select asset from AssetVersion where id is {asset_version_id}'
             ).first()
             asset_entity_object = asset_version_entity_object['asset']
+        elif asset_id:
+            # Get Asset entity object from asset id
+            asset_entity_object = self.session.query(
+                f'Asset where id is {asset_id}'
+            ).first()
         else:
             # Query/identify asset
             assert (
@@ -153,7 +161,7 @@ class PublishToFtrack(BasePlugin):
             ), 'Cannot create asset, no asset type name provided'
             # Get Asset type object
             asset_type_object = self.session.query(
-                'AssetType where short is "{}"'.format(asset_type_name)
+                f'AssetType where short is {asset_type_name}'
             ).first()
 
             # Get Asset parent object
@@ -161,10 +169,8 @@ class PublishToFtrack(BasePlugin):
 
             # Get Asset entity object
             asset_entity_object = self.session.query(
-                'Asset where name is "{}" and type.short is "{}" and '
-                'parent.id is "{}"'.format(
-                    asset_name, asset_type_name, asset_parent_object['id']
-                )
+                f'Asset where name is {asset_name} and type.short is {asset_type_name} and '
+                f'parent.id is {asset_parent_object["id"]}'
             ).first()
 
             # Create asset object if not exist
@@ -185,7 +191,7 @@ class PublishToFtrack(BasePlugin):
                 'parent': asset_parent_object,
             },
         )
-        self.logger.debug('Successfully created asset: {}'.format(asset_name))
+        self.logger.debug(f'Successfully created asset: {asset_name}')
         return asset_entity
 
     def _create_new_asset_version(
@@ -217,9 +223,7 @@ class PublishToFtrack(BasePlugin):
         *component_path* : Linked path of the component data.
         '''
         self.logger.debug(
-            'publishing component:{} to from {}'.format(
-                component_name, component_path
-            )
+            f'publishing component:{component_name} to from {component_path}'
         )
         location = self.session.pick_location()
 
