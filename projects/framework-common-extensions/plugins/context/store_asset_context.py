@@ -42,6 +42,15 @@ class StoreAssetContextPlugin(BasePlugin):
         # the given asset_type include also assets that has no
         # asset_versions on it.
         if context.entity_type == 'Task':
+            # Assets where this task has been linked to a version previously.
+            
+            # Assets belonging to the task parent with versions (regardless if it has been linked to this task).
+            # Assets belonging to the task parent without any versions yet.
+
+            # Assets belonging to the task parent.
+            #
+            # Modelling task (Done) => model v1, model v2, model v3
+            # Fix the model task (In progress) => model v4
             assets = self.session.query(
                 f'select name, id, latest_version.version, versions, versions.id, versions.date, '
                 f'versions.version, versions.is_latest_version, '
@@ -49,7 +58,7 @@ class StoreAssetContextPlugin(BasePlugin):
                 f'versions.user.last_name, versions.status.name from Asset '
                 f'where (versions.task_id is {context_id} and '
                 f'type.id is {asset_type_entity["id"]}) or (parent.children.id '
-                f'is {context_id} and versions is None and type.id is '
+                f'is {context_id} and type.id is '
                 f'{asset_type_entity["id"]})'
             ).all()
             # asset_versions = self.session.query(
@@ -70,7 +79,7 @@ class StoreAssetContextPlugin(BasePlugin):
                 f'versions.user.last_name, versions.status.name from Asset '
                 f'where (parent.id is {context_id} and '
                 f'type.id is {asset_type_entity["id"]}) or (parent.children.id '
-                f'is {context_id} and versions is None and type.id is '
+                f'is {context_id} and type.id is '
                 f'{asset_type_entity["id"]})'
             ).all()
             # asset_versions = self.session.query(
@@ -112,7 +121,9 @@ class StoreAssetContextPlugin(BasePlugin):
                         'versions': [],
                         'server_url': self.session.server_url,
                     }
-                for version in asset['versions']:
+                
+                if asset['versions']:
+                    latest_version = asset['versions'][-1]
                     result['assets'][asset['id']]['versions'].append(
                         {
                             'id': version['id'],
