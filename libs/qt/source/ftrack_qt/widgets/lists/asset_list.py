@@ -16,8 +16,9 @@ class AssetList(QtWidgets.QListWidget):
     assets_added = QtCore.Signal(object)
     '''Signal emitted when assets are added to the list'''
 
-    selected_item_changed = QtCore.Signal(object, object)
-    '''Signal emitted when selected item is changed'''
+    selected_item_changed = QtCore.Signal(object, object, object)
+    '''Signal emitted when selected item is changed with arguments containing 
+    the index of the current version, the version dictionary and the asset_id'''
 
     def __init__(self, asset_list_widget_item, parent=None):
         '''Initialize AssetList'''
@@ -39,7 +40,10 @@ class AssetList(QtWidgets.QListWidget):
 
         for asset_id, asset_dict in self.assets.items():
             widget = self.asset_list_widget_item(
-                asset_name=asset_dict['name'], versions=asset_dict['versions']
+                asset_name=asset_dict['name'],
+                asset_id=asset_id,
+                versions=asset_dict['versions'],
+                server_url=asset_dict['server_url'],
             )
 
             if hasattr(widget, 'version_changed'):
@@ -71,4 +75,5 @@ class AssetList(QtWidgets.QListWidget):
         self.selected_item_changed.emit(
             self.indexFromItem(current_item),
             self.itemWidget(current_item).version,
+            self.itemWidget(current_item).asset_id,
         )
