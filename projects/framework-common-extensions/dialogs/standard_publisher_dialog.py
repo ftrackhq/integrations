@@ -105,7 +105,7 @@ class StandardPublisherDialog(BaseContextDialog):
             group_accordion_widget = AccordionBaseWidget(
                 selectable=False,
                 show_checkbox=True,
-                checkable=not _group.get('optional', False),
+                checkable=_group.get('optional', False),
                 title=_group.get('options').get('component'),
                 selected=False,
                 checked=_group.get('enabled', True),

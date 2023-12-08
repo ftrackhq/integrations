@@ -43,7 +43,7 @@ session = ftrack_api.Session(auto_connect_event_hub=False)
 event_manager = event.EventManager(
     session=session, mode=constants.event.LOCAL_EVENT_MODE
 )
-os.environ['FTRACK_CONTEXTID'] = '439dc504-a904-11ec-bbac-be6e0a48ed73'
+os.environ['FTRACK_CONTEXTID'] = '571a7a04-eabe-44b5-99b7-6cc5ebb74c77'
 
 FTRACK_FRAMEWORK_EXTENSIONS_PATH = [
     os.path.join(

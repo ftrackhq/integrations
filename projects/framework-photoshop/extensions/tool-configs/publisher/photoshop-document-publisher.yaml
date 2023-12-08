@@ -34,6 +34,37 @@ engine:
           - exporter
         plugin: document_exporter
 
+  # Export the image component.
+  - type: group
+    tags:
+      - component
+    options:
+      component: image
+    optional: true
+    enabled: true
+    plugins:
+      - type: plugin
+        plugin: store_component
+      - type: plugin
+        tags:
+          - collector
+        plugin: document_collector
+      - type: plugin
+        tags:
+          - exporter
+        options:
+          extension: .jpg
+          extensions:
+            - .bmp
+            - .eps
+            - .gif
+            - .jpg
+            - .pdf
+            - .png
+            - .tif
+        plugin: image_exporter
+        ui: image_options
+
   # Export the reviewable component.
   - type: group
     tags:
@@ -60,7 +91,7 @@ engine:
             - .png
             - .gif
         plugin: image_exporter
-        ui: reviewable_options
+        ui: image_options
 
   # Publish to ftrack.
   - publish_to_ftrack

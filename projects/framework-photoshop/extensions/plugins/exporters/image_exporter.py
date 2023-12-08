@@ -42,7 +42,7 @@ class ImageExporterPlugin(BasePlugin):
         component_name = self.options.get('component')
 
         new_file_path = tempfile.NamedTemporaryFile(
-            delete=False, suffix='.jpg'
+            delete=False, suffix=extension
         ).name
 
         export_result = self.export(extension, new_file_path)

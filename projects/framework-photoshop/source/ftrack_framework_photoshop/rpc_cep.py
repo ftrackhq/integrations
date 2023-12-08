@@ -302,7 +302,14 @@ class PhotoshopRPCCEP(object):
             'args': args or [],
         }
 
+        self.logger.debug(f'Running Photoshop RPC call: {data}')
+
         event_topic = constants.event.REMOTE_INTEGRATION_RPC_TOPIC
-        return self._publish_event(
+
+        result = self._publish_event(
             event_topic, data, callback, fetch_reply=fetch_reply
         )['result']
+
+        self.logger.debug(f'Got Photoshop RPC response: {result}')
+
+        return result
