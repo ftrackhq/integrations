@@ -78,4 +78,4 @@ class SessionHeader(QtWidgets.QFrame):
         self.user.setVisible(self._show_user)
 
     def add_widget(self, widget):
-        self.content_container.layout().addWidget(widget)
+        self.content_container.layout().addWidget(widget, 100)

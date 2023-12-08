@@ -56,11 +56,10 @@ class ProgressWidget(QtWidgets.QWidget):
     def action(self, value):
         self._action = value
 
-    def __init__(self, status_view_mode=None, parent=None):
-        '''Initialise ProgressWidgetObject with optional *status_view_mode* and *parent*'''
+    def __init__(self, parent=None):
+        '''Initialise ProgressWidgetObject with optional *parent*'''
 
         super(ProgressWidget, self).__init__(parent=parent)
-        self._status_view_mode = status_view_mode
 
         self._overlay_container = None
         self._content_widget = None
@@ -83,7 +82,7 @@ class ProgressWidget(QtWidgets.QWidget):
 
     def build(self):
         self._button_widget = ProgressStatusButtonWidget(
-            self._status_view_mode
+            ProgressStatusButtonWidget.VIEW_HEADER_BUTTON
         )
         self.set_status_widget_visibility(False)
 
@@ -115,9 +114,13 @@ class ProgressWidget(QtWidgets.QWidget):
         '''Prepare the progress widget to add phases'''
         self._clear_components()
         self._status_banner = ProgressStatusButtonWidget(
-            ProgressStatusButtonWidget.VIEW_EXPANDED_BANNER
+            ProgressStatusButtonWidget.VIEW_OVERLAY_BANNER
         )
         self._content_widget.layout().addWidget(self._status_banner)
+
+    def has_phase_widget(self, reference):
+        '''Return True if a phase widget with *reference* exists'''
+        return reference in self._phase_widgets
 
     def add_phase_widget(
         self,
@@ -131,6 +134,12 @@ class ProgressWidget(QtWidgets.QWidget):
 
         Optional *indent* defines left margin.
         '''
+        if self.has_phase_widget(reference):
+            raise ValueError(
+                'Phase widget with reference {} already exists'.format(
+                    reference
+                )
+            )
         phase_button = ProgressPhaseButtonWidget(
             category, label, ProgressWidget.NOT_STARTED_STATUS
         )
@@ -192,6 +201,7 @@ class ProgressWidget(QtWidgets.QWidget):
 
     def run(self, main_widget, action):
         '''Run progress widget, with *action*'''
+        self._last_status = constants.status.UNKNOWN_STATUS
         self.action = action
         self.reset_statuses()
         self.update_status(
@@ -257,7 +267,7 @@ class ProgressWidget(QtWidgets.QWidget):
                 )
         elif new_status == status.SUCCESS_STATUS:
             finished = True
-            for widget in list(self._phase_widgets.values()):
+            for ref, widget in list(self._phase_widgets.items()):
                 if widget.status != constants.status.SUCCESS_STATUS:
                     finished = False
                     break
@@ -270,12 +280,14 @@ class ProgressWidget(QtWidgets.QWidget):
     def update_framework_progress(self, log_item):
         '''A framework plugin has been executed, with information passed on in *log_item*'''
         self.logger.debug(
-            "Progress: \n "
+            "Plugin progress: \n "
+            "  plugin_ref: {} \n"
             "  plugin_name: {} \n"
             "  plugin_status: {} \n"
             "  plugin_message: {} \n"
             "  plugin_execution_time: {} \n"
             "  plugin_store: {} \n".format(
+                log_item.plugin_reference,
                 log_item.plugin_name,
                 log_item.plugin_status,
                 log_item.plugin_message,
@@ -297,9 +309,11 @@ class ProgressStatusButtonWidget(QtWidgets.QPushButton):
     tool header.'''
 
     # Button view modes
-    VIEW_COLLAPSED_BUTTON = 'collapsed-button'  # AM (Opens progress overlay)
-    VIEW_EXPANDED_BUTTON = 'expanded-button'  # Opener/Assembler/Publisher (Opens progress overlay)
-    VIEW_EXPANDED_BANNER = 'expanded-banner'  # Progress overlay
+    VIEW_HEADER_BUTTON = 'header-button'  # Button docked in header
+    VIEW_HEADER_BUTTON_COLLAPSED = (
+        'header-button-collapsed'  # Button docked in header, collapsed
+    )
+    VIEW_OVERLAY_BANNER = 'overlay-banner'  # Progress overlay
 
     @property
     def status(self):
@@ -313,7 +327,7 @@ class ProgressStatusButtonWidget(QtWidgets.QPushButton):
         super(ProgressStatusButtonWidget, self).__init__(parent=parent)
 
         self._status = None
-        self._view_mode = view_mode or self.VIEW_EXPANDED_BUTTON
+        self._view_mode = view_mode
 
         self._message_label = None
         self._status_icon = None
@@ -328,7 +342,7 @@ class ProgressStatusButtonWidget(QtWidgets.QPushButton):
         self.setLayout(layout)
 
         self.setMinimumHeight(32)
-        if self._view_mode == self.VIEW_COLLAPSED_BUTTON:
+        if self._view_mode == self.VIEW_HEADER_BUTTON_COLLAPSED:
             self.setMaximumHeight(32)
             self.setMinimumWidth(32)
             self.setMaximumWidth(32)
@@ -336,7 +350,7 @@ class ProgressStatusButtonWidget(QtWidgets.QPushButton):
             self.setMinimumWidth(200)
 
     def build(self):
-        self.setObjectName('status-widget-{}'.format(self._view_mode))
+        self.setObjectName('progress-widget-{}'.format(self._view_mode))
 
         self._message_label = QtWidgets.QLabel()
         self.layout().addWidget(self._message_label)
@@ -364,11 +378,15 @@ class ProgressPhaseButtonWidget(QtWidgets.QPushButton):
 
     @property
     def label(self):
-        return self.text()
+        return self._label
 
     @property
     def status(self):
         return self._status
+
+    @status.setter
+    def status(self, value):
+        self._status = value
 
     @property
     def log_message(self):
@@ -390,6 +408,7 @@ class ProgressPhaseButtonWidget(QtWidgets.QPushButton):
         self._status = status or constants.status.DEFAULT_STATUS
         self._log = None
 
+        self.log_overlay_container = None
         self._icon_widget = None
         self._status_message_widget = None
         self._log_message_widget = None
@@ -432,21 +451,27 @@ class ProgressPhaseButtonWidget(QtWidgets.QPushButton):
         self.layout().addWidget(self._time_widget)
 
         self._log_message_widget = QtWidgets.QFrame()
-        self._log_message_widget.setVisible(False)
         self._log_message_widget.setLayout(QtWidgets.QVBoxLayout())
-        self._log_message_widget.layout().addSpacing(10)
+        self._log_message_widget.layout().addSpacing(5)
+        self._log_message_widget.layout().addWidget(
+            QtWidgets.QLabel(f'{self.label} log:')
+        )
 
         self._log_text_edit = QtWidgets.QTextEdit()
         self._log_text_edit.setReadOnly(True)
-        self._log_message_widget.layout().addWidget(self._log_text_edit, 10)
+        self._log_message_widget.layout().addWidget(self._log_text_edit, 100)
         self._close_button = QtWidgets.QPushButton('HIDE LOG')
         self._log_message_widget.layout().addWidget(self._close_button)
-        self._log_overlay = OverlayWidget(self._log_message_widget)
-        self._log_overlay.setVisible(False)
+        self.log_overlay_container = OverlayWidget(
+            self._log_message_widget,
+            transparent_background=False,
+        )
+        self._log_message_widget.setVisible(False)
+        self.log_overlay_container.setVisible(False)
 
     def post_build(self):
         self.clicked.connect(self.show_log)
-        self._close_button.clicked.connect(self._log_overlay.close)
+        self._close_button.clicked.connect(self.log_overlay_container.close)
 
     def update_status(
         self, new_status, status_message, log_message, time=None
@@ -468,15 +493,16 @@ class ProgressPhaseButtonWidget(QtWidgets.QPushButton):
 
     def set_status(self, new_status):
         '''Visualize *new_status* on the button'''
-        set_property(self, 'status', new_status.lower())
-        return self._icon_widget.set_status(new_status)
+        self.status = new_status
+        set_property(self, 'status', self.status.lower())
+        return self._icon_widget.set_status(self.status)
 
     def show_log(self):
-        self._log_overlay.setParent(self.parent())
+        self.log_overlay_container.setParent(self.parent())
         if len(self.log_message or '') > 0:
             self._log_text_edit.setText(self.log_message)
         else:
             self._log_text_edit.setText("No errors found")
-        self._log_overlay.setVisible(True)
+        self.log_overlay_container.setVisible(True)
         self._log_message_widget.setVisible(True)
-        self._log_overlay.resize(self.parent().size())
+        self.log_overlay_container.resize(self.parent().size())

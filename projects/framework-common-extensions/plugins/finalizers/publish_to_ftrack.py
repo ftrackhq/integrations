@@ -19,6 +19,10 @@ class PublishToFtrack(BasePlugin):
         component name in ftrack.
         '''
 
+        import time
+
+        time.sleep(1.4)
+
         # Get components to publish
         components = list(store.get('components').keys())
         if not components:

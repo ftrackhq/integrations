@@ -93,6 +93,7 @@ class StandardPublisherDialog(BaseContextDialog):
             self.tool_config = self.filtered_tool_configs.get("publisher")[0]
 
         self.progress_widget.prepare_add_phases()
+        processed_plugins = []
 
         # Build context widgets
         context_plugins = get_plugins(
@@ -105,6 +106,7 @@ class StandardPublisherDialog(BaseContextDialog):
                 context_plugin.get('label')
                 or context_plugin['plugin'].replace('_', ' ').title(),
             )
+            processed_plugins.append(context_plugin['reference'])
             if not context_plugin.get('ui'):
                 continue
             context_widget = self.init_framework_widget(context_plugin)
@@ -140,6 +142,23 @@ class StandardPublisherDialog(BaseContextDialog):
             )
 
             self._scroll_area_widget.layout().addWidget(group_accordion_widget)
+            processed_plugins.extend(
+                [plugin['reference'] for plugin in get_plugins(_group)]
+            )
+
+        # Add additional plugins to progress widget
+        for plugin_config in get_plugins(self.tool_config):
+            if not self.progress_widget.has_phase_widget(
+                plugin_config['reference']
+            ):
+                if plugin_config['reference'] in processed_plugins:
+                    continue
+                self.progress_widget.add_phase_widget(
+                    plugin_config['reference'],
+                    'finalizers',
+                    plugin_config.get('label')
+                    or plugin_config['plugin'].replace('_', ' ').title(),
+                )
 
         spacer = QtWidgets.QSpacerItem(
             1,
