@@ -13,15 +13,23 @@ var panel_launchers;
 var context_id = undefined;
 var project_id = undefined;
 
-try {
-    function jsx_callback(){
-        console.log("ps.jsx loaded");
-    }
+function jsx_callback(){
+    console.log("ps.jsx loaded");
+}
 
+try {
     jsx.evalFile('./ps.jsx', jsx_callback);
 } catch (e) {
     error("[INTERNAL ERROR] Failed to load JSX resource "+e+" Details: "+e.stack);
 }
+
+// Load custom extension JSX if exists
+try {
+    jsx.evalFile('./ps-include.jsx', jsx_callback);
+} catch (e) {
+    console.log("[WARNING] Failed to load JSX include resource "+e+" Details: "+e.stack);
+}
+
 
 function initializeIntegration() {
     /* Initialise the Photoshop JS integration part. */
