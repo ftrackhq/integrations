@@ -110,6 +110,7 @@ class AssetVersionSelectorWidget(BaseWidget):
         '''Handle the change of selected version.'''
         self.set_plugin_option('asset_version_id', version['id'])
 
-    def _on_selected_item_changed_callback(self, version):
+    def _on_selected_item_changed_callback(self, version, asset_id):
         '''Handle the change of selected item.'''
-        self.set_plugin_option('asset_version_id', version['id'])
+        self.set_plugin_option('asset_version_id', version.get('id'))
+        self.set_plugin_option('asset_id', asset_id)
