@@ -33,7 +33,7 @@ class DocumentCollectorPlugin(BasePlugin):
             )
         )
 
-        if isinstance(document_saved_result, str):
+        if not document_saved_result or isinstance(document_saved_result, str):
             self.message = 'Photoshop document query failed: {}'.format(
                 document_saved_result
             )
@@ -48,7 +48,7 @@ class DocumentCollectorPlugin(BasePlugin):
             ).name
             save_result = photoshop_connection.rpc('saveDocument', [temp_path])
             # Will return a boolean containing the result.
-            if isinstance(save_result, str):
+            if not save_result or isinstance(save_result, str):
                 self.message = 'Error saving the document: {}'.format(
                     save_result
                 )
@@ -72,7 +72,7 @@ class DocumentCollectorPlugin(BasePlugin):
             'Got Photoshop document data: {}'.format(document_data)
         )
 
-        if len(document_data or {}) == 0:
+        if not document_data:
             self.message = (
                 'No document data available. Please have an '
                 'active work document before you can publish'
@@ -84,7 +84,7 @@ class DocumentCollectorPlugin(BasePlugin):
             document_data.get('full_path') if document_data else None
         )
 
-        if len(document_path or '') == 0:
+        if not document_path:
             self.message = (
                 'Error exporting the document: Please save the '
                 'document with a name before publish'

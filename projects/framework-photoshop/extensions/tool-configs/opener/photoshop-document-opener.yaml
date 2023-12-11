@@ -1,7 +1,7 @@
 type: tool_config
 name: photoshop-document-opener
 config_type: opener
-host_type: photoshop
+host_type: python
 engine:
   - type: plugin
     tags:
@@ -30,5 +30,4 @@ engine:
         plugin: open_document
 
   # Open finalizer.
-  - type: plugin
-    plugin: save_to_temp
+  - save_to_temp

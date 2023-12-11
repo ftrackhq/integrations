@@ -20,7 +20,7 @@ class ImageExporterPlugin(BasePlugin):
         exported image path in the :obj:`store` under the component name.
         '''
 
-        extension = self.options.get('extension') or '.jpg'
+        extension = self.options.get('extension', '.jpg')
 
         component_name = self.options.get('component')
 
@@ -46,7 +46,7 @@ class ImageExporterPlugin(BasePlugin):
             self.status = constants.status.ERROR_STATUS
             return
 
-        if isinstance(export_result, str):
+        if not export_result or isinstance(export_result, str):
             self.message = 'Error exporting the image: {}'.format(
                 export_result
             )

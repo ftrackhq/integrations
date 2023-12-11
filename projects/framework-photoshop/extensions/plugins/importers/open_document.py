@@ -60,7 +60,7 @@ class OpenDocumentPlugin(BasePlugin):
             self.status = constants.status.ERROR_STATUS
             return
 
-        if isinstance(open_result, str):
+        if not open_result or isinstance(open_result, str):
             self.message = (
                 'Error opening the document in Photoshop: {}'.format(
                     open_result
