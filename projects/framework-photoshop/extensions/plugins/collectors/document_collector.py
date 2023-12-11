@@ -25,7 +25,7 @@ class DocumentCollectorPlugin(BasePlugin):
             )
         )
 
-        if isinstance(document_saved_result, str):
+        if not document_saved_result or isinstance(document_saved_result, str):
             self.message = 'Error exporting the document: {}'.format(
                 document_saved_result
             )
