@@ -55,9 +55,9 @@ class OpenDocumentPlugin(BasePlugin):
         except Exception as e:
             self.logger.exception(e)
             self.message = (
-                'Error telling Photoshop to open document: {}'.format(e)
+                'Exception telling Photoshop to open document: {}'.format(e)
             )
-            self.status = constants.status.ERROR_STATUS
+            self.status = constants.status.EXCEPTION_STATUS
             return
 
         if not open_result or isinstance(open_result, str):

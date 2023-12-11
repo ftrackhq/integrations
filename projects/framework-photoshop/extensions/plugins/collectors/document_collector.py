@@ -22,9 +22,9 @@ class DocumentCollectorPlugin(BasePlugin):
         except Exception as e:
             self.logger.exception(e)
             self.message = (
-                'Error querying if the document is saved: {}'.format(e)
+                'Exception querying if the document is saved: {}'.format(e)
             )
-            self.status = constants.status.ERROR_STATUS
+            self.status = constants.status.EXCEPTION_STATUS
             return
 
         self.logger.debug(
@@ -64,8 +64,8 @@ class DocumentCollectorPlugin(BasePlugin):
             document_data = photoshop_connection.rpc('getDocumentData')
         except Exception as e:
             self.logger.exception(e)
-            self.message = 'Error querying the document data: {}'.format(e)
-            self.status = constants.status.ERROR_STATUS
+            self.message = 'Exception querying the document data: {}'.format(e)
+            self.status = constants.status.EXCEPTION_STATUS
             return
         # Will return a dictionary with information about the document,
         # an empty dict is returned if no document is open.
