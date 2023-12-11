@@ -59,7 +59,6 @@ class OverlayWidget(QtWidgets.QFrame):
         else:
             widget.setAutoFillBackground(True)
             widget.setStyleSheet('background: #1A2027;')
-            # set_property(widget,'background', 'ftrack')
 
         self.fill_color = QtGui.QColor(26, 32, 39, 200)
         self.pen_color = QtGui.QColor("#1A2027")

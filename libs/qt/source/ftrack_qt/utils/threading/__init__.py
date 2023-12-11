@@ -31,7 +31,10 @@ _invoker = Invoker(None)
 
 
 def invoke_in_qt_main_thread(fn, *args, **kwargs):
-    '''Invoke function *fn* with arguments.'''
-    QtCore.QCoreApplication.postEvent(
-        _invoker, InvokeEvent(fn, *args, **kwargs)
-    )
+    '''Invoke function *fn* with arguments, if not running in the main thread.'''
+    if QtCore.QThread.currentThread() is _invoker.thread():
+        fn(*args, **kwargs)
+    else:
+        QtCore.QCoreApplication.postEvent(
+            _invoker, InvokeEvent(fn, *args, **kwargs)
+        )

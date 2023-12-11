@@ -20,12 +20,11 @@ class ProgressWidget(QtWidgets.QWidget):
     '''
     Widget representation of the progress overlay widget used during dialog run.
 
-    The widget is composed of a main button widget representing status of entire tool
-     process, and a scroll area containing detailed progress feedback in form of phases
-     categorized in phase types (context, components, finalizers).
+    The widget is composed of a dialog header docked button widget and info button
+    widget representing main status. Main area is a  scroll area containing detailed
+    progress feedback in form of phases (plugin runs) grouped into categories
+    (context, collector...).
 
-     Additional batch processing is supported, to allow progress of multiple operations to
-     be tracked.
     '''
 
     MARGINS = 15
@@ -48,12 +47,19 @@ class ProgressWidget(QtWidgets.QWidget):
         '''Return the most recent phase status'''
         return self._last_status
 
+    @last_status.setter
+    def last_status(self, value):
+        '''Set the most recent phase status'''
+        self._last_status = value
+
     @property
     def action(self):
+        '''Return a descriptive name of the action that is being run'''
         return self._action or ''
 
     @action.setter
     def action(self, value):
+        '''Set the descriptive name of the action that is being run'''
         self._action = value
 
     def __init__(self, parent=None):
@@ -84,7 +90,7 @@ class ProgressWidget(QtWidgets.QWidget):
         self._button_widget = ProgressStatusButtonWidget(
             ProgressStatusButtonWidget.VIEW_HEADER_BUTTON
         )
-        self.set_status_widget_visibility(False)
+        self._set_status_widget_visibility(False)
 
         self._scroll = QtWidgets.QScrollArea()
         self._scroll.setStyle(QtWidgets.QStyleFactory.create("plastique"))
@@ -129,7 +135,7 @@ class ProgressWidget(QtWidgets.QWidget):
         label,
         indent=0,
     ):
-        '''Add progress widget representation for widget having unique *reference*
+        '''Add progress widget representation for phase having unique *reference*
         (string), beneath *category*, having *label*.
 
         Optional *indent* defines left margin.
@@ -168,7 +174,7 @@ class ProgressWidget(QtWidgets.QWidget):
         self._categories = []
         self._phase_widgets = {}
 
-    def set_status_widget_visibility(self, visibility=False):
+    def _set_status_widget_visibility(self, visibility=False):
         '''Update the visibility of the progress widget'''
         self.button_widget.setVisible(visibility)
 
@@ -182,6 +188,7 @@ class ProgressWidget(QtWidgets.QWidget):
         self.button_widget.setVisible(True)
 
     def hide_widget(self):
+        '''Hide the progress widget'''
         self.button_widget.setVisible(False)
 
     # Run
@@ -192,16 +199,9 @@ class ProgressWidget(QtWidgets.QWidget):
         for phase_widget in self._phase_widgets.values():
             phase_widget.update_status(new_status, status_message, None)
 
-    def update_status(self, new_status, message=None):
-        '''Set the new overall status to *new_status*, with optional *message*'''
-        self.button_widget.set_status(new_status, message=message)
-        if self._status_banner:
-            self._status_banner.set_status(new_status, message=message)
-        self.set_status_widget_visibility(True)
-
     def run(self, main_widget, action):
-        '''Run progress widget, with *action*'''
-        self._last_status = constants.status.UNKNOWN_STATUS
+        '''Run progress widget on top of *main_widget*, with *action*'''
+        self.last_status = constants.status.UNKNOWN_STATUS
         self.action = action
         self.reset_statuses()
         self.update_status(
@@ -209,6 +209,16 @@ class ProgressWidget(QtWidgets.QWidget):
             message=f'Running {self.action.lower()}...',
         )
         self.show_widget(main_widget)
+
+    def update_status(self, new_status, message=None):
+        '''Set the new main status to *new_status*, with optional *message*'''
+        self.logger.debug(
+            f'Main status update: {new_status} (message: {message}'
+        )
+        self.button_widget.set_status(new_status, message=message)
+        if self._status_banner:
+            self._status_banner.set_status(new_status, message=message)
+        self._set_status_widget_visibility(True)
 
     def update_phase_status(
         self,
@@ -218,10 +228,14 @@ class ProgressWidget(QtWidgets.QWidget):
         status_message=None,
         time=None,
     ):
-        '''Update the status of a phase *phase_name* under *category* to *new_status*, with
-        optional *status_message* and *log*'''
+        '''Update the status of a phase/plugin *reference* to *new_status*, with
+        optional *log_message*, *status_message* and execution *time*'''
+        self.logger.debug(
+            f'Phase {reference} status update: {new_status} (message: {log_message}'
+        )
         assert reference, 'Reference cannot be None'
         assert new_status, 'Status cannot be None'
+        self.last_status = new_status
         if not status_message:
             status_message = ''
             if new_status == status.SUCCESS_STATUS:
@@ -244,8 +258,6 @@ class ProgressWidget(QtWidgets.QWidget):
                 status_message,
             )
             self.update_status(self.status, message=main_status_message)
-
-            self._last_status = new_status
 
         else:
             self.logger.warning(
@@ -279,23 +291,6 @@ class ProgressWidget(QtWidgets.QWidget):
 
     def update_framework_progress(self, log_item):
         '''A framework plugin has been executed, with information passed on in *log_item*'''
-        self.logger.debug(
-            "Plugin progress: \n "
-            "  plugin_ref: {} \n"
-            "  plugin_name: {} \n"
-            "  plugin_status: {} \n"
-            "  plugin_message: {} \n"
-            "  plugin_execution_time: {} \n"
-            "  plugin_store: {} \n".format(
-                log_item.plugin_reference,
-                log_item.plugin_name,
-                log_item.plugin_status,
-                log_item.plugin_message,
-                log_item.plugin_execution_time,
-                log_item.plugin_options,
-                log_item.plugin_store,
-            )
-        )
         self.update_phase_status(
             log_item.plugin_reference,
             log_item.plugin_status,

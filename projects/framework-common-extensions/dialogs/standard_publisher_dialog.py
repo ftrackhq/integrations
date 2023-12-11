@@ -46,6 +46,8 @@ class StandardPublisherDialog(BaseContextDialog):
         '''
         self._scroll_area = None
         self._scroll_area_widget = None
+        # TODO: Reset this when re-selecting tool config
+        self._init_progress_widget = True
 
         super(StandardPublisherDialog, self).__init__(
             event_manager,
@@ -76,12 +78,12 @@ class StandardPublisherDialog(BaseContextDialog):
         self._scroll_area.setWidget(self._scroll_area_widget)
 
     def build_ui(self):
-        # Select the desired tool_config
-        if not self._progress_widget:
+        # Create progress widget, keep it if already exists
+        if self._init_progress_widget:
             self.progress_widget = ProgressWidget()
-            self._header.add_widget(self.progress_widget.button_widget)
-        else:
-            self.progress_widget.reset_statuses()
+            self.header.add_widget(self.progress_widget.button_widget)
+            self.progress_widget.prepare_add_phases()
+        # Select the desired tool_config
         if not self.filtered_tool_configs.get("publisher"):
             self.logger.warning("No Publisher tool configs available")
             self._scroll_area_widget.layout().addWidget(
@@ -92,7 +94,6 @@ class StandardPublisherDialog(BaseContextDialog):
         else:
             self.tool_config = self.filtered_tool_configs.get("publisher")[0]
 
-        self.progress_widget.prepare_add_phases()
         processed_plugins = []
 
         # Build context widgets
@@ -100,13 +101,14 @@ class StandardPublisherDialog(BaseContextDialog):
             self.tool_config, filters={'tags': ['context']}
         )
         for context_plugin in context_plugins:
-            self.progress_widget.add_phase_widget(
-                context_plugin['reference'],
-                'context',
-                context_plugin.get('label')
-                or context_plugin['plugin'].replace('_', ' ').title(),
-            )
-            processed_plugins.append(context_plugin['reference'])
+            if self._init_progress_widget:
+                self.progress_widget.add_phase_widget(
+                    context_plugin['reference'],
+                    'context',
+                    context_plugin.get('label')
+                    or context_plugin['plugin'].replace('_', ' ').title(),
+                )
+                processed_plugins.append(context_plugin['reference'])
             if not context_plugin.get('ui'):
                 continue
             context_widget = self.init_framework_widget(context_plugin)
@@ -142,23 +144,28 @@ class StandardPublisherDialog(BaseContextDialog):
             )
 
             self._scroll_area_widget.layout().addWidget(group_accordion_widget)
-            processed_plugins.extend(
-                [plugin['reference'] for plugin in get_plugins(_group)]
-            )
-
-        # Add additional plugins to progress widget
-        for plugin_config in get_plugins(self.tool_config):
-            if not self.progress_widget.has_phase_widget(
-                plugin_config['reference']
-            ):
-                if plugin_config['reference'] in processed_plugins:
-                    continue
-                self.progress_widget.add_phase_widget(
-                    plugin_config['reference'],
-                    'finalizers',
-                    plugin_config.get('label')
-                    or plugin_config['plugin'].replace('_', ' ').title(),
+            if self._init_progress_widget:
+                processed_plugins.extend(
+                    [plugin['reference'] for plugin in get_plugins(_group)]
                 )
+
+        if self._init_progress_widget:
+            # Add additional unprocessed plugins to progress widget
+            for plugin_config in get_plugins(self.tool_config):
+                if not self.progress_widget.has_phase_widget(
+                    plugin_config['reference']
+                ):
+                    if plugin_config['reference'] in processed_plugins:
+                        continue
+                    self.progress_widget.add_phase_widget(
+                        plugin_config['reference'],
+                        'finalizers',
+                        plugin_config.get('label')
+                        or plugin_config['plugin'].replace('_', ' ').title(),
+                    )
+            # Wrap progress widget
+            self.progress_widget.phases_added()
+            self._init_progress_widget = False
 
         spacer = QtWidgets.QSpacerItem(
             1,
@@ -168,22 +175,21 @@ class StandardPublisherDialog(BaseContextDialog):
         )
         self._scroll_area_widget.layout().addItem(spacer)
 
-        self.progress_widget.phases_added()
-
     def add_collector_widgets(
         self, collectors, accordion_widget, group_config=None
     ):
         for plugin_config in collectors:
-            self.progress_widget.add_phase_widget(
-                plugin_config['reference'],
-                '{}:collector'.format(
-                    group_config.get('options').get('component')
-                    if group_config
-                    else 'component'
-                ),
-                plugin_config.get('label')
-                or plugin_config['plugin'].replace('_', ' ').title(),
-            )
+            if self._init_progress_widget:
+                self.progress_widget.add_phase_widget(
+                    plugin_config['reference'],
+                    '{}:collector'.format(
+                        group_config.get('options').get('component')
+                        if group_config
+                        else 'component'
+                    ),
+                    plugin_config.get('label')
+                    or plugin_config['plugin'].replace('_', ' ').title(),
+                )
             if not plugin_config.get('ui'):
                 continue
             widget = self.init_framework_widget(plugin_config, group_config)
@@ -193,16 +199,17 @@ class StandardPublisherDialog(BaseContextDialog):
         self, validators, accordion_widget, group_config=None
     ):
         for plugin_config in validators:
-            self.progress_widget.add_phase_widget(
-                plugin_config['reference'],
-                '{}:validator'.format(
-                    group_config.get('options').get('component')
-                    if group_config
-                    else 'component'
-                ),
-                plugin_config.get('label')
-                or plugin_config['plugin'].replace('_', ' ').title(),
-            )
+            if self._init_progress_widget:
+                self.progress_widget.add_phase_widget(
+                    plugin_config['reference'],
+                    '{}:validator'.format(
+                        group_config.get('options').get('component')
+                        if group_config
+                        else 'component'
+                    ),
+                    plugin_config.get('label')
+                    or plugin_config['plugin'].replace('_', ' ').title(),
+                )
             if not plugin_config.get('ui'):
                 continue
             widget = self.init_framework_widget(plugin_config, group_config)
@@ -214,16 +221,17 @@ class StandardPublisherDialog(BaseContextDialog):
         self, exporters, accordion_widget, group_config=None
     ):
         for plugin_config in exporters:
-            self.progress_widget.add_phase_widget(
-                plugin_config['reference'],
-                '{}:exporter'.format(
-                    group_config.get('options').get('component')
-                    if group_config
-                    else 'component'
-                ),
-                plugin_config.get('label')
-                or plugin_config['plugin'].replace('_', ' ').title(),
-            )
+            if self._init_progress_widget:
+                self.progress_widget.add_phase_widget(
+                    plugin_config['reference'],
+                    '{}:exporter'.format(
+                        group_config.get('options').get('component')
+                        if group_config
+                        else 'component'
+                    ),
+                    plugin_config.get('label')
+                    or plugin_config['plugin'].replace('_', ' ').title(),
+                )
             if not plugin_config.get('ui'):
                 continue
             widget = self.init_framework_widget(plugin_config, group_config)
@@ -237,7 +245,7 @@ class StandardPublisherDialog(BaseContextDialog):
     def _on_run_button_clicked(self):
         '''(Override) Refresh context widget(s) upon publish'''
         super(StandardPublisherDialog, self)._on_run_button_clicked()
-        if self.progress_widget.last_status == constants.status.SUCCESS_STATUS:
+        if self.progress_widget.status == constants.status.SUCCESS_STATUS:
             self.clean_ui()
             self.pre_build_ui()
             self.build_ui()

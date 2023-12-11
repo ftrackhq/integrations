@@ -53,6 +53,10 @@ class BaseContextDialog(FrameworkDialog, StyledDialog):
         self._progress_widget = value
 
     @property
+    def header(self):
+        return self._header
+
+    @property
     def tool_widget(self):
         return self._tool_widget
 
