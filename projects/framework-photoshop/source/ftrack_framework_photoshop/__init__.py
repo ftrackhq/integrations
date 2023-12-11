@@ -92,7 +92,9 @@ def bootstrap_integration(framework_extensions_path):
 
     @invoke_in_qt_main_thread
     def on_run_dialog_callback(dialog_name):
-        client.run_dialog(dialog_name)
+        client.run_dialog(
+            dialog_name, dialog_options={'tool-config-filter': 'photoshop'}
+        )
 
     # Init Photoshop connection
     remote_session = ftrack_api.Session(auto_connect_event_hub=True)
@@ -123,7 +125,7 @@ def bootstrap_integration(framework_extensions_path):
 
     logger.warning(
         f'Photoshop {photoshop_connection.photoshop_version} standalone '
-        'integration initialized and ready and awiting connection from'
+        'integration initialized and ready and awaiting connection from'
         ' Photoshop.'
     )
 

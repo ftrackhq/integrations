@@ -76,15 +76,33 @@ class StandardPublisherDialog(BaseContextDialog):
     def build_ui(self):
         # Select the desired tool_config
 
-        if not self.filtered_tool_configs.get("publisher"):
-            self.logger.warning("No Publisher tool configs available")
+        self.tool_config = None
+
+        if self.filtered_tool_configs.get("publisher"):
+            if 'tool-config-filter' in self.dialog_options:
+                tool_config_filter = self.dialog_options['tool-config-filter']
+                for tool_config in self.filtered_tool_configs["publisher"]:
+                    if (
+                        tool_config.get('name', '')
+                        .lower()
+                        .find(tool_config_filter.lower())
+                        > -1
+                    ):
+                        self.tool_config = tool_config
+                        break
+            else:
+                self.tool_config = self.filtered_tool_configs["publisher"][0]
+
+        if not self.tool_config:
+            self.logger.warning(
+                f'No Publisher tool configs available (filter:'
+                f' {self.dialog_options.get("tool-config-filter")})'
+            )
             self._scroll_area_widget.layout().addWidget(
                 QtWidgets.QLabel(
                     "<html><i>No Publisher tool configs available</i></html>"
                 )
             )
-        else:
-            self.tool_config = self.filtered_tool_configs.get("publisher")[0]
 
         # Build context widgets
         context_plugins = get_plugins(

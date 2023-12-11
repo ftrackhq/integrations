@@ -33,7 +33,7 @@ class DocumentCollectorPlugin(BasePlugin):
             )
         )
 
-        if not document_saved_result or isinstance(document_saved_result, str):
+        if isinstance(document_saved_result, str):
             self.message = 'Photoshop document query failed: {}'.format(
                 document_saved_result
             )
@@ -49,8 +49,10 @@ class DocumentCollectorPlugin(BasePlugin):
             save_result = photoshop_connection.rpc('saveDocument', [temp_path])
             # Will return a boolean containing the result.
             if not save_result or isinstance(save_result, str):
-                self.message = 'Error saving the document: {}'.format(
-                    save_result
+                self.message = (
+                    'An error occured while saving the document: {}'.format(
+                        save_result
+                    )
                 )
                 self.status = constants.status.ERROR_STATUS
                 return
