@@ -124,7 +124,7 @@ class FrameworkDialog(BaseUI):
 
     @property
     def dialog_options(self):
-        '''Return Dialod options as passed on from client'''
+        '''Return dialog options as passed on from client'''
         return self._dialog_options or {}
 
     @property

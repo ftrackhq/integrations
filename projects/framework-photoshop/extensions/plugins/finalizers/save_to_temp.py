@@ -11,23 +11,6 @@ from ftrack_framework_photoshop.rpc_cep import PhotoshopRPCCEP
 class SaveToTemp(BasePlugin):
     name = 'save_to_temp'
 
-    def save_temp(self, temp_path):
-        '''Tell document to save the current document to *temp_path*.'''
-
-        # Get exiting RPC connection instance
-        photoshop_connection = PhotoshopRPCCEP.instance()
-
-        self.logger.debug(
-            'Telling Photoshop to save document to temp path: {}'.format(
-                temp_path
-            )
-        )
-
-        return photoshop_connection.rpc(
-            'saveDocument',
-            [temp_path],
-        )
-
     def run(self, store):
         '''
         This method tells Photoshop to save the current document in a temp location.
@@ -38,7 +21,19 @@ class SaveToTemp(BasePlugin):
         ).name
 
         try:
-            save_result = self.save_temp(temp_path)
+            # Get exiting RPC connection instance
+            photoshop_connection = PhotoshopRPCCEP.instance()
+
+            self.logger.debug(
+                'Telling Photoshop to save document to temp path: {}'.format(
+                    temp_path
+                )
+            )
+
+            save_result = photoshop_connection.rpc(
+                'saveDocument',
+                [temp_path],
+            )
         except Exception as e:
             self.logger.exception(e)
             self.message = 'Error saving document to temp: {}'.format(e)
