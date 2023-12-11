@@ -47,7 +47,7 @@ class ImageExporterPlugin(BasePlugin):
 
         export_result = self.export(extension, new_file_path)
 
-        if isinstance(export_result, str):
+        if not export_result or isinstance(export_result, str):
             self.message = 'Error exporting the reviewable: {}'.format(
                 export_result
             )
