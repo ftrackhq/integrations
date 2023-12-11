@@ -37,7 +37,7 @@ class ImageExporterPlugin(BasePlugin):
         and an export_destination from the :obj:`self.options`.
         '''
 
-        extension = self.options.get('extension') or '.jpg'
+        extension = self.options.get('extension', '.jpg')
 
         component_name = self.options.get('component')
 
