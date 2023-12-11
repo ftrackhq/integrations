@@ -71,7 +71,7 @@ class DocumentCollectorPlugin(BasePlugin):
             document_data.get('full_path') if document_data else None
         )
 
-        if len(document_path or '') == 0:
+        if not document_path:
             self.message = (
                 'Error exporting the document: Please save the '
                 'document with a name before publish'
