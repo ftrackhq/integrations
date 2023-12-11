@@ -160,19 +160,16 @@ class Host(object):
         '''Return registry object'''
         return self._registry
 
-    def __init__(self, event_manager, registry, host_types=None):
+    def __init__(self, event_manager, registry):
         '''
         Initialise Host with instance of
-        :class:`~ftrack_framework_core.event.EventManager`
+        :class:`~ftrack_framework_core.event.EventManager` and extensions *registry*
         '''
         super(Host, self).__init__()
 
         self.logger = logging.getLogger(
             __name__ + '.' + self.__class__.__name__
         )
-
-        if host_types:
-            self.host_types = host_types
 
         # Create the host id
         self._id = '{}-{}'.format('.'.join(self.host_types), uuid.uuid4().hex)

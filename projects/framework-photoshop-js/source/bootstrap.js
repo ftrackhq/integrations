@@ -157,9 +157,6 @@ function handleIntegrationContextDataCallback(event) {
             connected = true;
             showElement("connecting", false);
             showElement("content", true);
-            alert("ftrack Photoshop Integration successfully initialized\n\nIMPORTANT NOTE: "+
-            "This is an beta and not intended for production use. Please submit bug reports "+
-            "and feedback to support@ftrack.com.");
         } else {
             // Reply to event to confirm we received the data
             event_manager.publish_reply(event, prepareEventData(

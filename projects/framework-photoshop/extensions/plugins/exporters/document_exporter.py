@@ -4,6 +4,7 @@ import tempfile
 import shutil
 
 from ftrack_framework_plugin import BasePlugin
+import ftrack_constants.framework as constants
 
 
 class DocumentExporterPlugin(BasePlugin):
@@ -11,23 +12,10 @@ class DocumentExporterPlugin(BasePlugin):
 
     name = 'document_exporter'
 
-    def copy(self, origin_file, destination_file):
-        '''
-        Copy the given *origin_file to *destination_file*
-        '''
-
-        self.logger.debug(
-            "Copying Photoshop document from {} to {}".format(
-                origin_file, destination_file
-            )
-        )
-
-        return shutil.copy(origin_file, destination_file)
-
     def run(self, store):
         '''
-        Expects collected_file in the <component_name> key of the given *store*
-        and an export_destination from the :obj:`self.options`.
+        Expects full_path in collected_data in the <component_name> key of the
+        given *store*, stores the exported document path in the :obj:`store`
         '''
         component_name = self.options.get('component')
 
@@ -39,6 +27,18 @@ class DocumentExporterPlugin(BasePlugin):
 
         document_path = collected_data.get('full_path')
 
-        store['components'][component_name]['exported_path'] = self.copy(
-            document_path, new_file_path
+        self.logger.debug(
+            "Copying Photoshop document from {} to {}".format(
+                document_path, new_file_path
+            )
         )
+
+        try:
+            store['components'][component_name]['exported_path'] = shutil.copy(
+                document_path, new_file_path
+            )
+        except Exception as e:
+            self.logger.exception(e)
+            self.message = 'Error copying the document: {}'.format(e)
+            self.status = constants.status.ERROR_STATUS
+            return

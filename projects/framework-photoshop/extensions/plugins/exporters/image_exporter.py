@@ -14,27 +14,10 @@ class ImageExporterPlugin(BasePlugin):
 
     name = 'image_exporter'
 
-    def export(self, extension, destination_file):
-        '''
-        Copy the given *origin_file to *destination_file*
-        '''
-
-        # Get exiting RPC connection instance
-        photoshop_connection = PhotoshopRPCCEP.instance()
-
-        self.logger.debug(
-            "Exporting Photoshop image to {}".format(destination_file)
-        )
-
-        return photoshop_connection.rpc(
-            'exportDocument',
-            [destination_file, extension.replace('.', '')],
-        )
-
     def run(self, store):
         '''
-        Expects collected_file in the <component_name> key of the given *store*
-        and an export_destination from the :obj:`self.options`.
+        Expects extension(format) from the :obj:`self.options`, stores the
+        exported image path in the :obj:`store` under the component name.
         '''
 
         extension = self.options.get('extension') or '.jpg'
@@ -45,10 +28,26 @@ class ImageExporterPlugin(BasePlugin):
             delete=False, suffix=extension
         ).name
 
-        export_result = self.export(extension, new_file_path)
+        try:
+            # Get exiting RPC connection instance
+            photoshop_connection = PhotoshopRPCCEP.instance()
+
+            self.logger.debug(
+                "Exporting Photoshop image to {}".format(new_file_path)
+            )
+
+            export_result = photoshop_connection.rpc(
+                'exportDocument',
+                [new_file_path, extension.replace('.', '')],
+            )
+        except Exception as e:
+            self.logger.exception(e)
+            self.message = 'Error exporting the image: {}'.format(e)
+            self.status = constants.status.ERROR_STATUS
+            return
 
         if isinstance(export_result, str):
-            self.message = 'Error exporting the reviewable: {}'.format(
+            self.message = 'Error exporting the image: {}'.format(
                 export_result
             )
             self.status = constants.status.ERROR_STATUS

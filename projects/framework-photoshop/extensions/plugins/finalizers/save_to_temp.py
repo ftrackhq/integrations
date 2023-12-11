@@ -12,6 +12,8 @@ class SaveToTemp(BasePlugin):
     name = 'save_to_temp'
 
     def save_temp(self, temp_path):
+        '''Tell document to save the current document to *temp_path*.'''
+
         # Get exiting RPC connection instance
         photoshop_connection = PhotoshopRPCCEP.instance()
 
@@ -35,8 +37,13 @@ class SaveToTemp(BasePlugin):
             delete=False, suffix='.psd'
         ).name
 
-        save_result = self.save_temp(temp_path)
-
+        try:
+            save_result = self.save_temp(temp_path)
+        except Exception as e:
+            self.logger.exception(e)
+            self.message = 'Error saving document to temp: {}'.format(e)
+            self.status = constants.status.ERROR_STATUS
+            return
         if isinstance(save_result, str):
             self.message = (
                 'Error temp saving document in Photoshop: {}'.format(

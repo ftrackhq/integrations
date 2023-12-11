@@ -148,18 +148,6 @@ class PhotoshopRPCCEP(object):
             ),
         )
 
-        if True:
-            # Debug events
-            # TODO: Remove when RPC is implemented
-            def print_event(event):
-                print(f'/// DEBUG EVENT: {event}')
-                self.logger.info(f'/// DEBUG EVENT: {event}')
-
-            self._subscribe_event(
-                "topic=ftrack*",
-                print_event,
-            )
-
         self.logger.info(
             f'Created Photoshop {self.photoshop_version} connection (session id: {self.remote_integration_session_id})'
         )

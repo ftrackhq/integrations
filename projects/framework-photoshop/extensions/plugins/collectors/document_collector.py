@@ -17,7 +17,15 @@ class DocumentCollectorPlugin(BasePlugin):
         # Get exiting RPC connection instance
         photoshop_connection = PhotoshopRPCCEP.instance()
 
-        document_saved_result = photoshop_connection.rpc('documentSaved')
+        try:
+            document_saved_result = photoshop_connection.rpc('documentSaved')
+        except Exception as e:
+            self.logger.exception(e)
+            self.message = (
+                'Error querying if the document is saved: {}'.format(e)
+            )
+            self.status = constants.status.ERROR_STATUS
+            return
 
         self.logger.debug(
             'Got Photoshop saved query result: {}'.format(
@@ -26,7 +34,7 @@ class DocumentCollectorPlugin(BasePlugin):
         )
 
         if isinstance(document_saved_result, str):
-            self.message = 'Error exporting the document: {}'.format(
+            self.message = 'Photoshop document query failed: {}'.format(
                 document_saved_result
             )
             self.status = constants.status.ERROR_STATUS
@@ -50,8 +58,13 @@ class DocumentCollectorPlugin(BasePlugin):
                 self.logger.info('Document saved successfully')
 
         # Get document data
-        document_data = photoshop_connection.rpc('getDocumentData')
-
+        try:
+            document_data = photoshop_connection.rpc('getDocumentData')
+        except Exception as e:
+            self.logger.exception(e)
+            self.message = 'Error querying the document data: {}'.format(e)
+            self.status = constants.status.ERROR_STATUS
+            return
         # Will return a dictionary with information about the document,
         # an empty dict is returned if no document is open.
 
@@ -61,7 +74,7 @@ class DocumentCollectorPlugin(BasePlugin):
 
         if len(document_data or {}) == 0:
             self.message = (
-                'Error exporting the Photoshop document: Please have an '
+                'No document data available. Please have an '
                 'active work document before you can publish'
             )
             self.status = constants.status.ERROR_STATUS

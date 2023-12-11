@@ -12,27 +12,10 @@ from ftrack_framework_photoshop.rpc_cep import PhotoshopRPCCEP
 class OpenDocumentPlugin(BasePlugin):
     name = 'open_document'
 
-    def open_document(self, document_path):
-        '''
-        Open *source_file* in photoshop
-        '''
-
-        # Get exiting RPC connection instance
-        photoshop_connection = PhotoshopRPCCEP.instance()
-
-        self.logger.debug(
-            'Telling Photoshop to save document to: {}'.format(document_path)
-        )
-
-        return photoshop_connection.rpc(
-            'openDocument',
-            [document_path],
-        )
-
     def run(self, store):
         '''
-        Expects collected_file in the <component_name> key of the given *store*
-        and an export_destination from the :obj:`self.options`.
+        Expects collected_path in the <component_name> key of the given *store*,
+        opens it in Photoshop.
         '''
         component_name = self.options.get('component')
 
@@ -43,6 +26,7 @@ class OpenDocumentPlugin(BasePlugin):
         if not collected_path:
             self.message = "No path provided to open!"
             self.status = constants.status.ERROR_STATUS
+            return
 
         document_path = collected_path
 
@@ -53,7 +37,28 @@ class OpenDocumentPlugin(BasePlugin):
             self.status = constants.status.ERROR_STATUS
             return
 
-        open_result = self.open_document(document_path)
+        try:
+            # Get exiting RPC connection instance
+            photoshop_connection = PhotoshopRPCCEP.instance()
+
+            self.logger.debug(
+                'Telling Photoshop to save document to: {}'.format(
+                    document_path
+                )
+            )
+
+            open_result = photoshop_connection.rpc(
+                'openDocument',
+                [document_path],
+            )
+
+        except Exception as e:
+            self.logger.exception(e)
+            self.message = (
+                'Error telling Photoshop to open document: {}'.format(e)
+            )
+            self.status = constants.status.ERROR_STATUS
+            return
 
         if isinstance(open_result, str):
             self.message = (
