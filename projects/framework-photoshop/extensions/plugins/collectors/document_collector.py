@@ -59,7 +59,7 @@ class DocumentCollectorPlugin(BasePlugin):
             'Got Photoshop document data: {}'.format(document_data)
         )
 
-        if len(document_data or {}) == 0:
+        if not document_data:
             self.message = (
                 'Error exporting the Photoshop document: Please have an '
                 'active work document before you can publish'
