@@ -5,6 +5,9 @@ import os
 import logging
 
 import copy
+import time
+
+import ftrack_constants.framework as constants
 
 # Evaluate version and log package version
 try:
@@ -71,16 +74,11 @@ class BaseEngine(object):
         '''
         registered_plugin = self.plugin_registry.get_one(name=plugin)
 
-        plugin_instance = registered_plugin['extension'](
-            options, self.session, reference
-        )
+        plugin_instance = registered_plugin['extension'](options, self.session)
         ui_hook_result = None
         try:
             ui_hook_result = plugin_instance.ui_hook(payload)
         except Exception as error:
-            # TODO: double check if this is necessary as I think is already
-            #  handled and printed to the log by the raise Exception.
-            self.logger.exception(error)
             raise Exception(
                 "UI hook method of plugin {} can't be executed. Error: {}".format(
                     plugin, error
@@ -107,40 +105,116 @@ class BaseEngine(object):
         '''
         registered_plugin = self.plugin_registry.get_one(name=plugin)
 
-        plugin_instance = registered_plugin['extension'](
-            options, self.session, reference
-        )
+        plugin_instance = registered_plugin['extension'](options, self.session)
         self.logger.debug(
-            f"Run {plugin_instance.reference} with options {plugin_instance.options}"
+            f"Run {reference} with options {plugin_instance.options}"
         )
-        plugin_info = None
+
+        plugin_info = self.provide_plugin_info(
+            plugin,
+            reference,
+            constants.status.status_bool_mapping[plugin_instance.status],
+            plugin_instance.status,
+            plugin_instance.message,
+            0,
+            options,
+            store,
+        )
+
+        # Start timer to check the execution time
+        start_time = time.time()
         try:
-            plugin_info = plugin_instance.run_plugin(store)
-        # TODO: (future improvements) implement a validation error.
-        #  except ValidationError as error:
+            # Set the plugin status to running
+            plugin_instance.status = constants.status.RUNNING_STATUS
+            # Run the plugin
+            result = plugin_instance.run(store)
+            # User can return status and message from plugin
+            status, message = (None, None) if result is None else result
+            # If user did not return status or message.
+            if not status:
+                status = plugin_instance.status
+            if not message:
+                message = plugin_instance.message
         except Exception as error:
-            # TODO: double check if this is necessary as I think is already
-            #  handled and printed to the log by the raise Exception.
-            self.logger.exception(error)
-            raise Exception(
-                "Plugin {} can't be executed. Error: {}".format(plugin, error)
+            if constants.status.status_bool_mapping[plugin_instance.status]:
+                plugin_instance.status = constants.status.EXCEPTION_STATUS
+            # If status is already handled by the plugin we check if message is
+            # also handled if not set a generic one
+            if not plugin_instance.message:
+                plugin_instance.message = (
+                    f"Error executing plugin: {error} \n "
+                    f"status {plugin_instance.status}"
+                )
+            # If booth handled by the plugin, logger the message
+            self.logger.exception(
+                f"Error message: {plugin_instance.message}\n Traceback: {error}"
             )
-        finally:
-            if plugin_info:
-                if self.on_plugin_executed:
-                    self.on_plugin_executed(plugin_info)
-                    if not plugin_info['plugin_boolean_status']:
-                        raise Exception(
-                            "Error executing plugin {}. Error Message {}".format(
-                                plugin_info['plugin_name'],
-                                plugin_info['plugin_message'],
-                            )
-                        )
+            plugin_info['plugin_boolean_status'] = False
+            plugin_info['plugin_status'] = plugin_instance.status
+            plugin_info['plugin_message'] = plugin_instance.message
+            if self.on_plugin_executed:
+                self.on_plugin_executed(plugin_info)
+            return plugin_info
+
+        # print plugin error handled by the plugin
+        bool_status = constants.status.status_bool_mapping[status]
+        if not bool_status:
+            # Generic message in case no message is provided.
+            if not message:
+                message = (
+                    f"Error detected on the plugin {plugin}, "
+                    f"but no message provided."
+                )
+            self.logger.error(message)
+            plugin_info['plugin_boolean_status'] = bool_status
+            plugin_info['plugin_status'] = status
+            plugin_info['plugin_message'] = message
+            if self.on_plugin_executed:
+                self.on_plugin_executed(plugin_info)
+            return plugin_info
+
+        if status == constants.status.RUNNING_STATUS:
+            status = constants.status.SUCCESS_STATUS
+        full_message = f"Plugin executed, status: {status}, message: {message}"
+        end_time = time.time()
+        total_time = end_time - start_time
+        execution_time = total_time
         self.logger.debug(
             f"Result from running plugin {reference}: {plugin_info}"
         )
-
+        plugin_info['plugin_boolean_status'] = bool_status
+        plugin_info['plugin_status'] = status
+        plugin_info['plugin_message'] = full_message
+        if self.on_plugin_executed:
+            self.on_plugin_executed(plugin_info)
         return plugin_info
+
+    def provide_plugin_info(
+        self,
+        name,
+        reference,
+        boolean_status,
+        status,
+        message,
+        execution_time,
+        options,
+        store=None,
+    ):
+        '''
+        Provide the entire plugin information.
+        If *store* is given, provides the current store as part of the
+        plugin info.
+        '''
+        return {
+            'plugin_name': name,
+            'plugin_reference': reference,
+            'plugin_boolean_status': boolean_status,
+            'plugin_status': status,
+            'plugin_message': message,
+            'plugin_execution_time': execution_time,
+            'plugin_options': options,
+            'plugin_store': store,
+        }
 
     def execute_engine(self, engine, user_options):
         '''
