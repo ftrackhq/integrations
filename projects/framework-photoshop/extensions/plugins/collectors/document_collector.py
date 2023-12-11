@@ -40,7 +40,7 @@ class DocumentCollectorPlugin(BasePlugin):
             ).name
             save_result = photoshop_connection.rpc('saveDocument', [temp_path])
             # Will return a boolean containing the result.
-            if isinstance(save_result, str):
+            if not save_result or isinstance(save_result, str):
                 self.message = 'Error saving the document: {}'.format(
                     save_result
                 )
