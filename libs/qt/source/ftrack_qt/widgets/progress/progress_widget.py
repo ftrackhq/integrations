@@ -18,7 +18,9 @@ import ftrack_constants.framework as constants
 
 class ProgressWidget(QtWidgets.QWidget):
     '''
-    Widget representation of the progress overlay widget used during dialog run.
+    Widget representation of the progress overlay widget used during execution of a
+    lengthy proces that needs to visualize status updates and provide log
+    feedback.
 
     The widget is composed of a dialog header docked button widget and info button
     widget representing main status. Main area is a  scroll area containing detailed

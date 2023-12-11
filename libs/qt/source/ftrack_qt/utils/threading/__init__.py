@@ -31,7 +31,13 @@ _invoker = Invoker(None)
 
 
 def invoke_in_qt_main_thread(fn, *args, **kwargs):
-    '''Invoke function *fn* with arguments, if not running in the main thread.'''
+    '''
+    Invoke function *fn* with arguments, if not running in the main thread.
+
+    TODO: Align this with DCC utility functions to run in main thread, and use them
+    instead as their QT implementation might differ and this solution might not apply
+    or cause instabilities.
+    '''
     if QtCore.QThread.currentThread() is _invoker.thread():
         fn(*args, **kwargs)
     else:
