@@ -30,5 +30,4 @@ engine:
         plugin: open_document
 
   # Open finalizer.
-  - type: plugin
-    plugin: save_to_temp
+  - save_to_temp
