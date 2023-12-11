@@ -276,7 +276,6 @@ class Host(object):
             engine_result = engine_instance.execute_engine(
                 tool_config['engine'], client_options
             )
-
         except Exception as error:
             raise Exception(
                 'Error appear when executing engine: {} from {}.'
