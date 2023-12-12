@@ -28,7 +28,7 @@ class StandardOpenerDialog(BaseContextDialog):
         parent=None,
     ):
         '''
-        Initialize Mixin class publisher dialog. It will load the qt dialog and
+        Initialize Mixin class opener dialog. It will load the qt dialog and
         mix it with the framework dialog.
         *event_manager*: instance of
         :class:`~ftrack_framework_core.event.EventManager`
@@ -82,15 +82,34 @@ class StandardOpenerDialog(BaseContextDialog):
             self.header.add_widget(self.progress_widget.button_widget)
             self.progress_widget.prepare_add_phases()
         # Select the desired tool_config
-        if not self.filtered_tool_configs.get("opener"):
-            self.logger.warning("No opener tool configs available")
+
+        self.tool_config = None
+
+        if self.filtered_tool_configs.get("opener"):
+            if 'tool-config-filter' in self.dialog_options:
+                tool_config_filter = self.dialog_options['tool-config-filter']
+                for tool_config in self.filtered_tool_configs["opener"]:
+                    if (
+                        tool_config.get('name', '')
+                        .lower()
+                        .find(tool_config_filter.lower())
+                        > -1
+                    ):
+                        self.tool_config = tool_config
+                        break
+            else:
+                self.tool_config = self.filtered_tool_configs["opener"][0]
+
+        if not self.tool_config:
+            self.logger.warning(
+                f'No Publisher tool configs available (filter:'
+                f' {self.dialog_options.get("tool-config-filter")})'
+            )
             self._scroll_area_widget.layout().addWidget(
                 QtWidgets.QLabel(
-                    "<html><i>No Opener tool configs available</i></html>"
+                    "<html><i>No Publisher tool configs available</i></html>"
                 )
             )
-        else:
-            self.tool_config = self.filtered_tool_configs.get("opener")[0]
 
         processed_plugins = []
 

@@ -342,7 +342,9 @@ class Client(object):
 
     # UI
     def run_dialog(self, dialog_name, dialog_class=None, dialog_options=None):
-        '''Function to show a framework dialog from the client'''
+        '''Function to show a framework dialog by name *dialog_name* from the client, using
+        *dialog_class* or picking class from registry. Passes on optional *dialog_options* to the
+        dialog.'''
         # use dialog options to pass options to the dialog like for
         #  example: Dialog= WidgetDialog dialog_options= {tool_config_plugin: Context_selector}
         #  ---> So this will execute the widget dialog with the widget of the

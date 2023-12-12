@@ -163,13 +163,14 @@ class Host(object):
     def __init__(self, event_manager, registry):
         '''
         Initialise Host with instance of
-        :class:`~ftrack_framework_core.event.EventManager`
+        :class:`~ftrack_framework_core.event.EventManager` and extensions *registry*
         '''
         super(Host, self).__init__()
 
         self.logger = logging.getLogger(
             __name__ + '.' + self.__class__.__name__
         )
+
         # Create the host id
         self._id = '{}-{}'.format('.'.join(self.host_types), uuid.uuid4().hex)
 

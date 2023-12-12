@@ -123,6 +123,11 @@ class FrameworkDialog(BaseUI):
         return self.client_property_getter_connection('tool_config_options')
 
     @property
+    def dialog_options(self):
+        '''Return dialog options as passed on from client'''
+        return self._dialog_options or {}
+
+    @property
     def id(self):
         '''
         Id of the plugin
@@ -152,7 +157,6 @@ class FrameworkDialog(BaseUI):
         self.connect_properties(
             connect_setter_property_callback, connect_getter_property_callback
         )
-        # TODO: implement dialog_options
         self._dialog_options = dialog_options
 
         super(FrameworkDialog, self).__init__(event_manager, client_id, parent)

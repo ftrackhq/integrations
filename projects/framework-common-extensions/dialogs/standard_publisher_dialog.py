@@ -16,7 +16,7 @@ class StandardPublisherDialog(BaseContextDialog):
     name = 'framework_standard_publisher_dialog'
     tool_config_type_filter = ['publisher']
     ui_type = 'qt'
-    run_button_title = 'publish'
+    run_button_title = 'PUBLISH'
     docked = True
 
     def __init__(
@@ -84,15 +84,35 @@ class StandardPublisherDialog(BaseContextDialog):
             self.header.add_widget(self.progress_widget.button_widget)
             self.progress_widget.prepare_add_phases()
         # Select the desired tool_config
-        if not self.filtered_tool_configs.get("publisher"):
-            self.logger.warning("No Publisher tool configs available")
+
+        self.tool_config = None
+
+        if self.filtered_tool_configs.get("publisher"):
+            if 'tool-config-filter' in self.dialog_options:
+                tool_config_filter = self.dialog_options['tool-config-filter']
+                for tool_config in self.filtered_tool_configs["publisher"]:
+                    if (
+                        tool_config.get('name', '')
+                        .lower()
+                        .find(tool_config_filter.lower())
+                        > -1
+                    ):
+                        self.tool_config = tool_config
+                        break
+            else:
+                self.tool_config = self.filtered_tool_configs["publisher"][0]
+
+        if not self.tool_config:
+            self.logger.warning(
+                f'No Publisher tool configs available (filter:'
+                f' {self.dialog_options.get("tool-config-filter")})'
+            )
+
             self._scroll_area_widget.layout().addWidget(
                 QtWidgets.QLabel(
-                    "<html><i>No Publisher tool configs available</i></html>"
+                    '<html><i>No Publisher tool configs available</i></html>'
                 )
             )
-        else:
-            self.tool_config = self.filtered_tool_configs.get("publisher")[0]
 
         processed_plugins = []
 
@@ -123,7 +143,7 @@ class StandardPublisherDialog(BaseContextDialog):
             group_accordion_widget = AccordionBaseWidget(
                 selectable=False,
                 show_checkbox=True,
-                checkable=not _group.get('optional', False),
+                checkable=_group.get('optional', False),
                 title=_group.get('options').get('component'),
                 selected=False,
                 checked=_group.get('enabled', True),
