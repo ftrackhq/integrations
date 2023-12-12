@@ -12,6 +12,10 @@ Release Notes
 
     .. change:: changed
 
+        Remove async call to loadAssets method in assetSelector class.
+
+    .. change:: changed
+
         Convert Object to QObject to ensure proper livecycle handling in pyside.
 
     .. change:: changed
