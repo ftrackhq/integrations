@@ -164,7 +164,7 @@ class PublisherAssetVersionSelectorWidget(BaseWidget):
         if len(assets or []) > 0:
             self._label.setText(
                 'We found {} asset{} published on this task. '
-                'Choose version'.format(
+                'Choose asset'.format(
                     len(assets),
                     's' if len(assets) > 1 else '',
                 )

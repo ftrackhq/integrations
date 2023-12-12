@@ -14,6 +14,9 @@ from ftrack_utils.framework.remote import get_remote_integration_session_id
 class PhotoshopRPCCEP(object):
     '''Base Photoshop remote connection for CEP based integration.'''
 
+    # Connection should be a singleton accessible also during plugin execution
+    _instance = None
+
     @property
     def session(self):
         return self._session
@@ -79,6 +82,9 @@ class PhotoshopRPCCEP(object):
     ):
         super(PhotoshopRPCCEP, self).__init__()
 
+        # Store reference to self in class variable
+        PhotoshopRPCCEP._instance = self
+
         self._session = session
         self._client = client
         self._panel_launchers = panel_launchers
@@ -91,6 +97,16 @@ class PhotoshopRPCCEP(object):
         self.logger = logging.getLogger(__name__)
 
         self._initialise()
+
+    @staticmethod
+    def instance():
+        '''Return the singleton instance, checks if it is initialised and connected.'''
+        assert PhotoshopRPCCEP._instance, 'Photoshop RPC not created!'
+        assert (
+            PhotoshopRPCCEP._instance.connected
+        ), 'Photoshop not connected, please keep panel open while integration is working!'
+
+        return PhotoshopRPCCEP._instance
 
     def _initialise(self):
         '''Initialise the Photoshop connection'''
@@ -131,17 +147,6 @@ class PhotoshopRPCCEP(object):
                 event['data']['dialog_name']
             ),
         )
-
-        if True:
-            # Debug events
-            # TODO: Remove when RPC is implemented
-            def print_event(event):
-                print(event)
-
-            self._subscribe_event(
-                "topic=ftrack*",
-                print_event,
-            )
 
         self.logger.info(
             f'Created Photoshop {self.photoshop_version} connection (session id: {self.remote_integration_session_id})'
@@ -189,7 +194,7 @@ class PhotoshopRPCCEP(object):
         if fetch_reply:
             waited = 0
             while not reply_event:
-                time.sleep(0.01)
+                self.session.event_hub.wait(0.01)
                 waited += 10
                 if waited > timeout:  # Wait 10s for reply
                     raise Exception(
@@ -262,3 +267,37 @@ class PhotoshopRPCCEP(object):
         except Exception as e:
             self.logger.exception(e)
             return False
+
+    # RPC methods
+
+    def rpc(self, function_name, args=None, callback=None, fetch_reply=True):
+        '''
+        Publish an event with topic
+        :const:`~ftrack_framework_core.constants.event.REMOTE_INTEGRATION_RPC_TOPIC`
+        , to run remote *function_name* with arguments in *args* list, calling
+        *callback* providing the reply (async) or
+        awaiting and fetching the reply if *fetch_reply* is True (sync, default).
+
+        '''
+
+        assert not (callback and fetch_reply), (
+            'Cannot use callback and fetch reply ' 'at the same time!'
+        )
+
+        data = {
+            'remote_integration_session_id': self.remote_integration_session_id,
+            'function_name': function_name,
+            'args': args or [],
+        }
+
+        self.logger.debug(f'Running Photoshop RPC call: {data}')
+
+        event_topic = constants.event.REMOTE_INTEGRATION_RPC_TOPIC
+
+        result = self._publish_event(
+            event_topic, data, callback, fetch_reply=fetch_reply
+        )['result']
+
+        self.logger.debug(f'Got Photoshop RPC response: {result}')
+
+        return result
