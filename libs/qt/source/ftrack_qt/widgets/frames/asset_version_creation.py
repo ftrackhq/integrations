@@ -12,14 +12,23 @@ class AssetVersionCreation(QtWidgets.QFrame):
     @property
     def version(self):
         '''Return the latest version of the asset.'''
+        if not self._versions:
+            return None
         return self._versions[-1]
 
-    def __init__(self, asset_name, versions):
+    @property
+    def asset_id(self):
+        '''Return the id of the asset.'''
+        return self._asset_id
+
+    def __init__(self, asset_name, asset_id, versions, server_url):
         '''Initialize the AssetVersionCreation widget.'''
         super(AssetVersionCreation, self).__init__()
 
+        self._asset_id = asset_id
         self._asset_name = asset_name
         self._versions = versions
+        self._server_url = server_url
 
         self._thumbnail_widget = None
         self._asset_name_widget = None
@@ -41,8 +50,10 @@ class AssetVersionCreation(QtWidgets.QFrame):
         self._thumbnail_widget.setScaledContents(True)
         self._thumbnail_widget.setMinimumSize(57, 31)
         self._thumbnail_widget.setMaximumSize(57, 31)
-        self._thumbnail_widget.set_server_url(self.version['server_url'])
-        self._thumbnail_widget.load(self.version['thumbnail'])
+        self._thumbnail_widget.set_server_url(self._server_url)
+        self._thumbnail_widget.load(
+            self.version['thumbnail'] if self.version else None
+        )
         self.layout().addWidget(self._thumbnail_widget)
 
         self._asset_name_widget = QtWidgets.QLabel(self._asset_name)
@@ -53,7 +64,9 @@ class AssetVersionCreation(QtWidgets.QFrame):
         self.layout().addWidget(self._create_label)
 
         self._version_label = QtWidgets.QLabel(
-            'Version {}'.format(self.version['version'] + 1)
+            'Version {}'.format(
+                self.version['next_version'] if self.version else "1"
+            )
         )
         self._version_label.setObjectName("color-primary")
         self.layout().addWidget(self._version_label)

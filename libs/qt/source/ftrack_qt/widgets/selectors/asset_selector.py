@@ -25,9 +25,9 @@ class OpenAssetSelector(QtWidgets.QWidget):
     '''This signal is emitted when the version is changed. It sends the version 
     number as an argument '''
 
-    selected_item_changed = QtCore.Signal(object)
+    selected_item_changed = QtCore.Signal(object, object)
     '''This signal is emitted when an item is selected. It sends the version 
-    number as an argument '''
+    dictionary as an argument and the asset id'''
 
     def __init__(
         self,
@@ -88,11 +88,11 @@ class OpenAssetSelector(QtWidgets.QWidget):
         '''This method emits the version_changed signal with the given version.'''
         self.version_changed.emit(version)
 
-    def _on_selected_item_changed(self, index, version):
+    def _on_selected_item_changed(self, index, version, asset_id):
         '''This method updates the selected index and emits the
         selected_item_changed signal with the given version.'''
         self.selected_index = index
-        self.selected_item_changed.emit(version)
+        self.selected_item_changed.emit(version, asset_id)
 
 
 class PublishAssetSelector(OpenAssetSelector):
@@ -145,7 +145,7 @@ class PublishAssetSelector(OpenAssetSelector):
         self._asset_list.setCurrentRow(-1)  # Make sure list is deselected
         self._asset_list.blockSignals(False)
         self.selected_index = None
-        self.selected_item_changed.emit(None)
+        self.selected_item_changed.emit(None, None)
         is_valid_name = self.validate_name(asset_name)
         if is_valid_name:
             self.new_asset.emit(asset_name)
