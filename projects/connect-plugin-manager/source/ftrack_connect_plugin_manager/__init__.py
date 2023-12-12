@@ -15,6 +15,11 @@ import appdirs
 import json
 import sys
 
+from ftrack_connect.qt import QtWidgets, QtCore, QtGui
+import qtawesome as qta
+
+from ftrack_connect.ui.widget.overlay import BlockingOverlay
+
 # Evaluate version and log package version
 try:
     from ftrack_utils.version import get_version
@@ -26,66 +31,39 @@ try:
 except Exception:
     __version__ = '0.0.0'
 
-from ftrack_connect.qt import QtWidgets, QtCore, QtGui
-import qtawesome as qta
 
-from ftrack_connect.ui.widget.overlay import BlockingOverlay
-
-
-class InstallerDoneBlockingOverlay(BlockingOverlay):
-    '''Custom blocking overlay for publisher.'''
+class InstallerBlockingOverlay(BlockingOverlay):
+    '''Custom blocking overlay for plugin installer.'''
 
     def __init__(self, parent, message=''):
-        super(InstallerDoneBlockingOverlay, self).__init__(
-            parent,
-            message=message,
-            icon=qta.icon('mdi6.check', color='#FFDD86', scale_factor=1.2),
-        )
-
-        self.button_layout = QtWidgets.QHBoxLayout()
-        self.button_layout.setContentsMargins(0, 0, 0, 0)
-        self.contentLayout.addSpacing(30)
-        self.contentLayout.addLayout(self.button_layout)
-        self.confirmButton = QtWidgets.QPushButton('Install more plugins')
-        self.restartButton = QtWidgets.QPushButton('Restart')
-        self.restartButton.setObjectName('primary')
-
-        self.button_layout.addWidget(self.confirmButton)
-        self.button_layout.addWidget(self.restartButton)
-        self.confirmButton.hide()
-        self.confirmButton.clicked.connect(self.hide)
-
-
-class InstallerFailedBlockingOverlay(BlockingOverlay):
-    '''Custom blocking overlay for publisher.'''
-
-    def __init__(self, parent, message=''):
-        super(InstallerFailedBlockingOverlay, self).__init__(
+        super(InstallerBlockingOverlay, self).__init__(
             parent,
             message=message,
             icon=qta.icon('mdi6.close', color='#FF8686', scale_factor=1.2),
         )
 
-        self.textEdit = QtWidgets.QTextEdit()
-        self.textEdit.setReadOnly(True)
-        self.textEdit.setFixedHeight(200)
-        self.contentLayout.addWidget(self.textEdit)
+        self._text_edit = QtWidgets.QTextEdit()
+        self._text_edit.setReadOnly(True)
+        self._text_edit.setFixedHeight(200)
+        self.contentLayout.addWidget(self._text_edit)
+        self._text_edit.setVisible(False)
 
-        self.button_layout = QtWidgets.QHBoxLayout()
-        self.button_layout.setContentsMargins(0, 0, 0, 0)
+        self._button_layout = QtWidgets.QHBoxLayout()
+        self._button_layout.setContentsMargins(0, 0, 0, 0)
         self.contentLayout.addSpacing(30)
-        self.contentLayout.addLayout(self.button_layout)
-        self.confirmButton = QtWidgets.QPushButton('Install more plugins')
-        self.restartButton = QtWidgets.QPushButton('Restart')
-        self.restartButton.setObjectName('primary')
+        self.contentLayout.addLayout(self._button_layout)
+        self.confirm_button = QtWidgets.QPushButton('Install more plugins')
+        self.restart_button = QtWidgets.QPushButton('Restart')
+        self.restart_button.setObjectName('primary')
 
-        self.button_layout.addWidget(self.confirmButton)
-        self.button_layout.addWidget(self.restartButton)
-        self.confirmButton.hide()
-        self.confirmButton.clicked.connect(self.hide)
+        self._button_layout.addWidget(self.confirm_button)
+        self._button_layout.addWidget(self.restart_button)
+        self.confirm_button.hide()
+        self.confirm_button.clicked.connect(self.hide)
 
-    def setReason(self, reason):
-        self.textEdit.setText(reason)
+    def set_reason(self, reason):
+        self._text_edit.setText(reason)
+        self._text_edit.setVisible(True)
 
 
 class STATUSES(object):
@@ -147,7 +125,7 @@ class PluginProcessor(QtCore.QObject):
         for platform_dependent, source_path in [
             (
                 True,
-                source_path_noarch.replace('.zip', '-{}.zip'.format(platform)),
+                source_path_noarch.replace('.zip', f'-{platform}.zip'),
             ),
             (False, source_path_noarch),
         ]:
@@ -156,9 +134,7 @@ class PluginProcessor(QtCore.QObject):
                 save_path = tempfile.gettempdir()
                 temp_path = os.path.join(save_path, zip_name)
 
-                logging.info(
-                    'Downloading {} to {}'.format(source_path, temp_path)
-                )
+                logging.info(f'Downloading {source_path} to {temp_path}')
 
                 with urllib.request.urlopen(source_path) as dl_file:
                     with open(temp_path, 'wb') as out_file:
@@ -167,17 +143,13 @@ class PluginProcessor(QtCore.QObject):
             except HTTPError as e:
                 if platform_dependent:
                     logging.debug(
-                        'No download exists {} on platform {}'.format(
-                            source_path, platform
-                        )
+                        f'No download exists {source_path} on platform {platform}'
                     )
                 else:
                     logging.warning(traceback.format_exc())
                     raise Exception(
-                        "Plugin '{}' is not supported on this platform"
-                        " or temporarily unavailable. Details: {}".format(
-                            plugin.data(ROLES.PLUGIN_NAME), e
-                        )
+                        f'Plugin "{plugin.data(ROLES.PLUGIN_NAME)}" is not supported on this platform'
+                        f' or temporarily unavailable. Details: {e}'
                     )
 
     def process(self, plugin):
@@ -206,9 +178,7 @@ class PluginProcessor(QtCore.QObject):
 
         install_path = os.path.dirname(plugin.data(ROLES.PLUGIN_INSTALL_PATH))
         destination_path = os.path.join(install_path, plugin_name)
-        logging.debug(
-            'Installing {} to {}'.format(source_path, destination_path)
-        )
+        logging.debug(f'Installing {source_path} to {destination_path}')
 
         with zipfile.ZipFile(source_path, 'r') as zip_ref:
             zip_ref.extractall(destination_path)
@@ -216,18 +186,21 @@ class PluginProcessor(QtCore.QObject):
     def remove(self, plugin):
         '''Remove provided *plugin* item.'''
         install_path = plugin.data(ROLES.PLUGIN_INSTALL_PATH)
-        logging.debug('Removing {}'.format(install_path))
+        logging.debug(f'Removing {install_path}')
         if os.path.exists(install_path) and os.path.isdir(install_path):
             shutil.rmtree(install_path, ignore_errors=False, onerror=None)
 
 
 class DndPluginList(QtWidgets.QFrame):
+    '''Plugin list widget'''
+
     default_json_config_url = (
         'https://download.ftrack.com/ftrack-connect/plugins.json'
     )
+
     plugin_re = re.compile('(?P<name>(([A-Za-z-3-4]+)))-(?P<version>(\w.+))')
 
-    def __init__(self, session, parent=None):
+    def __init__(self, parent=None):
         super(DndPluginList, self).__init__(parent=parent)
 
         self.json_config_url = os.environ.get(
@@ -238,20 +211,34 @@ class DndPluginList(QtWidgets.QFrame):
             'ftrack-connect-plugins', 'ftrack'
         )
 
+        self._plugin_list = None
+        self._plugin_model = None
+        self._proxy_model = None
+
         self.setAcceptDrops(True)
 
-        self.main_layout = QtWidgets.QVBoxLayout()
-        self.main_layout.setContentsMargins(0, 0, 0, 0)
-        self.setLayout(self.main_layout)
-        self.plugin_list = QtWidgets.QListView()
-        self.plugin_model = QtGui.QStandardItemModel(self)
-        self.proxy_model = QtCore.QSortFilterProxyModel(self)
-        self.proxy_model.setSourceModel(self.plugin_model)
-        self.plugin_list.setModel(self.proxy_model)
-        self.main_layout.addWidget(self.plugin_list)
+        self.pre_build()
+        self.build()
+        self.post_build()
+
+    def pre_build(self):
+        layout = QtWidgets.QVBoxLayout()
+        layout.setContentsMargins(0, 0, 0, 0)
+        self.setLayout(layout)
+
+    def build(self):
+        self._plugin_list = QtWidgets.QListView()
+        self._plugin_model = QtGui.QStandardItemModel(self)
+        self._proxy_model = QtCore.QSortFilterProxyModel(self)
+        self._proxy_model.setSourceModel(self._plugin_model)
+        self._plugin_list.setModel(self._proxy_model)
+        self.layout().addWidget(self._plugin_list)
+
+    def post_build(self):
+        pass
 
     # custom methods
-    def addPlugin(self, file_path, status=STATUSES.NEW):
+    def add_plugin(self, file_path, status=STATUSES.NEW):
         '''Add provided *plugin_path* as plugin with given *status*.'''
         if not file_path:
             return
@@ -272,7 +259,7 @@ class DndPluginList(QtWidgets.QFrame):
         plugin_item.setSelectable(False)
         plugin_item.setEnabled(True)
 
-        plugin_item.setText('{} | {}'.format(data['name'], data['version']))
+        plugin_item.setText(f'{data["name"]} | {data["version"]}')
         plugin_item.setData(status, ROLES.PLUGIN_STATUS)
         plugin_item.setData(str(data['name']), ROLES.PLUGIN_NAME)
         new_plugin_version = parse_version(data['version'])
@@ -306,8 +293,8 @@ class DndPluginList(QtWidgets.QFrame):
                     plugin_item.setCheckable(True)
                     plugin_item.setCheckState(QtCore.Qt.Checked)
 
-            self.plugin_model.appendRow(plugin_item)
-            self.plugin_model.itemChanged.emit(plugin_item)
+            self._plugin_model.appendRow(plugin_item)
+            self._plugin_model.itemChanged.emit(plugin_item)
             return
 
         # update/remove plugin
@@ -326,9 +313,7 @@ class DndPluginList(QtWidgets.QFrame):
                 return
 
             # update stored item.
-            stored_item.setText(
-                '{} > {}'.format(stored_item.text(), new_plugin_version)
-            )
+            stored_item.setText(f'{stored_item.text()} > {new_plugin_version}')
             stored_item.setData(STATUSES.UPDATE, ROLES.PLUGIN_STATUS)
             stored_item.setIcon(STATUS_ICONS[STATUSES.UPDATE])
             stored_item.setData(file_path, ROLES.PLUGIN_SOURCE_PATH)
@@ -341,9 +326,9 @@ class DndPluginList(QtWidgets.QFrame):
 
     def plugin_is_available(self, plugin_data):
         '''Return item from *plugin_data* if found.'''
-        num_items = self.plugin_model.rowCount()
+        num_items = self._plugin_model.rowCount()
         for i in range(num_items):
-            item = self.plugin_model.item(i)
+            item = self._plugin_model.item(i)
             item_id = item.data(ROLES.PLUGIN_ID)
             if item_id == plugin_data['id']:
                 return item
@@ -366,13 +351,13 @@ class DndPluginList(QtWidgets.QFrame):
 
     def populate_installed_plugins(self):
         '''Populate model with installed plugins.'''
-        self.plugin_model.clear()
+        self._plugin_model.clear()
 
         plugins = os.listdir(self.default_plugin_directory)
 
         for plugin in plugins:
             plugin_path = os.path.join(self.default_plugin_directory, plugin)
-            self.addPlugin(plugin_path, STATUSES.INSTALLED)
+            self.add_plugin(plugin_path, STATUSES.INSTALLED)
 
     def populate_download_plugins(self):
         '''Populate model with remotely configured plugins.'''
@@ -381,27 +366,27 @@ class DndPluginList(QtWidgets.QFrame):
         response_json = json.loads(response.read())
 
         for link in response_json['integrations']:
-            self.addPlugin(link, STATUSES.DOWNLOAD)
+            self.add_plugin(link, STATUSES.DOWNLOAD)
 
     def get_conflicting_plugins(self):
         result = []
         plugins = os.listdir(self.default_plugin_directory)
         for plugin in plugins:
-            if plugin.lower().startswith("ftrack-connect-pipeline"):
+            if plugin.lower().startswith('ftrack-connect-pipeline'):
                 result.append(plugin)
         return result
 
     def remove_conflicting_plugin(self, plugin_name):
         install_path = os.path.join(self.default_plugin_directory, plugin_name)
-        logging.debug('Removing {}'.format(install_path))
+        logging.debug(f'Removing {install_path}')
         if os.path.exists(install_path) and os.path.isdir(install_path):
             shutil.rmtree(install_path, ignore_errors=False, onerror=None)
 
-    def _processMimeData(self, mimeData):
+    def _process_mime_data(self, mime_data):
         '''Return a list of valid filepaths.'''
         validPaths = []
 
-        if not mimeData.hasUrls():
+        if not mime_data.hasUrls():
             QtWidgets.QMessageBox.warning(
                 self,
                 'Invalid file',
@@ -409,7 +394,7 @@ class DndPluginList(QtWidgets.QFrame):
             )
             return validPaths
 
-        for path in mimeData.urls():
+        for path in mime_data.urls():
             local_path = path.toLocalFile()
             if os.path.isfile(local_path):
                 if local_path.endswith('.zip'):
@@ -421,21 +406,21 @@ class DndPluginList(QtWidgets.QFrame):
         '''Override dragEnterEvent and accept all events.'''
         event.setDropAction(QtCore.Qt.CopyAction)
         event.accept()
-        self._setDropZoneState('active')
+        self._set_drop_zone_state('active')
 
     def dropEvent(self, event):
         '''Handle dropped file event.'''
-        self._setDropZoneState()
+        self._set_drop_zone_state()
 
-        paths = self._processMimeData(event.mimeData())
+        paths = self._process_mime_data(event.mimeData())
 
         for path in paths:
-            self.addPlugin(path, STATUSES.NEW)
+            self.add_plugin(path, STATUSES.NEW)
 
         event.accept()
-        self._setDropZoneState()
+        self._set_drop_zone_state()
 
-    def _setDropZoneState(self, state='default'):
+    def _set_drop_zone_state(self, state='default'):
         '''Set drop zone state to *state*.
 
         *state* should be 'default', 'active' or 'invalid'.
