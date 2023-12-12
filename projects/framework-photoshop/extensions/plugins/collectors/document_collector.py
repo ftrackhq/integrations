@@ -14,7 +14,7 @@ class DocumentCollectorPlugin(BasePlugin):
         Collect the current document data from Photoshop
         and store the collected_data in the given *store*.
         '''
-        # Get exiting RPC connection instance
+        # Get existing RPC connection instance
         photoshop_connection = PhotoshopRPCCEP.instance()
 
         try:

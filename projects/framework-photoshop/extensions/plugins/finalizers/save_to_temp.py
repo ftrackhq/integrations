@@ -21,7 +21,7 @@ class SaveToTemp(BasePlugin):
         ).name
 
         try:
-            # Get exiting RPC connection instance
+            # Get existing RPC connection instance
             photoshop_connection = PhotoshopRPCCEP.instance()
 
             self.logger.debug(
