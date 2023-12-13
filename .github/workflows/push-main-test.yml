@@ -1,0 +1,26 @@
+name: Pytest
+
+on:
+  push:
+    branches: [ "backlog/move-all-working-test-to-root" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  unit-test-pytest:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.7", "3.8", "3.9"]
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+          python-version-attribute: "WHL"
+
+      - name: Run tests
+        run: pytest
