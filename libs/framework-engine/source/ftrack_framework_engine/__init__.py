@@ -145,7 +145,7 @@ class BaseEngine(object):
                     f"Error executing plugin: {error} \n "
                     f"status {plugin_instance.status}"
                 )
-            # If booth handled by the plugin, logger the message
+            # If both handled by the plugin, logger the message
             self.logger.exception(
                 f"Error message: {plugin_instance.message}\n Traceback: {error}"
             )
