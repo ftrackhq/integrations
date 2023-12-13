@@ -495,7 +495,7 @@ class ProgressPhaseButtonWidget(QtWidgets.QPushButton):
 
     def show_log(self):
         self.log_overlay_container.setParent(self.parent())
-        if len(self.log_message or '') > 0:
+        if self.log_message:
             self._log_text_edit.setText(self.log_message)
         else:
             self._log_text_edit.setText("No errors found")
