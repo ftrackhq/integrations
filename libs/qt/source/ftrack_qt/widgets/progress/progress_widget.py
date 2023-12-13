@@ -184,7 +184,6 @@ class ProgressWidget(QtWidgets.QWidget):
         '''Show the progress widget overlay on top of *main_window*'''
         if main_window:
             self._main_window = main_window
-        if self._main_window:
             self._overlay_container.setParent(self._main_window)
         self._overlay_container.setVisible(True)
         self.button_widget.setVisible(True)
