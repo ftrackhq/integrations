@@ -195,7 +195,7 @@ class ProgressWidget(QtWidgets.QWidget):
     # Run
     def reset_statuses(self, new_status=None, status_message=''):
         '''Reset statuses of all progress phases'''
-        if new_status is None:
+        if not new_status:
             new_status = ProgressWidget.NOT_STARTED_STATUS
         for phase_widget in self._phase_widgets.values():
             phase_widget.update_status(new_status, status_message, None)
