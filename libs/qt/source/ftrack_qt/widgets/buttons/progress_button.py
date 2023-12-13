@@ -60,7 +60,7 @@ class ProgressStatusButtonWidget(QtWidgets.QPushButton):
         self.status = new_status
         if message:
             self._message_label.setText(message)
-        set_property(self, 'status', self._status.lower())
+        set_property(self, 'status', self.status.lower())
         color = self._status_icon.set_status(self.status, size=24)
         self._message_label.setStyleSheet('color: #{}'.format(color))
 
@@ -104,7 +104,7 @@ class ProgressPhaseButtonWidget(QtWidgets.QPushButton):
         self._status = constants.status.UNKNOWN_STATUS
         self._log_message = None
 
-        self.log_overlay_container = None
+        self._log_overlay_container = None
         self._icon_widget = None
         self._status_message_widget = None
         self._log_message_widget = None
@@ -137,7 +137,7 @@ class ProgressPhaseButtonWidget(QtWidgets.QPushButton):
         label_widget.setObjectName('h3')
         v_layout.addWidget(label_widget)
 
-        self._status_message_widget = QtWidgets.QLabel(self._status)
+        self._status_message_widget = QtWidgets.QLabel(self.status)
         self._status_message_widget.setObjectName('gray')
         v_layout.addWidget(self._status_message_widget)
 
@@ -174,7 +174,6 @@ class ProgressPhaseButtonWidget(QtWidgets.QPushButton):
     ):
         '''Update the status of the phase to *new_status* and set *status_message*. 
         Build log messages from *log*.''' ''
-        # Make sure widget not has been destroyed
         color = self.set_status(new_status)
         self._status_message_widget.setText(status_message)
         self._status_message_widget.setStyleSheet('color: #{};'.format(color))
@@ -192,7 +191,7 @@ class ProgressPhaseButtonWidget(QtWidgets.QPushButton):
 
     def show_log(self):
         self.log_overlay_container.setParent(self.parent())
-        if len(self.log_message or '') > 0:
+        if self.log_message:
             self._log_text_edit.setText(self.log_message)
         else:
             self._log_text_edit.setText("No errors found")

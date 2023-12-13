@@ -159,7 +159,6 @@ class ProgressWidget(QtWidgets.QWidget):
         '''Show the progress widget overlay on top of *main_window*'''
         if main_window:
             self._main_window = main_window
-        if self._main_window:
             self._overlay_container.setParent(self._main_window)
         self._overlay_container.setVisible(True)
         self.button_widget.setVisible(True)
@@ -171,7 +170,7 @@ class ProgressWidget(QtWidgets.QWidget):
     # Run
     def reset_statuses(self, new_status=None, status_message=''):
         '''Reset statuses of all progress phases'''
-        if new_status is None:
+        if not new_status:
             new_status = constants.status.UNKNOWN_STATUS
         for phase_widget in self._phase_widgets.values():
             phase_widget.update_status(new_status, status_message, None)
