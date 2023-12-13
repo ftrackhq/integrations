@@ -436,7 +436,7 @@ class ProgressPhaseButtonWidget(QtWidgets.QPushButton):
         label_widget.setObjectName('h3')
         v_layout.addWidget(label_widget)
 
-        self._status_message_widget = QtWidgets.QLabel(self._status)
+        self._status_message_widget = QtWidgets.QLabel(self.status)
         self._status_message_widget.setObjectName('gray')
         v_layout.addWidget(self._status_message_widget)
 
