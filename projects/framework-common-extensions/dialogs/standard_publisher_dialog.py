@@ -46,8 +46,6 @@ class StandardPublisherDialog(BaseContextDialog):
         '''
         self._scroll_area = None
         self._scroll_area_widget = None
-        # TODO: Reset this when re-selecting tool config
-        self._init_progress_widget = True
 
         super(StandardPublisherDialog, self).__init__(
             event_manager,
@@ -56,7 +54,8 @@ class StandardPublisherDialog(BaseContextDialog):
             connect_setter_property_callback,
             connect_getter_property_callback,
             dialog_options,
-            parent,
+            progress_widget=ProgressWidget(),
+            parent=parent,
         )
 
     def pre_build_ui(self):
@@ -80,8 +79,6 @@ class StandardPublisherDialog(BaseContextDialog):
     def build_ui(self):
         # Create progress widget, keep it if already exists
         if self._init_progress_widget:
-            self.progress_widget = ProgressWidget()
-            self.header.add_widget(self.progress_widget.button_widget)
             self.progress_widget.prepare_add_phases()
         # Select the desired tool_config
 
@@ -125,8 +122,7 @@ class StandardPublisherDialog(BaseContextDialog):
                 self.progress_widget.add_phase_widget(
                     context_plugin['reference'],
                     'context',
-                    context_plugin.get('label')
-                    or context_plugin['plugin'].replace('_', ' ').title(),
+                    context_plugin['plugin'].replace('_', ' ').title(),
                 )
                 processed_plugins.append(context_plugin['reference'])
             if not context_plugin.get('ui'):
@@ -180,8 +176,7 @@ class StandardPublisherDialog(BaseContextDialog):
                     self.progress_widget.add_phase_widget(
                         plugin_config['reference'],
                         'finalizers',
-                        plugin_config.get('label')
-                        or plugin_config['plugin'].replace('_', ' ').title(),
+                        plugin_config['plugin'].replace('_', ' ').title(),
                     )
             # Wrap progress widget
             self.progress_widget.phases_added()
@@ -207,8 +202,7 @@ class StandardPublisherDialog(BaseContextDialog):
                         if group_config
                         else 'component'
                     ),
-                    plugin_config.get('label')
-                    or plugin_config['plugin'].replace('_', ' ').title(),
+                    plugin_config['plugin'].replace('_', ' ').title(),
                 )
             if not plugin_config.get('ui'):
                 continue
@@ -227,8 +221,7 @@ class StandardPublisherDialog(BaseContextDialog):
                         if group_config
                         else 'component'
                     ),
-                    plugin_config.get('label')
-                    or plugin_config['plugin'].replace('_', ' ').title(),
+                    plugin_config['plugin'].replace('_', ' ').title(),
                 )
             if not plugin_config.get('ui'):
                 continue
@@ -249,8 +242,7 @@ class StandardPublisherDialog(BaseContextDialog):
                         if group_config
                         else 'component'
                     ),
-                    plugin_config.get('label')
-                    or plugin_config['plugin'].replace('_', ' ').title(),
+                    plugin_config['plugin'].replace('_', ' ').title(),
                 )
             if not plugin_config.get('ui'):
                 continue
@@ -265,6 +257,8 @@ class StandardPublisherDialog(BaseContextDialog):
     def _on_run_button_clicked(self):
         '''(Override) Refresh context widget(s) upon publish'''
         super(StandardPublisherDialog, self)._on_run_button_clicked()
+        # TODO: This will not work in remote mode (async mode) as plugin events
+        #  will arrive after this point of execution.
         if self.progress_widget.status == constants.status.SUCCESS_STATUS:
             self.clean_ui()
             self.pre_build_ui()

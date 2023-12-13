@@ -54,7 +54,8 @@ class StandardOpenerDialog(BaseContextDialog):
             connect_setter_property_callback,
             connect_getter_property_callback,
             dialog_options,
-            parent,
+            progress_widget=ProgressWidget(),
+            parent=parent,
         )
         self.resize(400, 450)
 
@@ -78,8 +79,6 @@ class StandardOpenerDialog(BaseContextDialog):
     def build_ui(self):
         # Create progress widget, keep it if already exists
         if self._init_progress_widget:
-            self.progress_widget = ProgressWidget()
-            self.header.add_widget(self.progress_widget.button_widget)
             self.progress_widget.prepare_add_phases()
         # Select the desired tool_config
 
@@ -122,8 +121,7 @@ class StandardOpenerDialog(BaseContextDialog):
                 self.progress_widget.add_phase_widget(
                     context_plugin['reference'],
                     'context',
-                    context_plugin.get('label')
-                    or context_plugin['plugin'].replace('_', ' ').title(),
+                    context_plugin['plugin'].replace('_', ' ').title(),
                 )
             processed_plugins.append(context_plugin['reference'])
             if not context_plugin.get('ui'):
@@ -155,8 +153,7 @@ class StandardOpenerDialog(BaseContextDialog):
                             if group_config
                             else 'component'
                         ),
-                        plugin_config.get('label')
-                        or plugin_config['plugin'].replace('_', ' ').title(),
+                        plugin_config['plugin'].replace('_', ' ').title(),
                     )
                 if not plugin_config.get('ui'):
                     continue
@@ -184,8 +181,7 @@ class StandardOpenerDialog(BaseContextDialog):
                     self.progress_widget.add_phase_widget(
                         plugin_config['reference'],
                         'finalizers',
-                        plugin_config.get('label')
-                        or plugin_config['plugin'].replace('_', ' ').title(),
+                        plugin_config['plugin'].replace('_', ' ').title(),
                     )
             # Wrap progress widget
             self.progress_widget.phases_added()

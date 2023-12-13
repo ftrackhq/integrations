@@ -12,8 +12,6 @@ from ftrack_qt.widgets.selectors import ContextSelector
 from ftrack_qt.utils.layout import recursive_clear_layout
 from ftrack_qt.utils.decorators import invoke_in_qt_main_thread
 
-import ftrack_constants.framework as constants
-
 
 class BaseContextDialog(FrameworkDialog, StyledDialog):
     '''Default Framework Publisher dialog'''
@@ -72,6 +70,7 @@ class BaseContextDialog(FrameworkDialog, StyledDialog):
         connect_setter_property_callback,
         connect_getter_property_callback,
         dialog_options,
+        progress_widget=None,
         parent=None,
     ):
         '''
@@ -112,6 +111,11 @@ class BaseContextDialog(FrameworkDialog, StyledDialog):
         self._tool_widget = None
         self._run_button = None
 
+        self.progress_widget = progress_widget
+        if self.progress_widget:
+            self.progress_widget.dialog = self
+            # TODO: Reset this when re-selecting tool config
+            self._init_progress_widget = True
         self.pre_build()
         self.build()
         self.post_build()
@@ -127,6 +131,9 @@ class BaseContextDialog(FrameworkDialog, StyledDialog):
         self._context_selector = ContextSelector(
             self.event_manager.session, enable_context_change=True
         )
+
+        if self.progress_widget:
+            self.header.add_widget(self.progress_widget.button_widget)
 
         self._tool_widget = QtWidgets.QWidget()
         _tool_widget_layout = QtWidgets.QVBoxLayout()

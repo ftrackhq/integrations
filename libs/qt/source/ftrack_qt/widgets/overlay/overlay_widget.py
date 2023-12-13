@@ -3,7 +3,7 @@
 
 from Qt import QtGui, QtCore, QtWidgets
 
-from ftrack_qt.utils.widget import get_main_window_from_widget, set_property
+from ftrack_qt.utils.widget import get_main_window_from_widget
 
 from ftrack_qt.widgets.icons import MaterialIcon
 
