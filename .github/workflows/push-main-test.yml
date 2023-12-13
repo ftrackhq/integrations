@@ -22,5 +22,11 @@ jobs:
           python-version: ${{ matrix.python-version }}
           python-version-attribute: "WHL"
 
+      - name: Install poetry
+        run: pip install poetry==1.4.2
+
+      - name: Install dependencies
+        run: poetry install
+
       - name: Run tests
-        run: pytest
+        run: poetry run pytest

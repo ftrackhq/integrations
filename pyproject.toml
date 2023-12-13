@@ -1,27 +1,32 @@
-# TODO: for local development testing propouses we might be able to install the
-#  framework libs through here.
-#[tool.poetry]
-#name = "ftrack-integrations-monorepo"
-#version = "0.0.0"
-#description='ftrack Integrations Monorepo'
-#authors = ["ftrack Integrations Team <integrations@backlight.co>"]
-#readme = "README.md"
-#license = "Apache-2.0"
-#homepage = "https://ftrack.com"
-#repository = "https://github.com/ftrackhq/integrations/"
-#
-#[build-system]
-#requires = ["poetry-core"]
-#build-backend = "poetry.core.masonry.api"
-#
-#[tool.poetry.dependencies]
-#python = ">= 3.7, < 3.8"
-#
-#[tool.poetry.group.test.dependencies]
-#pytest = "^6.0.0"
-#pytest-mock = "*"
-#ftrack-framework-core = { path = "libs/framework-core", develop = true }
-#ftrack-framework-core = { path = "libs/framework-core", develop = true }
+[tool.poetry]
+name = "ftrack-integrations-monorepo"
+version = "0.0.0"
+description='ftrack Integrations Monorepo'
+authors = ["ftrack Integrations Team <integrations@backlight.co>"]
+readme = "README.md"
+license = "Apache-2.0"
+homepage = "https://ftrack.com"
+repository = "https://github.com/ftrackhq/integrations/"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.dependencies]
+python = ">= 3.7, < 3.8"
+
+[tool.poetry.group.test.dependencies]
+pytest = "^6.0.0"
+pytest-mock = "*"
+ftrack-constants = { path = "libs/constants", develop = true }
+ftrack-utils = { path = "libs/utils", develop = true }
+ftrack-framework-core = { path = "libs/framework-core", develop = true }
+ftrack-framework-engine = { path = "libs/framework-engine", develop = true }
+ftrack-framework-plugin = { path = "libs/framework-plugin", develop = true }
+ftrack-framework-widget = { path = "libs/framework-widget", develop = true }
+ftrack-framework-qt = { path = "libs/framework-qt", develop = true }
+ftrack-qt = { path = "libs/qt", develop = true }
+ftrack-qt-style = { path = "libs/qt-style", develop = true }
 
 
 [tool.black]
