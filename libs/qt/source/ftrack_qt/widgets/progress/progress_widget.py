@@ -474,7 +474,7 @@ class ProgressPhaseButtonWidget(QtWidgets.QPushButton):
     ):
         '''Update the status of the phase to *new_status* and set *status_message*. 
         Build log messages from *log*.''' ''
-        # Make sure widget not has been destroyed
+        # Make sure widget has not been destroyed
         color = self.set_status(new_status)
         if shiboken2.isValid(self._status_message_widget):
             self._status_message_widget.setText(status_message)
