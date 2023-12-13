@@ -404,7 +404,7 @@ class ProgressPhaseButtonWidget(QtWidgets.QPushButton):
         self._status = status or constants.status.DEFAULT_STATUS
         self._log = None
 
-        self.log_overlay_container = None
+        self._log_overlay_container = None
         self._icon_widget = None
         self._status_message_widget = None
         self._log_message_widget = None
