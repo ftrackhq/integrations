@@ -360,7 +360,7 @@ class ProgressStatusButtonWidget(QtWidgets.QPushButton):
         self.status = new_status or status.DEFAULT_STATUS
         self.message = message
         self._message_label.setText(self.message)
-        set_property(self, 'status', self._status.lower())
+        set_property(self, 'status', self.status.lower())
         color = self._status_icon.set_status(self.status, size=24)
         self._message_label.setStyleSheet('color: #{}'.format(color))
 
