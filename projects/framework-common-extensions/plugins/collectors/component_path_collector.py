@@ -1,7 +1,7 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2023 ftrack
 
-from ftrack_constants import status as status_constants
+import ftrack_constants as constants
 from ftrack_framework_plugin import BasePlugin
 
 
@@ -106,7 +106,7 @@ class ComponentPathCollectorPlugin(BasePlugin):
             )
             self.logger.warning(message)
             self.message = message
-            self.status = status_constants.ERROR_STATUS
+            self.status = constants.status.ERROR_STATUS
 
         location = self.session.pick_location()
         component_path = location.get_filesystem_path(component)

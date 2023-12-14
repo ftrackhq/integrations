@@ -5,7 +5,7 @@ import logging
 
 from Qt import QtCore, QtWidgets, QtGui, QtSvg
 
-from ftrack_constants import status as status_constants
+import ftrack_constants as constants
 from ftrack_qt.widgets.icons import MaterialIcon
 
 logger = logging.getLogger(__name__)
@@ -54,23 +54,23 @@ class StatusMaterialIconWidget(QtWidgets.QWidget):
         color = '303030'
         variant = 'filled'
         if status in [
-            status_constants.UNKNOWN_STATUS,
-            status_constants.DEFAULT_STATUS,
+            constants.status.UNKNOWN_STATUS,
+            constants.status.DEFAULT_STATUS,
         ]:
             icon_name = 'help'
             color = '303030'
-        elif status in [status_constants.RUNNING_STATUS]:
+        elif status in [constants.status.RUNNING_STATUS]:
             icon_name = 'hourglass_bottom'
             color = '87E1EB'
-        elif status in [status_constants.SUCCESS_STATUS]:
+        elif status in [constants.status.SUCCESS_STATUS]:
             icon_name = 'check-circle-outline'
             color = '79DFB6'
-        elif status in [status_constants.WARNING_STATUS]:
+        elif status in [constants.status.WARNING_STATUS]:
             icon_name = 'error_outline'
             color = 'FFBD5D'
         elif status in [
-            status_constants.ERROR_STATUS,
-            status_constants.EXCEPTION_STATUS,
+            constants.status.ERROR_STATUS,
+            constants.status.EXCEPTION_STATUS,
         ]:
             icon_name = 'error'
             color = 'FF7A73'

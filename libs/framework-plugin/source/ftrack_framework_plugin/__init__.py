@@ -4,7 +4,7 @@ import os
 import logging
 from abc import ABC, abstractmethod
 
-from ftrack_constants import status as status_constants
+import ftrack_constants as constants
 
 
 # Evaluate version and log package version
@@ -45,13 +45,13 @@ class BasePlugin(ABC):
     @status.setter
     def status(self, value):
         '''Set new status to the plugin'''
-        if value not in status_constants.STATUS_LIST:
+        if value not in constants.status.STATUS_LIST:
             self.logger.error(
                 "Status {} is not recognized. Available statuses are: {}".format(
-                    value, status_constants.STATUS_LIST
+                    value, constants.status.STATUS_LIST
                 )
             )
-            value = status_constants.EXCEPTION_STATUS
+            value = constants.status.EXCEPTION_STATUS
         self._status = value
 
     @property
@@ -81,7 +81,7 @@ class BasePlugin(ABC):
 
         self._options = options
         self._session = session
-        self._status = status_constants.UNKNOWN_STATUS
+        self._status = constants.status.UNKNOWN_STATUS
         self._message = ''
 
     def ui_hook(self, payload):
