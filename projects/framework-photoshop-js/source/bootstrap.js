@@ -177,18 +177,20 @@ function handleIntegrationContextDataCallback(event) {
 function launchTool(tool_name) {
     // Find dialog name
     let idx = 0;
-    var dialog_name = undefined;
+    var dialog_name = undefined, tool_config = undefined;
     while (idx < panel_launchers.length) {
         let launcher = panel_launchers[idx];
         if (launcher.name == tool_name) {
             dialog_name = launcher.dialog_name;
+            tool_config = launcher.options.tool_config;
             break;
         }
         idx++;
     }
     event_manager.publish.remote_integration_run_dialog(
         prepareEventData({
-            "dialog_name": dialog_name
+            "dialog_name": dialog_name,
+            "tool_config": tool_config
         })
     );
 }

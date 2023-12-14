@@ -79,18 +79,26 @@ class StandardPublisherDialog(BaseContextDialog):
         self.tool_config = None
 
         if self.filtered_tool_configs.get("publisher"):
-            if 'tool-config-filter' in self.dialog_options:
-                tool_config_filter = self.dialog_options['tool-config-filter']
+            if 'tool_config' in self.dialog_options:
+                tool_config_name = self.dialog_options['tool_config']
                 for tool_config in self.filtered_tool_configs["publisher"]:
                     if (
-                        tool_config.get('name', '')
-                        .lower()
-                        .find(tool_config_filter.lower())
-                        > -1
+                        tool_config.get('name', '').lower()
+                        == tool_config_name.lower()
                     ):
+                        self.logger.debug(
+                            f'Using tool config {tool_config_name}'
+                        )
                         self.tool_config = tool_config
                         break
+                if not self.tool_config:
+                    raise Exception(
+                        f'Could not find tool config {tool_config_name}'
+                    )
             else:
+                self.logger.warning(
+                    'No tool config specified, using first available'
+                )
                 self.tool_config = self.filtered_tool_configs["publisher"][0]
 
         if not self.tool_config:

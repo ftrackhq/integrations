@@ -91,9 +91,13 @@ def bootstrap_integration(framework_extensions_path):
     logger.debug('Read DCC config: {}'.format(dcc_config))
 
     @invoke_in_qt_main_thread
-    def on_run_dialog_callback(dialog_name):
+    def on_run_dialog_callback(dialog_name, tool_config):
         client.run_dialog(
-            dialog_name, dialog_options={'tool-config-filter': 'photoshop'}
+            dialog_name,
+            dialog_options={
+                'tool-config-filter': 'photoshop',
+                'tool_config': tool_config,
+            },
         )
 
     # Init Photoshop connection
