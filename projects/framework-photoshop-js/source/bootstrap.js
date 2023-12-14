@@ -182,7 +182,7 @@ function launchTool(tool_name) {
         let launcher = panel_launchers[idx];
         if (launcher.name == tool_name) {
             dialog_name = launcher.dialog_name;
-            tool_config = launcher.options.tool_config;
+            tool_configs = launcher.options.tool_configs;
             break;
         }
         idx++;
@@ -190,7 +190,7 @@ function launchTool(tool_name) {
     event_manager.publish.remote_integration_run_dialog(
         prepareEventData({
             "dialog_name": dialog_name,
-            "tool_config": tool_config
+            "tool_configs": tool_configs
         })
     );
 }

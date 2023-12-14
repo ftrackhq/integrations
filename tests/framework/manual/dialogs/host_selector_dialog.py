@@ -55,6 +55,7 @@ class HostSelectorDialog(BaseDialog):
         connect_methods_callback,
         connect_setter_property_callback,
         connect_getter_property_callback,
+        tool_config_names,
         dialog_options,
         parent=None,
     ):
@@ -70,6 +71,7 @@ class HostSelectorDialog(BaseDialog):
         the dialog to be able to read client properties.
         *connect_getter_property_callback*: Client callback property getter for
         the dialog to be able to write client properties.
+        *tool_config_names*: (Unused)
         *dialog_options*: Dictionary of arguments passed to configure the
         current dialog.
         '''
@@ -81,6 +83,7 @@ class HostSelectorDialog(BaseDialog):
             connect_methods_callback,
             connect_setter_property_callback,
             connect_getter_property_callback,
+            tool_config_names,
             dialog_options,
             parent,
         )

@@ -24,6 +24,7 @@ class StandardOpenerDialog(BaseContextDialog):
         connect_setter_property_callback,
         connect_getter_property_callback,
         dialog_options,
+        tool_config_names,
         parent=None,
     ):
         '''
@@ -38,7 +39,9 @@ class StandardOpenerDialog(BaseContextDialog):
         the dialog to be able to read client properties.
         *connect_getter_property_callback*: Client callback property getter for
         the dialog to be able to write client properties.
-        *dialog_options*: Dictionary of arguments passed to configure the
+        *tool_config_names*: List of tool config names on to configure the
+        current dialog.
+        *dialog_options*: Dictionary of arguments passed on to configure the
         current dialog.
         '''
         self._scroll_area = None
@@ -50,6 +53,7 @@ class StandardOpenerDialog(BaseContextDialog):
             connect_methods_callback,
             connect_setter_property_callback,
             connect_getter_property_callback,
+            tool_config_names,
             dialog_options,
             parent,
         )
@@ -76,10 +80,14 @@ class StandardOpenerDialog(BaseContextDialog):
         # Select the desired tool_config
 
         self.tool_config = None
-
+        tool_config_message = None
         if self.filtered_tool_configs.get("opener"):
-            if 'tool_config' in self.dialog_options:
-                tool_config_name = self.dialog_options['tool_config']
+            if len(self.tool_config_names or []) != 1:
+                tool_config_message = (
+                    'One(1) tool config name must be supplied to opener!'
+                )
+            else:
+                tool_config_name = self.tool_config_names[0]
                 for tool_config in self.filtered_tool_configs["opener"]:
                     if (
                         tool_config.get('name', '').lower()
@@ -91,22 +99,18 @@ class StandardOpenerDialog(BaseContextDialog):
                         self.tool_config = tool_config
                         break
                 if not self.tool_config:
-                    raise Exception(
-                        f'Could not find tool config {tool_config_name}'
+                    tool_config_message = (
+                        f'Could not find tool config: "{tool_config_name}"'
                     )
-            else:
-                self.logger.warning(
-                    'No tool config specified, using first available'
-                )
-                self.tool_config = self.filtered_tool_configs["opener"][0]
+        else:
+            tool_config_message = 'No opener tool configs available!'
 
         if not self.tool_config:
-            self.logger.warning(f'No Opener tool configs available')
+            self.logger.warning(tool_config_message)
             self._scroll_area_widget.layout().addWidget(
-                QtWidgets.QLabel(
-                    "<html><i>No Opener tool configs available</i></html>"
-                )
+                QtWidgets.QLabel(f'<html><i>{tool_config_message}</i></html>')
             )
+            return
 
         # Build context widgets
         context_plugins = get_plugins(

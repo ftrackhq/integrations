@@ -145,7 +145,7 @@ class PhotoshopRPCCEP(object):
             event_topic,
             lambda event: self.on_run_dialog_callback(
                 event['data']['dialog_name'],
-                event['data']['tool_config'],
+                event['data']['tool_configs'],
             ),
         )
 
