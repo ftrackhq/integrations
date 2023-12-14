@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ["3.7"]#, "3.8", "3.9"]
+        python-version: ["3.7", "3.8", "3.9"]
 
     steps:
       - uses: actions/checkout@v3
@@ -28,6 +28,7 @@ jobs:
       - name: Install dependencies
         run: poetry install
 # TODO: when multiple python versions, try this to check if it improves speed. (Will have to remove the current poetry install)
+#  We can implement coverage library as well to see where more tests are needed.
 #      - name: Cache Poetry
 #          uses: actions/cache@v2
 #          with:
