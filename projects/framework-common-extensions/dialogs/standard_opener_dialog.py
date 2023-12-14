@@ -101,10 +101,7 @@ class StandardOpenerDialog(BaseContextDialog):
                 self.tool_config = self.filtered_tool_configs["opener"][0]
 
         if not self.tool_config:
-            self.logger.warning(
-                f'No Opener tool configs available (filter:'
-                f' {self.dialog_options.get("tool-config-filter")})'
-            )
+            self.logger.warning(f'No Opener tool configs available')
             self._scroll_area_widget.layout().addWidget(
                 QtWidgets.QLabel(
                     "<html><i>No Opener tool configs available</i></html>"

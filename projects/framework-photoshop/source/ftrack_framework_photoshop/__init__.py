@@ -95,7 +95,6 @@ def bootstrap_integration(framework_extensions_path):
         client.run_dialog(
             dialog_name,
             dialog_options={
-                'tool-config-filter': 'photoshop',
                 'tool_config': tool_config,
             },
         )
