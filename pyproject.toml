@@ -13,11 +13,12 @@ requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.poetry.dependencies]
-python = ">= 3.7, < 3.11"
+python = ">= 3.7, < 3.12"
 
 [tool.poetry.group.test.dependencies]
 pytest = "^6.0.0"
 pytest-mock = "*"
+coverage = { version = "^7.3.2", python = ">=3.8" }
 ftrack-constants = { path = "libs/constants", develop = true }
 ftrack-utils = { path = "libs/utils", develop = true }
 ftrack-framework-core = { path = "libs/framework-core", develop = true }
