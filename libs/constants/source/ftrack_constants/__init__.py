@@ -3,6 +3,11 @@
 import os
 import logging
 
+from . import framework
+from . import qt
+from . import status
+
+
 # Evaluate and log package version
 try:
     from ftrack_utils.version import get_version

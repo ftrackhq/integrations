@@ -7,7 +7,7 @@ import logging
 import copy
 import time
 
-from ftrack_constants import status as status_constants
+import ftrack_constants as constants
 
 # Evaluate version and log package version
 try:
@@ -113,7 +113,7 @@ class BaseEngine(object):
         plugin_info = self.provide_plugin_info(
             plugin,
             reference,
-            status_constants.status_bool_mapping[plugin_instance.status],
+            constants.status.status_bool_mapping[plugin_instance.status],
             plugin_instance.status,
             plugin_instance.message,
             0,
@@ -125,7 +125,7 @@ class BaseEngine(object):
         start_time = time.time()
         try:
             # Set the plugin status to running
-            plugin_instance.status = status_constants.RUNNING_STATUS
+            plugin_instance.status = constants.status.RUNNING_STATUS
             # Run the plugin
             result = plugin_instance.run(store)
             # User can return status and message from plugin
@@ -136,8 +136,8 @@ class BaseEngine(object):
             if not message:
                 message = plugin_instance.message
         except Exception as error:
-            if status_constants.status_bool_mapping[plugin_instance.status]:
-                plugin_instance.status = status_constants.EXCEPTION_STATUS
+            if constants.status.status_bool_mapping[plugin_instance.status]:
+                plugin_instance.status = constants.status.EXCEPTION_STATUS
             # If status is already handled by the plugin we check if message is
             # also handled if not set a generic one
             if not plugin_instance.message:
@@ -157,7 +157,7 @@ class BaseEngine(object):
             return plugin_info
 
         # print plugin error handled by the plugin
-        bool_status = status_constants.status_bool_mapping[status]
+        bool_status = constants.status.status_bool_mapping[status]
         if not bool_status:
             # Generic message in case no message is provided.
             if not message:
@@ -173,8 +173,8 @@ class BaseEngine(object):
                 self.on_plugin_executed(plugin_info)
             return plugin_info
 
-        if status == status_constants.RUNNING_STATUS:
-            status = status_constants.SUCCESS_STATUS
+        if status == constants.status.RUNNING_STATUS:
+            status = constants.status.SUCCESS_STATUS
         full_message = f"Plugin executed, status: {status}, message: {message}"
         end_time = time.time()
         total_time = end_time - start_time
