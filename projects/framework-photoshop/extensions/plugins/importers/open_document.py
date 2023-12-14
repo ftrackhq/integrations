@@ -3,9 +3,8 @@
 
 import os
 
-import ftrack_constants.framework as constants
+from ftrack_constants import status as status_constants
 from ftrack_framework_plugin import BasePlugin
-
 from ftrack_framework_photoshop.rpc_cep import PhotoshopRPCCEP
 
 
@@ -25,7 +24,7 @@ class OpenDocumentPlugin(BasePlugin):
 
         if not collected_path:
             self.message = "No path provided to open!"
-            self.status = constants.status.ERROR_STATUS
+            self.status = status_constants.ERROR_STATUS
             return
 
         document_path = collected_path
@@ -34,7 +33,7 @@ class OpenDocumentPlugin(BasePlugin):
             self.message = "Document '{}' does not exist!".format(
                 document_path
             )
-            self.status = constants.status.ERROR_STATUS
+            self.status = status_constants.ERROR_STATUS
             return
 
         try:
@@ -57,7 +56,7 @@ class OpenDocumentPlugin(BasePlugin):
             self.message = (
                 'Exception telling Photoshop to open document: {}'.format(e)
             )
-            self.status = constants.status.EXCEPTION_STATUS
+            self.status = status_constants.EXCEPTION_STATUS
             return
 
         if not open_result or isinstance(open_result, str):
@@ -66,7 +65,7 @@ class OpenDocumentPlugin(BasePlugin):
                     open_result
                 )
             )
-            self.status = constants.status.ERROR_STATUS
+            self.status = status_constants.ERROR_STATUS
             return
 
         store['components'][component_name]['open_result'] = open_result
