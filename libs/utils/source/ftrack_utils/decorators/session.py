@@ -1,4 +1,5 @@
 import ftrack_api
+import time
 
 
 def with_new_session(func):
@@ -12,6 +13,9 @@ def with_new_session(func):
         try:
             # Create ftrack session
             session = ftrack_api.Session(auto_connect_event_hub=True)
+            # Avoid connection errors, making sure event hub is connected before continue
+            while not session.event_hub.connected:
+                time.sleep(0.1)
             # Add session as argument
             kwargs['session'] = session
             # Call function
