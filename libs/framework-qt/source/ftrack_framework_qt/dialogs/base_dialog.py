@@ -65,6 +65,7 @@ class BaseDialog(FrameworkDialog, StyledDialog):
             connect_getter_property_callback,
             tool_config_names,
             dialog_options,
+            parent=parent,
         )
         self._tool_widget = None
 

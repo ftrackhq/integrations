@@ -167,7 +167,9 @@ class FrameworkDialog(BaseUI):
         self._tool_config_names = tool_config_names
         self._dialog_options = dialog_options
 
-        super(FrameworkDialog, self).__init__(event_manager, client_id, parent)
+        super(FrameworkDialog, self).__init__(
+            event_manager, client_id, parent=parent
+        )
 
     def connect_methods(self, method):
         '''
