@@ -177,7 +177,7 @@ function handleIntegrationContextDataCallback(event) {
 function launchTool(tool_name) {
     // Find dialog name
     let idx = 0;
-    var dialog_name = undefined, tool_config = undefined;
+    var dialog_name = undefined, tool_configs = undefined;
     while (idx < panel_launchers.length) {
         let launcher = panel_launchers[idx];
         if (launcher.name == tool_name) {
