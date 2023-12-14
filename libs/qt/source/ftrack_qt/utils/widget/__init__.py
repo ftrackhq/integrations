@@ -20,8 +20,8 @@ def find_parent(widget, class_name):
 
 
 def get_main_window_from_widget(widget, class_name):
-    '''This function will return the main window of the framework from the
-    given *widget*. The main window is named as main_framework_widget'''
+    '''This function will return the main window from the
+    given *widget*.'''
     main_window = widget.window()
     if not main_window:
         return

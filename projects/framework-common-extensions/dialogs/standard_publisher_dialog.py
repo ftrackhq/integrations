@@ -77,9 +77,6 @@ class StandardPublisherDialog(BaseContextDialog):
         self._scroll_area.setWidget(self._scroll_area_widget)
 
     def build_ui(self):
-        # Create progress widget, keep it if already exists
-        if self._init_progress_widget:
-            self.progress_widget.prepare_add_phases()
         # Select the desired tool_config
 
         self.tool_config = None

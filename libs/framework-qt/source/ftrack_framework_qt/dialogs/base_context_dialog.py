@@ -62,6 +62,19 @@ class BaseContextDialog(FrameworkDialog, StyledDialog):
     def run_button(self):
         return self._run_button
 
+    @FrameworkDialog.tool_config.setter
+    def tool_config(self, value):
+        '''(Override) Set the tool config, and update the UI'''
+        super(BaseContextDialog, self.__class__).tool_config.fset(self, value)
+        if self.tool_config:
+            if (
+                self.progress_widget
+                and self.tool_config['name'] != self._prev_tool_config_name
+            ):
+                self._build_progress_widget(self.tool_config)
+            # Remember the name, if changed we need to fully rebuild the progress widget
+            self._prev_tool_config_name = self.tool_config['name']
+
     def __init__(
         self,
         event_manager,
@@ -112,10 +125,8 @@ class BaseContextDialog(FrameworkDialog, StyledDialog):
         self._run_button = None
 
         self.progress_widget = progress_widget
-        if self.progress_widget:
-            self.progress_widget.dialog = self
-            # TODO: Reset this when re-selecting tool config
-            self._init_progress_widget = True
+        self._prev_tool_config_name = None
+
         self.pre_build()
         self.build()
         self.post_build()
@@ -145,6 +156,10 @@ class BaseContextDialog(FrameworkDialog, StyledDialog):
         self.layout().addWidget(self._context_selector, QtCore.Qt.AlignTop)
         self.layout().addWidget(self._tool_widget)
         self.layout().addWidget(self._run_button)
+
+    def _build_progress_widget(self, tool_config):
+        '''Build the progress widget based on the given *tool_config*'''
+        self.progress_widget.prepare_add_phases()
 
     def post_build(self):
         '''Set up all the signals'''
