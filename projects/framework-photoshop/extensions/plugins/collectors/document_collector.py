@@ -1,8 +1,8 @@
 import os
 import tempfile
 
+from ftrack_constants import status as status_constants
 from ftrack_framework_plugin import BasePlugin
-import ftrack_constants.framework as constants
 from ftrack_framework_photoshop.rpc_cep import PhotoshopRPCCEP
 
 
@@ -24,7 +24,7 @@ class DocumentCollectorPlugin(BasePlugin):
             self.message = (
                 'Exception querying if the document is saved: {}'.format(e)
             )
-            self.status = constants.status.EXCEPTION_STATUS
+            self.status = status_constants.EXCEPTION_STATUS
             return
 
         self.logger.debug(
@@ -37,7 +37,7 @@ class DocumentCollectorPlugin(BasePlugin):
             self.message = 'Photoshop document query failed: {}'.format(
                 document_saved_result
             )
-            self.status = constants.status.ERROR_STATUS
+            self.status = status_constants.ERROR_STATUS
             return
 
         if not document_saved_result:
@@ -54,7 +54,7 @@ class DocumentCollectorPlugin(BasePlugin):
                         save_result
                     )
                 )
-                self.status = constants.status.ERROR_STATUS
+                self.status = status_constants.ERROR_STATUS
                 return
             elif save_result:
                 self.logger.info('Document saved successfully')
@@ -65,7 +65,7 @@ class DocumentCollectorPlugin(BasePlugin):
         except Exception as e:
             self.logger.exception(e)
             self.message = 'Exception querying the document data: {}'.format(e)
-            self.status = constants.status.EXCEPTION_STATUS
+            self.status = status_constants.EXCEPTION_STATUS
             return
         # Will return a dictionary with information about the document,
         # an empty dict is returned if no document is open.
@@ -79,7 +79,7 @@ class DocumentCollectorPlugin(BasePlugin):
                 'No document data available. Please have an '
                 'active work document before you can publish'
             )
-            self.status = constants.status.ERROR_STATUS
+            self.status = status_constants.ERROR_STATUS
             return
 
         document_path = (
@@ -92,7 +92,7 @@ class DocumentCollectorPlugin(BasePlugin):
                 'document with a name before publish'
             )
 
-            self.status = constants.status.ERROR_STATUS
+            self.status = status_constants.ERROR_STATUS
             return
         elif not os.path.exists(document_path):
             self.message = (
@@ -100,7 +100,7 @@ class DocumentCollectorPlugin(BasePlugin):
                 '{}'.format(document_path)
             )
 
-            self.status = constants.status.ERROR_STATUS
+            self.status = status_constants.ERROR_STATUS
             return
 
         component_name = self.options.get('component', 'main')

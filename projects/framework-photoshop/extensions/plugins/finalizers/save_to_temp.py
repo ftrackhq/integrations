@@ -2,8 +2,8 @@
 # :copyright: Copyright (c) 2014-2023 ftrack
 import tempfile
 
+from ftrack_constants import status as status_constants
 from ftrack_framework_plugin import BasePlugin
-import ftrack_constants.framework as constants
 
 from ftrack_framework_photoshop.rpc_cep import PhotoshopRPCCEP
 
@@ -37,7 +37,7 @@ class SaveToTemp(BasePlugin):
         except Exception as e:
             self.logger.exception(e)
             self.message = 'Exception saving document to temp: {}'.format(e)
-            self.status = constants.status.EXCEPTION_STATUS
+            self.status = status_constants.EXCEPTION_STATUS
             return
 
         if isinstance(save_result, str):
@@ -46,5 +46,5 @@ class SaveToTemp(BasePlugin):
                     save_result
                 )
             )
-            self.status = constants.status.ERROR_STATUS
+            self.status = status_constants.ERROR_STATUS
             return

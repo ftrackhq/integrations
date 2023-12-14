@@ -4,7 +4,7 @@
 import sys
 import subprocess
 
-import ftrack_constants.framework as constants
+from ftrack_constants import status as status_constants
 from ftrack_framework_plugin import BasePlugin
 
 
@@ -36,7 +36,7 @@ class OpenFilePlugin(BasePlugin):
 
         if not collected_path:
             self.message = "No path provided to open!"
-            self.status = constants.status.ERROR_STATUS
+            self.status = status_constants.ERROR_STATUS
 
         store['components'][component_name]['open_result'] = self.open_file(
             collected_path

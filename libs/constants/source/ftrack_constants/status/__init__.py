@@ -1,19 +1,19 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2023 ftrack
 
-#: Unknown status of plugin execution.
+#: Unknown status execution.
 UNKNOWN_STATUS = 'UNKNOWN_STATUS'
-#: Succeed status of plugin execution.
+#: Success status execution.
 SUCCESS_STATUS = 'SUCCESS_STATUS'
-#: Warning status of plugin execution.
+#: Warning status - not critical
 WARNING_STATUS = 'WARNING_STATUS'
-#: Error status of plugin execution.
+#: Error status - user or systems error
 ERROR_STATUS = 'ERROR_STATUS'
-#: Exception status of plugin execution.
+#: Exception status - internal code execution error or malfunction
 EXCEPTION_STATUS = 'EXCEPTION_STATUS'
-#: Running status of plugin execution.
+#: Running status
 RUNNING_STATUS = 'RUNNING_STATUS'
-#: Default status of plugin execution.
+#: Default status
 DEFAULT_STATUS = 'PAUSE_STATUS'
 
 STATUS_LIST = [

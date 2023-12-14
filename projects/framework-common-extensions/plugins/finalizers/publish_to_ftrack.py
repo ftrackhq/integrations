@@ -3,8 +3,9 @@
 import os
 import traceback
 
+from ftrack_constants import status as status_constants
+
 from ftrack_framework_plugin import BasePlugin
-import ftrack_constants.framework as constants
 
 
 class PublishToFtrack(BasePlugin):
@@ -114,7 +115,7 @@ class PublishToFtrack(BasePlugin):
             # An exception occurred when creating components,
             # return its traceback as error message
             tb = traceback.format_exc()
-            self.status = constants.status.EXCEPTION_STATUS
+            self.status = status_constants.EXCEPTION_STATUS
             self.message = (
                 f"Error occurred during the run method, trying "
                 f"to create a new version and components of the finalizer_plugin: "

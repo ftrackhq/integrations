@@ -3,8 +3,8 @@
 import tempfile
 import shutil
 
+from ftrack_constants import status as status_constants
 from ftrack_framework_plugin import BasePlugin
-import ftrack_constants.framework as constants
 
 
 class DocumentExporterPlugin(BasePlugin):
@@ -40,5 +40,5 @@ class DocumentExporterPlugin(BasePlugin):
         except Exception as e:
             self.logger.exception(e)
             self.message = 'Exception copying the document: {}'.format(e)
-            self.status = constants.status.EXCEPTION_STATUS
+            self.status = status_constants.EXCEPTION_STATUS
             return
