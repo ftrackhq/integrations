@@ -3,9 +3,9 @@
 import os
 import logging
 
-from . import framework
-from . import qt
-from . import status
+from ftrack_constants import framework
+from ftrack_constants import qt
+from ftrack_constants import status
 
 
 # Evaluate and log package version
