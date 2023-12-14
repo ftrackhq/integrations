@@ -70,8 +70,7 @@ if not app:
     app = QtWidgets.QApplication(sys.argv)
 
 client_class.run_dialog(
-    dialog_name='framework_standard_publisher_dialog',
-    dialog_options={'tool_config': 'standalone-file-publisher'},
+    dialog_name='framework_standard_opener_dialog',
 )
 
 sys.exit(app.exec_())

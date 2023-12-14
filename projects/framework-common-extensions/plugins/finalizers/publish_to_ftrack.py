@@ -3,8 +3,9 @@
 import os
 import traceback
 
+import ftrack_constants as constants
+
 from ftrack_framework_plugin import BasePlugin
-import ftrack_constants.framework as constants
 
 
 class PublishToFtrack(BasePlugin):
