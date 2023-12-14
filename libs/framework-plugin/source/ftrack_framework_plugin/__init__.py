@@ -4,7 +4,7 @@ import os
 import logging
 from abc import ABC, abstractmethod
 
-import ftrack_constants.framework as constants
+import ftrack_constants as constants
 
 
 # Evaluate version and log package version
