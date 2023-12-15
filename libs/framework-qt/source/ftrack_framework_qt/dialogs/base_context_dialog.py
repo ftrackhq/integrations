@@ -164,8 +164,8 @@ class BaseContextDialog(FrameworkDialog, StyledDialog):
 
     def _get_plugins(self, tool_config, groups=None):
         '''
-        Recursively return all the plugins available in the given tool_config, with group
-        metadata (options, tags) merged into the plugin metadata.
+        Recursively return all the plugins available in the given *tool_config*,
+        with *group* metadata (options, tags) merged into the plugin metadata.
         '''
 
         plugins = []
