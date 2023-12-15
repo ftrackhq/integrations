@@ -32,7 +32,7 @@ jobs:
       - name: Run tests
         run: poetry run coverage
         env:
-          COVERAGE_FILE: ".coverage.${{ matrix.python_version }}"
+          COVERAGE_FILE: ".coverage.${{ matrix.python-version }}"
           # Alternatively you can run coverage with the --parallel flag or add
           # `parallel = True` in the coverage config file.
           # If using pytest-cov, you can also add the `--cov-append` flag
@@ -72,6 +72,8 @@ jobs:
         with:
           name: python-coverage-comment-action
           path: python-coverage-comment-action.txt
+
+# Coverage info found in: https://github.com/marketplace/actions/python-coverage-comment#merging-multiple-coverage-reports
 
 # TODO: # implement coverage library if we want to see where more tests are needed.
 
