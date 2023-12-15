@@ -2,11 +2,9 @@
 # :copyright: Copyright (c) 2014-2023 ftrack
 import os
 import logging
-import time
-import uuid
 from abc import ABC, abstractmethod
 
-import ftrack_constants.framework as constants
+import ftrack_constants as constants
 
 
 # Evaluate version and log package version
@@ -67,31 +65,11 @@ class BasePlugin(ABC):
         self._message = value
 
     @property
-    def boolean_status(self):
-        '''Get the current boolean status of the plugin'''
-        return constants.status.status_bool_mapping[self.status]
-
-    @property
-    def execution_time(self):
-        '''Execution time of the plugin'''
-        return self._execution_time
-
-    @execution_time.setter
-    def execution_time(self, value):
-        '''Set the execution time of the plugin'''
-        self._execution_time = value
-
-    @property
     def options(self):
         '''Return the context options of the plugin'''
         return self._options
 
-    @property
-    def reference(self):
-        '''Return the reference number given to the plugin'''
-        return self._reference
-
-    def __init__(self, options, session, reference=None):
+    def __init__(self, options, session):
         '''
         Initialise BasePlugin with instance of
         :class:`ftrack_api.session.Session`
@@ -105,8 +83,6 @@ class BasePlugin(ABC):
         self._session = session
         self._status = constants.status.UNKNOWN_STATUS
         self._message = ''
-        self._execution_time = 0
-        self._reference = reference
 
     def ui_hook(self, payload):
         '''
@@ -120,78 +96,10 @@ class BasePlugin(ABC):
         '''
         Implementation of the plugin. *store* contains any previous published
         data from the executed tool-config
+
+        Return: Returning status and message is supported.
         '''
         raise NotImplementedError('Missing run method.')
-
-    def run_plugin(self, store):
-        '''
-        Call the method run of the current plugin and provides feedback to the
-        engine.
-        *store* contains any previous published data from the executed
-        tool-config
-        '''
-        start_time = time.time()
-        # Reset all statuses
-        self._status = constants.status.DEFAULT_STATUS
-        self._message = None
-        try:
-            self.status = constants.status.RUNNING_STATUS
-            self.run(store)
-        except Exception as e:
-            if self.boolean_status:
-                self._status = constants.status.EXCEPTION_STATUS
-            # If status is already handled by the plugin we check if message is
-            # also handled if not set a generic one
-            if not self.message:
-                self.message = (
-                    "Error executing plugin: {} \n status {}".format(
-                        e, self.status
-                    )
-                )
-            # If booth handled by the plugin, logger the message
-            self.logger.exception(
-                "Error message: {}\n Traceback: {}".format(self.message, e)
-            )
-            return self.provide_plugin_info(store)
-        # print plugin error handled by the plugin
-        if not self.boolean_status:
-            # Generic message in case no message is provided.
-            if not self.message:
-                self.message = (
-                    "Error detected on the plugin {}, "
-                    "but no message provided. ".format(self.name)
-                )
-            self.logger.error(self.message)
-            return self.provide_plugin_info(store)
-
-        self.status = constants.status.SUCCESS_STATUS
-        # Notify client
-        self.message = (
-            "Plugin executed successfully,"
-            " execution messages: {}".format(self.message)
-        )
-        end_time = time.time()
-        total_time = end_time - start_time
-        self.execution_time = total_time
-
-        return self.provide_plugin_info(store)
-
-    def provide_plugin_info(self, store=None):
-        '''
-        Provide the entire plugin information.
-        If *store* is given, provides the current store as part of the
-        plugin info.
-        '''
-        return {
-            'plugin_name': self.name,
-            'plugin_reference': self.reference,
-            'plugin_boolean_status': self.boolean_status,
-            'plugin_status': self.status,
-            'plugin_message': self.message,
-            'plugin_execution_time': self.execution_time,
-            'plugin_options': self.options,
-            'plugin_store': store,
-        }
 
     @classmethod
     def register(cls):

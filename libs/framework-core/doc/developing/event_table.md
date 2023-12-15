@@ -23,7 +23,7 @@
 | Subscribe  | DISCOVER_REMOTE_INTEGRATION_TOPIC     | Publish                 | Remote integration<>Python communication; Discovery and alive check                                                |
 | Subscribe  | REMOTE_INTEGRATION_CONTEXT_DATA_TOPIC | Publish                 | Remote integration<>Python communication; Provide context data to JS integration                                   |
 | Publish    | REMOTE_INTEGRATION_RUN_DIALOG_TOPIC   | Subscribe               | Remote integration<>Python communication; Launch tool                                                              |
-| Subscribe  | REMOTE_INTEGRATION_RPC                | Publish                 | Remote integration<>Python communication; Remote integration<>Python communication; Run JS function with arguments |
+| Subscribe  | REMOTE_INTEGRATION_RPC_TOPIC          | Publish                 | Remote integration<>Python communication; Remote integration<>Python communication; Run JS function with arguments |
 
 
 

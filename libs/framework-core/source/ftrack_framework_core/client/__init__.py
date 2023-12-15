@@ -341,8 +341,16 @@ class Client(object):
         self.host_connection.reset_all_tool_configs()
 
     # UI
-    def run_dialog(self, dialog_name, dialog_class=None, dialog_options=None):
-        '''Function to show a framework dialog from the client'''
+    def run_dialog(
+        self,
+        dialog_name,
+        dialog_class=None,
+        tool_config_names=None,
+        dialog_options=None,
+    ):
+        '''Function to show a framework dialog by name *dialog_name* from the
+        client, using *dialog_class* or picking class from registry. Passes on
+        optional *tool_config_names* and *dialog_options* to the dialog.'''
         # use dialog options to pass options to the dialog like for
         #  example: Dialog= WidgetDialog dialog_options= {tool_config_plugin: Context_selector}
         #  ---> So this will execute the widget dialog with the widget of the
@@ -395,6 +403,7 @@ class Client(object):
             connect_methods_callback=self._connect_methods_callback,
             connect_setter_property_callback=self._connect_setter_property_callback,
             connect_getter_property_callback=self._connect_getter_property_callback,
+            tool_config_names=tool_config_names,
             dialog_options=dialog_options,
         )
         # Append dialog to dialogs

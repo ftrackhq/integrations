@@ -1,8 +1,8 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2023 ftrack
 
+import ftrack_constants as constants
 from ftrack_framework_plugin import BasePlugin
-import ftrack_constants.framework as constants
 
 
 class ComponentPathCollectorPlugin(BasePlugin):

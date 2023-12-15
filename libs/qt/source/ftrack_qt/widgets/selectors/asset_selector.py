@@ -59,6 +59,7 @@ class OpenAssetSelector(QtWidgets.QWidget):
 
     def build(self):
         '''This method builds the asset list and adds it to the layout.'''
+
         self._asset_list = AssetList(AssetVersionSelection)
 
         self.layout().addWidget(self._asset_list)

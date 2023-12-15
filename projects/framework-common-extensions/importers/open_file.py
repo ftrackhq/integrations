@@ -4,7 +4,7 @@
 import sys
 import subprocess
 
-import ftrack_constants.framework as constants
+import ftrack_constants as constants
 from ftrack_framework_plugin import BasePlugin
 
 

@@ -45,6 +45,7 @@ event_manager = event.EventManager(
 )
 os.environ['FTRACK_CONTEXTID'] = '439dc504-a904-11ec-bbac-be6e0a48ed73'
 
+
 FTRACK_FRAMEWORK_EXTENSIONS_PATH = [
     os.path.join(
         ROOT_INTEGRATIONS_FOLDER, 'projects', 'framework-common-extensions'
@@ -65,6 +66,10 @@ app = QtWidgets.QApplication.instance()
 if not app:
     app = QtWidgets.QApplication(sys.argv)
 
-client_class.run_dialog(dialog_name='framework_standard_publisher_dialog')
+WHAT = 'opener'
+client_class.run_dialog(
+    dialog_name=f'framework_standard_{WHAT}_dialog',
+    tool_config_names=[f'standalone-file-{WHAT}'],
+)
 
 sys.exit(app.exec_())

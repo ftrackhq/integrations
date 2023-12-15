@@ -644,9 +644,10 @@ def build_package(pkg_path, args):
             'favicon.ico',
             'ftrack-logo-48.png',
             'loader.gif',
-            'publish.png',
             'thumbnail.png',
             'open_in_new.png',
+            'publish.png',
+            'open.png',
         ]:
             logging.info("   " + filename)
             shutil.copy(
