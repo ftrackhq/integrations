@@ -42,7 +42,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: coverage
-          path: .coverage.${{ matrix.python_version }}
+          path: .coverage.${{ matrix.python-version }}
 
   coverage:
     name: Coverage
