@@ -28,7 +28,11 @@ jobs:
         run: poetry install
 
 
-      - name: Run tests
+      - name: Run tests No coverage
+        if: ${{ matrix.python-version < '3.8' }}
+        run: poetry run pytest
+      - name: Run tests with coverage
+        if: ${{ matrix.python-version >= '3.8' }}
         run: poetry run coverage run
         env:
           COVERAGE_FILE: ".coverage.${{ matrix.python-version }}"
@@ -38,6 +42,7 @@ jobs:
           # directly or through PYTEST_ADD_OPTS.
 
       - name: Store coverage file
+        if: ${{ matrix.python-version >= '3.8' }}
         uses: actions/upload-artifact@v3
         with:
           name: coverage
