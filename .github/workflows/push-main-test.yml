@@ -2,7 +2,7 @@ name: Pytest
 
 on:
   push:
-    branches: [ "backlog/move-all-working-test-to-root" ]
+    branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
 
