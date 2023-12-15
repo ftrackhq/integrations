@@ -26,6 +26,7 @@ class StandardPublisherDialog(BaseContextDialog):
         connect_methods_callback,
         connect_setter_property_callback,
         connect_getter_property_callback,
+        tool_config_names,
         dialog_options,
         parent=None,
     ):
@@ -41,7 +42,9 @@ class StandardPublisherDialog(BaseContextDialog):
         the dialog to be able to read client properties.
         *connect_getter_property_callback*: Client callback property getter for
         the dialog to be able to write client properties.
-        *dialog_options*: Dictionary of arguments passed to configure the
+        *tool_config_names*: List of tool config names passed on to configure the
+        current dialog.
+        *dialog_options*: Dictionary of arguments passed on to configure the
         current dialog.
         '''
         self._scroll_area = None
@@ -53,6 +56,7 @@ class StandardPublisherDialog(BaseContextDialog):
             connect_methods_callback,
             connect_setter_property_callback,
             connect_getter_property_callback,
+            tool_config_names,
             dialog_options,
             progress_widget=ProgressWidget(),
             parent=parent,
@@ -80,10 +84,14 @@ class StandardPublisherDialog(BaseContextDialog):
         # Select the desired tool_config
 
         self.tool_config = None
-
+        tool_config_message = None
         if self.filtered_tool_configs.get("publisher"):
-            if 'tool_config' in self.dialog_options:
-                tool_config_name = self.dialog_options['tool_config']
+            if len(self.tool_config_names or []) != 1:
+                tool_config_message = (
+                    'One(1) tool config name must be supplied to publisher!'
+                )
+            else:
+                tool_config_name = self.tool_config_names[0]
                 for tool_config in self.filtered_tool_configs["publisher"]:
                     if (
                         tool_config.get('name', '').lower()
@@ -95,26 +103,18 @@ class StandardPublisherDialog(BaseContextDialog):
                         self.tool_config = tool_config
                         break
                 if not self.tool_config:
-                    raise Exception(
-                        f'Could not find tool config {tool_config_name}'
+                    tool_config_message = (
+                        f'Could not find tool config: "{tool_config_name}"'
                     )
-            else:
-                self.logger.warning(
-                    'No tool config specified, using first available'
-                )
-                self.tool_config = self.filtered_tool_configs["publisher"][0]
+        else:
+            tool_config_message = 'No publisher tool configs available!'
 
         if not self.tool_config:
-            self.logger.warning(
-                f'No Publisher tool configs available (filter:'
-                f' {self.dialog_options.get("tool-config-filter")})'
-            )
-
+            self.logger.warning(tool_config_message)
             self._scroll_area_widget.layout().addWidget(
-                QtWidgets.QLabel(
-                    '<html><i>No Publisher tool configs available</i></html>'
-                )
+                QtWidgets.QLabel(f'<html><i>{tool_config_message}</i></html>')
             )
+            return
 
         processed_plugins = []
 
