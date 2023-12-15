@@ -28,8 +28,50 @@ jobs:
       - name: Install dependencies
         run: poetry install
 
+
       - name: Run tests
         run: poetry run coverage
+        env:
+          COVERAGE_FILE: ".coverage.${{ matrix.python_version }}"
+          # Alternatively you can run coverage with the --parallel flag or add
+          # `parallel = True` in the coverage config file.
+          # If using pytest-cov, you can also add the `--cov-append` flag
+          # directly or through PYTEST_ADD_OPTS.
+
+      - name: Store coverage file
+        uses: actions/upload-artifact@v3
+        with:
+          name: coverage
+          path: .coverage.${{ matrix.python_version }}
+
+    coverage:
+      name: Coverage
+      runs-on: ubuntu-latest
+      needs: build
+      permissions:
+        pull-requests: write
+        contents: write
+      steps:
+        - uses: actions/checkout@v4
+
+        - uses: actions/download-artifact@v3
+          id: download
+          with:
+            name: "coverage"
+
+        - name: Coverage comment
+          id: coverage_comment
+          uses: py-cov-action/python-coverage-comment-action@v3
+          with:
+            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+            MERGE_COVERAGE_FILES: true
+
+        - name: Store Pull Request comment to be posted
+          uses: actions/upload-artifact@v3
+          if: steps.coverage_comment.outputs.COMMENT_FILE_WRITTEN == 'true'
+          with:
+            name: python-coverage-comment-action
+            path: python-coverage-comment-action.txt
 
 # TODO: # implement coverage library if we want to see where more tests are needed.
 

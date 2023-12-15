@@ -18,7 +18,7 @@ python = ">= 3.7, < 3.12"
 [tool.poetry.group.test.dependencies]
 pytest = "^6.0.0"
 pytest-mock = "*"
-coverage = { version = "^7.3.2", python = ">=3.8" }
+coverage = { version = "^7.3.2", python = ">=3.8", extras = ["toml"] }
 ftrack-constants = { path = "libs/constants", develop = true }
 ftrack-utils = { path = "libs/utils", develop = true }
 ftrack-framework-core = { path = "libs/framework-core", develop = true }
@@ -51,10 +51,9 @@ pythonpath = [
 ]
 
 [tool.coverage.run]
-command_line = "-m pytest"
+command_line = "-m pytest --disable-pytest-warnings"
+relative_files = true
 
 [tool.coverage.report]
 show_missing = true
 
-[tool.coverage.xml]
-output = "coverage.xml"
