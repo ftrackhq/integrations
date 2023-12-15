@@ -61,7 +61,7 @@ def build_package(pkg_path, args):
     EXTENSION_PATH = os.path.join(ROOT_PATH, 'extensions')
     CEP_PATH = os.path.join(ROOT_PATH, 'resource', 'cep')
     USES_FRAMEWORK = False
-    LIBS = []
+    FTRACK_DEP_LIBS = []
     PLATFORM_DEPENDENT = False
 
     POETRY_CONFIG_PATH = os.path.join(ROOT_PATH, 'pyproject.toml')
@@ -81,7 +81,7 @@ def build_package(pkg_path, args):
                         VERSION = line.split('=')[1].strip().strip('"')
                 elif section == 'tool.poetry.dependencies':
                     if line.startswith('ftrack-'):
-                        LIBS.append(line.split('=')[0][7:].strip())
+                        FTRACK_DEP_LIBS.append(line.split('=')[0][7:].strip())
                         if line.startswith('ftrack-framework-core'):
                             USES_FRAMEWORK = True
                         elif line.find('pyside') > -1:
@@ -387,7 +387,7 @@ def build_package(pkg_path, args):
                     os.path.join(lib_path, 'pyproject.toml')
                 ):
                     continue
-                elif filename not in LIBS:
+                elif filename not in FTRACK_DEP_LIBS:
                     continue
                 # Cleanup
                 dist_path = os.path.join(lib_path, 'dist')

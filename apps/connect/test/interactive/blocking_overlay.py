@@ -64,7 +64,7 @@ class WidgetHarness(Harness):
         messageEdit.setPlaceholderText('Enter message to display')
         controlLayout.addWidget(messageEdit)
 
-        messageEdit.textChanged.connect(widget.overlay.message)
+        messageEdit.textChanged.connect(widget.overlay.setMessage)
 
         return controlWidget
 
