@@ -23,7 +23,6 @@ class AssetSelector(_item_selector.ItemSelector):
             __name__ + '.' + self.__class__.__name__
         )
 
-    @ftrack_connect.asynchronous.asynchronous
     def loadAssets(self, entity, selectAsset=None):
         '''Load assets for *entity* and set selector items.
 
