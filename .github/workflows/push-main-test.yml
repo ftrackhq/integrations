@@ -30,7 +30,7 @@ jobs:
 
 
       - name: Run tests
-        run: poetry run coverage
+        run: poetry run coverage run
         env:
           COVERAGE_FILE: ".coverage.${{ matrix.python-version }}"
           # Alternatively you can run coverage with the --parallel flag or add
