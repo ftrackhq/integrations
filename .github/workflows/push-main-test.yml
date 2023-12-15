@@ -9,9 +9,9 @@ on:
 jobs:
   unit-test-pytest:
     runs-on: ubuntu-latest
-#    strategy:
-#      matrix:
-#        python-version: ["3.7", "3.8", "3.9", "3.10", "3.11"]
+    strategy:
+      matrix:
+        python-version: ["3.8", "3.9", "3.10", "3.11"]
 
     steps:
       - uses: actions/checkout@v3
@@ -19,7 +19,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: "3.8"
+          python-version: ${{ matrix.python-version }}
           python-version-attribute: "WHL"
 
       - name: Install poetry
@@ -29,8 +29,7 @@ jobs:
         run: poetry install
 
       - name: Run tests
-        run: poetry run tox
-
+        run: poetry run pytest
 
 # TODO: # implement coverage library if we want to see where more tests are needed.
 
