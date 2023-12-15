@@ -3,6 +3,8 @@
 
 from Qt import QtWidgets, QtCore
 
+from ftrack_utils.framework.config.tool import get_plugins
+
 from ftrack_framework_widget.dialog import FrameworkDialog
 
 from ftrack_qt.widgets.dialogs import StyledDialog
@@ -164,6 +166,18 @@ class BaseContextDialog(FrameworkDialog, StyledDialog):
     def _build_progress_widget(self, tool_config):
         '''Build the progress widget based on the given *tool_config*'''
         self.progress_widget.prepare_add_phases()
+        # Get all plugins
+        plugins = get_plugins(self.tool_config)
+        for plugin in plugins:
+            print('@@@ plugin: {}'.format(plugin))
+
+        # self.progress_widget.add_phase_widget(
+        #     context_plugin['reference'],
+        #     'context',
+        #     context_plugin['plugin'].replace('_', ' ').title(),
+        # )
+        # Wrap progress widget
+        self.progress_widget.phases_added()
 
     def post_build(self):
         '''Set up all the signals'''

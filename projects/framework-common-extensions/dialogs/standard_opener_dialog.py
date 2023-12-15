@@ -47,8 +47,6 @@ class StandardOpenerDialog(BaseContextDialog):
         '''
         self._scroll_area = None
         self._scroll_area_widget = None
-        # TODO: Reset this when re-selecting tool config
-        self._init_progress_widget = True
 
         super(StandardOpenerDialog, self).__init__(
             event_manager,
@@ -81,11 +79,7 @@ class StandardOpenerDialog(BaseContextDialog):
         self._scroll_area.setWidget(self._scroll_area_widget)
 
     def build_ui(self):
-        # Create progress widget, keep it if already exists
-        if self._init_progress_widget:
-            self.progress_widget.prepare_add_phases()
         # Select the desired tool_config
-
         self.tool_config = None
         tool_config_message = None
         if self.filtered_tool_configs.get("opener"):
@@ -119,20 +113,11 @@ class StandardOpenerDialog(BaseContextDialog):
             )
             return
 
-        processed_plugins = []
-
         # Build context widgets
         context_plugins = get_plugins(
             self.tool_config, filters={'tags': ['context']}
         )
         for context_plugin in context_plugins:
-            if self._init_progress_widget:
-                self.progress_widget.add_phase_widget(
-                    context_plugin['reference'],
-                    'context',
-                    context_plugin['plugin'].replace('_', ' ').title(),
-                )
-            processed_plugins.append(context_plugin['reference'])
             if not context_plugin.get('ui'):
                 continue
             context_widget = self.init_framework_widget(context_plugin)
@@ -154,16 +139,6 @@ class StandardOpenerDialog(BaseContextDialog):
                 group_config, filters={'tags': ['collector']}
             )
             for plugin_config in collectors:
-                if self._init_progress_widget:
-                    self.progress_widget.add_phase_widget(
-                        plugin_config['reference'],
-                        '{}:collector'.format(
-                            group_config.get('options').get('component')
-                            if group_config
-                            else 'component'
-                        ),
-                        plugin_config['plugin'].replace('_', ' ').title(),
-                    )
                 if not plugin_config.get('ui'):
                     continue
                 widget = self.init_framework_widget(
@@ -171,30 +146,6 @@ class StandardOpenerDialog(BaseContextDialog):
                 )
 
                 self._scroll_area_widget.layout().addWidget(widget)
-            if self._init_progress_widget:
-                processed_plugins.extend(
-                    [
-                        plugin['reference']
-                        for plugin in get_plugins(group_config)
-                    ]
-                )
-
-        if self._init_progress_widget:
-            # Add additional unprocessed plugins to progress widget
-            for plugin_config in get_plugins(self.tool_config):
-                if not self.progress_widget.has_phase_widget(
-                    plugin_config['reference']
-                ):
-                    if plugin_config['reference'] in processed_plugins:
-                        continue
-                    self.progress_widget.add_phase_widget(
-                        plugin_config['reference'],
-                        'finalizers',
-                        plugin_config['plugin'].replace('_', ' ').title(),
-                    )
-            # Wrap progress widget
-            self.progress_widget.phases_added()
-            self._init_progress_widget = False
 
         spacer = QtWidgets.QSpacerItem(
             1,

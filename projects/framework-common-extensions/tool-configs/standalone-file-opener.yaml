@@ -11,6 +11,7 @@ engine:
 
   # Open the file component.
   - type: group
+    name: Open File component # Optional
     tags:
       - component
     options:

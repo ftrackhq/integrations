@@ -2,7 +2,7 @@ import logging
 
 from Qt import QtWidgets, QtCore
 
-import ftrack_constants.framework as constants
+import ftrack_constants as constants
 
 from ftrack_qt.utils.layout import recursive_clear_layout
 from ftrack_qt.widgets.overlay import OverlayWidget

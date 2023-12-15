@@ -3,7 +3,7 @@
 
 from Qt import QtWidgets, QtCore
 
-import ftrack_constants.framework as constants
+import ftrack_constants as constants
 from ftrack_qt.utils.widget import set_property
 from ftrack_qt.widgets.icons import StatusMaterialIconWidget
 from ftrack_qt.widgets.overlay import OverlayWidget
