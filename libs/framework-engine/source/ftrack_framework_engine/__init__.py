@@ -7,7 +7,7 @@ import logging
 import copy
 import time
 
-import ftrack_constants.framework as constants
+import ftrack_constants as constants
 
 # Evaluate version and log package version
 try:
