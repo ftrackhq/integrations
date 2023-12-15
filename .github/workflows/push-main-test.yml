@@ -9,9 +9,9 @@ on:
 jobs:
   unit-test-pytest:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        python-version: ["3.7", "3.8", "3.9", "3.10", "3.11"]
+#    strategy:
+#      matrix:
+#        python-version: ["3.7", "3.8", "3.9", "3.10", "3.11"]
 
     steps:
       - uses: actions/checkout@v3
@@ -25,24 +25,23 @@ jobs:
       - name: Install poetry
         run: pip install poetry==1.4.2
 
-#      - name: Install dependencies
-#        run: poetry install
-#
-#      - name: Run tests
-#        run: poetry run pytest
+      - name: Install dependencies
+        run: poetry install
+
+      - name: Run tests
+        run: poetry run tox
+
 
 # TODO: # implement coverage library if we want to see where more tests are needed.
 
 # Implement poetry cache, right now is not useful as each python version runs in parallel in different environments.
-      - name: Cache Poetry
-        uses: actions/cache@v2
-        with:
-          path: ~/.cache/pypoetry
-          key: ${{ runner.os }}-poetry-${{ hashFiles('**/poetry.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-poetry-
-
-      - name: Install dependencies
-        run: poetry install --no-interaction --no-root
-      - name: Run tests
-        run: poetry run pytest
+#      - name: Cache Poetry
+#          uses: actions/cache@v2
+#          with:
+#            path: ~/.cache/pypoetry
+#            key: ${{ runner.os }}-poetry-${{ hashFiles('**/poetry.lock') }}
+#            restore-keys: |
+#              ${{ runner.os }}-poetry-
+#
+#      - name: Install dependencies
+#        run: poetry install --no-interaction --no-root
