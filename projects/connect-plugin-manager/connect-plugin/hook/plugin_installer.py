@@ -6,17 +6,16 @@ import sys
 import logging
 import platform
 import traceback
-
-from ftrack_connect.qt import QtWidgets, QtCore, QtGui
-
-
 import qtawesome as qta
 
 import ftrack_api
 
+from ftrack_connect.qt import QtWidgets, QtCore, QtGui
+
 from ftrack_connect.util import get_connect_plugin_version
 from ftrack_connect.ui.widget.overlay import BlockingOverlay, BusyOverlay
 import ftrack_connect.ui.application
+
 from ftrack_connect.asynchronous import asynchronous
 
 logger = logging.getLogger(__name__)
@@ -31,7 +30,6 @@ python_dependencies = os.path.abspath(
     os.path.join(connect_plugin_path, 'dependencies')
 )
 sys.path.append(python_dependencies)
-
 
 from ftrack_connect_plugin_manager import (
     InstallerBlockingOverlay,
@@ -209,58 +207,68 @@ class PluginInstaller(ftrack_connect.ui.application.ConnectWidget):
 
     def _show_user_message_done(self):
         '''Show final message to the user.'''
-        self._blocking_overlay.setMessage('<h2>Installation finished!</h2>')
+        self._blocking_overlay.message = '<h2>Installation finished!</h2>'
+        self._blocking_overlay.icon_data = qta.icon(
+            'mdi6.check', color='#FFDD86', scale_factor=1.2
+        )
         self._blocking_overlay.confirm_button.show()
         self._blocking_overlay.show()
 
     def _show_user_message_failed(self, reason):
         '''Show final message to the user.'''
-        self._blocking_overlay.setMessage('<h2>Installation FAILED!</h2>')
+        self._blocking_overlay.message = '<h2>Installation FAILED!</h2>'
+        self._blocking_overlay.icon_data = qta.icon(
+            'mdi6.close', color='#FF8686', scale_factor=1.2
+        )
         self._blocking_overlay.set_reason(reason)
         self._blocking_overlay.confirm_button.show()
         self._blocking_overlay.show()
 
     def _reset_overlay(self):
         self.reset_plugin_list()
-        self._busy_overlay.setMessage('<h2>Updating....</h2>')
+        self._busy_overlay.message = '<h2>Updating....</h2>'
 
     def _update_overlay(self, item):
         '''Update the overlay'''
         self._counter += 1
 
-        self._busy_overlay.setMessage(
+        self._busy_overlay.message = (
             f'<h2>Installing {self._counter} of {len(self._plugins_to_install)} plugins...</h2></br>'
-            '{item.data(ROLES.PLUGIN_NAME)}, Version {str(item.data(ROLES.PLUGIN_VERSION))}'
+            f'{item.data(ROLES.PLUGIN_NAME)}, Version {str(item.data(ROLES.PLUGIN_VERSION))}'
         )
 
-    def _on_apply_changes(self, event=None):
+    def _on_apply_changes(self):
         '''User wants to apply the updates, warn about conflicting plugins.'''
-        conflicting_plugins = (
-            self._plugin_list_widget.get_conflicting_plugins()
-        )
-        if conflicting_plugins:
-            if (
-                QtWidgets.QMessageBox.question(
-                    None,
-                    'Warning',
-                    'The following conflicting/deprecated'
-                    ' plugins will be removed:\n\n{}\n\nProceed?'.format(
-                        '\n'.join(conflicting_plugins)
-                    ),
-                )
-                == QtWidgets.QMessageBox.No
-            ):
+        legacy_plugins = self._plugin_list_widget.get_legacy_plugins()
+        if legacy_plugins:
+            answer = QtWidgets.QMessageBox.question(
+                None,
+                'Warning',
+                'The following deprecated plugin(s) is installed'
+                ':\n\n{}\n\nRemove them?\n\nNote: they might still function, please '
+                'check release notes for further details.'.format(
+                    '\n'.join(legacy_plugins)
+                ),
+                QtWidgets.QMessageBox.Yes
+                | QtWidgets.QMessageBox.No
+                | QtWidgets.QMessageBox.Cancel,
+            )
+            if answer == QtWidgets.QMessageBox.Yes:
+                pass
+            elif answer == QtWidgets.QMessageBox.No:
+                legacy_plugins = []
+            else:
                 return
-        self.apply_changes.emit(conflicting_plugins)
+        self.apply_changes.emit(legacy_plugins)
 
     @asynchronous
-    def _on_apply_changes_confirmed(self, conflicting_plugins):
+    def _on_apply_changes_confirmed(self, legacy_plugins):
         '''Will process all the selected plugins.'''
         # Check if any conflicting plugins are installed.
         self.installation_started.emit()
         try:
-            for plugin in conflicting_plugins:
-                self._plugin_list_widget.remove_conflicting_plugin(plugin)
+            for plugin in legacy_plugins:
+                self._plugin_list_widget.remove_legacy_plugin(plugin)
             num_items = self._plugin_list_widget.plugin_model.rowCount()
             for i in range(num_items):
                 item = self._plugin_list_widget.plugin_model.item(i)

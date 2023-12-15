@@ -146,7 +146,7 @@ class Actions(QtWidgets.QWidget):
         message = u'Launching action <em>{0} {1}</em>...'.format(
             action.get('label', 'Untitled action'), action.get('variant', '')
         )
-        self._overlay.setMessage(message)
+        self._overlay.message = message
         self._overlay.indicator.show()
         self._overlay.setVisible(True)
 
@@ -192,7 +192,7 @@ class Actions(QtWidgets.QWidget):
 
         self._overlay.indicator.stop()
         self._overlay.indicator.hide()
-        self._overlay.setMessage(message)
+        self._overlay.message = message
         self._hideOverlayAfterTimeout(self.ACTION_LAUNCH_MESSAGE_TIMEOUT)
 
     def _hideOverlayAfterTimeout(self, timeout):
@@ -370,6 +370,6 @@ class Actions(QtWidgets.QWidget):
 
     def onActionsLoading(self):
         message = u'Discovering Actions ....'
-        self._overlay.setMessage(message)
+        self._overlay.message = message
         self._overlay.indicator.show()
         self._overlay.setVisible(True)

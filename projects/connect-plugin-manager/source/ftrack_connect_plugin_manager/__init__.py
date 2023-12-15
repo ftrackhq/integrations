@@ -20,6 +20,8 @@ import qtawesome as qta
 
 from ftrack_connect.ui.widget.overlay import BlockingOverlay
 
+logger = logging.getLogger(__name__)
+
 # Evaluate version and log package version
 try:
     from ftrack_utils.version import get_version
@@ -35,11 +37,16 @@ except Exception:
 class InstallerBlockingOverlay(BlockingOverlay):
     '''Custom blocking overlay for plugin installer.'''
 
-    def __init__(self, parent, message=''):
+    def __init__(
+        self,
+        parent,
+        message='',
+        icon=qta.icon('mdi6.check', color='#FFDD86', scale_factor=1.2),
+    ):
         super(InstallerBlockingOverlay, self).__init__(
             parent,
             message=message,
-            icon=qta.icon('mdi6.close', color='#FF8686', scale_factor=1.2),
+            icon=icon,
         )
 
         self._text_edit = QtWidgets.QTextEdit()
@@ -134,7 +141,7 @@ class PluginProcessor(QtCore.QObject):
                 save_path = tempfile.gettempdir()
                 temp_path = os.path.join(save_path, zip_name)
 
-                logging.info(f'Downloading {source_path} to {temp_path}')
+                logger.info(f'Downloading {source_path} to {temp_path}')
 
                 with urllib.request.urlopen(source_path) as dl_file:
                     with open(temp_path, 'wb') as out_file:
@@ -142,11 +149,11 @@ class PluginProcessor(QtCore.QObject):
                 return temp_path
             except HTTPError as e:
                 if platform_dependent:
-                    logging.debug(
+                    logger.debug(
                         f'No download exists {source_path} on platform {platform}'
                     )
                 else:
-                    logging.warning(traceback.format_exc())
+                    logger.warning(traceback.format_exc())
                     raise Exception(
                         f'Plugin "{plugin.data(ROLES.PLUGIN_NAME)}" is not supported on this platform'
                         f' or temporarily unavailable. Details: {e}'
@@ -178,7 +185,7 @@ class PluginProcessor(QtCore.QObject):
 
         install_path = os.path.dirname(plugin.data(ROLES.PLUGIN_INSTALL_PATH))
         destination_path = os.path.join(install_path, plugin_name)
-        logging.debug(f'Installing {source_path} to {destination_path}')
+        logger.debug(f'Installing {source_path} to {destination_path}')
 
         with zipfile.ZipFile(source_path, 'r') as zip_ref:
             zip_ref.extractall(destination_path)
@@ -186,7 +193,7 @@ class PluginProcessor(QtCore.QObject):
     def remove(self, plugin):
         '''Remove provided *plugin* item.'''
         install_path = plugin.data(ROLES.PLUGIN_INSTALL_PATH)
-        logging.debug(f'Removing {install_path}')
+        logger.debug(f'Removing {install_path}')
         if os.path.exists(install_path) and os.path.isdir(install_path):
             shutil.rmtree(install_path, ignore_errors=False, onerror=None)
 
@@ -199,6 +206,16 @@ class DndPluginList(QtWidgets.QFrame):
     )
 
     plugin_re = re.compile('(?P<name>(([A-Za-z-3-4]+)))-(?P<version>(\w.+))')
+
+    @property
+    def proxy_model(self):
+        '''Return proxy model.'''
+        return self._proxy_model
+
+    @property
+    def plugin_model(self):
+        '''Return plugin model.'''
+        return self._plugin_model
 
     def __init__(self, parent=None):
         super(DndPluginList, self).__init__(parent=parent)
@@ -368,17 +385,20 @@ class DndPluginList(QtWidgets.QFrame):
         for link in response_json['integrations']:
             self.add_plugin(link, STATUSES.DOWNLOAD)
 
-    def get_conflicting_plugins(self):
+    def get_legacy_plugins(self):
         result = []
         plugins = os.listdir(self.default_plugin_directory)
         for plugin in plugins:
-            if plugin.lower().startswith('ftrack-connect-pipeline'):
+            if (
+                plugin.lower().startswith('ftrack-connect-pipeline')
+                or plugin.lower().find('ftrack-application-launcher') > -1
+            ):
                 result.append(plugin)
         return result
 
-    def remove_conflicting_plugin(self, plugin_name):
+    def remove_legacy_plugin(self, plugin_name):
         install_path = os.path.join(self.default_plugin_directory, plugin_name)
-        logging.debug(f'Removing {install_path}')
+        logger.debug(f'Removing legacy plugin: {install_path}')
         if os.path.exists(install_path) and os.path.isdir(install_path):
             shutil.rmtree(install_path, ignore_errors=False, onerror=None)
 
