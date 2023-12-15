@@ -7,7 +7,7 @@
 Resolves : 
 
 * CLICKUP-
-* FTRACK-
+* FT-
 * SENTRY-
 * ZENDESK-
 
