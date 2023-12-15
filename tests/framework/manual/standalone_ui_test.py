@@ -66,6 +66,10 @@ app = QtWidgets.QApplication.instance()
 if not app:
     app = QtWidgets.QApplication(sys.argv)
 
-client_class.run_dialog(dialog_name='framework_standard_opener_dialog')
+WHAT = 'opener'
+client_class.run_dialog(
+    dialog_name=f'framework_standard_{WHAT}_dialog',
+    tool_config_names=[f'standalone-file-{WHAT}'],
+)
 
 sys.exit(app.exec_())
