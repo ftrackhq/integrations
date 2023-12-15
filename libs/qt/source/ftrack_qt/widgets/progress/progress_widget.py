@@ -110,14 +110,10 @@ class ProgressWidget(QtWidgets.QWidget):
         return reference in self._phase_widgets
 
     def add_phase_widget(
-        self,
-        reference,
-        category,
-        label,
-        indent=0,
+        self, reference, label, indent=0, category='', tags=None
     ):
         '''Add progress widget representation for phase having unique *reference*
-        (string), beneath *category*, having *label*.
+        (string), beneath *category*, having *label*, with *tags*.
 
         Optional *indent* defines left margin.
         '''
@@ -127,7 +123,9 @@ class ProgressWidget(QtWidgets.QWidget):
                     reference
                 )
             )
-        phase_button = ProgressPhaseButtonWidget(category, label)
+        phase_button = ProgressPhaseButtonWidget(
+            label, category=category, tags=tags
+        )
         self._phase_widgets[reference] = phase_button
         self._content_widget.layout().setContentsMargins(
             self.MARGINS + indent * 10,

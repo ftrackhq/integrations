@@ -94,13 +94,14 @@ class ProgressPhaseButtonWidget(QtWidgets.QPushButton):
         self._log_message = value
         self.setToolTip(value or '')
 
-    def __init__(self, category, label, parent=None):
+    def __init__(self, label, category=category, tags=None, parent=None):
         '''Instantiate the PhaseButtonWidget with *label* and *status*'''
 
         super(ProgressPhaseButtonWidget, self).__init__(parent=parent)
 
-        self._category = category
         self._label = label
+        self._category = category
+        self._tags = tags or []
         self._status = constants.status.UNKNOWN_STATUS
         self._log_message = None
 
@@ -120,7 +121,7 @@ class ProgressPhaseButtonWidget(QtWidgets.QPushButton):
         layout = QtWidgets.QHBoxLayout()
         self.setLayout(layout)
         self.setMinimumHeight(
-            32
+            48
         )  # Set minimum otherwise it will collapse the container
         self.setMinimumWidth(200)
         self.layout().setContentsMargins(3, 3, 3, 3)
@@ -137,15 +138,34 @@ class ProgressPhaseButtonWidget(QtWidgets.QPushButton):
         label_widget.setObjectName('h3')
         v_layout.addWidget(label_widget)
 
+        # Show tags as chips
+        h_layout = QtWidgets.QHBoxLayout()
+        h_layout.setContentsMargins(0, 0, 0, 0)
+
+        for tag in self._tags:
+            tag_widget = QtWidgets.QLabel(tag)
+            tag_widget.setObjectName('gray')
+            tag_widget.setStyleSheet(
+                'background: #333333; padding: 1px; border-radius: 6px;'
+            )
+            h_layout.addWidget(tag_widget)
+        h_layout.addWidget(QtWidgets.QLabel(''), 100)  # Add spacing
+
+        v_layout.addLayout(h_layout)
+
+        self.layout().addLayout(v_layout, 100)
+
+        v_layout = QtWidgets.QVBoxLayout()
+
         self._status_message_widget = QtWidgets.QLabel(self.status)
         self._status_message_widget.setObjectName('gray')
         v_layout.addWidget(self._status_message_widget)
 
-        self.layout().addLayout(v_layout, 100)
-
         self._time_widget = QtWidgets.QLabel()
         self._time_widget.setObjectName('gray')
-        self.layout().addWidget(self._time_widget)
+        v_layout.addWidget(self._time_widget)
+
+        self.layout().addLayout(v_layout)
 
         self._log_message_widget = QtWidgets.QFrame()
         self._log_message_widget.setLayout(QtWidgets.QVBoxLayout())
@@ -175,7 +195,7 @@ class ProgressPhaseButtonWidget(QtWidgets.QPushButton):
         '''Update the status of the phase to *new_status* and set *status_message*. 
         Build log messages from *log*.''' ''
         color = self.set_status(new_status)
-        self._status_message_widget.setText(status_message)
+        self._status_message_widget.setText(f'[{status_message.upper()}]')
         self._status_message_widget.setStyleSheet('color: #{};'.format(color))
         if time:
             self._time_widget.setText(f'{time:.3f}s')

@@ -3,7 +3,7 @@
 
 from Qt import QtWidgets, QtCore
 
-import ftrack_constants.framework as constants
+import ftrack_constants as constants
 from ftrack_utils.framework.config.tool import get_plugins, get_groups
 from ftrack_framework_qt.dialogs import BaseContextDialog
 from ftrack_qt.widgets.accordion import AccordionBaseWidget
@@ -116,20 +116,11 @@ class StandardPublisherDialog(BaseContextDialog):
             )
             return
 
-        processed_plugins = []
-
         # Build context widgets
         context_plugins = get_plugins(
             self.tool_config, filters={'tags': ['context']}
         )
         for context_plugin in context_plugins:
-            if self._init_progress_widget:
-                self.progress_widget.add_phase_widget(
-                    context_plugin['reference'],
-                    'context',
-                    context_plugin['plugin'].replace('_', ' ').title(),
-                )
-                processed_plugins.append(context_plugin['reference'])
             if not context_plugin.get('ui'):
                 continue
             context_widget = self.init_framework_widget(context_plugin)
@@ -165,27 +156,6 @@ class StandardPublisherDialog(BaseContextDialog):
             )
 
             self._scroll_area_widget.layout().addWidget(group_accordion_widget)
-            if self._init_progress_widget:
-                processed_plugins.extend(
-                    [plugin['reference'] for plugin in get_plugins(_group)]
-                )
-
-        if self._init_progress_widget:
-            # Add additional unprocessed plugins to progress widget
-            for plugin_config in get_plugins(self.tool_config):
-                if not self.progress_widget.has_phase_widget(
-                    plugin_config['reference']
-                ):
-                    if plugin_config['reference'] in processed_plugins:
-                        continue
-                    self.progress_widget.add_phase_widget(
-                        plugin_config['reference'],
-                        'finalizers',
-                        plugin_config['plugin'].replace('_', ' ').title(),
-                    )
-            # Wrap progress widget
-            self.progress_widget.phases_added()
-            self._init_progress_widget = False
 
         spacer = QtWidgets.QSpacerItem(
             1,
@@ -199,16 +169,6 @@ class StandardPublisherDialog(BaseContextDialog):
         self, collectors, accordion_widget, group_config=None
     ):
         for plugin_config in collectors:
-            if self._init_progress_widget:
-                self.progress_widget.add_phase_widget(
-                    plugin_config['reference'],
-                    '{}:collector'.format(
-                        group_config.get('options').get('component')
-                        if group_config
-                        else 'component'
-                    ),
-                    plugin_config['plugin'].replace('_', ' ').title(),
-                )
             if not plugin_config.get('ui'):
                 continue
             widget = self.init_framework_widget(plugin_config, group_config)
@@ -218,16 +178,6 @@ class StandardPublisherDialog(BaseContextDialog):
         self, validators, accordion_widget, group_config=None
     ):
         for plugin_config in validators:
-            if self._init_progress_widget:
-                self.progress_widget.add_phase_widget(
-                    plugin_config['reference'],
-                    '{}:validator'.format(
-                        group_config.get('options').get('component')
-                        if group_config
-                        else 'component'
-                    ),
-                    plugin_config['plugin'].replace('_', ' ').title(),
-                )
             if not plugin_config.get('ui'):
                 continue
             widget = self.init_framework_widget(plugin_config, group_config)
@@ -239,16 +189,6 @@ class StandardPublisherDialog(BaseContextDialog):
         self, exporters, accordion_widget, group_config=None
     ):
         for plugin_config in exporters:
-            if self._init_progress_widget:
-                self.progress_widget.add_phase_widget(
-                    plugin_config['reference'],
-                    '{}:exporter'.format(
-                        group_config.get('options').get('component')
-                        if group_config
-                        else 'component'
-                    ),
-                    plugin_config['plugin'].replace('_', ' ').title(),
-                )
             if not plugin_config.get('ui'):
                 continue
             widget = self.init_framework_widget(plugin_config, group_config)
