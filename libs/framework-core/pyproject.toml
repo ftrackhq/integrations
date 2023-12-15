@@ -43,13 +43,6 @@ optional = true
 [tool.poetry.group.documentation.dependencies]
 markdown = "<=3.2.2"
 
-[tool.poetry.group.test]
-optional = true
-
-[tool.poetry.group.test.dependencies]
-pytest = "^2.3.5"
-mock = "*"
-
 [tool.black]
 line-length = 79
 skip-string-normalization = true
