@@ -37,6 +37,7 @@ status_bool_mapping = {
     DEFAULT_STATUS: False,
 }
 
+#: Mapping of the run plugins status. String representation.
 STATUS_STRING_MAPPING = {
     UNKNOWN_STATUS: 'Not started',
     SUCCESS_STATUS: 'Success',

@@ -130,52 +130,6 @@ class BaseContextDialog(FrameworkDialog, StyledDialog):
         self.layout().addWidget(self._tool_widget)
         self.layout().addWidget(self._run_button)
 
-    def _get_plugins(self, tool_config, groups=None):
-        '''
-        Recursively return all the plugins available in the given *tool_config*,
-        with *group* metadata (options, tags) merged into the plugin metadata.
-        '''
-
-        plugins = []
-
-        def _append_group_metadata(plugin):
-            '''Append group metadata to *plugin* config'''
-            result = copy.deepcopy(plugin)
-            for group in groups or []:
-                if 'options' in group:
-                    if 'tags' not in result:
-                        result['tags'] = []
-                    result['tags'].extend(list(group['options'].values()))
-                if 'tags' in group:
-                    if 'tags' not in result:
-                        result['tags'] = []
-                    result['tags'].extend(group['tags'])
-            return result
-
-        # Check if it's a full tool-config or portion of it. If it's a portion it
-        # might be a list.
-        if isinstance(tool_config, dict):
-            top_level = tool_config.get('engine', tool_config.get('plugins'))
-        else:
-            top_level = tool_config
-        for obj in top_level:
-            if isinstance(obj, dict):
-                if obj['type'] == 'group':
-                    # Recursively look for plugins into a group
-                    plugins.extend(
-                        self._get_plugins(
-                            obj.get('plugins'),
-                            groups=[obj] if not groups else [obj] + groups,
-                        )
-                    )
-                elif obj['type'] == 'plugin':
-                    plugins.append(_append_group_metadata(obj))
-                    continue
-            if isinstance(obj, str):
-                plugins.append(_append_group_metadata(obj))
-
-        return plugins
-
     def post_build(self):
         '''Set up all the signals'''
         self._on_client_context_changed_callback()
@@ -211,6 +165,7 @@ class BaseContextDialog(FrameworkDialog, StyledDialog):
         Run button from the UI has been clicked.
         Tell client to run the current tool config
         '''
+
         self.run_tool_config(self.tool_config['reference'])
 
     # FrameworkDialog overrides
