@@ -112,14 +112,6 @@ class StandardOpenerDialog(BaseContextDialog):
             )
             return
 
-        print(
-            get_plugins(
-                self.tool_config,
-                filters={'tags': ['collector']},
-                with_parents=True,
-            )
-        )
-
         # Build context widgets
         context_plugins = get_plugins(
             self.tool_config, filters={'tags': ['context']}
