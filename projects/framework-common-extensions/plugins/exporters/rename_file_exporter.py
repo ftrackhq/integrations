@@ -3,7 +3,7 @@
 
 import shutil
 
-from ftrack_framework_plugin import BasePlugin
+from ftrack_framework_core.plugin import BasePlugin
 
 
 class RenameExporterPlugin(BasePlugin):

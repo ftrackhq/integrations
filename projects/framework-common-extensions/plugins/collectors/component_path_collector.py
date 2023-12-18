@@ -2,7 +2,7 @@
 # :copyright: Copyright (c) 2014-2023 ftrack
 
 import ftrack_constants as constants
-from ftrack_framework_plugin import BasePlugin
+from ftrack_framework_core.plugin import BasePlugin
 
 
 class ComponentPathCollectorPlugin(BasePlugin):

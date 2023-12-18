@@ -3,7 +3,7 @@
 
 import logging
 
-from ftrack_framework_widget import BaseUI
+from ftrack_framework_core.widget import BaseUI
 
 
 class FrameworkWidget(BaseUI):
