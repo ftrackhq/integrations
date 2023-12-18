@@ -101,7 +101,7 @@ def build_progress_data(tool_config):
             'label': plugin_config['plugin'].replace('_', ' ').title(),
         }
         tags = plugin_config.get('tags') or []
-        for group in plugin_config.get('parents', []):
+        for group in plugin_config.get('parents') or []:
             if 'options' in group:
                 tags.extend(list(group['options'].values()))
             if 'tags' in group:
