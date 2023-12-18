@@ -8,7 +8,7 @@ from collections import defaultdict
 
 from six import string_types
 
-from ftrack_framework_widget.dialog import FrameworkDialog
+from ftrack_framework_core.widget.dialog import FrameworkDialog
 import ftrack_constants.framework as constants
 
 from ftrack_framework_core.client.host_connection import HostConnection
