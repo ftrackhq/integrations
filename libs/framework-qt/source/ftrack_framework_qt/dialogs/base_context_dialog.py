@@ -42,16 +42,6 @@ class BaseContextDialog(FrameworkDialog, StyledDialog):
         return self._context_selector.is_browsing
 
     @property
-    def progress_widget(self):
-        '''Return the progress widget of the dialog'''
-        return self._progress_widget
-
-    @progress_widget.setter
-    def progress_widget(self, value):
-        '''Set the progress widget of the dialog'''
-        self._progress_widget = value
-
-    @property
     def header(self):
         return self._header
 
@@ -63,19 +53,6 @@ class BaseContextDialog(FrameworkDialog, StyledDialog):
     def run_button(self):
         return self._run_button
 
-    @FrameworkDialog.tool_config.setter
-    def tool_config(self, value):
-        '''(Override) Set the tool config, and update the UI'''
-        super(BaseContextDialog, self.__class__).tool_config.fset(self, value)
-        if self.tool_config:
-            if (
-                self.progress_widget
-                and self.tool_config['name'] != self._prev_tool_config_name
-            ):
-                self._build_progress_widget(self.tool_config)
-            # Remember the name, if changed we need to fully rebuild the progress widget
-            self._prev_tool_config_name = self.tool_config['name']
-
     def __init__(
         self,
         event_manager,
@@ -85,7 +62,6 @@ class BaseContextDialog(FrameworkDialog, StyledDialog):
         connect_getter_property_callback,
         tool_config_names,
         dialog_options,
-        progress_widget=None,
         parent=None,
     ):
         '''
@@ -125,12 +101,8 @@ class BaseContextDialog(FrameworkDialog, StyledDialog):
         )
         self._header = None
         self._context_selector = None
-        self._progress_widget = None
         self._tool_widget = None
         self._run_button = None
-
-        self.progress_widget = progress_widget
-        self._prev_tool_config_name = None
 
         self.pre_build()
         self.build()
@@ -147,9 +119,6 @@ class BaseContextDialog(FrameworkDialog, StyledDialog):
         self._context_selector = ContextSelector(
             self.event_manager.session, enable_context_change=True
         )
-
-        if self.progress_widget:
-            self.header.add_widget(self.progress_widget.status_widget)
 
         self._tool_widget = QtWidgets.QWidget()
         _tool_widget_layout = QtWidgets.QVBoxLayout()

@@ -27,8 +27,6 @@ class ProgressWidget(QtWidgets.QWidget):
 
     MARGINS = 15
 
-    _phase_widgets = {}
-
     @property
     def status_widget(self):
         '''Return the status widget'''
@@ -55,6 +53,7 @@ class ProgressWidget(QtWidgets.QWidget):
         self._status_widget = None
         self._scroll = None
         self._categories = []
+        self._phase_widgets = {}
         self._main_window = None
         self._action = None
 
@@ -78,6 +77,9 @@ class ProgressWidget(QtWidgets.QWidget):
             self.MARGINS, self.MARGINS, self.MARGINS, self.MARGINS
         )
 
+        self._status_banner = ProgressStatusButtonWidget('overlay-banner')
+        self._content_widget.layout().addWidget(self._status_banner)
+
         self._scroll.setWidget(self._content_widget)
 
         self._overlay_container = OverlayWidget(
@@ -87,17 +89,11 @@ class ProgressWidget(QtWidgets.QWidget):
 
     def post_build(self):
         '''Wire up signals'''
-        self.status_widget.clicked.connect(self.show_widget)
+        self.status_widget.clicked.connect(self.show_overlay)
 
-    def prepare_add_phases(self):
-        '''Prepare the progress widget to add phases'''
-        self._clear_components()
-        self._status_banner = ProgressStatusButtonWidget('overlay-banner')
-        self._content_widget.layout().addWidget(self._status_banner)
-
-    def has_phase_widget(self, reference):
-        '''Return True if a phase widget with *reference* exists'''
-        return reference in self._phase_widgets
+    def count(self):
+        '''Return the number of phases'''
+        return len(self._phase_widgets)
 
     def add_phase_widget(
         self, widget_id, label, indent=0, category='', tags=None
@@ -107,10 +103,6 @@ class ProgressWidget(QtWidgets.QWidget):
 
         Optional *indent* defines left margin.
         '''
-        if self.has_phase_widget(widget_id):
-            raise ValueError(
-                f'Phase widget with ID {widget_id} already exists'
-            )
         phase_button = ProgressPhaseButtonWidget(
             label, category=category, tags=tags
         )
@@ -128,20 +120,25 @@ class ProgressWidget(QtWidgets.QWidget):
             self._content_widget.layout().addWidget(phase_category)
         self._content_widget.layout().addWidget(phase_button)
 
+    def set_data(self, data):
+        '''Set the data for the progress widget, were *data* is a list of
+        dictionaries with the following keys:
+            - id
+            - label
+            - category
+            - indent
+            - tags
+        '''
+
     def phases_added(self):
         '''All widgets have been added to the progress widget'''
         self._content_widget.layout().addWidget(QtWidgets.QLabel(), 10)
-
-    def _clear_components(self):
-        recursive_clear_layout(self._content_widget.layout())
-        self._categories = []
-        self._phase_widgets = {}
 
     def _set_status_widget_visibility(self, visibility=False):
         '''Update the visibility of the progress widget'''
         self.status_widget.setVisible(visibility)
 
-    def show_widget(self, main_window=None):
+    def show_overlay(self, main_window=None):
         '''Show the progress widget overlay on top of *main_window*'''
         if main_window:
             self._main_window = main_window
@@ -149,7 +146,7 @@ class ProgressWidget(QtWidgets.QWidget):
         self._overlay_container.setVisible(True)
         self.status_widget.setVisible(True)
 
-    def hide_widget(self):
+    def hide_overlay(self):
         '''Hide the progress widget'''
         self.status_widget.setVisible(False)
 
@@ -169,7 +166,7 @@ class ProgressWidget(QtWidgets.QWidget):
             constants.status.RUNNING_STATUS,
             message=f'Running {self.action.lower()}...',
         )
-        self.show_widget(main_widget)
+        self.show_overlay(main_widget)
 
     def update_status(self, new_status, message=None):
         '''Set the new main status to *new_status*, with optional *message*'''

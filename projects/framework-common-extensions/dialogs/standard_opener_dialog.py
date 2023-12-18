@@ -17,6 +17,11 @@ class StandardOpenerDialog(BaseContextDialog):
     run_button_title = 'OPEN'
     docked = False
 
+    @property
+    def progress_widget(self):
+        '''Return the progress widget'''
+        return self._progress_widget
+
     def __init__(
         self,
         event_manager,
@@ -47,6 +52,7 @@ class StandardOpenerDialog(BaseContextDialog):
         '''
         self._scroll_area = None
         self._scroll_area_widget = None
+        self._progress_widget = None
 
         super(StandardOpenerDialog, self).__init__(
             event_manager,
@@ -56,7 +62,6 @@ class StandardOpenerDialog(BaseContextDialog):
             connect_getter_property_callback,
             tool_config_names,
             dialog_options,
-            progress_widget=ProgressWidget(),
             parent=parent,
         )
         self.resize(400, 450)
@@ -80,7 +85,6 @@ class StandardOpenerDialog(BaseContextDialog):
 
     def build_ui(self):
         # Select the desired tool_config
-        self.tool_config = None
         tool_config_message = None
         if self.filtered_tool_configs.get("opener"):
             if len(self.tool_config_names or []) != 1:
@@ -97,7 +101,12 @@ class StandardOpenerDialog(BaseContextDialog):
                         self.logger.debug(
                             f'Using tool config {tool_config_name}'
                         )
-                        self.tool_config = tool_config
+                        if self.tool_config != tool_config:
+                            self.tool_config = tool_config
+                            self._progress_widget = ProgressWidget()
+                            self.header.set_widget(
+                                self.progress_widget.status_widget
+                            )
                         break
                 if not self.tool_config:
                     tool_config_message = (
