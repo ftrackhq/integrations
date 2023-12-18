@@ -11,7 +11,6 @@ from ftrack_qt.widgets.headers import SessionHeader
 from ftrack_qt.widgets.selectors import ContextSelector
 
 from ftrack_qt.utils.layout import recursive_clear_layout
-from ftrack_qt.utils.decorators import invoke_in_qt_main_thread
 
 
 class BaseContextDialog(FrameworkDialog, StyledDialog):
@@ -177,20 +176,6 @@ class BaseContextDialog(FrameworkDialog, StyledDialog):
 
         return plugins
 
-    def _build_progress_widget(self, tool_config):
-        '''Build the progress widget based on the given *tool_config*'''
-        self.progress_widget.prepare_add_phases()
-        # Get all plugins
-        plugins = self._get_plugins(tool_config)
-        for plugin_config in plugins:
-            self.progress_widget.add_phase_widget(
-                plugin_config['reference'],
-                plugin_config['plugin'].replace('_', ' ').title(),
-                tags=reversed(plugin_config.get('tags') or []),
-            )
-        # Wrap progress widget
-        self.progress_widget.phases_added()
-
     def post_build(self):
         '''Set up all the signals'''
         self._on_client_context_changed_callback()
@@ -226,20 +211,7 @@ class BaseContextDialog(FrameworkDialog, StyledDialog):
         Run button from the UI has been clicked.
         Tell client to run the current tool config
         '''
-        if self.progress_widget:
-            self.progress_widget.run(self, self._run_button.text())
         self.run_tool_config(self.tool_config['reference'])
-
-    @invoke_in_qt_main_thread
-    def plugin_run_callback(self, log_item):
-        '''(Override) Pass framework log item to the progress widget'''
-        if self.progress_widget:
-            self.progress_widget.update_phase_status(
-                log_item.plugin_reference,
-                log_item.plugin_status,
-                log_message=log_item.plugin_message,
-                time=log_item.plugin_execution_time,
-            )
 
     # FrameworkDialog overrides
     def show_ui(self):

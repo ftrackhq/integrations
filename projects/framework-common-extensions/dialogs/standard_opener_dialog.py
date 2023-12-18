@@ -6,6 +6,8 @@ from Qt import QtWidgets, QtCore
 from ftrack_framework_qt.dialogs import BaseContextDialog
 from ftrack_utils.framework.config.tool import get_plugins, get_groups
 from ftrack_qt.widgets.progress import ProgressWidget
+from ftrack_qt.utils.decorators import invoke_in_qt_main_thread
+from ftrack_qt.utils.widget import build_progress_data
 
 
 class StandardOpenerDialog(BaseContextDialog):
@@ -16,11 +18,6 @@ class StandardOpenerDialog(BaseContextDialog):
     ui_type = 'qt'
     run_button_title = 'OPEN'
     docked = False
-
-    @property
-    def progress_widget(self):
-        '''Return the progress widget'''
-        return self._progress_widget
 
     def __init__(
         self,
@@ -103,9 +100,11 @@ class StandardOpenerDialog(BaseContextDialog):
                         )
                         if self.tool_config != tool_config:
                             self.tool_config = tool_config
-                            self._progress_widget = ProgressWidget()
+                            self._progress_widget = ProgressWidget(
+                                'open', build_progress_data(tool_config)
+                            )
                             self.header.set_widget(
-                                self.progress_widget.status_widget
+                                self._progress_widget.status_widget
                             )
                         break
                 if not self.tool_config:
@@ -166,3 +165,19 @@ class StandardOpenerDialog(BaseContextDialog):
 
     def post_build_ui(self):
         pass
+
+    def _on_run_button_clicked(self):
+        '''(Override) Drive the progress widget'''
+        self._progress_widget.run(self)
+        super(StandardOpenerDialog, self)._on_run_button_clicked()
+
+    @invoke_in_qt_main_thread
+    def plugin_run_callback(self, log_item):
+        '''(Override) Pass framework log item to the progress widget'''
+        if self._progress_widget:
+            self._progress_widget.update_phase_status(
+                log_item.plugin_reference,
+                log_item.plugin_status,
+                log_message=log_item.plugin_message,
+                time=log_item.plugin_execution_time,
+            )

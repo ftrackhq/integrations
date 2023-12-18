@@ -5,6 +5,8 @@ import shiboken2
 
 from Qt import QtWidgets, QtCore, QtGui
 
+from ftrack_utils.framework.config.tool import get_plugins
+
 # TODO: check this utilities if they are really needed.
 
 
@@ -88,3 +90,22 @@ class InputEventBlockingWidget(QtWidgets.QWidget):
         if self._blocker() and (isinstance(event, QtGui.QInputEvent)):
             retval = True
         return retval
+
+
+def build_progress_data(tool_config):
+    '''Build progress data from *tool_config*'''
+    progress_data = []
+    for plugin_config in get_plugins(tool_config, with_parents=True):
+        phase_data = {
+            'id': plugin_config['reference'],
+            'label': plugin_config['plugin'].replace('_', ' ').title(),
+        }
+        tags = plugin_config.get('tags') or []
+        for group in plugin_config.get('parents') or []:
+            if 'options' in group:
+                tags.extend(list(group['options'].values()))
+            if 'tags' in group:
+                tags.extend(group['tags'])
+        phase_data['tags'] = reversed(tags)
+        progress_data.append(phase_data)
+    return progress_data

@@ -42,8 +42,10 @@ class ProgressWidget(QtWidgets.QWidget):
         '''Return a descriptive name of the action that is being run'''
         return self._action or ''
 
-    def __init__(self, parent=None):
-        '''Initialise ProgressWidgetObject with optional *parent*'''
+    def __init__(self, action, data, parent=None):
+        '''Initialise ProgressWidgetObject with *action* describing what progress
+        represents and *data* containing information about the progress phases,
+        with ptional *parent*'''
 
         super(ProgressWidget, self).__init__(parent=parent)
 
@@ -55,12 +57,14 @@ class ProgressWidget(QtWidgets.QWidget):
         self._categories = []
         self._phase_widgets = {}
         self._main_window = None
-        self._action = None
+        self._action = action
 
         self.logger = logging.getLogger(__name__)
 
         self.build()
         self.post_build()
+
+        self.set_data(data)
 
     def build(self):
         self._status_widget = ProgressStatusButtonWidget('header-button')
@@ -77,9 +81,6 @@ class ProgressWidget(QtWidgets.QWidget):
             self.MARGINS, self.MARGINS, self.MARGINS, self.MARGINS
         )
 
-        self._status_banner = ProgressStatusButtonWidget('overlay-banner')
-        self._content_widget.layout().addWidget(self._status_banner)
-
         self._scroll.setWidget(self._content_widget)
 
         self._overlay_container = OverlayWidget(
@@ -91,47 +92,56 @@ class ProgressWidget(QtWidgets.QWidget):
         '''Wire up signals'''
         self.status_widget.clicked.connect(self.show_overlay)
 
-    def count(self):
-        '''Return the number of phases'''
-        return len(self._phase_widgets)
-
-    def add_phase_widget(
-        self, widget_id, label, indent=0, category='', tags=None
-    ):
-        '''Add progress widget representation for phase having unique *widget_id*
-        (string), beneath *category*, having *label*, with *tags*.
-
-        Optional *indent* defines left margin.
-        '''
-        phase_button = ProgressPhaseButtonWidget(
-            label, category=category, tags=tags
-        )
-        self._phase_widgets[widget_id] = phase_button
-        self._content_widget.layout().setContentsMargins(
-            self.MARGINS + indent * 10,
-            self.MARGINS,
-            self.MARGINS,
-            self.MARGINS,
-        )
-        if category not in self._categories:
-            self._categories.append(category)
-            phase_category = QtWidgets.QLabel(category)
-            phase_category.setObjectName("gray")
-            self._content_widget.layout().addWidget(phase_category)
-        self._content_widget.layout().addWidget(phase_button)
-
     def set_data(self, data):
         '''Set the data for the progress widget, were *data* is a list of
-        dictionaries with the following keys:
-            - id
-            - label
-            - category
-            - indent
-            - tags
+        dictionaries, one for each progress phase, with the following keys:
+            - id: Unique id of the phase
+            - label: A label for the phase
+            - category: (optional) The category of the phase
+            - tags: (optional) A list of tags for the phase
+            - indent: (optional) The indent level of the phase
         '''
+        assert data and isinstance(data, list), 'Data must be a list'
 
-    def phases_added(self):
-        '''All widgets have been added to the progress widget'''
+        recursive_clear_layout(self._content_widget.layout())
+
+        self._status_banner = ProgressStatusButtonWidget('overlay-banner')
+        self._content_widget.layout().addWidget(self._status_banner)
+
+        self._categories = []
+        self._phase_widgets = {}
+
+        for phase_data in data:
+            assert phase_data.get(
+                'id'
+            ), 'ID must be defined with progress widget phase!'
+            assert phase_data.get(
+                'label'
+            ), 'Label must be defined with progress widget phase!'
+
+            id_ = phase_data['id']
+            label = phase_data['label']
+            category = phase_data.get('category', '')
+            tags = phase_data.get('tags')
+            indent = phase_data.get('indent', 0)
+
+            phase_button = ProgressPhaseButtonWidget(
+                label, category=category, tags=tags
+            )
+            self._phase_widgets[id_] = phase_button
+            self._content_widget.layout().setContentsMargins(
+                self.MARGINS + indent * 10,
+                self.MARGINS,
+                self.MARGINS,
+                self.MARGINS,
+            )
+            if category not in self._categories:
+                self._categories.append(category)
+                phase_category = QtWidgets.QLabel(category)
+                phase_category.setObjectName("gray")
+                self._content_widget.layout().addWidget(phase_category)
+            self._content_widget.layout().addWidget(phase_button)
+
         self._content_widget.layout().addWidget(QtWidgets.QLabel(), 10)
 
     def _set_status_widget_visibility(self, visibility=False):
@@ -155,12 +165,12 @@ class ProgressWidget(QtWidgets.QWidget):
         '''Reset statuses of all progress phases'''
         if not new_status:
             new_status = constants.status.UNKNOWN_STATUS
-        for phase_widget in self._phase_widgets.values():
+        for phase_widget in list(self._phase_widgets.values()):
             phase_widget.update_status(new_status, status_message, None)
+            phase_widget.hide_log()
 
-    def run(self, main_widget, action):
+    def run(self, main_widget):
         '''Run progress widget on top of *main_widget*, with *action*'''
-        self._action = action
         self.reset_statuses()
         self.update_status(
             constants.status.RUNNING_STATUS,
@@ -171,7 +181,7 @@ class ProgressWidget(QtWidgets.QWidget):
     def update_status(self, new_status, message=None):
         '''Set the new main status to *new_status*, with optional *message*'''
         self.logger.debug(
-            f'Main status update: {new_status} (message: {message}'
+            f'Main status update: {new_status} (message: {message})'
         )
         self.status_widget.set_status(new_status, message=message)
         if self._status_banner:
