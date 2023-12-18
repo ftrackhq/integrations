@@ -417,46 +417,11 @@ pyyaml = "^6.0.1"
 six = ">= 1, < 2"
 
 [package.extras]
-framework-libs = ["ftrack-framework-engine (>1,<3)", "ftrack-framework-plugin (>1,<3)", "ftrack-framework-widget (>1,<3)"]
 ftrack-libs = ["ftrack-constants (>1,<3)", "ftrack-utils (>1,<3)"]
 
 [package.source]
 type = "directory"
 url = "libs/framework-core"
-
-[[package]]
-name = "ftrack-framework-engine"
-version = "2.0.0rc1"
-description = 'ftrack framework engine library'
-category = "dev"
-optional = false
-python-versions = ">= 3.7, < 3.12"
-files = []
-develop = true
-
-[package.extras]
-ftrack-libs = ["ftrack-utils (>1,<3)"]
-
-[package.source]
-type = "directory"
-url = "libs/framework-engine"
-
-[[package]]
-name = "ftrack-framework-plugin"
-version = "2.0.0rc1"
-description = 'ftrack framework plugin library'
-category = "dev"
-optional = false
-python-versions = ">= 3.7, < 3.12"
-files = []
-develop = true
-
-[package.extras]
-ftrack-libs = ["ftrack-constants (>1,<3)", "ftrack-utils (>1,<3)"]
-
-[package.source]
-type = "directory"
-url = "libs/framework-plugin"
 
 [[package]]
 name = "ftrack-framework-qt"
@@ -473,29 +438,12 @@ PySide2 = ">= 5.13, <= 5.15"
 "Qt.py" = ">=1.0.0, < 2"
 
 [package.extras]
-framework-libs = ["ftrack-framework-widget (>1,<3)"]
+framework-libs = ["ftrack-framework-core (>1,<3)"]
 ftrack-libs = ["ftrack-constants (>1,<3)", "ftrack-qt (>1,<3)", "ftrack-utils (>1,<3)"]
 
 [package.source]
 type = "directory"
 url = "libs/framework-qt"
-
-[[package]]
-name = "ftrack-framework-widget"
-version = "2.0.0rc1"
-description = 'ftrack framework widget library'
-category = "dev"
-optional = false
-python-versions = ">= 3.7, < 3.12"
-files = []
-develop = true
-
-[package.extras]
-ftrack-libs = ["ftrack-utils (>1,<3)"]
-
-[package.source]
-type = "directory"
-url = "libs/framework-widget"
 
 [[package]]
 name = "ftrack-python-api"
@@ -1123,4 +1071,4 @@ testing = ["big-O", "flake8 (<5)", "jaraco.functools", "jaraco.itertools", "more
 [metadata]
 lock-version = "2.0"
 python-versions = ">= 3.7, < 3.12"
-content-hash = "26442fb44c3e5bd57aec0e825aa6a0ec8a52dab15662cfcf69a007b15c468181"
+content-hash = "362336b34d5b72ae395abc05ddadd0d7fcdf254b39113bc20a969c268d2c20a0"
