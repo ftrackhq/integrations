@@ -1,0 +1,92 @@
+name: Pytest
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  unit-test-pytest:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.7", "3.8", "3.9", "3.10", "3.11"]
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install poetry
+        run: pip install poetry==1.4.2
+
+      - name: Install dependencies
+        run: poetry install
+
+
+      - name: Run tests No coverage
+        if: ${{ matrix.python-version < '3.8' }}
+        run: poetry run pytest
+      - name: Run tests with coverage
+        if: ${{ matrix.python-version >= '3.8' }}
+        run: poetry run coverage run
+        env:
+          COVERAGE_FILE: ".coverage.${{ matrix.python-version }}"
+          # Alternatively you can run coverage with the --parallel flag or add
+          # `parallel = True` in the coverage config file.
+          # If using pytest-cov, you can also add the `--cov-append` flag
+          # directly or through PYTEST_ADD_OPTS.
+
+      - name: Store coverage file
+        if: ${{ matrix.python-version >= '3.8' }}
+        uses: actions/upload-artifact@v3
+        with:
+          name: coverage
+          path: .coverage.${{ matrix.python-version }}
+
+  coverage:
+    name: Coverage
+    runs-on: ubuntu-latest
+    needs: unit-test-pytest
+    permissions:
+      pull-requests: write
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/download-artifact@v3
+        id: download
+        with:
+          name: "coverage"
+
+      - name: Coverage comment
+        id: coverage_comment
+        uses: py-cov-action/python-coverage-comment-action@v3
+        with:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          MERGE_COVERAGE_FILES: true
+
+      - name: Store Pull Request comment to be posted
+        uses: actions/upload-artifact@v3
+        if: steps.coverage_comment.outputs.COMMENT_FILE_WRITTEN == 'true'
+        with:
+          name: python-coverage-comment-action
+          path: python-coverage-comment-action.txt
+
+# Coverage info found in: https://github.com/marketplace/actions/python-coverage-comment#merging-multiple-coverage-reports
+
+# Implement poetry cache, right now is not useful as each python version runs in parallel in different environments.
+#      - name: Cache Poetry
+#          uses: actions/cache@v2
+#          with:
+#            path: ~/.cache/pypoetry
+#            key: ${{ runner.os }}-poetry-${{ hashFiles('**/poetry.lock') }}
+#            restore-keys: |
+#              ${{ runner.os }}-poetry-
+#
+#      - name: Install dependencies
+#        run: poetry install --no-interaction --no-root
