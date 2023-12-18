@@ -11,8 +11,6 @@ class FtrackLogo(QtWidgets.QLabel):
         '''Instantiate logo widget.'''
         super(FtrackLogo, self).__init__(parent=parent)
 
-        self.setObjectName('ftrack-logo-widget')
-
         self.pre_build()
         self.build()
 
@@ -23,7 +21,6 @@ class FtrackLogo(QtWidgets.QLabel):
         self.layout().setAlignment(QtCore.Qt.AlignTop)
 
     def build(self):
-        # logoPixmap = QtGui.QPixmap(':ftrack/image/default/ftrackLogoLabel')
         resource_path = ':ftrack/image/default/connectLogoDark'
         logoPixmap = QtGui.QPixmap(resource_path)
         if not logoPixmap is None:

@@ -5,16 +5,6 @@
     font-size: 11px;
 }
 
-QLabel#lead-label {
-    font-size: 13px;
-    color: $text-color-drop-zone;
-    font-weight: light;
-}
-
-QPixmap{
-    image: theme-image('ftrackLogoLabelDark');
-}
-
 QScrollArea {
     border: none;
     background-color: transparent;
