@@ -149,7 +149,7 @@ class BaseContextDialog(FrameworkDialog, StyledDialog):
         )
 
         if self.progress_widget:
-            self.header.add_widget(self.progress_widget.button_widget)
+            self.header.add_widget(self.progress_widget.status_widget)
 
         self._tool_widget = QtWidgets.QWidget()
         _tool_widget_layout = QtWidgets.QVBoxLayout()
@@ -212,7 +212,7 @@ class BaseContextDialog(FrameworkDialog, StyledDialog):
         '''Build the progress widget based on the given *tool_config*'''
         self.progress_widget.prepare_add_phases()
         # Get all plugins
-        plugins = self._get_plugins(self.tool_config)
+        plugins = self._get_plugins(tool_config)
         for plugin_config in plugins:
             self.progress_widget.add_phase_widget(
                 plugin_config['reference'],
@@ -265,7 +265,12 @@ class BaseContextDialog(FrameworkDialog, StyledDialog):
     def plugin_run_callback(self, log_item):
         '''(Override) Pass framework log item to the progress widget'''
         if self.progress_widget:
-            self.progress_widget.update_framework_progress(log_item)
+            self.progress_widget.update_phase_status(
+                log_item.plugin_reference,
+                log_item.plugin_status,
+                log_message=log_item.plugin_message,
+                time=log_item.plugin_execution_time,
+            )
 
     # FrameworkDialog overrides
     def show_ui(self):

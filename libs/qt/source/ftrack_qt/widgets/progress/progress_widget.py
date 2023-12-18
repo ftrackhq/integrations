@@ -1,6 +1,6 @@
 import logging
 
-from Qt import QtWidgets, QtCore
+from Qt import QtWidgets
 
 import ftrack_constants as constants
 
@@ -27,27 +27,17 @@ class ProgressWidget(QtWidgets.QWidget):
 
     MARGINS = 15
 
-    STATUS_MAPPINGS = {
-        constants.status.UNKNOWN_STATUS: 'Not started',
-        constants.status.SUCCESS_STATUS: 'Success',
-        constants.status.WARNING_STATUS: 'Warning',
-        constants.status.ERROR_STATUS: 'ERROR',
-        constants.status.EXCEPTION_STATUS: 'EXCEPTION',
-        constants.status.RUNNING_STATUS: 'Running',
-        constants.status.DEFAULT_STATUS: 'Pause',
-    }
-
     _phase_widgets = {}
 
     @property
-    def button_widget(self):
-        '''Return the button widget'''
+    def status_widget(self):
+        '''Return the status widget'''
         return self._status_widget
 
     @property
     def status(self):
         '''Return the overall progress widget status'''
-        return self.button_widget.status
+        return self.status_widget.status
 
     @property
     def action(self):
@@ -97,7 +87,7 @@ class ProgressWidget(QtWidgets.QWidget):
 
     def post_build(self):
         '''Wire up signals'''
-        self.button_widget.clicked.connect(self.show_widget)
+        self.status_widget.clicked.connect(self.show_widget)
 
     def prepare_add_phases(self):
         '''Prepare the progress widget to add phases'''
@@ -110,23 +100,21 @@ class ProgressWidget(QtWidgets.QWidget):
         return reference in self._phase_widgets
 
     def add_phase_widget(
-        self, reference, label, indent=0, category='', tags=None
+        self, widget_id, label, indent=0, category='', tags=None
     ):
-        '''Add progress widget representation for phase having unique *reference*
+        '''Add progress widget representation for phase having unique *widget_id*
         (string), beneath *category*, having *label*, with *tags*.
 
         Optional *indent* defines left margin.
         '''
-        if self.has_phase_widget(reference):
+        if self.has_phase_widget(widget_id):
             raise ValueError(
-                'Phase widget with reference {} already exists'.format(
-                    reference
-                )
+                f'Phase widget with ID {widget_id} already exists'
             )
         phase_button = ProgressPhaseButtonWidget(
             label, category=category, tags=tags
         )
-        self._phase_widgets[reference] = phase_button
+        self._phase_widgets[widget_id] = phase_button
         self._content_widget.layout().setContentsMargins(
             self.MARGINS + indent * 10,
             self.MARGINS,
@@ -151,7 +139,7 @@ class ProgressWidget(QtWidgets.QWidget):
 
     def _set_status_widget_visibility(self, visibility=False):
         '''Update the visibility of the progress widget'''
-        self.button_widget.setVisible(visibility)
+        self.status_widget.setVisible(visibility)
 
     def show_widget(self, main_window=None):
         '''Show the progress widget overlay on top of *main_window*'''
@@ -159,11 +147,11 @@ class ProgressWidget(QtWidgets.QWidget):
             self._main_window = main_window
             self._overlay_container.setParent(self._main_window)
         self._overlay_container.setVisible(True)
-        self.button_widget.setVisible(True)
+        self.status_widget.setVisible(True)
 
     def hide_widget(self):
         '''Hide the progress widget'''
-        self.button_widget.setVisible(False)
+        self.status_widget.setVisible(False)
 
     # Run
     def reset_statuses(self, new_status=None, status_message=''):
@@ -188,31 +176,34 @@ class ProgressWidget(QtWidgets.QWidget):
         self.logger.debug(
             f'Main status update: {new_status} (message: {message}'
         )
-        self.button_widget.set_status(new_status, message=message)
+        self.status_widget.set_status(new_status, message=message)
         if self._status_banner:
             self._status_banner.set_status(new_status, message=message)
         self._set_status_widget_visibility(True)
 
     def update_phase_status(
         self,
-        reference,
+        widget_id,
         new_status,
         log_message='',
         status_message=None,
         time=None,
     ):
-        '''Update the status of a phase/plugin *reference* to *new_status*, with
+        '''Update the status of a phase/plugin *widget_id* to *new_status*, with
         optional *log_message*, *status_message* and execution *time*'''
         self.logger.debug(
-            f'Phase {reference} status update: {new_status} (message: {log_message}'
+            f'Phase {widget_id} status update: {new_status} (message: {log_message}'
         )
-        assert reference, 'Reference cannot be None'
+        assert widget_id, 'Widget ID cannot be None'
         assert new_status, 'Status cannot be None'
         if not status_message:
-            status_message = self.STATUS_MAPPINGS.get(new_status) or new_status
+            status_message = (
+                constants.status.STATUS_STRING_MAPPING.get(new_status)
+                or new_status
+            )
 
-        if reference in self._phase_widgets:
-            phase_widget = self._phase_widgets[reference]
+        if widget_id in self._phase_widgets:
+            phase_widget = self._phase_widgets[widget_id]
             phase_widget.update_status(
                 new_status, status_message, log_message, time=time
             )
@@ -224,7 +215,7 @@ class ProgressWidget(QtWidgets.QWidget):
 
         else:
             self.logger.warning(
-                'No phase widget found for {}'.format(reference)
+                f'Progress phase widget with ID {widget_id} not found!'
             )
 
         # Error or finished?
@@ -254,12 +245,3 @@ class ProgressWidget(QtWidgets.QWidget):
                     constants.status.SUCCESS_STATUS,
                     message=f'{self.action.title()} completed successfully',
                 )
-
-    def update_framework_progress(self, log_item):
-        '''A framework plugin has been executed, with information passed on in *log_item*'''
-        self.update_phase_status(
-            log_item.plugin_reference,
-            log_item.plugin_status,
-            log_message=log_item.plugin_message,
-            time=log_item.plugin_execution_time,
-        )

@@ -1,7 +1,7 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2023 ftrack
 
-from Qt import QtWidgets, QtCore
+from Qt import QtWidgets
 
 import ftrack_constants as constants
 from ftrack_qt.utils.widget import set_property
@@ -43,7 +43,7 @@ class ProgressStatusButtonWidget(QtWidgets.QPushButton):
         self.setMinimumWidth(200)
 
     def build(self):
-        self.setObjectName('progress-widget-{}'.format(self._style_mode))
+        self.setObjectName(f'progress-widget-{self._style_mode}')
 
         self._message_label = QtWidgets.QLabel()
         self.layout().addWidget(self._message_label)
@@ -56,13 +56,13 @@ class ProgressStatusButtonWidget(QtWidgets.QPushButton):
     def set_status(self, new_status, message=''):
         assert (
             new_status in constants.status.status_bool_mapping.keys()
-        ), 'Invalid status: {}'.format(new_status)
+        ), f'Invalid status: {new_status}'
         self.status = new_status
         if message:
             self._message_label.setText(message)
         set_property(self, 'status', self.status.lower())
         color = self._status_icon.set_status(self.status, size=24)
-        self._message_label.setStyleSheet('color: #{}'.format(color))
+        self._message_label.setStyleSheet(f'color: #{color}')
 
 
 class ProgressPhaseButtonWidget(QtWidgets.QPushButton):
@@ -94,7 +94,7 @@ class ProgressPhaseButtonWidget(QtWidgets.QPushButton):
         self._log_message = value
         self.setToolTip(value or '')
 
-    def __init__(self, label, category=category, tags=None, parent=None):
+    def __init__(self, label, category='', tags=None, parent=None):
         '''Instantiate the PhaseButtonWidget with *label* and *status*'''
 
         super(ProgressPhaseButtonWidget, self).__init__(parent=parent)
@@ -112,6 +112,7 @@ class ProgressPhaseButtonWidget(QtWidgets.QPushButton):
         self._log_text_edit = None
         self._close_button = None
         self._time_widget = None
+        self.log_overlay_container = None
 
         self.pre_build()
         self.build()
@@ -130,7 +131,6 @@ class ProgressPhaseButtonWidget(QtWidgets.QPushButton):
         self._icon_widget = StatusMaterialIconWidget(None)
         self.layout().addWidget(self._icon_widget)
         self.set_status(self.status)
-        set_property(self, 'status', self.status.lower())
 
         v_layout = QtWidgets.QVBoxLayout()
 
@@ -196,7 +196,7 @@ class ProgressPhaseButtonWidget(QtWidgets.QPushButton):
         Build log messages from *log*.''' ''
         color = self.set_status(new_status)
         self._status_message_widget.setText(f'[{status_message.upper()}]')
-        self._status_message_widget.setStyleSheet('color: #{};'.format(color))
+        self._status_message_widget.setStyleSheet(f'color: #{color};')
         if time:
             self._time_widget.setText(f'{time:.3f}s')
         else:
