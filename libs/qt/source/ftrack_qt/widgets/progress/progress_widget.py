@@ -190,18 +190,18 @@ class ProgressWidget(QtWidgets.QWidget):
 
     def update_phase_status(
         self,
-        widget_id,
+        id_,
         new_status,
         log_message='',
         status_message=None,
         time=None,
     ):
-        '''Update the status of a phase/plugin *widget_id* to *new_status*, with
+        '''Update the status of a phase/plugin *id_* to *new_status*, with
         optional *log_message*, *status_message* and execution *time*'''
         self.logger.debug(
-            f'Phase {widget_id} status update: {new_status} (message: {log_message}'
+            f'Phase {id_} status update: {new_status} (message: {log_message}'
         )
-        assert widget_id, 'Widget ID cannot be None'
+        assert id_, 'Widget ID cannot be None'
         assert new_status, 'Status cannot be None'
         if not status_message:
             status_message = (
@@ -209,8 +209,8 @@ class ProgressWidget(QtWidgets.QWidget):
                 or new_status
             )
 
-        if widget_id in self._phase_widgets:
-            phase_widget = self._phase_widgets[widget_id]
+        if id_ in self._phase_widgets:
+            phase_widget = self._phase_widgets[id_]
             phase_widget.update_status(
                 new_status, status_message, log_message, time=time
             )
@@ -222,7 +222,7 @@ class ProgressWidget(QtWidgets.QWidget):
 
         else:
             self.logger.warning(
-                f'Progress phase widget with ID {widget_id} not found!'
+                f'Progress phase widget with ID {id_} not found!'
             )
 
         # Error or finished?
