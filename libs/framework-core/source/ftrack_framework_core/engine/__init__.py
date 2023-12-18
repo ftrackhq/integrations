@@ -185,6 +185,7 @@ class BaseEngine(object):
         plugin_info['plugin_boolean_status'] = bool_status
         plugin_info['plugin_status'] = status
         plugin_info['plugin_message'] = full_message
+        plugin_info['plugin_execution_time'] = execution_time
         if self.on_plugin_executed:
             self.on_plugin_executed(plugin_info)
         return plugin_info
