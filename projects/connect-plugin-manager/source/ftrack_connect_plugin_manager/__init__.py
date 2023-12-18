@@ -321,11 +321,7 @@ class DndPluginList(QtWidgets.QFrame):
             STATUSES.DOWNLOAD,
         ] and status in [STATUSES.NEW, STATUSES.DOWNLOAD]:
             stored_plugin_version = stored_item.data(ROLES.PLUGIN_VERSION)
-            should_update = stored_plugin_version < new_plugin_version or (
-                new_plugin_version.major == 0
-                and new_plugin_version.minor == 0
-                and new_plugin_version.micro == 0
-            )
+            should_update = stored_plugin_version < new_plugin_version
             if not should_update:
                 return
 
