@@ -127,9 +127,7 @@ class WelcomePlugin(ConnectWidget):
     def download_plugins(self, source_paths):
         '''Download plugins from provided *source_paths* item.'''
         temp_paths = []
-        self.overlay.setMessage(
-            "Downloaded 0/{} plugins.".format(len(source_paths))
-        )
+        self.overlay.message = f"Downloaded 0/{len(source_paths)} plugins."
         i = 1
         for source_path in source_paths:
             zip_name = os.path.basename(source_path)
@@ -143,8 +141,8 @@ class WelcomePlugin(ConnectWidget):
                 with open(temp_path, 'wb') as out_file:
                     out_file.write(dl_file.read())
             temp_paths.append(temp_path)
-            self.overlay.setMessage(
-                "Downloaded {}/{} plugins.".format(i, len(source_paths))
+            self.overlay.message = (
+                f"Downloaded {i}/{len(source_paths)} plugins."
             )
             i += 1
         return temp_paths
@@ -178,13 +176,9 @@ class WelcomePlugin(ConnectWidget):
         '''Install provided *plugin_names*. If no plugin_names install all them'''
         self.installing.emit()
         plugins_path = self.discover_plugins(plugin_names)
-        self.overlay.setMessage(
-            "Discovered {} plugins.".format(len(plugins_path))
-        )
+        self.overlay.message = f"Discovered {len(plugins_path)} plugins."
         source_paths = self.download_plugins(plugins_path)
-        self.overlay.setMessage(
-            "Installed 0/{} plugins.".format(len(source_paths))
-        )
+        self.overlay.message = f"Installed 0/{len(source_paths)} plugins."
         i = 1
         for source_path in source_paths:
             plugin_name = os.path.basename(source_path).split('.zip')[0]
@@ -195,8 +189,8 @@ class WelcomePlugin(ConnectWidget):
 
             with zipfile.ZipFile(source_path, 'r') as zip_ref:
                 zip_ref.extractall(destination_path)
-            self.overlay.setMessage(
-                "Installed {}/{} plugins.".format(i, len(source_paths))
+            self.overlay.message = (
+                f"Installed {i}/{len(source_paths)} plugins."
             )
             i += 1
 
@@ -944,7 +938,9 @@ class Application(QtWidgets.QMainWindow):
         '''Find and load connect widgets in search paths.'''
 
         event = ftrack_api.event.base.Event(topic=ConnectWidgetPlugin.topic)
-        disable_startup_widget = bool(os.getenv('FTRACK_CONNECT_DISABLE_STARTUP_WIDGET', False))
+        disable_startup_widget = bool(
+            os.getenv('FTRACK_CONNECT_DISABLE_STARTUP_WIDGET', False)
+        )
         responses = self.session.event_hub.publish(event, synchronous=True)
         if not responses and not disable_startup_widget:
             widget_plugin = WelcomePlugin(self.session)

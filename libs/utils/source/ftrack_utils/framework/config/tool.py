@@ -1,5 +1,6 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2023 ftrack
+import copy
 
 
 def get_tool_config_by_name(tool_configs, name):
@@ -13,12 +14,20 @@ def get_tool_config_by_name(tool_configs, name):
             return tool_config
 
 
-def get_plugins(tool_config, filters=None, names_only=False):
+def get_plugins(
+    tool_config,
+    filters=None,
+    names_only=False,
+    with_parents=False,
+    _parents=None,
+):
     '''
     Recursively return all the plugins available in the given tool_config.
     *tool_config*: Dictionary produced by the yaml loader.
     *filters*: dictionary with key and values to match for returned plugins
     *names_only*: return only name of the plugin.
+    *with_parents*: return plugin with parent groups as a list.
+    *_parents*: Internal use only.
     '''
 
     plugins = []
@@ -38,6 +47,9 @@ def get_plugins(tool_config, filters=None, names_only=False):
                         obj.get('plugins'),
                         filters=filters,
                         names_only=names_only,
+                        with_parents=with_parents,
+                        _parents=(_parents or [])
+                        + [{k: v for k, v in obj.items() if k != 'plugins'}],
                     )
                 )
             elif obj['type'] == 'plugin':
@@ -55,6 +67,9 @@ def get_plugins(tool_config, filters=None, names_only=False):
                     if names_only:
                         plugins.append(obj['plugin'])
                         continue
+                    if with_parents:
+                        obj = copy.deepcopy(obj)
+                        obj['parents'] = _parents
                     plugins.append(obj)
                     continue
         if isinstance(obj, str):
@@ -66,7 +81,12 @@ def get_plugins(tool_config, filters=None, names_only=False):
                         candidate = False
             # Return single plugin
             if candidate:
-                plugins.append(obj)
+                if with_parents:
+                    plugin = {'plugin': obj}
+                    plugin['parents'] = _parents
+                    plugins.append(plugin)
+                else:
+                    plugins.append(obj)
 
     return plugins
 
