@@ -33,12 +33,13 @@ def registry_instance(plugin_instance):
 
 
 @pytest.fixture
-def session_instance():
-    '''Return a session instance with auto_connect_event_hub set to False.'''
+def session_instance(mocker):
+    '''Return a mocked session instance with auto_connect_event_hub set to False.'''
     import ftrack_api
 
-    session = ftrack_api.Session(auto_connect_event_hub=False)
     # Create a mock for the session dependency
+    session = mocker.Mock(spec=ftrack_api.Session)
+    session.auto_connect_event_hub = False
     return session
 
 
