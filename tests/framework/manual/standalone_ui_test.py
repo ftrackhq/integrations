@@ -24,10 +24,7 @@ ROOT_INTEGRATIONS_FOLDER = os.path.dirname(
 
 INCLUDE_PACKAGES = [
     'libs/framework-core',
-    'libs/framework-engine',
-    'libs/framework-plugin',
     # QT
-    'libs/framework-widget',
     'libs/framework-qt' 'libs/qt',
     'libs/qt-style',
     'libs/utils',
