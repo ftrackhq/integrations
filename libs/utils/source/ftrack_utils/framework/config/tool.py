@@ -1,5 +1,6 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2023 ftrack
+import copy
 
 
 def get_tool_config_by_name(tool_configs, name):
@@ -13,13 +14,39 @@ def get_tool_config_by_name(tool_configs, name):
             return tool_config
 
 
-def get_plugins(tool_config, filters=None, names_only=False):
+def get_plugins(
+    tool_config,
+    filters=None,
+    names_only=False,
+    with_parents=False,
+    _parents=None,
+):
     '''
     Recursively return all the plugins available in the given tool_config.
     *tool_config*: Dictionary produced by the yaml loader.
     *filters*: dictionary with key and values to match for returned plugins
     *names_only*: return only name of the plugin.
+    *with_parents*: return plugin with parent groups as a list.
+    *_parents*: Internal use only.
     '''
+
+    def _append_plugin(plugin, plugins):
+        '''Utility function to append plugin to list with respect to names_only
+        and with_parents'''
+        if names_only:
+            plugins.append(
+                plugin['plugin'] if isinstance(plugin, dict) else plugin
+            )
+            return
+        if with_parents:
+            if not isinstance(plugin, str):
+                plugin = copy.deepcopy(plugin)
+            else:
+                plugin = {'plugin': plugin}
+            plugin['parents'] = _parents
+            plugins.append(plugin)
+        else:
+            plugins.append(plugin)
 
     plugins = []
     # Check if it's a full tool-config or portion of it. If it's a portion it
@@ -38,6 +65,9 @@ def get_plugins(tool_config, filters=None, names_only=False):
                         obj.get('plugins'),
                         filters=filters,
                         names_only=names_only,
+                        with_parents=with_parents,
+                        _parents=(_parents or [])
+                        + [{k: v for k, v in obj.items() if k != 'plugins'}],
                     )
                 )
             elif obj['type'] == 'plugin':
@@ -52,10 +82,7 @@ def get_plugins(tool_config, filters=None, names_only=False):
                         else:
                             candidate = False
                 if candidate:
-                    if names_only:
-                        plugins.append(obj['plugin'])
-                        continue
-                    plugins.append(obj)
+                    _append_plugin(obj, plugins)
                     continue
         if isinstance(obj, str):
             if filters:
@@ -66,7 +93,7 @@ def get_plugins(tool_config, filters=None, names_only=False):
                         candidate = False
             # Return single plugin
             if candidate:
-                plugins.append(obj)
+                _append_plugin(obj, plugins)
 
     return plugins
 
