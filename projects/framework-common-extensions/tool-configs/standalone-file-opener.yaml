@@ -1,8 +1,6 @@
 type: tool_config
 name: standalone-file-opener
 config_type: opener
-# TODO: evaluate host_type key
-host_type: python
 engine:
   - type: plugin
     tags:
