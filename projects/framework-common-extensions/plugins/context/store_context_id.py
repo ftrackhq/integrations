@@ -1,7 +1,7 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2023 ftrack
 
-from ftrack_framework_plugin import BasePlugin
+from ftrack_framework_core.plugin import BasePlugin
 
 
 class ContextIdPlugin(BasePlugin):

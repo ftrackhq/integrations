@@ -26,9 +26,6 @@ coverage = { version = "^7.3.2", python = ">=3.8", extras = ["toml"] }
 ftrack-constants = { path = "libs/constants", develop = true }
 ftrack-utils = { path = "libs/utils", develop = true }
 ftrack-framework-core = { path = "libs/framework-core", develop = true }
-ftrack-framework-engine = { path = "libs/framework-engine", develop = true }
-ftrack-framework-plugin = { path = "libs/framework-plugin", develop = true }
-ftrack-framework-widget = { path = "libs/framework-widget", develop = true }
 ftrack-framework-qt = { path = "libs/framework-qt", develop = true }
 ftrack-qt = { path = "libs/qt", develop = true }
 ftrack-qt-style = { path = "libs/qt-style", develop = true }
@@ -45,10 +42,7 @@ pythonpath = [
      'libs/constants/source',
      'libs/utils/source',
      'libs/framework-core/source',
-     'libs/framework-engine/source',
-     'libs/framework-plugin/source',
      # QT
-     'libs/framework-widget/source',
      'libs/framework-qt/source',
      'libs/qt/source',
      'libs/qt-style/source'

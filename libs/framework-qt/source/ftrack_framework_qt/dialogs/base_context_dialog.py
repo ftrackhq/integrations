@@ -4,7 +4,7 @@ import copy
 
 from Qt import QtWidgets, QtCore
 
-from ftrack_framework_widget.dialog import FrameworkDialog
+from ftrack_framework_core.widget.dialog import FrameworkDialog
 
 from ftrack_qt.widgets.dialogs import StyledDialog
 from ftrack_qt.widgets.headers import SessionHeader
