@@ -58,26 +58,21 @@ QFrame[background='transparent'] {
     background: transparent;
 }
 
-Line {
+/* Lines */
+LineWidget {
     border: 1px dashed $border-color;
 }
 
-Line[style='solid']  {
+LineWidget[style='solid']  {
     border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
+/* Asset selector */
 NewAssetInput[status='focused'] {
     background: $background-selected !important;
 }
 
-NewAssetInput[status='unfocused'] QFrame {
-    /*background: transparent;*/
-}
-
-#bordered {
-    border: 1px dashed $border-color;
-}
-
+/* Accordion */
 AccordionBaseWidget {
     border-top: 1px dashed $border-color;
 }
@@ -85,11 +80,7 @@ AccordionBaseWidget {
 AccordionBaseWidget[first='true'] {
 }
 
-PublisherAccordionStepWidgetObject {
-    border-left: 1px dashed $border-color;
-    border-right: 1px dashed $border-color;
-}
-
+/* Entity browser */
 NavigationEntityButton {
     background: #1F252B;
     border-radius: 12px;
@@ -123,12 +114,4 @@ EntityWidget[background='selected'] {
 TypeWidget {
     border: 1px solid $gray-darker;
     border-radius: 12px;
-}
-
-Footer QLabel {
-    color: $alt-background;
-}
-
-QFrame[docked='true'] Footer QLabel {
-    color: $gray-dark;
 }

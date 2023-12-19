@@ -1,0 +1,9 @@
+/* Label */
+QLabel {
+    color: $text-color;
+    border: none;
+}
+
+NewAssetInput[status='unfocused'] QLabel {
+    color: $gray;
+}

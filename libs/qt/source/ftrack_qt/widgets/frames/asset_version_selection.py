@@ -75,6 +75,22 @@ class AssetVersionSelection(QtWidgets.QFrame):
         self._version_combobox.setMaximumHeight(20)
         self.layout().addWidget(self._version_combobox)
 
+        #         self._version_combobox.setStyleSheet("""
+        # QComboBox QAbstractItemView {
+        #     color: red;
+        #     outline: 0;
+        #     border-radius: 2px;
+        #     background: grey;
+        #     text-align: center;
+        # }
+        #
+        # QComboBox QAbstractItemView::item {
+        #     color: red;
+        #     background: grey;
+        #     text-align: center;
+        # }
+        #         """)
+
         self._version_info_widget = QtWidgets.QLabel()
         self._version_info_widget.setObjectName('gray')
         self.layout().addWidget(self._version_info_widget, 10)

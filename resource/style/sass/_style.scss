@@ -2,16 +2,14 @@
 @import '_helpers';
 
 @import 'widget/_button';
-
+@import 'widget/_checkbox';
 @import 'widget/_combobox';
-@import 'widget/_componentlist';
 @import 'widget/_dialog';
-@import 'widget/_drop_zone';
-@import 'widget/_entity_browser';
-@import 'widget/_entity_selector';
-@import 'widget/_form';
 @import 'widget/_frame';
+
 @import 'widget/_group_box';
+@import 'widget/_label';
+@import 'widget/_lineedit';
 @import 'widget/_list';
 @import 'widget/_menu';
 @import 'widget/_messagebox';
@@ -22,6 +20,7 @@
 @import 'widget/_scrolling_flow_widget';
 @import 'widget/_splitter';
 @import 'widget/_tabbar';
+@import 'widget/_textedit';
 @import 'widget/_table';
 @import 'widget/_thumbnail_drop_zone';
 @import 'widget/_time_log';

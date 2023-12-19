@@ -1,0 +1,28 @@
+/* Text edit */
+
+
+QTextEdit, QLineEdit  {
+    border: 1px solid $border-color;
+    border-radius: 2px;
+    padding: $input-padding;
+    background: $input-background;
+    selection-background-color: $background-selected;
+    color: $text-color;
+
+    &:hover {
+        border-color: lighten($border-color, 5%);
+    }
+
+    &:disabled {
+        border-color: darken($border-color, 10%);
+        /*color: $gray;*/
+    }
+
+    &:focus {
+        border-color: lighten($border-color, 5%);
+    }
+}
+
+QTextEdit[input="invalid"], QLineEdit[input="invalid"] {
+    border: 1px solid darken(red, 50%);
+}
