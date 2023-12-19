@@ -66,7 +66,7 @@ if not app:
 WHAT = 'opener'
 client_class.run_dialog(
     dialog_name=f'framework_standard_{WHAT}_dialog',
-    tool_config_names=[f'standalone-file-{WHAT}'],
+    dialog_options={'tool_config_names': [f'standalone-file-{WHAT}']},
 )
 
 sys.exit(app.exec_())

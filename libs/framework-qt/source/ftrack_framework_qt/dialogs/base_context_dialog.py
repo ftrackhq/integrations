@@ -47,6 +47,11 @@ class BaseContextDialog(FrameworkDialog, StyledDialog):
     def run_button(self):
         return self._run_button
 
+    @property
+    def tool_config_names(self):
+        '''Return tool config names if passed in the dialog options.'''
+        return self.dialog_options.get('tool_config_names')
+
     def __init__(
         self,
         event_manager,
@@ -54,7 +59,6 @@ class BaseContextDialog(FrameworkDialog, StyledDialog):
         connect_methods_callback,
         connect_setter_property_callback,
         connect_getter_property_callback,
-        tool_config_names,
         dialog_options,
         parent=None,
     ):
@@ -70,8 +74,6 @@ class BaseContextDialog(FrameworkDialog, StyledDialog):
         the dialog to be able to read client properties.
         *connect_getter_property_callback*: Client callback property getter for
         the dialog to be able to write client properties.
-        *tool_config_names*: List of tool config names passed on to configure the
-        current dialog.
         *dialog_options*: Dictionary of arguments passed on to configure the
         current dialog.
         '''
@@ -89,7 +91,6 @@ class BaseContextDialog(FrameworkDialog, StyledDialog):
             connect_methods_callback,
             connect_setter_property_callback,
             connect_getter_property_callback,
-            tool_config_names,
             dialog_options,
             parent,
         )
