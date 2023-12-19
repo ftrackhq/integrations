@@ -24,7 +24,6 @@ class StandardPublisherDialog(BaseContextDialog):
         connect_methods_callback,
         connect_setter_property_callback,
         connect_getter_property_callback,
-        tool_config_names,
         dialog_options,
         parent=None,
     ):
@@ -40,8 +39,6 @@ class StandardPublisherDialog(BaseContextDialog):
         the dialog to be able to read client properties.
         *connect_getter_property_callback*: Client callback property getter for
         the dialog to be able to write client properties.
-        *tool_config_names*: List of tool config names passed on to configure the
-        current dialog.
         *dialog_options*: Dictionary of arguments passed on to configure the
         current dialog.
         '''
@@ -54,7 +51,6 @@ class StandardPublisherDialog(BaseContextDialog):
             connect_methods_callback,
             connect_setter_property_callback,
             connect_getter_property_callback,
-            tool_config_names,
             dialog_options,
             parent,
         )

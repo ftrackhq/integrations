@@ -140,11 +140,6 @@ class FrameworkDialog(BaseUI):
         return self.client_property_getter_connection('tool_config_options')
 
     @property
-    def tool_config_names(self):
-        '''Return dialog options as passed on from client'''
-        return self._tool_config_names or []
-
-    @property
     def dialog_options(self):
         '''Return dialog options as passed on from client'''
         return self._dialog_options or {}
@@ -163,13 +158,11 @@ class FrameworkDialog(BaseUI):
         connect_methods_callback,
         connect_setter_property_callback,
         connect_getter_property_callback,
-        tool_config_names,
         dialog_options,
         parent=None,
     ):
         # Set properties to 0
         self._tool_configs = None
-        self._tool_config_names = None
         self._host_connections = None
         self._tool_config = None
         self._host_connection = None
@@ -181,7 +174,6 @@ class FrameworkDialog(BaseUI):
         self.connect_properties(
             connect_setter_property_callback, connect_getter_property_callback
         )
-        self._tool_config_names = tool_config_names
         self._dialog_options = dialog_options
 
         super(FrameworkDialog, self).__init__(
