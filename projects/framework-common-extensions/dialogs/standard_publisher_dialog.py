@@ -1,7 +1,7 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2023 ftrack
 
-from Qt import QtWidgets, QtCore, QtGui
+from Qt import QtWidgets, QtCore
 
 from ftrack_framework_qt.dialogs import BaseContextDialog
 from ftrack_qt.widgets.accordion import AccordionBaseWidget
