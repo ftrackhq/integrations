@@ -1,7 +1,7 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2023 ftrack
 
-from ftrack_framework_engine import BaseEngine
+from ftrack_framework_core.engine import BaseEngine
 
 
 class StandardEngine(BaseEngine):

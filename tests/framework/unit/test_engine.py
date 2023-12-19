@@ -6,7 +6,7 @@ from ftrack_framework_core import registry
 @pytest.fixture
 def plugin_instance():
     '''Return a TestPlugin instance.'''
-    from ftrack_framework_plugin import BasePlugin
+    from ftrack_framework_core.plugin import BasePlugin
 
     class TestPlugin(BasePlugin):
         name = 'test_plugin'
@@ -46,7 +46,7 @@ def session_instance(mocker):
 @pytest.fixture
 def test_engine_instance(registry_instance, session_instance):
     '''Return a TestEngine instance with plugin_registry and session set.'''
-    from ftrack_framework_engine import BaseEngine
+    from ftrack_framework_core.engine import BaseEngine
 
     class TestEngine(BaseEngine):
         name = 'test_engine'

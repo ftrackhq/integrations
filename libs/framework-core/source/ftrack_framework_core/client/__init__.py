@@ -8,7 +8,7 @@ from collections import defaultdict
 
 from six import string_types
 
-from ftrack_framework_widget.dialog import FrameworkDialog
+from ftrack_framework_core.widget.dialog import FrameworkDialog
 import ftrack_constants.framework as constants
 
 from ftrack_framework_core.client.host_connection import HostConnection
@@ -345,12 +345,11 @@ class Client(object):
         self,
         dialog_name,
         dialog_class=None,
-        tool_config_names=None,
         dialog_options=None,
     ):
         '''Function to show a framework dialog by name *dialog_name* from the
         client, using *dialog_class* or picking class from registry. Passes on
-        optional *tool_config_names* and *dialog_options* to the dialog.'''
+        *dialog_options* to the dialog.'''
         # use dialog options to pass options to the dialog like for
         #  example: Dialog= WidgetDialog dialog_options= {tool_config_plugin: Context_selector}
         #  ---> So this will execute the widget dialog with the widget of the
@@ -403,7 +402,6 @@ class Client(object):
             connect_methods_callback=self._connect_methods_callback,
             connect_setter_property_callback=self._connect_setter_property_callback,
             connect_getter_property_callback=self._connect_getter_property_callback,
-            tool_config_names=tool_config_names,
             dialog_options=dialog_options,
         )
         # Append dialog to dialogs
@@ -466,8 +464,13 @@ class Client(object):
     def run_ui_hook(
         self, tool_config_reference, plugin_config_reference, payload
     ):
-        # TODO: should this event go directly to dialog or widget and never
-        #  pass through client?
+        '''
+        Publish event to tell the host to run the given *tool_config_reference*
+        on the engine.
+        *tool_config_reference*: id number of the tool config.
+        *plugin_config_reference*: id number of the plugin config.
+        *payload*: dictionary of data to send to the plugin.
+        '''
         self.event_manager.publish.host_run_ui_hook(
             self.host_id,
             tool_config_reference,
@@ -477,3 +480,12 @@ class Client(object):
             ),
             payload,
         )
+
+    def verify_plugins(self, plugin_names):
+        '''
+        Verify if the given *plugins* are registered in the host registry.
+        '''
+        unregistered_plugins = self.event_manager.publish.host_verify_plugins(
+            self.host_id, plugin_names
+        )[0]
+        return unregistered_plugins

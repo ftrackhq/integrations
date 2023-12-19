@@ -1,27 +1,12 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2023 ftrack
 
-import os
 import logging
 
 import copy
 import time
 
 import ftrack_constants as constants
-
-# Evaluate version and log package version
-try:
-    from ftrack_utils.version import get_version
-
-    __version__ = get_version(
-        os.path.basename(os.path.dirname(__file__)),
-        os.path.dirname(os.path.dirname(os.path.dirname(__file__))),
-    )
-except Exception:
-    __version__ = '0.0.0'
-
-logger = logging.getLogger(__name__)
-logger.debug('v{}'.format(__version__))
 
 
 class BaseEngine(object):
@@ -185,6 +170,7 @@ class BaseEngine(object):
         plugin_info['plugin_boolean_status'] = bool_status
         plugin_info['plugin_status'] = status
         plugin_info['plugin_message'] = full_message
+        plugin_info['plugin_execution_time'] = execution_time
         if self.on_plugin_executed:
             self.on_plugin_executed(plugin_info)
         return plugin_info

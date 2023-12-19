@@ -8,10 +8,7 @@ import ftrack_constants.framework as constants
 ROOT_INTEGRATIONS_FOLDER = 'asd'
 INCLUDE_PACKAGES = [
     'libs/framework-core',
-    'libs/framework-engine',
-    'libs/framework-plugin',
     # QT
-    'libs/framework-widget',
     'libs/framework-qt' 'libs/qt',
     'libs/qt-style',
     'libs/utils',

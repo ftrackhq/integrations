@@ -6,7 +6,7 @@ import subprocess
 
 import ftrack_constants as constants
 
-from ftrack_framework_plugin import BasePlugin
+from ftrack_framework_core.plugin import BasePlugin
 
 
 class OpenFilePlugin(BasePlugin):
