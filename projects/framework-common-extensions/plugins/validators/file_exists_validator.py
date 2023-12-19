@@ -3,7 +3,7 @@
 
 import os
 
-from ftrack_framework_plugin import BasePlugin
+from ftrack_framework_core.plugin import BasePlugin
 
 
 class FileExistsValidatorPlugin(BasePlugin):

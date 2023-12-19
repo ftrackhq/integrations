@@ -3,7 +3,7 @@
 
 from Qt import QtWidgets, QtCore, QtGui
 
-from ftrack_framework_widget.widget import FrameworkWidget
+from ftrack_framework_core.widget.widget import FrameworkWidget
 
 
 class BaseWidget(FrameworkWidget, QtWidgets.QWidget):

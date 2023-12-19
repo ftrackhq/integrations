@@ -5,7 +5,7 @@ import os
 
 import ftrack_constants as constants
 
-from ftrack_framework_plugin import BasePlugin
+from ftrack_framework_core.plugin import BasePlugin
 
 
 class FileCollectorPlugin(BasePlugin):
