@@ -56,6 +56,7 @@ def build_package(pkg_path, args):
     os.chdir(pkg_path)
 
     ROOT_PATH = os.path.realpath(os.getcwd())
+    MONOREPO_PATH = os.path.realpath(os.path.join(ROOT_PATH, '..', '..'))
     CONNECT_PLUGIN_PATH = os.path.join(ROOT_PATH, 'connect-plugin')
     BUILD_PATH = os.path.join(ROOT_PATH, 'dist')
     EXTENSION_PATH = os.path.join(ROOT_PATH, 'extensions')
@@ -67,10 +68,40 @@ def build_package(pkg_path, args):
     POETRY_CONFIG_PATH = os.path.join(ROOT_PATH, 'pyproject.toml')
     DCC_NAME = None
     VERSION = None
+
+    def append_dependencies(toml_path):
+        nonlocal USES_FRAMEWORK, PLATFORM_DEPENDENT, FTRACK_DEP_LIBS
+        section = None
+        with open(toml_path) as f:
+            for line in f:
+                if line.startswith("["):
+                    section = line.strip().strip('[]')
+                elif section == 'tool.poetry.dependencies':
+                    if line.startswith('ftrack-'):
+                        lib = line.split('=')[0][7:].strip()
+                        lib_toml_path = os.path.join(
+                            MONOREPO_PATH, 'libs', lib, 'pyproject.toml'
+                        )
+                        if lib not in FTRACK_DEP_LIBS and os.path.exists(
+                            lib_toml_path
+                        ):
+                            logging.info(
+                                'Identified monorepo dependency: {}'.format(
+                                    lib
+                                )
+                            )
+                            FTRACK_DEP_LIBS.append(lib)
+                            if line.startswith('ftrack-framework-core'):
+                                USES_FRAMEWORK = True
+                            elif line.find('pyside') > -1:
+                                PLATFORM_DEPENDENT = True
+                            # Recursively add monorepo dependencies
+                            append_dependencies(lib_toml_path)
+
     if os.path.exists(POETRY_CONFIG_PATH):
         PROJECT_NAME = None
         section = None
-        with open(os.path.join(ROOT_PATH, 'pyproject.toml')) as f:
+        with open(POETRY_CONFIG_PATH) as f:
             for line in f:
                 if line.startswith("["):
                     section = line.strip().strip('[]')
@@ -79,13 +110,7 @@ def build_package(pkg_path, args):
                         PROJECT_NAME = line.split('=')[1].strip().strip('"')
                     elif line.startswith('version = '):
                         VERSION = line.split('=')[1].strip().strip('"')
-                elif section == 'tool.poetry.dependencies':
-                    if line.startswith('ftrack-'):
-                        FTRACK_DEP_LIBS.append(line.split('=')[0][7:].strip())
-                        if line.startswith('ftrack-framework-core'):
-                            USES_FRAMEWORK = True
-                        elif line.find('pyside') > -1:
-                            PLATFORM_DEPENDENT = True
+        append_dependencies(POETRY_CONFIG_PATH)
 
         if USES_FRAMEWORK:
             DCC_NAME = PROJECT_NAME.split('-')[-1]
@@ -111,8 +136,6 @@ def build_package(pkg_path, args):
     SOURCE_PATH = os.path.join(
         ROOT_PATH, 'source', PROJECT_NAME.replace('-', '_')
     )
-
-    MONOREPO_PATH = os.path.realpath(os.path.join(ROOT_PATH, '..', '..'))
 
     DEFAULT_STYLE_PATH = os.path.join(MONOREPO_PATH, 'resource', 'style')
 
