@@ -464,8 +464,13 @@ class Client(object):
     def run_ui_hook(
         self, tool_config_reference, plugin_config_reference, payload
     ):
-        # TODO: should this event go directly to dialog or widget and never
-        #  pass through client?
+        '''
+        Publish event to tell the host to run the given *tool_config_reference*
+        on the engine.
+        *tool_config_reference*: id number of the tool config.
+        *plugin_config_reference*: id number of the plugin config.
+        *payload*: dictionary of data to send to the plugin.
+        '''
         self.event_manager.publish.host_run_ui_hook(
             self.host_id,
             tool_config_reference,
@@ -475,3 +480,12 @@ class Client(object):
             ),
             payload,
         )
+
+    def verify_plugins(self, plugin_names):
+        '''
+        Verify if the given *plugins* are registered in the host registry.
+        '''
+        unregistered_plugins = self.event_manager.publish.host_verify_plugins(
+            self.host_id, plugin_names
+        )[0]
+        return unregistered_plugins

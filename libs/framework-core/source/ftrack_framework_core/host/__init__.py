@@ -199,6 +199,11 @@ class Host(object):
             self.id, self.run_ui_hook_callback
         )
 
+        # Subscribe to run ui hook
+        self.event_manager.subscribe.host_verify_plugins(
+            self.id, self._verify_plugins_callback
+        )
+
     def _client_context_change_callback(self, event):
         '''Callback when the client has changed context'''
         context_id = event['data']['context_id']
@@ -352,3 +357,25 @@ class Host(object):
         self.event_manager.publish.host_run_ui_hook_result(
             self.id, plugin_reference, ui_hook_result
         )
+
+    def _verify_plugins_callback(self, event):
+        '''
+        Call the verify_plugins and return the result to the client.
+        '''
+        plugin_names = event['data']['plugin_names']
+        return self.verify_plugins(plugin_names)
+
+    def verify_plugins(self, plugin_names):
+        '''
+        Verify the given *plugin_names* are registered in the registry.
+        '''
+        unregistered_plugins = []
+        for plugin_name in plugin_names:
+            if not self.registry.get(plugin_name, extension_type='plugin'):
+                unregistered_plugins.append(plugin_name)
+        if unregistered_plugins:
+            self.logger.error(
+                f'Plugins not registered, please make sure they are in the '
+                f'correct extensions path: {unregistered_plugins}'
+            )
+        return unregistered_plugins
