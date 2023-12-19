@@ -1,6 +1,6 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2023 ftrack
-
+import os.path
 import shutil
 
 from ftrack_framework_core.plugin import BasePlugin
@@ -13,7 +13,7 @@ class RenameExporterPlugin(BasePlugin):
         '''
         Rename the given *origin_file to *destination_file*
         '''
-        return shutil.copy(origin_file, destination_file)
+        return shutil.copy(origin_file, os.path.expanduser(destination_file))
 
     def run(self, store):
         '''

@@ -5,6 +5,9 @@ from Qt import QtWidgets, QtCore
 
 from ftrack_framework_qt.dialogs import BaseContextDialog
 from ftrack_utils.framework.config.tool import get_plugins, get_groups
+from ftrack_qt.widgets.progress import ProgressWidget
+from ftrack_qt.utils.decorators import invoke_in_qt_main_thread
+from ftrack_qt.utils.widget import build_progress_data
 
 
 class StandardOpenerDialog(BaseContextDialog):
@@ -43,6 +46,7 @@ class StandardOpenerDialog(BaseContextDialog):
         '''
         self._scroll_area = None
         self._scroll_area_widget = None
+        self._progress_widget = None
 
         super(StandardOpenerDialog, self).__init__(
             event_manager,
@@ -51,7 +55,7 @@ class StandardOpenerDialog(BaseContextDialog):
             connect_setter_property_callback,
             connect_getter_property_callback,
             dialog_options,
-            parent,
+            parent=parent,
         )
         self.resize(400, 450)
 
@@ -74,8 +78,6 @@ class StandardOpenerDialog(BaseContextDialog):
 
     def build_ui(self):
         # Select the desired tool_config
-
-        self.tool_config = None
         tool_config_message = None
         if self.filtered_tool_configs.get("opener"):
             if len(self.tool_config_names or []) != 1:
@@ -92,10 +94,18 @@ class StandardOpenerDialog(BaseContextDialog):
                         self.logger.debug(
                             f'Using tool config {tool_config_name}'
                         )
-                        try:
-                            self.tool_config = tool_config
-                        except Exception as error:
-                            tool_config_message = error
+                        if self.tool_config != tool_config:
+                            try:
+                                self.tool_config = tool_config
+                            except Exception as error:
+                                tool_config_message = error
+                                break
+                            self._progress_widget = ProgressWidget(
+                                'open', build_progress_data(tool_config)
+                            )
+                            self.header.set_widget(
+                                self._progress_widget.status_widget
+                            )
                         break
                 if not self.tool_config and not tool_config_message:
                     tool_config_message = (
@@ -128,18 +138,22 @@ class StandardOpenerDialog(BaseContextDialog):
             self.tool_config, filters={'tags': ['component']}
         )
 
-        for _group in component_groups:
-            component_name = _group.get('options').get('component')
+        for group_config in component_groups:
+            component_name = group_config.get('options').get('component')
             component_label = QtWidgets.QLabel(component_name)
             component_label.setObjectName('h3')
             component_label.setToolTip("Component: {}".format(component_name))
             self._scroll_area_widget.layout().addWidget(component_label)
 
-            collectors = get_plugins(_group, filters={'tags': ['collector']})
+            collectors = get_plugins(
+                group_config, filters={'tags': ['collector']}
+            )
             for plugin_config in collectors:
                 if not plugin_config.get('ui'):
                     continue
-                widget = self.init_framework_widget(plugin_config, _group)
+                widget = self.init_framework_widget(
+                    plugin_config, group_config
+                )
 
                 self._scroll_area_widget.layout().addWidget(widget)
 
@@ -153,3 +167,19 @@ class StandardOpenerDialog(BaseContextDialog):
 
     def post_build_ui(self):
         pass
+
+    def _on_run_button_clicked(self):
+        '''(Override) Drive the progress widget'''
+        self._progress_widget.run(self)
+        super(StandardOpenerDialog, self)._on_run_button_clicked()
+
+    @invoke_in_qt_main_thread
+    def plugin_run_callback(self, log_item):
+        '''(Override) Pass framework log item to the progress widget'''
+        if self._progress_widget:
+            self._progress_widget.update_phase_status(
+                log_item.plugin_reference,
+                log_item.plugin_status,
+                log_message=log_item.plugin_message,
+                time=log_item.plugin_execution_time,
+            )

@@ -40,7 +40,7 @@ engine:
         plugin: rename_file_exporter
         ui: file_exporter_options
         options:
-          export_destination: "/Users/ftrack/Desktop/myPublishedFile.png"
+          export_destination: "~/Desktop/myPublishedFile.png"
 
 
   # Publish to ftrack.

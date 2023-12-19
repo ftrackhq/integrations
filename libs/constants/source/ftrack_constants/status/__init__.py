@@ -36,3 +36,14 @@ status_bool_mapping = {
     RUNNING_STATUS: True,
     DEFAULT_STATUS: False,
 }
+
+#: Mapping of the run plugins status. String representation.
+STATUS_STRING_MAPPING = {
+    UNKNOWN_STATUS: 'Not started',
+    SUCCESS_STATUS: 'Success',
+    WARNING_STATUS: 'Warning',
+    ERROR_STATUS: 'ERROR',
+    EXCEPTION_STATUS: 'EXCEPTION',
+    RUNNING_STATUS: 'Running',
+    DEFAULT_STATUS: 'Pause',
+}

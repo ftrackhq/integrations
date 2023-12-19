@@ -1,5 +1,6 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2023 ftrack
+import copy
 
 from Qt import QtWidgets, QtCore
 
@@ -38,6 +39,10 @@ class BaseContextDialog(FrameworkDialog, StyledDialog):
         Return if context selector is currently working on setting up a context
         '''
         return self._context_selector.is_browsing
+
+    @property
+    def header(self):
+        return self._header
 
     @property
     def tool_widget(self):
@@ -110,9 +115,6 @@ class BaseContextDialog(FrameworkDialog, StyledDialog):
     def build(self):
         # Create the header
         self._header = SessionHeader(self.event_manager.session)
-        # TODO: implement progress widget.
-        # self._progress_widget = ProgressWidget
-        # self._header.add_widget(self._progress_widget)
 
         self._context_selector = ContextSelector(
             self.event_manager.session, enable_context_change=True

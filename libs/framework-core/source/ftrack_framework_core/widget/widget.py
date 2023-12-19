@@ -104,9 +104,7 @@ class FrameworkWidget(BaseUI):
         NOTE: Make sure this is executed in the QT/DCC main thread as this might be
         called asynchronously.
         '''
-        self.logger.warning(
-            "Method not implemented, Plugin Callback ---> {}".format(log_item)
-        )
+        pass
 
     def run_ui_hook(self, payload):
         '''

@@ -377,6 +377,7 @@ class FrameworkDialog(BaseUI):
         Client notify dialog that a new log item has been added.
         '''
         log_item = event['data']['log_item']
+        self.plugin_run_callback(log_item)
         reference = log_item.plugin_reference
         if not reference:
             return
@@ -388,6 +389,14 @@ class FrameworkDialog(BaseUI):
             )
             return
         widget.plugin_run_callback(log_item)
+
+    def plugin_run_callback(self, log_item):
+        '''
+        Dialog to receive the callback with the plugin info every time a plugin has been
+        executed. To be overridden by the inheriting class.
+        *log_item* is the plugin info dictionary.
+        '''
+        pass
 
     def _on_client_notify_ui_hook_result_callback(self, event):
         '''
