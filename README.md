@@ -15,7 +15,7 @@
 | libs/constants/source/ftrack\_constants/framework/tools/types/\_\_init\_\_.py |        6 |        0 |    100% |           |
 | libs/constants/source/ftrack\_constants/qt/\_\_init\_\_.py                    |        1 |        0 |    100% |           |
 | libs/constants/source/ftrack\_constants/qt/theme/\_\_init\_\_.py              |        4 |        0 |    100% |           |
-| libs/constants/source/ftrack\_constants/status/\_\_init\_\_.py                |        9 |        0 |    100% |           |
+| libs/constants/source/ftrack\_constants/status/\_\_init\_\_.py                |       10 |        0 |    100% |           |
 | libs/framework-core/source/ftrack\_framework\_core/\_\_init\_\_.py            |        8 |        2 |     75% |     13-14 |
 | libs/framework-core/source/ftrack\_framework\_core/configure\_logging.py      |       47 |        6 |     87% |31-35, 72-78 |
 | libs/framework-core/source/ftrack\_framework\_core/engine/\_\_init\_\_.py     |      119 |       34 |     71% |19, 48, 66-67, 75, 123-142, 148-159, 175, 216, 227, 263-280 |
@@ -31,7 +31,7 @@
 | libs/utils/source/ftrack\_utils/version/\_\_init\_\_.py                       |       18 |       10 |     44% |13-20, 24-31 |
 | tests/framework/unit/\_\_init\_\_.py                                          |        0 |        0 |    100% |           |
 | tests/framework/unit/test\_engine.py                                          |       49 |        0 |    100% |           |
-|                                                                     **TOTAL** |  **586** |  **173** | **70%** |           |
+|                                                                     **TOTAL** |  **587** |  **173** | **71%** |           |
 
 
 ## Setup coverage badge
