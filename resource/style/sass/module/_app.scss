@@ -1,25 +1,11 @@
-/** Application window **/
+/** Overall style **/
 
 * {
     font-family: $font-family-base;
     font-size: 11px;
 }
 
-QScrollArea {
-    border: none;
-    background-color: transparent;
-    padding: 0px;
-}
-
-QScrollArea QWidget {
-    background-color: transparent;
-}
-
-QMessageBox {
-    background-color: $gray-darker;
-}
-
-/* Shared styles */
+/* Generic styles */
 
 #h1 {
     color: $color-white;
@@ -39,11 +25,6 @@ QMessageBox {
     font-size: larger;
 }
 
-#h4 {
-    color: $color-white;
-    font-weight: bold;
-}
-
 #gray {
     color: $gray;
 }
@@ -54,10 +35,6 @@ QMessageBox {
 
 #gray-darker {
     color: $gray-darker;
-}
-
-#red {
-    color: red;
 }
 
 #color-primary {

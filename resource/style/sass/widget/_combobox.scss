@@ -26,6 +26,7 @@ QComboBox::drop-down {
     padding: $input-padding;
     border: 0;
     text-align: center;
+    background: $background;
 }
 
 QComboBox::down-arrow {
