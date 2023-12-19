@@ -1,6 +1,6 @@
 /* Line edit */
-
-NewAssetNameInput QLineEdit, NewAssetInput[status='focused'] QLineEdit, NewAssetInput[status='unfocused'] QLineEdit {
+NewAssetNameInput QLineEdit, NewAssetInput[status='focused'] QLineEdit,
+NewAssetInput[status='unfocused'] QLineEdit {
     border: 1px solid $border-color !important;
 }
 
