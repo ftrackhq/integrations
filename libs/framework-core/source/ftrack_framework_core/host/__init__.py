@@ -389,7 +389,7 @@ class Host(object):
 
     def verify_plugins(self, plugin_names):
         '''
-        Verify the given*plugin_names* are registered in the registry.
+        Verify the given *plugin_names* are registered in the registry.
         '''
         unregistered_plugins = []
         for plugin_name in plugin_names:
