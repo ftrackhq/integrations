@@ -23,9 +23,7 @@ logger = logging.getLogger(__name__)
 #  2. Rename it to discover_host_reply_callback or similar?
 
 
-def provide_host_information(
-    host_id, host_name, context_id, tool_configs, event
-):
+def provide_host_information(host_id, context_id, tool_configs, event):
     '''
     Returns dictionary with host id, host name, context id and tool_config from
     the given *id*, *tool_configs* and *name*.
@@ -39,7 +37,6 @@ def provide_host_information(
     logger.debug('providing id: {}'.format(id))
     host_dict = {
         'host_id': host_id,
-        'host_name': host_name,
         'context_id': context_id,
         'tool_configs': tool_configs,
     }
@@ -50,11 +47,7 @@ def provide_host_information(
 
 
 class Host(object):
-    # TODO: double_check host types and host type do we really need it?
-    #  Maybe what we need is tool_configs type? to specify which tool_configs we
-    #  want to discover?
-    host_types = [constants.host.PYTHON_HOST_TYPE]
-    '''Compatible Host types for this HOST.'''
+    '''Base class to represent a Host of the framework'''
 
     def __repr__(self):
         return '<Host:{0}>'.format(self.id)
@@ -103,7 +96,6 @@ class Host(object):
         discover_host_callback_reply = partial(
             provide_host_information,
             self.id,
-            self.name,
             self.context_id,
             self.tool_configs,
         )
@@ -122,15 +114,6 @@ class Host(object):
         return self._id
 
     @property
-    def name(self):
-        '''Returns the current host name'''
-        if not self.id:
-            return
-        host_types = self.id.split("-")[0]
-        name = '{}-{}'.format(host_types, socket.gethostname())
-        return name
-
-    @property
     def logs(self):
         '''Returns the current logs'''
         if not self._logs:
@@ -145,13 +128,9 @@ class Host(object):
         compatible_tool_configs = {}
         for tool_config in self.registry.tool_configs:
             content = tool_config['extension']
-            if str(content.get('host_type')) in self.host_types:
-                if (
-                    content['config_type']
-                    not in compatible_tool_configs.keys()
-                ):
-                    compatible_tool_configs[content['config_type']] = []
-                compatible_tool_configs[content['config_type']].append(content)
+            if content['config_type'] not in compatible_tool_configs.keys():
+                compatible_tool_configs[content['config_type']] = []
+            compatible_tool_configs[content['config_type']].append(content)
 
         return compatible_tool_configs
 
@@ -172,7 +151,7 @@ class Host(object):
         )
 
         # Create the host id
-        self._id = '{}-{}'.format('.'.join(self.host_types), uuid.uuid4().hex)
+        self._id = uuid.uuid4().hex
 
         self.logger.debug('Initializing Host {}'.format(self))
 
@@ -202,7 +181,6 @@ class Host(object):
         discover_host_callback_reply = partial(
             provide_host_information,
             self.id,
-            self.name,
             self.context_id,
             self.tool_configs,
         )

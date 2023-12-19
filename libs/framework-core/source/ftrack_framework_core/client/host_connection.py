@@ -49,11 +49,6 @@ class HostConnection(object):
         return self._raw_host_data['host_id']
 
     @property
-    def host_name(self):
-        '''Returns the current host name.'''
-        return self._raw_host_data['host_name']
-
-    @property
     def context_identifiers(self):
         '''
         Return context identifiers
