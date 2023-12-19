@@ -9,8 +9,6 @@ from ftrack_framework_core.widget import BaseUI
 class FrameworkWidget(BaseUI):
     '''Base class to represent a Widget of the framework'''
 
-    # We Define name, plugin_type and host_type as class variables for
-    # convenience for the user when creating its own plugin.
     name = None
     widget_type = 'framework_widget'
     dialog_method_connection = None

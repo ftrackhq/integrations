@@ -29,7 +29,6 @@ class BaseDialog(FrameworkDialog, StyledDialog):
         connect_methods_callback,
         connect_setter_property_callback,
         connect_getter_property_callback,
-        tool_config_names,
         dialog_options,
         parent=None,
     ):
@@ -45,8 +44,7 @@ class BaseDialog(FrameworkDialog, StyledDialog):
         the dialog to be able to read client properties.
         *connect_getter_property_callback*: Client callback property getter for
         the dialog to be able to write client properties.
-        *tool_config_names*: List of tool config names to pass on to the dialog
-        *tool_config_names*: Dictionary of arguments passed to configure the
+        *dialog_options*: Dictionary of arguments passed to configure the
         current dialog.
         '''
         # As a mixing class we have to initialize the parents separately
@@ -63,7 +61,6 @@ class BaseDialog(FrameworkDialog, StyledDialog):
             connect_methods_callback,
             connect_setter_property_callback,
             connect_getter_property_callback,
-            tool_config_names,
             dialog_options,
             parent=parent,
         )

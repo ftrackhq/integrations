@@ -6,7 +6,10 @@ import uuid
 from functools import partial
 
 from ftrack_framework_core.widget import BaseUI, active_widget
-from ftrack_utils.framework.config.tool import get_tool_config_by_name
+from ftrack_utils.framework.config.tool import (
+    get_tool_config_by_name,
+    get_plugins,
+)
 
 
 class FrameworkDialog(BaseUI):
@@ -65,7 +68,21 @@ class FrameworkDialog(BaseUI):
             )
             return
 
+        if value:
+            # Get plugins from tool_config
+            plugins = get_plugins(value, names_only=True)
+
+            unregistered_plugins = self.client_method_connection(
+                'verify_plugins', arguments={"plugin_names": plugins}
+            )
+            if unregistered_plugins:
+                raise Exception(
+                    f"Unregistered plugins found: {unregistered_plugins}"
+                    f"\n Please make sure plugins are in the extensions path"
+                )
+
         self._tool_config = value
+
         # Call _on_tool_config_changed_callback to let the UI know that a new
         # tool_config has been set.
         self._on_tool_config_changed_callback()
@@ -123,11 +140,6 @@ class FrameworkDialog(BaseUI):
         return self.client_property_getter_connection('tool_config_options')
 
     @property
-    def tool_config_names(self):
-        '''Return dialog options as passed on from client'''
-        return self._tool_config_names or []
-
-    @property
     def dialog_options(self):
         '''Return dialog options as passed on from client'''
         return self._dialog_options or {}
@@ -146,13 +158,11 @@ class FrameworkDialog(BaseUI):
         connect_methods_callback,
         connect_setter_property_callback,
         connect_getter_property_callback,
-        tool_config_names,
         dialog_options,
         parent=None,
     ):
         # Set properties to 0
         self._tool_configs = None
-        self._tool_config_names = None
         self._host_connections = None
         self._tool_config = None
         self._host_connection = None
@@ -164,7 +174,6 @@ class FrameworkDialog(BaseUI):
         self.connect_properties(
             connect_setter_property_callback, connect_getter_property_callback
         )
-        self._tool_config_names = tool_config_names
         self._dialog_options = dialog_options
 
         super(FrameworkDialog, self).__init__(

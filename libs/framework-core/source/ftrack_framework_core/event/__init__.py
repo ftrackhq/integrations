@@ -344,6 +344,25 @@ class Publish(object):
         event_topic = constants.event.CLIENT_NOTIFY_UI_HOOK_RESULT_TOPIC
         return self._publish_event(event_topic, data, callback)
 
+    def host_verify_plugins(
+        self,
+        host_id,
+        plugin_names,
+        callback=None,
+        mode=constants.event.LOCAL_EVENT_MODE,
+    ):
+        '''
+        Publish an event with topic
+        :const:`~ftrack_framework_core.constants.event.HOST_VERIFY_PLUGINS_TOPIC`
+        '''
+        data = {
+            'host_id': host_id,
+            'plugin_names': plugin_names,
+        }
+
+        event_topic = constants.event.HOST_VERIFY_PLUGINS_TOPIC
+        return self._publish_event(event_topic, data, callback, mode)
+
 
 class Subscribe(object):
     '''Class with all the events subscribed by the framework'''
@@ -465,5 +484,15 @@ class Subscribe(object):
         '''
         event_topic = '{} and data.client_id={}'.format(
             constants.event.CLIENT_NOTIFY_UI_HOOK_RESULT_TOPIC, client_id
+        )
+        return self._subscribe_event(event_topic, callback)
+
+    def host_verify_plugins(self, host_id, callback=None):
+        '''
+        Subscribe to an event with topic
+        :const:`~ftrack_framework_core.constants.event.HOST_LOG_ITEM_ADDED_TOPIC`
+        '''
+        event_topic = '{} and data.host_id={}'.format(
+            constants.event.HOST_VERIFY_PLUGINS_TOPIC, host_id
         )
         return self._subscribe_event(event_topic, callback)

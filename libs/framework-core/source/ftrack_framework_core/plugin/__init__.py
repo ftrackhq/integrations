@@ -7,21 +7,6 @@ from abc import ABC, abstractmethod
 import ftrack_constants as constants
 
 
-# Evaluate version and log package version
-try:
-    from ftrack_utils.version import get_version
-
-    __version__ = get_version(
-        os.path.basename(os.path.dirname(__file__)),
-        os.path.dirname(os.path.dirname(os.path.dirname(__file__))),
-    )
-except Exception:
-    __version__ = '0.0.0'
-
-logger = logging.getLogger(__name__)
-logger.debug('v{}'.format(__version__))
-
-
 class BasePlugin(ABC):
     '''Base Class to represent a Plugin'''
 

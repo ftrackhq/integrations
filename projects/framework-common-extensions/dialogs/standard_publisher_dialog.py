@@ -28,7 +28,6 @@ class StandardPublisherDialog(BaseContextDialog):
         connect_methods_callback,
         connect_setter_property_callback,
         connect_getter_property_callback,
-        tool_config_names,
         dialog_options,
         parent=None,
     ):
@@ -44,8 +43,6 @@ class StandardPublisherDialog(BaseContextDialog):
         the dialog to be able to read client properties.
         *connect_getter_property_callback*: Client callback property getter for
         the dialog to be able to write client properties.
-        *tool_config_names*: List of tool config names passed on to configure the
-        current dialog.
         *dialog_options*: Dictionary of arguments passed on to configure the
         current dialog.
         '''
@@ -59,7 +56,6 @@ class StandardPublisherDialog(BaseContextDialog):
             connect_methods_callback,
             connect_setter_property_callback,
             connect_getter_property_callback,
-            tool_config_names,
             dialog_options,
             parent=parent,
         )
@@ -103,7 +99,11 @@ class StandardPublisherDialog(BaseContextDialog):
                             f'Using tool config {tool_config_name}'
                         )
                         if self.tool_config != tool_config:
-                            self.tool_config = tool_config
+                            try:
+                                self.tool_config = tool_config
+                            except Exception as error:
+                                tool_config_message = error
+                                break
                             self._progress_widget = ProgressWidget(
                                 'publish', build_progress_data(tool_config)
                             )
@@ -111,7 +111,7 @@ class StandardPublisherDialog(BaseContextDialog):
                                 self._progress_widget.status_widget
                             )
                         break
-                if not self.tool_config:
+                if not self.tool_config and not tool_config_message:
                     tool_config_message = (
                         f'Could not find tool config: "{tool_config_name}"'
                     )
@@ -120,9 +120,11 @@ class StandardPublisherDialog(BaseContextDialog):
 
         if not self.tool_config:
             self.logger.warning(tool_config_message)
-            self._scroll_area_widget.layout().addWidget(
-                QtWidgets.QLabel(f'<html><i>{tool_config_message}</i></html>')
+            label_widget = QtWidgets.QLabel(f'{tool_config_message}')
+            label_widget.setStyleSheet(
+                "font-style: italic; font-weight: bold;"
             )
+            self._scroll_area_widget.layout().addWidget(label_widget)
             return
 
         # Build context widgets

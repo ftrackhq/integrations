@@ -92,7 +92,10 @@ def bootstrap_integration(framework_extensions_path):
 
     @invoke_in_qt_main_thread
     def on_run_dialog_callback(dialog_name, tool_config_names):
-        client.run_dialog(dialog_name, tool_config_names=tool_config_names)
+        client.run_dialog(
+            dialog_name,
+            dialog_options={'tool_config_names': tool_config_names},
+        )
 
     # Init Photoshop connection
     remote_session = ftrack_api.Session(auto_connect_event_hub=True)
