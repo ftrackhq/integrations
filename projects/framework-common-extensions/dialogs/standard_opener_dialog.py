@@ -1,7 +1,7 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2023 ftrack
 
-from Qt import QtWidgets, QtCore
+from Qt import QtWidgets, QtCore, QtGui
 
 from ftrack_framework_qt.dialogs import BaseContextDialog
 from ftrack_utils.framework.config.tool import get_plugins, get_groups
@@ -96,9 +96,12 @@ class StandardOpenerDialog(BaseContextDialog):
                         self.logger.debug(
                             f'Using tool config {tool_config_name}'
                         )
-                        self.tool_config = tool_config
+                        try:
+                            self.tool_config = tool_config
+                        except Exception as error:
+                            tool_config_message = error
                         break
-                if not self.tool_config:
+                if not self.tool_config and not tool_config_message:
                     tool_config_message = (
                         f'Could not find tool config: "{tool_config_name}"'
                     )
@@ -107,9 +110,11 @@ class StandardOpenerDialog(BaseContextDialog):
 
         if not self.tool_config:
             self.logger.warning(tool_config_message)
-            self._scroll_area_widget.layout().addWidget(
-                QtWidgets.QLabel(f'<html><i>{tool_config_message}</i></html>')
+            label_widget = QtWidgets.QLabel(f'{tool_config_message}')
+            label_widget.setStyleSheet(
+                "font-style: italic; font-weight: bold;"
             )
+            self._scroll_area_widget.layout().addWidget(label_widget)
             return
 
         # Build context widgets

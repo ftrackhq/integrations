@@ -6,7 +6,10 @@ import uuid
 from functools import partial
 
 from ftrack_framework_core.widget import BaseUI, active_widget
-from ftrack_utils.framework.config.tool import get_tool_config_by_name
+from ftrack_utils.framework.config.tool import (
+    get_tool_config_by_name,
+    get_plugins,
+)
 
 
 class FrameworkDialog(BaseUI):
@@ -65,7 +68,21 @@ class FrameworkDialog(BaseUI):
             )
             return
 
+        if value:
+            # Get plugins from tool_config
+            plugins = get_plugins(value, names_only=True)
+
+            unregistered_plugins = self.client_method_connection(
+                'verify_plugins', arguments={"plugin_names": plugins}
+            )
+            if unregistered_plugins:
+                raise Exception(
+                    f"Unregistered plugins found: {unregistered_plugins}"
+                    f"\n Please make sure plugins are in the extensions path"
+                )
+
         self._tool_config = value
+
         # Call _on_tool_config_changed_callback to let the UI know that a new
         # tool_config has been set.
         self._on_tool_config_changed_callback()
