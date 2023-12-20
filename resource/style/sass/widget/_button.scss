@@ -77,60 +77,38 @@ QFrame#new-asset-input[status=''] QPushButton {
     border: 1px; solid transparent;
 }
 
-QPushButton#status-widget-collapsed-button {
+ProgressStatusButtonWidget#progress-widget-header-button, ProgressStatusButtonWidget#progress-widget-header-button-collapsed {
     border-radius: 16px;
     padding: 0px;
 }
 
-QPushButton#status-widget-expanded-button {
-    border-radius: 16px;
-    padding: 0px;
-}
-
-QPushButton#status-widget-expanded-banner {
+ProgressStatusButtonWidget#progress-widget-overlay-banner {
     border-radius: 4px;
     padding: 4px;
 }
 
-QPushButton[status='unknown_status'], QPushButton[status='pause_status'], QPushButton#status-widget-expanded-button QLabel {
+ProgressStatusButtonWidget[status='unknown_status'], ProgressStatusButtonWidget[status='pause_status'] {
     border: 1px solid $gray-dark;
 }
-QPushButton#status-widget-expanded-button[status='warning_status'] QLabel, QPushButton#status-widget-expanded-button[status='pause_status'] QLabel {
-    border: none;
-    color: $gray-dark;
-}
-
-QPushButton[status='success_status'] {
-    border: 1px solid #79DFB6;
-}
-QPushButton#status-widget-expanded-button[status='success_status'] QLabel {
-    border: none;
-    color: #79DFB6;
-}
-
-QPushButton[status='warning_status'] {
+ ProgressStatusButtonWidget[status='pause_status'] {
     border: 1px solid #FFBA5C;
 }
-QPushButton#status-widget-expanded-button[status='warning_status'] QLabel {
-    border: none;
-    color: #FFBA5C;
+ProgressStatusButtonWidget[status='warning_status'] {
+    border: 1px solid #FFBA5C;
 }
-
-QPushButton[status='running_status'] {
+ProgressStatusButtonWidget[status='running_status'] {
     border: 1px solid #87E1EB;
 }
-QPushButton#status-widget-expanded-button[status='running_status'] QLabel {
-    border: none;
-    color: #87E1EB;
+ProgressStatusButtonWidget[status='success_status'] {
+    border: 1px solid #79DFB6;
 }
-
-QPushButton[status='error_status'], QPushButton[status='exception_status'] {
+ProgressStatusButtonWidget[status='error_status'], ProgressStatusButtonWidget[status='exception_status'] {
     border: 1px solid #FF7A73;
 }
 
-QPushButton#status-widget-expanded-button[status='error_status'] QLabel, QPushButton#status-widget-expanded-button[status='exception_status'] QLabel {
-    border: none;
-    color: #FF7A73;
+ProgressPhaseButtonWidget {
+    border: none !important;
+    padding: 0px;
 }
 
 OptionsButton {

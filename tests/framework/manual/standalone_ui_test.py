@@ -40,7 +40,10 @@ session = ftrack_api.Session(auto_connect_event_hub=False)
 event_manager = event.EventManager(
     session=session, mode=constants.event.LOCAL_EVENT_MODE
 )
-os.environ['FTRACK_CONTEXTID'] = '439dc504-a904-11ec-bbac-be6e0a48ed73'
+os.environ[
+    'FTRACK_CONTEXTID'
+] = '439dc504-a904-11ec-bbac-be6e0a48ed73'  # Henrik
+# os.environ['FTRACK_CONTEXTID'] = '571a7a04-eabe-44b5-99b7-6cc5ebb74c77' # LLuis
 
 
 FTRACK_FRAMEWORK_EXTENSIONS_PATH = [
@@ -63,7 +66,7 @@ app = QtWidgets.QApplication.instance()
 if not app:
     app = QtWidgets.QApplication(sys.argv)
 
-WHAT = 'opener'
+WHAT = 'publisher'
 client_class.run_dialog(
     dialog_name=f'framework_standard_{WHAT}_dialog',
     dialog_options={'tool_config_names': [f'standalone-file-{WHAT}']},

@@ -61,9 +61,6 @@ class TabDialog(StyledDialog):
     def build(self):
         # Create the header
         self._header = SessionHeader(self._session)
-        # TODO: implement progress widget.
-        # self._progress_widget = ProgressWidget
-        # self._header.add_widget(self._progress_widget)
 
         # TODO: we have to update the signals from the context selector to
         #  identify that are our signals and not qt signals. So make them snake case
