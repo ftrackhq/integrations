@@ -62,9 +62,7 @@ class OptionsButton(QtWidgets.QPushButton):
 
         self._main_widget.layout().addWidget(scroll)
         self._overlay_container = OverlayWidget(
-            self._main_widget,
-            height_percentage=0.9,
-            transparent_background=True,
+            self._main_widget, height_percentage=0.9
         )
         self._overlay_container.setVisible(False)
 
