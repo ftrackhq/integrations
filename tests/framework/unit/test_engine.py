@@ -82,7 +82,7 @@ def test_run_plugin(test_engine_instance):
 
     # Call the method and assert the expected behavior
     result = test_engine_instance.run_plugin(plugin, store, options, reference)
-    assert result['plugin_store'] == {'test_data': options}
+    assert result['store'] == {'test_data': options}
 
 
 @pytest.mark.parametrize(

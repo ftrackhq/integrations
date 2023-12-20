@@ -23,33 +23,6 @@ class BasePlugin(ABC):
         return self._session
 
     @property
-    def status(self):
-        '''Current status of the plugin'''
-        return self._status
-
-    @status.setter
-    def status(self, value):
-        '''Set new status to the plugin'''
-        if value not in constants.status.STATUS_LIST:
-            self.logger.error(
-                "Status {} is not recognized. Available statuses are: {}".format(
-                    value, constants.status.STATUS_LIST
-                )
-            )
-            value = constants.status.EXCEPTION_STATUS
-        self._status = value
-
-    @property
-    def message(self):
-        '''Current message'''
-        return self._message
-
-    @message.setter
-    def message(self, value):
-        '''Set the current message'''
-        self._message = value
-
-    @property
     def options(self):
         '''Return the context options of the plugin'''
         return self._options
@@ -66,8 +39,6 @@ class BasePlugin(ABC):
 
         self._options = options
         self._session = session
-        self._status = constants.status.UNKNOWN_STATUS
-        self._message = ''
 
     def ui_hook(self, payload):
         '''

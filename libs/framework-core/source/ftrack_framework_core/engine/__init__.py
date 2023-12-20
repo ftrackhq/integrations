@@ -6,6 +6,8 @@ import logging
 import copy
 import time
 
+from ftrack_framework_core.plugin.plugin_info import PluginInfo
+
 import ftrack_constants as constants
 
 
@@ -95,112 +97,106 @@ class BaseEngine(object):
             f"Run {reference} with options {plugin_instance.options}"
         )
 
-        plugin_info = self.provide_plugin_info(
-            plugin,
-            reference,
-            constants.status.status_bool_mapping[plugin_instance.status],
-            plugin_instance.status,
-            plugin_instance.message,
-            0,
-            options,
-            store,
+        plugin_info = PluginInfo(
+            name=plugin, reference=reference, options=options, store=store
         )
 
         # Start timer to check the execution time
         start_time = time.time()
         try:
             # Set the plugin status to running
-            plugin_instance.status = constants.status.RUNNING_STATUS
+            plugin_info.status = constants.status.RUNNING_STATUS
             # Run the plugin
             result = plugin_instance.run(store)
-            # User can return status and message from plugin
-            status, message = (None, None) if result is None else result
-            # If user did not return status or message.
-            if not status:
-                status = plugin_instance.status
-            if not message:
-                message = plugin_instance.message
-        except Exception as error:
-            if constants.status.status_bool_mapping[plugin_instance.status]:
-                plugin_instance.status = constants.status.EXCEPTION_STATUS
-            # If status is already handled by the plugin we check if message is
-            # also handled if not set a generic one
-            if not plugin_instance.message:
-                plugin_instance.message = (
-                    f"Error executing plugin: {error} \n "
-                    f"status {plugin_instance.status}"
+            # Validate the result tuple
+            if self.is_valid_plugin_result(result):
+                if result and result != (None, None):
+                    plugin_info.status = result[0]
+                    plugin_info.message = result[1]
+                else:
+                    plugin_info.status = constants.status.SUCCESS_STATUS
+            else:
+                raise ValueError(
+                    f"Invalid plugin result format, expected a valid string "
+                    f"status and message but got {result}"
                 )
-            # If both handled by the plugin, logger the message
+        except Exception as error:
+            plugin_info.status = constants.status.EXCEPTION_STATUS
+
+            plugin_info.message = (
+                f"Error executing plugin: {error} \n "
+                f"status {plugin_info.status}"
+            )
+            # logger the message
             self.logger.exception(
                 f"Error message: {plugin_instance.message}\n Traceback: {error}"
             )
-            plugin_info['plugin_boolean_status'] = False
-            plugin_info['plugin_status'] = plugin_instance.status
-            plugin_info['plugin_message'] = plugin_instance.message
+
             if self.on_plugin_executed:
-                self.on_plugin_executed(plugin_info)
-            return plugin_info
+                self.on_plugin_executed(plugin_info.to_dict())
+            return plugin_info.to_dict()
 
         # print plugin error handled by the plugin
-        bool_status = constants.status.status_bool_mapping[status]
-        if not bool_status:
+        if not plugin_info.boolean_status:
             # Generic message in case no message is provided.
-            if not message:
-                message = (
+            if not plugin_info.message:
+                plugin_info.message = (
                     f"Error detected on the plugin {plugin}, "
                     f"but no message provided."
                 )
-            self.logger.error(message)
-            plugin_info['plugin_boolean_status'] = bool_status
-            plugin_info['plugin_status'] = status
-            plugin_info['plugin_message'] = message
+            self.logger.error(plugin_info.message)
             if self.on_plugin_executed:
-                self.on_plugin_executed(plugin_info)
+                self.on_plugin_executed(plugin_info.to_dict())
             return plugin_info
+        plugin_info.status = constants.status.SUCCESS_STATUS
 
-        if status == constants.status.RUNNING_STATUS:
-            status = constants.status.SUCCESS_STATUS
-        full_message = f"Plugin executed, status: {status}, message: {message}"
+        plugin_info.message = (
+            f"Plugin executed, status: {plugin_info.status}, "
+            f"message: {plugin_info.message}"
+        )
         end_time = time.time()
         total_time = end_time - start_time
-        execution_time = total_time
+        plugin_info.execution_time = total_time
         self.logger.debug(
             f"Result from running plugin {reference}: {plugin_info}"
         )
-        plugin_info['plugin_boolean_status'] = bool_status
-        plugin_info['plugin_status'] = status
-        plugin_info['plugin_message'] = full_message
-        plugin_info['plugin_execution_time'] = execution_time
         if self.on_plugin_executed:
-            self.on_plugin_executed(plugin_info)
-        return plugin_info
+            self.on_plugin_executed(plugin_info.to_dict())
+        return plugin_info.to_dict()
 
-    def provide_plugin_info(
-        self,
-        name,
-        reference,
-        boolean_status,
-        status,
-        message,
-        execution_time,
-        options,
-        store=None,
-    ):
+    def is_valid_plugin_result(self, result):
         '''
-        Provide the entire plugin information.
-        If *store* is given, provides the current store as part of the
-        plugin info.
+        Validates if the result is a tuple with valid status and message.
+
+        :param result: Result tuple to validate.
+        :type result: tuple
+        :return: True if valid, False otherwise.
+        :rtype: bool
         '''
-        return {
-            'plugin_name': name,
-            'plugin_reference': reference,
-            'plugin_boolean_status': boolean_status,
-            'plugin_status': status,
-            'plugin_message': message,
-            'plugin_execution_time': execution_time,
-            'plugin_options': options,
-            'plugin_store': store,
-        }
+        if not result or result == (None, None):
+            return True
+        if not isinstance(result, tuple) and len(result) != 2:
+            self.logger.error(
+                f"Invalid plugin result format. "
+                f"Expected tuple with status and message, got {result}"
+            )
+            return False
+        if not isinstance(result[0], str) or not isinstance(result[1], str):
+            self.logger.error(
+                f"Invalid plugin result format. "
+                f"Expected string status and string message, "
+                f"got: \n status: {result[0]} type: {type(result[0])},\n "
+                f"message: {result[0]}, type: {type(result[0])}"
+            )
+            return False
+        if not result[0] in constants.status.STATUS_LIST:
+            self.logger.error(
+                f"Invalid plugin result format. "
+                f"Expected status {constants.status.STATUS_LIST}, "
+                f"got: {result[0]}"
+            )
+            return False
+        return True
 
     def execute_engine(self, engine, user_options):
         '''

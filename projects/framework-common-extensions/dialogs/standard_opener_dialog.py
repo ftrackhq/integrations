@@ -178,8 +178,8 @@ class StandardOpenerDialog(BaseContextDialog):
         '''(Override) Pass framework log item to the progress widget'''
         if self._progress_widget:
             self._progress_widget.update_phase_status(
-                log_item.plugin_reference,
-                log_item.plugin_status,
-                log_message=log_item.plugin_message,
-                time=log_item.plugin_execution_time,
+                log_item.reference,
+                log_item.status,
+                log_message=log_item.message,
+                time=log_item.execution_time,
             )

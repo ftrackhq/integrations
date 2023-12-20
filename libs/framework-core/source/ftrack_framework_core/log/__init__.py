@@ -70,12 +70,12 @@ class LogDB(object):
         if cur.fetchone()[0] == 0:
             cur.execute(
                 '''CREATE TABLE {0} (id INTEGER PRIMARY KEY,'''
-                ''' date int, plugin_status text, plugin_boolean_status bool,'''
-                ''' host_id text, plugin_name text,'''
-                ''' plugin_reference text,'''
-                ''' plugin_execution_time real,'''
-                ''' plugin_message text, plugin_options text,'''
-                ''' plugin_store text)'''.format(self.table_name)
+                ''' date int, status text, boolean_status bool,'''
+                ''' host_id text, name text,'''
+                ''' reference text,'''
+                ''' execution_time real,'''
+                ''' message text, options text,'''
+                ''' store text)'''.format(self.table_name)
             )
 
             self.connection.commit()
@@ -159,24 +159,24 @@ class LogDB(object):
             cur = self.connection.cursor()
 
             cur.execute(
-                '''INSERT INTO {0} (date,plugin_status,plugin_boolean_status,
-                host_id, plugin_name,plugin_reference,
-                plugin_execution_time,
-                plugin_message,plugin_options,plugin_store) 
+                '''INSERT INTO {0} (date,status,boolean_status,
+                host_id, name,reference,
+                execution_time,
+                message,options,store) 
                 VALUES (?,?,?,?,?,?,?,?,?,?)'''.format(
                     self.table_name
                 ),
                 (
                     time.time(),
-                    log_item.plugin_status,
-                    log_item.plugin_boolean_status,
+                    log_item.status,
+                    log_item.boolean_status,
                     host_id,
-                    log_item.plugin_name,
-                    log_item.plugin_reference,
-                    log_item.plugin_execution_time,
-                    log_item.plugin_message,
-                    str(log_item.plugin_options),
-                    str(log_item.plugin_store),
+                    log_item.name,
+                    log_item.reference,
+                    log_item.execution_time,
+                    log_item.message,
+                    str(log_item.options),
+                    str(log_item.store),
                 ),
             )
             self.connection.commit()
@@ -198,11 +198,11 @@ class LogDB(object):
         log_items = []
         if not host_id is None:
             cur.execute(
-                ''' SELECT date,plugin_status,plugin_boolean_status,host_id,'''
-                '''plugin_name,'''
-                '''plugin_reference,'''
-                '''plugin_execution_time,'''
-                '''plugin_message,plugin_options,plugin_store'''
+                ''' SELECT date,status,boolean_status,host_id,'''
+                '''name,'''
+                '''reference,'''
+                '''execution_time,'''
+                '''message,options,store'''
                 ''' FROM {0} WHERE host_id=?;  '''.format(self.table_name),
                 (host_id,),
             )
@@ -212,21 +212,21 @@ class LogDB(object):
                     LogItem(
                         {
                             'date': datetime.datetime.fromtimestamp(t[0]),
-                            'plugin_status': t[1],
-                            'plugin_boolean_status': t[2],
+                            'status': t[1],
+                            'boolean_status': t[2],
                             'host_id': t[3],
-                            'plugin_name': t[4],
-                            'plugin_reference': t[5],
-                            'plugin_execution_time': t[6],
-                            'plugin_message': t[7],
-                            'plugin_options': t[8],
-                            'plugin_store': t[9],
+                            'name': t[4],
+                            'reference': t[5],
+                            'execution_time': t[6],
+                            'message': t[7],
+                            'options': t[8],
+                            'store': t[9],
                         }
                     )
                 )
         return log_items
 
-    def get_log_items_by_plugin_reference(self, host_id, plugin_reference):
+    def get_log_items_by_reference(self, host_id, reference):
         '''
         Stores a :class:`~ftrack_framework_core.log.log_item.LogItem` in
         persistent log database.
@@ -237,15 +237,15 @@ class LogDB(object):
         log_items = []
         if not host_id is None:
             cur.execute(
-                ''' SELECT date,plugin_status,plugin_boolean_status,host_id,'''
-                '''plugin_name,'''
-                '''plugin_reference,'''
-                '''plugin_execution_time,plugin_message,'''
-                '''plugin_options,plugin_store'''
-                ''' FROM {0} WHERE host_id=? AND plugin_reference=?;  '''.format(
+                ''' SELECT date,status,boolean_status,host_id,'''
+                '''name,'''
+                '''reference,'''
+                '''execution_time,message,'''
+                '''options,store'''
+                ''' FROM {0} WHERE host_id=? AND reference=?;  '''.format(
                     self.table_name
                 ),
-                (host_id, plugin_reference),
+                (host_id, reference),
             )
 
             for t in cur.fetchall():
@@ -253,15 +253,15 @@ class LogDB(object):
                     LogItem(
                         {
                             'date': datetime.datetime.fromtimestamp(t[0]),
-                            'plugin_status': t[1],
-                            'plugin_boolean_status': t[2],
+                            'status': t[1],
+                            'boolean_status': t[2],
                             'host_id': t[3],
-                            'plugin_name': t[4],
-                            'plugin_reference': t[5],
-                            'plugin_execution_time': t[6],
-                            'plugin_message': t[7],
-                            'plugin_options': t[8],
-                            'plugin_store': t[9],
+                            'name': t[4],
+                            'reference': t[5],
+                            'execution_time': t[6],
+                            'message': t[7],
+                            'options': t[8],
+                            'store': t[9],
                         }
                     )
                 )
