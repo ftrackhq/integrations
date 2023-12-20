@@ -162,7 +162,7 @@ class BaseEngine(object):
         )
         if self.on_plugin_executed:
             self.on_plugin_executed(plugin_info.to_dict())
-        return plugin_info
+        return plugin_info.to_dict()
 
     def is_valid_plugin_result(self, result):
         '''
