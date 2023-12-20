@@ -40,7 +40,6 @@ QComboBox QAbstractItemView, QComboBox QListView {
     padding-right: 0px;
     min-width: 50px;
     background: $background;
-    background-color: $background;
     selection-background-color: $background-selected-combo;
     text-align: center;
 }
@@ -48,24 +47,9 @@ QComboBox QAbstractItemView, QComboBox QListView {
 QComboBox::item, QComboBox QAbstractItemView::item {
     color: $text-color;
     background: $background;
-    background-color: $background;
     selection-color: $text-color-active;
     selection-background-color: $background-selected-combo;
 }
-
-
-/*QComboBox:selected, QComboBox QAbstractItemView:selected {
-    selection-color: $text-color;
-    background: $background-selected;
-}
-
-QComboBox:hover, QComboBox QAbstractItemView:hover {
-    color: $text-color-hover;
-    selection-color: red;
-    background: $background-selected;
-    selection-background-color: $background-selected;
-}*/
-
 
 QFrame[docked='true'] QComboBox QAbstractItemView {
     background: $background-docked !important;

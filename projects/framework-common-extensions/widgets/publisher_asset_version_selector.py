@@ -198,5 +198,5 @@ class PublisherAssetVersionSelectorWidget(BaseWidget):
 
     def _on_comment_updated(self):
         '''Update the plugin options based on the current comment.'''
-        current_text = self.comments_input.toPlainText()
+        current_text = self._comments_input.toPlainText()
         self.set_plugin_option('comment', current_text)

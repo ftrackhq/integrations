@@ -3,6 +3,7 @@
 
 from Qt import QtGui, QtCore, QtWidgets
 
+from ftrack_qt.utils.widget import set_property
 from ftrack_qt.widgets.buttons import CircularButton
 from ftrack_qt.utils.layout import recursive_clear_layout
 
@@ -38,6 +39,10 @@ class SearchBox(QtWidgets.QFrame):
 
         self._collapsed = collapsed
         self._collapsable = collapsable
+
+        self._search_button = None
+        self._input = None
+
         self.pre_build()
         self.build()
         self.post_build()
@@ -61,18 +66,12 @@ class SearchBox(QtWidgets.QFrame):
     def rebuild(self):
         '''Remove current widgets, clear input'''
         recursive_clear_layout(self.layout())
+        set_property(self, 'collapsed', 'true' if self._collapsed else 'false')
         if self._collapsed:
             # Just the circular search button
             self.layout().addStretch()
             self._input = None
-            self.setStyleSheet('''border:none;''')
             self._search_button = CircularButton('search')
-            self._search_button.setStyleSheet(
-                '''
-                border: 1px solid #2A2A2A;
-                border-radius: 16px;
-            '''
-            )
         else:
             self._search_button = CircularButton('search', diameter=30)
 
@@ -81,28 +80,12 @@ class SearchBox(QtWidgets.QFrame):
 
         if not self._collapsed:
             # A bordered input field filling all space, with input and a clear button
-            self._search_button.setStyleSheet(
-                '''
-                    border:none; 
-                    background: transparent;
-                '''
-            )
             self._input = QtWidgets.QLineEdit()
             self._input.setReadOnly(False)
             self._input.textChanged.connect(self._on_input_changed)
             self._input.setPlaceholderText("Type to search")
-            self._input.setStyleSheet(
-                '''border: none; background: transparent; '''
-            )
             self._input.setFocus()
             self.layout().addWidget(self._input, 100)
-
-            self.setStyleSheet(
-                '''
-                border: 1px solid #555555;
-                border-radius: 16px;
-            '''
-            )
             if not self._collapsable:
                 self.layout().addWidget(self._search_button)
 

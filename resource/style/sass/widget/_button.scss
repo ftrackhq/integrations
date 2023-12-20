@@ -227,9 +227,19 @@ DenyButton:hover {
     background: transparent;
 }
 
-NewAssetButton {
+NewAssetInput QPushButton {
     border: none;
     font-weight: bold;
     color: $background-docked;
-    background-color: $color-primary !important;
+    background: $color-primary;
+}
+
+SearchButton[collapsed='false'] QPushButton {
+    border:none;
+    background: transparent;
+}
+
+SearchButton[collapsed='true'] QPushButton {
+    border: 1px solid #2A2A2A;
+    border-radius: 16px;
 }

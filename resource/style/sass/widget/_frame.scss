@@ -125,4 +125,12 @@ TypeWidget {
     border-radius: 12px;
 }
 
+SearchBox[collapsed='false'] {
+    border: 1px solid #555555;
+    border-radius: 16px;
+}
+
+SearchBox[collapsed='true'] {
+    border:none;
+}
 
