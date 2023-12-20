@@ -203,12 +203,12 @@ class Registry(object):
                 tool_config_engine_portion[index] = {
                     'type': 'plugin',
                     'plugin': item,
-                    'reference': uuid.uuid4().hex,
+                    'reference': f'{item}-{uuid.uuid4().hex}',
                 }
                 continue
             elif isinstance(item, dict):
                 if item["type"] == "group":
-                    item['reference'] = uuid.uuid4().hex
+                    item['reference'] = f'{item["type"]}-{uuid.uuid4().hex}'
                     for plugin_item in item.get("plugins", []):
                         if isinstance(plugin_item, str):
                             # Convert string plugin to dictionary
@@ -216,13 +216,15 @@ class Registry(object):
                             item['plugins'][index] = {
                                 'type': 'plugin',
                                 'plugin': plugin_item,
-                                'reference': uuid.uuid4().hex,
+                                'reference': f'{plugin_item}-{uuid.uuid4().hex}',
                             }
                             continue
-                        plugin_item['reference'] = uuid.uuid4().hex
+                        plugin_item[
+                            'reference'
+                        ] = f'{plugin_item["plugin"]}-{uuid.uuid4().hex}'
                         if plugin_item['type'] == "group":
                             self._recursive_create_reference(
                                 plugin_item.get('plugins')
                             )
                 elif item["type"] == "plugin":
-                    item['reference'] = uuid.uuid4().hex
+                    item['reference'] = f'{item["plugin"]}-{uuid.uuid4().hex}'
