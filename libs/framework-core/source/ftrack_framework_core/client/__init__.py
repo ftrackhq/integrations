@@ -304,17 +304,17 @@ class Client(object):
         log_item = event['data']['log_item']
         self.logger.info(
             "Plugin Execution progress: \n "
-            "plugin_name: {} \n"
-            "plugin_status: {} \n"
-            "plugin_message: {} \n"
-            "plugin_execution_time: {} \n"
-            "plugin_store: {} \n".format(
-                log_item.plugin_name,
-                log_item.plugin_status,
-                log_item.plugin_message,
-                log_item.plugin_execution_time,
-                log_item.plugin_options,
-                log_item.plugin_store,
+            "name: {} \n"
+            "status: {} \n"
+            "message: {} \n"
+            "execution_time: {} \n"
+            "store: {} \n".format(
+                log_item.name,
+                log_item.status,
+                log_item.message,
+                log_item.execution_time,
+                log_item.options,
+                log_item.store,
             )
         )
         # Publish event to widget

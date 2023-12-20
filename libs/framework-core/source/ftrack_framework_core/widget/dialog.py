@@ -378,7 +378,7 @@ class FrameworkDialog(BaseUI):
         '''
         log_item = event['data']['log_item']
         self.plugin_run_callback(log_item)
-        reference = log_item.plugin_reference
+        reference = log_item.reference
         if not reference:
             return
         widget = self.framework_widgets.get(reference)
