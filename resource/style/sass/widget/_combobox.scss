@@ -34,7 +34,7 @@ QComboBox::down-arrow {
 }
 
 /** Note: Styling of dropdown list does not fully apply within DCCs */
-QComboBox QAbstractItemView, QComboBox QListView {
+QComboBox QAbstractItemView {
     color: $text-color;
     outline: 0;
     padding-right: 0px;
@@ -44,7 +44,7 @@ QComboBox QAbstractItemView, QComboBox QListView {
     text-align: center;
 }
 
-QComboBox::item, QComboBox QAbstractItemView::item {
+QComboBox::item {
     color: $text-color;
     background: $background;
     selection-color: $text-color-active;

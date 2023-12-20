@@ -112,8 +112,6 @@ class OverlayWidget(QtWidgets.QFrame):
         widget_y = 40  # int(size.height()/2-widget_height/2)
         self._container_widget.resize(widget_width, widget_height)
         self._container_widget.move(widget_x, widget_y)
-        # Move the close button to the desired position
-        # self._close_btn.move(widget_x + widget_width - 22, widget_y)
 
     def setVisible(self, visible):
         '''(Override) Set whether *visible* or not.'''
