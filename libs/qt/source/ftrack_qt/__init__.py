@@ -21,14 +21,13 @@ logger.debug("v{}".format(__version__))
 # DO NOT REMOVE UNUSED IMPORT - important to keep this in order to have resources
 # initialised properly for applying style and providing images & fonts.
 
-if True:
-    try:
-        from ftrack_qt_style import (
-            resource,
-        )
-    except Exception:
-        logger.exception(
-            "Styling resource file not found, please install ftrack-qt-style library"
-        )
+try:
+    from ftrack_qt_style import (
+        resource,
+    )
+except Exception:
+    logger.exception(
+        "Styling resource file not found, please install ftrack-qt-style library"
+    )
 
 # TODO: review all the code inside this library, we should standardized docstrings.

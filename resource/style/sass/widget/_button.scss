@@ -10,13 +10,13 @@ QPushButton, QMessageBox QPushButton {
 QPushButton:hover {
     border-color: darken($color-primary, 5%);
     background-color: $color-primary-dark;
-    color: $text-color-default-hover;
+    color: $text-color-hover;
 }
 
 QPushButton:pressed {
     border-color: darken($color-primary, 5%);
     background-color: darken( $color-primary-dark, 5%);
-    color: $text-color-default-pressed;
+    color: $text-color-pressed;
 }
 
 QPushButton:disabled {

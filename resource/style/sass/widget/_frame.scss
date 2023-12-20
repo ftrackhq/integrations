@@ -58,6 +58,15 @@ QFrame[background='transparent'] {
     background: transparent;
 }
 
+/* Overlay */
+QFrame#overlay {
+    background-color: $alt-background;
+}
+
+QFrame#overlay QLabel {
+    background-color: transparent;
+}
+
 /* Lines */
 LineWidget {
     border: 1px dashed $border-color;
@@ -115,3 +124,5 @@ TypeWidget {
     border: 1px solid $gray-darker;
     border-radius: 12px;
 }
+
+

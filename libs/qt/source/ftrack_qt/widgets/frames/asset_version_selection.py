@@ -5,6 +5,7 @@ from Qt import QtWidgets, QtCore, QtGui
 
 from ftrack_qt.widgets.selectors.version_selector import VersionSelector
 from ftrack_qt.widgets.thumbnails import AssetVersionThumbnail
+from ftrack_qt.widgets.delegate import AssetVersionComboBoxDelegate
 
 
 class AssetVersionSelection(QtWidgets.QFrame):
@@ -75,21 +76,18 @@ class AssetVersionSelection(QtWidgets.QFrame):
         self._version_combobox.setMaximumHeight(20)
         self.layout().addWidget(self._version_combobox)
 
-        #         self._version_combobox.setStyleSheet("""
+        # self._version_combobox.setItemDelegate(AssetVersionComboBoxDelegate())
+
+        # self._version_combobox.setStyleSheet("""
         # QComboBox QAbstractItemView {
         #     color: red;
         #     outline: 0;
-        #     border-radius: 2px;
-        #     background: grey;
-        #     text-align: center;
+        #     border: none;
+        #     background: #131920;
+        #     border: 2px solid #131920;
+        #     padding: 0px;
         # }
-        #
-        # QComboBox QAbstractItemView::item {
-        #     color: red;
-        #     background: grey;
-        #     text-align: center;
-        # }
-        #         """)
+        # """)
 
         self._version_info_widget = QtWidgets.QLabel()
         self._version_info_widget.setObjectName('gray')

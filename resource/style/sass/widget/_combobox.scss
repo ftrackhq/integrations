@@ -5,10 +5,9 @@ QComboBox {
     border-radius: 2px;
     padding: $input-padding;
     padding-left: 10px;
-    background: transparent;
-    selection-background-color: $background-selected;
     color: $text-color;
     text-align: center;
+    combobox-popup: 0;
 
     &:hover {
         border-color: darken($border-color, 5%);
@@ -25,43 +24,58 @@ QComboBox::drop-down {
     padding: $input-padding;
     border: 0;
     text-align: center;
-    background: $background;
+    background-color: $background;
 }
 
 QComboBox::down-arrow {
     image: theme-image('combobox_down_arrow');
-    width: 8px;
-    height: 8px;
+    width: 12px;
+    height: 12px;
 }
 
 /** Note: Styling of dropdown list does not fully apply within DCCs */
-/*
-QComboBox QAbstractItemView {
+QComboBox QAbstractItemView, QComboBox QListView {
     color: $text-color;
     outline: 0;
-    border-radius: 2px;
+    padding-right: 0px;
+    min-width: 50px;
     background: $background;
-    selection-background-color: $background-selected;
+    background-color: $background;
+    selection-background-color: $background-selected-combo;
     text-align: center;
 }
 
-QComboBox QAbstractItemView::item {
+QComboBox::item, QComboBox QAbstractItemView::item {
     color: $text-color;
     background: $background;
-    selection-background-color: $background-selected;
-    text-align: center;
-    padding: $input-padding 0;
+    background-color: $background;
+    selection-color: $text-color-active;
+    selection-background-color: $background-selected-combo;
 }
 
+
+/*QComboBox:selected, QComboBox QAbstractItemView:selected {
+    selection-color: $text-color;
+    background: $background-selected;
+}
+
+QComboBox:hover, QComboBox QAbstractItemView:hover {
+    color: $text-color-hover;
+    selection-color: red;
+    background: $background-selected;
+    selection-background-color: $background-selected;
+}*/
+
+
 QFrame[docked='true'] QComboBox QAbstractItemView {
-    background: $background-docked;
+    background: $background-docked !important;
 }
 
 QComboBox QAbstractItemView::item:selected {
     color: $text-color;
-    background-color: $background-selected;
+    background-color: $background-selected !important;
 }
-*/
+
 
 QComboBox[chip='true'] {
     border-radius: 11px;

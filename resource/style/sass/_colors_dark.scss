@@ -22,13 +22,16 @@ $background-docked:     rgb(55,55,55); // DCC dependent
 $alt-background:        #191d22;
 $alt-background-docked: rgb(44,44,44);
 $background-selected:   rgba(255, 255, 255, 0.05);
+$background-selected-combo:   #444444;
 $white:                 $color-dark-2;
 
+// Primary brand colors
+$color-primary: #F1C500;
+$color-primary-dark: #3D3520;
 
 $color-green: #5EAA8D;
 $color-blue: #3498DB;
 $color-orange: #E67E22;
-//$color-primary: #F1C500;
 $color-red: #E74C3C;
 $color-white: white;
 $color-cyan: #86E0EA;
@@ -39,20 +42,15 @@ $brand-info:            $color-blue;
 $brand-warning:         $color-primary;
 $brand-danger:          $color-red;
 
-$body-bg:                       $color-dark-2;
 $text-color:                    $gray-light;
-$text-color-default:            $gray-light;
-$text-color-default-hover:      darken($text-color-default, 5%);
-$text-color-default-pressed:    darken($text-color-default, 5%);
+$text-color-inactive:           $gray;
+$text-color-active:             lighten($text-color, 5%);
+$text-color-hover:              $text-color-active;
+$text-color-pressed:            $text-color-active;
 $text-color-light:              white;
 $text-color-primary:            #548cd7;
 $text-color-drop-zone:          lighten($gray-light, 15%);
 $border-color:                  rgba(255, 255, 255, 0.1);
-
-$overlay-bg:            $gray-darker;
-
-$inset-bg:              $gray-lighter;
-$inset-border-color:    $gray-light;
 
 $input-border-color:    $gray-dark;
 
