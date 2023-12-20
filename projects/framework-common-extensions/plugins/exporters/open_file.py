@@ -29,6 +29,8 @@ class OpenFilePlugin(BasePlugin):
         Expects collected_file in the <component_name> key of the given *store*
         and an export_destination from the :obj:`self.options`.
         '''
+        message = None
+        status = None
         component_name = self.options.get('component')
 
         collected_path = store['components'][component_name].get(
@@ -36,9 +38,10 @@ class OpenFilePlugin(BasePlugin):
         )
 
         if not collected_path:
-            self.message = "No path provided to open!"
-            self.status = constants.status.ERROR_STATUS
+            message = "No path provided to open!"
+            status = constants.status.ERROR_STATUS
 
         store['components'][component_name]['open_result'] = self.open_file(
             collected_path
         )
+        return status, message

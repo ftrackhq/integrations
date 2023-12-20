@@ -19,7 +19,8 @@ class PublishToFtrack(BasePlugin):
         exporter plugins in the given *data* and will publish the result to its
         component name in ftrack.
         '''
-
+        message = None
+        status = None
         # Get components to publish
         components = list(store.get('components').keys())
         if not components:
@@ -115,8 +116,8 @@ class PublishToFtrack(BasePlugin):
             # An exception occurred when creating components,
             # return its traceback as error message
             tb = traceback.format_exc()
-            self.status = constants.status.EXCEPTION_STATUS
-            self.message = (
+            status = constants.status.EXCEPTION_STATUS
+            message = (
                 f"Error occurred during the run method, trying "
                 f"to create a new version and components of the finalizer_plugin: "
                 f"{self.name} \n error: {str(tb)}"
@@ -134,6 +135,7 @@ class PublishToFtrack(BasePlugin):
 
         store["asset_version_id"] = asset_version_object['id']
         store["asset_id"] = asset_entity_object["id"]
+        return status, message
 
     def _get_asset_entity_object(
         self,

@@ -110,7 +110,7 @@ class BaseEngine(object):
             result = plugin_instance.run(store)
             # Validate the result tuple
             if self.is_valid_plugin_result(result):
-                if result:
+                if result and result != (None, None):
                     plugin_info.status = result[0]
                     plugin_info.message = result[1]
                 else:
@@ -173,7 +173,7 @@ class BaseEngine(object):
         :return: True if valid, False otherwise.
         :rtype: bool
         '''
-        if not result:
+        if not result or result == (None, None):
             return True
         if not isinstance(result, tuple) and len(result) != 2:
             self.logger.error(
