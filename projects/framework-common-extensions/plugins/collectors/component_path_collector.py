@@ -88,7 +88,8 @@ class ComponentPathCollectorPlugin(BasePlugin):
         containing 'asset_version_id' and 'component_name' for the desired
         assets to open.
         '''
-
+        message = None
+        status = None
         component = self.session.query(
             'select id from Component where version_id is {} '
             'and name is {}'.format(
@@ -105,10 +106,11 @@ class ComponentPathCollectorPlugin(BasePlugin):
                 )
             )
             self.logger.warning(message)
-            self.message = message
-            self.status = constants.status.ERROR_STATUS
+            message = message
+            status = constants.status.ERROR_STATUS
 
         location = self.session.pick_location()
         component_path = location.get_filesystem_path(component)
         component_name = self.options.get('component', 'main')
         store['components'][component_name]['collected_path'] = component_path
+        return status, message

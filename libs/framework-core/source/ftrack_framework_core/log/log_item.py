@@ -14,15 +14,15 @@ class LogItem(object):
         self.date = log_result.get('date')
         self.host_id = log_result.get('host_id')
 
-        self.plugin_name = log_result.get('plugin_name')
-        self.plugin_reference = log_result.get('plugin_reference')
-        self.plugin_boolean_status = log_result.get('plugin_boolean_status')
-        self.plugin_status = log_result.get('plugin_status')
-        self.plugin_message = log_result.get('plugin_message')
-        self.plugin_execution_time = log_result.get('plugin_execution_time')
-        self.plugin_options = log_result.get('plugin_options')
+        self.name = log_result.get('name')
+        self.reference = log_result.get('reference')
+        self.boolean_status = log_result.get('boolean_status')
+        self.status = log_result.get('status')
+        self.message = log_result.get('message')
+        self.execution_time = log_result.get('execution_time')
+        self.options = log_result.get('options')
         # Revisit this if store goes to big
-        self.plugin_store = log_result.get('plugin_store')
+        self.store = log_result.get('store')
 
     # TODO: remove this properties if not needed.
     @property
