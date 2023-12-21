@@ -10,7 +10,6 @@ from ftrack_connect.qt import QtCore
 from ftrack_connect.qt import QtWidgets
 import ftrack_api.event.base
 from ftrack_utils.decorators import asynchronous
-import ftrack_connect.error
 from ftrack_utils.server import send_usage_event
 
 from ftrack_connect.ui.widget import (

@@ -10,6 +10,8 @@ from ftrack_framework_core.plugin.plugin_info import PluginInfo
 
 import ftrack_constants as constants
 
+from ftrack_utils.decorators import track_framework_usage
+
 
 class BaseEngine(object):
     '''
@@ -198,6 +200,7 @@ class BaseEngine(object):
             return False
         return True
 
+    @track_framework_usage(label='engine')
     def execute_engine(self, engine, user_options):
         '''
         Execute given *engine* from a tool-config.
@@ -205,6 +208,7 @@ class BaseEngine(object):
         *user_options*: dictionary with options passed by the client to
         the plugins.
         '''
+
         store = self.get_store()
         for item in engine:
             # If plugin is just string execute plugin with no options
