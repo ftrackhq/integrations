@@ -1,7 +1,12 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2023 ftrack
 
+import logging
+
 from ftrack_utils.server.track_usage import send_usage_event
+
+
+logger = logging.getLogger('ftrack_utils:usage')
 
 
 def ftrack_framework_usage(session, label, module, version, os):
@@ -20,6 +25,4 @@ def ftrack_framework_usage(session, label, module, version, os):
         asynchronous=True,
     )
 
-    # Leaving this here for debugging purposes.
-    # Will be removed in further iterations.
-    # print(f"Tracking: {label}, {module}, {version}, {os}")
+    logger.debug(f"Tracking: {label}, {module}, {version}, {os}")
