@@ -9,9 +9,9 @@ import functools
 from ftrack_connect.qt import QtCore
 from ftrack_connect.qt import QtWidgets
 import ftrack_api.event.base
-import ftrack_connect.asynchronous
+from ftrack_utils.decorators import asynchronous
 import ftrack_connect.error
-import ftrack_connect.usage
+from ftrack_utils.server import send_usage_event
 
 from ftrack_connect.ui.widget import (
     action_item,
@@ -172,7 +172,7 @@ class Actions(QtWidgets.QWidget):
 
         # Send usage event in the main thread to prevent X server threading
         # related crashes on Linux.
-        ftrack_connect.usage.send_event(
+        send_usage_event(
             self.session, 'LAUNCHED-ACTION', metadata, asynchronous=False
         )
 
@@ -302,7 +302,7 @@ class Actions(QtWidgets.QWidget):
             pass
         itemList.insert(0, item)
 
-    @ftrack_connect.asynchronous.asynchronous
+    @asynchronous
     def _addRecentAction(self, actionLabel):
         '''Add *actionLabel* to recent actions, persisting the change.'''
         recentActions = self._getRecentActions()
@@ -322,7 +322,7 @@ class Actions(QtWidgets.QWidget):
         )
 
     # TODO: To re evaluate: breaks in PySide2 2.14, but works on PyQt5 2.15
-    # @ftrack_connect.asynchronous.asynchronous
+    # @asynchronous
     def _loadActionsForContext(self, context):
         '''Obtain new actions synchronously for *context*.'''
         self.actionsLoading.emit()

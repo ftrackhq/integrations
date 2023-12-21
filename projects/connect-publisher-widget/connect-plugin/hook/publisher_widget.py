@@ -12,7 +12,7 @@ import ftrack_connect.ui.application
 
 import ftrack_connect.ui.application
 import ftrack_connect.ui.widget.overlay
-import ftrack_connect.usage
+from ftrack_utils.server import send_usage_event
 
 logger = logging.getLogger(__name__)
 
@@ -89,9 +89,7 @@ class PublisherWidget(ftrack_connect.ui.application.ConnectWidget):
             self.blockingOverlay.confirmButton.show()
             self.blockingOverlay.show()
 
-            ftrack_connect.usage.send_event(
-                self.session, 'PUBLISHED-FROM-CONNECT'
-            )
+            send_usage_event(self.session, 'PUBLISHED-FROM-CONNECT')
 
     def _onEntityChanged(self):
         '''Callback for entityChanged signal.'''

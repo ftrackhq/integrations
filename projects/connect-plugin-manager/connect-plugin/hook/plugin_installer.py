@@ -16,7 +16,8 @@ from ftrack_connect.util import get_connect_plugin_version
 from ftrack_connect.ui.widget.overlay import BlockingOverlay, BusyOverlay
 import ftrack_connect.ui.application
 
-from ftrack_connect.asynchronous import asynchronous
+from ftrack_utils.decorators import asynchronous
+from ftrack_utils.server import send_usage_event
 
 logger = logging.getLogger(__name__)
 
@@ -168,7 +169,7 @@ class PluginInstaller(ftrack_connect.ui.application.ConnectWidget):
             plugin_data = {'name': name, 'version': version, 'os': _os}
             metadata.append(plugin_data)
 
-        ftrack_connect.usage.send_event(
+        send_usage_event(
             self.session,
             'INSTALLED-CONNECT-PLUGINS',
             metadata,

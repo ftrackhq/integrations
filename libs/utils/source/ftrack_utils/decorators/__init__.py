@@ -1,1 +1,2 @@
 from ftrack_utils.decorators.session import with_new_session
+from ftrack_utils.decorators.asynchronous import asynchronous
