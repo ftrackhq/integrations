@@ -60,7 +60,7 @@ class AssetVersionCreation(QtWidgets.QFrame):
         self.layout().addWidget(self._asset_name_widget)
 
         self._create_label = QtWidgets.QLabel('- create')
-        self._create_label.setObjectName("gray")
+        self._create_label.setObjectName('gray')
         self.layout().addWidget(self._create_label)
 
         self._version_label = QtWidgets.QLabel(
@@ -68,7 +68,7 @@ class AssetVersionCreation(QtWidgets.QFrame):
                 self.version['next_version'] if self.version else "1"
             )
         )
-        self._version_label.setObjectName("color-primary")
+        self._version_label.setObjectName('color-primary')
         self.layout().addWidget(self._version_label)
 
         self.layout().addStretch()

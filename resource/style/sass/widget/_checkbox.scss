@@ -1,0 +1,22 @@
+/* Check box */
+
+QCheckBox {
+    color: $text-color;
+    border: none;
+}
+
+QCheckBox::indicator {
+    image: theme-image('checkbox_unchecked');
+}
+
+QCheckBox::indicator:disabled {
+    image: theme-image('checkbox_unchecked_disabled');
+}
+
+QCheckBox::indicator:checked {
+    image: theme-image('checkbox_checked');
+}
+
+QCheckBox::indicator:checked:disabled {
+    image: theme-image('checkbox_checked_disabled');
+}

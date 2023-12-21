@@ -40,7 +40,7 @@ class TagManager(FtrackBase):
             task_type_name = task_type.get('name')
 
             ftag = hiero.core.Tag(task_type_name)
-            ftag.setIcon(':ftrack/image/integration/task')
+            ftag.setIcon(':ftrack/image/misc/task')
 
             meta = ftag.metadata()
             meta.setValue('type', 'ftrack')
