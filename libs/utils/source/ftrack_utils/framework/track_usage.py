@@ -20,5 +20,6 @@ def ftrack_framework_usage(session, label, module, version, os):
         asynchronous=True,
     )
 
-    # Check
+    # Leaving this here for debugging purposes.
+    # Will be removed in further iterations.
     # print(f"Tracking: {label}, {module}, {version}, {os}")
