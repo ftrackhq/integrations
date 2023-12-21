@@ -20,6 +20,10 @@
         <file alias='main'>font/roboto_regular.ttf</file>
     </qresource>
 
+    <qresource prefix='ftrack/image/misc'>
+        <file alias='task'>image/misc/ftrack-task.svg</file>
+    </qresource>
+
     <qresource prefix='ftrack/image/light'>
         <file alias='downArrow'>image/light/down_arrow.png</file>
         <file alias='upArrow'>image/light/up_arrow.svg</file>

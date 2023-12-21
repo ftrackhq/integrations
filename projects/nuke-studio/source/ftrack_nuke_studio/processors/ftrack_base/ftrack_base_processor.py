@@ -29,7 +29,10 @@ from ftrack_nuke_studio.ui.widget.template import Template
 import ftrack_nuke_studio.template as template_manager
 import ftrack_nuke_studio.exception
 from ftrack_nuke_studio.config import report_exception
-from ftrack_nuke_studio import resource
+
+# DO NOT REMOVE UNUSED IMPORT - important to keep this in order to have resources
+# initialised properly
+import ftrack_qt
 
 
 class FtrackSettingsValidator(QtWidgets.QDialog):
@@ -49,7 +52,7 @@ class FtrackSettingsValidator(QtWidgets.QDialog):
         )
 
         ftrack_icon = QtGui.QIcon(
-            QtGui.QPixmap(':/ftrack/image/default/ftrackLogoLight')
+            QtGui.QPixmap(':/ftrack/image/default/ftrackLogoColor')
         )
         self.setWindowIcon(ftrack_icon)
 
@@ -838,7 +841,7 @@ class FtrackProcessor(FtrackBase):
 
         tag = hiero.core.Tag(
             '{0}'.format(task_name),
-            ':/ftrack/image/default/ftrackLogoLight',
+            ':/ftrack/image/default/ftrackLogoColor',
             False,
         )
         tag.metadata().setValue('tag.provider', 'ftrack')

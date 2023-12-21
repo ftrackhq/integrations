@@ -1,5 +1,0 @@
-<RCC>
-    <qresource prefix='ftrack/image/default'>
-        <file alias='ftrackLogoLight'>image/ftrack_icon_circle_light.png</file>
-    </qresource>
-</RCC>

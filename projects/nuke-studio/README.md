@@ -46,13 +46,6 @@ Install nuke dependencies:
   poetry install
 ```
 
-Go to the root of the package within monorepo and build the QT resources
-
-```bash
-  cd integrations
-  python tools/build.py --style_path resource --output_path source/ftrack_nuke_studio/resource.py build_qt_resources projects/nuke-studio
-```
-
 Build with Poetry:
 
 ```bash
