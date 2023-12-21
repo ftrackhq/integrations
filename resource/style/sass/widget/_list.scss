@@ -4,23 +4,28 @@ QListWidget {
     outline: 0;
     background: transparent;
 }
+
 QListWidget::item
 {
     background: transparent;
     padding: 2px;
     color: $gray;
 }
+
 QListWidget::item:alternate
 {
     background: $gray-dark;
     padding: 2px;
     color: $gray-light;
 }
+
 QListWidget::item QLabel
 {
     background: transparent;
 }
-QListWidget::item:selected, QListWidget::item:alternate:selected
+
+QListWidget::item:selected,
+QListWidget::item:alternate:selected
 {
    background: $background-selected;
    color: $white;

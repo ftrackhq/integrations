@@ -21,6 +21,7 @@ try:
 except ImportError:
     from hiero.core.FnVersionScanner import VersionScanner
 
+
 def register_versioning_overrides():
     '''Register overrides for VersionScanner object.'''
     logger.debug('register_versioning_overrides')
@@ -70,7 +71,7 @@ def customise_menu(event):
     for action in actions:
         if action.text() in ['Version', 'Export...']:
             action.setIcon(
-                QtGui.QPixmap(':ftrack/image/default/ftrackLogoLight')
+                QtGui.QPixmap(':ftrack/image/default/ftrackLogoColor')
             )
 
 
@@ -94,7 +95,7 @@ def add_ftrack_build_tag(clip, component):
 
     tag = hiero.core.Tag(
         'ftrack-reference-{0}'.format(component['name']),
-        ':ftrack/image/default/ftrackLogoLight',
+        ':ftrack/image/default/ftrackLogoColor',
         False,
     )
     tag.metadata().setValue('tag.provider', 'ftrack')

@@ -20,6 +20,7 @@ logger.debug("v{}".format(__version__))
 
 # DO NOT REMOVE UNUSED IMPORT - important to keep this in order to have resources
 # initialised properly for applying style and providing images & fonts.
+
 try:
     from ftrack_qt_style import (
         resource,

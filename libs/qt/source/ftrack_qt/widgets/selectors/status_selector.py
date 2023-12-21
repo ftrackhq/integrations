@@ -36,6 +36,9 @@ class StatusSelector(QtWidgets.QComboBox):
             # TODO: color not working.
             color = QtGui.QColor(status['color'])
             self.setItemData(index, color, QtCore.Qt.ForegroundRole)
+            self.setItemData(
+                index, QtGui.QColor('#131920'), QtCore.Qt.BackgroundRole
+            )
         self.setCurrentIndex(0)
 
     def set_status_by_name(self, name):

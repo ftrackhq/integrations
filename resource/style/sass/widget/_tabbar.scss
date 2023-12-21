@@ -42,9 +42,3 @@ QTabBar::tab:hover {
 
 QTabBar::tab:focus {
 }
-
-AssemblerTabWidget QTabBar::tab {
-    min-width: 170px;
-    font-size: 14px;
-    vertical-align: text-top;
-}
