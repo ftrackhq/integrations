@@ -26,7 +26,7 @@
 | libs/utils/source/ftrack\_utils/decorators/\_\_init\_\_.py                    |        3 |        0 |    100% |           |
 | libs/utils/source/ftrack\_utils/decorators/asynchronous.py                    |       18 |        4 |     78% |     25-28 |
 | libs/utils/source/ftrack\_utils/decorators/session.py                         |       19 |       16 |     16% |      9-38 |
-| libs/utils/source/ftrack\_utils/decorators/track\_usage.py                    |       30 |        4 |     87% |23-28, 44-48 |
+| libs/utils/source/ftrack\_utils/decorators/track\_usage.py                    |       30 |        4 |     87% |25-30, 46-50 |
 | libs/utils/source/ftrack\_utils/directories/\_\_init\_\_.py                   |        0 |        0 |    100% |           |
 | libs/utils/source/ftrack\_utils/directories/scan\_dir.py                      |        6 |        4 |     33% |     11-18 |
 | libs/utils/source/ftrack\_utils/extensions/\_\_init\_\_.py                    |        0 |        0 |    100% |           |
