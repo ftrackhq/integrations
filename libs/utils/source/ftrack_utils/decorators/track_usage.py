@@ -6,8 +6,6 @@ import platform
 import sys
 import logging
 
-from ftrack_utils.framework.track_usage import ftrack_framework_usage
-
 logger = logging.getLogger('ftrack_utils:usage')
 
 
@@ -15,6 +13,10 @@ def track_framework_usage(label=None):
     def decorator(func):
         @functools.wraps(func)
         def wrapper(*args, **kwargs):
+            from ftrack_utils.framework.track_usage import (
+                ftrack_framework_usage,
+            )
+
             if args and hasattr(args[0], '__class__'):
                 instance = args[0]
                 if hasattr(instance, 'session'):
