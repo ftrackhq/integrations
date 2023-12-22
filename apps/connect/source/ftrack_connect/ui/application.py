@@ -25,7 +25,6 @@ from ftrack_connect import load_icons
 import ftrack_api
 import ftrack_api._centralized_storage_scenario
 import ftrack_api.event.base
-import ftrack_connect.usage
 import ftrack_connect
 import ftrack_connect.event_hub_thread as _event_hub_thread
 import ftrack_connect.error
@@ -38,9 +37,9 @@ from ftrack_connect.ui.widget import login as _login
 from ftrack_connect.ui.widget import about as _about
 from ftrack_connect.ui import login_tools as _login_tools
 from ftrack_connect.ui.widget import configure_scenario as _scenario_widget
-from ftrack_connect import usage
+from ftrack_utils.server.track_usage import send_usage_event
 import ftrack_connect.ui.config
-from ftrack_connect.asynchronous import asynchronous
+from ftrack_utils.decorators import asynchronous
 
 from ftrack_connect.applaunch.discover_applications import DiscoverApplications
 
@@ -388,7 +387,7 @@ class Application(QtWidgets.QMainWindow):
             - self.__connect_start_time,
         }
 
-        usage.send_event(
+        send_usage_event(
             self.session, 'USED-CONNECT', metadata, asynchronous=True
         )
 

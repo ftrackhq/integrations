@@ -20,7 +20,7 @@ import os
 
 import ftrack_api
 from ftrack_action_handler.action import BaseAction
-from ftrack_connect.applaunch.usage import send_event
+from ftrack_utils.server import send_usage_event
 
 
 #: Default expression to match version component of executable path.
@@ -800,7 +800,7 @@ class ApplicationLauncher(object):
             }
             metadata.append(integration_data)
 
-        send_event(
+        send_usage_event(
             self.session,
             'USED-CONNECT-INTEGRATION',
             metadata,

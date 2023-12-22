@@ -13,6 +13,8 @@ import ftrack_constants.framework as constants
 
 from ftrack_framework_core.client.host_connection import HostConnection
 
+from ftrack_utils.decorators import track_framework_usage
+
 
 class Client(object):
     '''
@@ -240,6 +242,7 @@ class Client(object):
                 callback=self._host_discovered_callback
             )
 
+    @track_framework_usage(label='client_host_connection_established')
     def _host_discovered_callback(self, event):
         '''
         Reply callback of the discover host event, generate
@@ -341,6 +344,7 @@ class Client(object):
         self.host_connection.reset_all_tool_configs()
 
     # UI
+    @track_framework_usage(label='client_open_dialog')
     def run_dialog(
         self,
         dialog_name,

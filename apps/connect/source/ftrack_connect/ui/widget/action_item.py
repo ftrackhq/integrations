@@ -8,7 +8,7 @@ import qtawesome as qta
 from ftrack_connect.qt import QtCore, QtWidgets, QtGui
 
 import ftrack_api.event.base
-import ftrack_connect.asynchronous
+from ftrack_utils.decorators import asynchronous
 from ftrack_connect.ui.widget.thumbnail import ActionIcon
 
 # We need to force load the icons or ftrack.<icon> won't be available
@@ -168,7 +168,7 @@ class ActionItem(QtWidgets.QFrame):
         self.beforeActionLaunch.emit(action)
         self._publishLaunchActionEvent(action)
 
-    @ftrack_connect.asynchronous.asynchronous
+    @asynchronous
     def _publishLaunchActionEvent(self, action):
         '''Launch *action* asynchronously and emit *actionLaunched* when completed.'''
 

@@ -9,8 +9,6 @@ import qtawesome as qta
 from ftrack_connect.ui.widget import entity_path as _entity_path
 from ftrack_connect.ui.widget import entity_browser as _entity_browser
 
-from ftrack_connect.asynchronous import asynchronous
-
 
 class ContextList(QtWidgets.QComboBox):
     # https://forum.qt.io/topic/14676/how-can-i-keep-a-qcombobox-from-changing-width-due-to-contents/15

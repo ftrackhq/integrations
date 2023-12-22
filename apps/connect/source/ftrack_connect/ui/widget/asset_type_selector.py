@@ -2,7 +2,7 @@
 # :copyright: Copyright (c) 2014-2023 ftrack
 
 
-import ftrack_connect.asynchronous
+from ftrack_utils.decorators import asynchronous
 from ftrack_connect.ui.widget import item_selector as _item_selector
 
 
@@ -19,11 +19,13 @@ class AssetTypeSelector(_item_selector.ItemSelector):
         )
         self.loadAssetTypes()
 
-    @ftrack_connect.asynchronous.asynchronous
+    @asynchronous
     def loadAssetTypes(self):
         '''Load asset types and add to selector.'''
-        self.__assetTypes = self.session.query('select id, name from AssetType').all()
-        self.__assetTypes  = sorted(
-            self.__assetTypes , key=lambda assetType: assetType['name']
+        self.__assetTypes = self.session.query(
+            'select id, name from AssetType'
+        ).all()
+        self.__assetTypes = sorted(
+            self.__assetTypes, key=lambda assetType: assetType['name']
         )
         self.setItems(self.__assetTypes)
