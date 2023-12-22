@@ -204,7 +204,7 @@ class PhotoshopRPCCEP(object):
                     )
                 if waited % 1000 == 0:
                     self.logger.info(
-                        "Waited {}s for {} reply".format(
+                        'Waited {}s for {} reply'.format(
                             waited / 1000, event_topic
                         )
                     )
@@ -220,7 +220,7 @@ class PhotoshopRPCCEP(object):
         data['context_name'] = task['name']
         data['context_type'] = task['type']['name']
         data['context_path'] = ' / '.join(
-            [d["name"] for d in task["link"][:-1]]
+            [d['name'] for d in task['link'][:-1]]
         )
         data['context_thumbnail'] = task['thumbnail_url']['url']
         data['project_id'] = task['project_id']
@@ -246,7 +246,7 @@ class PhotoshopRPCCEP(object):
 
     def check_responding(self):
         '''Check if Photoshop is alive, send context data'''
-        self.logger.info("Checking if remote integration is still alive...")
+        self.logger.info('Checking if remote integration is still alive...')
 
         try:
             # Send event and wait for reply sync.
