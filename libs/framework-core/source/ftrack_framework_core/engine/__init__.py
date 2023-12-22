@@ -217,6 +217,7 @@ class BaseEngine(object):
                     self.run_plugin(
                         item["plugin"], store, options, plugin_reference
                     )
+        return store
 
     @classmethod
     def register(cls):
