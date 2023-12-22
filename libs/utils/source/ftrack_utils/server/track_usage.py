@@ -2,14 +2,11 @@
 # :copyright: Copyright (c) 2014-2023 ftrack
 
 import logging
-import os
 
-import ftrack_api
+from ftrack_utils.decorators import asynchronous
 
-from ftrack_connect.applaunch import asynchronous
 
-logger = logging.getLogger('ftrack_connect.applaunch:usage')
-_log_usage_session = None
+logger = logging.getLogger('ftrack_utils:usage')
 
 
 def _send_event(session, event_name, metadata=None):
@@ -38,13 +35,13 @@ def _send_event(session, event_name, metadata=None):
         logger.exception('Failed to send event : {}'.format(event_name))
 
 
-@asynchronous.asynchronous
+@asynchronous
 def _send_async_event(session, event_name, metadata=None):
     '''Call __send_event in a new thread.'''
     _send_event(session, event_name, metadata)
 
 
-def send_event(session, event_name, metadata=None, asynchronous=True):
+def send_usage_event(session, event_name, metadata=None, asynchronous=True):
     '''Send usage event with *event_name* and *metadata*.
 
     If asynchronous is True, the event will be sent in a new thread.

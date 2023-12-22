@@ -20,7 +20,7 @@ from ftrack_connect.ui.widget import (
 from ftrack_connect.ui.widget import asset_options as _asset_options
 from ftrack_connect.ui.widget import entity_selector
 
-import ftrack_connect.asynchronous
+from ftrack_utils.decorators import asynchronous
 import ftrack_connect.error
 
 
@@ -218,7 +218,7 @@ class Publisher(QtWidgets.QWidget):
                 'Failed to clean up version after failed publish'
             )
 
-    @ftrack_connect.asynchronous.asynchronous
+    @asynchronous
     def _publish(
         self,
         entity=None,

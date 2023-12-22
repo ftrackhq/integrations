@@ -9,7 +9,6 @@ from ftrack_connect.qt import QtWidgets, QtCore, QtGui
 
 import ftrack_connect.ui.application
 import ftrack_connect.ui.widget.overlay
-import ftrack_connect.usage
 import ftrack_connect.ui.widget.item_list
 import ftrack_connect.ui.widget.label
 import ftrack_connect.ui.widget.line_edit

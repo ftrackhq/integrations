@@ -2,12 +2,14 @@
 # :copyright: Copyright (c) 2014-2023 ftrack
 
 import threading
+import functools
 import sys
 
 
 def asynchronous(method):
     '''Decorator to make a method asynchronous using its own thread.'''
 
+    @functools.wraps(method)
     def wrapper(*args, **kwargs):
         '''Thread wrapped method.'''
 
@@ -30,5 +32,6 @@ def asynchronous(method):
         )
         thread.name = str(method)
         thread.start()
+        return thread
 
     return wrapper
