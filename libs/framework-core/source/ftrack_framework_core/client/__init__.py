@@ -306,19 +306,13 @@ class Client(object):
         '''
         log_item = event['data']['log_item']
         self.logger.info(
-            "Plugin Execution progress: \n "
-            "name: {} \n"
-            "status: {} \n"
-            "message: {} \n"
-            "execution_time: {} \n"
-            "store: {} \n".format(
-                log_item.name,
-                log_item.status,
-                log_item.message,
-                log_item.execution_time,
-                log_item.options,
-                log_item.store,
-            )
+            f"Plugin Execution progress: \n "
+            f"name: {log_item.name} \n"
+            f"status: {log_item.status} \n"
+            f"message: {log_item.message} \n"
+            f"execution_time: {log_item.execution_time} \n"
+            f"options: {log_item.options} \n"
+            f"store: {log_item.store} \n"
         )
         # Publish event to widget
         self.event_manager.publish.client_notify_log_item_added(
