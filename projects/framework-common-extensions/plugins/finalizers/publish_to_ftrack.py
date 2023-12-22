@@ -3,9 +3,8 @@
 import os
 import traceback
 
-import ftrack_constants as constants
-
 from ftrack_framework_core.plugin import BasePlugin
+from ftrack_framework_core.exceptions.plugin import PluginExecutionError
 
 
 class PublishToFtrack(BasePlugin):
@@ -19,12 +18,14 @@ class PublishToFtrack(BasePlugin):
         exporter plugins in the given *data* and will publish the result to its
         component name in ftrack.
         '''
-        message = None
-        status = None
+
         # Get components to publish
         components = list(store.get('components').keys())
         if not components:
-            return
+            raise PluginExecutionError(
+                'No components found to publish. '
+                'Please check your previous steps plugins.'
+            )
 
         # Pick asset context data
         context_id = store.get('context_id')
@@ -58,6 +59,8 @@ class PublishToFtrack(BasePlugin):
         )
 
         rollback = False
+        error = False
+        message = None
         try:
             # Generate asset version
             asset_version_object = self._create_new_asset_version(
@@ -116,18 +119,20 @@ class PublishToFtrack(BasePlugin):
             # An exception occurred when creating components,
             # return its traceback as error message
             tb = traceback.format_exc()
-            status = constants.status.EXCEPTION_STATUS
             message = (
                 f"Error occurred during the run method, trying "
                 f"to create a new version and components of the finalizer_plugin: "
                 f"{self.name} \n error: {str(tb)}"
             )
+            error = True
         finally:
             if rollback:
                 self.session.reset()
                 self.logger.warning("Rolling back asset version creation")
                 self.session.delete(asset_version_object)
-                self.session.commit()
+                self.session.commit
+            if error:
+                raise PluginExecutionError(message)
 
         self.logger.debug(
             f"publishing: {asset_entity_object} to {context_id} as {asset_entity_object}"
@@ -135,7 +140,6 @@ class PublishToFtrack(BasePlugin):
 
         store["asset_version_id"] = asset_version_object['id']
         store["asset_id"] = asset_entity_object["id"]
-        return status, message
 
     def _get_asset_entity_object(
         self,

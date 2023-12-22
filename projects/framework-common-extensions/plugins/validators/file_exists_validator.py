@@ -4,6 +4,7 @@
 import os
 
 from ftrack_framework_core.plugin import BasePlugin
+from ftrack_framework_core.exceptions.plugin import PluginValidationError
 
 
 class FileExistsValidatorPlugin(BasePlugin):
@@ -14,7 +15,7 @@ class FileExistsValidatorPlugin(BasePlugin):
         Return True if given *file_path* exists, False If not.
         '''
         if not os.path.exists(file_path):
-            return False
+            raise PluginValidationError(message='File does not exist.')
         return True
 
     def run(self, store):
