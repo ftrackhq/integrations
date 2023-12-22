@@ -1,10 +1,8 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2023 ftrack
-import os
+
 import logging
 from abc import ABC, abstractmethod
-
-import ftrack_constants as constants
 
 
 class BasePlugin(ABC):
@@ -52,8 +50,6 @@ class BasePlugin(ABC):
         '''
         Implementation of the plugin. *store* contains any previous published
         data from the executed tool-config
-
-        Return: Returning status and message is supported.
         '''
         raise NotImplementedError('Missing run method.')
 
