@@ -108,11 +108,17 @@ class BaseContextDialog(FrameworkDialog, StyledDialog):
         self.build()
         self.post_build()
 
+        # Make sure the dialog is always on top
+        self.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint)
+
     def pre_build(self):
         main_layout = QtWidgets.QVBoxLayout()
         self.setLayout(main_layout)
 
     def build(self):
+        # On Windows, title bar is visible
+        self.setWindowTitle('ftrack')
+
         # Create the header
         self._header = SessionHeader(self.event_manager.session)
 

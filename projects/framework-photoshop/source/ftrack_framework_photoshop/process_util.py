@@ -23,7 +23,7 @@ def probe_photoshop_pid(photoshop_version):
                 # Expect:
                 #   501 21270     1   0  3:05PM ??         0:36.85 /Applications/Adobe Photoshop 2022/Adobe Photoshop 2022.app/Contents/MacOS/Adobe Photoshop 2022
                 pid = int(re.split(' +', line)[2])
-
+                logger.info('Found pid: {}.'.format(pid))
                 return pid
 
     elif sys.platform == 'win32':
@@ -33,13 +33,13 @@ def probe_photoshop_pid(photoshop_version):
         )
 
         for line in (
-            subprocess.check_output(['TASKLIST']).decode('utf-8').split('\n')
+            subprocess.check_output(['TASKLIST']).decode('cp850').split('\n')
         ):
             if line.find(PS_EXECUTABLE) > -1:
                 # Expect:
                 #   Photoshop.exe                15364 Console                    1  2 156 928 K
                 pid = int(re.split(' +', line)[1])
-
+                logger.info('Found pid: {}.'.format(pid))
                 return pid
 
     logger.warning('Photoshop not found running!')
@@ -50,7 +50,10 @@ def terminate_current_process():
     '''Terminate Photoshop standalone integration process'''
     logger.warning('Terminating Photoshop standalone framework integration')
 
-    os.kill(os.getpid(), signal.SIGKILL)
+    if sys.platform == 'win32':
+        os.kill(os.getpid(), signal.SIGTERM)
+    else:
+        os.kill(os.getpid(), signal.SIGKILL)
 
 
 class MonitorProcess(object):

@@ -5,6 +5,7 @@ import logging
 import time
 import sys
 import os
+import traceback
 
 from Qt import QtWidgets, QtCore
 
@@ -112,7 +113,7 @@ def bootstrap_integration(framework_extensions_path):
     for _ in range(30 * 2):  # Wait 30s for Photoshop to connect
         time.sleep(0.5)
 
-        if process_monitor.check_running:
+        if process_monitor.check_running():
             break
 
         logger.debug("Still waiting for Photoshop to launch")
@@ -152,10 +153,7 @@ def run_integration():
         if active_time % (10 * 1000) == 0:
             # Check if Photoshop still is running
             if not process_monitor.check_running():
-                logger.warning(
-                    'Photoshop never connected and process gone, shutting '
-                    'down!'
-                )
+                logger.warning('Photoshop process gone, shutting ' 'down!')
                 process_util.terminate_current_process()
             else:
                 # Check if Photoshop panel is alive
@@ -174,5 +172,10 @@ def run_integration():
 
 
 # Find and read DCC config
-bootstrap_integration(get_extensions_path_from_environment())
-run_integration()
+try:
+    bootstrap_integration(get_extensions_path_from_environment())
+    run_integration()
+except:
+    # Make sure any exception that happens are logged as there is most likely no console
+    logger.error(traceback.format_exc())
+    raise

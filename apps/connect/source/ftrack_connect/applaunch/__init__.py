@@ -759,6 +759,11 @@ class ApplicationLauncher(object):
                 # Append PID to environment for framework to use.
                 environment['FTRACK_APPLICATION_PID'] = str(process.pid)
 
+                # Do not show console on Windows
+                if self.current_os == 'windows':
+                    options["creationflags"] = subprocess.CREATE_NO_WINDOW
+                    options["shell"] = True
+
                 try:
                     process = subprocess.Popen(command, **options)
                 except (OSError, TypeError):

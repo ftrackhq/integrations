@@ -70,6 +70,9 @@ class BaseDialog(FrameworkDialog, StyledDialog):
         self.build()
         self.post_build()
 
+        # Make sure the dialog is always on top
+        self.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint)
+
     def pre_build(self):
         main_layout = QtWidgets.QVBoxLayout()
         self.setLayout(main_layout)
