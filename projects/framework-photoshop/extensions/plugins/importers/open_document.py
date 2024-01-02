@@ -23,18 +23,16 @@ class OpenDocumentPlugin(BasePlugin):
         )
 
         if not collected_path:
-            self.message = "No path provided to open!"
-            self.status = constants.status.ERROR_STATUS
-            return
+            message = "No path provided to open!"
+            status = constants.status.ERROR_STATUS
+            return status, message
 
         document_path = collected_path
 
         if not os.path.exists(document_path):
-            self.message = "Document '{}' does not exist!".format(
-                document_path
-            )
-            self.status = constants.status.ERROR_STATUS
-            return
+            message = "Document '{}' does not exist!".format(document_path)
+            status = constants.status.ERROR_STATUS
+            return status, message
 
         try:
             # Get existing RPC connection instance
@@ -53,19 +51,17 @@ class OpenDocumentPlugin(BasePlugin):
 
         except Exception as e:
             self.logger.exception(e)
-            self.message = (
+            message = (
                 'Exception telling Photoshop to open document: {}'.format(e)
             )
-            self.status = constants.status.EXCEPTION_STATUS
-            return
+            status = constants.status.EXCEPTION_STATUS
+            return status, message
 
         if not open_result or isinstance(open_result, str):
-            self.message = (
-                'Error opening the document in Photoshop: {}'.format(
-                    open_result
-                )
+            message = 'Error opening the document in Photoshop: {}'.format(
+                open_result
             )
-            self.status = constants.status.ERROR_STATUS
-            return
+            status = constants.status.ERROR_STATUS
+            return status, message
 
         store['components'][component_name]['open_result'] = open_result

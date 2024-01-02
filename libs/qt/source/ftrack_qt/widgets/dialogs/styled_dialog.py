@@ -69,6 +69,8 @@ class StyledDialog(QtWidgets.QDialog):
         #  the WA_MacAlwaysShowToolWindow attribute. "
         # self.setWindowFlags(QtCore.Qt.Tool)
 
+        self.setSizeGripEnabled(True)  # Enable resize on Windows
+
         apply_theme(self, self.theme)
         self.setProperty('background', self.background_style)
         self.setProperty('docked', 'true' if self.docked else 'false')

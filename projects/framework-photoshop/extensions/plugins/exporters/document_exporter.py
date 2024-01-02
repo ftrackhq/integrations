@@ -39,6 +39,6 @@ class DocumentExporterPlugin(BasePlugin):
             )
         except Exception as e:
             self.logger.exception(e)
-            self.message = 'Exception copying the document: {}'.format(e)
-            self.status = constants.status.EXCEPTION_STATUS
-            return
+            message = 'Exception copying the document: {}'.format(e)
+            status = constants.status.EXCEPTION_STATUS
+            return status, message

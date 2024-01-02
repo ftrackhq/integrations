@@ -36,15 +36,13 @@ class SaveToTemp(BasePlugin):
             )
         except Exception as e:
             self.logger.exception(e)
-            self.message = 'Exception saving document to temp: {}'.format(e)
-            self.status = constants.status.EXCEPTION_STATUS
-            return
+            message = 'Exception saving document to temp: {}'.format(e)
+            status = constants.status.EXCEPTION_STATUS
+            return status, message
 
         if isinstance(save_result, str):
-            self.message = (
-                'Error temp saving document in Photoshop: {}'.format(
-                    save_result
-                )
+            message = 'Error temp saving document in Photoshop: {}'.format(
+                save_result
             )
-            self.status = constants.status.ERROR_STATUS
-            return
+            status = constants.status.ERROR_STATUS
+            return status, message

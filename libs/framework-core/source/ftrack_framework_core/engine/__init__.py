@@ -131,7 +131,7 @@ class BaseEngine(object):
             )
             # logger the message
             self.logger.exception(
-                f"Error message: {plugin_instance.message}\n Traceback: {error}"
+                f"Error message: {plugin_info.message}\n Traceback: {error}"
             )
 
             if self.on_plugin_executed:

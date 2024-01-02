@@ -108,6 +108,7 @@ class ComponentPathCollectorPlugin(BasePlugin):
             self.logger.warning(message)
             message = message
             status = constants.status.ERROR_STATUS
+            return status, message
 
         location = self.session.pick_location()
         component_path = location.get_filesystem_path(component)

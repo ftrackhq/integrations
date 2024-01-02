@@ -40,6 +40,7 @@ class OpenFilePlugin(BasePlugin):
         if not collected_path:
             message = "No path provided to open!"
             status = constants.status.ERROR_STATUS
+            return status, message
 
         store['components'][component_name]['open_result'] = self.open_file(
             collected_path

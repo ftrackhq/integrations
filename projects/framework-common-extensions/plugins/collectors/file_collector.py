@@ -26,7 +26,7 @@ class FileCollectorPlugin(BasePlugin):
                 "Please provide folder_path and file_name in options. \n "
                 "options: {}".format(self.options)
             )
-            return
+            return status, message
         component_name = self.options.get('component', 'main')
         store['components'][component_name]['collected_file'] = os.path.join(
             folder_path, file_name

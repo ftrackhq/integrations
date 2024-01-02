@@ -21,11 +21,11 @@ class DocumentCollectorPlugin(BasePlugin):
             document_saved_result = photoshop_connection.rpc('documentSaved')
         except Exception as e:
             self.logger.exception(e)
-            self.message = (
-                'Exception querying if the document is saved: {}'.format(e)
+            message = 'Exception querying if the document is saved: {}'.format(
+                e
             )
-            self.status = constants.status.EXCEPTION_STATUS
-            return
+            status = constants.status.EXCEPTION_STATUS
+            return status, message
 
         self.logger.debug(
             'Got Photoshop saved query result: {}'.format(
@@ -34,11 +34,11 @@ class DocumentCollectorPlugin(BasePlugin):
         )
 
         if isinstance(document_saved_result, str):
-            self.message = 'Photoshop document query failed: {}'.format(
+            message = 'Photoshop document query failed: {}'.format(
                 document_saved_result
             )
-            self.status = constants.status.ERROR_STATUS
-            return
+            status = constants.status.ERROR_STATUS
+            return status, message
 
         if not document_saved_result:
             # Document is not saved, save it first.
@@ -49,13 +49,13 @@ class DocumentCollectorPlugin(BasePlugin):
             save_result = photoshop_connection.rpc('saveDocument', [temp_path])
             # Will return a boolean containing the result.
             if not save_result or isinstance(save_result, str):
-                self.message = (
+                message = (
                     'An error occured while saving the document: {}'.format(
                         save_result
                     )
                 )
-                self.status = constants.status.ERROR_STATUS
-                return
+                status = constants.status.ERROR_STATUS
+                return status, message
             elif save_result:
                 self.logger.info('Document saved successfully')
 
@@ -64,9 +64,9 @@ class DocumentCollectorPlugin(BasePlugin):
             document_data = photoshop_connection.rpc('getDocumentData')
         except Exception as e:
             self.logger.exception(e)
-            self.message = 'Exception querying the document data: {}'.format(e)
-            self.status = constants.status.EXCEPTION_STATUS
-            return
+            message = 'Exception querying the document data: {}'.format(e)
+            status = constants.status.EXCEPTION_STATUS
+            return status, message
         # Will return a dictionary with information about the document,
         # an empty dict is returned if no document is open.
 
@@ -75,33 +75,37 @@ class DocumentCollectorPlugin(BasePlugin):
         )
 
         if not document_data:
-            self.message = (
+            message = (
                 'No document data available. Please have an '
                 'active work document before you can publish'
             )
-            self.status = constants.status.ERROR_STATUS
-            return
+            status = constants.status.ERROR_STATUS
+            return status, message
 
         document_path = (
             document_data.get('full_path') if document_data else None
         )
 
         if not document_path:
-            self.message = (
+            message = (
                 'Error exporting the document: Please save the '
                 'document with a name before publish'
             )
 
-            self.status = constants.status.ERROR_STATUS
-            return
-        elif not os.path.exists(document_path):
-            self.message = (
+            status = constants.status.ERROR_STATUS
+            return status, message
+
+        # Convert forward slashes to backslashes on Windows
+        document_path = os.path.normpath(document_path)
+
+        if not os.path.exists(document_path):
+            message = (
                 'Error exporting the document: Document does not exist: '
                 '{}'.format(document_path)
             )
 
-            self.status = constants.status.ERROR_STATUS
-            return
+            status = constants.status.ERROR_STATUS
+            return status, message
 
         component_name = self.options.get('component', 'main')
         store['components'][component_name]['collected_data'] = document_data

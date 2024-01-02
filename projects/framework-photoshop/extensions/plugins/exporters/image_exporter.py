@@ -40,15 +40,13 @@ class ImageExporterPlugin(BasePlugin):
             )
         except Exception as e:
             self.logger.exception(e)
-            self.message = 'Exception exporting the image: {}'.format(e)
-            self.status = constants.status.EXCEPTION_STATUS
-            return
+            message = 'Exception exporting the image: {}'.format(e)
+            status = constants.status.EXCEPTION_STATUS
+            return status, message
 
         if not export_result or isinstance(export_result, str):
-            self.message = 'Error exporting the image: {}'.format(
-                export_result
-            )
-            self.status = constants.status.ERROR_STATUS
-            return
+            message = 'Error exporting the image: {}'.format(export_result)
+            status = constants.status.ERROR_STATUS
+            return status, message
 
         store['components'][component_name]['exported_path'] = new_file_path
