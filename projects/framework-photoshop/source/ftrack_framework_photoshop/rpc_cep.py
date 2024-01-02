@@ -72,9 +72,7 @@ class PhotoshopRPCCEP(object):
         self._connected = value
         if self._connected:
             self.logger.info(
-                'Successfully established connection to Photoshop {}'.format(
-                    self.photoshop_version
-                )
+                f'Successfully established connection to Photoshop {self.photoshop_version}'
             )
 
     def __init__(
@@ -124,22 +122,16 @@ class PhotoshopRPCCEP(object):
         ), 'Photoshop integration requires FTRACK_REMOTE_INTEGRATION_SESSION_ID passed as environment variable!'
 
         event_topic = (
-            'topic={} and source.applicationId=ftrack.api.javascript '
-            'and data.remote_integration_session_id={}'.format(
-                constants.event.DISCOVER_REMOTE_INTEGRATION_TOPIC,
-                self.remote_integration_session_id,
-            )
+            f'topic={constants.event.DISCOVER_REMOTE_INTEGRATION_TOPIC} and source.applicationId=ftrack.api.javascript '
+            f'and data.remote_integration_session_id={self.remote_integration_session_id}'
         )
         self._subscribe_event(
             event_topic, self._on_discover_remote_integration_callback
         )
 
         event_topic = (
-            'topic={} and source.applicationId=ftrack.api.javascript '
-            'and data.remote_integration_session_id={}'.format(
-                constants.event.REMOTE_INTEGRATION_RUN_DIALOG_TOPIC,
-                self.remote_integration_session_id,
-            )
+            f'topic={constants.event.REMOTE_INTEGRATION_RUN_DIALOG_TOPIC} and source.applicationId=ftrack.api.javascript '
+            f'and data.remote_integration_session_id={self.remote_integration_session_id}'
         )
         self._subscribe_event(
             event_topic,
@@ -200,13 +192,11 @@ class PhotoshopRPCCEP(object):
                 if waited > timeout:  # Wait 10s for reply
                     raise Exception(
                         'Timeout waiting remote integration event reply! '
-                        'Waited {}s'.format(waited / 1000)
+                        f'Waited {waited / 1000}s'
                     )
                 if waited % 1000 == 0:
                     self.logger.info(
-                        'Waited {}s for {} reply'.format(
-                            waited / 1000, event_topic
-                        )
+                        f'Waited {waited / 1000}s for {event_topic} reply'
                     )
             return reply_event['data']
 
@@ -215,7 +205,7 @@ class PhotoshopRPCCEP(object):
     def _append_context_data(self, data):
         '''Append and return context data to event payload *data*'''
         context_id = self.client.context_id
-        task = self.session.query('Task where id={}'.format(context_id)).one()
+        task = self.session.query(f'Task where id={context_id}').one()
         data['context_id'] = context_id
         data['context_name'] = task['name']
         data['context_type'] = task['type']['name']
@@ -260,9 +250,7 @@ class PhotoshopRPCCEP(object):
                 fetch_reply=True,
             )
             self.logger.info(
-                'Got reply for integration discovery response event: {}'.format(
-                    collected_event
-                )
+                f'Got reply for integration discovery response event: {collected_event}'
             )
             return True
         except Exception as e:

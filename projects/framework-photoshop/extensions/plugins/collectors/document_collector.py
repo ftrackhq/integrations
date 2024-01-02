@@ -21,21 +21,17 @@ class DocumentCollectorPlugin(BasePlugin):
             document_saved_result = photoshop_connection.rpc('documentSaved')
         except Exception as e:
             self.logger.exception(e)
-            message = 'Exception querying if the document is saved: {}'.format(
-                e
-            )
+            message = f'Exception querying if the document is saved: {e}'
             status = constants.status.EXCEPTION_STATUS
             return status, message
 
         self.logger.debug(
-            'Got Photoshop saved query result: {}'.format(
-                document_saved_result
-            )
+            f'Got Photoshop saved query result: {document_saved_result}'
         )
 
         if isinstance(document_saved_result, str):
-            message = 'Photoshop document query failed: {}'.format(
-                document_saved_result
+            message = (
+                f'Photoshop document query failed: {document_saved_result}'
             )
             status = constants.status.ERROR_STATUS
             return status, message
@@ -49,11 +45,7 @@ class DocumentCollectorPlugin(BasePlugin):
             save_result = photoshop_connection.rpc('saveDocument', [temp_path])
             # Will return a boolean containing the result.
             if not save_result or isinstance(save_result, str):
-                message = (
-                    'An error occured while saving the document: {}'.format(
-                        save_result
-                    )
-                )
+                message = f'An error occurred while saving the document: {save_result}'
                 status = constants.status.ERROR_STATUS
                 return status, message
             elif save_result:
@@ -64,15 +56,13 @@ class DocumentCollectorPlugin(BasePlugin):
             document_data = photoshop_connection.rpc('getDocumentData')
         except Exception as e:
             self.logger.exception(e)
-            message = 'Exception querying the document data: {}'.format(e)
+            message = f'Exception querying the document data: {e}'
             status = constants.status.EXCEPTION_STATUS
             return status, message
         # Will return a dictionary with information about the document,
         # an empty dict is returned if no document is open.
 
-        self.logger.debug(
-            'Got Photoshop document data: {}'.format(document_data)
-        )
+        self.logger.debug(f'Got Photoshop document data: {document_data}')
 
         if not document_data:
             message = (
@@ -101,7 +91,7 @@ class DocumentCollectorPlugin(BasePlugin):
         if not os.path.exists(document_path):
             message = (
                 'Error exporting the document: Document does not exist: '
-                '{}'.format(document_path)
+                f'{document_path}'
             )
 
             status = constants.status.ERROR_STATUS

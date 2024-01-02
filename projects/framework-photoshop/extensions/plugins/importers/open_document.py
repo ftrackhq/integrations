@@ -30,7 +30,7 @@ class OpenDocumentPlugin(BasePlugin):
         document_path = collected_path
 
         if not os.path.exists(document_path):
-            message = "Document '{}' does not exist!".format(document_path)
+            message = f'Document "{document_path}" does not exist!'
             status = constants.status.ERROR_STATUS
             return status, message
 
@@ -39,9 +39,7 @@ class OpenDocumentPlugin(BasePlugin):
             photoshop_connection = PhotoshopRPCCEP.instance()
 
             self.logger.debug(
-                'Telling Photoshop to save document to: {}'.format(
-                    document_path
-                )
+                f'Telling Photoshop to save document to: {document_path}'
             )
 
             open_result = photoshop_connection.rpc(
@@ -51,16 +49,12 @@ class OpenDocumentPlugin(BasePlugin):
 
         except Exception as e:
             self.logger.exception(e)
-            message = (
-                'Exception telling Photoshop to open document: {}'.format(e)
-            )
+            message = f'Exception telling Photoshop to open document: {e}'
             status = constants.status.EXCEPTION_STATUS
             return status, message
 
         if not open_result or isinstance(open_result, str):
-            message = 'Error opening the document in Photoshop: {}'.format(
-                open_result
-            )
+            message = f'Error opening the document in Photoshop: {open_result}'
             status = constants.status.ERROR_STATUS
             return status, message
 

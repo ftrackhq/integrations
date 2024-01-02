@@ -25,9 +25,7 @@ class SaveToTemp(BasePlugin):
             photoshop_connection = PhotoshopRPCCEP.instance()
 
             self.logger.debug(
-                'Telling Photoshop to save document to temp path: {}'.format(
-                    temp_path
-                )
+                f'Telling Photoshop to save document to temp path: {temp_path}'
             )
 
             save_result = photoshop_connection.rpc(
@@ -36,13 +34,11 @@ class SaveToTemp(BasePlugin):
             )
         except Exception as e:
             self.logger.exception(e)
-            message = 'Exception saving document to temp: {}'.format(e)
+            message = f'Exception saving document to temp: {e}'
             status = constants.status.EXCEPTION_STATUS
             return status, message
 
         if isinstance(save_result, str):
-            message = 'Error temp saving document in Photoshop: {}'.format(
-                save_result
-            )
+            message = f'Error temp saving document in Photoshop: {save_result}'
             status = constants.status.ERROR_STATUS
             return status, message

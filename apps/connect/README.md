@@ -81,7 +81,7 @@ See Monorepo build CI
 5. Build the QT resources
 
 ```bash
-pip instal tools/requirements.txt
+pip install tools/requirements.txt
 python tools/build.py --style_path resource --output_path source/ftrack_connect/ui/resource.py build_qt_resources apps/connect
 ```
 

@@ -30,22 +30,20 @@ class ImageExporterPlugin(BasePlugin):
             # Get existing RPC connection instance
             photoshop_connection = PhotoshopRPCCEP.instance()
 
-            self.logger.debug(
-                "Exporting Photoshop image to {}".format(new_file_path)
-            )
+            self.logger.debug(f'Exporting Photoshop image to {new_file_path}')
 
             export_result = photoshop_connection.rpc(
                 'exportDocument',
-                [new_file_path, extension.replace('.', '')],
+                [new_file_path.replace('\\', '/'), extension.replace('.', '')],
             )
         except Exception as e:
             self.logger.exception(e)
-            message = 'Exception exporting the image: {}'.format(e)
+            message = f'Exception exporting the image: {e}'
             status = constants.status.EXCEPTION_STATUS
             return status, message
 
         if not export_result or isinstance(export_result, str):
-            message = 'Error exporting the image: {}'.format(export_result)
+            message = f'Error exporting the image: {export_result}'
             status = constants.status.ERROR_STATUS
             return status, message
 

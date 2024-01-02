@@ -116,7 +116,7 @@ class BaseContextDialog(FrameworkDialog, StyledDialog):
         self.setLayout(main_layout)
 
     def build(self):
-        # On Windows, title bar is visible
+        # Have a proper title instead of default 'python'
         self.setWindowTitle('ftrack')
 
         # Create the header

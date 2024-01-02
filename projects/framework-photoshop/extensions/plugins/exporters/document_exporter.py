@@ -28,9 +28,7 @@ class DocumentExporterPlugin(BasePlugin):
         document_path = collected_data.get('full_path')
 
         self.logger.debug(
-            "Copying Photoshop document from {} to {}".format(
-                document_path, new_file_path
-            )
+            f'Copying Photoshop document from {document_path} to {new_file_path}'
         )
 
         try:
@@ -39,6 +37,6 @@ class DocumentExporterPlugin(BasePlugin):
             )
         except Exception as e:
             self.logger.exception(e)
-            message = 'Exception copying the document: {}'.format(e)
+            message = f'Exception copying the document: {e}'
             status = constants.status.EXCEPTION_STATUS
             return status, message

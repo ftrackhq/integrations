@@ -89,7 +89,7 @@ def bootstrap_integration(framework_extensions_path):
         name='framework-photoshop', extension_type='dcc_config'
     )['extension']
 
-    logger.debug('Read DCC config: {}'.format(dcc_config))
+    logger.debug(f'Read DCC config: {dcc_config}')
 
     @invoke_in_qt_main_thread
     def on_run_dialog_callback(dialog_name, tool_config_names):
@@ -145,9 +145,8 @@ def run_integration():
         active_time += 10
         if active_time % 10000 == 0:
             logger.info(
-                'Integration alive has been for {}s, connected: {}'.format(
-                    active_time / 1000, photoshop_connection.connected
-                )
+                f'Integration alive has been for {active_time / 1000}s, '
+                f'connected: {photoshop_connection.connected}'
             )
         # Failsafe check if PS is still alive every 10s
         if active_time % (10 * 1000) == 0:
@@ -161,10 +160,8 @@ def run_integration():
                 if not respond_result and photoshop_connection.connected:
                     photoshop_connection.connected = False
                     logger.info(
-                        'Photoshop is not responding but process ({}) is still '
-                        'there, panel temporarily closed?'.format(
-                            process_monitor.process_pid
-                        )
+                        f'Photoshop is not responding but process ({process_monitor.process_pid}) '
+                        f'is still there, panel temporarily closed?'
                     )
                 elif respond_result and not photoshop_connection.connected:
                     photoshop_connection.connected = True

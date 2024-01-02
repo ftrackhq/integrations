@@ -13,24 +13,22 @@ logger = logging.getLogger(__name__)
 
 def probe_photoshop_pid(photoshop_version):
     if sys.platform == 'darwin':
-        PS_EXECUTABLE = 'Adobe Photoshop {}'.format(str(photoshop_version))
-        logger.info('Probing Mac PID (executable: {}).'.format(PS_EXECUTABLE))
+        PS_EXECUTABLE = f'Adobe Photoshop {str(photoshop_version)}'
+        logger.info(f'Probing Mac PID (executable: {PS_EXECUTABLE})')
 
         for line in (
             subprocess.check_output(['ps', '-ef']).decode('utf-8').split('\n')
         ):
-            if line.find('MacOS/{}'.format(PS_EXECUTABLE)) > -1:
+            if line.find(f'MacOS/{PS_EXECUTABLE}') > -1:
                 # Expect:
                 #   501 21270     1   0  3:05PM ??         0:36.85 /Applications/Adobe Photoshop 2022/Adobe Photoshop 2022.app/Contents/MacOS/Adobe Photoshop 2022
                 pid = int(re.split(' +', line)[2])
-                logger.info('Found pid: {}.'.format(pid))
+                logger.info(f'Found pid: {pid}.')
                 return pid
 
     elif sys.platform == 'win32':
         PS_EXECUTABLE = 'Photoshop.exe'
-        logger.info(
-            'Probing Windows PID (executable: {}).'.format(PS_EXECUTABLE)
-        )
+        logger.info(f'Probing Windows PID (executable: {PS_EXECUTABLE}).')
 
         for line in (
             subprocess.check_output(['TASKLIST']).decode('cp850').split('\n')
@@ -39,7 +37,7 @@ def probe_photoshop_pid(photoshop_version):
                 # Expect:
                 #   Photoshop.exe                15364 Console                    1  2 156 928 K
                 pid = int(re.split(' +', line)[1])
-                logger.info('Found pid: {}.'.format(pid))
+                logger.info(f'Found pid: {pid}.')
                 return pid
 
     logger.warning('Photoshop not found running!')
