@@ -1,6 +1,5 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2023 ftrack
-import copy
 
 from Qt import QtWidgets, QtCore
 
@@ -140,7 +139,7 @@ class BaseContextDialog(FrameworkDialog, StyledDialog):
             self._on_context_selected_callback
         )
         # Connect run_tool_config button
-        self._run_button.clicked.connect(self._on_run_button_clicked)
+        self._run_button.clicked.connect(self._on_run_button_clicked_sync)
 
     def _on_context_selected_callback(self, context_id):
         '''Emit signal with the new context_id'''
@@ -161,12 +160,20 @@ class BaseContextDialog(FrameworkDialog, StyledDialog):
         self.build_ui()
         self.post_build_ui()
 
+    def _on_run_button_clicked_sync(self):
+        '''Run button clicked, enable running tool in background thread if clients
+        has a Worker class defined. Otherwise run in the main thread.'''
+
+        # Always store worker in self._worker to avoid garbage collection while
+        # thread is running
+        self._worker = self._run_with_worker(self._on_run_button_clicked)
+
     def _on_run_button_clicked(self):
         '''
         Run button from the UI has been clicked.
-        Tell client to run the current tool config
+        Tell client to run the current tool config. This method might execute
+        in a background thread.
         '''
-
         self.run_tool_config(self.tool_config['reference'])
 
     # FrameworkDialog overrides

@@ -468,3 +468,15 @@ class FrameworkDialog(BaseUI):
         }
 
         return data
+
+    def _run_with_worker(self, target, args=None, kwargs=None):
+        '''Run the given *target* method with a background thread worker,
+        if client has been initialized with one.  Enables running a tool in a background thread,
+        enabling real time progress updates.'''
+        worker_class = self.client_property_getter_connection('worker')
+        if worker_class:
+            worker = worker_class(target, args=args, kwargs=kwargs)
+            worker.start()
+            return worker
+        else:
+            target(*args, **kwargs)

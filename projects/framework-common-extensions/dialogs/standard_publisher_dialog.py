@@ -210,17 +210,21 @@ class StandardPublisherDialog(BaseContextDialog):
     def post_build_ui(self):
         pass
 
+    @invoke_in_qt_main_thread
+    def rebuild_ui(self):
+        '''Rebuild the UI upon successful publish'''
+        self.clean_ui()
+        self.pre_build_ui()
+        self.build_ui()
+        self.post_build_ui()
+
     def _on_run_button_clicked(self):
-        '''(Override) Refresh context widget(s) upon publish'''
+        '''(Override) Publish, followed by a refresh of the UI. Might be run in
+        a background thread.'''
         self._progress_widget.run(self)
         super(StandardPublisherDialog, self)._on_run_button_clicked()
-        # TODO: This will not work in remote mode (async mode) as plugin events
-        #  will arrive after this point of execution.
         if self._progress_widget.status == constants.status.SUCCESS_STATUS:
-            self.clean_ui()
-            self.pre_build_ui()
-            self.build_ui()
-            self.post_build_ui()
+            self.rebuild_ui()
 
     @invoke_in_qt_main_thread
     def plugin_run_callback(self, log_item):
