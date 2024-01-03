@@ -1,5 +1,5 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2014 ftrack
+# :copyright: Copyright (c) 2014-2023 ftrack
 
 import sys
 
@@ -42,6 +42,7 @@ class Worker(QtCore.QThread):
 
         '''
         super(Worker, self).__init__(parent=parent)
+        self.setObjectName(str(function))
         self.function = function
         self.args = args or []
         self.kwargs = kwargs or {}

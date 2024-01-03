@@ -161,8 +161,8 @@ class BaseContextDialog(FrameworkDialog, StyledDialog):
         self.post_build_ui()
 
     def _on_run_button_clicked_sync(self):
-        '''Run button clicked, enable running tool in background thread if clients
-        has a Worker class defined. Otherwise run in the main thread.'''
+        '''Run button clicked, enable running tool in background thread if
+        client has a Worker class defined. Otherwise run in the main thread.'''
 
         # Always store worker in self._worker to avoid garbage collection while
         # thread is running
