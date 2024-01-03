@@ -1,8 +1,8 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2023 ftrack
 
-import ftrack_constants as constants
 from ftrack_framework_core.plugin import BasePlugin
+from ftrack_framework_core.exceptions.plugin import PluginExecutionError
 
 
 class ComponentPathCollectorPlugin(BasePlugin):
@@ -88,8 +88,6 @@ class ComponentPathCollectorPlugin(BasePlugin):
         containing 'asset_version_id' and 'component_name' for the desired
         assets to open.
         '''
-        message = None
-        status = None
         component = self.session.query(
             'select id from Component where version_id is {} '
             'and name is {}'.format(
@@ -106,12 +104,9 @@ class ComponentPathCollectorPlugin(BasePlugin):
                 )
             )
             self.logger.warning(message)
-            message = message
-            status = constants.status.ERROR_STATUS
-            return status, message
+            raise PluginExecutionError(message=message)
 
         location = self.session.pick_location()
         component_path = location.get_filesystem_path(component)
         component_name = self.options.get('component', 'main')
         store['components'][component_name]['collected_path'] = component_path
-        return status, message

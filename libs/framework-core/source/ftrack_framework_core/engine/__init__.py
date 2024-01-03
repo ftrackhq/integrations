@@ -11,6 +11,12 @@ from ftrack_framework_core.plugin.plugin_info import PluginInfo
 import ftrack_constants as constants
 
 from ftrack_utils.decorators import track_framework_usage
+from ftrack_framework_core.exceptions.plugin import (
+    PluginExecutionError,
+    PluginValidationError,
+    PluginUIHookExecutionError,
+)
+from ftrack_framework_core.exceptions.engine import EngineExecutionError
 
 
 class BaseEngine(object):
@@ -106,99 +112,57 @@ class BaseEngine(object):
         # Start timer to check the execution time
         start_time = time.time()
         try:
-            # Set the plugin status to running
-            plugin_info.status = constants.status.RUNNING_STATUS
             # Run the plugin
-            result = plugin_instance.run(store)
-            # Validate the result tuple
-            if self.is_valid_plugin_result(result):
-                if result and result != (None, None):
-                    plugin_info.status = result[0]
-                    plugin_info.message = result[1]
-                else:
-                    plugin_info.status = constants.status.SUCCESS_STATUS
-            else:
-                raise ValueError(
-                    f"Invalid plugin result format, expected a valid string "
-                    f"status and message but got {result}"
-                )
-        except Exception as error:
-            plugin_info.status = constants.status.EXCEPTION_STATUS
+            plugin_instance.run(store)
+            plugin_info.status = constants.status.SUCCESS_STATUS
+        except PluginExecutionError as error:
+            plugin_info.status = constants.status.ERROR_STATUS
+            plugin_info.message = f"Error executing {plugin}: {error}"
+            # logger the message
+            self.logger.exception(plugin_info.message)
 
+        except PluginValidationError as error:
+            plugin_info.status = constants.status.ERROR_STATUS
+            plugin_info.message = f"Error validating {plugin}: {error}"
+            # logger the message
+            self.logger.warning(plugin_info.message)
+            try:
+                error.attempt_fix()
+                plugin_info.message += " Succesfully applied fix for plugin"
+                plugin_info.status = constants.status.SUCCESS_STATUS
+            except Exception as e:
+                plugin_info.message += (
+                    f" An error occurred while applying the fix: {e}"
+                )
+                plugin_info.status = constants.status.ERROR_STATUS
+                self.logger.exception(plugin_info.message)
+
+        except PluginUIHookExecutionError as error:
+            plugin_info.status = constants.status.ERROR_STATUS
             plugin_info.message = (
-                f"Error executing plugin: {error} \n "
-                f"status {plugin_info.status}"
+                f"Error executing ui_hook method of {plugin}: {error}"
             )
             # logger the message
-            self.logger.exception(
-                f"Error message: {plugin_info.message}\n Traceback: {error}"
-            )
+            self.logger.exception(plugin_info.message)
 
+        except Exception as error:
+            plugin_info.status = constants.status.ERROR_STATUS
+            plugin_info.message = (
+                f"Un-handled exception in {plugin},"
+                f" with options: {options}. Error: {error}"
+            )
+            # logger the message
+            self.logger.exception(plugin_info.message)
+            raise EngineExecutionError(message=plugin_info.message)
+        finally:
+            end_time = time.time()
+            total_time = end_time - start_time
+            plugin_info.execution_time = total_time
+            self.logger.debug(
+                f"Result from running plugin {reference}: {plugin_info}"
+            )
             if self.on_plugin_executed:
                 self.on_plugin_executed(plugin_info.to_dict())
-            return plugin_info.to_dict()
-
-        # print plugin error handled by the plugin
-        if not plugin_info.boolean_status:
-            # Generic message in case no message is provided.
-            if not plugin_info.message:
-                plugin_info.message = (
-                    f"Error detected on the plugin {plugin}, "
-                    f"but no message provided."
-                )
-            self.logger.error(plugin_info.message)
-            if self.on_plugin_executed:
-                self.on_plugin_executed(plugin_info.to_dict())
-            return plugin_info
-        plugin_info.status = constants.status.SUCCESS_STATUS
-
-        plugin_info.message = (
-            f"Plugin executed, status: {plugin_info.status}, "
-            f"message: {plugin_info.message}"
-        )
-        end_time = time.time()
-        total_time = end_time - start_time
-        plugin_info.execution_time = total_time
-        self.logger.debug(
-            f"Result from running plugin {reference}: {plugin_info}"
-        )
-        if self.on_plugin_executed:
-            self.on_plugin_executed(plugin_info.to_dict())
-        return plugin_info.to_dict()
-
-    def is_valid_plugin_result(self, result):
-        '''
-        Validates if the result is a tuple with valid status and message.
-
-        :param result: Result tuple to validate.
-        :type result: tuple
-        :return: True if valid, False otherwise.
-        :rtype: bool
-        '''
-        if not result or result == (None, None):
-            return True
-        if not isinstance(result, tuple) and len(result) != 2:
-            self.logger.error(
-                f"Invalid plugin result format. "
-                f"Expected tuple with status and message, got {result}"
-            )
-            return False
-        if not isinstance(result[0], str) or not isinstance(result[1], str):
-            self.logger.error(
-                f"Invalid plugin result format. "
-                f"Expected string status and string message, "
-                f"got: \n status: {result[0]} type: {type(result[0])},\n "
-                f"message: {result[0]}, type: {type(result[0])}"
-            )
-            return False
-        if not result[0] in constants.status.STATUS_LIST:
-            self.logger.error(
-                f"Invalid plugin result format. "
-                f"Expected status {constants.status.STATUS_LIST}, "
-                f"got: {result[0]}"
-            )
-            return False
-        return True
 
     @track_framework_usage(label='engine')
     def execute_engine(self, engine, user_options):

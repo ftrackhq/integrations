@@ -81,8 +81,8 @@ def test_run_plugin(test_engine_instance):
     reference = None
 
     # Call the method and assert the expected behavior
-    result = test_engine_instance.run_plugin(plugin, store, options, reference)
-    assert result['store'] == {'test_data': options}
+    test_engine_instance.run_plugin(plugin, store, options, reference)
+    assert store == {'test_data': options}
 
 
 @pytest.mark.parametrize(
