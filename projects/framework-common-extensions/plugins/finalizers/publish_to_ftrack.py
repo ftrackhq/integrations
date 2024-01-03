@@ -130,7 +130,7 @@ class PublishToFtrack(BasePlugin):
                 self.session.reset()
                 self.logger.warning("Rolling back asset version creation")
                 self.session.delete(asset_version_object)
-                self.session.commit
+                self.session.commit()
             if error:
                 raise PluginExecutionError(message)
 

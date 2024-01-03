@@ -18,20 +18,20 @@ class PluginExecutionError(Exception):
 class PluginValidationError(Exception):
     """
     Exception raised when there is a validation error in the plugin.
-    *on_fix_click* method callback is accepted.
+    *on_fix_callback* method callback is accepted.
     """
 
-    def __init__(self, message, on_fix_click):
+    def __init__(self, message, on_fix_callback):
         super(PluginValidationError, self).__init__(message)
-        self.on_fix_click = on_fix_click
+        self.on_fix_callback = on_fix_callback
 
     def attempt_fix(self):
         """
         Attempt to fix the validation error.
         """
-        if callable(self.on_fix_click):
+        if callable(self.on_fix_callback):
             try:
-                self.on_fix_click()
+                self.on_fix_callback()
                 logger.debug("Fix applied successfully.")
             except Exception as e:
                 raise Exception(
