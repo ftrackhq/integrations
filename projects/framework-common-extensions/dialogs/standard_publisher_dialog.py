@@ -210,14 +210,6 @@ class StandardPublisherDialog(BaseContextDialog):
     def post_build_ui(self):
         pass
 
-    @invoke_in_qt_main_thread
-    def rebuild_ui(self):
-        '''Rebuild the UI upon successful publish'''
-        self.clean_ui()
-        self.pre_build_ui()
-        self.build_ui()
-        self.post_build_ui()
-
     def _on_run_button_clicked(self):
         '''(Override) Publish, followed by a refresh of the UI. Might be run in
         a background thread.'''

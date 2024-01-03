@@ -10,6 +10,7 @@ from ftrack_qt.widgets.headers import SessionHeader
 from ftrack_qt.widgets.selectors import ContextSelector
 
 from ftrack_qt.utils.layout import recursive_clear_layout
+from ftrack_qt.utils.decorators import invoke_in_qt_main_thread
 
 
 class BaseContextDialog(FrameworkDialog, StyledDialog):
@@ -141,6 +142,14 @@ class BaseContextDialog(FrameworkDialog, StyledDialog):
         # Connect run_tool_config button
         self._run_button.clicked.connect(self._on_run_button_clicked_sync)
 
+    @invoke_in_qt_main_thread
+    def rebuild_ui(self):
+        '''Rebuild the UI'''
+        self.clean_ui()
+        self.pre_build_ui()
+        self.build_ui()
+        self.post_build_ui()
+
     def _on_context_selected_callback(self, context_id):
         '''Emit signal with the new context_id'''
         if not context_id:
@@ -155,10 +164,7 @@ class BaseContextDialog(FrameworkDialog, StyledDialog):
         self.selected_context_id = self.context_id
         # Clean the UI every time a new context is set as the current tool
         # config might not be available anymore
-        self.clean_ui()
-        self.pre_build_ui()
-        self.build_ui()
-        self.post_build_ui()
+        self.rebuild_ui()
 
     def _on_run_button_clicked_sync(self):
         '''Run button clicked, enable running tool in background thread if
