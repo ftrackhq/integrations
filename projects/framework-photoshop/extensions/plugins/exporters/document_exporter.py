@@ -3,8 +3,8 @@
 import tempfile
 import shutil
 
-import ftrack_constants as constants
 from ftrack_framework_core.plugin import BasePlugin
+from ftrack_framework_core.exceptions.plugin import PluginExecutionError
 
 
 class DocumentExporterPlugin(BasePlugin):
@@ -37,6 +37,4 @@ class DocumentExporterPlugin(BasePlugin):
             )
         except Exception as e:
             self.logger.exception(e)
-            message = f'Exception copying the document: {e}'
-            status = constants.status.EXCEPTION_STATUS
-            return status, message
+            raise PluginExecutionError(f'Exception copying the document: {e}')

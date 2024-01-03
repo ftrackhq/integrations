@@ -2,8 +2,9 @@
 # :copyright: Copyright (c) 2014-2023 ftrack
 import tempfile
 
-import ftrack_constants as constants
 from ftrack_framework_core.plugin import BasePlugin
+from ftrack_framework_core.exceptions.plugin import PluginExecutionError
+
 from ftrack_framework_photoshop.rpc_cep import PhotoshopRPCCEP
 
 
@@ -38,13 +39,11 @@ class ImageExporterPlugin(BasePlugin):
             )
         except Exception as e:
             self.logger.exception(e)
-            message = f'Exception exporting the image: {e}'
-            status = constants.status.EXCEPTION_STATUS
-            return status, message
+            raise PluginExecutionError(f'Exception exporting the image: {e}')
 
         if not export_result or isinstance(export_result, str):
-            message = f'Error exporting the image: {export_result}'
-            status = constants.status.ERROR_STATUS
-            return status, message
+            raise PluginExecutionError(
+                f'Error exporting the image: {export_result}'
+            )
 
         store['components'][component_name]['exported_path'] = new_file_path

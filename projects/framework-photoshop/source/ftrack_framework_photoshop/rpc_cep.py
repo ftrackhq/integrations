@@ -3,7 +3,8 @@
 
 import logging
 import os
-import time
+
+from Qt import QtWidgets
 
 import ftrack_api.event.base
 
@@ -186,10 +187,12 @@ class PhotoshopRPCCEP(object):
 
         if fetch_reply:
             waited = 0
+            app = QtWidgets.QApplication.instance()
             while not reply_event:
+                app.processEvents()
                 self.session.event_hub.wait(0.01)
                 waited += 10
-                if waited > timeout:  # Wait 10s for reply
+                if waited > timeout:
                     raise Exception(
                         'Timeout waiting remote integration event reply! '
                         f'Waited {waited / 1000}s'

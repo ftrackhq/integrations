@@ -7,7 +7,7 @@ import sys
 import os
 import traceback
 
-from Qt import QtWidgets, QtCore
+from Qt import QtWidgets
 
 import ftrack_api
 
@@ -148,8 +148,8 @@ def run_integration():
                 f'Integration alive has been for {active_time / 1000}s, '
                 f'connected: {photoshop_connection.connected}'
             )
-        # Failsafe check if PS is still alive every 10s
-        if active_time % (10 * 1000) == 0:
+        # Failsafe check if PS is still alive every 5s
+        if active_time % (5 * 1000) == 0:
             # Check if Photoshop still is running
             if not process_monitor.check_running():
                 logger.warning('Photoshop process gone, shutting ' 'down!')

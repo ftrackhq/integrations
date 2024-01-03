@@ -162,6 +162,9 @@ class EventManager(object):
         )
         return subscribe_id
 
+    def unsubscribe(self, subscribe_id):
+        self.session.event_hub.unsubscribe(subscribe_id)
+
     def available_framework_events(self):
         pass
 

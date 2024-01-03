@@ -3,8 +3,9 @@
 
 import os
 
-import ftrack_constants as constants
 from ftrack_framework_core.plugin import BasePlugin
+from ftrack_framework_core.exceptions.plugin import PluginExecutionError
+
 from ftrack_framework_photoshop.rpc_cep import PhotoshopRPCCEP
 
 
@@ -23,16 +24,14 @@ class OpenDocumentPlugin(BasePlugin):
         )
 
         if not collected_path:
-            message = "No path provided to open!"
-            status = constants.status.ERROR_STATUS
-            return status, message
+            raise PluginExecutionError(f'No path provided to open!')
 
         document_path = collected_path
 
         if not os.path.exists(document_path):
-            message = f'Document "{document_path}" does not exist!'
-            status = constants.status.ERROR_STATUS
-            return status, message
+            raise PluginExecutionError(
+                f'Document "{document_path}" does not exist!'
+            )
 
         try:
             # Get existing RPC connection instance
@@ -49,13 +48,13 @@ class OpenDocumentPlugin(BasePlugin):
 
         except Exception as e:
             self.logger.exception(e)
-            message = f'Exception telling Photoshop to open document: {e}'
-            status = constants.status.EXCEPTION_STATUS
-            return status, message
+            raise PluginExecutionError(
+                f'Exception telling Photoshop to open document: {e}'
+            )
 
         if not open_result or isinstance(open_result, str):
-            message = f'Error opening the document in Photoshop: {open_result}'
-            status = constants.status.ERROR_STATUS
-            return status, message
+            raise PluginExecutionError(
+                f'Error opening the document in Photoshop: {open_result}'
+            )
 
         store['components'][component_name]['open_result'] = open_result
