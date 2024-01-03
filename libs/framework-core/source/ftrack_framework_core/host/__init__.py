@@ -3,16 +3,14 @@
 
 import uuid
 import logging
-import socket
 import os
 
 from functools import partial
 
-import ftrack_constants.framework as constants
-
 from ftrack_framework_core.log.log_item import LogItem
 from ftrack_framework_core.log import LogDB
 from ftrack_utils.framework.config.tool import get_plugins
+from ftrack_framework_core.exceptions.engine import EngineExecutionError
 
 from ftrack_utils.decorators import with_new_session
 
@@ -257,18 +255,18 @@ class Host(object):
             )
 
         try:
-            engine_result = engine_instance.execute_engine(
+            engine_instance.execute_engine(
                 tool_config['engine'], client_options
             )
 
+        except EngineExecutionError as error:
+            self.logger.exception(error)
         except Exception as error:
-            raise Exception(
-                'Error appear when executing engine: {} from {}.'
-                '\n Error: {}'.format(
-                    tool_config['engine'], engine_name, error
-                )
+            self.logger.exception(
+                f'Un-handled error appear when executing engine: '
+                f'{tool_config["engine"]} from {engine_name}.'
+                f'\n Error: {error}'
             )
-        return engine_result
 
     def on_plugin_executed_callback(self, plugin_info):
         log_item = LogItem(plugin_info)

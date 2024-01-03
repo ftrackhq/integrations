@@ -2,6 +2,7 @@
 # :copyright: Copyright (c) 2014-2023 ftrack
 
 from ftrack_framework_core.plugin import BasePlugin
+from ftrack_framework_core.exceptions.plugin import PluginUIHookExecutionError
 
 
 class StoreAssetContextPlugin(BasePlugin):
@@ -39,7 +40,9 @@ class StoreAssetContextPlugin(BasePlugin):
         ).one()
 
         if not context.entity_type == 'Task':
-            raise Exception("Query not supported on non task contexts")
+            raise PluginUIHookExecutionError(
+                "Query not supported on non task contexts"
+            )
 
         # We are querying the following assets:
         # Before the "or":

@@ -3,9 +3,8 @@
 
 import os
 
-import ftrack_constants as constants
-
 from ftrack_framework_core.plugin import BasePlugin
+from ftrack_framework_core.exceptions.plugin import PluginExecutionError
 
 
 class FileCollectorPlugin(BasePlugin):
@@ -16,19 +15,15 @@ class FileCollectorPlugin(BasePlugin):
         Get folder_path and file_name from the :obj:`self.options`
         and store the collected_file in the given *store*.
         '''
-        message = None
-        status = None
         folder_path = self.options.get('folder_path')
         file_name = self.options.get('file_name')
         if not folder_path or not file_name:
-            status = constants.status.ERROR_STATUS
             message = (
                 "Please provide folder_path and file_name in options. \n "
                 "options: {}".format(self.options)
             )
-            return
+            raise PluginExecutionError(message)
         component_name = self.options.get('component', 'main')
         store['components'][component_name]['collected_file'] = os.path.join(
             folder_path, file_name
         )
-        return status, message
