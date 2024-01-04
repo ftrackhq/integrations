@@ -7,7 +7,7 @@ import sys
 import os
 import traceback
 
-from Qt import QtWidgets
+from Qt import QtWidgets, QtCore
 
 import ftrack_api
 
@@ -54,6 +54,7 @@ app = QtWidgets.QApplication.instance()
 
 if not app:
     app = QtWidgets.QApplication(sys.argv)
+    app.setAttribute(QtCore.Qt.AA_PluginApplication)
 
 remote_session = None
 
