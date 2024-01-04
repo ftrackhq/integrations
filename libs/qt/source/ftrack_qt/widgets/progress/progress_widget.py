@@ -252,3 +252,11 @@ class ProgressWidget(QtWidgets.QWidget):
                     constants.status.SUCCESS_STATUS,
                     message=f'{self.action.title()} completed successfully',
                 )
+
+    def teardown(self):
+        '''Teardown the progress widget - properly cleanup the overlay containers'''
+        self.hide_overlay()
+        for phase_widget in list(self._phase_widgets.values()):
+            phase_widget.teardown()
+        self._overlay_container.setVisible(False)
+        self._overlay_container.deleteLater()

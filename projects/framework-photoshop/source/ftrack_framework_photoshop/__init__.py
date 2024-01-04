@@ -5,6 +5,7 @@ import logging
 import time
 import sys
 import os
+import traceback
 
 from Qt import QtWidgets, QtCore
 
@@ -53,6 +54,7 @@ app = QtWidgets.QApplication.instance()
 
 if not app:
     app = QtWidgets.QApplication(sys.argv)
+    app.setAttribute(QtCore.Qt.AA_PluginApplication)
 
 remote_session = None
 
@@ -88,7 +90,7 @@ def bootstrap_integration(framework_extensions_path):
         name='framework-photoshop', extension_type='dcc_config'
     )['extension']
 
-    logger.debug('Read DCC config: {}'.format(dcc_config))
+    logger.debug(f'Read DCC config: {dcc_config}')
 
     @invoke_in_qt_main_thread
     def on_run_dialog_callback(dialog_name, tool_config_names):
@@ -112,7 +114,7 @@ def bootstrap_integration(framework_extensions_path):
     for _ in range(30 * 2):  # Wait 30s for Photoshop to connect
         time.sleep(0.5)
 
-        if process_monitor.check_running:
+        if process_monitor.check_running():
             break
 
         logger.debug("Still waiting for Photoshop to launch")
@@ -144,18 +146,14 @@ def run_integration():
         active_time += 10
         if active_time % 10000 == 0:
             logger.info(
-                'Integration alive has been for {}s, connected: {}'.format(
-                    active_time / 1000, photoshop_connection.connected
-                )
+                f'Integration alive has been for {active_time / 1000}s, '
+                f'connected: {photoshop_connection.connected}'
             )
-        # Failsafe check if PS is still alive every 10s
-        if active_time % (10 * 1000) == 0:
+        # Failsafe check if PS is still alive every 5s
+        if active_time % (5 * 1000) == 0:
             # Check if Photoshop still is running
             if not process_monitor.check_running():
-                logger.warning(
-                    'Photoshop never connected and process gone, shutting '
-                    'down!'
-                )
+                logger.warning('Photoshop process gone, shutting ' 'down!')
                 process_util.terminate_current_process()
             else:
                 # Check if Photoshop panel is alive
@@ -163,10 +161,8 @@ def run_integration():
                 if not respond_result and photoshop_connection.connected:
                     photoshop_connection.connected = False
                     logger.info(
-                        'Photoshop is not responding but process ({}) is still '
-                        'there, panel temporarily closed?'.format(
-                            process_monitor.process_pid
-                        )
+                        f'Photoshop is not responding but process ({process_monitor.process_pid}) '
+                        f'is still there, panel temporarily closed?'
                     )
                 elif respond_result and not photoshop_connection.connected:
                     photoshop_connection.connected = True
@@ -174,5 +170,10 @@ def run_integration():
 
 
 # Find and read DCC config
-bootstrap_integration(get_extensions_path_from_environment())
-run_integration()
+try:
+    bootstrap_integration(get_extensions_path_from_environment())
+    run_integration()
+except:
+    # Make sure any exception that happens are logged as there is most likely no console
+    logger.error(traceback.format_exc())
+    raise

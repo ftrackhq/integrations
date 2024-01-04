@@ -251,7 +251,7 @@ function handleRemoteIntegrationRPCCallback(event) {
                     }
                 ));
             } catch (e) {
-                error_message = "[INTERNAL ERROR] Failed to convert RPC call result! "+e+" Details: "+e.stack;
+                error_message = "[INTERNAL ERROR] Failed to convert RPC call result '"+result+"'! "+e+" Details: "+e.stack;
                 event_manager.publish_reply(event, prepareEventData(
                     {
                         "error_message": error_message

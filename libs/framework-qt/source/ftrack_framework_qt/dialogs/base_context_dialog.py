@@ -214,3 +214,7 @@ class BaseContextDialog(FrameworkDialog, StyledDialog):
 
     def post_build_ui(self):
         raise NotImplementedError
+
+    def closeEvent(self, event):
+        self.ui_closed()
+        super(BaseContextDialog, self).closeEvent(event)

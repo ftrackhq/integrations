@@ -16,6 +16,7 @@ search_path:
     prefix:
     - C:\
     - Program Files.*
+    - Adobe
     expression:
     - Adobe Photoshop*
     - Photoshop.exe

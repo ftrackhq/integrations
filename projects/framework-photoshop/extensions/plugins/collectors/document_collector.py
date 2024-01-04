@@ -1,8 +1,9 @@
 import os
 import tempfile
 
-import ftrack_constants as constants
 from ftrack_framework_core.plugin import BasePlugin
+from ftrack_framework_core.exceptions.plugin import PluginExecutionError
+
 from ftrack_framework_photoshop.rpc_cep import PhotoshopRPCCEP
 
 
@@ -21,24 +22,18 @@ class DocumentCollectorPlugin(BasePlugin):
             document_saved_result = photoshop_connection.rpc('documentSaved')
         except Exception as e:
             self.logger.exception(e)
-            self.message = (
-                'Exception querying if the document is saved: {}'.format(e)
+            raise PluginExecutionError(
+                f'Exception querying if the document is saved: {e}'
             )
-            self.status = constants.status.EXCEPTION_STATUS
-            return
 
         self.logger.debug(
-            'Got Photoshop saved query result: {}'.format(
-                document_saved_result
-            )
+            f'Got Photoshop saved query result: {document_saved_result}'
         )
 
         if isinstance(document_saved_result, str):
-            self.message = 'Photoshop document query failed: {}'.format(
-                document_saved_result
+            raise PluginExecutionError(
+                f'Photoshop document query failed: {document_saved_result}'
             )
-            self.status = constants.status.ERROR_STATUS
-            return
 
         if not document_saved_result:
             # Document is not saved, save it first.
@@ -49,13 +44,10 @@ class DocumentCollectorPlugin(BasePlugin):
             save_result = photoshop_connection.rpc('saveDocument', [temp_path])
             # Will return a boolean containing the result.
             if not save_result or isinstance(save_result, str):
-                self.message = (
-                    'An error occured while saving the document: {}'.format(
-                        save_result
-                    )
+                raise PluginExecutionError(
+                    f'An error occurred while saving the'
+                    f' document: {save_result}'
                 )
-                self.status = constants.status.ERROR_STATUS
-                return
             elif save_result:
                 self.logger.info('Document saved successfully')
 
@@ -64,44 +56,39 @@ class DocumentCollectorPlugin(BasePlugin):
             document_data = photoshop_connection.rpc('getDocumentData')
         except Exception as e:
             self.logger.exception(e)
-            self.message = 'Exception querying the document data: {}'.format(e)
-            self.status = constants.status.EXCEPTION_STATUS
-            return
+            raise PluginExecutionError(
+                f'Exception querying the document data: {e}'
+            )
         # Will return a dictionary with information about the document,
         # an empty dict is returned if no document is open.
 
-        self.logger.debug(
-            'Got Photoshop document data: {}'.format(document_data)
-        )
+        self.logger.debug(f'Got Photoshop document data: {document_data}')
 
         if not document_data:
-            self.message = (
-                'No document data available. Please have an '
-                'active work document before you can publish'
+            raise PluginExecutionError(
+                'No document data available. Please have'
+                ' an active work document before you can '
+                'publish'
             )
-            self.status = constants.status.ERROR_STATUS
-            return
 
         document_path = (
             document_data.get('full_path') if document_data else None
         )
 
         if not document_path:
-            self.message = (
+            raise PluginExecutionError(
                 'Error exporting the document: Please save the '
                 'document with a name before publish'
             )
 
-            self.status = constants.status.ERROR_STATUS
-            return
-        elif not os.path.exists(document_path):
-            self.message = (
-                'Error exporting the document: Document does not exist: '
-                '{}'.format(document_path)
-            )
+        # Convert forward slashes to backslashes on Windows
+        document_path = os.path.normpath(document_path)
 
-            self.status = constants.status.ERROR_STATUS
-            return
+        if not os.path.exists(document_path):
+            raise PluginExecutionError(
+                'Error exporting the document: Document does not exist: '
+                f'{document_path}'
+            )
 
         component_name = self.options.get('component', 'main')
         store['components'][component_name]['collected_data'] = document_data

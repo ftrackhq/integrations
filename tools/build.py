@@ -91,12 +91,13 @@ def build_package(pkg_path, args):
                                 )
                             )
                             FTRACK_DEP_LIBS.append(lib)
-                            if line.startswith('ftrack-framework-core'):
-                                USES_FRAMEWORK = True
-                            elif line.find('pyside') > -1:
-                                PLATFORM_DEPENDENT = True
                             # Recursively add monorepo dependencies
                             append_dependencies(lib_toml_path)
+                        if line.startswith('ftrack-framework-core'):
+                            USES_FRAMEWORK = True
+                    if line.find('pyside') > -1:
+                        PLATFORM_DEPENDENT = True
+                        logging.info('Platform dependent build.')
 
     if os.path.exists(POETRY_CONFIG_PATH):
         PROJECT_NAME = None

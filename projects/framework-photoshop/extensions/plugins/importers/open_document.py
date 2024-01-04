@@ -3,8 +3,9 @@
 
 import os
 
-import ftrack_constants as constants
 from ftrack_framework_core.plugin import BasePlugin
+from ftrack_framework_core.exceptions.plugin import PluginExecutionError
+
 from ftrack_framework_photoshop.rpc_cep import PhotoshopRPCCEP
 
 
@@ -23,27 +24,21 @@ class OpenDocumentPlugin(BasePlugin):
         )
 
         if not collected_path:
-            self.message = "No path provided to open!"
-            self.status = constants.status.ERROR_STATUS
-            return
+            raise PluginExecutionError(f'No path provided to open!')
 
         document_path = collected_path
 
         if not os.path.exists(document_path):
-            self.message = "Document '{}' does not exist!".format(
-                document_path
+            raise PluginExecutionError(
+                f'Document "{document_path}" does not exist!'
             )
-            self.status = constants.status.ERROR_STATUS
-            return
 
         try:
             # Get existing RPC connection instance
             photoshop_connection = PhotoshopRPCCEP.instance()
 
             self.logger.debug(
-                'Telling Photoshop to save document to: {}'.format(
-                    document_path
-                )
+                f'Telling Photoshop to save document to: {document_path}'
             )
 
             open_result = photoshop_connection.rpc(
@@ -53,19 +48,13 @@ class OpenDocumentPlugin(BasePlugin):
 
         except Exception as e:
             self.logger.exception(e)
-            self.message = (
-                'Exception telling Photoshop to open document: {}'.format(e)
+            raise PluginExecutionError(
+                f'Exception telling Photoshop to open document: {e}'
             )
-            self.status = constants.status.EXCEPTION_STATUS
-            return
 
         if not open_result or isinstance(open_result, str):
-            self.message = (
-                'Error opening the document in Photoshop: {}'.format(
-                    open_result
-                )
+            raise PluginExecutionError(
+                f'Error opening the document in Photoshop: {open_result}'
             )
-            self.status = constants.status.ERROR_STATUS
-            return
 
         store['components'][component_name]['open_result'] = open_result

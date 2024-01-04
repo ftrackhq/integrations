@@ -219,4 +219,9 @@ class ProgressPhaseButtonWidget(QtWidgets.QPushButton):
         self.log_overlay_container.resize(self.parent().size())
 
     def hide_log(self):
-        self.log_overlay_container.close()
+        self.log_overlay_container.setVisible(False)
+
+    def teardown(self):
+        '''Teardown the progress button - close the overlay container'''
+        self.hide_log()
+        self.log_overlay_container.deleteLater()

@@ -2,8 +2,8 @@
 # :copyright: Copyright (c) 2014-2023 ftrack
 import tempfile
 
-import ftrack_constants as constants
 from ftrack_framework_core.plugin import BasePlugin
+from ftrack_framework_core.exceptions.plugin import PluginExecutionError
 
 from ftrack_framework_photoshop.rpc_cep import PhotoshopRPCCEP
 
@@ -25,9 +25,7 @@ class SaveToTemp(BasePlugin):
             photoshop_connection = PhotoshopRPCCEP.instance()
 
             self.logger.debug(
-                'Telling Photoshop to save document to temp path: {}'.format(
-                    temp_path
-                )
+                f'Telling Photoshop to save document to temp path: {temp_path}'
             )
 
             save_result = photoshop_connection.rpc(
@@ -36,15 +34,11 @@ class SaveToTemp(BasePlugin):
             )
         except Exception as e:
             self.logger.exception(e)
-            self.message = 'Exception saving document to temp: {}'.format(e)
-            self.status = constants.status.EXCEPTION_STATUS
-            return
+            raise PluginExecutionError(
+                f'Exception saving document to temp: {e}'
+            )
 
         if isinstance(save_result, str):
-            self.message = (
-                'Error temp saving document in Photoshop: {}'.format(
-                    save_result
-                )
+            raise PluginExecutionError(
+                f'Error temp saving document in Photoshop: {save_result}'
             )
-            self.status = constants.status.ERROR_STATUS
-            return

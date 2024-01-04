@@ -2,8 +2,9 @@
 # :copyright: Copyright (c) 2014-2023 ftrack
 import tempfile
 
-import ftrack_constants as constants
 from ftrack_framework_core.plugin import BasePlugin
+from ftrack_framework_core.exceptions.plugin import PluginExecutionError
+
 from ftrack_framework_photoshop.rpc_cep import PhotoshopRPCCEP
 
 
@@ -30,25 +31,19 @@ class ImageExporterPlugin(BasePlugin):
             # Get existing RPC connection instance
             photoshop_connection = PhotoshopRPCCEP.instance()
 
-            self.logger.debug(
-                "Exporting Photoshop image to {}".format(new_file_path)
-            )
+            self.logger.debug(f'Exporting Photoshop image to {new_file_path}')
 
             export_result = photoshop_connection.rpc(
                 'exportDocument',
-                [new_file_path, extension.replace('.', '')],
+                [new_file_path.replace('\\', '/'), extension.replace('.', '')],
             )
         except Exception as e:
             self.logger.exception(e)
-            self.message = 'Exception exporting the image: {}'.format(e)
-            self.status = constants.status.EXCEPTION_STATUS
-            return
+            raise PluginExecutionError(f'Exception exporting the image: {e}')
 
         if not export_result or isinstance(export_result, str):
-            self.message = 'Error exporting the image: {}'.format(
-                export_result
+            raise PluginExecutionError(
+                f'Error exporting the image: {export_result}'
             )
-            self.status = constants.status.ERROR_STATUS
-            return
 
         store['components'][component_name]['exported_path'] = new_file_path

@@ -168,6 +168,9 @@ class FrameworkDialog(BaseUI):
         self._host_connection = None
         self.__instanced_widgets = {}
         self._id = uuid.uuid4().hex
+        self._client_signal_context_changed_subscribe_id = None
+        self._client_notify_log_item_added_subscribe_id = None
+        self._client_notify_ui_hook_result_subscribe_id = None
 
         # Connect client methods and properties
         self.connect_methods(connect_methods_callback)
@@ -197,17 +200,43 @@ class FrameworkDialog(BaseUI):
 
     def _subscribe_client_events(self):
         '''Subscribe to all client events and signals'''
-        self.event_manager.subscribe.client_signal_context_changed(
-            self.client_id, callback=self._on_client_context_changed_callback
+
+        self._client_signal_context_changed_subscribe_id = (
+            self.event_manager.subscribe.client_signal_context_changed(
+                self.client_id,
+                callback=self._on_client_context_changed_callback,
+            )
         )
-        self.event_manager.subscribe.client_notify_log_item_added(
-            self.client_id,
-            callback=self._on_client_notify_ui_log_item_added_callback,
+        self._client_notify_log_item_added_subscribe_id = (
+            self.event_manager.subscribe.client_notify_log_item_added(
+                self.client_id,
+                callback=self._on_client_notify_ui_log_item_added_callback,
+            )
         )
-        self.event_manager.subscribe.client_notify_ui_hook_result(
-            self.client_id,
-            callback=self._on_client_notify_ui_hook_result_callback,
+        self._client_notify_ui_hook_result_subscribe_id = (
+            self.event_manager.subscribe.client_notify_ui_hook_result(
+                self.client_id,
+                callback=self._on_client_notify_ui_hook_result_callback,
+            )
         )
+
+    def _unsubscribe_client_events(self):
+        '''Unsubscribe to all client events and signals'''
+        if self._client_signal_context_changed_subscribe_id:
+            self.event_manager.unsubscribe(
+                self._client_signal_context_changed_subscribe_id
+            )
+            self._client_signal_context_changed_subscribe_id = None
+        if self._client_notify_log_item_added_subscribe_id:
+            self.event_manager.unsubscribe(
+                self._client_notify_log_item_added_subscribe_id
+            )
+            self._client_notify_log_item_added_subscribe_id = None
+        if self._client_notify_ui_hook_result_subscribe_id:
+            self.event_manager.unsubscribe(
+                self._client_notify_ui_hook_result_subscribe_id
+            )
+            self._client_notify_ui_hook_result_subscribe_id = None
 
     def show_ui(self):
         '''
@@ -218,6 +247,10 @@ class FrameworkDialog(BaseUI):
         raise NotImplementedError(
             "This method should be implemented by the inheriting class"
         )
+
+    def ui_closed(self):
+        '''Should be called by the inheriting class when the dialog is closed'''
+        self._unsubscribe_client_events()
 
     def connect_focus_signal(self):
         raise NotImplementedError(

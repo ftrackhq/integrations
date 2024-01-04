@@ -28,7 +28,7 @@ function getDocumentPath() {
         var f = new File(app.activeDocument.fullName);
         var result = f.fsName;
         f.close();
-        return result;
+        return result.replace(/\\/g, "/"); // Convert to forward slashes to fix issues with JSON encoding
     } catch (e) {
         return "";
     }

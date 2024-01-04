@@ -143,3 +143,7 @@ class BaseDialog(FrameworkDialog, StyledDialog):
 
     def _on_run_button_clicked(self):
         raise NotImplementedError
+
+    def closeEvent(self, event):
+        self.ui_closed()
+        super(BaseDialog, self).closeEvent(event)

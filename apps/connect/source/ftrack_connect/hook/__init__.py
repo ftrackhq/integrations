@@ -7,3 +7,8 @@ import os
 os.environ.setdefault(
     'FTRACK_EVENT_PLUGIN_PATH', os.path.realpath(os.path.dirname(__file__))
 )
+
+
+def register(session):
+    '''Mute API warnings.'''
+    pass

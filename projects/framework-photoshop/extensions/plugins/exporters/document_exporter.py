@@ -3,8 +3,8 @@
 import tempfile
 import shutil
 
-import ftrack_constants as constants
 from ftrack_framework_core.plugin import BasePlugin
+from ftrack_framework_core.exceptions.plugin import PluginExecutionError
 
 
 class DocumentExporterPlugin(BasePlugin):
@@ -28,9 +28,7 @@ class DocumentExporterPlugin(BasePlugin):
         document_path = collected_data.get('full_path')
 
         self.logger.debug(
-            "Copying Photoshop document from {} to {}".format(
-                document_path, new_file_path
-            )
+            f'Copying Photoshop document from {document_path} to {new_file_path}'
         )
 
         try:
@@ -39,6 +37,4 @@ class DocumentExporterPlugin(BasePlugin):
             )
         except Exception as e:
             self.logger.exception(e)
-            self.message = 'Exception copying the document: {}'.format(e)
-            self.status = constants.status.EXCEPTION_STATUS
-            return
+            raise PluginExecutionError(f'Exception copying the document: {e}')

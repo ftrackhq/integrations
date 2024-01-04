@@ -230,3 +230,7 @@ class ContextSelector(QtWidgets.QFrame):
         else:
             # Let client decide what to do when user wants to change context
             self.change_context_clicked.emit()
+
+    def teardown(self):
+        if self._entity_browser:
+            self._entity_browser.deleteLater()
