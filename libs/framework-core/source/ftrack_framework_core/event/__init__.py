@@ -157,12 +157,17 @@ class EventManager(object):
             self.session.event_hub.publish(event, on_reply=callback)
 
     def _subscribe(self, topic, callback):
+        '''Subscribe to ftrack events on the session event hub for *topic* with
+        *callback*. Topic should not include the 'topic=' prefix.'''
         subscribe_id = self.session.event_hub.subscribe(
             'topic={}'.format(topic), callback
         )
         return subscribe_id
 
     def unsubscribe(self, subscribe_id):
+        '''Unsubscribe from ftrack events on the session event hub for subscription
+        identified by *subscribe_id*. Important to call this on object deletion to
+        release dangling callback reference in memory'''
         self.session.event_hub.unsubscribe(subscribe_id)
 
     def available_framework_events(self):
