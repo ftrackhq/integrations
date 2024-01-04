@@ -2,7 +2,10 @@
 # :copyright: Copyright (c) 2014-2023 ftrack
 
 from ftrack_framework_core.plugin import BasePlugin
-from ftrack_framework_core.exceptions.plugin import PluginUIHookExecutionError
+from ftrack_framework_core.exceptions.plugin import (
+    PluginUIHookExecutionError,
+    PluginExecutionError,
+)
 
 
 class StoreAssetContextPlugin(BasePlugin):
@@ -129,3 +132,13 @@ class StoreAssetContextPlugin(BasePlugin):
         for k in keys:
             if self.options.get(k):
                 store[k] = self.options.get(k)
+        # Check that we have all the required keys
+        if not store.get('asset_id'):
+            if not store.get('asset_name'):
+                raise PluginExecutionError(
+                    'Please select an asset to publish on or a name for a new asset'
+                )
+        if not store.get('status_id'):
+            raise PluginExecutionError(
+                'Please select status for the asset version'
+            )
