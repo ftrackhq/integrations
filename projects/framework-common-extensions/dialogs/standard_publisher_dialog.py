@@ -234,7 +234,7 @@ class StandardPublisherDialog(BaseContextDialog):
 
     def closeEvent(self, event):
         '''(Override) Close the progress widget'''
-        super(StandardPublisherDialog, self).closeEvent(event)
         self._progress_widget.teardown()
         self._context_selector.teardown()
         self._progress_widget.deleteLater()
+        super(StandardPublisherDialog, self).closeEvent(event)
