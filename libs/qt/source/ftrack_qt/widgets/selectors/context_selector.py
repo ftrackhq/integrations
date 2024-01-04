@@ -225,6 +225,7 @@ class ContextSelector(QtWidgets.QFrame):
 
         if self._enable_context_change:
             # Launch browser.
+            self.entity_browser.entity = self.entity
             if self.entity_browser.exec_():
                 self.entity = self.entity_browser.entity
         else:
