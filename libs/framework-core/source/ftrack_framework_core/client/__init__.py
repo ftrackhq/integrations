@@ -281,7 +281,7 @@ class Client(object):
     def _unsubscribe_host_context_changed(self):
         '''Unsubscribe to client context change events'''
         if self.host_context_changed_subscribe_id:
-            self.session.event_hub.unsubscribe(
+            self.event_manager.unsubscribe(
                 self.host_context_changed_subscribe_id
             )
             self._host_context_changed_subscribe_id = None
