@@ -88,19 +88,27 @@ class ComponentPathCollectorPlugin(BasePlugin):
         containing 'asset_version_id' and 'component_name' for the desired
         assets to open.
         '''
+        asset_version_id = self.options.get('asset_version_id')
+        if not asset_version_id:
+            raise PluginExecutionError('Please select a version to open')
+        component_name = self.options.get('component')
+        if not component_name:
+            raise PluginExecutionError(
+                'Please select name of component to open'
+            )
         component = self.session.query(
             'select id from Component where version_id is {} '
             'and name is {}'.format(
-                self.options.get('asset_version_id'),
-                self.options.get('component'),
+                asset_version_id,
+                component_name,
             )
         ).first()
         if not component:
             message = (
                 'Component name {} not available for '
                 'asset version id {}'.format(
-                    self.options.get('component_name'),
-                    self.options.get('asset_version_id'),
+                    component_name,
+                    asset_version_id,
                 )
             )
             self.logger.warning(message)
