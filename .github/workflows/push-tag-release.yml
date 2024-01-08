@@ -17,6 +17,7 @@ jobs:
   set-variables:
     runs-on: ubuntu-latest
     outputs:
+      is_lib: ${{ env.IS_LIB }}
       folder: ${{ env.FOLDER }}
       package: ${{ env.PACKAGE }}
       version: ${{ env.VERSION }}
@@ -28,15 +29,78 @@ jobs:
           echo "PACKAGE=$(echo ${{ github.ref }} | cut -d/ -f 3-3)" >> $GITHUB_ENV
           echo "VERSION=$(echo ${{ github.ref }} | cut -d/ -f 4-4)" >> $GITHUB_ENV
           echo "TAG=$(echo ${{ github.ref }} | cut -d/ -f 3-4)" >> $GITHUB_ENV
+      - name: set apps folder
+        if: ${{ env.PACKAGE == 'connect' }}
+        shell: bash
+        run: |
+          echo "FOLDER=apps/${{ env.PACKAGE }}" >> $GITHUB_ENV
+          echo "IS_LIB=false" >> $GITHUB_ENV
+      - name: set installers folder
+        if: ${{ env.PACKAGE == 'connect-installer' }}
+        shell: bash
+        run: |
+          echo "FOLDER=installers/${{ env.PACKAGE }}" >> $GITHUB_ENV
+          echo "IS_LIB=false" >> $GITHUB_ENV
       - name: set lib folder
-        if: ${{ env.PACKAGE == 'constants' }} || ${{ env.PACKAGE == 'utils' }}
+        if: ${{ env.PACKAGE == 'constants' }} || ${{ env.PACKAGE == 'framework-core' }} || ${{ env.PACKAGE == 'framework-qt' }} || ${{ env.PACKAGE == 'qt' }} || ${{ env.PACKAGE == 'qt-style' }} || ${{ env.PACKAGE == 'utils' }}
         shell: bash
         run: |
           echo "FOLDER=lib/${{ env.PACKAGE }}" >> $GITHUB_ENV
+          echo "IS_LIB=true" >> $GITHUB_ENV
+      - name: set projects folder
+        if: ${{ env.PACKAGE == 'application-launcher' }} || ${{ env.PACKAGE == 'connect-action-launcher-widget' }} || ${{ env.PACKAGE == 'connect-plugin-manager' }} || ${{ env.PACKAGE == 'connect-publisher-widget' }} || ${{ env.PACKAGE == 'connect-timetracker-widget' }} || ${{ env.PACKAGE == 'framework-photoshop' }} || ${{ env.PACKAGE == 'nuke-studio' }} || ${{ env.PACKAGE == 'rv' }}
+        shell: bash
+        run: |
+          echo "FOLDER=projects/${{ env.PACKAGE }}" >> $GITHUB_ENV
+          echo "IS_LIB=false" >> $GITHUB_ENV
       - name: debug
         shell: bash
         run: |
+          echo 'IS_LIB: ${{env.IS_LIB}}'
           echo 'FOLDER: ${{env.FOLDER}}'
           echo 'PACKAGE: ${{env.PACKAGE}}'
           echo 'VERSION: ${{env.VERSION}}'
           echo 'TAG: ${{env.TAG}}'
+
+  release:
+    needs: set-variables
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: build style
+        if: ${{ needs.set-variables.outputs.package == 'qt-style' }}
+        shell: bash
+        run: |
+          pip install -r tools/requirements.txt
+          python tools/build.py build_qt_resources libs/qt-style
+      - name: poetry build
+        shell: bash
+        run: |
+          cd ${{ needs.set-variables.outputs.folder }}
+          poetry build
+      - name: Failsafe delete previous releases, matching tag pattern
+        shell: bash
+        run: |
+          gh release list --limit 100 | sed 's/|/ /' | awk '{print $1, $8}' | grep ${{ needs.set-variables.outputs.tag }} | while read -r line; do echo Deleting conflicting release: $line; gh release delete -y "$line"; done
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        continue-on-error: true
+      - name: Create release & upload artefacts
+        shell: bash
+        run: |
+          cd ${{ needs.set-variables.outputs.folder }}
+          gh release create ${{ needs.set-variables.outputs.tag }} --title ${{ needs.set-variables.outputs.tag }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: upload artefacts
+        shell: bash
+        run: |
+          cd ${{ needs.set-variables.outputs.folder }}
+          gh release upload ${{ needs.set-variables.outputs.tag }} dist/*
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: publish to pypi
+        if: ${{ needs.set-variables.outputs.is_lib == 'true' }}
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          password: ${{ secrets.PYPI_API_TOKEN }}
