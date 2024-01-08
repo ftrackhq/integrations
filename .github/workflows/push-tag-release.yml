@@ -25,10 +25,14 @@ jobs:
       - name: set environments on full release
         shell: bash
         run: |
-          echo "FOLDER=$(echo ${{ github.ref }} | cut -d/ -f 2-2)" >> $GITHUB_ENV
           echo "PACKAGE=$(echo ${{ github.ref }} | cut -d/ -f 3-3)" >> $GITHUB_ENV
           echo "VERSION=$(echo ${{ github.ref }} | cut -d/ -f 4-4)" >> $GITHUB_ENV
           echo "TAG=$(echo ${{ github.ref }} | cut -d/ -f 3-4)" >> $GITHUB_ENV
+      - name: set lib folder
+        if: ${{ env.PACKAGE == "constants" }} || ${{ env.PACKAGE == "utils" }}
+        shell: bash
+        run: |
+          echo "FOLDER=lib/${{ env.PACKAGE }}" >> $GITHUB_ENV
       - name: debug
         shell: bash
         run: |
