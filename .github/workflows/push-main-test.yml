@@ -2,9 +2,9 @@ name: Pytest
 
 on:
   push:
-    branches: [ "dummy" ]
+    branches: [ "dummy" ] # Disable CI - do not trigger, CHANGE THIS TO "main" ON PR
   pull_request:
-    branches: [ "dummy" ]
+    branches: [ "dummy" ] # Disable CI - do not trigger, CHANGE THIS TO "main" ON PR
 
 jobs:
   unit-test-pytest:

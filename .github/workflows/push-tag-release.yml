@@ -3,12 +3,18 @@
 
 name: CI-TAG
 
-on: #push
+on:
   push:
-    branches:
-      - '*'
-    tags:
-      - '*' # Enable CI - trigger on all tags
+    tags-ignore:
+      - '**0.0.0**'
+      - - '**latest**'
+      - - '**stable**'
+
+  #push:
+  #  branches:
+  #    - '*'
+  #  tags:
+  #    - '*' # Enable CI - trigger on all tags
 
 jobs:
 
