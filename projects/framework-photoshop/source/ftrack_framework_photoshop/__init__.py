@@ -15,6 +15,7 @@ from ftrack_constants import framework as constants
 from ftrack_utils.extensions.environment import (
     get_extensions_path_from_environment,
 )
+from ftrack_utils.framework.track_usage import set_usage_metadata
 from ftrack_framework_core.host import Host
 from ftrack_framework_core.event import EventManager
 from ftrack_framework_core.client import Client
@@ -104,6 +105,15 @@ def bootstrap_integration(framework_extensions_path):
 
     photoshop_connection = PhotoshopRPCCEP(
         remote_session, client, dcc_config['tools'], on_run_dialog_callback
+    )
+
+    # Track usage
+    set_usage_metadata(
+        session,
+        'Photoshop',
+        photoshop_connection.photoshop_version,
+        sys.executable,
+        __version__,
     )
 
     # Init process monitor
