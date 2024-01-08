@@ -8,10 +8,6 @@ concurrency: pants_ci
 
 on:
   push:
-    tags-ignore:
-      - '**0.0.0**'
-      - '**latest**'
-      - '**stable**'
     tags:
       - '*' # Enable CI - trigger on all tags
 
