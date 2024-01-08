@@ -3,9 +3,6 @@
 
 name: CI-TAG
 
-# Prevent concurrent runs of this workflow due to the pants cache being shared between them.
-concurrency: pants_ci
-
 on:
   push:
     tags:
