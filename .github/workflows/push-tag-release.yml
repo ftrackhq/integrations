@@ -26,3 +26,9 @@ jobs:
           echo "PACKAGE=$(echo ${{ github.ref }} | cut -d/ -f 3-3)" >> $GITHUB_ENV
           echo "VERSION=$(echo ${{ github.ref }} | cut -d/ -f 4-4)" >> $GITHUB_ENV
           echo "TAG=$(echo ${{ github.ref }} | cut -d/ -f 3-4)" >> $GITHUB_ENV
+      - name: debug
+        shell: bash
+        run: |
+          echo 'PACKAGE: ${{env.PACKAGE}}'
+          echo 'VERSION: ${{env.VERSION}}'
+          echo 'TAG: ${{env.TAG}}'
