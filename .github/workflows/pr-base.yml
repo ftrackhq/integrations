@@ -8,7 +8,7 @@ on:
       - synchronize
       - closed
       - ready_for_review
-  branches: ["dummy"] # Disable CI - do not trigger, REMOVE THIS ON PR
+    branches: ["dummy"] # Disable CI - do not trigger, REMOVE THIS ON PR
 
 jobs:
   check-pr:
