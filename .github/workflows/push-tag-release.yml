@@ -29,7 +29,7 @@ jobs:
           echo "VERSION=$(echo ${{ github.ref }} | cut -d/ -f 4-4)" >> $GITHUB_ENV
           echo "TAG=$(echo ${{ github.ref }} | cut -d/ -f 3-4)" >> $GITHUB_ENV
       - name: set lib folder
-        if: ${{ env.PACKAGE == "constants" }} || ${{ env.PACKAGE == "utils" }}
+        if: ${{ env.PACKAGE == 'constants' }} || ${{ env.PACKAGE == 'utils' }}
         shell: bash
         run: |
           echo "FOLDER=lib/${{ env.PACKAGE }}" >> $GITHUB_ENV
