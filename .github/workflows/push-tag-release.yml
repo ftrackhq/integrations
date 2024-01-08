@@ -10,11 +10,6 @@ on:
       - '**latest**'
       - '**stable**'
 
-  #push:
-  #  branches:
-  #    - '*'
-  #  tags:
-  #    - '*' # Enable CI - trigger on all tags
 
 jobs:
 
@@ -22,6 +17,7 @@ jobs:
   set-variables:
     runs-on: ubuntu-latest
     outputs:
+      folder: ${{ env.FOLDER }}
       package: ${{ env.PACKAGE }}
       version: ${{ env.VERSION }}
       tag: ${{ env.TAG }}
@@ -29,12 +25,14 @@ jobs:
       - name: set environments on full release
         shell: bash
         run: |
+          echo "FOLDER=$(echo ${{ github.ref }} | cut -d/ -f 2-2)" >> $GITHUB_ENV
           echo "PACKAGE=$(echo ${{ github.ref }} | cut -d/ -f 3-3)" >> $GITHUB_ENV
           echo "VERSION=$(echo ${{ github.ref }} | cut -d/ -f 4-4)" >> $GITHUB_ENV
           echo "TAG=$(echo ${{ github.ref }} | cut -d/ -f 3-4)" >> $GITHUB_ENV
       - name: debug
         shell: bash
         run: |
+          echo 'FOLDER: ${{env.FOLDER}}'
           echo 'PACKAGE: ${{env.PACKAGE}}'
           echo 'VERSION: ${{env.VERSION}}'
           echo 'TAG: ${{env.TAG}}'
