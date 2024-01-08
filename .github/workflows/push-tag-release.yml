@@ -67,6 +67,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+      - name: install poetry
+        shell: bash
+        run: |
+          pip install poetry
       - name: build style
         if: ${{ needs.set-variables.outputs.package == 'qt-style' }}
         shell: bash
