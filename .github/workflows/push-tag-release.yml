@@ -5,6 +5,8 @@ name: CI-TAG
 
 on: #push
   push:
+    branches:
+      - '*'
     tags:
       - '*' # Enable CI - trigger on all tags
 
