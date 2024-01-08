@@ -2,9 +2,9 @@ name: Pytest
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "dummy" ]
   pull_request:
-    branches: [ "main" ]
+    branches: [ "dummy" ]
 
 jobs:
   unit-test-pytest:
