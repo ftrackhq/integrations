@@ -65,6 +65,7 @@ jobs:
 
   create-release:
     needs: set-variables
+    runs-on: ubuntu-latest
     steps:
       - name: Failsafe delete previous releases, matching tag pattern
         shell: bash
