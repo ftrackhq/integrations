@@ -17,7 +17,7 @@ jobs:
   set-variables-create-release:
     runs-on: ubuntu-latest
     outputs:
-      is_lib: ${{ env.IS_LIB }}
+      to_pypi: ${{ env.TO_PYPI }}
       folder: ${{ env.FOLDER }}
       package: ${{ env.PACKAGE }}
       version: ${{ env.VERSION }}
@@ -35,45 +35,45 @@ jobs:
         shell: bash
         run: |
           echo "FOLDER=apps/${{ env.PACKAGE }}" >> $GITHUB_ENV
-          echo "IS_LIB=false" >> $GITHUB_ENV
+          echo "TO_PYPI=false" >> $GITHUB_ENV
       - name: set installers folder
         if: ${{ env.PACKAGE == 'connect-installer' }}
         run: echo Not supported by this CI && exit 1
         #shell: bash
         #run: |
         #  echo "FOLDER=installers/${{ env.PACKAGE }}" >> $GITHUB_ENV
-        #  echo "IS_LIB=false" >> $GITHUB_ENV
+        #  echo "TO_PYPI=false" >> $GITHUB_ENV
       - name: set lib folder
         if: ${{ env.PACKAGE == 'constants' || env.PACKAGE == 'framework-core' || env.PACKAGE == 'framework-qt' || env.PACKAGE == 'qt' || env.PACKAGE == 'qt-style' || env.PACKAGE == 'utils' }}
         shell: bash
         run: |
           echo "FOLDER=libs/${{ env.PACKAGE }}" >> $GITHUB_ENV
-          echo "IS_LIB=true" >> $GITHUB_ENV
+          echo "TO_PYPI=true" >> $GITHUB_ENV
       - name: set projects folder
         if: ${{ env.PACKAGE == 'application-launcher' || env.PACKAGE == 'connect-action-launcher-widget' || env.PACKAGE == 'connect-plugin-manager' || env.PACKAGE == 'connect-publisher-widget' || env.PACKAGE == 'connect-timetracker-widget' || env.PACKAGE == 'framework-photoshop' || env.PACKAGE == 'nuke-studio' || env.PACKAGE == 'rv' }}
         shell: bash
         run: |
           echo "FOLDER=projects/${{ env.PACKAGE }}" >> $GITHUB_ENV
-          echo "IS_LIB=false" >> $GITHUB_ENV
+          echo "TO_PYPI=false" >> $GITHUB_ENV
       - name: debug
         shell: bash
         run: |
-          echo 'IS_LIB: ${{env.IS_LIB}}'
-          echo 'FOLDER: ${{env.FOLDER}}'
-          echo 'PACKAGE: ${{env.PACKAGE}}'
-          echo 'VERSION: ${{env.VERSION}}'
-          echo 'TAG: ${{env.TAG}}'
+          echo 'TO_PYPI: ${{ env.TO_PYPI }}'
+          echo 'FOLDER: ${{ env.FOLDER }}'
+          echo 'PACKAGE: ${{ env.PACKAGE }}'
+          echo 'VERSION: ${{ env.VERSION }}'
+          echo 'TAG: ${{ env.TAG }}'
       - name: Failsafe delete previous releases, matching tag pattern
         shell: bash
         run: |
-          gh release list --limit 100 | sed 's/|/ /' | awk '{print $1, $8}' | grep ${{env.TAG}} | while read -r line; do echo Deleting conflicting release: $line; gh release delete -y "$line"; done
+          gh release list --limit 100 | sed 's/|/ /' | awk '{print $1, $8}' | grep ${{ env.TAG }} | while read -r line; do echo Deleting conflicting release: $line; gh release delete -y "$line"; done
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         continue-on-error: true
       - name: Create release
         shell: bash
         run: |
-          gh release create ${{env.TAG}} --title ${{ needs.set-variables-create-release.outputs.tag }}
+          gh release create ${{ env.TAG }} --title ${{ env.TAG }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -143,7 +143,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: publish to pypi
-        if: ${{ needs.set-variables-create-release.outputs.is_lib == 'true' }}
+        if: ${{ needs.set-variables-create-release.outputs.to_pypi == 'true' }}
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
           password: ${{ secrets.PYPI_API_TOKEN }}
