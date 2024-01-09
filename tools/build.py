@@ -585,7 +585,7 @@ def build_package(pkg_path, args):
                 )
                 executable = os.path.join(
                     os.path.dirname(sys.executable),
-                    f'pyside2-rcc{".exe" if sys.platform == "win32" else ""}',
+                    f'pyscss{".exe" if sys.platform == "win32" else ""}',
                 )
 
             # Use the first occurrence if more than one is found.
