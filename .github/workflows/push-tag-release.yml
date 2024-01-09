@@ -66,14 +66,14 @@ jobs:
       - name: Failsafe delete previous releases, matching tag pattern
         shell: bash
         run: |
-          gh release list --limit 100 | sed 's/|/ /' | awk '{print $1, $8}' | grep ${{ needs.set-variables-create-release.outputs.tag }} | while read -r line; do echo Deleting conflicting release: $line; gh release delete -y "$line"; done
+          gh release list --limit 100 | sed 's/|/ /' | awk '{print $1, $8}' | grep ${{env.TAG}} | while read -r line; do echo Deleting conflicting release: $line; gh release delete -y "$line"; done
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         continue-on-error: true
       - name: Create release
         shell: bash
         run: |
-          gh release create ${{ needs.set-variables-create-release.outputs.tag }} --title ${{ needs.set-variables-create-release.outputs.tag }}
+          gh release create ${{env.TAG}} --title ${{ needs.set-variables-create-release.outputs.tag }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -190,7 +190,7 @@ jobs:
   release-macos:
     needs: set-variables-create-release
     if: ${{ needs.set-variables-create-release.outputs.package == 'framework-photoshop' }}
-    runs-on: macos-latest-large
+    runs-on: macos-latest
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-python@v4
