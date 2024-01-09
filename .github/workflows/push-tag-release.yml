@@ -67,6 +67,7 @@ jobs:
     needs: set-variables
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v3
       - name: Failsafe delete previous releases, matching tag pattern
         shell: bash
         run: |
