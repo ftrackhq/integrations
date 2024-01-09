@@ -62,7 +62,7 @@ to build the plugin.
 Install documentation dependencies:
 
 ```bash
-  poetry install --with documentation
+  poetry install --only documentation
 ```
 
 Build documentation:
