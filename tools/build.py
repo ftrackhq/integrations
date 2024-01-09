@@ -86,9 +86,7 @@ def build_package(pkg_path, args):
                             lib_toml_path
                         ):
                             logging.info(
-                                'Identified monorepo dependency: {}'.format(
-                                    lib
-                                )
+                                f'Identified monorepo dependency: {lib}'
                             )
                             FTRACK_DEP_LIBS.append(lib)
                             # Recursively add monorepo dependencies
@@ -131,7 +129,7 @@ def build_package(pkg_path, args):
             'Missing "pyproject.toml" file, not able to identify target DCC!'
         )
 
-        PROJECT_NAME = 'ftrack-{}'.format(os.path.basename(ROOT_PATH))
+        PROJECT_NAME = f'ftrack-{os.path.basename(ROOT_PATH)}'
         VERSION = '0.0.0'
 
     SOURCE_PATH = os.path.join(
@@ -893,16 +891,14 @@ if __name__ == '__main__':
     for pkg_path in args.packages.split(','):
         pkg_path = pkg_path.strip()
         if not os.path.exists(pkg_path):
-            raise Exception(
-                'Package path "{}" does not exist!'.format(pkg_path)
-            )
+            raise Exception(f'Package path "{pkg_path}" does not exist!')
         if not os.path.exists(
             os.path.join(pkg_path, 'pyproject.toml')
         ) and not os.path.exists(os.path.join(pkg_path, 'setup.py')):
             raise Exception(
-                'Package path "{}" does not contain a Setuptools or Poetry '
-                'project!'.format(pkg_path)
+                f'Package path "{pkg_path}" does not contain a Setuptools or Poetry '
+                'project!'
             )
         logging.info('*' * 100)
-        logging.info('Building package: {}'.format(pkg_path))
+        logging.info(f'Building package: {pkg_path}')
         build_package(pkg_path, args)
