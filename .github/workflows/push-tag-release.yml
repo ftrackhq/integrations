@@ -1,5 +1,5 @@
-# Create public release on tag push, preserves previous releases.
-# Re-tags "<package>/stable" to point on tag
+# Create public release on tag push, removes previous releases.
+# Publishes libraries to PyPi, building Connect plugin for non-libraries.
 
 name: CI-TAG
 
@@ -170,7 +170,7 @@ jobs:
         if: ${{ needs.set-variables-create-release.outputs.package == 'qt-style' || true }}
         shell: bash
         run: |
-          pip install --verbose -r tools/requirements.txt
+          pip install -r tools/requirements.txt
           python tools/build.py build_qt_resources libs/qt-style
       - name: poetry build
         shell: bash
@@ -211,7 +211,7 @@ jobs:
         if: ${{ needs.set-variables-create-release.outputs.package == 'qt-style' || true }}
         shell: bash
         run: |
-          pip install --verbose -r tools/requirements.txt
+          pip install -r tools/requirements.txt
           python tools/build.py build_qt_resources libs/qt-style
       - name: poetry build
         shell: bash
