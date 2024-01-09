@@ -579,7 +579,10 @@ def build_package(pkg_path, args):
                 executable = pyside_rcc_command
 
             if not executable:
-                raise IOError('Not executable found for pyside2-rcc ')
+                logging.warning(
+                    'No executable found for pyside2-rcc, attempting to run anyway.'
+                )
+                executable = pyside_rcc_command
 
             # Use the first occurrence if more than one is found.
             cmd = [
