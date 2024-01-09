@@ -14,7 +14,7 @@ on:
 jobs:
 
   # Set the environment variables for the rest of release workflow
-  set-variables:
+  set-variables-create-release:
     runs-on: ubuntu-latest
     outputs:
       is_lib: ${{ env.IS_LIB }}
@@ -23,6 +23,7 @@ jobs:
       version: ${{ env.VERSION }}
       tag: ${{ env.TAG }}
     steps:
+      - uses: actions/checkout@v3
       - name: set environments on full release
         shell: bash
         run: |
@@ -62,33 +63,27 @@ jobs:
           echo 'PACKAGE: ${{env.PACKAGE}}'
           echo 'VERSION: ${{env.VERSION}}'
           echo 'TAG: ${{env.TAG}}'
-
-  create-release:
-    needs: set-variables
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
       - name: Failsafe delete previous releases, matching tag pattern
         shell: bash
         run: |
-          gh release list --limit 100 | sed 's/|/ /' | awk '{print $1, $8}' | grep ${{ needs.set-variables.outputs.tag }} | while read -r line; do echo Deleting conflicting release: $line; gh release delete -y "$line"; done
+          gh release list --limit 100 | sed 's/|/ /' | awk '{print $1, $8}' | grep ${{ needs.set-variables-create-release.outputs.tag }} | while read -r line; do echo Deleting conflicting release: $line; gh release delete -y "$line"; done
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         continue-on-error: true
       - name: Create release
         shell: bash
         run: |
-          gh release create ${{ needs.set-variables.outputs.tag }} --title ${{ needs.set-variables.outputs.tag }}
+          gh release create ${{ needs.set-variables-create-release.outputs.tag }} --title ${{ needs.set-variables-create-release.outputs.tag }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   release-linux:
-    needs:  create-release
-    if: ${{ needs.set-variables.outputs.package != 'framework-photoshop' }}
+    needs: set-variables-create-release
+    if: ${{ needs.set-variables-create-release.outputs.package != 'framework-photoshop' }}
     runs-on: ubuntu-latest
     environment:
       name: production
-      url: https://pypi.org/project/ftrack-${{ needs.set-variables.outputs.package }}/
+      url: https://pypi.org/project/ftrack-${{ needs.set-variables-create-release.outputs.package }}/
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-python@v4
@@ -100,7 +95,7 @@ jobs:
           pip install poetry
       - name: build style
         # TODO: Remove || true when all libraries are published to pypi
-        if: ${{ needs.set-variables.outputs.package == 'qt-style' || true }}
+        if: ${{ needs.set-variables-create-release.outputs.package == 'qt-style' || true }}
         shell: bash
         run: |
           pip install -r tools/requirements.txt
@@ -108,24 +103,24 @@ jobs:
       - name: poetry build
         shell: bash
         run: |
-          cd ${{ needs.set-variables.outputs.folder }}
+          cd ${{ needs.set-variables-create-release.outputs.folder }}
           poetry build
       - name: build standard connect plugin
-        if: ${{ needs.set-variables.outputs.package == 'connect-action-launcher-widget' || needs.set-variables.outputs.package == 'connect-plugin-manager' || needs.set-variables.outputs.package == 'connect-publisher-widget' || needs.set-variables.outputs.package == 'connect-timetracker-widget' }}
+        if: ${{ needs.set-variables-create-release.outputs.package == 'connect-action-launcher-widget' || needs.set-variables-create-release.outputs.package == 'connect-plugin-manager' || needs.set-variables-create-release.outputs.package == 'connect-publisher-widget' || needs.set-variables-create-release.outputs.package == 'connect-timetracker-widget' }}
         shell: bash
         # TODO: Remove --from_source when all libraries are published to pypi
         run: |
           pip install -r tools/requirements.txt
-          python tools/build.py --remove_intermediate_folder --from_source build_connect_plugin ${{ needs.set-variables.outputs.folder }}
+          python tools/build.py --remove_intermediate_folder --from_source build_connect_plugin ${{ needs.set-variables-create-release.outputs.folder }}
       - name: build nuke studio connect plugin
-        if: ${{ needs.set-variables.outputs.package == 'nuke-studio' }}
+        if: ${{ needs.set-variables-create-release.outputs.package == 'nuke-studio' }}
         shell: bash
         # TODO: Remove --from_source when all libraries are published to pypi
         run: |
           pip install -r tools/requirements.txt
-          python tools/build.py --remove_intermediate_folder --from_source --include_resources resource/plugin,resource/application_hook build_connect_plugin ${{ needs.set-variables.outputs.folder }}
+          python tools/build.py --remove_intermediate_folder --from_source --include_resources resource/plugin,resource/application_hook build_connect_plugin ${{ needs.set-variables-create-release.outputs.folder }}
       - name: build rv connect plugin
-        if: ${{ needs.set-variables.outputs.package == 'rv' }}
+        if: ${{ needs.set-variables-create-release.outputs.package == 'rv' }}
         shell: bash
         # TODO: Remove --from_source when all libraries are published to pypi
         run: |
@@ -133,29 +128,29 @@ jobs:
           python build_rv_plugin.py resource/plugin /tmp/
           cd ../..
           pip install -r tools/requirements.txt
-          python tools/build.py --remove_intermediate_folder --from_source --include_assets /tmp/ftrack-5.1.0.rvpkg build_connect_plugin ${{ needs.set-variables.outputs.folder }}
+          python tools/build.py --remove_intermediate_folder --from_source --include_assets /tmp/ftrack-5.1.0.rvpkg build_connect_plugin ${{ needs.set-variables-create-release.outputs.folder }}
       - name: upload artefacts
         shell: bash
         run: |
-          cd ${{ needs.set-variables.outputs.folder }}
-          gh release upload ${{ needs.set-variables.outputs.tag }} dist/*
+          cd ${{ needs.set-variables-create-release.outputs.folder }}
+          gh release upload ${{ needs.set-variables-create-release.outputs.tag }} dist/*
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: activate release
         shell: bash
         run: |
-          gh release edit ${{ needs.set-variables.outputs.tag }} --draft=false
+          gh release edit ${{ needs.set-variables-create-release.outputs.tag }} --draft=false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: publish to pypi
-        if: ${{ needs.set-variables.outputs.is_lib == 'true' }}
+        if: ${{ needs.set-variables-create-release.outputs.is_lib == 'true' }}
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
           password: ${{ secrets.PYPI_API_TOKEN }}
 
   release-windows:
-    needs:  create-release
-    if: ${{ needs.set-variables.outputs.package == 'framework-photoshop' }}
+    needs: set-variables-create-release
+    if: ${{ needs.set-variables-create-release.outputs.package == 'framework-photoshop' }}
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v3
@@ -168,7 +163,7 @@ jobs:
           pip install poetry
       - name: build style
         # TODO: Remove || true when all libraries are published to pypi
-        if: ${{ needs.set-variables.outputs.package == 'qt-style' || true }}
+        if: ${{ needs.set-variables-create-release.outputs.package == 'qt-style' || true }}
         shell: bash
         run: |
           pip install --verbose -r tools/requirements.txt
@@ -176,25 +171,25 @@ jobs:
       - name: poetry build
         shell: bash
         run: |
-          cd ${{ needs.set-variables.outputs.folder }}
+          cd ${{ needs.set-variables-create-release.outputs.folder }}
           poetry build
       - name: build standard connect plugin
         shell: bash
         # TODO: Remove --from_source when all libraries are published to pypi
         run: |
           pip install -r tools/requirements.txt
-          python tools/build.py --remove_intermediate_folder --from_source build_connect_plugin ${{ needs.set-variables.outputs.folder }}
+          python tools/build.py --remove_intermediate_folder --from_source build_connect_plugin ${{ needs.set-variables-create-release.outputs.folder }}
       - name: upload artefacts
         shell: bash
         run: |
-          cd ${{ needs.set-variables.outputs.folder }}
-          gh release upload ${{ needs.set-variables.outputs.tag }} dist/*
+          cd ${{ needs.set-variables-create-release.outputs.folder }}
+          gh release upload ${{ needs.set-variables-create-release.outputs.tag }} dist/*
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   release-macos:
-    needs:  create-release
-    if: ${{ needs.set-variables.outputs.package == 'framework-photoshop' }}
+    needs: set-variables-create-release
+    if: ${{ needs.set-variables-create-release.outputs.package == 'framework-photoshop' }}
     runs-on: macos-latest-large
     steps:
       - uses: actions/checkout@v3
@@ -207,7 +202,7 @@ jobs:
           pip install poetry
       - name: build style
         # TODO: Remove || true when all libraries are published to pypi
-        if: ${{ needs.set-variables.outputs.package == 'qt-style' || true }}
+        if: ${{ needs.set-variables-create-release.outputs.package == 'qt-style' || true }}
         shell: bash
         run: |
           pip install --verbose -r tools/requirements.txt
@@ -215,18 +210,18 @@ jobs:
       - name: poetry build
         shell: bash
         run: |
-          cd ${{ needs.set-variables.outputs.folder }}
+          cd ${{ needs.set-variables-create-release.outputs.folder }}
           poetry build
       - name: build standard connect plugin
         shell: bash
         # TODO: Remove --from_source when all libraries are published to pypi
         run: |
           pip install -r tools/requirements.txt
-          python tools/build.py --remove_intermediate_folder --from_source build_connect_plugin ${{ needs.set-variables.outputs.folder }}
+          python tools/build.py --remove_intermediate_folder --from_source build_connect_plugin ${{ needs.set-variables-create-release.outputs.folder }}
       - name: upload artefacts
         shell: bash
         run: |
-          cd ${{ needs.set-variables.outputs.folder }}
-          gh release upload ${{ needs.set-variables.outputs.tag }} dist/*
+          cd ${{ needs.set-variables-create-release.outputs.folder }}
+          gh release upload ${{ needs.set-variables-create-release.outputs.tag }} dist/*
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
