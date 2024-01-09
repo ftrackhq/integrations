@@ -65,6 +65,9 @@ jobs:
   release:
     needs: set-variables
     runs-on: ubuntu-latest
+    environment:
+      name: production
+      url: https://pypi.org/project/ftrack-${{ needs.set-variables.outputs.package }}/
     steps:
       - uses: actions/checkout@v3
       - name: install poetry
