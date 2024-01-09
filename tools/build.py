@@ -576,17 +576,16 @@ def build_package(pkg_path, args):
 
             # Check if the command for pyside*-rcc is in executable paths.
             if find_executable(pyside_rcc_command):
-                executable = pyside_rcc_command
+                executable = [pyside_rcc_command]
 
             if not executable:
                 logging.warning(
-                    'No executable found for pyside2-rcc, attempting to run anyway.'
+                    'No executable found for pyside2-rcc, running as a module.'
                 )
-                executable = pyside_rcc_command
+                executable = ['python', '-m', 'scss']
 
             # Use the first occurrence if more than one is found.
-            cmd = [
-                executable,
+            cmd = executable + [
                 '-o',
                 resource_target_path,
                 resource_source_path,
