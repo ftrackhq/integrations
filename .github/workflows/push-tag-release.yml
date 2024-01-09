@@ -103,7 +103,7 @@ jobs:
         if: ${{ needs.set-variables.outputs.package == 'qt-style' || true }}
         shell: bash
         run: |
-          pip install --verbose -r tools/requirements.txt
+          pip install -r tools/requirements.txt
           python tools/build.py build_qt_resources libs/qt-style
       - name: poetry build
         shell: bash
@@ -210,7 +210,7 @@ jobs:
         if: ${{ needs.set-variables.outputs.package == 'qt-style' || true }}
         shell: bash
         run: |
-          pip install -r tools/requirements.txt
+          pip install --verbose -r tools/requirements.txt
           python tools/build.py build_qt_resources libs/qt-style
       - name: poetry build
         shell: bash
