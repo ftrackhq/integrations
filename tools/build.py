@@ -506,6 +506,10 @@ def build_package(pkg_path, args):
             'Built Connect plugin archive: {}.zip'.format(archive_path)
         )
 
+        if args.remove_intermediate_folder:
+            logging.warning(f'Removing: {STAGING_PATH}')
+            shutil.rmtree(STAGING_PATH, ignore_errors=True)
+
     def _replace_imports_(resource_target_path):
         '''Replace imports in resource files to Qt instead of QtCore.
 
@@ -815,6 +819,13 @@ if __name__ == '__main__':
         '--from_source',
         help='(Connect plugin) Instead of pulling from PyPi, uses dependencies '
         'directly from sources.',
+        action='store_true',
+    )
+
+    parser.add_argument(
+        '--remove_intermediate_folder',
+        help='(Connect plugin) Remove the intermediate staging plugin folder after '
+        'archive creation.',
         action='store_true',
     )
 

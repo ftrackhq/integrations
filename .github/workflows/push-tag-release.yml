@@ -37,10 +37,11 @@ jobs:
           echo "IS_LIB=false" >> $GITHUB_ENV
       - name: set installers folder
         if: ${{ env.PACKAGE == 'connect-installer' }}
-        shell: bash
-        run: |
-          echo "FOLDER=installers/${{ env.PACKAGE }}" >> $GITHUB_ENV
-          echo "IS_LIB=false" >> $GITHUB_ENV
+        run: echo Not supported by this CI && exit 1
+        #shell: bash
+        #run: |
+        #  echo "FOLDER=installers/${{ env.PACKAGE }}" >> $GITHUB_ENV
+        #  echo "IS_LIB=false" >> $GITHUB_ENV
       - name: set lib folder
         if: ${{ env.PACKAGE == 'constants' || env.PACKAGE == 'framework-core' || env.PACKAGE == 'framework-qt' || env.PACKAGE == 'qt' || env.PACKAGE == 'qt-style' || env.PACKAGE == 'utils' }}
         shell: bash
@@ -99,6 +100,30 @@ jobs:
           gh release create ${{ needs.set-variables.outputs.tag }} --title ${{ needs.set-variables.outputs.tag }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: build standard connect plugin
+        if: ${{ needs.set-variables.outputs.package == 'connect-action-launcher-widget' || needs.set-variables.outputs.package == 'connect-plugin-manager' || needs.set-variables.outputs.package == 'connect-publisher-widget' || needs.set-variables.outputs.package == 'connect-timetracker-widget' || needs.set-variables.outputs.package == 'framework-photoshop'  }}
+        shell: bash
+        # TODO: Remove --from_source when all libraries are published to pypi
+        run: |
+          pip install -r tools/requirements.txt
+          python tools/build.py --remove_intermediate_folder --from_source build_connect_plugin ${{ needs.set-variables.outputs.folder }}
+      - name: build nuke studio connect plugin
+        if: ${{ needs.set-variables.outputs.package == 'nuke-studio' }}
+        shell: bash
+        # TODO: Remove --from_source when all libraries are published to pypi
+        run: |
+          pip install -r tools/requirements.txt
+          python tools/build.py --remove_intermediate_folder --from_source --include_resources resource/plugin,resource/application_hook build_connect_plugin ${{ needs.set-variables.outputs.folder }}
+      - name: build rv connect plugin
+        if: ${{ needs.set-variables.outputs.package == 'rv' }}
+        shell: bash
+        # TODO: Remove --from_source when all libraries are published to pypi
+        run: |
+          cd projects/rv
+          python build_rv_plugin.py resource/plugin /tmp/
+          cd ../..
+          pip install -r tools/requirements.txt
+          python tools/build.py --remove_intermediate_folder --from_source --include_assets /tmp/ftrack-5.1.0.rvpkg build_connect_plugin ${{ needs.set-variables.outputs.folder }}
       - name: upload artefacts
         shell: bash
         run: |
