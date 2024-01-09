@@ -195,7 +195,7 @@ jobs:
   release-macos:
     needs:  create-release
     if: ${{ needs.set-variables.outputs.package == 'framework-photoshop' }}
-    runs-on: macos-11
+    runs-on: macos-latest-large
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-python@v4
