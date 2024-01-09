@@ -71,6 +71,9 @@ jobs:
       url: https://pypi.org/project/ftrack-${{ needs.set-variables.outputs.package }}/
     steps:
       - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.7'
       - name: install poetry
         shell: bash
         run: |
