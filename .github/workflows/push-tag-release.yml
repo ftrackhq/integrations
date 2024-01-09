@@ -77,7 +77,6 @@ jobs:
       - name: Create release
         shell: bash
         run: |
-          cd ${{ needs.set-variables.outputs.folder }}
           gh release create ${{ needs.set-variables.outputs.tag }} --title ${{ needs.set-variables.outputs.tag }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
