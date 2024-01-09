@@ -71,7 +71,7 @@ to build the plugin.
 Install documentation dependencies:
 
 ```bash
-    poetry install --with documentation
+    poetry install --only documentation
 ```
 
 Build documentation:
@@ -92,7 +92,7 @@ To enable live development, first allow unsigned extensions:
     defaults write com.adobe.CSXS.8 PlayerDebugMode 1
 ```
 
-Build and install ZXP extension and then open up permissions on folder:
+Build and install CEP extension and then open up permissions on folder:
 
 ```bash
     sudo chmod -R 777 "/library/application support/adobe/cep/extensions/com.ftrack.framework.photoshop.panel"
@@ -104,9 +104,30 @@ source folder before committing.
 
 ### CEP plugin build
 
+Install Adobe ZXPSignCmd:
+
+- Download and install ZXPSignCmd from: https://github.com/Adobe-CEP/CEP-Resources/tree/master/ZXPSignCMD
+- If you are in MacOs, you can follow the instructions below:
+  - Copy ZXPSignCmd-64bit to your Documents folder
+  ```bash
+    cd ~/Documents
+    chmod +x ZXPSignCmd-64bit
+    ln ZXPSignCmd-64bit /usr/local/bin/ZXPSignCmd
+  ```
+
 Set variables:
 
-    ADOBE_CERTIFICATE_PASSWORD=<Adobe exchange vault entry>
+```bash
+  export ADOBE_CERTIFICATE_PASSWORD=<Adobe exchange vault entry>
+```
+
+Build Ftrack Qt Style:
+
+```bash
+    cd integrations
+    pip install -r tools/requirements.txt
+    python tools/build.py build_qt_resources libs/qt-style
+```
 
 Create Adobe extension:
 
@@ -117,6 +138,8 @@ Create Adobe extension:
 
 ## Installing
 
+### Connect plugin
+Copy the resulting dist/ftrack-framewrok-photoshop-<version> folder to your connect plugin folder.
 
 ### CEP plugin
 

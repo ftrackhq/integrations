@@ -51,6 +51,38 @@ or:
 
 See Monorepo build CI
 
+### Test connect from sources
+1. Go to the Connect package within monorepo:
+
+```bash
+    cd integrations/apps/connect
+```
+
+2. Create and activate a virtual environment:
+- Create a Python 3.7 virtual environment. If you're using an Apple Silicon chip, follow the instructions in the [How to install compatible PySide2 on Silicon based Mac](../../README.md#how-to-install-compatible-pyside2-on-silicon-based-mac) section.
+- Activate the virtual environment. 
+
+3. Update dependencies:
+
+```bash
+    poetry update
+```
+
+4. Install dependencies:
+
+```bash
+    poetry install --extras ftrack-libs # If you want to manually use ftrack-libraries from sources, don't install extras and manually install them following its own readme file.
+```
+   1. To install ftrack-libs from sources:
+   ```bash
+       cd ../../libs/utils
+       poetry install
+   ```
+5. Start connect:
+
+```bash
+    python -m ftrack_connect
+```
 
 ### Manual build
 
@@ -60,43 +92,48 @@ See Monorepo build CI
     cd integrations/apps/connect
 ```
 
-2. Install development dependencies:
+2. Create and activate a virtual environment:
+- Create a Python 3.7 virtual environment. If you're using an Apple Silicon chip, follow the instructions in the [How to install compatible PySide2 on Silicon based Mac](../../README.md#how-to-install-compatible-pyside2-on-silicon-based-mac) section.
+- Activate the virtual environment. 
+
+3. Update dependencies:
 
 ```bash
-    poetry install --with documentation
+    poetry update
 ```
 
-3. Go to the root of the Connect package within monorepo:
+4. Install dependencies:
 
 ```bash
-    cd integrations
-```
-
-4. Activate a virtual environment:
-
-```bash
-    poetry shell
+    poetry install --extras ftrack-libs
 ```
 
 5. Build the QT resources
 
 ```bash
-pip install tools/requirements.txt
+cd ../..
+pip install -r tools/requirements.txt
 python tools/build.py --style_path resource --output_path source/ftrack_connect/ui/resource.py build_qt_resources apps/connect
+cd integrations/apps/connect
 ```
 
-6. Build with Poetry:
+7. Build with Poetry:
 
 ```bash
   poetry build
 ```
+### Install wheel
+
+```bash
+  pip install dist/ftrack-connect-<version>.whl
+```
 
 ### Build documentation
 
-1. Install development dependencies:
+1. Install documentation dependencies:
 
 ```bash
-  poetry install --with documentation
+  poetry install --only documentation
 ```
 
 2. Build documentation:
