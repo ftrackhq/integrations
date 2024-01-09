@@ -79,6 +79,8 @@ jobs:
 
   release-linux:
     needs: set-variables-create-release
+    concurrency:
+      group: ci-${{ github.ref }}
     if: ${{ needs.set-variables-create-release.outputs.package != 'framework-photoshop' }}
     runs-on: ubuntu-latest
     environment:
@@ -133,7 +135,7 @@ jobs:
         shell: bash
         run: |
           cd ${{ needs.set-variables-create-release.outputs.folder }}
-          gh release upload ${{ needs.set-variables-create-release.outputs.tag }} dist/*
+          gh release upload ${{ needs.set-variables-create-release.outputs.tag }} dist/* --clobber
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: activate release
@@ -150,6 +152,8 @@ jobs:
 
   release-windows:
     needs: set-variables-create-release
+    concurrency:
+      group: ci-${{ github.ref }}
     if: ${{ needs.set-variables-create-release.outputs.package == 'framework-photoshop' }}
     runs-on: windows-latest
     steps:
@@ -183,12 +187,14 @@ jobs:
         shell: bash
         run: |
           cd ${{ needs.set-variables-create-release.outputs.folder }}
-          gh release upload ${{ needs.set-variables-create-release.outputs.tag }} dist/*
+          gh release upload ${{ needs.set-variables-create-release.outputs.tag }} dist/*  --clobber
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   release-macos:
     needs: set-variables-create-release
+    concurrency:
+      group: ci-${{ github.ref }}
     if: ${{ needs.set-variables-create-release.outputs.package == 'framework-photoshop' }}
     runs-on: macos-latest
     steps:
@@ -222,6 +228,6 @@ jobs:
         shell: bash
         run: |
           cd ${{ needs.set-variables-create-release.outputs.folder }}
-          gh release upload ${{ needs.set-variables-create-release.outputs.tag }} dist/*
+          gh release upload ${{ needs.set-variables-create-release.outputs.tag }} dist/*  --clobber
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
