@@ -1,10 +1,12 @@
----
+type: launcher
+name: framework-nukex
+priority: 100
 context:
 - Task
 identifier: ftrack-connect-launch-nuke-x
 applicationIdentifier: nuke_x_{variant}
 integrations:
-  pipeline:
+  framework:
   - framework-nuke
 label: Nuke_X
 icon: nukex

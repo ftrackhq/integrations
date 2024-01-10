@@ -1,9 +1,12 @@
+type: launcher
+name: framework-nuke
+priority: 100
 context:
 - Task
 identifier: framework-nuke
 applicationIdentifier: nuke_{variant}
 integrations:
-  pipeline:
+  framework:
   - framework-nuke
 label: Nuke
 icon: nuke

@@ -9,7 +9,7 @@ import functools
 
 from ftrack_connect.util import get_connect_plugin_version
 
-NAME = 'framework-photoshop'
+NAME = 'framework-nuke'
 ''' The name of the integration, should match name in bootstrap and launcher'''
 
 logger = logging.getLogger(__name__)
