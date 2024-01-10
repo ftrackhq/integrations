@@ -44,7 +44,13 @@ logger.debug('v{}'.format(__version__))
 
 # TODO: implement menu
 def bootstrap_integration(framework_extensions_path):
-    pass
+    '''
+    Initialise Maya Framework integration
+    '''
+    logger.debug(
+        'Photoshop standalone integration initialising, extensions path:'
+        f' {framework_extensions_path}'
+    )
 
 
 def run_integration():
