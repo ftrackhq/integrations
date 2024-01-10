@@ -118,8 +118,8 @@ class BaseEngine(object):
         except PluginExecutionError as error:
             plugin_info.status = constants.status.ERROR_STATUS
             plugin_info.message = f"Error executing {plugin}: {error}"
-            # logger the message
-            self.logger.exception(plugin_info.message)
+            # Rise engine error
+            raise EngineExecutionError(message=plugin_info.message)
 
         except PluginValidationError as error:
             plugin_info.status = constants.status.ERROR_STATUS
@@ -135,15 +135,16 @@ class BaseEngine(object):
                     f" An error occurred while applying the fix: {e}"
                 )
                 plugin_info.status = constants.status.ERROR_STATUS
-                self.logger.exception(plugin_info.message)
+                # Rise engine error
+                raise EngineExecutionError(message=plugin_info.message)
 
         except PluginUIHookExecutionError as error:
             plugin_info.status = constants.status.ERROR_STATUS
             plugin_info.message = (
                 f"Error executing ui_hook method of {plugin}: {error}"
             )
-            # logger the message
-            self.logger.exception(plugin_info.message)
+            # Rise engine error
+            raise EngineExecutionError(message=plugin_info.message)
 
         except Exception as error:
             plugin_info.status = constants.status.ERROR_STATUS
@@ -151,8 +152,7 @@ class BaseEngine(object):
                 f"Un-handled exception in {plugin},"
                 f" with options: {options}. Error: {error}"
             )
-            # logger the message
-            self.logger.exception(plugin_info.message)
+            # Rise engine error
             raise EngineExecutionError(message=plugin_info.message)
         finally:
             end_time = time.time()
