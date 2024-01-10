@@ -1,18 +1,16 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2023 ftrack
-import platform
+
 import os
-import sys
 import ftrack_api
 import logging
 import functools
-import uuid
-import subprocess
 
 from ftrack_connect.util import get_connect_plugin_version
 
+# The name of the integration, should match name in bootstrap and launcher
 NAME = 'framework-maya'
-''' The name of the integration, should match name in bootstrap and launcher'''
+
 
 logger = logging.getLogger(__name__)
 
