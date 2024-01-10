@@ -61,7 +61,7 @@ Build Connect plugin:
     python tools/build.py  --include_resources resource/bootstrap build_connect_plugin projects/framework-nuke
 ```
 
-If the build fails and Photoshop is using beta or experimental dependencies published to Test PyPi, use the `--testpypi` flag 
+If the build fails and Nuke is using beta or experimental dependencies published to Test PyPi, use the `--testpypi` flag 
 to build the plugin.
 
 To build from source, not involving PyPi, use the `--from_source` flag.
