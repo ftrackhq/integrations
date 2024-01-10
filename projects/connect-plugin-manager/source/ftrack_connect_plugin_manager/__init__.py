@@ -11,7 +11,7 @@ import urllib
 from urllib.request import urlopen
 from urllib.error import HTTPError
 from packaging.version import parse as parse_version
-import appdirs
+import platformdirs
 import json
 import sys
 
@@ -224,7 +224,7 @@ class DndPluginList(QtWidgets.QFrame):
             'FTRACK_CONNECT_JSON_PLUGINS_URL', self.default_json_config_url
         )
 
-        self.default_plugin_directory = appdirs.user_data_dir(
+        self.default_plugin_directory = platformdirs.user_data_dir(
             'ftrack-connect-plugins', 'ftrack'
         )
 
