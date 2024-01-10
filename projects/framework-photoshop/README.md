@@ -64,6 +64,7 @@ Build Connect plugin:
 If the build fails and Photoshop is using beta or experimental dependencies published to Test PyPi, use the `--testpypi` flag 
 to build the plugin.
 
+To build from source, not involving PyPi, use the `--from_source` flag.
 
 ### Build documentation
 

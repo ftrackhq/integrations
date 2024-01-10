@@ -1,0 +1,38 @@
+context:
+- Task
+identifier: framework-nuke
+applicationIdentifier: nuke_{variant}
+integrations:
+  pipeline:
+  - framework-nuke
+label: Nuke
+icon: nuke
+variant: "{version}"
+search_path:
+  linux:
+    prefix:
+    - "/"
+    - usr
+    - local
+    - Nuke.*
+    expression:
+    - Nuke\d.+
+    version_expression: Nuke(?P<version>.*)\/.+$
+  windows:
+    prefix:
+    - C:\
+    - Program Files.*
+    expression:
+    - Nuke.*
+    - Nuke\d.+.exe
+    version_expression: "(?P<version>[\\d.]+[vabc]+[\\dvabc.]*)"
+  darwin:
+    prefix:
+    - "/"
+    - Applications
+    expression:
+    - Nuke.*
+    - Nuke\d[\w.]+.app
+extensions_path:
+  - extensions/common
+  - extensions/nuke
