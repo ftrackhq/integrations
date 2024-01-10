@@ -1,4 +1,6 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2019 ftrack
 
-# TODO: decide how much we do here and how much in the init.py
+import ftrack_framework_maya
+
+# TODO: setup frame range and start and end frame

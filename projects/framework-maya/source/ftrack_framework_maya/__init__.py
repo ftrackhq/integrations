@@ -2,9 +2,14 @@
 # :copyright: Copyright (c) 2014-2023 ftrack
 import logging
 import os
+import traceback
 
 
 from ftrack_framework_core.configure_logging import configure_logging
+
+from ftrack_utils.extensions.environment import (
+    get_extensions_path_from_environment,
+)
 
 
 # Evaluate version and log package version
@@ -36,4 +41,21 @@ configure_logging(
 logger = logging.getLogger(__name__)
 logger.debug('v{}'.format(__version__))
 
+
 # TODO: implement menu
+def bootstrap_integration(framework_extensions_path):
+    pass
+
+
+def run_integration():
+    pass
+
+
+# Find and read DCC config
+try:
+    bootstrap_integration(get_extensions_path_from_environment())
+    run_integration()
+except:
+    # Make sure any exception that happens are logged as there is most likely no console
+    logger.error(traceback.format_exc())
+    raise
