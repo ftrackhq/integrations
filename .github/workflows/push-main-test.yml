@@ -2,9 +2,9 @@ name: Pytest
 
 on:
   push:
-    branches: [ "dummy" ] # Disable CI - do not trigger, CHANGE THIS TO "main" ON PR
+    branches: [ "dummy" ] # Disable CI - do not trigger, CHANGE THIS BACK TO "main" BEFORE PR MERGE
   pull_request:
-    branches: [ "dummy" ] # Disable CI - do not trigger, CHANGE THIS TO "main" ON PR
+    branches: [ "dummy" ] # Disable CI - do not trigger, CHANGE THIS BACK TO "main" BEFORE PR MERGE
 
 jobs:
   unit-test-pytest:
