@@ -9,6 +9,9 @@ import traceback
 
 from Qt import QtWidgets, QtCore
 
+import nuke, nukescripts
+from nukescripts import panels
+
 import ftrack_api
 
 from ftrack_constants import framework as constants
@@ -45,6 +48,40 @@ logger = logging.getLogger(__name__)
 logger.debug('v{}'.format(__version__))
 
 
+def get_ftrack_menu(menu_name='ftrack', submenu_name='pipeline'):
+    '''Get the current ftrack menu, create it if does not exists.'''
+
+    nuke_menu = nuke.menu("Nuke")
+    ftrack_menu = nuke_menu.findItem(menu_name)
+    if not ftrack_menu:
+        ftrack_menu = nuke_menu.addMenu(menu_name)
+    if submenu_name is not None:
+        ftrack_sub_menu = ftrack_menu.findItem(submenu_name)
+        if not ftrack_sub_menu:
+            ftrack_sub_menu = ftrack_menu.addMenu(submenu_name)
+
+        return ftrack_sub_menu
+    else:
+        return ftrack_menu
+
+
+class WidgetLauncher(object):
+    def __init__(self, client):
+        self._client = client
+
+    def launch(self, dialog_name, tool_config_names):
+        if dialog_name == 'publish':
+            # Restore panel
+            pane = nuke.getPaneFor("Properties.1")
+            panel = nukescripts.restorePanel(dialog_name)
+            panel.addToPane(pane)
+        else:
+            self._client.run_dialog(
+                dialog_name,
+                dialog_options={'tool_config_names': tool_config_names},
+            )
+
+
 def bootstrap_integration(framework_extensions_path):
     logger.debug(
         'Maya integration initialising, extensions path:'
@@ -72,6 +109,50 @@ def bootstrap_integration(framework_extensions_path):
     logger.debug(f'Read DCC config: {dcc_config}')
 
     # Create menus
+
+    ftrack_menu = get_ftrack_menu(submenu_name=None)
+
+    globals()['ftrackWidgetLauncher'] = WidgetLauncher(client)
+
+    for tool_definition in dcc_config['tools']:
+        name = tool_definition['name']
+        dialog_name = tool_definition['dialog_name']
+        tool_config_names = tool_definition.get('options', {}).get(
+            'tool_configs'
+        )
+        label = tool_definition.get('label')
+
+        if name == 'separator':
+            ftrack_menu.addSeparator()
+        else:
+            if name in ['publish']:
+                # Setup panel
+
+                def wrap_class(*args, **kwargs):
+                    widget = client.run_dialog(
+                        dialog_name,
+                        dialog_options={
+                            'tool_config_names': tool_config_names
+                        },
+                    )
+                    return widget
+
+                class_name = f'ftrack{name.title()}Class'
+                globals()[class_name] = wrap_class
+
+                # Register docked panel
+                panels.registerWidgetAsPanel(
+                    '{0}.{1}'.format(__name__, class_name),
+                    f'ftrack {label}',
+                    name,
+                )
+
+            ftrack_menu.addCommand(
+                label,
+                '{0}.ftrackWidgetLauncher.launch("{1}",{2})'.format(
+                    __name__, name, str(tool_config_names)
+                ),
+            )
 
 
 # Find and read DCC config
