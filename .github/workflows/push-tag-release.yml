@@ -83,6 +83,9 @@ jobs:
       group: ci-${{ github.ref }}
     if: ${{ needs.set-variables-create-release.outputs.package != 'framework-photoshop' }}
     runs-on: ubuntu-latest
+    outputs:
+      to_pypi: ${{ needs.set-variables-create-release.outputs.to_pypi }}
+      package: ${{ needs.set-variables-create-release.outputs.package }}
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-python@v4
@@ -234,14 +237,12 @@ jobs:
     name: DEBUG REMOVE (test)
     runs-on: ubuntu-latest
     needs: build-linux
-    environment:
-      name: staging
-      url: https://test.pypi.org/project/ftrack-${{ needs.build-linux.needs.set-variables-create-release.outputs.package }}/
     steps:
       - name: Debug
         shell: bash
         run: |
-          echo https://test.pypi.org/project/ftrack-${{ needs.build-linux.needs.set-variables-create-release.outputs.package }}/
+          echo To PYPI: ${{ needs.build-linux.outputs.to_pypi }}
+          echo https://test.pypi.org/project/ftrack-${{ needs.build-linux.outputs.package }}/
 
   publish-test:
     name: Publish to PyPi (test)
