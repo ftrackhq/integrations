@@ -21,7 +21,7 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.poetry.dependencies]
 ftrack-python-api = ">= 1, < 3"
-#ftrack
+# ftrack dependencies
 ftrack-constants = { version = "> 1, < 3", optional = true }
 ftrack-utils = { version = "> 1, < 3", optional = true }
 # framework dependencies
