@@ -96,7 +96,7 @@ jobs:
         run: |
           pip install poetry
       - name: build style
-        if: ${{ needs.set-variables-create-release.outputs.package == 'qt-style' || true }}
+        if: ${{ needs.set-variables-create-release.outputs.package == 'qt-style' }}
         shell: bash
         run: |
           pip install -r tools/requirements.txt
@@ -166,7 +166,7 @@ jobs:
         run: |
           pip install poetry
       - name: build style
-        if: ${{ needs.set-variables-create-release.outputs.package == 'qt-style' || true }}
+        if: ${{ needs.set-variables-create-release.outputs.package == 'qt-style' }}
         shell: bash
         run: |
           pip install -r tools/requirements.txt
@@ -206,7 +206,7 @@ jobs:
         run: |
           pip install poetry
       - name: build style
-        if: ${{ needs.set-variables-create-release.outputs.package == 'qt-style' || true }}
+        if: ${{ needs.set-variables-create-release.outputs.package == 'qt-style' }}
         shell: bash
         run: |
           pip install -r tools/requirements.txt
