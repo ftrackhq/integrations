@@ -66,7 +66,6 @@ to build the plugin.
 
 To build from source, not involving PyPi, use the `--from_source` flag.
 
-Should you add this part as well so its aligned with photoshop?
 
 ### Build documentation
 

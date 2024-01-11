@@ -42,15 +42,13 @@ def on_launch_integration(session, event):
 
     integration_version = event['data']['application']['version'].version[0]
 
-    nuke_bootstrap_path = os.path.join(
-        connect_plugin_path, 'resource', 'bootstrap'
-    )
+    bootstrap_path = os.path.join(connect_plugin_path, 'resource', 'bootstrap')
 
     launch_data['integration']['env'] = {
         'PYTHONPATH.prepend': os.path.pathsep.join(
-            [python_dependencies, nuke_bootstrap_path]
+            [python_dependencies, bootstrap_path]
         ),
-        'NUKE_PATH': nuke_bootstrap_path,
+        'NUKE_PATH': bootstrap_path,
     }
 
     launch_data['integration']['env']['FTRACK_NUKE_VERSION'] = str(
