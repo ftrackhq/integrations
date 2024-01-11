@@ -42,7 +42,7 @@ def on_launch_integration(session, event):
 
     integration_version = event['data']['application']['version'].version[0]
 
-    nuke_bootstrap_path = os.path.join(
+    bootstrap_path = os.path.join(
         connect_plugin_path, 'resource', 'bootstrap'
     )
 
