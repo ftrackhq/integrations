@@ -1,0 +1,44 @@
+type: launcher
+name: framework-maya
+priority: 100
+context:
+  - Task
+identifier: ftrack-framework-launch-maya
+applicationIdentifier: maya_{variant}
+integrations:
+  framework:
+    - framework-maya
+label: Maya
+icon: maya
+variant: "{version}"
+search_path:
+  windows:
+    prefix:
+      - C:\
+      - Program Files.*
+    expression:
+      - Autodesk
+      - Maya.+
+      - bin
+      - maya.exe
+  darwin:
+    prefix:
+      - "/"
+      - Applications
+    expression:
+      - Autodesk
+      - maya.+
+      - Maya.app
+  linux:
+    prefix:
+      - "/"
+      - usr
+      - autodesk
+      - maya.+
+    expression:
+      - bin
+      - maya$
+    version_expression: maya(?P<version>\d{4})
+extensions_path:
+  - extensions/common
+  - extensions/maya

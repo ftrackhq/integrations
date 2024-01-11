@@ -140,7 +140,7 @@ Create Adobe extension:
 ## Installing
 
 ### Connect plugin
-Copy the resulting dist/ftrack-framewrok-photoshop-<version> folder to your connect plugin folder.
+Copy the resulting dist/ftrack-framework-photoshop-<version> folder to your connect plugin folder.
 
 ### CEP plugin
 
