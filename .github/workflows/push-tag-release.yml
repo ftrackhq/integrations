@@ -233,25 +233,14 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-  debug-test:
-    name: DEBUG REMOVE (test)
-    runs-on: ubuntu-latest
-    needs: build-linux
-    steps:
-      - name: Debug
-        shell: bash
-        run: |
-          echo To PYPI: ${{ needs.build-linux.outputs.to_pypi }}
-          echo https://test.pypi.org/project/ftrack-${{ needs.build-linux.outputs.package }}/
-
   publish-test:
     name: Publish to PyPi (test)
     runs-on: ubuntu-latest
     needs: build-linux
-    if: ${{ needs.build-linux.needs.set-variables-create-release.outputs.to_pypi == 'true' }}
+    if: ${{ needs.build-linux.outputs.to_pypi == 'true' }}
     environment:
       name: staging
-      url: https://test.pypi.org/project/ftrack-${{ needs.build-linux.needs.set-variables-create-release.outputs.package }}/
+      url: https://test.pypi.org/project/ftrack-${{ needs.build-linux.outputs.package }}/
     steps:
       - name: Download temp artefacts
         uses: actions/download-artifact@v2
@@ -268,10 +257,10 @@ jobs:
     name: Publish to PyPi (prod)
     runs-on: ubuntu-latest
     needs: build-linux
-    if: ${{ needs.build-linux.needs.set-variables-create-release.outputs.to_pypi == 'true' }}
+    if: ${{ needs.build-linux.outputs.to_pypi == 'true' }}
     environment:
       name: production
-      url: https://pypi.org/project/ftrack-${{ needs.build-linux.needs.set-variables-create-release.outputs.package }}/
+      url: https://pypi.org/project/ftrack-${{ needs.build-linux.outputs.package }}/
     steps:
       - name: Download temp artefacts
         uses: actions/download-artifact@v2
