@@ -15,9 +15,9 @@ def get_log_directory():
     Raise if the directory can not be created.
     '''
     try:
-        import appdirs  # Inline import to avoid RV crashing if not available.
+        import platformdirs  # Inline import to avoid RV crashing if not available.
 
-        user_data_dir = appdirs.user_data_dir('ftrack-connect', 'ftrack')
+        user_data_dir = platformdirs.user_data_dir('ftrack-connect', 'ftrack')
         log_directory = os.path.join(user_data_dir, 'log')
     except Exception:
         log_directory = tempfile.mkdtemp()

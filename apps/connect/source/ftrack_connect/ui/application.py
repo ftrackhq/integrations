@@ -10,21 +10,26 @@ import uuid
 import logging
 import weakref
 from operator import itemgetter
-import appdirs
+import platformdirs
 import time
 import urllib.request
 import zipfile
 import json
 import tempfile
-from ftrack_connect.qt import QtCore, QtWidgets, QtGui
 from functools import partial
 
 import qtawesome as qta
-from ftrack_connect import load_icons
 
 import ftrack_api
 import ftrack_api._centralized_storage_scenario
 import ftrack_api.event.base
+
+from ftrack_utils.server.track_usage import send_usage_event
+from ftrack_utils.decorators import asynchronous
+
+from ftrack_connect.qt import QtCore, QtWidgets, QtGui
+
+from ftrack_connect import load_icons
 import ftrack_connect
 import ftrack_connect.event_hub_thread as _event_hub_thread
 import ftrack_connect.error
@@ -37,10 +42,7 @@ from ftrack_connect.ui.widget import login as _login
 from ftrack_connect.ui.widget import about as _about
 from ftrack_connect.ui import login_tools as _login_tools
 from ftrack_connect.ui.widget import configure_scenario as _scenario_widget
-from ftrack_utils.server.track_usage import send_usage_event
 import ftrack_connect.ui.config
-from ftrack_utils.decorators import asynchronous
-
 from ftrack_connect.applaunch.discover_applications import DiscoverApplications
 
 
@@ -116,7 +118,9 @@ class WelcomePlugin(ConnectWidget):
     plugins_installed = QtCore.Signal()
     installing = QtCore.Signal()
     # local variables for finding and installing plugin manager.
-    install_path = appdirs.user_data_dir('ftrack-connect-plugins', 'ftrack')
+    install_path = platformdirs.user_data_dir(
+        'ftrack-connect-plugins', 'ftrack'
+    )
 
     json_config_url = os.environ.get(
         'FTRACK_CONNECT_JSON_PLUGINS_URL',
@@ -408,7 +412,7 @@ class Application(QtWidgets.QMainWindow):
         self.__connect_start_time = time.time()
         self._log_level = log_level
 
-        self.defaultPluginDirectory = appdirs.user_data_dir(
+        self.defaultPluginDirectory = platformdirs.user_data_dir(
             'ftrack-connect-plugins', 'ftrack'
         )
         self._createDefaultPluginDirectory()
