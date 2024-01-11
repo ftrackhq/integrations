@@ -39,13 +39,13 @@ except Exception:
     __version__ = '0.0.0'
 
 configure_logging(
-    'ftrack_framework_photoshop',
+    'ftrack_framework_nuke',
     extra_modules=['ftrack_qt'],
     propagate=False,
 )
 
 logger = logging.getLogger(__name__)
-logger.debug('v{}'.format(__version__))
+logger.debug(f'v{__version__}')
 
 
 def get_ftrack_menu(menu_name='ftrack', submenu_name='pipeline'):
@@ -142,16 +142,17 @@ def bootstrap_integration(framework_extensions_path):
 
                 # Register docked panel
                 panels.registerWidgetAsPanel(
-                    '{0}.{1}'.format(__name__, class_name),
+                    f'{__name__}.{class_name}',
                     f'ftrack {label}',
                     name,
                 )
 
+            print(
+                f'@@@ {__name__}.ftrackWidgetLauncher.launch("{name}",{str(tool_config_names)})'
+            )
             ftrack_menu.addCommand(
                 label,
-                '{0}.ftrackWidgetLauncher.launch("{1}",{2})'.format(
-                    __name__, name, str(tool_config_names)
-                ),
+                f'{__name__}.ftrackWidgetLauncher.launch("{name}",{str(tool_config_names)})',
             )
 
 
