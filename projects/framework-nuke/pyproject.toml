@@ -7,7 +7,7 @@ readme = "README.md"
 packages = [{include = "ftrack_framework_nuke", from = "source"}]
 license = "Apache-2.0"
 homepage = "https://ftrack.com"
-repository = "https://github.com/ftrackhq/integrations"
+repository = "https://github.com/ftrackhq/integrations/tree/main/projects/framework-nuke"
 
 [[tool.poetry.source]]
 name = "testpypi"
@@ -20,7 +20,7 @@ requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.poetry.dependencies]
-ftrack-python-api = ">= 1, < 3"
+ftrack-python-api = "^2.5.4"
 #ftrack
 ftrack-constants = { version = "> 1, < 3", optional = true }
 ftrack-utils = { version = "> 1, < 3", optional = true }

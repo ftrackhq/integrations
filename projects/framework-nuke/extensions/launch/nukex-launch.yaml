@@ -2,44 +2,44 @@ type: launcher
 name: framework-nukex
 priority: 100
 context:
-- Task
+  - Task
 identifier: ftrack-connect-launch-nuke-x
 applicationIdentifier: nuke_x_{variant}
 integrations:
   framework:
-  - framework-nuke
+    - framework-nuke
 label: Nuke_X
 icon: nukex
 variant: "{version}"
 search_path:
   linux:
     prefix:
-    - "/"
-    - usr
-    - local
-    - Nuke.*
+      - "/"
+      - usr
+      - local
+      - Nuke.*
     expression:
-    - Nuke\d.+
+      - Nuke\d.+
     version_expression: Nuke(?P<version>.*)\/.+$
     launch_arguments:
-    - "--nukex"
+      - "--nukex"
   windows:
     prefix:
-    - C:\
-    - Program Files.*
+      - C:\
+      - Program Files.*
     expression:
-    - Nuke.*
-    - Nuke\d.+.exe
-    version_expression: "(?P<version>[\\d.]+[vabc]+[\\dvabc.]*)"
+      - Nuke.*
+      - Nuke\d.+.exe
+    version_expression: (?P<version>[\\d.]+[vabc]+[\\dvabc.]*)
     launch_arguments:
-    - "--nukex"
+      - "--nukex"
   darwin:
     prefix:
-    - "/"
-    - Applications
+      - "/"
+      - Applications
     expression:
-    - Nuke.*
-    - NukeX\d[\w.]+.app
+      - Nuke.*
+      - NukeX\d[\w.]+.app
 extensions_path:
   - extensions/common
   - extensions/nuke

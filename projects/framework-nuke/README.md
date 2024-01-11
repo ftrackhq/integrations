@@ -65,3 +65,25 @@ If the build fails and Nuke is using beta or experimental dependencies published
 to build the plugin.
 
 To build from source, not involving PyPi, use the `--from_source` flag.
+
+Should you add this part as well so its aligned with photoshop?
+
+### Build documentation
+
+
+Install documentation dependencies:
+
+```bash
+    poetry install --only documentation
+```
+
+Build documentation:
+
+```bash
+    poetry run sphinx-build -b html doc dist/doc
+```
+
+## Installing
+
+### Connect plugin
+Copy the resulting dist/ftrack-framework-nuke-<version> folder to your connect plugin folder.
