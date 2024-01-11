@@ -8,7 +8,6 @@ on:
       - synchronize
       - closed
       - ready_for_review
-    branches: ["dummy"] # Disable CI - do not trigger, REMOVE THIS LINE BEFORE PR MERGE
 
 jobs:
   check-pr:
