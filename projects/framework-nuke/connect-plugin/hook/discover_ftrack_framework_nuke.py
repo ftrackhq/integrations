@@ -48,7 +48,7 @@ def on_launch_integration(session, event):
 
     launch_data['integration']['env'] = {
         'PYTHONPATH.prepend': os.path.pathsep.join(
-            [python_dependencies, nuke_bootstrap_path]
+            [python_dependencies, bootstrap_path]
         ),
         'NUKE_PATH': bootstrap_path,
     }
