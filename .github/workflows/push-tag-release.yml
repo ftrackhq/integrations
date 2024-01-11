@@ -96,7 +96,6 @@ jobs:
         run: |
           pip install poetry
       - name: build style
-        # TODO: Remove || true when all libraries are published to pypi
         if: ${{ needs.set-variables-create-release.outputs.package == 'qt-style' || true }}
         shell: bash
         run: |
@@ -167,7 +166,6 @@ jobs:
         run: |
           pip install poetry
       - name: build style
-        # TODO: Remove || true when all libraries are published to pypi
         if: ${{ needs.set-variables-create-release.outputs.package == 'qt-style' || true }}
         shell: bash
         run: |
@@ -208,7 +206,6 @@ jobs:
         run: |
           pip install poetry
       - name: build style
-        # TODO: Remove || true when all libraries are published to pypi
         if: ${{ needs.set-variables-create-release.outputs.package == 'qt-style' || true }}
         shell: bash
         run: |
