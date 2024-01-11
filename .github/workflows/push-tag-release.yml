@@ -83,9 +83,6 @@ jobs:
       group: ci-${{ github.ref }}
     if: ${{ needs.set-variables-create-release.outputs.package != 'framework-photoshop' }}
     runs-on: ubuntu-latest
-    environment:
-      name: production
-      url: https://pypi.org/project/ftrack-${{ needs.set-variables-create-release.outputs.package }}/
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-python@v4
