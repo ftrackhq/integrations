@@ -8,7 +8,7 @@ import functools
 
 from ftrack_connect.util import get_connect_plugin_version
 
-# The name of the integration, should match name in bootstrap and launcher
+# The name of the integration, should match name in launcher.
 NAME = 'framework-maya'
 
 
@@ -23,7 +23,7 @@ __version__ = get_connect_plugin_version(connect_plugin_path)
 python_dependencies = os.path.join(connect_plugin_path, 'dependencies')
 
 
-def on_discover_pipeline_integration(session, event):
+def on_discover_integration(session, event):
     data = {
         'integration': {
             'name': NAME,
@@ -34,12 +34,12 @@ def on_discover_pipeline_integration(session, event):
     return data
 
 
-def on_launch_pipeline_integration(session, event):
+def on_launch_integration(session, event):
     '''Handle application launch and add environment to *event*.'''
 
     launch_data = {'integration': event['data']['integration']}
 
-    discover_data = on_discover_pipeline_integration()
+    discover_data = on_discover_integration()
     for key in discover_data['integration']:
         launch_data['integration'][key] = discover_data['integration'][key]
 
@@ -89,7 +89,7 @@ def register(session):
         return
 
     handle_discovery_event = functools.partial(
-        on_discover_pipeline_integration, session
+        on_discover_integration, session
     )
 
     session.event_hub.subscribe(
@@ -100,9 +100,7 @@ def register(session):
         priority=40,
     )
 
-    handle_launch_event = functools.partial(
-        on_launch_pipeline_integration, session
-    )
+    handle_launch_event = functools.partial(on_launch_integration, session)
 
     session.event_hub.subscribe(
         'topic=ftrack.connect.application.launch and '
