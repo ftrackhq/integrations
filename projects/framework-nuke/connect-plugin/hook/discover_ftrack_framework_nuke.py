@@ -50,7 +50,7 @@ def on_launch_integration(session, event):
         'PYTHONPATH.prepend': os.path.pathsep.join(
             [python_dependencies, nuke_bootstrap_path]
         ),
-        'NUKE_PATH': nuke_bootstrap_path,
+        'NUKE_PATH': bootstrap_path,
     }
 
     launch_data['integration']['env']['FTRACK_NUKE_VERSION'] = str(
