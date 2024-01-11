@@ -6,7 +6,7 @@ import json
 import os.path
 import logging
 
-import appdirs
+import platformdirs
 import ftrack_api.session
 
 
@@ -25,7 +25,7 @@ def publish_components(event, session=None):
         components_config = event['data'].get('components_config')
         components_config = os.path.realpath(components_config)
 
-        prefix = appdirs.user_data_dir(
+        prefix = platformdirs.user_data_dir(
             os.path.join('ftrack-connect', 'data'), 'ftrack'
         )
 

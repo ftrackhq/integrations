@@ -2,7 +2,7 @@
 # :copyright: Copyright (c) 2014-2023 ftrack
 
 import sys
-import appdirs
+import platformdirs
 import argparse
 import logging
 import signal
@@ -83,7 +83,7 @@ def main_connect(arguments=None):
     single_instance = None
     if not namespace.allow_multiple:
         lockfile = os.path.join(
-            appdirs.user_data_dir('ftrack-connect', 'ftrack'), 'lock'
+            platformdirs.user_data_dir('ftrack-connect', 'ftrack'), 'lock'
         )
         logger = logging.getLogger('ftrack_connect')
         try:
