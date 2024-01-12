@@ -6,7 +6,7 @@ name: CI-TAG
 on:
   push:
     tags:
-      - "*"
+      - "**"
 
 jobs:
 
