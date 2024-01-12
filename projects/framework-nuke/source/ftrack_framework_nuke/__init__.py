@@ -107,8 +107,7 @@ def bootstrap_integration(framework_extensions_path):
 
     # Create tool launch menu
 
-    def launch_tool(name, dialog_name, label, tool_config_names):
-        docked = name in ['publish']
+    def launch_tool(name, dialog_name, label, tool_config_names, docked):
         widget = client.run_dialog(
             dialog_name,
             dialog_options={'tool_config_names': tool_config_names},
@@ -128,13 +127,14 @@ def bootstrap_integration(framework_extensions_path):
             'tool_configs'
         )
         label = tool_definition.get('label')
+        docked = tool_definition.get('options', {}).get('docked')
 
         if name == 'separator':
             ftrack_menu.addSeparator()
         else:
             ftrack_menu.addCommand(
                 label,
-                f'{__name__}.ftrackToolLauncher("{name}","{dialog_name}","{label}",{str(tool_config_names)})',
+                f'{__name__}.ftrackToolLauncher("{name}","{dialog_name}","{label}",{str(tool_config_names)},{docked})',
             )
 
 

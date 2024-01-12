@@ -339,9 +339,7 @@ class Client(object):
 
     # UI
     @track_framework_usage(label='client_open_dialog')
-    def run_dialog(
-        self, dialog_name, dialog_class=None, dialog_options=None, show=True
-    ):
+    def run_dialog(self, dialog_name, dialog_class=None, dialog_options=None):
         '''Function to show a framework dialog by name *dialog_name* from the
         client, using *dialog_class* or picking class from registry. Passes on
         *dialog_options* to the dialog.'''
@@ -402,10 +400,6 @@ class Client(object):
         # Append dialog to dialogs
         self._register_dialog(dialog)
         self.dialog = dialog
-        if show:
-            self.dialog.show_ui()
-            self.dialog.setFocus()
-        return dialog
 
     def _register_dialog(self, dialog):
         '''Register the given initialized *dialog* to the dialogs registry'''
