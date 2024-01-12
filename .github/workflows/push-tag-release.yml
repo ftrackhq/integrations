@@ -5,11 +5,8 @@ name: CI-TAG
 
 on:
   push:
-    tags-ignore:
-      - '**0.0.0**'
-      - '**latest**'
-      - '**stable**'
-
+    tags:
+      - "*"
 
 jobs:
 
