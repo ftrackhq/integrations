@@ -1,6 +1,8 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2019 ftrack
+# :copyright: Copyright (c) 2014-2023 ftrack
 
-import ftrack_framework_maya
+import maya.cmds as cmds
+
+cmds.evalDeferred('import ftrack_framework_maya', lp=True)
 
 # TODO: setup frame range and start and end frame

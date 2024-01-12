@@ -39,23 +39,23 @@ def on_launch_integration(session, event):
 
     launch_data = {'integration': event['data']['integration']}
 
-    discover_data = on_discover_integration()
+    discover_data = on_discover_integration(session, event)
     for key in discover_data['integration']:
         launch_data['integration'][key] = discover_data['integration'][key]
 
     integration_version = event['data']['application']['version'].version[0]
+    logger.info('Launching integration v{}'.format(integration_version))
 
     if not launch_data['integration'].get('env'):
         launch_data['integration']['env'] = {}
 
     bootstrap_path = os.path.join(connect_plugin_path, 'resource', 'bootstrap')
+    logger.info('Adding {} to PYTHONPATH'.format(bootstrap_path))
 
-    launch_data['integration']['env'] = {
-        'PYTHONPATH.prepend': os.path.pathsep.join(
-            [python_dependencies, bootstrap_path]
-        ),
-        'MAYA_SCRIPT_PATH': bootstrap_path,
-    }
+    launch_data['integration']['env'][
+        'PYTHONPATH.prepend'
+    ] = os.path.pathsep.join([python_dependencies, bootstrap_path])
+    launch_data['integration']['env']['MAYA_SCRIPT_PATH'] = bootstrap_path
     launch_data['integration']['env']['FTRACK_MAYA_VERSION'] = str(
         integration_version
     )

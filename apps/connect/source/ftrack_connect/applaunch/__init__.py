@@ -360,6 +360,8 @@ class ApplicationStore(object):
                                 'standalone_module'
                             ] = standalone_module
                         application['environment_variables'] = {}
+                        print(f"extensions_path{extensions_path}")
+                        self.logger.info(f"extensions_path{extensions_path}")
                         if extensions_path:
                             # Convert to list and expand paths
                             if isinstance(extensions_path, list):
@@ -400,6 +402,9 @@ class ApplicationStore(object):
                                     ] = str(value)
 
                         applications.append(application)
+                        print(
+                            f"FTRACK_EXTENSIONS_PATH{os.getenv( 'FTRACK_EXTENSIONS_PATH')}"
+                        )
 
                 # Don't descend any further as out of patterns to match.
                 del folders[:]
@@ -505,6 +510,7 @@ class ApplicationLauncher(object):
             message - Any additional information (such as a failure message).
 
         '''
+        print(f"FTRACK_EXTENSIONS_PATH{os.getenv('FTRACK_EXTENSIONS_PATH')}")
         # Look up application.
         applicationIdentifierPattern = applicationIdentifier
 
@@ -549,6 +555,7 @@ class ApplicationLauncher(object):
             else:
                 options['preexec_fn'] = os.setsid
 
+            print(f"app env{application.get('environment_variables')}")
             launchData = dict(
                 command=command,
                 options=options,
