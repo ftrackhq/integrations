@@ -4,9 +4,9 @@
 import logging
 import os
 import traceback
+from functools import partial
 
 import nuke, nukescripts
-from nukescripts import panels
 
 import ftrack_api
 
@@ -20,6 +20,8 @@ from ftrack_framework_core.client import Client
 from ftrack_framework_core import registry
 
 from ftrack_framework_core.configure_logging import configure_logging
+
+from ftrack_framework_nuke.utils import dock_nuke_right
 
 # Evaluate version and log package version
 try:
@@ -59,26 +61,6 @@ def get_ftrack_menu(menu_name='ftrack', submenu_name='pipeline'):
         return ftrack_menu
 
 
-def dock_nuke_right(widget, name, label):
-    # Setup docked panel
-    class_name = f'ftrack{name.title()}Class'
-
-    if class_name not in globals():
-        globals()[class_name] = lambda *args, **kwargs: widget
-
-        # Register docked panel
-        panels.registerWidgetAsPanel(
-            f'{__name__}.{class_name}',
-            f'ftrack {label}',
-            name,
-        )
-
-    # Restore panel
-    pane = nuke.getPaneFor("Properties.1")
-    panel = nukescripts.restorePanel(name)
-    panel.addToPane(pane)
-
-
 def bootstrap_integration(framework_extensions_path):
     logger.debug(
         'Maya integration initialising, extensions path:'
@@ -108,13 +90,13 @@ def bootstrap_integration(framework_extensions_path):
     # Create tool launch menu
 
     def launch_tool(name, dialog_name, label, tool_config_names, docked):
-        widget = client.run_dialog(
+        client.run_dialog(
             dialog_name,
             dialog_options={'tool_config_names': tool_config_names},
-            show=not docked,
+            dock_func=partial(dock_nuke_right, name, label)
+            if docked
+            else None,
         )
-        if docked:
-            dock_nuke_right(widget, name, label)
 
     globals()['ftrackToolLauncher'] = launch_tool
 
@@ -136,6 +118,8 @@ def bootstrap_integration(framework_extensions_path):
                 label,
                 f'{__name__}.ftrackToolLauncher("{name}","{dialog_name}","{label}",{str(tool_config_names)},{docked})',
             )
+
+    # TODO: setup animation timeline - frame rate, start and end frame
 
 
 # Find and read DCC config
