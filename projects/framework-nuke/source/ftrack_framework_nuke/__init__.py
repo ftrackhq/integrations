@@ -69,11 +69,12 @@ class WidgetLauncher(object):
     def __init__(self, client):
         self._client = client
 
-    def launch(self, dialog_name, tool_config_names):
-        if dialog_name == 'publish':
+    def launch(self, name, dialog_name, tool_config_names):
+        print(f'@@@ launch:({name}, {dialog_name}, {tool_config_names})')
+        if name == 'publish':
             # Restore panel
             pane = nuke.getPaneFor("Properties.1")
-            panel = nukescripts.restorePanel(dialog_name)
+            panel = nukescripts.restorePanel(name)
             panel.addToPane(pane)
         else:
             self._client.run_dialog(
@@ -126,19 +127,15 @@ def bootstrap_integration(framework_extensions_path):
             ftrack_menu.addSeparator()
         else:
             if name in ['publish']:
-                # Setup panel
-
-                def wrap_class(*args, **kwargs):
-                    widget = client.run_dialog(
-                        dialog_name,
-                        dialog_options={
-                            'tool_config_names': tool_config_names
-                        },
-                    )
-                    return widget
+                # Setup docked panel
 
                 class_name = f'ftrack{name.title()}Class'
-                globals()[class_name] = wrap_class
+                globals()[
+                    class_name
+                ] = lambda *args, **kwargs: client.run_dialog(
+                    dialog_name,
+                    dialog_options={'tool_config_names': tool_config_names},
+                )
 
                 # Register docked panel
                 panels.registerWidgetAsPanel(
@@ -148,11 +145,11 @@ def bootstrap_integration(framework_extensions_path):
                 )
 
             print(
-                f'@@@ {__name__}.ftrackWidgetLauncher.launch("{name}",{str(tool_config_names)})'
+                f'@@@ {__name__}.ftrackWidgetLauncher.launch("{name}","{dialog_name}",{str(tool_config_names)})'
             )
             ftrack_menu.addCommand(
                 label,
-                f'{__name__}.ftrackWidgetLauncher.launch("{name}",{str(tool_config_names)})',
+                f'{__name__}.ftrackWidgetLauncher.launch("{name}","{dialog_name}",{str(tool_config_names)})',
             )
 
 
