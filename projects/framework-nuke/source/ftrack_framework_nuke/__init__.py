@@ -2,12 +2,8 @@
 # :copyright: Copyright (c) 2014-2023 ftrack
 
 import logging
-import time
-import sys
 import os
 import traceback
-
-from Qt import QtWidgets, QtCore
 
 import nuke, nukescripts
 from nukescripts import panels
@@ -24,8 +20,6 @@ from ftrack_framework_core.client import Client
 from ftrack_framework_core import registry
 
 from ftrack_framework_core.configure_logging import configure_logging
-
-from ftrack_qt.utils.decorators import invoke_in_qt_main_thread
 
 # Evaluate version and log package version
 try:
@@ -65,22 +59,24 @@ def get_ftrack_menu(menu_name='ftrack', submenu_name='pipeline'):
         return ftrack_menu
 
 
-class WidgetLauncher(object):
-    def __init__(self, client):
-        self._client = client
+def dock_nuke_right(widget, name, label):
+    # Setup docked panel
+    class_name = f'ftrack{name.title()}Class'
 
-    def launch(self, name, dialog_name, tool_config_names):
-        print(f'@@@ launch:({name}, {dialog_name}, {tool_config_names})')
-        if name == 'publish':
-            # Restore panel
-            pane = nuke.getPaneFor("Properties.1")
-            panel = nukescripts.restorePanel(name)
-            panel.addToPane(pane)
-        else:
-            self._client.run_dialog(
-                dialog_name,
-                dialog_options={'tool_config_names': tool_config_names},
-            )
+    if class_name not in globals():
+        globals()[class_name] = lambda *args, **kwargs: widget
+
+        # Register docked panel
+        panels.registerWidgetAsPanel(
+            f'{__name__}.{class_name}',
+            f'ftrack {label}',
+            name,
+        )
+
+    # Restore panel
+    pane = nuke.getPaneFor("Properties.1")
+    panel = nukescripts.restorePanel(name)
+    panel.addToPane(pane)
 
 
 def bootstrap_integration(framework_extensions_path):
@@ -109,11 +105,21 @@ def bootstrap_integration(framework_extensions_path):
 
     logger.debug(f'Read DCC config: {dcc_config}')
 
-    # Create menus
+    # Create tool launch menu
+
+    def launch_tool(name, dialog_name, label, tool_config_names):
+        docked = name in ['publish']
+        widget = client.run_dialog(
+            dialog_name,
+            dialog_options={'tool_config_names': tool_config_names},
+            show=not docked,
+        )
+        if docked:
+            dock_nuke_right(widget, name, label)
+
+    globals()['ftrackToolLauncher'] = launch_tool
 
     ftrack_menu = get_ftrack_menu(submenu_name=None)
-
-    globals()['ftrackWidgetLauncher'] = WidgetLauncher(client)
 
     for tool_definition in dcc_config['tools']:
         name = tool_definition['name']
@@ -126,30 +132,9 @@ def bootstrap_integration(framework_extensions_path):
         if name == 'separator':
             ftrack_menu.addSeparator()
         else:
-            if name in ['publish']:
-                # Setup docked panel
-
-                class_name = f'ftrack{name.title()}Class'
-                globals()[
-                    class_name
-                ] = lambda *args, **kwargs: client.run_dialog(
-                    dialog_name,
-                    dialog_options={'tool_config_names': tool_config_names},
-                )
-
-                # Register docked panel
-                panels.registerWidgetAsPanel(
-                    f'{__name__}.{class_name}',
-                    f'ftrack {label}',
-                    name,
-                )
-
-            print(
-                f'@@@ {__name__}.ftrackWidgetLauncher.launch("{name}","{dialog_name}",{str(tool_config_names)})'
-            )
             ftrack_menu.addCommand(
                 label,
-                f'{__name__}.ftrackWidgetLauncher.launch("{name}","{dialog_name}",{str(tool_config_names)})',
+                f'{__name__}.ftrackToolLauncher("{name}","{dialog_name}","{label}",{str(tool_config_names)})',
             )
 
 
