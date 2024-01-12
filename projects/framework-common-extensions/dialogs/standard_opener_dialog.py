@@ -184,8 +184,10 @@ class StandardOpenerDialog(BaseContextDialog):
         )
 
     def closeEvent(self, event):
-        '''(Override) Close the progress widget'''
-        self._progress_widget.teardown()
-        self._context_selector.teardown()
-        self._progress_widget.deleteLater()
+        '''(Override) Close the context and progress widgets'''
+        if self._context_selector:
+            self._context_selector.teardown()
+        if self._progress_widget:
+            self._progress_widget.teardown()
+            self._progress_widget.deleteLater()
         super(StandardOpenerDialog, self).closeEvent(event)
