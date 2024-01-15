@@ -18,7 +18,7 @@ class FrameworkDialog(BaseUI):
     UI should inherit from here.
     '''
 
-    name = None
+    name = 'base'
     widget_type = 'framework_dialog'
     client_method_connection = None
     client_property_setter_connection = None
