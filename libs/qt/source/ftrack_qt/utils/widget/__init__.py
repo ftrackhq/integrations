@@ -12,7 +12,7 @@ from ftrack_utils.framework.config.tool import get_plugins
 
 def find_tool(widget):
     '''Recursively find upstream widget starting on *widget*
-    with *framework_tool* attribute set.'''
+    with framework_tool attribute set.'''
     parent_widget = widget.parentWidget()
     if not parent_widget:
         return
