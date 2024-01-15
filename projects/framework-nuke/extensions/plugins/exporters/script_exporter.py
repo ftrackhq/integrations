@@ -8,14 +8,14 @@ from ftrack_framework_core.exceptions.plugin import PluginExecutionError
 
 
 class ScriptExporterPlugin(BasePlugin):
-    '''Save Photoshop document to temp location for publish'''
+    '''Save Nuke script to temp location for publish'''
 
     name = 'script_exporter'
 
     def run(self, store):
         '''
-        Expects full_path in collected_data in the <component_name> key of the
-        given *store*, stores the exported document path in the :obj:`store`
+        Expects collected_script in the <component_name> key of the
+        given *store*, stores the exported script path in the :obj:`store`
         '''
         component_name = self.options.get('component')
 
@@ -35,4 +35,4 @@ class ScriptExporterPlugin(BasePlugin):
             )
         except Exception as e:
             self.logger.exception(e)
-            raise PluginExecutionError(f'Exception copying the document: {e}')
+            raise PluginExecutionError(f'Exception copying the script: {e}')

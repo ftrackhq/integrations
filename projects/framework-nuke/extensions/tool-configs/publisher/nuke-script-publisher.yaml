@@ -32,5 +32,21 @@ engine:
           - exporter
         plugin: script_exporter
 
+  # Export the thumbnail component.
+  - type: group
+    tags:
+      - component
+    options:
+      component: thumbnail
+    optional: true
+    enabled: true
+    plugins:
+      - type: plugin
+        plugin: store_component
+      - type: plugin
+        tags:
+          - exporter
+        plugin: nodegraph_thumbnail_exporter
+
   # Publish to ftrack.
   - publish_to_ftrack

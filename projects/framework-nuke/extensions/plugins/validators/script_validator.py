@@ -9,9 +9,10 @@ from ftrack_framework_core.plugin import BasePlugin
 class ScriptValidatorPlugin(BasePlugin):
     name = 'script_validator'
 
-    def validate(self, collected_data):
+    def validate(self, collected_script):
         '''
-        Return True if given *collected_data* is valid for publish, False If not.
+        Return True if current Nuke script and/or path given in *collected_script*
+        is valid for publish, Raise an PluginValidationError otherwise.
         '''
         return True
 
@@ -20,10 +21,10 @@ class ScriptValidatorPlugin(BasePlugin):
         Expects collected_data in the <component_name> key of the given *store*.
         '''
         component_name = self.options.get('component')
-        collected_file = store['components'][component_name][
+        collected_script = store['components'][component_name][
             'collected_script'
         ]
 
-        store['components'][component_name]['valid_document'] = self.validate(
-            collected_file
+        store['components'][component_name]['valid_script'] = self.validate(
+            collected_script
         )
