@@ -5,7 +5,7 @@ from Qt import QtWidgets, QtCore
 
 from ftrack_qt.widgets.overlay import OverlayWidget
 from ftrack_qt.widgets.lines import LineWidget
-from ftrack_qt.utils.widget import get_main_window_from_widget
+from ftrack_qt.utils.widget import get_tool_window_from_widget
 
 
 class OptionsButton(QtWidgets.QPushButton):
@@ -70,9 +70,8 @@ class OptionsButton(QtWidgets.QPushButton):
         self.clicked.connect(self.on_click_callback)
 
     def on_click_callback(self):
-        # TODO: review this, isn't overly widget already checking for the main window??
         '''Callback on clicking the options button, show the publish options overlay'''
-        main_window = get_main_window_from_widget(self, 'base')
+        main_window = get_tool_window_from_widget(self)
         if main_window:
             self._overlay_container.setParent(main_window)
         self._overlay_container.setVisible(True)

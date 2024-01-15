@@ -10,25 +10,28 @@ from ftrack_utils.framework.config.tool import get_plugins
 # TODO: check this utilities if they are really needed.
 
 
-def find_parent(widget, class_name):
-    '''Recursively find upstream widget having class name
-    containing *class_name*'''
+def find_tool(widget):
+    '''Recursively find upstream widget starting on *widget*
+    with *framework_tool* attribute set.'''
     parent_widget = widget.parentWidget()
     if not parent_widget:
         return
-    if parent_widget.__class__.__name__.find(class_name) > -1:
+    if (
+        hasattr(parent_widget, 'framework_tool')
+        and parent_widget.framework_tool
+    ):
         return parent_widget
-    return find_parent(parent_widget, class_name)
+    return find_tool(parent_widget)
 
 
-def get_main_window_from_widget(widget, class_name):
-    '''This function will return the main window from the
+def get_tool_window_from_widget(widget):
+    '''This function will return the framework tool window from the
     given *widget*.'''
     main_window = widget.window()
     if not main_window:
         return
     # Locate the topmost widget
-    parent = find_parent(widget.parentWidget(), class_name)
+    parent = find_tool(widget.parentWidget())
     if parent:
         main_window = parent
 

@@ -3,7 +3,7 @@
 
 from Qt import QtGui, QtCore, QtWidgets
 
-from ftrack_qt.utils.widget import get_main_window_from_widget
+from ftrack_qt.utils.widget import get_tool_window_from_widget
 
 from ftrack_qt.widgets.icons import MaterialIcon
 
@@ -115,14 +115,7 @@ class OverlayWidget(QtWidgets.QFrame):
 
     def setVisible(self, visible):
         '''(Override) Set whether *visible* or not.'''
-        # TODO: double check how we identify the class name, find a better
-        #  solution and more standard, as now is only fining base name which is
-        #  the framework base class name. But I think why should find the top
-        #  level widget by type and not by name, and that type should be given
-        #  in the overlay initialization maybe.
-        main_window = get_main_window_from_widget(
-            self._container_widget, 'base'
-        )
+        main_window = get_tool_window_from_widget(self._container_widget)
         if visible:
             if not self._event_filter_installed:
                 # Install global event filter that will deal with matching parent size
