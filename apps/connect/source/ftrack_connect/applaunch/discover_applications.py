@@ -149,9 +149,6 @@ class DiscoverApplications(object):
             )
 
             self._actions.append(action)
-            print(
-                f"FTRACK_EXTENSIONS_PATH{os.getenv( 'FTRACK_EXTENSIONS_PATH')}"
-            )
 
     def register(self):
         for action in self._actions:
