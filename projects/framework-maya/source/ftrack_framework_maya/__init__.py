@@ -100,7 +100,7 @@ def bootstrap_integration(framework_extensions_path):
     Initialise Maya Framework integration
     '''
     logger.debug(
-        'Photoshop standalone integration initialising, extensions path:'
+        'Maya standalone integration initialising, extensions path:'
         f' {framework_extensions_path}'
     )
     # Create ftrack session and instantiate event manager
@@ -108,7 +108,7 @@ def bootstrap_integration(framework_extensions_path):
     event_manager = EventManager(
         session=session, mode=constants.event.LOCAL_EVENT_MODE
     )
-    logger.info(f"framework_extensions_path:{framework_extensions_path}")
+    logger.debug(f"framework_extensions_path:{framework_extensions_path}")
     # Instantiate registry
     registry_instance = Registry()
     registry_instance.scan_extensions(paths=framework_extensions_path)
@@ -129,12 +129,6 @@ def bootstrap_integration(framework_extensions_path):
 
     # Register tools into ftrack menu
     for tool in dcc_config['tools']:
-        logger.info(f"tool['label']:{tool['label']}")
-        logger.info(f"tool['dialog_name']:{tool['dialog_name']}")
-        logger.info(
-            f"tool['options']['tool_configs']:{tool['options']['tool_configs']}"
-        )
-        logger.info(f"tool['icon']:{tool['icon']}")
         cmds.menuItem(
             parent=ftrack_menu,
             label=tool['label'],

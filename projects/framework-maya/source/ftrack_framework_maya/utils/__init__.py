@@ -9,7 +9,7 @@ from Qt import QtWidgets, QtCore
 
 
 # Dock widget in Maya
-def maya_dock_right(widget):
+def dock_maya_right(widget):
     '''Dock *widget* to the right side of Maya.'''
 
     dock_control_name = widget.windowTitle() + '_dock'
