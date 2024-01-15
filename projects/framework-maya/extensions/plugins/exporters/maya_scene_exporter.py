@@ -11,8 +11,9 @@ class MayaSceneExporterPlugin(BasePlugin):
 
     def run(self, store):
         '''
-        Expects collected_file in the <component_name> key of the given *store*
-        and an export_destination from the :obj:`self.options`.
+        If export type is selection then export the selection objects in the
+        scene with the options passed. Otherwise, set the current scene path to
+        the store.
         '''
         component_name = self.options.get('component')
         export_type = store['components'][component_name].get('export_type')

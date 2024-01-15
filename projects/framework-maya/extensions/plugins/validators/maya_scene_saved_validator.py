@@ -11,9 +11,16 @@ from ftrack_framework_core.exceptions.plugin import (
 
 
 class MayaSceneSavedValidatorPlugin(BasePlugin):
+    '''
+    Plugin to validate if the Maya scene has been saved.
+    '''
+
     name = 'maya_scene_saved_validator'
 
     def save_to_temp(self, store, extension_format):
+        '''
+        Save the file to a temporary location.
+        '''
         try:
             # Save file to a temp file
             # TODO: activate this when PR for temp path is merged
@@ -28,6 +35,9 @@ class MayaSceneSavedValidatorPlugin(BasePlugin):
         store['components'][component_name]['valid_file'] = True
 
     def save_scene(self, store):
+        '''
+        Save the current Maya scene.
+        '''
         try:
             cmds.file(save=True)
         except Exception as error:
@@ -39,6 +49,9 @@ class MayaSceneSavedValidatorPlugin(BasePlugin):
         store['components'][component_name]['valid_file'] = True
 
     def run(self, store):
+        '''
+        Run the validation process for the Maya scene.
+        '''
         component_name = self.options.get('component', 'main')
         extension_format = store['components'][component_name].get(
             'extension_format'

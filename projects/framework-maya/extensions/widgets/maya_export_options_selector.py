@@ -125,23 +125,29 @@ class MayaExportOptionsSelectorWidget(BaseWidget):
         self._on_expressions_changed(None)
 
     def _on_construction_history_changed(self, state):
+        '''Updates the option constructionHistory'''
         self.set_plugin_option(
             'constructionHistory', self._construction_history_cb.isChecked()
         )
 
     def _on_channels_changed(self, state):
+        '''Updates the option channels'''
         self.set_plugin_option('channels', self._channels_cb.isChecked())
 
     def _on_preserve_references_changed(self, state):
+        '''Updates the option preserveReferences'''
         self.set_plugin_option(
             'preserveReferences', self._preserve_references_cb.isChecked()
         )
 
     def _on_shader_changed(self, state):
+        '''Updates the option shader'''
         self.set_plugin_option('shader', self._shader_cb.isChecked())
 
     def _on_constraints_changed(self, state):
+        '''Updates the option constraints'''
         self.set_plugin_option('constraints', self._constraints_cb.isChecked())
 
     def _on_expressions_changed(self, state):
+        '''Updates the option expressions'''
         self.set_plugin_option('expressions', self._expressions_cb.isChecked())

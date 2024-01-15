@@ -10,11 +10,8 @@ class MayaSceneCollectorPlugin(BasePlugin):
 
     def run(self, store):
         '''
-        Store location path from the :obj:`self.options['asset_versions']`.
-
-        ['asset_versions']: expected a list of dictionaries
-        containing 'asset_version_id' and 'component_name' for the desired
-        assets to open.
+        Set the desired export_type for the current maya scene and the desired
+        extension format to be publisher to the store.
         '''
         try:
             export_type = self.options['export_type']
