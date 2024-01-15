@@ -820,8 +820,8 @@ class Application(QtWidgets.QMainWindow):
         self.session._configure_locations()
 
         self._discover_applications()  # Was ftrack-application-launcher
-
-        self._discoverConnectWidget()
+        self._discover_connect_widgets()
+        self._configure_action_launcher_widget()  # Was external ftrack-action-launcher-widget plugin
 
     def _discover_plugin_paths(self):
         '''Return a list of paths to pass to ftrack_api.Session()'''
@@ -937,7 +937,7 @@ class Application(QtWidgets.QMainWindow):
 
         return menu
 
-    def _discoverConnectWidget(self):
+    def _discover_connect_widgets(self):
         '''Find and load connect widgets in search paths.'''
 
         event = ftrack_api.event.base.Event(topic=ConnectWidgetPlugin.topic)
@@ -1204,3 +1204,17 @@ class Application(QtWidgets.QMainWindow):
             self.session, launcher_config_paths
         )
         applications.register()
+
+    def _configure_action_launcher_widget(self):
+        if (
+            os.getenv('FTRACK_DISABLE_ACTION_LAUNCHER_WIDGET') or ''
+        ).lower() in ['1', 'true']:
+            self.logger.warning(
+                'Action launcher widget DISABLED through environment variable'
+            )
+            return
+
+        from ftrack_connect.actionlaunch import ActionLauncherWidget
+
+        alw = ActionLauncherWidget(self.session)
+        self.addPlugin(alw)
