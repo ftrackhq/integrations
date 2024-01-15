@@ -148,10 +148,7 @@ def bootstrap_integration(framework_extensions_path):
             ),
             image=":/{}.png".format(tool['icon']),
         )
-
-
-def run_integration():
-    pass
+    return client_instance
 
 
 # Find and read DCC config
