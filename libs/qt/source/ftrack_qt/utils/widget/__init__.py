@@ -11,8 +11,8 @@ from ftrack_utils.framework.config.tool import get_plugins
 
 
 def find_tool(widget):
-    '''Recursively find upstream widget having class name
-    containing *class_name*'''
+    '''Recursively find upstream widget starting on *widget*
+    with framework_tool attribute set.'''
     parent_widget = widget.parentWidget()
     if not parent_widget:
         return
@@ -25,7 +25,7 @@ def find_tool(widget):
 
 
 def get_tool_window_from_widget(widget):
-    '''This function will return the main window from the
+    '''This function will return the framework tool window from the
     given *widget*.'''
     main_window = widget.window()
     if not main_window:

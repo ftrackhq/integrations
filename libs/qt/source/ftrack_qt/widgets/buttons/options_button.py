@@ -70,7 +70,6 @@ class OptionsButton(QtWidgets.QPushButton):
         self.clicked.connect(self.on_click_callback)
 
     def on_click_callback(self):
-        # TODO: review this, isn't overly widget already checking for the main window??
         '''Callback on clicking the options button, show the publish options overlay'''
         main_window = get_tool_window_from_widget(self)
         if main_window:
