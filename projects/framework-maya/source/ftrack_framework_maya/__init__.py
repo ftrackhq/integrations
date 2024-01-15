@@ -22,7 +22,7 @@ from ftrack_utils.extensions.environment import (
     get_extensions_path_from_environment,
 )
 
-from ftrack_framework_maya.utils import maya_dock_right
+from ftrack_framework_maya.utils import dock_maya_right
 
 
 # Evaluate version and log package version
@@ -91,7 +91,7 @@ def on_run_dialog_callback(
     client_instance.run_dialog(
         dialog_name,
         dialog_options={'tool_config_names': tool_config_names},
-        dock_func=maya_dock_right,
+        dock_func=dock_maya_right,
     )
 
 
