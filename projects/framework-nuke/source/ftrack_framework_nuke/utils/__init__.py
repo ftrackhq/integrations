@@ -4,6 +4,8 @@
 import nuke, nukescripts
 from nukescripts import panels
 
+from ftrack_utils.paths import get_temp_path
+
 
 def dock_nuke_right(name, label, widget):
     '''Dock *widget*, with *name* and *label* to the right of the properties panel in Nuke'''
@@ -23,3 +25,13 @@ def dock_nuke_right(name, label, widget):
     pane = nuke.getPaneFor("Properties.1")
     panel = nukescripts.restorePanel(name)
     panel.addToPane(pane)
+
+
+def save_temp():
+    '''Save script locally in temp folder.'''
+
+    save_path = get_temp_path(filename_extension='.nk')
+
+    nuke.scriptSaveAs(save_path, overwrite=1)
+
+    return save_path

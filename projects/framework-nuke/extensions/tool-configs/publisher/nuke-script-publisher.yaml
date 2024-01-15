@@ -1,0 +1,36 @@
+type: tool_config
+name: nuke-script-publisher
+config_type: publisher
+engine:
+  - type: plugin
+    tags:
+      - context
+    plugin: store_asset_context
+    options:
+      asset_type_name: script
+    ui: publisher_asset_version_selector
+
+  # Export the snapshot component.
+  - type: group
+    tags:
+      - component
+    options:
+      component: snapshot
+    plugins:
+      - type: plugin
+        plugin: store_component
+      - type: plugin
+        tags:
+          - collector
+        plugin: script_collector
+      - type: plugin
+        tags:
+          - validator
+        plugin: script_validator
+      - type: plugin
+        tags:
+          - exporter
+        plugin: script_exporter
+
+  # Publish to ftrack.
+  - publish_to_ftrack
