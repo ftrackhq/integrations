@@ -97,7 +97,7 @@ def bootstrap_integration(framework_extensions_path):
             dock_func=partial(dock_nuke_right, label),
         )
 
-    globals()['ftrackToolLauncher'] = run_dialog
+    globals()['ftrackToolLauncher'] = on_run_dialog_callback
 
     ftrack_menu = get_ftrack_menu(submenu_name=None)
 
