@@ -3,7 +3,10 @@
 
 from Qt import QtGui, QtCore, QtWidgets
 
-from ftrack_qt.utils.widget import get_tool_window_from_widget
+from ftrack_qt.utils.widget import (
+    get_main_window_from_widget,
+    get_framework_main_dialog,
+)
 
 from ftrack_qt.widgets.icons import MaterialIcon
 
@@ -115,7 +118,9 @@ class OverlayWidget(QtWidgets.QFrame):
 
     def setVisible(self, visible):
         '''(Override) Set whether *visible* or not.'''
-        main_window = get_tool_window_from_widget(self._container_widget)
+        main_window = get_framework_main_dialog(self._container_widget)
+        if not main_window:
+            main_window = get_main_window_from_widget(self)
         if visible:
             if not self._event_filter_installed:
                 # Install global event filter that will deal with matching parent size

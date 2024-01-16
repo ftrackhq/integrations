@@ -10,32 +10,32 @@ from ftrack_utils.framework.config.tool import get_plugins
 # TODO: check this utilities if they are really needed.
 
 
-def find_tool(widget):
-    '''Recursively find upstream widget starting on *widget*
-    with framework_tool attribute set.'''
-    parent_widget = widget.parentWidget()
-    if not parent_widget:
-        return
-    if (
-        hasattr(parent_widget, 'framework_tool')
-        and parent_widget.framework_tool
-    ):
-        return parent_widget
-    return find_tool(parent_widget)
+def check_framework_dialog_bases(cls):
+    '''Recursively check the base classes for FrameworkDialog.'''
+    for base in cls.__bases__:
+        if base.__name__ == 'FrameworkDialog':
+            return base
+        if check_framework_dialog_bases(base):
+            return base
+    return False
 
 
-def get_tool_window_from_widget(widget):
-    '''This function will return the framework tool window from the
-    given *widget*.'''
-    main_window = widget.window()
-    if not main_window:
-        return
-    # Locate the topmost widget
-    parent = find_tool(widget.parentWidget())
-    if parent:
-        main_window = parent
+def get_main_window_from_widget(widget):
+    '''Return the main window from the given widget.'''
+    return widget.window()
 
-    return main_window
+
+def get_framework_main_dialog(widget):
+    '''Return the main Framework dialog from the given widget.'''
+    main_dialog = None
+    while not main_dialog:
+        widget = widget.parentWidget()
+        if not widget:
+            break
+        if check_framework_dialog_bases(widget.__class__):
+            main_dialog = widget
+
+    return main_dialog
 
 
 def set_property(widget, name, value):
