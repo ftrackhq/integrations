@@ -21,17 +21,18 @@ class PluginValidationError(Exception):
     *on_fix_callback* method callback is accepted.
     """
 
-    def __init__(self, message, on_fix_callback):
+    def __init__(self, message, on_fix_callback, fix_kwargs={}):
         super(PluginValidationError, self).__init__(message)
         self.on_fix_callback = on_fix_callback
+        self.fix_kwargs = fix_kwargs
 
-    def attempt_fix(self):
+    def attempt_fix(self, store):
         """
         Attempt to fix the validation error.
         """
         if callable(self.on_fix_callback):
             try:
-                self.on_fix_callback()
+                self.on_fix_callback(store, **self.fix_kwargs)
                 logger.debug("Fix applied successfully.")
             except Exception as e:
                 raise Exception(
