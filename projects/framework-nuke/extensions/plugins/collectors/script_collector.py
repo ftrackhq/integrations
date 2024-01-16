@@ -10,11 +10,13 @@ from ftrack_framework_nuke.utils import save_temp
 
 
 class ScriptCollectorPlugin(BasePlugin):
+    '''Collect the current work script data from Nuke'''
+
     name = 'script_collector'
 
     def run(self, store):
         '''
-        Collect the current work script data from Nuke
+        Saves Nuke script to temp if unsaved, and stores script path in the :obj:`store`
         '''
 
         script_path = nuke.root().name()

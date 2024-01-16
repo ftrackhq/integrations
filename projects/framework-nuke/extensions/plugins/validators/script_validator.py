@@ -7,6 +7,8 @@ from ftrack_framework_core.plugin import BasePlugin
 
 
 class ScriptValidatorPlugin(BasePlugin):
+    '''Validate current Nuke script for publish'''
+
     name = 'script_validator'
 
     def validate(self, collected_script):
