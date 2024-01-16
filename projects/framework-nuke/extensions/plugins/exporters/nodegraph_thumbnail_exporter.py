@@ -59,7 +59,7 @@ class NodegraphThumbnailExporterPlugin(BasePlugin):
     def run(self, store):
         '''
         Expects collected_script in the <component_name> key of the
-        given *store*, stores the exported thumbnail path path in the :obj:`store`
+        given *store*, stores the exported thumbnail path in the :obj:`store`
         '''
         component_name = self.options.get('component')
         try:
