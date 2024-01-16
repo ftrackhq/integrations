@@ -89,7 +89,7 @@ def bootstrap_integration(framework_extensions_path):
 
     # Create tool launch menu
 
-    def run_dialog(dialog_name, label, tool_config_names):
+    def on_run_dialog_callback(dialog_name, label, tool_config_names):
         # TODO: consider docked tool property to have opener launch as modal dialog
         client.run_dialog(
             dialog_name,
