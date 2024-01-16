@@ -2,7 +2,6 @@
 # :copyright: Copyright (c) 2014-2023 ftrack
 
 import os
-import sys
 import ftrack_api
 import logging
 import functools
@@ -24,6 +23,7 @@ python_dependencies = os.path.join(connect_plugin_path, 'dependencies')
 
 
 def on_discover_integration(session, event):
+    '''Handle application discovery - return name and version.'''
     data = {
         'integration': {
             'name': NAME,
@@ -34,6 +34,8 @@ def on_discover_integration(session, event):
 
 
 def on_launch_integration(session, event):
+    '''Handle application launch and add environment to *event*.'''
+
     launch_data = {'integration': event['data']['integration']}
 
     discover_data = on_discover_integration(session, event)
@@ -42,16 +44,16 @@ def on_launch_integration(session, event):
 
     integration_version = event['data']['application']['version'].version[0]
 
-    bootstrap_path = os.path.join(
-        connect_plugin_path, 'resource', 'bootstrap'
-    )
+    bootstrap_path = os.path.join(connect_plugin_path, 'resource', 'bootstrap')
 
-    launch_data['integration']['env'] = {
-        'PYTHONPATH.prepend': os.path.pathsep.join(
-            [python_dependencies, bootstrap_path]
-        ),
-        'NUKE_PATH': bootstrap_path,
-    }
+    if not launch_data['integration'].get('env'):
+        launch_data['integration']['env'] = {}
+
+    launch_data['integration']['env'][
+        'PYTHONPATH.prepend'
+    ] = os.path.pathsep.join([python_dependencies, bootstrap_path])
+
+    launch_data['integration']['env']['NUKE_PATH'] = bootstrap_path
 
     launch_data['integration']['env']['FTRACK_NUKE_VERSION'] = str(
         integration_version
