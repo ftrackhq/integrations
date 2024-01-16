@@ -89,34 +89,30 @@ def bootstrap_integration(framework_extensions_path):
 
     # Create tool launch menu
 
-    def launch_tool(name, dialog_name, label, tool_config_names, docked):
+    def run_dialog(dialog_name, label, tool_config_names):
+        # TODO: consider docked tool property to have opener launch as modal dialog
         client.run_dialog(
             dialog_name,
             dialog_options={'tool_config_names': tool_config_names},
-            dock_func=partial(dock_nuke_right, name, label)
-            if docked
-            else None,
+            dock_func=partial(dock_nuke_right, label),
         )
 
-    globals()['ftrackToolLauncher'] = launch_tool
+    globals()['ftrackToolLauncher'] = run_dialog
 
     ftrack_menu = get_ftrack_menu(submenu_name=None)
 
-    for tool_definition in dcc_config['tools']:
-        name = tool_definition['name']
-        dialog_name = tool_definition['dialog_name']
-        tool_config_names = tool_definition.get('options', {}).get(
-            'tool_configs'
-        )
-        label = tool_definition.get('label')
-        docked = tool_definition.get('options', {}).get('docked')
+    for tool in dcc_config['tools']:
+        name = tool['name']
+        dialog_name = tool['dialog_name']
+        tool_config_names = tool.get('options', {}).get('tool_configs')
+        label = tool.get('label')
 
         if name == 'separator':
             ftrack_menu.addSeparator()
         else:
             ftrack_menu.addCommand(
                 label,
-                f'{__name__}.ftrackToolLauncher("{name}","{dialog_name}","{label}",{str(tool_config_names)},{docked})',
+                f'{__name__}.ftrackToolLauncher("{dialog_name}","{label}",{str(tool_config_names)})',
             )
 
     # TODO: setup animation timeline - frame rate, start and end frame

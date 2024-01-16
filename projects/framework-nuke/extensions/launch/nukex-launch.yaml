@@ -3,7 +3,7 @@ name: framework-nukex
 priority: 100
 context:
   - Task
-identifier: ftrack-connect-launch-nuke-x
+identifier: ftrack-framework-nuke-x
 applicationIdentifier: nuke_x_{variant}
 integrations:
   framework:
