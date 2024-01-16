@@ -7,32 +7,33 @@ from Qt import QtWidgets, QtCore, QtGui
 
 from ftrack_utils.framework.config.tool import get_plugins
 
-# TODO: check this utilities if they are really needed.
+
+def check_framework_dialog_bases(cls):
+    '''Recursively check the base classes for FrameworkDialog.'''
+    for base in cls.__bases__:
+        if base.__name__ == 'FrameworkDialog':
+            return base
+        if check_framework_dialog_bases(base):
+            return base
+    return False
 
 
-def find_parent(widget, class_name):
-    '''Recursively find upstream widget having class name
-    containing *class_name*'''
-    parent_widget = widget.parentWidget()
-    if not parent_widget:
-        return
-    if parent_widget.__class__.__name__.find(class_name) > -1:
-        return parent_widget
-    return find_parent(parent_widget, class_name)
+def get_main_window_from_widget(widget):
+    '''Return the main window from the given widget.'''
+    return widget.window()
 
 
-def get_main_window_from_widget(widget, class_name):
-    '''This function will return the main window from the
-    given *widget*.'''
-    main_window = widget.window()
-    if not main_window:
-        return
-    # Locate the topmost widget
-    parent = find_parent(widget.parentWidget(), class_name)
-    if parent:
-        main_window = parent
+def get_framework_main_dialog(widget):
+    '''Return the main Framework dialog from the given widget.'''
+    main_dialog = None
+    while not main_dialog:
+        widget = widget.parentWidget()
+        if not widget:
+            break
+        if check_framework_dialog_bases(widget.__class__):
+            main_dialog = widget
 
-    return main_window
+    return main_dialog
 
 
 def set_property(widget, name, value):
