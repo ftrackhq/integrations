@@ -127,7 +127,7 @@ class BaseEngine(object):
             # logger the message
             self.logger.warning(plugin_info.message)
             try:
-                error.attempt_fix()
+                error.attempt_fix(store)
                 plugin_info.message += " Succesfully applied fix for plugin"
                 plugin_info.status = constants.status.SUCCESS_STATUS
             except Exception as e:
