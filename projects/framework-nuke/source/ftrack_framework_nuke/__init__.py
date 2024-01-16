@@ -97,7 +97,7 @@ def bootstrap_integration(framework_extensions_path):
             dock_func=partial(dock_nuke_right, label),
         )
 
-    globals()['ftrackToolLauncher'] = on_run_dialog_callback
+    globals()['onRunDialogCallback'] = on_run_dialog_callback
 
     ftrack_menu = get_ftrack_menu(submenu_name=None)
 
@@ -112,7 +112,7 @@ def bootstrap_integration(framework_extensions_path):
         else:
             ftrack_menu.addCommand(
                 label,
-                f'{__name__}.ftrackToolLauncher("{dialog_name}","{label}",{str(tool_config_names)})',
+                f'{__name__}.onRunDialogCallback("{dialog_name}","{label}",{str(tool_config_names)})',
             )
 
     # TODO: setup animation timeline - frame rate, start and end frame

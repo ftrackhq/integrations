@@ -14,10 +14,10 @@ def dock_nuke_right(label, widget):
 
         # Register docked panel
         panels.registerWidgetAsPanel(
-            f'{__name__}.{class_name}', f'ftrack {label}', widget.__name__
+            f'{__name__}.{class_name}', f'ftrack {label}', class_name
         )
 
     # Restore panel
     pane = nuke.getPaneFor("Properties.1")
-    panel = nukescripts.restorePanel(widget.__name__)
+    panel = nukescripts.restorePanel(class_name)
     panel.addToPane(pane)
