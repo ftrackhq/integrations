@@ -2,7 +2,7 @@ type: dcc_config
 name: framework-photoshop
 tools:
   - name: publish
-    label: "PUBLISH DOCUMENT ÅÖ"
+    label: "PUBLISH DOCUMENT"
     dialog_name: framework_standard_publisher_dialog
     icon: publish
     options:
