@@ -63,7 +63,7 @@ def get_ftrack_menu(menu_name='ftrack', submenu_name=None):
 
 def bootstrap_integration(framework_extensions_path):
     logger.debug(
-        'Maya integration initialising, extensions path:'
+        'Nuke integration initialising, extensions path:'
         f' {framework_extensions_path}'
     )
 
