@@ -51,7 +51,7 @@ def get_ftrack_menu(menu_name='ftrack', submenu_name=None):
     ftrack_menu = nuke_menu.findItem(menu_name)
     if not ftrack_menu:
         ftrack_menu = nuke_menu.addMenu(menu_name)
-    if submenu_name is not None:
+    if submenu_name:
         ftrack_sub_menu = ftrack_menu.findItem(submenu_name)
         if not ftrack_sub_menu:
             ftrack_sub_menu = ftrack_menu.addMenu(submenu_name)
