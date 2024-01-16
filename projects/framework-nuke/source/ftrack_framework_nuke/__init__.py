@@ -91,7 +91,7 @@ def bootstrap_integration(framework_extensions_path):
 
     def on_run_dialog_callback(dialog_name, label, tool_config_names):
         # TODO: consider docked tool property to have opener launch as modal dialog
-        client_instance.on_run_dialog_callback(
+        client_instance.run_dialog(
             dialog_name,
             dialog_options={'tool_config_names': tool_config_names},
             dock_func=partial(dock_nuke_right, label),
