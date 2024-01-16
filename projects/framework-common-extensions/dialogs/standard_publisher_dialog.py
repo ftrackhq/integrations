@@ -20,7 +20,6 @@ class StandardPublisherDialog(BaseContextDialog):
     ui_type = 'qt'
     run_button_title = 'PUBLISH'
     docked = True
-    framework_tool = True
 
     def __init__(
         self,
