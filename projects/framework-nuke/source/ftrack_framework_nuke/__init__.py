@@ -44,7 +44,7 @@ logger = logging.getLogger(__name__)
 logger.debug(f'v{__version__}')
 
 
-def get_ftrack_menu(menu_name='ftrack', submenu_name='pipeline'):
+def get_ftrack_menu(menu_name='ftrack', submenu_name=None):
     '''Get the current ftrack menu, create it if does not exists.'''
 
     nuke_menu = nuke.menu("Nuke")
