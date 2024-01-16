@@ -7,8 +7,6 @@ from Qt import QtWidgets, QtCore, QtGui
 
 from ftrack_utils.framework.config.tool import get_plugins
 
-# TODO: check this utilities if they are really needed.
-
 
 def check_framework_dialog_bases(cls):
     '''Recursively check the base classes for FrameworkDialog.'''

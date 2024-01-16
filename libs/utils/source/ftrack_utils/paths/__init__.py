@@ -38,7 +38,8 @@ def find_image_sequence(file_path):
 
 
 def get_temp_path(filename_extension=None):
-    '''Calculate and return a temporary path, appending *extension* if supplied.'''
+    '''Calculate and return a Connect temporary path,
+    appending *filename_extension* if supplied.'''
 
     result = os.path.join(
         tempfile.gettempdir(),

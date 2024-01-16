@@ -44,14 +44,14 @@ logger = logging.getLogger(__name__)
 logger.debug(f'v{__version__}')
 
 
-def get_ftrack_menu(menu_name='ftrack', submenu_name='pipeline'):
+def get_ftrack_menu(menu_name='ftrack', submenu_name=None):
     '''Get the current ftrack menu, create it if does not exists.'''
 
     nuke_menu = nuke.menu("Nuke")
     ftrack_menu = nuke_menu.findItem(menu_name)
     if not ftrack_menu:
         ftrack_menu = nuke_menu.addMenu(menu_name)
-    if submenu_name is not None:
+    if submenu_name:
         ftrack_sub_menu = ftrack_menu.findItem(submenu_name)
         if not ftrack_sub_menu:
             ftrack_sub_menu = ftrack_menu.addMenu(submenu_name)
@@ -63,7 +63,7 @@ def get_ftrack_menu(menu_name='ftrack', submenu_name='pipeline'):
 
 def bootstrap_integration(framework_extensions_path):
     logger.debug(
-        'Maya integration initialising, extensions path:'
+        'Nuke integration initialising, extensions path:'
         f' {framework_extensions_path}'
     )
 
@@ -78,7 +78,7 @@ def bootstrap_integration(framework_extensions_path):
 
     Host(event_manager, registry=registry_instance)
 
-    client = Client(event_manager, registry=registry_instance)
+    client_instance = Client(event_manager, registry=registry_instance)
 
     # Init tools
     dcc_config = registry_instance.get_one(
@@ -89,34 +89,30 @@ def bootstrap_integration(framework_extensions_path):
 
     # Create tool launch menu
 
-    def launch_tool(name, dialog_name, label, tool_config_names, docked):
-        client.run_dialog(
+    def on_run_dialog_callback(dialog_name, label, tool_config_names):
+        # TODO: consider docked tool property to have opener launch as modal dialog
+        client_instance.run_dialog(
             dialog_name,
             dialog_options={'tool_config_names': tool_config_names},
-            dock_func=partial(dock_nuke_right, name, label)
-            if docked
-            else None,
+            dock_func=partial(dock_nuke_right, label),
         )
 
-    globals()['ftrackToolLauncher'] = launch_tool
+    globals()['onRunDialogCallback'] = on_run_dialog_callback
 
     ftrack_menu = get_ftrack_menu(submenu_name=None)
 
-    for tool_definition in dcc_config['tools']:
-        name = tool_definition['name']
-        dialog_name = tool_definition['dialog_name']
-        tool_config_names = tool_definition.get('options', {}).get(
-            'tool_configs'
-        )
-        label = tool_definition.get('label')
-        docked = tool_definition.get('options', {}).get('docked')
+    for tool in dcc_config['tools']:
+        name = tool['name']
+        dialog_name = tool['dialog_name']
+        tool_config_names = tool.get('options', {}).get('tool_configs')
+        label = tool.get('label')
 
         if name == 'separator':
             ftrack_menu.addSeparator()
         else:
             ftrack_menu.addCommand(
                 label,
-                f'{__name__}.ftrackToolLauncher("{name}","{dialog_name}","{label}",{str(tool_config_names)},{docked})',
+                f'{__name__}.onRunDialogCallback("{dialog_name}","{label}",{str(tool_config_names)})',
             )
 
     # TODO: setup animation timeline - frame rate, start and end frame
