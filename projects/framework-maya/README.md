@@ -58,12 +58,13 @@ Build Connect plugin:
 
 ```bash
     cd integrations
-    python tools/build.py build_connect_plugin projects/framework-maya
+    python tools/build.py --include_resources resource/bootstrap build_connect_plugin projects/framework-maya
 ```
 
 If the build fails and Maya is using beta or experimental dependencies published to Test PyPi, use the `--testpypi` flag 
 to build the plugin.
 
+To build from source, not involving PyPi, use the `--from_source` flag.
 
 ### Build documentation
 
