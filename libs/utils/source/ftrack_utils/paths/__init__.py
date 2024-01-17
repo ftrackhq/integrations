@@ -3,6 +3,7 @@
 
 import os
 import clique
+import tempfile
 
 
 def find_image_sequence(file_path):
@@ -34,3 +35,22 @@ def find_image_sequence(file_path):
             return os.path.join(folder_path, collection.format())
 
     return None
+
+
+def get_temp_path(filename_extension=None):
+    '''Calculate and return a Connect temporary path,
+    appending *filename_extension* if supplied.'''
+
+    result = os.path.join(
+        tempfile.gettempdir(),
+        'ftrack-connect',
+        'ftrack',
+        '{}{}'.format(
+            os.path.basename(tempfile.NamedTemporaryFile().name),
+            filename_extension if filename_extension else '',
+        ),
+    )
+    if not os.path.exists(os.path.dirname(result)):
+        os.makedirs(os.path.dirname(result))
+
+    return result

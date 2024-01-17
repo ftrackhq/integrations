@@ -3,7 +3,7 @@ name: framework-nuke
 priority: 100
 context:
   - Task
-identifier: framework-nuke
+identifier: ftrack-framework-launch-nuke
 applicationIdentifier: nuke_{variant}
 integrations:
   framework:
