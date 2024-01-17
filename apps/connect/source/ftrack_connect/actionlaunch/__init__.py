@@ -16,5 +16,5 @@ class ActionLauncherWidget(ConnectWidget):
         layout = QtWidgets.QVBoxLayout()
         self.setLayout(layout)
 
-        self.actionsView = Actions(self.session)
-        layout.addWidget(self.actionsView)
+        self._actions_view = Actions(self.session)
+        layout.addWidget(self._actions_view)
