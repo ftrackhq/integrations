@@ -20,11 +20,11 @@ class FileExistsValidatorPlugin(BasePlugin):
 
     def run(self, store):
         '''
-        Expects collected_file in the <component_name> key of the given *store*.
+        Expects collected_path in the <component_name> key of the given *store*.
         '''
         component_name = self.options.get('component')
-        collected_file = store['components'][component_name]['collected_file']
+        collected_path = store['components'][component_name]['collected_path']
 
-        store['components'][component_name]['valid_file'] = self.validate(
-            collected_file
+        store['components'][component_name]['valid_path'] = self.validate(
+            collected_path
         )
