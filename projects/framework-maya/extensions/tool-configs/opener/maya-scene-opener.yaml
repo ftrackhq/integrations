@@ -12,7 +12,7 @@ engine:
     tags:
       - component
     options:
-      component: file
+      component: snapshot
     plugins:
       - type: plugin
         plugin: store_component
