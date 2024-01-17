@@ -15,9 +15,8 @@ class MayaThumbnailExporterPlugin(BasePlugin):
 
     def run(self, store):
         '''
-        If export type is selection then export the selection objects in the
-        scene with the options passed. Otherwise, set the current scene path to
-        the store.
+        Create a screenshot from the selected camera given in the *store*.
+        Save it to a temp file and this one will be published as thumbnail.
         '''
         component_name = self.options.get('component')
         camera_name = store['components'][component_name].get('camera_name')
