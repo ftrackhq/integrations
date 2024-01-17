@@ -2,6 +2,8 @@
 # :copyright: Copyright (c) 2014-2023 ftrack
 import maya.cmds as cmds
 
+from ftrack_utils.paths import get_temp_path
+
 from ftrack_framework_core.plugin import BasePlugin
 from ftrack_framework_core.exceptions.plugin import PluginExecutionError
 
@@ -27,8 +29,9 @@ class MayaSceneExporterPlugin(BasePlugin):
         if export_type == 'selection':
             try:
                 # Save file to a temp file
-                # TODO: activate this when PR for temp path is merged
-                exported_path = '/Users/ftrack/Desktop/maya_test_scene_selection.mb'  # get_temp_path(filename_extension=extension_format)
+                exported_path = get_temp_path(
+                    filename_extension=extension_format
+                )
                 cmds.file(
                     exported_path,
                     op='v=0',

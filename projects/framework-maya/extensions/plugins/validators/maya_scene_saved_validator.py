@@ -3,6 +3,8 @@
 
 import maya.cmds as cmds
 
+from ftrack_utils.paths import get_temp_path
+
 from ftrack_framework_core.plugin import BasePlugin
 from ftrack_framework_core.exceptions.plugin import (
     PluginExecutionError,
@@ -23,8 +25,7 @@ class MayaSceneSavedValidatorPlugin(BasePlugin):
         '''
         try:
             # Save file to a temp file
-            # TODO: activate this when PR for temp path is merged
-            save_path = '/Users/ftrack/Desktop/maya_test_scene.mb'  # get_temp_path(filename_extension=extension_format)
+            save_path = get_temp_path(filename_extension=extension_format)
             # Save Maya scene to this path
             cmds.file(rename=save_path)
             cmds.file(save=True)

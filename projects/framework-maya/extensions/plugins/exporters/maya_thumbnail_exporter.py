@@ -4,6 +4,8 @@
 import glob
 import maya.cmds as cmds
 
+from ftrack_utils.paths import get_temp_path
+
 from ftrack_framework_core.plugin import BasePlugin
 from ftrack_framework_core.exceptions.plugin import PluginExecutionError
 
@@ -66,8 +68,7 @@ class MayaThumbnailExporterPlugin(BasePlugin):
                 f"Error trying to set JPEG in renderglobals, error: {error}"
             )
 
-        # TODO: update when temp file PR is merged
-        exported_path = '/Users/ftrack/Desktop/maya_thumbnail.jpg'  # get_temp_path(filename_extension='jpg')
+        exported_path = get_temp_path(filename_extension='jpg')
 
         try:
             # Create the image
