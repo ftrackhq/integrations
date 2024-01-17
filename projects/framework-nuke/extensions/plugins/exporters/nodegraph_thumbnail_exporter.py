@@ -54,7 +54,7 @@ class NodegraphThumbnailExporterPlugin(BasePlugin):
                 rfg.left(), rfg.top(), rfg.width(), rfg.height()
             )
         )
-        pixmap.save(filename, fileformat)
+        pixmap.save(file_name, file_format)
 
     def run(self, store):
         '''
