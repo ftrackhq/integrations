@@ -40,7 +40,7 @@ class NodegraphThumbnailExporterPlugin(BasePlugin):
         )
         return fg.translated(left, top)
 
-    def screenCaptureWidget(self, widget, filename, fileformat='png'):
+    def screenCaptureWidget(self, widget, filename, file_format='png'):
         rfg = self.getRelativeFrameGeometry(widget)
         pixmap = QtGui.QPixmap.grabWindow(
             widget.winId(),
