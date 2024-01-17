@@ -26,9 +26,6 @@ class MayaSceneOpenerPlugin(BasePlugin):
         if not collected_path:
             raise PluginExecutionError("No path provided to open!")
 
-        if not os.path.exists(collected_path):
-            raise PluginExecutionError("File does not exist!")
-
         try:
             cmds.file(collected_path, o=True, f=True)
         except Exception as error:
@@ -36,6 +33,4 @@ class MayaSceneOpenerPlugin(BasePlugin):
                 f"Couldn't open the given path. Error: {error}"
             )
 
-        store['components'][component_name]['open_result'] = self.open_scene(
-            collected_path
-        )
+        store['components'][component_name]['open_result'] = collected_path

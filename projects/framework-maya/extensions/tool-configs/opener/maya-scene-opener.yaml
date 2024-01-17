@@ -1,5 +1,5 @@
 type: tool_config
-name: standalone-file-opener
+name: maya-scene-opener
 config_type: opener
 engine:
   - type: plugin
@@ -26,6 +26,10 @@ engine:
           file_extensions:
             - mb
             - ma
+      - type: plugin
+        tags:
+          - validator
+        plugin: file_exists_validator
       - type: plugin
         tags:
           - opener
