@@ -33,4 +33,6 @@ class MayaSceneOpenerPlugin(BasePlugin):
                 f"Couldn't open the given path. Error: {error}"
             )
 
+        self.logger.debug(f"Maya scene opened. Path: {collected_path}")
+
         store['components'][component_name]['open_result'] = collected_path
