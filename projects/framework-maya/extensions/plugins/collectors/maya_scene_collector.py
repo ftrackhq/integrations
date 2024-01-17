@@ -13,7 +13,8 @@ class MayaSceneCollectorPlugin(BasePlugin):
     def run(self, store):
         '''
         Set the desired export_type for the current maya scene and the desired
-        extension format to be published to the *store*.
+        extension format to be published to the *store*. Also collect the maya
+        scene_name and collect if scene is saved.
         '''
         try:
             export_type = self.options['export_type']
