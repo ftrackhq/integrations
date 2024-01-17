@@ -57,8 +57,9 @@ class MayaSceneSavedValidatorPlugin(BasePlugin):
         extension_format = store['components'][component_name].get(
             'extension_format'
         )
+        scene_name = store['components'][component_name].get('scene_name')
+        scene_saved = store['components'][component_name].get('scene_saved')
 
-        scene_name = cmds.file(q=True, sceneName=True)
         if not scene_name:
             # Scene is not saved, save it first.
             self.logger.warning('Maya scene has never been saved.')
@@ -67,7 +68,7 @@ class MayaSceneSavedValidatorPlugin(BasePlugin):
                 on_fix_callback=self.save_to_temp,
                 fix_kwargs={'extension_format': extension_format},
             )
-        if not cmds.file(query=True, modified=True):
+        if not scene_saved:
             self.logger.warning('Maya scene not saved')
             raise PluginValidationError(
                 message='Maya scene not saved, Click fix to save it.',

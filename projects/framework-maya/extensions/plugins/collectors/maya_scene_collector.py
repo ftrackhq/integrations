@@ -1,6 +1,8 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2023 ftrack
 
+import maya.cmds as cmds
+
 from ftrack_framework_core.plugin import BasePlugin
 from ftrack_framework_core.exceptions.plugin import PluginExecutionError
 
@@ -26,3 +28,9 @@ class MayaSceneCollectorPlugin(BasePlugin):
         store['components'][component_name][
             'extension_format'
         ] = extension_format
+        store['components'][component_name]['scene_name'] = cmds.file(
+            q=True, sceneName=True
+        )
+        store['components'][component_name]['scene_saved'] = cmds.file(
+            query=True, modified=True
+        )
