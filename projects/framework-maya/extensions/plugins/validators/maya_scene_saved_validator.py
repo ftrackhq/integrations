@@ -33,6 +33,7 @@ class MayaSceneSavedValidatorPlugin(BasePlugin):
             raise PluginExecutionError(message=error)
 
         component_name = self.options.get('component', 'main')
+        store['components'][component_name]['scene_name'] = save_path
         store['components'][component_name]['valid_file'] = True
 
     def save_scene(self, store):
