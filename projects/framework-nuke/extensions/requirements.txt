@@ -1,0 +1,4 @@
+ftrack_qt == "2.0.0rc1"
+ftrack-constants == "2.0.0rc1"
+ftrack_framework_photoshop == "2.0.0rc1"
+ftrack_utils == "2.0.0rc1"
