@@ -47,6 +47,7 @@ class NukeNodegraphThumbnailExporterPlugin(BasePlugin):
         return fg.translated(left, top)
 
     def screenCaptureWidget(self, widget, filename, file_format='png'):
+        '''Grab the viewer screenshot'''
         rfg = self.getRelativeFrameGeometry(widget)
         pixmap = QtGui.QPixmap.grabWindow(
             widget.winId(),
