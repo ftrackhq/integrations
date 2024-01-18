@@ -65,8 +65,8 @@ class NukeNodegraphThumbnailExporterPlugin(BasePlugin):
 
     def run(self, store):
         '''
-        Expects collected_script in the <component> key of the
-        given *store*, stores the exported thumbnail path in the :obj:`store`
+        Expects a thumbnail of the node graph to the <component> key of the
+        given *store*
         '''
         component_name = self.options.get('component')
         try:
