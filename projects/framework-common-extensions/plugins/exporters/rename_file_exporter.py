@@ -28,3 +28,4 @@ class RenameExporterPlugin(BasePlugin):
         store['components'][component_name]['exported_path'] = self.rename(
             collected_path, export_destination
         )
+        self.logger.debug(f"Copied {collected_path} to {export_destination}.")

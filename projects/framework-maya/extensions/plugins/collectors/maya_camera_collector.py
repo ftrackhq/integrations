@@ -26,5 +26,6 @@ class MayaCameraCollectorPlugin(BasePlugin):
         except Exception as error:
             raise PluginExecutionError(f"Provide camera_name: {error}")
 
+        self.logger.debug(f"Camera {camera_name}, has been collected.")
         component_name = self.options.get('component', 'main')
         store['components'][component_name]['camera_name'] = camera_name
