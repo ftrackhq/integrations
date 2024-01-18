@@ -47,8 +47,7 @@ class NukeNodegraphThumbnailExporterPlugin(BasePlugin):
         )
         return fg.translated(left, top)
 
-    def screenCaptureWidget(self, widget, filename, fileformat='png'):
-        '''Capture the viewer widget into a file'''
+    def screenCaptureWidget(self, widget, filename, file_format='png'):
         rfg = self.getRelativeFrameGeometry(widget)
         pixmap = QtGui.QPixmap.grabWindow(
             widget.winId(),
@@ -62,11 +61,11 @@ class NukeNodegraphThumbnailExporterPlugin(BasePlugin):
                 rfg.left(), rfg.top(), rfg.width(), rfg.height()
             )
         )
-        pixmap.save(filename, fileformat)
+        pixmap.save(filename, file_format)
 
     def run(self, store):
         '''
-        Expects collected_script in the <component_name> key of the
+        Expects collected_script in the <component> key of the
         given *store*, stores the exported thumbnail path in the :obj:`store`
         '''
         component_name = self.options.get('component')
