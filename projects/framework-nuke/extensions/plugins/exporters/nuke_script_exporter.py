@@ -1,5 +1,6 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2014-2023 ftrack
+# :copyright: Copyright (c) 2014-2024 ftrack
+
 import nuke
 
 from ftrack_utils.paths import get_temp_path
@@ -39,9 +40,11 @@ class NukeScriptExporterPlugin(BasePlugin):
                 raise PluginExecutionError(
                     message=f"Couldn't export selected nodes: {e}"
                 )
+            self.logger.debug(
+                f'Selected nodes Nuke script to publish: {exported_path}'
+            )
         else:
             exported_path = script_name
-
-        self.logger.debug(f'Nuke script to publish: {exported_path}')
+            self.logger.debug(f'Nuke script to publish: {exported_path}')
 
         store['components'][component_name]['exported_path'] = exported_path

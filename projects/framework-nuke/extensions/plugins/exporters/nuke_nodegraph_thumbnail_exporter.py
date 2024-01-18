@@ -1,6 +1,5 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2014-2023 ftrack
-import tempfile
+# :copyright: Copyright (c) 2014-2024 ftrack
 
 from PySide2 import QtGui, QtWidgets
 
@@ -87,5 +86,9 @@ class NukeNodegraphThumbnailExporterPlugin(BasePlugin):
             raise PluginExecutionError(
                 f'Exception exporting the node graph thumbnail: {e}'
             )
+
+        self.logger.debug(
+            f'Exported node graph thumbnail to: {thumbnail_path}'
+        )
 
         store['components'][component_name]['exported_path'] = thumbnail_path

@@ -1,5 +1,5 @@
-import os
-import tempfile
+# :coding: utf-8
+# :copyright: Copyright (c) 2014-2024 ftrack
 
 import nuke
 
@@ -27,6 +27,7 @@ class NukeScriptCollectorPlugin(BasePlugin):
         component_name = self.options.get('component', 'main')
 
         store['components'][component_name]['export_type'] = export_type
+        self.logger.debug(f"Export type: {export_type}.")
 
         script_name = nuke.root().name()
         self.logger.debug(f"Current script path: {script_name}.")

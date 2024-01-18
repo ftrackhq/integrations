@@ -1,7 +1,5 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2014-2023 ftrack
-
-import os
+# :copyright: Copyright (c) 2014-2024 ftrack
 
 from ftrack_framework_core.plugin import BasePlugin
 
@@ -29,3 +27,4 @@ class NukeScriptValidatorPlugin(BasePlugin):
         store['components'][component_name]['valid_script'] = self.validate(
             script_name
         )
+        self.logger.debug(f'Validated successfully: {script_name}')
