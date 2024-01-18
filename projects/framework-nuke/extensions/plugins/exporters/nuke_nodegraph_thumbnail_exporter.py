@@ -4,16 +4,18 @@ import tempfile
 
 from PySide2 import QtGui, QtWidgets
 
+from ftrack_utils.paths import get_temp_path
 from ftrack_framework_core.plugin import BasePlugin
 from ftrack_framework_core.exceptions.plugin import PluginExecutionError
 
 
-class NodegraphThumbnailExporterPlugin(BasePlugin):
+class NukeNodegraphThumbnailExporterPlugin(BasePlugin):
     '''Save a screenshot of the nodegraph to temp location for publish'''
 
-    name = 'nodegraph_thumbnail_exporter'
+    name = 'nuke_nodegraph_thumbnail_exporter'
 
     def findviewer(self):
+        '''Find the nodegraph viewers by title'''
         stack = QtWidgets.QApplication.topLevelWidgets()
         viewers = []
         while stack:
@@ -21,9 +23,14 @@ class NodegraphThumbnailExporterPlugin(BasePlugin):
             if widget.windowTitle().startswith('Node'):
                 viewers.append(widget)
             stack.extend(c for c in widget.children() if c.isWidgetType())
-        return viewers
+        if len(viewers) <= 1:
+            raise Exception(
+                'Could not find node graph viewer to export thumbnail from'
+            )
+        return viewers[1]
 
     def getRelativeFrameGeometry(self, widget):
+        '''Get the viewer bounds'''
         fg = widget.frameGeometry()
         left = top = 0
         while True:
@@ -41,6 +48,7 @@ class NodegraphThumbnailExporterPlugin(BasePlugin):
         return fg.translated(left, top)
 
     def screenCaptureWidget(self, widget, filename, fileformat='png'):
+        '''Capture the viewer widget into a file'''
         rfg = self.getRelativeFrameGeometry(widget)
         pixmap = QtGui.QPixmap.grabWindow(
             widget.winId(),
@@ -63,11 +71,16 @@ class NodegraphThumbnailExporterPlugin(BasePlugin):
         '''
         component_name = self.options.get('component')
         try:
-            view = self.findviewer()[1]
+            view = self.findviewer()
 
-            thumbnail_path = tempfile.NamedTemporaryFile(
-                delete=False, suffix='.png'
-            ).name
+        except Exception as e:
+            self.logger.exception(e)
+            raise PluginExecutionError(
+                f'Exception locating viewer to export: {e}'
+            )
+
+        try:
+            thumbnail_path = get_temp_path(filename_extension='.png')
 
             self.screenCaptureWidget(view, thumbnail_path)
         except Exception as e:

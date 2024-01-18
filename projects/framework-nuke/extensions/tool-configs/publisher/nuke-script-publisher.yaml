@@ -22,15 +22,15 @@ engine:
       - type: plugin
         tags:
           - collector
-        plugin: script_collector
+        plugin: nuke_script_collector
       - type: plugin
         tags:
           - validator
-        plugin: script_validator
+        plugin: nuke_script_validator
       - type: plugin
         tags:
           - exporter
-        plugin: script_exporter
+        plugin: nuke_script_exporter
 
   # Export the thumbnail component.
   - type: group
@@ -46,7 +46,7 @@ engine:
       - type: plugin
         tags:
           - exporter
-        plugin: nodegraph_thumbnail_exporter
+        plugin: nuke_nodegraph_thumbnail_exporter
 
   # Publish to ftrack.
   - publish_to_ftrack

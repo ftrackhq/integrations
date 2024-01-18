@@ -7,10 +7,10 @@ from ftrack_framework_core.plugin import BasePlugin
 from ftrack_framework_core.exceptions.plugin import PluginExecutionError
 
 
-class ScriptExporterPlugin(BasePlugin):
+class NukeScriptExporterPlugin(BasePlugin):
     '''Save Nuke script to temp location for publish'''
 
-    name = 'script_exporter'
+    name = 'nuke_script_exporter'
 
     def run(self, store):
         '''
