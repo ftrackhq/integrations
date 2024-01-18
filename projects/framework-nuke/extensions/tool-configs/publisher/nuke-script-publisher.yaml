@@ -25,6 +25,9 @@ engine:
         tags:
           - collector
         plugin: nuke_script_collector
+        ui: nuke_script_options_selector
+        options:
+          export_type: script # options: script or selection
       - type: plugin
         tags:
           - validator
