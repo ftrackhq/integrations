@@ -31,7 +31,7 @@ class MayaThumbnailExporterPlugin(BasePlugin):
 
         # Get the current panel
         current_panel = cmds.getPanel(wf=True)
-        self.logger.debug(f"Current pannel is: {current_panel}.")
+        self.logger.debug(f"Current panel is: {current_panel}.")
         panel_type = cmds.getPanel(to=current_panel)  # scriptedPanel
         if panel_type != 'modelPanel':
             visible_panels = cmds.getPanel(vis=True)
