@@ -19,3 +19,4 @@ class ContextIdPlugin(BasePlugin):
         for k in keys:
             if self.options.get(k):
                 store[k] = self.options.get(k)
+                self.logger.debug(f"{store[k]} stored in {k}.")
