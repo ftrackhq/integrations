@@ -20,13 +20,12 @@ class NukeScriptValidatorPlugin(BasePlugin):
 
     def run(self, store):
         '''
-        Expects collected_data in the <component_name> key of the given *store*.
+        Validates the Nuke script before publish.
         '''
         component_name = self.options.get('component')
-        collected_script = store['components'][component_name][
-            'collected_script'
-        ]
+        script_name = store['components'][component_name]['script_name']
 
+        self.logger.debug(f'Validating: {script_name}')
         store['components'][component_name]['valid_script'] = self.validate(
-            collected_script
+            script_name
         )

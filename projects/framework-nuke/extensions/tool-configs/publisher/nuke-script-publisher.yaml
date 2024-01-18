@@ -26,6 +26,11 @@ engine:
       - type: plugin
         tags:
           - validator
+        plugin: nuke_script_saved_validator
+        ui: validator_label
+      - type: plugin
+        tags:
+          - validator
         plugin: nuke_script_validator
       - type: plugin
         tags:

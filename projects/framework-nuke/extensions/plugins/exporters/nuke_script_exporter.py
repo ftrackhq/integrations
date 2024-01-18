@@ -19,20 +19,8 @@ class NukeScriptExporterPlugin(BasePlugin):
         '''
         component_name = self.options.get('component')
 
-        script_path = store['components'][component_name]['collected_script']
+        script_name = store['components'][component_name]['script_name']
 
-        new_file_path = tempfile.NamedTemporaryFile(
-            delete=False, suffix='.nk'
-        ).name
+        self.logger.debug(f'Nuke script to publish: {script_name}')
 
-        self.logger.debug(
-            f'Copying Nuke script from {script_path} to {new_file_path}'
-        )
-
-        try:
-            store['components'][component_name]['exported_path'] = shutil.copy(
-                script_path, new_file_path
-            )
-        except Exception as e:
-            self.logger.exception(e)
-            raise PluginExecutionError(f'Exception copying the script: {e}')
+        store['components'][component_name]['exported_path'] = script_name

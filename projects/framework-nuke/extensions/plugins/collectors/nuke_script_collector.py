@@ -4,15 +4,12 @@ import tempfile
 import nuke
 
 from ftrack_framework_core.plugin import BasePlugin
-from ftrack_framework_core.exceptions.plugin import PluginExecutionError
-
-from ftrack_framework_nuke.utils import save_temp
 
 
 class NukeScriptCollectorPlugin(BasePlugin):
     '''Collect the current work script data from Nuke'''
 
-    name = 'script_collector'
+    name = 'nuke_script_collector'
 
     def run(self, store):
         '''
@@ -20,5 +17,10 @@ class NukeScriptCollectorPlugin(BasePlugin):
         '''
 
         component_name = self.options.get('component', 'main')
-        script_path = nuke.root().name()
-        store['components'][component_name]['collected_script'] = script_path
+        script_name = nuke.root().name()
+        self.logger.debug(f"Current script path: {script_name}.")
+        store['components'][component_name]['script_name'] = script_name
+
+        script_saved = nuke.root().modified()
+        store['components'][component_name]['script_saved'] = not script_saved
+        self.logger.debug(f"Script saved: {script_saved}.")
