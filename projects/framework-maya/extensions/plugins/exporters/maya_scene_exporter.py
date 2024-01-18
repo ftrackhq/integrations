@@ -25,6 +25,7 @@ class MayaSceneExporterPlugin(BasePlugin):
         extension_format = (
             'mayaAscii' if extension_format_short == 'ma' else 'mayaBinary'
         )
+        scene_name = store['components'][component_name].get('scene_name')
 
         if export_type == 'selection':
             try:
@@ -52,6 +53,6 @@ class MayaSceneExporterPlugin(BasePlugin):
                 )
 
         else:
-            exported_path = cmds.file(q=True, sceneName=True)
+            exported_path = scene_name
 
         store['components'][component_name]['exported_path'] = exported_path
