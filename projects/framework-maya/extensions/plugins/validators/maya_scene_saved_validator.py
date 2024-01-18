@@ -29,11 +29,13 @@ class MayaSceneSavedValidatorPlugin(BasePlugin):
             # Save Maya scene to this path
             cmds.file(rename=save_path)
             cmds.file(save=True)
+            self.logger.debug(f"Scene has been saved to: {save_path}.")
         except Exception as error:
             raise PluginExecutionError(message=error)
 
         component_name = self.options.get('component', 'main')
         store['components'][component_name]['scene_name'] = save_path
+        store['components'][component_name]['scene_saved'] = True
         store['components'][component_name]['valid_file'] = True
 
     def save_scene(self, store):
@@ -42,12 +44,14 @@ class MayaSceneSavedValidatorPlugin(BasePlugin):
         '''
         try:
             cmds.file(save=True)
+            self.logger.debug(f"Scene has been saved.")
         except Exception as error:
             raise PluginExecutionError(
                 message=f"Error saving the scene: {error}"
             )
 
         component_name = self.options.get('component', 'main')
+        store['components'][component_name]['scene_saved'] = True
         store['components'][component_name]['valid_file'] = True
 
     def run(self, store):
@@ -75,4 +79,5 @@ class MayaSceneSavedValidatorPlugin(BasePlugin):
                 message='Maya scene not saved, Click fix to save it.',
                 on_fix_callback=self.save_scene,
             )
+        self.logger.debug("Scene is saved validation passed.")
         store['components'][component_name]['valid_file'] = True

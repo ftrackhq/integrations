@@ -9,7 +9,7 @@ from ftrack_framework_core.exceptions.plugin import PluginValidationError
 
 class MayaExportedPathValidatorPlugin(BasePlugin):
     '''
-    Plugin to validate if a camera exists.
+    Plugin to validate if exported_path in store exists.
     '''
 
     name = 'maya_exported_path_validator'
@@ -26,4 +26,5 @@ class MayaExportedPathValidatorPlugin(BasePlugin):
             raise PluginValidationError(
                 message=f"The file {exported_path} doesn't exists"
             )
+        self.logger.debug(f"Path {exported_path} exists.")
         store['components'][component_name]['successful_export'] = True

@@ -22,12 +22,16 @@ class MayaThumbnailExporterPlugin(BasePlugin):
         camera_name = store['components'][component_name].get('camera_name')
 
         # Get Current selected nodes
-        prevoius_selected_nodes = cmds.ls(sl=True)
+        previous_selected_nodes = cmds.ls(sl=True)
+        self.logger.debug(
+            f"Previous selected nodes saved.: {previous_selected_nodes}."
+        )
         # Cleanup the selection
         cmds.select(cl=True)
 
         # Get the current panel
         current_panel = cmds.getPanel(wf=True)
+        self.logger.debug(f"Current pannel is: {current_panel}.")
         panel_type = cmds.getPanel(to=current_panel)  # scriptedPanel
         if panel_type != 'modelPanel':
             visible_panels = cmds.getPanel(vis=True)
@@ -42,6 +46,9 @@ class MayaThumbnailExporterPlugin(BasePlugin):
         if current_panel:
             previous_camera = cmds.modelPanel(
                 current_panel, q=True, camera=True
+            )
+            self.logger.debug(
+                f"Previous selected camera saved: {previous_camera}."
             )
 
         cmds.lookThru(camera_name)
@@ -62,6 +69,7 @@ class MayaThumbnailExporterPlugin(BasePlugin):
                 )
                 cmds.setAttr('defaultRenderGlobals.imageFormat', 8)
                 restoreRenderGlobals = True
+            self.logger.debug("Render globals has been changed")
         except Exception as error:
             raise PluginExecutionError(
                 f"Error trying to set JPEG in renderglobals, error: {error}"
@@ -81,6 +89,7 @@ class MayaThumbnailExporterPlugin(BasePlugin):
                 viewer=False,
                 filename=exported_path,
             )
+            self.logger.debug(f"Thumbnail exported to: {exported_path}.")
         except Exception as error:
             raise PluginExecutionError(
                 f"Error trying to create the thumbnail, error: {error}"
@@ -89,11 +98,14 @@ class MayaThumbnailExporterPlugin(BasePlugin):
         # Restore render globals
         if restoreRenderGlobals:
             cmds.setAttr('defaultRenderGlobals.imageFormat', currentFormatInt)
+            self.logger.debug("Render globals has been restored.")
 
-        if prevoius_selected_nodes:
-            cmds.select(prevoius_selected_nodes)
+        if previous_selected_nodes:
+            cmds.select(previous_selected_nodes)
+            self.logger.debug("Previous camera has been selected.")
         export_result = export_result.replace('####', '*')
         full_path = glob.glob(export_result)[0]
+        self.logger.debug(f"Full path of the exported thumbnail: {full_path}.")
 
         cmds.lookThru(previous_camera)
 

@@ -24,4 +24,5 @@ class MayaCameraExistsValidatorPlugin(BasePlugin):
             raise PluginValidationError(
                 message=f"Camera with name {camera_name} doesn't exists"
             )
+        self.logger.debug(f"Camera {camera_name} exists.")
         store['components'][component_name]['valid_camera'] = True

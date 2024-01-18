@@ -47,6 +47,9 @@ class MayaSceneExporterPlugin(BasePlugin):
                     constraints=self.options['constraints'],
                     expressions=self.options['expressions'],
                 )
+                self.logger.debug(
+                    f"Selected objects exported to: {exported_path}."
+                )
             except Exception as error:
                 raise PluginExecutionError(
                     message=f"Couldn't export selection, error:{error}"

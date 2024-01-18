@@ -16,6 +16,7 @@ class FileExistsValidatorPlugin(BasePlugin):
         '''
         if not os.path.exists(file_path):
             raise PluginValidationError(message='File does not exist.')
+        self.logger.debug(f"{file_path} Exists.")
         return True
 
     def run(self, store):
