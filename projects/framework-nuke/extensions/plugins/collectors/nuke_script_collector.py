@@ -33,6 +33,6 @@ class NukeScriptCollectorPlugin(BasePlugin):
         self.logger.debug(f"Current script path: {script_name}.")
         store['components'][component_name]['script_name'] = script_name
 
-        script_saved = nuke.root().modified()
+        script_saved = not nuke.root().modified()
         store['components'][component_name]['script_saved'] = not script_saved
         self.logger.debug(f"Script saved: {script_saved}.")
