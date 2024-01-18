@@ -16,6 +16,8 @@ engine:
       - component
     options:
       component: snapshot
+    #optional: False by default so is no need
+    #enabled: True by default so is no need
     plugins:
       - type: plugin
         plugin: store_component
@@ -29,6 +31,7 @@ engine:
         plugin: nuke_script_saved_validator
         ui: validator_label
       - type: plugin
+        # Example plugin that validates the script before publish
         tags:
           - validator
         plugin: nuke_script_validator
@@ -44,7 +47,7 @@ engine:
     options:
       component: thumbnail
     optional: true
-    enabled: true
+    #enabled: True by default so is no need
     plugins:
       - type: plugin
         plugin: store_component
