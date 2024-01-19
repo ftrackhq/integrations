@@ -14,4 +14,4 @@ tools:
     icon: open
     options:
       tool_configs:
-        - standalone-file-opener
+        - maya-scene-opener
