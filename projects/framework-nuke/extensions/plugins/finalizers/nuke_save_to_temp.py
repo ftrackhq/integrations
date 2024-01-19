@@ -9,10 +9,10 @@ from ftrack_framework_core.plugin import BasePlugin
 from ftrack_framework_core.exceptions.plugin import PluginExecutionError
 
 
-class NukeSaveToTemp(BasePlugin):
+class NukeSaveToTempPlugin(BasePlugin):
     '''Save the current open Nuke script to a temp location'''
 
-    name = 'nuke_save_to_temp'
+    name = 'nuke_save_to_temp_finalizer'
 
     def run(self, store):
         '''Save to temp and store the result in the given *store*'''
@@ -27,4 +27,3 @@ class NukeSaveToTemp(BasePlugin):
                 f'Exception saving Nuke script to temp: {e}'
             )
 
-        store['save_to_temp_result'] = save_result
