@@ -62,7 +62,7 @@ class NukeScriptSavedValidatorPlugin(BasePlugin):
         if script_name == 'Root':
             # script is not saved, save it first.
             raise PluginValidationError(
-                message='Nuke script is not saved, applying fix to save it to a temp file',
+                message='Nuke script has never been saved, applying fix to save it to a temp file',
                 on_fix_callback=self.save_to_temp,
             )
         elif not script_saved:
