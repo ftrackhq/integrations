@@ -24,6 +24,8 @@ class FileCollectorPlugin(BasePlugin):
             )
             raise PluginExecutionError(message)
         component_name = self.options.get('component', 'main')
-        store['components'][component_name]['collected_file'] = os.path.join(
+        self.logger.debug(f"Collected folder: {folder_path}.")
+        self.logger.debug(f"Collected file: {file_name}.")
+        store['components'][component_name]['collected_path'] = os.path.join(
             folder_path, file_name
         )

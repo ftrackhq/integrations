@@ -16,15 +16,16 @@ class FileExistsValidatorPlugin(BasePlugin):
         '''
         if not os.path.exists(file_path):
             raise PluginValidationError(message='File does not exist.')
+        self.logger.debug(f"{file_path} Exists.")
         return True
 
     def run(self, store):
         '''
-        Expects collected_file in the <component_name> key of the given *store*.
+        Expects collected_path in the <component_name> key of the given *store*.
         '''
         component_name = self.options.get('component')
-        collected_file = store['components'][component_name]['collected_file']
+        collected_path = store['components'][component_name]['collected_path']
 
-        store['components'][component_name]['valid_file'] = self.validate(
-            collected_file
+        store['components'][component_name]['valid_path'] = self.validate(
+            collected_path
         )
