@@ -302,6 +302,8 @@ class Application(QtWidgets.QMainWindow):
     loginSignal = QtCore.Signal(object, object, object)
     loginSuccessSignal = QtCore.Signal()
 
+    _builtin_plugins = []
+
     def restart(self):
         '''restart connect application'''
         self.logger.info('Connect restarting....')
@@ -821,7 +823,9 @@ class Application(QtWidgets.QMainWindow):
 
         self._discover_applications()  # Was ftrack-application-launcher
 
-        self._discoverConnectWidget()
+        self._configure_action_launcher_widget()  # Was external ftrack-action-launcher-widget plugin
+
+        self._discover_connect_widgets()
 
     def _discover_plugin_paths(self):
         '''Return a list of paths to pass to ftrack_api.Session()'''
@@ -937,7 +941,7 @@ class Application(QtWidgets.QMainWindow):
 
         return menu
 
-    def _discoverConnectWidget(self):
+    def _discover_connect_widgets(self):
         '''Find and load connect widgets in search paths.'''
 
         event = ftrack_api.event.base.Event(topic=ConnectWidgetPlugin.topic)
@@ -952,12 +956,13 @@ class Application(QtWidgets.QMainWindow):
                 self.plugins[identifier] = widget_plugin
                 self.addPlugin(widget_plugin)
         else:
-            for ResponsePlugin in responses:
+            for plugin_class in self._builtin_plugins + responses:
+                widget_plugin = None
                 try:
                     load_icons(
                         os.path.join(os.path.dirname(__file__), '..', 'fonts')
                     )
-                    widget_plugin = ResponsePlugin(self.session)
+                    widget_plugin = plugin_class(self.session)
 
                 except Exception:
                     self.logger.exception(
@@ -1050,7 +1055,6 @@ class Application(QtWidgets.QMainWindow):
         if name is None:
             name = plugin.getName()
 
-        icon = None
         try:
             icon = qta.icon(plugin.icon)
         except Exception as err:
@@ -1066,6 +1070,8 @@ class Application(QtWidgets.QMainWindow):
             self._onWidgetRequestApplicationClose
         )
         plugin.requestConnectRestart.connect(self.restart)
+
+        self.logger.debug(f'Plugin {name}({plugin.__class__.__name__}) added')
 
     def removePlugin(self, plugin):
         '''Remove plugin registered with *identifier*.
@@ -1204,3 +1210,12 @@ class Application(QtWidgets.QMainWindow):
             self.session, launcher_config_paths
         )
         applications.register()
+
+    def _configure_action_launcher_widget(self):
+        '''Append action launcher widget to list of build in
+        plugins to add on discovery together with user plugins.'''
+
+        from ftrack_connect.actionlaunch import ActionLauncherWidget
+
+        # Add together with discovered widgets
+        self._builtin_plugins.append(ActionLauncherWidget)
