@@ -7,10 +7,10 @@ from ftrack_framework_core.plugin import BasePlugin
 from ftrack_framework_core.exceptions.plugin import PluginExecutionError
 
 
-class OpenScriptPlugin(BasePlugin):
+class NukeScriptOpenerPlugin(BasePlugin):
     '''Open the collected script in Nuke'''
 
-    name = 'nuke_script_open'
+    name = 'nuke_script_opener'
 
     def run(self, store):
         '''
@@ -20,6 +20,8 @@ class OpenScriptPlugin(BasePlugin):
         component_name = self.options.get('component')
 
         script_path = store['components'][component_name].get('collected_path')
+
+        self.logger.debug(f'Opening Nuke script: {script_path}')
 
         try:
             open_result = nuke.scriptOpen(script_path)

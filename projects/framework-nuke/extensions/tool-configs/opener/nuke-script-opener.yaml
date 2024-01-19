@@ -26,6 +26,6 @@ engine:
       - type: plugin
         tags:
           - importer
-        plugin: nuke_script_open
+        plugin: nuke_script_opener
       - nuke_save_to_temp
 
