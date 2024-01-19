@@ -34,11 +34,6 @@ engine:
         plugin: nuke_script_saved_validator
         ui: validator_label
       - type: plugin
-        # Example plugin that validates the script before publish
-        tags:
-          - validator
-        plugin: nuke_script_validator
-      - type: plugin
         tags:
           - exporter
         plugin: nuke_script_exporter
@@ -49,7 +44,7 @@ engine:
       - component
     options:
       component: thumbnail
-    optional: true
+    #optional: False by default so is no need
     #enabled: True by default so is no need
     plugins:
       - type: plugin
