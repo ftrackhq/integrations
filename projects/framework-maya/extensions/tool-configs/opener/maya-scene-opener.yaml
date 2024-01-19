@@ -34,4 +34,6 @@ engine:
         tags:
           - opener
         plugin: maya_scene_opener
+      - type: plugin
+        plugin: maya_save_to_temp_finalizer
 
