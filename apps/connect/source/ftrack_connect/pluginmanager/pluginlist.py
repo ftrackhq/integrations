@@ -8,6 +8,7 @@ from urllib.request import urlopen
 import json
 import shutil
 import logging
+
 from ftrack_connect.qt import QtWidgets, QtCore, QtGui
 
 from ftrack_connect.pluginmanager.processor import (

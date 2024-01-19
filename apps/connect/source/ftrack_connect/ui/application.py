@@ -833,9 +833,11 @@ class Application(QtWidgets.QMainWindow):
 
         self._discover_applications()  # Was ftrack-application-launcher
 
+        self._configure_action_launcher_widget()  # Was external ftrack-connect action-launcher plugin
+
         self._configure_plug_manager_widget()  # Was external ftrack-connect plugin-manager plugin
 
-        self.discover_connect_widgets()
+        self._discover_connect_widgets()
 
     def _discover_plugin_paths(self):
         '''Return a list of paths to pass to ftrack_api.Session()'''
