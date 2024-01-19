@@ -1,0 +1,58 @@
+type: tool_config
+name: nuke-script-publisher
+config_type: publisher
+engine:
+  - type: plugin
+    tags:
+      - context
+    plugin: store_asset_context
+    options:
+      asset_type_name: script
+    ui: publisher_asset_version_selector
+
+  # Export the snapshot component.
+  - type: group
+    tags:
+      - component
+    options:
+      component: snapshot
+    #optional: False by default so is no need
+    #enabled: True by default so is no need
+    plugins:
+      - type: plugin
+        plugin: store_component
+      - type: plugin
+        tags:
+          - collector
+        plugin: nuke_script_collector
+        ui: nuke_script_options_selector
+        options:
+          export_type: script # options: script or selection
+      - type: plugin
+        tags:
+          - validator
+        plugin: nuke_script_saved_validator
+        ui: validator_label
+      - type: plugin
+        tags:
+          - exporter
+        plugin: nuke_script_exporter
+
+  # Export the thumbnail component.
+  - type: group
+    tags:
+      - component
+    options:
+      component: thumbnail
+    #optional: False by default so is no need
+    #enabled: True by default so is no need
+    plugins:
+      - type: plugin
+        plugin: store_component
+      - type: plugin
+        tags:
+          - exporter
+        plugin: nuke_nodegraph_image_exporter
+
+  # Publish to ftrack.
+  - publish_to_ftrack
