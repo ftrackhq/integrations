@@ -66,7 +66,6 @@ class NukeScriptSavedValidatorPlugin(BasePlugin):
                 on_fix_callback=self.save_to_temp,
             )
         elif not script_saved:
-            self.logger.warning('Nuke script not saved')
             raise PluginValidationError(
                 message='Nuke scene not saved, applying fix to save it.',
                 on_fix_callback=self.save_script,
