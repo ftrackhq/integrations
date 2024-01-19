@@ -215,17 +215,23 @@ class DndPluginList(QtWidgets.QFrame):
                 result.append(plugin)
         return result
 
-    def get_conflicting_plugins(self):
+    def get_deprecated_plugins(self):
+        from ftrack_connect.pluginmanager import DEPRECATED_PLUGINS
+
         result = []
         plugins = os.listdir(self.default_plugin_directory)
         for plugin in plugins:
-            if (
-                plugin.lower().startswith(
-                    'ftrack-connect-action-launcher-widget'
-                )
-                or plugin.lower().find('ftrack-connect-plugin-manager') > -1
-            ):
-                result.append(plugin)
+            is_deprecated = False
+            for conflicting_plugin in DEPRECATED_PLUGINS:
+                if plugin.lower().find(conflicting_plugin) > -1:
+                    self.logger.warning(
+                        f'Ignoring deprecated plugin: {plugin}'
+                    )
+                    is_deprecated = True
+                    break
+            if is_deprecated:
+                continue
+            result.append(plugin)
         return result
 
     def remove_legacy_plugin(self, plugin_name):
@@ -234,9 +240,9 @@ class DndPluginList(QtWidgets.QFrame):
         if os.path.exists(install_path) and os.path.isdir(install_path):
             shutil.rmtree(install_path, ignore_errors=False, onerror=None)
 
-    def remove_conflicting_plugin(self, plugin_name):
+    def remove_deprecated_plugin(self, plugin_name):
         install_path = os.path.join(self.default_plugin_directory, plugin_name)
-        logger.debug(f'Removing conflicting plugin: {install_path}')
+        logger.debug(f'Removing deprecated plugin: {install_path}')
         if os.path.exists(install_path) and os.path.isdir(install_path):
             shutil.rmtree(install_path, ignore_errors=False, onerror=None)
 

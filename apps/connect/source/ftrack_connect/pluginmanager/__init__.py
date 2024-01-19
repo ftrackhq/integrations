@@ -16,6 +16,11 @@ from ftrack_connect.pluginmanager.overlay import InstallerBlockingOverlay
 from ftrack_connect.pluginmanager.processor import PluginProcessor, ROLES
 from ftrack_connect.pluginmanager.pluginlist import DndPluginList
 
+DEPRECATED_PLUGINS = [
+    'ftrack-connect-action-launcher-widget',
+    'ftrack-connect-plugin-manager',
+]
+
 
 class PluginManager(ftrack_connect.ui.application.ConnectWidget):
     '''Show and manage plugin installations.'''
@@ -218,9 +223,7 @@ class PluginManager(ftrack_connect.ui.application.ConnectWidget):
     def _on_apply_changes(self):
         '''User wants to apply the updates, warn about conflicting plugins.'''
         legacy_plugins = self._plugin_list_widget.get_legacy_plugins()
-        conflicting_plugins = (
-            self._plugin_list_widget.get_conflicting_plugins()
-        )
+        conflicting_plugins = self._plugin_list_widget.get_deprecated_plugins()
         if conflicting_plugins:
             answer = QtWidgets.QMessageBox.question(
                 None,
@@ -263,7 +266,7 @@ class PluginManager(ftrack_connect.ui.application.ConnectWidget):
         self.installation_started.emit()
         try:
             for plugin in conflicting_plugins:
-                self._plugin_list_widget.remove_conflicting_plugin(plugin)
+                self._plugin_list_widget.remove_deprecated_plugin(plugin)
             for plugin in legacy_plugins:
                 self._plugin_list_widget.remove_legacy_plugin(plugin)
             num_items = self._plugin_list_widget.plugin_model.rowCount()
