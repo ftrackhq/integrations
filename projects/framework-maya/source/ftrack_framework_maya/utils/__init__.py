@@ -1,7 +1,11 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2023 ftrack
 
+import threading
+from functools import wraps
+
 import maya.cmds as cmds
+import maya.utils as maya_utils
 import maya.OpenMayaUI as omui
 
 from shiboken2 import wrapInstance
@@ -41,3 +45,16 @@ def dock_maya_right(widget):
     cmds.evalDeferred(
         lambda *args: cmds.workspaceControl(main_control, e=True, rs=True)
     )
+
+
+def run_in_main_thread(f):
+    '''Make sure a function runs in the main Maya thread.'''
+
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        if threading.currentThread().name != 'MainThread':
+            return maya_utils.executeInMainThreadWithResult(f, *args, **kwargs)
+        else:
+            return f(*args, **kwargs)
+
+    return decorated

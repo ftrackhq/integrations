@@ -37,7 +37,7 @@ class MayaSceneCollectorPlugin(BasePlugin):
                 f"Error retrieving the scene name: {error}"
             )
         try:
-            scene_saved = cmds.file(query=True, modified=True)
+            scene_saved = not cmds.file(query=True, modified=True)
         except Exception as error:
             raise PluginExecutionError(
                 f"Error Checking if the scene is saved: {error}"
