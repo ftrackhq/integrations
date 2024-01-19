@@ -7,28 +7,18 @@ from ftrack_utils.paths import get_temp_path
 from ftrack_framework_core.plugin import BasePlugin
 from ftrack_framework_core.exceptions.plugin import PluginExecutionError
 
+from ftrack_framework_nuke.utils import (
+    find_nodegraph_viewer,
+    activate_nodegraph_viewer,
+)
+
 
 class NukeNodegraphImageExporterPlugin(BasePlugin):
     '''Save an image of the nodegraph to temp location for publish'''
 
     name = 'nuke_nodegraph_image_exporter'
 
-    def findviewer(self):
-        '''Find the nodegraph viewers by title'''
-        stack = QtWidgets.QApplication.topLevelWidgets()
-        viewers = []
-        while stack:
-            widget = stack.pop()
-            if widget.windowTitle().startswith('Node'):
-                viewers.append(widget)
-            stack.extend(c for c in widget.children() if c.isWidgetType())
-        if len(viewers) <= 1:
-            raise Exception(
-                'Could not find node graph viewer to export image from'
-            )
-        return viewers[1]
-
-    def getRelativeFrameGeometry(self, widget):
+    def get_relative_frame_geometry(self, widget):
         '''Get the viewer bounds'''
         fg = widget.frameGeometry()
         left = top = 0
@@ -46,9 +36,9 @@ class NukeNodegraphImageExporterPlugin(BasePlugin):
         )
         return fg.translated(left, top)
 
-    def screenCaptureWidget(self, widget, filename, file_format='png'):
+    def screen_capture_widget(self, widget, filename, file_format='png'):
         '''Grab the viewer screenshot'''
-        rfg = self.getRelativeFrameGeometry(widget)
+        rfg = self.get_relative_frame_geometry(widget)
         pixmap = QtGui.QPixmap.grabWindow(
             widget.winId(),
             rfg.left(),
@@ -70,7 +60,7 @@ class NukeNodegraphImageExporterPlugin(BasePlugin):
         '''
         component_name = self.options.get('component')
         try:
-            view = self.findviewer()
+            view = find_nodegraph_viewer(activate=True)
 
         except Exception as e:
             self.logger.exception(e)
@@ -79,9 +69,15 @@ class NukeNodegraphImageExporterPlugin(BasePlugin):
             )
 
         try:
+            activate_nodegraph_viewer(view)
+        except Exception as e:
+            self.logger.exception(e)
+            self.logger.warning(f'Could not active node graph viewer: {e}')
+
+        try:
             image_path = get_temp_path(filename_extension='.png')
 
-            self.screenCaptureWidget(view, image_path)
+            self.screen_capture_widget(view, image_path)
         except Exception as e:
             self.logger.exception(e)
             raise PluginExecutionError(

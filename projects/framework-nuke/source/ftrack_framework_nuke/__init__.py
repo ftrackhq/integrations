@@ -21,7 +21,7 @@ from ftrack_framework_core import registry
 
 from ftrack_framework_core.configure_logging import configure_logging
 
-from ftrack_framework_nuke.utils import dock_nuke_right
+from ftrack_framework_nuke.utils import dock_nuke_right, find_nodegraph_viewer
 
 # Evaluate version and log package version
 try:
@@ -96,6 +96,9 @@ def bootstrap_integration(framework_extensions_path):
             dialog_options={'tool_config_names': tool_config_names},
             dock_func=partial(dock_nuke_right, label),
         )
+        # Prevent bug in Nuke were curve editor is activated on docking a panel
+        # TODO: only run if docked
+        find_nodegraph_viewer(activate=True)
 
     globals()['onRunDialogCallback'] = on_run_dialog_callback
 

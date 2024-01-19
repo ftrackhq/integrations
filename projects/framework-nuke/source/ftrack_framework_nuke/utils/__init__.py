@@ -1,10 +1,10 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2024 ftrack
 
+from PySide2 import QtWidgets
+
 import nuke, nukescripts
 from nukescripts import panels
-
-from ftrack_utils.paths import get_temp_path
 
 
 def dock_nuke_right(label, widget):
@@ -24,3 +24,30 @@ def dock_nuke_right(label, widget):
 
     panel = nukescripts.restorePanel(class_name)
     panel.addToPane(pane)
+
+
+def find_nodegraph_viewer(activate=False):
+    '''Find the nodegraph viewers by title'''
+    stack = QtWidgets.QApplication.topLevelWidgets()
+    viewers = []
+    while stack:
+        widget = stack.pop()
+        if widget.windowTitle().lower().startswith('node graph'):
+            viewers.append(widget)
+        stack.extend(c for c in widget.children() if c.isWidgetType())
+    if len(viewers) <= 1:
+        raise Exception(
+            'Could not find node graph viewer to export image from'
+        )
+    widget = viewers[1]
+    if activate:
+        activate_nodegraph_viewer(widget)
+    return widget
+
+
+def activate_nodegraph_viewer(widget):
+    '''Activate the nodegraph viewer'''
+    stacked_widget = widget.parent()
+    idx = stacked_widget.indexOf(widget)
+    if stacked_widget.currentIndex() != idx:
+        stacked_widget.setCurrentIndex(idx)
