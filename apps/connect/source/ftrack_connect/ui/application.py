@@ -946,46 +946,54 @@ class Application(QtWidgets.QMainWindow):
 
         event = ftrack_api.event.base.Event(topic=ConnectWidgetPlugin.topic)
         responses = self.session.event_hub.publish(event, synchronous=True)
-
-        for plugin_class in self._builtin_plugins + responses:
-            widget_plugin = None
-            try:
-                load_icons(
-                    os.path.join(os.path.dirname(__file__), '..', 'fonts')
-                )
-                widget_plugin = plugin_class(self.session)
-
-            except Exception:
-                self.logger.exception(
-                    msg='Error while loading plugin : {}'.format(widget_plugin)
-                )
-                continue
-
-            if not isinstance(widget_plugin, ConnectWidget):
-                self.logger.warning(
-                    'Widget {} is not a valid ConnectWidget'.format(
-                        widget_plugin
+        if not responses and not disable_startup_widget:
+            widget_plugin = WelcomePlugin(self.session)
+            identifier = widget_plugin.getIdentifier()
+            if not self.plugins.get(identifier):
+                self.plugins[identifier] = widget_plugin
+                self.addPlugin(widget_plugin)
+        else:
+            for plugin_class in self._builtin_plugins + responses:
+                widget_plugin = None
+                try:
+                    load_icons(
+                        os.path.join(os.path.dirname(__file__), '..', 'fonts')
                     )
-                )
-                continue
-            try:
-                identifier = widget_plugin.getIdentifier()
-                if not self.plugins.get(identifier):
-                    self.plugins[identifier] = widget_plugin
-                else:
-                    self.logger.debug(
-                        'Widget {} already registered'.format(identifier)
+                    widget_plugin = plugin_class(self.session)
+
+                except Exception:
+                    self.logger.exception(
+                        msg='Error while loading plugin : {}'.format(
+                            widget_plugin
+                        )
                     )
                     continue
 
-                self.addPlugin(widget_plugin)
-
-            except Exception as error:
-                self.logger.warning(
-                    'Connect Widget Plugin "{}" could not be loaded. Reason: {}'.format(
-                        widget_plugin.getName(), str(error)
+                if not isinstance(widget_plugin, ConnectWidget):
+                    self.logger.warning(
+                        'Widget {} is not a valid ConnectWidget'.format(
+                            widget_plugin
+                        )
                     )
-                )
+                    continue
+                try:
+                    identifier = widget_plugin.getIdentifier()
+                    if not self.plugins.get(identifier):
+                        self.plugins[identifier] = widget_plugin
+                    else:
+                        self.logger.debug(
+                            'Widget {} already registered'.format(identifier)
+                        )
+                        continue
+
+                    self.addPlugin(widget_plugin)
+
+                except Exception as error:
+                    self.logger.warning(
+                        'Connect Widget Plugin "{}" could not be loaded. Reason: {}'.format(
+                            widget_plugin.getName(), str(error)
+                        )
+                    )
 
     def _routeEvent(self, event):
         '''Route websocket *event* to publisher plugin.
