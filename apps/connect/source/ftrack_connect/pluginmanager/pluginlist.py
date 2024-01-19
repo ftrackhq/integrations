@@ -215,9 +215,28 @@ class DndPluginList(QtWidgets.QFrame):
                 result.append(plugin)
         return result
 
+    def get_conflicting_plugins(self):
+        result = []
+        plugins = os.listdir(self.default_plugin_directory)
+        for plugin in plugins:
+            if (
+                plugin.lower().startswith(
+                    'ftrack-connect-action-launcher-widget'
+                )
+                or plugin.lower().find('ftrack-connect-plugin-manager') > -1
+            ):
+                result.append(plugin)
+        return result
+
     def remove_legacy_plugin(self, plugin_name):
         install_path = os.path.join(self.default_plugin_directory, plugin_name)
         logger.debug(f'Removing legacy plugin: {install_path}')
+        if os.path.exists(install_path) and os.path.isdir(install_path):
+            shutil.rmtree(install_path, ignore_errors=False, onerror=None)
+
+    def remove_conflicting_plugin(self, plugin_name):
+        install_path = os.path.join(self.default_plugin_directory, plugin_name)
+        logger.debug(f'Removing conflicting plugin: {install_path}')
         if os.path.exists(install_path) and os.path.isdir(install_path):
             shutil.rmtree(install_path, ignore_errors=False, onerror=None)
 

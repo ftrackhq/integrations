@@ -872,6 +872,20 @@ class Application(QtWidgets.QMainWindow):
             for candidate in os.listdir(path):
                 candidate_path = os.path.join(path, candidate)
                 if os.path.isdir(candidate_path):
+                    dirname = os.path.basename(candidate_path)
+                    if (
+                        dirname.lower().startswith(
+                            'ftrack-connect-action-launcher-widget'
+                        )
+                        or dirname.lower().find(
+                            'ftrack-connect-plugin-manager'
+                        )
+                        > -1
+                    ):
+                        self.logger.warning(
+                            f'Ignoring conflicting plugin: {candidate_path}'
+                        )
+                        continue
                     full_hook_path = os.path.join(candidate_path, 'hook')
                     if (
                         os.path.isdir(full_hook_path)
