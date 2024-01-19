@@ -27,4 +27,3 @@ class NukeSaveToTempPlugin(BasePlugin):
                 f'Exception saving Nuke script to temp: {e}'
             )
 
-        store['save_to_temp_result'] = save_result
