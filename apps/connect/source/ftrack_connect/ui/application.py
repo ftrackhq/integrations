@@ -1212,13 +1212,8 @@ class Application(QtWidgets.QMainWindow):
         applications.register()
 
     def _configure_action_launcher_widget(self):
-        if (
-            os.getenv('FTRACK_DISABLE_ACTION_LAUNCHER_WIDGET') or ''
-        ).lower() in ['1', 'true']:
-            self.logger.warning(
-                'Action launcher widget DISABLED through environment variable'
-            )
-            return
+        '''Append action launcher widget to list of build in
+        plugins to add on discovery together with user plugins.'''
 
         from ftrack_connect.actionlaunch import ActionLauncherWidget
 
