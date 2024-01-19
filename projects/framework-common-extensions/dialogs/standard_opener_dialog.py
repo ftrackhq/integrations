@@ -169,7 +169,8 @@ class StandardOpenerDialog(BaseContextDialog):
         pass
 
     def _on_run_button_clicked(self):
-        '''(Override) Drive the progress widget'''
+        '''(Override) Run open tool, and drive the progress widget. Might be run in
+        a background thread.'''
         self._progress_widget.run(self)
         super(StandardOpenerDialog, self)._on_run_button_clicked()
 

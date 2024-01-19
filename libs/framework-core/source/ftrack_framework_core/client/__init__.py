@@ -174,17 +174,23 @@ class Client(object):
         return self._registry
 
     @property
+    def worker(self):
+        '''Return background worker thread class'''
+        return self._worker
+
+    @property
     def tool_config_options(self):
         return self._tool_config_options
 
-    def __init__(
-        self,
-        event_manager,
-        registry,
-    ):
+    def __init__(self, event_manager, registry, worker=None):
         '''
         Initialise Client with instance of
-        :class:`~ftrack_framework_core.event.EventManager`
+        :class:`~ftrack_framework_core.event.EventManager` and instance of
+        :class:`~ftrack_framework_core.registry.Registry`, with optional background
+        thread *worker* class.
+
+        The worker class must take method and arguments on initialization and
+        have a run method to execute the given method with the given arguments.
         '''
         # TODO: double check logger initialization and standardize it around all files.
         # Setting logger
@@ -198,8 +204,13 @@ class Client(object):
         # Set the event manager
         self._event_manager = event_manager
 
-        # Setting init variables to 0
+        # Set the registry
         self._registry = registry
+
+        # Set the worker
+        self._worker = worker
+
+        # Setting init variables to 0
         self._host_context_changed_subscribe_id = None
         self.__instanced_dialogs = {}
         self._dialog = None

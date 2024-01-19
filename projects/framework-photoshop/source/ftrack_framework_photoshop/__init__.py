@@ -23,6 +23,7 @@ from ftrack_framework_core import registry
 from ftrack_framework_core.configure_logging import configure_logging
 
 from ftrack_qt.utils.decorators import invoke_in_qt_main_thread
+from ftrack_qt.utils.threading import Worker
 
 from .rpc_cep import PhotoshopRPCCEP
 from . import process_util
@@ -83,7 +84,7 @@ def bootstrap_integration(framework_extensions_path):
 
     Host(event_manager, registry=registry_instance)
 
-    client = Client(event_manager, registry=registry_instance)
+    client = Client(event_manager, registry=registry_instance, worker=Worker)
 
     # Init tools
     dcc_config = registry_instance.get_one(

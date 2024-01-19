@@ -35,6 +35,7 @@ for _package in INCLUDE_PACKAGES:
 
 from ftrack_framework_core import host, event, registry
 import ftrack_constants.framework as constants
+from ftrack_qt.utils.threading import Worker
 
 session = ftrack_api.Session(auto_connect_event_hub=False)
 event_manager = event.EventManager(
@@ -60,7 +61,9 @@ host_class = host.Host(event_manager, registry=registry_instance)
 
 from ftrack_framework_core import client
 
-client_class = client.Client(event_manager, registry=registry_instance)
+client_class = client.Client(
+    event_manager, registry=registry_instance, worker=Worker
+)
 
 app = QtWidgets.QApplication.instance()
 if not app:

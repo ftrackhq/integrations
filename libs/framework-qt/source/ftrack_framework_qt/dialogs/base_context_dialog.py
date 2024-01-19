@@ -1,6 +1,5 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2023 ftrack
-import copy
 
 from Qt import QtWidgets, QtCore
 
@@ -11,6 +10,7 @@ from ftrack_qt.widgets.headers import SessionHeader
 from ftrack_qt.widgets.selectors import ContextSelector
 
 from ftrack_qt.utils.layout import recursive_clear_layout
+from ftrack_qt.utils.decorators import invoke_in_qt_main_thread
 
 
 class BaseContextDialog(FrameworkDialog, StyledDialog):
@@ -140,7 +140,15 @@ class BaseContextDialog(FrameworkDialog, StyledDialog):
             self._on_context_selected_callback
         )
         # Connect run_tool_config button
-        self._run_button.clicked.connect(self._on_run_button_clicked)
+        self._run_button.clicked.connect(self._on_run_button_clicked_sync)
+
+    @invoke_in_qt_main_thread
+    def rebuild_ui(self):
+        '''Rebuild the UI'''
+        self.clean_ui()
+        self.pre_build_ui()
+        self.build_ui()
+        self.post_build_ui()
 
     def _on_context_selected_callback(self, context_id):
         '''Emit signal with the new context_id'''
@@ -156,17 +164,22 @@ class BaseContextDialog(FrameworkDialog, StyledDialog):
         self.selected_context_id = self.context_id
         # Clean the UI every time a new context is set as the current tool
         # config might not be available anymore
-        self.clean_ui()
-        self.pre_build_ui()
-        self.build_ui()
-        self.post_build_ui()
+        self.rebuild_ui()
+
+    def _on_run_button_clicked_sync(self):
+        '''Run button clicked, enable running tool in background thread if
+        client has a Worker class defined. Otherwise run in the main thread.'''
+
+        # Always store worker in self._worker to avoid garbage collection while
+        # thread is running
+        self._worker = self._run_with_worker(self._on_run_button_clicked)
 
     def _on_run_button_clicked(self):
         '''
         Run button from the UI has been clicked.
-        Tell client to run the current tool config
+        Tell client to run the current tool config. This method might execute
+        in a background thread.
         '''
-
         self.run_tool_config(self.tool_config['reference'])
 
     # FrameworkDialog overrides

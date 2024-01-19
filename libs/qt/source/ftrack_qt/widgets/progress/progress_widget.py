@@ -10,6 +10,7 @@ from ftrack_qt.widgets.buttons import (
     ProgressStatusButtonWidget,
     ProgressPhaseButtonWidget,
 )
+from ftrack_qt.utils.decorators import invoke_in_qt_main_thread
 
 
 class ProgressWidget(QtWidgets.QWidget):
@@ -169,6 +170,7 @@ class ProgressWidget(QtWidgets.QWidget):
             phase_widget.update_status(new_status, status_message, None)
             phase_widget.hide_log()
 
+    @invoke_in_qt_main_thread
     def run(self, main_widget):
         '''Run progress widget on top of *main_widget*, with *action*'''
         self.reset_statuses()
