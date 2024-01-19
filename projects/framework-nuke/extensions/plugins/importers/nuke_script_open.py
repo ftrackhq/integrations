@@ -10,12 +10,12 @@ from ftrack_framework_core.exceptions.plugin import PluginExecutionError
 class OpenScriptPlugin(BasePlugin):
     '''Open the collected script in Nuke'''
 
-    name = 'open_script'
+    name = 'nuke_script_open'
 
     def run(self, store):
         '''
-        Expects collected_path in the <component_name> key of the given *store*,
-        opens it in Photoshop.
+        Expects collected_path in the <component> key of the given *store*,
+        opens it in Nuke.
         '''
         component_name = self.options.get('component')
 

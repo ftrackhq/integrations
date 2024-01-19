@@ -6,8 +6,6 @@ from PySide2 import QtWidgets
 import nuke, nukescripts
 from nukescripts import panels
 
-from ftrack_utils.paths import get_temp_path
-
 
 def dock_nuke_right(label, widget):
     '''Dock *widget*, with *name* and *label* to the right of the properties panel in Nuke'''
