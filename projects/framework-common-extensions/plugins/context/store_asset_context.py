@@ -22,16 +22,20 @@ class StoreAssetContextPlugin(BasePlugin):
         '''
 
         context_id = payload['context_id']
+        self.logger.debug(f"Context_id is: {context_id}.")
         # Determine if we have a task or not
         context = self.session.query(
             'select link from Context where id is {}'.format(context_id)
         ).one()
+        self.logger.debug(f"Context found.")
         project = self.session.query(
             'select project_schema from Project where id is "{}"'.format(
                 context['link'][0]['id']
             )
         ).one()
+        self.logger.debug(f"Project found: {project}.")
         statuses = project['project_schema'].get_statuses('AssetVersion')
+        self.logger.debug(f"Available statuses: {statuses}.")
         # If it's a fake asset, context will be None so return empty list.
         if not context:
             return []
@@ -41,6 +45,7 @@ class StoreAssetContextPlugin(BasePlugin):
                 payload['asset_type_name']
             )
         ).one()
+        self.logger.debug(f"Asset Type entity found: {asset_type_entity}.")
 
         if not context.entity_type == 'Task':
             raise PluginUIHookExecutionError(
@@ -63,6 +68,8 @@ class StoreAssetContextPlugin(BasePlugin):
             f'is {context_id} and type.id is '
             f'{asset_type_entity["id"]})'
         ).all()
+
+        self.logger.debug(f"Assets found: {assets}.")
 
         result = dict()
         result['statuses'] = []
@@ -112,6 +119,7 @@ class StoreAssetContextPlugin(BasePlugin):
                             'status': latest_version['status']['name'],
                         }
                     )
+        self.logger.debug(f"Collected Dictionary: {result}.")
         return result
 
     def run(self, store):
@@ -132,6 +140,7 @@ class StoreAssetContextPlugin(BasePlugin):
         for k in keys:
             if self.options.get(k):
                 store[k] = self.options.get(k)
+                self.logger.debug(f"{store[k]} stored in {k}.")
         # Check that we have all the required keys
         if not store.get('asset_id'):
             if not store.get('asset_name'):

@@ -103,6 +103,7 @@ class ComponentPathCollectorPlugin(BasePlugin):
                 component_name,
             )
         ).first()
+        self.logger.debug(f"Component collected: {component}.")
         if not component:
             message = (
                 'Component name {} not available for '
@@ -115,6 +116,8 @@ class ComponentPathCollectorPlugin(BasePlugin):
             raise PluginExecutionError(message=message)
 
         location = self.session.pick_location()
+        self.logger.debug(f"Location picked: {location}.")
         component_path = location.get_filesystem_path(component)
+        self.logger.debug(f"Component path: {component_path}.")
         component_name = self.options.get('component', 'main')
         store['components'][component_name]['collected_path'] = component_path
