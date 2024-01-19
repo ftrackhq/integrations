@@ -835,7 +835,7 @@ class Application(QtWidgets.QMainWindow):
 
         self._configure_action_launcher_widget()  # Was external ftrack-connect action-launcher plugin
 
-        self._configure_plug_manager_widget()  # Was external ftrack-connect plugin-manager plugin
+        self._configure_plug_manager_widget()  # Was external ftrack-connect-plugin-manager plugin
 
         self._discover_connect_widgets()
 

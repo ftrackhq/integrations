@@ -223,14 +223,14 @@ class PluginManager(ftrack_connect.ui.application.ConnectWidget):
     def _on_apply_changes(self):
         '''User wants to apply the updates, warn about conflicting plugins.'''
         legacy_plugins = self._plugin_list_widget.get_legacy_plugins()
-        conflicting_plugins = self._plugin_list_widget.get_deprecated_plugins()
-        if conflicting_plugins:
+        deprecated_plugins = self._plugin_list_widget.get_deprecated_plugins()
+        if deprecated_plugins:
             answer = QtWidgets.QMessageBox.question(
                 None,
                 'Warning',
-                'The following conflicting plugin(s) is installed and will be REMOVED'
+                'The following deprecated plugin(s) is installed and will be REMOVED'
                 ':\n\n{}\n\nPlease confirm.'.format(
-                    '\n'.join(conflicting_plugins)
+                    '\n'.join(deprecated_plugins)
                 ),
                 QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.Cancel,
             )
@@ -257,7 +257,7 @@ class PluginManager(ftrack_connect.ui.application.ConnectWidget):
                 legacy_plugins = []
             else:
                 return
-        self.apply_changes.emit(legacy_plugins, conflicting_plugins)
+        self.apply_changes.emit(legacy_plugins, deprecated_plugins)
 
     @asynchronous
     def _on_apply_changes_confirmed(self, legacy_plugins, conflicting_plugins):
