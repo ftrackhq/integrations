@@ -21,7 +21,7 @@ class NukeScriptOpenerPlugin(BasePlugin):
 
         script_path = store['components'][component_name].get('collected_path')
 
-        self.logger.info(f'Opening Nuke script: {script_path}')
+        self.logger.debug(f'Opening Nuke script: {script_path}')
 
         try:
             open_result = nuke.scriptOpen(script_path)
