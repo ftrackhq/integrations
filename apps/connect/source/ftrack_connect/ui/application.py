@@ -833,8 +833,8 @@ class Application(QtWidgets.QMainWindow):
 
         self._discover_applications()  # Was ftrack-application-launcher
 
-        self._configure_action_launcher_widget()  # Was external ftrack-action-launcher-widget plugin
-        self._configure_plug_manager_widget()
+        self._configure_plug_manager_widget()  # Was external ftrack-connect plugin-manager plugin
+
         self.discover_connect_widgets()
 
     def _discover_plugin_paths(self):
@@ -951,14 +951,13 @@ class Application(QtWidgets.QMainWindow):
 
         return menu
 
-    def discover_connect_widgets(self, disable_startup_widget=None):
+    def _discover_connect_widgets(self):
         '''Find and load connect widgets in search paths.'''
 
         event = ftrack_api.event.base.Event(topic=ConnectWidgetPlugin.topic)
-        if disable_startup_widget is None:
-            disable_startup_widget = bool(
-                os.getenv('FTRACK_CONNECT_DISABLE_STARTUP_WIDGET', False)
-            )
+        disable_startup_widget = bool(
+            os.getenv('FTRACK_CONNECT_DISABLE_STARTUP_WIDGET', False)
+        )
         responses = self.session.event_hub.publish(event, synchronous=True)
 
         # Load icons
@@ -1223,13 +1222,8 @@ class Application(QtWidgets.QMainWindow):
         applications.register()
 
     def _configure_action_launcher_widget(self):
-        if (
-            os.getenv('FTRACK_DISABLE_ACTION_LAUNCHER_WIDGET') or ''
-        ).lower() in ['1', 'true']:
-            self.logger.warning(
-                'Action launcher widget DISABLED through environment variable'
-            )
-            return
+        '''Append action launcher widget to list of build in
+        plugins to add on discovery together with user plugins.'''
 
         from ftrack_connect.actionlaunch import ActionLauncherWidget
 
@@ -1237,14 +1231,8 @@ class Application(QtWidgets.QMainWindow):
         self._builtin_plugins.append(ActionLauncherWidget)
 
     def _configure_plug_manager_widget(self):
-        if (os.getenv('FTRACK_DISABLE_PLUGIN_MANAGER') or '').lower() in [
-            '1',
-            'true',
-        ]:
-            self.logger.warning(
-                'Plugin manager DISABLED through environment variable'
-            )
-            return
+        '''Append plugin manager widget to list of build in
+        plugins to add on discovery together with user plugins.'''
 
         from ftrack_connect.pluginmanager import PluginManager
 

@@ -46,16 +46,12 @@ class ActionSection(flow_layout.ScrollingFlowWidget):
     def add_actions(self, actions):
         '''Add *actions* to section'''
         for item in actions:
-            actionItem = action_item.ActionItem(
-                self.session, item, parent=self
-            )
-            actionItem.actionLaunched.connect(
-                self._on_action_launched_callback
-            )
-            actionItem.beforeActionLaunch.connect(
+            item = action_item.ActionItem(self.session, item, parent=self)
+            item.actionLaunched.connect(self._on_action_launched_callback)
+            item.beforeActionLaunch.connect(
                 self._on_before_action_launched_callback
             )
-            self.addWidget(actionItem)
+            self.addWidget(item)
 
     def _on_action_launched_callback(self, action, results):
         '''Forward actionLaunched signal.'''
@@ -74,9 +70,9 @@ class Actions(QtWidgets.QWidget):
     ACTION_LAUNCH_MESSAGE_TIMEOUT = 1
 
     #: Emitted when recent actions has been modified
-    recentActionsChanged = QtCore.Signal(name='recentActionsChanged')
-    actionsLoaded = QtCore.Signal(object, name='actionsLoaded')
-    actionsLoading = QtCore.Signal()
+    recent_actions_changed = QtCore.Signal(name='recentActionsChanged')
+    actions_loaded = QtCore.Signal(object, name='actionsLoaded')
+    actions_loading = QtCore.Signal()
 
     @property
     def session(self):
@@ -136,10 +132,10 @@ class Actions(QtWidgets.QWidget):
         )
         self._overlay.setVisible(False)
 
-        self.recentActionsChanged.connect(self._update_recent_section)
+        self.recent_actions_changed.connect(self._update_recent_section)
 
-        self.actionsLoaded.connect(self._on_actions_loaded_callback)
-        self.actionsLoading.connect(self._on_actions_loading_callback)
+        self.actions_loaded.connect(self._on_actions_loaded_callback)
+        self.actions_loading.connect(self._on_actions_loading_callback)
 
         context = self._context_from_entity(self._entity_selector._entity)
         self._load_actions_for_context(context)
@@ -268,7 +264,7 @@ class Actions(QtWidgets.QWidget):
     def _update_recent_actions(self):
         '''Retrieve and update recent actions.'''
         self._recent_actions = self._get_recent_actions()
-        self.recentActionsChanged.emit()
+        self.recent_actions_changed.emit()
 
     def _get_current_user_id(self):
         '''Return current user id.'''
@@ -327,7 +323,7 @@ class Actions(QtWidgets.QWidget):
     # @asynchronous
     def _load_actions_for_context(self, context):
         '''Obtain new actions synchronously for *context*.'''
-        self.actionsLoading.emit()
+        self.actions_loading.emit()
         discovered_actions = []
 
         event = ftrack_api.event.base.Event(
@@ -360,7 +356,7 @@ class Actions(QtWidgets.QWidget):
             key=lambda grouped_action: grouped_action[0]['label'].lower(),
         )
 
-        self.actionsLoaded.emit(grouped_actions)
+        self.actions_loaded.emit(grouped_actions)
 
     def _on_actions_loaded_callback(self, actions):
         self._actions = actions
