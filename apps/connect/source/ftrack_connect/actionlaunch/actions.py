@@ -1,13 +1,11 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2014-2023 ftrack
-import os
+# :copyright: Copyright (c) 2014-2024 ftrack
 import json
-import time
 import logging
 import functools
 
-from ftrack_connect.qt import QtCore
-from ftrack_connect.qt import QtWidgets
+from ftrack_connect.qt import QtCore, QtWidgets
+
 import ftrack_api.event.base
 from ftrack_utils.decorators import asynchronous
 from ftrack_utils.server import send_usage_event
@@ -45,21 +43,21 @@ class ActionSection(flow_layout.ScrollingFlowWidget):
             item.deleteLater()
             del item
 
-    def addActions(self, actions):
+    def add_actions(self, actions):
         '''Add *actions* to section'''
         for item in actions:
-            actionItem = action_item.ActionItem(
-                self.session, item, parent=self
+            item = action_item.ActionItem(self.session, item, parent=self)
+            item.actionLaunched.connect(self._on_action_launched_callback)
+            item.beforeActionLaunch.connect(
+                self._on_before_action_launched_callback
             )
-            actionItem.actionLaunched.connect(self._onActionLaunched)
-            actionItem.beforeActionLaunch.connect(self._onBeforeActionLaunched)
-            self.addWidget(actionItem)
+            self.addWidget(item)
 
-    def _onActionLaunched(self, action, results):
+    def _on_action_launched_callback(self, action, results):
         '''Forward actionLaunched signal.'''
         self.actionLaunched.emit(action, results)
 
-    def _onBeforeActionLaunched(self, action):
+    def _on_before_action_launched_callback(self, action):
         '''Forward beforeActionLaunch signal.'''
         self.beforeActionLaunch.emit(action)
 
@@ -72,9 +70,9 @@ class Actions(QtWidgets.QWidget):
     ACTION_LAUNCH_MESSAGE_TIMEOUT = 1
 
     #: Emitted when recent actions has been modified
-    recentActionsChanged = QtCore.Signal(name='recentActionsChanged')
-    actionsLoaded = QtCore.Signal(object, name='actionsLoaded')
-    actionsLoading = QtCore.Signal()
+    recent_actions_changed = QtCore.Signal(name='recentActionsChanged')
+    actions_loaded = QtCore.Signal(object, name='actionsLoaded')
+    actions_loading = QtCore.Signal()
 
     @property
     def session(self):
@@ -93,70 +91,75 @@ class Actions(QtWidgets.QWidget):
         layout = QtWidgets.QVBoxLayout()
         self.setLayout(layout)
 
-        self._currentUserId = None
-        self._recentActions = []
+        self._current_user_id = None
+        self._recent_actions = []
         self._actions = []
 
-        self._entitySelector = entity_selector.EntitySelector(self.session)
+        self._entity_selector = entity_selector.EntitySelector(self.session)
 
-        self._entitySelector.setFixedHeight(50)
-        self._entitySelector.entityChanged.connect(self._onEntityChanged)
+        self._entity_selector.setFixedHeight(50)
+        self._entity_selector.entityChanged.connect(self._on_entity_changed)
         layout.addWidget(QtWidgets.QLabel('Select action context'))
-        layout.addWidget(self._entitySelector)
+        layout.addWidget(self._entity_selector)
 
-        self._recentLabel = QtWidgets.QLabel('Recent')
-        layout.addWidget(self._recentLabel)
-        self._recentSection = ActionSection(self.session, self)
-        self._recentSection.setFixedHeight(150)
-        self._recentSection.beforeActionLaunch.connect(
-            self._onBeforeActionLaunched
+        self._recent_label = QtWidgets.QLabel('Recent')
+        layout.addWidget(self._recent_label)
+        self._recent_section = ActionSection(self.session, self)
+        self._recent_section.setFixedHeight(150)
+        self._recent_section.beforeActionLaunch.connect(
+            self._on_before_action_launched_callback
         )
-        self._recentSection.actionLaunched.connect(self._onActionLaunched)
-        layout.addWidget(self._recentSection)
+        self._recent_section.actionLaunched.connect(
+            self._on_action_launched_callback
+        )
+        layout.addWidget(self._recent_section)
 
-        self._allLabel = QtWidgets.QLabel('Discovering actions..')
-        self._allLabel.setWordWrap(True)
-        self._allLabel.setAlignment(QtCore.Qt.AlignCenter)
-        layout.addWidget(self._allLabel)
-        self._allSection = ActionSection(self.session, self)
-        self._allSection.beforeActionLaunch.connect(
-            self._onBeforeActionLaunched
+        self._all_label = QtWidgets.QLabel('Discovering actions..')
+        self._all_label.setWordWrap(True)
+        self._all_label.setAlignment(QtCore.Qt.AlignCenter)
+        layout.addWidget(self._all_label)
+        self._all_section = ActionSection(self.session, self)
+        self._all_section.beforeActionLaunch.connect(
+            self._on_before_action_launched_callback
         )
-        self._allSection.actionLaunched.connect(self._onActionLaunched)
-        layout.addWidget(self._allSection)
+        self._all_section.actionLaunched.connect(
+            self._on_action_launched_callback
+        )
+        layout.addWidget(self._all_section)
 
         self._overlay = overlay.BusyOverlay(
             parent=self, message='Launching...'
         )
         self._overlay.setVisible(False)
 
-        self.recentActionsChanged.connect(self._updateRecentSection)
+        self.recent_actions_changed.connect(self._update_recent_section)
 
-        self.actionsLoaded.connect(self.onActionsLoaded)
-        self.actionsLoading.connect(self.onActionsLoading)
+        self.actions_loaded.connect(self._on_actions_loaded_callback)
+        self.actions_loading.connect(self._on_actions_loading_callback)
 
-        context = self._contextFromEntity(self._entitySelector._entity)
-        self._loadActionsForContext(context)
-        self._updateRecentActions()
+        context = self._context_from_entity(self._entity_selector._entity)
+        self._load_actions_for_context(context)
+        self._update_recent_actions()
 
-    def _onBeforeActionLaunched(self, action):
+    def _on_before_action_launched_callback(self, action):
         '''Before action is launched, show busy overlay with message..'''
-        self.logger.debug(u'Before action launched: {0}'.format(action))
-        message = u'Launching action <em>{0} {1}</em>...'.format(
-            action.get('label', 'Untitled action'), action.get('variant', '')
+        self.logger.debug(f'Before action launched: {action}')
+        message = (
+            f'Launching action <em>{action.get("label", "Untitled action")} '
+            f'{action.get("variant", "")}</em>...'
         )
         self._overlay.message = message
         self._overlay.indicator.show()
         self._overlay.setVisible(True)
 
-    def _onActionLaunched(self, action, results):
+    def _on_action_launched_callback(self, action, results):
         '''On action launched, save action and add it to top of list.'''
-        self.logger.debug(u'Action launched: {0}'.format(action))
-        self._addRecentAction(action['label'])
-        self._moveToFront(self._recentActions, action['label'])
-        self._updateRecentSection()
+        self.logger.debug(f'Action launched: {action}')
+        self._add_recent_action(action['label'])
+        self._move_to_front(self._recent_actions, action['label'])
+        self._update_recent_section()
 
-        self._showResultMessage(results)
+        self._show_result_message(results)
 
         validMetadata = [
             'actionIdentifier',
@@ -175,7 +178,7 @@ class Actions(QtWidgets.QWidget):
             self.session, 'LAUNCHED-ACTION', metadata, asynchronous=False
         )
 
-    def _showResultMessage(self, results):
+    def _show_result_message(self, results):
         '''Show *results* message in overlay.'''
         message = 'Launched action'
         try:
@@ -192,15 +195,15 @@ class Actions(QtWidgets.QWidget):
         self._overlay.indicator.stop()
         self._overlay.indicator.hide()
         self._overlay.message = message
-        self._hideOverlayAfterTimeout(self.ACTION_LAUNCH_MESSAGE_TIMEOUT)
+        self._hide_overlay_after_timeout(self.ACTION_LAUNCH_MESSAGE_TIMEOUT)
 
-    def _hideOverlayAfterTimeout(self, timeout):
+    def _hide_overlay_after_timeout(self, timeout):
         '''Hide overlay after *timeout* seconds.'''
         QtCore.QTimer.singleShot(
             timeout * 1000, functools.partial(self._overlay.setVisible, False)
         )
 
-    def _contextFromEntity(self, entity):
+    def _context_from_entity(self, entity):
         '''convert *entity* to list of dicts'''
         context = []
         if not entity:
@@ -213,119 +216,115 @@ class Actions(QtWidgets.QWidget):
                     'entityType': entity.entity_type.lower(),
                 }
             ]
-            self.logger.debug(u'Context changed: {0}'.format(context))
+            self.logger.debug(f'Context changed: {context}')
         except Exception:
-            self.logger.debug(u'Invalid entity: {0}'.format(entity))
+            self.logger.debug(f'Invalid entity: {entity}')
 
         return context
 
-    def _onEntityChanged(self, entity):
+    def _on_entity_changed(self, entity):
         '''Load new actions when the context has changed'''
-        context = self._contextFromEntity(entity)
-        self._recentSection.clear()
-        self._allSection.clear()
-        self._updateRecentActions()
-        self._loadActionsForContext(context)
+        context = self._context_from_entity(entity)
+        self._recent_section.clear()
+        self._all_section.clear()
+        self._update_recent_actions()
+        self._load_actions_for_context(context)
 
-    def _updateRecentSection(self):
+    def _update_recent_section(self):
         '''Clear and update actions in recent section.'''
-        self._recentSection.clear()
-        recentActions = []
-        for recentAction in self._recentActions:
+        self._recent_section.clear()
+        recent_actions = []
+        for recentAction in self._recent_actions:
             for action in self._actions:
                 if action[0]['label'] == recentAction:
-                    recentActions.append(action)
+                    recent_actions.append(action)
 
-        if recentActions:
-            self._recentSection.addActions(recentActions)
-            self._recentLabel.show()
-            self._recentSection.show()
+        if recent_actions:
+            self._recent_section.add_actions(recent_actions)
+            self._recent_label.show()
+            self._recent_section.show()
         else:
-            self._recentLabel.hide()
-            self._recentSection.hide()
+            self._recent_label.hide()
+            self._recent_section.hide()
 
-    def _updateAllSection(self):
+    def _update_all_section(self):
         '''Clear and update actions in all section.'''
-        self._allSection.clear()
+        self._all_section.clear()
         if self._actions:
-            self._allSection.addActions(self._actions)
-            self._allLabel.setAlignment(QtCore.Qt.AlignLeft)
-            self._allLabel.setText('All actions')
+            self._all_section.add_actions(self._actions)
+            self._all_label.setAlignment(QtCore.Qt.AlignLeft)
+            self._all_label.setText('All actions')
         else:
-            self._allLabel.setAlignment(QtCore.Qt.AlignCenter)
-            self._allLabel.setText(
+            self._all_label.setAlignment(QtCore.Qt.AlignCenter)
+            self._all_label.setText(
                 '<h2 style="font-weight: medium"> No matching applications or actions was found</h2>'
                 '<p>Try another selection, add some actions and make sure you have the right integrations set up for the applications you want to launch.</p>'
             )
 
-    def _updateRecentActions(self):
+    def _update_recent_actions(self):
         '''Retrieve and update recent actions.'''
-        self._recentActions = self._getRecentActions()
-        self.recentActionsChanged.emit()
+        self._recent_actions = self._get_recent_actions()
+        self.recent_actions_changed.emit()
 
-    def _getCurrentUserId(self):
+    def _get_current_user_id(self):
         '''Return current user id.'''
-        if not self._currentUserId:
+        if not self._current_user_id:
             user = self.session.query(
-                'User where username="{0}"'.format(self.session.api_user)
+                f'User where username="{self.session.api_user}"'
             ).one()
-            self._currentUserId = user['id']
+            self._current_user_id = user['id']
 
-        return self._currentUserId
+        return self._current_user_id
 
-    def _getRecentActions(self):
+    def _get_recent_actions(self):
         '''Retrieve recent actions from the server.'''
 
         metadata = self.session.query(
-            'Metadata where key is "{0}" and parent_type is "User" '
-            'and parent_id is "{1}"'.format(
-                self.RECENT_METADATA_KEY, self._getCurrentUserId()
-            )
+            f'Metadata where key is "{self.RECENT_METADATA_KEY}" and parent_type is "User" '
+            f'and parent_id is "{self._get_current_user_id()}"'
         ).first()
 
-        recentActions = []
+        recent_actions = []
         if metadata:
             try:
-                recentActions = json.loads(metadata['value'])
-            except ValueError as error:
-                self.logger.warning(
-                    'Error parsing metadata: {0}'.format(metadata)
-                )
-        return recentActions
+                recent_actions = json.loads(metadata['value'])
+            except ValueError as e:
+                self.logger.warning(f'Error parsing metadata {metadata}: {e}')
+        return recent_actions
 
-    def _moveToFront(self, itemList, item):
+    def _move_to_front(self, item_list, item):
         '''Prepend or move *item* to front of *itemList*.'''
         try:
-            itemList.remove(item)
+            item_list.remove(item)
         except ValueError:
             pass
-        itemList.insert(0, item)
+        item_list.insert(0, item)
 
     @asynchronous
-    def _addRecentAction(self, actionLabel):
+    def _add_recent_action(self, action_label):
         '''Add *actionLabel* to recent actions, persisting the change.'''
-        recentActions = self._getRecentActions()
-        self._moveToFront(recentActions, actionLabel)
-        recentActions = recentActions[: self.RECENT_ACTIONS_LENGTH]
-        encodedRecentActions = json.dumps(recentActions)
+        recent_actions = self._get_recent_actions()
+        self._move_to_front(recent_actions, action_label)
+        recent_actions = recent_actions[: self.RECENT_ACTIONS_LENGTH]
+        encoded_recent_actions = json.dumps(recent_actions)
 
         self.session.ensure(
             'Metadata',
             {
                 'parent_type': 'User',
-                'parent_id': self._getCurrentUserId(),
+                'parent_id': self._get_current_user_id(),
                 'key': self.RECENT_METADATA_KEY,
-                'value': encodedRecentActions,
+                'value': encoded_recent_actions,
             },
             identifying_keys=['parent_type', 'parent_id', 'key'],
         )
 
     # TODO: To re evaluate: breaks in PySide2 2.14, but works on PyQt5 2.15
     # @asynchronous
-    def _loadActionsForContext(self, context):
+    def _load_actions_for_context(self, context):
         '''Obtain new actions synchronously for *context*.'''
-        self.actionsLoading.emit()
-        discoveredActions = []
+        self.actions_loading.emit()
+        discovered_actions = []
 
         event = ftrack_api.event.base.Event(
             topic='ftrack.action.discover', data=dict(selection=context)
@@ -336,38 +335,38 @@ class Actions(QtWidgets.QWidget):
         for result in results:
             if result:
                 for action in result.get('items', []):
-                    discoveredActions.append(ActionBase(action))
+                    discovered_actions.append(ActionBase(action))
 
         # Sort actions by label
-        groupedActions = []
-        for action in discoveredActions:
+        grouped_actions = []
+        for action in discovered_actions:
             action['selection'] = context
             added = False
-            for groupedAction in groupedActions:
+            for groupedAction in grouped_actions:
                 if action['label'] == groupedAction[0]['label']:
                     groupedAction.append(action)
                     added = True
 
             if not added:
-                groupedActions.append([action])
+                grouped_actions.append([action])
 
         # Sort actions by label
-        groupedActions = sorted(
-            groupedActions,
-            key=lambda groupedAction: groupedAction[0]['label'].lower(),
+        grouped_actions = sorted(
+            grouped_actions,
+            key=lambda grouped_action: grouped_action[0]['label'].lower(),
         )
 
-        self.actionsLoaded.emit(groupedActions)
+        self.actions_loaded.emit(grouped_actions)
 
-    def onActionsLoaded(self, actions):
+    def _on_actions_loaded_callback(self, actions):
         self._actions = actions
-        self._updateRecentSection()
-        self._updateAllSection()
+        self._update_recent_section()
+        self._update_all_section()
         self._overlay.indicator.hide()
         self._overlay.indicator.stop()
         self._overlay.setVisible(False)
 
-    def onActionsLoading(self):
+    def _on_actions_loading_callback(self):
         message = u'Discovering Actions ....'
         self._overlay.message = message
         self._overlay.indicator.show()
