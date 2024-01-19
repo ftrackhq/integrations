@@ -4,6 +4,8 @@ import tempfile
 
 import nuke
 
+from ftrack_utils.paths import get_temp_path
+
 from ftrack_framework_core.plugin import BasePlugin
 from ftrack_framework_core.exceptions.plugin import PluginExecutionError
 
@@ -14,9 +16,7 @@ class NukeSaveToTemp(BasePlugin):
     name = 'nuke_save_to_temp'
 
     def run(self, store):
-        temp_path = tempfile.NamedTemporaryFile(
-            delete=False, suffix='.nk'
-        ).name
+        temp_path = get_temp_path(filename_extension='.nk')
 
         self.logger.info(f'Saving Nuke script to temp: {temp_path}')
         try:
