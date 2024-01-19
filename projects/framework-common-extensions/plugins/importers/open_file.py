@@ -29,7 +29,7 @@ class OpenFilePlugin(BasePlugin):
 
     def run(self, store):
         '''
-        Expects collected_file in the <component_name> key of the given *store*
+        Expects collected_path in the <component> key of the given *store*
         and an export_destination from the :obj:`self.options`.
         '''
         component_name = self.options.get('component')

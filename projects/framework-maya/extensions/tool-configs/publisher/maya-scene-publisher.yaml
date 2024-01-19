@@ -1,5 +1,5 @@
 type: tool_config
-name: nuke-script-publisher
+name: maya-scene-publisher
 config_type: publisher
 engine:
   - type: plugin
@@ -7,7 +7,7 @@ engine:
       - context
     plugin: store_asset_context
     options:
-      asset_type_name: script
+      asset_type_name: scene
     ui: publisher_asset_version_selector
 
   # Export the snapshot component.
@@ -24,21 +24,23 @@ engine:
       - type: plugin
         tags:
           - collector
-        plugin: nuke_script_collector
-        ui: nuke_script_options_selector
+        plugin: maya_scene_collector
+        ui: maya_scene_options_selector
         options:
-          export_type: script # options: script or selection
+          export_type: scene # selection is also available
+          extension_format: mb # ma is also available
       - type: plugin
         tags:
           - validator
-        plugin: nuke_script_saved_validator
+        plugin: maya_scene_saved_validator
         ui: validator_label
       - type: plugin
         tags:
           - exporter
-        plugin: nuke_script_exporter
+        plugin: maya_scene_exporter
+        ui: maya_export_options_selector
 
-  # Export the thumbnail component.
+  # Export Thumbnail
   - type: group
     tags:
       - component
@@ -51,8 +53,25 @@ engine:
         plugin: store_component
       - type: plugin
         tags:
+          - collector
+        plugin: maya_camera_collector
+        ui: maya_camera_selector
+        options:
+          camera_name: persp
+      - type: plugin
+        tags:
+          - validator
+        plugin: maya_camera_exists_validator
+        ui: validator_label
+      - type: plugin
+        tags:
           - exporter
-        plugin: nuke_nodegraph_image_exporter
+        plugin: maya_thumbnail_exporter
+      - type: plugin
+        tags:
+          - validator
+        plugin: maya_exported_path_validator
+        ui: validator_label
 
   # Publish to ftrack.
   - publish_to_ftrack

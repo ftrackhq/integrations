@@ -22,7 +22,7 @@ from ftrack_utils.extensions.environment import (
     get_extensions_path_from_environment,
 )
 
-from ftrack_framework_maya.utils import dock_maya_right
+from ftrack_framework_maya.utils import dock_maya_right, run_in_main_thread
 
 
 # Evaluate version and log package version
@@ -83,8 +83,12 @@ def get_ftrack_menu(menu_name='ftrack', submenu_name=None):
         return menu
 
 
-# TODO: invoque in maya Main QThread
-# @invoke_in_qt_main_thread
+# We could use the ftrack @invoke_in_qt_main_thread utility which should act
+# the same way as the DCC specific one. But using this means it ensures
+# synchronization with Maya’s undo stack, event loop, and other core
+# functionalities, which might not be guaranteed if you use Qt’s threading
+# mechanisms directly.
+@run_in_main_thread
 def on_run_dialog_callback(
     client_instance, dialog_name, tool_config_names, maya_args
 ):
