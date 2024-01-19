@@ -26,4 +26,3 @@ class NukeSaveToTempPlugin(BasePlugin):
             raise PluginExecutionError(
                 f'Exception saving Nuke script to temp: {e}'
             )
-
