@@ -67,11 +67,13 @@ engine:
         tags:
           - exporter
         plugin: maya_thumbnail_exporter
-      - type: plugin
-        tags:
-          - validator
-        plugin: maya_exported_path_validator
-        ui: validator_label
+
+  # Common validator check all exported paths exists.
+  - type: plugin
+    tags:
+      - validator
+    plugin: exported_paths_validator
+    ui: validator_label
 
   # Publish to ftrack.
   - publish_to_ftrack
