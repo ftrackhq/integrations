@@ -10,7 +10,7 @@ from ftrack_framework_core.exceptions.plugin import (
     PluginValidationError,
 )
 
-from ftrack_framework_nuke.utils import save_temp
+from ftrack_utils.paths import get_temp_path
 
 
 class NukeScriptSavedValidatorPlugin(BasePlugin):
@@ -18,12 +18,15 @@ class NukeScriptSavedValidatorPlugin(BasePlugin):
 
     name = 'nuke_script_saved_validator'
 
-    def save_to_temp(self, store, extension_format):
+    def save_to_temp(self, store):
         '''
-        Save the Nuke script to a temporary location.
+        Save the Nuke script to a temporary location, and update the path in the
+        *store*.
         '''
         try:
-            save_path = save_temp()
+            save_path = get_temp_path(filename_extension='.nk')
+
+            nuke.scriptSaveAs(save_path, overwrite=1)
         except Exception as error:
             raise PluginExecutionError(message=error)
 
@@ -34,7 +37,7 @@ class NukeScriptSavedValidatorPlugin(BasePlugin):
 
     def save_script(self, store):
         '''
-        Save the current Maya scene.
+        Save the current Maya scene, and update the *store*.
         '''
         try:
             nuke.scriptSave()

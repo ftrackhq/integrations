@@ -57,7 +57,7 @@ engine:
       - type: plugin
         tags:
           - exporter
-        plugin: nuke_nodegraph_thumbnail_exporter
+        plugin: nuke_nodegraph_image_exporter
 
   # Publish to ftrack.
   - publish_to_ftrack

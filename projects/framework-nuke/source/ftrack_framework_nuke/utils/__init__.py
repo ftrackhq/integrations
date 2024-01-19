@@ -24,13 +24,3 @@ def dock_nuke_right(label, widget):
 
     panel = nukescripts.restorePanel(class_name)
     panel.addToPane(pane)
-
-
-def save_temp():
-    '''Save script locally in temp folder.'''
-
-    save_path = get_temp_path(filename_extension='.nk')
-
-    nuke.scriptSaveAs(save_path, overwrite=1)
-
-    return save_path

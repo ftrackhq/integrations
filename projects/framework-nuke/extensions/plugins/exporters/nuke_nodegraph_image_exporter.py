@@ -8,10 +8,10 @@ from ftrack_framework_core.plugin import BasePlugin
 from ftrack_framework_core.exceptions.plugin import PluginExecutionError
 
 
-class NukeNodegraphThumbnailExporterPlugin(BasePlugin):
-    '''Save a screenshot of the nodegraph to temp location for publish'''
+class NukeNodegraphImageExporterPlugin(BasePlugin):
+    '''Save an image of the nodegraph to temp location for publish'''
 
-    name = 'nuke_nodegraph_thumbnail_exporter'
+    name = 'nuke_nodegraph_image_exporter'
 
     def findviewer(self):
         '''Find the nodegraph viewers by title'''
@@ -24,7 +24,7 @@ class NukeNodegraphThumbnailExporterPlugin(BasePlugin):
             stack.extend(c for c in widget.children() if c.isWidgetType())
         if len(viewers) <= 1:
             raise Exception(
-                'Could not find node graph viewer to export thumbnail from'
+                'Could not find node graph viewer to export image from'
             )
         return viewers[1]
 
@@ -40,7 +40,7 @@ class NukeNodegraphThumbnailExporterPlugin(BasePlugin):
             if widget is None:
                 break
         self.logger.debug(
-            "Grab node graph thumbnail - relative frame geometry; g.left: {}, g.top: {}".format(
+            "Grab node graph image - relative frame geometry; g.left: {}, g.top: {}".format(
                 left, top
             )
         )
@@ -57,7 +57,7 @@ class NukeNodegraphThumbnailExporterPlugin(BasePlugin):
             rfg.height(),
         )
         self.logger.debug(
-            "Grab node graph thumbnail - screen; left: {}, top: {}, width: {}, height: {}".format(
+            "Grab node graph image - screen; left: {}, top: {}, width: {}, height: {}".format(
                 rfg.left(), rfg.top(), rfg.width(), rfg.height()
             )
         )
@@ -65,7 +65,7 @@ class NukeNodegraphThumbnailExporterPlugin(BasePlugin):
 
     def run(self, store):
         '''
-        Expects a thumbnail of the node graph to the <component> key of the
+        Exports a png image of the node graph to the <component> key of the
         given *store*
         '''
         component_name = self.options.get('component')
@@ -79,17 +79,15 @@ class NukeNodegraphThumbnailExporterPlugin(BasePlugin):
             )
 
         try:
-            thumbnail_path = get_temp_path(filename_extension='.png')
+            image_path = get_temp_path(filename_extension='.png')
 
-            self.screenCaptureWidget(view, thumbnail_path)
+            self.screenCaptureWidget(view, image_path)
         except Exception as e:
             self.logger.exception(e)
             raise PluginExecutionError(
-                f'Exception exporting the node graph thumbnail: {e}'
+                f'Exception exporting the node graph image: {e}'
             )
 
-        self.logger.debug(
-            f'Exported node graph thumbnail to: {thumbnail_path}'
-        )
+        self.logger.debug(f'Exported node graph image to: {image_path}')
 
-        store['components'][component_name]['exported_path'] = thumbnail_path
+        store['components'][component_name]['exported_path'] = image_path

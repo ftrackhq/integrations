@@ -24,7 +24,6 @@ class NukeScriptOptionsSelectorWidget(BaseWidget):
         parent=None,
     ):
         self._export_type_cb = None
-        self._extension_format_cb = None
 
         super(NukeScriptOptionsSelectorWidget, self).__init__(
             event_manager,
