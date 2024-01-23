@@ -64,20 +64,6 @@ def on_launch_integration(session, event):
     if selection:
         task = session.get('Context', selection[0]['entityId'])
         launch_data['integration']['env']['FTRACK_CONTEXTID.set'] = task['id']
-        parent = session.query(
-            'select custom_attributes from Context where id={}'.format(
-                task['parent']['id']
-            )
-        ).first()  # Make sure updated custom attributes are fetched
-        launch_data['integration']['env']['FS.set'] = parent[
-            'custom_attributes'
-        ].get('fstart', '1.0')
-        launch_data['integration']['env']['FE.set'] = parent[
-            'custom_attributes'
-        ].get('fend', '100.0')
-        launch_data['integration']['env']['FPS.set'] = parent[
-            'custom_attributes'
-        ].get('fps', '24.0')
 
     return launch_data
 
