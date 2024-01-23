@@ -1,0 +1,10 @@
+{
+    "plugin_name": "pluginname",
+    "project_name": "ftrack {{ cookiecutter.plugin_name.capitalize() }} Connect framework integration",
+    "package_name": "ftrack_framework_{{ cookiecutter.plugin_name }}",
+    "project_name": "framework-{{ cookiecutter.plugin_name }}",
+    "description": "{{ cookiecutter.plugin_name.capitalize() }} plugin enabling publish, open, load and asset management with ftrack eco system.",
+    "year": "2024",
+    "version": "1.0.0",
+    "keywords": "ftrack"
+}

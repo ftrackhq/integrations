@@ -1,0 +1,45 @@
+[tool.poetry]
+name = "ftrack-framework-{{cookiecutter.plugin_name}}"
+version = "2.0.0rc1"
+description='ftrack {{ cookiecutter.plugin_name.capitalize() }} Photoshop integration'
+authors = ["ftrack Integrations Team <integrations@backlight.co>"]
+readme = "README.md"
+packages = [{include = "{{ cookiecutter.package_name }}", from = "source"}]
+license = "Apache-2.0"
+homepage = "https://ftrack.com"
+repository = "https://github.com/ftrackhq/integrations/tree/main/projects/framework-{{cookiecutter.plugin_name }}"
+
+[[tool.poetry.source]]
+name = "testpypi"
+url = "https://test.pypi.org/simple/"
+default = false
+secondary = false
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.dependencies]
+ftrack-python-api = "^2.5.4"
+# ftrack dependencies
+ftrack-constants = { version = "> 1, < 3", optional = true }
+ftrack-utils = { version = "> 1, < 3", optional = true }
+# framework dependencies
+ftrack-framework-core = { version = "> 1, < 3", optional = true }
+ftrack-framework-qt = { version = "> 1, < 3", optional = true }
+ftrack-qt = { version = "> 1, < 3", optional = true }
+
+[tool.poetry.extras]
+ftrack-libs = ["ftrack-constants", "ftrack-utils", "ftrack-qt"]
+framework-libs = ["ftrack-framework-core", "ftrack-framework-qt"]
+
+[tool.poetry.group.documentation]
+optional = true
+
+[tool.poetry.group.documentation.dependencies]
+markdown = "<=3.2.2"
+
+[tool.black]
+line-length = 79
+skip-string-normalization = true
+
