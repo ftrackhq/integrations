@@ -9,7 +9,7 @@ import functools
 from ftrack_connect.util import get_connect_plugin_version
 
 # The name of the integration, should match name in launcher.
-NAME = 'framework-{{ cookiecutter.plugin_name }}'
+NAME = 'framework-{{ cookiecutter.integration_name }}'
 
 
 logger = logging.getLogger(__name__)
@@ -57,7 +57,7 @@ def on_launch_integration(session, event):
     ] = os.path.pathsep.join([python_dependencies, bootstrap_path])
     # TODO: Set env var for DCC to find the bootstrap script
 
-    launch_data['integration']['env']['FTRACK_{{cookiecutter.plugin_name.upper()}}_VERSION'] = str(
+    launch_data['integration']['env']['FTRACK_{{cookiecutter.integration_name.upper()}}_VERSION'] = str(
         integration_version
     )
 
@@ -81,7 +81,7 @@ def register(session):
 
     session.event_hub.subscribe(
         'topic=ftrack.connect.application.discover and '
-        'data.application.identifier={{ cookiecutter.plugin_name }}*'
+        'data.application.identifier={{ cookiecutter.integration_name }}*'
         ' and data.application.version >= 2021',
         handle_discovery_event,
         priority=40,
@@ -91,7 +91,7 @@ def register(session):
 
     session.event_hub.subscribe(
         'topic=ftrack.connect.application.launch and '
-        'data.application.identifier={{ cookiecutter.plugin_name }}*'
+        'data.application.identifier={{ cookiecutter.integration_name }}*'
         ' and data.application.version >= 2021',
         handle_launch_event,
         priority=40,

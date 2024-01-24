@@ -6,8 +6,8 @@ from ftrack_framework_core.plugin import BasePlugin
 from ftrack_framework_core.exceptions.plugin import PluginExecutionError
 
 
-class {{ cookiecutter.plugin_name.capitalize() }}SaveToTempPlugin(BasePlugin):
-    name = '{{ cookiecutter.plugin_name }}_save_to_temp_finalizer'
+class {{ cookiecutter.integration_name.capitalize() }}SaveToTempPlugin(BasePlugin):
+    name = '{{ cookiecutter.integration_name }}_save_to_temp_finalizer'
 
     def run(self, store):
         '''
@@ -19,10 +19,10 @@ class {{ cookiecutter.plugin_name.capitalize() }}SaveToTempPlugin(BasePlugin):
         try:
             # Save file to a temp file
             save_path = get_temp_path(filename_extension=scene_type)
-            # Save {{ cookiecutter.plugin_name.capitalize() }} scene to this path
+            # Save {{ cookiecutter.integration_name.capitalize() }} scene to this path
 
             self.logger.debug(
-                f"{{ cookiecutter.plugin_name.capitalize() }} scene saved to temp path: {save_path}"
+                f"{{ cookiecutter.integration_name.capitalize() }} scene saved to temp path: {save_path}"
             )
         except Exception as error:
             raise PluginExecutionError(

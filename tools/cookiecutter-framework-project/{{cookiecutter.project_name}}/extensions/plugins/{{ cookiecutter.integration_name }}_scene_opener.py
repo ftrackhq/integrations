@@ -5,8 +5,8 @@ from ftrack_framework_core.plugin import BasePlugin
 from ftrack_framework_core.exceptions.plugin import PluginExecutionError
 
 
-class {{ cookiecutter.plugin_name.capitalize() }}SceneOpenerPlugin(BasePlugin):
-    name = '{{ cookiecutter.plugin_name.capitalize() }}_scene_opener'
+class {{ cookiecutter.integration_name.capitalize() }}SceneOpenerPlugin(BasePlugin):
+    name = '{{ cookiecutter.integration_name.capitalize() }}_scene_opener'
 
     def run(self, store):
         '''
@@ -30,6 +30,6 @@ class {{ cookiecutter.plugin_name.capitalize() }}SceneOpenerPlugin(BasePlugin):
                 f"Couldn't open the given path. Error: {error}"
             )
 
-        self.logger.debug(f"{{ cookiecutter.plugin_name.capitalize() }} scene opened. Path: {collected_path}")
+        self.logger.debug(f"{{ cookiecutter.integration_name.capitalize() }} scene opened. Path: {collected_path}")
 
         store['components'][component_name]['open_result'] = collected_path

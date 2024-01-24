@@ -8,8 +8,8 @@ from ftrack_framework_core.plugin import BasePlugin
 from ftrack_framework_core.exceptions.plugin import PluginExecutionError
 
 
-class {{ cookiecutter.plugin_name.capitalize() }}ThumbnailExporterPlugin(BasePlugin):
-    name = '{{ cookiecutter.plugin_name }}_thumbnail_exporter'
+class {{ cookiecutter.integration_name.capitalize() }}ThumbnailExporterPlugin(BasePlugin):
+    name = '{{ cookiecutter.integration_name }}_thumbnail_exporter'
 
     def run(self, store):
         '''

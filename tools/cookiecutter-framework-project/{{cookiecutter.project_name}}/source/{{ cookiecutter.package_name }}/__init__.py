@@ -18,7 +18,7 @@ from ftrack_utils.extensions.environment import (
     get_extensions_path_from_environment,
 )
 
-from ftrack_framework_{{ cookiecutter.plugin_name }}.utils import dock_{{ cookiecutter.plugin_name }}_right, run_in_main_thread
+from ftrack_framework_{{ cookiecutter.integration_name }}.utils import dock_{{ cookiecutter.integration_name }}_right, run_in_main_thread
 
 
 # Evaluate version and log package version
@@ -44,21 +44,21 @@ logger.debug('v{}'.format(__version__))
 
 @run_in_main_thread
 def on_run_dialog_callback(
-    client_instance, dialog_name, tool_config_names, {{ cookiecutter.plugin_name }}_args
+    client_instance, dialog_name, tool_config_names, {{ cookiecutter.integration_name }}_args
 ):
     client_instance.run_dialog(
         dialog_name,
         dialog_options={'tool_config_names': tool_config_names},
-        dock_func=dock_{{ cookiecutter.plugin_name }}_right,
+        dock_func=dock_{{ cookiecutter.integration_name }}_right,
     )
 
 
 def bootstrap_integration(framework_extensions_path):
     '''
-    Initialise {{ cookiecutter.plugin_name.capitalize() }} Framework integration
+    Initialise {{ cookiecutter.integration_name.capitalize() }} Framework integration
     '''
     logger.debug(
-        '{{ cookiecutter.plugin_name.capitalize() }} standalone integration initialising, extensions path:'
+        '{{ cookiecutter.integration_name.capitalize() }} standalone integration initialising, extensions path:'
         f' {framework_extensions_path}'
     )
     # Create ftrack session and instantiate event manager
@@ -77,7 +77,7 @@ def bootstrap_integration(framework_extensions_path):
 
     # Init tools
     dcc_config = registry_instance.get_one(
-        name='framework-{{ cookiecutter.plugin_name }}', extension_type='dcc_config'
+        name='framework-{{ cookiecutter.integration_name }}', extension_type='dcc_config'
     )['extension']
 
     logger.debug(f'Read DCC config: {dcc_config}')

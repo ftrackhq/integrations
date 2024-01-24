@@ -1,6 +1,6 @@
 {
     "integration_name": "integration name",
-    "project_name": "ftrack {{ cookiecutter.plugin_name.capitalize() }} Connect framework integration",
+    "project_name": "ftrack {{ cookiecutter.integration_name.capitalize() }} Connect framework integration",
     "package_name": "ftrack_framework_{{ cookiecutter.integration_name }}",
     "project_name": "framework-{{ cookiecutter.integration_name }}",
     "description": "{{ cookiecutter.integration_name.capitalize() }} integration the framework with ftrack eco system.",

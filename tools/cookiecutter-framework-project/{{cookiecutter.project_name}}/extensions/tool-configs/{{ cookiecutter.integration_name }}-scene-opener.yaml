@@ -1,5 +1,5 @@
 type: tool_config
-name: {{ cookiecutter.plugin_name }}-scene-opener
+name: {{ cookiecutter.integration_name }}-scene-opener
 config_type: opener
 engine:
   - type: plugin
@@ -33,7 +33,7 @@ engine:
       - type: plugin
         tags:
           - opener
-        plugin: {{ cookiecutter.plugin_name }}_scene_opener
+        plugin: {{ cookiecutter.integration_name }}_scene_opener
       - type: plugin
-        plugin: {{ cookiecutter.plugin_name }}_save_to_temp_finalizer
+        plugin: {{ cookiecutter.integration_name }}_save_to_temp_finalizer
 

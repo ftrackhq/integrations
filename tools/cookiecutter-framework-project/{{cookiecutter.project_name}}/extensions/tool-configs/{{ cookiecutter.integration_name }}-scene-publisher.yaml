@@ -1,5 +1,5 @@
 type: tool_config
-name: {{ cookiecutter.plugin_name }}-scene-publisher
+name: {{ cookiecutter.integration_name }}-scene-publisher
 config_type: publisher
 engine:
   - type: plugin
@@ -22,16 +22,16 @@ engine:
       - type: plugin
         tags:
           - collector
-        plugin: {{ cookiecutter.plugin_name }}_scene_collector
+        plugin: {{ cookiecutter.integration_name }}_scene_collector
       - type: plugin
         tags:
           - validator
-        plugin: {{ cookiecutter.plugin_name }}_scene_saved_validator
+        plugin: {{ cookiecutter.integration_name }}_scene_saved_validator
         ui: validator_label
       - type: plugin
         tags:
           - exporter
-        plugin: {{ cookiecutter.plugin_name }}_scene_exporter
+        plugin: {{ cookiecutter.integration_name }}_scene_exporter
 
   # Export Thumbnail
   - type: group
@@ -45,7 +45,7 @@ engine:
       - type: plugin
         tags:
           - exporter
-        plugin: {{ cookiecutter.plugin_name }}_thumbnail_exporter
+        plugin: {{ cookiecutter.integration_name }}_thumbnail_exporter
 
   # Common validator check all exported paths exists.
   - type: plugin

@@ -11,12 +11,12 @@ from ftrack_framework_core.exceptions.plugin import (
 )
 
 
-class {{ cookiecutter.plugin_name.capitalize() }}SceneSavedValidatorPlugin(BasePlugin):
+class {{ cookiecutter.integration_name.capitalize() }}SceneSavedValidatorPlugin(BasePlugin):
     '''
     Plugin to validate if the scene has been saved.
     '''
 
-    name = '{{ cookiecutter.plugin_name }}_scene_saved_validator'
+    name = '{{ cookiecutter.integration_name }}_scene_saved_validator'
 
     def save_to_temp(self, store, extension_format):
         '''
@@ -63,16 +63,16 @@ class {{ cookiecutter.plugin_name.capitalize() }}SceneSavedValidatorPlugin(BaseP
 
         if not scene_name:
             # Scene is not saved, save it first.
-            self.logger.warning('{{ cookiecutter.plugin_name.capitalize() }} scene has never been saved.')
+            self.logger.warning('{{ cookiecutter.integration_name.capitalize() }} scene has never been saved.')
             raise PluginValidationError(
-                message='{{ cookiecutter.plugin_name.capitalize() }} scene has never been saved, Click fix to save it to a temp file',
+                message='{{ cookiecutter.integration_name.capitalize() }} scene has never been saved, Click fix to save it to a temp file',
                 on_fix_callback=self.save_to_temp,
                 fix_kwargs={'extension_format': '.mb'},
             )
         if not scene_saved:
-            self.logger.warning('{{ cookiecutter.plugin_name.capitalize() }} scene not saved')
+            self.logger.warning('{{ cookiecutter.integration_name.capitalize() }} scene not saved')
             raise PluginValidationError(
-                message='{{ cookiecutter.plugin_name.capitalize() }} scene not saved, Click fix to save it.',
+                message='{{ cookiecutter.integration_name.capitalize() }} scene not saved, Click fix to save it.',
                 on_fix_callback=self.save_scene,
             )
         self.logger.debug("Scene is saved validation passed.")

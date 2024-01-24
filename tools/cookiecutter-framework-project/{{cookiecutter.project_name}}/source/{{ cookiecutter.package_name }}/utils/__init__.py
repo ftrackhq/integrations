@@ -2,20 +2,20 @@
 # :copyright: Copyright (c) 2014-2024 ftrack
 import threading
 
-# Dock widget in {{ cookiecutter.plugin_name.capitalize() }}
-def dock_{{ cookiecutter.plugin_name.capitalize() }}_right(widget):
-    '''Dock *widget* to the right side of {{ cookiecutter.plugin_name.capitalize() }}.'''
+# Dock widget in {{ cookiecutter.integration_name.capitalize() }}
+def dock_{{ cookiecutter.integration_name.capitalize() }}_right(widget):
+    '''Dock *widget* to the right side of {{ cookiecutter.integration_name.capitalize() }}.'''
     pass
 
 
 def run_in_main_thread(f):
-    '''Make sure a function runs in the main {{ cookiecutter.plugin_name.capitalize() }} thread.'''
+    '''Make sure a function runs in the main {{ cookiecutter.integration_name.capitalize() }} thread.'''
 
     @wraps(f)
     def decorated(*args, **kwargs):
         if threading.currentThread().name != 'MainThread':
             pass
-            # return {{ cookiecutter.plugin_name }}_utils.executeInMainThreadWithResult(f, *args, **kwargs)
+            # return {{ cookiecutter.integration_name }}_utils.executeInMainThreadWithResult(f, *args, **kwargs)
         else:
             return f(*args, **kwargs)
 

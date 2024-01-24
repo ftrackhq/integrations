@@ -7,8 +7,8 @@ from ftrack_framework_core.plugin import BasePlugin
 from ftrack_framework_core.exceptions.plugin import PluginExecutionError
 
 
-class {{ cookiecutter.plugin_name.capitalize() }}SceneExporterPlugin(BasePlugin):
-    name = '{{ cookiecutter.plugin_name }}_scene_exporter'
+class {{ cookiecutter.integration_name.capitalize() }}SceneExporterPlugin(BasePlugin):
+    name = '{{ cookiecutter.integration_name }}_scene_exporter'
 
     def run(self, store):
         '''

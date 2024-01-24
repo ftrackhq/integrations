@@ -1,6 +1,6 @@
-# ftrack {{ cookiecutter.plugin_name.capitalize() }} integration
+# ftrack {{ cookiecutter.integration_name.capitalize() }} integration
 
-Community owned {{ cookiecutter.plugin_name.capitalize() }} integration for ftrack.
+Community owned {{ cookiecutter.integration_name.capitalize() }} integration for ftrack.
 
 # Documentation
 
@@ -35,7 +35,7 @@ or:
     poetry version major
 ```
 
-Bump the connect plugin version in integrations/projects/framework-{{ cookiecutter.plugin_name }}/connect-plugin/__version__.py
+Bump the connect plugin version in integrations/projects/framework-{{ cookiecutter.integration_name }}/connect-plugin/__version__.py
 
 Tag and push to SCM
 
@@ -58,10 +58,10 @@ Build Connect plugin:
 
 ```bash
     cd integrations
-    python tools/build.py  --include_resources resource/bootstrap build_connect_plugin projects/framework-{{ cookiecutter.plugin_name }}
+    python tools/build.py  --include_resources resource/bootstrap build_connect_plugin projects/framework-{{ cookiecutter.integration_name }}
 ```
 
-If the build fails and {{ cookiecutter.plugin_name.capitalize() }} is using beta or experimental dependencies published to Test PyPi, use the `--testpypi` flag 
+If the build fails and {{ cookiecutter.integration_name.capitalize() }} is using beta or experimental dependencies published to Test PyPi, use the `--testpypi` flag 
 to build the plugin.
 
 To build from source, not involving PyPi, use the `--from_source` flag.
@@ -85,4 +85,4 @@ Build documentation:
 ## Installing
 
 ### Connect plugin
-Copy the resulting dist/ftrack-framework-{{ cookiecutter.plugin_name }}-<version> folder to your connect plugin folder.
+Copy the resulting dist/ftrack-framework-{{ cookiecutter.integration_name }}-<version> folder to your connect plugin folder.
