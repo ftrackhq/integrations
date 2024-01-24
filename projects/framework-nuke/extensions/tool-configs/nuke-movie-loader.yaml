@@ -1,0 +1,31 @@
+type: tool_config
+name: nuke-movie-loader
+config_type: loader
+action: true
+entity_type: component
+file_extensions:
+  - .mov
+  - .mp4
+  - .avi
+  - .mpg
+  - .mpeg
+  - .m4v
+  - .mkv
+  - .mxf
+  - .webm
+  - .wmv
+  - .dv
+engine:
+  - type: plugin
+    tags:
+      - context
+    plugin: store_context_id
+  - type: plugin
+    tags:
+      - collector
+    plugin: component_path_collector
+  - type: plugin
+    tags:
+      - importer
+    plugin: nuke_movie_loader
+

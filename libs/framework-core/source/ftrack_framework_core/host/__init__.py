@@ -7,6 +7,8 @@ import os
 
 from functools import partial
 
+from ftrack_framework_core.host.action import ToolAction
+
 from ftrack_framework_core.log.log_item import LogItem
 from ftrack_framework_core.log import LogDB
 from ftrack_utils.framework.config.tool import get_plugins
@@ -201,6 +203,15 @@ class Host(object):
         self.event_manager.subscribe.host_verify_plugins(
             self.id, self._verify_plugins_callback
         )
+
+        # Check if any tool config should listen to events
+        self._tool_actions = []
+        for tool_config in self.registry.tool_configs:
+            if tool_config.get('action') is True:
+                # Register action
+                action = ToolAction(self.session, tool_config)
+                action.register()
+                self._tool_actions.append(action)
 
     def _client_context_change_callback(self, event):
         '''Callback when the client has changed context'''
