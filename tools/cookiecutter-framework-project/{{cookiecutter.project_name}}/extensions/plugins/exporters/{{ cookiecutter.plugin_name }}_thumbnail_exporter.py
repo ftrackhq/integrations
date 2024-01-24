@@ -18,6 +18,6 @@ class {{ cookiecutter.plugin_name.capitalize() }}ThumbnailExporterPlugin(BasePlu
         '''
         component_name = self.options.get('component')
 
-        # full_path = ...
+        # Export thumbnail
 
-        store['components'][component_name]['exported_path'] = full_path
+        store['components'][component_name]['exported_path'] = thumbnail_path

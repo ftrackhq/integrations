@@ -24,7 +24,7 @@ class {{ cookiecutter.plugin_name.capitalize() }}SceneExporterPlugin(BasePlugin)
 
         if export_type == 'selection':
             try:
-               pass
+               # TODO: Export selected objects
             except Exception as error:
                 raise PluginExecutionError(
                     message=f"Couldn't export selection, error:{error}"

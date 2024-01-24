@@ -25,7 +25,7 @@ class {{ cookiecutter.plugin_name.capitalize() }}SceneSavedValidatorPlugin(BaseP
         try:
             # Save file to a temp file
             save_path = get_temp_path(filename_extension=extension_format)
-            # Save {{ cookiecutter.plugin_name.capitalize() }} scene to this path
+            # TODO: Tell DCC to save scene to this path
 
             self.logger.debug(f"Scene has been saved to: {save_path}.")
         except Exception as error:
@@ -41,7 +41,7 @@ class {{ cookiecutter.plugin_name.capitalize() }}SceneSavedValidatorPlugin(BaseP
         Save the current scene.
         '''
         try:
-            # cmds.file(save=True)
+            # TODO: tell DCC to save scene
             self.logger.debug(f"Scene has been saved.")
         except Exception as error:
             raise PluginExecutionError(

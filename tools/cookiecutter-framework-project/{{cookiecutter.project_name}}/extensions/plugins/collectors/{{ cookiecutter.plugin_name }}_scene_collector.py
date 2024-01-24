@@ -15,15 +15,13 @@ class {{ cookiecutter.plugin_name.capitalize() }}SceneCollectorPlugin(BasePlugin
         scene_name and collect if scene is saved.
         '''
         try:
-            pass
-            #scene_name = cmds.file(q=True, sceneName=True)
+            # TODO: get scene name from DCC
         except Exception as error:
             raise PluginExecutionError(
                 f"Error retrieving the scene name: {error}"
             )
         try:
-            pass
-            #scene_saved = not cmds.file(query=True, modified=True)
+            # TODO: check if DCC scene is saved
         except Exception as error:
             raise PluginExecutionError(
                 f"Error Checking if the scene is saved: {error}"

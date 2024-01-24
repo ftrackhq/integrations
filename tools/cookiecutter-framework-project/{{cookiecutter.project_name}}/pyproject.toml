@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "ftrack-framework-{{cookiecutter.plugin_name}}"
 version = "2.0.0rc1"
-description='ftrack {{ cookiecutter.plugin_name.capitalize() }} Photoshop integration'
+description='ftrack {{ cookiecutter.plugin_name.capitalize() }} integration'
 authors = ["ftrack Integrations Team <integrations@backlight.co>"]
 readme = "README.md"
 packages = [{include = "{{ cookiecutter.package_name }}", from = "source"}]
