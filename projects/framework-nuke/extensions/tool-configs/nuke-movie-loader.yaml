@@ -2,7 +2,7 @@ type: tool_config
 name: nuke-movie-loader
 config_type: loader
 action: true
-entity_type: component
+entity_type: filecomponent
 file_extensions:
   - .mov
   - .mp4
@@ -16,10 +16,6 @@ file_extensions:
   - .wmv
   - .dv
 engine:
-  - type: plugin
-    tags:
-      - context
-    plugin: store_context_id
   - type: plugin
     tags:
       - collector

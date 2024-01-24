@@ -4,6 +4,9 @@
 import uuid
 import logging
 import os
+import threading
+
+import ftrack_api
 
 from functools import partial
 
@@ -206,12 +209,27 @@ class Host(object):
 
         # Check if any tool config should listen to events
         self._tool_actions = []
-        for tool_config in self.registry.tool_configs:
+        server_session = None
+        for tool_config_extension in self.registry.tool_configs:
+            tool_config = tool_config_extension['extension']
             if tool_config.get('action') is True:
                 # Register action
-                action = ToolAction(self.session, tool_config)
+                print(f'Registering action for tool_config: {tool_config}')
+                if server_session is None:
+                    server_session = ftrack_api.Session(
+                        auto_connect_event_hub=True
+                    )
+                action = ToolAction(self, server_session, tool_config)
                 action.register()
                 self._tool_actions.append(action)
+
+        if server_session:
+
+            def listen_events():
+                while True:
+                    server_session.event_hub.wait(0.5)
+
+            threading.Thread(target=listen_events).start()
 
     def _client_context_change_callback(self, event):
         '''Callback when the client has changed context'''
