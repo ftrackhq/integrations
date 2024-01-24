@@ -1,4 +1,4 @@
-# ftrack cookiecutter connect plugin
+# ftrack cookiecutter framework integration
 
 Cookiecutter template for a ftrack Framework integration project.
 
