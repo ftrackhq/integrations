@@ -1,5 +1,5 @@
 {
-    "plugin_name": "pluginname",
+    "integration_name": "integration name",
     "project_name": "ftrack {{ cookiecutter.plugin_name.capitalize() }} Connect framework integration",
     "package_name": "ftrack_framework_{{ cookiecutter.plugin_name }}",
     "project_name": "framework-{{ cookiecutter.plugin_name }}",
