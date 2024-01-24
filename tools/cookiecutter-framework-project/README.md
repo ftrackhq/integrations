@@ -16,5 +16,5 @@ Example:
 
     cookiecutter -f -o /Users/ftrack/integrations/projects /Users/ftrack/integrations/tools/cookiecutter-framework-project 
 
-* Fill up all the new plugin name input field when asked (All the other fields are automatically fill out by default).
+* Fill up all the new integration name input field when asked (All the other fields are automatically fill out by default).
 
