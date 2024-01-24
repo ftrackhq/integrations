@@ -24,8 +24,9 @@ engine:
         options:
           asset_type_name: scene
           file_extensions:
-            - mb
-            - ma
+            # TODO: set your file_extensions
+            #- mb
+            #- ma
       - type: plugin
         tags:
           - validator

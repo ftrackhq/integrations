@@ -18,6 +18,11 @@ class {{ cookiecutter.integration_name.capitalize() }}ThumbnailExporterPlugin(Ba
         '''
         component_name = self.options.get('component')
 
-        # Export thumbnail
+        try:
+            # TODO: thumbnail_path = Export thumbnail
+
+            self.logger.debug(f"Thumbnail has been saved to: {thumbnail_path}.")
+        except Exception as error:
+            raise PluginExecutionError(message=error)
 
         store['components'][component_name]['exported_path'] = thumbnail_path
