@@ -10,7 +10,7 @@ import ftrack_api
 
 from functools import partial
 
-from ftrack_framework_core.host.action import ToolAction
+# from ftrack_framework_core.host.action import ToolAction
 
 from ftrack_framework_core.log.log_item import LogItem
 from ftrack_framework_core.log import LogDB

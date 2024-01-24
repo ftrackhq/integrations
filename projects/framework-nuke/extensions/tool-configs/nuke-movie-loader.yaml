@@ -5,7 +5,6 @@ action: true
 entity_type: filecomponent
 file_extensions:
   - .mov
-  - .mp4
   - .avi
   - .mpg
   - .mpeg
@@ -16,10 +15,6 @@ file_extensions:
   - .wmv
   - .dv
 engine:
-  - type: plugin
-    tags:
-      - collector
-    plugin: component_path_collector
   - type: plugin
     tags:
       - importer

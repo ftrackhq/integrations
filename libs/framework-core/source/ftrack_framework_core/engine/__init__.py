@@ -177,7 +177,10 @@ class BaseEngine(object):
         for item in engine:
             # If plugin is just string execute plugin with no options
             if isinstance(item, str):
-                self.run_plugin(item, store, {})
+                self.run_plugin(
+                    item,
+                    store,
+                )
 
             elif isinstance(item, dict):
                 # If it's a group, execute all plugins from the group

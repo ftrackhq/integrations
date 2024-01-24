@@ -14,6 +14,11 @@ class ToolAction(BaseAction):
         '''Return convenient exposure of the self._tool_config reference.'''
         return self._tool_config
 
+    @property
+    def host(self):
+        '''Return convenient exposure of the host attribute.'''
+        return self._host
+
     def __init__(self, host, session, tool_config, priority=sys.maxsize):
         self.label = tool_config['name']
         self.identifier = f'{tool_config["name"]}-launch'
@@ -71,7 +76,9 @@ class ToolAction(BaseAction):
         items.append(
             {
                 'label': self.tool_config['name'],
+                'actionIdentifier': self.identifier,
                 'host': platform.node(),
+                'icon': 'nuke',
             }
         )
 
@@ -108,18 +115,24 @@ class ToolAction(BaseAction):
             component_path = location.get_filesystem_path(component)
 
             # Inject the component_path
+            plugin = None
             for plugin in tool_config['engine']:
-                if 'options' not in plugin:
-                    plugin['options'] = {}
-                plugin['options']['asset_version_id'] = version['id']
-                plugin['options']['component'] = component['name']
-                plugin['options']['component_path'] = component_path
+                if plugin['plugin'] == 'nuke_movie_loader':
+                    break
+            print(f'plugin: {plugin}')
+            # plugin = self.host.registry.get_one(name='component_path_collector')
+            tool_config_options = {}
+            tool_config_options[plugin['reference']] = {
+                'asset_version_id': version['id'],
+                'component': component['name'],
+                'collected_path': component_path,
+            }
 
             # Tun the tool config
             self.host.event_manager.publish.host_run_tool_config(
                 self.host.id,
-                tool_config_reference,
-                self.tool_config_options.get(tool_config_reference, {}),
+                tool_config['reference'],
+                tool_config_options,
             )
 
         return {

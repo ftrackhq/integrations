@@ -18,8 +18,11 @@ class NukeMovieLoaderPlugin(BasePlugin):
         opens it in Nuke.
         '''
 
-        asset_path = store['collected_path']
+        asset_path = self.options['collected_path']
 
         self.logger.debug(f'Loading Nuke asset: {asset_path}')
 
-        store['load_result'] = open_result
+        resulting_node = nuke.createNode('Read', inpanel=False)
+        resulting_node['file'].fromUserText(asset_path)
+
+        store['load_result'] = resulting_node.name()
