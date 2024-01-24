@@ -82,7 +82,7 @@ def register(session):
     session.event_hub.subscribe(
         'topic=ftrack.connect.application.discover and '
         'data.application.identifier={{ cookiecutter.integration_name }}*'
-        ' and data.application.version >= 2021',
+        ' and data.application.version >= {{ cookiecutter.min_dcc_version }}',
         handle_discovery_event,
         priority=40,
     )
@@ -92,7 +92,7 @@ def register(session):
     session.event_hub.subscribe(
         'topic=ftrack.connect.application.launch and '
         'data.application.identifier={{ cookiecutter.integration_name }}*'
-        ' and data.application.version >= 2021',
+        ' and data.application.version >= {{ cookiecutter.min_dcc_version }}',
         handle_launch_event,
         priority=40,
     )
