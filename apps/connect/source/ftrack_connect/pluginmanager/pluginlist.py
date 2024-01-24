@@ -1,201 +1,24 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2014-2023 ftrack
-import os
+# :copyright: Copyright (c) 2014-2024 ftrack
 import re
-import logging
-import shutil
-import traceback
-import zipfile
-import tempfile
-import urllib
-from urllib.request import urlopen
-from urllib.error import HTTPError
-from packaging.version import parse as parse_version
+import os
 import platformdirs
+from packaging.version import parse as parse_version
+from urllib.request import urlopen
 import json
-import sys
+import shutil
+import logging
 
 from ftrack_connect.qt import QtWidgets, QtCore, QtGui
-import qtawesome as qta
 
-from ftrack_connect.ui.widget.overlay import BlockingOverlay
+from ftrack_connect.pluginmanager.processor import (
+    STATUSES,
+    ROLES,
+    STATUS_ICONS,
+)
+
 
 logger = logging.getLogger(__name__)
-
-# Evaluate version and log package version
-try:
-    from ftrack_utils.version import get_version
-
-    __version__ = get_version(
-        os.path.basename(os.path.dirname(__file__)),
-        os.path.dirname(os.path.dirname(os.path.dirname(__file__))),
-    )
-except Exception:
-    __version__ = '0.0.0'
-
-
-class InstallerBlockingOverlay(BlockingOverlay):
-    '''Custom blocking overlay for plugin installer.'''
-
-    def __init__(
-        self,
-        parent,
-        message='',
-        icon=qta.icon('mdi6.check', color='#FFDD86', scale_factor=1.2),
-    ):
-        super(InstallerBlockingOverlay, self).__init__(
-            parent,
-            message=message,
-            icon=icon,
-        )
-
-        self._text_edit = QtWidgets.QTextEdit()
-        self._text_edit.setReadOnly(True)
-        self._text_edit.setFixedHeight(200)
-        self.contentLayout.addWidget(self._text_edit)
-        self._text_edit.setVisible(False)
-
-        self._button_layout = QtWidgets.QHBoxLayout()
-        self._button_layout.setContentsMargins(0, 0, 0, 0)
-        self.contentLayout.addSpacing(30)
-        self.contentLayout.addLayout(self._button_layout)
-        self.confirm_button = QtWidgets.QPushButton('Install more plugins')
-        self.restart_button = QtWidgets.QPushButton('Restart')
-        self.restart_button.setObjectName('primary')
-
-        self._button_layout.addWidget(self.confirm_button)
-        self._button_layout.addWidget(self.restart_button)
-        self.confirm_button.hide()
-        self.confirm_button.clicked.connect(self.hide)
-
-    def set_reason(self, reason):
-        self._text_edit.setText(reason)
-        self._text_edit.setVisible(True)
-
-
-class STATUSES(object):
-    '''Store plugin statuses'''
-
-    INSTALLED = 0
-    NEW = 1
-    UPDATE = 2
-    REMOVE = 3
-    DOWNLOAD = 4
-
-
-class ROLES(object):
-    '''Store plugin roles'''
-
-    PLUGIN_STATUS = QtCore.Qt.UserRole + 1
-    PLUGIN_NAME = PLUGIN_STATUS + 1
-    PLUGIN_VERSION = PLUGIN_NAME + 1
-    PLUGIN_SOURCE_PATH = PLUGIN_VERSION + 1
-    PLUGIN_INSTALL_PATH = PLUGIN_SOURCE_PATH + 1
-    PLUGIN_ID = PLUGIN_INSTALL_PATH + 1
-
-
-# Icon representation for statuses
-STATUS_ICONS = {
-    STATUSES.INSTALLED: QtGui.QIcon(qta.icon('mdi6.harddisk')),
-    STATUSES.NEW: QtGui.QIcon(qta.icon('mdi6.new-box')),
-    STATUSES.UPDATE: QtGui.QIcon(qta.icon('mdi6.update')),
-    STATUSES.DOWNLOAD: QtGui.QIcon(qta.icon('mdi6.download')),
-}
-
-
-class PluginProcessor(QtCore.QObject):
-    '''Handles installation process of plugins.'''
-
-    def __init__(self):
-        super(PluginProcessor, self).__init__()
-
-        self.process_mapping = {
-            STATUSES.NEW: self.install,
-            STATUSES.UPDATE: self.update,
-            STATUSES.REMOVE: self.remove,
-            STATUSES.DOWNLOAD: self.install,
-        }
-
-    def download(self, plugin):
-        '''Download provided *plugin* item.'''
-        source_path_noarch = plugin.data(ROLES.PLUGIN_SOURCE_PATH)
-        # Determine our platform
-        if sys.platform.startswith('win'):
-            platform = 'win'
-        elif sys.platform.startswith('linux'):
-            platform = 'linux'
-        elif sys.platform.startswith('darwin'):
-            platform = 'mac'
-        else:
-            platform = sys.platform
-
-        for platform_dependent, source_path in [
-            (
-                True,
-                source_path_noarch.replace('.zip', f'-{platform}.zip'),
-            ),
-            (False, source_path_noarch),
-        ]:
-            try:
-                zip_name = os.path.basename(source_path_noarch)
-                save_path = tempfile.gettempdir()
-                temp_path = os.path.join(save_path, zip_name)
-
-                logger.info(f'Downloading {source_path} to {temp_path}')
-
-                with urllib.request.urlopen(source_path) as dl_file:
-                    with open(temp_path, 'wb') as out_file:
-                        out_file.write(dl_file.read())
-                return temp_path
-            except HTTPError as e:
-                if platform_dependent:
-                    logger.debug(
-                        f'No download exists {source_path} on platform {platform}'
-                    )
-                else:
-                    logger.warning(traceback.format_exc())
-                    raise Exception(
-                        f'Plugin "{plugin.data(ROLES.PLUGIN_NAME)}" is not supported on this platform'
-                        f' or temporarily unavailable. Details: {e}'
-                    )
-
-    def process(self, plugin):
-        '''Process provided *plugin* item.'''
-
-        status = plugin.data(ROLES.PLUGIN_STATUS)
-        plugin_fn = self.process_mapping.get(status)
-
-        if not plugin_fn:
-            return
-
-        plugin_fn(plugin)
-
-    def update(self, plugin):
-        '''Update provided *plugin* item.'''
-        self.remove(plugin)
-        self.install(plugin)
-
-    def install(self, plugin):
-        '''Install provided *plugin* item.'''
-        source_path = plugin.data(ROLES.PLUGIN_SOURCE_PATH)
-        if source_path.startswith('http'):
-            source_path = self.download(plugin)
-
-        plugin_name = os.path.basename(source_path).split('.zip')[0]
-
-        install_path = os.path.dirname(plugin.data(ROLES.PLUGIN_INSTALL_PATH))
-        destination_path = os.path.join(install_path, plugin_name)
-        logger.debug(f'Installing {source_path} to {destination_path}')
-
-        with zipfile.ZipFile(source_path, 'r') as zip_ref:
-            zip_ref.extractall(destination_path)
-
-    def remove(self, plugin):
-        '''Remove provided *plugin* item.'''
-        install_path = plugin.data(ROLES.PLUGIN_INSTALL_PATH)
-        logger.debug(f'Removing {install_path}')
-        if os.path.exists(install_path) and os.path.isdir(install_path):
-            shutil.rmtree(install_path, ignore_errors=False, onerror=None)
 
 
 class DndPluginList(QtWidgets.QFrame):
@@ -392,9 +215,34 @@ class DndPluginList(QtWidgets.QFrame):
                 result.append(plugin)
         return result
 
+    def get_deprecated_plugins(self):
+        from ftrack_connect.pluginmanager import DEPRECATED_PLUGINS
+
+        result = []
+        plugins = os.listdir(self.default_plugin_directory)
+        for plugin in plugins:
+            is_deprecated = False
+            for conflicting_plugin in DEPRECATED_PLUGINS:
+                if plugin.lower().find(conflicting_plugin) > -1:
+                    self.logger.warning(
+                        f'Ignoring deprecated plugin: {plugin}'
+                    )
+                    is_deprecated = True
+                    break
+            if is_deprecated:
+                continue
+            result.append(plugin)
+        return result
+
     def remove_legacy_plugin(self, plugin_name):
         install_path = os.path.join(self.default_plugin_directory, plugin_name)
         logger.debug(f'Removing legacy plugin: {install_path}')
+        if os.path.exists(install_path) and os.path.isdir(install_path):
+            shutil.rmtree(install_path, ignore_errors=False, onerror=None)
+
+    def remove_deprecated_plugin(self, plugin_name):
+        install_path = os.path.join(self.default_plugin_directory, plugin_name)
+        logger.debug(f'Removing deprecated plugin: {install_path}')
         if os.path.exists(install_path) and os.path.isdir(install_path):
             shutil.rmtree(install_path, ignore_errors=False, onerror=None)
 

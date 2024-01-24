@@ -1,46 +1,28 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2014-2023 ftrack
-
-import os
-import sys
-import logging
+# :copyright: Copyright (c) 2014-2024 ftrack
 import platform
 import traceback
 import qtawesome as qta
 
-import ftrack_api
-
 from ftrack_connect.qt import QtWidgets, QtCore, QtGui
 
-from ftrack_connect.util import get_connect_plugin_version
 from ftrack_connect.ui.widget.overlay import BlockingOverlay, BusyOverlay
 import ftrack_connect.ui.application
 
 from ftrack_utils.decorators import asynchronous
 from ftrack_utils.server import send_usage_event
 
-logger = logging.getLogger(__name__)
+from ftrack_connect.pluginmanager.overlay import InstallerBlockingOverlay
+from ftrack_connect.pluginmanager.processor import PluginProcessor, ROLES
+from ftrack_connect.pluginmanager.pluginlist import DndPluginList
 
-cwd = os.path.dirname(__file__)
-connect_plugin_path = os.path.abspath(os.path.join(cwd, '..'))
-
-# Read version number from __version__.py
-__version__ = get_connect_plugin_version(connect_plugin_path)
-
-python_dependencies = os.path.abspath(
-    os.path.join(connect_plugin_path, 'dependencies')
-)
-sys.path.append(python_dependencies)
-
-from ftrack_connect_plugin_manager import (
-    InstallerBlockingOverlay,
-    PluginProcessor,
-    DndPluginList,
-    ROLES,
-)
+DEPRECATED_PLUGINS = [
+    'ftrack-connect-action-launcher-widget',
+    'ftrack-connect-plugin-manager',
+]
 
 
-class PluginInstaller(ftrack_connect.ui.application.ConnectWidget):
+class PluginManager(ftrack_connect.ui.application.ConnectWidget):
     '''Show and manage plugin installations.'''
 
     name = 'Plugins'
@@ -53,32 +35,32 @@ class PluginInstaller(ftrack_connect.ui.application.ConnectWidget):
     refresh_started = QtCore.Signal()
     refresh_done = QtCore.Signal()
 
-    apply_changes = QtCore.Signal(object)
+    apply_changes = QtCore.Signal(object, object)
     # List of conflicting plugins as argument
 
     # default methods
     def __init__(self, session, parent=None):
         '''Instantiate the plugin widget.'''
-        super(PluginInstaller, self).__init__(session, parent=parent)
+        super(PluginManager, self).__init__(session, parent=parent)
 
         self._search_bar = None
         self._plugin_list_widget = None
         self._apply_button = None
-        self.reset_button = None
+        self._reset_button = None
         self._blocking_overlay = None
         self._busy_overlay = None
         self._plugins_to_install = None
         self._counter = 0
 
-        self.reset_plugin_list()
-        self.plugin_processor = PluginProcessor()
+        self._reset_plugin_list()
+        self._plugin_processor = PluginProcessor()
 
         self.pre_build()
         self.build()
         self.post_build()
 
         # refresh
-        self.refresh()
+        self._refresh()
 
     def pre_build(self):
         layout = QtWidgets.QVBoxLayout()
@@ -108,12 +90,12 @@ class PluginInstaller(ftrack_connect.ui.application.ConnectWidget):
         self._apply_button.setIcon(QtGui.QIcon(qta.icon('mdi6.check')))
         self._apply_button.setDisabled(True)
 
-        self.reset_button = QtWidgets.QPushButton('Clear selection')
-        self.reset_button.setIcon(QtGui.QIcon(qta.icon('mdi6.lock-reset')))
-        self.reset_button.setMaximumWidth(120)
+        self._reset_button = QtWidgets.QPushButton('Clear selection')
+        self._reset_button.setIcon(QtGui.QIcon(qta.icon('mdi6.lock-reset')))
+        self._reset_button.setMaximumWidth(120)
 
         button_layout.addWidget(self._apply_button)
-        button_layout.addWidget(self.reset_button)
+        button_layout.addWidget(self._reset_button)
 
         self.layout().addLayout(button_layout)
 
@@ -127,7 +109,7 @@ class PluginInstaller(ftrack_connect.ui.application.ConnectWidget):
     def post_build(self):
         # wire connections
         self._apply_button.clicked.connect(self._on_apply_changes)
-        self.reset_button.clicked.connect(self.refresh)
+        self._reset_button.clicked.connect(self._refresh)
         self._search_bar.textChanged.connect(
             self._plugin_list_widget.proxy_model.setFilterFixedString
         )
@@ -146,19 +128,19 @@ class PluginInstaller(ftrack_connect.ui.application.ConnectWidget):
         self.refresh_done.connect(self._busy_overlay.hide)
 
         self._plugin_list_widget.plugin_model.itemChanged.connect(
-            self.enable_apply_button
+            self._enable_apply_button
         )
 
-        self._blocking_overlay.confirm_button.clicked.connect(self.refresh)
+        self._blocking_overlay.confirm_button.clicked.connect(self._refresh)
         self._blocking_overlay.restart_button.clicked.connect(
             self.requestConnectRestart.emit
         )
 
-    def reset_plugin_list(self):
+    def _reset_plugin_list(self):
         self._counter = 0
         self._plugins_to_install = []
 
-    def emit_downloaded_plugins(self, plugins):
+    def _emit_downloaded_plugins(self, plugins):
         metadata = []
 
         for plugin in plugins:
@@ -176,7 +158,7 @@ class PluginInstaller(ftrack_connect.ui.application.ConnectWidget):
             asynchronous=True,
         )
 
-    def enable_apply_button(self, item):
+    def _enable_apply_button(self, item):
         '''Check the plugins state.'''
         self._apply_button.setDisabled(True)
         items = []
@@ -197,13 +179,13 @@ class PluginInstaller(ftrack_connect.ui.application.ConnectWidget):
         )
 
     @asynchronous
-    def refresh(self):
+    def _refresh(self):
         '''Force refresh of the model, fetching all the available plugins.'''
         self.refresh_started.emit()
         self._plugin_list_widget.populate_installed_plugins()
         self._plugin_list_widget.populate_download_plugins()
-        self.enable_apply_button(None)
-        self.reset_plugin_list()
+        self._enable_apply_button(None)
+        self._reset_plugin_list()
         self.refresh_done.emit()
 
     def _show_user_message_done(self):
@@ -226,7 +208,7 @@ class PluginInstaller(ftrack_connect.ui.application.ConnectWidget):
         self._blocking_overlay.show()
 
     def _reset_overlay(self):
-        self.reset_plugin_list()
+        self._reset_plugin_list()
         self._busy_overlay.message = '<h2>Updating....</h2>'
 
     def _update_overlay(self, item):
@@ -241,6 +223,21 @@ class PluginInstaller(ftrack_connect.ui.application.ConnectWidget):
     def _on_apply_changes(self):
         '''User wants to apply the updates, warn about conflicting plugins.'''
         legacy_plugins = self._plugin_list_widget.get_legacy_plugins()
+        deprecated_plugins = self._plugin_list_widget.get_deprecated_plugins()
+        if deprecated_plugins:
+            answer = QtWidgets.QMessageBox.question(
+                None,
+                'Warning',
+                'The following deprecated plugin(s) is installed and will be REMOVED'
+                ':\n\n{}\n\nPlease confirm.'.format(
+                    '\n'.join(deprecated_plugins)
+                ),
+                QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.Cancel,
+            )
+            if answer == QtWidgets.QMessageBox.Yes:
+                pass
+            elif answer == QtWidgets.QMessageBox.Cancel:
+                return
         if legacy_plugins:
             answer = QtWidgets.QMessageBox.question(
                 None,
@@ -260,14 +257,16 @@ class PluginInstaller(ftrack_connect.ui.application.ConnectWidget):
                 legacy_plugins = []
             else:
                 return
-        self.apply_changes.emit(legacy_plugins)
+        self.apply_changes.emit(legacy_plugins, deprecated_plugins)
 
     @asynchronous
-    def _on_apply_changes_confirmed(self, legacy_plugins):
+    def _on_apply_changes_confirmed(self, legacy_plugins, conflicting_plugins):
         '''Will process all the selected plugins.'''
         # Check if any conflicting plugins are installed.
         self.installation_started.emit()
         try:
+            for plugin in conflicting_plugins:
+                self._plugin_list_widget.remove_deprecated_plugin(plugin)
             for plugin in legacy_plugins:
                 self._plugin_list_widget.remove_legacy_plugin(plugin)
             num_items = self._plugin_list_widget.plugin_model.rowCount()
@@ -275,39 +274,10 @@ class PluginInstaller(ftrack_connect.ui.application.ConnectWidget):
                 item = self._plugin_list_widget.plugin_model.item(i)
                 if item.checkState() == QtCore.Qt.Checked:
                     self.installation_in_progress.emit(item)
-                    self.plugin_processor.process(item)
+                    self._plugin_processor.process(item)
             self.installation_done.emit()
-            self.emit_downloaded_plugins(self._plugins_to_install)
-            self.reset_plugin_list()
+            self._emit_downloaded_plugins(self._plugins_to_install)
+            self._reset_plugin_list()
         except:
             # Do not leave the overlay in a bad state.
             self.installation_failed.emit(traceback.format_exc())
-
-
-def get_version_information(event):
-    '''Return version information for ftrack connect plugin.'''
-    return [dict(name='connect-plugin-manager', version=__version__)]
-
-
-def register(session, **kw):
-    '''Register plugin. Called when used as a plugin.'''
-    # Validate that session is an instance of ftrack_api.Session. If not,
-    # assume that register is being called from an old or incompatible API and
-    # return without doing anything.
-    if not isinstance(session, ftrack_api.session.Session):
-        logger.debug(
-            'Not subscribing plugin as passed argument {0!r} is not an '
-            'ftrack_api.Session instance.'.format(session)
-        )
-        return
-
-    #  Uncomment to register plugin
-    plugin = ftrack_connect.ui.application.ConnectWidgetPlugin(PluginInstaller)
-    plugin.register(session, priority=30)
-
-    # Enable plugin info in Connect about dialog
-    session.event_hub.subscribe(
-        'topic=ftrack.connect.plugin.debug-information',
-        get_version_information,
-        priority=20,
-    )
