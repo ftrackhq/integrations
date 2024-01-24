@@ -67,7 +67,7 @@ class {{ cookiecutter.integration_name.capitalize() }}SceneSavedValidatorPlugin(
             raise PluginValidationError(
                 message='{{ cookiecutter.integration_name.capitalize() }} scene has never been saved, Click fix to save it to a temp file',
                 on_fix_callback=self.save_to_temp,
-                fix_kwargs={'extension_format': '.mb'},
+                fix_kwargs={'extension_format': <Your file type>},
             )
         if not scene_saved:
             self.logger.warning('{{ cookiecutter.integration_name.capitalize() }} scene not saved')
