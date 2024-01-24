@@ -3,7 +3,7 @@
     "project_name": "ftrack {{ cookiecutter.plugin_name.capitalize() }} Connect framework integration",
     "package_name": "ftrack_framework_{{ cookiecutter.integration_name }}",
     "project_name": "framework-{{ cookiecutter.integration_name }}",
-    "description": "{{ cookiecutter.plugin_name.capitalize() }} plugin enabling publish, open, load and asset management with ftrack eco system.",
+    "description": "{{ cookiecutter.integration_name.capitalize() }} integration the framework with ftrack eco system.",
     "year": "2024",
     "version": "2.0.0rc1",
     "keywords": "ftrack"
