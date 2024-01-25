@@ -6,5 +6,5 @@ setuptools>=45.0.0, <64
 certifi>=2022
 setuptools_scm
 wheel
-patchelf
 ftrack-action-handler
+ftrack-utils

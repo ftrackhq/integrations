@@ -3,7 +3,10 @@
 
 from Qt import QtGui, QtCore, QtWidgets
 
-from ftrack_qt.utils.widget import get_main_window_from_widget
+from ftrack_qt.utils.widget import (
+    get_main_window_from_widget,
+    get_framework_main_dialog,
+)
 
 from ftrack_qt.widgets.icons import MaterialIcon
 
@@ -21,7 +24,7 @@ class OverlayWidget(QtWidgets.QFrame):
         widget,
         width_percentage=0.95,
         height_percentage=0.6,
-        transparent_background=True,
+        transparent_background=False,
         parent=None,
     ):
         '''
@@ -35,31 +38,54 @@ class OverlayWidget(QtWidgets.QFrame):
         '''
         super(OverlayWidget, self).__init__(parent=parent)
 
+        self._widget = widget
         self._transparent_background = transparent_background
         self._width_percentage = width_percentage
         self._height_percentage = height_percentage
+
+        self._container_widget = None
+        self._close_btn = None
+        self._fill_color = None
+        self._pen_color = None
         self._event_filter_installed = False
 
-        # TODO: fix close button once style in place
-        self.close_btn = QtWidgets.QPushButton('cloase', parent=self)
-        # self.close_btn.setIcon(MaterialIcon('close', color='#D3d4D6'))
-        # self.close_btn.setObjectName('borderless')
-        # self.close_btn.setFixedSize(24, 24)
-        self.close_btn.clicked.connect(self.close)
+        self.build()
+        self.post_build()
 
-        self.widget = QtWidgets.QFrame(parent=self)
-        self.widget.setProperty('background', 'ftrack')
-        self.widget.setLayout(QtWidgets.QVBoxLayout())
-        self.widget.layout().setContentsMargins(1, 20, 1, 1)
-        self.widget.layout().addWidget(widget)
+    def build(self):
+        # Create a container widget to hold the widget to be overlaid.
+        self._container_widget = QtWidgets.QFrame(parent=self)
+        self._container_widget.setLayout(QtWidgets.QVBoxLayout())
+
+        h_layout = QtWidgets.QHBoxLayout()
+        h_layout.setContentsMargins(0, 0, 0, 0)
+        h_layout.addStretch()
+
+        self._close_btn = QtWidgets.QPushButton(
+            '', parent=self._container_widget
+        )
+        self._close_btn.setIcon(MaterialIcon('close', color='#D3D4D6'))
+        self._close_btn.setObjectName('borderless')
+        self._close_btn.setFixedSize(24, 24)
+
+        h_layout.addWidget(self._close_btn)
+
+        self._container_widget.layout().addLayout(h_layout)
+
+        self._container_widget.layout().addWidget(self._widget)
+        self._container_widget.setAutoFillBackground(False)
         if self._transparent_background:
-            widget.setAutoFillBackground(False)
-            widget.setStyleSheet('background: transparent;')
+            self._container_widget.setAutoFillBackground(False)
+            self._container_widget.setStyleSheet('background: transparent;')
         else:
-            widget.setProperty('background', 'ftrack')
+            self._container_widget.setAutoFillBackground(True)
+            self._container_widget.setStyleSheet('background: #1A2027;')
 
-        self.fill_color = QtGui.QColor(26, 32, 39, 200)
-        self.pen_color = QtGui.QColor("#1A2027")
+        self._fill_color = QtGui.QColor(26, 32, 39, 150)
+        self._pen_color = QtGui.QColor("#1A2027")
+
+    def post_build(self):
+        self._close_btn.clicked.connect(self.close)
 
     def __del__(self):
         if self._event_filter_installed:
@@ -69,13 +95,13 @@ class OverlayWidget(QtWidgets.QFrame):
     def paintEvent(self, event):
         '''(Override)'''
         super(OverlayWidget, self).paintEvent(event)
-        # get current window size
-        size = self.size()
+        # Paint a transparent overlay over the parent widget.
+        size = self.size()  # get current window size
         painter = QtGui.QPainter()
         painter.begin(self)
         painter.setRenderHint(QtGui.QPainter.Antialiasing, True)
-        painter.setPen(self.pen_color)
-        painter.setBrush(self.fill_color)
+        painter.setPen(self._pen_color)
+        painter.setBrush(self._fill_color)
         painter.drawRect(0, 0, size.width(), size.height())
         painter.end()
 
@@ -87,19 +113,14 @@ class OverlayWidget(QtWidgets.QFrame):
         widget_height = size.height() * self._height_percentage
         widget_x = int((size.width() - widget_width) / 2)
         widget_y = 40  # int(size.height()/2-widget_height/2)
-        self.widget.resize(widget_width, widget_height)
-        self.widget.move(widget_x, widget_y)
-        # Move the close button to the desired position
-        self.close_btn.move(widget_x + widget_width - 22, widget_y)
+        self._container_widget.resize(widget_width, widget_height)
+        self._container_widget.move(widget_x, widget_y)
 
     def setVisible(self, visible):
         '''(Override) Set whether *visible* or not.'''
-        # TODO: double check how we identify the class name, find a better
-        #  solution and more standard, as now is only fining base name wich is
-        #  the framework base class name. But I think why should find the top
-        #  level widget by type and not by name, and that type should be given
-        #  in the overlay initialization maybe.
-        main_window = get_main_window_from_widget(self.widget, 'base')
+        main_window = get_framework_main_dialog(self._container_widget)
+        if not main_window:
+            main_window = get_main_window_from_widget(self)
         if visible:
             if not self._event_filter_installed:
                 # Install global event filter that will deal with matching parent size

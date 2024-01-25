@@ -5,32 +5,35 @@ import shiboken2
 
 from Qt import QtWidgets, QtCore, QtGui
 
-# TODO: check this utilities if they are really needed.
+from ftrack_utils.framework.config.tool import get_plugins
 
 
-def find_parent(widget, class_name):
-    '''Recursively find upstream widget having class name
-    containing *class_name*'''
-    parent_widget = widget.parentWidget()
-    if not parent_widget:
-        return
-    if parent_widget.__class__.__name__.find(class_name) > -1:
-        return parent_widget
-    return find_parent(parent_widget, class_name)
+def check_framework_dialog_bases(cls):
+    '''Recursively check the base classes for FrameworkDialog.'''
+    for base in cls.__bases__:
+        if base.__name__ == 'FrameworkDialog':
+            return base
+        if check_framework_dialog_bases(base):
+            return base
+    return False
 
 
-def get_main_window_from_widget(widget, class_name):
-    '''This function will return the main window of the framework from the
-    given *widget*. The main window is named as main_framework_widget'''
-    main_window = widget.window()
-    if not main_window:
-        return
-    # Locate the topmost widget
-    parent = find_parent(widget.parentWidget(), class_name)
-    if parent:
-        main_window = parent
+def get_main_window_from_widget(widget):
+    '''Return the main window from the given widget.'''
+    return widget.window()
 
-    return main_window
+
+def get_framework_main_dialog(widget):
+    '''Return the main Framework dialog from the given widget.'''
+    main_dialog = None
+    while not main_dialog:
+        widget = widget.parentWidget()
+        if not widget:
+            break
+        if check_framework_dialog_bases(widget.__class__):
+            main_dialog = widget
+
+    return main_dialog
 
 
 def set_property(widget, name, value):
@@ -88,3 +91,22 @@ class InputEventBlockingWidget(QtWidgets.QWidget):
         if self._blocker() and (isinstance(event, QtGui.QInputEvent)):
             retval = True
         return retval
+
+
+def build_progress_data(tool_config):
+    '''Build progress data from *tool_config*'''
+    progress_data = []
+    for plugin_config in get_plugins(tool_config, with_parents=True):
+        phase_data = {
+            'id': plugin_config['reference'],
+            'label': plugin_config['plugin'].replace('_', ' ').title(),
+        }
+        tags = plugin_config.get('tags') or []
+        for group in plugin_config.get('parents') or []:
+            if 'options' in group:
+                tags.extend(list(group['options'].values()))
+            if 'tags' in group:
+                tags.extend(group['tags'])
+        phase_data['tags'] = reversed(tags)
+        progress_data.append(phase_data)
+    return progress_data

@@ -5,7 +5,10 @@ from Qt import QtWidgets, QtCore
 
 from ftrack_qt.widgets.overlay import OverlayWidget
 from ftrack_qt.widgets.lines import LineWidget
-from ftrack_qt.utils.widget import get_main_window_from_widget
+from ftrack_qt.utils.widget import (
+    get_main_window_from_widget,
+    get_framework_main_dialog,
+)
 
 
 class OptionsButton(QtWidgets.QPushButton):
@@ -62,9 +65,7 @@ class OptionsButton(QtWidgets.QPushButton):
 
         self._main_widget.layout().addWidget(scroll)
         self._overlay_container = OverlayWidget(
-            self._main_widget,
-            height_percentage=0.9,
-            transparent_background=False,
+            self._main_widget, height_percentage=0.9
         )
         self._overlay_container.setVisible(False)
 
@@ -72,9 +73,11 @@ class OptionsButton(QtWidgets.QPushButton):
         self.clicked.connect(self.on_click_callback)
 
     def on_click_callback(self):
-        # TODO: review this, isn't overly widget already checking for the main window??
         '''Callback on clicking the options button, show the publish options overlay'''
-        main_window = get_main_window_from_widget(self, 'base')
+        # Check first if widget is running on a ftrack framework dialog
+        main_window = get_framework_main_dialog(self)
+        if not main_window:
+            main_window = get_main_window_from_widget(self)
         if main_window:
             self._overlay_container.setParent(main_window)
         self._overlay_container.setVisible(True)

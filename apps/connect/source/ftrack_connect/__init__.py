@@ -4,8 +4,21 @@
 import os
 import logging
 import qtawesome as qta
-import darkdetect
-from ._version import __version__
+
+# Evaluate version and log package version
+try:
+    from ftrack_utils.version import get_version
+
+    __version__ = get_version(
+        os.path.basename(os.path.dirname(__file__)),
+        os.path.dirname(os.path.dirname(os.path.dirname(__file__))),
+    )
+except Exception:
+    import traceback
+
+    print(traceback.format_exc())
+    __version__ = "0.0.0"
+
 
 logger = logging.getLogger(__name__)
 
@@ -14,10 +27,8 @@ _resource = {"loaded": False}
 
 def load_icons(font_folder):
     font_folder = os.path.abspath(font_folder)
-    logger.info(
-        f'loading ftrack icon fonts from {font_folder} : resource already loaded {_resource["loaded"]}'
-    )
     if not _resource['loaded']:
+        logger.info(f'loading ftrack icon fonts from {font_folder}')
         qta.load_font(
             'ftrack',
             'ftrack-icon.ttf',

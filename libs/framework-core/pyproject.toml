@@ -7,7 +7,7 @@ readme = "README.md"
 packages = [{include = "ftrack_framework_core", from = "source"}]
 license = "Apache-2.0"
 homepage = "https://ftrack.com"
-repository = "https://github.com/ftrackhq/integrations"
+repository = "https://github.com/ftrackhq/integrations/projects/rv"
 
 [[tool.poetry.source]]
 name = "testpypi"
@@ -20,39 +20,23 @@ requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.poetry.dependencies]
-python = ">= 3.7, < 3.8"
-ftrack-python-api = ">= 1, < 3"
+python = ">= 3.7, < 3.12"
+ftrack-python-api = "^2.5.4"
 six = ">= 1, < 2"
-appdirs = "*"
-jsonschema = "= 2.6.0" # This is needed for python_jsonschema_objects
-python_jsonschema_objects = "<= 0.3.12"
-# Keep importlib-metadata it low, otherwise python_jsonschema_objects
-# build on python 3.7.12 will not work on maya 2022
-importlib-metadata = "<5.0"
+platformdirs = "^4.0.0"
+pyyaml = "^6.0.1"
 #ftrack
-ftrack-constants= { version = "2.0.0rc1", optional = true }
-ftrack-utils = { version = "2.0.0rc1", optional = true }
-# framework dependencies
-ftrack-framework-engine = { version = "2.0.0rc1", optional = true }
-ftrack-framework-plugin = { version = "2.0.0rc1", optional = true }
-ftrack-framework-widget = { version = "2.0.0rc1", optional = true }
+ftrack-constants= { version = "> 1, < 3", optional = true }
+ftrack-utils = { version = "> 1, < 3", optional = true }
 
 [tool.poetry.extras]
 ftrack-libs = ["ftrack-constants", "ftrack-utils"]
-framework-libs = ["ftrack-framework-engine", "ftrack-framework-plugin", "ftrack-framework-widget"]
 
 [tool.poetry.group.documentation]
 optional = true
 
 [tool.poetry.group.documentation.dependencies]
 markdown = "<=3.2.2"
-
-[tool.poetry.group.test]
-optional = true
-
-[tool.poetry.group.test.dependencies]
-pytest = "^2.3.5"
-mock = "*"
 
 [tool.black]
 line-length = 79

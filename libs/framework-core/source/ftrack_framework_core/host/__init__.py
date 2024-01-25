@@ -3,22 +3,16 @@
 
 import uuid
 import logging
-import socket
 import os
-import time
 
 from functools import partial
 
-import ftrack_constants.framework as constants
-
-from ftrack_framework_core.tool_config import (
-    discover,
-    validate,
-    tool_config_object,
-)
-from ftrack_framework_core.asset import FtrackObjectManager
 from ftrack_framework_core.log.log_item import LogItem
 from ftrack_framework_core.log import LogDB
+from ftrack_utils.framework.config.tool import get_plugins
+from ftrack_framework_core.exceptions.engine import EngineExecutionError
+
+from ftrack_utils.decorators import with_new_session
 
 logger = logging.getLogger(__name__)
 
@@ -27,9 +21,7 @@ logger = logging.getLogger(__name__)
 #  2. Rename it to discover_host_reply_callback or similar?
 
 
-def provide_host_information(
-    host_id, host_name, context_id, tool_configs, event
-):
+def provide_host_information(host_id, context_id, tool_configs, event):
     '''
     Returns dictionary with host id, host name, context id and tool_config from
     the given *id*, *tool_configs* and *name*.
@@ -43,7 +35,6 @@ def provide_host_information(
     logger.debug('providing id: {}'.format(id))
     host_dict = {
         'host_id': host_id,
-        'host_name': host_name,
         'context_id': context_id,
         'tool_configs': tool_configs,
     }
@@ -54,14 +45,7 @@ def provide_host_information(
 
 
 class Host(object):
-    # TODO: double_check host types and host type do we really need it?
-    #  Maybe what we need is tool_configs type? to specify which tool_configs we
-    #  want to discover?
-    host_types = [constants.host.PYTHON_HOST_TYPE]
-    '''Compatible Host types for this HOST.'''
-
-    FtrackObjectManager = FtrackObjectManager
-    '''FtrackObjectManager class to use'''
+    '''Base class to represent a Host of the framework'''
 
     def __repr__(self):
         return '<Host:{0}>'.format(self.id)
@@ -78,20 +62,6 @@ class Host(object):
         Returns instance of :class:`ftrack_api.session.Session`
         '''
         return self._event_manager.session
-
-    @property
-    def ftrack_object_manager(self):
-        '''
-        Initializes and returns an instance of
-        :class:`~ftrack_framework_core.asset.FtrackObjectManager`
-        '''
-        if not isinstance(
-            self._ftrack_object_manager, self.FtrackObjectManager
-        ):
-            self._ftrack_object_manager = self.FtrackObjectManager(
-                self.event_manager
-            )
-        return self._ftrack_object_manager
 
     @property
     def context_id(self):
@@ -119,12 +89,11 @@ class Host(object):
         )
         # Need to unsubscribe to make sure we subscribe again with the new
         # context
-        self.session.event_hub.unsubscribe(self._discover_host_subscribe_id)
+        self.event_manager.unsubscribe(self._discover_host_subscribe_id)
         # Reply to discover_host_callback to clients to pass the host information
         discover_host_callback_reply = partial(
             provide_host_information,
             self.id,
-            self.name,
             self.context_id,
             self.tool_configs,
         )
@@ -143,15 +112,6 @@ class Host(object):
         return self._id
 
     @property
-    def name(self):
-        '''Returns the current host name'''
-        if not self.id:
-            return
-        host_types = self.id.split("-")[0]
-        name = '{}-{}'.format(host_types, socket.gethostname())
-        return name
-
-    @property
     def logs(self):
         '''Returns the current logs'''
         if not self._logs:
@@ -159,47 +119,37 @@ class Host(object):
         return self._logs
 
     @property
-    def schemas(self):
-        '''
-        Returns the registered schemas`
-        '''
-        return self.__schemas_discovered
-
-    @property
     def tool_configs(self):
         '''
-        Returns the registered tool_configs`
+        Returns filtered tool_configs`
         '''
-        return self.__tool_configs_discovered
+        compatible_tool_configs = {}
+        for tool_config in self.registry.tool_configs:
+            content = tool_config['extension']
+            if content['config_type'] not in compatible_tool_configs.keys():
+                compatible_tool_configs[content['config_type']] = []
+            compatible_tool_configs[content['config_type']].append(content)
+
+        return compatible_tool_configs
 
     @property
-    def plugins(self):
-        '''
-        Returns the registered plugins`
-        '''
-        return self.__plugins_discovered
-
-    @property
-    def engines(self):
-        '''
-        Returns the registered engines`
-        '''
-        return self.__engines_discovered
-
-    # TODO: we can create an engine registry
+    def registry(self):
+        '''Return registry object'''
+        return self._registry
 
     def __init__(self, event_manager, registry):
         '''
         Initialise Host with instance of
-        :class:`~ftrack_framework_core.event.EventManager`
+        :class:`~ftrack_framework_core.event.EventManager` and extensions *registry*
         '''
         super(Host, self).__init__()
 
         self.logger = logging.getLogger(
             __name__ + '.' + self.__class__.__name__
         )
+
         # Create the host id
-        self._id = '{}-{}'.format('.'.join(self.host_types), uuid.uuid4().hex)
+        self._id = uuid.uuid4().hex
 
         self.logger.debug('Initializing Host {}'.format(self))
 
@@ -207,197 +157,28 @@ class Host(object):
         self._logs = None
         # Set event manager and object manager
         self._event_manager = event_manager
-        self._ftrack_object_manager = None
-        # Reset all registries
-        self.__tool_configs_discovered = {}
-        self.__schemas_discovered = {}
-        self.__plugins_discovered = []
-        self.__engines_discovered = {}
+        self._registry = registry
+
         self._discover_host_subscribe_id = None
 
-        # Register modules
-        self._register_modules(registry)
         # Subscribe to events
         self._subscribe_events()
 
         self.logger.debug('Host {} ready.'.format(self.id))
 
-    # Register
-    def _register_modules(self, registry):
-        '''
-        Register available framework modules.
-        '''
-        # Discover plugin modules
-        self.discover_plugins(registry.plugins)
-        # Discover schema modules
-        self.discover_schemas(registry.schemas)
-        if not self.schemas:
-            raise Exception(
-                'No schemas found. Please register valid schemas first.'
-            )
-        # Discover tool-config modules
-        self.discover_tool_configs(registry.tool_configs, self.schemas)
-        # Discover engine modules
-        self.discover_engines(registry.engines)
-
-        if (
-            self.__plugins_discovered
-            and self.__schemas_discovered
-            and self.__tool_configs_discovered
-            and self.__engines_discovered
-        ):
-            # Check that registry went correct
-            return True
-        raise Exception('Error registering modules on host, please check logs')
-
-    def discover_plugins(self, registered_plugins):
-        '''
-        Initialize all plugins given in the *registered_plugins* and add the
-        initialized plugins into our
-        :obj:`self.__plugins_discovered`
-        '''
-        registered_plugins = list(set(registered_plugins))
-
-        initialized_plugins = []
-        # Init plugins
-        for plugin in registered_plugins:
-            initialized_plugins.append(
-                plugin(self.event_manager, self.id, self.ftrack_object_manager)
-            )
-
-        self.__plugins_discovered = initialized_plugins
-
-    def discover_schemas(self, registered_schemas):
-        '''
-        We will discover valid schemas from all given *schema_paths* and convert
-        them to schemaObject. Valid schemas will be added to
-        :obj:`self.__schemas_discovered`
-        '''
-        schema_paths = list(set(registered_schemas))
-
-        schemas = self._discover_schemas(schema_paths)
-
-        self.__schemas_discovered = schemas
-
-    def discover_tool_configs(self, registered_tool_configs, schemas):
-        '''
-        We will discover valid tool_configs from all given
-        *registered_tool_configs* based on the given *schemas* and will convert
-        the valid ones to aToolConfigObject. Valid tool_configs will be added to
-        :obj:`self.__tool_config_registry`
-        '''
-        tool_config_paths = list(set(registered_tool_configs))
-
-        tool_configs = self._discover_tool_configs(
-            tool_config_paths, self.host_types, schemas
-        )
-
-        self.__tool_configs_discovered = tool_configs
-
-    def discover_engines(self, registered_engines):
-        ''' '
-        Initialize all engines given in the *registered_engines* and add the
-        initialized engines into our
-        :obj:`self.__engines_discovered`
-        '''
-        registred_engines = list(set(registered_engines))
-        # Init engines
-        for engine in registred_engines:
-            initialized_enigne = engine(
-                self.event_manager,
-                self.ftrack_object_manager,
-                self.host_types,
-                self.id,
-            )
-            for engine_type in initialized_enigne.engine_types:
-                if engine_type not in list(self.__engines_discovered.keys()):
-                    self.__engines_discovered[engine_type] = {}
-                self.__engines_discovered[engine_type].update(
-                    {initialized_enigne.name: initialized_enigne}
-                )
-
-        for key, value in list(self.__engines_discovered.items()):
-            self.logger.warning(
-                'Valid engines : {} : {}'.format(key, len(value))
-            )
-
-    # Discover
-    def _discover_schemas(self, schema_paths):
-        '''
-        Discover all available and calid schemas in the given *schema_paths*
-        '''
-        start = time.time()
-
-        # discover schemas
-        discovered_schemas = discover.discover_schemas(schema_paths)
-
-        # resolve schemas
-        valid_schemas = discover.resolve_schemas(discovered_schemas)
-
-        end = time.time()
-        logger.debug('Discover schemas run in: {}s'.format((end - start)))
-
-        return valid_schemas
-
-    def _discover_tool_configs(self, tool_config_paths, host_types, schemas):
-        '''
-        Discover all the available and valid tool_configs in the given
-        *tool_config_paths* compatible with the given *host_types* and given
-        *schemas*
-        '''
-        start = time.time()
-
-        # discover tool_configs
-        discovered_tool_configs = discover.discover_tool_configs(
-            tool_config_paths
-        )
-
-        # filter tool_configs
-        discovered_tool_configs = discover.filter_tool_configs_by_host(
-            discovered_tool_configs, host_types
-        )
-
-        # validate schemas
-        discovered_tool_configs = discover.augment_tool_config(
-            discovered_tool_configs, schemas
-        )
-
-        # validate_plugins
-        registred_plugin_names = [plugin.name for plugin in self.plugins]
-        validated_tool_configs = validate.validate_tool_config_plugins(
-            discovered_tool_configs, registred_plugin_names
-        )
-
-        end = time.time()
-        logger.debug('Discover tool_configs run in: {}s'.format((end - start)))
-
-        for key, value in list(validated_tool_configs.items()):
-            logger.warning(
-                'Valid tool_configs : {} : {}'.format(key, len(value))
-            )
-
-        return validated_tool_configs
-
     # Subscribe
     def _subscribe_events(self):
         '''Host subscription events to communicate with the client'''
-        # Subscribe to topic
-        # :const:`~ftrack_framework_core.constants.NOTIFY_PLUGIN_PROGRESS_TOPIC`
-        # to receive client notifications from the host in :meth:`_notify_client_callback`
-        self.event_manager.subscribe.notify_plugin_progress_client(
-            self.id, self._notify_plugin_progress_client_callback
-        )
 
         # Listen to context change events for this host and its connected clients
         self.event_manager.subscribe.client_context_changed(
             self.id, self._client_context_change_callback
         )
 
-        # Reply to discover_host_callback to clints to pass the host information
+        # Reply to discover_host_callback to client to pass the host information
         discover_host_callback_reply = partial(
             provide_host_information,
             self.id,
-            self.name,
             self.context_id,
             self.tool_configs,
         )
@@ -410,25 +191,16 @@ class Host(object):
         self.event_manager.subscribe.host_run_tool_config(
             self.id, self.run_tool_config_callback
         )
-        # Subscribe to run plugin
-        self.event_manager.subscribe.host_run_plugin(
-            self.id, self.run_plugin_callback
+
+        # Subscribe to run ui hook
+        self.event_manager.subscribe.host_run_ui_hook(
+            self.id, self.run_ui_hook_callback
         )
 
-    def _notify_plugin_progress_client_callback(self, event):
-        '''
-        Callback of the
-        :const:`~ftrack_framework_core.constants.NOTIFY_PLUGIN_PROGRESS_TOPIC`
-         event. Stores a log item in host pipeline log DB.
-
-        *event*: :class:`ftrack_api.event.base.Event`
-        '''
-        # Get the plugin info dictionary and add it to the logDB
-        plugin_info = event['data']
-        log_item = LogItem(plugin_info)
-        self.logs.add_log_item(log_item)
-        # Publish the event to notify client
-        self.event_manager.publish.host_log_item_added(self.id, log_item)
+        # Subscribe to run ui hook
+        self.event_manager.subscribe.host_verify_plugins(
+            self.id, self._verify_plugins_callback
+        )
 
     def _client_context_change_callback(self, event):
         '''Callback when the client has changed context'''
@@ -437,8 +209,8 @@ class Host(object):
             self.context_id = context_id
 
     # Run
-    # TODO: this should be ABC
-    def run_tool_config_callback(self, event):
+    @with_new_session
+    def run_tool_config_callback(self, event, session=None):
         '''
         Runs the data with the defined engine type of the given *event*
 
@@ -448,93 +220,160 @@ class Host(object):
         :meth:`~ftrack_framework_core.client.HostConnection.run`
         '''
 
-        tool_config = event['data']['tool_config']
-        engine_type = tool_config['engine_type']
-        engine_name = tool_config['engine_name']
-        # TODO: Double check the asset_type_name workflow, it isn't clean.
-        # TODO: pick asset type from context plugin and not from tool_config
-        asset_type_name = "script"  # tool_config.get('asset_type')
+        tool_config_reference = event['data']['tool_config_reference']
+        client_options = event['data']['client_options']
 
-        engine = None
-        try:
-            engine = self.engines[engine_type].get(engine_name)
-        except Exception:
+        for typed_configs in self.tool_configs.values():
+            tool_config = None
+            for _tool_config in typed_configs:
+                if _tool_config['reference'] == tool_config_reference:
+                    tool_config = _tool_config
+                    break
+            if tool_config:
+                break
+        else:
             raise Exception(
-                'No engine of type "{}" with name "{}" found'.format(
-                    engine_type, engine_name
+                'Given tool config reference {} not found on registered '
+                'tool_configs. \n {}'.format(
+                    tool_config_reference, self.tool_configs
                 )
             )
-        # TODO: review asset_type_name in the specific task
-        engine.asset_type_name = asset_type_name
+        engine_name = tool_config.get('engine_name', 'standard_engine')
 
         try:
-            validate.validate_tool_config(self.schemas, tool_config)
+            engine_registry = self.registry.get_one(
+                name=engine_name, extension_type='engine'
+            )
+            engine_instance = engine_registry['extension'](
+                self.registry,
+                session,
+                on_plugin_executed=self.on_plugin_executed_callback,
+            )
+        except Exception:
+            raise Exception(
+                'No engine with name "{}" found'.format(engine_name)
+            )
+
+        try:
+            engine_instance.execute_engine(
+                tool_config['engine'], client_options
+            )
+
+        except EngineExecutionError as error:
+            self.logger.exception(error)
+        except Exception as error:
+            self.logger.exception(
+                f'Un-handled error appear when executing engine: '
+                f'{tool_config["engine"]} from {engine_name}.'
+                f'\n Error: {error}'
+            )
+
+    def on_plugin_executed_callback(self, plugin_info):
+        log_item = LogItem(plugin_info)
+        self.logs.add_log_item(self.id, log_item)
+        # Publish the event to notify client
+        self.event_manager.publish.host_log_item_added(self.id, log_item)
+
+    @with_new_session
+    def run_ui_hook_callback(self, event, session=None):
+        '''
+        Runs the data with the defined engine type of the given *event*
+
+        Returns result of the engine run.
+
+        *event* : Published from the client host connection at
+        :meth:`~ftrack_framework_core.client.HostConnection.run`
+        '''
+
+        tool_config_reference = event['data']['tool_config_reference']
+        plugin_reference = event['data']['plugin_config_reference']
+        client_options = event['data']['client_options']
+        payload = event['data']['payload']
+
+        for typed_configs in self.tool_configs.values():
+            tool_config = None
+            for _tool_config in typed_configs:
+                if _tool_config['reference'] == tool_config_reference:
+                    tool_config = _tool_config
+                    break
+            if tool_config:
+                break
+        else:
+            raise Exception(
+                'Given tool config reference {} not found on registered '
+                'tool_configs. \n {}'.format(
+                    tool_config_reference, self.tool_configs
+                )
+            )
+
+        engine_name = tool_config.get('engine_name', 'standard_engine')
+
+        try:
+            engine_registry = self.registry.get_one(
+                name=engine_name, extension_type='engine'
+            )
+            engine_instance = engine_registry['extension'](
+                self.registry,
+                session,
+                on_plugin_executed=partial(
+                    self.on_ui_hook_executed_callback, plugin_reference
+                ),
+            )
+        except Exception:
+            raise Exception(
+                'No engine with name "{}" found'.format(engine_name)
+            )
+
+        try:
+            plugin_config = get_plugins(
+                tool_config, filters={'reference': plugin_reference}
+            )[0]
+        except Exception:
+            raise Exception(
+                'Given plugin config reference {} not found on the '
+                'tool_config {}'.format(plugin_reference, tool_config)
+            )
+
+        try:
+            engine_result = engine_instance.run_ui_hook(
+                plugin_config['plugin'],
+                payload,
+                client_options,
+                reference=plugin_reference,
+            )
+
         except Exception as error:
             raise Exception(
-                "Can't validate tool_config {} error: {}".format(
-                    tool_config, error
-                )
-            )
-        engine_result = engine.run_tool_config(
-            tool_config_object.ToolConfigObject(tool_config)
-        )
-
-        if not engine_result:
-            self.logger.error(
-                "Couldn't run tool_config {}".format(tool_config)
-            )
-        return engine_result
-
-    # TODO: this should be ABC
-    def run_plugin_callback(self, event):
-        '''
-        Runs the plugin_config in the given *event* with the engine type
-        set in the *event*
-        '''
-
-        plugin_config = event['data']['plugin_config']
-        plugin_method = event['data']['plugin_method']
-        engine_type = event['data']['engine_type']
-        engine_name = event['data']['engine_name']
-        plugin_widget_id = event['data']['plugin_widget_id']
-
-        engine = None
-        try:
-            engine = self.engines[engine_type].get(engine_name)
-        except Exception:
-            raise Exception(
-                'No engine of type "{}" with name "{}" found'.format(
-                    engine_type, engine_name
-                )
-            )
-        # TODO: review asset_type_name in the specific task
-        engine.asset_type_name = None
-
-        engine_result = engine.run_plugin(
-            plugin_name=plugin_config.get('plugin_name'),
-            plugin_default_method=plugin_config.get('default_method'),
-            # plugin_data will usually be None, but can be defined in the
-            # tool_config
-            # I have registered data in the publisher schema
-            plugin_data=plugin_config.get('data'),
-            plugin_options=plugin_config.get('options'),
-            # plugin_context_data will usually be None, but can be defined in the
-            # tool_config
-            # I have registered context_data in the schema
-            plugin_context_data=plugin_config.get('context_data'),
-            plugin_method=plugin_method,
-            plugin_widget_id=plugin_widget_id,
-            plugin_widget_name=plugin_config.get('widget_name'),
-        )
-
-        if not engine_result:
-            self.logger.error(
-                "Couldn't run plugin:\n "
-                "Tool config: {}\n"
-                "Method: {}\n"
-                "Engine type: {}\n"
-                "Engine name: {}\n".format(
-                    plugin_config, plugin_method, engine_type, engine_name
+                'Error appear when executing engine: {} from {}.'
+                '\n Error: {}'.format(
+                    tool_config['engine'], engine_name, error
                 )
             )
         return engine_result
+
+    def on_ui_hook_executed_callback(self, plugin_reference, ui_hook_result):
+        self.event_manager.publish.host_run_ui_hook_result(
+            self.id, plugin_reference, ui_hook_result
+        )
+
+    def _verify_plugins_callback(self, event):
+        '''
+        Call the verify_plugins and return the result to the client.
+        '''
+        plugin_names = event['data']['plugin_names']
+        return self.verify_plugins(plugin_names)
+
+    def verify_plugins(self, plugin_names):
+        '''
+        Verify the given *plugin_names* are registered in the registry.
+        '''
+        unregistered_plugins = []
+        for plugin_name in plugin_names:
+            if not self.registry.get(plugin_name, extension_type='plugin'):
+                unregistered_plugins.append(plugin_name)
+        if unregistered_plugins:
+            self.logger.error(
+                f'Plugins not registered, please make sure they are in the '
+                f'correct extensions path: {unregistered_plugins}'
+            )
+        return unregistered_plugins

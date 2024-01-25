@@ -1,0 +1,95 @@
+type: tool_config
+name: photoshop-document-publisher
+config_type: publisher
+engine:
+  - type: plugin
+    tags:
+      - context
+    plugin: store_asset_context
+    options:
+      asset_type_name: scene
+    ui: publisher_asset_version_selector
+
+  # Export the snapshot component.
+  - type: group
+    tags:
+      - component
+    options:
+      component: snapshot
+    plugins:
+      - type: plugin
+        plugin: store_component
+      - type: plugin
+        tags:
+          - collector
+        plugin: document_collector
+      - type: plugin
+        tags:
+          - validator
+        plugin: document_validator
+      - type: plugin
+        tags:
+          - exporter
+        plugin: document_exporter
+
+  # Export the image component.
+  - type: group
+    tags:
+      - component
+    options:
+      component: image
+    optional: true
+    enabled: true
+    plugins:
+      - type: plugin
+        plugin: store_component
+      - type: plugin
+        tags:
+          - collector
+        plugin: document_collector
+      - type: plugin
+        tags:
+          - exporter
+        options:
+          extension: .jpg
+          extensions:
+            - .bmp
+            - .eps
+            - .gif
+            - .jpg
+            - .pdf
+            - .png
+            - .tif
+        plugin: image_exporter
+        ui: image_options
+
+  # Export the reviewable component.
+  - type: group
+    tags:
+      - component
+    options:
+      component: reviewable
+    optional: true
+    # enabled means that by default the optional checkbox will be checked
+    enabled: true
+    plugins:
+      - type: plugin
+        plugin: store_component
+      - type: plugin
+        tags:
+          - collector
+        plugin: document_collector
+      - type: plugin
+        tags:
+          - exporter
+        options:
+          extension: .jpg
+          extensions:
+            - .jpg
+            - .png
+            - .gif
+        plugin: image_exporter
+        ui: image_options
+
+  # Publish to ftrack.
+  - publish_to_ftrack

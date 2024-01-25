@@ -4,7 +4,7 @@
 import logging
 import copy
 
-from ftrack_framework_core.tool_config import tool_config_object
+from ftrack_utils.framework.config.tool import get_tool_config_by_name
 
 
 class HostConnection(object):
@@ -47,11 +47,6 @@ class HostConnection(object):
     def host_id(self):
         '''Returns the current host id.'''
         return self._raw_host_data['host_id']
-
-    @property
-    def host_name(self):
-        '''Returns the current host name.'''
-        return self._raw_host_data['host_name']
 
     @property
     def context_identifiers(self):
@@ -182,9 +177,7 @@ class HostConnection(object):
                     type_result.append(tool_config)
 
             # Convert the result to tool_config List
-            result[schema_title] = tool_config_object.Tool_configList(
-                type_result
-            )
+            result[schema_title] = type_result
         return copy.deepcopy(result)
 
     def _add_new_tool_configs(self):
@@ -201,82 +194,43 @@ class HostConnection(object):
             self._tool_configs = self._available_filtered_host_tool_configs
             return
 
-        for schema_title in list(
+        for config_type in list(
             self._available_filtered_host_tool_configs.keys()
         ):
             # Add new tool_configs
             for tool_config in self._available_filtered_host_tool_configs[
-                schema_title
+                config_type
             ]:
-                if schema_title not in list(self._tool_configs.keys()):
-                    # No schemas of that type exists in the current tool_configs,
+                if config_type not in list(self._tool_configs.keys()):
+                    # No config_type of that type exists in the current tool_configs,
                     # copy them all
                     self._tool_configs[
-                        schema_title
-                    ] = self._available_filtered_host_tool_configs[
-                        schema_title
-                    ]
+                        config_type
+                    ] = self._available_filtered_host_tool_configs[config_type]
                     break
-                exist = self._tool_configs[schema_title].get_first(
-                    tool_title=tool_config.tool_title
+                # If the new one is not in the current names, add it.
+                exist = get_tool_config_by_name(
+                    self._tool_configs[config_type], tool_config['name']
                 )
                 if not exist:
-                    self._tool_configs[schema_title].append(tool_config)
+                    self._tool_configs[config_type].append(tool_config)
 
-        for schema_title in list(self._tool_configs.keys()):
+        for config_type in list(self._tool_configs.keys()):
             # Purge not available tool_configs
-            for tool_config in self._tool_configs.get(schema_title, []):
-                if schema_title not in list(
+            for tool_config in self._tool_configs.get(config_type, []):
+                if config_type not in list(
                     self._available_filtered_host_tool_configs.keys()
                 ):
-                    # No schemas of that type exists in the available tool_configs,
-                    # remove them all
-                    self._tool_configs[
-                        schema_title
-                    ] = tool_config_object.Tool_configList([])
+                    # No tool-configs of that type exists in the available
+                    # tool_configs, remove them all
+                    self._tool_configs[config_type] = []
                     break
-                exist = self._available_filtered_host_tool_configs[
-                    schema_title
-                ].get_first(tool_title=tool_config.tool_title)
+                exist = get_tool_config_by_name(
+                    self._available_filtered_host_tool_configs[config_type],
+                    tool_config['name'],
+                )
                 if not exist:
-                    self._tool_configs[schema_title].remove(tool_config)
-
-    def reset_tool_config(self, tool_config_name, tool_config_type):
-        '''
-        If tool_config of the given *tool_config_type* and with the given
-        *tool_config_name* is found, set the original values to it
-        '''
-        # Get the current tool_config
-        mod_tool_config = self._tool_configs[tool_config_type].get_first(
-            tool_title=tool_config_name
-        )
-        # Get the original tool_config
-        origin_tool_config = self._raw_host_data['tool_configs'][
-            tool_config_type
-        ].get_first(tool_title=tool_config_name)
-        if not mod_tool_config:
-            self.logger.warning(
-                'Host connection doesnt have a matching tool_config of type: {} '
-                'and name: {} in the tool_configs property.'.format(
-                    tool_config_type, tool_config_name
-                )
-            )
-        if not origin_tool_config:
-            self.logger.warning(
-                'Host connection doesnt have a matching tool_config of type: {} '
-                'and name: {} in the available tool_configs'.format(
-                    tool_config_type, tool_config_name
-                )
-            )
-        # Set the current tool_config = to the original one
-        if mod_tool_config and origin_tool_config:
-            # Get the index first to be able to re-set the original tool_config
-            # in to the same position in the list
-            index = self._tool_configs[tool_config_type].index(mod_tool_config)
-            self._tool_configs[tool_config_type].pop(index)
-            self._tool_configs[tool_config_type].insert(
-                index, copy.deepcopy(origin_tool_config)
-            )
+                    self._tool_configs[config_type].remove(tool_config)
 
     def reset_all_tool_configs(self):
         '''Reset all tool_configs to its original values sent from host'''

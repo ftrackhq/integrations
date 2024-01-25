@@ -17,24 +17,16 @@ DISCOVER_HOST_TOPIC = '{}.host.discover.host'.format(_BASE_)
 #: Pipeline host run plugin topic event, used to communicate between client and
 #: host, by the host connection to make the host run the plugin.
 HOST_RUN_TOOL_CONFIG_TOPIC = '{}.host.run.tool_config'.format(_BASE_)
-#: Run plugin topic event used to tell host from the client to run plugin.
-HOST_RUN_PLUGIN_TOPIC = '{}.host.run.plugin'.format(_BASE_)
-#: Execute plugin topic event used from the engine to tell the plugin to run.
-EXECUTE_PLUGIN_TOPIC = '{}.execute.plugin'.format(_BASE_)
-#: Plugin progres notification topic event, used to communicate the result of
-#: the plugin execution from the plugin to the host.
-NOTIFY_PLUGIN_PROGRESS_TOPIC = '{}.notify.plugin.progress'.format(_BASE_)
-#: Pipeline client progress notification topic event, used to communicate the result of
-#: the steps execution from host to the client.
-NOTIFY_TOOL_CONFIG_PROGRESS_TOPIC = '{}.notify.tool_config.progress'.format(
-    _BASE_
-)
+#: Run ui hook topic event used to tell host from the client to run the ui hook method of the plugin..
+HOST_RUN_UI_HOOK_TOPIC = '{}.host.run.ui_hook'.format(_BASE_)
 # The main host context has changed, sent from host or host connection (change context)
 HOST_CONTEXT_CHANGED_TOPIC = '{}.host.context.change'.format(_BASE_)
 # The host connection context has changed, sent from host connection to clients
 CLIENT_CONTEXT_CHANGED_TOPIC = '{}.client.context.change'.format(_BASE_)
 # Host has added a new log item
 HOST_LOG_ITEM_ADDED_TOPIC = '{}.host.log.added'.format(_BASE_)
+# Host has a new result from ui hook method.
+HOST_UI_HOOK_RESULT_TOPIC = '{}.host.ui_hook.result'.format(_BASE_)
 # Client signal context changed
 CLIENT_SIGNAL_CONTEXT_CHANGED_TOPIC = '{}.client.signal.context.change'.format(
     _BASE_
@@ -61,6 +53,12 @@ CLIENT_NOTIFY_RUN_TOOL_CONFIG_RESULT_TOPIC = (
 )
 # Client received log item result
 CLIENT_NOTIFY_LOG_ITEM_ADDED_TOPIC = '{}.client.notify.log_item'.format(_BASE_)
+# Client received ui_hook result
+CLIENT_NOTIFY_UI_HOOK_RESULT_TOPIC = '{}.client.notify.ui_hook_result'.format(
+    _BASE_
+)
+# Client wants to verify the plugins are registered in host
+HOST_VERIFY_PLUGINS_TOPIC = '{}.host.verify.plugins'.format(_BASE_)
 
 # Remote integration<>Python communication; Connection and alive check
 DISCOVER_REMOTE_INTEGRATION_TOPIC = "{}.discover.remote.integration".format(

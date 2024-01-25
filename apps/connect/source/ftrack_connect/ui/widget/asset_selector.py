@@ -3,7 +3,7 @@
 
 import logging
 
-import ftrack_connect.asynchronous
+from ftrack_utils.decorators import asynchronous
 from ftrack_connect.ui.widget import item_selector as _item_selector
 
 
@@ -23,7 +23,7 @@ class AssetSelector(_item_selector.ItemSelector):
             __name__ + '.' + self.__class__.__name__
         )
 
-    @ftrack_connect.asynchronous.asynchronous
+    @asynchronous
     def loadAssets(self, entity, selectAsset=None):
         '''Load assets for *entity* and set selector items.
 

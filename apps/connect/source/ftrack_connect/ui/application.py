@@ -10,22 +10,26 @@ import uuid
 import logging
 import weakref
 from operator import itemgetter
-import appdirs
+import platformdirs
 import time
 import urllib.request
 import zipfile
 import json
 import tempfile
-from ftrack_connect.qt import QtCore, QtWidgets, QtGui
 from functools import partial
 
 import qtawesome as qta
-from ftrack_connect import load_icons
 
 import ftrack_api
 import ftrack_api._centralized_storage_scenario
 import ftrack_api.event.base
-import ftrack_connect.usage
+
+from ftrack_utils.server.track_usage import send_usage_event
+from ftrack_utils.decorators import asynchronous
+
+from ftrack_connect.qt import QtCore, QtWidgets, QtGui
+
+from ftrack_connect import load_icons
 import ftrack_connect
 import ftrack_connect.event_hub_thread as _event_hub_thread
 import ftrack_connect.error
@@ -38,9 +42,8 @@ from ftrack_connect.ui.widget import login as _login
 from ftrack_connect.ui.widget import about as _about
 from ftrack_connect.ui import login_tools as _login_tools
 from ftrack_connect.ui.widget import configure_scenario as _scenario_widget
-from ftrack_connect import usage
 import ftrack_connect.ui.config
-from ftrack_connect.asynchronous import asynchronous
+from ftrack_connect.applaunch.discover_applications import DiscoverApplications
 
 
 class ConnectWidgetPlugin(object):
@@ -115,7 +118,9 @@ class WelcomePlugin(ConnectWidget):
     plugins_installed = QtCore.Signal()
     installing = QtCore.Signal()
     # local variables for finding and installing plugin manager.
-    install_path = appdirs.user_data_dir('ftrack-connect-plugins', 'ftrack')
+    install_path = platformdirs.user_data_dir(
+        'ftrack-connect-plugins', 'ftrack'
+    )
 
     json_config_url = os.environ.get(
         'FTRACK_CONNECT_JSON_PLUGINS_URL',
@@ -125,9 +130,7 @@ class WelcomePlugin(ConnectWidget):
     def download_plugins(self, source_paths):
         '''Download plugins from provided *source_paths* item.'''
         temp_paths = []
-        self.overlay.setMessage(
-            "Downloaded 0/{} plugins.".format(len(source_paths))
-        )
+        self.overlay.message = f"Downloaded 0/{len(source_paths)} plugins."
         i = 1
         for source_path in source_paths:
             zip_name = os.path.basename(source_path)
@@ -141,8 +144,8 @@ class WelcomePlugin(ConnectWidget):
                 with open(temp_path, 'wb') as out_file:
                     out_file.write(dl_file.read())
             temp_paths.append(temp_path)
-            self.overlay.setMessage(
-                "Downloaded {}/{} plugins.".format(i, len(source_paths))
+            self.overlay.message = (
+                f"Downloaded {i}/{len(source_paths)} plugins."
             )
             i += 1
         return temp_paths
@@ -176,13 +179,9 @@ class WelcomePlugin(ConnectWidget):
         '''Install provided *plugin_names*. If no plugin_names install all them'''
         self.installing.emit()
         plugins_path = self.discover_plugins(plugin_names)
-        self.overlay.setMessage(
-            "Discovered {} plugins.".format(len(plugins_path))
-        )
+        self.overlay.message = f"Discovered {len(plugins_path)} plugins."
         source_paths = self.download_plugins(plugins_path)
-        self.overlay.setMessage(
-            "Installed 0/{} plugins.".format(len(source_paths))
-        )
+        self.overlay.message = f"Installed 0/{len(source_paths)} plugins."
         i = 1
         for source_path in source_paths:
             plugin_name = os.path.basename(source_path).split('.zip')[0]
@@ -193,8 +192,8 @@ class WelcomePlugin(ConnectWidget):
 
             with zipfile.ZipFile(source_path, 'r') as zip_ref:
                 zip_ref.extractall(destination_path)
-            self.overlay.setMessage(
-                "Installed {}/{} plugins.".format(i, len(source_paths))
+            self.overlay.message = (
+                f"Installed {i}/{len(source_paths)} plugins."
             )
             i += 1
 
@@ -303,6 +302,8 @@ class Application(QtWidgets.QMainWindow):
     loginSignal = QtCore.Signal(object, object, object)
     loginSuccessSignal = QtCore.Signal()
 
+    _builtin_plugins = []
+
     def restart(self):
         '''restart connect application'''
         self.logger.info('Connect restarting....')
@@ -392,7 +393,7 @@ class Application(QtWidgets.QMainWindow):
             - self.__connect_start_time,
         }
 
-        usage.send_event(
+        send_usage_event(
             self.session, 'USED-CONNECT', metadata, asynchronous=True
         )
 
@@ -401,8 +402,9 @@ class Application(QtWidgets.QMainWindow):
         '''Return current session.'''
         return self._session
 
-    def __init__(self, theme='system', instance=None):
-        '''Initialise the main application window.'''
+    def __init__(self, theme='system', instance=None, log_level=None):
+        '''Initialise the main application window with *theme*, singleton
+        *instance* and custom *log_level*.'''
         super(Application, self).__init__()
         self.logger = logging.getLogger(
             __name__ + '.' + self.__class__.__name__
@@ -410,13 +412,14 @@ class Application(QtWidgets.QMainWindow):
         self._instance = instance
         self._session = None
         self.__connect_start_time = time.time()
+        self._log_level = log_level
 
-        self.defaultPluginDirectory = appdirs.user_data_dir(
+        self.defaultPluginDirectory = platformdirs.user_data_dir(
             'ftrack-connect-plugins', 'ftrack'
         )
         self._createDefaultPluginDirectory()
 
-        self.pluginHookPaths = self._discover_hook_paths()
+        self.plugin_paths = self._discover_plugin_paths()
 
         # Register widget for error handling.
         self.uncaughtError = _uncaught_error.UncaughtError(parent=self)
@@ -598,19 +601,38 @@ class Application(QtWidgets.QMainWindow):
         self.loginWidget.setFocus()
         self._login_overlay.hide()
 
-    def _setup_session(self, plugin_paths=None):
+    def _get_api_plugin_paths(self):
+        api_plugin_paths = []
+
+        for apiPluginPath in os.environ.get(
+            'FTRACK_EVENT_PLUGIN_PATH', ''
+        ).split(os.pathsep):
+            if apiPluginPath and apiPluginPath not in api_plugin_paths:
+                api_plugin_paths.append(os.path.expandvars(apiPluginPath))
+
+        for connect_plugin_path in self.plugin_paths:
+            api_plugin_paths.append(os.path.join(connect_plugin_path, 'hook'))
+
+        return api_plugin_paths
+
+    def _setup_session(self, api_plugin_paths=None):
         '''Setup a new python API session.'''
         if hasattr(self, '_hub_thread'):
             self._hub_thread.cleanup()
 
-        if plugin_paths is None:
-            plugin_paths = self.pluginHookPaths
+        if api_plugin_paths is None:
+            api_plugin_paths = self._get_api_plugin_paths()
         try:
             session = ftrack_api.Session(
-                auto_connect_event_hub=True, plugin_paths=plugin_paths
+                auto_connect_event_hub=True, plugin_paths=api_plugin_paths
             )
         except Exception as error:
             raise ftrack_connect.error.ParseError(error)
+
+        # Need to reconfigure logging after session is created.
+        ftrack_connect.config.configure_logging(
+            'ftrack_connect', level=self._log_level, notify=False
+        )
 
         # Listen to events using the new API event hub. This is required to
         # allow reconfiguring the storage scenario.
@@ -698,7 +720,7 @@ class Application(QtWidgets.QMainWindow):
         # Login using the new ftrack API.
         try:
             # Quick session to poll for settings, confirm credentials
-            self._session = self._setup_session(plugin_paths='')
+            self._session = self._setup_session(api_plugin_paths='')
             self._assign_session_theme(self.theme())
         except Exception as error:
             self.logger.exception('Error during login:')
@@ -715,7 +737,7 @@ class Application(QtWidgets.QMainWindow):
             )
             if storage_scenario is None:
                 ftrack_api.plugin.discover(
-                    self.pluginHookPaths, [self.session]
+                    self._get_api_plugin_paths(), [self.session]
                 )
                 # Hide login overlay at this time since it will be deleted
                 self.logger.debug('Storage scenario is not configured.')
@@ -798,43 +820,40 @@ class Application(QtWidgets.QMainWindow):
             lambda event: True,
         )
         self.session._configure_locations()
-        self._discoverConnectWidget()
 
-    def _discover_hook_paths(self):
+        self._discover_applications()  # Was ftrack-application-launcher
+
+        self._configure_action_launcher_widget()  # Was external ftrack-action-launcher-widget plugin
+
+        self._discover_connect_widgets()
+
+    def _discover_plugin_paths(self):
         '''Return a list of paths to pass to ftrack_api.Session()'''
 
         plugin_paths = []
 
-        plugin_paths.extend(
-            self._gatherPluginHooks(self.defaultPluginDirectory)
-        )
-
-        for apiPluginPath in os.environ.get(
-            'FTRACK_EVENT_PLUGIN_PATH', ''
-        ).split(os.pathsep):
-            if apiPluginPath and apiPluginPath not in plugin_paths:
-                plugin_paths.append(os.path.expandvars(apiPluginPath))
+        plugin_paths.extend(self._gather_plugins(self.defaultPluginDirectory))
 
         for connectPluginPath in os.environ.get(
             'FTRACK_CONNECT_PLUGIN_PATH', ''
         ).split(os.pathsep):
             plugin_paths.extend(
-                self._gatherPluginHooks(os.path.expandvars(connectPluginPath))
+                self._gather_plugins(os.path.expandvars(connectPluginPath))
             )
 
         plugin_paths = list(set(plugin_paths))
 
         self.logger.info(
-            u'Connect plugin hooks directories: {0}'.format(
-                ', '.join(plugin_paths)
-            )
+            u'Connect plugin directories: {0}'.format(', '.join(plugin_paths))
         )
 
         return plugin_paths
 
-    def _gatherPluginHooks(self, path):
+    def _gather_plugins(self, path):
         '''Return plugin hooks from *path*.'''
         paths = []
+        if not path:
+            return paths
         self.logger.debug(u'Searching {0!r} for plugin hooks.'.format(path))
 
         if os.path.isdir(path):
@@ -842,8 +861,11 @@ class Application(QtWidgets.QMainWindow):
                 candidate_path = os.path.join(path, candidate)
                 if os.path.isdir(candidate_path):
                     full_hook_path = os.path.join(candidate_path, 'hook')
-                    if full_hook_path not in paths:
-                        paths.append(full_hook_path)
+                    if (
+                        os.path.isdir(full_hook_path)
+                        and candidate_path not in paths
+                    ):
+                        paths.append(candidate_path)
 
         self.logger.debug(
             u'Found {0!r} plugin hooks in {1!r}.'.format(paths, path)
@@ -919,25 +941,28 @@ class Application(QtWidgets.QMainWindow):
 
         return menu
 
-    def _discoverConnectWidget(self):
+    def _discover_connect_widgets(self):
         '''Find and load connect widgets in search paths.'''
 
         event = ftrack_api.event.base.Event(topic=ConnectWidgetPlugin.topic)
-
+        disable_startup_widget = bool(
+            os.getenv('FTRACK_CONNECT_DISABLE_STARTUP_WIDGET', False)
+        )
         responses = self.session.event_hub.publish(event, synchronous=True)
-        if not responses:
+        if not responses and not disable_startup_widget:
             widget_plugin = WelcomePlugin(self.session)
             identifier = widget_plugin.getIdentifier()
             if not self.plugins.get(identifier):
                 self.plugins[identifier] = widget_plugin
                 self.addPlugin(widget_plugin)
         else:
-            for ResponsePlugin in responses:
+            for plugin_class in self._builtin_plugins + responses:
+                widget_plugin = None
                 try:
                     load_icons(
                         os.path.join(os.path.dirname(__file__), '..', 'fonts')
                     )
-                    widget_plugin = ResponsePlugin(self.session)
+                    widget_plugin = plugin_class(self.session)
 
                 except Exception:
                     self.logger.exception(
@@ -1030,7 +1055,6 @@ class Application(QtWidgets.QMainWindow):
         if name is None:
             name = plugin.getName()
 
-        icon = None
         try:
             icon = qta.icon(plugin.icon)
         except Exception as err:
@@ -1046,6 +1070,8 @@ class Application(QtWidgets.QMainWindow):
             self._onWidgetRequestApplicationClose
         )
         plugin.requestConnectRestart.connect(self.restart)
+
+        self.logger.debug(f'Plugin {name}({plugin.__class__.__name__}) added')
 
     def removePlugin(self, plugin):
         '''Remove plugin registered with *identifier*.
@@ -1166,3 +1192,30 @@ class Application(QtWidgets.QMainWindow):
             return
 
         ftrack_connect.util.open_directory(self.defaultPluginDirectory)
+
+    def _discover_applications(self):
+        '''Walk through Connect plugins and pick up application launcher
+        configuration files.'''
+        launcher_config_paths = []
+
+        self.logger.debug('Discovering applications launcher configs.')
+
+        for connect_plugin_path in self.plugin_paths:
+            launcher_config_path = os.path.join(connect_plugin_path, 'launch')
+            if os.path.isdir(launcher_config_path):
+                launcher_config_paths.append(launcher_config_path)
+
+        # Create store containing launchable applications.
+        applications = DiscoverApplications(
+            self.session, launcher_config_paths
+        )
+        applications.register()
+
+    def _configure_action_launcher_widget(self):
+        '''Append action launcher widget to list of build in
+        plugins to add on discovery together with user plugins.'''
+
+        from ftrack_connect.actionlaunch import ActionLauncherWidget
+
+        # Add together with discovered widgets
+        self._builtin_plugins.append(ActionLauncherWidget)

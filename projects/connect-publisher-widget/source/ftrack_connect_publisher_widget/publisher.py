@@ -22,7 +22,7 @@ from ftrack_connect.ui.widget import entity_selector
 from ftrack_connect_publisher_widget import advanced_option_group
 from ftrack_connect_publisher_widget import location_selector
 
-import ftrack_connect.asynchronous
+from ftrack_utils.decorators import asynchronous
 import ftrack_connect.error
 
 
@@ -227,7 +227,7 @@ class Publisher(QtWidgets.QWidget):
                 'Failed to clean up version after failed publish'
             )
 
-    @ftrack_connect.asynchronous.asynchronous
+    @asynchronous
     def _publish(
         self,
         entity=None,

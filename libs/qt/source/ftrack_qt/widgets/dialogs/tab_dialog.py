@@ -18,7 +18,7 @@ class TabDialog(StyledDialog):
 
     @property
     def selected_context_id(self):
-        '''Return the selected context id in the context sleector'''
+        '''Return the selected context id in the context selector'''
         return self._context_selector.context_id
 
     @selected_context_id.setter
@@ -30,7 +30,7 @@ class TabDialog(StyledDialog):
     @property
     def is_browsing_context(self):
         '''
-        Return if context selector is currently working on seting up a context
+        Return if context selector is currently working on setting up a context
         '''
         return self._context_selector.is_browsing
 
@@ -61,9 +61,6 @@ class TabDialog(StyledDialog):
     def build(self):
         # Create the header
         self._header = SessionHeader(self._session)
-        # TODO: implement progress widget.
-        # self._progress_widget = ProgressWidget
-        # self._header.add_widget(self._progress_widget)
 
         # TODO: we have to update the signals from the context selector to
         #  identify that are our signals and not qt signals. So make them snake case

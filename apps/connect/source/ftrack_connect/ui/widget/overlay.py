@@ -1,9 +1,12 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2023 ftrack
+import logging
 
 from ftrack_connect.qt import QtGui, QtCore, QtWidgets
 
 import ftrack_connect.ui.widget.indicator
+
+logger = logging.getLogger(__name__)
 
 
 class Overlay(QtWidgets.QFrame):
@@ -128,6 +131,35 @@ class Overlay(QtWidgets.QFrame):
 class BlockingOverlay(Overlay):
     '''Display a standard blocking overlay over another widget.'''
 
+    @property
+    def message(self):
+        return self._message
+
+    @message.setter
+    def message(self, value):
+        self._message = value
+        self.messageLabel.setText(value)
+
+    @property
+    def icon_data(self):
+        return self._icon_data
+
+    @icon_data.setter
+    def icon_data(self, value):
+        self._icon_data = value
+
+        if not isinstance(self.icon_data, QtGui.QIcon):
+            pixmap = QtGui.QPixmap(self.icon_data).scaled(
+                self.icon_size, self.icon_size, QtCore.Qt.KeepAspectRatio
+            )
+        else:
+            pixmap = self.icon_data.pixmap(
+                self.icon_data.actualSize(
+                    QtCore.QSize(self.icon_size, self.icon_size)
+                )
+            )
+        self.icon.setPixmap(pixmap)
+
     def __init__(
         self,
         parent,
@@ -141,6 +173,10 @@ class BlockingOverlay(Overlay):
 
         '''
         super(BlockingOverlay, self).__init__(parent=parent)
+
+        self._message = None
+        self._icon_data = None
+
         layout = QtWidgets.QVBoxLayout()
         layout.setContentsMargins(0, 0, 0, 0)
         self.setLayout(layout)
@@ -156,17 +192,7 @@ class BlockingOverlay(Overlay):
         self.content.setLayout(self.contentLayout)
         self.icon_size = icon_size
         self.icon = QtWidgets.QLabel()
-
-        if not isinstance(icon, QtGui.QIcon):
-            pixmap = QtGui.QPixmap(icon).scaled(
-                self.icon_size, self.icon_size, QtCore.Qt.KeepAspectRatio
-            )
-        else:
-            pixmap = icon.pixmap(
-                icon.actualSize(QtCore.QSize(self.icon_size, self.icon_size))
-            )
-
-        self.icon.setPixmap(pixmap)
+        self.icon_data = icon
         self.icon.setAlignment(QtCore.Qt.AlignCenter | QtCore.Qt.AlignTop)
 
         self.contentLayout.insertWidget(
@@ -183,16 +209,15 @@ class BlockingOverlay(Overlay):
 
         self.contentLayout.addWidget(self.messageLabel)
 
-        self.setMessage(message)
-
-    def message(self):
-        '''Return current message.'''
-        return self._message
+        self.message = message
 
     def setMessage(self, message):
-        '''Set current message to display.'''
-        self._message = message
-        self.messageLabel.setText(message)
+        # TODO: Remove this method when all references to it externally are removed.
+        # Keep if for now for backwards compatibility.
+        logger.warning(
+            'BlockingOverlay.setMessage is deprecated. Use message property instead.'
+        )
+        self.message = message
 
 
 class BusyOverlay(BlockingOverlay):

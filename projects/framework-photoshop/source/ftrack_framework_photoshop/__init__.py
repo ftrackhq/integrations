@@ -5,20 +5,27 @@ import logging
 import time
 import sys
 import os
+import traceback
 
 from Qt import QtWidgets, QtCore
 
 import ftrack_api
 
 from ftrack_constants import framework as constants
-from ftrack_utils.framework.remote import get_integration_session_id
+from ftrack_utils.extensions.environment import (
+    get_extensions_path_from_environment,
+)
 from ftrack_framework_core.host import Host
 from ftrack_framework_core.event import EventManager
 from ftrack_framework_core.client import Client
-from ftrack_framework_core.registry import Registry
+from ftrack_framework_core import registry
 
 from ftrack_framework_core.configure_logging import configure_logging
 
+from ftrack_qt.utils.decorators import invoke_in_qt_main_thread
+
+from .rpc_cep import PhotoshopRPCCEP
+from . import process_util
 
 # Evaluate version and log package version
 try:
@@ -33,7 +40,7 @@ except Exception:
 
 configure_logging(
     'ftrack_framework_photoshop',
-    extra_modules=["ftrack_qt"],
+    extra_modules=['ftrack_qt'],
     propagate=False,
 )
 
@@ -47,138 +54,126 @@ app = QtWidgets.QApplication.instance()
 
 if not app:
     app = QtWidgets.QApplication(sys.argv)
+    app.setAttribute(QtCore.Qt.AA_PluginApplication)
+
+remote_session = None
+
+process_monitor = None
 
 
-class Launcher(QtWidgets.QWidget):
-    # Class for handling remote dialog and widget launch
-
-    remote_integration_run_dialog = QtCore.Signal(
-        object
-    )  # Launch a tool(dialog)
-
-    @property
-    def client(self):
-        return self._client
-
-    @property
-    def event_manager(self):
-        return self.client.event_manager
-
-    def __init__(self, client, parent=None):
-        super(Launcher, self).__init__(parent=parent)
-
-        self._client = client
-        self.remote_integration_run_dialog.connect(
-            self._remote_integration_run_dialog_callback
-        )
-        self.event_manager.subscribe.remote_integration_run_dialog(
-            get_integration_session_id(),
-            self._remote_integration_run_dialog_callback_async,
-        )
-
-    def _remote_integration_run_dialog_callback_async(self, event):
-        '''Remote event callback, emit signal to run dialog in main Qt thread.'''
-        self.remote_integration_run_dialog.emit(event)
-
-    def _remote_integration_run_dialog_callback(self, event):
-        '''Callback for remote integration run dialog event.'''
-        self.client.run_dialog(event['data']['dialog_name'])
-
-
-def bootstrap_integration(panel_launchers, extension_packages):
+def bootstrap_integration(framework_extensions_path):
     '''Initialise Photoshop Framework Python standalone part,
     with panels defined in *panel_launchers*'''
 
-    global photoshop_connection
+    global photoshop_connection, remote_session, process_monitor
+
+    logger.debug(
+        'Photoshop standalone integration initialising, extensions path:'
+        f' {framework_extensions_path}'
+    )
 
     session = ftrack_api.Session(auto_connect_event_hub=False)
 
+    event_manager = EventManager(
+        session=session, mode=constants.event.LOCAL_EVENT_MODE
+    )
+
+    registry_instance = registry.Registry()
+    registry_instance.scan_extensions(paths=framework_extensions_path)
+
+    Host(event_manager, registry=registry_instance)
+
+    client = Client(event_manager, registry=registry_instance)
+
+    # Init tools
+    dcc_config = registry_instance.get_one(
+        name='framework-photoshop', extension_type='dcc_config'
+    )['extension']
+
+    logger.debug(f'Read DCC config: {dcc_config}')
+
+    @invoke_in_qt_main_thread
+    def on_run_dialog_callback(dialog_name, tool_config_names):
+        client.run_dialog(
+            dialog_name,
+            dialog_options={'tool_config_names': tool_config_names},
+        )
+
+    # Init Photoshop connection
     remote_session = ftrack_api.Session(auto_connect_event_hub=True)
 
-    event_manager = EventManager(
-        session=session,
-        mode=constants.event.LOCAL_EVENT_MODE,
-        remote_session=remote_session,
+    photoshop_connection = PhotoshopRPCCEP(
+        remote_session, client, dcc_config['tools'], on_run_dialog_callback
     )
 
-    host_registry = Registry()
-    host_registry.scan_modules(
-        extension_types=['plugin', 'engine', 'schema', 'tool_config'],
-        package_names=extension_packages,
+    # Init process monitor
+    process_monitor = process_util.MonitorProcess(
+        photoshop_connection.photoshop_version
     )
 
-    client_registry = Registry()
-    client_registry.scan_modules(
-        extension_types=['widget'], package_names=extension_packages
+    for _ in range(30 * 2):  # Wait 30s for Photoshop to connect
+        time.sleep(0.5)
+
+        if process_monitor.check_running():
+            break
+
+        logger.debug("Still waiting for Photoshop to launch")
+
+    else:
+        raise RuntimeError(
+            'Photoshop {photoshop_connection.photoshop_version} '
+            f'({photoshop_connection.remote_integration_session_id}) '
+            'process never started. Shutting down.'
+        )
+
+    logger.warning(
+        f'Photoshop {photoshop_connection.photoshop_version} standalone '
+        'integration initialized and ready and awaiting connection from'
+        ' Photoshop.'
     )
-
-    Host(event_manager, host_registry)
-
-    client = Client(event_manager, client_registry)
-
-    # Create launcher
-    Launcher(client)
-
-    # Create remote connection
-
-    from ftrack_framework_photoshop.remote_connection.cep_connection import (
-        CEPBasePhotoshopRemoteConnection,
-    )
-
-    photoshop_version = os.environ.get('FTRACK_PHOTOSHOP_VERSION')
-    assert (
-        photoshop_version
-    ), 'Photoshop integration requires FTRACK_PHOTOSHOP_VERSION passed as environment variable!'
-
-    photoshop_connection = CEPBasePhotoshopRemoteConnection(
-        client, int(photoshop_version), panel_launchers
-    )
-
-    # Connect with Photoshop
-    photoshop_connection.connect()
-
-    # Wait for Photoshop to get ready to receive events
-    time.sleep(0.5)
-
-    # Probe and store Photoshop PID
-    photoshop_connection.probe_photoshop_pid()
 
 
 def run_integration():
     '''Run Photoshop Framework Python standalone part as long as Photoshop is alive.'''
 
+    global remote_session
+
     # Run until it's closed, or CTRL+C
     active_time = 0
     while True:
         app.processEvents()
-        time.sleep(0.01)
+        remote_session.event_hub.wait(0.01)
         active_time += 10
         if active_time % 10000 == 0:
             logger.info(
-                "Integration alive has been for {}s, connected: {}".format(
-                    active_time / 1000, photoshop_connection.connected
-                )
+                f'Integration alive has been for {active_time / 1000}s, '
+                f'connected: {photoshop_connection.connected}'
             )
-        # Failsafe check if PS is still alive
-        if active_time % (60 * 1000) == 0:
-            if not photoshop_connection.connected:
-                # Check if Photoshop still is running
-                if not photoshop_connection.check_running():
-                    logger.warning(
-                        'Photoshop never connected and process gone, shutting down!'
-                    )
-                    photoshop_connection.terminate()
+        # Failsafe check if PS is still alive every 5s
+        if active_time % (5 * 1000) == 0:
+            # Check if Photoshop still is running
+            if not process_monitor.check_running():
+                logger.warning('Photoshop process gone, shutting ' 'down!')
+                process_util.terminate_current_process()
             else:
                 # Check if Photoshop panel is alive
-                if not photoshop_connection.check_responding():
-                    if not photoshop_connection.check_running():
-                        logger.warning(
-                            'Photoshop is not responding and process gone, shutting down!'
-                        )
-                        photoshop_connection.terminate()
-                    else:
-                        logger.warning(
-                            'Photoshop is not responding but process ({}) is still there, panel temporarily closed?'.format(
-                                photoshop_connection.photoshop_pid
-                            )
-                        )
+                respond_result = photoshop_connection.check_responding()
+                if not respond_result and photoshop_connection.connected:
+                    photoshop_connection.connected = False
+                    logger.info(
+                        f'Photoshop is not responding but process ({process_monitor.process_pid}) '
+                        f'is still there, panel temporarily closed?'
+                    )
+                elif respond_result and not photoshop_connection.connected:
+                    photoshop_connection.connected = True
+                    logger.info('Photoshop is responding again, panel alive.')
+
+
+# Find and read DCC config
+try:
+    bootstrap_integration(get_extensions_path_from_environment())
+    run_integration()
+except:
+    # Make sure any exception that happens are logged as there is most likely no console
+    logger.error(traceback.format_exc())
+    raise

@@ -9,24 +9,17 @@ $background-modal:      #ffffff;
 $background-docked:     rgb(55,55,55);
 $alt-background:        #f8f8f8;
 $alt-background-docked: rgb(44,44,44);
-$background-selected:    $gray-lighter;
+$background-selected:   $gray-lighter;
+$background-selected-combo:   #dddddd;
 $white:                 white;
 
 // Primary brand colors
 $color-primary: #FFDD86;
 $color-primary-dark: #3D3520;
 
-// Primary brand colors
-//$color-purple: #935BA2;
-//$color-purple-contrast: white;
-//$color-purple-dark: #33313F;
-//$color-purple-light-1: #B38CBE;
-//$color-purple-light-2: #F2EBF4;
-
 $color-green: #1CBC90;
 $color-blue: #3498DB;
 $color-orange: #E67E22;
-$color-primary: #F1C500;
 $color-red: #E74C3C;
 $color-white: white;
 $color-cyan: #86E0EA;
@@ -37,20 +30,17 @@ $brand-info:            $color-blue;
 $brand-warning:         $color-primary;
 $brand-danger:          $color-red;
 
-$body-bg:                       $color-primary;
 $text-color:                    $gray-dark;
-$text-color-default:            black;
-$text-color-default-hover:      $text-color-default;
-$text-color-default-pressed:    $text-color-default;
+$text-color-inactive:           $gray-darker;
+$text-color-active:             lighten($text-color, 5%);
+$text-color-hover:              $text-color-active;
+$text-color-pressed:            $text-color-active;
 $text-color-light:              $gray;
-$text-color-primary:            #548cd7;
+$text-color-primary:            #548CD7;
 $text-color-drop-zone:          $gray-light;
 $border-color:                  $gray-lighter;
 
-$overlay-bg:            $white;
-
-$inset-bg:              $gray-lighter;
-$inset-border-color:    $gray-light;
+$input-border-color:    $gray-light;
 
 $scrollbar-handle:          $gray;
 $scrollbar-handle-docked:   $gray;

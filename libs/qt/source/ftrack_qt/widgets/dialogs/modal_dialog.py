@@ -32,6 +32,8 @@ class ModalDialog(StyledDialog):
         :param question: If true, makes dialog behave like a prompt with Yes+No buttons
         :param title: The text to show in dialog title bar
         '''
+        self._title_label = None
+
         super(ModalDialog, self).__init__(parent=parent)
 
         self.setParent(parent)
@@ -40,7 +42,6 @@ class ModalDialog(StyledDialog):
         self._title = title or 'ftrack'
         self._question = question
 
-        self._title_label = None
         self._approve_button = None
         self._deny_button = None
 
@@ -131,7 +132,8 @@ class ModalDialog(StyledDialog):
     def setWindowTitle(self, title):
         '''(Override) Set the dialog title'''
         super(ModalDialog, self).setWindowTitle(title)
-        self._title_label.setText(title.upper())
+        if self._title_label:
+            self._title_label.setText(title.upper())
 
     def setVisible(self, visible):
         '''(Override) Set visible, and darken parent if available.'''

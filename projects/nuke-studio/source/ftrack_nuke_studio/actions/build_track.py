@@ -12,6 +12,12 @@ import ftrack_nuke_studio.exception
 
 import hiero
 
+try:
+    from hiero.core.VersionScanner import VersionScanner
+except ImportError:
+    from hiero.core.FnVersionScanner import VersionScanner
+
+
 from hiero.ui.BuildExternalMediaTrack import (
     BuildTrack,
     BuildTrackActionBase,
@@ -46,7 +52,7 @@ class FtrackTrackFinderByNameWithDialog(TrackFinderByNameWithDialog):
             sequence.addTrack(track)
             track.addTag(
                 hiero.core.Tag(
-                    track_name, ':ftrack/image/default/ftrackLogoLight'
+                    track_name, ':ftrack/image/default/ftrackLogoColor'
                 )
             )
             is_new_track = True
@@ -393,7 +399,7 @@ class FtrackReBuildServerTrackAction(BuildTrackActionBase, FtrackBase):
             'Build track from ftrack'
         )
         self.trackFinder = FtrackTrackFinderByNameWithDialog(self)
-        self.setIcon(QtGui.QPixmap(':ftrack/image/default/ftrackLogoLight'))
+        self.setIcon(QtGui.QPixmap(':ftrack/image/default/ftrackLogoColor'))
 
         self.logger = logging.getLogger(
             __name__ + '.' + self.__class__.__name__
@@ -475,9 +481,7 @@ class FtrackReBuildServerTrackAction(BuildTrackActionBase, FtrackBase):
         track_item.source().rescan()  # First rescan the current clip
         if track_item.isMediaPresent():
             version = track_item.currentVersion()
-            scanner = (
-                hiero.core.VersionScanner.VersionScanner()
-            )  # Scan for new versions
+            scanner = VersionScanner()  # Scan for new versions
             scanner.doScan(version)
 
     def _buildTrackItem(
@@ -567,7 +571,7 @@ class FtrackBuildTrack(BuildTrack):
         hiero.core.events.registerInterest(
             'kShowContextMenu/kTimeline', self.eventHandler
         )
-        self.setIcon(QtGui.QPixmap(':ftrack/image/default/ftrackLogoLight'))
+        self.setIcon(QtGui.QPixmap(':ftrack/image/default/ftrackLogoColor'))
         self._action_rebuild_from_server = FtrackReBuildServerTrackAction()
         self.addAction(self._action_rebuild_from_server)
 

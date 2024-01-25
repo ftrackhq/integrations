@@ -7,7 +7,7 @@ from Qt import QtWidgets, QtCore
 
 from ftrack_qt.widgets.info import EntityInfo
 
-from ftrack_qt.widgets.thumbnails import Context
+from ftrack_qt.widgets.thumbnails import ContextThumbnail
 from ftrack_utils.threading import BaseThread
 from ftrack_qt.widgets.buttons import CircularButton
 
@@ -100,7 +100,7 @@ class ContextSelector(QtWidgets.QFrame):
         Initialise ContextSelector widget
 
         :param session: :class:`ftrack_api.session.Session`
-        :param enable_context_change:  If setto True, this contest selection is allowed to spawn the entity browser
+        :param enable_context_change:  If set to True, this contest selection is allowed to spawn the entity browser
             and change global context.
         :param select_task: If true. only tasks can be selected in the entity browser. If false, any context can be selected.
         :param browse_context_id: If set, the entity browser will be opened with this context id as the root.
@@ -136,7 +136,7 @@ class ContextSelector(QtWidgets.QFrame):
             EntityBrowser,
         )  # Prevent circular import
 
-        self.thumbnail_widget = Context(self.session)
+        self.thumbnail_widget = ContextThumbnail(self.session)
 
         self.thumbnail_widget.setMinimumWidth(50)
         self.thumbnail_widget.setMinimumHeight(40)
@@ -225,8 +225,13 @@ class ContextSelector(QtWidgets.QFrame):
 
         if self._enable_context_change:
             # Launch browser.
+            self.entity_browser.entity = self.entity
             if self.entity_browser.exec_():
                 self.entity = self.entity_browser.entity
         else:
             # Let client decide what to do when user wants to change context
             self.change_context_clicked.emit()
+
+    def teardown(self):
+        if self._entity_browser:
+            self._entity_browser.deleteLater()

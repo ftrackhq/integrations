@@ -8,6 +8,24 @@
 Release Notes
 *************
 
+.. release:: upcoming
+
+    .. change:: changed
+
+        Replaced setuptools with Poetry, use build tooling to produce Connect plugin.
+
+    .. change:: fixed
+
+        Proper error message if plugin installation fails or a plugin is missing.
+
+    .. change:: added
+
+        Support for platform specific plugin builds.
+
+    .. change:: change
+
+        Moved repository to monorepo package projects/connect-plugin-manager.
+
 .. release:: 0.1.5
     :date: 2022-11-08
 

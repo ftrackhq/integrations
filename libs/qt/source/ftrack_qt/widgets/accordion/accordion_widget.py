@@ -124,7 +124,7 @@ class AccordionBaseWidget(QtWidgets.QFrame):
 
         self.layout().addWidget(self._indicator_widget)
 
-        # Create the main_wdget
+        # Create the main_widget
         main_widget = QtWidgets.QWidget()
         main_widget.setLayout(QtWidgets.QVBoxLayout())
         main_widget.layout().setAlignment(QtCore.Qt.AlignTop)

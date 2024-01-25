@@ -37,7 +37,7 @@ class ScrollToolConfigsDialog(StyledDialog):
 
     @property
     def selected_context_id(self):
-        '''Return the selected context id in the context sleector'''
+        '''Return the selected context id in the context selector'''
         return self._context_selector.context_id
 
     @selected_context_id.setter
@@ -103,9 +103,6 @@ class ScrollToolConfigsDialog(StyledDialog):
     def build(self):
         # Create the header
         self._header = SessionHeader(self._session)
-        # TODO: implement progress widget.
-        # self._progress_widget = ProgressWidget
-        # self._header.add_widget(self._progress_widget)
 
         self._context_selector = ContextSelector(
             self._session, enable_context_change=True

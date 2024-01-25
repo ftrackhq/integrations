@@ -4,16 +4,16 @@
 import time
 import logging
 import uuid
+from collections import defaultdict
 
 from six import string_types
 
-from ftrack_utils.framework.dependencies import registry
-from ftrack_framework_widget.dialog import FrameworkDialog
+from ftrack_framework_core.widget.dialog import FrameworkDialog
 import ftrack_constants.framework as constants
 
 from ftrack_framework_core.client.host_connection import HostConnection
 
-# TODO: implement ABC
+from ftrack_utils.decorators import track_framework_usage
 
 
 class Client(object):
@@ -30,8 +30,6 @@ class Client(object):
     #  one client now.
     _host_connection = None
     '''The singleton host connection used by all clients within the process space / DCC'''
-    _host_connections = []
-    '''The list of discovered host connections'''
 
     def __repr__(self):
         return '<Client:{0}>'.format(self.id)
@@ -53,17 +51,6 @@ class Client(object):
         Returns instance of :class:`ftrack_api.session.Session`
         '''
         return self._event_manager.session
-
-    # TODO: Discuss if we want to change name to available_hosts
-    @property
-    def host_connections(self):
-        '''Return the current list of host_connections'''
-        return Client._host_connections
-
-    @host_connections.setter
-    def host_connections(self, value):
-        '''Return the current list of host_connections'''
-        Client._host_connections = value
 
     # TODO: Discuss if we want to change this to connected host
     @property
@@ -101,6 +88,12 @@ class Client(object):
         self.event_manager.subscribe.host_log_item_added(
             self.host_connection.host_id,
             callback=self.on_log_item_added_callback,
+        )
+        # TODO: should this event go directly to dialog or widget and never
+        #  pass through client?
+        self.event_manager.subscribe.host_run_ui_hook_result(
+            self.host_connection.host_id,
+            callback=self.on_ui_hook_callback,
         )
         # Clean up host_context_change_subscription in case exists
         self._unsubscribe_host_context_changed()
@@ -157,19 +150,11 @@ class Client(object):
             raise Exception('No host connection available')
         return self.host_connection.tool_configs
 
-    # TODO: double check how we enable disbale multithreading,
-    #  I think we can improve it and make it simpler, take a look at the
-    #  active_ui decorator that I created, maybe we can use soemthing similar.
-    @property
-    def multithreading_enabled(self):
-        '''Return True if client supports multithreading (write operations)'''
-        return self._multithreading_enabled
-
     # Widget
     @property
     def dialogs(self):
-        '''Return Initalized dialogs'''
-        return self.__dialogs_discovered
+        '''Return instanced dialogs'''
+        return self.__instanced_dialogs
 
     @property
     def dialog(self):
@@ -184,17 +169,18 @@ class Client(object):
         self._dialog = value
 
     @property
-    def discovered_framework_widgets(self):
-        '''Return discovered framework widgets'''
-        return self.__framework_widget_discovered
+    def registry(self):
+        '''Return registry object'''
+        return self._registry
+
+    @property
+    def tool_config_options(self):
+        return self._tool_config_options
 
     def __init__(
         self,
         event_manager,
         registry,
-        auto_discover_host=True,
-        auto_connect_host=True,
-        multithreading_enabled=True,
     ):
         '''
         Initialise Client with instance of
@@ -206,59 +192,31 @@ class Client(object):
             __name__ + '.' + self.__class__.__name__
         )
 
-        # Create the client id to use to comunicate with UI
+        # Create the client id to use to communicate with UI
         self._id = '{}'.format(uuid.uuid4().hex)
 
         # Set the event manager
         self._event_manager = event_manager
 
-        # Set multithreading
-        self._multithreading_enabled = multithreading_enabled
-
         # Setting init variables to 0
+        self._registry = registry
         self._host_context_changed_subscribe_id = None
-        self.__framework_widget_discovered = []
-        self.__dialogs_discovered = {}
+        self.__instanced_dialogs = {}
         self._dialog = None
-        self._auto_connect_host = auto_connect_host
-
-        # Register modules
-        self._register_modules(registry)
+        self._tool_config_options = defaultdict(defaultdict)
 
         self.logger.debug('Initialising Client {}'.format(self))
 
-        if auto_discover_host and not self.host_connections:
-            self.discover_hosts()
-
-    def _register_modules(self, registry):
-        '''
-        Register framework modules available.
-        '''
-        # Discover widget modules
-        self.discover_widgets(registry.widgets)
-
-        if self.__framework_widget_discovered:
-            # Check that registry went correct
-            return True
-        self.logger.warning('No widgets found to register')
-
-    def discover_widgets(self, registered_widgets):
-        '''
-        Register the given *registered_widgets* on the
-        :obj:`self.__framework_widget_discovered`
-        '''
-        registered_widgets = list(set(registered_widgets))
-        self.__framework_widget_discovered = registered_widgets
+        self.discover_host()
 
     # Host
-    def discover_hosts(self, time_out=3):
+    def discover_host(self, time_out=3):
         '''
         Find for available hosts during the optional *time_out*.
 
         This removes all previously discovered host connections.
         '''
         # Reset host connections
-        self.host_connections = []
         if self.host_connection:
             self._unsubscribe_host_context_changed()
             self.host_connection = None
@@ -273,7 +231,7 @@ class Client(object):
                 'Terminate with: Ctrl-C'
             )
 
-        while not self.host_connections:
+        while not self.host_connection:
             delta_time = time.time() - start_time
 
             if time_out and delta_time >= time_out:
@@ -284,9 +242,7 @@ class Client(object):
                 callback=self._host_discovered_callback
             )
 
-        # Feed host connections to the client
-        self.on_hosts_discovered(self.host_connections)
-
+    @track_framework_usage(label='client_host_connection_established')
     def _host_discovered_callback(self, event):
         '''
         Reply callback of the discover host event, generate
@@ -298,25 +254,11 @@ class Client(object):
         if not event['data']:
             return
         for reply_data in event['data']:
-            host_connection = HostConnection(self.event_manager, reply_data)
-            if (
-                host_connection
-                and host_connection not in self.host_connections
-            ):
-                self.host_connections.append(host_connection)
+            self.host_connection = HostConnection(
+                self.event_manager, reply_data
+            )
+            break
 
-    def on_hosts_discovered(self, host_connections):
-        '''
-        Callback, hosts has been discovered.
-        Widgets can hook in the published signal.
-        '''
-        if self._auto_connect_host:
-            # Automatically connect to the first one
-            self.host_connection = host_connections[0]
-        # Emit signal to widget
-        self.event_manager.publish.client_signal_hosts_discovered(self.id)
-
-    # TODO: this should be ABC method
     def on_host_changed(self, host_connection):
         '''Called when the host has been (re-)selected by the user.'''
         # Emit signal to widget
@@ -328,7 +270,6 @@ class Client(object):
         # Feed the new context to the client
         self.on_context_changed(event['data']['context_id'])
 
-    # TODO: this should be ABC method
     def on_context_changed(self, context_id):
         '''Called when the context has been set or changed within the
         host connection, either from this client or remote
@@ -340,115 +281,54 @@ class Client(object):
     def _unsubscribe_host_context_changed(self):
         '''Unsubscribe to client context change events'''
         if self.host_context_changed_subscribe_id:
-            self.session.event_hub.unsubscribe(
+            self.event_manager.unsubscribe(
                 self.host_context_changed_subscribe_id
             )
             self._host_context_changed_subscribe_id = None
 
     # Tool config
-    def run_tool_config(self, tool_config):
+    def run_tool_config(self, tool_config_reference):
         '''
-        Publish event to tell the host to run the given *tool_config* with the
-        given *engine*.
+        Publish event to tell the host to run the given *tool_config_reference*
+        on the engine.
+        *tool_config_reference*: id number of the tool config.
         '''
         self.event_manager.publish.host_run_tool_config(
             self.host_id,
-            tool_config.to_dict(),
-            self._run_tool_config_callback,
-        )
-
-    # TODO: this should be ABC method
-    def _run_tool_config_callback(self, event):
-        '''Callback of the :meth:`~ftrack_framework_core.client.run_tool_config'''
-        self.logger.debug("_run_tool_config_callback event: {}".format(event))
-        result = event['data']
-        if type(event['data']) == list():
-            result = event['data'][0]
-        # Publish event to widget
-        self.event_manager.publish.client_notify_run_tool_config_result(
-            self.id, event['data']
+            tool_config_reference,
+            self.tool_config_options.get(tool_config_reference, {}),
         )
 
     # Plugin
-    def run_plugin(
-        self,
-        plugin_config,
-        plugin_method_name,
-        engine_type,
-        engine_name,
-        plugin_widget_id=None,
-    ):
-        '''
-        Publish event to tell the host to run the given *plugin_method_name*
-        of the *plugin_config* with the given *engine*.
-
-        Result of the executed plugin method specified in the
-        *plugin_config* will be passed to
-        :meth:`~ftrack_framework_core.client._run_plugin_callback`.
-        '''
-
-        self.event_manager.publish.host_run_plugin(
-            self.host_id,
-            plugin_config,
-            plugin_method_name,
-            engine_type,
-            engine_name,
-            plugin_widget_id,
-            self._run_plugin_callback,
-        )
-
-    #  converted to ABC method.
-    def _run_plugin_callback(self, event):
-        '''
-        Callback of the :meth:`~ftrack_framework_core.client.run_plugin
-        This method publish the client_notify_run_plugin_result.
-        As example, this event is subscribed by the FrameworkDialog so this can
-        get the results.
-        '''
-        self.logger.debug("_run_plugin_callback event: {}".format(event))
-        # Publish event to widget
-        self.event_manager.publish.client_notify_run_plugin_result(
-            self.id, event['data'][0]
-        )
-
     def on_log_item_added_callback(self, event):
         '''
         Called when a log item has added in the host.
         '''
         log_item = event['data']['log_item']
         self.logger.info(
-            "Plugin Execution progress: \n "
-            "plugin_name: {} \n"
-            "plugin_type: {} \n"
-            "plugin_status: {} \n"
-            "plugin_message: {} \n"
-            "plugin_method: {} \n"
-            "plugin_method_result: {} \n"
-            "plugin_context_data: {} \n"
-            "plugin_data: {} \n"
-            "plugin_options: {} \n".format(
-                log_item.plugin_name,
-                log_item.plugin_type,
-                log_item.plugin_status,
-                log_item.plugin_message,
-                log_item.plugin_method,
-                log_item.plugin_method_result,
-                log_item.plugin_context_data,
-                log_item.plugin_data,
-                log_item.plugin_options,
-            )
+            f"Plugin Execution progress: \n "
+            f"name: {log_item.name} \n"
+            f"status: {log_item.status} \n"
+            f"message: {log_item.message} \n"
+            f"execution_time: {log_item.execution_time} \n"
+            f"options: {log_item.options} \n"
+            f"store: {log_item.store} \n"
         )
         # Publish event to widget
         self.event_manager.publish.client_notify_log_item_added(
             self.id, event['data']['log_item']
         )
 
-    def reset_tool_config(self, tool_config_name, tool_config_type):
+    def on_ui_hook_callback(self, event):
         '''
-        Ask host connection to reset values of a specific tool_config
+        Called ui_hook has been executed on host and needs to notify UI with
+        the result.
         '''
-        self.host_connection.reset_tool_config(
-            tool_config_name, tool_config_type
+        # Publish event to widget
+        self.event_manager.publish.client_notify_ui_hook_result(
+            self.id,
+            event['data']['plugin_reference'],
+            event['data']['ui_hook_result'],
         )
 
     def reset_all_tool_configs(self):
@@ -458,8 +338,19 @@ class Client(object):
         self.host_connection.reset_all_tool_configs()
 
     # UI
-    def run_dialog(self, dialog_name, dialog_class=None, dialog_options=None):
-        '''Function to show a framework dialog from the client'''
+    @track_framework_usage(label='client_open_dialog')
+    def run_dialog(
+        self,
+        dialog_name,
+        dialog_class=None,
+        dialog_options=None,
+        dock_func=None,
+    ):
+        '''Function to show a framework dialog by name *dialog_name* from the
+        client, using *dialog_class* or picking class from registry. Passes on
+        *dialog_options* to the dialog.
+        *dock_func* is an optional function to dock the dialog in a way for a specific DCC
+        '''
         # use dialog options to pass options to the dialog like for
         #  example: Dialog= WidgetDialog dialog_options= {tool_config_plugin: Context_selector}
         #  ---> So this will execute the widget dialog with the widget of the
@@ -477,24 +368,30 @@ class Client(object):
                 self.logger.error(error_message)
                 raise Exception(error_message)
 
-            if dialog_class not in self.discovered_framework_widgets:
+            if dialog_class not in [
+                dialog['extension'] for dialog in self.registry.dialogs
+            ]:
                 self.logger.warning(
                     'Provided dialog_class {} not in the discovered framework '
                     'widgets, registering...'.format(dialog_class)
                 )
-                self.__framework_widget_discovered.append(dialog_class)
+                self.registry.add(
+                    extension_type='dialog',
+                    name=dialog_name,
+                    extension=dialog_class,
+                )
 
         if dialog_name and not dialog_class:
-            for registered_dialog_class in self.discovered_framework_widgets:
-                if dialog_name == registered_dialog_class.name:
-                    dialog_class = registered_dialog_class
+            for registered_dialog_class in self.registry.dialogs:
+                if dialog_name == registered_dialog_class['name']:
+                    dialog_class = registered_dialog_class['extension']
                     break
         if not dialog_class:
             error_message = (
-                'Please provide a registrated dialog name.\n'
+                'Please provide a registered dialog name.\n'
                 'Given name: {} \n'
                 'registered widgets: {}'.format(
-                    dialog_name, self.discovered_framework_widgets
+                    dialog_name, self.registry.dialogs
                 )
             )
             self.logger.error(error_message)
@@ -511,13 +408,17 @@ class Client(object):
         # Append dialog to dialogs
         self._register_dialog(dialog)
         self.dialog = dialog
-        self.dialog.show_ui()
-        self.dialog.setFocus()
+        # If a docking function is provided, use it
+        if dock_func:
+            dock_func(self.dialog)
+        else:
+            self.dialog.show_ui()
+            self.dialog.setFocus()
 
     def _register_dialog(self, dialog):
         '''Register the given initialized *dialog* to the dialogs registry'''
-        if dialog.id not in list(self.__dialogs_discovered.keys()):
-            self.__dialogs_discovered[dialog.id] = dialog
+        if dialog.id not in list(self.__instanced_dialogs.keys()):
+            self.__instanced_dialogs[dialog.id] = dialog
 
     def set_active_dialog(self, old_dialog, new_dialog):
         '''Remove focus from the *old_dialog* and set the *new_dialog*'''
@@ -552,3 +453,44 @@ class Client(object):
         Callback from the dialog, return the value of the given *property_name*
         '''
         return self.__getattribute__(property_name)
+
+    def set_config_options(
+        self, tool_config_reference, plugin_config_reference, plugin_options
+    ):
+        if not isinstance(plugin_options, dict):
+            raise Exception(
+                "plugin_options should be a dictionary. "
+                "Current given type: {}".format(plugin_options)
+            )
+        self._tool_config_options[tool_config_reference][
+            plugin_config_reference
+        ] = plugin_options
+
+    def run_ui_hook(
+        self, tool_config_reference, plugin_config_reference, payload
+    ):
+        '''
+        Publish event to tell the host to run the given *tool_config_reference*
+        on the engine.
+        *tool_config_reference*: id number of the tool config.
+        *plugin_config_reference*: id number of the plugin config.
+        *payload*: dictionary of data to send to the plugin.
+        '''
+        self.event_manager.publish.host_run_ui_hook(
+            self.host_id,
+            tool_config_reference,
+            plugin_config_reference,
+            self.tool_config_options[tool_config_reference].get(
+                plugin_config_reference, {}
+            ),
+            payload,
+        )
+
+    def verify_plugins(self, plugin_names):
+        '''
+        Verify if the given *plugins* are registered in the host registry.
+        '''
+        unregistered_plugins = self.event_manager.publish.host_verify_plugins(
+            self.host_id, plugin_names
+        )[0]
+        return unregistered_plugins

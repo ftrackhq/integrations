@@ -7,6 +7,7 @@ on:
       - edited
       - synchronize
       - closed
+      - ready_for_review
 
 jobs:
   check-pr:

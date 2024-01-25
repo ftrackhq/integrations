@@ -28,7 +28,7 @@ function getDocumentPath() {
         var f = new File(app.activeDocument.fullName);
         var result = f.fsName;
         f.close();
-        return result;
+        return result.replace(/\\/g, "/"); // Convert to forward slashes to fix issues with JSON encoding
     } catch (e) {
         return "";
     }
@@ -94,7 +94,17 @@ function exportDocument(output_path, format) {
     }
     try {
         var options;
-        if (format == 'jpg') {
+        if (format == 'bmp') {
+            options = new BMPSaveOptions();
+            options.alphaChannels = true;
+            options.rleCompression = true;
+        } else if (format == 'eps') {
+            options = new EPSSaveOptions();
+        } else if (format == 'gif') {
+            options = new GIFSaveOptions();
+        } else if (format == 'gif') {
+            options = new GIFSaveOptions();
+        } else if (format == 'jpg') {
             options = new JPEGSaveOptions();
             options.quality = 12;
             options.embedColorProfile = true;
@@ -103,10 +113,20 @@ function exportDocument(output_path, format) {
                 options.scans = 5;
             }
             options.matte = MatteType.NONE;
+        } else if (format == 'pdf') {
+            options = new PDFSaveOptions();
+            options.alphaChannels = true;
+            options.annotations = true;
+            options.embedColorProfile = true;
         } else if (format == 'png') {
             options = new PNGSaveOptions();
             options.interlaced = true;
             options.transparency = true;
+        } else if (format == 'tif') {
+            options = new TiffSaveOptions();
+            options.alphaChannels = true;
+            options.annotations = false
+            options:transparency = true;
         } else {
             return "Unknown export format: "+format
         }

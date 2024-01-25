@@ -16,7 +16,10 @@ from ftrack_nuke_studio.overrides.version_scanner import (
     register_versioning_overrides,
 )
 from ftrack_nuke_studio.processors import register_processors
-import ftrack_nuke_studio.resource
+
+# DO NOT REMOVE UNUSED IMPORT - important to keep this in order to have resources
+# initialised properly
+import ftrack_qt
 
 
 def populate_ftrack(event):
@@ -26,7 +29,7 @@ def populate_ftrack(event):
 
     menu_bar = hiero.ui.menuBar()
     ftrack_menu = menu_bar.addMenu(
-        QtGui.QPixmap(':ftrack/image/default/ftrackLogoLight'), 'ftrack'
+        QtGui.QPixmap(':ftrack/image/default/ftrackLogoColor'), 'ftrack'
     )
 
 

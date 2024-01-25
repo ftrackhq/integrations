@@ -3,7 +3,7 @@
 import os
 import logging
 import logging.config
-import appdirs
+import platformdirs
 import errno
 
 
@@ -14,7 +14,7 @@ def get_log_directory():
 
     Raise if the directory can not be created.
     '''
-    user_data_dir = appdirs.user_data_dir('ftrack-connect', 'ftrack')
+    user_data_dir = platformdirs.user_data_dir('ftrack-connect', 'ftrack')
     log_directory = os.path.join(user_data_dir, 'log')
 
     if not os.path.exists(log_directory):
@@ -30,7 +30,7 @@ def get_log_directory():
 
 
 def configure_logging(
-    logger_name, level=None, format=None, extra_modules=None
+    logger_name, level=None, format=None, extra_modules=None, notify=True
 ):
     '''Configure `loggerName` loggers with console and file handler.
 
@@ -95,7 +95,8 @@ def configure_logging(
     for module in modules:
         current_level = logging.getLevelName(level)
         logging_settings['loggers'].setdefault(
-            module, {'level': current_level}
+            module,
+            {'level': current_level, 'handlers': ['file'], 'propagate': True},
         )
 
     # Set default logging settings.
@@ -104,5 +105,6 @@ def configure_logging(
     # Redirect warnings to log so can be debugged.
     logging.captureWarnings(True)
 
-    # Log out the file output.
-    logging.info('Saving log file to: {0}'.format(logfile))
+    if notify:
+        # Log out the file output.
+        logging.info('Saving log file to: {0}'.format(logfile))

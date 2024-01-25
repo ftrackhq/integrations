@@ -69,7 +69,15 @@ class StyledDialog(QtWidgets.QDialog):
         #  the WA_MacAlwaysShowToolWindow attribute. "
         # self.setWindowFlags(QtCore.Qt.Tool)
 
+        self.setSizeGripEnabled(True)  # Enable resize on Windows
+
         apply_theme(self, self.theme)
         self.setProperty('background', self.background_style)
         self.setProperty('docked', 'true' if self.docked else 'false')
         self.setAttribute(QtCore.Qt.WA_DeleteOnClose, True)
+
+        # Make sure the dialog is always on top
+        self.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint)
+
+        # Have a proper title instead of default 'python'
+        self.setWindowTitle('ftrack')

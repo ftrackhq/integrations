@@ -10,7 +10,7 @@ from Qt import QtWidgets, QtCore, QtGui
 
 import shiboken2
 
-from ftrack_qt.widgets.thumbnails import Context
+from ftrack_qt.widgets.thumbnails import ContextThumbnail
 from ftrack_qt.widgets.search import SearchBox
 from ftrack_qt.widgets.buttons import CircularButton
 from ftrack_qt.widgets.overlay import BusyIndicator
@@ -473,7 +473,7 @@ class EntityBrowserNavigator(InputEventBlockingWidget):
 
     @property
     def entity(self):
-        '''Retreive the entity browsed in navigator'''
+        '''Retrieve the entity browsed in navigator'''
         return (
             self._entity_browser.intermediate_entity
             if self._is_browser
@@ -717,7 +717,7 @@ class EntityWidget(QtWidgets.QFrame):
         self.layout().setSpacing(2)
 
     def build(self):
-        self.thumbnail_widget = Context(self.entity.session)
+        self.thumbnail_widget = ContextThumbnail(self.entity.session)
         self.thumbnail_widget.setMinimumWidth(71)
         self.thumbnail_widget.setMinimumHeight(40)
         self.thumbnail_widget.setMaximumWidth(71)

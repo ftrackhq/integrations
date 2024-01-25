@@ -5,6 +5,7 @@ from Qt import QtCore, QtWidgets, QtGui
 
 from ftrack_qt.widgets.logos import FtrackLogo as Logo
 from ftrack_qt.widgets.user import FtrackUser as User
+from ftrack_qt.utils.layout import recursive_clear_layout
 
 
 class SessionHeader(QtWidgets.QFrame):
@@ -79,3 +80,7 @@ class SessionHeader(QtWidgets.QFrame):
 
     def add_widget(self, widget):
         self.content_container.layout().addWidget(widget)
+
+    def set_widget(self, widget):
+        recursive_clear_layout(self.content_container.layout())
+        self.add_widget(widget)

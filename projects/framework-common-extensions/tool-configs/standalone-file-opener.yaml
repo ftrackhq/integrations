@@ -1,0 +1,32 @@
+type: tool_config
+name: standalone-file-opener
+config_type: opener
+engine:
+  - type: plugin
+    tags:
+      - context
+    plugin: store_context_id
+
+  # Open the file component.
+  - type: group
+    tags:
+      - component
+    options:
+      component: file
+    plugins:
+      - type: plugin
+        plugin: store_component
+      - type: plugin
+        tags:
+          - collector
+        plugin: component_path_collector
+        ui: asset_version_selector
+        options:
+          asset_type_name: script
+          file_extensions:
+            - png
+      - type: plugin
+        tags:
+          - opener
+        plugin: open_file
+
