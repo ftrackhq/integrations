@@ -258,17 +258,19 @@ class PluginManager(ftrack_connect.ui.application.ConnectWidget):
         deprecated_plugins = self._plugin_list_widget.get_deprecated_plugins()
         unloadable_plugins = conflicting_plugins + incompatible_plugins
         if unloadable_plugins:
-            answer = QtWidgets.QMessageBox.question(
-                None,
+            msgbox = QtWidgets.QMessageBox(
+                QtWidgets.QMessageBox.Warning,
                 'Warning',
                 'The following conflicting and incompatible plugin(s) is installed and will be ignored by Connect'
                 ':\n\n{}\n\nClean up and archive them?'.format(
                     '\n'.join(unloadable_plugins)
                 ),
-                QtWidgets.QMessageBox.Yes
+                buttons=QtWidgets.QMessageBox.Yes
                 | QtWidgets.QMessageBox.No
                 | QtWidgets.QMessageBox.Cancel,
+                parent=self,
             )
+            answer = msgbox.exec_()
             if answer == QtWidgets.QMessageBox.Yes:
                 pass
             elif answer == QtWidgets.QMessageBox.No:
@@ -276,18 +278,20 @@ class PluginManager(ftrack_connect.ui.application.ConnectWidget):
             elif answer == QtWidgets.QMessageBox.Cancel:
                 return
         if deprecated_plugins:
-            answer = QtWidgets.QMessageBox.question(
-                None,
+            msgbox = QtWidgets.QMessageBox(
+                QtWidgets.QMessageBox.Warning,
                 'Warning',
                 'The following deprecated plugin(s) is installed'
                 ':\n\n{}\n\nClean up and archive them?\n\nNote: they might still function, please '
                 'check release notes for further details.'.format(
                     '\n'.join(deprecated_plugins)
                 ),
-                QtWidgets.QMessageBox.Yes
+                buttons=QtWidgets.QMessageBox.Yes
                 | QtWidgets.QMessageBox.No
                 | QtWidgets.QMessageBox.Cancel,
+                parent=self,
             )
+            answer = msgbox.exec_()
             if answer == QtWidgets.QMessageBox.Yes:
                 pass
             elif answer == QtWidgets.QMessageBox.No:
