@@ -4,7 +4,7 @@
 from ftrack_connect.qt import QtWidgets
 
 from ftrack_connect.ui.application import ConnectWidget
-from ftrack_connect.actionlaunch.actions import Actions
+from ftrack_connect.action_launcher.actions import Actions
 
 
 class ActionLauncherWidget(ConnectWidget):

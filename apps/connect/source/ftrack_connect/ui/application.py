@@ -43,7 +43,9 @@ from ftrack_connect.ui.widget import about as _about
 from ftrack_connect.ui import login_tools as _login_tools
 from ftrack_connect.ui.widget import configure_scenario as _scenario_widget
 import ftrack_connect.ui.config
-from ftrack_connect.applaunch.discover_applications import DiscoverApplications
+from ftrack_connect.application_launcher.discover_applications import (
+    DiscoverApplications,
+)
 
 
 class ConnectWidgetPlugin(object):
@@ -864,7 +866,7 @@ class Application(QtWidgets.QMainWindow):
     def _gather_plugins(self, path):
         '''Return plugin hooks from *path*.'''
 
-        from ftrack_connect.pluginmanager import DEPRECATED_PLUGINS
+        from ftrack_connect.plugin_manager import DEPRECATED_PLUGINS
 
         paths = []
         if not path:
@@ -1240,7 +1242,7 @@ class Application(QtWidgets.QMainWindow):
         '''Append action launcher widget to list of build in
         plugins to add on discovery together with user plugins.'''
 
-        from ftrack_connect.actionlaunch import ActionLauncherWidget
+        from ftrack_connect.action_launcher import ActionLauncherWidget
 
         # Add together with discovered widgets
         self._builtin_plugins.append(ActionLauncherWidget)
@@ -1249,7 +1251,7 @@ class Application(QtWidgets.QMainWindow):
         '''Append plugin manager widget to list of build in
         plugins to add on discovery together with user plugins.'''
 
-        from ftrack_connect.pluginmanager import PluginManager
+        from ftrack_connect.plugin_manager import PluginManager
 
         # Add together with discovered widgets
         self._builtin_plugins.append(PluginManager)

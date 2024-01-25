@@ -10,7 +10,7 @@ import datetime
 import ftrack_api
 from ftrack_connect.util import get_connect_plugin_version
 
-from ftrack_connect.applaunch import (
+from ftrack_connect.application_launcher import (
     append_path,
     ApplicationLauncher,
     ApplicationLaunchAction,

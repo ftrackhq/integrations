@@ -11,7 +11,7 @@ import logging
 
 from ftrack_connect.qt import QtWidgets, QtCore, QtGui
 
-from ftrack_connect.pluginmanager.processor import (
+from ftrack_connect.plugin_manager.processor import (
     STATUSES,
     ROLES,
     STATUS_ICONS,
@@ -216,7 +216,7 @@ class DndPluginList(QtWidgets.QFrame):
         return result
 
     def get_deprecated_plugins(self):
-        from ftrack_connect.pluginmanager import DEPRECATED_PLUGINS
+        from ftrack_connect.plugin_manager import DEPRECATED_PLUGINS
 
         result = []
         plugins = os.listdir(self.default_plugin_directory)

@@ -12,9 +12,9 @@ import ftrack_connect.ui.application
 from ftrack_utils.decorators import asynchronous
 from ftrack_utils.server import send_usage_event
 
-from ftrack_connect.pluginmanager.overlay import InstallerBlockingOverlay
-from ftrack_connect.pluginmanager.processor import PluginProcessor, ROLES
-from ftrack_connect.pluginmanager.pluginlist import DndPluginList
+from ftrack_connect.plugin_manager.overlay import InstallerBlockingOverlay
+from ftrack_connect.plugin_manager.processor import PluginProcessor, ROLES
+from ftrack_connect.plugin_manager.pluginlist import DndPluginList
 
 DEPRECATED_PLUGINS = [
     'ftrack-connect-action-launcher-widget',
