@@ -8,8 +8,16 @@ from urllib.request import urlopen
 import json
 import shutil
 import logging
+import qtawesome as qta
 
 from ftrack_connect.qt import QtWidgets, QtCore, QtGui
+
+from ftrack_connect.util import (
+    is_conflicting_plugin,
+    is_incompatible_plugin,
+    is_deprecated_plugin,
+    is_loadable_plugin,
+)
 
 from ftrack_connect.plugin_manager.processor import (
     STATUSES,
@@ -79,7 +87,7 @@ class DndPluginList(QtWidgets.QFrame):
 
     # custom methods
     def add_plugin(self, file_path, status=STATUSES.NEW):
-        '''Add provided *plugin_path* as plugin with given *status*.'''
+        '''Add provided *file_path* as plugin with given *status*.'''
         if not file_path:
             return
 
@@ -87,6 +95,9 @@ class DndPluginList(QtWidgets.QFrame):
 
         if not data:
             return
+
+        loadable = is_loadable_plugin(file_path)
+        deprecated = is_deprecated_plugin(file_path)
 
         # create new plugin item and populate it with data
         plugin_id = str(hash(data['name']))
@@ -106,6 +117,18 @@ class DndPluginList(QtWidgets.QFrame):
         plugin_item.setData(new_plugin_version, ROLES.PLUGIN_VERSION)
         plugin_item.setData(plugin_id, ROLES.PLUGIN_ID)
         plugin_item.setIcon(STATUS_ICONS[status])
+
+        if not loadable or deprecated:
+            if not loadable:
+                plugin_item.setIcon(
+                    QtGui.QIcon(qta.icon('mdi6.alert-circle-outline'))
+                )
+                plugin_item.setText(f'{plugin_item.text()} [Not loadable]')
+            else:
+                plugin_item.setIcon(QtGui.QIcon(qta.icon('mdi6.alert')))
+                plugin_item.setText(f'{plugin_item.text()} [Deprecated]')
+        else:
+            plugin_item.setIcon(STATUS_ICONS[status])
 
         # check if is a new plugin.....
         stored_item = self.plugin_is_available(data)
@@ -195,6 +218,8 @@ class DndPluginList(QtWidgets.QFrame):
             plugin_path = os.path.join(self.default_plugin_directory, plugin)
             self.add_plugin(plugin_path, STATUSES.INSTALLED)
 
+        return len(plugins)
+
     def populate_download_plugins(self):
         '''Populate model with remotely configured plugins.'''
 
@@ -204,47 +229,78 @@ class DndPluginList(QtWidgets.QFrame):
         for link in response_json['integrations']:
             self.add_plugin(link, STATUSES.DOWNLOAD)
 
-    def get_legacy_plugins(self):
+    def get_conflicting_plugins(self):
         result = []
         plugins = os.listdir(self.default_plugin_directory)
         for plugin in plugins:
-            if (
-                plugin.lower().startswith('ftrack-connect-pipeline')
-                or plugin.lower().find('ftrack-application-launcher') > -1
-            ):
+            plugin_path = os.path.join(self.default_plugin_directory, plugin)
+            if is_conflicting_plugin(plugin_path):
+                result.append(plugin)
+        return result
+
+    def get_incompatible_plugins(self):
+        result = []
+        plugins = os.listdir(self.default_plugin_directory)
+        for plugin in plugins:
+            plugin_path = os.path.join(self.default_plugin_directory, plugin)
+            if is_incompatible_plugin(plugin_path):
                 result.append(plugin)
         return result
 
     def get_deprecated_plugins(self):
-        from ftrack_connect.plugin_manager import DEPRECATED_PLUGINS
-
         result = []
         plugins = os.listdir(self.default_plugin_directory)
         for plugin in plugins:
-            is_deprecated = False
-            for conflicting_plugin in DEPRECATED_PLUGINS:
-                if plugin.lower().find(conflicting_plugin) > -1:
-                    self.logger.warning(
-                        f'Ignoring deprecated plugin: {plugin}'
-                    )
-                    is_deprecated = True
-                    break
-            if is_deprecated:
-                continue
-            result.append(plugin)
+            plugin_path = os.path.join(self.default_plugin_directory, plugin)
+            if is_deprecated_plugin(plugin_path):
+                result.append(plugin)
         return result
 
-    def remove_legacy_plugin(self, plugin_name):
+    def archive_legacy_plugin(self, plugin_name):
+        '''Move legacy plugin identified by *plugin_name* to archive folder'''
         install_path = os.path.join(self.default_plugin_directory, plugin_name)
-        logger.debug(f'Removing legacy plugin: {install_path}')
+        logger.debug(f'Archiving legacy plugin: {install_path}')
         if os.path.exists(install_path) and os.path.isdir(install_path):
-            shutil.rmtree(install_path, ignore_errors=False, onerror=None)
-
-    def remove_deprecated_plugin(self, plugin_name):
-        install_path = os.path.join(self.default_plugin_directory, plugin_name)
-        logger.debug(f'Removing deprecated plugin: {install_path}')
-        if os.path.exists(install_path) and os.path.isdir(install_path):
-            shutil.rmtree(install_path, ignore_errors=False, onerror=None)
+            archive_base_path = os.path.relpath(
+                os.path.join(
+                    self.default_plugin_directory,
+                    '..',
+                    'ftrack-connect-plugins-ARCHIVED',
+                )
+            )
+            archive_path = os.path.join(archive_base_path, plugin_name)
+            remove = True
+            if not os.path.exists(archive_base_path):
+                remove = False
+                os.makedirs(archive_base_path)
+            elif not os.path.exists(archive_path):
+                # Move it to archive
+                try:
+                    logger.warning(
+                        f'Attempting to archive plugin: {install_path} > {archive_path}'
+                    )
+                    shutil.move(install_path, archive_path)
+                    logger.warning(f'Archived plugin: {install_path}')
+                    remove = False
+                except Exception as e:
+                    logger.exception(e)
+                    logger.error(
+                        f'Plugin archive failed, please check permissions! {e}'
+                    )
+            else:
+                logger.warning(f'Plugin is already archived @ {archive_path}')
+            if remove:
+                logger.warning(f'Attempting to remove plugin: {install_path}')
+                try:
+                    shutil.rmtree(
+                        install_path, ignore_errors=False, onerror=None
+                    )
+                    logger.warning(f'Removed plugin: {install_path}')
+                except Exception as e:
+                    logger.exception(e)
+                    logger.error(
+                        f'Plugin removal failed, please check permissions! {e}'
+                    )
 
     def _process_mime_data(self, mime_data):
         '''Return a list of valid filepaths.'''

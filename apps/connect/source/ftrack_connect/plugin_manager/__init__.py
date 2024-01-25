@@ -15,17 +15,15 @@ from ftrack_utils.server import send_usage_event
 from ftrack_connect.plugin_manager.overlay import InstallerBlockingOverlay
 from ftrack_connect.plugin_manager.processor import PluginProcessor, ROLES
 from ftrack_connect.plugin_manager.pluginlist import DndPluginList
-
-DEPRECATED_PLUGINS = [
-    'ftrack-connect-action-launcher-widget',
-    'ftrack-connect-plugin-manager',
-]
+from ftrack_connect.plugin_manager.welcome import WelcomeDialog
 
 
 class PluginManager(ftrack_connect.ui.application.ConnectWidget):
     '''Show and manage plugin installations.'''
 
     name = 'Plugins'
+
+    show_welcome = QtCore.Signal()
 
     installation_done = QtCore.Signal()
     installation_started = QtCore.Signal()
@@ -35,18 +33,20 @@ class PluginManager(ftrack_connect.ui.application.ConnectWidget):
     refresh_started = QtCore.Signal()
     refresh_done = QtCore.Signal()
 
-    apply_changes = QtCore.Signal(object, object)
-    # List of conflicting plugins as argument
+    apply_changes = QtCore.Signal(object)
+    # List of plugins to archive as argument
 
     # default methods
     def __init__(self, session, parent=None):
         '''Instantiate the plugin widget.'''
         super(PluginManager, self).__init__(session, parent=parent)
-
+        self._label = None
         self._search_bar = None
         self._plugin_list_widget = None
+        self._button_layout = None
         self._apply_button = None
         self._reset_button = None
+        self._welcome_dialog = None
         self._blocking_overlay = None
         self._busy_overlay = None
         self._plugins_to_install = None
@@ -60,7 +60,7 @@ class PluginManager(ftrack_connect.ui.application.ConnectWidget):
         self.post_build()
 
         # refresh
-        self._refresh()
+        self._refresh(True)
 
     def pre_build(self):
         layout = QtWidgets.QVBoxLayout()
@@ -71,20 +71,20 @@ class PluginManager(ftrack_connect.ui.application.ConnectWidget):
         self._search_bar.setPlaceholderText('Search plugin...')
 
         self.layout().addWidget(self._search_bar)
-        label = QtWidgets.QLabel(
+        self._label = QtWidgets.QLabel(
             'Check the plugins you want to install or add your'
             ' local plugins by dropping them on the list below'
         )
-        label.setWordWrap(True)
-        label.setMargin(5)
-        self.layout().addWidget(label)
+        self._label.setWordWrap(True)
+        self._label.setMargin(5)
+        self.layout().addWidget(self._label)
 
         # plugin list
         self._plugin_list_widget = DndPluginList()
         self.layout().addWidget(self._plugin_list_widget)
 
         # apply and reset button.
-        button_layout = QtWidgets.QHBoxLayout()
+        self._button_layout = QtWidgets.QHBoxLayout()
 
         self._apply_button = QtWidgets.QPushButton('Install Plugins')
         self._apply_button.setIcon(QtGui.QIcon(qta.icon('mdi6.check')))
@@ -94,10 +94,14 @@ class PluginManager(ftrack_connect.ui.application.ConnectWidget):
         self._reset_button.setIcon(QtGui.QIcon(qta.icon('mdi6.lock-reset')))
         self._reset_button.setMaximumWidth(120)
 
-        button_layout.addWidget(self._apply_button)
-        button_layout.addWidget(self._reset_button)
+        self._button_layout.addWidget(self._apply_button)
+        self._button_layout.addWidget(self._reset_button)
 
-        self.layout().addLayout(button_layout)
+        self.layout().addLayout(self._button_layout)
+
+        self._welcome_dialog = WelcomeDialog(self._on_restart_callback)
+        self._welcome_dialog.hide()
+        self.layout().addWidget(self._welcome_dialog)
 
         # overlays
         self._blocking_overlay = InstallerBlockingOverlay(self)
@@ -113,8 +117,8 @@ class PluginManager(ftrack_connect.ui.application.ConnectWidget):
         self._search_bar.textChanged.connect(
             self._plugin_list_widget.proxy_model.setFilterFixedString
         )
-
-        self.apply_changes.connect(self._on_apply_changes_confirmed)
+        self.show_welcome.connect(self._on_show_welcome_callback)
+        self.apply_changes.connect(self.on_apply_changes_confirmed_callback)
         self.installation_started.connect(self._busy_overlay.show)
         self.installation_done.connect(self._busy_overlay.hide)
         self.installation_done.connect(self._show_user_message_done)
@@ -133,8 +137,11 @@ class PluginManager(ftrack_connect.ui.application.ConnectWidget):
 
         self._blocking_overlay.confirm_button.clicked.connect(self._refresh)
         self._blocking_overlay.restart_button.clicked.connect(
-            self.requestConnectRestart.emit
+            self._on_restart_callback
         )
+
+    def _on_restart_callback(self):
+        self.requestConnectRestart.emit()
 
     def _reset_plugin_list(self):
         self._counter = 0
@@ -179,14 +186,34 @@ class PluginManager(ftrack_connect.ui.application.ConnectWidget):
         )
 
     @asynchronous
-    def _refresh(self):
+    def _refresh(self, on_init=False):
         '''Force refresh of the model, fetching all the available plugins.'''
         self.refresh_started.emit()
-        self._plugin_list_widget.populate_installed_plugins()
+        installed_plugins_count = (
+            self._plugin_list_widget.populate_installed_plugins()
+        )
         self._plugin_list_widget.populate_download_plugins()
         self._enable_apply_button(None)
         self._reset_plugin_list()
         self.refresh_done.emit()
+        if on_init and installed_plugins_count == 0:
+            self.show_welcome.emit()
+
+    def _on_show_welcome_callback(self):
+        # Show dialog were user can choose to install all available plugins
+        # Execute dialog and evaluate response
+        self._label.setVisible(False)
+        self._search_bar.setVisible(False)
+        self._plugin_list_widget.setVisible(False)
+        self._reset_button.setVisible(False)
+        self._apply_button.setVisible(False)
+        self._welcome_dialog.exec_()
+        self._welcome_dialog.hide()
+        self._label.setVisible(True)
+        self._search_bar.setVisible(True)
+        self._plugin_list_widget.setVisible(True)
+        self._reset_button.setVisible(True)
+        self._apply_button.setVisible(True)
 
     def _show_user_message_done(self):
         '''Show final message to the user.'''
@@ -222,30 +249,21 @@ class PluginManager(ftrack_connect.ui.application.ConnectWidget):
 
     def _on_apply_changes(self):
         '''User wants to apply the updates, warn about conflicting plugins.'''
-        legacy_plugins = self._plugin_list_widget.get_legacy_plugins()
+        conflicting_plugins = (
+            self._plugin_list_widget.get_conflicting_plugins()
+        )
+        incompatible_plugins = (
+            self._plugin_list_widget.get_incompatible_plugins()
+        )
         deprecated_plugins = self._plugin_list_widget.get_deprecated_plugins()
-        if deprecated_plugins:
+        unloadable_plugins = conflicting_plugins + incompatible_plugins
+        if unloadable_plugins:
             answer = QtWidgets.QMessageBox.question(
                 None,
                 'Warning',
-                'The following deprecated plugin(s) is installed and will be REMOVED'
-                ':\n\n{}\n\nPlease confirm.'.format(
-                    '\n'.join(deprecated_plugins)
-                ),
-                QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.Cancel,
-            )
-            if answer == QtWidgets.QMessageBox.Yes:
-                pass
-            elif answer == QtWidgets.QMessageBox.Cancel:
-                return
-        if legacy_plugins:
-            answer = QtWidgets.QMessageBox.question(
-                None,
-                'Warning',
-                'The following deprecated plugin(s) is installed'
-                ':\n\n{}\n\nRemove them?\n\nNote: they might still function, please '
-                'check release notes for further details.'.format(
-                    '\n'.join(legacy_plugins)
+                'The following conflicting and incompatible plugin(s) is installed and will be ignored by Connect'
+                ':\n\n{}\n\nClean up and archive them?'.format(
+                    '\n'.join(unloadable_plugins)
                 ),
                 QtWidgets.QMessageBox.Yes
                 | QtWidgets.QMessageBox.No
@@ -254,21 +272,38 @@ class PluginManager(ftrack_connect.ui.application.ConnectWidget):
             if answer == QtWidgets.QMessageBox.Yes:
                 pass
             elif answer == QtWidgets.QMessageBox.No:
-                legacy_plugins = []
+                unloadable_plugins = []  # Keep them
+            elif answer == QtWidgets.QMessageBox.Cancel:
+                return
+        if deprecated_plugins:
+            answer = QtWidgets.QMessageBox.question(
+                None,
+                'Warning',
+                'The following deprecated plugin(s) is installed'
+                ':\n\n{}\n\nClean up and archive them?\n\nNote: they might still function, please '
+                'check release notes for further details.'.format(
+                    '\n'.join(deprecated_plugins)
+                ),
+                QtWidgets.QMessageBox.Yes
+                | QtWidgets.QMessageBox.No
+                | QtWidgets.QMessageBox.Cancel,
+            )
+            if answer == QtWidgets.QMessageBox.Yes:
+                pass
+            elif answer == QtWidgets.QMessageBox.No:
+                deprecated_plugins = []  # Keep them
             else:
                 return
-        self.apply_changes.emit(legacy_plugins, deprecated_plugins)
+        self.apply_changes.emit(unloadable_plugins + deprecated_plugins)
 
     @asynchronous
-    def _on_apply_changes_confirmed(self, legacy_plugins, conflicting_plugins):
+    def on_apply_changes_confirmed_callback(self, archive_plugins):
         '''Will process all the selected plugins.'''
         # Check if any conflicting plugins are installed.
         self.installation_started.emit()
         try:
-            for plugin in conflicting_plugins:
-                self._plugin_list_widget.remove_deprecated_plugin(plugin)
-            for plugin in legacy_plugins:
-                self._plugin_list_widget.remove_legacy_plugin(plugin)
+            for plugin in archive_plugins:
+                self._plugin_list_widget.archive_legacy_plugin(plugin)
             num_items = self._plugin_list_widget.plugin_model.rowCount()
             for i in range(num_items):
                 item = self._plugin_list_widget.plugin_model.item(i)

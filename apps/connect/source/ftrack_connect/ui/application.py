@@ -12,12 +12,6 @@ import weakref
 from operator import itemgetter
 import platformdirs
 import time
-import urllib.request
-import zipfile
-import json
-import tempfile
-from functools import partial
-
 import qtawesome as qta
 
 import ftrack_api
@@ -25,7 +19,6 @@ import ftrack_api._centralized_storage_scenario
 import ftrack_api.event.base
 
 from ftrack_utils.server.track_usage import send_usage_event
-from ftrack_utils.decorators import asynchronous
 
 from ftrack_connect.qt import QtCore, QtWidgets, QtGui
 
@@ -110,195 +103,6 @@ class ConnectWidget(QtWidgets.QWidget):
     def getIdentifier(self):
         '''Return identifier for widget.'''
         return self.getName().lower().replace(' ', '.')
-
-
-class WelcomeDialog(QtWidgets.QDialog):
-    '''Welcome plugin dialog - handles empty plugin folder'''
-
-    plugins_installed = QtCore.Signal()
-    installing = QtCore.Signal()
-    # local variables for finding and installing plugin manager.
-    install_path = platformdirs.user_data_dir(
-        'ftrack-connect-plugins', 'ftrack'
-    )
-
-    json_config_url = os.environ.get(
-        'FTRACK_CONNECT_JSON_PLUGINS_URL',
-        'https://download.ftrack.com/ftrack-connect/plugins.json',
-    )
-
-    @property
-    def skipped(self):
-        return self._skipped
-
-    def _download_plugins(self, source_paths):
-        '''Download plugins from provided *source_paths* item.'''
-        temp_paths = []
-        self._overlay.message = f"Downloaded 0/{len(source_paths)} plugins."
-        i = 1
-        for source_path in source_paths:
-            zip_name = os.path.basename(source_path)
-            save_path = tempfile.gettempdir()
-            temp_path = os.path.join(save_path, zip_name)
-            logging.debug(
-                'Downloading {} to {}'.format(source_path, temp_path)
-            )
-
-            with urllib.request.urlopen(source_path) as dl_file:
-                with open(temp_path, 'wb') as out_file:
-                    out_file.write(dl_file.read())
-            temp_paths.append(temp_path)
-            self._overlay.message = (
-                f"Downloaded {i}/{len(source_paths)} plugins."
-            )
-            i += 1
-        return temp_paths
-
-    def _discover_plugins(self, plugin_names=None):
-        '''Provide urls where to download the given *plugin_names* if
-        *plugin_names* not provided, check for all plugins'''
-        with urllib.request.urlopen(self.json_config_url) as url:
-            data = json.loads(url.read().decode())
-            plugins_url = []
-            if plugin_names:
-                for plugin_name in plugin_names:
-                    plugins_url.extend(
-                        [
-                            plugin_url
-                            for plugin_url in data.get('integrations')
-                            if plugin_name in plugin_url
-                        ]
-                    )
-            else:
-                plugins_url = data.get('integrations')
-
-            if not plugins_url:
-                self._install_button.setVisible(False)
-                self._skip.setVisible(False)
-
-            return plugins_url
-
-    @asynchronous
-    def _install_plugins(self, plugin_names=None):
-        '''Install provided *plugin_names*. If no plugin_names install all available'''
-        self._skipped = False
-        self.installing.emit()
-        plugins_path = self._discover_plugins(plugin_names)
-        self._overlay.message = f"Discovered {len(plugins_path)} plugins."
-        source_paths = self._download_plugins(plugins_path)
-        self._overlay.message = f"Installed 0/{len(source_paths)} plugins."
-        i = 1
-        for source_path in source_paths:
-            plugin_name = os.path.basename(source_path).split('.zip')[0]
-            destination_path = os.path.join(self.install_path, plugin_name)
-            logging.debug(
-                'Installing {} to {}'.format(source_path, destination_path)
-            )
-
-            with zipfile.ZipFile(source_path, 'r') as zip_ref:
-                zip_ref.extractall(destination_path)
-            self._overlay.message = (
-                f"Installed {i}/{len(source_paths)} plugins."
-            )
-            i += 1
-
-        self.plugins_installed.emit()
-
-    def _on_skip_callback(self):
-        '''Skip plugin installation and proceed to connect'''
-        self.close()
-
-    def _on_plugins_installed(self):
-        self._install_button.setVisible(False)
-        self._skip.setVisible(False)
-        self._restart_button.setVisible(True)
-        self._overlay.hide()
-
-    def _on_plugins_installing(self):
-        self._overlay.show()
-
-    def __init__(self, session, on_restart_callback, parent=None):
-        '''Instantiate the actions widget.'''
-        super(WelcomeDialog, self).__init__(parent=parent)
-        self._skipped = True
-
-        layout = QtWidgets.QVBoxLayout()
-        layout.setContentsMargins(30, 0, 30, 0)
-        self.setLayout(layout)
-        spacer = QtWidgets.QSpacerItem(
-            0,
-            70,
-            QtWidgets.QSizePolicy.Minimum,
-            QtWidgets.QSizePolicy.Expanding,
-        )
-        layout.addItem(spacer)
-
-        icon_label = QtWidgets.QLabel()
-        icon = qta.icon(
-            "ph.rocket", color='#FFDD86', rotated=45, scale_factor=0.7
-        )
-        icon_label.setPixmap(
-            icon.pixmap(icon.actualSize(QtCore.QSize(180, 180)))
-        )
-        icon_label.setAlignment(QtCore.Qt.AlignCenter | QtCore.Qt.AlignTop)
-
-        label_title = QtWidgets.QLabel("<H1>Let's get started!</H1>")
-        label_title.setAlignment(QtCore.Qt.AlignCenter | QtCore.Qt.AlignTop)
-
-        label_text = QtWidgets.QLabel(
-            'To be able to get use of the connect application, '
-            'you will need to install the plugins for the integrations you would like to use.'
-            '<br/><br/>'
-        )
-        self._install_button = QtWidgets.QPushButton(
-            'Install all the available plugins.'
-        )
-        self._skip = QtWidgets.QPushButton('Skip for now')
-        self._install_button.setObjectName('primary')
-
-        self._restart_button = QtWidgets.QPushButton('Restart Now')
-
-        self._restart_button.setObjectName('primary')
-        self._restart_button.setVisible(False)
-
-        label_text.setAlignment(QtCore.Qt.AlignLeft | QtCore.Qt.AlignTop)
-        label_text.setWordWrap(True)
-
-        layout.addWidget(
-            label_title, QtCore.Qt.AlignCenter | QtCore.Qt.AlignTop
-        )
-        layout.addWidget(
-            icon_label, QtCore.Qt.AlignCenter | QtCore.Qt.AlignTop
-        )
-        layout.addWidget(
-            label_text, QtCore.Qt.AlignCenter | QtCore.Qt.AlignTop
-        )
-        layout.addWidget(self._install_button)
-        layout.addWidget(self._skip)
-        layout.addWidget(self._restart_button)
-
-        spacer = QtWidgets.QSpacerItem(
-            0,
-            300,
-            QtWidgets.QSizePolicy.Minimum,
-            QtWidgets.QSizePolicy.Expanding,
-        )
-        layout.addItem(spacer)
-        self._install_button.clicked.connect(self._install_plugins)
-        self._skip.clicked.connect(self._on_skip_callback)
-        self.plugins_installed.connect(self._on_plugins_installed)
-        self.installing.connect(self._on_plugins_installing)
-        self._restart_button.clicked.connect(on_restart_callback)
-
-        self._overlay = ftrack_connect.ui.widget.overlay.BusyOverlay(
-            self, message='Installing'
-        )
-        self._overlay.hide()
-
-        self.resize(350, 700)
-
-        # Set as modal
-        self.setModal(True)
 
 
 class Application(QtWidgets.QMainWindow):
@@ -866,8 +670,6 @@ class Application(QtWidgets.QMainWindow):
     def _gather_plugins(self, path):
         '''Return plugin hooks from *path*.'''
 
-        from ftrack_connect.plugin_manager import DEPRECATED_PLUGINS
-
         paths = []
         if not path:
             return paths
@@ -876,16 +678,12 @@ class Application(QtWidgets.QMainWindow):
             for candidate in os.listdir(path):
                 candidate_path = os.path.join(path, candidate)
                 if os.path.isdir(candidate_path):
-                    dirname = os.path.basename(candidate_path)
-                    is_deprecated = False
-                    for conflicting_plugin in DEPRECATED_PLUGINS:
-                        if dirname.lower().find(conflicting_plugin) > -1:
-                            self.logger.warning(
-                                f'Ignoring deprecated plugin: {candidate_path}'
-                            )
-                            is_deprecated = True
-                            break
-                    if is_deprecated:
+                    if not ftrack_connect.util.is_loadable_plugin(
+                        candidate_path
+                    ):
+                        self.logger.warning(
+                            f'Ignoring plugin that is not loadable: {candidate_path}'
+                        )
                         continue
                     full_hook_path = os.path.join(candidate_path, 'hook')
                     if (
@@ -979,14 +777,6 @@ class Application(QtWidgets.QMainWindow):
 
         # Load icons
         load_icons(os.path.join(os.path.dirname(__file__), '..', 'fonts'))
-
-        if not responses and not disable_startup_widget:
-            # Show dialog were user can choose to install all available plugins
-            widget = WelcomeDialog(self.session, self.restart, parent=self)
-            # Execute dialog and evalate response
-            widget.exec_()
-            if not widget.skipped:
-                return
 
         for plugin_class in self._builtin_plugins + responses:
             widget_plugin = None
