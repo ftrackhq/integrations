@@ -37,9 +37,7 @@ class MayaSaveToTempPlugin(BasePlugin):
             # Save Maya scene to this path
             cmds.file(rename=save_path)
             cmds.file(save=True)
-            self.logger.debug(
-                f"Maya scene saved to temp path: {save_path}"
-            )
+            self.logger.debug(f"Maya scene saved to temp path: {save_path}")
         except Exception as error:
             raise PluginExecutionError(
                 message=f"Error attempting to save the current scene to a "
