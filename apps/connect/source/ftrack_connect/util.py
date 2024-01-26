@@ -7,6 +7,12 @@ import sys
 
 from ftrack_connect.qt import QtCore
 
+from ftrack_connect import (
+    INCOMPATIBLE_PLUGINS,
+    CONFLICTING_PLUGINS,
+    DEPRECATED_PLUGINS,
+)
+
 
 def open_directory(path):
     '''Open a filesystem directory from *path* in the OS file browser.
@@ -81,3 +87,43 @@ def get_connect_plugin_version(connect_plugin_path):
             "\n Make sure file is valid.".format(path_version_file)
         )
     return result
+
+
+def is_loadable_plugin(plugin_path):
+    '''Return True if plugin @ *plugin_path* is able to load in current version
+    of Connect'''
+    return not (
+        is_conflicting_plugin(plugin_path)
+        or is_incompatible_plugin(plugin_path)
+    )
+
+
+def is_conflicting_plugin(plugin_path):
+    '''Return true if plugin @ *plugin_path* is conflicting with Connect'''
+    dirname = os.path.basename(plugin_path)
+    for conflicting_plugin in CONFLICTING_PLUGINS:
+        if dirname.lower().find(conflicting_plugin) > -1:
+            return True
+    return False
+
+
+def is_incompatible_plugin(plugin_path):
+    '''Return true if plugin @ *plugin_path* is incompatible with Connect
+    and cannot be loaded'''
+    dirname = os.path.basename(plugin_path)
+    for incompatible_plugin in INCOMPATIBLE_PLUGINS:
+        if dirname.lower().find(incompatible_plugin) > -1:
+            # Check if it has the launch extension
+            launch_path = os.path.join(plugin_path, 'launch')
+            return not os.path.exists(launch_path)
+    return False
+
+
+def is_deprecated_plugin(plugin_path):
+    '''Return true if plugin @ *plugin_path* is deprecated within Connect,
+    but still can be loaded'''
+    dirname = os.path.basename(plugin_path)
+    for deprecated_plugin in DEPRECATED_PLUGINS:
+        if dirname.lower().find(deprecated_plugin) > -1:
+            return True
+    return False

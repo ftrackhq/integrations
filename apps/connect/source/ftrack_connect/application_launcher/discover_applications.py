@@ -7,7 +7,7 @@ import yaml
 
 from ftrack_utils.extensions.registry import register_yaml_files
 
-from ftrack_connect.applaunch import (
+from ftrack_connect.application_launcher import (
     ApplicationStore,
     ApplicationLaunchAction,
     ApplicationLauncher,
