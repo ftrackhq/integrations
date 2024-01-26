@@ -110,7 +110,7 @@ class DndPluginList(QtWidgets.QFrame):
                 ]
 
             if data['platform'] != platform:
-                # Ask user if they want to install this plugin
+                # Not our platform, ask user if they want to install anyway
                 msgbox = QtWidgets.QMessageBox(
                     QtWidgets.QMessageBox.Warning,
                     'Warning',

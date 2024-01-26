@@ -189,7 +189,9 @@ class PluginManager(ftrack_connect.ui.application.ConnectWidget):
 
     @asynchronous
     def _refresh(self, on_init=False):
-        '''Force refresh of the model, fetching all the available plugins.'''
+        '''Force refresh of the model, fetching all the available plugins. This
+        function is run in a separate thread, make sure that UI alterations are
+        performed in QT main thread.'''
         self.refresh_started.emit()
         self._plugin_list_widget.populate_installed_plugins(
             self._on_empty_plugins_callback if on_init else None

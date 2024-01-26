@@ -160,9 +160,7 @@ def invoke_in_qt_main_thread(fn, *args, **kwargs):
     '''
     Invoke function *fn* with arguments, if not running in the main thread.
 
-    TODO: Align this with DCC utility functions to run in main thread, and use them
-    instead as their QT implementation might differ and this solution might not apply
-    or cause instabilities.
+    TODO: Use ftrack QT util instead
     '''
     if QtCore.QThread.currentThread() is _invoker.thread():
         fn(*args, **kwargs)
@@ -173,7 +171,9 @@ def invoke_in_qt_main_thread(fn, *args, **kwargs):
 
 
 def qt_main_thread(func):
-    '''Decorator to ensure the function runs in the QT main thread.'''
+    '''Decorator to ensure the function runs in the QT main thread.
+    TODO: Use ftrack QT util instead
+    '''
 
     def wrapper(*args, **kwargs):
         return invoke_in_qt_main_thread(func, *args, **kwargs)
