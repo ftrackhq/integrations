@@ -6,6 +6,7 @@ import qtawesome as qta
 
 from ftrack_connect.qt import QtWidgets, QtCore, QtGui
 
+from ftrack_connect.util import qt_main_thread
 from ftrack_connect.ui.widget.overlay import BlockingOverlay, BusyOverlay
 import ftrack_connect.ui.application
 
@@ -165,6 +166,7 @@ class PluginManager(ftrack_connect.ui.application.ConnectWidget):
             asynchronous=True,
         )
 
+    @qt_main_thread
     def _enable_apply_button(self, item):
         '''Check the plugins state.'''
         self._apply_button.setDisabled(True)
@@ -189,15 +191,18 @@ class PluginManager(ftrack_connect.ui.application.ConnectWidget):
     def _refresh(self, on_init=False):
         '''Force refresh of the model, fetching all the available plugins.'''
         self.refresh_started.emit()
-        installed_plugins_count = (
-            self._plugin_list_widget.populate_installed_plugins()
+        self._plugin_list_widget.populate_installed_plugins(
+            self._on_empty_plugins_callback if on_init else None
         )
         self._plugin_list_widget.populate_download_plugins()
         self._enable_apply_button(None)
         self._reset_plugin_list()
         self.refresh_done.emit()
-        if on_init and installed_plugins_count == 0:
-            self.show_welcome.emit()
+
+    def _on_empty_plugins_callback(self):
+        '''React upon no plugins installed, should only be called once during
+        startup.'''
+        self.show_welcome.emit()
 
     def _on_show_welcome_callback(self):
         # Show dialog were user can choose to install all available plugins

@@ -127,3 +127,55 @@ def is_deprecated_plugin(plugin_path):
         if dirname.lower().find(deprecated_plugin) > -1:
             return True
     return False
+
+
+def get_platform_identifier():
+    '''Return platform identifier for current platform, used in plugin package
+    filenames'''
+    if sys.platform.startswith('win'):
+        platform = 'win'
+    elif sys.platform.startswith('linux'):
+        platform = 'linux'
+    elif sys.platform.startswith('darwin'):
+        platform = 'mac'
+    else:
+        platform = sys.platform
+    return platform
+
+
+class Invoker(QtCore.QObject):
+    '''Invoker.'''
+
+    def event(self, event):
+        '''Call function on *event*.'''
+        event.fn(*event.args, **event.kwargs)
+
+        return True
+
+
+_invoker = Invoker(None)
+
+
+def invoke_in_qt_main_thread(fn, *args, **kwargs):
+    '''
+    Invoke function *fn* with arguments, if not running in the main thread.
+
+    TODO: Align this with DCC utility functions to run in main thread, and use them
+    instead as their QT implementation might differ and this solution might not apply
+    or cause instabilities.
+    '''
+    if QtCore.QThread.currentThread() is _invoker.thread():
+        fn(*args, **kwargs)
+    else:
+        QtCore.QCoreApplication.postEvent(
+            _invoker, InvokeEvent(fn, *args, **kwargs)
+        )
+
+
+def qt_main_thread(func):
+    '''Decorator to ensure the function runs in the QT main thread.'''
+
+    def wrapper(*args, **kwargs):
+        return invoke_in_qt_main_thread(func, *args, **kwargs)
+
+    return wrapper
