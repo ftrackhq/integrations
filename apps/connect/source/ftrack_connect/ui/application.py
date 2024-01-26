@@ -1037,7 +1037,7 @@ class Application(QtWidgets.QMainWindow):
         # Add together with discovered widgets
         self._builtin_plugins.append(ActionLauncherWidget)
 
-    def _configure_plug_manager_widget(self):
+    def _configure_plugin_manager_widget(self):
         '''Append plugin manager widget to list of build in
         plugins to add on discovery together with user plugins.'''
 

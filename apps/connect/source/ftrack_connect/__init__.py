@@ -43,7 +43,8 @@ DEPRECATED_PLUGINS = [
     'ftrack-application-launcher',
     'ftrack-connect-pipeline',
     'ftrack-connect-nuke-studio',
-    'ftrack-connect-rv' 'ftrack-connect-cinema-4d',
+    'ftrack-connect-rv',
+    'ftrack-connect-cinema-4d',
 ]
 
 

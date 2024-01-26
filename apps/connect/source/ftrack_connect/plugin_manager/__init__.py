@@ -14,7 +14,7 @@ from ftrack_utils.server import send_usage_event
 
 from ftrack_connect.plugin_manager.overlay import InstallerBlockingOverlay
 from ftrack_connect.plugin_manager.processor import PluginProcessor, ROLES
-from ftrack_connect.plugin_manager.pluginlist import DndPluginList
+from ftrack_connect.plugin_manager.plugin_list import DndPluginList
 from ftrack_connect.plugin_manager.welcome import WelcomeDialog
 
 
