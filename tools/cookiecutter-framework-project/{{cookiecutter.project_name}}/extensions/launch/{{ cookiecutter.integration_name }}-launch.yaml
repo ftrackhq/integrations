@@ -1,0 +1,41 @@
+type: launcher
+name: framework-{{ cookiecutter.integration_name }}
+priority: 100
+context:
+  - Task
+identifier: ftrack-framework-launch-{{ cookiecutter.integration_name }}
+applicationIdentifier: {{ cookiecutter.integration_name }}_{variant}
+integrations:
+  framework:
+    - framework-{{ cookiecutter.integration_name }}
+label: {{ cookiecutter.integration_name.capitalize()  }}
+icon: {{ cookiecutter.integration_name }}
+variant: "{version}"
+search_path:
+  linux:
+    prefix:
+      - "/"
+      - usr
+      - local
+      - {{ cookiecutter.integration_name.capitalize() }}.*
+    expression:
+      - {{ cookiecutter.integration_name.capitalize() }}\d.+
+    version_expression: {{ cookiecutter.integration_name.capitalize() }}(?P<version>.*)\/.+$
+  windows:
+    prefix:
+      - C:\
+      - Program Files.*
+    expression:
+      - {{ cookiecutter.integration_name.capitalize() }}.*
+      - {{ cookiecutter.integration_name.capitalize() }}\d.+.exe
+    version_expression: (?P<version>[\\d.]+[vabc]+[\\dvabc.]*)"
+  darwin:
+    prefix:
+      - "/"
+      - Applications
+    expression:
+      - {{ cookiecutter.integration_name.capitalize() }}.*
+      - {{ cookiecutter.integration_name.capitalize() }}\d[\w.]+.app
+extensions_path:
+  - extensions/common
+  - extensions/{{ cookiecutter.integration_name }}
