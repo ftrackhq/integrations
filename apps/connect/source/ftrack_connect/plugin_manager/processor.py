@@ -12,6 +12,7 @@ import zipfile
 from urllib.error import HTTPError
 
 from ftrack_connect.qt import QtWidgets, QtCore, QtGui
+from ftrack_connect.util import get_platform_identifier
 
 logger = logging.getLogger(__name__)
 
@@ -33,8 +34,9 @@ class ROLES(object):
     PLUGIN_NAME = PLUGIN_STATUS + 1
     PLUGIN_VERSION = PLUGIN_NAME + 1
     PLUGIN_SOURCE_PATH = PLUGIN_VERSION + 1
-    PLUGIN_INSTALL_PATH = PLUGIN_SOURCE_PATH + 1
-    PLUGIN_ID = PLUGIN_INSTALL_PATH + 1
+    PLUGIN_INSTALLED_PATH = PLUGIN_SOURCE_PATH + 1
+    PLUGIN_DESTINATION_PATH = PLUGIN_INSTALLED_PATH + 1
+    PLUGIN_ID = PLUGIN_DESTINATION_PATH + 1
 
 
 # Icon representation for statuses
@@ -62,15 +64,7 @@ class PluginProcessor(QtCore.QObject):
     def download(self, plugin):
         '''Download provided *plugin* item.'''
         source_path_noarch = plugin.data(ROLES.PLUGIN_SOURCE_PATH)
-        # Determine our platform
-        if sys.platform.startswith('win'):
-            platform = 'win'
-        elif sys.platform.startswith('linux'):
-            platform = 'linux'
-        elif sys.platform.startswith('darwin'):
-            platform = 'mac'
-        else:
-            platform = sys.platform
+        platform = get_platform_identifier()
 
         for platform_dependent, source_path in [
             (
@@ -124,10 +118,7 @@ class PluginProcessor(QtCore.QObject):
         if source_path.startswith('http'):
             source_path = self.download(plugin)
 
-        plugin_name = os.path.basename(source_path).split('.zip')[0]
-
-        install_path = os.path.dirname(plugin.data(ROLES.PLUGIN_INSTALL_PATH))
-        destination_path = os.path.join(install_path, plugin_name)
+        destination_path = plugin.data(ROLES.PLUGIN_DESTINATION_PATH)
         logger.debug(f'Installing {source_path} to {destination_path}')
 
         with zipfile.ZipFile(source_path, 'r') as zip_ref:
@@ -135,7 +126,9 @@ class PluginProcessor(QtCore.QObject):
 
     def remove(self, plugin):
         '''Remove provided *plugin* item.'''
-        install_path = plugin.data(ROLES.PLUGIN_INSTALL_PATH)
+        install_path = plugin.data(ROLES.PLUGIN_INSTALLED_PATH)
         logger.debug(f'Removing {install_path}')
         if os.path.exists(install_path) and os.path.isdir(install_path):
             shutil.rmtree(install_path, ignore_errors=False, onerror=None)
+        else:
+            logger.warning(f'Could not remove {install_path} - not found!')

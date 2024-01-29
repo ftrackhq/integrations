@@ -13,10 +13,12 @@ import qtawesome as qta
 from ftrack_connect.qt import QtWidgets, QtCore, QtGui
 
 from ftrack_connect.util import (
+    qt_main_thread,
     is_conflicting_plugin,
     is_incompatible_plugin,
     is_deprecated_plugin,
     is_loadable_plugin,
+    get_platform_identifier,
 )
 
 from ftrack_connect.plugin_manager.processor import (
@@ -96,6 +98,37 @@ class DndPluginList(QtWidgets.QFrame):
         if not data:
             return
 
+        # Check platform
+        platform = get_platform_identifier()
+        destination_filename = os.path.basename(file_path)
+        if destination_filename.lower().endswith('.zip'):
+            destination_filename = destination_filename[:-4]
+        if data['platform'] != 'noarch':
+            if destination_filename.endswith(f'-{data["platform"]}'):
+                destination_filename = destination_filename[
+                    : -len(data["platform"]) - 1
+                ]
+
+            if data['platform'] != platform:
+                # Not our platform, ask user if they want to install anyway
+                msgbox = QtWidgets.QMessageBox(
+                    QtWidgets.QMessageBox.Warning,
+                    'Warning',
+                    'This plugin is not compatible with your platform:'
+                    f':\n\n{destination_filename}\n\nProceed install anyway?',
+                    buttons=QtWidgets.QMessageBox.Yes
+                    | QtWidgets.QMessageBox.No
+                    | QtWidgets.QMessageBox.Cancel,
+                    parent=self,
+                )
+                answer = msgbox.exec_()
+                if answer == QtWidgets.QMessageBox.Yes:
+                    pass
+                elif answer == QtWidgets.QMessageBox.No:
+                    return  # Skip this one, but proceed
+                elif answer == QtWidgets.QMessageBox.Cancel:
+                    raise Exception('Plugin installation cancelled by user.')
+
         loadable = is_loadable_plugin(file_path)
         deprecated = is_deprecated_plugin(file_path)
 
@@ -136,20 +169,18 @@ class DndPluginList(QtWidgets.QFrame):
         if not stored_item:
             # add new plugin
             if status == STATUSES.INSTALLED:
-                plugin_item.setData(file_path, ROLES.PLUGIN_INSTALL_PATH)
+                plugin_item.setData(file_path, ROLES.PLUGIN_INSTALLED_PATH)
                 plugin_item.setEnabled(False)
                 plugin_item.setCheckable(False)
 
             elif status in [STATUSES.NEW, STATUSES.DOWNLOAD]:
-                destination_path = os.path.join(
-                    self.default_plugin_directory, os.path.basename(file_path)
-                )
-
-                plugin_item.setData(
-                    destination_path, ROLES.PLUGIN_INSTALL_PATH
-                )
-
                 plugin_item.setData(file_path, ROLES.PLUGIN_SOURCE_PATH)
+                destination_path = os.path.join(
+                    self.default_plugin_directory, destination_filename
+                )
+                plugin_item.setData(
+                    destination_path, ROLES.PLUGIN_DESTINATION_PATH
+                )
 
                 if status is STATUSES.NEW:
                     # enable it by default as is new.
@@ -175,7 +206,14 @@ class DndPluginList(QtWidgets.QFrame):
             stored_item.setText(f'{stored_item.text()} > {new_plugin_version}')
             stored_item.setData(STATUSES.UPDATE, ROLES.PLUGIN_STATUS)
             stored_item.setIcon(STATUS_ICONS[STATUSES.UPDATE])
+            destination_path = os.path.join(
+                self.default_plugin_directory, destination_filename
+            )
+            stored_item.setData(
+                destination_path, ROLES.PLUGIN_DESTINATION_PATH
+            )
             stored_item.setData(file_path, ROLES.PLUGIN_SOURCE_PATH)
+
             stored_item.setData(new_plugin_version, ROLES.PLUGIN_VERSION)
 
             # enable it by default if we are updating
@@ -202,24 +240,45 @@ class DndPluginList(QtWidgets.QFrame):
         else:
             return False
 
-        if data['version'].endswith('.zip'):
+        data['platform'] = 'noarch'
+        if data['version'].lower().endswith('.zip'):
             # pop zip extension from the version.
             # TODO: refine regex to catch extension
             data['version'] = data['version'][:-4]
+            parts = data['version'].split('-')
+            if len(parts) > 1:
+                data['version'] = parts[0]
+                data['platform'] = parts[-1]
+
         return data
 
-    def populate_installed_plugins(self):
+    @qt_main_thread
+    def populate_installed_plugins(self, empty_plugins_callback=None):
         '''Populate model with installed plugins.'''
         self._plugin_model.clear()
 
         plugins = os.listdir(self.default_plugin_directory)
 
         for plugin in plugins:
-            plugin_path = os.path.join(self.default_plugin_directory, plugin)
-            self.add_plugin(plugin_path, STATUSES.INSTALLED)
+            try:
+                plugin_path = os.path.join(
+                    self.default_plugin_directory, plugin
+                )
+                self.add_plugin(plugin_path, STATUSES.INSTALLED)
+            except Exception as e:
+                logger.exception(e)
+                # Show message box to user
+                QtWidgets.QMessageBox.warning(
+                    self,
+                    'Warning',
+                    f'The following plugin failed to load:\n\n{plugin}\n\n{e}',
+                )
+                logger.warning(f'Failed to add plugin {plugin}: ')
 
-        return len(plugins)
+        if empty_plugins_callback and len(plugins) == 0:
+            empty_plugins_callback()
 
+    @qt_main_thread
     def populate_download_plugins(self):
         '''Populate model with remotely configured plugins.'''
 
