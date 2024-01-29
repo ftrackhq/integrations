@@ -39,7 +39,7 @@ shiboken_path = os.path.join(shiboken2.__path__[0])
 
 logging.basicConfig(level=logging.INFO)
 
-from setuptools import Distribution, find_packages, setup as setup
+from setuptools import setup as setup
 
 
 ROOT_PATH = os.path.dirname(os.path.realpath(__file__))
@@ -57,12 +57,6 @@ AWS_PLUGIN_DOWNLOAD_PATH = (
     'https://download.ftrack.com/ftrack-connect/integrations/'
 )
 
-
-# Read version from source.
-# release = get_version(version_scheme='post-release')
-
-# take major/minor/patch
-# VERSION = '.'.join(release.split('.')[:3])
 
 # Fetch Connect version
 try:
@@ -116,8 +110,6 @@ configuration = dict(
     package_data={"": ["{}/**/*.*".format(RESOURCE_PATH)]},
     version="2.1.2",
     setup_requires=[
-        # 'sphinx >= 1.2.2, < 2',
-        # 'sphinx_rtd_theme >= 0.1.6, < 2',
         'lowdown >= 0.1.0, < 1',
         'cryptography',
         'requests >= 2, <3',
@@ -484,7 +476,6 @@ if sys.platform in ('darwin', 'win32', 'linux'):
         'packages': ['ftrack_connect'],
         'includes': includes,
         "zip_include_packages": [
-            # 'ftrack_connect',
             "PySide2",
             "shiboken2",
             "Qt",

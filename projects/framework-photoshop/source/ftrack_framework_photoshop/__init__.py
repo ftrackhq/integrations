@@ -1,13 +1,32 @@
 # :coding: utf-8
 # :copyright: Copyright (c) 2014-2023 ftrack
-import os
 import logging
 import time
 import sys
 import os
 import traceback
+import importlib
 
 from Qt import QtWidgets, QtCore
+
+import ftrack_utils
+
+# Reshuffle pythonpath
+for path in list(sys.path):
+    is_connect_path = (
+        path.find(f'{os.sep}ftrack Connect') > -1
+        and path.find(f'{os.sep}lib') > -1
+    )
+    if not is_connect_path:
+        # Put PS dep on top, so it gets resolved before Connect dependencies (ftrack_utils)
+        sys.path.remove(path)
+        sys.path.insert(0, path)
+
+# Reload ftrack_utils from the correct sys path, not from Connect as it has might
+# have been optimized by cx_Freeze and will not work
+# TODO: Provide a better way to do this, for example by running through a separate
+# clean framework Python interpreter.
+importlib.reload(ftrack_utils)
 
 import ftrack_api
 
