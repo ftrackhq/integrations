@@ -23,7 +23,7 @@ build-backend = "poetry.core.masonry.api"
 python = ">= 3.7, < 3.12"
 clique = "1.6.1"
 six = ">= 1, < 2"
-toml = "*"
+toml = "^0.10.2"
 
 [tool.black]
 line-length = 79
