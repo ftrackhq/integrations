@@ -39,7 +39,9 @@ class WelcomeDialog(QtWidgets.QDialog):
 
     def _discover_plugins(self):
         '''Provide plugin urls to download'''
-
+        # Read plugins from json config url if set by user
+        # TODO: remove this when there is a way for users to point plugin manager
+        # to their own repository releases
         if self.json_config_url:
             with urllib.request.urlopen(self.json_config_url) as url:
                 data = json.loads(url.read().decode())
@@ -82,7 +84,7 @@ class WelcomeDialog(QtWidgets.QDialog):
 
     @asynchronous
     def _install_plugins(self):
-        '''Install provided *plugin_names*. If no plugin_names install all available'''
+        '''Install all available plugins'''
         self._skipped = False
         self.installing.emit()
         plugins_path = self._discover_plugins()
@@ -92,6 +94,7 @@ class WelcomeDialog(QtWidgets.QDialog):
         i = 1
         for source_path in source_paths:
             plugin_name = os.path.basename(source_path).split('.zip')[0]
+            # If platform dependent plugin, remove platform identifier before installing
             plugin_name = plugin_name.replace(
                 f'-{get_platform_identifier()}.', '.'
             )

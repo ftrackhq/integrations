@@ -221,7 +221,8 @@ def fetch_github_releases(latest=True):
         package = release.tag_name.split('/')[0]
         version = release.tag_name.split('/')[-1]
         if not check_major_version(version):
-            # TODO: solve the issue when library major version is getting close to Connect major version
+            # TODO: solve the issue when library major version is catching up to
+            #  Connect major version
             logger.debug(
                 f'   Not a Connect release on YY.m.p format: {release.tag_name}'
             )

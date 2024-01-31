@@ -279,7 +279,9 @@ class DndPluginList(QtWidgets.QFrame):
     @qt_main_thread
     def populate_download_plugins(self):
         '''Populate model with remotely configured plugins.'''
-
+        # Read plugins from json config url if set by user
+        # TODO: remove this when there is a way for users to point plugin manager
+        # to their own repository releases
         if self._json_config_url:
             response = urlopen(self._json_config_url)
             response_json = json.loads(response.read())
