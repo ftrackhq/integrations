@@ -10,6 +10,7 @@ import shutil
 import logging
 import qtawesome as qta
 
+
 from ftrack_connect.qt import QtWidgets, QtCore, QtGui
 
 from ftrack_connect.util import (
@@ -19,6 +20,8 @@ from ftrack_connect.util import (
     is_deprecated_plugin,
     is_loadable_plugin,
     get_platform_identifier,
+    get_plugin_json_url_from_environment,
+    fetch_github_releases,
 )
 
 from ftrack_connect.plugin_manager.processor import (
@@ -33,10 +36,6 @@ logger = logging.getLogger(__name__)
 
 class DndPluginList(QtWidgets.QFrame):
     '''Plugin list widget'''
-
-    default_json_config_url = (
-        'https://download.ftrack.com/ftrack-connect/plugins.json'
-    )
 
     plugin_re = re.compile('(?P<name>(([A-Za-z-3-4]+)))-(?P<version>(\w.+))')
 
@@ -53,9 +52,8 @@ class DndPluginList(QtWidgets.QFrame):
     def __init__(self, parent=None):
         super(DndPluginList, self).__init__(parent=parent)
 
-        self.json_config_url = os.environ.get(
-            'FTRACK_CONNECT_JSON_PLUGINS_URL', self.default_json_config_url
-        )
+        # If set, download plugins from this url instead of the releases
+        self._json_config_url = get_plugin_json_url_from_environment()
 
         self.default_plugin_directory = platformdirs.user_data_dir(
             'ftrack-connect-plugins', 'ftrack'
@@ -104,11 +102,6 @@ class DndPluginList(QtWidgets.QFrame):
         if destination_filename.lower().endswith('.zip'):
             destination_filename = destination_filename[:-4]
         if data['platform'] != 'noarch':
-            if destination_filename.endswith(f'-{data["platform"]}'):
-                destination_filename = destination_filename[
-                    : -len(data["platform"]) - 1
-                ]
-
             if data['platform'] != platform:
                 # Not our platform, ask user if they want to install anyway
                 msgbox = QtWidgets.QMessageBox(
@@ -128,6 +121,11 @@ class DndPluginList(QtWidgets.QFrame):
                     return  # Skip this one, but proceed
                 elif answer == QtWidgets.QMessageBox.Cancel:
                     raise Exception('Plugin installation cancelled by user.')
+
+            if destination_filename.endswith(f'-{data["platform"]}'):
+                destination_filename = destination_filename[
+                    : -len(data["platform"]) - 1
+                ]
 
         loadable = is_loadable_plugin(file_path)
         deprecated = is_deprecated_plugin(file_path)
@@ -282,11 +280,18 @@ class DndPluginList(QtWidgets.QFrame):
     def populate_download_plugins(self):
         '''Populate model with remotely configured plugins.'''
 
-        response = urlopen(self.json_config_url)
-        response_json = json.loads(response.read())
+        if self._json_config_url:
+            response = urlopen(self._json_config_url)
+            response_json = json.loads(response.read())
 
-        for link in response_json['integrations']:
-            self.add_plugin(link, STATUSES.DOWNLOAD)
+            for link in response_json['integrations']:
+                self.add_plugin(link, STATUSES.DOWNLOAD)
+        else:
+            # Read latest releases from ftrack integrations repository
+            releases = fetch_github_releases()
+
+            for release in releases:
+                self.add_plugin(release['url'], STATUSES.DOWNLOAD)
 
     def get_conflicting_plugins(self):
         result = []

@@ -9,11 +9,16 @@ import json
 import tempfile
 import qtawesome as qta
 
-from ftrack_utils.decorators import asynchronous
-
 from ftrack_connect.qt import QtCore, QtWidgets, QtGui
 
+from ftrack_utils.decorators import asynchronous
+
 import ftrack_connect
+from ftrack_connect.util import (
+    get_plugin_json_url_from_environment,
+    fetch_github_releases,
+    get_platform_identifier,
+)
 
 
 class WelcomeDialog(QtWidgets.QDialog):
@@ -26,14 +31,31 @@ class WelcomeDialog(QtWidgets.QDialog):
         'ftrack-connect-plugins', 'ftrack'
     )
 
-    json_config_url = os.environ.get(
-        'FTRACK_CONNECT_JSON_PLUGINS_URL',
-        'https://download.ftrack.com/ftrack-connect/plugins.json',
-    )
+    json_config_url = get_plugin_json_url_from_environment()
 
     @property
     def skipped(self):
         return self._skipped
+
+    def _discover_plugins(self):
+        '''Provide plugin urls to download'''
+
+        if self.json_config_url:
+            with urllib.request.urlopen(self.json_config_url) as url:
+                data = json.loads(url.read().decode())
+                plugins_url = data.get('integrations')
+
+                if not plugins_url:
+                    self._install_button.setVisible(False)
+                    self._skip.setVisible(False)
+        else:
+            # Read latest releases from ftrack integrations repository
+            releases = fetch_github_releases()
+            plugins_url = []
+            for release in releases:
+                plugins_url.append(release['url'])
+
+        return plugins_url
 
     def _download_plugins(self, source_paths):
         '''Download plugins from provided *source_paths* item.'''
@@ -58,42 +80,22 @@ class WelcomeDialog(QtWidgets.QDialog):
             i += 1
         return temp_paths
 
-    def _discover_plugins(self, plugin_names=None):
-        '''Provide urls where to download the given *plugin_names* if
-        *plugin_names* not provided, check for all plugins'''
-        with urllib.request.urlopen(self.json_config_url) as url:
-            data = json.loads(url.read().decode())
-            plugins_url = []
-            if plugin_names:
-                for plugin_name in plugin_names:
-                    plugins_url.extend(
-                        [
-                            plugin_url
-                            for plugin_url in data.get('integrations')
-                            if plugin_name in plugin_url
-                        ]
-                    )
-            else:
-                plugins_url = data.get('integrations')
-
-            if not plugins_url:
-                self._install_button.setVisible(False)
-                self._skip.setVisible(False)
-
-            return plugins_url
-
     @asynchronous
-    def _install_plugins(self, plugin_names=None):
+    def _install_plugins(self):
         '''Install provided *plugin_names*. If no plugin_names install all available'''
         self._skipped = False
         self.installing.emit()
-        plugins_path = self._discover_plugins(plugin_names)
+        plugins_path = self._discover_plugins()
         self._overlay.message = f"Discovered {len(plugins_path)} plugins."
         source_paths = self._download_plugins(plugins_path)
         self._overlay.message = f"Installed 0/{len(source_paths)} plugins."
         i = 1
         for source_path in source_paths:
             plugin_name = os.path.basename(source_path).split('.zip')[0]
+            plugin_name = plugin_name.replace(
+                f'-{get_platform_identifier()}.', '.'
+            )
+
             destination_path = os.path.join(self.install_path, plugin_name)
             logging.debug(
                 'Installing {} to {}'.format(source_path, destination_path)
