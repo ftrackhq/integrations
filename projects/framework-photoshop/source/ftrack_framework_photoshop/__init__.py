@@ -5,7 +5,6 @@ import time
 import sys
 import os
 import traceback
-import importlib
 
 from Qt import QtWidgets, QtCore
 
