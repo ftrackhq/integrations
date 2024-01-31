@@ -581,10 +581,6 @@ def build_package(pkg_path, args):
                     'No executable found for pyside2-rcc, attempting to run as '
                     'a module'
                 )
-                # executable = os.path.join(
-                #    os.path.dirname(sys.executable),
-                #    f'{pyside_rcc_command}{".exe" if sys.platform == "win32" else ""}',
-                # )
                 executable = [sys.executable, '-m', 'scss']
 
             # Use the first occurrence if more than one is found.

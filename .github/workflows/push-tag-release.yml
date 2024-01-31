@@ -6,7 +6,7 @@ name: CI-TAG
 on:
   push:
     tags:
-      - "**"
+      - '*/v*' # Push on package tag with version number
 
 jobs:
 
@@ -36,10 +36,6 @@ jobs:
       - name: set installers folder
         if: ${{ env.PACKAGE == 'connect-installer' }}
         run: echo Not supported by this CI && exit 1
-        #shell: bash
-        #run: |
-        #  echo "FOLDER=installers/${{ env.PACKAGE }}" >> $GITHUB_ENV
-        #  echo "TO_PYPI=false" >> $GITHUB_ENV
       - name: set lib folder
         if: ${{ env.PACKAGE == 'constants' || env.PACKAGE == 'framework-core' || env.PACKAGE == 'framework-qt' || env.PACKAGE == 'qt' || env.PACKAGE == 'qt-style' || env.PACKAGE == 'utils' }}
         shell: bash
@@ -87,7 +83,7 @@ jobs:
       - uses: actions/checkout@v3
       - uses: actions/setup-python@v4
         with:
-          python-version: '3.7'
+          python-version: '3.9'
       - name: install poetry
         shell: bash
         run: |
@@ -127,7 +123,7 @@ jobs:
           cd ../..
           pip install -r tools/requirements.txt
           python tools/build.py --remove_intermediate_folder --from_source --include_assets /tmp/ftrack-5.1.0.rvpkg build_connect_plugin ${{ needs.set-variables-create-release.outputs.folder }}
-      - name: upload artefacts to release
+      - name: upload artifacts to release
         shell: bash
         run: |
           cd ${{ needs.set-variables-create-release.outputs.folder }}
@@ -140,7 +136,7 @@ jobs:
           gh release edit ${{ needs.set-variables-create-release.outputs.tag }} --draft=false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - name: Upload temp artefacts
+      - name: Upload temp artifacts
         uses: actions/upload-artifact@v2
         if: ${{ needs.set-variables-create-release.outputs.to_pypi == 'true' }}
         with:
@@ -157,7 +153,7 @@ jobs:
       - uses: actions/checkout@v3
       - uses: actions/setup-python@v4
         with:
-          python-version: '3.7'
+          python-version: '3.9'
       - name: install poetry
         shell: bash
         run: |
@@ -179,7 +175,7 @@ jobs:
         run: |
           pip install -r tools/requirements.txt
           python tools/build.py --remove_intermediate_folder --from_source build_connect_plugin ${{ needs.set-variables-create-release.outputs.folder }}
-      - name: upload artefacts to release
+      - name: upload artifacts to release
         shell: bash
         run: |
           cd ${{ needs.set-variables-create-release.outputs.folder }}
@@ -197,7 +193,7 @@ jobs:
       - uses: actions/checkout@v3
       - uses: actions/setup-python@v4
         with:
-          python-version: '3.7'
+          python-version: '3.9'
       - name: install poetry
         shell: bash
         run: |
@@ -219,7 +215,7 @@ jobs:
         run: |
           pip install -r tools/requirements.txt
           python tools/build.py --remove_intermediate_folder --from_source build_connect_plugin ${{ needs.set-variables-create-release.outputs.folder }}
-      - name: upload artefacts to release
+      - name: upload artifacts to release
         shell: bash
         run: |
           cd ${{ needs.set-variables-create-release.outputs.folder }}
@@ -236,7 +232,7 @@ jobs:
       name: staging
       url: https://test.pypi.org/project/ftrack-${{ needs.build-linux.outputs.package }}/
     steps:
-      - name: Download temp artefacts
+      - name: Download temp artifacts
         uses: actions/download-artifact@v2
         with:
           name: dist
@@ -256,7 +252,7 @@ jobs:
       name: production
       url: https://pypi.org/project/ftrack-${{ needs.build-linux.outputs.package }}/
     steps:
-      - name: Download temp artefacts
+      - name: Download temp artifacts
         uses: actions/download-artifact@v2
         with:
           name: dist
