@@ -10,21 +10,19 @@ import uuid
 import logging
 import weakref
 from operator import itemgetter
-import appdirs
+import platformdirs
 import time
-import urllib.request
-import zipfile
-import json
-import tempfile
-from ftrack_connect.qt import QtCore, QtWidgets, QtGui
-from functools import partial
-
 import qtawesome as qta
-from ftrack_connect import load_icons
 
 import ftrack_api
 import ftrack_api._centralized_storage_scenario
 import ftrack_api.event.base
+
+from ftrack_utils.server.track_usage import send_usage_event
+
+from ftrack_connect.qt import QtCore, QtWidgets, QtGui
+
+from ftrack_connect import load_icons
 import ftrack_connect
 import ftrack_connect.event_hub_thread as _event_hub_thread
 import ftrack_connect.error
@@ -37,11 +35,10 @@ from ftrack_connect.ui.widget import login as _login
 from ftrack_connect.ui.widget import about as _about
 from ftrack_connect.ui import login_tools as _login_tools
 from ftrack_connect.ui.widget import configure_scenario as _scenario_widget
-from ftrack_utils.server.track_usage import send_usage_event
 import ftrack_connect.ui.config
-from ftrack_utils.decorators import asynchronous
-
-from ftrack_connect.applaunch.discover_applications import DiscoverApplications
+from ftrack_connect.application_launcher.discover_applications import (
+    DiscoverApplications,
+)
 
 
 class ConnectWidgetPlugin(object):
@@ -108,183 +105,6 @@ class ConnectWidget(QtWidgets.QWidget):
         return self.getName().lower().replace(' ', '.')
 
 
-class WelcomePlugin(ConnectWidget):
-    '''Welcome plugin widget.'''
-
-    name = "Welcome"
-
-    plugins_installed = QtCore.Signal()
-    installing = QtCore.Signal()
-    # local variables for finding and installing plugin manager.
-    install_path = appdirs.user_data_dir('ftrack-connect-plugins', 'ftrack')
-
-    json_config_url = os.environ.get(
-        'FTRACK_CONNECT_JSON_PLUGINS_URL',
-        'https://download.ftrack.com/ftrack-connect/plugins.json',
-    )
-
-    def download_plugins(self, source_paths):
-        '''Download plugins from provided *source_paths* item.'''
-        temp_paths = []
-        self.overlay.message = f"Downloaded 0/{len(source_paths)} plugins."
-        i = 1
-        for source_path in source_paths:
-            zip_name = os.path.basename(source_path)
-            save_path = tempfile.gettempdir()
-            temp_path = os.path.join(save_path, zip_name)
-            logging.debug(
-                'Downloading {} to {}'.format(source_path, temp_path)
-            )
-
-            with urllib.request.urlopen(source_path) as dl_file:
-                with open(temp_path, 'wb') as out_file:
-                    out_file.write(dl_file.read())
-            temp_paths.append(temp_path)
-            self.overlay.message = (
-                f"Downloaded {i}/{len(source_paths)} plugins."
-            )
-            i += 1
-        return temp_paths
-
-    def discover_plugins(self, plugin_names=None):
-        '''Provide urls where to download the given *plugin_names* if
-        *plugin_names* not provided, check for all plugins'''
-        with urllib.request.urlopen(self.json_config_url) as url:
-            data = json.loads(url.read().decode())
-            plugins_url = []
-            if plugin_names:
-                for plugin_name in plugin_names:
-                    plugins_url.extend(
-                        [
-                            plugin_url
-                            for plugin_url in data.get('integrations')
-                            if plugin_name in plugin_url
-                        ]
-                    )
-            else:
-                plugins_url = data.get('integrations')
-
-            if not plugins_url:
-                self.install_button.setVisible(False)
-                self.install_plug_man_button.setVisible(False)
-
-            return plugins_url
-
-    @asynchronous
-    def install_plugins(self, plugin_names=None):
-        '''Install provided *plugin_names*. If no plugin_names install all them'''
-        self.installing.emit()
-        plugins_path = self.discover_plugins(plugin_names)
-        self.overlay.message = f"Discovered {len(plugins_path)} plugins."
-        source_paths = self.download_plugins(plugins_path)
-        self.overlay.message = f"Installed 0/{len(source_paths)} plugins."
-        i = 1
-        for source_path in source_paths:
-            plugin_name = os.path.basename(source_path).split('.zip')[0]
-            destination_path = os.path.join(self.install_path, plugin_name)
-            logging.debug(
-                'Installing {} to {}'.format(source_path, destination_path)
-            )
-
-            with zipfile.ZipFile(source_path, 'r') as zip_ref:
-                zip_ref.extractall(destination_path)
-            self.overlay.message = (
-                f"Installed {i}/{len(source_paths)} plugins."
-            )
-            i += 1
-
-        self.plugins_installed.emit()
-
-    def _on_plugins_installed(self):
-        self.install_button.setVisible(False)
-        self.install_plug_man_button.setVisible(False)
-        self.restart_button.setVisible(True)
-        self.overlay.hide()
-
-    def _on_plugins_installing(self):
-        self.overlay.show()
-
-    def __init__(self, session, parent=None):
-        '''Instantiate the actions widget.'''
-        super(WelcomePlugin, self).__init__(session, parent=parent)
-        layout = QtWidgets.QVBoxLayout()
-        layout.setContentsMargins(30, 0, 30, 0)
-        self.setLayout(layout)
-        spacer = QtWidgets.QSpacerItem(
-            0,
-            70,
-            QtWidgets.QSizePolicy.Minimum,
-            QtWidgets.QSizePolicy.Expanding,
-        )
-        layout.addItem(spacer)
-
-        icon_label = QtWidgets.QLabel()
-        icon = qta.icon(
-            "ph.rocket", color='#FFDD86', rotated=45, scale_factor=0.7
-        )
-        icon_label.setPixmap(
-            icon.pixmap(icon.actualSize(QtCore.QSize(180, 180)))
-        )
-        icon_label.setAlignment(QtCore.Qt.AlignCenter | QtCore.Qt.AlignTop)
-
-        label_title = QtWidgets.QLabel("<H1>Let's get started!</H1>")
-        label_title.setAlignment(QtCore.Qt.AlignCenter | QtCore.Qt.AlignTop)
-
-        label_text = QtWidgets.QLabel(
-            'To be able to get use of the connect application, '
-            'you will need to install the plugins for the integrations you would like to use.'
-            '<br/><br/>'
-        )
-        self.install_button = QtWidgets.QPushButton(
-            'Install the plugin manager and all the available plugins.'
-        )
-        self.install_plug_man_button = QtWidgets.QPushButton(
-            'Install just the plugin manager.'
-        )
-        self.install_button.setObjectName('primary')
-
-        self.restart_button = QtWidgets.QPushButton('Restart Now')
-
-        self.restart_button.setObjectName('primary')
-        self.restart_button.setVisible(False)
-
-        label_text.setAlignment(QtCore.Qt.AlignLeft | QtCore.Qt.AlignTop)
-        label_text.setWordWrap(True)
-
-        layout.addWidget(
-            label_title, QtCore.Qt.AlignCenter | QtCore.Qt.AlignTop
-        )
-        layout.addWidget(
-            icon_label, QtCore.Qt.AlignCenter | QtCore.Qt.AlignTop
-        )
-        layout.addWidget(
-            label_text, QtCore.Qt.AlignCenter | QtCore.Qt.AlignTop
-        )
-        layout.addWidget(self.install_button)
-        layout.addWidget(self.install_plug_man_button)
-        layout.addWidget(self.restart_button)
-
-        spacer = QtWidgets.QSpacerItem(
-            0,
-            300,
-            QtWidgets.QSizePolicy.Minimum,
-            QtWidgets.QSizePolicy.Expanding,
-        )
-        layout.addItem(spacer)
-        self.install_button.clicked.connect(self.install_plugins)
-        self.install_plug_man_button.clicked.connect(
-            partial(self.install_plugins, plugin_names=['plugin-manager'])
-        )
-        self.plugins_installed.connect(self._on_plugins_installed)
-        self.installing.connect(self._on_plugins_installing)
-        self.restart_button.clicked.connect(self.requestConnectRestart.emit)
-
-        self.overlay = ftrack_connect.ui.widget.overlay.BusyOverlay(
-            self, message='Installing'
-        )
-        self.overlay.hide()
-
-
 class Application(QtWidgets.QMainWindow):
     '''Main application window for ftrack connect.'''
 
@@ -297,6 +117,8 @@ class Application(QtWidgets.QMainWindow):
     # Login signal.
     loginSignal = QtCore.Signal(object, object, object)
     loginSuccessSignal = QtCore.Signal()
+
+    _builtin_plugins = []
 
     def restart(self):
         '''restart connect application'''
@@ -408,7 +230,7 @@ class Application(QtWidgets.QMainWindow):
         self.__connect_start_time = time.time()
         self._log_level = log_level
 
-        self.defaultPluginDirectory = appdirs.user_data_dir(
+        self.defaultPluginDirectory = platformdirs.user_data_dir(
             'ftrack-connect-plugins', 'ftrack'
         )
         self._createDefaultPluginDirectory()
@@ -817,7 +639,11 @@ class Application(QtWidgets.QMainWindow):
 
         self._discover_applications()  # Was ftrack-application-launcher
 
-        self._discoverConnectWidget()
+        self._configure_action_launcher_widget()  # Was external ftrack-connect action-launcher plugin
+
+        self._configure_plugin_manager_widget()  # Was external ftrack-connect-plugin-manager plugin
+
+        self._discover_connect_widgets()
 
     def _discover_plugin_paths(self):
         '''Return a list of paths to pass to ftrack_api.Session()'''
@@ -843,15 +669,22 @@ class Application(QtWidgets.QMainWindow):
 
     def _gather_plugins(self, path):
         '''Return plugin hooks from *path*.'''
+
         paths = []
         if not path:
             return paths
         self.logger.debug(u'Searching {0!r} for plugin hooks.'.format(path))
-
         if os.path.isdir(path):
             for candidate in os.listdir(path):
                 candidate_path = os.path.join(path, candidate)
                 if os.path.isdir(candidate_path):
+                    if not ftrack_connect.util.is_loadable_plugin(
+                        candidate_path
+                    ):
+                        self.logger.warning(
+                            f'Ignoring plugin that is not loadable: {candidate_path}'
+                        )
+                        continue
                     full_hook_path = os.path.join(candidate_path, 'hook')
                     if (
                         os.path.isdir(full_hook_path)
@@ -933,7 +766,7 @@ class Application(QtWidgets.QMainWindow):
 
         return menu
 
-    def _discoverConnectWidget(self):
+    def _discover_connect_widgets(self):
         '''Find and load connect widgets in search paths.'''
 
         event = ftrack_api.event.base.Event(topic=ConnectWidgetPlugin.topic)
@@ -941,53 +774,46 @@ class Application(QtWidgets.QMainWindow):
             os.getenv('FTRACK_CONNECT_DISABLE_STARTUP_WIDGET', False)
         )
         responses = self.session.event_hub.publish(event, synchronous=True)
-        if not responses and not disable_startup_widget:
-            widget_plugin = WelcomePlugin(self.session)
-            identifier = widget_plugin.getIdentifier()
-            if not self.plugins.get(identifier):
-                self.plugins[identifier] = widget_plugin
+
+        # Load icons
+        load_icons(os.path.join(os.path.dirname(__file__), '..', 'fonts'))
+
+        for plugin_class in self._builtin_plugins + responses:
+            widget_plugin = None
+            try:
+                widget_plugin = plugin_class(self.session)
+
+            except Exception:
+                self.logger.exception(
+                    msg='Error while loading plugin : {}'.format(widget_plugin)
+                )
+                continue
+
+            if not isinstance(widget_plugin, ConnectWidget):
+                self.logger.warning(
+                    'Widget {} is not a valid ConnectWidget'.format(
+                        widget_plugin
+                    )
+                )
+                continue
+            try:
+                identifier = widget_plugin.getIdentifier()
+                if not self.plugins.get(identifier):
+                    self.plugins[identifier] = widget_plugin
+                else:
+                    self.logger.debug(
+                        'Widget {} already registered'.format(identifier)
+                    )
+                    continue
+
                 self.addPlugin(widget_plugin)
-        else:
-            for ResponsePlugin in responses:
-                try:
-                    load_icons(
-                        os.path.join(os.path.dirname(__file__), '..', 'fonts')
-                    )
-                    widget_plugin = ResponsePlugin(self.session)
 
-                except Exception:
-                    self.logger.exception(
-                        msg='Error while loading plugin : {}'.format(
-                            widget_plugin
-                        )
+            except Exception as error:
+                self.logger.warning(
+                    'Connect Widget Plugin "{}" could not be loaded. Reason: {}'.format(
+                        widget_plugin.getName(), str(error)
                     )
-                    continue
-
-                if not isinstance(widget_plugin, ConnectWidget):
-                    self.logger.warning(
-                        'Widget {} is not a valid ConnectWidget'.format(
-                            widget_plugin
-                        )
-                    )
-                    continue
-                try:
-                    identifier = widget_plugin.getIdentifier()
-                    if not self.plugins.get(identifier):
-                        self.plugins[identifier] = widget_plugin
-                    else:
-                        self.logger.debug(
-                            'Widget {} already registered'.format(identifier)
-                        )
-                        continue
-
-                    self.addPlugin(widget_plugin)
-
-                except Exception as error:
-                    self.logger.warning(
-                        'Connect Widget Plugin "{}" could not be loaded. Reason: {}'.format(
-                            widget_plugin.getName(), str(error)
-                        )
-                    )
+                )
 
     def _routeEvent(self, event):
         '''Route websocket *event* to publisher plugin.
@@ -1046,7 +872,6 @@ class Application(QtWidgets.QMainWindow):
         if name is None:
             name = plugin.getName()
 
-        icon = None
         try:
             icon = qta.icon(plugin.icon)
         except Exception as err:
@@ -1062,6 +887,8 @@ class Application(QtWidgets.QMainWindow):
             self._onWidgetRequestApplicationClose
         )
         plugin.requestConnectRestart.connect(self.restart)
+
+        self.logger.debug(f'Plugin {name}({plugin.__class__.__name__}) added')
 
     def removePlugin(self, plugin):
         '''Remove plugin registered with *identifier*.
@@ -1200,3 +1027,21 @@ class Application(QtWidgets.QMainWindow):
             self.session, launcher_config_paths
         )
         applications.register()
+
+    def _configure_action_launcher_widget(self):
+        '''Append action launcher widget to list of build in
+        plugins to add on discovery together with user plugins.'''
+
+        from ftrack_connect.action_launcher import ActionLauncherWidget
+
+        # Add together with discovered widgets
+        self._builtin_plugins.append(ActionLauncherWidget)
+
+    def _configure_plugin_manager_widget(self):
+        '''Append plugin manager widget to list of build in
+        plugins to add on discovery together with user plugins.'''
+
+        from ftrack_connect.plugin_manager import PluginManager
+
+        # Add together with discovered widgets
+        self._builtin_plugins.append(PluginManager)

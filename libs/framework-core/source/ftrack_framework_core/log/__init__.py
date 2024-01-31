@@ -4,7 +4,7 @@
 import os
 import logging
 import sqlite3
-import appdirs
+import platformdirs
 import errno
 import json
 from json import JSONEncoder
@@ -112,7 +112,7 @@ class LogDB(object):
         Raise if the directory can not be created.
         '''
 
-        user_data_dir = appdirs.user_data_dir('ftrack-connect', 'ftrack')
+        user_data_dir = platformdirs.user_data_dir('ftrack-connect', 'ftrack')
 
         if not os.path.exists(user_data_dir):
             try:

@@ -21,7 +21,7 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.poetry.dependencies]
 python = ">= 3.7, < 3.12"
-PySide2 = { version = ">= 5.13, < 5.16"}#, python = "<3.10"}
+PySide2 = { version = ">= 5.13, < 5.16", optional = true } #python = "<3.10", optional = true }
 #PySide6 = { version = "^6.5",  python = ">=3.10"}
 "Qt.py" = ">=1.0.0, < 2"
 #ftrack
@@ -32,6 +32,7 @@ ftrack-qt = { version = "> 1, < 3", optional = true }
 ftrack-framework-core = { version = "> 1, < 3", optional = true }
 
 [tool.poetry.extras]
+pyside = ["PySide2"]
 ftrack-libs = ["ftrack-constants", "ftrack-utils", "ftrack-qt"]
 framework-libs = ["ftrack-framework-core"]
 

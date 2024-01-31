@@ -7,11 +7,11 @@ tools:
     icon: publish
     options:
       tool_configs:
-        - maya-file-publisher
+        - maya-scene-publisher
   - name: open
     label: "OPEN"
     dialog_name: framework_standard_opener_dialog
     icon: open
     options:
       tool_configs:
-        - maya-file-opener
+        - maya-scene-opener

@@ -11,7 +11,7 @@ Community owned Maya integration for ftrack.
 
 Install Poetry
 
-Create a Python 3.7 virtual environment. If you're using an Apple Silicon chip, follow the instructions in the [How to install compatible PySide2 on Silicon based Mac](../../README.md#how-to-install-compatible-pyside2-on-silicon-based-mac) section. 
+Create a Python >=3.7, <3.12 virtual environment. If you're using an Apple Silicon chip, follow the instructions in the [How to install compatible PySide2 on Silicon based Mac](../../README.md#how-to-install-compatible-pyside2-on-silicon-based-mac) section. 
 
 Activate the virtual environment. 
 
@@ -58,12 +58,13 @@ Build Connect plugin:
 
 ```bash
     cd integrations
-    python tools/build.py build_connect_plugin projects/framework-maya
+    python tools/build.py --include_resources resource/bootstrap build_connect_plugin projects/framework-maya
 ```
 
 If the build fails and Maya is using beta or experimental dependencies published to Test PyPi, use the `--testpypi` flag 
 to build the plugin.
 
+To build from source, not involving PyPi, use the `--from_source` flag.
 
 ### Build documentation
 

@@ -1,0 +1,79 @@
+type: tool_config
+name: maya-scene-publisher
+config_type: publisher
+engine:
+  - type: plugin
+    tags:
+      - context
+    plugin: store_asset_context
+    options:
+      asset_type_name: scene
+    ui: publisher_asset_version_selector
+
+  # Export the snapshot component.
+  - type: group
+    tags:
+      - component
+    options:
+      component: snapshot
+    #optional: False by default so is no need
+    #enabled: True by default so is no need
+    plugins:
+      - type: plugin
+        plugin: store_component
+      - type: plugin
+        tags:
+          - collector
+        plugin: maya_scene_collector
+        ui: maya_scene_options_selector
+        options:
+          export_type: scene # selection is also available
+          extension_format: mb # ma is also available
+      - type: plugin
+        tags:
+          - validator
+        plugin: maya_scene_saved_validator
+        ui: validator_label
+      - type: plugin
+        tags:
+          - exporter
+        plugin: maya_scene_exporter
+        ui: maya_export_options_selector
+
+  # Export Thumbnail
+  - type: group
+    tags:
+      - component
+    options:
+      component: thumbnail
+    #optional: False by default so is no need
+    #enabled: True by default so is no need
+    plugins:
+      - type: plugin
+        plugin: store_component
+      - type: plugin
+        tags:
+          - collector
+        plugin: maya_camera_collector
+        ui: maya_camera_selector
+        options:
+          camera_name: persp
+      - type: plugin
+        tags:
+          - validator
+        plugin: maya_camera_exists_validator
+        ui: validator_label
+      - type: plugin
+        tags:
+          - exporter
+        plugin: maya_thumbnail_exporter
+
+  # Common validator check all exported paths exists.
+  - type: plugin
+    tags:
+      - validator
+    plugin: exported_paths_validator
+    ui: validator_label
+
+  # Publish to ftrack.
+  - publish_to_ftrack

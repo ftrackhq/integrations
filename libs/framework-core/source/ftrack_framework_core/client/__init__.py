@@ -344,10 +344,13 @@ class Client(object):
         dialog_name,
         dialog_class=None,
         dialog_options=None,
+        dock_func=None,
     ):
         '''Function to show a framework dialog by name *dialog_name* from the
         client, using *dialog_class* or picking class from registry. Passes on
-        *dialog_options* to the dialog.'''
+        *dialog_options* to the dialog.
+        *dock_func* is an optional function to dock the dialog in a way for a specific DCC
+        '''
         # use dialog options to pass options to the dialog like for
         #  example: Dialog= WidgetDialog dialog_options= {tool_config_plugin: Context_selector}
         #  ---> So this will execute the widget dialog with the widget of the
@@ -405,8 +408,12 @@ class Client(object):
         # Append dialog to dialogs
         self._register_dialog(dialog)
         self.dialog = dialog
-        self.dialog.show_ui()
-        self.dialog.setFocus()
+        # If a docking function is provided, use it
+        if dock_func:
+            dock_func(self.dialog)
+        else:
+            self.dialog.show_ui()
+            self.dialog.setFocus()
 
     def _register_dialog(self, dialog):
         '''Register the given initialized *dialog* to the dialogs registry'''

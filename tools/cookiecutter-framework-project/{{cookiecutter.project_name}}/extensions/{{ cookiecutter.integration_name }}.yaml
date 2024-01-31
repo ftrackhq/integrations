@@ -1,0 +1,17 @@
+type: dcc_config
+name: framework-{{ cookiecutter.integration_name }}
+tools:
+  - name: publish
+    label: "Publish"
+    dialog_name: framework_standard_publisher_dialog
+    icon: publish
+    options:
+      tool_configs:
+        - {{ cookiecutter.integration_name }}-scene-publisher
+  - name: open
+    label: "Open"
+    dialog_name: framework_standard_opener_dialog
+    icon: open
+    options:
+      tool_configs:
+        - {{ cookiecutter.integration_name }}-scene-opener

@@ -1,4 +1,8 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2019 ftrack
+# :copyright: Copyright (c) 2014-2023 ftrack
 
-# TODO: decide how much we do here and how much in the init.py
+import maya.cmds as cmds
+
+cmds.evalDeferred('import ftrack_framework_maya', lp=True)
+
+# TODO: setup frame range and start and end frame

@@ -1,0 +1,10 @@
+{
+    "integration_name": "integration name",
+    "package_name": "ftrack_framework_{{ cookiecutter.integration_name }}",
+    "project_name": "framework-{{ cookiecutter.integration_name }}",
+    "description": "{{ cookiecutter.integration_name.capitalize() }} integration with ftrack eco system.",
+    "year": "2024",
+    "version": "2.0.0rc1",
+    "min_dcc_version": "2021",
+    "keywords": "ftrack"
+}

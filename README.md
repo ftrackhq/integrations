@@ -1,11 +1,9 @@
 
-This monorepo contains the source code for the ftrack pipeline integration framework, divided into packages.
+This monorepo contains the source code for ftrack integrations, divided on apps (ex: Connect), libs (ex: framework libraries) and projects (ex: Integrations).
 
 # Developing
 
-We use [Pants](https://www.pantsbuild.org/) to build and test the packages in this repository, and to manage the dependencies between them.
-
-Each package can be built on it its own with either Poetry or Setuptools (depending on the package), but Pants is required to build the entire repository.
+We use [Poetry](https://python-poetry.org/) to build and test independent packages in this repository, and to manage the dependencies between them.
 
 ## Obtaining the source code
 
@@ -13,7 +11,7 @@ Each package can be built on it its own with either Poetry or Setuptools (depend
 git clone https://github.com/ftrackhq/integrations
 ```
 
-or download the source ZIP from the [Integrations repository](https://github.com/ftrackhq/integrations) on Github
+or download the source ZIP from the [Integrations repository](https://github.com/ftrackhq/integrations) on Github.
 
 
 ## Preparations
@@ -21,7 +19,7 @@ or download the source ZIP from the [Integrations repository](https://github.com
 Follow these steps to prepare your environment:
 
 1. Install Poetry.
-2. Create a Python 3.7 virtual environment. If you're using an Apple Silicon chip, follow the instructions in the [How to install compatible PySide2 on Silicon based Mac](#how-to-install-compatible-pyside2-on-silicon-based-mac) section.
+2. Create a Python >=3.7, <3.12 virtual environment. If you're using an Apple Silicon chip, follow the instructions in the [How to install compatible PySide2 on Silicon based Mac](#how-to-install-compatible-pyside2-on-silicon-based-mac) section.
 
 ### How to install compatible PySide2 on Silicon based Mac 
 
@@ -60,67 +58,13 @@ Follow these steps to install a compatible version of PySide2 Python 3.7 on a Si
 
 ## Black
 
-We run Black version 23 on the codebase to ensure consistent formatting. 
-
-If updating or adding BUILD files, remember to have them properly formatted before committing otherwise CI will fail:
-
-```bash
-pants fmt --lint-only="black" ::
-```
-
-To check that BUILD files are properly formatted:
-
-```bash
-pants lint check --lint-only="black" ::
-```
+We run Black version 23.1.0 on the codebase to ensure consistent formatting. 
 
 To be sure that code is properly formatted before committing code, enable the Git black pre commit hook by running this commands::
 
 ```bash
 pip install pre-commit
 pre-commit install
-```
-
-
-To format the code manually before committing, run:
-
-```bash
-black -l 79 --skip-string-normalization .
-```
-
-
-## Building
-
-A GitHub CI/CF provide automated builds of the packages in this repository on PRs, merge to main and on tagging of releases.
-
-To build the entire repository, run:
-
-```bash
-./pants package ::
-```
-
-The resulting source distribution (sdist) and wheel will be out to: `dist/`
-
-
-To build a single package:
-
-```bash
-./pants package projects/framework-maya
-```
-
-## Building Connect plugin
-
-Connect requires packages to be built and distributes as plugins. 
-
-Example on how to build the Maya DCC Connect plugin:
-
-```bash
-./pants package projects/framework-maya
-cd dist
-tar -xzvf framework-maya-1.2.3.tar.gz
-cd framework-maya-1.2.3
-# Create and activate a Python 3.7 virtual environment
-python setup.py build_plugin
 ```
 
 ## Testing
@@ -143,68 +87,62 @@ PyTest tests/framework/unit/
 - Publish to test Pypi:
     - poetry publish -r testpypi --build
 
-# Package overview
+# Repo overview
 
-## Connect
+## Apps
 
-The desktop application that discovers and launches the DCC integrations and drives widget plugins.
+| Package                   | Path                         | Description                                                                                                   |
+|---------------------------|------------------------------|---------------------------------------------------------------------------------------------------------------|
+| [connect](./apps/connect) | app/connect                  | The desktop application that discovers and launches the DCC integrations and drives widget plugins.           |
 
-### App
+## Installers
 
-| Package                                           | Path                         | Description                  |
-|---------------------------------------------------|------------------------------|------------------------------|
-| [connect](apps/connect)                           | app/connect                  | ftrack Connect app           |
-| [connect-installer](installers/connect-installer) | installers/connect-installer | ftrack Connect app installer |
+| Package                                             | Path                         | Description                   |
+|-----------------------------------------------------|------------------------------|-------------------------------|
+| [connect-installer](./installers/connect-installer) | installers/connect-installer | ftrack Connect app installer  |
 
+## Libs
 
-### Application launcher
+| Package                                 | Path                | Description                                                                                          |
+|-----------------------------------------|---------------------|------------------------------------------------------------------------------------------------------|
+| [constants](./libs/constants)           | libs/constants      | ftrack constants integrations library                                                                | 
+| [framework-core](./libs/framework-core) | libs/framework-core | The core framework library                                                                           | 
+| [framework-qt](./libs/framework-qt)     | libs/framework-qt   | Integrations Framework qt library, contains framework qt widgets and utilities used in the framework | 
+| [qt](./libs/qt)                         | libs/qt             | ftrack qt integrations library, contains generic qt widgets used in integrations                     | 
+| [qt-style](./libs/qt-style)             | libs/qt-style       | ftrack qt-style contains the ftrack style for the qt library.                                        | 
+| [utils](./libs/utils)                   | libs/utils          | ftrack utility library                                                                               | 
 
-| Package                                                                   | Path                                    | Description                                | RC                                                                              |
-|---------------------------------------------------------------------------|-----------------------------------------|--------------------------------------------|---------------------------------------------------------------------------------|
-| [application-launcher](projects/application-launcher)                     | projects/application-launcher           | The application launcher logic             | [application-launcher-rc](projects/application-launcher/rc)                     |
-| [connect-action-launcher-widget](projects/connect-action-launcher-widget) | projects/connect-action-launcher-widget | The action launcher widget in Connect      | [connect-action-launcher-widget-rc](projects/connect-action-launcher-widget/rc) |
+## Projects
 
+| Package                                                               | Path                              | Description                                                                               |
+|-----------------------------------------------------------------------|-----------------------------------|-------------------------------------------------------------------------------------------|
+| [connect-publisher-widget](./projects/connect-publisher-widget)       | projects/connect-publisher-widget | The standalone publisher widget in Connect                                                |
+| [connect-timetracker-widget](./projects/connect-timetracker-widget)   | projects/connect-timetracker-widget | TimeTracker connect widget                                                                |
+| [framework-common-extensions](./projects/framework-common-extensions) | projects/framework-common-extensions | Framework project which contains the default provided common extensions for the framework |
+| [framework-maya](./projects/framework-maya)                           | projects/framework-maya           | Maya DCC framework integration                                                            |
+| [framework-nuke](./projects/framework-nuke)                           | projects/framework-nuke           | Nuke DCC framework integration                                                            |
+| [framework-photoshop](./projects/framework-photoshop)                 | projects/framework-photoshop      | Photoshop DCC framework integration                                                       |
+| [framework-photoshop-js](./projects/framework-photoshop-js)           | projects/framework-photoshop-js   | Photoshop DCC framework integration JS code                                               |
+| [nuke-studio](./projects/nuke-studio)                                 | projects/nuke-studio              | Nuke Studio integration                                                                   |
+| [rv](./projects/rv)                                                   | projects/rv                       | RV player integration                                                                     |
 
-### Framework integrations
+## Resource
 
-The framework package group contains the DCC integrations and is divided into libraries and DCC integration projects.
-
-#### Libraries
-
-| Package                               | Path                  | Description                | RC                                          |
-|---------------------------------------|-----------------------|----------------------------|---------------------------------------------|
-| [framework-core](libs/framework-core) | libs/framework-core   | The core framework library | [framework-core-rc](libs/framework-core/rc) |
-| [framework-qt](libs/framework-qt)     | libs/framework-qt     | The QT framework library   | [framework-qt-rc](libs/framework-qt/rc)     |
-
-
-#### DCC integrations
-
-| Package                                         | Path                       | Description                   | RC                                                    |
-|-------------------------------------------------|----------------------------|-------------------------------|-------------------------------------------------------|
-| [framework-maya](projects/framework-maya)       | projects/framework-maya    | Maya DCC integration          | [framework-maya-rc](projects/framework-maya/rc)       |
-| [framework-nuke](projects/framework-nuke)       | projects/framework-nuke    | Nuke DCC integration          | [framework-nuke-rc](projects/framework-nuke/rc)       |
-| [framework-houdini](projects/framework-houdini) | projects/framework-houdini | Houdini DCC integration       | [framework-houdini-rc](projects/framework-houdini/rc) |
-| [framework-3dsmax](projects/framework-3dsmax)   | projects/framework-3dsmax  | 3d Studio Max DCC integration | [framework-3dsmax-rc](projects/framework-3dsmax/rc)   |
-| [framework-unreal](projects/framework-unreal)   | projects/framework-unreal  | Unreal Engine DCC integration | [framework-unreal-rc](projects/framework-unreal/rc)   |
-
-### Standalone integrations
-
-| Package                             | Path                 | Description             | RC                                        |
-|-------------------------------------|----------------------|-------------------------|-------------------------------------------|
-| [rv](projects/rv)                   | projects/rv          | RV player integration   | [rv-rc](projects/rv/rc)                   |
-| [nuke-studio](projects/nuke-studio) | projects/nuke-studio | Nuke Studio integration | [nuke-studio-rc](projects/nuke-studio/rc) |
+| Package                   | Path           | Description                       |
+|---------------------------|----------------|-----------------------------------|
+| [style](./resource/style) | resource/style | ftrack integrations style package |
 
 
-### Connect publisher
+## Tests
 
-| Package                                                                   | Path                                    | Description                                |
-|---------------------------------------------------------------------------|-----------------------------------------|--------------------------------------------|
-| [connect-publisher-widget](projects/connect-publisher-widget)             | projects/connect-publisher-widget       | The standalone publisher widget in Connect |
+| Package                       | Path           | Description                              |
+|-------------------------------|----------------|------------------------------------------|
+| [framework](./test/framework) | test/framework | Framework unit and manual tests package. |
 
 
-### Tools
+## Tools
 
-| Package                                                | Path                           | Description                                                |
-|--------------------------------------------------------|--------------------------------|------------------------------------------------------------|
-| [connect-cookiecutter](tools/connect-cookiecutter)     | tools/connect-cookiecutter     | Cookiecutter template for Connect plugins                  |
-| [framework-cookiecutter](tools/framework-cookiecutter) | tools/framework-cookiecutter   | Cookiecutter template for Framework (integrations) plugins |
+| Package                                                                  | Path                                 | Description                                      |
+|--------------------------------------------------------------------------|--------------------------------------|--------------------------------------------------|
+| [cookiecutter-framework-project](./tools/cookiecutter-framework-project) | tools/cookiecutter-framework-project | Cookiecutter template for framework integrations |
+| [build](./tools/build.py)                                                | tools/build.py                       | Build tool to create connect plugins             |
