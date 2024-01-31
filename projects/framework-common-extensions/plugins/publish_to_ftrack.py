@@ -6,6 +6,8 @@ import traceback
 from ftrack_framework_core.plugin import BasePlugin
 from ftrack_framework_core.exceptions.plugin import PluginExecutionError
 
+from ftrack_utils.usage import get_usage_tracker
+
 
 class PublishToFtrack(BasePlugin):
     name = 'publish_to_ftrack'
@@ -18,6 +20,13 @@ class PublishToFtrack(BasePlugin):
         exporter plugins in the given *data* and will publish the result to its
         component name in ftrack.
         '''
+
+        # Track publish to ftrack in mix panel
+        usage_tracker = get_usage_tracker()
+        if usage_tracker:
+            usage_tracker.track(
+                "FRAMEWORK_PUBLISH_TO_FTRACK", {"store": store}
+            )
 
         # Get components to publish
         components = list(store.get('components').keys())
