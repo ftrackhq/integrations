@@ -10,6 +10,9 @@ Release Notes
 
 .. release:: upcoming
 
+    .. change:: fix
+        Open directory opens on other machines.
+
     .. change:: changed
         :tags: App launcher environment Variables
 

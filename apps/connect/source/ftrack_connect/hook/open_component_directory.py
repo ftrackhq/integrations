@@ -4,6 +4,7 @@
 import logging
 import os
 
+import platform
 import ftrack_api
 import ftrack_connect.util
 
@@ -22,6 +23,7 @@ class OpenComponentDirectoryAction(object):
         '''Instantiate action with *session*.'''
         self.session = session
         self.logger = logger
+        self.node = platform.node()
 
     def discover(self, event):
         '''Discover *event*.'''
@@ -32,6 +34,7 @@ class OpenComponentDirectoryAction(object):
                     {
                         'label': 'Open directory',
                         'actionIdentifier': self.identifier,
+                        'host': self.node
                     }
                 ]
             }
@@ -107,15 +110,23 @@ class OpenComponentDirectoryAction(object):
     def register(self):
         '''Register to event hub.'''
         self.session.event_hub.subscribe(
-            u'topic=ftrack.action.discover '
-            u'and source.user.username="{0}"'.format(self.session.api_user),
+            u'topic=ftrack.action.discover and '
+            u'source.user.username="{0}" and '
+            u'data.host={1}'.format(
+                self.session.api_user, 
+                self.node
+            ),
             self.discover,
         )
 
         self.session.event_hub.subscribe(
-            'topic=ftrack.action.launch and data.actionIdentifier={0} and '
-            'source.user.username="{1}"'.format(
-                self.identifier, self.session.api_user
+            u'topic=ftrack.action.launch and '
+            u'data.actionIdentifier={0} and '
+            u'source.user.username="{1}" and '
+            u'data.host={2}'.format(
+                self.identifier, 
+                self.session.api_user, 
+                self.node
             ),
             self.launch,
         )
