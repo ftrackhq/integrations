@@ -200,10 +200,11 @@ def check_major_version(version, major_version_start=24):
         return False
 
 
-def fetch_github_releases(latest=True):
+def fetch_github_releases(latest=True, prereleases=False):
     '''Read github releases and return a list of releases, and
-    list of assets as value. If latest is True, only the latest
-    version of each plugin is returned.'''
+    list of assets as value. If *latest* is True, only the latest
+    version of each plugin is returned. If *prereleases* is True,
+    prereleases are included in the result.'''
 
     REPO_NAME = "ftrackhq/integrations"
 
@@ -228,6 +229,9 @@ def fetch_github_releases(latest=True):
             )
             continue
 
+        if not prereleases and release.prerelease:
+            logger.debug(f'   Skipping prerelease: {release.tag_name}')
+            continue
         release_data = {
             'id': release.id,
             'title': release.title,
