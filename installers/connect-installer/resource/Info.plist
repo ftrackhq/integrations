@@ -13,7 +13,7 @@
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
-	<string>2.1.2rc3</string>
+	<string>3.0.0rc1</string>
 	<key>LSUIElement</key>
 	<string>0</string>
 	<key>NSHighResolutionCapable</key>

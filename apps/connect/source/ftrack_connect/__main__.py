@@ -155,10 +155,21 @@ def main(arguments=None):
 
     if framework_standalone_module:
         # Run the framework standalone module using Connect
-        # Connect package built executable does not bootstrap PYTHONPATH, make sure it is done properly
-        for p in os.environ.get('PYTHONPATH', []).split(os.pathsep):
-            if not p in sys.path:
-                sys.path.append(p)
+
+        # Connect package built executable does not bootstrap PYTHONPATH,
+        # make sure it is done properly. Also puth them first in sys.path
+        # to have priority over Connect packages.
+        for path in os.environ.get('PYTHONPATH', []).split(os.pathsep):
+            sys.path.insert(0, path)
+
+        import ftrack_utils
+
+        # Reload ftrack_utils from the correct sys path, not from Connect as it has might
+        # have been optimized by cx_Freeze and will not work
+        # TODO: Provide a better way to do this, for example by running through a separate
+        # clean framework Python interpreter.
+        importlib.reload(ftrack_utils)
+
         importlib.import_module(framework_standalone_module, package=None)
     else:
         return main_connect(arguments)
