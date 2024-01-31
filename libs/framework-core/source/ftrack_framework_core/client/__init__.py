@@ -242,7 +242,7 @@ class Client(object):
                 callback=self._host_discovered_callback
             )
 
-    @track_framework_usage(label='client_host_connection_established')
+    @track_framework_usage('FRAMEWORK_HOST_DISCOVERED', {'module': 'client'})
     def _host_discovered_callback(self, event):
         '''
         Reply callback of the discover host event, generate
@@ -338,7 +338,11 @@ class Client(object):
         self.host_connection.reset_all_tool_configs()
 
     # UI
-    @track_framework_usage(label='client_open_dialog')
+    @track_framework_usage(
+        'FRAMEWORK_RUN_DIALOG',
+        {'module': 'client'},
+        ['dialog_name', 'dialog_options', 'dock_func'],
+    )
     def run_dialog(
         self,
         dialog_name,
@@ -351,6 +355,7 @@ class Client(object):
         *dialog_options* to the dialog.
         *dock_func* is an optional function to dock the dialog in a way for a specific DCC
         '''
+
         # use dialog options to pass options to the dialog like for
         #  example: Dialog= WidgetDialog dialog_options= {tool_config_plugin: Context_selector}
         #  ---> So this will execute the widget dialog with the widget of the

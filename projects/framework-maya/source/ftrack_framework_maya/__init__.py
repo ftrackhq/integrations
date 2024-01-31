@@ -21,6 +21,7 @@ from ftrack_constants import framework as constants
 from ftrack_utils.extensions.environment import (
     get_extensions_path_from_environment,
 )
+from ftrack_utils.usage import set_usage_tracker, UsageTracker
 
 from ftrack_framework_maya.utils import dock_maya_right, run_in_main_thread
 
@@ -116,6 +117,19 @@ def bootstrap_integration(framework_extensions_path):
     # Instantiate registry
     registry_instance = Registry()
     registry_instance.scan_extensions(paths=framework_extensions_path)
+
+    set_usage_tracker(
+        UsageTracker(
+            session=session,
+            default_data=dict(
+                app="maya",
+                registry=registry_instance,
+                version=__version__,
+                app_version=cmds.about(version=True),
+                os=cmds.about(os=True),
+            ),
+        )
+    )
 
     # Instantiate Host and Client
     Host(event_manager, registry=registry_instance)

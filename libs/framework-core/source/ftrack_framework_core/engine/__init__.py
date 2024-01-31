@@ -164,7 +164,7 @@ class BaseEngine(object):
             if self.on_plugin_executed:
                 self.on_plugin_executed(plugin_info.to_dict())
 
-    @track_framework_usage(label='engine')
+    @track_framework_usage('FRAMEWORK_ENGINE_EXECUTED', {'module': 'engine'})
     def execute_engine(self, engine, user_options):
         '''
         Execute given *engine* from a tool-config.
