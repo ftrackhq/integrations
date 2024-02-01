@@ -119,13 +119,19 @@ def bootstrap_integration(framework_extensions_path):
     registry_instance.scan_extensions(paths=framework_extensions_path)
 
     registry_info_dict = {
-        'tool_configs': registry_instance.tool_configs,
-        'plugins': registry_instance.plugins,
-        'engines': registry_instance.engines,
-        'widgets': registry_instance.widgets,
-        'dialogs': registry_instance.dialogs,
-        'launchers': registry_instance.launchers,
-        'dcc_configs': registry_instance.dcc_configs,
+        'tool_configs': [
+            dialog['name'] for dialog in registry_instance.tool_configs
+        ],
+        'plugins': [dialog['name'] for dialog in registry_instance.plugins],
+        'engines': [dialog['name'] for dialog in registry_instance.engines],
+        'widgets': [dialog['name'] for dialog in registry_instance.widgets],
+        'dialogs': [dialog['name'] for dialog in registry_instance.dialogs],
+        'launchers': [
+            dialog['name'] for dialog in registry_instance.launchers
+        ],
+        'dcc_configs': [
+            dialog['name'] for dialog in registry_instance.dcc_configs
+        ],
     }
 
     set_usage_tracker(
@@ -133,7 +139,7 @@ def bootstrap_integration(framework_extensions_path):
             session=session,
             default_data=dict(
                 app="maya",
-                # registry=registry_info_dict,
+                registry=registry_info_dict,
                 version=__version__,
                 app_version=cmds.about(version=True),
                 os=cmds.about(os=True),
