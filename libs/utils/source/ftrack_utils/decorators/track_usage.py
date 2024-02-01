@@ -5,6 +5,7 @@ import functools
 import platform
 import sys
 import logging
+import inspect
 
 logger = logging.getLogger('ftrack_utils:usage')
 
@@ -60,8 +61,7 @@ def track_framework_usage(event_name, metadata, kwarg_mapping_list=[]):
 
                         # Setup metadata
                         default_metadata = dict(
-                            label=method_name,
-                            module=f"{full_module_name}.{method_name}",
+                            module_name=root_module_name,
                             version=library_version,
                             os=current_os,
                         )
@@ -78,15 +78,24 @@ def track_framework_usage(event_name, metadata, kwarg_mapping_list=[]):
                 finally:
                     usage_tracker = get_usage_tracker()
 
-            if kwarg_mapping_list:
-                for item in kwarg_mapping_list:
-                    if item in kwargs.keys():
-                        metadata[item] = kwargs[item]
-                    else:
-                        logger.warning(
-                            f'Provided kwarg mapping {item} seems to not '
-                            f'exists as argument of this function'
-                        )
+            # Get the function's argument names and values
+            func_args = inspect.signature(func).parameters
+            arg_names = list(func_args.keys())
+
+            # Build a dictionary of argument names and values
+            arg_values = args + tuple(kwargs.values())
+            args_metadata = dict(zip(arg_names, arg_values))
+
+            # Update metadata with function arguments if specified in kwarg_mapping_list
+            for key in kwarg_mapping_list:
+                if key in args_metadata:
+                    metadata[key] = args_metadata[key]
+                else:
+                    logger.warning(
+                        f'Provided kwarg mapping {key} seems to not '
+                        f'exists as argument of this function'
+                    )
+
             if usage_tracker:
                 usage_tracker.track(event_name, metadata)
 

@@ -2,6 +2,7 @@
 # :copyright: Copyright (c) 2024 ftrack
 
 import logging
+import copy
 
 from ftrack_utils.server.track_usage import send_usage_event
 
@@ -37,11 +38,13 @@ class UsageTracker:
         return cls._instance
 
     def track(self, event_name, metadata):
-        metadata.update(self._default_data)
+        # To not modify the default metadata dictionary instance, we do a deep copy of it.
+        default_metadata = copy.deepcopy(self._default_data)
+        default_metadata.update(metadata)
         send_usage_event(
             self._session,
             event_name,
-            metadata,
+            default_metadata,
             asynchronous=True,
         )
         logger.debug(
