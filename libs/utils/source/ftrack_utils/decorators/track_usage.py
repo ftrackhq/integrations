@@ -6,12 +6,6 @@ import platform
 import sys
 import logging
 
-from ftrack_utils.usage import (
-    get_usage_tracker,
-    set_usage_tracker,
-    UsageTracker,
-)
-
 logger = logging.getLogger('ftrack_utils:usage')
 
 
@@ -19,6 +13,12 @@ def track_framework_usage(event_name, metadata, kwarg_mapping_list=[]):
     def decorator(func):
         @functools.wraps(func)
         def wrapper(*args, **kwargs):
+            from ftrack_utils.usage import (
+                get_usage_tracker,
+                set_usage_tracker,
+                UsageTracker,
+            )
+
             # Ensure UsageTracker is set and available
             usage_tracker = get_usage_tracker()
             if not usage_tracker:

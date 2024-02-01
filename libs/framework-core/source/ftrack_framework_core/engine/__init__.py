@@ -89,6 +89,11 @@ class BaseEngine(object):
 
         return ui_hook_result
 
+    @track_framework_usage(
+        'FRAMEWORK_RUN_PLUGIN',
+        {'module': 'engine'},
+        ['plugin', 'store', 'options'],
+    )
     def run_plugin(self, plugin, store, options, reference=None):
         '''
         If given *plugin* is in the plugin registry, initialize it with the

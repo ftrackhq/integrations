@@ -20,7 +20,7 @@ import os
 
 import ftrack_api
 from ftrack_action_handler.action import BaseAction
-from ftrack_utils.server import send_usage_event
+from ftrack_utils.usage import get_usage_tracker
 
 
 #: Default expression to match version component of executable path.
@@ -789,7 +789,7 @@ class ApplicationLauncher(object):
         return {'success': success, 'message': message}
 
     def _notify_integration_use(self, results, application):
-        metadata = []
+        metadata = {'launched_integrations': []}
         for result in results:
             if result is None:
                 continue
@@ -803,14 +803,11 @@ class ApplicationLauncher(object):
                 'version': str(integration.get('version', 'Unknown')),
                 'os': str(str(platform.platform())),
             }
-            metadata.append(integration_data)
+            metadata['launched_integrations'].append(integration_data)
 
-        send_usage_event(
-            self.session,
-            'USED-CONNECT-INTEGRATION',
-            metadata,
-            asynchronous=True,
-        )
+        usage_tracker = get_usage_tracker()
+        if usage_tracker:
+            usage_tracker.track("LAUNCHED-CONNECT-INTEGRATION", metadata)
 
     def _get_integrations_environments(self, results, context, environments):
         # parse integration returned from listeners.

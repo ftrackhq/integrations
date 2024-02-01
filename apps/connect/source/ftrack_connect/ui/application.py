@@ -18,7 +18,11 @@ import ftrack_api
 import ftrack_api._centralized_storage_scenario
 import ftrack_api.event.base
 
-from ftrack_utils.server.track_usage import send_usage_event
+from ftrack_utils.usage import (
+    set_usage_tracker,
+    get_usage_tracker,
+    UsageTracker,
+)
 
 from ftrack_connect.qt import QtCore, QtWidgets, QtGui
 
@@ -209,9 +213,9 @@ class Application(QtWidgets.QMainWindow):
             - self.__connect_start_time,
         }
 
-        send_usage_event(
-            self.session, 'USED-CONNECT', metadata, asynchronous=True
-        )
+        usage_tracker = get_usage_tracker()
+        if usage_tracker:
+            usage_tracker.track('USED-CONNECT', metadata)
 
     @property
     def session(self):
@@ -459,6 +463,19 @@ class Application(QtWidgets.QMainWindow):
 
         ftrack_api._centralized_storage_scenario.register_configuration(
             session
+        )
+
+        # Initialize UsageTracker for connect
+        set_usage_tracker(
+            UsageTracker(
+                session=session,
+                default_data=dict(
+                    app="Connect",
+                    version=ftrack_connect.__version__,
+                    os=platform.platform(),
+                    python_version=platform.python_version(),
+                ),
+            )
         )
 
         return session
