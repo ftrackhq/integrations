@@ -18,7 +18,7 @@
 | libs/constants/source/ftrack\_constants/status/\_\_init\_\_.py                |       10 |        0 |    100% |           |
 | libs/framework-core/source/ftrack\_framework\_core/\_\_init\_\_.py            |        8 |        2 |     75% |     13-14 |
 | libs/framework-core/source/ftrack\_framework\_core/configure\_logging.py      |       47 |        6 |     87% |31-35, 72-78 |
-| libs/framework-core/source/ftrack\_framework\_core/engine/\_\_init\_\_.py     |      110 |       37 |     66% |29, 58, 76-77, 85, 118-156, 165, 180, 191, 227-244 |
+| libs/framework-core/source/ftrack\_framework\_core/engine/\_\_init\_\_.py     |      111 |       37 |     67% |29, 58, 76-77, 85, 123-161, 170, 185, 196, 232-249 |
 | libs/framework-core/source/ftrack\_framework\_core/exceptions/\_\_init\_\_.py |        2 |        0 |    100% |           |
 | libs/framework-core/source/ftrack\_framework\_core/exceptions/engine.py       |        3 |        1 |     67% |        11 |
 | libs/framework-core/source/ftrack\_framework\_core/exceptions/plugin.py       |       21 |       12 |     43% |15, 25-27, 33-42, 51 |
@@ -29,21 +29,22 @@
 | libs/utils/source/ftrack\_utils/decorators/\_\_init\_\_.py                    |        3 |        0 |    100% |           |
 | libs/utils/source/ftrack\_utils/decorators/asynchronous.py                    |       18 |        4 |     78% |     25-28 |
 | libs/utils/source/ftrack\_utils/decorators/session.py                         |       19 |       16 |     16% |      9-38 |
-| libs/utils/source/ftrack\_utils/decorators/track\_usage.py                    |       30 |        4 |     87% |25-30, 46-50 |
+| libs/utils/source/ftrack\_utils/decorators/track\_usage.py                    |       47 |        5 |     89% |68, 86, 107-108, 126 |
 | libs/utils/source/ftrack\_utils/directories/\_\_init\_\_.py                   |        0 |        0 |    100% |           |
 | libs/utils/source/ftrack\_utils/directories/scan\_dir.py                      |        6 |        4 |     33% |     11-18 |
 | libs/utils/source/ftrack\_utils/extensions/\_\_init\_\_.py                    |        0 |        0 |    100% |           |
 | libs/utils/source/ftrack\_utils/extensions/registry.py                        |       71 |       55 |     23% |22-25, 38-65, 72-76, 81-139 |
-| libs/utils/source/ftrack\_utils/framework/\_\_init\_\_.py                     |        0 |        0 |    100% |           |
-| libs/utils/source/ftrack\_utils/framework/track\_usage.py                     |        7 |        0 |    100% |           |
 | libs/utils/source/ftrack\_utils/modules/\_\_init\_\_.py                       |        0 |        0 |    100% |           |
 | libs/utils/source/ftrack\_utils/modules/scan\_modules.py                      |       13 |        0 |    100% |           |
-| libs/utils/source/ftrack\_utils/server/\_\_init\_\_.py                        |        1 |        0 |    100% |           |
-| libs/utils/source/ftrack\_utils/server/track\_usage.py                        |       20 |        3 |     85% | 34-35, 53 |
+| libs/utils/source/ftrack\_utils/server/\_\_init\_\_.py                        |        2 |        0 |    100% |           |
+| libs/utils/source/ftrack\_utils/server/send\_event.py                         |       16 |        2 |     88% |     34-35 |
+| libs/utils/source/ftrack\_utils/server/track\_usage.py                        |        8 |        1 |     88% |        22 |
+| libs/utils/source/ftrack\_utils/usage/\_\_init\_\_.py                         |        1 |        0 |    100% |           |
+| libs/utils/source/ftrack\_utils/usage/track\_usage.py                         |       24 |        1 |     96% |        28 |
 | libs/utils/source/ftrack\_utils/version/\_\_init\_\_.py                       |       18 |       10 |     44% |13-20, 24-31 |
 | tests/framework/unit/\_\_init\_\_.py                                          |        0 |        0 |    100% |           |
 | tests/framework/unit/test\_engine.py                                          |       49 |        0 |    100% |           |
-|                                                                     **TOTAL** |  **707** |  **215** | **70%** |           |
+|                                                                     **TOTAL** |  **748** |  **217** | **71%** |           |
 
 
 ## Setup coverage badge
