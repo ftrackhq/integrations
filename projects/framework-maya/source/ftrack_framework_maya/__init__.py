@@ -120,18 +120,28 @@ def bootstrap_integration(framework_extensions_path):
 
     registry_info_dict = {
         'tool_configs': [
-            dialog['name'] for dialog in registry_instance.tool_configs
-        ],
-        'plugins': [dialog['name'] for dialog in registry_instance.plugins],
-        'engines': [dialog['name'] for dialog in registry_instance.engines],
-        'widgets': [dialog['name'] for dialog in registry_instance.widgets],
-        'dialogs': [dialog['name'] for dialog in registry_instance.dialogs],
-        'launchers': [
-            dialog['name'] for dialog in registry_instance.launchers
-        ],
-        'dcc_configs': [
-            dialog['name'] for dialog in registry_instance.dcc_configs
-        ],
+            item['name'] for item in registry_instance.tool_configs
+        ]
+        if registry_instance.tool_configs
+        else [],
+        'plugins': [item['name'] for item in registry_instance.plugins]
+        if registry_instance.plugins
+        else [],
+        'engines': [item['name'] for item in registry_instance.engines]
+        if registry_instance.engines
+        else [],
+        'widgets': [item['name'] for item in registry_instance.widgets]
+        if registry_instance.widgets
+        else [],
+        'dialogs': [item['name'] for item in registry_instance.dialogs]
+        if registry_instance.dialogs
+        else [],
+        'launchers': [item['name'] for item in registry_instance.launchers]
+        if registry_instance.launchers
+        else [],
+        'dcc_configs': [item['name'] for item in registry_instance.dcc_configs]
+        if registry_instance.dcc_configs
+        else [],
     }
 
     set_usage_tracker(
