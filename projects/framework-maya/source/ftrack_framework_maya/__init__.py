@@ -4,6 +4,7 @@ import logging
 import os
 import traceback
 import functools
+import platform
 
 import maya.cmds as cmds
 import maya.mel as mm
@@ -118,6 +119,9 @@ def bootstrap_integration(framework_extensions_path):
     registry_instance = Registry()
     registry_instance.scan_extensions(paths=framework_extensions_path)
 
+    # TODO: clean up this dictionary creation or move it as a query function of
+    #  the registry.
+    # Create a registry dictionary with all extension names to pass to the mix panel event
     registry_info_dict = {
         'tool_configs': [
             item['name'] for item in registry_instance.tool_configs
@@ -144,15 +148,16 @@ def bootstrap_integration(framework_extensions_path):
         else [],
     }
 
+    # Set mix panel event
     set_usage_tracker(
         UsageTracker(
             session=session,
             default_data=dict(
-                app="maya",
+                app="Maya",
                 registry=registry_info_dict,
                 version=__version__,
                 app_version=cmds.about(version=True),
-                os=cmds.about(os=True),
+                os=platform.platform(),
             ),
         )
     )
