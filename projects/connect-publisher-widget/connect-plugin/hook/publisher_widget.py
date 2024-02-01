@@ -5,9 +5,17 @@ import os
 import sys
 import logging
 
+logger = logging.getLogger('ftrack-connect.widget.PublisherWidget')
+
+cwd = os.path.dirname(__file__)
+sources = os.path.abspath(os.path.join(cwd, '..', 'dependencies'))
+sys.path.append(sources)
+
+import platform
 import ftrack_api
 from ftrack_connect.util import get_connect_plugin_version
 from ftrack_connect.qt import QtWidgets, QtCore, QtGui
+import qtawesome as qta
 import ftrack_connect.ui.application
 
 import ftrack_connect.ui.application
@@ -80,6 +88,8 @@ class PublisherWidget(ftrack_connect.ui.application.ConnectWidget):
     def _onPublishFinished(self, success):
         '''Callback for publish finished signal.'''
         self.busyOverlay.hide()
+        selected_location = self.publishView.location_selector.selected_location
+        location_name = selected_location.get('label', selected_location['name'])
         if success:
             self.blockingOverlay.message = (
                 'Publish finished!\n \n'
