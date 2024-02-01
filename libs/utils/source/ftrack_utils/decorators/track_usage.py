@@ -10,7 +10,7 @@ import inspect
 logger = logging.getLogger('ftrack_utils:usage')
 
 
-def track_framework_usage(event_name, metadata, kwarg_mapping_list=[]):
+def track_framework_usage(event_name, metadata, tracked_args=[]):
     def decorator(func):
         @functools.wraps(func)
         def wrapper(*args, **kwargs):
@@ -87,7 +87,7 @@ def track_framework_usage(event_name, metadata, kwarg_mapping_list=[]):
             args_metadata = dict(zip(arg_names, arg_values))
 
             # Update metadata with function arguments if specified in kwarg_mapping_list
-            for key in kwarg_mapping_list:
+            for key in tracked_args:
                 if key in args_metadata:
                     metadata[key] = args_metadata[key]
                 else:
