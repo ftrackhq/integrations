@@ -11,6 +11,38 @@ logger = logging.getLogger('ftrack_utils:usage')
 
 
 def track_framework_usage(event_name, metadata, tracked_args=[]):
+    """
+    Decorator to track usage of framework functions.
+
+    This decorator wraps a function to track its usage along with specified metadata and arguments. It ensures that a
+    UsageTracker instance is set and available. If not, it attempts to initialize a default one using the session
+    attribute of the first argument of the wrapped function, which is expected to be an instance of a class with a
+    session attribute.
+
+    Parameters:
+    *event_name* (str): The name of the event to track.
+    *metadata* (dict): A dictionary of metadata to track along with the event. This can include any relevant
+    information about the event.
+    *tracked_args* (list): A list of argument names (as strings) of the wrapped function whose values should be
+    included in the metadata. Defaults to an empty list.
+
+    The decorator updates the metadata dictionary with the values of the specified arguments (if present) before
+    tracking the event. It logs a warning if a specified argument name does not exist in the function's arguments.
+
+    If the UsageTracker cannot be initialized (e.g., due to the absence of a session attribute), it logs an error
+    and skips tracking.
+
+    Usage:
+    @track_framework_usage('event_name', {'key': 'value'}, ['arg1', 'arg2'])
+    def some_function(arg1, arg2):
+        pass
+
+    This will track the usage of `some_function`, including the values of `arg1` and `arg2` in the metadata.
+
+    Returns:
+    The original function wrapped with usage tracking functionality.
+    """
+
     def decorator(func):
         @functools.wraps(func)
         def wrapper(*args, **kwargs):

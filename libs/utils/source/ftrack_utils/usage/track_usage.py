@@ -13,6 +13,14 @@ usage_tracker_singleton = None
 
 
 def set_usage_tracker(usage_tracker):
+    """
+    Set the global usage tracker instance if it has not been set already.
+
+    This function sets the global `usage_tracker_singleton` to the provided
+    *usage_tracker* instance.
+
+    *usage_tracker* (UsageTracker): The UsageTracker instance to set as the global usage tracker.
+    """
     global usage_tracker_singleton
     if usage_tracker_singleton is None:
         usage_tracker_singleton = usage_tracker
@@ -23,13 +31,23 @@ def set_usage_tracker(usage_tracker):
 
 
 def get_usage_tracker():
+    """
+    Retrieve the global usage tracker instance.
+    """
     return usage_tracker_singleton
 
 
 class UsageTracker:
+    """
+    A singleton class for tracking usage events.
+    """
+
     _instance = None
 
     def __new__(cls, session, default_data):
+        """
+        Create a new instance of the UsageTracker class or return the existing instance.
+        """
         if not cls._instance:
             cls._instance = super(UsageTracker, cls).__new__(cls)
             # Initialize the instance only once
@@ -38,6 +56,11 @@ class UsageTracker:
         return cls._instance
 
     def track(self, event_name, metadata):
+        """
+        Track a usage event with the specified *event_name* and *metadata*.
+        *event_name* (str): The name of the event to track.
+        *metadata* (dict): A dictionary of metadata to include with the event.
+        """
         # To not modify the default metadata dictionary instance, we do a deep copy of it.
         default_metadata = copy.deepcopy(self._default_data)
         default_metadata.update(metadata)
