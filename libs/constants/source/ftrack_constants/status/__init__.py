@@ -1,5 +1,5 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2014-2023 ftrack
+# :copyright: Copyright (c) 2024 ftrack
 
 #: Unknown status execution.
 UNKNOWN_STATUS = 'UNKNOWN_STATUS'

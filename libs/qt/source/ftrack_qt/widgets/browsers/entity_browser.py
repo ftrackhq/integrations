@@ -1,5 +1,5 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2014-2023 ftrack
+# :copyright: Copyright (c) 2024 ftrack
 
 # TODO: review this widget code and try to simplify it. Review all the utilities
 # as well in the same moment, I think we can simplify it a lot.
