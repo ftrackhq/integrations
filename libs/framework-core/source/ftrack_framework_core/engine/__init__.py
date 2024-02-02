@@ -92,7 +92,7 @@ class BaseEngine(object):
     @track_framework_usage(
         'FRAMEWORK_RUN_PLUGIN',
         {'module': 'engine'},
-        ['plugin', 'store', 'options'],
+        ['plugin'],
     )
     def run_plugin(self, plugin, store, options, reference=None):
         '''
