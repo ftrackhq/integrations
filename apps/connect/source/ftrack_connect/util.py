@@ -4,7 +4,8 @@
 import os
 import subprocess
 import sys
-from github import Github
+
+# from github import Github
 import logging
 import re
 
@@ -205,94 +206,94 @@ def fetch_github_releases(latest=True, prereleases=False):
     list of assets as value. If *latest* is True, only the latest
     version of each plugin is returned. If *prereleases* is True,
     prereleases are included in the result.'''
-
-    REPO_NAME = "ftrackhq/integrations"
-
-    logger.debug(f'Fetching releases from: {REPO_NAME}')
-
-    g = Github()
-    repo = g.get_repo("ftrackhq/integrations")
-
-    data = []
-
-    for release in repo.get_releases():
-        logger.debug(f'Found release: {release.tag_name}')
-
-        # Check if it is a Connect release
-        package = release.tag_name.split('/')[0]
-        version = release.tag_name.split('/')[-1]
-        if not check_major_version(version):
-            # TODO: solve the issue when library major version is catching up to
-            #  Connect major version
-            logger.debug(
-                f'   Not a Connect release on YY.m.p format: {release.tag_name}'
-            )
-            continue
-
-        if not prereleases and release.prerelease:
-            logger.debug(f'   Skipping prerelease: {release.tag_name}')
-            continue
-        release_data = {
-            'id': release.id,
-            'title': release.title,
-            'tag': release.tag_name,
-            'package': package,
-            'version': version,
-            'pre': release.prerelease,
-            'comment': release.body,
-            'assets': [],
-        }
-        assets = release.get_assets()
-        url = None
-        for asset in assets:
-            logger.debug(
-                f'   Found asset: {asset.name}, {asset.browser_download_url}'
-            )
-
-            release_data['assets'].append(
-                {'name': asset.name, 'url': asset.browser_download_url}
-            )
-
-            # Evaluate if we can use this asset
-
-            base, ext = os.path.splitext(asset.name)
-
-            if ext.lower() != '.zip':
-                continue
-
-            # Check platform
-            parts = base.split('-')
-            if parts[-1].lower() in ['windows', 'mac', 'linux']:
-                # Platform dependent plugin, have to match our platform
-                platform = get_platform_identifier()
-                if parts[-1].lower() != platform:
-                    # Not our platform
-                    continue
-
-            logger.debug(
-                f'   Supplying asset: {asset.name}, {asset.browser_download_url}'
-            )
-            url = asset.browser_download_url
-
-        if url:
-            logger.debug(f'Supplying release: {release.tag_name}')
-            release_data['url'] = url
-            data.append(release_data)
-
-    if latest:
-        # Only provide the latest version
-
-        data.sort(key=lambda x: x['tag'], reverse=True)
-
-        result = []
-        for item in data:
-            if (
-                not result
-                or item['tag'].rsplit('/', 1)[0]
-                != result[-1]['tag'].rsplit('/', 1)[0]
-            ):
-                result.append(item)
-    else:
-        result = data
-
-    return result
+    pass
+    # REPO_NAME = "ftrackhq/integrations"
+    #
+    # logger.debug(f'Fetching releases from: {REPO_NAME}')
+    #
+    # g = Github()
+    # repo = g.get_repo("ftrackhq/integrations")
+    #
+    # data = []
+    #
+    # for release in repo.get_releases():
+    #     logger.debug(f'Found release: {release.tag_name}')
+    #
+    #     # Check if it is a Connect release
+    #     package = release.tag_name.split('/')[0]
+    #     version = release.tag_name.split('/')[-1]
+    #     if not check_major_version(version):
+    #         # TODO: solve the issue when library major version is catching up to
+    #         #  Connect major version
+    #         logger.debug(
+    #             f'   Not a Connect release on YY.m.p format: {release.tag_name}'
+    #         )
+    #         continue
+    #
+    #     if not prereleases and release.prerelease:
+    #         logger.debug(f'   Skipping prerelease: {release.tag_name}')
+    #         continue
+    #     release_data = {
+    #         'id': release.id,
+    #         'title': release.title,
+    #         'tag': release.tag_name,
+    #         'package': package,
+    #         'version': version,
+    #         'pre': release.prerelease,
+    #         'comment': release.body,
+    #         'assets': [],
+    #     }
+    #     assets = release.get_assets()
+    #     url = None
+    #     for asset in assets:
+    #         logger.debug(
+    #             f'   Found asset: {asset.name}, {asset.browser_download_url}'
+    #         )
+    #
+    #         release_data['assets'].append(
+    #             {'name': asset.name, 'url': asset.browser_download_url}
+    #         )
+    #
+    #         # Evaluate if we can use this asset
+    #
+    #         base, ext = os.path.splitext(asset.name)
+    #
+    #         if ext.lower() != '.zip':
+    #             continue
+    #
+    #         # Check platform
+    #         parts = base.split('-')
+    #         if parts[-1].lower() in ['windows', 'mac', 'linux']:
+    #             # Platform dependent plugin, have to match our platform
+    #             platform = get_platform_identifier()
+    #             if parts[-1].lower() != platform:
+    #                 # Not our platform
+    #                 continue
+    #
+    #         logger.debug(
+    #             f'   Supplying asset: {asset.name}, {asset.browser_download_url}'
+    #         )
+    #         url = asset.browser_download_url
+    #
+    #     if url:
+    #         logger.debug(f'Supplying release: {release.tag_name}')
+    #         release_data['url'] = url
+    #         data.append(release_data)
+    #
+    # if latest:
+    #     # Only provide the latest version
+    #
+    #     data.sort(key=lambda x: x['tag'], reverse=True)
+    #
+    #     result = []
+    #     for item in data:
+    #         if (
+    #             not result
+    #             or item['tag'].rsplit('/', 1)[0]
+    #             != result[-1]['tag'].rsplit('/', 1)[0]
+    #         ):
+    #             result.append(item)
+    # else:
+    #     result = data
+    #
+    # return result

@@ -67,7 +67,7 @@ class Actions(QtWidgets.QWidget):
 
     RECENT_METADATA_KEY = 'ftrack_recent_actions'
     RECENT_ACTIONS_LENGTH = 20
-    ACTION_LAUNCH_MESSAGE_TIMEOUT = 1
+    ACTION_LAUNCH_MESSAGE_TIMEOUT = 3
 
     #: Emitted when recent actions has been modified
     recent_actions_changed = QtCore.Signal(name='recentActionsChanged')
@@ -194,8 +194,22 @@ class Actions(QtWidgets.QWidget):
 
         self._overlay.indicator.stop()
         self._overlay.indicator.hide()
-        self._overlay.message = message
-        self._hide_overlay_after_timeout(self.ACTION_LAUNCH_MESSAGE_TIMEOUT)
+
+        if not result['success']:
+            message_box = QtWidgets.QMessageBox(
+                QtWidgets.QMessageBox.Warning,
+                'Warning',
+                result['message'],
+                buttons=QtWidgets.QMessageBox.Ok,
+            )
+            message_box.exec_()
+            self._overlay.message = "Error launching..."
+            self._hide_overlay_after_timeout(1)
+        else:
+            self._overlay.message = message
+            self._hide_overlay_after_timeout(
+                self.ACTION_LAUNCH_MESSAGE_TIMEOUT
+            )
 
     def _hide_overlay_after_timeout(self, timeout):
         '''Hide overlay after *timeout* seconds.'''
