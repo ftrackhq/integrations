@@ -89,6 +89,11 @@ class BaseEngine(object):
 
         return ui_hook_result
 
+    @track_framework_usage(
+        'FRAMEWORK_RUN_PLUGIN',
+        {'module': 'engine'},
+        ['plugin', 'store', 'options'],
+    )
     def run_plugin(self, plugin, store, options, reference=None):
         '''
         If given *plugin* is in the plugin registry, initialize it with the
@@ -164,7 +169,7 @@ class BaseEngine(object):
             if self.on_plugin_executed:
                 self.on_plugin_executed(plugin_info.to_dict())
 
-    @track_framework_usage(label='engine')
+    @track_framework_usage('FRAMEWORK_ENGINE_EXECUTED', {'module': 'engine'})
     def execute_engine(self, engine, user_options):
         '''
         Execute given *engine* from a tool-config.
