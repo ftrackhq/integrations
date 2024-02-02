@@ -11,7 +11,7 @@ from ftrack_connect.ui.widget.overlay import BlockingOverlay, BusyOverlay
 import ftrack_connect.ui.application
 
 from ftrack_utils.decorators import asynchronous
-from ftrack_utils.server import send_usage_event
+from ftrack_utils.usage import get_usage_tracker
 
 from ftrack_connect.plugin_manager.overlay import InstallerBlockingOverlay
 from ftrack_connect.plugin_manager.processor import PluginProcessor, ROLES
@@ -149,7 +149,7 @@ class PluginManager(ftrack_connect.ui.application.ConnectWidget):
         self._plugins_to_install = []
 
     def _emit_downloaded_plugins(self, plugins):
-        metadata = []
+        metadata = {'installed_plugins': []}
 
         for plugin in plugins:
             name = str(plugin.data(ROLES.PLUGIN_NAME))
@@ -157,14 +157,11 @@ class PluginManager(ftrack_connect.ui.application.ConnectWidget):
             _os = str(platform.platform())
 
             plugin_data = {'name': name, 'version': version, 'os': _os}
-            metadata.append(plugin_data)
+            metadata['installed_plugins'].append(plugin_data)
 
-        send_usage_event(
-            self.session,
-            'INSTALLED-CONNECT-PLUGINS',
-            metadata,
-            asynchronous=True,
-        )
+        usage_tracker = get_usage_tracker()
+        if usage_tracker:
+            usage_tracker.track("INSTALLED-CONNECT-PLUGINS", metadata)
 
     @qt_main_thread
     def _enable_apply_button(self, item):

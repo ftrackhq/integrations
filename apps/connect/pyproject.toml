@@ -34,6 +34,7 @@ darkdetect = "*"
 certifi = ">=2022,<2023"
 urllib3 = "<2"
 pyyaml = "^6.0.1"
+PyGithub = "^2.0.0"
 
 #ftrack
 ftrack-action-handler = "*"
