@@ -20,6 +20,10 @@ class AssetList(QtWidgets.QListWidget):
     '''Signal emitted when selected item is changed with arguments containing 
     the index of the current version, the version dictionary and the asset_id'''
 
+    @property
+    def latest_published_asset_item(self):
+        return self._latest_published_asset_item
+
     def __init__(self, asset_list_widget_item, parent=None):
         '''Initialize AssetList'''
         super(AssetList, self).__init__(parent=parent)
@@ -27,6 +31,7 @@ class AssetList(QtWidgets.QListWidget):
             __name__ + '.' + self.__class__.__name__
         )
         self.asset_list_widget_item = asset_list_widget_item
+        self._latest_published_asset_item = None
 
         self.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
         self.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
@@ -60,7 +65,20 @@ class AssetList(QtWidgets.QListWidget):
                 widget.enable_version_select = False
             self.setItemWidget(list_item, widget)
             self.addItem(list_item)
+            # Find the latest published asset version.
+            if not self._latest_published_asset_item:
+                self._latest_published_asset_item = list_item
+            else:
+                if (
+                    widget.version['date']
+                    > self.itemWidget(
+                        self._latest_published_asset_item
+                    ).version['date']
+                ):
+                    self._latest_published_asset_item = list_item
         self.assets_added.emit(assets)
+        # Pre select the latest published asset version.
+        self.setCurrentItem(self._latest_published_asset_item)
 
     def _on_version_changed_callback(self, version):
         '''Handle version changed callback'''
