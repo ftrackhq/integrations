@@ -1,5 +1,5 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2014-2023 ftrack
+# :copyright: Copyright (c) 2024 ftrack
 # TODO: re-check that all the constants in here are used. Remove the unused ones.
 
 #: Name of the ftrack object to identify the loaded assets
