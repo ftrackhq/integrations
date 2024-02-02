@@ -1,3 +1,8 @@
+****************************************
+# THIS REPOSITORY IS NOT YET READY.
+# WE ARE CURRENTLY WORKING ON OPEN SOURCING ALL OUR CODE AND IMPROVING THE [DOCUMENTATION](https://developer.ftrack.com/pr/14/)
+****************************************
+
 
 This monorepo contains the source code for ftrack integrations, divided on apps (ex: Connect), libs (ex: framework libraries) and projects (ex: Integrations).
 
@@ -23,7 +28,7 @@ Follow these steps to prepare your environment:
 
 ### How to install compatible PySide2 on Silicon based Mac 
 
-Follow these steps to install a compatible version of PySide2 Python 3.7 on a Silicon-based Mac:
+Follow these steps to install a compatible version of PySide2 Python >=3.7, <3.12 on a Silicon-based Mac:
 
 1. Open a Rosetta terminal:
     - Duplicate the terminal application and check the "Open using Rosetta" checkbox inside the "Get Info" right-click menu.
