@@ -157,7 +157,7 @@ class Actions(QtWidgets.QWidget):
         if (
             platform.system().lower() == 'darwin'
             and action.get('rosetta')
-            and action['identifier'] not in known_rosetta_apps
+            and action['actionIdentifier'] not in known_rosetta_apps
         ):
             import subprocess
 
@@ -189,15 +189,15 @@ class Actions(QtWidgets.QWidget):
                 buttons=QtWidgets.QMessageBox.Ok,
             )
             # Create the checkbox
-            checkbox = QtWidgets.QCheckBox("Don't show this message anymore.")
+            checkbox = QtWidgets.QCheckBox("Don't show this message again.")
             message_box.setCheckBox(checkbox)
 
             response = message_box.exec_()
             # Check if OK was clicked and if the checkbox was checked
             if response == QtWidgets.QMessageBox.Ok:
                 if checkbox.isChecked():
-                    known_rosetta_apps.append(action['identifier'])
-                    launcher_prefs['rosetta_apps'] = known_rosetta_apps
+                    known_rosetta_apps.append(action['actionIdentifier'])
+                    launcher_prefs['known_rosetta_apps'] = known_rosetta_apps
                     write_launcher_prefs_file_path(launcher_prefs)
 
         message = (
