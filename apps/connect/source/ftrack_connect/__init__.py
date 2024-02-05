@@ -32,7 +32,7 @@ CONFLICTING_PLUGINS = [
 ]
 
 # Legacy plugins that is incompatible with Connect and needs to be re-installed
-# if they not are on the new extension format, will not be loaded.
+# if they not are on the new plugin format, will not be loaded.
 INCOMPATIBLE_PLUGINS = [
     'ftrack-connect-publisher-widget',
     'ftrack-connect-timetracker-widget',
