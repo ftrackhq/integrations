@@ -143,6 +143,7 @@ class Actions(QtWidgets.QWidget):
 
     def _on_before_action_launched_callback(self, action):
         '''Before action is launched, show busy overlay with message..'''
+        # TODO: probably check here if is a roseta app and ask to continue, if not raise, if true and checkbox of not ask again true, then save app somewhere.
         self.logger.debug(f'Before action launched: {action}')
         message = (
             f'Launching action <em>{action.get("label", "Untitled action")} '
