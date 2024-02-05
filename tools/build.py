@@ -199,7 +199,10 @@ def build_package(pkg_path, args):
             )
 
         STAGING_PATH = os.path.join(
-            BUILD_PATH, '{}-{}'.format(PROJECT_NAME, VERSION)
+            BUILD_PATH,
+            '{}-{}'.format(
+                PROJECT_NAME.replace('ftrack-connect', 'ftrack'), VERSION
+            ),
         )
 
         # Clean staging path
@@ -485,9 +488,7 @@ def build_package(pkg_path, args):
                     )
 
         logging.info('Creating archive')
-        archive_path = os.path.join(
-            BUILD_PATH, '{0}-{1}'.format(PROJECT_NAME, CONNECT_PLUGIN_VERSION)
-        )
+        archive_path = os.path.join(BUILD_PATH, os.path.basename(STAGING_PATH))
         if PLATFORM_DEPENDENT:
             if sys.platform.startswith('win'):
                 archive_path = '{}-windows'.format(archive_path)
