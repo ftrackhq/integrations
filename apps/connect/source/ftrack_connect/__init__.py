@@ -47,6 +47,9 @@ DEPRECATED_PLUGINS = [
     'ftrack-connect-cinema-4d',
 ]
 
+# ftrack integrations repo URL from were to discover and download plugins
+INTEGRATIONS_REPO = 'https://api.github.com/repos/ftrackhq/integrations'
+
 
 def load_icons(font_folder):
     font_folder = os.path.abspath(font_folder)
