@@ -215,23 +215,7 @@ def build_package(pkg_path, args):
             raise Exception(
                 'Missing "__version__.py" file in "connect-plugin" folder!'
             )
-        CONNECT_PLUGIN_VERSION = None
-        with open(path_version_file) as f:
-            for line in f.readlines():
-                if line.startswith('__version__'):
-                    CONNECT_PLUGIN_VERSION = (
-                        line.split('=')[1].strip().strip("'")
-                    )
-                    break
-        assert (
-            CONNECT_PLUGIN_VERSION
-        ), 'No version could be extracted from "__version__.py"!'
 
-        logging.info(
-            'Storing Connect plugin version ({})'.format(
-                CONNECT_PLUGIN_VERSION
-            )
-        )
         version_path = os.path.join(STAGING_PATH, '__version__.py')
         shutil.copyfile(path_version_file, version_path)
 
