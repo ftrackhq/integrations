@@ -75,7 +75,7 @@ jobs:
       - name: poetry build
         shell: bash
         run: |
-          cd ${{ needs.set-variables.outputs.folder }}
+          cd ${{ needs.set-variables.outputs.folder }}/${{ needs.set-variables.outputs.package }}
           poetry build
       - name: build standard connect plugin
         if: ${{ needs.set-variables.outputs.package == 'connect-publisher-widget' || needs.set-variables.outputs.package == 'connect-timetracker-widget' }}
@@ -83,14 +83,14 @@ jobs:
         # TODO: Remove --from_source when all libraries are published to pypi
         run: |
           pip install -r tools/requirements.txt
-          python tools/build.py --remove_intermediate_folder --from_source build_connect_plugin ${{ needs.set-variables.outputs.folder }}
+          python tools/build.py --remove_intermediate_folder --from_source build_connect_plugin ${{ needs.set-variables.outputs.folder }}/${{ needs.set-variables.outputs.package }}
       - name: build nuke studio connect plugin
         if: ${{ needs.set-variables.outputs.package == 'nuke-studio' }}
         shell: bash
         # TODO: Remove --from_source when all libraries are published to pypi
         run: |
           pip install -r tools/requirements.txt
-          python tools/build.py --remove_intermediate_folder --from_source --include_resources resource/plugin,resource/application_hook build_connect_plugin ${{ needs.set-variables.outputs.folder }}
+          python tools/build.py --remove_intermediate_folder --from_source --include_resources resource/plugin,resource/application_hook build_connect_plugin ${{ needs.set-variables.outputs.folder }}/${{ needs.set-variables.outputs.package }}
       - name: build rv connect plugin
         if: ${{ needs.set-variables.outputs.package == 'rv' }}
         shell: bash
@@ -100,11 +100,11 @@ jobs:
           python build_rv_plugin.py resource/plugin /tmp/
           cd ../..
           pip install -r tools/requirements.txt
-          python tools/build.py --remove_intermediate_folder --from_source --include_assets /tmp/ftrack-5.1.0.rvpkg build_connect_plugin ${{ needs.set-variables.outputs.folder }}
+          python tools/build.py --remove_intermediate_folder --from_source --include_assets /tmp/ftrack-5.1.0.rvpkg build_connect_plugin ${{ needs.set-variables.outputs.folder }}/${{ needs.set-variables.outputs.package }}
       - name: upload artifacts to release
         shell: bash
         run: |
-          cd ${{ needs.set-variables.outputs.folder }}
+          cd ${{ needs.set-variables.outputs.folder }}/${{ needs.set-variables.outputs.package }}
           gh release upload ${{ needs.set-variables.outputs.tag }} dist/* --clobber
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -119,7 +119,7 @@ jobs:
         if: ${{ needs.set-variables.outputs.to_pypi == 'true' }}
         with:
           name: dist
-          path: ${{ needs.set-variables.outputs.folder }}/dist
+          path: ${{ needs.set-variables.outputs.folder }}/${{ needs.set-variables.outputs.package }}/dist
 
   # Build Windows platform dependent artifact
   build-windows:
@@ -146,18 +146,18 @@ jobs:
       - name: poetry build
         shell: bash
         run: |
-          cd ${{ needs.set-variables.outputs.folder }}
+          cd ${{ needs.set-variables.outputs.folder }}/${{ needs.set-variables.outputs.package }}s
           poetry build
       - name: build standard connect plugin
         shell: bash
         # TODO: Remove --from_source when all libraries are published to pypi
         run: |
           pip install -r tools/requirements.txt
-          python tools/build.py --remove_intermediate_folder --from_source build_connect_plugin ${{ needs.set-variables.outputs.folder }}
+          python tools/build.py --remove_intermediate_folder --from_source build_connect_plugin ${{ needs.set-variables.outputs.folder }}/${{ needs.set-variables.outputs.package }}
       - name: upload artifacts to release
         shell: bash
         run: |
-          cd ${{ needs.set-variables.outputs.folder }}
+          cd ${{ needs.set-variables.outputs.folder }}/${{ needs.set-variables.outputs.package }}
           gh release upload ${{ needs.set-variables.outputs.tag }} dist/*  --clobber
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -187,18 +187,18 @@ jobs:
       - name: poetry build
         shell: bash
         run: |
-          cd ${{ needs.set-variables.outputs.folder }}
+          cd ${{ needs.set-variables.outputs.folder }}/${{ needs.set-variables.outputs.package }}
           poetry build
       - name: build standard connect plugin
         shell: bash
         # TODO: Remove --from_source when all libraries are published to pypi
         run: |
           pip install -r tools/requirements.txt
-          python tools/build.py --remove_intermediate_folder --from_source build_connect_plugin ${{ needs.set-variables.outputs.folder }}
+          python tools/build.py --remove_intermediate_folder --from_source build_connect_plugin ${{ needs.set-variables.outputs.folder }}/${{ needs.set-variables.outputs.package }}
       - name: upload artifacts to release
         shell: bash
         run: |
-          cd ${{ needs.set-variables.outputs.folder }}
+          cd ${{ needs.set-variables.outputs.folder }}/${{ needs.set-variables.outputs.package }}
           gh release upload ${{ needs.set-variables.outputs.tag }} dist/*  --clobber
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
