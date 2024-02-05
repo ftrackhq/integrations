@@ -17,9 +17,6 @@ import platform
 from operator import itemgetter
 from distutils.version import LooseVersion
 import os
-import xattr
-
-# from qtQtWidgets
 
 import ftrack_api
 from ftrack_action_handler.action import BaseAction

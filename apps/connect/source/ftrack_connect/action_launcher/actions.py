@@ -149,6 +149,7 @@ class Actions(QtWidgets.QWidget):
 
     def _on_before_action_launched_callback(self, action):
         '''Before action is launched, show busy overlay with message..'''
+        self.logger.debug(f'Before action launched: {action}')
 
         rise_message = None
         launcher_prefs = get_launcher_preferences()
@@ -169,10 +170,6 @@ class Actions(QtWidgets.QWidget):
 
             # Check the output is silicon.
             if result.stdout.strip() == '1':
-                self.logger.debug(
-                    "This is an Apple Silicon chip, "
-                    "Checking if PS is in rosetta mode"
-                )
                 rise_message = (
                     'You are on Apple silicon computer, the '
                     'integration for the application you are launching '
@@ -182,6 +179,7 @@ class Actions(QtWidgets.QWidget):
                     'launch configuration. Get More info at: '
                     'https://support.apple.com/en-us/HT211861#needsrosetta'
                 )
+                self.logger.debug(rise_message)
 
         if rise_message:
             message_box = QtWidgets.QMessageBox(
@@ -202,7 +200,6 @@ class Actions(QtWidgets.QWidget):
                     launcher_prefs['rosetta_apps'] = known_rosetta_apps
                     write_launcher_prefs_file_path(launcher_prefs)
 
-        self.logger.debug(f'Before action launched: {action}')
         message = (
             f'Launching action <em>{action.get("label", "Untitled action")} '
             f'{action.get("variant", "")}</em>...'
@@ -253,22 +250,8 @@ class Actions(QtWidgets.QWidget):
 
         self._overlay.indicator.stop()
         self._overlay.indicator.hide()
-
-        if not result['success']:
-            message_box = QtWidgets.QMessageBox(
-                QtWidgets.QMessageBox.Warning,
-                'Warning',
-                result['message'],
-                buttons=QtWidgets.QMessageBox.Ok,
-            )
-            message_box.exec_()
-            self._overlay.message = "Error launching..."
-            self._hide_overlay_after_timeout(1)
-        else:
-            self._overlay.message = message
-            self._hide_overlay_after_timeout(
-                self.ACTION_LAUNCH_MESSAGE_TIMEOUT
-            )
+        self._overlay.message = message
+        self._hide_overlay_after_timeout(self.ACTION_LAUNCH_MESSAGE_TIMEOUT)
 
     def _hide_overlay_after_timeout(self, timeout):
         '''Hide overlay after *timeout* seconds.'''

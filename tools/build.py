@@ -86,9 +86,7 @@ def build_package(pkg_path, args):
                             lib_toml_path
                         ):
                             logging.info(
-                                'Identified monorepo dependency: {}'.format(
-                                    lib
-                                )
+                                f'Identified monorepo dependency: {lib}'
                             )
                             FTRACK_DEP_LIBS.append(lib)
                             # Recursively add monorepo dependencies
@@ -131,7 +129,7 @@ def build_package(pkg_path, args):
             'Missing "pyproject.toml" file, not able to identify target DCC!'
         )
 
-        PROJECT_NAME = 'ftrack-{}'.format(os.path.basename(ROOT_PATH))
+        PROJECT_NAME = f'ftrack-{os.path.basename(ROOT_PATH)}'
         VERSION = '0.0.0'
 
     SOURCE_PATH = os.path.join(
@@ -506,6 +504,10 @@ def build_package(pkg_path, args):
             'Built Connect plugin archive: {}.zip'.format(archive_path)
         )
 
+        if args.remove_intermediate_folder:
+            logging.warning(f'Removing: {STAGING_PATH}')
+            shutil.rmtree(STAGING_PATH, ignore_errors=True)
+
     def _replace_imports_(resource_target_path):
         '''Replace imports in resource files to Qt instead of QtCore.
 
@@ -572,14 +574,17 @@ def build_package(pkg_path, args):
 
             # Check if the command for pyside*-rcc is in executable paths.
             if find_executable(pyside_rcc_command):
-                executable = pyside_rcc_command
+                executable = [pyside_rcc_command]
 
             if not executable:
-                raise IOError('Not executable found for pyside2-rcc ')
+                logging.warning(
+                    'No executable found for pyside2-rcc, attempting to run as '
+                    'a module'
+                )
+                executable = [sys.executable, '-m', 'scss']
 
             # Use the first occurrence if more than one is found.
-            cmd = [
-                executable,
+            cmd = executable + [
                 '-o',
                 resource_target_path,
                 resource_source_path,
@@ -819,6 +824,13 @@ if __name__ == '__main__':
     )
 
     parser.add_argument(
+        '--remove_intermediate_folder',
+        help='(Connect plugin) Remove the intermediate staging plugin folder after '
+        'archive creation.',
+        action='store_true',
+    )
+
+    parser.add_argument(
         '--testpypi',
         help='Pip install from TestPyPi instead of public.',
         action='store_true',
@@ -875,16 +887,14 @@ if __name__ == '__main__':
     for pkg_path in args.packages.split(','):
         pkg_path = pkg_path.strip()
         if not os.path.exists(pkg_path):
-            raise Exception(
-                'Package path "{}" does not exist!'.format(pkg_path)
-            )
+            raise Exception(f'Package path "{pkg_path}" does not exist!')
         if not os.path.exists(
             os.path.join(pkg_path, 'pyproject.toml')
         ) and not os.path.exists(os.path.join(pkg_path, 'setup.py')):
             raise Exception(
-                'Package path "{}" does not contain a Setuptools or Poetry '
-                'project!'.format(pkg_path)
+                f'Package path "{pkg_path}" does not contain a Setuptools or Poetry '
+                'project!'
             )
         logging.info('*' * 100)
-        logging.info('Building package: {}'.format(pkg_path))
+        logging.info(f'Building package: {pkg_path}')
         build_package(pkg_path, args)
