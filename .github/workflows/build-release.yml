@@ -1,0 +1,236 @@
+# On release creation:
+#  - Build and publishes libraries to PyPi or
+#  - Building Connect plugin artifacts and upload them to the release
+
+name: CI-RELEASE
+
+on:
+  release:
+    types: [created]
+
+
+jobs:
+
+  # Set the environment variables for the rest of release workflow
+  set-variables:
+    runs-on: ubuntu-latest
+    outputs:
+      to_pypi: ${{ env.TO_PYPI }}
+      folder: ${{ env.FOLDER }}
+      package: ${{ env.PACKAGE }}
+      version: ${{ env.VERSION }}
+      tag: ${{ env.TAG }}
+    steps:
+      - uses: actions/checkout@v3
+      - name: set environments on full release
+        shell: bash
+        run: |
+          echo "PACKAGE=$(echo ${{ github.ref }} | cut -d/ -f 3-3)" >> $GITHUB_ENV
+          echo "VERSION=$(echo ${{ github.ref }} | cut -d/ -f 4-4)" >> $GITHUB_ENV
+          echo "TAG=$(echo ${{ github.ref }} | cut -d/ -f 3-4)" >> $GITHUB_ENV
+      - name: set apps folder
+        if: ${{ env.PACKAGE == 'connect' }}
+        shell: bash
+        run: |
+          echo "FOLDER=apps/${{ env.PACKAGE }}" >> $GITHUB_ENV
+          echo "TO_PYPI=false" >> $GITHUB_ENV
+      - name: set installers folder
+        if: ${{ env.PACKAGE == 'connect-installer' }}
+        run: echo Not supported by this CI && exit 1
+      - name: set lib folder
+        if: ${{ env.PACKAGE == 'constants' || env.PACKAGE == 'framework-core' || env.PACKAGE == 'framework-qt' || env.PACKAGE == 'qt' || env.PACKAGE == 'qt-style' || env.PACKAGE == 'utils' }}
+        shell: bash
+        run: |
+          echo "FOLDER=libs/${{ env.PACKAGE }}" >> $GITHUB_ENV
+          echo "TO_PYPI=true" >> $GITHUB_ENV
+      - name: set projects folder
+        if: ${{ env.PACKAGE == 'connect-publisher-widget' || env.PACKAGE == 'connect-timetracker-widget' || env.PACKAGE == 'framework-photoshop' || env.PACKAGE == 'nuke-studio' || env.PACKAGE == 'rv' }}
+        shell: bash
+        run: |
+          echo "FOLDER=projects/${{ env.PACKAGE }}" >> $GITHUB_ENV
+          echo "TO_PYPI=false" >> $GITHUB_ENV
+      - name: debug
+        shell: bash
+        run: |
+          echo 'TO_PYPI: ${{ env.TO_PYPI }}'
+          echo 'FOLDER: ${{ env.FOLDER }}'
+          echo 'PACKAGE: ${{ env.PACKAGE }}'
+          echo 'VERSION: ${{ env.VERSION }}'
+          echo 'TAG: ${{ env.TAG }}'
+
+  build-linux:
+    name: Build platform independent artifacts, and Linux specific artifacts
+    needs: set-variables
+    concurrency:
+      group: ci-${{ github.ref }}
+    if: ${{ needs.set-variables.outputs.package != 'framework-photoshop' }}
+    runs-on: ubuntu-latest
+    outputs:
+      to_pypi: ${{ needs.set-variables.outputs.to_pypi }}
+      package: ${{ needs.set-variables.outputs.package }}
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.7'
+      - name: install poetry
+        shell: bash
+        run: |
+          pip install poetry
+      - name: build style
+        if: ${{ needs.set-variables.outputs.package == 'qt-style' }}
+        shell: bash
+        run: |
+          pip install -r tools/requirements.txt
+          python tools/build.py build_qt_resources libs/qt-style
+      - name: poetry build
+        shell: bash
+        run: |
+          cd ${{ needs.set-variables.outputs.folder }}
+          poetry build
+      - name: build standard connect plugin
+        if: ${{ needs.set-variables.outputs.package == 'connect-publisher-widget' || needs.set-variables.outputs.package == 'connect-timetracker-widget' }}
+        shell: bash
+        # TODO: Remove --from_source when all libraries are published to pypi
+        run: |
+          pip install -r tools/requirements.txt
+          python tools/build.py --remove_intermediate_folder --from_source build_connect_plugin ${{ needs.set-variables.outputs.folder }}
+      - name: build nuke studio connect plugin
+        if: ${{ needs.set-variables.outputs.package == 'nuke-studio' }}
+        shell: bash
+        # TODO: Remove --from_source when all libraries are published to pypi
+        run: |
+          pip install -r tools/requirements.txt
+          python tools/build.py --remove_intermediate_folder --from_source --include_resources resource/plugin,resource/application_hook build_connect_plugin ${{ needs.set-variables.outputs.folder }}
+      - name: build rv connect plugin
+        if: ${{ needs.set-variables.outputs.package == 'rv' }}
+        shell: bash
+        # TODO: Remove --from_source when all libraries are published to pypi
+        run: |
+          cd projects/rv
+          python build_rv_plugin.py resource/plugin /tmp/
+          cd ../..
+          pip install -r tools/requirements.txt
+          python tools/build.py --remove_intermediate_folder --from_source --include_assets /tmp/ftrack-5.1.0.rvpkg build_connect_plugin ${{ needs.set-variables.outputs.folder }}
+      - name: upload artifacts to release
+        shell: bash
+        run: |
+          cd ${{ needs.set-variables.outputs.folder }}
+          gh release upload ${{ needs.set-variables.outputs.tag }} dist/* --clobber
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Upload temp artifacts
+        uses: actions/upload-artifact@v2
+        if: ${{ needs.set-variables.outputs.to_pypi == 'true' }}
+        with:
+          name: dist
+          path: ${{ needs.set-variables.outputs.folder }}/dist
+
+  build-windows:
+    name: Build Windows platform dependent artifacts
+    needs: set-variables
+    concurrency:
+      group: ci-${{ github.ref }}
+    if: ${{ needs.set-variables.outputs.package == 'framework-photoshop' }}
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.7'
+      - name: install poetry
+        shell: bash
+        run: |
+          pip install poetry
+      - name: poetry build
+        shell: bash
+        run: |
+          cd ${{ needs.set-variables.outputs.folder }}
+          poetry build
+      - name: build standard connect plugin
+        shell: bash
+        # TODO: Remove --from_source when all libraries are published to pypi
+        run: |
+          pip install -r tools/requirements.txt
+          python tools/build.py --remove_intermediate_folder --from_source build_connect_plugin ${{ needs.set-variables.outputs.folder }}
+      - name: upload artifacts to release
+        shell: bash
+        run: |
+          cd ${{ needs.set-variables.outputs.folder }}
+          gh release upload ${{ needs.set-variables.outputs.tag }} dist/*  --clobber
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  build-mac:
+    name: Build Mac platform dependent artifacts
+    needs: set-variables
+    concurrency:
+      group: ci-${{ github.ref }}
+    if: ${{ needs.set-variables.outputs.package == 'framework-photoshop' }}
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.7'
+      - name: install poetry
+        shell: bash
+        run: |
+          pip install poetry
+      - name: poetry build
+        shell: bash
+        run: |
+          cd ${{ needs.set-variables.outputs.folder }}
+          poetry build
+      - name: build standard connect plugin
+        shell: bash
+        # TODO: Remove --from_source when all libraries are published to pypi
+        run: |
+          pip install -r tools/requirements.txt
+          python tools/build.py --remove_intermediate_folder --from_source build_connect_plugin ${{ needs.set-variables.outputs.folder }}
+      - name: upload artifacts to release
+        shell: bash
+        run: |
+          cd ${{ needs.set-variables.outputs.folder }}
+          gh release upload ${{ needs.set-variables.outputs.tag }} dist/*  --clobber
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  publish-test:
+    name: Publish to PyPi (test)
+    runs-on: ubuntu-latest
+    needs: build-linux
+    if: ${{ needs.build-linux.outputs.to_pypi == 'true' }}
+    environment:
+      name: staging
+      url: https://test.pypi.org/project/ftrack-${{ needs.build-linux.outputs.package }}/
+    steps:
+      - name: Download temp artifacts
+        uses: actions/download-artifact@v2
+        with:
+          name: dist
+          path: dist
+      - name: Publish to Test PyPi
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          password: ${{ secrets.TEST_PYPI_API_TOKEN }}
+          repository_url: https://test.pypi.org/legacy/
+
+  publish-prod:
+    name: Publish to PyPi (prod)
+    runs-on: ubuntu-latest
+    needs: build-linux
+    if: ${{ needs.build-linux.outputs.to_pypi == 'true' }}
+    environment:
+      name: production
+      url: https://pypi.org/project/ftrack-${{ needs.build-linux.outputs.package }}/
+    steps:
+      - name: Download temp artifacts
+        uses: actions/download-artifact@v2
+        with:
+          name: dist
+          path: dist
+      - name: Publish to PyPi
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          password: ${{ secrets.PYPI_API_TOKEN }}
