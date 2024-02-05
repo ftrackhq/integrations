@@ -94,10 +94,11 @@ class WelcomeDialog(QtWidgets.QDialog):
         i = 1
         for source_path in source_paths:
             plugin_name = os.path.basename(source_path).split('.zip')[0]
-            # If platform dependent plugin, remove platform identifier before installing
-            plugin_name = plugin_name.replace(
-                f'-{get_platform_identifier()}.', '.'
-            )
+
+            # Remove platform identifier before installing
+            suffix = f'-{get_platform_identifier()}'
+            if plugin_name.endswith(suffix):
+                plugin_name = plugin_name[: -len(suffix)]
 
             destination_path = os.path.join(self.install_path, plugin_name)
             logging.debug(
