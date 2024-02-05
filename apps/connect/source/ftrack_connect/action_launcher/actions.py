@@ -8,7 +8,7 @@ from ftrack_connect.qt import QtCore, QtWidgets
 
 import ftrack_api.event.base
 from ftrack_utils.decorators import asynchronous
-from ftrack_utils.server import send_usage_event
+from ftrack_utils.usage import get_usage_tracker
 
 from ftrack_connect.ui.widget import (
     action_item,
@@ -174,9 +174,9 @@ class Actions(QtWidgets.QWidget):
 
         # Send usage event in the main thread to prevent X server threading
         # related crashes on Linux.
-        send_usage_event(
-            self.session, 'LAUNCHED-ACTION', metadata, asynchronous=False
-        )
+        usage_tracker = get_usage_tracker()
+        if usage_tracker:
+            usage_tracker.track("LAUNCHED-CONNECT-ACTION", metadata)
 
     def _show_result_message(self, results):
         '''Show *results* message in overlay.'''

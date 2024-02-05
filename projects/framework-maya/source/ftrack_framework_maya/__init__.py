@@ -1,9 +1,10 @@
 # :coding: utf-8
-# :copyright: Copyright (c) 2014-2023 ftrack
+# :copyright: Copyright (c) 2024 ftrack
 import logging
 import os
 import traceback
 import functools
+import platform
 
 import maya.cmds as cmds
 import maya.mel as mm
@@ -21,6 +22,7 @@ from ftrack_constants import framework as constants
 from ftrack_utils.extensions.environment import (
     get_extensions_path_from_environment,
 )
+from ftrack_utils.usage import set_usage_tracker, UsageTracker
 
 from ftrack_framework_maya.utils import dock_maya_right, run_in_main_thread
 
@@ -116,6 +118,49 @@ def bootstrap_integration(framework_extensions_path):
     # Instantiate registry
     registry_instance = Registry()
     registry_instance.scan_extensions(paths=framework_extensions_path)
+
+    # TODO: clean up this dictionary creation or move it as a query function of
+    #  the registry.
+    # Create a registry dictionary with all extension names to pass to the mix panel event
+    registry_info_dict = {
+        'tool_configs': [
+            item['name'] for item in registry_instance.tool_configs
+        ]
+        if registry_instance.tool_configs
+        else [],
+        'plugins': [item['name'] for item in registry_instance.plugins]
+        if registry_instance.plugins
+        else [],
+        'engines': [item['name'] for item in registry_instance.engines]
+        if registry_instance.engines
+        else [],
+        'widgets': [item['name'] for item in registry_instance.widgets]
+        if registry_instance.widgets
+        else [],
+        'dialogs': [item['name'] for item in registry_instance.dialogs]
+        if registry_instance.dialogs
+        else [],
+        'launchers': [item['name'] for item in registry_instance.launchers]
+        if registry_instance.launchers
+        else [],
+        'dcc_configs': [item['name'] for item in registry_instance.dcc_configs]
+        if registry_instance.dcc_configs
+        else [],
+    }
+
+    # Set mix panel event
+    set_usage_tracker(
+        UsageTracker(
+            session=session,
+            default_data=dict(
+                app="Maya",
+                registry=registry_info_dict,
+                version=__version__,
+                app_version=cmds.about(version=True),
+                os=platform.platform(),
+            ),
+        )
+    )
 
     # Instantiate Host and Client
     Host(event_manager, registry=registry_instance)
