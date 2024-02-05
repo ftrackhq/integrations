@@ -146,7 +146,7 @@ jobs:
       - name: poetry build
         shell: bash
         run: |
-          cd ${{ needs.set-variables.outputs.folder }}/${{ needs.set-variables.outputs.package }}s
+          cd ${{ needs.set-variables.outputs.folder }}/${{ needs.set-variables.outputs.package }}
           poetry build
       - name: build standard connect plugin
         shell: bash
