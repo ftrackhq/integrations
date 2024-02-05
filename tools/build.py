@@ -200,9 +200,7 @@ def build_package(pkg_path, args):
 
         STAGING_PATH = os.path.join(
             BUILD_PATH,
-            '{}-{}'.format(
-                PROJECT_NAME.replace('ftrack-connect', 'ftrack'), VERSION
-            ),
+            '{}-{}'.format(PROJECT_NAME, VERSION),
         )
 
         # Clean staging path
