@@ -4,11 +4,12 @@
 import os
 import subprocess
 import sys
-from github import Github
 import logging
 import re
+import requests
 
 from ftrack_connect.qt import QtCore
+from ftrack_connect import INTEGRATIONS_REPO
 
 from ftrack_connect import (
     INCOMPATIBLE_PLUGINS,
@@ -206,56 +207,64 @@ def fetch_github_releases(latest=True, prereleases=False):
     version of each plugin is returned. If *prereleases* is True,
     prereleases are included in the result.'''
 
-    REPO_NAME = "ftrackhq/integrations"
+    logger.debug(f'Fetching releases from: {INTEGRATIONS_REPO}')
 
-    logger.debug(f'Fetching releases from: {REPO_NAME}')
-
-    g = Github()
-    repo = g.get_repo("ftrackhq/integrations")
+    response = requests.get(f"{INTEGRATIONS_REPO}/releases")
+    if response.status_code != 200:
+        logger.error(f'Failed to fetch releases from {INTEGRATIONS_REPO}')
+        return []
 
     data = []
 
-    for release in repo.get_releases():
-        logger.debug(f'Found release: {release.tag_name}')
+    # Expect list of releases
+    for release in response.json():
+        tag_name = release.get('tag_name')
+        if not tag_name:
+            continue
+        if release.get('draft') is True:
+            logger.debug(f'   Skipping draft release: {tag_name}')
+            continue
+
+        logger.debug(f'Found release: {tag_name}')
 
         # Check if it is a Connect release
-        package = release.tag_name.split('/')[0]
-        version = release.tag_name.split('/')[-1]
+        package = tag_name.split('/')[0]
+        version = tag_name.split('/')[-1]
         if not check_major_version(version):
             # TODO: solve the issue when library major version is catching up to
             #  Connect major version
             logger.debug(
-                f'   Not a Connect release on YY.m.p format: {release.tag_name}'
+                f'   Not a Connect release on YY.m.p format: {tag_name}'
             )
             continue
 
-        if not prereleases and release.prerelease:
-            logger.debug(f'   Skipping prerelease: {release.tag_name}')
+        if not prereleases and release.get('prerelease') is True:
+            logger.debug(f'   Skipping prerelease: {tag_name}')
             continue
         release_data = {
-            'id': release.id,
-            'title': release.title,
-            'tag': release.tag_name,
+            'id': release['id'],
+            'url': release['html_url'],
+            'tag': tag_name,
             'package': package,
             'version': version,
-            'pre': release.prerelease,
-            'comment': release.body,
+            'prerelease': release.get("prerelease"),
+            'body': release["body"] or "",
             'assets': [],
         }
-        assets = release.get_assets()
+        assets = release.get('assets', [])
         url = None
         for asset in assets:
             logger.debug(
-                f'   Found asset: {asset.name}, {asset.browser_download_url}'
+                f"   Found asset: {asset['name']}, {asset['browser_download_url']}"
             )
 
             release_data['assets'].append(
-                {'name': asset.name, 'url': asset.browser_download_url}
+                {'name': asset['name'], 'url': asset['browser_download_url']}
             )
 
             # Evaluate if we can use this asset
 
-            base, ext = os.path.splitext(asset.name)
+            base, ext = os.path.splitext(asset['name'])
 
             if ext.lower() != '.zip':
                 continue
@@ -270,12 +279,12 @@ def fetch_github_releases(latest=True, prereleases=False):
                     continue
 
             logger.debug(
-                f'   Supplying asset: {asset.name}, {asset.browser_download_url}'
+                f"   Supplying asset: {asset['name']}, {asset['browser_download_url']}"
             )
-            url = asset.browser_download_url
+            url = asset['browser_download_url']
 
         if url:
-            logger.debug(f'Supplying release: {release.tag_name}')
+            logger.debug(f'Supplying release: {tag_name}')
             release_data['url'] = url
             data.append(release_data)
 
