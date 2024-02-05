@@ -51,10 +51,12 @@ __version__ = '{version}'
 '''
 
 
-def build_package(pkg_path, args):
+def build_package(pkg_path, args, command=None):
     '''Build the package @ pkg_path'''
     os.chdir(pkg_path)
 
+    if command is None:
+        command = args.command
     ROOT_PATH = os.path.realpath(os.getcwd())
     MONOREPO_PATH = os.path.realpath(os.path.join(ROOT_PATH, '..', '..'))
     CONNECT_PLUGIN_PATH = os.path.join(ROOT_PATH, 'connect-plugin')
@@ -115,7 +117,7 @@ def build_package(pkg_path, args):
             DCC_NAME = PROJECT_NAME.split('-')[-1]
         assert VERSION, 'No version could be extracted from "pyproject.toml"!'
 
-        if args.command == 'build_cep':
+        if command == 'build_cep':
             # Align version, cannot contain rc/alpha/beta
             if VERSION.find('rc') > -1:
                 VERSION = VERSION.split('rc')[0]
@@ -418,6 +420,15 @@ def build_package(pkg_path, args):
                         'Cleaning lib dist folder: {}'.format(dist_path)
                     )
                     shutil.rmtree(dist_path)
+                if filename == 'qt-style':
+                    # Need to build qt resources
+                    logging.info('Building resources for {}'.format(filename))
+                    save_cwd = os.getcwd()
+                    os.chdir(MONOREPO_PATH)
+                    build_package(
+                        'libs/qt-style', args, command='build_qt_resources'
+                    )
+                    os.chdir(save_cwd)
                 # Build
                 logging.info('Building wheel for {}'.format(filename))
                 subprocess.check_call(['poetry', 'build'], cwd=lib_path)
@@ -535,7 +546,7 @@ def build_package(pkg_path, args):
                 'Check you have the pyScss Python package installed.'
             )
 
-        style_path = args.style_path
+        style_path = args.style_path if args else None
         if style_path is None:
             style_path = DEFAULT_STYLE_PATH
         else:
@@ -547,7 +558,7 @@ def build_package(pkg_path, args):
         css_path = style_path
         resource_source_path = os.path.join(style_path, 'resource.qrc')
 
-        resource_target_path = args.output_path
+        resource_target_path = args.output_path if args else None
         if resource_target_path is None:
             resource_target_path = os.path.join(SOURCE_PATH, 'resource.py')
 
@@ -787,15 +798,15 @@ def build_package(pkg_path, args):
                 'manual deploy can be found here: {}'.format(STAGING_PATH)
             )
 
-    if args.command == 'clean':
+    if command == 'clean':
         clean(args)
-    elif args.command == 'build_connect_plugin':
+    elif command == 'build_connect_plugin':
         build_connect_plugin(args)
-    elif args.command == 'build_qt_resources':
+    elif command == 'build_qt_resources':
         build_qt_resources(args)
-    elif args.command == 'build_sphinx':
+    elif command == 'build_sphinx':
         build_sphinx(args)
-    elif args.command == 'build_cep':
+    elif command == 'build_cep':
         build_cep(args)
 
 
