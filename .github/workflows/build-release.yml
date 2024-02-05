@@ -142,12 +142,6 @@ jobs:
         shell: bash
         run: |
           pip install poetry
-      - name: build style
-        if: ${{ needs.set-variables.outputs.package == 'qt-style' }}
-        shell: bash
-        run: |
-          pip install -r tools/requirements.txt
-          python tools/build.py build_qt_resources libs/qt-style
       - name: poetry build
         shell: bash
         run: |
@@ -183,12 +177,6 @@ jobs:
         shell: bash
         run: |
           pip install poetry
-      - name: build style
-        if: ${{ needs.set-variables.outputs.package == 'qt-style' }}
-        shell: bash
-        run: |
-          pip install -r tools/requirements.txt
-          python tools/build.py build_qt_resources libs/qt-style
       - name: poetry build
         shell: bash
         run: |
