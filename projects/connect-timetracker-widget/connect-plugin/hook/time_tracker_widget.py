@@ -3,6 +3,9 @@
 
 import os
 import sys
+
+import ftrack_api
+
 from ftrack_connect.qt import QtWidgets, QtCore, QtGui
 
 import qtawesome as qta
