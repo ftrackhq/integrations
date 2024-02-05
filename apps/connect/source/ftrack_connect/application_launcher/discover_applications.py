@@ -109,6 +109,8 @@ class DiscoverApplications(object):
                 prefix = search_path['prefix']
                 expression = search_path['expression']
                 version_expression = search_path.get('version_expression')
+                # Does the launcher needs the app on roseta mode?
+                rosetta = search_path.get('rosetta')
                 applications = store._search_filesystem(
                     versionExpression=version_expression,
                     expression=prefix + expression,
@@ -124,6 +126,7 @@ class DiscoverApplications(object):
                     connect_plugin_path=os.path.realpath(
                         os.path.join(os.path.dirname(config_path), '..')
                     ),
+                    rosetta=rosetta,
                 )
                 store.applications.extend(applications)
 

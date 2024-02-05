@@ -202,6 +202,7 @@ class ApplicationStore(object):
         extensions_path=None,
         environment_variables=None,
         connect_plugin_path=None,
+        rosetta=False,
     ):
         '''
         Return list of applications found in filesystem matching *expression*.
@@ -257,6 +258,9 @@ class ApplicationStore(object):
 
         *connect_plugin_path* is the path to the connect plugin folder associated
         with the application/integration.
+
+        *rosetta* dictates if the app needs to be in roseta mode for Silicon
+        chip based Mac.
 
         '''
 
@@ -357,6 +361,7 @@ class ApplicationStore(object):
                             'variant': variant_str,
                             'description': description,
                             'integrations': integrations or {},
+                            'rosetta': rosetta,
                         }
                         if standalone_module:
                             application[
@@ -514,49 +519,6 @@ class ApplicationLauncher(object):
         application = self.applicationStore.get_application(
             applicationIdentifierPattern
         )
-
-        # TODO: add a key like need roseta mode in the lauch config file and check that instead of the action identifier
-        if (
-            self.current_os == 'darwin'
-            and context['actionIdentifier']
-            == 'ftrack-framework-launch-photoshop'
-        ):
-            import subprocess
-
-            # Execute the 'sysctl' command to check for ARM64 support
-            result = subprocess.run(
-                ["sysctl", "-n", "hw.optional.arm64"],
-                capture_output=True,
-                text=True,
-            )
-
-            # Check the output is silicon.
-            if result.stdout.strip() == '1':
-                self.logger.debug(
-                    "This is an Apple Silicon chip, "
-                    "Checking if PS is in rosetta mode"
-                )
-                try:
-                    # TODO: this isn't working, so The idea is to rise the banner when it clicks to the app, then if user sets don't sk again, it will be added to a list ok already checked apps. In any case when is an app that needs to run in roseta and we are using silicon, we have to log it.
-                    attrs = xattr.xattr(application['path'])
-                    if (
-                        b'com.apple.LaunchServices.OpenWithRosetta'
-                        not in attrs
-                    ):
-                        message = (
-                            'You are on Apple silicon computer, the '
-                            'application you are trying to launch '
-                            'requires to be launched using Roseta. '
-                            'Please set "opening using Roseta" checkbox '
-                            'on your app before launching or change the '
-                            'launch configuration.'
-                        )
-                        return {'success': False, 'message': message}
-
-                except (IOError, KeyError) as e:
-                    self.logger.error(
-                        f"Tried to check if the app was set to reseta mode, but following the error was returned, continuing the launch: {e}"
-                    )
 
         if application is None:
             return {
@@ -1188,6 +1150,7 @@ class ApplicationLaunchAction(BaseAction):
                     'applicationIdentifier': application_identifier,
                     'integrations': application.get('integrations', {}),
                     'host': platform.node(),
+                    'rosetta': application.get('rosetta', None),
                 }
             )
 

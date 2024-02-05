@@ -9,6 +9,9 @@ import sys
 import logging
 import re
 
+import platformdirs
+import json
+
 from ftrack_connect.qt import QtCore
 
 from ftrack_connect import (
@@ -297,3 +300,54 @@ def fetch_github_releases(latest=True, prereleases=False):
     #     result = data
     #
     # return result
+
+
+def get_launcher_prefs_file_path():
+    '''Return Path of the launcher_prefs.json file'''
+    prefs_file = os.path.join(
+        platformdirs.user_data_dir('ftrack-connect', 'ftrack'),
+        'launcher_prefs.json',
+    )
+    return prefs_file
+
+
+def get_launcher_preferences():
+    '''Return the content of the launcher_prefs.json file'''
+    prefs_file = get_launcher_prefs_file_path()
+
+    return read_json_file(prefs_file)
+
+
+def write_launcher_prefs_file_path(content):
+    '''Write the content of of the launcher_prefs.json file'''
+    prefs_file = get_launcher_prefs_file_path()
+
+    return write_json_file(prefs_file, content)
+
+
+def read_json_file(file_path):
+    '''Read the given *file_path* json file'''
+    content = None
+    if os.path.exists(file_path):
+        with open(file_path, 'r') as file:
+            try:
+                content = json.load(file)
+            except Exception:
+                logger.exception(
+                    f'Exception reading json file in {file_path}.'
+                )
+    else:
+        logger.warning(f"file {file_path} doesn't exists")
+
+    return content or dict()
+
+
+def write_json_file(file_path, content):
+    '''Write the given *file_path* json file with the given *content*'''
+    with open(file_path, 'w') as file:
+        try:
+            json.dump(content, file, indent=4)
+        except Exception as e:
+            logger.exception(
+                f'Exception writing json file in {file_path}, error:{e}.'
+            )

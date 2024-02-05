@@ -3,6 +3,7 @@
 import json
 import logging
 import functools
+import platform
 
 from ftrack_connect.qt import QtCore, QtWidgets
 
@@ -15,6 +16,11 @@ from ftrack_connect.ui.widget import (
     flow_layout,
     entity_selector,
     overlay,
+)
+
+from ftrack_connect.util import (
+    get_launcher_preferences,
+    write_launcher_prefs_file_path,
 )
 
 
@@ -143,7 +149,59 @@ class Actions(QtWidgets.QWidget):
 
     def _on_before_action_launched_callback(self, action):
         '''Before action is launched, show busy overlay with message..'''
-        # TODO: probably check here if is a roseta app and ask to continue, if not raise, if true and checkbox of not ask again true, then save app somewhere.
+
+        rise_message = None
+        launcher_prefs = get_launcher_preferences()
+        known_rosetta_apps = launcher_prefs.get('known_rosetta_apps', [])
+        if (
+            platform.system().lower() == 'darwin'
+            and action.get('rosetta')
+            and action['identifier'] not in known_rosetta_apps
+        ):
+            import subprocess
+
+            # Execute the 'sysctl' command to check for ARM64 support
+            result = subprocess.run(
+                ["sysctl", "-n", "hw.optional.arm64"],
+                capture_output=True,
+                text=True,
+            )
+
+            # Check the output is silicon.
+            if result.stdout.strip() == '1':
+                self.logger.debug(
+                    "This is an Apple Silicon chip, "
+                    "Checking if PS is in rosetta mode"
+                )
+                rise_message = (
+                    'You are on Apple silicon computer, the '
+                    'integration for the application you are launching '
+                    'requires to be launched using Roseta. '
+                    'Please set "opening using Roseta" checkbox '
+                    'on your app before launching or change the '
+                    'launch configuration. Get More info at: '
+                    'https://support.apple.com/en-us/HT211861#needsrosetta'
+                )
+
+        if rise_message:
+            message_box = QtWidgets.QMessageBox(
+                QtWidgets.QMessageBox.Warning,
+                'Warning',
+                rise_message,
+                buttons=QtWidgets.QMessageBox.Ok,
+            )
+            # Create the checkbox
+            checkbox = QtWidgets.QCheckBox("Don't show this message anymore.")
+            message_box.setCheckBox(checkbox)
+
+            response = message_box.exec_()
+            # Check if OK was clicked and if the checkbox was checked
+            if response == QtWidgets.QMessageBox.Ok:
+                if checkbox.isChecked():
+                    known_rosetta_apps.append(action['identifier'])
+                    launcher_prefs['rosetta_apps'] = known_rosetta_apps
+                    write_launcher_prefs_file_path(launcher_prefs)
+
         self.logger.debug(f'Before action launched: {action}')
         message = (
             f'Launching action <em>{action.get("label", "Untitled action")} '
