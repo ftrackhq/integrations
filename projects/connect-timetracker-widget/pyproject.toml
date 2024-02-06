@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "ftrack-connect-timetracker-widget"
-version = "0.5.2rc1"
+version = "1.0.0rc1"
 description='ftrack Connect time tracker widget.'
 authors = ["ftrack Integrations Team <integrations@backlight.co>"]
 readme = "README.md"
