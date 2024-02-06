@@ -119,9 +119,9 @@ def is_incompatible_plugin(plugin_path):
     dirname = os.path.basename(plugin_path)
     for incompatible_plugin in INCOMPATIBLE_PLUGINS:
         if dirname.lower().find(incompatible_plugin) > -1:
-            # Check if it has the launch extension
-            launch_path = os.path.join(plugin_path, 'launch')
-            return not os.path.exists(launch_path)
+            # Check if it is a new-style plugin
+            version_path = os.path.join(plugin_path, '__version__.py')
+            return not os.path.exists(version_path)
     return False
 
 

@@ -199,7 +199,8 @@ def build_package(pkg_path, args, command=None):
             )
 
         STAGING_PATH = os.path.join(
-            BUILD_PATH, '{}-{}'.format(PROJECT_NAME, VERSION)
+            BUILD_PATH,
+            '{}-{}'.format(PROJECT_NAME, VERSION),
         )
 
         # Clean staging path
@@ -214,23 +215,7 @@ def build_package(pkg_path, args, command=None):
             raise Exception(
                 'Missing "__version__.py" file in "connect-plugin" folder!'
             )
-        CONNECT_PLUGIN_VERSION = None
-        with open(path_version_file) as f:
-            for line in f.readlines():
-                if line.startswith('__version__'):
-                    CONNECT_PLUGIN_VERSION = (
-                        line.split('=')[1].strip().strip("'")
-                    )
-                    break
-        assert (
-            CONNECT_PLUGIN_VERSION
-        ), 'No version could be extracted from "__version__.py"!'
 
-        logging.info(
-            'Storing Connect plugin version ({})'.format(
-                CONNECT_PLUGIN_VERSION
-            )
-        )
         version_path = os.path.join(STAGING_PATH, '__version__.py')
         shutil.copyfile(path_version_file, version_path)
 
@@ -494,9 +479,7 @@ def build_package(pkg_path, args, command=None):
                     )
 
         logging.info('Creating archive')
-        archive_path = os.path.join(
-            BUILD_PATH, '{0}-{1}'.format(PROJECT_NAME, CONNECT_PLUGIN_VERSION)
-        )
+        archive_path = os.path.join(BUILD_PATH, os.path.basename(STAGING_PATH))
         if PLATFORM_DEPENDENT:
             if sys.platform.startswith('win'):
                 archive_path = '{}-windows'.format(archive_path)
