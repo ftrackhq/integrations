@@ -30,7 +30,10 @@ class WelcomeDialog(QtWidgets.QDialog):
         return self._skipped
 
     def __init__(self, install_all_callback, on_restart_callback, parent=None):
-        '''Instantiate the actions widget.'''
+        '''Instantiate the welcome dialog. *install_all_callback* - callback for
+        installing all plugins. *on_restart_callback* - callback for restarting
+        the application after installation. *parent* - parent widget for the dialog
+        '''
         super(WelcomeDialog, self).__init__(parent=parent)
 
         self._install_all_callback = install_all_callback
@@ -38,6 +41,11 @@ class WelcomeDialog(QtWidgets.QDialog):
 
         self._downloadable_plugin_count = 0
         self._skipped = True
+
+        self._install_button = None
+        self._skip = None
+        self._restart_button = None
+        self._overlay = None
 
         self.pre_build()
         self.build()
