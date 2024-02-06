@@ -168,7 +168,7 @@ class Actions(QtWidgets.QWidget):
                 text=True,
             )
 
-            # Check the output is silicon.
+            # Check if the output is silicon.
             if result.stdout.strip() == '1':
                 rise_message = (
                     'You are on Apple silicon computer, the '
