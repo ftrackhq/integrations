@@ -8,6 +8,9 @@ import logging
 import re
 import requests
 
+import platformdirs
+import json
+
 from ftrack_connect.qt import QtCore
 from ftrack_connect import INTEGRATIONS_REPO
 
@@ -16,6 +19,8 @@ from ftrack_connect import (
     CONFLICTING_PLUGINS,
     DEPRECATED_PLUGINS,
 )
+
+from ftrack_utils.json import read_json_file, write_json_file
 
 logger = logging.getLogger(__name__)
 
@@ -305,3 +310,26 @@ def fetch_github_releases(latest=True, prereleases=False):
         result = data
 
     return result
+
+
+def get_connect_prefs_file_path():
+    '''Return Path of the prefs.json file'''
+    prefs_file = os.path.join(
+        platformdirs.user_data_dir('ftrack-connect', 'ftrack'),
+        'prefs.json',
+    )
+    return prefs_file
+
+
+def get_connect_preferences():
+    '''Return the content of the prefs.json file'''
+    prefs_file = get_connect_prefs_file_path()
+
+    return read_json_file(prefs_file)
+
+
+def write_connect_prefs_file_path(content):
+    '''Write the content of of the prefs.json file'''
+    prefs_file = get_connect_prefs_file_path()
+
+    return write_json_file(prefs_file, content)

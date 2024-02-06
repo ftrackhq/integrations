@@ -199,6 +199,7 @@ class ApplicationStore(object):
         extensions_path=None,
         environment_variables=None,
         connect_plugin_path=None,
+        rosetta=False,
     ):
         '''
         Return list of applications found in filesystem matching *expression*.
@@ -254,6 +255,9 @@ class ApplicationStore(object):
 
         *connect_plugin_path* is the path to the connect plugin folder associated
         with the application/integration.
+
+        *rosetta* dictates if the app needs to be in rosetta mode for Silicon
+        chip based Mac.
 
         '''
 
@@ -354,6 +358,7 @@ class ApplicationStore(object):
                             'variant': variant_str,
                             'description': description,
                             'integrations': integrations or {},
+                            'rosetta': rosetta,
                         }
                         if standalone_module:
                             application[
@@ -1142,6 +1147,7 @@ class ApplicationLaunchAction(BaseAction):
                     'applicationIdentifier': application_identifier,
                     'integrations': application.get('integrations', {}),
                     'host': platform.node(),
+                    'rosetta': application.get('rosetta', None),
                 }
             )
 

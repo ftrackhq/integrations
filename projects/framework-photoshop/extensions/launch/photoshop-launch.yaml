@@ -27,6 +27,7 @@ search_path:
     expression:
     - Adobe Photoshop*
     - Adobe Photoshop .*\.app
+    rosetta: true
 standalone_module: ftrack_framework_photoshop
 extensions_path:
   - extensions/common
