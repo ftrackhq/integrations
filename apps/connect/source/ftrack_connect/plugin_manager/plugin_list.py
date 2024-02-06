@@ -49,6 +49,16 @@ class DndPluginList(QtWidgets.QFrame):
         '''Return plugin model.'''
         return self._plugin_model
 
+    @property
+    def installed_plugin_count(self):
+        '''Return installed plugin count.'''
+        return self._installed_plugin_count
+
+    @property
+    def downloadable_plugin_count(self):
+        '''Return downloadable plugin count.'''
+        return self._downloadable_plugin_count
+
     def __init__(self, parent=None):
         super(DndPluginList, self).__init__(parent=parent)
 
@@ -62,6 +72,8 @@ class DndPluginList(QtWidgets.QFrame):
         self._plugin_list = None
         self._plugin_model = None
         self._proxy_model = None
+        self._installed_plugin_count = 0
+        self._downloadable_plugin_count = 0
 
         self.setAcceptDrops(True)
 
@@ -251,8 +263,9 @@ class DndPluginList(QtWidgets.QFrame):
         return data
 
     @qt_main_thread
-    def populate_installed_plugins(self, empty_plugins_callback=None):
+    def populate_installed_plugins(self):
         '''Populate model with installed plugins.'''
+        self._installed_plugin_count = 0
         self._plugin_model.clear()
 
         plugins = os.listdir(self.default_plugin_directory)
@@ -263,6 +276,7 @@ class DndPluginList(QtWidgets.QFrame):
                     self.default_plugin_directory, plugin
                 )
                 self.add_plugin(plugin_path, STATUSES.INSTALLED)
+                self._installed_plugin_count += 1
             except Exception as e:
                 logger.exception(e)
                 # Show message box to user
@@ -273,27 +287,27 @@ class DndPluginList(QtWidgets.QFrame):
                 )
                 logger.warning(f'Failed to add plugin {plugin}: ')
 
-        if empty_plugins_callback and len(plugins) == 0:
-            empty_plugins_callback()
-
     @qt_main_thread
     def populate_download_plugins(self):
         '''Populate model with remotely configured plugins.'''
         # Read plugins from json config url if set by user
         # TODO: remove this when there is a way for users to point plugin manager
         # to their own repository releases
+        self._downloadable_plugin_count = 0
         if self._json_config_url:
             response = urlopen(self._json_config_url)
             response_json = json.loads(response.read())
 
             for link in response_json['integrations']:
                 self.add_plugin(link, STATUSES.DOWNLOAD)
+                self._downloadable_plugin_count += 1
         else:
             # Read latest releases from ftrack integrations repository
             releases = fetch_github_releases()
 
             for release in releases:
                 self.add_plugin(release['url'], STATUSES.DOWNLOAD)
+                self._downloadable_plugin_count += 1
 
     def get_conflicting_plugins(self):
         result = []

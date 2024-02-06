@@ -24,7 +24,9 @@ class PluginManager(ftrack_connect.ui.application.ConnectWidget):
 
     name = 'Plugins'
 
-    show_welcome = QtCore.Signal()
+    show_welcome = QtCore.Signal(
+        object
+    )  # Number of downloadable plugins as argument
 
     installation_done = QtCore.Signal()
     installation_started = QtCore.Signal()
@@ -100,7 +102,9 @@ class PluginManager(ftrack_connect.ui.application.ConnectWidget):
 
         self.layout().addLayout(self._button_layout)
 
-        self._welcome_dialog = WelcomeDialog(self._on_restart_callback)
+        self._welcome_dialog = WelcomeDialog(
+            self._on_install_all_callback, self._on_restart_callback
+        )
         self._welcome_dialog.hide()
         self.layout().addWidget(self._welcome_dialog)
 
@@ -190,27 +194,36 @@ class PluginManager(ftrack_connect.ui.application.ConnectWidget):
         function is run in a separate thread, make sure that UI alterations are
         performed in QT main thread.'''
         self.refresh_started.emit()
-        self._plugin_list_widget.populate_installed_plugins(
-            self._on_empty_plugins_callback if on_init else None
-        )
+        self._plugin_list_widget.populate_installed_plugins()
         self._plugin_list_widget.populate_download_plugins()
+        if on_init and self._plugin_list_widget.installed_plugin_count == 0:
+            self.show_welcome.emit(
+                self._plugin_list_widget.downloadable_plugin_count
+            )
         self._enable_apply_button(None)
         self._reset_plugin_list()
         self.refresh_done.emit()
 
-    def _on_empty_plugins_callback(self):
-        '''React upon no plugins installed, should only be called once during
-        startup.'''
-        self.show_welcome.emit()
-
-    def _on_show_welcome_callback(self):
+    def _on_show_welcome_callback(self, downloadable_plugin_count):
         # Show dialog were user can choose to install all available plugins
         # Execute dialog and evaluate response
+        # Show warning dialog
+        if downloadable_plugin_count == 0:
+            QtWidgets.QMessageBox.warning(
+                self,
+                'Plugin Manager',
+                'No plugins installed and no downloadable plugins found! Please check your configuration.',
+            )
+            return
+
         self._label.setVisible(False)
         self._search_bar.setVisible(False)
         self._plugin_list_widget.setVisible(False)
         self._reset_button.setVisible(False)
         self._apply_button.setVisible(False)
+        self._welcome_dialog.set_downloadable_plugin_count(
+            downloadable_plugin_count
+        )
         self._welcome_dialog.exec_()
         self._welcome_dialog.hide()
         self._label.setVisible(True)
@@ -218,6 +231,15 @@ class PluginManager(ftrack_connect.ui.application.ConnectWidget):
         self._plugin_list_widget.setVisible(True)
         self._reset_button.setVisible(True)
         self._apply_button.setVisible(True)
+
+    def _on_install_all_callback(self, on_plugin_installed_callback):
+        '''Install all downloadable plugins, to be called from welcome dialog'''
+        num_items = self._plugin_list_widget.plugin_model.rowCount()
+        for i in range(num_items):
+            item = self._plugin_list_widget.plugin_model.item(i)
+            self._plugin_processor.process(item)
+            on_plugin_installed_callback(i + 1)
+        self._reset_plugin_list()
 
     def _show_user_message_done(self):
         '''Show final message to the user.'''
