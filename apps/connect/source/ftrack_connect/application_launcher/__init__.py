@@ -256,7 +256,7 @@ class ApplicationStore(object):
         *connect_plugin_path* is the path to the connect plugin folder associated
         with the application/integration.
 
-        *rosetta* dictates if the app needs to be in roseta mode for Silicon
+        *rosetta* dictates if the app needs to be in rosetta mode for Silicon
         chip based Mac.
 
         '''

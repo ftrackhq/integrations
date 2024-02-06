@@ -109,7 +109,7 @@ class DiscoverApplications(object):
                 prefix = search_path['prefix']
                 expression = search_path['expression']
                 version_expression = search_path.get('version_expression')
-                # Does the launcher needs the app on roseta mode?
+                # Does the launcher needs the app on rosetta mode?
                 rosetta = search_path.get('rosetta')
                 applications = store._search_filesystem(
                     versionExpression=version_expression,

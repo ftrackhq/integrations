@@ -19,8 +19,8 @@ from ftrack_connect.ui.widget import (
 )
 
 from ftrack_connect.util import (
-    get_launcher_preferences,
-    write_launcher_prefs_file_path,
+    get_connect_preferences,
+    write_connect_prefs_file_path,
 )
 
 
@@ -152,7 +152,7 @@ class Actions(QtWidgets.QWidget):
         self.logger.debug(f'Before action launched: {action}')
 
         rise_message = None
-        launcher_prefs = get_launcher_preferences()
+        launcher_prefs = get_connect_preferences()
         known_rosetta_apps = launcher_prefs.get('known_rosetta_apps', [])
         if (
             platform.system().lower() == 'darwin'
@@ -173,8 +173,8 @@ class Actions(QtWidgets.QWidget):
                 rise_message = (
                     'You are on Apple silicon computer, the '
                     'integration for the application you are launching '
-                    'requires to be launched using Roseta. '
-                    'Please set "opening using Roseta" checkbox '
+                    'requires to be launched using Rosetta. '
+                    'Please set "opening using Rosetta" checkbox '
                     'on your app before launching or change the '
                     'launch configuration. Get More info at: '
                     'https://support.apple.com/en-us/HT211861#needsrosetta'
@@ -198,7 +198,7 @@ class Actions(QtWidgets.QWidget):
                 if checkbox.isChecked():
                     known_rosetta_apps.append(action['actionIdentifier'])
                     launcher_prefs['known_rosetta_apps'] = known_rosetta_apps
-                    write_launcher_prefs_file_path(launcher_prefs)
+                    write_connect_prefs_file_path(launcher_prefs)
 
         message = (
             f'Launching action <em>{action.get("label", "Untitled action")} '
