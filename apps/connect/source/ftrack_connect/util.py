@@ -169,7 +169,7 @@ def invoke_in_qt_main_thread(fn, *args, **kwargs):
     TODO: Use ftrack QT util instead
     '''
     if QtCore.QThread.currentThread() is _invoker.thread():
-        fn(*args, **kwargs)
+        return fn(*args, **kwargs)
     else:
         QtCore.QCoreApplication.postEvent(
             _invoker, InvokeEvent(fn, *args, **kwargs)
