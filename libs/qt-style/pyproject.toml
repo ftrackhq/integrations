@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "ftrack-qt-style"
-version = "2.0.0rc2"
+version = "2.0.0rc3"
 description='ftrack qt style library'
 authors = ["ftrack Integrations Team <integrations@backlight.co>"]
 readme = "README.md"
@@ -21,7 +21,7 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.poetry.dependencies]
 python = ">= 3.7, < 3.12"
-ftrack-utils = { version = "^2.0.0", optional = true }
+ftrack-utils = {  version = "^2.0.0rc1", allow-prereleases = true, optional = true }
 
 [tool.poetry.extras]
 ftrack-libs = ["ftrack-utils"]

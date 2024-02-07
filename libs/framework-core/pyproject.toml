@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "ftrack-framework-core"
-version = "2.0.0rc3"
+version = "2.0.0rc4"
 description='ftrack Framework Core library'
 authors = ["ftrack Integrations Team <integrations@backlight.co>"]
 readme = "README.md"
@@ -12,6 +12,8 @@ repository = "https://github.com/ftrackhq/integrations/tree/main/libs/framework-
 [[tool.poetry.source]]
 name = "testpypi"
 url = "https://test.pypi.org/simple/"
+# TODO: once update to poetry 1.7 use priority as default and secundary are deprecated.
+#priority = "supplemental"
 default = false
 secondary = false
 
@@ -26,8 +28,13 @@ six = ">= 1, < 2" # TODO: remove this ASAP
 platformdirs = "^4.0.0"
 pyyaml = "^6.0.1"
 #ftrack
-ftrack-constants= { version = "^2.0.0", optional = true }
-ftrack-utils = { version = "^2.0.0", optional = true }
+# We specify the lower version, also we allow prereleases. This is not fully
+#  working in this poetry version, In the latest version it might be fixed and
+#  will allow to specify ^2.0.0 and this one will also pick 2.0.0rc1
+# TODO: change to ^2.0.0 once public release
+ftrack-constants= {  version = "^2.0.0rc1", allow-prereleases = true, optional = true }
+ftrack-utils = { version = "^2.0.0rc1", allow-prereleases = true, optional = true }
+
 
 [tool.poetry.extras]
 ftrack-libs = ["ftrack-constants", "ftrack-utils"]
