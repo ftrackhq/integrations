@@ -10,12 +10,13 @@ homepage = "https://ftrack.com"
 repository = "https://github.com/ftrackhq/integrations/tree/main/libs/framework-core"
 
 [[tool.poetry.source]]
+name = "PyPI"
+priority = "primary"
+
+[[tool.poetry.source]]
 name = "testpypi"
 url = "https://test.pypi.org/simple/"
-# TODO: once update to poetry 1.7 use priority as default and secundary are deprecated.
-#priority = "supplemental"
-default = false
-secondary = false
+priority = "supplemental"
 
 [build-system]
 requires = ["poetry-core"]
@@ -28,9 +29,7 @@ six = ">= 1, < 2" # TODO: remove this ASAP
 platformdirs = "^4.0.0"
 pyyaml = "^6.0.1"
 #ftrack
-# We specify the lower version, also we allow prereleases. This is not fully
-#  working in this poetry version, In the latest version it might be fixed and
-#  will allow to specify ^2.0.0 and this one will also pick 2.0.0rc1
+# We specify the lower version, also we allow prereleases.
 # TODO: change to ^2.0.0 once public release
 ftrack-constants= {  version = "^2.0.0rc1", allow-prereleases = true, optional = true }
 ftrack-utils = { version = "^2.0.0rc1", allow-prereleases = true, optional = true }
