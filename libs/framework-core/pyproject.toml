@@ -16,6 +16,7 @@ priority = "primary"
 [[tool.poetry.source]]
 name = "testpypi"
 url = "https://test.pypi.org/simple/"
+# TODO: change this to explicit once all libraries are published to prod pypi
 priority = "supplemental"
 
 [build-system]
