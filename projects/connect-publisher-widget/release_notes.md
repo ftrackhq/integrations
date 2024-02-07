@@ -3,7 +3,8 @@
 ## Upcoming
 YYYY-mm-dd
 
-* [refactor] Ported from ftrack-connect-publisher-widget repo and aligned with Connect 3
+* [changed] Ported from ftrack-connect-publisher-widget repo and aligned with Connect 3
+* [changed] Use poetry as build system.
 
 
 ## v0.1.1
