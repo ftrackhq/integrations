@@ -76,7 +76,7 @@ jobs:
       - name: install poetry
         shell: bash
         run: |
-          pip install poetry
+          pip install poetry==1.5.1
       - name: build style
         if: ${{ needs.set-variables.outputs.package == 'qt-style' }}
         shell: bash
@@ -138,7 +138,7 @@ jobs:
       - name: install poetry
         shell: bash
         run: |
-          pip install poetry
+          pip install poetry==1.5.1
       - name: poetry build
         shell: bash
         run: |
@@ -172,7 +172,7 @@ jobs:
       - name: install poetry
         shell: bash
         run: |
-          pip install poetry
+          pip install poetry==1.5.1
       - name: poetry build
         shell: bash
         run: |
