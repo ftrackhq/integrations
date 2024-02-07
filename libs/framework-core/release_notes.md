@@ -3,4 +3,4 @@
 ## Upcoming
 YYYY-mm-dd
 
-* Initial release; ported from ftrack-connect-pipeline and extended.
+* [new] Initial release; partially ported from ftrack-connect-pipeline and extended.
