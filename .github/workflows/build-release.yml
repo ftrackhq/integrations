@@ -91,27 +91,24 @@ jobs:
       - name: build standard connect plugin
         if: ${{ needs.set-variables.outputs.package == 'connect-publisher-widget' || needs.set-variables.outputs.package == 'connect-timetracker-widget' }}
         shell: bash
-        # TODO: Remove --from_source when all libraries are published to pypi
         run: |
           pip install -r tools/requirements.txt
-          python tools/build.py --remove_intermediate_folder --from_source build_connect_plugin ${{ needs.set-variables.outputs.folder }}
+          python tools/build.py --remove_intermediate_folder build_connect_plugin ${{ needs.set-variables.outputs.folder }}
       - name: build nuke studio connect plugin
         if: ${{ needs.set-variables.outputs.package == 'nuke-studio' }}
         shell: bash
-        # TODO: Remove --from_source when all libraries are published to pypi
         run: |
           pip install -r tools/requirements.txt
-          python tools/build.py --remove_intermediate_folder --from_source --include_resources resource/plugin,resource/application_hook build_connect_plugin ${{ needs.set-variables.outputs.folder }}
+          python tools/build.py --remove_intermediate_folder --include_resources resource/plugin,resource/application_hook build_connect_plugin ${{ needs.set-variables.outputs.folder }}
       - name: build rv connect plugin
         if: ${{ needs.set-variables.outputs.package == 'rv' }}
         shell: bash
-        # TODO: Remove --from_source when all libraries are published to pypi
         run: |
           cd projects/rv
           python build_rv_plugin.py resource/plugin /tmp/
           cd ../..
           pip install -r tools/requirements.txt
-          python tools/build.py --remove_intermediate_folder --from_source --include_assets /tmp/ftrack-5.1.0.rvpkg build_connect_plugin ${{ needs.set-variables.outputs.folder }}
+          python tools/build.py --remove_intermediate_folder --include_assets /tmp/ftrack-5.1.0.rvpkg build_connect_plugin ${{ needs.set-variables.outputs.folder }}
       - name: upload artifacts to release
         shell: bash
         run: |
@@ -149,10 +146,9 @@ jobs:
           poetry build
       - name: build standard connect plugin
         shell: bash
-        # TODO: Remove --from_source when all libraries are published to pypi
         run: |
           pip install -r tools/requirements.txt
-          python tools/build.py --remove_intermediate_folder --from_source build_connect_plugin ${{ needs.set-variables.outputs.folder }}
+          python tools/build.py --remove_intermediate_folder build_connect_plugin ${{ needs.set-variables.outputs.folder }}
       - name: upload artifacts to release
         shell: bash
         run: |
@@ -184,10 +180,9 @@ jobs:
           poetry build
       - name: build standard connect plugin
         shell: bash
-        # TODO: Remove --from_source when all libraries are published to pypi
         run: |
           pip install -r tools/requirements.txt
-          python tools/build.py --remove_intermediate_folder --from_source build_connect_plugin ${{ needs.set-variables.outputs.folder }}
+          python tools/build.py --remove_intermediate_folder build_connect_plugin ${{ needs.set-variables.outputs.folder }}
       - name: upload artifacts to release
         shell: bash
         run: |
