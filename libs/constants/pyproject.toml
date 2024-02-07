@@ -1,13 +1,13 @@
 [tool.poetry]
 name = "ftrack-constants"
-version = "2.0.0rc2"
+version = "2.0.0rc3"
 description='ftrack constants library'
 authors = ["ftrack Integrations Team <integrations@backlight.co>"]
 readme = "README.md"
 packages = [{include = "ftrack_constants", from = "source"}]
 license = "Apache-2.0"
 homepage = "https://ftrack.com"
-repository = "https://github.com/ftrackhq/integrations"
+repository = "https://github.com/ftrackhq/integrations/tree/main/libs/constants"
 
 [[tool.poetry.source]]
 name = "testpypi"
@@ -22,7 +22,7 @@ build-backend = "poetry.core.masonry.api"
 [tool.poetry.dependencies]
 python = ">= 3.7, < 3.12"
 #ftrack
-ftrack-utils = { version = "> 1, < 3", optional = true }
+ftrack-utils = { version = "^2.0.0", optional = true }
 
 [tool.poetry.extras]
 ftrack-libs = ["ftrack-utils"]

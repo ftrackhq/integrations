@@ -1,13 +1,13 @@
 [tool.poetry]
 name = "ftrack-connect"
-version = "3.0.0rc1"
+version = "3.0.0rc2"
 description='ftrack Connect desktop application.'
 authors = ["ftrack Integrations Team <integrations@backlight.co>"]
 readme = "README.md"
 packages = [{include = "ftrack_connect", from = "source"}]
 license = "Apache-2.0"
 homepage = "https://ftrack.com"
-repository = "https://github.com/ftrackhq/integrations/apps/connect"
+repository = "https://github.com/ftrackhq/integrations/tree/main/apps/connect"
 
 [[tool.poetry.source]]
 name = "testpypi"
@@ -21,8 +21,8 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.poetry.dependencies]
 python = ">= 3.7, < 3.12"
-PySide2 = ">=5, <= 5.16"
-ftrack-python-api = ">= 1, < 3"
+PySide2 = "5.14.1"
+ftrack-python-api = "^2.5.4"
 clique = "1.6.1"
 Riffle = ">= 1.0.1"
 arrow = ">= 0.4.6, < 1"
@@ -37,7 +37,7 @@ pyyaml = "^6.0.1"
 
 #ftrack
 ftrack-action-handler = "*"
-ftrack-utils = { version = "> 1, < 3", optional = true }
+ftrack-utils = { version = "^2.0.0", optional = true }
 
 [tool.poetry.extras]
 ftrack-libs = ["ftrack-utils"]
