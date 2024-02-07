@@ -3,4 +3,4 @@
 ## Upcoming
 YYYY-mm-dd
 
-* Initial release; ported from ftrack-connect-pipeline-nuke and aligned with Framework.
+* [new] Initial release.
