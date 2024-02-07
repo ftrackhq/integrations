@@ -1,4 +1,4 @@
-# ftrack Framework RV integration release Notes
+# ftrack RV integration release Notes
 
 ## Upcoming
 YYYY-mm-dd
