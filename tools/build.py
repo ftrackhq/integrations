@@ -10,20 +10,23 @@ official CI/CD build implementation in place.
 
 Release notes:
 
-0.4.9, Henrik Norin, 23.11.23; Include DCC config in build.
-0.4.8, Henrik Norin, 23.11.01; Pick up Connect plugin version and hook from connect-plugin folder.
-0.4.7, Henrik Norin, 23.10.30; Read package version from pyproject.toml, parse and replace version in Connect hooks.
-0.4.6, Henrik Norin, 23.10.30; Allow pre releases on Connect build when enabling test PyPi.
-0.4.5, Henrik Norin, 23.10.26; Support for including assets in Connect plugin build.
-0.4.4, Henrik Norin, 23.10.13; Support for building multiple packages at once.
-0.4.3, Henrik Norin, 23.10.11; Support for additional CEP JS include folder
-0.4.2, Henrik Norin, 23.10.09; Support for additional hook include folder
-0.4.1, Henrik Norin, 23.10.02; Redone Photoshop CEP build
-0.4.0, Henrik Norin, 23.09.21; Build within Monorepo, refactored framework
-0.3.1, Henrik Norin, 23.08.29; CEP build updates
-0.3.0, Henrik Norin, 23.07.06; Support for building CEP extension
-0.2.0, Henrik Norin, 23.04.17; Supply resource folder on plugin build
-0.1.0, Henrik Norin, 23.03.08; Initial version
+0.4.12 [24.02.05] Build qt-style if from_source flag to build script
+0.4.11 [23.12.18] Added missing ftrack-framework-qt dependency to Photoshop
+0.4.10 [23.12.12] Platform dependent support in plugin manager.
+0.4.9 [23.11.23] Include DCC config in build.
+0.4.8 [23.11.01] Pick up Connect plugin version and hook from connect-plugin folder.
+0.4.7 [23.10.30] Read package version from pyproject.toml, parse and replace version in Connect hooks.
+0.4.6 [23.10.30] Allow pre releases on Connect build when enabling test PyPi.
+0.4.5 [23.10.26] Support for including assets in Connect plugin build.
+0.4.4 [23.10.13] Support for building multiple packages at once.
+0.4.3 [23.10.11] Support for additional CEP JS include folder
+0.4.2 [23.10.09] Support for additional hook include folder
+0.4.1 [23.10.02] Redone Photoshop CEP build
+0.4.0 [23.09.21] Build within Monorepo, refactored framework
+0.3.1 [23.08.29] CEP build updates
+0.3.0 [23.07.06] Support for building CEP extension
+0.2.0 [23.04.17] Supply resource folder on plugin build
+0.1.0 [23.03.08] Initial version
 
 '''
 
@@ -37,7 +40,7 @@ import subprocess
 from distutils.spawn import find_executable
 import fileinput
 
-__version__ = '0.4.9'
+__version__ = '0.4.12'
 
 ZXPSIGN_CMD = 'ZXPSignCmd'
 
