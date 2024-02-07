@@ -8,6 +8,7 @@ YYYY-mm-dd
 * [fixed] Log initialization breaks due to utf8 conversion.
 * [fixed] Rv breaks not being able to parse tempdata.
 * [fixed] Panel size too small at startup.
+* [changed] Use poetry as build system.
 
 ## v5.0
 2021-09-07
