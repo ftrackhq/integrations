@@ -1,4 +1,4 @@
-# ftrack Framework Utils library release Notes
+# ftrack Utils library release Notes
 
 ## Upcoming
 YYYY-mm-dd
