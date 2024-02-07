@@ -244,11 +244,18 @@ class Application(QtWidgets.QMainWindow):
         # Register widget for error handling.
         self.uncaughtError = _uncaught_error.UncaughtError(parent=self)
 
-        if not QtWidgets.QSystemTrayIcon.isSystemTrayAvailable():
-            raise ftrack_connect.error.ConnectError('No system tray located.')
-
         self._login_server_thread = None
-        self._initialiseTray()
+        self.tray = None
+        if not QtWidgets.QSystemTrayIcon.isSystemTrayAvailable():
+            QtWidgets.QMessageBox.warning(
+                self,
+                'Connect',
+                'No system tray located.\n\nHint: On '
+                'Linux CentOS consider installing '
+                'gnome-shell-extension-top-icons',
+            )
+        else:
+            self._initialiseTray()
         self._initialiseMenuBar()
 
         self.setTheme(theme)
@@ -289,9 +296,10 @@ class Application(QtWidgets.QMainWindow):
         self.setWindowIcon(
             QtGui.QIcon(QtGui.QPixmap(self.ftrack_title_icon(theme)))
         )
-        self.tray.setIcon(
-            QtGui.QIcon(QtGui.QPixmap(self.ftrack_tray_icon(theme)))
-        )
+        if self.tray:
+            self.tray.setIcon(
+                QtGui.QIcon(QtGui.QPixmap(self.ftrack_tray_icon(theme)))
+            )
 
         qtawesome_style = getattr(qta, theme)
         qtawesome_style(QtWidgets.QApplication.instance())
@@ -1062,3 +1070,8 @@ class Application(QtWidgets.QMainWindow):
 
         # Add together with discovered widgets
         self._builtin_plugins.append(PluginManager)
+
+    def closeEvent(self, event):
+        ''' ' Quit application when main window is closed, and no tray'''
+        if not self.tray:
+            sys.exit(0)

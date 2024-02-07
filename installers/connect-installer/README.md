@@ -5,6 +5,24 @@ bundles of ftrack connect installers.
 
 ## Building
 
+> **_NOTE:_** Installer is locked to cx_freeze 6.5, to make sure Qt is linked properly. pyInstaller is planned to replace cx_freeze when moving over to Qt6.
+
+
+### Prerequisites
+
+1. Make sure Connect and dependencies are updated and released accordingly.
+
+2. Make sure version in bumped:
+```
+    installers/connect-installer/source/ftrack_connect_installer/_version.py
+```
+
+3. Release notes are updated in:
+
+```
+    installers/connect-installer/source/ftrack_connect_installer/release_notes.md
+```
+
 ### Preparations
 
 
@@ -22,9 +40,15 @@ bundles of ftrack connect installers.
 
 ```bash
     $ cd app/connect
-    $ poetry install
+    $ rm -rf dist && poetry build
 ```
 
+5. Install Connect into the virtual environment:
+
+```bash
+    $ pip install dist/ftrack-connect-<VERSION>.whl
+```
+ 
 Connect is now installed into the virtual environment and can be used to build the installer. Go
 to the root of the Connect package within monorepo:
 
@@ -35,16 +59,17 @@ to the root of the Connect package within monorepo:
 Install installer dependencies, including ftrack-utils library:
 
 ```bash
+    $ pip install  -r requirements.txt
+```
+
+To install using libraries from PyPy test:
+
+```bash
     $ pip install --pre --index-url https://test.pypi.org/simple --extra-index-url https://pypi.org/simple  -r requirements.txt
 ```
 
-
 ## Windows
 
-
-Warning
-
-( Windows only )
 
 Visual studio and [c++ build
 tools](https://visualstudio.microsoft.com/downloads/#build-tools-for-visual-studio-2019)
@@ -53,11 +78,6 @@ should be installed before install the requirements.
 Reference:
 ([link](https://stackoverflow.com/questions/40018405/cannot-open-include-file-io-h-no-such-file-or-directory))
 
-Note
-
-cx_freeze branch installation is temporary until cx_freeze \> 6.5
-version is released. (
-[3.7](https://github.com/marcelotduarte/cx_Freeze/pull/887) )
 
 
 Build msi release with:
@@ -92,22 +112,33 @@ password, once done, the package should get codesigned.
 
 Install patchelf platform dependent package:
 
+```bash
     $ pip install patchelf
+```
 
 Build tar.gz release with:
 
+```bash
     $ python setup.py build_exe
+```
 
 Once build the result will be available in
 build/exe.linux-x86_64-**\<PYTHON VERSION\>**
 
 To generate the tar.gz run from the build folder:
 
+```bash
+    $ cd build
     $ tar -zcvf ftrack-connect-installer-<PACKAGE VERSION>-<PLATFORM>.tar.gz exe.linux-x86_64-3.7 --transform 's/exe.linux-x86_64-3.7/ftrack-connect-installer/'
+```
+
+Sample output filename: ftrack Connect-2.1.1-C8.tar.gz
 
 Generate the md5 with:
 
+```bash
     $ md5sum ftrack-connect-installer-<PACKAGE VERSION>-<PLATFORM>.tar.gz > ftrack-connect-installer-<PACKAGE VERSION>-<PLATFORM>.tar.gz.md5
+```
 
 Note
 
@@ -181,5 +212,7 @@ activated and configured.
 #### Dependencies
 
 -   [Python](http://python.org) \>= 3.7, \< 3.8
+-   [ftrack Utils](https://github.com/ftrackhq/integrations/libs/utils) \>=
+    ^2.0.0
 -   [ftrack-connect](https://github.com/ftrackhq/integrations/apps/connect) \>=
-    2.0, \< 3.0
+    3.0, \< 4.0

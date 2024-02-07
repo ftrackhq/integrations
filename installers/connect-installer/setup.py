@@ -58,29 +58,21 @@ AWS_PLUGIN_DOWNLOAD_PATH = (
 )
 
 
-# Fetch Connect version
-try:
-    from importlib.metadata import version
+version_path = os.path.join(
+    SOURCE_PATH, 'ftrack_connect_installer', '_version.py'
+)
 
-    VERSION = version('ftrack-connect')
-except ImportError:
-    from pkg_resources import get_distribution
+if not os.path.isfile(version_path):
+    raise ValueError(f'Could not find version file @ "{version_path}".')
 
-    VERSION = get_distribution('ftrack-connect').version
-
-# Write to _version.py
-
-version_template = '''
-# :coding: utf-8
-# :copyright: Copyright (c) 2014-2023 ftrack
-
-__version__ = {version!r}
-'''
-
-with open(
-    os.path.join(SOURCE_PATH, 'ftrack_connect_installer', '_version.py'), 'w'
-) as file:
-    file.write(version_template.format(version=VERSION))
+# Extract version
+with open(version_path, 'r') as file:
+    for line in file:
+        if line.startswith('__version__'):
+            VERSION = line.split('=')[-1].strip().strip('\'').strip('"')
+            break
+    else:
+        raise ValueError(f'Could not find version in "{version_path}"')
 
 print('BUILDING VERSION : {}'.format(VERSION))
 
