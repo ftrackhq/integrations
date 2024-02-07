@@ -7,7 +7,7 @@ YYYY-mm-dd
 * [changed] Ported and integrated the ftrack-application-launcher module and switched over to YAML configuration support.
 * [changed] Support for environment variables in launcher configs.
 * [changed] Ported and integrated the ftrack-connect-action-launcher-widget.
-* [changed] made it read from Github releases instead of AWS plugin space.
+* [changed] Made it read from Github releases instead of AWS plugin space.
 * [changed] Ported and integrated the ftrack-connect-plugin-manager
 * [new] Support for new extension based integrations, utilising the ftrack-utils library.
 
