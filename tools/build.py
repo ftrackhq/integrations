@@ -201,9 +201,32 @@ def build_package(pkg_path, args, command=None):
                 'Could not locate a built python wheel! Please build with Poetry.'
             )
 
+        # Store version
+        path_version_file = os.path.join(CONNECT_PLUGIN_PATH, '__version__.py')
+        if not os.path.isfile(path_version_file):
+            raise Exception(
+                'Missing "__version__.py" file in "connect-plugin" folder!'
+            )
+
+        CONNECT_PLUGIN_VERSION = None
+        with open(path_version_file) as f:
+            for line in f.readlines():
+                if line.startswith('__version__'):
+                    CONNECT_PLUGIN_VERSION = (
+                        line.split('=')[1].strip().strip("'")
+                    )
+                    break
+        assert (
+            CONNECT_PLUGIN_VERSION
+        ), 'No version could be extracted from "__version__.py"!'
+
+        logging.info(
+            'Connect plugin version ({})'.format(CONNECT_PLUGIN_VERSION)
+        )
+
         STAGING_PATH = os.path.join(
             BUILD_PATH,
-            '{}-{}'.format(PROJECT_NAME, VERSION),
+            '{}-{}'.format(PROJECT_NAME, CONNECT_PLUGIN_VERSION),
         )
 
         # Clean staging path
@@ -211,13 +234,6 @@ def build_package(pkg_path, args, command=None):
             logging.info('Cleaning up {}'.format(STAGING_PATH))
             shutil.rmtree(STAGING_PATH, ignore_errors=True)
         os.makedirs(os.path.join(STAGING_PATH))
-
-        # Store version
-        path_version_file = os.path.join(CONNECT_PLUGIN_PATH, '__version__.py')
-        if not os.path.isfile(path_version_file):
-            raise Exception(
-                'Missing "__version__.py" file in "connect-plugin" folder!'
-            )
 
         version_path = os.path.join(STAGING_PATH, '__version__.py')
         shutil.copyfile(path_version_file, version_path)
