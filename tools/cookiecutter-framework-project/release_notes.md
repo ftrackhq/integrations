@@ -3,4 +3,4 @@
 ## Upcoming
 YYYY-mm-dd
 
-* Initial release; supporting Framework integrations as of v2.0.0.
+* [new] Initial release; supporting Framework integrations as of v2.0.0.
