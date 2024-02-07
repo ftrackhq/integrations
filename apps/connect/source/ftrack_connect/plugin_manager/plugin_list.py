@@ -98,6 +98,7 @@ class DndPluginList(QtWidgets.QFrame):
         pass
 
     # custom methods
+    @qt_main_thread
     def add_plugin(self, file_path, status=STATUSES.NEW):
         '''Add provided *file_path* as plugin with given *status*.'''
         if not file_path:
@@ -262,7 +263,6 @@ class DndPluginList(QtWidgets.QFrame):
 
         return data
 
-    @qt_main_thread
     def populate_installed_plugins(self):
         '''Populate model with installed plugins.'''
         self._installed_plugin_count = 0
@@ -287,7 +287,6 @@ class DndPluginList(QtWidgets.QFrame):
                 )
                 logger.warning(f'Failed to add plugin {plugin}: ')
 
-    @qt_main_thread
     def populate_download_plugins(self):
         '''Populate model with remotely configured plugins.'''
         # Read plugins from json config url if set by user
