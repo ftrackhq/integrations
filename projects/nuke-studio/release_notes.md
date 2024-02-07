@@ -4,6 +4,7 @@
 YYYY-mm-dd
 
 * [changed] Aligned with Connect 3 integrated launcher and improved hook.
+* [changed] Use poetry as build system.
 
 ## v2.5.0
 2021-09-06
