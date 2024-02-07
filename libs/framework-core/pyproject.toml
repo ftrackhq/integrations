@@ -31,8 +31,8 @@ pyyaml = "^6.0.1"
 #ftrack
 # We specify the lower version, also we allow prereleases.
 # TODO: change to ^2.0.0 once public release
-ftrack-constants= {  version = "^2.0.0rc1", allow-prereleases = true, optional = true }
-ftrack-utils = { version = "^2.0.0rc1", allow-prereleases = true, optional = true }
+ftrack-constants= {  version = "^2.0.0rc1", optional = true }
+ftrack-utils = { version = "^2.0.0rc1", optional = true }
 
 
 [tool.poetry.extras]
