@@ -93,13 +93,15 @@ jobs:
         shell: bash
         run: |
           pip install -r tools/requirements.txt
-          python tools/build.py --remove_intermediate_folder build_connect_plugin ${{ needs.set-variables.outputs.folder }}
+          # TODO: remove --testpypi once libraries are published to pypi
+          python tools/build.py --remove_intermediate_folder build_connect_plugin --testpypi ${{ needs.set-variables.outputs.folder }}
       - name: build nuke studio connect plugin
         if: ${{ needs.set-variables.outputs.package == 'nuke-studio' }}
         shell: bash
         run: |
           pip install -r tools/requirements.txt
-          python tools/build.py --remove_intermediate_folder --include_resources resource/plugin,resource/application_hook build_connect_plugin ${{ needs.set-variables.outputs.folder }}
+          # TODO: remove --testpypi once libraries are published to pypi
+          python tools/build.py --remove_intermediate_folder --include_resources resource/plugin,resource/application_hook build_connect_plugin --testpypi ${{ needs.set-variables.outputs.folder }}
       - name: build rv connect plugin
         if: ${{ needs.set-variables.outputs.package == 'rv' }}
         shell: bash
@@ -108,7 +110,8 @@ jobs:
           python build_rv_plugin.py resource/plugin /tmp/
           cd ../..
           pip install -r tools/requirements.txt
-          python tools/build.py --remove_intermediate_folder --include_assets /tmp/ftrack-5.1.0.rvpkg build_connect_plugin ${{ needs.set-variables.outputs.folder }}
+          # TODO: remove --testpypi once libraries are published to pypi
+          python tools/build.py --remove_intermediate_folder --include_assets /tmp/ftrack-5.1.0.rvpkg build_connect_plugin --testpypi ${{ needs.set-variables.outputs.folder }}
       - name: upload artifacts to release
         shell: bash
         run: |
@@ -148,7 +151,8 @@ jobs:
         shell: bash
         run: |
           pip install -r tools/requirements.txt
-          python tools/build.py --remove_intermediate_folder build_connect_plugin ${{ needs.set-variables.outputs.folder }}
+          # TODO: remove --testpypi once libraries are published to pypi
+          python tools/build.py --remove_intermediate_folder build_connect_plugin --testpypi ${{ needs.set-variables.outputs.folder }}
       - name: upload artifacts to release
         shell: bash
         run: |
@@ -182,7 +186,8 @@ jobs:
         shell: bash
         run: |
           pip install -r tools/requirements.txt
-          python tools/build.py --remove_intermediate_folder build_connect_plugin ${{ needs.set-variables.outputs.folder }}
+          # TODO: remove --testpypi once libraries are published to pypi
+          python tools/build.py --remove_intermediate_folder build_connect_plugin --testpypi ${{ needs.set-variables.outputs.folder }}
       - name: upload artifacts to release
         shell: bash
         run: |
