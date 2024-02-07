@@ -1,4 +1,4 @@
-# ftrack Framework Common extensions release Notes
+# ftrack Framework Common Extensions release Notes
 
 ## Upcoming
 YYYY-mm-dd
