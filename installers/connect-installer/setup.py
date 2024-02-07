@@ -19,6 +19,9 @@ import time
 import datetime
 import zipfile
 
+# The Connect installer version, remember to bump this and update release notes
+# prior to release
+__version__ = '24.2.0'
 
 # Embedded plugins.
 
@@ -57,24 +60,21 @@ AWS_PLUGIN_DOWNLOAD_PATH = (
     'https://download.ftrack.com/ftrack-connect/integrations/'
 )
 
+# Write to _version.py
 
-version_path = os.path.join(
-    SOURCE_PATH, 'ftrack_connect_installer', '_version.py'
-)
+version_template = '''
+# :coding: utf-8
+# :copyright: Copyright (c) 2014-2023 ftrack
 
-if not os.path.isfile(version_path):
-    raise ValueError(f'Could not find version file @ "{version_path}".')
+__version__ = {version!r}
+'''
 
-# Extract version
-with open(version_path, 'r') as file:
-    for line in file:
-        if line.startswith('__version__'):
-            VERSION = line.split('=')[-1].strip().strip('\'').strip('"')
-            break
-    else:
-        raise ValueError(f'Could not find version in "{version_path}"')
+with open(
+    os.path.join(SOURCE_PATH, 'ftrack_connect_installer', '_version.py'), 'w'
+) as file:
+    file.write(version_template.format(version=__version__))
 
-print('BUILDING VERSION : {}'.format(VERSION))
+print('BUILDING VERSION : {}'.format(__version__))
 
 
 connect_resource_hook = os.path.join(
@@ -100,7 +100,7 @@ configuration = dict(
     license='Apache License (2.0)',
     package_dir={'': 'source'},
     package_data={"": ["{}/**/*.*".format(RESOURCE_PATH)]},
-    version="2.1.2",
+    version=__version__,
     setup_requires=[
         'lowdown >= 0.1.0, < 1',
         'cryptography',
@@ -306,11 +306,11 @@ if sys.platform in ('darwin', 'win32', 'linux'):
             if 'CFBundleGetInfoString' in pl.keys():
                 pl["CFBundleShortVersionString"] = str(
                     'ftrack Connect {}, copyright: Copyright (c) 2014-2023 ftrack'.format(
-                        VERSION
+                        __version__
                     )
                 )
             if 'CFBundleShortVersionString' in pl.keys():
-                pl["CFBundleShortVersionString"] = str(VERSION)
+                pl["CFBundleShortVersionString"] = str(__version__)
             with open(INFO_PLIST_FILE, "wb") as file:
                 plistlib.dump(pl, file)
         except Exception as e:
@@ -592,7 +592,7 @@ def codesign_osx(create_dmg=True, notarize=True):
     else:
         logging.info(' Application signed')
     if create_dmg:
-        dmg_name = '{0}-{1}.dmg'.format(bundle_name, VERSION)
+        dmg_name = '{0}-{1}.dmg'.format(bundle_name, __version__)
         dmg_path = os.path.join(BUILD_PATH, dmg_name)
         dmg_command = 'appdmg resource/appdmg.json "{}"'.format(dmg_path)
         dmg_result = os.system(dmg_command)
@@ -765,7 +765,7 @@ if sys.platform == 'darwin':
                 create_dmg=osx_args.create_dmg, notarize=osx_args.notarize
             )
         elif osx_args.create_dmg:
-            dmg_name = '{0}-{1}.dmg'.format(bundle_name, VERSION)
+            dmg_name = '{0}-{1}.dmg'.format(bundle_name, __version__)
             dmg_path = os.path.join(BUILD_PATH, dmg_name)
             dmg_command = 'appdmg resource/appdmg.json "{}"'.format(dmg_path)
             dmg_result = os.system(dmg_command)

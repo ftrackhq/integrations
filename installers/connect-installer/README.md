@@ -5,7 +5,7 @@ bundles of ftrack connect installers.
 
 ## Building
 
-> **_NOTE:_** Installer is locked to cx_freeze 6.5, to make sure Qt is linked properly. pyInstaller is planned to replace cx_freeze when moving over to Qt6.
+> **_NOTE:_** Installer is locked to cx_freeze 6.9, to make sure Qt is linked properly. pyInstaller is planned to replace cx_freeze when moving over to Qt6.
 
 
 ### Prerequisites
@@ -79,34 +79,17 @@ Reference:
 ([link](https://stackoverflow.com/questions/40018405/cannot-open-include-file-io-h-no-such-file-or-directory))
 
 
-
 Build msi release with:
 
     $ python setup.py bdist_msi
 
-Note
+Create the raw exe redist by compressing build\exe.win-amd64-3.7 to ZIP named:
 
-Codesign process works only on machine where the key certificate is
-loaded and available. Codesign also require to have the signtool.exe
-installed and available.
+ftrack Connect-**\<VERSION>**-win64-redist.zip
 
-### To codesign
+### Code sign
 
-#### Preparation
-
-- Install signtool.exe from
-  <https://docs.microsoft.com/en-us/dotnet/framework/tools/signtool-exe>
-- If you download the Windows 10 SDK, the signtools is located here (version number may vary):
-  "C:\Program Files (x86)\Windows Kits\10\bin\10.0.22621.0\x64\signtool.exe"
-- Download and install the certificate .p12 certificate.
-
-Once the msi is built, run the following commands to codesign it:
-
-    $ signtool sign /tr http://timestamp.sectigo.com /td sha256 /fd sha256 /a <path to msi file>
-
-At the end of the process you'll then asked to provide your token
-password, once done, the package should get codesigned.
-
+> **_NOTE:_** This is an internal (closed) routine and is documented here: https://sites.google.com/backlight.co/theshire/product-development/products/integrations/deployment.
 
 ## Linux
 
