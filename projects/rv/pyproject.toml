@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "ftrack-rv"
 # RV just accepts minor and major version
-version = "6.0"
+version = "24.2"
 description='ftrack Connect RV integration'
 authors = ["ftrack Integrations Team <integrations@backlight.co>"]
 readme = "README.md"
