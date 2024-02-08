@@ -48,7 +48,7 @@ logging.getLogger().setLevel(logging.INFO)
 
 VERSION_TEMPLATE = '''
 # :coding: utf-8
-# :copyright: Copyright (c) 2014-2023 ftrack
+# :copyright: Copyright (c) 2024 ftrack
 
 __version__ = '{version}'
 '''
@@ -147,7 +147,7 @@ def build_package(pkg_path, args, command=None):
         '''Remove build folder'''
 
         if not os.path.exists(BUILD_PATH):
-            logging.warning('Missing "dist/" folder!')
+            logging.warning(f'No build found: "{BUILD_PATH}"!')
 
         logging.info('Cleaning up {}'.format(BUILD_PATH))
         shutil.rmtree(BUILD_PATH, ignore_errors=True)
@@ -174,9 +174,7 @@ def build_package(pkg_path, args, command=None):
         '''
 
         if not os.path.exists(BUILD_PATH):
-            raise Exception(
-                'Please build the project - missing "dist/" folder!'
-            )
+            os.makedirs(BUILD_PATH)
 
         logging.info('*' * 100)
         logging.info(
@@ -184,6 +182,37 @@ def build_package(pkg_path, args, command=None):
             'building the Connect plugin!'
         )
         logging.info('*' * 100)
+
+        # Find lock file
+        lock_path = None
+        for filename in os.listdir(ROOT_PATH):
+            if not filename == 'poetry.lock':
+                continue
+            lock_path = os.path.join(BUILD_PATH, filename)
+            break
+
+        if not lock_path:
+            raise Exception(
+                'Could not locate Poetry lock file! Please run "poetry update".'
+            )
+
+        # For now, Connect plugin has the same version as the project
+        CONNECT_PLUGIN_VERSION = VERSION
+
+        logging.info(
+            'Connect plugin version ({})'.format(CONNECT_PLUGIN_VERSION)
+        )
+
+        STAGING_PATH = os.path.join(
+            BUILD_PATH,
+            '{}-{}'.format(PROJECT_NAME, CONNECT_PLUGIN_VERSION),
+        )
+
+        # Clean staging path
+        if os.path.exists(STAGING_PATH):
+            logging.info('Cleaning up {}'.format(STAGING_PATH))
+            shutil.rmtree(STAGING_PATH, ignore_errors=True)
+        os.makedirs(os.path.join(STAGING_PATH))
 
         # Find wheel and read the version
         wheel_path = None
@@ -201,42 +230,10 @@ def build_package(pkg_path, args, command=None):
                 'Could not locate a built python wheel! Please build with Poetry.'
             )
 
-        # Store version
-        path_version_file = os.path.join(CONNECT_PLUGIN_PATH, '__version__.py')
-        if not os.path.isfile(path_version_file):
-            raise Exception(
-                'Missing "__version__.py" file in "connect-plugin" folder!'
-            )
-
-        CONNECT_PLUGIN_VERSION = None
-        with open(path_version_file) as f:
-            for line in f.readlines():
-                if line.startswith('__version__'):
-                    CONNECT_PLUGIN_VERSION = (
-                        line.split('=')[1].strip().strip("'")
-                    )
-                    break
-        assert (
-            CONNECT_PLUGIN_VERSION
-        ), 'No version could be extracted from "__version__.py"!'
-
-        logging.info(
-            'Connect plugin version ({})'.format(CONNECT_PLUGIN_VERSION)
-        )
-
-        STAGING_PATH = os.path.join(
-            BUILD_PATH,
-            '{}-{}'.format(PROJECT_NAME, CONNECT_PLUGIN_VERSION),
-        )
-
-        # Clean staging path
-        if os.path.exists(STAGING_PATH):
-            logging.info('Cleaning up {}'.format(STAGING_PATH))
-            shutil.rmtree(STAGING_PATH, ignore_errors=True)
-        os.makedirs(os.path.join(STAGING_PATH))
-
+        # Store the version so Connect easily can identify the plugin version
         version_path = os.path.join(STAGING_PATH, '__version__.py')
-        shutil.copyfile(path_version_file, version_path)
+        with open(version_path, 'w') as file:
+            file.write(VERSION_TEMPLATE.format(version=CONNECT_PLUGIN_VERSION))
 
         # Locate and copy hook
         logging.info('Copying Connect hook')
@@ -292,10 +289,12 @@ def build_package(pkg_path, args, command=None):
         os.makedirs(dependencies_path)
         os.makedirs(extensions_destination_path)
 
-        extras = 'ftrack-libs' if not args.from_source else None
+        extras = None
+        if not args.from_source:
+            extras = ['ftrack-libs']
         if USES_FRAMEWORK:
-            if extras:
-                extras += ',framework-libs'
+            if not args.from_source:
+                extras.append('framework-libs')
 
             logging.info(
                 'Collecting Framework extensions and libs, building dependencies...'
@@ -356,7 +355,7 @@ def build_package(pkg_path, args, command=None):
                         commands.extend(
                             [
                                 '-e',
-                                '.[{}]'.format(extras),
+                                f'.[{",".join(extras)}]',
                             ]
                         )
                     commands.extend(
@@ -456,16 +455,36 @@ def build_package(pkg_path, args, command=None):
                     )
 
         logging.info(
-            'Installing package with dependencies from: "{}"'.format(
-                os.path.basename(wheel_path)
-            )
+            f'Exporting dependencies from: "{os.path.basename(lock_path)}" (extras: {extras})'
+        )
+        # Run Poetry export and read the output
+        requirements_path = os.path.join(STAGING_PATH, 'requirements.txt')
+        commands = [
+            'poetry',
+            'export',
+            '-f',
+            'requirements.txt',
+            '--without-hashes',
+            '-o',
+            requirements_path,
+        ]
+        if extras:
+            for extra in extras:
+                commands.extend(['-E', extra])
+
+        subprocess.check_call(commands)
+
+        logging.info(
+            f'Installing {wheel_path} with dependencies from "{os.path.basename(requirements_path)}"'
         )
         commands = [
             sys.executable,
             '-m',
             'pip',
             'install',
-            '{}[{}]'.format(wheel_path, extras) if extras else wheel_path,
+            wheel_path,
+            '-r',
+            requirements_path,
             '--target',
             dependencies_path,
         ]

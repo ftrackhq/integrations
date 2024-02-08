@@ -9,35 +9,41 @@ Community owned Photoshop integration for ftrack.
 ### Preparations
 
 
-Install Poetry
+1. Install Poetry
 
-Create a Python >=3.7, <3.12 virtual environment. If you're using an Apple Silicon chip, follow the instructions in the [How to install compatible PySide2 on Silicon based Mac](../../README.md#how-to-install-compatible-pyside2-on-silicon-based-mac) section. 
+2. Create a Python >=3.7, <3.12 virtual environment. If you're using an Apple Silicon chip, follow the instructions in the [How to install compatible PySide2 on Silicon based Mac](../../README.md#how-to-install-compatible-pyside2-on-silicon-based-mac) section. 
 
-Activate the virtual environment. 
+3. Activate the virtual environment. 
 
-Update release notes.
+4. If any dependent libraries updated, make sure to release them to PyPi prior to building the plugin.
 
-Set or bump version in pyproject.toml:
+5. Update release notes.
+
+6. Set or bump version in pyproject.toml:
 
 ```bash
-    poetry version prerelease
+    $ poetry version prerelease
 ```
 or:
 ```bash
-    poetry version patch
+    $ poetry version patch
 ```
 or:
 ```bash
-    poetry version minor
+    $ poetry version minor
 ```
 or:
 ```bash
-    poetry version major
+    $ poetry version major
 ```
 
-Bump the connect plugin version in integrations/projects/framework-photoshop/connect-plugin/__version__.py
+7. If dependencies, update the Poetry lock file:
 
-Tag and push to SCM
+```bash
+    $ poetry update
+```
+
+8. Tag and push to SCM
 
 
 ### CI build
@@ -47,14 +53,7 @@ See Monorepo build CI
 
 ### Manual build
 
-Build with Poetry:
-
-```bash
-    poetry build
-```
-
-Build Connect plugin:
-
+Build Connect plugin from the Poetry lock file:
 
 ```bash
     cd integrations
@@ -65,21 +64,6 @@ If the build fails and Photoshop is using beta or experimental dependencies publ
 to build the plugin.
 
 To build from source, not involving PyPi, use the `--from_source` flag.
-
-### Build documentation
-
-
-Install documentation dependencies:
-
-```bash
-    poetry install --only documentation
-```
-
-Build documentation:
-
-```bash
-    poetry run sphinx-build -b html doc dist/doc
-```
 
 
 # Development
