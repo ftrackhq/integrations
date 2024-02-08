@@ -3,6 +3,7 @@
 ## Upcoming
 YYYY-mm-dd
 
+* [changed] Do not prevent Connect from launching if there is no system tray.
 * [changed] Support for detecting and warning about integrations requiring Rosetta on Apple Silicon. 
 * [changed] Ported and integrated the ftrack-application-launcher module and switched over to YAML configuration support.
 * [changed] Support for environment variables in launcher configs.
