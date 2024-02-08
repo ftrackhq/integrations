@@ -34,9 +34,10 @@ opentimelineio = ">= 0.11"
 "Qt.py" = ">= 1.0.0, < 2"
 ftrack-utils = {  version = "^2.0.0rc1", optional = true }
 ftrack-qt = { version = "^2.0.0rc1", extras=["pyside"], optional = true }
+ftrack-qt-style = { version = "^2.0.0rc1", optional = true }
 
 [tool.poetry.extras]
-ftrack-libs = ["ftrack-utils", "ftrack-qt"]
+ftrack-libs = ["ftrack-utils", "ftrack-qt", "ftrack-qt-style"]
 
 [tool.poetry.group.documentation.dependencies]
 pyScss = ">= 1.2.0, < 2"
