@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "ftrack-constants"
-version = "2.0.0rc5"
+version = "2.0.0rc6"
 description='ftrack constants library'
 authors = ["ftrack Integrations Team <integrations@backlight.co>"]
 readme = "README.md"
