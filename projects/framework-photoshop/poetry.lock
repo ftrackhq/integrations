@@ -264,6 +264,25 @@ url = "https://test.pypi.org/simple"
 reference = "testpypi"
 
 [[package]]
+name = "ftrack-qt-style"
+version = "2.0.0rc4"
+description = "ftrack qt style library"
+optional = true
+python-versions = ">=3.7,<3.12"
+files = [
+    {file = "ftrack_qt_style-2.0.0rc4-py3-none-any.whl", hash = "sha256:1d83192e41cc3cc65690c5d43e8a98171b1ed1ec802ecfa15a41f2912559a5e9"},
+    {file = "ftrack_qt_style-2.0.0rc4.tar.gz", hash = "sha256:c096e7386027a89ac96ab1f54c2765e2235b7581809263751116de5b4bc0c8ce"},
+]
+
+[package.extras]
+ftrack-libs = ["ftrack-utils (>=2.0.0rc1,<3.0.0)"]
+
+[package.source]
+type = "legacy"
+url = "https://test.pypi.org/simple"
+reference = "testpypi"
+
+[[package]]
 name = "ftrack-utils"
 version = "2.0.0rc9"
 description = "ftrack utils library"
@@ -605,9 +624,9 @@ testing = ["big-O", "flake8 (<5)", "jaraco.functools", "jaraco.itertools", "more
 
 [extras]
 framework-libs = ["ftrack-framework-core", "ftrack-framework-qt"]
-ftrack-libs = ["ftrack-constants", "ftrack-qt", "ftrack-utils"]
+ftrack-libs = ["ftrack-constants", "ftrack-qt", "ftrack-qt-style", "ftrack-utils"]
 
 [metadata]
 lock-version = "2.0"
 python-versions = ">= 3.7, < 3.9"
-content-hash = "daadc84a1ad3fd1f53089c4431a31ca3726a02495d615bf46265a6c361181126"
+content-hash = "86525cea24641e8b76054c8aabd4ee0935f9dcd0a836977d8e832f785ab354d2"
