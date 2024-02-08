@@ -37,7 +37,7 @@ or:
     $ poetry version major
 ```
 
-7. If dependencies, update the Poetry lock file:
+7. If dependencies updated, update the Poetry lock file. Remember to properly validate/test the change of dependencies.
 
 ```bash
     $ poetry update
@@ -53,7 +53,13 @@ See Monorepo build CI
 
 ### Manual build
 
-Build Connect plugin from the Poetry lock file:
+1. Build with Poetry
+
+```bash
+    $ poetry build
+```
+
+2. Build Connect plugin from wheel and the locked dependencies using Monorepo custom toolset:
 
 ```bash
     cd integrations
