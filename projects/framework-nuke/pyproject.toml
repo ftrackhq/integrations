@@ -32,9 +32,10 @@ ftrack-utils = {  version = "^2.0.0rc1", optional = true }
 ftrack-framework-core = {  version = "^2.0.0rc1", optional = true }
 ftrack-framework-qt = {  version = "^2.0.0rc1", optional = true }
 ftrack-qt = { version = "^2.0.0rc1", extras = ["pyside"], optional = true }
+ftrack-qt-style = { version = "^2.0.0rc1", optional = true }
 
 [tool.poetry.extras]
-ftrack-libs = ["ftrack-constants", "ftrack-utils", "ftrack-qt"]
+ftrack-libs = ["ftrack-constants", "ftrack-utils", "ftrack-qt", "ftrack-qt-style"]
 framework-libs = ["ftrack-framework-core", "ftrack-framework-qt"]
 
 [tool.poetry.group.documentation]
