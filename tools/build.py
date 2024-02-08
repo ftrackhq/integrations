@@ -470,13 +470,14 @@ def build_package(pkg_path, args, command=None):
             dependencies_path,
         ]
         if args.testpypi:
+            # Try to pick first from pypi if not exist go to test pypi
             commands.extend(
                 [
                     '--pre',
                     '--index-url',
-                    'https://test.pypi.org/simple',
-                    '--extra-index-url',
                     'https://pypi.org/simple',
+                    '--extra-index-url',
+                    'https://test.pypi.org/simple',
                 ]
             )
 
