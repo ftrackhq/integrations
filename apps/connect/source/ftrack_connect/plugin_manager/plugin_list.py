@@ -268,7 +268,12 @@ class DndPluginList(QtWidgets.QFrame):
         self._installed_plugin_count = 0
         self._plugin_model.clear()
 
-        plugins = os.listdir(self.default_plugin_directory)
+        plugins = [
+            f
+            for f in os.listdir(self.default_plugin_directory)
+            if not f.startswith('.')
+            and os.path.isdir(os.path.join(self.default_plugin_directory, f))
+        ]
 
         for plugin in plugins:
             try:
