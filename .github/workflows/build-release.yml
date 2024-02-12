@@ -7,6 +7,9 @@ name: CI-RELEASE
 on:
   release:
     types: [created]
+  push:
+    branches:
+      - backlog/ps-cep-version-hide-and-ci-build
 
 
 jobs:
@@ -15,7 +18,6 @@ jobs:
   set-variables:
     runs-on: ubuntu-latest
     outputs:
-      to_pypi: ${{ env.TO_PYPI }}
       folder: ${{ env.FOLDER }}
       package: ${{ env.PACKAGE }}
       version: ${{ env.VERSION }}
@@ -33,7 +35,6 @@ jobs:
         shell: bash
         run: |
           echo "FOLDER=apps/${{ env.PACKAGE }}" >> $GITHUB_ENV
-          echo "TO_PYPI=false" >> $GITHUB_ENV
       - name: set installers folder
         if: ${{ env.PACKAGE == 'connect-installer' }}
         run: echo Not supported by this CI && exit 1
@@ -42,17 +43,14 @@ jobs:
         shell: bash
         run: |
           echo "FOLDER=libs/${{ env.PACKAGE }}" >> $GITHUB_ENV
-          echo "TO_PYPI=true" >> $GITHUB_ENV
       - name: set projects folder
         if: ${{ env.PACKAGE == 'connect-publisher-widget' || env.PACKAGE == 'connect-timetracker-widget' || env.PACKAGE == 'framework-photoshop' || env.PACKAGE == 'nuke-studio' || env.PACKAGE == 'rv' }}
         shell: bash
         run: |
           echo "FOLDER=projects/${{ env.PACKAGE }}" >> $GITHUB_ENV
-          echo "TO_PYPI=false" >> $GITHUB_ENV
       - name: debug
         shell: bash
         run: |
-          echo 'TO_PYPI: ${{ env.TO_PYPI }}'
           echo 'FOLDER: ${{ env.FOLDER }}'
           echo 'PACKAGE: ${{ env.PACKAGE }}'
           echo 'VERSION: ${{ env.VERSION }}'
@@ -63,7 +61,6 @@ jobs:
     needs: set-variables
     concurrency:
       group: ci-${{ github.ref }}
-    if: ${{ needs.set-variables.outputs.package != 'framework-photoshop' }}
     runs-on: ubuntu-latest
     outputs:
       to_pypi: ${{ needs.set-variables.outputs.to_pypi }}
@@ -112,6 +109,12 @@ jobs:
           pip install -r tools/requirements.txt
           # TODO: remove --testpypi once libraries are published to pypi
           python tools/build.py --remove_intermediate_folder --include_assets /tmp/ftrack-5.1.0.rvpkg build_connect_plugin --testpypi ${{ needs.set-variables.outputs.folder }}
+      - name: build PS CEP extension
+        if: ${{ needs.set-variables.outputs.package == 'framework-photoshop' }}
+        shell: bash
+        run: |
+          export ADOBE_CERTIFICATE_PASSWORD=${{ secrets.ADOBE_CERTIFICATE_PASSWORD }}
+          python tools/build.py build_cep ${{ needs.set-variables.outputs.folder }}
       - name: upload artifacts to release
         shell: bash
         run: |
