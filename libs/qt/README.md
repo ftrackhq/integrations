@@ -1,4 +1,3 @@
-# ftrack-qt
+# Qt
 
-Documentation: [https://ftrackhq.github.io/integrations/libs/qt/](https://ftrackhq.github.io/integrations/libs/qt/)
-
+This is the ftrack integrations Qt library.
