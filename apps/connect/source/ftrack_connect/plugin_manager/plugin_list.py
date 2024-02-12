@@ -22,6 +22,7 @@ from ftrack_connect.util import (
     get_platform_identifier,
     get_plugin_json_url_from_environment,
     fetch_github_releases,
+    get_plugin_data,
 )
 
 from ftrack_connect.plugin_manager.processor import (
@@ -36,8 +37,6 @@ logger = logging.getLogger(__name__)
 
 class DndPluginList(QtWidgets.QFrame):
     '''Plugin list widget'''
-
-    plugin_re = re.compile('(?P<name>(([A-Za-z-3-4]+)))-(?P<version>(\w.+))')
 
     @property
     def proxy_model(self):
@@ -104,7 +103,7 @@ class DndPluginList(QtWidgets.QFrame):
         if not file_path:
             return
 
-        data = self._is_plugin_valid(file_path)
+        data = get_plugin_data(file_path)
 
         if not data:
             return
@@ -140,8 +139,8 @@ class DndPluginList(QtWidgets.QFrame):
                     : -len(data["platform"]) - 1
                 ]
 
-        loadable = is_loadable_plugin(file_path)
-        deprecated = is_deprecated_plugin(file_path)
+        loadable = is_loadable_plugin(data)
+        deprecated = is_deprecated_plugin(data)
 
         # create new plugin item and populate it with data
         plugin_id = str(hash(data['name']))
@@ -242,33 +241,18 @@ class DndPluginList(QtWidgets.QFrame):
                 return item
         return None
 
-    def _is_plugin_valid(self, plugin_path):
-        '''Return whether the provided *plugin_path* is a valid plugin.'''
-        plugin_name = os.path.basename(plugin_path)
-        match = self.plugin_re.match(plugin_name)
-        if match:
-            data = match.groupdict()
-        else:
-            return False
-
-        data['platform'] = 'noarch'
-        if data['version'].lower().endswith('.zip'):
-            # pop zip extension from the version.
-            # TODO: refine regex to catch extension
-            data['version'] = data['version'][:-4]
-            parts = data['version'].split('-')
-            if len(parts) > 1:
-                data['version'] = parts[0]
-                data['platform'] = parts[-1]
-
-        return data
-
     def populate_installed_plugins(self):
         '''Populate model with installed plugins.'''
         self._installed_plugin_count = 0
         self._plugin_model.clear()
 
-        plugins = os.listdir(self.default_plugin_directory)
+        # Filter out files and hidden items.
+        plugins = [
+            f
+            for f in os.listdir(self.default_plugin_directory)
+            if not f.startswith('.')
+            and os.path.isdir(os.path.join(self.default_plugin_directory, f))
+        ]
 
         for plugin in plugins:
             try:
@@ -313,7 +297,7 @@ class DndPluginList(QtWidgets.QFrame):
         plugins = os.listdir(self.default_plugin_directory)
         for plugin in plugins:
             plugin_path = os.path.join(self.default_plugin_directory, plugin)
-            if is_conflicting_plugin(plugin_path):
+            if is_conflicting_plugin(get_plugin_data(plugin_path)):
                 result.append(plugin)
         return result
 
@@ -322,7 +306,7 @@ class DndPluginList(QtWidgets.QFrame):
         plugins = os.listdir(self.default_plugin_directory)
         for plugin in plugins:
             plugin_path = os.path.join(self.default_plugin_directory, plugin)
-            if is_incompatible_plugin(plugin_path):
+            if is_incompatible_plugin(get_plugin_data(plugin_path)):
                 result.append(plugin)
         return result
 
@@ -331,7 +315,7 @@ class DndPluginList(QtWidgets.QFrame):
         plugins = os.listdir(self.default_plugin_directory)
         for plugin in plugins:
             plugin_path = os.path.join(self.default_plugin_directory, plugin)
-            if is_deprecated_plugin(plugin_path):
+            if is_deprecated_plugin(get_plugin_data(plugin_path)):
                 result.append(plugin)
         return result
 
