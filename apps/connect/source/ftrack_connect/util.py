@@ -151,14 +151,6 @@ def is_incompatible_plugin(plugin_data):
     # Don't check anything else if path is zip file.
     if plugin_data['path'].endswith('.zip'):
         return False
-    # Check version file exists
-    version_path = os.path.join(plugin_data['path'], '__version__.py')
-    if not os.path.exists(version_path):
-        logger.debug(
-            f"{plugin_data['name']} version {plugin_data['version']} is "
-            f"incompatible, __version__.py file is missing"
-        )
-        return True
     # Check hook folder exists
     connect_hook = os.path.join(plugin_data['path'], 'hook')
     if not os.path.exists(connect_hook) or not glob.glob(
