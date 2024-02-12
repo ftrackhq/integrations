@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "ftrack-framework-core"
-version = "2.0.0rc5"
+version = "2.0.0"
 description='ftrack Framework Core library'
 authors = ["ftrack Integrations Team <integrations@backlight.co>"]
 readme = "README.md"
@@ -16,7 +16,6 @@ priority = "primary"
 [[tool.poetry.source]]
 name = "testpypi"
 url = "https://test.pypi.org/simple/"
-# TODO: change this to explicit once all libraries are published to prod pypi
 priority = "explicit"
 
 [build-system]
