@@ -828,6 +828,10 @@ def build_package(pkg_path, args, command=None):
                 'manual deploy can be found here: {}'.format(STAGING_PATH)
             )
 
+        if args.remove_intermediate_folder:
+            logging.warning(f'Removing: {STAGING_PATH}')
+            shutil.rmtree(STAGING_PATH, ignore_errors=True)
+
     if command == 'clean':
         clean(args)
     elif command == 'build_connect_plugin':

@@ -192,7 +192,7 @@ jobs:
           hdiutil attach /tmp/ZXPSignCmd-64bit.dmg
           ln -s /Volumes/ZXPSignCmd-64bit/ZXPSignCmd-64bit /usr/local/bin/ZXPSignCMD
           export ADOBE_CERTIFICATE_PASSWORD=${{ secrets.ADOBE_CERTIFICATE_PASSWORD }}
-          python tools/build.py build_cep ${{ needs.set-variables.outputs.folder }}
+          python tools/build.py build_cep --remove_intermediate_folder ${{ needs.set-variables.outputs.folder }}
       - name: upload artifacts to release
         shell: bash
         run: |
