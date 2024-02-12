@@ -1,6 +1,6 @@
 # ftrack Framework QT library release Notes
 
-## Upcoming
-YYYY-mm-dd
+## V2.0.0
+2024-02-12
 
 *  [new] Initial release.
