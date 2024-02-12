@@ -1,13 +1,6 @@
-# ftrack-style
+# Qt Style
 
-Documentation: [https://ftrackhq.github.io/integrations/libs/qt-style/](https://ftrackhq.github.io/integrations/libs/qt-style/)
-
-## Building
-
-
-### CI build
-
-See Monorepo build CI
+This is the ftrack integrations qt-style library.
 
 ### Manual build
 
@@ -18,18 +11,3 @@ Go to the root of the Monorepo and build the ftrack style resource.py:
   pip install -r tools/requirements.txt
   python tools/build.py build_qt_resources libs/qt-style
 ```
-
-Go to the root of the QT style package within monorepo:
-
-```bash
-    cd integrations/libs/qt-style
-```
-
-Build with Poetry:
-    
-```bash
-    poetry build
-```
-
-See Monorepo documentation on how to publish the build to PyPi.
-
