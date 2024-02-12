@@ -1,4 +1,3 @@
-# utils
+# Utils
 
-Documentation: [https://ftrackhq.github.io/integrations/libs/utils/](https://ftrackhq.github.io/integrations/libs/utils/)
-
+This is the ftrack integrations utils library.
