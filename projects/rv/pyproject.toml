@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "ftrack-rv"
-# RV just accepts minor and major version
-version = "24.2"
+# RV just accepts minor and major version, so we have patch version as additional two digits
+version = "24.201"
 description='ftrack Connect RV integration'
 authors = ["ftrack Integrations Team <integrations@backlight.co>"]
 readme = "README.md"
