@@ -704,7 +704,7 @@ class Application(QtWidgets.QMainWindow):
                 candidate_path = os.path.join(path, candidate)
                 if os.path.isdir(candidate_path):
                     if not ftrack_connect.util.is_loadable_plugin(
-                        candidate_path
+                        ftrack_connect.util.get_plugin_data(candidate_path)
                     ):
                         self.logger.warning(
                             f'Ignoring plugin that is not loadable: {candidate_path}'

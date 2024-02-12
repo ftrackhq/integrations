@@ -9,7 +9,8 @@ import re
 import requests
 
 import platformdirs
-import json
+from packaging.version import parse
+from packaging.specifiers import SpecifierSet
 
 from ftrack_connect.qt import QtCore
 from ftrack_connect import INTEGRATIONS_REPO
@@ -100,42 +101,73 @@ def get_connect_plugin_version(connect_plugin_path):
     return result
 
 
-def is_loadable_plugin(plugin_path):
+def get_plugin_data(plugin_path):
+    '''Return data from the provided *plugin_path*.'''
+    plugin_re = re.compile('(?P<name>(([A-Za-z-3-4]+)))-(?P<version>(\w.+))')
+
+    plugin_name = os.path.basename(plugin_path)
+    match = plugin_re.match(plugin_name)
+    if match:
+        data = match.groupdict()
+    else:
+        return False
+
+    data['platform'] = 'noarch'
+    if data['version'].lower().endswith('.zip'):
+        # pop zip extension from the version.
+        # TODO: refine regex to catch extension
+        data['version'] = data['version'][:-4]
+        parts = data['version'].split('-')
+        if len(parts) > 1:
+            data['version'] = parts[0]
+            data['platform'] = parts[-1]
+
+    return data
+
+
+def is_loadable_plugin(plugin_data):
     '''Return True if plugin @ *plugin_path* is able to load in current version
     of Connect'''
     return not (
-        is_conflicting_plugin(plugin_path)
-        or is_incompatible_plugin(plugin_path)
+        is_conflicting_plugin(plugin_data)
+        or is_incompatible_plugin(plugin_data)
     )
 
 
-def is_conflicting_plugin(plugin_path):
-    '''Return true if plugin @ *plugin_path* is conflicting with Connect'''
-    dirname = os.path.basename(plugin_path)
+def is_conflicting_plugin(plugin_data):
+    '''Return true if plugin from *plugin_data* is conflicting with Connect'''
     for conflicting_plugin in CONFLICTING_PLUGINS:
-        if dirname.lower().find(conflicting_plugin) > -1:
+        if plugin_data['name'].lower() in conflicting_plugin:
             return True
     return False
 
 
-def is_incompatible_plugin(plugin_path):
-    '''Return true if plugin @ *plugin_path* is incompatible with Connect
+def is_incompatible_plugin(plugin_data):
+    '''Return true if plugin from *plugin_data* is incompatible with Connect
     and cannot be loaded'''
-    dirname = os.path.basename(plugin_path)
     for incompatible_plugin in INCOMPATIBLE_PLUGINS:
-        if dirname.lower().find(incompatible_plugin) > -1:
-            # Check if it is a new-style plugin
-            version_path = os.path.join(plugin_path, '__version__.py')
-            return not os.path.exists(version_path)
+        if plugin_data['name'].lower() == incompatible_plugin['name']:
+            parsed_plugin_version = parse(plugin_data['version'])
+
+            # Create the specifier compatible with pre-releases
+            incompatible_specifier = SpecifierSet(
+                incompatible_plugin['version'], prereleases=True
+            )
+
+            if parsed_plugin_version not in incompatible_specifier:
+                logger.debug(
+                    f"Version {plugin_data['version']} is compatible."
+                )
+                return False
+            return True
     return False
 
 
-def is_deprecated_plugin(plugin_path):
-    '''Return true if plugin @ *plugin_path* is deprecated within Connect,
+def is_deprecated_plugin(plugin_data):
+    '''Return true if plugin from *plugin_data* is deprecated within Connect,
     but still can be loaded'''
-    dirname = os.path.basename(plugin_path)
     for deprecated_plugin in DEPRECATED_PLUGINS:
-        if dirname.lower().find(deprecated_plugin) > -1:
+        if plugin_data['name'].lower() in deprecated_plugin:
             return True
     return False
 
@@ -239,7 +271,8 @@ def fetch_github_releases(latest=True, prereleases=False):
             # TODO: solve the issue when library major version is catching up to
             #  Connect major version
             logger.debug(
-                f'   Not a Connect release on YY.m.p format: {tag_name}'
+                f'   Not a Connect release on YY.m.p format: {tag_name} \n '
+                f'Minimum compatible major version is 24.X.X'
             )
             continue
 
